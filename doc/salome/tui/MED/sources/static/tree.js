@@ -18,6 +18,3 @@ aux1 = insFld(foldersTree, gFld("TUI Reference Guide", ""))
 
 aux1 = insFld(foldersTree, gFld("IDL/Python mapping", ""))
          insDoc(aux1, gLnk("Mapping of MED IDL definitions to Python language", "", "page2.html"))
-aux1 = insFld(foldersTree, gFld("Med Memory Documentations", ""))
-         insDoc(aux1, gLnk("Users documentation", "", "../html_ref_user/index.html"))
-         insDoc(aux1, gLnk("Developpers documentation", "", "../html_ref_devel/index.html"))

@@ -7,18 +7,20 @@
 #
 # source path
 top_srcdir=@top_srcdir@
-top_builddir=..
+top_builddir=../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@
 
-SUBDIRS= salome
+SUBDIRS= tui
 
 @COMMENCE@
 
 docs:
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
+	done; \
+	cp -f $(srcdir)/MED_index.html MED_index.html
+
 clean:
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
@@ -30,11 +32,12 @@ distclean: clean
 	done
 
 install:
-	@@SETX@; for d in $(SUBDIRS); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
+	$(MAKE) docs
+	(cd tui && $(MAKE) install);
+	cp -f MED_index.html $(docdir)
 
 uninstall:
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
+	done; \
+	rm -fr $(docdir)/MED_index.html

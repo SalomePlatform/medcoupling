@@ -87,7 +87,7 @@ IGNORE_PREFIX          =
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
 GENERATE_HTML          = YES
-HTML_OUTPUT            = html
+HTML_OUTPUT            = MED
 HTML_FILE_EXTENSION    = .html
 HTML_HEADER            = sources/myheader.html
 HTML_FOOTER            = 
