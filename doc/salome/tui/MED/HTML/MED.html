@@ -19,8 +19,16 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getMeshDimension (  )</b></div></td>
 </tr>
 <tr>
-<td bgcolor= "lightgreen"><div align="center"><b>string  getCoordinateSystem (  )</b></div></td>
-<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinateSystem (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  getIsAGrid (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getIsAGrid (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  existConnectivity ( in medConnectivity mode, in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = existConnectivity ( mode, entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getCoordinatesSystem (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinatesSystem (  )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfNodes (  )</b></div></td>
@@ -31,12 +39,32 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinates ( typeSwitch )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  getCoordinate ( in long Number, in long Axis )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinate ( Number, Axis )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>string_array  getCoordinatesNames (  )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinatesNames (  )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>string_array  getCoordinatesUnits (  )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinatesUnits (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SUPPORT  getBoundaryElements ( in medEntityMesh Entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getBoundaryElements ( Entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SUPPORT  getSkin ( in SUPPORT mySupport3D )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getSkin ( mySupport3D )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getGlobalNumberingIndex ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getGlobalNumberingIndex ( entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>coordinateInfos  getCoordGlobal (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordGlobal (  )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfTypes ( in medEntityMesh entity )</b></div></td>
@@ -63,12 +91,20 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getElementNumber ( mode, entity, type, connectivity )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>medGeometryElement  getElementType ( in medEntityMesh entity, in long number )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getElementType ( entity, number )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>long_array  getReverseConnectivity ( in medConnectivity mode )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getReverseConnectivity ( mode )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>long_array  getReverseConnectivityIndex ( in medConnectivity mode )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getReverseConnectivityIndex ( mode )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>connectivityInfos  getConnectGlobal ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getConnectGlobal ( entity )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfFamilies ( in medEntityMesh entity )</b></div></td>
@@ -138,6 +174,10 @@
 <td bgcolor= "lightgreen"><div align="center"><b>long  getCorbaIndex (  )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getCorbaIndex (  )</b></div></td>
 </tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>meshInfos  getMeshGlobal (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getMeshGlobal (  )</b></div></td>
+</tr>
 </table><br>
 <table width="100%" BORDER>
 <tr bgcolor="#FFFFCC">
@@ -171,6 +211,10 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfElements ( geomElement )</b></div></td>
 </tr>
 <tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfTypes (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfTypes (  )</b></div></td>
+</tr>
+<tr>
 <td bgcolor= "lightgreen"><div align="center"><b>medGeometryElement_array  getTypes (  )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getTypes (  )</b></div></td>
 </tr>
@@ -183,12 +227,24 @@
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberIndex (  )</b></div></td>
 </tr>
 <tr>
-<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfGaussPoints ( in medGeometryElement geomElement )</b></div></td>
-<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfGaussPoints ( geomElement )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfGaussPoint ( in medGeometryElement geomElement )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfGaussPoint ( geomElement )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getNumbersOfGaussPoint (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumbersOfGaussPoint (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void getBoundaryElements (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>getBoundaryElements (  )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>long  getCorbaIndex (  )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getCorbaIndex (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>supportInfos  getSupportGlobal (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getSupportGlobal (  )</b></div></td>
 </tr>
 </table><br>
 <table width="100%" BORDER>
@@ -229,6 +285,18 @@
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>string  getAttributeDescription ( in long i )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getAttributeDescription ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfGroups (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfGroups (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getGroupsNames (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getGroupsNames (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getGroupName ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getGroupName ( i )</b></div></td>
 </tr>
 </table><br>
 <table width="100%" BORDER>
@@ -381,6 +449,18 @@
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>MESH  getMesh ( in FIELD fieldPtr )</b></div></td>
 <td bgcolor= "lightgreen"><div align="center"><b>return_value = getMesh ( fieldPtr )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getFieldNumberOfIteration ( in string fieldName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFieldNumberOfIteration ( fieldName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getFieldIteration ( in string fieldName, in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFieldIteration ( fieldName, i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getFieldIterations ( in string fieldName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFieldIterations ( fieldName )</b></div></td>
 </tr>
 <tr>
 <td bgcolor= "lightgreen"><div align="center"><b>FIELD  getField ( in string fieldName, in long pasTemps, in long numOrdre )</b></div></td>
