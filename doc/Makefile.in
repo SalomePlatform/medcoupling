@@ -11,7 +11,7 @@ top_builddir=..
 srcdir=@srcdir@
 VPATH=.:@srcdir@
 
-SUBDIRS=html
+SUBDIRS=html MEDMEM
 
 doc:
 	@@SETX@; for d in $(SUBDIRS); do 	\

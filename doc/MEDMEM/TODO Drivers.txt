@@ -1,0 +1,4 @@
+1- Gerer l'appartenance d'un driver type 3 Within l'objet
+
+2- Within les méthodes addDriver :
+   driver = instances[driverType]->run(fileName, this) ; --> Il faut vérifier que le numéro auquel on accède existe !

@@ -1,0 +1,773 @@
+%% LyX 1.1 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[11pt,a4paper,english]{report}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{babel}
+\usepackage{graphicx}                                                           \setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\setlength\parskip{\medskipamount}
+\setlength\parindent{0pt}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+\providecommand{\LyX}{L\kern-.1667em\lower.25em\hbox{Y}\kern-.125emX\@}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+% Packages
+%%\usepackage[french]{babel}
+%\usepackage{epsf}
+%\usepackage[dvips]{graphicx}
+%\usepackage{fancyhdr}
+%\usepackage{pslatex}
+
+%\usepackage[dvips,all,light]{draftcopy}
+
+\usepackage{verbatim}
+
+%  ___________________________________________________________________________
+% |                                                                           |
+% |                             MISE EN PAGE                                  |
+% |___________________________________________________________________________|
+%\draftcopyName{Projet}{200}
+
+\setlength{\oddsidemargin}{0cm}
+\setlength{\marginparsep}{0cm}
+\setlength{\marginparwidth}{0cm}
+
+\setlength{\textwidth}{16cm}
+
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0cm}
+\setlength{\headsep}{0cm}
+
+\setlength{\textheight}{24cm}
+
+%  ___________________________________________________________________________
+% |                                                                           |
+% |                             COMMANDES UTILISATEUR                         |
+% |___________________________________________________________________________|
+
+\newcommand{\method}[1]{method \mbox{\textbf{#1}}}
+
+\newcommand{\myref}[1]{\ref{#1}, page \pageref{#1}}
+
+\newcommand{\fileCxx}[1]{
+  \subsection{Full C++ example~: }
+  \label{#1}
+  \verbatiminput{@srcdir@/#1}
+}
+
+\newcommand{\filePython}[1]{
+  \subsection{Full Python example~: }
+  \label{#1}
+  \verbatiminput{@srcdir@/#1}
+}
+
+
+%  ___________________________________________________________________________
+% |                                                                           |
+% |                              LE DOCUMENT                                  |
+% |___________________________________________________________________________|
+%
+\title{User's Guide Of Med Memory}
+\author{Patrick Goldbronn \and Eric Fayolle \and Nadir Bouhamou \and Jerome Roy \and Nicolas Crouzet}
+
+%  ___________________________________________________________________________
+% |                                                                           |
+% |                              DEBUT DU DOCUMENT                            |
+% |___________________________________________________________________________|
+%
+
+\makeatother
+\begin{document}
+\sloppy
+
+\maketitle
+
+
+%  ___________________________________________________________________________
+% |                                                                           |
+% |                           TABLE DES MATIERES                              |
+% |___________________________________________________________________________|
+%
+%\newpage
+\cleardoublepage
+\tableofcontents
+%  ___________________________________________________________________________
+% |                                                                           |
+% |                             DEBUT DU TEXTE                                |
+% |___________________________________________________________________________|
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Convention}
+
+\begin{itemize}
+
+\item Difference between local and global number~: when we talk about an 
+element number, we could see $i^{th}$ quadrangle ($i^{th}$ in quadrangles 
+array~: local numbering) or $j^{th}$ element ($j^{th}$ in all elements array~: 
+global numbering). This two numbering are equivalent only if we have one 
+geometric type ;
+
+\item All numbering begin at one (take care of array index !) ; 
+\item When you get a C type array with a \texttt{get...} method, you must
+not replace some value of it. Access is in read only. Other use may
+product an impredicable result. To modify a such array use method
+\texttt{set...} ;
+\item Difference between local and global number~: when we talk about an
+element number, we could see \( i^{th} \) quadrangle (\( i^{th} \)
+in quadrangles array~: local numbering) or \( j^{th} \) element
+(\( j^{th} \) in all elements array~: global numbering). This two
+numbering are equivalent only if we have one geometric type.
+\item They are many methods that have two syntax (one singular and one 
+plural). Plurals methods returns array and singulars methods returns one 
+particular value in this array (see \method{getCoordinate} and 
+\method{getCoordinates}).
+
+\end{itemize}
+
+\section{UML diagram}
+
+\includegraphics[width=16cm]{MEDMEM_UML.eps}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{How to use MED object}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{General Information}
+
+A typical use of this object is to mount in memory what is in a MED file (or
+any type of driver in red or read/write mode) and it will manage its memory on
+its own. Then from this object one can get some information such as~:
+
+\begin{itemize}
+\item the number of meshes stored in this object using the
+{\method{getNumberOfMeshes}}.
+\item the number of fields stored in this object using the
+{\method{getNumberOfFields}}.
+\item a list of mesh names using the {\method{getMeshNames}}.
+\item a list of field names using the {\method{getFieldNames}}.
+\item a list of MESH object using the {\method{getMesh}}
+\item a list of FIELD object using the {\method{getField}}
+\item a list of SUPPORT object on all type of entities (node, cell,
+ face in 3d or edge on 2d) using the {\method{getSupport}}.
+\end{itemize}
+
+The destuctor of this object will destruct itself all FIELD, SUPPORT and MESH
+objects; via its get method you will have a pointeur on this object and you
+should never delete it.
+
+One can add as well some MESH or FIELD object via the {\method{addMesh}} and
+the {\method{addField}} respectively.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{How to use MESH object}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{General Information}
+
+We could get some general information about a MESH object such as~: 
+
+\begin{itemize}
+\item name (\method{getName}) 
+\item a description (\method{getDescription}) 
+\item the space dimension (\method{getSpaceDimension}) 
+\item the mesh dimension (\method{getMeshDimension}) 
+\end{itemize}
+\fileCxx{MESHgeneral.cxx}
+
+\filePython{MESHgeneral.py}
+
+\section{Information about nodes}
+
+\begin{enumerate}
+\item I want to get the number of nodes~: Realy simple, use \method{getNumberOfNodes}. 
+\item I want to get the coordinates components names~: use \method{getCoordinatesNames}
+which return a string array (one string for each space dimension) 
+\item I want to get the coordinates components units~: use \method{getCoordinatesUnits}
+which return a string array (one string for each space dimension) 
+\item I want to get the coordinates system~: use \method{getCoordinatesSystem}
+which return a string (\verb+"CARTESIAN"+, \verb+"CYLINDRICAL"+ or \verb+"SPHERICAL"+). 
+\item I want to get the nodes coordinates~: use \method{getCoordinates}
+which return a pointer to the coordinates array where values are interlace
+or no. \textbf{Warning~:}
+
+\begin{itemize}
+\item When we get coordinates in \verb+MED_NO_INTERLACE+ mode, we get an
+array where values are ordered like (\verb+X1,X2,X..., Y1,Y..., Z1,Z...+). 
+\item When we get coordinates in \verb+MED_FULL_INTERLACE+ mode, we get
+an array where values are ordered like (\verb+X1,Y1,Z1, X2,Y2,Z2, ...+). 
+\end{itemize}
+\item I want to get one particular value of coordinate~: use \method{getCoordinate}
+which return the value of \( i^{th} \) node and \( j^{th} \) axis.
+\end{enumerate}
+\fileCxx{MESHcoordinates.cxx}
+
+\filePython{MESHcoordinates.py}
+
+\section{Information about cells}
+
+\begin{enumerate}
+\item I want to get the number of geometric type for a mesh entity~: use
+\method{getNumberOfTypes}
+
+
+\textbf{C++ Example~:}
+
+\verb+int NumberOfCellsTypes = myMesh.getNumberOfTypes(MED_CELL);+
+
+%%%%%%%%%%%%%%%%%
+\item I want to get all geometric type for a mesh entity~: use 
+\method{getTypes} to get an array of \verb+medGeometryElement+ 
+(to use directly in others methods) or \method{getCellsTypes} to get 
+an array of \verb+CELLMODEL+ (to ask mode information~: see \myref{CellModel}) .
+
+\textbf{C++ Example~:}
+
+\verb+const medGeometryElement * Types = myMesh.getTypes(MED_CELL);+
+
+\verb+const CELLMODEL * CellsTypes = myMesh.getCellsTypes(MED_CELL);+
+
+(each arrays are size \verb+NumberOfCellsTypes+)
+
+\item I want to get the number of cells~: use \method{getNumberOfElements}
+which return this information. You must give the mesh entity (\verb+MED_CELL+,
+\verb+MED_FACE+, \verb+MED_EDGE+ or \verb+MED_NODE+) and a geometric
+type of this entity.
+
+
+\textbf{C++ Example~:}
+
+\verb+int NumberOfTriangle = myMesh.getNumberOfElements(MED_FACE,MED_TRIA3);+
+
+\verb+int NumberOfFace = myMesh.getNumberOfElements(MED_FACE,MED_ALL_ELEMENT);+
+
+\item I want to get the geometric type of one element~: use \method{getElementType}
+which return a \verb+medGeometryElement+.
+
+
+\textbf{C++ Example~:}
+
+\verb+medGeometryElement myType = myMesh.getElementType(MED_FACE,10);+
+
+Return the \verb+medGeometryElement+ of \( 10^{th} \) face.
+
+\item I want to get a connectivity~: use \method{getConnectivity} which
+return an array with connectivity values.
+
+
+\label{getConnectivity}
+
+\textbf{C++ Example~:}
+
+\begin{verbatim}
+int NumberOfTetrahedron = myMesh.getNumberOfElements(MED_CELL,MED_TETRA4);
+const int * TetrahedronConnectivity =
+         myMesh.getConnectivity(MED_FULL_ENTERLACE,
+                                MED_NODAL,
+                                MED_CELL,
+                                MED_TETRA4);
+\end{verbatim}
+\verb+TetrahedronConnectivity+ contain nodal connectivity
+of tetrahedron in mesh. It is arranged in full enterlace mode and
+its size is \verb+NumberOfTetrahedron x 4+.
+
+If you want to get connectivity of all elements (with \verb+Type=MED_ALL_ELEMENTS+),
+you must use the index array (return by \method{getConnectivityIndex})
+to get connectivity for each elements (see example \myref{MESHconnectivities.cxx}).
+
+\item I want to get an element number from a connectivity~: use \method{getElementNumber}
+which return the global number of a given connectivity.
+
+
+\textbf{C++ Example~:}
+\begin{verbatim}
+int * myElementConnectivity = {2,10,12,14};
+int myNumber = myMesh.getElementNumber(MED_NODAL,MED_CELL,
+                                             myElementConnectivity);
+\end{verbatim}
+
+\end{enumerate}
+\fileCxx{MESHconnectivities.cxx}
+
+\filePython{MESHconnectivities.py}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{How to use MESHING object}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+This class is a derivated class of MESH class to build a MESH object from 
+scratch (use of set methods).
+
+All verifications are under user responsability : If arrays values or arrays 
+dimensions are wrongs, results are impredicable.
+
+All arrays in arguments in set methods are duplicated in MESHING object.
+
+\section{Build a MESHING}
+
+\label{BuildMeshing}
+
+\subsection{Coordinates}
+
+First we must defined points coordinates of the mesh. We use 
+\method{setCoordinates}.
+
+\textbf{C++ Example~:}
+\begin{verbatim}
+MESHING myMeshing ;
+const int SpaceDimension=2;
+const int NumberOfNodes=6;
+int * Coordinates = new int[SpaceDimension*NumberOfNodes] ;
+string System="CARTESIAN";
+medModeSwitch MED_FULL_INTERLACE ;
+myMeshing.setCoordinates(SpaceDimension,NumberOfNodes,Coordinates,System,Mode);
+\end{verbatim}
+
+Then you could set the coordinates names and units (with 
+\method{setCoordinatesNames} and \method{setCoordinatesUnits}).
+
+\subsection{Connectivities}
+
+When coordinates are defined, we could defined connectivities.
+
+First we must defined connectivity of MED\_CELL elements. 
+After, we could defined constituent connectivity if necesary 
+(MED\_FACE and/or MED\_EDGE).
+
+For each connectivities, you could use some methods in the following order :
+\begin{itemize}
+\item \method{setNumberOfTypes} to set the number of differents geometrics 
+types (3 for example). This method allocates all arrays which size is this 
+number ;
+\item \method{setTypes} to set the differents geometrics types 
+({MED\_TETRA4,MED\_PYRA5,MED\_HEXA8} for example). Types should be given 
+in increasing order of number of nodes for this type ;
+\item \method{setNumberOfElements} to set the number of elements for 
+each geometric type. This method allocates connectivities array ;
+\item \method{setConnectivity} to set the connectivity in MED\_FULL\_INTERLACE
+mode for each geometric type ;
+\end{itemize}
+
+\textbf{C++ Example~:}
+\begin{verbatim}
+MESHING myMeshing ;
+myMeshing.setCoordinates(SpaceDimension,NumberOfNodes,Coordinates,System,Mode);
+
+myMeshing.setNumberOfTypes(2,MED_CELL);
+myMeshing.setTypes({MED_TRIA3,MED_QUAD4},MED_CELL);
+myMeshing.setNumberOfElements({3,2},MED_CELL); // 3 MED_TRIA3 and 2 MED_QUAD4
+myMeshing.setConnectivity({1,2,3,6,8,9,4,5,6},MED_CELL,MED_TRIA3);
+myMeshing.setConnectivity({1,3,4,5,4,5,7,8},MED_CELL,MED_QUAD4);
+\end{verbatim}
+
+
+\section{Defined a GROUP object}
+
+To add a group in a MESHING object, use \method{addGroup}.
+
+This method duplicate the GROUP object in the MESH object.
+
+To build this GROUP object, use SUPPORT methods \ref{CreateSupport} to set all attributes.
+
+\subsection{WARNING}
+
+For instance, translation from GROUP objects to FAMILY objects are not completed !
+
+You MUST set GROUP objects as if they are FAMILY objects.
+
+This feature will be fully implemented in next release of med memory. 
+
+\section{Example}
+
+\fileCxx{MESHINGexample.cxx}
+
+%\filePython{MESHINGexample.py}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{How to use SUPPORT object}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Create a SUPPORT object}
+
+\label{CreateSupport}
+
+To create a SUPPORT object, you must give : 
+
+\begin{itemize}
+\item a reference to a MESH object 
+\item its name 
+\item on which mesh entity it apply to 
+\end{itemize}
+\textbf{C++ example~:}
+
+\verb+SUPPORT mySupport(myMesh,"support on all faces",MED_FACE) ;+
+By default, this support is defined on all elements of the given entity.
+
+If you want a restricted SUPPORT, you must add manualy information
+about what do you want~: 
+
+\begin{itemize}
+\item is not on all elements~: \verb+mySupport.setAll(false);+
+\item on how many geometric type~:\\
+ \verb+mySupport.setNumberOfGeometricType(myNumberOfGeometricType);+
+\item on which geometric type~:\\
+ \verb+mySupport.setGeometricType(myGeometricType);+
+\item Temporary : the Gauss point number for each geometric type~:\\
+ \verb+mySupport.setNumberOfGaussPoint(myNumberOfGaussPoint);+
+\item the number of elements for each geometric type~:\\
+ \verb+mySupport.setNumberOfEntities(myNumberOfEntities);+
+\item the total number of elements~:\\
+ \verb+mySupport.setTotalNumberOfEntities(myTotalNumberOfEntities);+
+\item the array which contains elements for each geometric type~:\\
+ \verb+mySupport.setNumber(myNumber);+
+\end{itemize}
+You could also use \method{setpartial} which set all you need.
+
+
+\section{Use a SUPPORT object}
+
+You could get all basic information (as you set them in \myref{CreateSupport})~: 
+
+\begin{itemize}
+\item \verb+getName()+
+\item \verb+getDescription()+
+\item \verb+getMesh()+
+\item \verb+getEntity()+
+\item \verb+isOnAllElements()+
+\item \verb+getNumberOfTypes()+
+\item \verb+getTypes()+
+%\item \verb+getNumberOfGaussPoint()+
+%\item \verb+getNumberOfGaussPoint(myGeometricType)+
+\item \verb+getGeometricTypeNumber()+
+\item \verb+getNumberOfElements(myGeometricType)+
+\item \verb+getNumber(myGeometricType)+
+\item \verb+getNumberIndex()+
+\end{itemize}
+For details about this methods, see the reference manual \cite{RefManual}.
+
+The use of \method{getNumber} and \method{getNumberIndex} are the
+same as \method{getConnectivity} and \method{getConnectivityIndex}
+(see item \myref{getConnectivity}
+
+There is another particular method to blend another SUPPORT object
+into it.
+
+For example in C++ : 
+\begin{verbatim}
+SUPPORT mySupport ;
+SUPPORT myOtherSupport ;
+...
+mySupport.blending(myOtherSupport) ;
+\end{verbatim}
+
+\verb+mySupport+ contain now all elements defined originally in it,
+more those defined in \verb+myOtherSupport+.
+
+
+\section{Case of FAMILY object}
+
+A FAMILY is a SUPPORT with some additionnal methods that concern some optional attribut (we could have none) and group (we could also have none) :
+\begin{itemize}
+\item \method{getIdentifier} return the family identifier (an integer)
+
+\item \method{getNumberOfAttributes} return the number of attributes of this family
+\item \method{getAttributesIdentifiers} and \method{getAttributeIdentifier} return an integer array or an integer that represent attribut identifier.
+\item \method{getAttributesValues} and \method{getAttributeValue} return an integer array or an integer that represent attribut value.
+\item \method{getAttributesDescriptions} and \method{getAttributeDescription} return a string array or a string that represent attribut description.
+
+\item \method{getNumberOfGroups} return the number of groups which it belog to.
+\item \method{getGroupsNames} and \method{getGroupName} return a string array or a string that represent the group name which it belog to.
+
+\end{itemize}
+
+\section{Case of GROUP object}
+
+A GROUP is a SUPPORT with some additionnal methods to find FAMILY that make up it :
+\begin{itemize}
+\item \method{getNumberOfFamilies} return the number of FAMILY that make up the GROUP ;
+\item \method{getFamilies} and \method{getFamily} return a FAMILY  array or a FAMILY that  make up the GROUP.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{How to use Field}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+A field is characterized by its name (\method{getName}) and an optional description (\method{getDescription}).
+
+It is also characterized by this calculating moment : 
+\begin{itemize}
+\item an iteration number (time step number)
+\item an order number (use if there are internal iteration in a time step)
+\item the time that correspond to this iteration number.
+\end{itemize}
+
+By default, there are no iteration and order number defined (value 
+MED\_NOPDT and MED\_NONOR).
+
+A field contain values which apply on some nodes or elements (cell, face or edge).
+
+We find these informations from a SUPPORT object (see \method{getSupport}).
+
+Each field have a number of components (\method getNumberOfComponents) and all these components have a name (\method{getComponentsNames} and \method{getComponentName}), a description (\method{getComponentsDescriptions} and \method{getComponentDescription}) and an unit (\method{getMEDComponentsUnits} and \method{getMEDComponentUnit}). 
+
+For unit you could use later UNIT (\myref{Unit}) objet to make a more general control on it. But the use of this class must be specified.
+
+To get values of a FIELD, you could use \method{getValue}, \method{getValueI} 
+and \method{getValueIJ}~: 
+
+\begin{itemize}
+\item First return a reference to all values in the given mode (full or no 
+interlace).
+\item Second return a reference to $i^{th}$ element values or component values (in accordance with the given mode).
+\item Third return the $j^{th}$ component of $i^{th}$ element.
+\end{itemize}
+
+\fileCxx{FIELDgeneral.cxx}
+
+\filePython{FIELDgeneral.py}
+
+\section{Create a Field}
+
+It is simple to create a field object. You must know its SUPPORT and the number of components.
+
+\textbf{Example :} 
+\verb+FILED<double> myField(mySupport,NumberOfComponents) ;+
+
+You must now set a name (\method{setName}) and optionaly a description 
+(\method{setDescription}).
+
+By default there are no iteration and order number (negative values) and 
+time is null. You could change this by using \method{setIterationNumber},
+\method{setOrderNumber} and \method{setTime}.
+
+You \textbf{SHOULD} also set unit of your components with \method{setMEDComponentUnit}
+
+To set value, use \method{setValueIJ} to put new value of field.
+
+\fileCxx{FIELDcreate.cxx}
+
+\filePython{FIELDcreate.py}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Other Classes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{class CELLMODEL}
+\label{CellModel}
+
+To do
+
+\section{class UNIT}
+\label{Unit}
+
+To do
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Using drivers}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The generic driver mecanism gives users the possibility to write/read
+the content of an object according to a specified file format. The
+semantic remains the same whatever the object is (MESH, FIELD, MED).
+By the way it allows using several file formats for writting an object.
+
+
+\section{Invoking a driver}
+
+
+\subsection{Invoking a driver at creation object time}
+
+This is the simplest way of invoking a driver. The driver parameters
+are given to the constructor of the object.  Except for the MED object,
+this way of invoking a driver assume you know exactly the name of
+the MESH/FIELD you want read from a file <fileName> of type <driverType>.
+
+ex 1.1 : For a FIELD object, invoking FIELD<double> myField(MED\_DRIVER,fileName,fieldName)
+create a FIELD object and a driver which loads the mesh <fieldName>
+from the MED file <fileName> (Not implemented yet !).
+
+ex 1.2 : To remove the default driver previously created myField->rmDriver();
+
+ex 2 : For a MESH object, invoking MESH myMesh(MED\_DRIVER,fileName,meshName)
+create a MESH object and a driver which loads the mesh <meshName>
+from the MED file <fileName>.
+
+ex 3 : For a MED object, invoking MED myMed(MED\_DRIVER,fileName)
+create a MED object to explore the MED file <fileName>.
+
+rem 1 : ex1 is equivalent to \ref{sec:invoking_a_driver_from_the_std_drv_method}
+ex1.
+
+rem 2 : Since the driver has read the object, the associated file
+is closed. You can reread the object with the default driver by calling
+the read() method : myObject.read().
+
+\fileCxx{MEDMEM_InvokingDriverAtObjectCreationTime.cxx}
+
+\filePython{MEDMEM_InvokingDriverAtObjectCreationTime.py}
+
+\subsection{Invoking a driver from the standard driver method of an object\label{sec:invoking_a_driver_from_the_std_drv_method}}
+
+This way of invoking a driver give the possiblility to add several
+drivers to an exiting object.
+
+ex1 : First we create a FIELD without any driver FIELD<double>~{*}~myField1~=~new~FIELD<double>;
+then we add a driver with int myDriver1 = myField1->addDriver(driverType1,
+fileName1, fieldName1); for reading <fieldName1> from file <fileName1>
+with myField1->read(myDriver1);
+
+ex2 : We add a new driver of type <driverType2> int myDriver2 = myField1->addDriver(driverType2,
+fileName2,fieldName2); in order to write myField1 in file <fileName2>
+with <fieldName2> name using command myField1->write(myDriver2);
+
+rem 1 : Files are openned then closed each time you call read() or
+write() methods.
+
+rem 2 : If you use more than a driver you need to keep the driver
+handlers (myDriverI ).
+
+\fileCxx{MEDMEM_InvokingDriverFromStandardObjectMethod.cxx}
+
+\filePython{MEDMEM_InvokingDriverFromStandardObjectMethod.py}
+
+\subsection{Invoking a driver and attaching it to an existing object}
+
+The methods exposed in the two previous sections always create drivers
+in read/write access mode. Another way of creating a driver is to
+create a driver with a specific access mode.
+
+ex1 : First we create a FIELD without any driver FIELD<double>~{*}~myField1~=~new
+FIELD<double>(); then we create a read-only driver MED\_FIELD\_RDONLY\_DRIVER<double>~myRdOnlyDriver(fileName1,myField1);
+and attached it to myField1. Finally you must set the fieldName1 you
+want to acess in fileName1 with myRdOnlyDriver->setFieldName(fieldName1);
+in order to read the field with myRdOnlyDriver->open(); myRdOnlyDriver->read();
+
+Don't forget to close the file with myRdOnlyDriver->close().
+
+ToDo : By now when you create such specific drivers, the object doesn't
+know anything about it. 
+
+\fileCxx{MEDMEM_InvokingDriverByAttachingItToAnObject.cxx}
+
+\filePython{MEDMEM_InvokingDriverByAttachingItToAnObject.py}
+
+\section{Using the MED driver}
+
+The MED object provides the ability of :
+
+\begin{enumerate}
+\item \noindent Obtainning a reference on the whole structure contained
+in a file.
+\item Obtainning the list of all the Meshes/Fields names contained in a
+file.
+\item Obtainning a Mesh/Field reference using a name.
+\item Writting a whole set of independent objects with a simple command. 
+\end{enumerate}
+
+\subsection{Exploring files}
+
+In this first use case the user wants to explore the meshes \& fields
+containned within a file <filename> of type given by the <drivertype>
+parameter.
+
+ex 1 : Calling MED {*} myMed = new MED(driverType1, fileName1); create
+a MED object which open fileName1, read all MESHes/FIELDs relations
+then close the file. 
+
+This is equivalent to MED~{*}~myMed~=~new~MED(); myDriver~=~myMed->addDriver(driverType1,fileName1);
+myMed->readFileStruct(myDriver); 
+
+ex 2 : To get the list of meshNames from a MED object, first ask the
+object how many meshes it had by calling int numberOfMeshes~=~myMed->getNumberOfMeshes();
+then get the list with myMeshNames~=~new string{[}getMeshNames{]};
+myMed->getMeshNames(myMeshNames). 
+
+Note you can also use the deque<string> getMeshNames() method. 
+
+ex 3 : To get a list of fieldNames from a MED object, first ask the
+object how many fields it had by calling int numberOfFields~=~myMed->getNumberOfFields();
+then get the list with myFieldNames~=~new string{[}getFieldNames{]};
+myMed->getFieldNames(myFieldNames).
+
+ex 4 :To get a particular MESH use MESH {*} myMesh1 = myMED->getMesh(myMeshNames{[}0{]}) 
+
+ex 5 :To get a particular FIELD you first need to know what (time
+step, iteration number) list is used by calling deque<DT\_IT\_>~myField1DtIt~=~myMed->getFieldIteration(FieldName{[}0{]})
+; then you can ask for getting a specific FIELD with FIELD~{*}~myField1~=~myMED->getField(myFieldNames{[}0{]},myField1DtIt{[}0{]}.dt,myField1DtIt{[}0{]}.it).
+
+ex2 : To write the whole content of a MED object first add a driver
+myDriver2~=~myMed.addDriver(driverType2,~fileName2); then ask for
+writing the object myMed->write(myDriver2); (not implemented yet !) 
+
+You can remove the driver with myMed->rmDriver(myDriver2);
+
+rem 1 : It is possible to use multiple drivers to read a set of FIELDs
+/ MESHes from various file formats and writing the whole set through
+a specific write.(not implemented yet !) 
+
+
+\subsubsection{Adding existing MESHes/FIELDs objects}
+
+Not yet implemented.
+
+\section{Using the VTK driver}
+
+This driver allow to save all MESH and FIELD objects in an ASCII file in 
+VTK format \cite{vtk}.
+
+You could use this driver only from a MED object, because VTK file format 
+impose to write objects in particular order.
+
+\textbf{C++ Example~:}
+\begin{verbatim}
+MED myMed(MED_DRIVER,"file.med");
+myMed.read();
+int id = myMed.addDriver(VTK_DRIVER,"file.vtk");
+myMed.write(id) ;
+\end{verbatim}
+
+\section{Using the GIBI driver}
+
+This driver allow to load a mesh from a GIBI file (ASCII file with the extension '.sauve'), puting the mesh into a MESH object of MED. It's a read only driver and is applicable only to a MESH object.
+
+\textbf{C++ Example~:}
+\begin{verbatim}
+MESH * myMesh= new MESH() ;	
+GIBI_MESH_RDONLY_DRIVER myGibiMeshDriver("file.sauve", myMesh) ;
+myGibiMeshDriver.open() ;
+myGibiMeshDriver.read() ;
+myGibiMeshDriver.close() ;
+\end{verbatim}
+
+
+%  ___________________________________________________________________________
+% |                                                                           |
+% |                               REFERENCES                                  |
+% |___________________________________________________________________________|
+%
+\newpage
+%\thebibliography{biblio}
+\begin{thebibliography}{1}
+
+\addcontentsline{toc}{chapter}{\refname}
+
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibitem{RefManual} Reference Manual~: \verb+http://www-drn2.cea.fr/MED/MEDMEM/DOC/html/index.html+
+
+\bibitem{vtk} VTK home page~: \verb+http://public.kitware.com/VTK+
+
+\end{thebibliography}
+
+
+\end{document}
