@@ -1,0 +1,422 @@
+<HTML><b>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface MESH</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getSpaceDimension (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getSpaceDimension (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getMeshDimension (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getMeshDimension (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getCoordinateSystem (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinateSystem (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfNodes (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfNodes (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double_array  getCoordinates ( in medModeSwitch typeSwitch )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinates ( typeSwitch )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getCoordinatesNames (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinatesNames (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getCoordinatesUnits (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCoordinatesUnits (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfTypes ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfTypes ( entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>medGeometryElement_array  getTypes ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getTypes ( entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfElements ( in medEntityMesh entity, in medGeometryElement geomElement )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfElements ( entity, geomElement )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getConnectivity ( in medModeSwitch typeSwitch, in medConnectivity mode, in medEntityMesh entity, in medGeometryElement geomElement )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getConnectivity ( typeSwitch, mode, entity, geomElement )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getConnectivityIndex ( in medConnectivity mode, in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getConnectivityIndex ( mode, entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getElementNumber ( in medConnectivity mode, in medEntityMesh entity, in medGeometryElement type, in long_array connectivity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getElementNumber ( mode, entity, type, connectivity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getReverseConnectivity ( in medConnectivity mode )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getReverseConnectivity ( mode )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getReverseConnectivityIndex ( in medConnectivity mode )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getReverseConnectivityIndex ( mode )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfFamilies ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfFamilies ( entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfGroups ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfGroups ( entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Family_array  getFamilies ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFamilies ( entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FAMILY  getFamily ( in medEntityMesh entity, in long familyNumber )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFamily ( entity, familyNumber )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Group_array  getGroups ( in medEntityMesh entity )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getGroups ( entity )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>GROUP  getGroup ( in medEntityMesh entity, in long groupNumber )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getGroup ( entity, groupNumber )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FIELD  getVolume ( in SUPPORT mySupport )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getVolume ( mySupport )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FIELD  getArea ( in SUPPORT mySupport )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getArea ( mySupport )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FIELD  getLength ( in SUPPORT mySupport )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getLength ( mySupport )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FIELD  getNormal ( in SUPPORT mySupport )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNormal ( mySupport )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FIELD  getBarycenter ( in SUPPORT mySupport )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getBarycenter ( mySupport )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void addInStudy ( in Study myStudy, in MESH myIor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>addInStudy ( myStudy, myIor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  addDriver ( in medDriverTypes driverType, in string fileName, in string meshName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = addDriver ( driverType, fileName, meshName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void rmDriver ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>rmDriver ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void read ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>read ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void write ( in long i, in string driverMeshName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>write ( i, driverMeshName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getCorbaIndex (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCorbaIndex (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface SUPPORT</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getDescription (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getDescription (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>MESH  getMesh (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getMesh (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>medEntityMesh  getEntity (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getEntity (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>boolean  isOnAllElements (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = isOnAllElements (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfElements ( in medGeometryElement geomElement )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfElements ( geomElement )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>medGeometryElement_array  getTypes (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getTypes (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getNumber ( in medGeometryElement geomElement )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumber ( geomElement )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getNumberIndex (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberIndex (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfGaussPoints ( in medGeometryElement geomElement )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfGaussPoints ( geomElement )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getCorbaIndex (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCorbaIndex (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface FAMILY</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getIdentifier (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getIdentifier (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfAttributes (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfAttributes (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getAttributesIdentifiers (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getAttributesIdentifiers (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getAttributeIdentifier ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getAttributeIdentifier ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getAttributesValues (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getAttributesValues (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getAttributeValue ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getAttributeValue ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getAttributesDescriptions (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getAttributesDescriptions (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getAttributeDescription ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getAttributeDescription ( i )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface GROUP</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfFamilies (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfFamilies (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>Family_array  getFamilies (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFamilies (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FAMILY  getFamily ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFamily ( i )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface FIELD</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getName (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getName (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getDescription (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getDescription (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>SUPPORT  getSupport (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getSupport (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfComponents (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfComponents (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getComponentsNames (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getComponentsNames (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getComponentName ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getComponentName ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getComponentsUnits (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getComponentsUnits (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string  getComponentUnit ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getComponentUnit ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getIterationNumber (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getIterationNumber (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double  getTime (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getTime (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getOrderNumber (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getOrderNumber (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  addDriver ( in medDriverTypes driverType, in string fileName, in string fieldName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = addDriver ( driverType, fileName, fieldName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void rmDriver ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>rmDriver ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void read ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>read ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void write ( in long i, in string driverFieldName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>write ( i, driverFieldName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void addInStudy ( in Study myStudy, in FIELD myIor )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>addInStudy ( myStudy, myIor )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getCorbaIndex (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getCorbaIndex (  )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface FIELDDOUBLE</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>double_array  getValue ( in medModeSwitch mode )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getValue ( mode )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface FIELDINT</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long_array  getValue ( in medModeSwitch mode )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getValue ( mode )</b></div></td>
+</tr>
+</table><br>
+<table width="100%" BORDER>
+<tr bgcolor="#FFFFCC">
+<td colspan="11"><font size="+3"><b><div align="center"><i>interface MED</i></div></b></font></td>
+</tr>
+<td width="50%" bgcolor= "lightgreen" ><font size="+2"><div align="center"><b><i>IDL file</i></b></div></font></td>
+<td width="50%" bgcolor= "lightgreen"><font size="+2"><div align="center"><b><i>Python</i></b></div></font></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfMeshes (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfMeshes (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  getNumberOfFields (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getNumberOfFields (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getMeshNames (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getMeshNames (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>string_array  getFieldNames (  )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getFieldNames (  )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>MESH  getMeshByName ( in string meshName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getMeshByName ( meshName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>MESH  getMesh ( in FIELD fieldPtr )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getMesh ( fieldPtr )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>FIELD  getField ( in string fieldName, in long pasTemps, in long numOrdre )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = getField ( fieldName, pasTemps, numOrdre )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>long  addDriver ( in medDriverTypes driverType, in string fileName )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>return_value = addDriver ( driverType, fileName )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void rmDriver ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>rmDriver ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void readFileStruct ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>readFileStruct ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void writeFrom ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>writeFrom ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void write ( in long i )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>write ( i )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void addMesh ( in MESH ptrMesh )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>addMesh ( ptrMesh )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void addField ( in FIELD ptrField )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>addField ( ptrField )</b></div></td>
+</tr>
+<tr>
+<td bgcolor= "lightgreen"><div align="center"><b>void addInStudy ( in Study myStudy, in MED medPtr )</b></div></td>
+<td bgcolor= "lightgreen"><div align="center"><b>addInStudy ( myStudy, medPtr )</b></div></td>
+</tr>
+</table><br>
+</b></HTML>
