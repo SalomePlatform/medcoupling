@@ -1,6 +1,9 @@
 #include "MEDMEM_Mesh.hxx"
 #include "MEDMEM_CellModel.hxx"
 
+using namespace MEDMEM ;
+using namespace MED_EN ;
+
 int main (int argc, char ** argv) {
 
   const string MedFile = "pointe.med" ;

@@ -1,6 +1,9 @@
 #include "MEDMEM_Meshing.hxx"
 #include "MEDMEM_Group.hxx"
 
+using namespace MEDMEM ;
+using namespace MED_EN ;
+
 using namespace std;
 
 int main (int argc, char ** argv) {

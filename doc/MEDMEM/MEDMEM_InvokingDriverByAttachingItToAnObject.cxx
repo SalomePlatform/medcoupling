@@ -4,6 +4,11 @@
 #include "MEDMEM_Field.hxx"
 #include "MEDMEM_Mesh.hxx"
 #include "MEDMEM_Med.hxx"
+#include "MEDMEM_MedMedDriver.hxx"
+#include "MEDMEM_MedMeshDriver.hxx"
+
+using namespace MEDMEM ;
+using namespace MED_EN ;
 
 main () {
   
