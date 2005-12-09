@@ -19,7 +19,7 @@ docs:
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
 	done; \
-	cp -f $(srcdir)/MED_index.html MED_index.html
+	cp -f $(srcdir)/MED_index_v3.1.0.html MED_index_v3.1.0.html
 
 clean:
 	@@SETX@; for d in $(SUBDIRS); do 	\
@@ -34,10 +34,10 @@ distclean: clean
 install:
 	$(MAKE) docs
 	(cd tui && $(MAKE) install);
-	cp -f MED_index.html $(docdir)
+	cp -f MED_index_v3.1.0.html $(docdir)
 
 uninstall:
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
 	done; \
-	rm -fr $(docdir)/MED_index.html
+	rm -fr $(docdir)/MED_index_v3.1.0.html
