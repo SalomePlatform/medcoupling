@@ -293,6 +293,30 @@ int myNumber = myMesh.getElementNumber(MED_NODAL,MED_CELL,
                                              myElementConnectivity);
 \end{verbatim}
 
+%%%%%%%%%%%  WITH POLY METHODS %%%%%%%%%%%%
+
+\item The listed above methods do not take into account information about
+  \verb+polygonal+ and \verb+polyhedral+ cells contained in a MESH object. To get
+  full information about cell types, use the same methods with
+  \verb+WithPoly+ postfix:
+\begin{itemize}
+\item use \method{getNumberOfTypesWithPoly} to get the number of
+  geometric types for a mesh entity;
+\item use \method{getTypesWithPoly} to get all geometric types for a mesh entity;
+\item use \method{getNumberOfElementsWithPoly} to get the number of cells;
+\item use \method{getElementTypeWithPoly} to get the geometric type of
+  one element.
+\end{itemize}
+There are separate methods to get number of polygons and polyhedrons:
+\method{getNumberOfPolygons} and \method{getNumberOfPolyhedron}
+
+To get connectivity of polygonal elements, use \method{getPolygonsConnectivity} along with
+\method{getPolygonsConnectivityIndex} (see example \myref{MESHconnectivities.cxx}).
+
+To get nodal connectivity of polyhedral elements, it is necessary use together
+3 methods: \method{getPolyhedronConnectivity}, \method{getPolyhedronFacesIndex}
+and \method{getPolyhedronIndex} (see example \myref{MESHconnectivities.cxx}).
+
 \end{enumerate}
 \fileCxx{MESHconnectivities.cxx}
 
@@ -352,7 +376,8 @@ in increasing order of number of nodes for this type ;
 \item \method{setNumberOfElements} to set the number of elements for 
 each geometric type. This method allocates connectivities array ;
 \item \method{setConnectivity} to set the connectivity in MED\_FULL\_INTERLACE
-mode for each geometric type ;
+mode for each geometric type (use \method{setPolygonsConnectivity} and
+\method{setPolyhedraConnectivity} for poly elements);
 \end{itemize}
 
 \textbf{C++ Example~:}

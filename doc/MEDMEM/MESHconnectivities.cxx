@@ -25,6 +25,10 @@ using namespace MED_EN ;
 
 int main (int argc, char ** argv) {
 
+//   const string MedFile = "polyedres.med" ;
+//   const string MeshName = "Erreur orientation" ;
+//   const string MedFile = "polygones.med" ;
+//   const string MeshName = "Bord" ;
   const string MedFile = "pointe.med" ;
   const string MeshName = "maa1" ;
   MESH myMesh(MED_DRIVER,MedFile,MeshName) ;
@@ -148,6 +152,44 @@ int main (int argc, char ** argv) {
       // Index value begin at 1 so use j-1
       cout << ConstituentConnectivity[j-1]<<" ";
     cout << endl ;
+  }
+
+  int nbPolygons = myMesh.getNumberOfPolygons();
+  if ( nbPolygons > 0 )
+  {
+    cout << "Show Connectivity (Nodal) of POLYGONS:" << endl ;
+    const int* Connectivity = myMesh.getPolygonsConnectivity(MED_NODAL,MED_CELL);
+    const int* ConnectivityIndex = myMesh.getPolygonsConnectivityIndex(MED_NODAL,MED_CELL);
+    for (int j=0; j<nbPolygons; j++){
+      cout << "Polygon "<< j+1 <<" : " ;
+    int IndexBegin = ConnectivityIndex[j];
+    int IndexEnd   = ConnectivityIndex[j+1];
+      for (int k=IndexBegin; k<IndexEnd; k++)
+	cout << Connectivity[k-1]<<" ";
+      cout << endl ;
+    }
+  }
+
+  int nbPolyhedrons = myMesh.getNumberOfPolyhedron();
+  if ( nbPolyhedrons > 0 )
+  {
+    cout << "Show Connectivity (Nodal) of POLYHEDRONS:" << endl ;
+    const int* Connectivity = myMesh.getPolyhedronConnectivity(MED_NODAL);
+    const int* FaceIndex    = myMesh.getPolyhedronFacesIndex();
+    const int* Index        = myMesh.getPolyhedronIndex(MED_NODAL);
+    for (int j=0; j<nbPolyhedrons; j++){
+      cout << "Polyhedron "<< j+1 <<" : " << endl;
+      int FaceIndexBegin = Index[j];
+      int FaceIndexEnd = Index[j+1];
+      for (int k=FaceIndexBegin; k<FaceIndexEnd; k++) {
+        cout << "  Face " << k - FaceIndexBegin + 1 << " : ";
+        int IndexBegin = FaceIndex[k-1];
+        int IndexEnd   = FaceIndex[k];
+        for (int i=IndexBegin; i<IndexEnd; i++)
+          cout << Connectivity[i-1]<<" ";
+        cout << endl ;
+      }
+    }
   }
 
   return 0 ;

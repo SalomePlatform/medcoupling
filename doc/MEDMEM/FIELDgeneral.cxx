@@ -67,7 +67,7 @@ int main (int argc, char ** argv) {
   // How many Value :
   int NumberOfValue = mySupport->getNumberOfElements(MED_ALL_ELEMENTS);
   // Value
-  const double * Value = myField.getValue(MED_FULL_INTERLACE);
+  const double * Value = myField.getValue();
   for(int i=0; i<NumberOfValue; i++) {
     for(int j=0; j<NumberOfCompoennts; j++)
       cout << Value[i*NumberOfCompoennts+j] << " " ;
