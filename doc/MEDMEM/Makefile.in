@@ -13,7 +13,7 @@ doxygen=@DOXYGEN@
 @COMMENCE@
 
 # Executables targets
-BIN = MESHgeneral
+BIN = MESHgeneral MESHcoordinates MESHconnectivities MESHINGexample FIELDcreate FIELDgeneral MEDMEM_InvokingDriverByAttachingItToAnObject MEDMEM_InvokingDriverFromStandardObjectMethod MEDMEM_InvokingDriverAtObjectCreationTime 
 
 CPPFLAGS+=$(MED2_INCLUDES) $(HDF5_INCLUDES) -I${KERNEL_ROOT_DIR}/include/salome
 

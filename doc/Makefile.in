@@ -11,7 +11,7 @@ top_builddir=..
 srcdir=@srcdir@
 VPATH=.:@srcdir@
 
-SUBDIRS= salome MEDMEM
+SUBDIRS= salome
 
 @COMMENCE@
 
