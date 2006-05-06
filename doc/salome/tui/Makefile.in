@@ -20,6 +20,17 @@ docs:
 	cp -fr $(srcdir)/MED ./INPUT; \
 	cd INPUT; \
 	sed 's|../../../share/salome|$(root_srcdir)|' ./doxyfile > ./doxyfile1; \
+	sed 's|../../build/salome|$(top_builddir)|' ./doxyfile1 > ./doxyfile2; \
+	mv -f doxyfile2 doxyfile1; \
+	echo "DOXYGEN SUPPORT PYTHON - @DOXYGEN_WITH_PYTHON@"; \
+	if( test "x@DOXYGEN_WITH_PYTHON@" = "xyes"); then \
+	  sed 's|python_extension_must_be_here|*.py|' ./doxyfile1 > ./doxyfile2; \
+	  mv -f doxyfile2 doxyfile1; \
+	  $(doxygen) -u ./doxyfile1; \
+	else \
+	  sed 's|python_extension_must_be_here||' ./doxyfile1 > ./doxyfile2; \
+	  mv -f doxyfile2 doxyfile1; \
+	fi; \
 	mv -f doxyfile1 doxyfile; \
 	$(doxygen) ./doxyfile; \
 	cd ..; \

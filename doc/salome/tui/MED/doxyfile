@@ -3,7 +3,7 @@
 #---------------------------------------------------------------------------
 # Project related configuration options
 #---------------------------------------------------------------------------
-PROJECT_NAME           = "SALOME - MED - v.3.2.0a2"
+PROJECT_NAME           = "SALOME - MED - v.3.2.0b1"
 PROJECT_NUMBER         = id#1.1
 OUTPUT_DIRECTORY       = ../
 CREATE_SUBDIRS         = NO
@@ -71,8 +71,9 @@ WARN_LOGFILE           = log.txt
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = ../../../share/salome/src \
-			 ../../../share/salome/idl
-FILE_PATTERNS          = *.idl *.h *.hh *.hxx *.c *.cc *.cxx *.ixx *.jxx
+			 ../../../share/salome/idl \
+			 ../../../build/salome/bin
+FILE_PATTERNS          = *.idl *.h *.hh *.hxx *.c *.cc *.cxx *.ixx *.jxx python_extension_must_be_here
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO

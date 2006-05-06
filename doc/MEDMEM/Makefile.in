@@ -15,20 +15,28 @@ doxygen=@DOXYGEN@
 # Executables targets
 BIN = MESHgeneral MESHcoordinates MESHconnectivities MESHINGexample FIELDcreate FIELDgeneral MEDMEM_InvokingDriverByAttachingItToAnObject MEDMEM_InvokingDriverFromStandardObjectMethod MEDMEM_InvokingDriverAtObjectCreationTime 
 
-CPPFLAGS+=$(MED2_INCLUDES) $(HDF5_INCLUDES) -I${KERNEL_ROOT_DIR}/include/salome
+LDFLAGS+= -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome 
+LDFLAGSFORBIN+= -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome
 
-CXXFLAGS+=-ftemplate-depth-42 -I${KERNEL_ROOT_DIR}/include/salome
+CPPFLAGS+=$(MED2_INCLUDES) $(HDF5_INCLUDES)
 
+CXXFLAGS+=@CXXTMPDPTHFLAGS@
+#LDFLAGS+=$(MED2_LIBS) $(HDF5_LIBS)
 # change motivated by the bug KERNEL4778.
-#LDFLAGS+=$(MED2_LIBS) $(HDF5_LIBS) -lSalomeLoggerServer -L${KERNEL_ROOT_DIR}/lib/salome
-LDFLAGS+=$(MED2_LIBS) $(HDF5_LIBS) -L${KERNEL_ROOT_DIR}/lib/salome
+LDFLAGS+=$(MED2_LIBS) $(HDF5_LIBS) -lmedmem -lmed_V2_1 $(STDLIB)
 
-#LDFLAGSFORBIN+=$(MED2_LIBS) $(HDF5_LIBS) -lSalomeLoggerServer -L${KERNEL_ROOT_DIR}/lib/salome -lmedmem
-LDFLAGSFORBIN+=$(MED2_LIBS) $(HDF5_LIBS) -lSALOMELocalTrace -L${KERNEL_ROOT_DIR}/lib/salome -lmedmem
+#LDFLAGSFORBIN+=$(MED2_LIBS) $(HDF5_LIBS)
+# change motivated by the bug KERNEL4778.
+LDFLAGSFORBIN+=-lm $(MED2_LIBS) $(HDF5_LIBS) -lmedmem -lmed_V2_1
+
+ifeq ($(MED_WITH_KERNEL),yes)
+  CPPFLAGS+= ${KERNEL_CXXFLAGS}
+  CXXFLAGS+= ${KERNEL_CXXFLAGS}
+  LDFLAGS+= ${KERNEL_LDFLAGS} -lSALOMELocalTrace 
+  LDFLAGSFORBIN+= ${KERNEL_LDFLAGS} -lSALOMELocalTrace -lSALOMEBasics
+endif
 
 LIBSFORBIN=
-
-LDFLAGS=
 
 LIBS=
 
