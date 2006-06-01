@@ -1,6 +1,6 @@
 #  Copyright (C) 2003  CEA/DEN, EDF R&D
 #
-#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #  File   : Makefile.in
 #  Author : Vasily Rusyaev (Open Cascade NN)
@@ -16,8 +16,10 @@ doxygen=@DOXYGEN@
 
 @COMMENCE@
 
-docs:
+dev_docs:
 	cp -fr $(srcdir)/MED ./INPUT; \
+	cp -fr ./MED/doxyfile ./INPUT; \
+	cp -fr ./MED/sources/static/tree.js ./INPUT/sources/static; \
 	cd INPUT; \
 	sed 's|../../../share/salome|$(root_srcdir)|' ./doxyfile > ./doxyfile1; \
 	sed 's|../../build/salome|$(top_builddir)|' ./doxyfile1 > ./doxyfile2; \

@@ -1,24 +1,7 @@
 // Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 // 
-// This library is free software; you can redistribute it and/or
-// modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation; either 
-// version 2.1 of the License.
-// 
-// This library is distributed in the hope that it will be useful 
-// but WITHOUT ANY WARRANTY; without even the implied warranty of 
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-// Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public  
-// License along with this library; if not, write to the Free Software 
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-//
-// See http://www.salome-platform.org/
-//
 #include "MEDMEM_Mesh.hxx"
-#include "MEDMEM_CellModel.hxx"
 
 using namespace MEDMEM ;
 using namespace MED_EN ;
@@ -38,16 +21,15 @@ int main (int argc, char ** argv) {
 
   // we get all type for cell entity :
   int NumberOfTypes = myMesh.getNumberOfTypes(MED_CELL) ;
-  const CELLMODEL * Types = myMesh.getCellsTypes(MED_CELL) ;
-
   cout << "Show Connectivity (Nodal) :" << endl ;
-  // this example use access with a specified medGeometryElement through
-  // CELLMODEL class
+  // this example use access with a specified medGeometryElement array
+  const medGeometryElement * Types = myMesh.getTypes(MED_CELL);
+  string * cellTypeNames =  myMesh.getCellTypeNames(MED_CELL);
   for (int i=0; i<NumberOfTypes; i++) {
-    cout << "For type " << Types[i].getName() << " : " << endl ;
-    medGeometryElement myType = Types[i].getType() ;
+    cout << "For type " << cellTypeNames[i] << " : " << endl ;
+    medGeometryElement myType = Types[i] ;
     int NumberOfElements = myMesh.getNumberOfElements(MED_CELL,myType);
-    int NomberOfNodesPerCell = Types[i].getNumberOfNodes() ;
+    int NomberOfNodesPerCell = Types[i]%100 ;
     const int * Connectivity = 
       myMesh.getConnectivity(MED_FULL_INTERLACE,
 			     MED_NODAL,

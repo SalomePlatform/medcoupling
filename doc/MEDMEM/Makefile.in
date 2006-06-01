@@ -1,3 +1,21 @@
+# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
+#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either 
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public  
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# 
 # -* Makefile *- 
 #
 # Author : Nadir BOUHAMOU (CEA)
@@ -104,11 +122,8 @@ MedMemory_devel_2on1.pdf:
 
 # User Guide
 
-MEDMEM_UsersGuide.ps: MEDMEM_UsersGuide.dvi
-	dvips -o MEDMEM_UsersGuide.ps MEDMEM_UsersGuide.dvi
-
-MEDMEM_UsersGuide.pdf: MEDMEM_UsersGuide.ps
-	ps2pdf MEDMEM_UsersGuide.ps MEDMEM_UsersGuide.pdf
+MEDMEM_UsersGuide.ps: MEDMEM_UsersGuide.pdf
+	pdf2ps MEDMEM_UsersGuide.pdf MEDMEM_UsersGuide.ps 
 
 MEDMEM_UsersGuide_2on1.ps: MEDMEM_UsersGuide.ps
 	psnup -2 MEDMEM_UsersGuide.ps >MEDMEM_UsersGuide_2on1.ps
@@ -116,17 +131,13 @@ MEDMEM_UsersGuide_2on1.ps: MEDMEM_UsersGuide.ps
 MEDMEM_UsersGuide_2on1.pdf: MEDMEM_UsersGuide_2on1.ps
 	ps2pdf MEDMEM_UsersGuide_2on1.ps MEDMEM_UsersGuide_2on1.pdf
 
-
-MEDMEM_UML.eps:MEDMEM_UML.dia
-	dia -e $@ $<
-
-MEDMEM_UsersGuide.dvi: MEDMEM_UsersGuide.tex MEDMEM_UML.eps
-	echo "Running latex..."
-	latex $<
+MEDMEM_UsersGuide.pdf: MEDMEM_UsersGuide.tex MEDMEM_Content.tex MEDMEM_UML_light.png MEDMEM_UML.png FIELDcreate.cxx FIELDgeneral.cxx MEDMEM_InvokingDriverAtObjectCreationTime.cxx MEDMEM_InvokingDriverByAttachingItToAnObject.cxx MEDMEM_InvokingDriverFromStandardObjectMethod.cxx MEDMEM_MedAddingAnExistingObject.cxx MESHconnectivities.cxx MESHcoordinates.cxx MESHgeneral.cxx MESHINGexample.cxx FIELDcreate.py FIELDgeneral.py MEDMEM_InvokingDriverAtObjectCreationTime.py MEDMEM_InvokingDriverByAttachingItToAnObject.py MEDMEM_InvokingDriverFromStandardObjectMethod.py MESHconnectivities.py MESHcoordinates.py MESHgeneral.py MESHINGexample.py
+	echo "Running pdflatex..."
+	pdflatex $<
 	#echo "Running makeindex..."
 	#makeindex MEDMEM_UsersGuide.idx
 	echo "Rerunning latex...."
-	latex $<
+	pdflatex $<
 	latex_count=5
 	while egrep -s 'Rerun (LaTeX|to get cross-references right)' MEDMEM_UsersGuide.log && [ $latex_count -gt 0 ] ;\
 	    do \
@@ -137,6 +148,15 @@ MEDMEM_UsersGuide.dvi: MEDMEM_UsersGuide.tex MEDMEM_UML.eps
 
 MEDMEM_UsersGuide.tex:MEDMEM_UsersGuide.tex.in
 	cd $(top_builddir) && CONFIG_FILES=./doc/MEDMEM/MEDMEM_UsersGuide.tex ./config.status
+
+MEDMEM_Content.tex:MEDMEM_Content.tex.in
+	cd $(top_builddir) && CONFIG_FILES=./doc/MEDMEM/MEDMEM_Content.tex ./config.status 
+
+MEDMEM_UML_light.png:MEDMEM_UML_light.png.in
+	cd $(top_builddir) && CONFIG_FILES=./doc/MEDMEM/MEDMEM_UML_light.png ./config.status 
+
+MEDMEM_UML.png:MEDMEM_UML.png.in
+	cd $(top_builddir) && CONFIG_FILES=./doc/MEDMEM/MEDMEM_UML.png ./config.status 
 
 # install procedure
 

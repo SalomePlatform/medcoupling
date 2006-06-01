@@ -1,3 +1,6 @@
+# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
+#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
+# 
 from libMEDMEM_Swig import *
 
 MedFile = "pointe.med"
