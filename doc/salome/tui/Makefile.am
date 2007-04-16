@@ -2,19 +2,10 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-#  File   : Makefile.in
-#  Author : Vasily Rusyaev (Open Cascade NN)
-#  Module : doc
-#  $Header: 
 
-top_srcdir=@top_srcdir@
-top_builddir=../../..
-root_srcdir=@ROOT_SRCDIR@
-srcdir=@srcdir@
-VPATH=.:@srcdir@
-doxygen=@DOXYGEN@
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-@COMMENCE@
+EXTRA_DIST+= MED
 
 dev_docs:
 	cp -fr $(srcdir)/MED ./INPUT; \
@@ -41,16 +32,8 @@ dev_docs:
 	cp -fr $(srcdir)/MED/HTML/ MED/
 	rm -fr INPUT
 
-clean:
-	rm -fr MED
+doctuidir= $(docdir)/tui/MED
+nodist_doctui_DATA= MED/doxyfile
 
-distclean: clean
-	rm -fr INPUT
-
-install:
-	$(INSTALL) -d $(docdir); \
-	mkdir -p $(docdir)/tui
-	cp -fr MED $(docdir)/tui
-
-uninstall:
-	rm -fr $(docdir)/tui/MED
+doctuistaticdir= $(docdir)/tui/MED/sources/static
+nodist_doctuistatic_DATA= MED/sources/static/tree.js
