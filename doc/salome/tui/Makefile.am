@@ -5,7 +5,8 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-EXTRA_DIST+= MED
+SUBDIRS = MED
+#EXTRA_DIST+= MED
 
 dev_docs:
 	cp -fr $(srcdir)/MED ./INPUT; \
@@ -32,8 +33,8 @@ dev_docs:
 	cp -fr $(srcdir)/MED/HTML/ MED/
 	rm -fr INPUT
 
-doctuidir= $(docdir)/tui/MED
-nodist_doctui_DATA= MED/doxyfile
+#doctuidir= $(docdir)/tui/MED
+#nodist_doctui_DATA= MED/doxyfile
 
-doctuistaticdir= $(docdir)/tui/MED/sources/static
-nodist_doctuistatic_DATA= MED/sources/static/tree.js
+#doctuistaticdir= $(docdir)/tui/MED/sources/static
+#nodist_doctuistatic_DATA= MED/sources/static/tree.js

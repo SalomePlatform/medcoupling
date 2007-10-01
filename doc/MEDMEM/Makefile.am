@@ -16,7 +16,28 @@
 # 
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-SUBDIRS= MEDMEM salome
-
-EXTRA_DIST= html
+EXTRA_DIST += \
+    FIELDcreate.cxx \
+    FIELDcreate.py \
+    FIELDgeneral.cxx \
+    FIELDgeneral.py \
+    HOWTO_Create_A_New_Driver.txt \
+    MEDMEM_InvokingDriverAtObjectCreationTime.cxx \
+    MEDMEM_InvokingDriverAtObjectCreationTime.py \
+    MEDMEM_InvokingDriverByAttachingItToAnObject.cxx \
+    MEDMEM_InvokingDriverByAttachingItToAnObject.py \
+    MEDMEM_InvokingDriverFromStandardObjectMethod.cxx \
+    MEDMEM_InvokingDriverFromStandardObjectMethod.py \
+    MEDMEM_MedAddingAnExistingObject.cxx \
+    MEDMEM_UsersGuide.lyx \
+    MESHconnectivities.cxx \
+    MESHconnectivities.py \
+    MESHcoordinates.cxx \
+    MESHcoordinates.py \
+    MESHgeneral.cxx \
+    MESHgeneral.py \
+    MESHINGexample.cxx \
+    MESHINGexample.py \
+    TODO_Drivers.txt
