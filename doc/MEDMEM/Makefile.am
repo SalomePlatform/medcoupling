@@ -16,43 +16,28 @@
 # 
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-# -* Makefile *- 
-#
-# Author : Patrick GOLDBRONN (CEA)
-# Date : 30/11/2001
-# $Header$
-#
-# source path
-top_srcdir=@top_srcdir@
-top_builddir=..
-srcdir=@srcdir@
-VPATH=.:@srcdir@
-
-SUBDIRS= salome
-
-@COMMENCE@
-
-dev_docs:
-	@@SETX@; for d in $(SUBDIRS); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
-clean:
-	@@SETX@; for d in $(SUBDIRS); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
-
-distclean: clean
-	@@SETX@; for d in $(SUBDIRS); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
-
-install:
-	@@SETX@; for d in $(SUBDIRS); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
-
-uninstall:
-	@@SETX@; for d in $(SUBDIRS); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done
+EXTRA_DIST += \
+    FIELDcreate.cxx \
+    FIELDcreate.py \
+    FIELDgeneral.cxx \
+    FIELDgeneral.py \
+    HOWTO_Create_A_New_Driver.txt \
+    MEDMEM_InvokingDriverAtObjectCreationTime.cxx \
+    MEDMEM_InvokingDriverAtObjectCreationTime.py \
+    MEDMEM_InvokingDriverByAttachingItToAnObject.cxx \
+    MEDMEM_InvokingDriverByAttachingItToAnObject.py \
+    MEDMEM_InvokingDriverFromStandardObjectMethod.cxx \
+    MEDMEM_InvokingDriverFromStandardObjectMethod.py \
+    MEDMEM_MedAddingAnExistingObject.cxx \
+    MEDMEM_UsersGuide.lyx \
+    MESHconnectivities.cxx \
+    MESHconnectivities.py \
+    MESHcoordinates.cxx \
+    MESHcoordinates.py \
+    MESHgeneral.cxx \
+    MESHgeneral.py \
+    MESHINGexample.cxx \
+    MESHINGexample.py \
+    TODO_Drivers.txt

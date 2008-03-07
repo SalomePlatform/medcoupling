@@ -16,42 +16,7 @@
 # 
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
-# -* Makefile *- 
-#
-# Author : Vasily Rusyaev (Open Cascade NN)
-# Date : 13/02/2003
-# $Header: 
-#
-# source path
-top_srcdir=@top_srcdir@
-root_srcdir=@ROOT_SRCDIR@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@
-doxygen=@DOXYGEN@
 
-@COMMENCE@
+SUBDIRS= MEDMEM salome
 
-doc:
-	cp -fr $(srcdir)/INPUT ./; \
-	cd INPUT; \
-	sed 's|../../../share/salome|$(root_srcdir)|' doxyfile > doxyfile1; \
-	mv -f doxyfile1 doxyfile; \
-	$(doxygen) ./doxyfile; \
-	cd ..; \
-	cp -fr $(srcdir)/INPUT/sources/static/*.* ./html/
-	cp -fr $(srcdir)/INPUT/sources/ html/
-	cp -fr $(srcdir)/INPUT/HTML/  html/
-
-clean:
-	rm -rf html
-
-distclean: clean
-	rm -rf INPUT
-
-install:
-	$(INSTALL) -d $(docdir); \
-	cp -rf html $(docdir)
-
-uninstall:
-	rm -rf $(docdir)/html
+EXTRA_DIST= html
