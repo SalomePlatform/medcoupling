@@ -1,0 +1,351 @@
+/*!
+\mainpage MEDMEM user's guide
+
+\image html MED_small.png
+\image latex MED_small.eps
+\anchor fig_MED_small
+
+\section intro Introduction
+This document constitutes the user guide of the %MEDMEM library and of its related tools.
+
+\section install Installation 
+The install procedure of the %MEDMEM library can handle a variety of configurations 
+to suit the needs of its user. Instructions for configuring and installing the library can be found in \ref medmem_install.
+
+\section outline Outline
+This user guide contains three different chapters that covers the core %MEDMEM library, the %ParaMEDMEM library and the %MEDSPLITTER tool: 
+- Chapter \ref medmem covers the %MEDMEM core library, i.e. the implementation of meshes, supports and fields and the associated drivers (for MED-file, VTK, GIBI).
+- Chapter \ref paramedmem describes its MPI implementation, which is called %ParaMEDMEM.
+- Chapter \ref medsplitter describes the implementation of the medsplitter tool that can be used to partition %MED files over a number of subdomains. 
+
+*/
+
+/*!
+\page medmem MEDMEM library
+
+\section medmem_introduction Introduction
+\subsection medmem_rationale Rationale for Med Memory
+
+The Med data exchange model (DEM in English) is the format used in the Salome platform for communicating data between different components. It manipulates objects that describe the meshes underlying scientific computations and the value fields lying on these meshes. This data exchange can be achieved either through files using the Med-file formalism or directly through memory with the Med Memory (\c %MEDMEM) library.
+
+The Med libraries are oganized in multiple layers:
+- The MED file layer : C and Fortran API to implement mesh and field persistency.
+- The MED Memory level C++ API to create and manipulate mesh and field objects in memory.
+- Python API generated using SWIG which wraps the complete C++ API of the MED Memory
+- CORBA API to simplify distributed computation inside SALOME (Server Side).
+- MED Client classes to simplify and optimize interaction of distant objects within the local solver.
+
+Thanks to Med Memory, any component can access a distant 
+mesh or field object. Two codes running on 
+different machines can thus exchange meshes and fields.
+These meshes and fields can easily be read/written in a Med file
+format, enabling access to the whole Salome suite of tools
+(CAD, meshing, Visualization, other components).
+
+\subsection medmem_outline Outline
+
+In this document, we describe the API of the Med Memory library (available in C++ and in Python). This document is intended for developers who are in charge of integrating existing applications in the Salome platform.
+
+As will be seen in section \ref medmem_api, the API consists of very few classes:
+
+- a general MED container : \ref MED_class,
+- meshes : \ref mesh ,
+- structured meshes : \ref grid ,
+- supports and derived classes : \ref support ,
+- mesh generation tool : \ref meshing ,
+- fields : \ref field ,
+- drivers for reading and writing in MED, GIBI and VTK files.
+
+All these are detailed in the following sections. The C++ 
+formalism will be used for the description in these sections.
+ Python syntax is very similar and is given in appendix \ref medmem_sec_python.
+
+\subsection medmem_naming Naming conventions
+
+The naming conventions are rather straightforward, but the user familiar with the Med-File semantics may find that there are a few noticeable differences (see the following section).
+
+- \b cell entity of dimension equal to the mesh dimension (1, 2 or 3).
+- \b component in a field, represents a value that is available for each element of the support (for instance : \f$ T \f$, \f$ v_x \f$, \f$ \sigma_{xy} \f$)).
+- \b connectivity \b (descending) connectivity table expressing connectivity of dimension \a d elements in terms of list of dimension \a d-1 elements.
+- \b connectivity \b (nodal) connectivity table expressing connectivity of dimension \a d elements in terms of list of nodes.
+- \b constituent \b entity entity having a dimension smaller than that of the mesh.
+- \b coordinates in a mesh, coordinates can be described by strings giving the names of the coordinates, the units of the coordinates, and the type of coordinates ('MED_CART', 'MED_SPHER' or 'MED_CYL').
+- \b description string of characters used to describ an object without giving any access to a query method.
+- \b dimension Med Memory discriminates the mesh dimension from the space dimension (a surface shape in 3D will have 2 as a mesh dimension).
+- \b driver object attached to a mesh or a field to read (resp. write) data from (resp. to) a Med-file.
+- \b edge entity of dimension 1 in a 2D mesh.
+- \b element  elementary component of a mesh (0D, 1D, 2D or 3D).
+- \b entity category giving information on the dimension of elementary components of meshes : node, edge, face (only in 3D) or cell.
+- \b face for 3D meshes, faces are the 2D entities.
+- \b family support which is composed of a set of groups, which do not intersect each other, and which gives access to those groups.
+- \b field array of integer, integer array, real or real array lying on a support (the dimension of the array of values for each element of the support is called the number of components). A field is uniquely defined by its name, its support, its iteration number and its order number. -1 is the default value of those two numbers.
+- \b group support with additional access to parent families.
+- \b iteration number] information attached to a field that expresses the number of the time step in the computation (-1 is its default value).
+- \b name information attached to a mesh, support or field to name it and access to it.
+- \b node entity of dimension 0.
+- \b order \b number information attached to a field that expresses the number of an internal iteration inside a time step in the computation (-1 is its default value).
+- \b support list of elements of the same entity.
+- \b type category of an entity (triangle, segment, quadrangle, tetrahedron, hexahedron, etc...).
+
+
+\subsection medmem_diff Differences with Med-File concepts
+Though the %MEDMEM library can recompute a descending connectivity
+from a nodal connectivity, %MEDMEM drivers can only read MED files containing the nodal
+connectivities of the entities. 
+In %MEDMEM, constituent entities are stored as \c MED_FACE
+or \c MED_EDGE, whereas in %MED File, they should be stored as \c
+  MED_MAILLE. 
+
+The field notion in %MED File and %MEDMEM is quite different. In %MEDMEM
+a field is of course defined by its name, but also by its iteration
+number and its order number. 
+In %MED File a field is only flagged by its name. For instance,
+a temperature at times \a t=0.0 s, \a t=1.0 s, \a t=2.0 s will be considered as  a single field in Med File terminology, while it will be considered as three distinct fields in the Med Memory sense.
+
+\section medmem_api Med Memory API
+
+\subsection medmem_conventions Conventions
+
+- In this document, one refers to the main user documentation
+\ref RefManualMedMemory where the variable \c $MED_ROOT_DIR (resp.
+\c $MED_SRC_DIR) is the Med Memory directory installation (resp. sources
+directory).
+- All numberings start at one (take care of array index !).
+- When one gets a C (resp. C++) type array (resp. STL container) using a \c {get...} method, one should not modify the array. Access is in read only. To modify a such array (resp. STL container) use a \c {set...} method.
+- There are many couple of methods that have similar syntaxes (one singular and one 
+plural). The plural method returns an array and the singular one returns one 
+particular value in this array (see \c double \c getCoordinate(int i)  and 
+\c double* \c getCoordinates() for example). Generally, only the plural version
+of the methods are documented in this report.
+- Difference between local and global number in mesh element connectivity list : when one talks about an 
+element number, one could see \f$ i^{th} \f$ quadrangle (\f$ i^{th} \f$ in quadrangles array : local numbering) or \f$ j^{th} \f$ element (\f$ j^{th} \f$ in all elements array : 
+global numbering). These two numberings are equivalent only if one has only one 
+geometric type.
+
+
+\subsection namespaces  Namespaces
+
+Med Memory uses two namespaces : \c MEDMEM which is the general 
+namespace where the main classes are defined and \c MED_EN
+which defines enums that can be used by an English-speaking 
+programer.
+
+\subsection classes Classes
+At a basic usage level, the API consists in few classes which are located in
+the \c MEDMEM C++ namespace (consult figure \ref fig_UML_light which gives
+an UML diagram view of the main Med Memory classes)~:
+
+- \b MED the global container;
+- \b MESH the class containing 2D or 3D mesh objects;
+- \b SUPPORT the class containing mainly a list of mesh elements;
+- \b FIELD the class template containing list of values lying on a particular support.
+
+\anchor fig_UML_light
+\image html UML_light.png " UML diagram of basic Med Memory API classes"
+\image latex UML_light.eps " UML diagram of basic Med Memory API classes"
+
+
+The API of those classes is quite sufficient for most of the component
+integrations in the Salome platform. The use of the Med Memory libraries may
+make easier the code coupling in the Salome framework. With these classes, it
+is possible to~:
+
+- read/write meshes and fields from MED-files;
+- create fields containing scalar or vectorial values on list of elements
+of the mesh;
+- communicate these fields between different components;
+- read/write such fields.
+
+Note that on the figure \ref fig_UML_light as well as on figure
+\ref fig_UML that the
+MED container controls the life cycle of all the objects it contains~: its destructor will destroy all the objects it aggregates. On the other hand, the life cycle of mesh, support and field objects are independent. Destroying a support (resp. a field) will have no effect on the mesh (resp. support) which refers to it. But the user has to maintain the link~: a mesh aggregates a support which aggregates a field. If the user has to delete Med Memory objects, the field has to be deleted first, then the support and finally the mesh.
+
+A more advanced usage of the Med Memory is possible through other classes.
+Figure \ref fig_UML gives a complete view of the Med Memory API. It includes :
+
+- \b GROUP a class inherited from the SUPPORT class used to create supports linked to mesh groups. It stores restricted list of elements used to set boundary conditions, initial values.
+- \b FAMILY which is used to manipulate a certain kind of support which does not intersect each other;
+\ b MESHING which builds meshes from scratch, it can be used to transform meshes from a specific format to the MED format or to integrate a mesher within Salome platform (note that class does not add element or node to a mesh);
+- \b GRID which enables the user to manipulate specific functions for structured grid.
+
+\anchor fig_UML
+\image html UML_small.png "UML diagram of Med Memory API classes"
+\image latex UML_small.eps  "UML diagram of Med Memory API classes"
+
+
+\subsection medmem_enums Enums
+A few enums are defined in the \c MED_EN namespace :
+
+- an enum which describes the way node coordinates or field values are stored,
+	- \c MED_FULL_INTERLACE for arrays such that \f$ x_1,y_1,z_1,x_2,y_2,z_2,\ldots,x_n,y_n,z_n \f$;
+	- \c MED_NO_INTERLACE for arrays such that \f$ x_1,x_2,\ldots,x_n,y_1,y_2,\ldots,y_n,z_1,z_2,\ldots,z_n \f$;
+	- \c MED_UNDEFINED_INTERLACE, the undefined interlacing mode.
+	.
+- an enum which describes the type of connectivity
+	- \c MED_NODAL for nodal connectivity;
+	- \c MED_DESCENDING for descending connectivity.
+	.
+
+The user has to be aware of the fact that the Med Memory considers only meshes defined by their nodal connectivity. Nevertheless, the user may, after loading a file in memory, ask to the mesh object to calculate the descending connectivity.
+
+- an enum which contains the different mesh entities, \c medEntityMesh, the entries of which being :
+ - \c MED_CELL
+ - \c MED_FACE
+ - \c MED_EDGE
+ - \c MED_NODE
+ - \c MED_ALL_ENTITIES
+ .
+
+In 3D (resp. 2D), the user has to be aware of the fact that only mesh
+entities \c MED_CELL and  \c MED_FACE (resp. \c MED_EDGE) are
+considered. In 1D, of course only mesh entities \c MED_CELL+ are considered. Using our naming convention (consult \ref medmem_naming), in $1$ D mesh
+only \b node and \b cell are considered. In 2D mesh, only \b node,
+\b cell and \b edge are considered. Finally in 3D mesh only
+\b node}, \b cell and \b face are considered.
+
+- The \c medGeometryElement enum which defines geometric types. The
+available types are linear and quadratic elements (consult
+\ref RefManualMedMemory). The entries of this enum are quite
+self-explanatory :
+	- \c MED_NONE
+	- \c MED_POINT1
+	- \c MED_SEG2
+	- \c MED_SEG3
+	- \c MED_TRIA3
+	- \c MED_QUAD4
+	- \c MED_TRIA6
+	- \c MED_QUAD8
+	- \c MED_TETRA4
+	- \c MED_PYRA5
+	- \c MED_PENTA6
+	- \c MED_HEXA8
+	- \c MED_TETRA10
+	- \c MED_PYRA13
+	- \c MED_PENTA15
+	- \c MED_HEXA20
+	- \c MED_POLYGON
+	- \c MED_POLYHEDRA
+	- \c MED_ALL_ELEMENTS
+  .
+The connectivity of all these elements is defined in MED project Web page
+http://hammi.extra.cea.fr/static/MED/web_med/logiciels/med-2.3.1/doc/ .
+
+
+*/
+
+/*!
+\page paramedmem ParaMEDMEM library
+
+
+The ParaMEDMEM library is based on several classes that 
+describe the coupling between two parallel codes.
+
+The classes that make up the API of the library are :
+- communication interface : \ref comm_interface,
+- definition of processor groups : \ref processor_group,
+- Data Exchange Channel(aka DEC, abstract class) : \ref dec, and its implementations :
+ -  \ref intersectiondec for a \ref conservativeremapping based on intersecting elems volume computation,
+ - NonCoincident DEC for a non-conservative interpolation based on element localization : \ref noncoincidentdec,
+ - Explicit Coincident DEC for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies: \ref explicit_coincident_dec,
+ - Structured Coincident DEC for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies : \ref structuredcoincidentdec.
+
+*/
+
+/*!
+\page medmem_install Configuring and Installing MEDMEM from sources
+
+The MEDMEM library can be configured in several manners so that it can run inside or outside the Salome platform. Also, partitioning and parallel functionalities are optional.
+
+The sources of the library are located in the \a MED_SRC directory. 
+The first step consists in preparing the configuration of the library :
+\verbatim
+cd ${MED_SRC}
+./build_configure
+\endverbatim
+
+This will create a MEDMEM library with link to the SALOME Kernel. If it is desirable to have a standalone version of the library to be used independently from SALOME, use :
+\verbatim
+cd ${MED_SRC}
+./build_configure --without-kernel
+\endverbatim
+
+The library can then be configured :
+\verbatim
+mkdir ../MED_BUILD
+cd ../MED_BUILD
+../MED_SRC/configure --prefix=`pwd`/../MED_INSTALL
+\endverbatim
+
+This will configure the library without splitting functionalities. ParaMEDMEM will be compiled if an MPI version has been found.
+
+The following options can be useful to configure MEDMEM :
+- \a --enable-splitter=yes will trigger the compilation of the MEDSPLITTER tool,
+- \a --with-metis=${METISDIR} will specify a location for the METIS library,
+- \a --with-scotch=${SCOTCHDIR} will specify a location for the SCOTCH library,
+- \a --with-med2=${MED2DIR} specifies a location for MED-file library,
+- \a --with-hdf5=${HDF5DIR} specifies a location for the HDF5 library (must be the same as that used for the MED-file library)
+- \a --with-lam=${LAMDIR} specifies an install path for a LAM MPI library,
+- \a --with-mpich=${MPICHDIR} specifies an install path for a MPICH-1 library.
+*/
+
+
+/*!
+\page conservativeremapping Conservative remapping
+
+At the basis of many CFD numerical schemes is the fact that physical quantities such as density, momentum or energy obey some balance laws that should be preserved at the discrete level on every cell. This property is critical for example to accurately capture shockwaves. To comply with this constraint, a remapping of the field \f$ \phi \f$ from the source mesh \f$ S \f$ to the target mesh \f$ T \f$ should preserve the integral of \f$ \phi \f$ on any domain. At the discrete level, for any target cell \f$ T_i \f$, one would like the following equality to be true 
+
+\f[
+\int_{T_i} \phi = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi. 
+\f]
+For fields with polynomial representation on each cell, the components of the discretised field  \f$ \phi_s \f$ on the receiving side can be expressed as linear compinations of the components of the discretised field \f$ \phi_t \f$ on the target side, id est in terms of a matrix-vector product : 
+
+\f[
+ \phi_t=W.\phi_s, 
+\f] 
+
+The coefficients of the linear remapping matrix \f$ W \f$ depends only on the source and target meshes and on the representation chosen for the fields: P0, P1, P1d etc... For the moment it is only possible to remap fields with P0 representations.
+
+\section P0-P0 cell-cell (P0->P0) conservative remaping
+
+In the case where the field values are constant on each cell, the coefficients of the linear remapping matrix \f$ W \f$ are given by the formula
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{Vol(T_i)}. 
+\f] 
+
+Therefore one need to compute intersection between source and target cells to obtain the linear remapping matrix which will generally be a sparse matrix.  The Intersection computation proceeds in two steps: 
+- first a filtering process reduces the number of pairs of elements for which the calculation must be carried out by eliminating pairs that do not intersect through a comparison of their bounding boxes
+-  then, the volume or area of the intersection is calculated for the remaining pairs by an algorithm which is specific to each case (see \ref interpolation2D, \ref interpolation3Dsurf or \ref interpolation3D). 
+
+\subsection interpolation2D  Special features of 2D  intersections
+
+When remapping two dimensional fields, areas of intersection between polygonal cells are to be computed. Two algorithms are available:
+- Triangle: decompose each cells into triangles and computes triangle-triangle intersection by determining segments crossings and nodes inclusions. This algorithm is the fastest if both meshes are made of triangular cells.
+- Convex: assumes that both meshes are made of convex cells, and performs a direct computation of the intersection nodes between two cells through a sweep line algorithm.
+
+The following options are available for the 2D intersection computations:
+ - Intersection_type: the type of algorithm to be used in the computation of the cell-cell intersections.
+   - Values: Triangle, Convex.
+   - Default: Triangle.
+ - Precision: Accuracy of the computations is precision times the characteristic size of the meshes.
+   - Values: positive real numbers.
+   - Default: 1.0E-12.
+ - PrintLevel: Level of verboseness during the computations.
+   - Values: interger between 0 and 3.
+   - Default: 0.
+
+\subsection interpolation3Dsurf Special features of 3D surface intersections 
+
+When remapping a three dimensional surfaces, one should give a meaning to the area of intersection between two 3D polygons. A projection phase is thus necessary to have both polygons on the same plane. Care must be taken when defining this projection to avoid non conservative remappings. After the projection, the same algorithms as for 2D remapping may be used to compute the intersection on a 3D plane
+Similar options as for the 2D remapping are available, plus some additional options specific to 3D surface remapping:
+ - MedianPlane: Position of the median plane where both cells will be projected
+   - Values: real number between 0 and 1.
+   - Default: 0.5.
+ - DoRotate: rotate the coordinate system such that the median plane is the Oxy plane.
+   - Values: boolean true or false (necessarilly true if Intersection_type=Triangle).
+   - Default: true (because default Intersection_type is Triangle). \ref test
+
+
+\subsection interpolation3D Special features of 3D intersection 
+When remapping three dimensional fields, volumes of intersection between polyhedral cells are to be computed. We use the algorithm of Jeffrey Grandy,1999 (see \ref MedRef) to intersect arbitrary polyhedra
+*/

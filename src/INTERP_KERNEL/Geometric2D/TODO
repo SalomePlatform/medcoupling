@@ -1,0 +1,9 @@
+1 ) Virer les *OFFSET_FOR... de Edge.cxx et remplacer par une méthode static à retour const int
+2 ) tester le buildEdgeLyingOnMe du ArcCircle.
+3 ) tester le intersectWith Lin/ArcCircle avec reverse.
+ 
+
+Penser à :
+
+Au moment de faire les intersections Edges/Edges en cas de splitting faire le nécessaire.
+

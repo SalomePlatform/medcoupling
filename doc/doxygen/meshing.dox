@@ -1,0 +1,40 @@
+/*!
+
+\page meshing MESHING
+
+\section meshing_overview Overview
+
+This class is a class derived from MESH class that is used
+to build a MESH object from scratch. 
+
+All verifications are under user responsability : if array values or array 
+dimensions are wrong, results are impredictable.
+All the arrays passed as arguments in the set methods are duplicated in MESHING object.
+
+The creation of a mesh should respect the following sequence :
+- setting general information (name, description, dimensions, coordinate system, ...),
+- setting the nodes (number and coordinates),
+- setting the connectivity (types, connectivity arrays,...),
+- group creations.
+
+The following paragraphs describe the methods that must be called 
+when creating a mesh. An example illustrates the general procedure.
+The specific case of \c MED_POLYGON and \c MED_POLYHEDRA
+elements requires some methods that are described in \ref polygon.
+
+\section outline_meshing Outline
+
+The following sections point to various groups of MESHING methods :
+- Constructors : \ref MESHING_constructors,
+- General information : \ref MESHING_general,
+- Setting nodes : \ref MESHING_nodes,
+- Connectivity : \ref MESHING_connectivity,
+- Groups : \ref MESHING_group.
+
+An example of mesh creation via MESHING is given in :
+- C++ :
+\include MESHINGexample.cxx
+- Python:
+\include  MESHINGexample.py
+
+*/

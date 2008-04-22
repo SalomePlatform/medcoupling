@@ -1,0 +1,5 @@
+#MED Fichier V 2.3 
+# 
+2 
+Mesh_3 1 Mesh_3_1 localhost /home/vb144235/resources/square2_split1.med 
+Mesh_3 2 Mesh_3_2 localhost /home/vb144235/resources/square2_split2.med 

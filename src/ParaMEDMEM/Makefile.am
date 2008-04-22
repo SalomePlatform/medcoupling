@@ -1,0 +1,122 @@
+#  MED MEDMEM : MED files in memory
+#
+#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
+
+# first '.' says that this folder must be compiled before Test (MEDMEM/Test uses MEDMEM)
+if CPPUNIT_IS_OK
+ SUBDIRS=. Test
+endif
+
+DIST_SUBDIRS= Test
+
+lib_LTLIBRARIES= libparamedmem.la
+
+salomeinclude_HEADERS= \
+CommInterface.hxx\
+MPIProcessorGroup.hxx\
+ProcessorGroup.hxx\
+BlockTopology.hxx\
+Topology.hxx\
+ParaGRID.hxx\
+ParaMESH.hxx\
+ParaSUPPORT.hxx\
+StructuredParaSUPPORT.hxx\
+ComponentTopology.hxx\
+ExplicitTopology.hxx\
+ParaFIELD.hxx\
+DEC.hxx\
+MxN_Mapping.hxx\
+StructuredCoincidentDEC.hxx\
+InterpolationMatrix.hxx\
+IntersectionDEC.hxx\
+UnstructuredParaSUPPORT.hxx\
+ExplicitCoincidentDEC.hxx\
+ElementLocator.hxx\
+ExplicitMapping.hxx\
+ICoCoField.hxx \
+ICoCoMEDField.hxx \
+ICoCoTrioField.hxx \
+MPI_Access.hxx \
+MPI_AccessDEC.hxx \
+TimeInterpolator.hxx \
+LinearTimeInterpolator.hxx
+
+dist_libparamedmem_la_SOURCES= \
+ProcessorGroup.cxx \
+MPIProcessorGroup.cxx\
+BlockTopology.cxx\
+ParaGRID.cxx\
+ParaMESH.cxx\
+ParaSUPPORT.cxx\
+StructuredParaSUPPORT.cxx\
+ComponentTopology.cxx\
+ParaFIELD.cxx\
+DEC.cxx\
+MxN_Mapping.cxx\
+InterpolationMatrix.cxx\
+StructuredCoincidentDEC.cxx\
+ExplicitCoincidentDEC.cxx\
+IntersectionDEC.cxx\
+UnstructuredParaSUPPORT.cxx\
+ElementLocator.cxx\
+ExplicitTopology.cxx\
+ICoCoMEDField.cxx \
+MPI_Access.cxx \
+MPI_AccessDEC.cxx \
+TimeInterpolator.cxx \
+LinearTimeInterpolator.cxx
+
+
+#libmedmem_la_LDFLAGS= -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome 
+libparamedmem_la_CPPFLAGS= $(MED2_INCLUDES) $(HDF5_INCLUDES)  $(MPI_INCLUDES) @CXXTMPDPTHFLAGS@ \
+	-I$(srcdir)/../MEDWrapper/Base \
+	-I$(srcdir)/../MEDWrapper/V2_1/Core -I$(srcdir)/../INTERP_KERNEL \
+	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
+	-I$(srcdir)/../MEDMEM
+
+# change motivated by the bug KERNEL4778.
+libparamedmem_la_LDFLAGS=$(MED2_LIBS) $(HDF5_LIBS) ../MEDWrapper/V2_1/Core/libmed_V2_1.la \
+../MEDMEM/libmedmem.la \
+../INTERP_KERNEL/libinterpkernel.la \
+	../MEDWrapper/Base/libMEDWrapperBase.la $(STDLIB) \
+$(MPI_LIBS)
+
+if MED_ENABLE_KERNEL
+    libparamedmem_la_CPPFLAGS+= ${KERNEL_CXXFLAGS}
+    libparamedmem_la_LDFLAGS+= ${KERNEL_LDFLAGS} -lSALOMELocalTrace 
+endif
+
+if MED_ENABLE_FVM
+	salomeinclude_HEADERS += NonCoincidentDEC.hxx
+	libparamedmem_la_SOURCES+= NonCoincidentDEC.cxx
+	libparamedmem_la_LDFLAGS+= $(FVM_LIBS)
+	libparamedmem_la_CPPFLAGS+= $(FVM_INCLUDES)
+endif
+
+
+AM_CPPFLAGS= $(libmedmem_la_CPPFLAGS)
+LDADD= $(libmedmem_la_LDFLAGS) -lm libmedmem.la
+if MED_ENABLE_KERNEL
+     LDADD+=-lSALOMEBasics
+endif
+

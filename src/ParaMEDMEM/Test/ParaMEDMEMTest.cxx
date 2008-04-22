@@ -1,0 +1,51 @@
+// Copyright (C) 2006  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
+//
+// This library is distributed in the hope that it will be useful
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
+#include "ParaMEDMEMTest.hxx"
+#include <cppunit/TestAssert.h>
+
+#include "MEDMEM_STRING.hxx"
+
+#include <sstream>
+#include <cmath>
+
+using namespace std;
+
+
+
+/*!
+ *  Tool to remove temporary files.
+ *  Allows automatique removal of temporary files in case of test failure.
+ */
+ParaMEDMEMTest_TmpFilesRemover::~ParaMEDMEMTest_TmpFilesRemover()
+{
+  set<string>::iterator it = myTmpFiles.begin();
+  for (; it != myTmpFiles.end(); it++) {
+    if (access((*it).data(), F_OK) == 0)
+      remove((*it).data());
+  }
+  myTmpFiles.clear();
+  //cout << "~ParaMEDMEMTest_TmpFilesRemover()" << endl;
+}
+
+bool ParaMEDMEMTest_TmpFilesRemover::Register(const string theTmpFile)
+{
+  return (myTmpFiles.insert(theTmpFile)).second;
+}
