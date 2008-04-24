@@ -412,7 +412,7 @@ namespace INTERP_KERNEL
               case 1 :           
                 mi=_Status.find(i_glob);// pointer to the segment ending at i
                 i_prev_glob = ((*mi).second).first;//starting point of the segment ending at i
-                i_next= (i_prev_glob - i_glob > 0) == (fabs(i_prev_glob - i_glob) == 1)  ? i_glob - 1 : i_glob + 1;
+                i_next= (i_prev_glob - i_glob > 0) == (abs(i_prev_glob - i_glob) == 1)  ? i_glob - 1 : i_glob + 1;
                 if(i_glob < N1) i_next_glob = (i_next   +N1)%N1;
                 else            i_next_glob = (i_next-N1+N2)%N2 + N1;
                 _Status.erase(mi);
@@ -451,7 +451,7 @@ namespace INTERP_KERNEL
               case 1 :           
                 mi=_Status.find(i_glob);// pointer to the segment ending at i
                 i_prev_glob = ((*mi).second).first;//starting point of the segment ending at i
-                sign = (i_prev_glob - i_glob > 0) == (fabs(i_prev_glob - i_glob) == 1)  ? - 1 : + 1;
+                sign = (i_prev_glob - i_glob > 0) == (abs(i_prev_glob - i_glob) == 1)  ? - 1 : + 1;
                 i_next_glob = i_glob+sign;
                 _Is_in_intersection = ((*mi).second).second;//boolean that tells if i is in the intersection
                 _Status.erase(mi);

@@ -17,7 +17,7 @@ namespace INTERP_KERNEL
     double _precision;
     double _dimCaracteristic;
     IntersectionType _intersectionType;
-    static const double DEFAULT_PRECISION=1.e-12;
+    static const double DEFAULT_PRECISION;
   public:
     InterpolationPlanar();
   
@@ -43,3 +43,4 @@ namespace INTERP_KERNEL
 }
 
 #endif
+

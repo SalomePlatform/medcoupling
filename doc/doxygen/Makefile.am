@@ -24,7 +24,7 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
 
-install-data-local : main.dox 
+install-data-local : html-local main.dox 
 	mkdir -p $(prefix)/doc/user ;\
 	cp -r @builddir@/doc_ref_user/html $(prefix)/doc/user
 

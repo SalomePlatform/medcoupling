@@ -28,7 +28,7 @@ namespace INTERP_KERNEL
 			Row():std::vector< typename std::pair<int,T> >(){};
 			Row (const Row& row)
 			{
-				resize(row.size());
+				this->resize(row.size());
 				for (int i=0; i<this->size(); i++)
 					(*this)[i]=row[i];
 			}

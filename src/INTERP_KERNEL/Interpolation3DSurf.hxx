@@ -21,8 +21,8 @@ namespace INTERP_KERNEL
     bool _doRotate;
     double _medianPlane;
     double _surf3DAdjustmentEps;
-    static const double DFT_MEDIAN_PLANE=0.5;
-    static const double DFT_SURF3D_ADJ_EPS=1e-4;
+    static const double DFT_MEDIAN_PLANE;
+    static const double DFT_SURF3D_ADJ_EPS;
   };
 }
 

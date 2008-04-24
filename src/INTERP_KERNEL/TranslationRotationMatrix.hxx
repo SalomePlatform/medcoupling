@@ -100,12 +100,13 @@ namespace INTERP_KERNEL
                      
        
   private:
-    static const double EPS=1e-12;
+    static const double EPS;
     static const unsigned ROT_SIZE=9;
     static const unsigned TRANSL_SIZE=3;
     double _rotationCoeffs[ROT_SIZE];
     double _translationCoeffs[TRANSL_SIZE];
   };
+  const double TranslationRotationMatrix::EPS=1e-12;
 }
 
 #endif

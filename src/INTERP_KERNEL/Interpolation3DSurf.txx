@@ -6,6 +6,9 @@
 
 namespace INTERP_KERNEL
 {
+  const double Interpolation3DSurf::DFT_MEDIAN_PLANE=0.5;
+  const double Interpolation3DSurf::DFT_SURF3D_ADJ_EPS=1e-4;
+  
   Interpolation3DSurf::Interpolation3DSurf():_doRotate(true)
                                             ,_medianPlane(DFT_MEDIAN_PLANE)
                                             ,_surf3DAdjustmentEps(DFT_SURF3D_ADJ_EPS)

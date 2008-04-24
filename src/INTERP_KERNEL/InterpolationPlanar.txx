@@ -18,6 +18,10 @@
 
 namespace INTERP_KERNEL
 {
+
+  template<class RealPlanar>
+  const double InterpolationPlanar<RealPlanar>::DEFAULT_PRECISION=1.e-12;
+
   /**
    * \defgroup interpolationPlanar InterpolationPlanar
    *

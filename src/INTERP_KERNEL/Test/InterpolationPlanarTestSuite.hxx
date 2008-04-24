@@ -4,6 +4,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <deque>
 #include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -68,25 +69,25 @@ namespace INTERP_TEST
 		{
 			for(int i = 0; i< (int)deque1.size(); i++)
 				{
-					cerr << deque1[i] << " ";
+					std::cerr << deque1[i] << " ";
 				}
-			cerr<< endl;
+			std::cerr<< endl;
 		}
 		void vectPrintOut(std::vector< double > vect)
 		{
 			for(int i = 0; i< (int)vect.size(); i++)
 				{
-					cerr << vect[i] << " ";
+					std::cerr << vect[i] << " ";
 				}
-			cerr<< endl;
+			std::cerr<< endl;
 		}	
 		void tabPrintOut( const double * tab,int size)
 		{
 			for(int i = 0; i< size; i++)
 				{
-					cerr << tab[i] << " ";
+					std::cerr << tab[i] << " ";
 				}
-			cerr<< endl;
+			std::cerr<< endl;
 		}	
 
     /**
