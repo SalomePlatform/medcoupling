@@ -41,7 +41,10 @@ namespace INTERP_KERNEL{
 						}
 					for (int index= conn_index[i]; index < conn_index[i+1];index++)
 						{
-							const double* coordelem = coords+OTT<ConnType,numPol>::ind2C(conn[OTT<ConnType,numPol>::ind2C(index)]);
+							//coordelem points to the coordinates of the current node of the i-th element
+							const double* coordelem = coords+OTT<ConnType,numPol>::ind2C(conn[OTT<ConnType,numPol>::ind2C(index)])*SPACEDIM;
+
+							//the bounding box is updated by checking wheher the node is at the min/max in exach dimension
 							for (int idim=0; idim<SPACEDIM;idim++)
 								{
 									_bb[2*(i*SPACEDIM+idim)]=(coordelem[idim]<_bb[2*(i*SPACEDIM+idim)])?coordelem[idim]:_bb[2*(i*SPACEDIM+idim)];
@@ -58,6 +61,8 @@ namespace INTERP_KERNEL{
 			delete _tree;
 		}
 	
+		//returns the list of elements that contains 
+		//the point pointed to by x
 		std::list<int> locates(const double* x)
 		{
 			vector<int> candidates;
@@ -65,8 +70,9 @@ namespace INTERP_KERNEL{
 			list<int> retlist;
 			for (int i=0; i< candidates.size(); i++)
 				{
-					if (elementContainsPoint(i,x))
-						retlist.push_back(OTT<ConnType,numPol>::indFC(i));
+					int ielem=candidates[i];
+					if (elementContainsPoint(ielem,x))
+						retlist.push_back(OTT<ConnType,numPol>::indFC(ielem));
 				}
 			return retlist;
 		}
