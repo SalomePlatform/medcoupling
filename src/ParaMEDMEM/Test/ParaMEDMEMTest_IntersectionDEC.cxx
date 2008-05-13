@@ -100,8 +100,8 @@ void ParaMEDMEMTest::testIntersectionDEC_2D()
   string tmp_dir                    = getenv("TMP");
   if (tmp_dir == "")
     tmp_dir = "/tmp";
-  string filename_xml1              = data_dir + "/share/salome/resources/MedFiles/square1_split";
-  string filename_xml2              = data_dir + "/share/salome/resources/MedFiles/square2_split"; 
+  string filename_xml1              = data_dir + "/share/salome/resources/med/square1_split";
+  string filename_xml2              = data_dir + "/share/salome/resources/med/square2_split"; 
   string filename_seq_wr            = tmp_dir + "/";
   string filename_seq_med           = tmp_dir + "/myWrField_seq_pointe221.med";
   
@@ -356,8 +356,8 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
   string tmp_dir                    = getenv("TMP");
   if (tmp_dir == "")
     tmp_dir = "/tmp";
-  string filename_xml1              = data_dir + "/share/salome/resources/MedFiles/square1_split";
-  string filename_xml2              = data_dir + "/share/salome/resources/MedFiles/square2_split"; 
+  string filename_xml1              = data_dir + "/share/salome/resources/med/square1_split";
+  string filename_xml2              = data_dir + "/share/salome/resources/med/square2_split"; 
   string filename_seq_wr            = tmp_dir + "/";
   string filename_seq_med           = tmp_dir + "/myWrField_seq_pointe221.med";
   

@@ -82,8 +82,8 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
 	if (tmp_dir == "")
 		tmp_dir = "/tmp";
 	string filename_xml1 = data_dir
-			+ "/share/salome/resources/MedFiles/square1_split";
-	string filename_2 = data_dir + "/share/salome/resources/MedFiles/square1.med";
+			+ "/share/salome/resources/med/square1_split";
+	string filename_2 = data_dir + "/share/salome/resources/med/square1.med";
 	string filename_seq_wr = tmp_dir + "/";
 	string filename_seq_med = tmp_dir + "/myWrField_seq_pointe221.med";
 

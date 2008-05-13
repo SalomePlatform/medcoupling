@@ -65,9 +65,9 @@ void ParaMEDMEMTest::testNonCoincidentDEC_2D()
  //the test is meant to run on five processors
   if (size !=5) return ;
   
-  testNonCoincidentDEC( "/share/salome/resources/MedFiles/square1_split",
+  testNonCoincidentDEC( "/share/salome/resources/med/square1_split",
 			"Mesh_2",
-			"/share/salome/resources/MedFiles/square2_split",
+			"/share/salome/resources/med/square2_split",
 			"Mesh_3",
 			3,
 			1e-6);
@@ -81,9 +81,9 @@ void ParaMEDMEMTest::testNonCoincidentDEC_3D()
   //the test is meant to run on five processors
   if (size !=4) return ;
   
-  testNonCoincidentDEC( "/share/salome/resources/MedFiles/blade_12000_split2",
+  testNonCoincidentDEC( "/share/salome/resources/med/blade_12000_split2",
 			"Mesh_1",
-			"/share/salome/resources/MedFiles/blade_3000_split2",
+			"/share/salome/resources/med/blade_3000_split2",
 			"Mesh_1",
 			2,
 			1e4);
@@ -130,7 +130,7 @@ void ParaMEDMEMTest::testNonCoincidentDEC(const string& filename1,
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
   
-  string data_dir                   = getenv("MED_ROOT_DIR");
+  string data_dir                   = getenv("MED_ROOT_DIR") + "/share/salome/resources/med/";
   string tmp_dir                    = getenv("TMP");
   if (tmp_dir == "")
     tmp_dir = "/tmp";
