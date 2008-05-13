@@ -27,11 +27,11 @@ namespace INTERP_TEST
    */
   void RemapperTest::test_Remapper() {
 		string sourcename=getenv("MED_ROOT_DIR");
-		sourcename +="/share/salome/resources/MedFiles/square1.med";
+		sourcename +="/share/salome/resources/med/square1.med";
 		MEDMEM::MESH source_mesh (MED_DRIVER,sourcename,"Mesh_2");
 
 		string targetname=getenv("MED_ROOT_DIR");
-		targetname +="/share/salome/resources/MedFiles/square2.med";
+		targetname +="/share/salome/resources/med/square2.med";
 		MEDMEM::MESH target_mesh (MED_DRIVER,targetname,"Mesh_3");
 
 		MEDMEM::SUPPORT source_support(&source_mesh,"on All support");

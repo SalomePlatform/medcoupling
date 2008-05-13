@@ -188,7 +188,8 @@ std::pair<int,int> countNumberOfMatrixEntries(const IntersectionMatrix& m)
 
 void calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) 
 {
-  const string dataDir = getenv("DATA_DIR");
+  const string dataBaseDir = getenv("MED_ROOT_DIR");
+  const string dataDir = dataBaseDir + "/share/salome/resources/med/";
 
   LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
 
