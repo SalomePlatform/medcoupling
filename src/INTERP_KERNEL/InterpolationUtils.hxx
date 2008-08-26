@@ -211,7 +211,8 @@ namespace INTERP_KERNEL
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */ 
 
   inline void rajou_sommet_triangl(const double* P_1,const double* P_2,const double* P_3,
-                                   const double* P_4,const double* P_5,const double* P_6,std::vector<double>& V, double dim_caracteristic, double precision)
+                                   const double* P_4,const double* P_5,const double* P_6,
+                                   std::vector<double>& V, double dim_caracteristic, double precision)
   {
 
     double absolute_precision = precision*dim_caracteristic;
@@ -234,7 +235,8 @@ namespace INTERP_KERNEL
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _*/ 
 
   inline void inters_de_segment(const double * P_1,const double * P_2,
-                                const double * P_3,const double * P_4,std::vector<double>&  Vect, 
+                                const double * P_3,const double * P_4,
+                                std::vector<double>& Vect, 
                                 double dim_caracteristic, double precision)
   {
 
@@ -245,21 +247,20 @@ namespace INTERP_KERNEL
     double absolute_precision = dim_caracteristic*precision;
     if(fabs(det)>absolute_precision)
       {
-
         double k_1=-((P_3[1]-P_4[1])*(P_3[0]-P_1[0])+(P_4[0]-P_3[0])*(P_3[1]-P_1[1]))/det;
-       
-        if( k_1>=0 &&  k_1<=1)
+
+        //if( k_1>=0 &&  k_1<=1)
+        if (k_1 >= -absolute_precision && k_1 <= 1+absolute_precision)
           {
             double k_2= ((P_1[1]-P_2[1])*(P_1[0]-P_3[0])+(P_2[0]-P_1[0])*(P_1[1]-P_3[1]))/det;
-           
 
-            if( k_2>=0 &&  k_2<=1)
+            //if( k_2>=0 &&  k_2<=1)
+            if (k_2 >= -absolute_precision && k_2 <= 1+absolute_precision)
               {
                 double P_0[2];
                 P_0[0]=P_1[0]+k_1*(P_2[0]-P_1[0]);
                 P_0[1]=P_1[1]+k_1*(P_2[1]-P_1[1]);
                 verif_point_dans_vect(P_0,Vect,absolute_precision);
-
               }
           }
       }
@@ -528,21 +529,22 @@ namespace INTERP_KERNEL
   /* que les deux premières coordonnées de chaque point */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/ 
   template<int DIM> inline void intersec_de_polygone(const double * Coords_A, const double * Coords_B, 
-																										 int nb_NodesA, int nb_NodesB,
-																										 std::vector<double>& inter, double dim_caracteristic, double precision)
-	{
+                                                     int nb_NodesA, int nb_NodesB,
+                                                     std::vector<double>& inter,
+                                                     double dim_caracteristic, double precision)
+  {
     for(int i_A = 1; i_A<nb_NodesA-1; i_A++)
       {
-				for(int i_B = 1; i_B<nb_NodesB-1; i_B++)
-					{
-						INTERP_KERNEL::intersec_de_triangle(&Coords_A[0],&Coords_A[DIM*i_A],&Coords_A[DIM*(i_A+1)],
-																							 &Coords_B[0],&Coords_B[DIM*i_B],&Coords_B[DIM*(i_B+1)],
-																							 inter, dim_caracteristic, precision);
-					}
-			}
-		int nb_inter=((int)inter.size())/DIM;
-		if(nb_inter >3) inter=INTERP_KERNEL::reconstruct_polygon(inter);
-	}
+        for(int i_B = 1; i_B<nb_NodesB-1; i_B++)
+          {
+            INTERP_KERNEL::intersec_de_triangle(&Coords_A[0],&Coords_A[DIM*i_A],&Coords_A[DIM*(i_A+1)],
+                                                &Coords_B[0],&Coords_B[DIM*i_B],&Coords_B[DIM*(i_B+1)],
+                                                inter, dim_caracteristic, precision);
+          }
+      }
+    int nb_inter=((int)inter.size())/DIM;
+    if(nb_inter >3) inter=INTERP_KERNEL::reconstruct_polygon(inter);
+  }
 
   /*_ _ _ _ _ _ _ _ _
    *_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
