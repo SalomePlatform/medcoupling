@@ -45,7 +45,8 @@ Interpolation3D.hxx\
 Interpolation2D.hxx\
 Interpolation3DSurf.hxx\
 Remapper.hxx\
-PointLocator.hxx
+PointLocator.hxx\
+INTERPKERNEL_defines.hxx
 
 # Libraries targets
 

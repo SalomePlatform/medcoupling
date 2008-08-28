@@ -40,6 +40,7 @@ EdgeInfLin.cxx       \
 EdgeLin.cxx          \
 ElementaryEdge.cxx   \
 Node.cxx             \
-QuadraticPolygon.cxx
+QuadraticPolygon.cxx \
+Geometric2D_defines.hxx
 
 libInterpGeometric2DAlg_la_CPPFLAGS = -I$(srcdir)/..
