@@ -1,6 +1,8 @@
 #ifndef __QUADRATICPOLYGON_HXX__
 #define __QUADRATICPOLYGON_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include "ComposedEdge.hxx"
 
 #include <list>
@@ -10,7 +12,7 @@ namespace INTERP_KERNEL
   class Edge;
   class MergePoints;
 
-  class QuadraticPolygon : public ComposedEdge
+  class GEOMETRIC2D_EXPORT QuadraticPolygon : public ComposedEdge
   {
   public:
     QuadraticPolygon() { }

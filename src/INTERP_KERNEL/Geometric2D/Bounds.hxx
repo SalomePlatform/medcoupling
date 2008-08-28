@@ -1,6 +1,8 @@
 #ifndef __BOUNDS_HXX__
 #define __BOUNDS_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 namespace INTERP_KERNEL
 {
   /*!
@@ -14,7 +16,7 @@ namespace INTERP_KERNEL
       ON_BOUNDARY_NEG = 3
     } Position;
   
-  class Bounds
+  class GEOMETRIC2D_EXPORT Bounds
   {
   public:
     Bounds():_xMin(0),_xMax(0.),_yMin(0.),_yMax(0.) { }

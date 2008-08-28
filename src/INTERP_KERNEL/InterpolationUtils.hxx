@@ -1,6 +1,8 @@
 #ifndef _INTERPOLATIONUTILS_HXX_
 #define _INTERPOLATIONUTILS_HXX_
 
+#include <INTERPKERNEL_defines.hxx>
+
 #include "NormalizedUnstructuredMesh.hxx"
 
 #include <deque>

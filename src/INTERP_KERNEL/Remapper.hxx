@@ -9,7 +9,7 @@
 namespace INTERP_KERNEL
 {
 
-class Remapper
+class INTERPKERNEL_EXPORT Remapper
 {
 public:
 	Remapper();

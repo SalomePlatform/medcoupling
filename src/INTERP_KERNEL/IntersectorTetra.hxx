@@ -10,12 +10,18 @@
 #include <vector>
 #include <functional>
 #include <map>
-#include <ext/hash_map>
+#ifdef WIN32
+# include <hash_map>
+#else
+# include <ext/hash_map>
+#endif
 
 #include "MEDMEM_define.hxx"
 #include "MEDMEM_CellModel.hxx"
 
+#ifndef WIN32
 using __gnu_cxx::hash_map;
+#endif
 
 namespace INTERP_KERNEL
 {
@@ -23,7 +29,7 @@ namespace INTERP_KERNEL
    * \brief Class representing a triangular face, used as key in caching hash map in IntersectorTetra.
    *
    */
-  class TriangleFaceKey
+  class INTERPKERNEL_EXPORT TriangleFaceKey
   {
   public:
     
@@ -64,6 +70,13 @@ namespace INTERP_KERNEL
     {
       return _hashVal;
     }
+
+#ifdef WIN32
+    operator size_t () const
+    {
+      return _hashVal;
+    }
+#endif
      
     inline void sort3Ints(int* sorted, int node1, int node2, int node3);
 
@@ -121,9 +134,10 @@ namespace INTERP_KERNEL
       }
   }
 }
-
+#ifndef WIN32
 namespace __gnu_cxx
 {
+
 
   /**
    * \brief Template specialization of __gnu_cxx::hash<T> function object for use with a __gnu_cxx::hash_map 
@@ -132,6 +146,7 @@ namespace __gnu_cxx
    */
   template<>
   class hash<INTERP_KERNEL::TriangleFaceKey>
+
   {
   public:
     /**
@@ -146,6 +161,16 @@ namespace __gnu_cxx
     }
   };
 }
+#else
+  struct TriangleFaceKeyComparator
+  {
+    bool operator()(const INTERP_KERNEL::TriangleFaceKey& key1,
+                    const INTERP_KERNEL::TriangleFaceKey& key2 ) const
+    {
+      return key1.hashVal() < key2.hashVal();
+    }
+  };
+#endif
 
 namespace INTERP_KERNEL
 {
@@ -156,7 +181,7 @@ namespace INTERP_KERNEL
    *
    */
   template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class IntersectorTetra : public TargetIntersector<ConnType>
+  class INTERPKERNEL_EXPORT IntersectorTetra : public TargetIntersector<ConnType>
   {
 
   public: 
@@ -194,7 +219,11 @@ namespace INTERP_KERNEL
     hash_map< int, double* > _nodes;
     
     /// hash_map relating triangular faces to calculated volume contributions, used for caching
-    hash_map< TriangleFaceKey, double > _volumes;
+    hash_map< TriangleFaceKey, double
+#ifdef WIN32
+        , hash_compare<TriangleFaceKey,TriangleFaceKeyComparator> 
+#endif
+    > _volumes;
 
     /// reference to the source mesh
     const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& _srcMesh;

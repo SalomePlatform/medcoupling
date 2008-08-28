@@ -1,13 +1,15 @@
 #ifndef __COMPOSEDNODEWITHIT_HXX__
 #define __COMPOSEDNODEWITHIT_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include "ComposedEdge.hxx"
 
 #include <vector>
 
 namespace INTERP_KERNEL
 {
-  class ComposedEdgeWithIt : public ComposedEdge
+  class GEOMETRIC2D_EXPORT ComposedEdgeWithIt : public ComposedEdge
   {
   public:
     ComposedEdgeWithIt():_iterator(this) { }

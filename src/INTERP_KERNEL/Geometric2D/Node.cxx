@@ -43,9 +43,9 @@ bool Node::decrRef()
 
 bool Node::isEqual(const Node& other) const
 {
-  const unsigned SPACEDIM=2;
+  const int SPACEDIM=2;
   bool ret=true;
-  for(unsigned i=0;i<SPACEDIM;i++)
+  for(int i=0;i<SPACEDIM;i++)
     ret&=areDoubleEquals((*this)[i],other[i]);
   return ret;
 }

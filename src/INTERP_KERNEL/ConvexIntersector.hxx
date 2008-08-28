@@ -7,7 +7,7 @@
 namespace INTERP_KERNEL
 {
   template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class ConvexIntersector: public PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>
+  class INTERPKERNEL_EXPORT ConvexIntersector: public PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>
   {
   public:
     ConvexIntersector(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_A,

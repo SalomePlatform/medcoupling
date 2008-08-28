@@ -12,7 +12,7 @@ namespace INTERP_KERNEL
    * in the bounding-box filtering process.
    */
   template<class ConnType>
-  class RegionNode
+  class INTERPKERNEL_EXPORT RegionNode
   {
   public:
     

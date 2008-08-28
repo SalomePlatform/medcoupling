@@ -1,13 +1,15 @@
 #ifndef __ELEMENTARYEDGE_HXX__
 #define __ELEMENTARYEDGE_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include "AbstractEdge.hxx"
 #include "InterpolationUtils.hxx"
 #include "Edge.hxx"
 
 namespace INTERP_KERNEL
 {
-  class ElementaryEdge : public AbstractEdge
+  class GEOMETRIC2D_EXPORT ElementaryEdge : public AbstractEdge
   {
   public:
     ElementaryEdge(Edge *ptr, bool direction):_direction(direction),_ptr(ptr) { }

@@ -1,11 +1,13 @@
 #ifndef __EDGELIN_HXX__
 #define __EDGELIN_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include "Edge.hxx"
 
 namespace INTERP_KERNEL
 {
-  class SegSegIntersector : SameTypeIntersector
+  class GEOMETRIC2D_EXPORT SegSegIntersector : SameTypeIntersector
     {
       friend class Edge;
     public:
@@ -24,7 +26,7 @@ namespace INTERP_KERNEL
       double _matrix[4];//SPACEDIM*SPACEDIM
     };
 
-  class EdgeLin : public Edge
+  class GEOMETRIC2D_EXPORT EdgeLin : public Edge
   {
     friend class SegSegIntersector;
   public:

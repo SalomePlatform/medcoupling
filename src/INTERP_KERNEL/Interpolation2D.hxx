@@ -5,7 +5,7 @@
 
 namespace INTERP_KERNEL
 {
-  class Interpolation2D : public InterpolationPlanar<Interpolation2D>
+  class INTERPKERNEL_EXPORT Interpolation2D : public InterpolationPlanar<Interpolation2D>
   {
   public:
     Interpolation2D() { }

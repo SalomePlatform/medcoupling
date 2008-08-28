@@ -1,6 +1,8 @@
 #ifndef __MEDNORMALIZEDUNSTRUCTUREDMESH_HXX__
 #define __MEDNORMALIZEDUNSTRUCTUREDMESH_HXX__
 
+#include <INTERPKERNEL_defines.hxx>
+
 #include "NormalizedUnstructuredMesh.hxx"
 
 namespace MEDMEM
@@ -9,7 +11,7 @@ namespace MEDMEM
 }
 
 template<int SPACEDIM,int MESHDIM>
-class MEDNormalizedUnstructuredMesh : public INTERP_KERNEL::NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,int,INTERP_KERNEL::ALL_FORTRAN_MODE,MEDNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> >
+class INTERPKERNEL_EXPORT MEDNormalizedUnstructuredMesh : public INTERP_KERNEL::NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,int,INTERP_KERNEL::ALL_FORTRAN_MODE,MEDNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> >
 {
 public:
   MEDNormalizedUnstructuredMesh(const MEDMEM::MESH *mesh);

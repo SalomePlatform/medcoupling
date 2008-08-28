@@ -49,7 +49,8 @@ void SegSegIntersector::getCurveAbscisse(Node *node, TypeOfLocInEdge& where, Mer
   obviousCaseForCurvAbscisse(node,where,commonNode,obvious);
   if(obvious)
     return ;
-  double ret=((*node)[!_ind]-(*_e1.getStartNode())[!_ind])/((*_e1.getEndNode())[!_ind]-(*_e1.getStartNode())[!_ind]);
+  int index = !_ind;
+  double ret=((*node)[index]-(*_e1.getStartNode())[index])/((*_e1.getEndNode())[index]-(*_e1.getStartNode())[index]);
   if(ret>0. && ret <1.)
     where=INSIDE;
   else if(ret<0.)

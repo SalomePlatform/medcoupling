@@ -1,6 +1,7 @@
 #ifndef __BOUNDINGBOX_HXX__
 #define __BOUNDINGBOX_HXX__
 
+#include <INTERPKERNEL_defines.hxx>
 #include <iostream>
 
 namespace INTERP_KERNEL
@@ -10,7 +11,7 @@ namespace INTERP_KERNEL
    * \brief Class representing the bounding box of a number of points.
    *
    */
-  class BoundingBox 
+  class INTERPKERNEL_EXPORT BoundingBox 
   {
   public:
 

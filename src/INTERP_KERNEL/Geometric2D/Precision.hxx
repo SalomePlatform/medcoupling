@@ -1,6 +1,9 @@
+
+#include "Geometric2D_defines.hxx"
+
 namespace INTERP_KERNEL
 {
-  class QUADRATIC_PLANAR
+  class GEOMETRIC2D_EXPORT QUADRATIC_PLANAR
   {
   public:
     static double _precision;

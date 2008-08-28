@@ -1,6 +1,8 @@
 #ifndef __TETRA_AFFINE_TRANSFORM_HXX__
 #define __TETRA_AFFINE_TRANSFORM_HXX__
 
+#include <INTERPKERNEL_defines.hxx>
+
 #undef INVERSION_SELF_CHECK // debugging : check that calculated inverse is correct
 
 namespace INTERP_KERNEL
@@ -11,7 +13,7 @@ namespace INTERP_KERNEL
    * into the unit tetrahedron.
    *
    */
-  class TetraAffineTransform
+  class INTERPKERNEL_EXPORT TetraAffineTransform
   {
 
   public:

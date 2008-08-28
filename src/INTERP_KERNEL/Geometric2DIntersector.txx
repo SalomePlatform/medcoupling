@@ -9,10 +9,10 @@
 
 namespace INTERP_KERNEL
 {
-  namespace QUADRATIC_PLANAR
+  /*namespace QUADRATIC_PLANAR
   {
     extern double _precision;
-  }
+  }*/
 
   template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
   Geometric2DIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::Geometric2DIntersector(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_A,

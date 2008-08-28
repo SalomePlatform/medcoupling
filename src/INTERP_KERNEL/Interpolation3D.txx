@@ -70,8 +70,8 @@ namespace INTERP_KERNEL
 
     LOG(2, "Source mesh has " << numSrcElems << " elements and target mesh has " << numTargetElems << " elements ");
 
-    MeshElement<ConnType>* srcElems[numSrcElems];
-    MeshElement<ConnType>* targetElems[numTargetElems];
+    std::vector<MeshElement<ConnType>*> srcElems(numSrcElems);
+    std::vector<MeshElement<ConnType>*> targetElems(numTargetElems);
     
     std::map<MeshElement<ConnType>*, int> indices;
     

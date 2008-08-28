@@ -13,7 +13,7 @@ namespace INTERP_KERNEL
    * easy bounding box intersection tests between MeshElements and collections of MeshElement (MeshRegions)
    */
   template<class ConnType>
-  class MeshElement
+  class INTERPKERNEL_EXPORT MeshElement
   {
 
   public:
@@ -51,7 +51,7 @@ namespace INTERP_KERNEL
    * has a smaller YMIN is sorted before one with a larger YMIN.
    *
    */
-  class ElementBBoxOrder
+  class INTERPKERNEL_EXPORT ElementBBoxOrder
   {
   public : 
     

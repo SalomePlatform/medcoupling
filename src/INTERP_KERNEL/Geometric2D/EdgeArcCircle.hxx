@@ -1,11 +1,13 @@
 #ifndef __EDGEARCCIRCLE_HXX__
 #define __EDGEARCCIRCLE_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include "Edge.hxx"
 
 namespace INTERP_KERNEL
 {
-  class ArcCArcCIntersector : public SameTypeIntersector
+  class GEOMETRIC2D_EXPORT ArcCArcCIntersector : public SameTypeIntersector
   {
     friend class EdgeArcCircle;
   public:
@@ -21,7 +23,7 @@ namespace INTERP_KERNEL
     //! 'delta' 'start' in ]-Pi;Pi[
     static bool isAngleNotIn(double start, double delta, double angleIn);
     //! for an angle 'angle' in ]-3*Pi;3*Pi[ returns angle in ]-Pi;Pi[
-    static double normalizeAngle(double angle) { if(angle>M_PI) return angle-2.*M_PI; if(angle<-M_PI) return angle+2.*M_PI; return angle; }
+    static double normalizeAngle(double angle) { if(angle> M_PI) return angle-2.*M_PI; if(angle<-M_PI) return angle+2.*M_PI; return angle; }
   private:
     const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }
     const EdgeArcCircle& getE2() const { return (const EdgeArcCircle&)_e2; }

@@ -1,6 +1,8 @@
 #ifndef __TARGETINTERSECTOR__HXX__
 #define __TARGETINTERSECTOR__HXX__
 
+#include <INTERPKERNEL_defines.hxx>
+
 namespace INTERP_KERNEL
 {
   /**
@@ -9,7 +11,7 @@ namespace INTERP_KERNEL
    * with the source elements.
    */
   template<class ConnType>
-  class TargetIntersector
+  class INTERPKERNEL_EXPORT TargetIntersector
   {
   public:
 

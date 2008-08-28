@@ -7,7 +7,7 @@
 namespace INTERP_KERNEL
 {
 
-  class Interpolation3D : public Interpolation<Interpolation3D>
+  class INTERPKERNEL_EXPORT Interpolation3D : public Interpolation<Interpolation3D>
   {
   public:
     Interpolation3D();

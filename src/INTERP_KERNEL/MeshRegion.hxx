@@ -15,7 +15,7 @@ namespace INTERP_KERNEL
    *
    */
   template<class ConnType>
-  class MeshRegion
+  class INTERPKERNEL_EXPORT MeshRegion
   {
   public:
     

@@ -1,6 +1,8 @@
 #ifndef __NODE_HXX__
 #define __NODE_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include "Precision.hxx"
 
 #include <cmath>
@@ -24,7 +26,7 @@ namespace INTERP_KERNEL
   /*!
    * As nodes can be shared between edges it is dealed with ref counting.
    */
-  class Node
+  class GEOMETRIC2D_EXPORT Node
   {
   public:
     Node(double x, double y);
@@ -44,7 +46,7 @@ namespace INTERP_KERNEL
     bool isEqualAndKeepTrack(const Node& other, std::vector<Node *>& track) const;
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
     double distanceWithSq(const Node& other) const;
-    double operator[](int i) const { return _coords[i]; }
+    double operator[]( int i) const { return _coords[i]; }
     //!for tests only !
     void setNewCoords(double x, double y) { _coords[0]=x; _coords[1]=y; }
     static double sign(double val) { if(val>=0) return 1.; else return -1.; }

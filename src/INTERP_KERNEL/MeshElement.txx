@@ -23,7 +23,7 @@ namespace INTERP_KERNEL
   MeshElement<ConnType>::MeshElement(const ConnType index, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh)
     : _index(index), _box(0), _number(mesh.getNumberOfNodesOfElement(index))
   {
-    const double* vertices[_number];
+    const double**vertices = new const double*[_number];
 
     for(unsigned char i = 0 ; i < _number ; ++i)
       vertices[i] = getCoordsOfNode(i , index, mesh);

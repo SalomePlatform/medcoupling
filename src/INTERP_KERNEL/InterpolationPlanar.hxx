@@ -10,7 +10,7 @@ namespace INTERP_KERNEL
   typedef enum {Triangulation, Convex, Geometric2D, Generic} IntersectionType;
 
   template<class RealPlanar>
-  class InterpolationPlanar : public Interpolation< InterpolationPlanar<RealPlanar> >
+  class INTERPKERNEL_EXPORT InterpolationPlanar : public Interpolation< InterpolationPlanar<RealPlanar> >
   {
   private: 
     int  _printLevel;

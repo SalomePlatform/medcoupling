@@ -1,6 +1,8 @@
 #ifndef __EDGE_HXX__
 #define __EDGE_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include "InterpolationUtils.hxx"
 #include "ComposedEdge.hxx"
 #include "Bounds.hxx"
@@ -42,7 +44,7 @@ namespace INTERP_KERNEL
       FULL_UNKNOWN = 3
     } TypeOfEdgeLocInPolygon;
 
-  class MergePoints
+  class GEOMETRIC2D_EXPORT MergePoints
   {
   public:
     MergePoints();
@@ -71,7 +73,7 @@ namespace INTERP_KERNEL
     unsigned _ass2End2    : 1;
   };
 
-  class IntersectElement
+  class GEOMETRIC2D_EXPORT IntersectElement
   {
   public:
     IntersectElement(double val1, double val2, bool start1, bool end1, bool start2, bool end2, Node *node, const Edge& e1, const Edge& e2, bool keepOrder);
@@ -105,7 +107,7 @@ namespace INTERP_KERNEL
     static const unsigned NO_LIMIT = 19;
   };
 
-  class Intersector
+  class GEOMETRIC2D_EXPORT Intersector
   {
   protected:
     //! All non symetric methods are relative to 'e1'.
@@ -130,14 +132,14 @@ namespace INTERP_KERNEL
     const Edge& _e2;
   };
 
-  class SameTypeIntersector : public Intersector
+  class GEOMETRIC2D_EXPORT SameTypeIntersector : public Intersector
   {
   protected:
     SameTypeIntersector(const Edge& e1, const Edge& e2):Intersector(e1,e2) { }
     bool keepOrder() const { return true; }
   };
 
-  class CrossTypeIntersector : public Intersector
+  class GEOMETRIC2D_EXPORT CrossTypeIntersector : public Intersector
   {
   protected:
     CrossTypeIntersector(const Edge& e1, const Edge& e2, bool reverse):Intersector(e1,e2),_reverse(reverse) { }
@@ -157,7 +159,7 @@ namespace INTERP_KERNEL
   /*!
    * Deal with an oriented edge of a polygon.
    */
-  class Edge
+  class GEOMETRIC2D_EXPORT Edge
   {
   public:
     Edge(Node *start, Node *end, bool direction=true):_cnt(1),_loc(FULL_UNKNOWN) { if(direction) { _start=start; _end=end; } else { _start=end; _end=start; } _start->incrRef(); _end->incrRef(); }

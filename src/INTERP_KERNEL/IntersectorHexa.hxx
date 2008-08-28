@@ -13,7 +13,7 @@ namespace INTERP_KERNEL
    *
    */
   template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class IntersectorHexa : public TargetIntersector<ConnType>
+  class INTERPKERNEL_EXPORT IntersectorHexa : public TargetIntersector<ConnType>
   {
 
   public:

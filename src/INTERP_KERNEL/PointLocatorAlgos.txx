@@ -105,7 +105,7 @@ namespace INTERP_KERNEL{
 				{
 					//in 2D, nbedges==nbnodes
 					int nbedges=nbnodes;
-					int sign[nbedges];
+					int* sign = new int[nbedges];
 					for (int iedge=0; iedge<nbedges; iedge++)
 						{
 							const double* A=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[iedge]));
@@ -147,7 +147,7 @@ namespace INTERP_KERNEL{
 					}
 					const MEDMEM::CELLMODEL& model=MEDMEM::CELLMODEL_Map::retrieveCellModel(elem_type);
 					int nbfaces = model.getNumberOfConstituents(1);
-					int sign[nbfaces];
+					int* sign = new int[nbfaces];
 					for (int iface=0; iface<nbfaces; iface++)
 						{
 							int* connface=model.getNodesConstituent(1,iface+1);

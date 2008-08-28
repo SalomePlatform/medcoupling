@@ -6,7 +6,7 @@
 #include "PointLocatorAlgos.txx"
 namespace INTERP_KERNEL
 {
-class PointLocator
+class INTERPKERNEL_EXPORT PointLocator
 {
 public:
 	PointLocator(const MEDMEM::MESH& mesh);

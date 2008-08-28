@@ -157,7 +157,7 @@ namespace INTERP_KERNEL
        
             assert(faceModel.getDimension() == 2);
 
-            int faceNodes[faceModel.getNumberOfNodes()];
+            std::vector<int> faceNodes(faceModel.getNumberOfNodes());
 
             // get the nodes of the face
             for(int j = 1; j <= faceModel.getNumberOfNodes(); ++j)

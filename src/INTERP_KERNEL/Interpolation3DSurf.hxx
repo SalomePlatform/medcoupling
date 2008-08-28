@@ -5,7 +5,7 @@
 
 namespace INTERP_KERNEL
 {
-  class Interpolation3DSurf : public InterpolationPlanar<Interpolation3DSurf>
+  class INTERPKERNEL_EXPORT Interpolation3DSurf : public InterpolationPlanar<Interpolation3DSurf>
   {
   public:
     Interpolation3DSurf();

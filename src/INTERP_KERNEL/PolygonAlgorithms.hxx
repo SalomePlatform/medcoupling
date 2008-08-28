@@ -23,7 +23,7 @@ namespace INTERP_KERNEL
   };
   
   template<int DIM>
-  class PolygonAlgorithms
+  class INTERPKERNEL_EXPORT PolygonAlgorithms
   {
   public:
     PolygonAlgorithms(double epsilon, double precision);

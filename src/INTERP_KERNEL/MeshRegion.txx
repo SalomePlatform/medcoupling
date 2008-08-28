@@ -47,7 +47,7 @@ namespace INTERP_KERNEL
        
     if(_box == 0)
       {
-        const double* pts[numNodes];
+        const double** pts = new const double*[numNodes];
 
         // get coordinates of the nodes of the element
         for(unsigned char i = 0 ; i < numNodes ; ++i)

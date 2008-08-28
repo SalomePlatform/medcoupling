@@ -12,7 +12,7 @@
 namespace INTERP_KERNEL
 {
   template<class TrueMainInterpolator>
-  class Interpolation
+  class INTERPKERNEL_EXPORT Interpolation
   {
   public:
     Interpolation() { }

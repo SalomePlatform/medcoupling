@@ -1,6 +1,8 @@
 #ifndef __TRANSFORMED_TRIANGLE_HXX__
 #define __TRANSFORMED_TRIANGLE_HXX__
 
+#include <INTERPKERNEL_defines.hxx>
+
 #include <vector>
 
 
@@ -82,10 +84,9 @@ namespace INTERP_KERNEL
    *    If OPTIMIZE is defined, a large number of methods will be prefixed with inline and some optimizations concerning the tests 
    * with zero double products will be used.
    */
-  class TransformedTriangle
+  class INTERPKERNEL_EXPORT TransformedTriangle
   {
-
-  
+ 
 
   public:
 

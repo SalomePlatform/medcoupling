@@ -10,7 +10,7 @@ namespace INTERP_KERNEL
   class TranslationRotationMatrix;
   
   template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class PlanarIntersector
+  class INTERPKERNEL_EXPORT PlanarIntersector
   {
   public:
     PlanarIntersector(double dimCaracteristic, double precision, double medianPlane, bool doRotate, int printLevel);

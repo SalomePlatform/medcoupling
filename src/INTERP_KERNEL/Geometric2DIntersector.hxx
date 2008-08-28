@@ -8,7 +8,7 @@ namespace INTERP_KERNEL
   class QuadraticPolygon;
 
   template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class Geometric2DIntersector : public PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>
+  class INTERPKERNEL_EXPORT Geometric2DIntersector : public PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>
   {
   public:
     Geometric2DIntersector(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_A,

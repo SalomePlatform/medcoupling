@@ -20,7 +20,7 @@ namespace INTERP_KERNEL
   std::istream& operator>>(std::istream& in, Matrix<U,type>& m);
 	
   template<class T, NumberingPolicy type=ALL_C_MODE>
-  class Matrix
+  class INTERPKERNEL_EXPORT Matrix
   {
     class Row : public std::vector< typename std::pair<int,T> >
     {
@@ -45,10 +45,10 @@ namespace INTERP_KERNEL
     };
     
   private:
-    uint _nb_rows;
+    unsigned int _nb_rows;
     T* _coeffs;
-    uint* _cols;
-    std::vector<uint> _ncols_offset;
+    unsigned int* _cols;
+    std::vector<unsigned int> _ncols_offset;
     std::vector< Row > _auxiliary_matrix;
     friend std::ostream& operator<<<>(std::ostream& in, const Matrix<T,type>& m);
     friend std::istream& operator>><>(std::istream& in, Matrix<T,type>& m);
@@ -113,7 +113,7 @@ namespace INTERP_KERNEL
 		}
 
     /*! declares a method that specifies the number of rows */
-    void resize(uint nbrows)
+    void resize(unsigned int nbrows)
     {
       _nb_rows=nbrows;
       _auxiliary_matrix.resize(nbrows);
@@ -152,7 +152,7 @@ namespace INTERP_KERNEL
       for (int i=0; i< _nb_rows; i++)
         {
           output[i]=0;
-          for (int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
             output[i]+=input[icol]*_coeffs[j];
           }
@@ -168,16 +168,16 @@ namespace INTERP_KERNEL
     {
       _ncols_offset.resize(_nb_rows+1);
       _ncols_offset[0]=0;
-      for (int i=0; i<_nb_rows; i++)
+      for (unsigned int i=0; i<_nb_rows; i++)
         _ncols_offset[i+1]=_ncols_offset[i]+_auxiliary_matrix[i].size();
       int nbcoeffs= _ncols_offset[_nb_rows];
-      _cols=new uint[nbcoeffs];
+      _cols=new unsigned int[nbcoeffs];
       _coeffs=new T[nbcoeffs];
-      uint* cols_ptr=_cols;
+      unsigned int* cols_ptr=_cols;
       T* coeffs_ptr=_coeffs;
-      for (uint i=0; i<_nb_rows; i++)
+      for (unsigned int i=0; i<_nb_rows; i++)
         {
-          for (uint j=0; j<_auxiliary_matrix[i].size(); j++)
+          for (unsigned int j=0; j<_auxiliary_matrix[i].size(); j++)
             {
               *cols_ptr++ = OTT<int,type>::ind2C(_auxiliary_matrix[i][j].first);
               *coeffs_ptr++ = _auxiliary_matrix[i][j].second;
@@ -190,7 +190,7 @@ namespace INTERP_KERNEL
     /*! 
      * 0 <= irow < n
      */
-    Row &operator [] (uint irow)
+    Row &operator [] (unsigned int irow)
     {
       return _auxiliary_matrix[irow];
     }

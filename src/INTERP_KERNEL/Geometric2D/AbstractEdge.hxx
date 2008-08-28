@@ -1,6 +1,8 @@
 #ifndef __ABSTRACTEDGE_HXX__
 #define __ABSTRACTEDGE_HXX__
 
+#include "Geometric2D_defines.hxx"
+
 #include <set>
 #include <fstream>
 
@@ -14,7 +16,7 @@ namespace INTERP_KERNEL
   class ComposedEdge;
   class ElementaryEdge;
 
-  class IteratorOnComposedEdge
+  class GEOMETRIC2D_EXPORT IteratorOnComposedEdge
   {
     friend class AbstractEdge;
     friend class ComposedEdge;
@@ -44,7 +46,7 @@ namespace INTERP_KERNEL
     mutable ItOnFixdLev _current[MAX_INTERSCT_DEPH];
   };
 
-  class AbstractEdge
+  class GEOMETRIC2D_EXPORT AbstractEdge
   {
   public:
     virtual ~AbstractEdge() { }
