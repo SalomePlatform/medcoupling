@@ -24,7 +24,8 @@
 # $Header$
 #
 
-SUBDIRSTUI= tui
+SUBDIRS    = tui
+SUBDIRSTUI = tui
 
 dev_docs:
 	@@SETX@; for d in $(SUBDIRSTUI); do 	\

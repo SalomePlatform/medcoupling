@@ -24,7 +24,28 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
 
-install-data-local : html-local main.dox 
-	mkdir -p $(prefix)/doc/user ;\
-	cp -r @builddir@/doc_ref_user/html $(prefix)/doc/user
+userdocdir = $(prefix)/doc/user
 
+install-data-local : html-local
+	$(INSTALL) -d $(DESTDIR)$(userdocdir)
+	cp -rp doc_ref_user/html $(DESTDIR)$(userdocdir)
+
+uninstall-local:
+	rm -rf $(DESTDIR)$(userdocdir)
+
+clean-local:
+	rm -rf doc_ref_user log_user
+
+EXTRA_DIST += figures \
+	      main.dox \
+	      MED_class.dox \
+	      biblio.dox \
+	      field.dox \
+	      grid.dox \
+	      medsplitter.dox \
+	      mesh.dox \
+	      meshing.dox \
+	      polygon.dox \
+	      remapping.dox \
+	      support.dox \
+	      tools.dox

@@ -29,7 +29,7 @@ salomeinclude_HEADERS =  MPIMainTest.hxx \
 												 MPIAccessTest.hxx \
 												 ParaMEDMEMTest.hxx
 
-EXTRA_DIST += MPIMainTest.hxx 
+EXTRA_DIST += MPIMainTest.hxx ParaMEDMEMTest_NonCoincidentDEC.cxx
 dist_libParaMEDMEMTest_la_SOURCES= \
 	ParaMEDMEMTest.cxx \
  ParaMEDMEMTest_MPIProcessorGroup.cxx \

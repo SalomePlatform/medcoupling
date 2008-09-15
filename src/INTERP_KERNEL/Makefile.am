@@ -29,14 +29,14 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 # first '.' says that this folder must be compiled before Test (MEDMEM/Test uses MEDMEM)
 if CPPUNIT_IS_OK
- SUBDIRS= Geometric2D . Test 
+ SUBDIRS = Geometric2D . Test 
 else
- SUBDIRS =Geometric2D .
+ SUBDIRS = Geometric2D .
 endif
 
-DIST_SUBDIRS= Geometric2D Test
+DIST_SUBDIRS = Geometric2D Test
 
-lib_LTLIBRARIES= libinterpkernel.la
+lib_LTLIBRARIES = libinterpkernel.la
 
 
 salomeinclude_HEADERS = \
@@ -51,13 +51,13 @@ INTERPKERNEL_defines.hxx
 # Libraries targets
 
 dist_libinterpkernel_la_SOURCES = \
-TransformedTriangle.cxx\
-TransformedTriangle_intersect.cxx\
-TransformedTriangle_math.cxx\
-BoundingBox.cxx\
-TetraAffineTransform.cxx\
-Remapper.cxx \
-PointLocator.cxx
+	TransformedTriangle.cxx\
+	TransformedTriangle_intersect.cxx\
+	TransformedTriangle_math.cxx\
+	BoundingBox.cxx \
+	TetraAffineTransform.cxx\
+	Remapper.cxx \
+	PointLocator.cxx
 
 libinterpkernel_la_LDFLAGS= $(MED2_LIBS) $(HDF5_LIBS) ../MEDWrapper/V2_1/Core/libmed_V2_1.la $(STDLIB) ../MEDMEM/libmedmem.la -lutil -lm
 
@@ -82,3 +82,49 @@ if MED_ENABLE_KERNEL
      LDADD+=-lSALOMEBasics
 endif
 
+EXTRA_DIST += \
+	BBTree.txx \
+	BoundingBox.hxx \
+	ConvexIntersector.hxx \
+	ConvexIntersector.txx \
+	Geometric2DIntersector.hxx \
+	Geometric2DIntersector.txx \
+	Geometric2DIntersector.hxx \
+	Geometric2DIntersector.txx \
+	InterpKernelMatrix.hxx \
+	Interpolation2D.txx \
+	Interpolation3D.txx \
+	Interpolation3DSurf.txx \
+	InterpolationPlanar.hxx \
+	InterpolationPlanar.txx \
+	InterpolationUtils.hxx \
+	IntersectorHexa.hxx \
+	IntersectorHexa.txx \
+	IntersectorTetra.hxx \
+	IntersectorTetra.txx \
+	Log.hxx \
+	MEDNormalizedUnstructuredMesh.hxx \
+	MEDNormalizedUnstructuredMesh.txx \
+	MeshElement.hxx \
+	MeshElement.txx \
+	MeshRegion.hxx \
+	MeshRegion.txx \
+	MeshUtils.hxx \
+	NormalizedUnstructuredMesh.hxx \
+	PlanarIntersector.hxx \
+	PlanarIntersector.txx \
+	PointLocatorAlgos.txx \
+	PolygonAlgorithms.hxx \
+	PolygonAlgorithms.txx \
+	RegionNode.hxx \
+	TargetIntersector.hxx \
+	TestInterpKernel.cpp \
+	TetraAffineTransform.hxx \
+	TransformedTriangle.hxx \
+	TransformedTriangle_inline.hxx \
+	TranslationRotationMatrix.hxx \
+	TriangulationIntersector.hxx \
+	TriangulationIntersector.txx \
+	VTKNormalizedUnstructuredMesh.hxx \
+	VTKNormalizedUnstructuredMesh.txx \
+	VectorUtils.hxx

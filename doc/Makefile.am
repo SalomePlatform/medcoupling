@@ -17,6 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
 
-SUBDIRS= MEDMEM salome doxygen
+SUBDIRS = MEDMEM salome doxygen
 
-EXTRA_DIST= html
+dev_docs:
+	(cd salome && $(MAKE) $(AM_MAKEFLAGS) dev_docs)
+

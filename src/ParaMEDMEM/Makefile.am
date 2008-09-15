@@ -120,3 +120,11 @@ if MED_ENABLE_KERNEL
      LDADD+=-lSALOMEBasics
 endif
 
+EXTRA_DIST += \
+	BASICS_JR \
+	CommInterface.cxx \
+	NonCoincidentDEC.cxx \
+	NonCoincidentDEC.hxx \
+	README_JR \
+	TODO_JR \
+	Topology.cxx

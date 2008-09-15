@@ -50,38 +50,38 @@ WARN_LOGFILE           = log_user
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = @srcdir@ \
-											 @srcdir@/../../src/ParaMEDMEM \
-											 @srcdir@/../../src/INTERP_KERNEL \
-												 @srcdir@/../../src/MEDMEM
-		
+                         @srcdir@/../../src/ParaMEDMEM \
+                         @srcdir@/../../src/INTERP_KERNEL \
+                         @srcdir@/../../src/MEDMEM
+
 FILE_PATTERNS          = MEDMEM_Mesh.* \
-												 MEDMEM_Grid.* \
-												 MEDMEM_Meshing.* \
-												 MEDMEM_Support.* \
-												 MEDMEM_Field.* \
-												 MEDMEM_Med.* \
-												 IntersectionDEC.* \
-												 DEC.* \
-												 MPIProcessorGroup.* \
-												 StructuredCoincidentDEC.* \
-												 ExplicitCoincidentDEC.* \
-												 NonCoincidentDEC.* \
+                         MEDMEM_Grid.* \
+                         MEDMEM_Meshing.* \
+                         MEDMEM_Support.* \
+                         MEDMEM_Field.* \
+                         MEDMEM_Med.* \
+                         IntersectionDEC.* \
+                         DEC.* \
+                         MPIProcessorGroup.* \
+                         StructuredCoincidentDEC.* \
+                         ExplicitCoincidentDEC.* \
+                         NonCoincidentDEC.* \
                          CommInterface.* \
-												 Interpolation2D.* \
-												 Interpolation3D.* \
-												 Interpolation3DSurf.* \
-												 InterpolationMatrix.* \
-												 ParaFIELD.* \
-												 *.dox
+                         Interpolation2D.* \
+                         Interpolation3D.* \
+                         Interpolation3DSurf.* \
+                         InterpolationMatrix.* \
+                         ParaFIELD.* \
+                         *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
 EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM/ \
-												 @srcdir@/../../doc/MEDMEM \
- 												 @srcdir@/../../src/MEDMEM
+                         @srcdir@/../../doc/MEDMEM \
+                         @srcdir@/../../src/MEDMEM
 EXAMPLE_PATTERNS       = *.cxx *.py
 EXAMPLE_RECURSIVE      = NO
-IMAGE_PATH             = @top_srcdir@/doc/doxygen/figures
+IMAGE_PATH             = @srcdir@/figures
 INPUT_FILTER           = 
 FILTER_SOURCE_FILES    = NO
 #---------------------------------------------------------------------------
