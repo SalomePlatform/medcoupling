@@ -29,22 +29,20 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 noinst_LTLIBRARIES = libInterpGeometric2DAlg.la
 
-salomeinclude_HEADERS = \
-	AbstractEdge.hxx     \
-	Bounds.hxx           \
-	Precision.hxx        \
-	ComposedEdge.hxx     \
-	ComposedEdgeWithIt.hxx \
-	EdgeArcCircle.hxx    \
-	Edge.hxx             \
-	Edge.txx             \
-	EdgeInfLin.hxx       \
-	EdgeLin.hxx          \
-	ElementaryEdge.hxx   \
-	Node.hxx             \
-	QuadraticPolygon.hxx
-
 dist_libInterpGeometric2DAlg_la_SOURCES = \
+AbstractEdge.hxx     \
+Bounds.hxx           \
+Precision.hxx        \
+ComposedEdge.hxx     \
+ComposedEdgeWithIt.hxx \
+EdgeArcCircle.hxx    \
+Edge.hxx             \
+Edge.txx             \
+EdgeInfLin.hxx       \
+EdgeLin.hxx          \
+ElementaryEdge.hxx   \
+Node.hxx             \
+QuadraticPolygon.hxx \
 AbstractEdge.cxx     \
 Bounds.cxx           \
 Precision.cxx        \
