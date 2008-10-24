@@ -147,26 +147,26 @@ Reversely, if the processor is on the sending end, the field will be read, possi
 	 */
 	void DEC::renormalizeTargetField()
 	{
-		if (_source_group->containsMyRank())
-			for (int icomp=0; icomp<_local_field->getField()->getNumberOfComponents(); icomp++)
-				{
-					double total_norm = _local_field->getVolumeIntegral(icomp+1);
-					double source_norm = total_norm;
-					_comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
-					
-				}
-		if (_target_group->containsMyRank())
-			{
-				for (int icomp=0; icomp<_local_field->getField()->getNumberOfComponents(); icomp++)
-					{
-						double total_norm = _local_field->getVolumeIntegral(icomp+1);
-						double source_norm=total_norm;
-						_comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
-						
-						if (abs(total_norm)>1e-100)
-							_local_field->getField()->applyLin(source_norm/total_norm,0.0,icomp+1);
-					}
-			}
-	}
+          if (_source_group->containsMyRank())
+            for (int icomp=0; icomp<_local_field->getField()->getNumberOfComponents(); icomp++)
+            {
+              double total_norm = _local_field->getVolumeIntegral(icomp+1);
+              double source_norm = total_norm;
+              _comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
+
+            }
+          if (_target_group->containsMyRank())
+          {
+            for (int icomp=0; icomp<_local_field->getField()->getNumberOfComponents(); icomp++)
+            {
+              double total_norm = _local_field->getVolumeIntegral(icomp+1);
+              double source_norm=total_norm;
+              _comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
+
+              if (abs(total_norm)>1e-100)
+                _local_field->getField()->applyLin(source_norm/total_norm,0.0,icomp+1);
+            }
+          }
+        }
 	/*! @} */
 }

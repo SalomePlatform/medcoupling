@@ -122,87 +122,87 @@ It works in four steps :
 -# The lazy side is updated so that it knows the structure of the data that will be sent by
 the working side during a \a sendData() call.
 
- */
+*/
 void IntersectionDEC::synchronize()
 {
-	const ParaMEDMEM::ParaMESH* para_mesh = _local_field->getSupport()->getMesh();
-	cout <<"size of Interpolation Matrix"<<sizeof(InterpolationMatrix)<<endl;
-	_interpolation_matrix = new InterpolationMatrix (*para_mesh, *_source_group,*_target_group,"P0"); 
+  const ParaMEDMEM::ParaMESH* para_mesh = _local_field->getSupport()->getMesh();
+  cout <<"size of Interpolation Matrix"<<sizeof(InterpolationMatrix)<<endl;
+  _interpolation_matrix = new InterpolationMatrix (*para_mesh, *_source_group,*_target_group,"P0"); 
   _interpolation_matrix->setAllToAllMethod(_allToAllMethod);
   _interpolation_matrix->getAccessDEC()->Asynchronous( _asynchronous ) ;
   _interpolation_matrix->getAccessDEC()->SetTimeInterpolator( _timeinterpolationmethod ) ;
-	
+
   //setting up the communication DEC on both sides  
   if (_source_group->containsMyRank())
+  {
+    //locate the distant meshes
+    ElementLocator locator(*para_mesh, *_target_group);
+
+    //transfering option from IntersectionDEC to ElementLocator                 
+    double bb_adj;
+    getOption("BoundingBoxAdjustment",bb_adj);
+    locator.setOption("BoundingBoxAdjustment",bb_adj);
+
+    MESH* distant_mesh=0; 
+    int* distant_ids=0;
+    for (int i=0; i<_target_group->size(); i++)
     {
-      //locate the distant meshes
-      ElementLocator locator(*para_mesh, *_target_group);
+      //        int idistant_proc = (i+_source_group->myRank())%_target_group->size();
+      int       idistant_proc=i;
 
-			//transfering option from IntersectionDEC to ElementLocator			
-			double bb_adj;
-			getOption("BoundingBoxAdjustment",bb_adj);
-			locator.setOption("BoundingBoxAdjustment",bb_adj);
+      //gathers pieces of the target meshes that can intersect the local mesh
+      locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
 
-      MESH* distant_mesh=0; 
-      int* distant_ids=0;
-      for (int i=0; i<_target_group->size(); i++)
-				{
-					//	int idistant_proc = (i+_source_group->myRank())%_target_group->size();
-					int	idistant_proc=i;
-					
-					//gathers pieces of the target meshes that can intersect the local mesh
-					locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
-					
-					if (distant_mesh !=0)
-						{
-							//adds the contribution of the distant mesh on the local one
-							int idistant_proc_in_union=_union_group->translateRank(_target_group,idistant_proc);
-							cout <<"add contribution from proc "<<idistant_proc_in_union<<" to proc "<<_union_group->myRank()<<endl;
-							_interpolation_matrix->addContribution(*distant_mesh,idistant_proc_in_union,distant_ids);
-							
-							delete distant_mesh;
-							delete[] distant_ids;
-							distant_mesh=0;
-							distant_ids=0;
-						}
-				}  
-			
-		}
-	
+      if (distant_mesh !=0)
+      {
+        //adds the contribution of the distant mesh on the local one
+        int idistant_proc_in_union=_union_group->translateRank(_target_group,idistant_proc);
+        cout <<"add contribution from proc "<<idistant_proc_in_union<<" to proc "<<_union_group->myRank()<<endl;
+        _interpolation_matrix->addContribution(*distant_mesh,idistant_proc_in_union,distant_ids);
+
+        delete distant_mesh;
+        delete[] distant_ids;
+        distant_mesh=0;
+        distant_ids=0;
+      }
+    }  
+
+  }
+
   if (_target_group->containsMyRank())
-    {
-      ElementLocator locator(*para_mesh, *_source_group);
-			//transfering option from IntersectionDEC to ElementLocator
-			double bb_adj;
-			MEDMEM::OptionManager::getOption("BoundingBoxAdjustment",bb_adj);
-			locator.setOption("BoundingBoxAdjustment",bb_adj);
+  {
+    ElementLocator locator(*para_mesh, *_source_group);
+    //transfering option from IntersectionDEC to ElementLocator
+    double bb_adj;
+    MEDMEM::OptionManager::getOption("BoundingBoxAdjustment",bb_adj);
+    locator.setOption("BoundingBoxAdjustment",bb_adj);
 
-      MESH* distant_mesh=0;
-      int* distant_ids=0;
-      for (int i=0; i<_source_group->size(); i++)
-				{
-					//	int idistant_proc = (i+_target_group->myRank())%_source_group->size();
-					int  idistant_proc=i;
-					//gathers pieces of the target meshes that can intersect the local mesh
-					locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
-					cout << " Data sent from "<<_union_group->myRank()<<" to source proc "<< idistant_proc<<endl;
-					if (distant_mesh!=0)
-						{
-							delete distant_mesh;
-							delete[] distant_ids;
-							distant_mesh=0;
-							distant_ids=0;
-						}
-				}      
-		}
+    MESH* distant_mesh=0;
+    int* distant_ids=0;
+    for (int i=0; i<_source_group->size(); i++)
+    {
+      //        int idistant_proc = (i+_target_group->myRank())%_source_group->size();
+      int  idistant_proc=i;
+      //gathers pieces of the target meshes that can intersect the local mesh
+      locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
+      cout << " Data sent from "<<_union_group->myRank()<<" to source proc "<< idistant_proc<<endl;
+      if (distant_mesh!=0)
+      {
+        delete distant_mesh;
+        delete[] distant_ids;
+        distant_mesh=0;
+        distant_ids=0;
+      }
+    }      
+  }
   _interpolation_matrix->prepare();
-	
+
 }
 
 
 /*!
-Receives the data whether the processor is on the working side or on the lazy side. It must match a \a sendData() call on the other side.
- */
+  Receives the data whether the processor is on the working side or on the lazy side. It must match a \a sendData() call on the other side.
+*/
 void IntersectionDEC::recvData()
 {
 

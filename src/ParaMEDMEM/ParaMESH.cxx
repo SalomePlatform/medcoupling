@@ -20,7 +20,8 @@ ParaMESH::ParaMESH(MEDMEM::driverTypes driver_type, const string& filename,
 	const ProcessorGroup& group)
 throw (MEDMEM::MEDEXCEPTION) :_has_mesh_ownership(true) {
 
-  BEGIN_OF("MEDSPLITTER::MESHCollectionDriver::read()")
+  const char* LOC = "MEDSPLITTER::MESHCollectionDriver::read()";
+  BEGIN_OF(LOC);
   
  
   string meshstring;
@@ -234,7 +235,8 @@ ParaMESH::~ParaMESH()
 void ParaMESH::write(MEDMEM::driverTypes driverType, const string& master_filename)
 throw (MEDMEM::MEDEXCEPTION){
 	
-	BEGIN_OF("ParaMEDMEM::ParaMESH::write()");
+  const char* LOC = "ParaMEDMEM::ParaMESH::write()";
+  BEGIN_OF(LOC);
 	 
 	if (!_block_topology->getProcGroup()->containsMyRank()) return;
 	 

@@ -58,7 +58,8 @@ ParaGRID::~ParaGRID(){if (_grid !=0) delete _grid;};
 void ParaGRID::write(MEDMEM::driverTypes driverType, const string& master_filename)
 throw (MEDMEM::MEDEXCEPTION){
 	
-	BEGIN_OF("ParaMEDMEM::ParaGRID::write()");
+  const char* LOC = "ParaMEDMEM::ParaGRID::write()";
+  BEGIN_OF(LOC);
 	 
 	if (!_block_topology->getProcGroup()->containsMyRank()) return;
 	 
