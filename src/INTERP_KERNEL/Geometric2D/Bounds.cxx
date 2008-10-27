@@ -1,8 +1,7 @@
 #include "Bounds.hxx"
 #include "InterpolationUtils.hxx"
+#include "EdgeArcCircle.hxx"
 #include "Node.hxx"
-
-#include <cmath>
 
 using namespace INTERP_KERNEL;
 
@@ -38,9 +37,66 @@ double &Bounds::operator[](int i)
   throw Exception("internal error occurs !");
 }
 
+double Bounds::getDiagonal() const
+{
+  double a=_xMax-_xMin;
+  double b=_yMax-_yMin;
+  return sqrt(a*a+b*b);
+}
+
+/*!
+ * See Node::applySimilarity to see signification of params.
+ */
+void Bounds::applySimilarity(double xBary, double yBary, double dimChar)
+{
+  _xMin=(_xMin-xBary)/dimChar;
+  _xMax=(_xMax-xBary)/dimChar;
+  _yMin=(_yMin-yBary)/dimChar;
+  _yMax=(_yMax-yBary)/dimChar;
+}
+
+void Bounds::getBarycenter(double& xBary, double& yBary) const
+{
+  xBary=(_xMin+_xMax)/2.;
+  yBary=(_yMax+_yMin)/2.;
+}
+
 void Bounds::prepareForAggregation()
 {
   _xMin=1e200; _xMax=-1e200; _yMin=1e200; _yMax=-1e200;
+}
+
+/*! 
+ * Given an arc defined by 'center', 'radius' and 'intrcptArcDelta' in radian, returns (by outputs intrcptArcAngle0 and intrcptArcDelta)
+ * the intercepted angle of 'this' from 'center' point of view.
+ * If diagonal of 'this' is the same order of 2*radius, intrcptArcAngle0 and intrcptArcDelta remains unchanged.
+ * @param center IN parameter.
+ * @param radius IN parameter.
+ * @param intrcptArcAngle0 OUT parameter.
+ * @param intrcptArcDelta IN/OUT parameter.
+ */
+void Bounds::getInterceptedArc(const double *center, double radius, double& intrcptArcAngle0, double& intrcptArcDelta) const
+{
+  double diag=getDiagonal();
+  if(diag<2.*radius)
+    {
+      double v1[2],v2[2],w1[2],w2[2];
+      v1[0]=_xMin-center[0]; v1[1]=_yMax-center[1]; v2[0]=_xMax-center[0]; v2[1]=_yMin-center[1];
+      w1[0]=v1[0]; w1[1]=_yMin-center[1];           w2[0]=v2[0]; w2[1]=_yMax-center[1];
+      double delta1=EdgeArcCircle::safeAsin(v1[0]*v2[1]-v1[1]*v2[0]);
+      double delta2=EdgeArcCircle::safeAsin(w1[0]*w2[1]-w1[1]*w2[0]);
+      double tmp;
+      if(fabs(delta1)>fabs(delta2))
+        {
+          intrcptArcDelta=delta1;
+          intrcptArcAngle0=EdgeArcCircle::getAbsoluteAngle(v1,tmp);
+        }
+      else
+        {
+          intrcptArcDelta=delta2;
+          intrcptArcAngle0=EdgeArcCircle::getAbsoluteAngle(w1,tmp);
+        }
+    }
 }
 
 double Bounds::fitXForXFigD(double val, int res) const
@@ -120,9 +176,4 @@ void Bounds::aggregate(const Bounds& other)
 {
   _xMin=fmin(_xMin,other._xMin); _xMax=fmax(_xMax,other._xMax);
   _yMin=fmin(_yMin,other._yMin); _yMax=fmax(_yMax,other._yMax);
-}
-
-double Bounds::getCaracteristicDim() const
-{
-  return fmax(_xMax-_xMin,_yMax-_yMin);
 }

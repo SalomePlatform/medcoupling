@@ -8,6 +8,7 @@ The MESH class is dedicated to the handling of unstructured meshes. Two classes 
 \section mesh_connectivity Content of the connectivity array
 Underlying the unstructured meshes is the notion of connectivity. This section only covers meshes made out of standard elements, the \c MED_POLYGON and \c MED_POLYHEDRA case being detailed in section \ref polygon .
 
+\anchor medmemConnArrays
 \image html connectivity_arrays_small.png "Nodal connectivity storage scheme"
 \image latex connectivity_arrays_small.eps "Nodal connectivity storage scheme"
 

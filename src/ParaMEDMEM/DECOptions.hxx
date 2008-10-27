@@ -1,0 +1,52 @@
+#ifndef _DECOPTIONS_HXX_
+#define _DECOPTIONS_HXX_
+
+
+namespace ParaMEDMEM {
+	//Enum describing the allToAll method used in the communication pattern
+	typedef enum{Native,PointToPoint} AllToAllMethod;
+	typedef enum{WithoutTimeInterp,LinearTimeInterp} TimeInterpolationMethod;
+
+	class DECOptions
+	{
+	private:
+		 string _method;
+		bool _asynchronous;
+		 TimeInterpolationMethod _timeInterpolationMethod;
+		 AllToAllMethod _allToAllMethod;
+		 bool _forcedRenormalization;
+
+	public:
+		DECOptions():_method("P0"),
+								 _timeInterpolationMethod(WithoutTimeInterp),
+								  _asynchronous(false),
+								 _forcedRenormalization(false),
+								 _allToAllMethod(Native)
+		{}
+		DECOptions(const DECOptions& deco)
+		{
+			_method=deco._method;
+			_timeInterpolationMethod=deco._timeInterpolationMethod;
+			_asynchronous=deco._asynchronous;
+			_forcedRenormalization=deco._forcedRenormalization;
+			_allToAllMethod=deco._allToAllMethod;
+		}
+		string getMethod() const {return _method;}
+	  void setMethod(string m) {_method=m;}
+
+ 		TimeInterpolationMethod getTimeInterpolationMethod() const{return DECOptions::_timeInterpolationMethod;}
+		void setTimeInterpolationMethod(TimeInterpolationMethod it) {DECOptions::_timeInterpolationMethod=it;}
+
+		bool getForcedRenormalization() const {return DECOptions::_forcedRenormalization;}
+		void setForcedRenormalization( bool dr) {DECOptions::_forcedRenormalization = dr;}
+
+		bool getAsynchronous() const {return DECOptions::_asynchronous;}
+		void setAsynchronous( bool dr) {DECOptions::_asynchronous = dr;}
+		 
+		AllToAllMethod getAllToAllMethod() const {return _allToAllMethod;}
+		void setAllToAllMethod(AllToAllMethod sp) {_allToAllMethod=sp;}
+
+	};
+
+}
+#endif

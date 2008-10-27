@@ -9,20 +9,19 @@
 namespace INTERP_KERNEL
 {
 
-class INTERPKERNEL_EXPORT Remapper
-{
-public:
-	Remapper();
-	virtual ~Remapper();
-	void prepare(const MEDMEM::MESH& mesh_source, const MEDMEM::MESH& mesh_target);
-	void transfer(const MEDMEM::FIELD<double>& field_source, MEDMEM::FIELD<double>& field_target);
-	void setOptionDouble(const std::string& key, double value);
-	void setOptionInt(const std::string& key, int value);
-private :
-	Matrix<double,ALL_FORTRAN_MODE>* _matrix;
-	MEDMEM::FIELD<double>* getSupportVolumes(const MEDMEM::SUPPORT& support);
-
-};
+  class INTERPKERNEL_EXPORT Remapper
+  {
+  public:
+    Remapper();
+    virtual ~Remapper();
+    void prepare(const MEDMEM::MESH& mesh_source, const MEDMEM::MESH& mesh_target);
+    void transfer(const MEDMEM::FIELD<double>& field_source, MEDMEM::FIELD<double>& field_target);
+    void setOptionDouble(const std::string& key, double value);
+    void setOptionInt(const std::string& key, int value);
+  private :
+    Matrix<double,ALL_FORTRAN_MODE>* _matrix;
+    MEDMEM::FIELD<double>* getSupportVolumes(const MEDMEM::SUPPORT& support);
+  };
 
 }
 

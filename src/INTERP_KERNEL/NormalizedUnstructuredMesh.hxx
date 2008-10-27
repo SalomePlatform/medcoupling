@@ -12,6 +12,8 @@ namespace INTERP_KERNEL
 
   typedef enum
     {
+      NORM_SEG2    =  1,
+      NORM_SEG3    =  2,
       NORM_TRI3    =  3,
       NORM_QUAD4   =  4,
       NORM_POLYGON =  5,
@@ -21,28 +23,16 @@ namespace INTERP_KERNEL
       NORM_TETRA4  = 14,
       NORM_PYRA5   = 15,
       NORM_PENTA6  = 16,
-      NORM_HEXA8   = 18
+      NORM_HEXA8   = 18,
+      NORM_TETRA10 = 20,
+      NORM_PYRA13  = 23,
+      NORM_PENTA15 = 25,
+      NORM_HEXA20  = 30,
+      NORM_POLYHED = 31
     } NormalizedCellType;
 
   class GenericMesh
   {};
-
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class NormalizedUnstructuredMesh : public GenericMesh
-  {
-  public:
-    void getBoundingBox(double *boundingBox) const { asLeaf().getBoundingBox(boundingBox); }
-    NormalizedCellType getTypeOfElement(ConnType eltId) const { return asLeaf().getTypeOfElement(eltId); }
-    unsigned char getNumberOfNodesOfElement(ConnType eltId) const { return asLeaf().getNumberOfNodesOfElement(eltId); }
-    unsigned long getNumberOfElements() const { return asLeaf().getNumberOfElements(); }
-    const ConnType *getConnectivityPtr() const { return asLeaf().getConnectivityPtr(); }
-    const double *getCoordinatesPtr() const { return asLeaf().getCoordinatesPtr(); }
-    const ConnType *getConnectivityIndexPtr() const { return asLeaf().getConnectivityIndexPtr(); }
-    void ReleaseTempArrays() { return asLeaf().ReleaseTempArrays(); }
-  protected:
-    MyMeshType& asLeaf() { return (MyMeshType&)(*this); }
-    const MyMeshType& asLeaf() const { return (MyMeshType&)(*this); }
-  };
 }
 
 #endif

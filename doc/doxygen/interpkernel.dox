@@ -1,0 +1,299 @@
+/*!
+\page interpkernel Interpolation kernel toolkit
+
+\section InterpKerIntro Introduction
+
+The main purpose of this module is to propose a set of algorithms for
+mesh interpolation \b fully \b independant \b of \b mesh \b datastructure to
+support several type of format. This component is parameterized as
+much as possible using C++ templates.
+For the moment only interpolators for unstructured meshes are present in
+%interpolation kernel.
+
+\section InterpKerTheory Theory of interpolation
+
+\subsection InterpKerPerfOverl Mesh overlapping
+
+When interpolation is performed between a source mesh S and a target
+mesh T the aspect of overlapping is important. In fact if any cell of
+of S is fully overlapped by cells of T and inversely any cell of T is
+fully overlapped by cells of S the meshes S and T are said \b
+coincidant and some general formulae in next sub section are simpler.
+As far as possible in the next sub sections the formulae for
+coincidant and non-coincidant meshes will be given.
+
+\subsection InterpKerRemapGlobal Global conservative remapping
+
+For fields with polynomial representation on each cell, the components of the discretized field  \f$ \phi_s \f$ on the source side can be expressed as linear combinations of the components of the discretized field \f$ \phi_t \f$ on the target side, in terms of a matrix-vector product : 
+
+\f[
+ \phi_t=W.\phi_s.
+\f]
+
+All the aim of interpolators is to compute W depending on a physical
+quantities and the type of interpolation wanted (P0, P1, P1d etc...).
+
+For the \b intensive \b field \f$ \phi \f$ from the
+source mesh \f$ S \f$ to the target mesh \f$ T \f$ the interpolation should preserve the
+integral of \f$ \phi \f$ on any domain. At the discrete level, for any
+target cell \f$ T_i \f$, the following \b general \b interpolation \b
+equation \anchor InterpKerGenralEq has to
+be always verified :
+
+\f[
+\int_{T_i} \phi = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi. 
+\f]
+
+To compute \f$ W_{ij} \f$
+this equation is used. The evaluation of integrals depends on the source and target meshes and on the nature of interpolation chosen : P0, P1, P1d etc... For the moment it is only possible to
+remap fields with P0 representations.
+
+\subsection InterpKerRemapInt Conservative remapping of intensive physical quantities
+
+At the basis of many CFD numerical schemes is the fact that physical
+quantities such as density, momentum per unit volume or energy per
+unit volume obey some balance laws that should be preserved at the
+discrete level on every cell. This property is critical for example to
+accurately capture shockwaves. 
+
+\subsection InterpKerP0P0Int cell-cell (P0->P0) conservative remapping of intensive physical quantities
+
+In the \ref InterpKerGenralEq "general interpolation equation" the
+left hand side becomes :
+
+\f[
+\int_{T_i} \phi = (\sum_{S_j} Vol(T_i\cap S_j)).\phi_{T_i}. 
+\f]
+
+\note \f$ \sum_{S_j} Vol(T_i\cap S_j) = Vol(T_i) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
+
+In the \ref InterpKerGenralEq "general interpolation equation" the
+right hand side becomes :
+
+\f[
+\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi = \sum_{S_j\cap T_i \neq \emptyset} {Vol(T_i\cap S_j)}.\phi_{S_j}. 
+\f]
+
+In the case where the \b intensive field values are constant on each
+cell, the coefficients of the linear remapping matrix \f$ W \f$ are
+given by the formula :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ \sum_{S_j} Vol(T_i\cap S_j) }. 
+\f]
+
+and \ref InterpKerPerfOverl "in case of perfect overlapping" :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(T_i) }. 
+\f]
+
+Where Vol represents the volume with mesh dimension of interpolation equals to 3, the
+area when mesh dimension equals to 2, and length when mesh dimension equals to 1.
+
+\subsection InterpKerRemapExt Conservative remapping of extensive physical quantities
+
+In code coupling from neutronics to hydraulic code \b extensive field
+of power is exchanged and the all power as to be kept the same. The
+principle is to 'intensify' the field to move on from extensive field
+\e P to an intensive one \f$ \phi \f$.
+
+\subsection InterpKerP0P0Ext cell-cell (P0->P0) conservative remapping of extensive physical quantities
+
+In the \ref InterpKerGenralEq "general interpolation equation" the
+left hand side becomes :
+
+\f[
+\int_{T_i} \phi = P_{T_i}. 
+\f]
+
+In the \ref InterpKerGenralEq "general interpolation equation" the
+right hand side becomes :
+
+\f[
+\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi =
+\sum_{S_j\cap T_i \neq \emptyset} \frac{Vol(T_i\cap S_j)}{\sum_{T_i} Vol(T_i \cap S_j)}.P_{S_j}.
+\f]
+
+\note \f$ \sum_{T_i} Vol(T_i \cap S_j) = Vol(S_j) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
+
+In the case where the \b extensive field values are constant on each
+cell, the coefficients of the linear remapping matrix \f$ W \f$ are
+given by the formula :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ \sum_{T_i} Vol(T_i \cap S_j) }. 
+\f]
+
+and \ref InterpKerPerfOverl "in case of perfect overlapping" :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(S_j) }. 
+\f]
+
+\section InterpKerMainArchitecture Main architecture of interpolation kernel.
+
+In %interpolation kernel, the algorithm that computes \f$ W_{ij} \f$ given cell i
+in source mesh and cell j in target mesh is called intersector.
+
+As seen in \ref InterpKerTheory "the theory of interpolation", for all interpolation the aim is to
+fill the W matrix (which is generally a sparse matrix). Fundamatally for each pair (i,j) \f$ W_{ij} \f$ is obtained
+by calling each time the wanted intersector. The problem is that each call to algorithm
+is CPU-expensive.
+To reduce the computation time a first filtering is done to found a
+maximim of (i,j) pairs where \f$ W_{ij} \f$ is obviously equal to 0. Typically it
+is the case when a cell in source mesh is too far from an another cell
+in target mesh each other.
+
+So for a given type of interpolation, the computation of W is
+performed in two steps :
+
+      -# A filtering process reduces the number of pairs of
+      elements for which the calculation must be carried out by
+      eliminating pairs that do not intersect through a comparison of
+      their bounding boxes. It reduces as much as possible call to intersector.
+      -# For all remaining pairs calling for each intersector (see \ref interpolation2D, \ref interpolation3Dsurf or \ref interpolation3D).
+
+Each interpolator inherits from INTERP_KERNEL::Interpolation ( whatever
+its dimension and its type ) that is a
+CRTP class in order to clearly see the main API without useless CPU cost.
+
+\subsection InterpKerMeshType class MeshType
+
+Each Interpolators and Intersectors are parameterized (templated in
+C++ langage) with \c class \c MeshType . This type of generalization
+has been chosen to reduce at maximum overhead. \n
+Thanks to this principle \b intersectors \b and \b interpolators \b are \b usable
+\b with \b several \b formats \b without \b preformance \b loss. For example MED, VTK...\n
+\c MeshType is a concept that should strictly fulfilled the following
+rules :
+
+      - Const values / Types
+        - MyConnType : represents type of connectivity index. This is typically \c int or \c long \c int .
+        - MY_SPACEDIM : space dimension. Dimension relative to coordinates.
+        - MY_MESHDIM : the dimension of all cells in meshes.
+        - My_numPol : policy of numbering. C Format ( \f$ [0,n-1] \f$ ) or FORTRAN ( \f$ [1,n] \f$ ).
+      - Methods
+        -# \code void getBoundingBox(double *boundingBox) const \endcode
+        -# \code INTERP_KERNEL::NormalizedCellType getTypeOfElement(MyConnType eltId) const \endcode
+        -# \code unsigned char getNumberOfNodesOfElement(MyConnType eltId) const \endcode
+        -# \code unsigned long getNumberOfElements() const \endcode
+        -# \code const MyConnType *getConnectivityPtr() const \endcode
+        -# \code const double *getCoordinatesPtr() const \endcode
+        -# \code const MyConnType *getConnectivityIndexPtr() const \endcode
+        -# \code void ReleaseTempArrays() \endcode
+      - Formats of arrays
+        - the array returned by \c getCoordinatesPtr must be a \b full \b interlace array.
+        - the arrays returned by \c getConnectivityPtr and \c
+        - getConnectivityIndexPtr must be with the same principle as it is in \ref medmemConnArrays "medmem". Of course the numbering format may change according to \a My_numPol policy.
+
+\note The arrays formats of connectivity is kept close to MED. It is
+close to VTK too but slightly different. So it needs VTK side a copy
+on wrap. To avoid this copy of a part of connectivity structure, iterator should be used.
+
+\subsection InterpKerMatrixType class MatrixType
+
+As already said, the matrix returned by interpolator is typically a sparse matrix. Instances of
+\c class \c MatrixType are used to stores these results of
+interpolation. To be able to be filled by the interpolator the \c MatrixType class has to match the following concept :
+
+      - Methods
+        -# \code void resize(uint nbrows) \endcode
+        -# \code Row &operator [] (uint irow) \endcode
+
+\c class \c Row has to match at least following concept :
+
+      - Methods
+        - \code void insert(const std::pair<int,T>& myPair) \endcode
+
+\note \c std::vector\c < \c std::map<int,double> > is a candidate for
+\c MatrixType.
+
+\section InterpKerGenUsage Usage of interpolation kernel.
+
+\subsection InterpKerHighLevUsage high-level usage
+
+This the simplest mode of usage of interpolator. This way is strongly
+linked with MED data-structure. All interpolators is completely hidden
+to you. Even sparse interpolation matrix is hidden. An exemple of
+usage :
+
+\code
+...
+std::string sourceFileName("source.med");
+MEDMEM::MESH med_source_mesh(MED_DRIVER,sourceFileName,"Source_Mesh");
+std::string targetFileName("target.med");
+MEDMEM::MESH med_target_mesh(MED_DRIVER,targetFileName,"Target_Mesh");
+FIELD<double> sourceField(MED_DRIVER,sourceFileName,"Density",0,0);
+FIELD<double> targetField;
+Remapper mapper;
+mapper.prepare(med_source_mesh,med_target_mesh);
+mapper.transfer(sourceField,targetField);
+//use targetField
+...
+\endcode
+
+\subsection InterpKerMidLevUsage middle-level usage
+
+This mode is the mode that needs the minimum of prerequisites
+(algorithms and the datastructure you intend to use). On the other
+hand it is needed to specify precisely nature of interpolator.
+
+As consequence of genericity of interpolators,  they are usable only by
+instanciating an underneath mesh data structure. The two following
+examples show how to use interpolator at this level.
+
+- The simplest way to use the interpolator with MED datastructure is :
+
+\code
+...
+std::string sourceFileName("source.med");
+MEDMEM::MESH med_source_mesh(MED_DRIVER,sourceFileName,"Source_Mesh");
+std::string targetFileName("target.med");
+MEDMEM::MESH med_target_mesh(MED_DRIVER,targetFileName,"Target_Mesh");
+// Ok at this point we have our mesh in MED-Memory format.
+// Go to wrap med_source_mesh and med_target_mesh.
+MEDNormalizedUnstructuredMesh<2,2> wrap_source_mesh(&med_source_mesh);
+MEDNormalizedUnstructuredMesh<2,2> wrap_target_mesh(&med_target_mesh);
+// Go for interpolation...
+INTERP_KERNEL::Interpolation2D myInterpolator;
+//optionnal call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
+myInterpolator.setOptions(1e-7,0,Geometric2D);
+INTERP_KERNEL::Matrix<double,ALL_FORTRAN_MODE> resultMatrix;
+myInterpolator.interpolateMeshes(wrap_source_mesh,wrap_target_mesh,resultMatrix);
+//Ok let's multiply resultMatrix by source field to interpolate to target field.
+resultMatrix.multiply(...)
+...
+\endcode
+
+- Same with VTK datastructure :
+
+\code
+...
+vtkXMLUnstructuredGridReader *readerSource=vtkXMLUnstructuredGridReader::New();
+readerSource->SetFileName("source.vtu");
+vtkUnstructuredGrid *vtk_source_mesh=readerSource->GetOutput();
+readerSource->Update();
+vtkXMLUnstructuredGridReader *readerTarget=vtkXMLUnstructuredGridReader::New();
+readerTarget->SetFileName("target.vtu");
+vtkUnstructuredGrid *vtk_target_mesh=readerTarget->GetOutput();
+readerTarget->Update();
+// Ok at this point we have our mesh in VTK format.
+// Go to wrap vtk_source_mesh and vtk_target_mesh.
+VTKNormalizedUnstructuredMesh<2> wrap_source_mesh(vtk_source_mesh);
+VTKNormalizedUnstructuredMesh<2> wrap_target_mesh(vtk_target_mesh);
+// Go for interpolation...
+INTERP_KERNEL::Interpolation2D myInterpolator;
+//optionnal call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
+myInterpolator.setOptions(1e-7,0,Geometric2D);
+INTERP_KERNEL::Matrix<double,ALL_C_MODE> resultMatrix;
+myInterpolator.interpolateMeshes(wrap_source_mesh,wrap_target_mesh,resultMatrix);
+//Ok let's multiply resultMatrix by source field to interpolate to target field.
+resultMatrix.multiply(...)
+//clean-up
+readerSource->Delete();
+readerTarget->Delete();
+...
+\endcode
+
+*/

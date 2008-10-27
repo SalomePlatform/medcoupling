@@ -29,20 +29,23 @@
 #include "RemapperTest.hxx"
 #include "MultiElement2DTests.hxx"
 #include "SingleElementPlanarTests.hxx"
-
+#include "QuadraticPlanarInterpTest.hxx"
+#include "InterpolationOptionsTest.hxx"
 using namespace INTERP_TEST;
 
-// --- Registers the fixture into the 'registry'
+//--- Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( HexaTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElementTetraTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementTetraTests );
-CPPUNIT_TEST_SUITE_REGISTRATION( INTERP_TEST::TransformedTriangleIntersectTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( INTERP_TEST::TransformedTriangleTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleIntersectTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( BBTreeTest);
 CPPUNIT_TEST_SUITE_REGISTRATION( RemapperTest);
 CPPUNIT_TEST_SUITE_REGISTRATION( PointLocatorTest);
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElement2DTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementPlanarTests );
+CPPUNIT_TEST_SUITE_REGISTRATION( QuadraticPlanarInterpTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( InterpolationOptionsTest );
 
 // --- generic Main program from KERNEL_SRC/src/Basics/Test
 

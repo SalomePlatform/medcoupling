@@ -4,7 +4,6 @@
 #include "TargetIntersector.hxx"
 #include "TransformedTriangle.hxx"
 #include "TetraAffineTransform.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 
 #include <assert.h>
 #include <vector>
@@ -17,7 +16,6 @@
 #endif
 
 #include "MEDMEM_define.hxx"
-#include "MEDMEM_CellModel.hxx"
 
 #ifndef WIN32
 using __gnu_cxx::hash_map;
@@ -180,30 +178,29 @@ namespace INTERP_KERNEL
    * source elements with triangular or quadratilateral faces.
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class INTERPKERNEL_EXPORT IntersectorTetra : public TargetIntersector<ConnType>
+  template<class MyMeshType>
+  class INTERPKERNEL_EXPORT IntersectorTetra : public TargetIntersector<typename MyMeshType::MyConnType>
   {
 
   public: 
 
-    IntersectorTetra(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh,
-                     const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& targetMesh, ConnType targetCell);
+    IntersectorTetra(const MyMeshType& srcMesh, const MyMeshType& targetMesh,
+                     typename MyMeshType::MyConnType targetCell);
     
-    IntersectorTetra(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh,
-                     const double** tetraCorners);
+    IntersectorTetra(const MyMeshType& srcMesh, const double** tetraCorners);
     
     ~IntersectorTetra();
 
-    double intersectSourceCell(ConnType srcCell);
+    double intersectSourceCell(typename MyMeshType::MyConnType srcCell);
 
   private:
     
     // member functions
     inline void createAffineTransform(const double** corners);
     inline void checkIsOutside(const double* pt, bool* isOutside) const;
-    inline void calculateNode(ConnType globalNodeNum);
+    inline void calculateNode(typename MyMeshType::MyConnType globalNodeNum);
     inline void calculateVolume(TransformedTriangle& tri, const TriangleFaceKey& key);
-	
+        
 
     /// disallow copying
     IntersectorTetra(const IntersectorTetra& t);
@@ -226,9 +223,8 @@ namespace INTERP_KERNEL
     > _volumes;
 
     /// reference to the source mesh
-    const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& _srcMesh;
-		
-		
+    const MyMeshType& _srcMesh;
+                
   };
 
   /**
@@ -237,8 +233,8 @@ namespace INTERP_KERNEL
    * @param corners  double*[4] array containing pointers to four double[3] arrays with the 
    *                 coordinates of the corners of the tetrahedron
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  inline void IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::createAffineTransform(const double** corners)
+  template<class MyMeshType>
+  inline void IntersectorTetra<MyMeshType>::createAffineTransform(const double** corners)
   {
     // create AffineTransform from tetrahedron
     _t = new TetraAffineTransform( corners );
@@ -253,8 +249,8 @@ namespace INTERP_KERNEL
    * @param pt        double[3] containing the coordiantes of a transformed point
    * @param isOutside bool[8] which indicate the results of earlier checks. 
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  inline void IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::checkIsOutside(const double* pt, bool* isOutside) const
+  template<class MyMeshType>
+  inline void IntersectorTetra<MyMeshType>::checkIsOutside(const double* pt, bool* isOutside) const
   {
     isOutside[0] = isOutside[0] && (pt[0] <= 0.0);
     isOutside[1] = isOutside[1] && (pt[0] >= 1.0);
@@ -275,11 +271,11 @@ namespace INTERP_KERNEL
    * @param globalNodeNum  global node number of the node in the mesh _srcMesh
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  inline void IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::calculateNode(ConnType globalNodeNum)
+  template<class MyMeshType>
+  inline void IntersectorTetra<MyMeshType>::calculateNode(typename MyMeshType::MyConnType globalNodeNum)
   {  
-    const double* node = _srcMesh.getCoordinatesPtr()+SPACEDIM*globalNodeNum;
-    double* transformedNode = new double[SPACEDIM];
+    const double* node = _srcMesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*globalNodeNum;
+    double* transformedNode = new double[MyMeshType::MY_SPACEDIM];
     assert(transformedNode != 0);
     
     _t->apply(transformedNode, node);
@@ -293,8 +289,8 @@ namespace INTERP_KERNEL
    * @param tri    triangle for which to calculate the volume contribution
    * @param key    key associated with the face
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  inline void IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::calculateVolume(TransformedTriangle& tri, const TriangleFaceKey& key)
+  template<class MyMeshType>
+  inline void IntersectorTetra<MyMeshType>::calculateVolume(TransformedTriangle& tri, const TriangleFaceKey& key)
   {
     const double vol = tri.calculateIntersectionVolume();
     _volumes.insert(std::make_pair(key, vol));

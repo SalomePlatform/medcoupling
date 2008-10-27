@@ -4,146 +4,40 @@
 
 using namespace INTERP_KERNEL;
 
-IteratorOnComposedEdge::IteratorOnComposedEdge(ComposedEdge *cont):_container(cont) 
+IteratorOnComposedEdge::IteratorOnComposedEdge():_listHandle(0)
+{
+}
+
+IteratorOnComposedEdge::IteratorOnComposedEdge(ComposedEdge *compEdges):_listHandle(compEdges->getListBehind()) 
 {
   first(); 
 }
 
 void IteratorOnComposedEdge::operator=(const IteratorOnComposedEdge& other)
 {
-  _container=other._container;
-  for(ItOnFixdLev it=0;it<MAX_INTERSCT_DEPH;it++)
-    _current[it]=other._current[it];
+  _deepIt=other._deepIt;
+  _listHandle=other._listHandle;
 }
 
 void IteratorOnComposedEdge::last()
 {
-  ItOnFixdLev delta=1;
-  _container->getLastElementary(delta);
-  _current[0]=delta;
-  AbstractEdge *cur=_container;
-  for(ItOnFixdLev it=1;it<=delta;it++)
-    {
-      _current[it]=cur->size()-1;
-      cur=(AbstractEdge *)(*cur)[cur->size()-1];
-    }
-}
-
-void IteratorOnComposedEdge::first()
-{
-  _current[0]=1;
-  _current[1]=0;
-}
-
-void IteratorOnComposedEdge::next()
-{
-  updateNumbering();
-  bool levelToIncr=false;
-  do
-    {
-      if(getLowestDealing()->size()-1>_current[_current[0]])
-        {
-          _current[_current[0]]++;
-          levelToIncr=true;
-        }
-      else
-	_current[0]--;
-    }
-  while(_current[0]!=0 && !levelToIncr);
-  if(levelToIncr)
-    updateNumbering();
+  _deepIt=_listHandle->end();
+  _deepIt--;
 }
 
 void IteratorOnComposedEdge::nextLoop()
 {
-  updateNumbering();
-  bool levelToIncr=false;
-  do
-    {
-      if(getLowestDealing()->size()-1>_current[_current[0]])
-        {
-          _current[_current[0]]++;
-          levelToIncr=true;
-        }
-      else
-	_current[0]--;
-    }
-  while(_current[0]!=0 && !levelToIncr);
-  if(levelToIncr)
-    updateNumbering();
-  else
+  _deepIt++;
+  if(_deepIt==_listHandle->end())
     first();
 }
 
 void IteratorOnComposedEdge::previousLoop()
 {
-  bool levelToIncr=false;
-  do
-    {
-      if(_current[_current[0]]>0)
-        {
-          _current[_current[0]]--;
-          levelToIncr=true;
-	  ItOnFixdLev delta=0;
-	  AbstractEdge *curLevel=getLowestDealing();
-          AbstractEdge *coarseElem=(*curLevel)[_current[_current[0]]];
-          if(dynamic_cast<ComposedEdge *>(coarseElem))
-            {
-              ((ComposedEdge *)coarseElem)->getLastElementary(++delta);
-              for(ItOnFixdLev it=1;it<=delta;it++)
-                {
-                  _current[_current[0]+it]=coarseElem->size()-1;
-                  curLevel=(AbstractEdge *)(*coarseElem)[coarseElem->size()-1];
-                }
-              _current[0]+=delta;
-            }
-        }
-      else
-	_current[0]--;
-    }
-  while(_current[0]!=0 && !levelToIncr);
-  if(!levelToIncr)
+  if(_deepIt!=_listHandle->begin())
+    _deepIt--;
+  else
     last();
-}
-
-bool IteratorOnComposedEdge::finished() const
-{
-  return _current[0]==0;
-}
-
-AbstractEdge *IteratorOnComposedEdge::currentDirect() const
-{
-  return (AbstractEdge *)(*getLowestDealing())[_current[_current[0]]];
-}
-
-ElementaryEdge* &IteratorOnComposedEdge::updateNumbering()
-{
-  ItOnFixdLev delta=0;
-  AbstractEdge *& valToTest=(*getLowestDealing())[_current[_current[0]]];
-  ElementaryEdge **ret;
-  if(dynamic_cast<ElementaryEdge *>(valToTest))
-    ret=(ElementaryEdge **)&valToTest;
-  else
-    ret=&(valToTest->getFirstElementary(++delta));
-  if(delta==0)
-    return *ret;
-  else
-    {
-      for(ItOnFixdLev it=1;it<=delta;it++)
-        _current[_current[0]+it]=0;
-      _current[0]+=delta;
-    }
-  return *ret;
-}
-
-AbstractEdge *IteratorOnComposedEdge::getLowestDealing() const
-{
-  if(_current[0]==0)
-    return 0;
-  AbstractEdge *ret=(AbstractEdge *)_container;
-  for(ItOnFixdLev iter=1;iter<_current[0];iter++)
-    ret=(AbstractEdge *)(*ret)[_current[iter]];
-  return ret;
 }
 
 bool IteratorOnComposedEdge::goToNextInOn(bool direction, int& i, int nbMax)
@@ -176,5 +70,28 @@ bool IteratorOnComposedEdge::goToNextInOn(bool direction, int& i, int nbMax)
         }
       nextLoop(); i--;
       return true;
+    }
+}
+
+void IteratorOnComposedEdge::assignMySelfToAllElems(ComposedEdge *elems)
+{
+  std::list<ElementaryEdge *> *myList=elems->getListBehind();
+  for(std::list<ElementaryEdge *>::iterator iter=myList->begin();iter!=myList->end();iter++)
+    (*iter)->getIterator()=(*this);
+}
+
+void IteratorOnComposedEdge::insertElemEdges(ComposedEdge *elems, bool changeMySelf)
+{
+  std::list<ElementaryEdge *> *myListToInsert=elems->getListBehind();
+  std::list<ElementaryEdge *>::iterator iter=myListToInsert->begin();
+  *_deepIt=*iter;
+  _deepIt++;
+  iter++;
+  int sizeOfMyList=myListToInsert->size();
+  _listHandle->insert(_deepIt,iter,myListToInsert->end());
+  if(!changeMySelf)
+    {
+      for(int i=0;i<sizeOfMyList;i++)
+        _deepIt--;
     }
 }

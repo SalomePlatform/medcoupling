@@ -52,6 +52,7 @@ WARN_LOGFILE           = log_user
 INPUT                  = @srcdir@ \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
+                         @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
                          @srcdir@/../../src/MEDMEM
 
 FILE_PATTERNS          = MEDMEM_Mesh.* \
@@ -71,6 +72,17 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          Interpolation3D.* \
                          Interpolation3DSurf.* \
                          InterpolationMatrix.* \
+                         PlanarIntersector.* \
+                         TargetIntersector.* \
+                         Interpolation.* \
+                         AbstractEdge.* \
+                         Edge.* \
+                         EdgeArcCircle.* \
+                         EdgeLin.* \
+                         ComposedEdge.* \
+                         ElementaryEdge.* \
+                         Node.* \
+                         QuadraticPolygon.* \
                          ParaFIELD.* \
                          *.dox
 RECURSIVE              = NO

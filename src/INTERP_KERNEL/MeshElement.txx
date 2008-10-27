@@ -19,8 +19,8 @@ namespace INTERP_KERNEL
    * @param mesh    mesh that the element belongs to
    */
   template<class ConnType>
-  template<int SPACEDIM, int MESHDIM, NumberingPolicy numPol, class MyMeshType>
-  MeshElement<ConnType>::MeshElement(const ConnType index, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh)
+  template<class MyMeshType>
+  MeshElement<ConnType>::MeshElement(const ConnType index, const MyMeshType& mesh)
     : _index(index), _box(0), _number(mesh.getNumberOfNodesOfElement(index))
   {
     const double**vertices = new const double*[_number];

@@ -142,8 +142,16 @@ ParaFIELD::~ParaFIELD()
 {
   if (_topology!=0)
     delete _topology;
+	if (_has_support_ownership)
+		{
+			delete _support;
+			_support=0;
+		}
+
 	if (_has_field_ownership)
-		delete _field;
+		{
+			delete _field; _field=0;
+		}
 			
 }
 

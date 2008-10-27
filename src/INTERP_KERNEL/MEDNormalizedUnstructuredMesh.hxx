@@ -11,8 +11,13 @@ namespace MEDMEM
 }
 
 template<int SPACEDIM,int MESHDIM>
-class INTERPKERNEL_EXPORT MEDNormalizedUnstructuredMesh : public INTERP_KERNEL::NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,int,INTERP_KERNEL::ALL_FORTRAN_MODE,MEDNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> >
+class INTERPKERNEL_EXPORT MEDNormalizedUnstructuredMesh : public INTERP_KERNEL::GenericMesh
 {
+public:
+  static const int MY_SPACEDIM=SPACEDIM;
+  static const int MY_MESHDIM=MESHDIM;
+  typedef int MyConnType;
+  static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_FORTRAN_MODE;
 public:
   MEDNormalizedUnstructuredMesh(const MEDMEM::MESH *mesh);
   void getBoundingBox(double *boundingBox) const;

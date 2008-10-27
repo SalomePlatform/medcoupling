@@ -6,11 +6,12 @@
 #include "TranslationRotationMatrix.hxx"
 
 #include <iostream>
+#include <limits>
 
 namespace INTERP_KERNEL
 {
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::PlanarIntersector(double dimCaracteristic, double precision, double medianPlane, bool doRotate, int printLevel):
+  template<class MyMeshType>
+  PlanarIntersector<MyMeshType>::PlanarIntersector(double dimCaracteristic, double precision, double medianPlane, bool doRotate, int printLevel):
     _dimCaracteristic(dimCaracteristic),_precision(precision),_medianPlane(medianPlane),
     _doRotate(doRotate),_printLevel(printLevel)
   {
@@ -26,9 +27,8 @@ namespace INTERP_KERNEL
     \param mesh structure pointing to the mesh
     \param bbox vector containing the bounding boxes
   */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::createBoundingBoxes(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh,
-                                                                                           std::vector<double>& bbox)
+  template<class MyMeshType>
+  void PlanarIntersector<MyMeshType>::createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox)
   {
     /* We build the segment tree for locating possible matching intersections*/
     long nbelems = mesh.getNumberOfElements();
@@ -43,8 +43,8 @@ namespace INTERP_KERNEL
         //initializing bounding box limits
         for(int idim=0; idim<SPACEDIM; idim++)
           {
-            bbox[2*SPACEDIM*ibox+2*idim]   =  HUGE;
-            bbox[2*SPACEDIM*ibox+2*idim+1] = -HUGE;
+            bbox[2*SPACEDIM*ibox+2*idim]   =  std::numeric_limits<double>::max();
+            bbox[2*SPACEDIM*ibox+2*idim+1] = -std::numeric_limits<double>::max();
           }
         //updating the bounding box with each node of the element
         for (int j=0; j<nb_nodes_per_elem; j++)
@@ -64,10 +64,8 @@ namespace INTERP_KERNEL
   /*!
     Computes the bouding box of a given element. iP in numPol mode.
   */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::getElemBB(double* bb,
-                                                                                 const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh,
-                                                                                 ConnType iP, ConnType nb_nodes)
+  template<class MyMeshType>
+  void PlanarIntersector<MyMeshType>::getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes)
   {
     const double* coords = mesh.getCoordinatesPtr();
     const ConnType* conn_index = mesh.getConnectivityIndexPtr();
@@ -75,8 +73,8 @@ namespace INTERP_KERNEL
     //initializing bounding box limits
     for(int idim=0; idim<SPACEDIM; idim++)
       {
-      bb[2*idim  ] =  HUGE;
-      bb[2*idim+1] = -HUGE;
+        bb[2*idim  ] =  std::numeric_limits<double>::max();
+        bb[2*idim+1] = -std::numeric_limits<double>::max();
       }
   
     for (ConnType i=0; i<nb_nodes; i++)
@@ -98,15 +96,15 @@ namespace INTERP_KERNEL
   
     \param bbox vector containing the bounding boxes
   */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::adjustBoundingBoxes(std::vector<double>& bbox, double Surf3DAdjustmentEps)
+  template<class MyMeshType>
+  void PlanarIntersector<MyMeshType>::adjustBoundingBoxes(std::vector<double>& bbox, double Surf3DAdjustmentEps)
   {
     /* We build the segment tree for locating possible matching intersections*/
   
     long size = bbox.size()/(2*SPACEDIM);
     for (int i=0; i<size; i++)
       {
-        double max=-HUGE;
+        double max=- std::numeric_limits<double>::max();
         for(int idim=0; idim<SPACEDIM; idim++)
           {            
             double Dx=bbox[i*2*SPACEDIM+1+2*idim]-bbox[i*2*SPACEDIM+2*idim];
@@ -120,86 +118,102 @@ namespace INTERP_KERNEL
       }
   }
   
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::projection(std::vector< double>& Coords_A, std::vector< double>& Coords_B, 
-                                                                                  int nb_NodesA, int nb_NodesB, double epsilon, double median_plane, bool do_rotate)
+  template<class MyMeshType>
+  int PlanarIntersector<MyMeshType>::projection(std::vector< double>& Coords_A, std::vector< double>& Coords_B, 
+                                                 int nb_NodesA, int nb_NodesB, double epsilon, double median_plane, bool do_rotate)
   {
     double normal_A[3]={0,0,0};
     double normal_B[3]={0,0,0};
     double linear_comb[3];
     double proj;
+		bool same_orientation;
+
     //Find the normal to cells A and B
     int i_A1=1;
     while(i_A1<nb_NodesA && distance2<SPACEDIM>(&Coords_A[0],&Coords_A[SPACEDIM*i_A1])< epsilon) i_A1++;
     int i_A2=i_A1+1;
     crossprod<SPACEDIM>(&Coords_A[0], &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2],normal_A);
-    while(i_A2<nb_NodesA && dotprod<SPACEDIM>(normal_A,normal_A)<epsilon)
+		double normA = sqrt(dotprod<SPACEDIM>(normal_A,normal_A));
+    while(i_A2<nb_NodesA && normA < epsilon)
       {
-      crossprod<SPACEDIM>(&Coords_A[0], &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2],normal_A);
-      i_A2++;
+        crossprod<SPACEDIM>(&Coords_A[0], &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2],normal_A);
+        i_A2++;
+        normA = sqrt(dotprod<SPACEDIM>(normal_A,normal_A));
+
       }
     int i_B1=1;
     while(i_B1<nb_NodesB && distance2<SPACEDIM>(&Coords_B[0],&Coords_B[SPACEDIM*i_B1])< epsilon) i_B1++;
     int i_B2=i_B1+1;
     crossprod<SPACEDIM>(&Coords_B[0], &Coords_B[SPACEDIM*i_B1], &Coords_B[SPACEDIM*i_B2],normal_B);
-    while(i_B2<nb_NodesB && dotprod<SPACEDIM>(normal_B,normal_B)< epsilon)
+		double normB = sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
+    while(i_B2<nb_NodesB && normB < epsilon)
       {
-      crossprod<SPACEDIM>(&Coords_B[0], &Coords_B[SPACEDIM*i_B1], &Coords_B[SPACEDIM*i_B2],normal_B);
-      i_B2++;
+        crossprod<SPACEDIM>(&Coords_B[0], &Coords_B[SPACEDIM*i_B1], &Coords_B[SPACEDIM*i_B2],normal_B);
+        i_B2++;
+				normB = sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
       }
+
     if(i_A2<nb_NodesA && i_B2<nb_NodesB)
       {
-      //Build the normal of the median plane
-      if(dotprod<SPACEDIM>(normal_A,normal_B)<0)
-        for(int idim =0; idim< SPACEDIM; idim++) normal_A[idim] *=-1;
-      for(int idim =0; idim< SPACEDIM; idim++)
-        linear_comb[idim] = median_plane*normal_A[idim] + (1-median_plane)*normal_B[idim];
-      double norm= sqrt(dotprod<SPACEDIM>(linear_comb,linear_comb));
+				//Build the normal of the median plane
+ 				same_orientation = dotprod<SPACEDIM>(normal_A,normal_B)>=0;
+        
+				if(!same_orientation)
+          for(int idim =0; idim< SPACEDIM; idim++) normal_A[idim] *=-1;
+				
+        double normB= sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
+				
+				for(int idim =0; idim< SPACEDIM; idim++)
+          linear_comb[idim] = median_plane*normal_A[idim]/normA + (1-median_plane)*normal_B[idim]/normB;
+        double norm= sqrt(dotprod<SPACEDIM>(linear_comb,linear_comb));
 
-      if(norm>epsilon)
-        {
-          for(int idim =0; idim< SPACEDIM; idim++) linear_comb[idim]/=norm;
-          
-          //Project the nodes of A and B on the median plane
-          for(int i_A=0; i_A<nb_NodesA; i_A++)
-            {
-            proj = dotprod<SPACEDIM>(&Coords_A[SPACEDIM*i_A],linear_comb);
-            for(int idim =0; idim< SPACEDIM; idim++)
-              Coords_A[SPACEDIM*i_A+idim] -=  proj*linear_comb[idim];
-            }
-          for(int i_B=0; i_B<nb_NodesB; i_B++)
-            {
-            proj = dotprod<SPACEDIM>(&Coords_B[SPACEDIM*i_B],linear_comb);
-            for(int idim =0; idim< SPACEDIM; idim++)
-              Coords_B[SPACEDIM*i_B+idim] -=  proj*linear_comb[idim];
-            }
-      
-          //Buid the matrix sending  A into the Oxy plane and apply it to A and B  
-          if(do_rotate)
-            {
-            TranslationRotationMatrix rotation;
-            //rotate3DTriangle(&Coords_A[0], &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2], rotation);
-            rotate3DTriangle(&Coords_B[0], &Coords_B[SPACEDIM*i_B1], &Coords_B[SPACEDIM*i_B2], rotation);
-            for (int i=0; i<nb_NodesA; i++)    rotation.transform_vector(&Coords_A[SPACEDIM*i]);
-            for (int i=0; i<nb_NodesB; i++)    rotation.transform_vector(&Coords_B[SPACEDIM*i]);
-            }
-        }
+				//Necessarily: norm>epsilon, no need to check
+				for(int idim =0; idim< SPACEDIM; idim++) linear_comb[idim]/=norm;
+        
+				//Project the nodes of A and B on the median plane
+				for(int i_A=0; i_A<nb_NodesA; i_A++)
+					{
+						proj = dotprod<SPACEDIM>(&Coords_A[SPACEDIM*i_A],linear_comb);
+						for(int idim =0; idim< SPACEDIM; idim++)
+							Coords_A[SPACEDIM*i_A+idim] -=  proj*linear_comb[idim];
+					}
+				for(int i_B=0; i_B<nb_NodesB; i_B++)
+					{
+						proj = dotprod<SPACEDIM>(&Coords_B[SPACEDIM*i_B],linear_comb);
+						for(int idim =0; idim< SPACEDIM; idim++)
+							Coords_B[SPACEDIM*i_B+idim] -=  proj*linear_comb[idim];
+					}
+				
+				//Buid the matrix sending  A into the Oxy plane and apply it to A and B  
+				if(do_rotate)
+					{
+						TranslationRotationMatrix rotation;
+						//rotate3DTriangle(&Coords_A[0], &Coords_A[SPACEDIM*i_A1], &Coords_A[SPACEDIM*i_A2], rotation);
+						rotate3DTriangle(&Coords_B[0], &Coords_B[SPACEDIM*i_B1], &Coords_B[SPACEDIM*i_B2], rotation);
+						for (int i=0; i<nb_NodesA; i++)    rotation.transform_vector(&Coords_A[SPACEDIM*i]);
+						for (int i=0; i<nb_NodesB; i++)    rotation.transform_vector(&Coords_B[SPACEDIM*i]);
+					}
+				if(same_orientation)
+					return 1;
+				else return -1;
       }
     else
       {
         std::cout << " Maille dégénérée " << "epsilon = " << epsilon << std::endl;
-				std::cout << " i_A1= " << i_A1 << " i_A2= " << i_A2 << std::endl;
-				std::cout << " distance2<SPACEDIM>(&Coords_A[0],&Coords_A[i_A1])= " <<  distance2<SPACEDIM>(&Coords_A[0],&Coords_A[i_A1]) << std::endl;
-				std::cout << "abs(normal_A) = " << fabs(normal_A[0]) << " ; " <<fabs( normal_A[1]) << " ; " << fabs(normal_A[2]) << std::endl;
-				std::cout << " i_B1= " << i_B1 << " i_B2= " << i_B2 << std::endl; 
-				std::cout << " distance2<SPACEDIM>(&Coords_B[0],&Coords_B[i_B1])= " <<  distance2<SPACEDIM>(&Coords_B[0],&Coords_B[i_B1]) << std::endl;
-				std::cout << "normal_B = " << normal_B[0] << " ; " << normal_B[1] << " ; " << normal_B[2] << std::endl;
+        std::cout << " i_A1= " << i_A1 << " i_A2= " << i_A2 << std::endl;
+        std::cout << " distance2<SPACEDIM>(&Coords_A[0],&Coords_A[i_A1])= " <<  distance2<SPACEDIM>(&Coords_A[0],&Coords_A[i_A1]) << std::endl;
+        std::cout << "abs(normal_A) = " << fabs(normal_A[0]) << " ; " <<fabs( normal_A[1]) << " ; " << fabs(normal_A[2]) << std::endl;
+        std::cout << " i_B1= " << i_B1 << " i_B2= " << i_B2 << std::endl; 
+        std::cout << " distance2<SPACEDIM>(&Coords_B[0],&Coords_B[i_B1])= " <<  distance2<SPACEDIM>(&Coords_B[0],&Coords_B[i_B1]) << std::endl;
+        std::cout << "normal_B = " << normal_B[0] << " ; " << normal_B[1] << " ; " << normal_B[2] << std::endl;
+
+				return 1;
       }
   }
   
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::rotate3DTriangle(double* PP1, double*PP2, double*PP3,
-                                                                                        TranslationRotationMatrix& rotation_matrix)
+  template<class MyMeshType>
+  void PlanarIntersector<MyMeshType>::rotate3DTriangle(double* PP1, double*PP2, double*PP3,
+                                                       TranslationRotationMatrix& rotation_matrix)
   {
     //initializes
     rotation_matrix.translate(PP1);
@@ -212,8 +226,8 @@ namespace INTERP_KERNEL
     // translating to set P1 at the origin
     for (int i=0; i<3; i++)
       {
-      P2w[i]-=PP1[i];
-      P3w[i]-=PP1[i];
+        P2w[i]-=PP1[i];
+        P3w[i]-=PP1[i];
       }
    
     // rotating to set P2 on the Oxy plane

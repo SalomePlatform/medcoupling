@@ -327,6 +327,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       delete intersector; e2->decrRef(); e1->decrRef();
     }
   // Tangent intersection
+  QUADRATIC_PLANAR::setPrecision(1e-5);
   for(unsigned k=0;k<8;k++)
     {
       double center2[2]; center[0]=0.; center[1]=0.;
@@ -347,6 +348,7 @@ void QuadraticPlanarInterpTest::IntersectArcCircleBase()
       v4.clear(); v4.clear();
       delete intersector; e2->decrRef(); e1->decrRef();
     }
+  QUADRATIC_PLANAR::setPrecision(1e-14);
   // Extremities # 1
   for(unsigned k=0;k<8;k++)
     {
@@ -477,17 +479,17 @@ void QuadraticPlanarInterpTest::IntersectArcCircleFull()
   QuadraticPolygon pol1; QuadraticPolygon pol2;
   QuadraticPolygon pol3; QuadraticPolygon pol4;
   pol3.pushBack(e1); pol4.pushBack(e2);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol3.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol4.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(19.6648305849,pol3.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol4.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol3.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol4.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(19.6648305849,pol3.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol4.getArea(),1e-6);
   CPPUNIT_ASSERT(e1->intersectWith(e2,commonNode,pol1,pol2));
   CPPUNIT_ASSERT_EQUAL(2,pol1.size());
   CPPUNIT_ASSERT_EQUAL(2,pol2.size());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(19.6648305849,pol1.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol2.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol1.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol2.getPerimeterFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(19.6648305849,pol1.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol2.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol1.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol2.getPerimeter(),1e-6);
   //
   e1=buildArcOfCircle(center1,radius1,-2*M_PI/3.,-7.*M_PI/3.);
   e2=buildArcOfCircle(center2,radius2,0.,M_PI/2.);
@@ -495,17 +497,17 @@ void QuadraticPlanarInterpTest::IntersectArcCircleFull()
   QuadraticPolygon pol5; QuadraticPolygon pol6;
   QuadraticPolygon pol7; QuadraticPolygon pol8;
   pol7.pushBack(e1); pol8.pushBack(e2);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol7.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol8.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol7.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol8.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol7.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol8.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol7.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol8.getArea(),1e-6);
   CPPUNIT_ASSERT(e1->intersectWith(e2,commonNode,pol5,pol6));
   CPPUNIT_ASSERT_EQUAL(2,pol5.size());
   CPPUNIT_ASSERT_EQUAL(2,pol6.size());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol5.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol6.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol5.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol6.getPerimeterFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol5.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.8146018366,pol6.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol5.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol6.getPerimeter(),1e-6);
   //
   center2[0]=3.5; center2[1]=0.;
   e1=buildArcOfCircle(center1,radius1,-2*M_PI/3.,-7.*M_PI/3.);
@@ -514,17 +516,17 @@ void QuadraticPlanarInterpTest::IntersectArcCircleFull()
   QuadraticPolygon pol9; QuadraticPolygon pol10;
   QuadraticPolygon pol11; QuadraticPolygon pol12;
   pol11.pushBack(e1); pol12.pushBack(e2);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol11.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol12.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol11.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol12.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol11.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol12.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol11.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol12.getArea(),1e-6);
   CPPUNIT_ASSERT(e1->intersectWith(e2,commonNode,pol9,pol10));
   CPPUNIT_ASSERT_EQUAL(3,pol9.size());
   CPPUNIT_ASSERT_EQUAL(3,pol10.size());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol9.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol10.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol9.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol10.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol9.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol10.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol9.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5707963267949,pol10.getArea(),1e-6);
   //
   center2[0]=0.; center2[1]=0.; radius2=radius1;
   e1=buildArcOfCircle(center1,radius1,-2*M_PI/3.,-7.*M_PI/3.);
@@ -533,17 +535,17 @@ void QuadraticPlanarInterpTest::IntersectArcCircleFull()
   QuadraticPolygon pol13; QuadraticPolygon pol14;
   QuadraticPolygon pol15; QuadraticPolygon pol16;
   pol15.pushBack(e1); pol16.pushBack(e2);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol15.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol16.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol15.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.6095032974147,pol16.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol15.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol16.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol15.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.6095032974147,pol16.getArea(),1e-6);
   CPPUNIT_ASSERT(e1->intersectWith(e2,commonNode,pol13,pol14));
   CPPUNIT_ASSERT_EQUAL(3,pol13.size());
   CPPUNIT_ASSERT_EQUAL(1,pol14.size());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol13.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol13.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol14.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.6095032974147,pol14.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol13.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol13.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol14.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.6095032974147,pol14.getArea(),1e-6);
   //
   e1=buildArcOfCircle(center1,radius1,-2*M_PI/3.,-7.*M_PI/3.);
   e2=buildArcOfCircle(center2,radius2,2*M_PI/3.,M_PI/3.);
@@ -551,17 +553,17 @@ void QuadraticPlanarInterpTest::IntersectArcCircleFull()
   QuadraticPolygon pol17; QuadraticPolygon pol18;
   QuadraticPolygon pol19; QuadraticPolygon pol20;
   pol19.pushBack(e1); pol20.pushBack(e2);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol19.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol20.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol19.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-8.6095032974147,pol20.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol19.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol20.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol19.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-8.6095032974147,pol20.getArea(),1e-6);
   CPPUNIT_ASSERT(e1->intersectWith(e2,commonNode,pol17,pol18));
   CPPUNIT_ASSERT_EQUAL(3,pol17.size());
   CPPUNIT_ASSERT_EQUAL(1,pol18.size());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol17.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol17.getAreaFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol18.getPerimeterFast(),1e-6);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(-8.6095032974147,pol18.getAreaFast(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(15.707963267948966,pol17.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-19.6648305849,pol17.getArea(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415926535897931,pol18.getPerimeter(),1e-6);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-8.6095032974147,pol18.getArea(),1e-6);
   //no intersection #1
   center2[0]=4.277; center2[1]=-4.277;
   e1=buildArcOfCircle(center1,radius1,-2*M_PI/3.,-7.*M_PI/3.);

@@ -2,15 +2,15 @@
 #define __EDGE_HXX__
 
 #include "Geometric2D_defines.hxx"
-
-#include "InterpolationUtils.hxx"
 #include "ComposedEdge.hxx"
+#include "InterpolationUtils.hxx"
 #include "Bounds.hxx"
 #include "Node.hxx"
 
 #include <iostream>
 #include <vector>
 #include <list>
+#include <map>
 
 namespace INTERP_KERNEL
 {
@@ -162,11 +162,14 @@ namespace INTERP_KERNEL
   class GEOMETRIC2D_EXPORT Edge
   {
   public:
-    Edge(Node *start, Node *end, bool direction=true):_cnt(1),_loc(FULL_UNKNOWN) { if(direction) { _start=start; _end=end; } else { _start=end; _end=start; } _start->incrRef(); _end->incrRef(); }
+    Edge(Node *start, Node *end, bool direction=true):_cnt(1),_loc(FULL_UNKNOWN),_id(_idCounter++) { if(direction) { _start=start; _end=end; } else { _start=end; _end=start; } _start->incrRef(); _end->incrRef(); }
     Edge(double sX, double sY, double eX, double eY);
     TypeOfEdgeLocInPolygon getLoc() const { return _loc; }
     void incrRef() const { _cnt++; }
     bool decrRef();
+    int getId() const { return _id; }
+    void setId(int val) { _id=val; }
+    void initLocs() const { _loc=FULL_UNKNOWN; _start->initLocs(); _end->initLocs(); }
     void declareOn() const;
     void declareIn() const;
     void declareOut() const;
@@ -182,6 +185,7 @@ namespace INTERP_KERNEL
     bool changeEndNodeWith(Node *otherEndNode) const;
     bool changeEndNodeWithAndKeepTrack(Node *otherEndNode, std::vector<Node *>& track) const;
     void addSubEdgeInVector(Node *start, Node *end, ComposedEdge& vec) const;
+    void getNormalVector(double *vectOutput) const;
     static Intersector *buildIntersectorWith(const Edge *e1, const Edge *e2);
     static Edge *buildFromXfigLine(std::istream& str);
     static Edge *buildEdgeFrom(Node *start, Node *end);
@@ -190,6 +194,9 @@ namespace INTERP_KERNEL
     virtual void update(Node *m) = 0;
     //! returns area between this and axe Ox delimited along Ox by _start and _end.
     virtual double getAreaOfZone() const = 0;
+    //! apply a similiraty transformation on 'this'
+    virtual void applySimilarity(double xBary, double yBary, double dimChar);
+    //! return the length of arc. Value is always > 0. !
     virtual double getCurveLength() const = 0;
     virtual void getBarycenter(double *bary) const = 0;
     //! Retrieves a point that is owning to this, well placed for IN/OUT detection of this. Typically midlle of this is returned.
@@ -200,15 +207,23 @@ namespace INTERP_KERNEL
     virtual bool isLower(double val1, double val2) const = 0;
     //! node is expected to lay on 'this'. It returns a characteristic magnitude usable by isIn method.
     virtual double getCharactValue(const Node& node) const = 0;
+    //! retrieves the distance to this : The min distance from pt and any point of this.
+    virtual double getDistanceToPoint(const double *pt) const = 0;
+    //! return if node with coords 'coordOfNode' is on this (with precision).
+    virtual bool isNodeLyingOn(const double *coordOfNode) const = 0;
     virtual TypeOfFunction getTypeOfFunc() const = 0;
-    virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const = 0;
     virtual void dynCastFunction(const EdgeLin * &seg,
                                  const EdgeArcCircle * &arcSeg) const = 0;
+    Edge *buildEdgeLyingOnMeWithId(Node *start, Node *end, bool direction=true) const;
     bool intersectWith(const Edge *other, MergePoints& commonNode,
                        ComposedEdge& outVal1, ComposedEdge& outVal2) const;
+    static bool intersectOverlapped(const Edge *f1, const Edge *f2, Intersector *intersector, MergePoints& commonNode,
+                                    ComposedEdge& outValForF1, ComposedEdge& outValForF2);
+    static void interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2,
+                                 std::map<int, std::map<int,double> >& result);
     virtual void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const = 0;
   protected:
-    Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0) { }
+    Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0),_id(_idCounter++) { }
     virtual ~Edge();
     static int combineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2);
     static bool intersect(const Edge *f1, const Edge *f2, Intersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
@@ -216,13 +231,16 @@ namespace INTERP_KERNEL
     //! The code 'code' is built by method combineCodes
     static bool splitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
                                      ComposedEdge& outVal1, ComposedEdge& outVal2);
+    virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const = 0;
   protected:
     mutable unsigned char _cnt;
     mutable TypeOfEdgeLocInPolygon _loc;
     Bounds _bounds;
     Node *_start;
     Node *_end;
+    int _id;
   protected:
+    static int _idCounter;
     //In relation with max possible value of TypeOfLocInEdge.
     static const int OFFSET_FOR_TYPEOFLOCINEDGE = 8;
   };

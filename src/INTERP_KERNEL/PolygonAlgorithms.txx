@@ -7,8 +7,6 @@
 #include <map>
 #include <iostream>
 
-using namespace std;
-
 namespace INTERP_KERNEL
 {
   template<int DIM>
@@ -213,32 +211,32 @@ namespace INTERP_KERNEL
   void PolygonAlgorithms<DIM>::add_crossing0(const double * A, const double * B, int i, int i_next,
                                              const double * C, const double * D, int j, int j_next)
   {
-    double ABCD[DIM];		
+    double ABCD[DIM];                
     if(intersect_segment_segment(A,B,C,D,ABCD, ABCD))
       //fifth and sixth arguments are useless here
       {
-				/* Updating _End_segments */
-				pair< int,int > i_i_next = make_pair(i, i_next);
-				pair< int,int > j_j_next = make_pair(j, j_next); 
-						if( _End_segments[0] == i_i_next)
-							{	 
-								for(int idim=DIM-1;idim>-1;idim--) _Inter.push_front(ABCD[idim]);
-								_End_segments[0] = j_j_next;
-							}
-						else 
-							{
-								for(int idim=0;idim<DIM;idim++) _Inter.push_back(ABCD[idim]);
-								_End_segments[1] = j_j_next;
-								_Terminus = _End_segments[0]== j_j_next;
-							}
-	 
-	 /* Updating _Status */
-	_Status.insert(make_pair(i_next,make_pair(i, false)));
-	multimap< int, pair< int,bool> >::iterator mi =_Status.find(j_next);
-	((* mi).second).second= !((* mi).second).second;
+        /* Updating _End_segments */
+        pair< int,int > i_i_next = make_pair(i, i_next);
+        pair< int,int > j_j_next = make_pair(j, j_next); 
+        if( _End_segments[0] == i_i_next)
+          {         
+            for(int idim=DIM-1;idim>-1;idim--) _Inter.push_front(ABCD[idim]);
+            _End_segments[0] = j_j_next;
+          }
+        else 
+          {
+            for(int idim=0;idim<DIM;idim++) _Inter.push_back(ABCD[idim]);
+            _End_segments[1] = j_j_next;
+            _Terminus = _End_segments[0]== j_j_next;
+          }
+         
+        /* Updating _Status */
+        _Status.insert(make_pair(i_next,make_pair(i, false)));
+        multimap< int, pair< int,bool> >::iterator mi =_Status.find(j_next);
+        ((* mi).second).second= !((* mi).second).second;
       }
-    else	_Status.insert(make_pair(i_next,make_pair(i,true)));
-   }  
+    else        _Status.insert(make_pair(i_next,make_pair(i,true)));
+  }  
 
   /*******************************************************/
   /* adds the possible crossings between segments [A,B] (with end-point global indices i and i_next) */
@@ -384,10 +382,10 @@ namespace INTERP_KERNEL
       mmap_events.insert(std::make_pair(&P_1[DIM*i_loc],i_loc));
     for(i_loc=0;i_loc<N2;i_loc++)
       mmap_events.insert(std::make_pair(&P_2[DIM*i_loc],i_loc+N1));
-		
-		std::list< pair< const double *, int > > events(mmap_events.begin(),mmap_events.end());
-		
-		if(!_Terminus)
+                
+    std::list< pair< const double *, int > > events(mmap_events.begin(),mmap_events.end());
+                
+    if(!_Terminus)
       {
         /******** Treatment of the first vertex ********/
         mi1=events.begin();
@@ -398,15 +396,15 @@ namespace INTERP_KERNEL
         _Status.insert(std::make_pair(i_next_glob,std::make_pair(i_glob, false)));
         _Status.insert(std::make_pair(i_prev_glob,std::make_pair(i_glob, false))); 
         mi1++;
-				//std::cout<< "nb_prev= "<< 0 << " i_glob= " << i_glob << std::endl;
-				
+        //std::cout<< "nb_prev= "<< 0 << " i_glob= " << i_glob << std::endl;
+                                
         /******* Loop until the second polygon is reached *******/  
         while( !four_neighbours)
           {
             i_glob=(* mi1).second;//global index of vertex i
             nb_prev = _Status.count(i_glob);//counts the number of segments ending at i
-						
-						//std::cout<< "nb_prev= "<< nb_prev << " i_glob= " << i_glob << std::endl;
+                                                
+            //std::cout<< "nb_prev= "<< nb_prev << " i_glob= " << i_glob << std::endl;
             switch (nb_prev)
               {
               case 1 :           
@@ -425,17 +423,17 @@ namespace INTERP_KERNEL
                 if( (i_glob < N1) != which_start)
                   {
                     mi2=mi1;
-										mi2++;
-										/* detection of double points */
+                    mi2++;
+                    /* detection of double points */
                     if(distance2<DIM>((* mi1).first, (*mi2).first) > _Epsilon)
-											four_neighbours = true;
-										else         /* Rare pothological case:  */
+                      four_neighbours = true;
+                    else         /* Rare pothological case:  */
                       {
-												//std::cout<<"coucou" << std::endl;
-												const pair< const double *, int > next_pt= *mi2;
+                        //std::cout<<"coucou" << std::endl;
+                        const pair< const double *, int > next_pt= *mi2;
                         events.erase(mi2);
                         mi1=events.insert(mi1,next_pt);
-											}
+                      }
                   }
                 break;
               default:
@@ -445,7 +443,7 @@ namespace INTERP_KERNEL
         /******** Loop until a terminal point or crossing is reached ************/
         while( !_Terminus)  
           {
-						//std::cout<< "nb_prev= "<< nb_prev<< " nb_inter= " << _Inter.size()/DIM << std::endl;
+            //std::cout<< "nb_prev= "<< nb_prev<< " nb_inter= " << _Inter.size()/DIM << std::endl;
             switch (nb_prev)
               {
               case 1 :           
@@ -481,8 +479,8 @@ namespace INTERP_KERNEL
                   _Is_in_intersection=( inside < _Epsilon ); // <= epsilon or 0 ?                
               
                   if(fabs(inside) > _Epsilon)//vertex clearly inside or outside
-                    {											
-											//std::cout<<"coucou1" << std::endl;
+                    {                                                                                        
+                      //std::cout<<"coucou1" << std::endl;
                       if( _Is_in_intersection)
                         {
                           for(int idim=0;idim<DIM;idim++) _Inter.push_back(Poly1[DIM*i_loc+idim]);
@@ -498,7 +496,7 @@ namespace INTERP_KERNEL
                     }
                   else //vertex on an edge
                     {
-											//std::cout<<"coucou2" << std::endl;
+                      //std::cout<<"coucou2" << std::endl;
                       bool is_inside_next, is_inside_prev;
                       double Vnext[DIM], Vprev[DIM];
                       for(idim=0;idim<DIM;idim++) _Inter.push_back(Poly1[DIM*i_loc+idim]); 
@@ -577,57 +575,57 @@ namespace INTERP_KERNEL
                         }
                       else //vertices i, j1 and j3 share the same coordinates
                         {
-													crossprod<DIM>(&Poly1[DIM*i_loc], &Poly2[DIM*j2], &Poly1[DIM*i_next],Vnext);
+                          crossprod<DIM>(&Poly1[DIM*i_loc], &Poly2[DIM*j2], &Poly1[DIM*i_next],Vnext);
                           crossprod<DIM>(&Poly1[DIM*i_loc], &Poly2[DIM*j2], &Poly1[DIM*i_prev],Vprev);
                           crossprod<DIM>(&Poly1[DIM*i_loc], &Poly2[DIM*j4], &Poly1[DIM*i_next],V12);
                           crossprod<DIM>(&Poly1[DIM*i_loc], &Poly2[DIM*j4], &Poly1[DIM*i_prev],V34);
-													
-													double inside_next= dotprod<DIM>(Vnext,V12);
-													double inside_prev= dotprod<DIM>(Vprev,V34);
+                                                                                                        
+                          double inside_next= dotprod<DIM>(Vnext,V12);
+                          double inside_prev= dotprod<DIM>(Vprev,V34);
                           double inside_j2  = dotprod<DIM>(Vnext,Vprev);
-													double inside_j4  = dotprod<DIM>(V12,V34);
-													
-													std::map<double, pair<int,int> > which_is_inside;
-													which_is_inside[inside_next] = std:: make_pair(i_glob,i_next_glob);
-													which_is_inside[inside_prev] = std:: make_pair(i_glob,i_prev_glob);
-													which_is_inside[inside_j2] =  std::make_pair(j1_glob,j2_glob);
-													which_is_inside[inside_j4] =  std::make_pair(j3_glob,j4_glob);
+                          double inside_j4  = dotprod<DIM>(V12,V34);
+                                                                                                        
+                          std::map<double, pair<int,int> > which_is_inside;
+                          which_is_inside[inside_next] = std:: make_pair(i_glob,i_next_glob);
+                          which_is_inside[inside_prev] = std:: make_pair(i_glob,i_prev_glob);
+                          which_is_inside[inside_j2] =  std::make_pair(j1_glob,j2_glob);
+                          which_is_inside[inside_j4] =  std::make_pair(j3_glob,j4_glob);
 
-													std::map<double, pair<int,int> >::iterator min = which_is_inside.begin();
-													std::map<double, pair<int,int> >::iterator minext = min;
-													minext++;
-													std::map<double, pair<int,int> >::reverse_iterator max = which_is_inside.rbegin();
-													std::multimap< int, std::pair< int,bool> >::iterator j2_in_status = _Status.find(((*min).second).second);
-													std::multimap< int, std::pair< int,bool> >::iterator j4_in_status = _Status.find(((*minext).second).second);
+                          std::map<double, pair<int,int> >::iterator min = which_is_inside.begin();
+                          std::map<double, pair<int,int> >::iterator minext = min;
+                          minext++;
+                          std::map<double, pair<int,int> >::reverse_iterator max = which_is_inside.rbegin();
+                          std::multimap< int, std::pair< int,bool> >::iterator j2_in_status = _Status.find(((*min).second).second);
+                          std::multimap< int, std::pair< int,bool> >::iterator j4_in_status = _Status.find(((*minext).second).second);
 
-													if((*min).first < -_Epsilon) //there is someone clearly inside
-														{
-															_End_segments.push_back( (*min).second );
-															_End_segments.push_back((* minext).second);
-															if(j2_in_status != _Status.end())
-																((*j2_in_status).second).second	= !	((*j2_in_status).second).second;											
-															if(j4_in_status != _Status.end())
-																((*j4_in_status).second).second	= !	((*j4_in_status).second).second;											
-															is_inside_next = ((*min).second).second == i_next_glob || ((*minext).second).second == i_next_glob;
-															is_inside_prev = ((*min).second).second == i_prev_glob || ((*minext).second).second == i_prev_glob;
-														}
-													else
-														if(fabs((*min).first) <= _Epsilon) //nobody is clearly inside but two segments are superposed
-															{
-																if(fabs((*max).first) > _Epsilon) 
-																	return std::deque< double >();
-																else //all four segments are superposed
-																	{
-																		_End_segments.push_back(std::make_pair(i_glob,i_next_glob));
-																		_End_segments.push_back(std::make_pair(i_glob,i_prev_glob));
-																		is_inside_next= true;
-																		is_inside_prev= true;
-																	}
-															} 
-														else		//there is nobody inside
-															return std::deque< double >();
-															 
-													_Status.insert(std::make_pair(i_prev_glob,std::make_pair(i_glob,is_inside_prev)));
+                          if((*min).first < -_Epsilon) //there is someone clearly inside
+                            {
+                              _End_segments.push_back( (*min).second );
+                              _End_segments.push_back((* minext).second);
+                              if(j2_in_status != _Status.end())
+                                ((*j2_in_status).second).second        = !        ((*j2_in_status).second).second;                                                                                        
+                              if(j4_in_status != _Status.end())
+                                ((*j4_in_status).second).second        = !        ((*j4_in_status).second).second;                                                                                        
+                              is_inside_next = ((*min).second).second == i_next_glob || ((*minext).second).second == i_next_glob;
+                              is_inside_prev = ((*min).second).second == i_prev_glob || ((*minext).second).second == i_prev_glob;
+                            }
+                          else
+                            if(fabs((*min).first) <= _Epsilon) //nobody is clearly inside but two segments are superposed
+                              {
+                                if(fabs((*max).first) > _Epsilon) 
+                                  return std::deque< double >();
+                                else //all four segments are superposed
+                                  {
+                                    _End_segments.push_back(std::make_pair(i_glob,i_next_glob));
+                                    _End_segments.push_back(std::make_pair(i_glob,i_prev_glob));
+                                    is_inside_next= true;
+                                    is_inside_prev= true;
+                                  }
+                              } 
+                            else                //there is nobody inside
+                              return std::deque< double >();
+                                                                                                                         
+                          _Status.insert(std::make_pair(i_prev_glob,std::make_pair(i_glob,is_inside_prev)));
                           _Status.insert(std::make_pair(i_next_glob,std::make_pair(i_glob,is_inside_next)));
                         }
                     }
@@ -659,9 +657,9 @@ namespace INTERP_KERNEL
       {
         std::map< int,int >::iterator mi_prev = subP.begin();
         std::map< int,int >::iterator  mi = mi_prev;
-				mi++;
+        mi++;
         std::map< int,int >::iterator  mi_next = mi;
-				mi_next++;
+        mi_next++;
         double directframe=0.;
        
         /* Check if the polygon subP is positively oriented */

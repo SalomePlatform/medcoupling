@@ -1,12 +1,13 @@
 #include "QuadraticPolygon.hxx"
-#include "ComposedEdgeWithIt.hxx"
 #include "ElementaryEdge.hxx"
 #include "EdgeArcCircle.hxx"
+#include "AbstractEdge.hxx"
 #include "EdgeLin.hxx"
 #include "Bounds.hxx"
 #include "Edge.txx"
 
 #include <fstream>
+#include <iomanip>
 
 using namespace std;
 using namespace INTERP_KERNEL;
@@ -78,6 +79,20 @@ QuadraticPolygon *QuadraticPolygon::buildArcCirclePolygon(std::vector<Node *>& n
   return ret;
 }
 
+void QuadraticPolygon::buildDbgFile(const std::vector<Node *>& nodes, const char *fileName)
+{
+  ofstream file(fileName);
+  file << setprecision(16);
+  file << "  double coords[]=" << endl << "    { ";
+  for(vector<Node *>::const_iterator iter=nodes.begin();iter!=nodes.end();iter++)
+    {
+      if(iter!=nodes.begin())
+        file << "," << endl << "      ";
+      file << (*(*iter))[0] << ", " << (*(*iter))[1];
+    }
+  file << "};" << endl;
+}
+
 void QuadraticPolygon::closeMe() const
 {
   if(!front()->changeStartNodeWith(back()->getEndNode()))
@@ -86,41 +101,12 @@ void QuadraticPolygon::closeMe() const
 
 void QuadraticPolygon::circularPermute()
 {
-  vector<AbstractEdge *>::iterator iter1=_subEdges.begin();
-  vector<AbstractEdge *>::iterator iter2=_subEdges.begin();
-  if(iter2!=_subEdges.end())
-    iter2++;
-  else
-    return ;
-  for(;iter2!=_subEdges.end();iter1++,iter2++)
-    iter_swap(iter1,iter2);
-}
-
-double QuadraticPolygon::getAreaFast() const
-{
-  double ret=0.;
-  for(vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+  if(_subEdges.size()>1)
     {
-      ElementaryEdge *tmp=(ElementaryEdge *)(*iter);
-      ret+=tmp->getAreaOfZoneFast();
+      ElementaryEdge *first=_subEdges.front();
+      _subEdges.pop_front();
+      _subEdges.push_back(first);
     }
-  return ret;
-}
-
-double QuadraticPolygon::getPerimeterFast() const
-{
-  double ret=0.;
-  for(vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
-    {
-      ElementaryEdge *tmp=(ElementaryEdge *)(*iter);
-      ret+=tmp->getCurveLength();
-    }
-  return ret;
-}
-
-double QuadraticPolygon::getHydraulicDiameter() const
-{
-  return 4*fabs(getAreaFast())/getPerimeterFast();
 }
 
 void QuadraticPolygon::dumpInXfigFileWithOther(const ComposedEdge& other, const char *fileName) const
@@ -159,16 +145,86 @@ void QuadraticPolygon::dumpInXfigFile(std::ostream& stream, int resolution, cons
   ComposedEdge::dumpInXfigFile(stream,resolution,box);
 }
 
-double QuadraticPolygon::intersectWith(const QuadraticPolygon& other) const
+/*!
+ * Warning contrary to intersectWith method this method is \b NOT const. 'this' and 'other' are modified after call of this method.
+ */
+double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
 {
-  double ret=0;
+  double ret=0.;
+  double fact=normalize(&other);
   vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
   for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
     {
-      ret+=fabs((*iter)->getAreaOfZone());
+      ret+=fabs((*iter)->getArea());
+      delete *iter;
+    }
+  return ret*fact*fact;
+}
+
+double QuadraticPolygon::intersectWith(const QuadraticPolygon& other) const
+{
+  double ret=0.;
+  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+    {
+      ret+=fabs((*iter)->getArea());
       delete *iter;
     }
   return ret;
+}
+
+void QuadraticPolygon::intersectForPerimeter(const QuadraticPolygon& other, double& perimeterThisPart, double& perimeterOtherPart, double& perimeterCommonPart, double& area) const
+{
+  perimeterThisPart=0.; perimeterOtherPart=0.; perimeterCommonPart=0.; area=0.;
+  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  set<int> idsFromThis;
+  set<int> idsFromOther;
+  fillAllEdgeIds(idsFromThis);
+  other.fillAllEdgeIds(idsFromOther);
+  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+    {
+      area+=fabs((*iter)->getArea());
+      (*iter)->dispatchPerimeter(idsFromThis,idsFromOther,perimeterThisPart,perimeterOtherPart,perimeterCommonPart);
+      delete *iter;
+    }
+}
+
+/*!
+ * polThis.size()==this->size() and polOther.size()==other.size().
+ * For each ElementaryEdge of 'this', the corresponding UNIQUE contribution in resulting polygon is in 'polThis'.
+ * For each ElementaryEdge of 'other', the corresponding UNIQUE contribution in resulting polygon is in 'polOther'.
+ * The returned value is the sum of common edge lengths.
+ */
+double QuadraticPolygon::intersectForPerimeterAdvanced(const QuadraticPolygon& other, std::vector< double >& polThis, std::vector< double >& polOther, double& area) const
+{
+  area=0.;
+  double ret=0.;
+  polThis.resize(size());
+  polOther.resize(other.size());
+  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+    {
+      area+=fabs((*iter)->getArea());
+      ret+=(*iter)->dispatchPerimeterAdv(*this,polThis);
+      ret+=(*iter)->dispatchPerimeterAdv(other,polOther);
+      delete *iter;
+    }
+  return ret;
+}
+
+/*!
+ * numberOfCreatedPointsPerEdge is resized to the number of edges of 'this'.
+ * This method returns in ordered maner the number of newly created points per edge.
+ * This method performs a split process between 'this' and 'other' that gives the result PThis.
+ * Then for each edges of 'this' this method counts how many edges in Pthis have the same id.
+ */
+void QuadraticPolygon::intersectForPoint(const QuadraticPolygon& other, std::vector< int >& numberOfCreatedPointsPerEdge) const
+{
+  numberOfCreatedPointsPerEdge.resize(size());
+  QuadraticPolygon cpyOfThis(*this);
+  QuadraticPolygon cpyOfOther(other); int nbOfSplits=0;
+  splitPolygonsEachOther(cpyOfThis,cpyOfOther,nbOfSplits);
+  dispatchForNode(cpyOfThis,numberOfCreatedPointsPerEdge);
 }
 
 std::vector<QuadraticPolygon *> QuadraticPolygon::intersectMySelfWith(const QuadraticPolygon& other) const
@@ -191,37 +247,36 @@ void QuadraticPolygon::splitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticP
   IteratorOnComposedEdge it1(&pol1),it2(&pol2);
   MergePoints merge;
   ComposedEdge *c1=new ComposedEdge;
-  ComposedEdgeWithIt *c2=new ComposedEdgeWithIt;
+  ComposedEdge *c2=new ComposedEdge;
   for(it2.first();!it2.finished();it2.next())
     {
-      ComposedEdgeWithIt *dealer=dynamic_cast<ComposedEdgeWithIt *>(it2.getLowestDealing());
-      if(!dealer)
+      ElementaryEdge* curE2=it2.current();
+      if(!curE2->isThereStartPoint())
         it1.first();
       else
-        it1=dealer->getIterator();
+        it1=curE2->getIterator();
       for(;!it1.finished();)
         {
-          ElementaryEdge* &curE2=it2.current();
-          ElementaryEdge* &curE1=it1.current();
+          
+          ElementaryEdge* curE1=it1.current();
           merge.clear(); nbOfSplits++;
           if(curE1->getPtr()->intersectWith(curE2->getPtr(),merge,*c1,*c2))
             {
               if(!curE1->getDirection()) c1->reverse();
               if(!curE2->getDirection()) c2->reverse();
-              AbstractEdge *c1s=c1->simplify();
-              AbstractEdge *c2s=c2->simplify();
-              updateNeighbours(merge,it1,it2,c1s,c2s);
-              it1.next();//to do before
+              updateNeighbours(merge,it1,it2,c1,c2);
               //Substitution of simple edge by sub-edges.
-              AbstractEdge **tmp1=(AbstractEdge**)&curE1; delete *tmp1; // <-- destroying simple edge coming from pol1
-              AbstractEdge **tmp2=(AbstractEdge**)&curE2; delete *tmp2; // <-- destroying simple edge coming from pol2
-              *tmp1=c1s;
-              *tmp2=c2s;
+              delete curE1; // <-- destroying simple edge coming from pol1
+              delete curE2; // <-- destroying simple edge coming from pol2
+              it1.insertElemEdges(c1,true);// <-- 2nd param is true to go next.
+              it2.insertElemEdges(c2,false);// <-- 2nd param is false to avoid to go next.
+              curE2=it2.current();
               //
-              if(c2s==c2)//in this case, all elts of c2s(ComposedEdges) should start to be intersected by starting to it1.
-                c2->setIterator(it1);//c2s==c2 implies that c2s is a composed edge so sub iterations requested.
+              it1.assignMySelfToAllElems(c2);//To avoid that others
+              SoftDelete(c1);
+              SoftDelete(c2);
               c1=new ComposedEdge;
-              c2=new ComposedEdgeWithIt;
+              c2=new ComposedEdge;
             }
           else
 	    {
@@ -230,7 +285,8 @@ void QuadraticPolygon::splitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticP
 	    }
         }
     }
-  ComposedEdge::Delete(c1); delete c2;
+  Delete(c1);
+  Delete(c2);
 }
 
 void QuadraticPolygon::performLocatingOperation(QuadraticPolygon& pol2) const
@@ -269,7 +325,7 @@ std::list<QuadraticPolygon *> QuadraticPolygon::zipConsecutiveInSegments() const
       TypeOfEdgeLocInPolygon loc=it.current()->getLoc();
       while(loc!=FULL_OUT_1 && i<nbOfTurns)
         {
-	  AbstractEdge *tmp3=it.current()->clone();
+	  ElementaryEdge *tmp3=it.current()->clone();
           tmp1->pushBack(tmp3);
           it.nextLoop(); i++;
           loc=it.current()->getLoc();
@@ -312,19 +368,10 @@ void QuadraticPolygon::closePolygons(std::list<QuadraticPolygon *>& pol2Zip, con
       if(iter3!=pol2Zip.end())
         {
           (*iter)->pushBack(*iter3);
+          SoftDelete(*iter3);
           pol2Zip.erase(iter3);
         }
     }
-}
-
-void QuadraticPolygon::updateNeighbours(const MergePoints& merger, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
-					const AbstractEdge *e1, const AbstractEdge *e2)
-{
-  it1.previousLoop(); it2.previousLoop();
-  ElementaryEdge *curE1=it1.current(); ElementaryEdge *curE2=it2.current();
-  curE1->changeEndNodeWith(e1->getStartNode()); curE2->changeEndNodeWith(e2->getStartNode());
-  it1.nextLoop(); it1.nextLoop(); it2.nextLoop(); it2.nextLoop();
-  curE1->changeStartNodeWith(e1->getEndNode()); curE2->changeStartNodeWith(e2->getEndNode());
 }
 
 bool QuadraticPolygon::amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted,const QuadraticPolygon& pol2NotSplitted, bool& direction)
@@ -343,8 +390,7 @@ bool QuadraticPolygon::amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Spl
   if(!found)
     throw Exception("Internal error : polygons uncompatible each others. Should never happend");
   //Ok we found correspondance between this and pol1. Searching for right direction to close polygon.
-  IteratorOnComposedEdge::ItOnFixdLev tmp;
-  ElementaryEdge *e=getLastElementary(tmp);
+  ElementaryEdge *e=_subEdges.back();
   if(e->getLoc()==FULL_ON_1)
     {
       if(e->getPtr()==cur->getPtr())
@@ -357,7 +403,10 @@ bool QuadraticPolygon::amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Spl
       else
         {
           direction=true;
-          return pol2NotSplitted.isInOrOut(cur->getEndNode());
+	  Node *repr=cur->getPtr()->buildRepresentantOfMySelf();
+          bool ret=pol2NotSplitted.isInOrOut(repr);
+	  repr->decrRef();
+	  return ret;
         }
     }
   else
@@ -388,7 +437,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
   do
     {
       cur=it.current();
-      AbstractEdge *tmp=cur->clone();
+      ElementaryEdge *tmp=cur->clone();
       if(!direction)
         tmp->reverse();
       pushBack(tmp);

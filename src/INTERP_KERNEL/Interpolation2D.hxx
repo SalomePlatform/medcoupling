@@ -9,11 +9,12 @@ namespace INTERP_KERNEL
   {
   public:
     Interpolation2D() { }
+		Interpolation2D(const InterpolationOptions& io):InterpolationPlanar<Interpolation2D>(io){};
   public:
     bool doRotate() const { return false; }
     double medianPlane() const { return 0.; }
-    template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-    void performAdjustmentOfBB(PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>* intersector, std::vector<double>& bbox) const
+    template<class MyMeshType>
+    void performAdjustmentOfBB(PlanarIntersector<MyMeshType>* intersector, std::vector<double>& bbox) const
     {}
   };
 }

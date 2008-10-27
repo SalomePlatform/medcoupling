@@ -44,14 +44,17 @@ namespace INTERP_KERNEL
     bool isIn(double characterVal) const;
     Node *buildRepresentantOfMySelf() const;
     double getCharactValue(const Node& node) const;
+    double getDistanceToPoint(const double *pt) const;
+    bool isNodeLyingOn(const double *coordOfNode) const;
     bool isLower(double val1, double val2) const { return val1<val2; }
+    double getCharactValueEng(const double *node) const;
     bool doIHaveSameDirectionAs(const Edge& other) const;
-    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const;
     void dynCastFunction(const EdgeLin * &seg,
                          const EdgeArcCircle * &arcSeg) const { seg=this; }
   protected:
     EdgeLin() { }
     void updateBounds();
+    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction) const;
   };
 }
 

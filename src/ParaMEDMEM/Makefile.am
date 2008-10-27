@@ -125,6 +125,7 @@ EXTRA_DIST += \
 	CommInterface.cxx \
 	NonCoincidentDEC.cxx \
 	NonCoincidentDEC.hxx \
+	DECOptions.hxx \
 	README_JR \
 	TODO_JR \
 	Topology.cxx

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <set>
-#include "MEDMEM_OptionManager.hxx"
+#include "InterpolationOptions.hxx"
 
 namespace MEDMEM
 {
@@ -17,7 +17,7 @@ class ParaSUPPORT;
 class InterpolationMatrix;
 
 
-	class ElementLocator: public MEDMEM::OptionManager
+	class ElementLocator: public INTERP_KERNEL::InterpolationOptions
 {
 public:
 	ElementLocator(const ParaMESH& mesh, const ProcessorGroup& distant_group);
@@ -33,7 +33,6 @@ private:
   const ProcessorGroup& _local_group;
   ProcessorGroup* _union_group;
   std::vector<int> _distant_proc_ids;
-	double _adjustment_eps;
   
   void _computeBoundingBoxes();
   bool _intersectsBoundingBox(int irank);

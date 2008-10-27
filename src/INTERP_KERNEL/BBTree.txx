@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include <iostream>
-#include <math.h> // for HUGE constant
+#include <limits>
 const int MIN_NB_ELEMS =15;
 const int MAX_LEVEL=20;
 
@@ -23,12 +23,30 @@ private:
   std::vector<int> _elems;
   bool _terminal;
   int _nbelems;
+	double _epsilon;
 
 public:
 
+	/*!
+		Constructor of the bounding box tree
+		\param bbs pointer to the [xmin1 xmax1 ymin1 ymax1 xmin2 xmax2 ...] array containing the bounding boxes that are to be indexed.
+		\param elems array to the indices of the elements contained in the BBTree
+		\param level level in the BBTree recursive structure
+		\param nbelems nb of elements in the BBTree
+		\param epsilon precision to which points are decided to be coincident
 
-  BBTree(double* bbs, int* elems, int level, int nbelems):
-    _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems)
+		Parameters \a elems and \a level are used only by BBTree itself for creating trees recursively. A typical use is therefore :
+\code
+    int nbelems=...
+    double* bbs= new double[2*2*nbelems];
+		// filling bbs ...
+   	...
+		BBTree<2> tree = new BBTree<2>(elems,0,0,nbelems,1e-12);
+\endcode
+	 */
+
+  BBTree(double* bbs, int* elems, int level, int nbelems, double epsilon=1E-12):
+    _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems),_epsilon(epsilon)
   {
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)
       {
@@ -60,8 +78,8 @@ public:
  
     new_elems_left.reserve(nbelems/2+1);
     new_elems_right.reserve(nbelems/2+1);
-    double max_left=-HUGE;
-    double min_right=HUGE;
+    double max_left = -std::numeric_limits<double>::max();
+    double min_right=  std::numeric_limits<double>::max();
     for (int i=0; i<nbelems;i++)
       {
         int elem;
@@ -86,12 +104,11 @@ public:
 
 
       }
-    _max_left=max_left+1e-12;
-    _min_right=min_right-1e-12;
-    _left=new BBTree(bbs, &(new_elems_left[0]), level+1, new_elems_left.size());
-    _right=new BBTree(bbs, &(new_elems_right[0]), level+1, new_elems_right.size());
+    _max_left=max_left+_epsilon;
+    _min_right=min_right-_epsilon;
+    _left=new BBTree(bbs, &(new_elems_left[0]), level+1, new_elems_left.size(),_epsilon);
+    _right=new BBTree(bbs, &(new_elems_right[0]), level+1, new_elems_right.size(),_epsilon);
   
-
   }
 
 
@@ -121,7 +138,7 @@ public:
             bool intersects = true;
             for (int idim=0; idim<dim; idim++)
               {
-                if (bb_ptr[idim*2]-bb[idim*2+1]>-1e-12|| bb_ptr[idim*2+1]-bb[idim*2]<1e-12)
+                if (bb_ptr[idim*2]-bb[idim*2+1]>-_epsilon|| bb_ptr[idim*2+1]-bb[idim*2]<_epsilon)
                   intersects=false;
               }
             if (intersects)
@@ -166,7 +183,7 @@ public:
             bool intersects = true;
             for (int idim=0; idim<dim; idim++)
               {
-                if (bb_ptr[idim*2]-xx[idim]>1e-12|| bb_ptr[idim*2+1]-xx[idim]<-1e-12)
+                if (bb_ptr[idim*2]-xx[idim]>_epsilon|| bb_ptr[idim*2+1]-xx[idim]<-_epsilon)
                   intersects=false;
               }
             if (intersects)

@@ -10,7 +10,7 @@
 
 namespace ParaMEDMEM {
 
-  typedef enum{WithoutTimeInterp,LinearTimeInterp} TimeInterpolationMethod;
+	//  typedef enum{WithoutTimeInterp,LinearTimeInterp} TimeInterpolationMethod;
 
   class MPI_AccessDEC {
 

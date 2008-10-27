@@ -49,8 +49,8 @@ inline double TransformedTriangle::calcStableC(const TriSegment seg, const Doubl
 
 inline double TransformedTriangle::calcStableT(const TetraCorner corner) const
 {
-//   assert(_isTripleProductsCalculated);
-//   assert(_validTP[corner]);
+  //   assert(_isTripleProductsCalculated);
+  //   assert(_validTP[corner]);
   return _tripleProducts[corner];
 }
 
@@ -100,9 +100,9 @@ inline bool TransformedTriangle::testCornerInTetrahedron(const TriCorner corner)
   for(int i = 0 ; i < 4 ; ++i) 
     {
       if(pt[i] < 0.0 || pt[i] > 1.0)
-	{
-	  return false;
-	}
+        {
+          return false;
+        }
     }
   return true;
 }
@@ -128,9 +128,9 @@ inline  bool TransformedTriangle::testCornerOnXYZFacet(const TriCorner corner) c
   for(int i = 0 ; i < 3 ; ++i) 
     {
       if(pt[i] < 0.0 || pt[i] > 1.0)
-	{
-	  return false;
-	}
+        {
+          return false;
+        }
     }
   return true;
 }
@@ -143,13 +143,13 @@ inline  bool TransformedTriangle::testCornerAboveXYZFacet(const TriCorner corner
   const double H = _coords[5*corner + 4];
         
   return h < 0.0 && H >= 0.0 && x >= 0.0 && y >= 0.0;
-	
+        
 }
 
 inline bool TransformedTriangle::testEdgeIntersectsTriangle(const TetraEdge edge) const
 {
   
-	//  assert(edge < H01);
+  //  assert(edge < H01);
   
   // correspondance edge - triple products
   // for edges OX, ..., ZX (Grandy, table III)
@@ -238,7 +238,7 @@ inline bool TransformedTriangle::testSurfaceAboveCorner(const TetraCorner corner
 
 inline bool TransformedTriangle::testTriangleSurroundsRay(const TetraCorner corner) const
 {
-	//  assert(corner == X || corner == Y || corner == Z);
+  //  assert(corner == X || corner == Y || corner == Z);
 
   // double products to use for the possible corners
   static const DoubleProduct DP_FOR_RAY_INTERSECTION[4] = 

@@ -3,9 +3,12 @@
 #include "EdgeInfLin.hxx"
 //#include "EdgeParabol.hxx"
 #include "EdgeArcCircle.hxx"
+#include "InterpolationUtils.hxx"
 
 using namespace std;
 using namespace INTERP_KERNEL;
+
+int Edge::_idCounter=0;
 
 MergePoints::MergePoints():_ass1Start1(0),_ass1End1(0),_ass1Start2(0),_ass1End2(0),
                            _ass2Start1(0),_ass2End1(0),_ass2Start2(0),_ass2End2(0)
@@ -355,7 +358,7 @@ void Intersector::obviousCaseForCurvAbscisse(Node *node, TypeOfLocInEdge& where,
   obvious=false;
 }
 
-Edge::Edge(double sX, double sY, double eX, double eY):_cnt(1),_loc(FULL_UNKNOWN),_start(new Node(sX,sY)),_end(new Node(eX,eY))
+Edge::Edge(double sX, double sY, double eX, double eY):_cnt(1),_loc(FULL_UNKNOWN),_start(new Node(sX,sY)),_end(new Node(eX,eY)),_id(_idCounter++)
 {
 }
 
@@ -495,7 +498,21 @@ void Edge::addSubEdgeInVector(Node *start, Node *end, ComposedEdge& vec) const
       vec.pushBack((Edge *)this);
       return ;
     }
-  vec.pushBack(buildEdgeLyingOnMe(start,end,true));
+  vec.pushBack(buildEdgeLyingOnMeWithId(start,end,true));
+}
+
+/*!
+ * Retrieves a vector 'vectOutput' that is normal to 'this'. 'vectOutput' is normalized.
+ */
+void Edge::getNormalVector(double *vectOutput) const
+{
+  copy((const double *)(*_end),(const double *)(*_end)+2,vectOutput);
+  transform(vectOutput,vectOutput+2,(const double *)(*_start),vectOutput,minus<double>());
+  double norm=1./Node::norm(vectOutput);
+  transform(vectOutput,vectOutput+2,vectOutput,bind2nd(multiplies<double>(),norm));
+  double tmp=vectOutput[0];
+  vectOutput[0]=vectOutput[1];
+  vectOutput[1]=-tmp;
 }
 
 Edge *Edge::buildEdgeFrom(Node *start, Node *end)
@@ -518,6 +535,13 @@ Edge *Edge::buildFromXfigLine(std::istream& str)
     }
 }
 
+Edge *Edge::buildEdgeLyingOnMeWithId(Node *start, Node *end, bool direction) const
+{
+  Edge *ret=buildEdgeLyingOnMe(start,end,direction);
+  ret->setId(_id);
+  return ret;
+}
+
 /*!
  * \param other The Edge with which we are going to intersect.
  * \param commonNode Output. The common nodes found during operation of intersecting.
@@ -538,6 +562,58 @@ bool Edge::intersectWith(const Edge *other, MergePoints& commonNode,
   ret=intersect(this,other,intersector,merge,commonNode,outVal1,outVal2);
   delete intersector;
   return ret;
+}
+
+bool Edge::intersectOverlapped(const Edge *f1, const Edge *f2, Intersector *intersector, MergePoints& commonNode,
+                               ComposedEdge& outValForF1, ComposedEdge& outValForF2)
+{
+  bool rev=intersector->haveTheySameDirection();
+  Node *f2Start=f2->getNode(rev?START:END);
+  Node *f2End=f2->getNode(rev?END:START);
+  TypeOfLocInEdge place1, place2;
+  intersector->getPlacements(f2Start,f2End,place1,place2,commonNode);
+  int codeForIntersectionCase=combineCodes(place1,place2);
+  return splitOverlappedEdges(f1,f2,f2Start,f2End,rev,codeForIntersectionCase,outValForF1,outValForF2);
+}
+
+/*!
+ * Perform 1D linear interpolation. Warning distrib1 and distrib2 are expected to be in ascending mode.
+ */
+void Edge::interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2, std::map<int, std::map<int,double> >& result)
+{
+  int nbOfV1=distrib1.size()-1;
+  int nbOfV2=distrib2.size()-1;
+  Node *n1=new Node(0.,0.); Node *n3=new Node(0.,0.);
+  Node *n2=new Node(0.,0.); Node *n4=new Node(0.,0.);
+  MergePoints commonNode;
+  for(int i=0;i<nbOfV1;i++)
+    {
+      vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind2nd(greater_equal<double>(),distrib1[i]));
+      if(iter!=distrib2.end())
+        {
+          for(int j=(iter-1)-distrib2.begin();j<nbOfV2;j++)
+            {
+              if(distrib2[j]<=distrib1[i+1])
+                {
+                  EdgeLin *e1=new EdgeLin(n1,n2); EdgeLin *e2=new EdgeLin(n3,n4);
+                  n1->setNewCoords(distrib1[i],0.); n2->setNewCoords(distrib1[i+1],0.);
+                  n3->setNewCoords(distrib2[j],0.); n4->setNewCoords(distrib2[j+1],0.);
+                  ComposedEdge *f1=new ComposedEdge;
+                  ComposedEdge *f2=new ComposedEdge;
+                  SegSegIntersector inters(*e1,*e2);
+                  bool b1,b2;
+                  inters.areOverlappedOrOnlyColinears(0,b1,b2);
+                  if(intersectOverlapped(e1,e2,&inters,commonNode,*f1,*f2))
+                    {
+                      result[i][j]=f1->getCommonLengthWith(*f2)/e1->getCurveLength();
+                    }
+                  ComposedEdge::Delete(f1); ComposedEdge::Delete(f2);
+                  e1->decrRef(); e2->decrRef();
+                }
+            }
+        }
+    }
+  n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef();
 }
 
 Intersector *Edge::buildIntersectorWith(const Edge *e1, const Edge *e2)
@@ -568,6 +644,14 @@ Intersector *Edge::buildIntersectorWith(const Edge *e1, const Edge *e2)
   return ret;
 }
 
+/*!
+ * See Node::applySimilarity to see signification of params.
+ */
+void Edge::applySimilarity(double xBary, double yBary, double dimChar)
+{
+  _bounds.applySimilarity(xBary,yBary,dimChar);
+}
+
 bool Edge::intersect(const Edge *f1, const Edge *f2, Intersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
                      ComposedEdge& outValForF1, ComposedEdge& outValForF2)
 {
@@ -575,15 +659,7 @@ bool Edge::intersect(const Edge *f1, const Edge *f2, Intersector *intersector, c
   bool areOverlapped;
   intersector->areOverlappedOrOnlyColinears(whereToFind,obviousNoIntersection,areOverlapped);
   if(areOverlapped)
-    {
-      bool rev=intersector->haveTheySameDirection();
-      Node *f2Start=f2->getNode(rev?START:END);
-      Node *f2End=f2->getNode(rev?END:START);
-      TypeOfLocInEdge place1, place2;
-      intersector->getPlacements(f2Start,f2End,place1,place2,commonNode);
-      int codeForIntersectionCase=combineCodes(place1,place2);
-      return splitOverlappedEdges(f1,f2,f2Start,f2End,rev,codeForIntersectionCase,outValForF1,outValForF2);
-    }
+    return intersectOverlapped(f1,f2,intersector,commonNode,outValForF1,outValForF2);
   if(obviousNoIntersection)
     return false;
   vector<Node *> newNodes;

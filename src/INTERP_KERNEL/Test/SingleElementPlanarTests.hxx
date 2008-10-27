@@ -14,7 +14,7 @@ namespace INTERP_TEST
   {
     CPPUNIT_TEST_SUITE( SingleElementPlanarTests );
 		
-    CPPUNIT_TEST( diamondsBasic ); 
+		CPPUNIT_TEST( diamondsBasic ); 
 		CPPUNIT_TEST( tangentDiamonds );
 		CPPUNIT_TEST( tangentSquares );
 		CPPUNIT_TEST( diamondsSharingVertex1 );

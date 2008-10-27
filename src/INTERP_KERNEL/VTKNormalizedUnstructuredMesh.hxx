@@ -8,8 +8,13 @@
 class vtkUnstructuredGrid;
 
 template<int MESHDIM>
-class INTERPKERNEL_EXPORT VTKNormalizedUnstructuredMesh : public INTERP_KERNEL::NormalizedUnstructuredMesh<3,MESHDIM,vtkIdType,INTERP_KERNEL::ALL_C_MODE,VTKNormalizedUnstructuredMesh<MESHDIM> >
+class INTERPKERNEL_EXPORT VTKNormalizedUnstructuredMesh : public INTERP_KERNEL::GenericMesh
 {
+public:
+  static const int MY_SPACEDIM=3;
+  static const int MY_MESHDIM=MESHDIM;
+  typedef vtkIdType MyConnType;
+  static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
   VTKNormalizedUnstructuredMesh(vtkUnstructuredGrid *mesh);
   ~VTKNormalizedUnstructuredMesh();

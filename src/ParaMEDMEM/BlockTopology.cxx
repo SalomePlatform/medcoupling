@@ -98,8 +98,8 @@ BlockTopology::BlockTopology(const ProcessorGroup& group, const GRID& grid):
 		_cycle_type=geom_topo._cycle_type;
 		_cycle_type.push_back(Block);
 		_nb_elems=geom_topo.getNbElements()*comp_topo.nbComponents();
-		cout << " Nb elems "<<_nb_elems<<" topo elems "<<geom_topo.getNbElements()
-		  <<" comp_topo "<<comp_topo.nbComponents()<<endl;
+		//cout << " Nb elems "<<_nb_elems<<" topo elems "<<geom_topo.getNbElements()
+		//  <<" comp_topo "<<comp_topo.nbComponents()<<endl;
 	}	
 }
 

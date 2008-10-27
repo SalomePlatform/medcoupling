@@ -2,6 +2,7 @@
 #define __INTERPOLATIONPLANAR_TXX__
 
 #include "InterpolationPlanar.hxx"
+#include "InterpolationOptions.hxx"
 #include "PlanarIntersector.hxx"
 #include "PlanarIntersector.txx"
 #include "TriangulationIntersector.hxx"
@@ -10,8 +11,6 @@
 #include "ConvexIntersector.txx"
 #include "Geometric2DIntersector.hxx"
 #include "Geometric2DIntersector.txx"
-//#include "GenericIntersector.hxx"
-//#include "GenericIntersector.cxx"
 #include "VectorUtils.hxx"
 #include "BBTree.txx"
 #include<time.h>
@@ -30,10 +29,17 @@ namespace INTERP_KERNEL
    * two local meshes in two dimensions. Meshes can contain mixed triangular and quadrangular elements.
    */
   template<class RealPlanar>
-  InterpolationPlanar<RealPlanar>::InterpolationPlanar():_printLevel(0),_precision(DEFAULT_PRECISION),_dimCaracteristic(1),
-                                                         _intersectionType(Triangulation)
+  InterpolationPlanar<RealPlanar>::InterpolationPlanar():_dimCaracteristic(1)
+                                                         
   {
   }
+
+ template<class RealPlanar>
+ InterpolationPlanar<RealPlanar>::InterpolationPlanar(const InterpolationOptions& io):Interpolation< InterpolationPlanar<RealPlanar> >(io),_dimCaracteristic(1)
+                                                         
+  {
+  }
+
 
   /**
    *  \brief  Function used to set the options for the intersection calculation
@@ -49,11 +55,12 @@ namespace INTERP_KERNEL
    *   - Default: 0.
    */
   template<class RealPlanar>
-  void InterpolationPlanar<RealPlanar>::setOptions(double precision, int printLevel, IntersectionType intersectionType)
+  void InterpolationPlanar<RealPlanar>::setOptions(double precision, int printLevel, IntersectionType intersectionType, int orientation)
   {
-    _precision=precision;
-    _printLevel=printLevel;
-    _intersectionType=intersectionType;
+		InterpolationOptions::setPrecision(precision);
+		InterpolationOptions::setPrintLevel(printLevel);
+		InterpolationOptions::setIntersectionType(intersectionType);
+		InterpolationOptions::setOrientation(orientation);
   }
   
   
@@ -78,11 +85,13 @@ namespace INTERP_KERNEL
       *
       */
   template<class RealPlanar>
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MatrixType, class MyMeshType>
-  void InterpolationPlanar<RealPlanar>::interpolateMeshes(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& myMesh_S,
-                                                          const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& myMesh_P,
-                                                          MatrixType& result)
+  template<class MatrixType, class MyMeshType>
+  void InterpolationPlanar<RealPlanar>::interpolateMeshes(const MyMeshType& myMesh_S, const MyMeshType& myMesh_P, MatrixType& result)
   {
+    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+    typedef typename MyMeshType::MyConnType ConnType;
+    static const NumberingPolicy numPol=MyMeshType::My_numPol;
+
     long global_start =clock();
     int counter=0;   
     /***********************************************************/
@@ -104,27 +113,38 @@ namespace INTERP_KERNEL
     double DimCaracteristic_P=diagonalP/nbMaille_P;
     
     _dimCaracteristic=std::min(DimCaracteristic_S, DimCaracteristic_P);
-    if (_printLevel>=1)
+    if (InterpolationOptions::getPrintLevel()>=1)
       {
         std::cout << "  - Characteristic size of the source mesh : " << DimCaracteristic_S << std::endl;
         std::cout << "  - Characteristic size of the target mesh: " << DimCaracteristic_P << std::endl;
         std::cout << "InterpolationPlanar::computation of the intersections" << std::endl;
       }
     
-    PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>* intersector;
+    PlanarIntersector<MyMeshType>* intersector;
     
-    switch (_intersectionType)
+    switch (InterpolationOptions::getIntersectionType())
       {
       case Triangulation:
-        intersector=new TriangulationIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(myMesh_P,myMesh_S, _dimCaracteristic,_precision, 
-                                                                                              medianPlane(), _printLevel);
+        intersector=new TriangulationIntersector<MyMeshType>(
+									myMesh_P,
+									myMesh_S,
+									_dimCaracteristic,
+									InterpolationOptions::getPrecision(),
+									InterpolationOptions::getMedianPlane(),
+									InterpolationOptions::getPrintLevel());
         break;
       case Convex:
-        intersector=new ConvexIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(myMesh_P,myMesh_S, _dimCaracteristic, _precision,
-                                                                                       medianPlane(), doRotate(), _printLevel);
+        intersector=new ConvexIntersector<MyMeshType>(
+        					myMesh_P,
+									myMesh_S,
+									_dimCaracteristic,
+									InterpolationOptions::getPrecision(),
+									InterpolationOptions::getDoRotate(),
+									InterpolationOptions::getMedianPlane(),
+									InterpolationOptions::getPrintLevel());
         break;
       case Geometric2D:
-        intersector=new Geometric2DIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(myMesh_P, myMesh_S, _dimCaracteristic, _precision);
+        intersector=new Geometric2DIntersector<MyMeshType>(myMesh_P, myMesh_S, _dimCaracteristic, InterpolationOptions::getPrecision());
         break;
         // case MEDMEM::Generic:
         //intersector=new GenericIntersector<SPACEDIM>(myMesh_P,myMesh_S, _DimCaracteristic,_Precision,
@@ -172,10 +192,18 @@ namespace INTERP_KERNEL
             //BBTree structure returns numbers between 0 and n-1
             int i_S=intersecting_elems[ielem]; //MN: Global number of cell ?
             int nb_nodesS=connIndxS[i_S+1]-connIndxS[i_S];
-            double surf=intersector->intersectCells(OTT<ConnType,numPol>::indFC(i_P),OTT<ConnType,numPol>::indFC(i_S),nb_nodesP,nb_nodesS);
-            result[i_P].insert(std::make_pair(OTT<ConnType,numPol>::indFC(i_S),surf));
+            double surf=intersector->intersectCells(OTT<ConnType,numPol>::indFC(i_P),
+                                                    OTT<ConnType,numPol>::indFC(i_S),nb_nodesP,nb_nodesS);
+
+						//filtering out zero surfaces and badly oriented surfaces
+						// orientation = -1,0,1
+						// -1 : the intersection is taken into account if target and cells have different orientation
+						// 0 : the intersection is always taken into account
+						// 1 : the intersection is taken into account if target and cells have the same orientation
+						int orientation=InterpolationOptions::getOrientation();
+            if (( surf > 0.0 && orientation >=0 ) || ( surf < 0.0 && orientation <=0 ))
+							result[i_P].insert(std::make_pair(OTT<ConnType,numPol>::indFC(i_S),surf));
             counter++;
-            //rempli_vect_d_intersect(i_P+1,i_S+1,MaP,MaS,result_areas);
           }
         intersecting_elems.clear();
       }
@@ -185,7 +213,7 @@ namespace INTERP_KERNEL
     /*        DEBUG prints             */
     /***********************************/
 
-    if (_printLevel >=1)
+    if (InterpolationOptions::getPrintLevel() >=1)
       {
         long end_intersection=clock();
 //         if (_printLevel >=2)

@@ -19,6 +19,7 @@ namespace INTERP_KERNEL
   private:
     //! return angle in ]-Pi;Pi[ - 'node' must be on curve of '_e1'
     double getAngle(Node *node) const;
+    static bool areArcsOverlapped(const EdgeArcCircle& a1, const EdgeArcCircle& a2);
     static bool isIn2Pi(double start, double delta, double angleIn);
     //! 'delta' 'start' in ]-Pi;Pi[
     static bool isAngleNotIn(double start, double delta, double angleIn);
@@ -68,27 +69,32 @@ namespace INTERP_KERNEL
     Node *buildRepresentantOfMySelf() const;
     bool isLower(double val1, double val2) const;
     double getCharactValue(const Node& node) const;
+    double getDistanceToPoint(const double *pt) const;
+    bool isNodeLyingOn(const double *coordOfNode) const;
     TypeOfFunction getTypeOfFunc() const { return ARC_CIRCLE; }
     void dynCastFunction(const EdgeLin * &seg,
                          const EdgeArcCircle * &arcSeg) const { arcSeg=this; }
     const double *getCenter() const { return _center; }
     void getCenter(double *center) const { center[0]=_center[0]; center[1]=_center[1]; }
     bool doIHaveSameDirectionAs(const Edge& other) const { return false; }
-    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const;
+    void applySimilarity(double xBary, double yBary, double dimChar);
     double getAngle0() const { return _angle0; }
     double getRadius() const { return _radius; }
     double getAngle() const { return _angle; }
+    static double getAbsoluteAngle(const double *vect, double& normVect);
     static void getArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
                                           double *center, double& radius, double& angleInRad, double& angleInRad0);
     //! To avoid in aggressive optimizations nan.
     static double safeSqrt(double val) { double ret=fmax(val,0.); return sqrt(ret); }
     static double safeAcos(double cosAngle) { double ret=fmin(cosAngle,1.); ret=fmax(ret,-1.); return acos(ret); }
+    static double safeAsin(double sinAngle) { double ret=fmin(sinAngle,1.); ret=fmax(ret,-1.); return asin(ret); }
   protected:
     void updateBounds();
+    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const;
   protected:
-    //Value between -2Pi and 2Pi
+    //!Value between -2Pi and 2Pi
     double _angle;
-    //Value between -Pi and Pi
+    //!Value between -Pi and Pi
     double _angle0;
     double _radius;
     double _center[2];

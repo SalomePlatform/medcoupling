@@ -1,3 +1,5 @@
+#ifndef __PRECISION_HXX__
+#define __PRECISION_HXX__
 
 #include "Geometric2D_defines.hxx"
 
@@ -12,3 +14,5 @@ namespace INTERP_KERNEL
     static void setArcDetectionPrecision(double precision);
   };
 }
+
+#endif

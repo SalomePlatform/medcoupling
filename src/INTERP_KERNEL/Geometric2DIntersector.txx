@@ -14,11 +14,10 @@ namespace INTERP_KERNEL
     extern double _precision;
   }*/
 
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  Geometric2DIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::Geometric2DIntersector(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_A,
-                                                                                              const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_B,
-                                                                                              double dimCaracteristic, double precision):
-    PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(dimCaracteristic, precision, 0., false, 0),_meshA(mesh_A),_meshB(mesh_B)
+  template<class MyMeshType>
+  Geometric2DIntersector<MyMeshType>::Geometric2DIntersector(const MyMeshType& mesh_A, const MyMeshType& mesh_B,
+                                                             double dimCaracteristic, double precision):
+    PlanarIntersector<MyMeshType>(dimCaracteristic, precision, 0., false, 0),_meshA(mesh_A),_meshB(mesh_B)
   {
     _connectA= mesh_A.getConnectivityPtr();
     _connectB= mesh_B.getConnectivityPtr();
@@ -29,9 +28,9 @@ namespace INTERP_KERNEL
     QUADRATIC_PLANAR::_precision=dimCaracteristic*precision;
   }
   
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  double Geometric2DIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::intersectCells(ConnType icell_A, ConnType icell_B, 
-                                                                                        int nb_NodesA, int nb_NodesB)
+  template<class MyMeshType>
+  double Geometric2DIntersector<MyMeshType>::intersectCells(ConnType icell_A, ConnType icell_B, 
+                                                            int nb_NodesA, int nb_NodesB)
   {
     NormalizedCellType tA=_meshA.getTypeOfElement(icell_A);
     NormalizedCellType tB=_meshA.getTypeOfElement(icell_B);
@@ -42,8 +41,8 @@ namespace INTERP_KERNEL
     return ret;
   }
 
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  QuadraticPolygon *Geometric2DIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
+  template<class MyMeshType>
+  QuadraticPolygon *Geometric2DIntersector<MyMeshType>::buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
   {
     const ConnType *startOfCellNodeConn=_connectA+OTT<ConnType,numPol>::conn2C(_connIndexA[OTT<ConnType,numPol>::ind2C(cell)]);
     std::vector<Node *> nodes(nbOfPoints);
@@ -55,8 +54,8 @@ namespace INTERP_KERNEL
       return QuadraticPolygon::buildArcCirclePolygon(nodes);
   }
 
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  QuadraticPolygon *Geometric2DIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::buildPolygonBFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
+  template<class MyMeshType>
+  QuadraticPolygon *Geometric2DIntersector<MyMeshType>::buildPolygonBFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
   {
     const ConnType *startOfCellNodeConn=_connectB+OTT<ConnType,numPol>::conn2C(_connIndexB[OTT<ConnType,numPol>::ind2C(cell)]);
     std::vector<Node *> nodes(nbOfPoints);

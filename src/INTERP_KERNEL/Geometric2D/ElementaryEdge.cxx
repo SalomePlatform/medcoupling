@@ -1,4 +1,5 @@
 #include "ElementaryEdge.hxx"
+#include "InterpolationUtils.hxx"
 #include "Edge.hxx"
 
 using namespace INTERP_KERNEL;
@@ -36,19 +37,14 @@ void ElementaryEdge::getBarycenter(double *bary, double& weigh) const
   weigh=_ptr->getCurveLength();
 }
 
-AbstractEdge *ElementaryEdge::clone() const
+ElementaryEdge *ElementaryEdge::clone() const
 {
   return new ElementaryEdge(*this);
 }
 
-int ElementaryEdge::recursiveSize() const
+void ElementaryEdge::initLocations() const
 {
-  return 1;
-}
-
-int ElementaryEdge::size() const
-{
-  throw Exception("Invalid call to ElementaryEdge::size : ElementaryEdge not splittable");
+  _ptr->initLocs();
 }
 
 /*!
@@ -110,16 +106,6 @@ TypeOfEdgeLocInPolygon ElementaryEdge::locateFullyMySelfAbsolute(const ComposedE
   return getLoc();
 }
 
-const AbstractEdge *&ElementaryEdge::operator[](IteratorOnComposedEdge::ItOnFixdLev i) const
-{
-  throw Exception("Invalid input parameter in ElementaryEdge::operator[] not splittable");
-}
-
-AbstractEdge *&ElementaryEdge::operator[](IteratorOnComposedEdge::ItOnFixdLev i)
-{
-  throw Exception("Invalid input parameter in ElementaryEdge::operator[] not splittable");
-}
-
 Node *ElementaryEdge::getEndNode() const
 { 
   if(_direction)
@@ -156,20 +142,14 @@ void ElementaryEdge::dumpInXfigFile(std::ostream& stream, int resolution, const 
   _ptr->dumpInXfigFile(stream,_direction,resolution,box);
 }
 
-bool ElementaryEdge::intresicEqual(const AbstractEdge *other) const
+bool ElementaryEdge::intresicEqual(const ElementaryEdge *other) const
 {
-  const ElementaryEdge* otherC=dynamic_cast< const ElementaryEdge* >(other);
-  if(!otherC)
-    return false;
-  return (_ptr==otherC->_ptr);
+  return _ptr==other->_ptr;
 }
 
-bool ElementaryEdge::intresicEqualDirSensitive(const AbstractEdge *other) const
+bool ElementaryEdge::intresicEqualDirSensitive(const ElementaryEdge *other) const
 {
-  const ElementaryEdge* otherC=dynamic_cast< const ElementaryEdge* >(other);
-  if(!otherC)
-    return false;
-  return ( _direction==otherC->_direction ) && (_ptr==otherC->_ptr);
+  return ( _direction==other->_direction ) && (_ptr==other->_ptr);
 }
 
 bool ElementaryEdge::intresincEqCoarse(const Edge *other) const

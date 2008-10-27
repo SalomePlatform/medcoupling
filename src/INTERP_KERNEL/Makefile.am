@@ -40,13 +40,23 @@ lib_LTLIBRARIES = libinterpkernel.la
 
 
 salomeinclude_HEADERS = \
-Interpolation.hxx\
-Interpolation3D.hxx\
-Interpolation2D.hxx\
-Interpolation3DSurf.hxx\
-Remapper.hxx\
-PointLocator.hxx\
-INTERPKERNEL_defines.hxx
+BoundingBox.hxx             IntersectorHexa.hxx                RegionNode.hxx\
+ConvexIntersector.hxx       IntersectorTetra.hxx               Remapper.hxx\
+Geometric2DIntersector.hxx  Log.hxx                            TargetIntersector.hxx\
+INTERPKERNEL_defines.hxx    MEDNormalizedUnstructuredMesh.hxx  TetraAffineTransform.hxx\
+InterpKernelMatrix.hxx      MeshElement.hxx                    TransformedTriangle.hxx\
+Interpolation2D.hxx         MeshRegion.hxx                     TransformedTriangle_inline.hxx\
+Interpolation3D.hxx         MeshUtils.hxx                      TranslationRotationMatrix.hxx\
+Interpolation3DSurf.hxx     NormalizedUnstructuredMesh.hxx     TriangulationIntersector.hxx\
+Interpolation.hxx           PlanarIntersector.hxx              VectorUtils.hxx\
+InterpolationPlanar.hxx     PointLocator.hxx                   VTKNormalizedUnstructuredMesh.hxx\
+InterpolationUtils.hxx      PolygonAlgorithms.hxx\
+BBTree.txx                  InterpolationPlanar.txx            PlanarIntersector.txx\
+ConvexIntersector.txx       IntersectorHexa.txx                PointLocatorAlgos.txx\
+Geometric2DIntersector.txx  IntersectorTetra.txx               PolygonAlgorithms.txx\
+Interpolation2D.txx         MEDNormalizedUnstructuredMesh.txx  TriangulationIntersector.txx\
+Interpolation3DSurf.txx     MeshElement.txx                    VTKNormalizedUnstructuredMesh.txx\
+Interpolation3D.txx         MeshRegion.txx
 
 # Libraries targets
 
@@ -56,6 +66,7 @@ dist_libinterpkernel_la_SOURCES = \
 	TransformedTriangle_math.cxx\
 	BoundingBox.cxx \
 	TetraAffineTransform.cxx\
+	CellModel.cxx \
 	Remapper.cxx \
 	PointLocator.cxx
 

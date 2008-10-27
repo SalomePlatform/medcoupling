@@ -1,15 +1,18 @@
-#include "CommInterface.hxx"
+#include "CommInterface.hxx" 
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
+#include "MPI_AccessDEC.hxx"
 #include "MxN_Mapping.hxx"
 
 namespace ParaMEDMEM
 {
 
-MxN_Mapping::MxN_Mapping(const ProcessorGroup& local_group, const ProcessorGroup& distant_group)
-: _union_group(local_group.fuse(distant_group))
+MxN_Mapping::MxN_Mapping(const ProcessorGroup& local_group, const ProcessorGroup& distant_group,const DECOptions& dec_options)
+	: _union_group(local_group.fuse(distant_group)),
+		DECOptions(dec_options)
 {
-  _accessDEC = new MPI_AccessDEC(local_group,distant_group);
+  _accessDEC = new MPI_AccessDEC(local_group,distant_group,getAsynchronous());
+	_accessDEC->SetTimeInterpolator(getTimeInterpolationMethod());
   _send_proc_offsets.resize(_union_group->size()+1,0);
   _recv_proc_offsets.resize(_union_group->size()+1,0);
   
@@ -18,7 +21,7 @@ MxN_Mapping::MxN_Mapping(const ProcessorGroup& local_group, const ProcessorGroup
 MxN_Mapping::~MxN_Mapping()
 {
   delete _union_group;
-  delete _accessDEC ;
+  delete _accessDEC;
 }
 
 
@@ -215,7 +218,7 @@ void MxN_Mapping::sendRecv(double* sendfield, MEDMEM::FIELD<double>& field) cons
   }
   
   //communication phase
-	switch (_allToAllMethod) {
+	switch (getAllToAllMethod()) {
     case Native:
 			{
 				const MPI_Comm* comm = group->getComm();
@@ -247,8 +250,8 @@ void MxN_Mapping::sendRecv(double* sendfield, MEDMEM::FIELD<double>& field) cons
   }       
   
 //  if (sendbuf!=0) delete[] sendbuf;
-  if (sendbuf!=0 && _allToAllMethod == Native) delete[] sendbuf;
-  if (recvbuf!=0) delete[] recvbuf;
+  if (sendbuf!=0 && getAllToAllMethod()== Native) delete[] sendbuf;
+	if (recvbuf !=0) delete[] recvbuf;
   delete[] sendcounts;
   delete[] recvcounts;
   delete[] senddispls; 
@@ -309,7 +312,7 @@ void MxN_Mapping::reverseSendRecv(double* recvfield, MEDMEM::FIELD<double>& fiel
   //            }
 
   //communication phase
-  switch (_allToAllMethod) {
+  switch (getAllToAllMethod()) {
   case Native:
     {
       const MPI_Comm* comm = group->getComm();
@@ -336,21 +339,19 @@ void MxN_Mapping::reverseSendRecv(double* recvfield, MEDMEM::FIELD<double>& fiel
   {
     for (int icomp=0; icomp<nbcomp; icomp++)
     {
-      //                                        recvfield[(_sending_ids[i].second-1)*nbcomp+icomp]+=*recvptr;
+      //recvfield[(_sending_ids[i].second-1)*nbcomp+icomp]+=*recvptr;
       recvfield[i*nbcomp+icomp]=*recvptr;
       recvptr++;
-    }  
-  }       
+    }
+  }
 
-
-  //  if (sendbuf!=0) delete[] sendbuf;
-  if (sendbuf!=0 && _allToAllMethod == Native) delete[] sendbuf;
+  //if (sendbuf!=0) delete[] sendbuf;
+  if (sendbuf!=0 && getAllToAllMethod() == Native) delete[] sendbuf;
   if (recvbuf!=0) delete[] recvbuf;
   delete[] sendcounts;
   delete[] recvcounts;
   delete[] senddispls; 
   delete[] recvdispls;
-
 }
 
 

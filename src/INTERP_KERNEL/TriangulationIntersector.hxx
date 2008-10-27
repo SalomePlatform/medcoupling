@@ -5,12 +5,16 @@
 
 namespace INTERP_KERNEL
 {
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class INTERPKERNEL_EXPORT TriangulationIntersector : public PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>
+  template<class MyMeshType>
+  class INTERPKERNEL_EXPORT TriangulationIntersector : public PlanarIntersector<MyMeshType>
   {
   public:
-    TriangulationIntersector(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_A,
-                             const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_B,
+    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+    typedef typename MyMeshType::MyConnType ConnType;
+    static const NumberingPolicy numPol=MyMeshType::My_numPol;
+  public:
+    TriangulationIntersector(const MyMeshType& mesh_A, const MyMeshType& mesh_B,
                              double dimCaracteristic, double precision, double medianPlane, int printLevel);
     double intersectCells(ConnType icell_A, ConnType icell_B, int nb_NodesA, int nb_NodesB);
   private :

@@ -31,7 +31,8 @@ SegSegIntersector::SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2):SameT
  */
 bool SegSegIntersector::haveTheySameDirection() const
 {
-  return (_matrix[_ind?1:0]>0. && _matrix[_ind?3:2]>0.) || (_matrix[_ind?1:0]<0. && _matrix[_ind?3:2]<0.);
+  return (_matrix[3]*_matrix[1]+_matrix[2]*_matrix[0])>0.;
+  //return (_matrix[_ind?1:0]>0. && _matrix[_ind?3:2]>0.) || (_matrix[_ind?1:0]<0. && _matrix[_ind?3:2]<0.);
 }
 
 /*!
@@ -158,9 +159,33 @@ Node *EdgeLin::buildRepresentantOfMySelf() const
 
 double EdgeLin::getCharactValue(const Node& node) const
 {
-  double car1_1x=node[0]-(*(_start))[0]; double car1_2x=(*(_end))[0]-(*(_start))[0];
-  double car1_1y=node[1]-(*(_start))[1]; double car1_2y=(*(_end))[1]-(*(_start))[1];
-  return (car1_1x*car1_2x+car1_1y*car1_2y)/(car1_2x*car1_2x+car1_2y*car1_2y);
+  return getCharactValueEng(node);
+}
+
+double EdgeLin::getDistanceToPoint(const double *pt) const
+{
+  double loc=getCharactValueEng(pt);
+  if(loc>0. && loc<1.)
+    {
+      double tmp[2];
+      tmp[0]=(*_start)[0]*(1-loc)+loc*(*_end)[0];
+      tmp[1]=(*_start)[1]*(1-loc)+loc*(*_end)[1];
+      return Node::distanceBtw2Pt(pt,tmp);
+    }
+  else
+    {
+      double dist1=Node::distanceBtw2Pt(*_start,pt);
+      double dist2=Node::distanceBtw2Pt(*_end,pt);
+      return fmin(dist1,dist2);
+    }
+}
+
+bool EdgeLin::isNodeLyingOn(const double *coordOfNode) const
+{
+  double dBase=sqrt(_start->distanceWithSq(*_end));
+  double d1=Node::distanceBtw2Pt(*_start,coordOfNode);
+  d1+=Node::distanceBtw2Pt(*_end,coordOfNode);
+  return Node::areDoubleEquals(dBase,d1);
 }
 
 void EdgeLin::dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const
@@ -212,4 +237,11 @@ Edge *EdgeLin::buildEdgeLyingOnMe(Node *start, Node *end, bool direction) const
 void EdgeLin::updateBounds()
 {
   _bounds.setValues(fmin((*_start)[0],(*_end)[0]),fmax((*_start)[0],(*_end)[0]),fmin((*_start)[1],(*_end)[1]),fmax((*_start)[1],(*_end)[1]));
+}
+
+double EdgeLin::getCharactValueEng(const double *node) const
+{
+  double car1_1x=node[0]-(*(_start))[0]; double car1_2x=(*(_end))[0]-(*(_start))[0];
+  double car1_1y=node[1]-(*(_start))[1]; double car1_2y=(*(_end))[1]-(*(_start))[1];
+  return (car1_1x*car1_2x+car1_1y*car1_2y)/(car1_2x*car1_2x+car1_2y*car1_2y);
 }

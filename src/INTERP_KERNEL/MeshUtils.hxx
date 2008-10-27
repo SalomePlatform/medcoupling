@@ -9,15 +9,17 @@ namespace INTERP_KERNEL
    * Returns the global number of the node of an element.
    * (1 <= node <= no. nodes of element)
    *
-   * @param      node       the node for which the global number is sought (in numPol policy)
+   * @param      node       the node for which the global number is sought (ALWAYS in C mode)
    * @param      element    an element of the mesh (in numPol policy)
    * @param      mesh       a mesh
    * @return    the node's global number so that (its coordinates in the coordinates array are at [SPACEDIM*globalNumber, SPACEDIM*globalNumber + 2]
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  inline ConnType getGlobalNumberOfNode(int node, ConnType element, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh)
+  template<class MyMeshType>
+  inline typename MyMeshType::MyConnType getGlobalNumberOfNode(typename MyMeshType::MyConnType node, typename MyMeshType::MyConnType element, const MyMeshType& mesh)
   {
-    const ConnType elemIdx = OTT<ConnType,numPol>::conn2C(mesh.getConnectivityIndexPtr()[OTT<ConnType,numPol>::ind2C(element)]);
+    typedef typename MyMeshType::MyConnType ConnType;
+    const NumberingPolicy numPol=MyMeshType::My_numPol;
+    const ConnType elemIdx=OTT<ConnType,numPol>::conn2C(mesh.getConnectivityIndexPtr()[OTT<ConnType,numPol>::ind2C(element)]);
     return OTT<ConnType,numPol>::coo2C(mesh.getConnectivityPtr()[elemIdx + node]);
   }
 
@@ -30,11 +32,12 @@ namespace INTERP_KERNEL
    * @param      mesh       a mesh
    * @return    pointer to an array of 3 doubles containing the coordinates of the node
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  inline const double* getCoordsOfNode(int node, int element, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh)
+  template<class MyMeshType>
+  inline const double* getCoordsOfNode(int node, int element, const MyMeshType& mesh)
   {
+    typedef typename MyMeshType::MyConnType ConnType;
     const ConnType connIdx = getGlobalNumberOfNode(node, element, mesh);
-    return mesh.getCoordinatesPtr()+SPACEDIM*connIdx;
+    return mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*connIdx;
   }
     
 }

@@ -90,6 +90,52 @@ double ArcCArcCIntersector::getAngle(Node *node) const
   return ret;
 }
 
+bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeArcCircle& a2)
+{
+  double centerL[2],radiusL,angle0L,angleL;
+  double centerB[2],radiusB;
+  double lgth1=fabs(a1.getAngle()*a1.getRadius());
+  double lgth2=fabs(a2.getAngle()*a2.getRadius());
+  if(lgth1<lgth2)
+    {//a1 is the little one ('L') and a2 the big one ('B')
+      a1.getCenter(centerL); radiusL=a1.getRadius(); angle0L=a1.getAngle0(); angleL=a1.getAngle();
+      a2.getCenter(centerB); radiusB=a2.getRadius();
+    }
+  else
+    {
+      a2.getCenter(centerL); radiusL=a2.getRadius(); angle0L=a2.getAngle0(); angleL=a2.getAngle();
+      a1.getCenter(centerB); radiusB=a1.getRadius();
+    }
+  // dividing from the begining by radiusB^2 to keep precision
+  double tmp=Node::distanceBtw2PtSq(centerL,centerB);
+  double cst=tmp/(radiusB*radiusB);
+  cst+=radiusL*radiusL/(radiusB*radiusB);
+  if(!Node::areDoubleEqualsWP(cst,1.,2.))
+    return false;
+  //
+  Bounds *merge=a1.getBounds().nearlyAmIIntersectingWith(a2.getBounds());
+  merge->getInterceptedArc(centerL,radiusL,angle0L,angleL);
+  delete merge;
+  //
+  tmp=sqrt(tmp);
+  double phi=EdgeArcCircle::safeAcos((centerL[0]-centerB[0])/tmp);
+  if(centerL[1]<centerB[1])
+    phi=-phi;
+  double cst2=2*radiusL*tmp/(radiusB*radiusB);
+  double cmpContainer[4];
+  int sizeOfCmpContainer=2;
+  cmpContainer[0]=cst+cst2*cos(phi-angle0L);
+  cmpContainer[1]=cst+cst2*cos(phi-angle0L+angleL);
+  double a=normalizeAngle(phi-angle0L);
+  if(isIn2Pi(angle0L,angleL,a))
+    cmpContainer[sizeOfCmpContainer++]=cst+cst2;
+  a=normalizeAngle(phi-angle0L+M_PI);
+  if(isIn2Pi(angle0L,angleL,a))
+    cmpContainer[sizeOfCmpContainer++]=cst-cst2;
+  a=*max_element(cmpContainer,cmpContainer+sizeOfCmpContainer);
+  return Node::areDoubleEqualsWP(a,1.,2.);
+}
+
 void ArcCArcCIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind, bool& obviousNoIntersection, bool& areOverlapped)
 {
   _dist=Node::distanceBtw2Pt(getE1().getCenter(),getE2().getCenter());
@@ -100,7 +146,7 @@ void ArcCArcCIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind
       areOverlapped=false;
       return ;
     }
-  if(Node::areDoubleEquals(_dist,0.) && Node::areDoubleEquals(radius1,radius2))
+  if(areArcsOverlapped(getE1(),getE2()))//(Node::areDoubleEquals(_dist,0.) && Node::areDoubleEquals(radius1,radius2))
     {
       obviousNoIntersection=false;
       areOverlapped=true;
@@ -300,8 +346,8 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(const Bounds *whereToFind,
   _cross=
     ((*(_e2.getStartNode()))[0]-center[0])*((*(_e2.getEndNode()))[1]-center[1])-
     ((*(_e2.getStartNode()))[1]-center[1])*((*(_e2.getEndNode()))[0]-center[0]);
-  _determinant=getE1().getRadius()*getE1().getRadius()*_drSq-_cross*_cross;
-  if(_determinant>-QUADRATIC_PLANAR::_precision*10.)//QUADRATIC_PLANAR::_precision*QUADRATIC_PLANAR::_precision*_drSq*_drSq/(2.*_dx*_dx))
+  _determinant=getE1().getRadius()*getE1().getRadius()/_drSq-_cross*_cross/(_drSq*_drSq);
+  if(_determinant>-2*QUADRATIC_PLANAR::_precision)//QUADRATIC_PLANAR::_precision*QUADRATIC_PLANAR::_precision*_drSq*_drSq/(2.*_dx*_dx))
     obviousNoIntersection=false;
   else
     obviousNoIntersection=true;   
@@ -316,11 +362,11 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
 {
   std::list< IntersectElement > ret;
   const double *center=getE1().getCenter();
-  if(!(fabs(_determinant)<(QUADRATIC_PLANAR::_precision*10.)))//QUADRATIC_PLANAR::_precision*QUADRATIC_PLANAR::_precision*_drSq*_drSq/(2.*_dx*_dx))
+  if(!(fabs(_determinant)<(2.*QUADRATIC_PLANAR::_precision)))//QUADRATIC_PLANAR::_precision*QUADRATIC_PLANAR::_precision*_drSq*_drSq/(2.*_dx*_dx))
     {
       double determinant=EdgeArcCircle::safeSqrt(_determinant);
-      double x1=(_cross*_dy+Node::sign(_dy)*_dx*determinant)/_drSq+center[0];
-      double y1=(-_cross*_dx+fabs(_dy)*determinant)/_drSq+center[1];
+      double x1=(_cross*_dy/_drSq+Node::sign(_dy)*_dx*determinant)+center[0];
+      double y1=(-_cross*_dx/_drSq+fabs(_dy)*determinant)+center[1];
       Node *intersect1=new Node(x1,y1); intersect1->declareOn();
       bool i1_1S=_e1.getStartNode()->isEqual(*intersect1);
       bool i1_1E=_e1.getEndNode()->isEqual(*intersect1);
@@ -328,8 +374,8 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
       bool i1_2E=_e2.getEndNode()->isEqual(*intersect1);
       ret.push_back(IntersectElement(getE1().getCharactValue(*intersect1),getE2().getCharactValue(*intersect1),i1_1S,i1_1E,i1_2S,i1_2E,intersect1,_e1,_e2,keepOrder()));
       //
-      double x2=(_cross*_dy-Node::sign(_dy)*_dx*determinant)/_drSq+center[0];
-      double y2=(-_cross*_dx-fabs(_dy)*determinant)/_drSq+center[1];
+      double x2=(_cross*_dy/_drSq-Node::sign(_dy)*_dx*determinant)+center[0];
+      double y2=(-_cross*_dx/_drSq-fabs(_dy)*determinant)+center[1];
       Node *intersect2=new Node(x2,y2); intersect2->declareOn();
       bool i2_1S=_e1.getStartNode()->isEqual(*intersect2);
       bool i2_1E=_e1.getEndNode()->isEqual(*intersect2);
@@ -414,6 +460,23 @@ Edge *EdgeArcCircle::buildEdgeLyingOnMe(Node *start, Node *end, bool direction) 
   return new EdgeArcCircle(start,end,_center,_radius,angle0,deltaAngle,direction);
 }
 
+void EdgeArcCircle::applySimilarity(double xBary, double yBary, double dimChar)
+{
+  Edge::applySimilarity(xBary,yBary,dimChar);
+  _radius/=dimChar;
+  _center[0]=(_center[0]-xBary)/dimChar;
+  _center[1]=(_center[1]-yBary)/dimChar;
+}
+
+double EdgeArcCircle::getAbsoluteAngle(const double *vect, double& normVect)
+{
+  normVect=Node::norm(vect);
+  double ret=safeAcos(vect[0]/normVect);
+  if(vect[1]<0)
+    ret=-ret;
+  return ret;
+}
+
 void EdgeArcCircle::getArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
                                               double *center, double& radius, double& angleInRad, double& angleInRad0)
 {
@@ -473,8 +536,8 @@ double EdgeArcCircle::getCurveLength() const
 
 void EdgeArcCircle::getBarycenter(double *bary) const
 {
-  bary[0]=((*_start)[0]+(*_end)[0])/2.;
-  bary[1]=((*_start)[1]+(*_end)[1])/2.;
+  bary[0]=_center[0]+_radius*cos(_angle0+_angle/2.);
+  bary[1]=_center[1]+_radius*sin(_angle0+_angle/2.);
 }
 
 /*!
@@ -522,6 +585,31 @@ double EdgeArcCircle::getCharactValue(const Node& node) const
   double angle0=safeAcos(dx);
   angle0=dy>=0.?angle0:-angle0;
   return angle0;
+}
+
+double EdgeArcCircle::getDistanceToPoint(const double *pt) const
+{
+  double angle=Node::computeAngle(_center,pt);
+  if(ArcCArcCIntersector::isIn2Pi(_angle0,_angle,angle))
+    return fabs(Node::distanceBtw2Pt(_center,pt)-_radius);
+  else
+    {
+      double dist1=Node::distanceBtw2Pt(*_start,pt);
+      double dist2=Node::distanceBtw2Pt(*_end,pt);
+      return fmin(dist1,dist2);
+    }
+}
+
+bool EdgeArcCircle::isNodeLyingOn(const double *coordOfNode) const
+{
+  double dist=Node::distanceBtw2Pt(_center,coordOfNode);
+  if(Node::areDoubleEquals(dist,_radius))
+    {
+      double angle=Node::computeAngle(_center,coordOfNode);
+      return ArcCArcCIntersector::isIn2Pi(_angle0,_angle,angle);
+    }
+  else
+    return false;
 }
 
 void EdgeArcCircle::updateBounds()

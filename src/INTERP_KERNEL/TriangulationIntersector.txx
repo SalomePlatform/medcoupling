@@ -10,12 +10,11 @@
 
 namespace INTERP_KERNEL
 {
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  TriangulationIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::TriangulationIntersector(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_A,
-                                                                                                  const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_B, 
-                                                                                                  double DimCaracteristic, double Precision,
-                                                                                                  double MedianPlane, int PrintLevel)
-    :PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(DimCaracteristic, Precision, MedianPlane, true, PrintLevel)
+  template<class MyMeshType>
+  TriangulationIntersector<MyMeshType>::TriangulationIntersector(const MyMeshType& mesh_A, const MyMeshType& mesh_B, 
+                                                                 double DimCaracteristic, double Precision,
+                                                                 double MedianPlane, int PrintLevel)
+    :PlanarIntersector<MyMeshType>(DimCaracteristic, Precision, MedianPlane, true, PrintLevel)
   {
     _connectA= mesh_A.getConnectivityPtr();
     _connectB= mesh_B.getConnectivityPtr();
@@ -23,19 +22,20 @@ namespace INTERP_KERNEL
     _connIndexB= mesh_B.getConnectivityIndexPtr();
     _coordsA = mesh_A.getCoordinatesPtr();
     _coordsB = mesh_B.getCoordinatesPtr();
-    if(PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_printLevel >= 1)
+    if(PlanarIntersector<MyMeshType>::_printLevel >= 1)
       {
         std::cout << "  - intersection type = triangles " << std::endl;
         if(SPACEDIM==3) std::cout << "_do_rotate = true"<< std::endl;
       }
   }
 
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  double TriangulationIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::intersectCells(ConnType icell_A, ConnType icell_B,
-                                                                                               int nb_NodesA, int nb_NodesB)
+  template<class MyMeshType>
+  double TriangulationIntersector<MyMeshType>::intersectCells(ConnType icell_A, ConnType icell_B,
+                                                              int nb_NodesA, int nb_NodesB)
   {
-    double result=0.;
-		    
+    double result = 0.;
+		int orientation = 1;
+                    
     //Obtain the coordinates of A and B
     std::vector<double> Coords_A (SPACEDIM*nb_NodesA);
     std::vector<double> Coords_B (SPACEDIM*nb_NodesB);
@@ -49,12 +49,12 @@ namespace INTERP_KERNEL
     
     //project cells A and B on the median plane and rotate the median plane
     if(SPACEDIM==3)
-      projection(Coords_A, Coords_B, nb_NodesA, nb_NodesB,
-                 PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_dimCaracteristic * PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_precision,
-                 PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_medianPlane, PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_doRotate);
+      orientation = projection(Coords_A, Coords_B, nb_NodesA, nb_NodesB,
+															 PlanarIntersector<MyMeshType>::_dimCaracteristic * PlanarIntersector<MyMeshType>::_precision,
+															 PlanarIntersector<MyMeshType>::_medianPlane, PlanarIntersector<MyMeshType>::_doRotate);
     
-		//DEBUG PRINTS
-    if(PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_printLevel >= 3) 
+    //DEBUG PRINTS
+    if(PlanarIntersector<MyMeshType>::_printLevel >= 3) 
       {
         std::cout << std::endl << "Cell coordinates (possibly after projection)" << std::endl;
         std::cout << std::endl << "icell_A= " << icell_A << ", nb nodes A= " <<  nb_NodesA << std::endl;
@@ -63,8 +63,8 @@ namespace INTERP_KERNEL
         std::cout << std::endl << "icell_B= " << icell_B << ", nb nodes B= " <<  nb_NodesB << std::endl;
         for(int i_B =0; i_B< nb_NodesB; i_B++)
           {for (int idim=0; idim<SPACEDIM; idim++) std::cout << Coords_B[SPACEDIM*i_B+idim]<< " "; std::cout << std::endl; }
-			}
-		
+      }
+                
     //Compute the intersection area
     double area[SPACEDIM];
     for(ConnType i_A = 1; i_A<nb_NodesA-1; i_A++)
@@ -74,17 +74,17 @@ namespace INTERP_KERNEL
             std::vector<double> inter;
             INTERP_KERNEL::intersec_de_triangle(&Coords_A[0],&Coords_A[SPACEDIM*i_A],&Coords_A[SPACEDIM*(i_A+1)],
                                                 &Coords_B[0],&Coords_B[SPACEDIM*i_B],&Coords_B[SPACEDIM*(i_B+1)],
-                                                inter, PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_dimCaracteristic,
-                                                PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_precision);
+                                                inter, PlanarIntersector<MyMeshType>::_dimCaracteristic,
+                                                PlanarIntersector<MyMeshType>::_precision);
             ConnType nb_inter=((ConnType)inter.size())/2;
             if(nb_inter >3) inter=reconstruct_polygon(inter);
             for(ConnType i = 1; i<nb_inter-1; i++)
               {
                 INTERP_KERNEL::crossprod<2>(&inter[0],&inter[2*i],&inter[2*(i+1)],area);
-								result +=0.5*fabs(area[0]);
+                result +=0.5*fabs(area[0]);
               }
             //DEBUG prints
-            if(PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_printLevel >= 3)
+            if(PlanarIntersector<MyMeshType>::_printLevel >= 3)
               {
                 std::cout << std::endl << "Number of nodes of the intersection = "<< nb_inter << std::endl;
                 for(ConnType i=0; i< nb_inter; i++)
@@ -92,12 +92,12 @@ namespace INTERP_KERNEL
               }
           }
       }
-
-		//DEBUG PRINTS    
-    if(PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::_printLevel >= 3) 
-			std::cout << std::endl <<"Intersection area = " << result << std::endl;
-      
-    return result;
+    
+    //DEBUG PRINTS    
+    if(PlanarIntersector<MyMeshType>::_printLevel >= 3) 
+      std::cout << std::endl <<"Intersection area = " << result << std::endl;
+    
+    return orientation*result;
   }
 }
 

@@ -7,12 +7,16 @@ namespace INTERP_KERNEL
 {
   class QuadraticPolygon;
 
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  class INTERPKERNEL_EXPORT Geometric2DIntersector : public PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>
+  template<class MyMeshType>
+  class INTERPKERNEL_EXPORT Geometric2DIntersector : public PlanarIntersector<MyMeshType>
   {
   public:
-    Geometric2DIntersector(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_A,
-                           const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh_B,
+    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+    typedef typename MyMeshType::MyConnType ConnType;
+    static const NumberingPolicy numPol=MyMeshType::My_numPol;
+  public:
+    Geometric2DIntersector(const MyMeshType& mesh_A, const MyMeshType& mesh_B,
                            double dimCaracteristic, double precision);
     double intersectCells(ConnType icell_A, ConnType icell_B, int nb_NodesA, int nb_NodesB);
   private:
@@ -25,8 +29,8 @@ namespace INTERP_KERNEL
     const double *_coordsB;
     const ConnType *_connIndexA;
     const ConnType *_connIndexB;
-    const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& _meshA;
-    const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& _meshB;
+    const MyMeshType& _meshA;
+    const MyMeshType& _meshB;
   };
 }
 

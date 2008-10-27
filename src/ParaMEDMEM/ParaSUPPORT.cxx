@@ -20,9 +20,15 @@ namespace ParaMEDMEM
   ParaSUPPORT::~ParaSUPPORT()
   {
 		if (_has_support_ownership)
-			delete _support;
+			{
+				delete _support;
+				_support=0;
+			}
     if (_has_mesh_ownership)
-      delete _mesh;
+			{
+				delete _mesh;
+				_mesh=0;
+			}
   }
 
 	const int* ParaSUPPORT::getGlobalNumbering() const

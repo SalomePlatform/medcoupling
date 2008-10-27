@@ -18,28 +18,28 @@ namespace INTERP_KERNEL
   std::ostream& operator<<(std::ostream& in, const Matrix<U,type>& m);
   template<class U, NumberingPolicy type>
   std::istream& operator>>(std::istream& in, Matrix<U,type>& m);
-	
+        
   template<class T, NumberingPolicy type=ALL_C_MODE>
   class INTERPKERNEL_EXPORT Matrix
   {
     class Row : public std::vector< typename std::pair<int,T> >
     {
-		public:
-			Row():std::vector< typename std::pair<int,T> >(){};
-			Row (const Row& row)
-			{
-				this->resize(row.size());
-				for (int i=0; i<this->size(); i++)
-					(*this)[i]=row[i];
-			}
-			Row& operator= (const Row& row)
-			{
-				this->resize(row.size());
-				for (int i=0; i<this->size(); i++)
-					(*this)[i]=row[i];
-				return *this;
-			}
-			
+    public:
+      Row():std::vector< typename std::pair<int,T> >(){};
+      Row (const Row& row)
+      {
+        this->resize(row.size());
+        for (int i=0; i<this->size(); i++)
+          (*this)[i]=row[i];
+      }
+      Row& operator= (const Row& row)
+      {
+        this->resize(row.size());
+        for (int i=0; i<this->size(); i++)
+          (*this)[i]=row[i];
+        return *this;
+      }
+                        
     
       void insert(const std::pair<int,T>& myPair) { push_back(myPair); }
     };
@@ -95,9 +95,9 @@ namespace INTERP_KERNEL
       delete[] _cols;
     }
 
-		Matrix& operator=(const Matrix& m)
-		{
-			 _is_configured=m._is_configured;
+    Matrix& operator=(const Matrix& m)
+    {
+      _is_configured=m._is_configured;
       _nb_rows=m._nb_rows;
       _auxiliary_matrix=m._auxiliary_matrix;
       _ncols_offset=m._ncols_offset;
@@ -109,8 +109,8 @@ namespace INTERP_KERNEL
           memcpy(_coeffs, m._coeffs, size*sizeof(double));
           memcpy(_cols, m._cols, size*sizeof(int));
         }
-			return this;
-		}
+      return this;
+    }
 
     /*! declares a method that specifies the number of rows */
     void resize(unsigned int nbrows)
@@ -241,7 +241,7 @@ namespace INTERP_KERNEL
             out<< m._auxiliary_matrix[i].size();
             for (uint j=0; j<m._auxiliary_matrix[i].size(); j++)
               out << "\t" <<m._auxiliary_matrix[i][j].first <<"\t"
-                <<m._auxiliary_matrix[i][j].second;
+                  <<m._auxiliary_matrix[i][j].second;
             out <<"\n";
           }
       }

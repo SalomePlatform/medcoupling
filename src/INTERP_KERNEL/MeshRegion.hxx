@@ -23,11 +23,11 @@ namespace INTERP_KERNEL
 
     ~MeshRegion();
 
-    template<int SPACEDIM, int MESHDIM, NumberingPolicy numPol, class MyMeshType>
-    void addElement(MeshElement<ConnType>* const element, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh);
+    template<class MyMeshType>
+    void addElement(MeshElement<ConnType>* const element, const MyMeshType& mesh);
 
-    template<int SPACEDIM, int MESHDIM, NumberingPolicy numPol, class MyMeshType>
-    void split(MeshRegion<ConnType>& region1, MeshRegion<ConnType>& region2, BoundingBox::BoxCoord coord, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh);
+    template<class MyMeshType>
+    void split(MeshRegion<ConnType>& region1, MeshRegion<ConnType>& region2, BoundingBox::BoxCoord coord, const MyMeshType& mesh);
 
     bool isDisjointWithElementBoundingBox(const MeshElement<ConnType>& elem) const;
     /**

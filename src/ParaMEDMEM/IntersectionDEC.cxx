@@ -7,12 +7,11 @@
 #include "MPIProcessorGroup.hxx"
 #include "ParaMESH.hxx"
 #include "ParaSUPPORT.hxx"
-#include "MEDMEM_OptionManager.hxx"
 #include "DEC.hxx"
 #include "InterpolationMatrix.hxx"
 #include "IntersectionDEC.hxx"
 #include "ElementLocator.hxx"
-#include "MEDMEM_OptionManager.hxx"
+
 
 
 namespace ParaMEDMEM
@@ -66,22 +65,30 @@ In the P0-P0 case, this matrix is a plain rectangular matrix with coefficients e
 
 
 
-/* \section intersectiondec_options Options
- * On top of \ref dec_options, options supported by IntersectionDEC objects are
- *
- * <TABLE BORDER=1 >
- * <TR><TD>Option</TD><TD>Description</TD><TD>Default value</TD></TR>
- * <TR><TD>BoundingBoxAdjustment</TD><TD>When detecting an intersection between bounding boxes, the bounding are expanded by a factor (1+BoundingBoxAdjustment). It is particularly useful when detecting intersections for 3D surfaces for which the bounding boxes might not actually intersect.</TD><TD> 0.1 </TD></TR>
- <TR><TD>Method</TD><TD>Specifies the field representation used for the remapping.</TD><TD>P0</TD></TR>
- *</TABLE>
+  \section intersectiondec_options Options
+  On top of \ref dec_options, options supported by %IntersectionDEC objects are
+  related to the underlying Intersector class. 
+  All the options available in the intersector objects are
+  available for the %IntersectionDEC object. The various options available for  * intersectors can be reviewed in \ref InterpKerIntersectors.
+ 
+ For instance :
+  \verbatim
+	IntersectionDEC dec(source_group, target_group);
+	dec.attachLocalField(field);
+	dec.setOptions("DoRotate",false);
+	dec.setOptions("Precision",1e-12);
+	dec.synchronize();
+	\endverbatim
 
+	\warning{	Options must be set before calling the synchronize method. }
 */
+
 /*!
 \addtogroup intersectiondec
 @{
 */
   
-  IntersectionDEC::IntersectionDEC()
+IntersectionDEC::IntersectionDEC()
 {	
 }
 
@@ -95,13 +102,9 @@ The constructor must be called synchronously on all processors of both processor
 
 */
 IntersectionDEC::IntersectionDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):
-  DEC(local_group, distant_group),_interpolation_matrix(0),_asynchronous(false),_timeinterpolationmethod(WithoutTimeInterp),_allToAllMethod(Native)
+  DEC(local_group, distant_group),_interpolation_matrix(0)
 {
-	registerOption(&_method,string("Method"),string("P0"));
-	registerOption(&_bb_adjustment, "BoundingBoxAdjustment",0.1);
-	registerOption(&_asynchronous, "Asynchronous",false);
-  registerOption(&_timeinterpolationmethod,"TimeInterpolation",WithoutTimeInterp);
-  registerOption(&_allToAllMethod,"AllToAllMethod",Native);
+
 }
 
 IntersectionDEC::~IntersectionDEC()
@@ -126,11 +129,8 @@ the working side during a \a sendData() call.
 void IntersectionDEC::synchronize()
 {
   const ParaMEDMEM::ParaMESH* para_mesh = _local_field->getSupport()->getMesh();
-  cout <<"size of Interpolation Matrix"<<sizeof(InterpolationMatrix)<<endl;
-  _interpolation_matrix = new InterpolationMatrix (*para_mesh, *_source_group,*_target_group,"P0"); 
-  _interpolation_matrix->setAllToAllMethod(_allToAllMethod);
-  _interpolation_matrix->getAccessDEC()->Asynchronous( _asynchronous ) ;
-  _interpolation_matrix->getAccessDEC()->SetTimeInterpolator( _timeinterpolationmethod ) ;
+  //cout <<"size of Interpolation Matrix"<<sizeof(InterpolationMatrix)<<endl;
+  _interpolation_matrix = new InterpolationMatrix (*para_mesh, *_source_group,*_target_group,*this,*this); 
 
   //setting up the communication DEC on both sides  
   if (_source_group->containsMyRank())
@@ -139,9 +139,7 @@ void IntersectionDEC::synchronize()
     ElementLocator locator(*para_mesh, *_target_group);
 
     //transfering option from IntersectionDEC to ElementLocator                 
-    double bb_adj;
-    getOption("BoundingBoxAdjustment",bb_adj);
-    locator.setOption("BoundingBoxAdjustment",bb_adj);
+    locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
     MESH* distant_mesh=0; 
     int* distant_ids=0;
@@ -166,16 +164,13 @@ void IntersectionDEC::synchronize()
         distant_ids=0;
       }
     }  
-
   }
 
   if (_target_group->containsMyRank())
   {
     ElementLocator locator(*para_mesh, *_source_group);
     //transfering option from IntersectionDEC to ElementLocator
-    double bb_adj;
-    MEDMEM::OptionManager::getOption("BoundingBoxAdjustment",bb_adj);
-    locator.setOption("BoundingBoxAdjustment",bb_adj);
+    locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
     MESH* distant_mesh=0;
     int* distant_ids=0;
@@ -196,7 +191,6 @@ void IntersectionDEC::synchronize()
     }      
   }
   _interpolation_matrix->prepare();
-
 }
 
 
@@ -205,26 +199,22 @@ void IntersectionDEC::synchronize()
 */
 void IntersectionDEC::recvData()
 {
-
-
-	if (_source_group->containsMyRank())
-		_interpolation_matrix->transposeMultiply(*_local_field->getField());
-	else if (_target_group->containsMyRank())
-		{
-			_interpolation_matrix->multiply(*_local_field->getField());
-			if (_forced_renormalization_flag)
-				renormalizeTargetField();
-		}
-	
-	
+  if (_source_group->containsMyRank())
+    _interpolation_matrix->transposeMultiply(*_local_field->getField());
+  else if (_target_group->containsMyRank())
+  {
+    _interpolation_matrix->multiply(*_local_field->getField());
+    if (getForcedRenormalization())
+      renormalizeTargetField();
+  }
 }
 
-	/*!
-		Receives the data at time \a time in asynchronous mode. The value of the field
-		will be time-interpolated from the field values received.
-		\param time time at which the value is desired
-	*/
 
+/*!
+  Receives the data at time \a time in asynchronous mode. The value of the field
+  will be time-interpolated from the field values received.
+  \param time time at which the value is desired
+*/
 void IntersectionDEC::recvData( double time )
 {
   _interpolation_matrix->getAccessDEC()->SetTime(time);
@@ -242,7 +232,7 @@ void IntersectionDEC::sendData()
 		{
     
 			_interpolation_matrix->multiply(*_local_field->getField());
-			if (_forced_renormalization_flag)
+			if (getForcedRenormalization())
 				renormalizeTargetField();
 		
 		}

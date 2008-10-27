@@ -2,6 +2,7 @@
 #define __INTERPOLATION3DSURF_HXX__
 
 #include "InterpolationPlanar.hxx"
+#include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -9,13 +10,15 @@ namespace INTERP_KERNEL
   {
   public:
     Interpolation3DSurf();
+		Interpolation3DSurf(const InterpolationOptions& io);
     void setOptions(double precision, int printLevel, double medianPlane, 
-                    IntersectionType intersectionType, bool doRotate);
+                    IntersectionType intersectionType, bool doRotate, int orientation=0);
+
   public:
     bool doRotate() const { return _doRotate; }
     double medianPlane() const { return _medianPlane; }
-    template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-    void performAdjustmentOfBB(PlanarIntersector<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>* intersector, std::vector<double>& bbox) const
+    template<class MyMeshType>
+    void performAdjustmentOfBB(PlanarIntersector<MyMeshType>* intersector, std::vector<double>& bbox) const
     { intersector->adjustBoundingBoxes(bbox,_surf3DAdjustmentEps); }
   protected:
     bool _doRotate;

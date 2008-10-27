@@ -2,7 +2,6 @@
 #define __MESHELEMENT_HXX__
 
 #include "BoundingBox.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -17,8 +16,8 @@ namespace INTERP_KERNEL
   {
 
   public:
-    template<int SPACEDIM, int MESHDIM, NumberingPolicy numPol, class MyMeshType>
-    MeshElement(const ConnType index, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh);
+    template<class MyMeshType>
+    MeshElement(const ConnType index, const MyMeshType& mesh);
     
     ~MeshElement();
     

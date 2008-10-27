@@ -183,7 +183,7 @@ void ParaMEDMEMTest::testIntersectionDEC_2D()
       field_before_int = parafield->getVolumeIntegral(1);
       dec.synchronize();
       cout<<"DEC usage"<<endl;
-      dec.setOption("ForcedRenormalization",false);
+      dec.setForcedRenormalization(false);
 
       dec.sendData();
       paramesh->write(MED_DRIVER,"./sourcesquareb");
@@ -205,15 +205,20 @@ void ParaMEDMEMTest::testIntersectionDEC_2D()
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
       field_after_int = parafield->getVolumeIntegral(1);
-       CPPUNIT_ASSERT_DOUBLES_EQUAL(field_before_int, field_after_int, 1e-6);
-      
+			
+			
+ //      MPI_Bcast(&field_before_int,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+//       MPI_Bcast(&field_after_int,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(field_before_int, field_after_int, 1e-6);
+		
     }
   
   //attaching a DEC to the target group
   if (target_group->containsMyRank())
     {
       dec.synchronize();
-      dec.setOption("ForcedRenormalization",false);
+      dec.setForcedRenormalization(false);
 
       dec.recvData();
       paramesh->write(MED_DRIVER, "./targetsquareb");
@@ -226,24 +231,30 @@ void ParaMEDMEMTest::testIntersectionDEC_2D()
       dec.sendData();
       paramesh->write(MED_DRIVER, "./targetsquare");
       parafield->write(MED_DRIVER, "./targetsquare", "boundary");
-   if (target_group->myRank()==0)
+			if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       
       filename<<"./targetsquareb_"<<target_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
+			//		double field_before_int, field_after_int;
+// 			MPI_Bcast(&field_before_int,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+//       MPI_Bcast(&field_after_int,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
+			
+//			CPPUNIT_ASSERT_DOUBLES_EQUAL(field_before_int, field_after_int, 1e-6);
+		
     }
   
    delete source_group;
   delete target_group;
   delete self_group;
   delete mesh;
-  delete support;
   delete paramesh;
-  delete parafield;
+	delete parafield;
   delete parasupport;
   delete [] value;
   delete icocofield;
- 
+  delete support;
+
   MPI_Barrier(MPI_COMM_WORLD);
   cout << "end of IntersectionDEC_2D test"<<endl;
 }
@@ -397,6 +408,8 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
       icocofield=new ICoCo::MEDField(paramesh,parafield);
      
       dec.attachLocalField(icocofield);
+
+
     }
   
   //loading the geometry for the target group
@@ -436,23 +449,23 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
   if (source_group->containsMyRank())
     { 
       cout<<"DEC usage"<<endl;
-      dec.setOption("Asynchronous",Asynchronous);
+      dec.setAsynchronous(Asynchronous);
       if ( WithInterp ) {
-        dec.setOption("TimeInterpolation",LinearTimeInterp);
+        dec.setTimeInterpolationMethod(LinearTimeInterp);
       }
       if ( WithPointToPoint ) {
-        dec.setOption("AllToAllMethod",PointToPoint);
+        dec.setAllToAllMethod(PointToPoint);
       }
       else {
-        dec.setOption("AllToAllMethod",Native);
+        dec.setAllToAllMethod(Native);
       }
       dec.synchronize();
-      dec.setOption("ForcedRenormalization",false);
+      dec.setForcedRenormalization(false);
       for (double time=0; time<tmaxA+1e-10; time+=dtA)
       {
         cout << "testAsynchronousIntersectionDEC_2D" << rank << " time " << time
              << " dtA " << dtA << " tmaxA " << tmaxA << endl ;
-        if ( time+dtA < tmaxA+1e-10 ) {
+        if ( time+dtA < tmaxA+1e-7 ) {
     	    dec.sendData( time , dtA );
         }
         else {
@@ -462,6 +475,7 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
     	  int nb_local=parafield->getField()->getSupport()->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS);
     	  for (int i=0; i<nb_local;i++)
     		  value[i]= time+dtA;
+
     	 
       }
     }
@@ -470,28 +484,30 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
   if (target_group->containsMyRank())
     {
       cout<<"DEC usage"<<endl;
-      dec.setOption("Asynchronous",Asynchronous);
+      dec.setAsynchronous(Asynchronous);
       if ( WithInterp ) {
-        dec.setOption("TimeInterpolation",LinearTimeInterp);
+        dec.setTimeInterpolationMethod(LinearTimeInterp);
       }
       if ( WithPointToPoint ) {
-        dec.setOption("AllToAllMethod",PointToPoint);
+        dec.setAllToAllMethod(PointToPoint);
       }
       else {
-        dec.setOption("AllToAllMethod",Native);
+        dec.setAllToAllMethod(Native);
       }
       dec.synchronize();
-      dec.setOption("ForcedRenormalization",false);
+      dec.setForcedRenormalization(false);
       vector<double> times;
       for (double time=0; time<tmaxB+1e-10; time+=dtB)
       {
           cout << "testAsynchronousIntersectionDEC_2D" << rank << " time " << time
                << " dtB " << dtB << " tmaxB " << tmaxB << endl ;
       	  dec.recvData( time );
-          cout << "testAsynchronousIntersectionDEC_2D" << rank << " time " << time
-               << " VolumeIntegral " << parafield->getVolumeIntegral(1)
+					double vi = parafield->getVolumeIntegral(1);
+					          cout << "testAsynchronousIntersectionDEC_2D" << rank << " time " << time
+               << " VolumeIntegral " << vi
                << " time*10000 " << time*10000 << endl ;
-      	  CPPUNIT_ASSERT_DOUBLES_EQUAL(parafield->getVolumeIntegral(1),time*10000,0.001);
+					
+								CPPUNIT_ASSERT_DOUBLES_EQUAL(vi,time*10000,0.001);
       }
       
     }
@@ -500,12 +516,12 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
   delete target_group;
   delete self_group;
   delete mesh ;
-  delete support ;
   delete paramesh ;
   delete parafield ;
   delete parasupport ;
   delete [] value ;
   delete icocofield ;
+  delete support ;
 
   cout << "testAsynchronousIntersectionDEC_2D" << rank << " MPI_Barrier " << endl ;
  

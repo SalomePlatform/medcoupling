@@ -31,10 +31,30 @@
  * <TR><TD>ForcedRenormalization</TD><TD>After receiving data, the target field is renormalized so that L2-norms of the source and target fields match.</TD><TD> false </TD></TR>
  *</TABLE>
 
+
+The following code excerpt shows how to set options for an object that inherits from DEC :
+
+\code
+ IntersectionDEC dec(local_group,distant_group);
+ dec.setOptions("ForcedRenormalization",true);
+ dec.attachLocalField(field);
+ dec.synchronize();
+ if (local_group.containsMyRank())
+    dec.sendData();
+ else
+    dec.recvData();
+\endcode
 */
 
 namespace ParaMEDMEM
 {
+	//intitializing DECOptions variables
+// 	string DECOptions::_method="P0";
+//  	TimeInterpolationMethod DECOptions::_timeInterpolationMethod=WithoutTimeInterp;
+//  	bool DECOptions::_asynchronous = false;
+//  	bool DECOptions::_forcedRenormalization = false;
+	
+//  	AllToAllMethod DECOptions::_allToAllMethod = Native;
 
 	/*! \addtogroup dec
 		@{ 
@@ -43,11 +63,9 @@ namespace ParaMEDMEM
 																																			 _source_group(&source_group),
 																																			 _target_group(&target_group),
 																																			  _owns_field(false),
-																																			 _forced_renormalization_flag(false),
 																																			 _icoco_field(0)
   {
     _union_group = source_group.fuse(target_group);  
-		registerOption(&_forced_renormalization_flag,"ForcedRenormalization",false);
   }
 
   DEC::~DEC()

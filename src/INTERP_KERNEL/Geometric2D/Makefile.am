@@ -56,6 +56,20 @@ Node.cxx             \
 QuadraticPolygon.cxx \
 Geometric2D_defines.hxx
 
+salomeinclude_HEADERS = \
+AbstractEdge.hxx     \
+Bounds.hxx           \
+Precision.hxx        \
+ComposedEdge.hxx     \
+EdgeArcCircle.hxx    \
+Edge.hxx             \
+EdgeInfLin.hxx       \
+EdgeLin.hxx          \
+ElementaryEdge.hxx   \
+Node.hxx             \
+QuadraticPolygon.hxx \
+Edge.txx
+
 libInterpGeometric2DAlg_la_CPPFLAGS = -I$(srcdir)/..
 
 EXTRA_DIST += \

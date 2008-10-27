@@ -1,15 +1,18 @@
 #ifndef INTERSECTIONDEC_HXX_
 #define INTERSECTIONDEC_HXX_
 
-#include "MEDMEM_OptionManager.hxx"
+#include "DEC.hxx"
 #include "MPI_AccessDEC.hxx"
- 
+#include "MxN_Mapping.hxx" 
+#include "InterpolationPlanar.hxx"
+#include "IntersectorHexa.hxx"
+#include "InterpolationOptions.hxx"
+
 namespace ParaMEDMEM
 {
-  class DEC;
   class InterpolationMatrix;
 
-  class IntersectionDEC:public DEC
+  class IntersectionDEC:public DEC, public INTERP_KERNEL::InterpolationOptions
   {
     public:  
     IntersectionDEC();
@@ -39,17 +42,9 @@ namespace ParaMEDMEM
     
     //local element number containing the distant points  
     const int* _distant_locations; 
-   
-   //inerpolation method
-   string _method;
-   
+     
    InterpolationMatrix* _interpolation_matrix;
 
-		double _bb_adjustment;
-
-		bool _asynchronous;
-    TimeInterpolationMethod _timeinterpolationmethod ;
-		AllToAllMethod _allToAllMethod;
   };
 }
 

@@ -11,12 +11,12 @@
 #include "MEDMEM_Meshing.hxx"
 
 #include <set>
+#include <limits>
 using namespace std;
+
 
 namespace ParaMEDMEM 
 { 
-
-const double HUGE = 1e300;
  
 ElementLocator::ElementLocator(const ParaMESH& mesh, const ProcessorGroup& distant_group) 
 :_local_mesh(mesh.getMesh()),
@@ -25,8 +25,6 @@ _local_group(*mesh.getBlockTopology()->getProcGroup()),
 { 
   _union_group = _local_group.fuse(distant_group);
   _computeBoundingBoxes();
-//JR	registerOption(&_adjustment_eps,"BoundingBoxAdjustement",0.1);
-	registerOption(&_adjustment_eps,"BoundingBoxAdjustment",0.1);
 }
 
 ElementLocator::ElementLocator(const ParaSUPPORT& support, const ProcessorGroup& distant_group)
@@ -34,8 +32,6 @@ ElementLocator::ElementLocator(const ParaSUPPORT& support, const ProcessorGroup&
 _distant_group(distant_group),
 _union_group(_local_group.fuse(distant_group))
 {
-//	registerOption(&_adjustment_eps,"BoundingBoxAdjustement",0.1);
-	registerOption(&_adjustment_eps,"BoundingBoxAdjustment",0.1);
   throw ("Element Locator SUPPORT constructor not implemented yet");
 }
 
@@ -77,8 +73,8 @@ void ElementLocator::exchangeMesh(int idistantrank, MEDMEM::MESH*& distant_mesh,
      {
        for (int i=0; i<dim; i++)
 	 {
-	   elem_bb[i*2]=HUGE;
-	   elem_bb[i*2+1]=-HUGE;
+	   elem_bb[i*2]=std::numeric_limits<double>::max();
+	   elem_bb[i*2+1]=-std::numeric_limits<double>::max();
 	 }
        for (int inode=conn_index[ielem]; inode<conn_index[ielem+1]; inode++)
 	 {
@@ -96,22 +92,25 @@ void ElementLocator::exchangeMesh(int idistantrank, MEDMEM::MESH*& distant_mesh,
 	 }
      }
    
+	 //send_mesh contains null pointer if elems is empty
    MEDMEM::MESH* send_mesh= _meshFromElems(elems);
    
    // Constituting an array containing the ids of the elements that are 
    // going to be sent to the distant subdomain.
    // This array  enables the correct redistribution of the data when the
    // interpolated field is transmitted to the target array
-
-   int*  distant_ids_send = new int[elems.size()];
-      
-   int index=0;
-   for (std::set<int>::const_iterator iter = elems.begin(); iter!= elems.end(); iter++)
-  {
-    distant_ids_send[index]=*iter;
-    index++;
-  }
-   
+	 int* distant_ids_send=0;
+	 if (elems.size()>0)
+		 {
+			 distant_ids_send = new int[elems.size()];
+			 
+			 int index=0;
+			 for (std::set<int>::const_iterator iter = elems.begin(); iter!= elems.end(); iter++)
+				 {
+					 distant_ids_send[index]=*iter;
+					 index++;
+				 }
+		 }
   _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);                                                 
   delete[] distant_ids_send;
   delete[] elem_bb;
@@ -129,8 +128,8 @@ void ElementLocator::_computeBoundingBoxes()
   double * minmax=new double [2*dim];
   for (int idim=0; idim<dim; idim++)
   {
-    minmax[idim*2]=HUGE;
-    minmax[idim*2+1]=-HUGE;
+    minmax[idim*2]=std::numeric_limits<double>::max();
+    minmax[idim*2+1]=-std::numeric_limits<double>::max();
   } 
   for (int i=0; i<nbnodes; i++)
     for (int idim=0; idim<dim;idim++)
@@ -171,6 +170,7 @@ bool ElementLocator::_intersectsBoundingBox(double* bb1, double* bb2, int dim)
 {
 	double bbtemp[2*dim];
 	double deltamax=0.0;
+	double adjustment_eps=getBoundingBoxAdjustment();
 	for (int i=0; i< dim; i++)
 		{
 			double delta = bb1[2*i+1]-bb1[2*i];
@@ -178,8 +178,8 @@ bool ElementLocator::_intersectsBoundingBox(double* bb1, double* bb2, int dim)
 		}
 	for (int i=0; i<dim; i++)
 		{
-			bbtemp[i*2]=bb1[i*2]-deltamax*_adjustment_eps;
-			bbtemp[i*2+1]=bb1[i*2+1]+deltamax*_adjustment_eps;
+			bbtemp[i*2]=bb1[i*2]-deltamax*adjustment_eps;
+			bbtemp[i*2+1]=bb1[i*2+1]+deltamax*adjustment_eps;
 		}
 	
   for (int idim=0; idim < dim; idim++)
@@ -198,11 +198,18 @@ void ElementLocator::_exchangeMesh(MEDMEM::MESH* local_mesh, MEDMEM::MESH*& dist
   // First stage : exchanging sizes
   int* send_buffer = new int[6];
   int* recv_buffer = new int[6];
-  int nbtypes= local_mesh->getNumberOfTypes(MED_EN::MED_CELL);
-  int nbconn = local_mesh->getConnectivityLength(MED_EN::MED_FULL_INTERLACE, MED_EN::MED_NODAL,MED_EN::MED_CELL, MED_EN::MED_ALL_ELEMENTS);
-  int nbelems = local_mesh->getNumberOfElements(MED_EN::MED_CELL,MED_EN::MED_ALL_ELEMENTS);
+ 
+	//treatment for non-empty mesh
+	int nbtypes=0;
+	int nbconn=0;
+	int nbelems=0;
+
   if (local_mesh !=0)
   {
+		nbtypes= local_mesh->getNumberOfTypes(MED_EN::MED_CELL);
+		nbconn = local_mesh->getConnectivityLength(MED_EN::MED_FULL_INTERLACE, MED_EN::MED_NODAL,MED_EN::MED_CELL, MED_EN::MED_ALL_ELEMENTS);
+		nbelems = local_mesh->getNumberOfElements(MED_EN::MED_CELL,MED_EN::MED_ALL_ELEMENTS);
+ 
     send_buffer[0] = local_mesh->getSpaceDimension();
     send_buffer[1] = local_mesh->getMeshDimension();
     send_buffer[2] = local_mesh->getNumberOfNodes();
@@ -235,42 +242,61 @@ void ElementLocator::_exchangeMesh(MEDMEM::MESH* local_mesh, MEDMEM::MESH*& dist
   //Second stage : exchanging connectivity buffers
   int nb_integers = nbtypes*2+nbconn+1+nbelems;
   send_buffer = new int[nb_integers];
-  const MED_EN::medGeometryElement* types = local_mesh->getTypes(MED_EN::MED_CELL);
-  int* ptr_buffer=send_buffer;
-  const int* conn = local_mesh->getConnectivity(MED_EN::MED_FULL_INTERLACE, MED_EN::MED_NODAL, 
-                                                MED_EN::MED_CELL, MED_EN::MED_ALL_ELEMENTS);
-  const int* global_numbering = local_mesh->getGlobalNumberingIndex(MED_EN::MED_CELL);
-                                                  
-  memcpy(ptr_buffer, types, nbtypes*sizeof(int));
-  ptr_buffer+=nbtypes;
-  memcpy(ptr_buffer, global_numbering,  (nbtypes+1)*sizeof(int));
-  ptr_buffer+=nbtypes+1;
-  memcpy(ptr_buffer,conn, nbconn*sizeof(int));
-  ptr_buffer+=nbconn;
-  memcpy(ptr_buffer, distant_ids_send,  nbelems*sizeof(int));
-
-  //preparing the recv buffers
-  int nb_recv_integers = 2*distant_nb_types+1+distant_nb_conn+distant_nb_elems;
-  recv_buffer=new int[nb_recv_integers];
+	const MED_EN::medGeometryElement* types=0;
+  const int* conn = 0;
+	const int* global_numbering=0;
+	int* ptr_buffer=send_buffer;   
+	if (local_mesh!=0)
+		{
+			conn=local_mesh->getConnectivity(MED_EN::MED_FULL_INTERLACE, MED_EN::MED_NODAL, 
+																			 MED_EN::MED_CELL, MED_EN::MED_ALL_ELEMENTS);
+			
+			global_numbering = local_mesh->getGlobalNumberingIndex(MED_EN::MED_CELL);
+			types = local_mesh->getTypes(MED_EN::MED_CELL);
+			
+			//copying the data in the integer buffer
+			
+			memcpy(ptr_buffer, types, nbtypes*sizeof(int));
+			ptr_buffer+=nbtypes;
+			memcpy(ptr_buffer, global_numbering,  (nbtypes+1)*sizeof(int));
+			ptr_buffer+=nbtypes+1;
+			memcpy(ptr_buffer,conn, nbconn*sizeof(int));
+			ptr_buffer+=nbconn;
+			memcpy(ptr_buffer, distant_ids_send,  nbelems*sizeof(int));
+		}
+	//preparing the recv buffers
+	int nb_recv_integers = 2*distant_nb_types+1+distant_nb_conn+distant_nb_elems;
+	recv_buffer=new int[nb_recv_integers];
   
+	//exchanging  integer buffer
   comm_interface.sendRecv(send_buffer, nb_integers, MPI_INT, iprocdistant_in_union, 1111,
                            recv_buffer, nb_recv_integers, MPI_INT, iprocdistant_in_union,1111,
                            *comm, &status);
                  
   if (nb_integers>0) delete[] send_buffer;
-  //Third stage : exchanging coordinates
-  
+
+  //Third stage : exchanging coordinates  
   int nb_recv_floats = distant_space_dim*distant_nnodes;
-  int nb_send_floats =  local_mesh->getSpaceDimension()* local_mesh->getNumberOfNodes();
-  double* recv_coords = new double[nb_recv_floats];
-  double* coords = const_cast<double*> (local_mesh->getCoordinates(MED_EN::MED_FULL_INTERLACE));
-  comm_interface.sendRecv(coords, nb_send_floats, MPI_DOUBLE, iprocdistant_in_union, 1112,
+	int nb_send_floats=0;
+	double* coords=0;
+	double* recv_coords=0;
+ 
+	if (local_mesh!=0)
+		{
+			nb_send_floats =  local_mesh->getSpaceDimension()* local_mesh->getNumberOfNodes();
+			coords = const_cast<double*> (local_mesh->getCoordinates(MED_EN::MED_FULL_INTERLACE));
+		}
+	
+	if (nb_recv_floats>0)
+		recv_coords = new double[nb_recv_floats];
+
+	comm_interface.sendRecv(coords, nb_send_floats, MPI_DOUBLE, iprocdistant_in_union, 1112,
                            recv_coords, nb_recv_floats, MPI_DOUBLE, iprocdistant_in_union, 1112, 
                            *group->getComm(), &status);
   
   //Reconstructing an image of the distant mesh locally
   
-  if (nb_recv_integers>0) 
+  if (nb_recv_integers>0 && distant_space_dim !=0) 
   {
     MEDMEM::MESHING* meshing = new MEDMEM::MESHING ();
     int* recv_buffer_ptr = recv_buffer;
@@ -315,6 +341,9 @@ void ElementLocator::_exchangeMesh(MEDMEM::MESH* local_mesh, MEDMEM::MESH*& dist
 
 MEDMEM::MESH* ElementLocator::_meshFromElems(set<int>& elems)
 {
+	//returns null pointer if there are no elems in the mesh
+	if (elems.size()==0) return 0;
+
   //defining pointers to med
    const int* conn_mesh=_local_mesh->getConnectivity(MED_EN::MED_FULL_INTERLACE,
                                                MED_EN::MED_NODAL,

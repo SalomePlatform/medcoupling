@@ -7,9 +7,6 @@
 
 #include "IntersectorTetra.hxx"
 
-using namespace MED_EN;
-using namespace MEDMEM;
-
 namespace INTERP_KERNEL
 {
 
@@ -24,10 +21,9 @@ namespace INTERP_KERNEL
    * @param targetCell  global number of the target cell
    * @param policy      splitting policy to be used
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::IntersectorHexa(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh,
-                                                                                const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& targetMesh,
-                                                                                ConnType targetCell, SplittingPolicy policy)
+  template<class MyMeshType>
+  IntersectorHexa<MyMeshType>::IntersectorHexa(const MyMeshType& srcMesh, const MyMeshType& targetMesh,
+                                               typename MyMeshType::MyConnType targetCell, SplittingPolicy policy)
   {
     const int numTetra = static_cast<int>(policy);
 
@@ -74,14 +70,14 @@ namespace INTERP_KERNEL
    * Liberates the IntersectorTetra objects and potential sub-node points that have been allocated.
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::~IntersectorHexa()
+  template<class MyMeshType>
+  IntersectorHexa<MyMeshType>::~IntersectorHexa()
   {
-    for(typename vector< IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>* >::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
+    for(typename std::vector< IntersectorTetra<MyMeshType>* >::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
       delete *iter;
     
     // free potential sub-mesh nodes that have been allocated
-    vector<const double*>::iterator iter = _nodes.begin() + 8;
+    std::vector<const double*>::iterator iter = _nodes.begin() + 8;
     while(iter != _nodes.end())
       {
         delete[] *iter;
@@ -97,9 +93,8 @@ namespace INTERP_KERNEL
    * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the 
    *                 splitting to be reused on the subzones of the GENERAL_* types of splitting
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::fiveSplit(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh,
-                                                                               const int* const subZone)
+  template<class MyMeshType>
+  void IntersectorHexa<MyMeshType>::fiveSplit(const MyMeshType& srcMesh, const int* const subZone)
   {
     // Schema according to which the splitting is performed.
     // Each line represents one tetrahedron. The numbering is as follows :
@@ -132,7 +127,7 @@ namespace INTERP_KERNEL
           {
             nodes[j] = getCoordsOfSubNode(subZone[ SPLIT_NODES_5[4*i+j] ]);
           }
-        IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>* t = new IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(srcMesh, nodes);
+        IntersectorTetra<MyMeshType>* t = new IntersectorTetra<MyMeshType>(srcMesh, nodes);
         _tetra.push_back(t);
       }
   }
@@ -145,8 +140,8 @@ namespace INTERP_KERNEL
    * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the 
    *                 splitting to be reused on the subzones of the GENERAL_* types of splitting
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::sixSplit(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh, const int* const subZone)
+  template<class MyMeshType>
+  void IntersectorHexa<MyMeshType>::sixSplit(const MyMeshType& srcMesh, const int* const subZone)
   {
     // Schema according to which the splitting is performed.
     // Each line represents one tetrahedron. The numbering is as follows :
@@ -178,7 +173,7 @@ namespace INTERP_KERNEL
           {
             nodes[j] = getCoordsOfSubNode(subZone[ SPLIT_NODES_6[4*i+j] ]);
           }
-        IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>* t = new IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(srcMesh, nodes);
+        IntersectorTetra<MyMeshType>* t = new IntersectorTetra<MyMeshType>(srcMesh, nodes);
         _tetra.push_back(t);
       }
   }
@@ -192,8 +187,8 @@ namespace INTERP_KERNEL
    * @param srcMesh  the source mesh
    * 
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::calculateGeneral24Tetra(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh)
+  template<class MyMeshType>
+  void IntersectorHexa<MyMeshType>::calculateGeneral24Tetra(const MyMeshType& srcMesh)
   {
     // The two nodes of the original mesh cell used in each tetrahedron.
     // The tetrahedra all have nodes (cellCenter, faceCenter, edgeNode1, edgeNode2)
@@ -248,7 +243,7 @@ namespace INTERP_KERNEL
             nodes[2] = getCoordsOfSubNode(TETRA_EDGES[2*row]);
             nodes[3] = getCoordsOfSubNode(TETRA_EDGES[2*row + 1]);
            
-            IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>* t = new IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(srcMesh, nodes);
+            IntersectorTetra<MyMeshType>* t = new IntersectorTetra<MyMeshType>(srcMesh, nodes);
             _tetra.push_back(t);
           }
       }
@@ -265,8 +260,8 @@ namespace INTERP_KERNEL
    * @param srcMesh  the source mesh
    * 
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::calculateGeneral48Tetra(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh)
+  template<class MyMeshType>
+  void IntersectorHexa<MyMeshType>::calculateGeneral48Tetra(const MyMeshType& srcMesh)
   {
     // Define 8 hexahedral subzones as in Grandy, p449
     // the values correspond to the nodes that correspond to nodes 1,2,3,4,5,6,7,8 in the subcell
@@ -300,8 +295,8 @@ namespace INTERP_KERNEL
    * @param policy      the splitting policy of the object
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  void IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::calculateSubNodes(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& targetMesh, ConnType targetCell, SplittingPolicy policy)
+  template<class MyMeshType>
+  void IntersectorHexa<MyMeshType>::calculateSubNodes(const MyMeshType& targetMesh, typename MyMeshType::MyConnType targetCell, SplittingPolicy policy)
   {
     // retrieve real mesh nodes
     for(int node = 0; node < 8 ; ++node)
@@ -390,11 +385,11 @@ namespace INTERP_KERNEL
    * @param srcCell   global number of the source element (1 <= srcCell < # source cells)
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  double IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::intersectSourceCell(ConnType srcCell)
+  template<class MyMeshType>
+  double IntersectorHexa<MyMeshType>::intersectSourceCell(typename MyMeshType::MyConnType srcCell)
   {
     double volume = 0.0;
-    for(typename vector<IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
+    for(typename std::vector<IntersectorTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
       volume += (*iter)->intersectSourceCell(srcCell);
     return volume;
   }

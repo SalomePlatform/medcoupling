@@ -4,14 +4,9 @@
 Here follows a list of useful references :
 
 -# Reference Manual for Med File, V. Lefebvre,  E. Fayolle, Projet PAL: Définition du modèle d'échange de données MED V2.2,  Note technique EDF/SINETICS, HI-26-03-012/A, https://hammi.extra.cea.fr/static/MED/web_med/index.html \anchor RefManualMedFile
-
 -# VTK home page: \c http://public.kitware.com/VTK
-
 -# Med File Data Model : V. Lefebvre,  E. Fayolle, Définition du modèle d'échange de données MED v2.2, https://hammi.extra.cea.fr/static/MED/web_med/pdf/NOTE_HI_26_03_012_A.pdf
-
 -# Jeffrey Grandy, Conservative remapping and region overlays by intersecting arbitrary polyhedra, Journal of Computational Physics, vol 148, 433-466 (1999)
-
 -# F. Preparata and M. Shamos Computational Geometry. Springer-Verlag, New York, 1985
-
 */
 

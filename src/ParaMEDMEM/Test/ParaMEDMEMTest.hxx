@@ -38,18 +38,19 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testBlockTopology_constructor);
   CPPUNIT_TEST(testBlockTopology_serialize);
   CPPUNIT_TEST(testIntersectionDEC_2D);
-  CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpNativeDEC_2D);
-  CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpDEC_2D);
-  CPPUNIT_TEST(testSynchronousEqualIntersectionDEC_2D);
-   CPPUNIT_TEST(testSynchronousFasterSourceIntersectionDEC_2D);
-   CPPUNIT_TEST(testSynchronousSlowerSourceIntersectionDEC_2D);
-   CPPUNIT_TEST(testSynchronousSlowSourceIntersectionDEC_2D);
-   CPPUNIT_TEST(testSynchronousFastSourceIntersectionDEC_2D);
+
+ 	CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpNativeDEC_2D);
+	CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpDEC_2D);
+	CPPUNIT_TEST(testSynchronousEqualIntersectionDEC_2D);
+	CPPUNIT_TEST(testSynchronousFasterSourceIntersectionDEC_2D);
+ 	CPPUNIT_TEST(testSynchronousSlowerSourceIntersectionDEC_2D);
+ 	CPPUNIT_TEST(testSynchronousSlowSourceIntersectionDEC_2D);
+ 	CPPUNIT_TEST(testSynchronousFastSourceIntersectionDEC_2D);
   CPPUNIT_TEST(testAsynchronousEqualIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousFasterSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousSlowerSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousSlowSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousFastSourceIntersectionDEC_2D);
+ 	CPPUNIT_TEST(testAsynchronousFasterSourceIntersectionDEC_2D);
+	CPPUNIT_TEST(testAsynchronousSlowerSourceIntersectionDEC_2D);
+	CPPUNIT_TEST(testAsynchronousSlowSourceIntersectionDEC_2D);
+	CPPUNIT_TEST(testAsynchronousFastSourceIntersectionDEC_2D);
 #ifdef MED_ENABLE_FVM
 	//can be added again after FVM correction for 2D
 	//  CPPUNIT_TEST(testNonCoincidentDEC_2D);

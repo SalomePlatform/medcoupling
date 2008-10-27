@@ -7,7 +7,6 @@
 #include "IntersectorTetra.txx"
 #include "IntersectorHexa.txx"
 #include "Log.hxx"
-
 /// If defined, use recursion to traverse the binary search tree, else use the BBTree class
 #define USE_RECURSIVE_BBOX_FILTER
 
@@ -37,6 +36,9 @@ namespace INTERP_KERNEL
   Interpolation3D::Interpolation3D()
   {
   }
+	Interpolation3D::Interpolation3D(const InterpolationOptions& io):Interpolation<Interpolation3D>(io)
+  {
+  }
     
   /**
    * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
@@ -46,7 +48,7 @@ namespace INTERP_KERNEL
    * intersection matrix. 
    * 
    * The matrix is partially sparse : it is a vector of maps of integer - double pairs. 
-	 * It can also be an INTERP_KERNEL::Matrix object.
+   * It can also be an INTERP_KERNEL::Matrix object.
    * The length of the vector is equal to the number of target elements - for each target element there is a map, regardless
    * of whether the element intersects any source elements or not. But in the maps there are only entries for those source elements
    * which have a non-zero intersection volume with the target element. The vector has indices running from 
@@ -59,11 +61,11 @@ namespace INTERP_KERNEL
    * @param result      matrix in which the result is stored 
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MatrixType, class MyMeshType>
-  void Interpolation3D::interpolateMeshes(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh,
-                                          const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& targetMesh,
-                                          MatrixType& result)
+  template<class MatrixType, class MyMeshType>
+  void Interpolation3D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result)
   {
+    typedef typename MyMeshType::MyConnType ConnType;
+    const NumberingPolicy numPol=MyMeshType::My_numPol;
     // create MeshElement objects corresponding to each element of the two meshes
     const unsigned long numSrcElems = srcMesh.getNumberOfElements();
     const unsigned long numTargetElems = targetMesh.getNumberOfElements();
@@ -131,7 +133,7 @@ namespace INTERP_KERNEL
     // Continue until the source region contains only one element, at which point the intersection volumes are
     // calculated with all the remaining target mesh elements and stored in the matrix if they are non-zero.
 
-    stack< RegionNode<ConnType>* > nodes;
+    std::stack< RegionNode<ConnType>* > nodes;
     nodes.push(firstNode);
 
     while(!nodes.empty())
@@ -158,11 +160,12 @@ namespace INTERP_KERNEL
             switch(targetElement->getNumberOfNodes())
               {
               case 4:
-                intersector = new IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(srcMesh, targetMesh, targetIdx);
+                intersector = new IntersectorTetra<MyMeshType>(srcMesh, targetMesh, targetIdx);
                 break;
 
               case 8:
-                intersector = new IntersectorHexa<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>(srcMesh, targetMesh, targetIdx);
+
+								intersector = new IntersectorHexa<MyMeshType>(srcMesh, targetMesh, targetIdx,getSplittingPolicy());
                 break;
               
               default:
@@ -171,7 +174,7 @@ namespace INTERP_KERNEL
 
 
 
-            for(typename vector< MeshElement<ConnType>* >::const_iterator iter = currNode->getSrcRegion().getBeginElements() ; 
+            for(typename std::vector< MeshElement<ConnType>* >::const_iterator iter = currNode->getSrcRegion().getBeginElements() ; 
                 iter != currNode->getSrcRegion().getEndElements() ; ++iter)
               {
             
@@ -215,7 +218,7 @@ namespace INTERP_KERNEL
             LOG(5, " -- Adding source elements");
             int numLeftElements = 0;
             int numRightElements = 0;
-            for(typename vector<MeshElement<ConnType>*>::const_iterator iter = currNode->getSrcRegion().getBeginElements() ; 
+            for(typename std::vector<MeshElement<ConnType>*>::const_iterator iter = currNode->getSrcRegion().getBeginElements() ; 
                 iter != currNode->getSrcRegion().getEndElements() ; ++iter)
               {
                 LOG(6, " --- New target node");

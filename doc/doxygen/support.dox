@@ -20,8 +20,8 @@ The reference for the SUPPORT methods are given by the following links :
 The FAMILY concept is directly linked to the representation of 
 supports in the MED file. It is only useful for directly
 manipulating the arrays that are written/read by the MED drivers. 
-More information can be found on this topic in MED reference guide 
-\ref RefManualMedFile.
+More information can be found on this topic in
+\ref RefManualMedFile "MED reference guide".
 
 A FAMILY is a SUPPORT with some additional methods that concern some optional attributes (we could have none) and groups (we could also have none) :
 

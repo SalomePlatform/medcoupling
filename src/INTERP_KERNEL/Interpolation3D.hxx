@@ -3,18 +3,19 @@
 
 #include "Interpolation.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-
+#include "IntersectorHexa.hxx"
+#include "InterpolationOptions.hxx"
 namespace INTERP_KERNEL
 {
-
   class INTERPKERNEL_EXPORT Interpolation3D : public Interpolation<Interpolation3D>
   {
   public:
     Interpolation3D();
-    template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MatrixType, class MyMeshType>
-    void interpolateMeshes(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh, 
-                           const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& targetMesh,
-                           MatrixType& result);
+    Interpolation3D(const InterpolationOptions& io);
+    template<class MatrixType, class MyMeshType>
+    void interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result);
+  private:
+    SplittingPolicy _splitting_policy;
   };
 }
 

@@ -12,10 +12,8 @@ using namespace INTERP_KERNEL;
 
 ComposedEdge::ComposedEdge(const ComposedEdge& other)
 {
-  _subEdges.resize(other._subEdges.size());
-  int i=0;
-  for(vector<AbstractEdge *>::const_iterator iter=other._subEdges.begin();iter!=other._subEdges.end();iter++,i++)
-    _subEdges[i]=(*iter)->clone();
+  for(list<ElementaryEdge *>::const_iterator iter=other._subEdges.begin();iter!=other._subEdges.end();iter++)
+    _subEdges.push_back((*iter)->clone());
 }
 
 ComposedEdge::~ComposedEdge()
@@ -23,30 +21,35 @@ ComposedEdge::~ComposedEdge()
   clearAll(_subEdges.begin());
 }
 
-ElementaryEdge* &ComposedEdge::getLastElementary(IteratorOnComposedEdge::ItOnFixdLev &delta)
-{
-  AbstractEdge *e=_subEdges.back();
-  ElementaryEdge *eCast=dynamic_cast< ElementaryEdge* >(e);
-  if(eCast)
-    return (ElementaryEdge* &)((AbstractEdge * &) _subEdges.back());
-  delta++;
-  return _subEdges.back()->getLastElementary(delta);
-}
-
-ElementaryEdge* &ComposedEdge::getFirstElementary(IteratorOnComposedEdge::ItOnFixdLev &delta)
-{
-  AbstractEdge *e=_subEdges.front();
-  ElementaryEdge *eCast=dynamic_cast< ElementaryEdge* >(e);
-  if(eCast)
-    return (ElementaryEdge* &)((AbstractEdge * &) _subEdges.front());
-  delta++;
-  return _subEdges.front()->getFirstElementary(delta);
-}
-
 void ComposedEdge::setValueAt(int i, Edge *e, bool direction)
 {
-  delete _subEdges[i];
-  _subEdges[i]=new ElementaryEdge(e,direction);
+  list<ElementaryEdge*>::iterator it=_subEdges.begin();
+  for(int j=0;j<i;j++)
+    it++;
+  delete *it;
+  *it=new ElementaryEdge(e,direction);
+}
+
+struct AbsEdgeCmp
+{
+  AbsEdgeCmp(ElementaryEdge *b):_b1(b) { }
+  bool operator()(ElementaryEdge *a) { return a->getPtr()==_b1->getPtr();}
+
+  ElementaryEdge *_b1;
+};
+
+double ComposedEdge::getCommonLengthWith(const ComposedEdge& other) const
+{
+  double ret=0.;
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    {
+      if(find_if(other._subEdges.begin(),other._subEdges.end(),AbsEdgeCmp(*iter))!=other._subEdges.end())
+        {
+          const ElementaryEdge *tmp=static_cast<const ElementaryEdge *>(*iter);
+          ret+=tmp->getCurveLength();
+        }
+    }
+  return ret;
 }
 
 void ComposedEdge::clear()
@@ -60,29 +63,39 @@ void ComposedEdge::pushBack(Edge *edge, bool direction)
   _subEdges.push_back(new ElementaryEdge(edge,direction));
 }
 
-void ComposedEdge::pushBack(AbstractEdge *elem)
+void ComposedEdge::pushBack(ElementaryEdge *elem)
 {
   _subEdges.push_back(elem);
 }
 
+void ComposedEdge::pushBack(ComposedEdge *elem)
+{
+  list<ElementaryEdge *> *elemsOfElem=elem->getListBehind();
+  _subEdges.insert(_subEdges.end(),elemsOfElem->begin(),elemsOfElem->end());
+}
+
+ElementaryEdge *ComposedEdge::operator[](int i) const
+{
+  list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();
+  for(int ii=0;ii<i;ii++)
+    iter++;
+  return *iter;
+}
+
 void ComposedEdge::reverse()
 {
-  std::reverse(_subEdges.begin(),_subEdges.end());
-  for(vector<AbstractEdge *>::iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+  _subEdges.reverse();
+  for(list<ElementaryEdge *>::iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
     (*iter)->reverse();
 }
 
-int ComposedEdge::recursiveSize() const
+void ComposedEdge::initLocations() const
 {
-  int ret=0;
-  for(vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
-    {
-      ret+=(*iter)->recursiveSize();
-    }
-  return ret;
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    (*iter)->initLocations();
 }
 
-AbstractEdge *ComposedEdge::clone() const
+ComposedEdge *ComposedEdge::clone() const
 {
   return new ComposedEdge(*this);
 }
@@ -90,23 +103,50 @@ AbstractEdge *ComposedEdge::clone() const
 bool ComposedEdge::isNodeIn(Node *n) const
 {
   bool ret=false;
-  for(std::vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end() && !ret;iter++)
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end() && !ret;iter++)
     ret=(*iter)->isNodeIn(n);
   return ret;
 }
 
-double ComposedEdge::getAreaOfZone() const
+double ComposedEdge::getArea() const
 {
   double ret=0.;
-  for(std::vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
     ret+=(*iter)->getAreaOfZone();
   return ret;
+}
+
+double ComposedEdge::getPerimeter() const
+{
+  double ret=0.;
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    ret+=(*iter)->getCurveLength();
+  return ret;
+}
+
+double ComposedEdge::getHydraulicDiameter() const
+{
+  return 4*fabs(getArea())/getPerimeter();
+}
+
+double ComposedEdge::normalize(ComposedEdge *other)
+{
+  Bounds b;
+  b.prepareForAggregation();
+  fillBounds(b); 
+  other->fillBounds(b);
+  double dimChar=b.getCaracteristicDim();
+  double xBary,yBary;
+  b.getBarycenter(xBary,yBary);
+  applyGlobalSimilarity(xBary,yBary,dimChar);
+  other->applyGlobalSimilarity(xBary,yBary,dimChar);
+  return dimChar;
 }
 
 void ComposedEdge::dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const
 {
   stream.precision(10);
-  for(std::vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
     (*iter)->dumpInXfigFile(stream,resolution,box);
 }
 
@@ -120,39 +160,6 @@ Node *ComposedEdge::getStartNode() const
   return _subEdges.front()->getStartNode();
 }
 
-AbstractEdge *ComposedEdge::simplify()
-{
-  if(size()!=1)
-    return this;
-  else
-    {
-      vector<AbstractEdge *>::iterator iter=_subEdges.begin();
-      AbstractEdge *ret=*iter; iter++;
-      clearAll(iter);
-      _subEdges.clear();
-      delete this;
-      return ret;
-    }
-}
-
-/*!
- * This method adds edge to this is it edge is localized as IN or ON.
- * The returned value is true if this is not empty and that edge is not IN or ON.
- */
-bool ComposedEdge::addEdgeIfIn(ElementaryEdge *edge)
-{
-  if(edge->getLoc()!=FULL_OUT_1)
-    {
-      _subEdges.push_back(edge->clone());
-      return false;
-    }
-  else if(!empty())
-    {
-      return true;
-    }
-  return false;
-}
-
 bool ComposedEdge::changeEndNodeWith(Node *node) const
 {
   return _subEdges.back()->changeEndNodeWith(node);
@@ -163,26 +170,127 @@ bool ComposedEdge::changeStartNodeWith(Node *node) const
   return _subEdges.front()->changeStartNodeWith(node);
 }
 
-bool ComposedEdge::intresicEqual(const AbstractEdge *other) const
-{
-  throw Exception("ComposedEdge::intresicEqual : should never been called.");
-}
-
-bool ComposedEdge::intresicEqualDirSensitive(const AbstractEdge *other) const
-{
-  throw Exception("ComposedEdge::intresicEqualDirSensitive : should never been called.");
-}
-
 void ComposedEdge::fillBounds(Bounds& output) const
 {
-  vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();
-  for(;iter!=_subEdges.end();iter++)
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
     (*iter)->fillBounds(output);
+}
+
+/*!
+ * \b WARNING : applies similarity \b ONLY on edges without any change on Nodes. To perform a global similarity call applyGlobalSimilarity.
+ */
+void ComposedEdge::applySimilarity(double xBary, double yBary, double dimChar)
+{
+  for(list<ElementaryEdge *>::iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
+}
+
+int ComposedEdge::getNbOfEdgeSonsOfSameId(int id) const
+{
+  int ret=0;
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    if((*iter)->getPtr()->getId()==id)
+      ret++;
+  return ret;
+}
+
+/*!
+ * 'this' is supposed to be the father 'split'.
+ * This method returns un vector 'nbOfCreatedNodes' the number of newly created nodes of each edge of this in the same order than the sub edges constituting 'this.'
+ */
+void ComposedEdge::dispatchForNode(const ComposedEdge& split, std::vector<int>& nbOfCreatedNodes) const
+{
+  int eRk=0;
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++,eRk++)
+    nbOfCreatedNodes[eRk]=split.getNbOfEdgeSonsOfSameId((*iter)->getPtr()->getId())-1;
+}
+
+/*!
+ * Perform Similarity transformation on all elements of this Nodes and Edges.
+ */
+void ComposedEdge::applyGlobalSimilarity(double xBary, double yBary, double dimChar)
+{
+  set<Node *> allNodes;
+  getAllNodes(allNodes);
+  for(set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
+  for(list<ElementaryEdge *>::iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
+}
+
+/*!
+ * @param part1 INOUT parameter. If an edge in 'this' is found with an id in 'ids1', 'part1' is \b incremented.
+ * @param part2 INOUT parameter. If an edge in 'this' is found with an id in 'ids2', 'part2' is \b incremented.
+ * @param commonPart INOUT parameter. If an edge in 'this' is found with an id neither in 'ids1' nor 'ids2', 'commonPart' is \b incremented.
+ */
+void ComposedEdge::dispatchPerimeter(const std::set<int>& ids1, const std::set<int>& ids2, double& part1, double& part2, double& commonPart) const
+{
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    {
+      int curEdgeId=(*iter)->getPtr()->getId();
+      double val=(*iter)->getPtr()->getCurveLength();
+      if(ids1.find(curEdgeId)!=ids1.end())
+        {
+          if((*iter)->getLoc()!=FULL_ON_1)
+            part1+=val;
+          else
+            commonPart+=val;
+        }
+      else
+        if(ids2.find(curEdgeId)!=ids2.end())
+          part2+=val;
+        else
+          commonPart+=val;
+    }
+}
+
+
+
+/*!
+ * For every subedges of 'this' if it comes from a part of father polygon the corresponding lgth is added in the corresponding 'result' rank.
+ * If a sub-edge is found with a status equal to ON, the sub-edge is shared and the sum of all edges in the same case is returned.
+ */
+double ComposedEdge::dispatchPerimeterAdv(const ComposedEdge& father, std::vector<double>& result) const
+{
+  double ret=0;
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    ret+=father.checkFatherHood(*iter,result);
+  return ret;
+}
+
+/*!
+ * Givent edge 'edge' is one of subedge is father of this edge AND NOT ON on the corresponding rank in 'this' the curvelength is added.
+ * If this sub edge is son and ON the corresponding length is returned by return param.
+ */
+double ComposedEdge::checkFatherHood(ElementaryEdge *edge, std::vector<double>& result) const
+{
+  double ret=0.;
+  int rank=0;
+  int refId=edge->getPtr()->getId();
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++,rank++)
+    {
+      int curId=(*iter)->getPtr()->getId();
+      if(curId==refId)
+        {
+          if((*iter)->getLoc()!=FULL_ON_1)
+            result[rank]+=edge->getCurveLength();
+          else
+            ret+=edge->getCurveLength();
+          break;
+        }
+    }
+  return ret;
+}
+
+void ComposedEdge::fillAllEdgeIds(std::set<int>& ids) const
+{
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+    ids.insert((*iter)->getPtr()->getId());
 }
 
 void ComposedEdge::getAllNodes(std::set<Node *>& output) const
 {
-  vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();
+  list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();
   for(;iter!=_subEdges.end();iter++)
     (*iter)->getAllNodes(output);
 }
@@ -191,7 +299,7 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
 {
   weigh=0.; bary[0]=0.; bary[1]=0.;
   double tmp1,tmp2[2];
-  for(vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
     {
       (*iter)->getBarycenter(tmp2,tmp1);
       weigh+=tmp1;
@@ -228,9 +336,9 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
   EdgeInfLin *e1=new EdgeInfLin(nodeToTest,radialDistrib[i]+radialDistrib3[i]/2.);
   double ref=e1->getCharactValue(*nodeToTest);
   set< IntersectElement > inOutSwitch;
-  for(vector<AbstractEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
+  for(list<ElementaryEdge *>::const_iterator iter=_subEdges.begin();iter!=_subEdges.end();iter++)
     {
-      ElementaryEdge *val=dynamic_cast<ElementaryEdge *>(*iter);
+      ElementaryEdge *val=(*iter);
       if(val)
         {
           Edge *e=val->getPtr();
@@ -326,8 +434,8 @@ bool ComposedEdge::intresincEqCoarse(const Edge *other) const
   return _subEdges.front()->intresincEqCoarse(other);
 }
 
-void ComposedEdge::clearAll(vector<AbstractEdge *>::iterator startToDel)
+void ComposedEdge::clearAll(list<ElementaryEdge *>::iterator startToDel)
 {
-  for(vector<AbstractEdge *>::iterator iter=startToDel;iter!=_subEdges.end();iter++)
+  for(list<ElementaryEdge *>::iterator iter=startToDel;iter!=_subEdges.end();iter++)
     delete (*iter);
 }

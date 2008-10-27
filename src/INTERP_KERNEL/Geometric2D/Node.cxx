@@ -4,33 +4,28 @@
 using namespace std;
 using namespace INTERP_KERNEL;
 
-Node::Node(double x, double y):_isToDel(true),_cnt(1),_loc(UNKNOWN)
+Node::Node(double x, double y):_cnt(1),_loc(UNKNOWN)
 {
-  const unsigned SPACEDIM=2;
-  _coords=new double[SPACEDIM];
   _coords[0]=x; _coords[1]=y;
 }
 
-Node::Node(const double *coords):_isToDel(false),_cnt(1),_loc(UNKNOWN),_coords((double *)coords)
+Node::Node(const double *coords):_cnt(1),_loc(UNKNOWN)
 {
+  _coords[0]=coords[0];
+  _coords[1]=coords[1];
 }
 
-Node::Node(std::istream& stream):_isToDel(true),_cnt(1),_loc(UNKNOWN)
+Node::Node(std::istream& stream):_cnt(1),_loc(UNKNOWN)
 {
-  const unsigned SPACEDIM=2;
-  _coords=new double[SPACEDIM];
-  for(unsigned i=0;i<SPACEDIM;i++)
-    {
-      int tmp;
-      stream >> tmp;
-      _coords[i]=((double) tmp)/1e4;
-    }
+  int tmp;
+  stream >> tmp;
+  _coords[0]=((double) tmp)/1e4;
+  stream >> tmp;
+  _coords[1]=((double) tmp)/1e4;
 }
 
 Node::~Node()
 {
-  if(_isToDel)
-    delete [] _coords;
 }
 
 bool Node::decrRef()
@@ -52,14 +47,7 @@ bool Node::isEqual(const Node& other) const
 
 double Node::getSlope(const Node& other) const
 {
-  double x=other[0]-(*this)[0];
-  double y=other[1]-(*this)[1];
-  double norm=sqrt(x*x+y*y);
-  double ret=EdgeArcCircle::safeAcos(fabs(x)/norm);
-  if( (x>=0. && y>=0.) || (x<0. && y<0.) )
-    return ret;
-  else
-    return M_PI-ret;
+  return computeSlope(*this, other);
 }
 
 /*!
@@ -82,4 +70,49 @@ void Node::dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& bo
 double Node::distanceWithSq(const Node& other) const
 {
   return (_coords[0]-other._coords[0])*(_coords[0]-other._coords[0])+(_coords[1]-other._coords[1])*(_coords[1]-other._coords[1]);
+}
+
+/*!
+ * WARNING different from 'computeAngle' method ! The returned value are not in the same interval !
+ * Here in -Pi/2; Pi/2. Typically this method returns the same value by exchanging pt1 and pt2.
+ * Use in process of detection of a point in or not in polygon.
+ */
+double Node::computeSlope(const double *pt1, const double *pt2)
+{
+  double x=pt2[0]-pt1[0];
+  double y=pt2[1]-pt1[1];
+  double norm=sqrt(x*x+y*y);
+  double ret=EdgeArcCircle::safeAcos(fabs(x)/norm);
+  if( (x>=0. && y>=0.) || (x<0. && y<0.) )
+    return ret;
+  else
+    return M_PI-ret;
+}
+
+/*!
+ * WARNING different from 'computeSlope' method. Here angle in -Pi;Pi is returned.
+ * This method is anti-symetric.
+ */
+double Node::computeAngle(const double *pt1, const double *pt2)
+{
+  double x=pt2[0]-pt1[0];
+  double y=pt2[1]-pt1[1];
+  double norm=sqrt(x*x+y*y);
+  double ret=EdgeArcCircle::safeAcos(x/norm);
+  if(y>=0)
+    return ret;
+  else
+    return -ret;
+}
+
+/*!
+ * apply a Similarity transformation on this.
+ * @param xBary is the opposite of the X translation to do.
+ * @param yBary is the opposite of the Y translation to do.
+ * @param dimChar is the reduction factor.
+ */
+void Node::applySimilarity(double xBary, double yBary, double dimChar)
+{
+  _coords[0]=(_coords[0]-xBary)/dimChar;
+  _coords[1]=(_coords[1]-yBary)/dimChar;
 }

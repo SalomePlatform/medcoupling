@@ -37,8 +37,8 @@ namespace INTERP_KERNEL
    *
    */
   template<class ConnType>
-  template<int SPACEDIM, int MESHDIM, NumberingPolicy numPol, class MyMeshType>
-  void MeshRegion<ConnType>::addElement(MeshElement<ConnType>* const element, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh)
+  template<class MyMeshType>
+  void MeshRegion<ConnType>::addElement(MeshElement<ConnType>* const element, const MyMeshType& mesh)
   {
     _elements.push_back(element);
 
@@ -79,8 +79,8 @@ namespace INTERP_KERNEL
    *
    */
   template<class ConnType>
-  template<int SPACEDIM, int MESHDIM, NumberingPolicy numPol, class MyMeshType>
-  void MeshRegion<ConnType>::split(MeshRegion<ConnType>& region1, MeshRegion<ConnType>& region2, BoundingBox::BoxCoord coord, const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& mesh)
+  template<class MyMeshType>
+  void MeshRegion<ConnType>::split(MeshRegion<ConnType>& region1, MeshRegion<ConnType>& region2, BoundingBox::BoxCoord coord, const MyMeshType& mesh)
   {
     // create ordering
     ElementBBoxOrder cmp(coord);

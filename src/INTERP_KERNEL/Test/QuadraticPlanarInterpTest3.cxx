@@ -101,7 +101,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases1()
   it2.nextLoop(); CPPUNIT_ASSERT(it2.current()->getPtr()==e3_4); CPPUNIT_ASSERT(!it2.finished());
   it2.nextLoop(); CPPUNIT_ASSERT(it2.current()->getPtr()==e4_5); CPPUNIT_ASSERT(!it2.finished());
   //  substitutions.
-  it2.first(); CPPUNIT_ASSERT(it2.current()->getPtr()==e1_2); CPPUNIT_ASSERT(!it2.finished());
+  /*it2.first(); CPPUNIT_ASSERT(it2.current()->getPtr()==e1_2); CPPUNIT_ASSERT(!it2.finished());
   ElementaryEdge *&tmp=it2.current(); CPPUNIT_ASSERT(it2.current()->getPtr()==e1_2); CPPUNIT_ASSERT(!it2.finished());
   ComposedEdge *c1=new ComposedEdge;  Node *n1_bis=new Node(0.,0.05); EdgeLin *e1_1bis=new EdgeLin(n1,n1_bis); EdgeLin *e1bis_2=new EdgeLin(n1_bis,n2); e1_1bis->incrRef(); e1bis_2->incrRef();
   c1->pushBack(e1_1bis); c1->pushBack(e1bis_2); delete tmp; tmp=(ElementaryEdge *)c1; CPPUNIT_ASSERT_EQUAL(13,c->recursiveSize());
@@ -138,13 +138,17 @@ void QuadraticPlanarInterpTest::checkAssemblingBases1()
   it2.nextLoop(); CPPUNIT_ASSERT(it2.current()->getPtr()==e10_11); CPPUNIT_ASSERT(!it2.finished());
   it2.nextLoop(); CPPUNIT_ASSERT(it2.current()->getPtr()==e11_12); CPPUNIT_ASSERT(!it2.finished());
   it2.nextLoop(); CPPUNIT_ASSERT(it2.current()->getPtr()==e12_1); CPPUNIT_ASSERT(!it2.finished());
-  it2.nextLoop(); CPPUNIT_ASSERT(it2.current()->getPtr()==e1_1bis); CPPUNIT_ASSERT(!it2.finished());
+  it2.nextLoop(); CPPUNIT_ASSERT(it2.current()->getPtr()==e1_1bis); CPPUNIT_ASSERT(!it2.finished());*/
+  ComposedEdge::SoftDelete(c2_2_4);
+  ComposedEdge::SoftDelete(c2_2_5);
+  ComposedEdge::SoftDelete(c2_2);
+  ComposedEdge::SoftDelete(c2);
   ComposedEdge::Delete(c);
   //clean-up
-  e1_1bis->decrRef(); e1bis_2->decrRef();
+  //e1_1bis->decrRef(); e1bis_2->decrRef();
   e1_2->decrRef(); e2_3->decrRef(); e3_4->decrRef(); e4_5->decrRef(); e5_6->decrRef(); e6_7->decrRef(); 
   e7_8->decrRef(); e8_9->decrRef(); e9_10->decrRef(); e10_11->decrRef(); e11_12->decrRef(); e12_1->decrRef(); 
-  n1_bis->decrRef();
+  //n1_bis->decrRef();
   n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef(); n5->decrRef(); n6->decrRef();
   n7->decrRef(); n8->decrRef(); n9->decrRef(); n10->decrRef(); n11->decrRef(); n12->decrRef();
 }
@@ -170,21 +174,21 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   CPPUNIT_ASSERT_EQUAL(5,pol1.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(5,pol2.recursiveSize());CPPUNIT_ASSERT_EQUAL(15,nbOfSplits);
   checkBasicsOfPolygons(pol1,pol2,true);
-  CPPUNIT_ASSERT((*pol2[1])[0]->getEndNode()==(*(*pol1[0])[0])[1]->getEndNode());
-  CPPUNIT_ASSERT((*pol2[1])[0]->getEndNode()->getLoc()==ON_1);
-  CPPUNIT_ASSERT((*pol2[2])[0]->getEndNode()==(*(*pol1[0])[0])[0]->getEndNode());
-  CPPUNIT_ASSERT((*pol2[2])[0]->getEndNode()->getLoc()==ON_1);
+  CPPUNIT_ASSERT(pol2[1]->getEndNode()==pol1[1]->getEndNode());
+  CPPUNIT_ASSERT(pol2[1]->getEndNode()->getLoc()==ON_1);
+  CPPUNIT_ASSERT(pol2[3]->getEndNode()==pol1[0]->getEndNode());
+  CPPUNIT_ASSERT(pol2[3]->getEndNode()->getLoc()==ON_1);
   cpyPol1.performLocatingOperation(pol2);
   ElementaryEdge *tmp=dynamic_cast<ElementaryEdge *>(pol2[0]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e4_5);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
-  tmp=dynamic_cast<ElementaryEdge *>((*pol2[1])[0]); CPPUNIT_ASSERT(tmp);
+  tmp=dynamic_cast<ElementaryEdge *>(pol2[1]); CPPUNIT_ASSERT(tmp);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
-  tmp=dynamic_cast<ElementaryEdge *>((*pol2[1])[1]); CPPUNIT_ASSERT(tmp);
+  tmp=dynamic_cast<ElementaryEdge *>(pol2[2]); CPPUNIT_ASSERT(tmp);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_IN_1);
-  tmp=dynamic_cast<ElementaryEdge *>((*pol2[2])[0]); CPPUNIT_ASSERT(tmp);
+  tmp=dynamic_cast<ElementaryEdge *>(pol2[3]); CPPUNIT_ASSERT(tmp);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_IN_1);
-  tmp=dynamic_cast<ElementaryEdge *>((*pol2[2])[1]); CPPUNIT_ASSERT(tmp);
+  tmp=dynamic_cast<ElementaryEdge *>(pol2[4]); CPPUNIT_ASSERT(tmp);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
   //clean-up for test1
   e1_2->decrRef(); e2_3->decrRef(); e3_1->decrRef(); e4_5->decrRef(); e5_6->decrRef(); e6_4->decrRef();
@@ -206,9 +210,9 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   CPPUNIT_ASSERT_EQUAL(5,pol3.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(4,pol4.recursiveSize());CPPUNIT_ASSERT_EQUAL(16,nbOfSplits);
   checkBasicsOfPolygons(pol3,pol4,true);
-  CPPUNIT_ASSERT(pol4[0]->getStartNode()==(*pol3[0])[0]->getEndNode()); CPPUNIT_ASSERT(pol4[0]->getStartNode()==n5);
+  CPPUNIT_ASSERT(pol4[0]->getStartNode()==pol3[0]->getEndNode()); CPPUNIT_ASSERT(pol4[0]->getStartNode()==n5);
   CPPUNIT_ASSERT(n5->getLoc()==ON_LIM_1);
-  CPPUNIT_ASSERT(pol4[2]->getEndNode()==(*pol3[1])[0]->getEndNode()); CPPUNIT_ASSERT(pol4[2]->getEndNode()==n6);
+  CPPUNIT_ASSERT(pol4[2]->getEndNode()==pol3[2]->getEndNode()); CPPUNIT_ASSERT(pol4[2]->getEndNode()==n6);
   CPPUNIT_ASSERT(n6->getLoc()==ON_LIM_1);
   cpyPol3.performLocatingOperation(pol4);
   tmp=dynamic_cast<ElementaryEdge *>(pol4[1]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e4_7);
@@ -239,18 +243,18 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   CPPUNIT_ASSERT_EQUAL(4,pol5.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(4,pol6.recursiveSize()); CPPUNIT_ASSERT_EQUAL(13,nbOfSplits);
   checkBasicsOfPolygons(pol5,pol6,false);
-  CPPUNIT_ASSERT((*pol6[2])[0]->getStartNode()==(*pol5[0])[0]->getEndNode()); CPPUNIT_ASSERT((*pol6[2])[0]->getStartNode()==n6);
+  CPPUNIT_ASSERT(pol6[2]->getStartNode()==pol5[0]->getEndNode()); CPPUNIT_ASSERT(pol6[2]->getStartNode()==n6);
   CPPUNIT_ASSERT(n6->getLoc()==ON_LIM_1);
-  CPPUNIT_ASSERT((*pol6[2])[0]->getEndNode()==(*pol5[0])[0]->getStartNode()); CPPUNIT_ASSERT((*pol5[0])[0]->getStartNode()==n1);
+  CPPUNIT_ASSERT(pol6[2]->getEndNode()==pol5[0]->getStartNode()); CPPUNIT_ASSERT(pol5[0]->getStartNode()==n1);
   CPPUNIT_ASSERT(n1->getLoc()==ON_LIM_1);
   cpyPol5.performLocatingOperation(pol6);
   tmp=dynamic_cast<ElementaryEdge *>(pol6[0]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e4_5);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
   tmp=dynamic_cast<ElementaryEdge *>(pol6[1]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e5_6);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
-  tmp=dynamic_cast<ElementaryEdge *>((*pol6[2])[0]); CPPUNIT_ASSERT(tmp);
+  tmp=dynamic_cast<ElementaryEdge *>(pol6[2]); CPPUNIT_ASSERT(tmp);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_ON_1);
-  tmp=dynamic_cast<ElementaryEdge *>((*pol6[2])[1]); CPPUNIT_ASSERT(tmp);
+  tmp=dynamic_cast<ElementaryEdge *>(pol6[3]); CPPUNIT_ASSERT(tmp);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_OUT_1);
   //clean-up test3
   e1_2->decrRef(); e2_3->decrRef(); e3_1->decrRef(); e4_5->decrRef(); e5_6->decrRef(); e6_4->decrRef();

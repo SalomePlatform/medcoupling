@@ -65,4 +65,8 @@ The methods associated to polygons/polyhedra are located in the following classe
 - access methods are stored in MESH : \ref MESH_poly
 - creation methods are in MESHING : \ref MESHING_poly
 
+\section poly_example Example
+The following example illustrates the creation method for a mesh that
+contains polygons and/or polyhedra :
+\include test_MEDMEM_MeshingPoly.cxx
 */

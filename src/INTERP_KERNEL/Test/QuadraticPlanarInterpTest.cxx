@@ -50,13 +50,20 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
 
 void QuadraticPlanarInterpTest::ReadWriteInXfigGlobal()
 {
-  QuadraticPolygon pol1("Pol1.fig");
+  string dataBaseDir(getenv("MED_ROOT_DIR"));
+  dataBaseDir+="/share/salome/resources/med/";
+  string tmp;
+  tmp=dataBaseDir; tmp+="Pol1.fig";
+  QuadraticPolygon pol1(tmp.c_str());
   pol1.dumpInXfigFile("Pol1_gen.fig");
-  QuadraticPolygon pol2("Pol2.fig");
+  tmp=dataBaseDir; tmp+="Pol2.fig";
+  QuadraticPolygon pol2(tmp.c_str());
   pol2.dumpInXfigFile("Pol2_gen.fig");
-  QuadraticPolygon pol3("Pol3.fig");
+  tmp=dataBaseDir; tmp+="Pol3.fig";
+  QuadraticPolygon pol3(tmp.c_str());
   pol3.dumpInXfigFile("Pol3_gen.fig");
-  QuadraticPolygon pol4("Pol4.fig");
+  tmp=dataBaseDir; tmp+="Pol4.fig";
+  QuadraticPolygon pol4(tmp.c_str());
   CPPUNIT_ASSERT_EQUAL(1,pol4.size());
   ElementaryEdge *edge1=dynamic_cast<ElementaryEdge *>(pol4[0]);
   CPPUNIT_ASSERT(edge1);
@@ -89,6 +96,44 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigGlobal()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.06,e->getRadius(),ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1415925921507317,e->getAngle(),1e-5);
   e->decrRef();
+}
+
+void QuadraticPlanarInterpTest::BasicGeometricTools()
+{
+  Node *n1=new Node(1.,1.);
+  Node *n2=new Node(4.,2.);
+  EdgeLin *e1=new EdgeLin(n1,n2);
+  double tmp[2];
+  e1->getNormalVector(tmp);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.94868329805051377,tmp[1],ADMISSIBLE_ERROR);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.31622776601683794,tmp[0],ADMISSIBLE_ERROR);
+  e1->decrRef();
+  n1->decrRef(); n2->decrRef();
+  n1=new Node(1.,1.);
+  n2=new Node(0.,4.);
+  e1=new EdgeLin(n1,n2);
+  double tmp2[2];
+  e1->getNormalVector(tmp2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,Node::dot(tmp,tmp2),1e-10);
+  tmp[0]=0.5; tmp[1]=2.5;
+  CPPUNIT_ASSERT(e1->isNodeLyingOn(tmp));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,e1->getDistanceToPoint(tmp),1e-12);
+  tmp[1]=2.55; CPPUNIT_ASSERT(!e1->isNodeLyingOn(tmp));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0158113883008418,e1->getDistanceToPoint(tmp),1e-12);
+  tmp[0]=0.; tmp[1]=5.;
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,e1->getDistanceToPoint(tmp),1e-12);
+  EdgeArcCircle *e=new EdgeArcCircle(4.,3.,0.,5.,-5.,0.);
+  tmp[0]=-4.; tmp[1]=3.;
+  CPPUNIT_ASSERT(e->isNodeLyingOn(tmp));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,e->getDistanceToPoint(tmp),1e-12);
+  tmp[1]=3.1; CPPUNIT_ASSERT(!e->isNodeLyingOn(tmp));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0632371551998077e-2,e->getDistanceToPoint(tmp),1e-12);
+  tmp[0]=-4.; tmp[1]=-3.;
+  CPPUNIT_ASSERT(!e->isNodeLyingOn(tmp));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.1622776601683795,e->getDistanceToPoint(tmp),1e-12);
+  e->decrRef();
+  e1->decrRef();
+  n1->decrRef(); n2->decrRef();
 }
 
 void QuadraticPlanarInterpTest::IntersectionBasics()

@@ -14,6 +14,7 @@ namespace INTERP_KERNEL
     CPPUNIT_TEST_SUITE( QuadraticPlanarInterpTest );
     CPPUNIT_TEST( ReadWriteInXfigElementary );
     CPPUNIT_TEST( ReadWriteInXfigGlobal );
+    CPPUNIT_TEST( BasicGeometricTools );
     CPPUNIT_TEST( IntersectionBasics );
     CPPUNIT_TEST( EdgeLinUnitary );
     CPPUNIT_TEST( IntersectionEdgeOverlapUnitarySegSeg );
@@ -26,6 +27,20 @@ namespace INTERP_KERNEL
     CPPUNIT_TEST( checkAssemblingBases2 );
     CPPUNIT_TEST( checkPolygonsIntersection1 );
     CPPUNIT_TEST( checkAreasCalculations );
+    CPPUNIT_TEST( checkHighLevelFunctionTest1 );
+    CPPUNIT_TEST( check1DInterpLin );
+    CPPUNIT_TEST( checkNonRegression1 );
+    CPPUNIT_TEST( checkNonRegression2 );
+    CPPUNIT_TEST( checkNonRegression3 );
+    CPPUNIT_TEST( checkNonRegression4 );
+//     CPPUNIT_TEST( checkNonRegression5 );
+    CPPUNIT_TEST( checkNonRegression6 );
+    CPPUNIT_TEST( checkNonRegression7 );
+    CPPUNIT_TEST( checkNonRegression8 );
+    CPPUNIT_TEST( checkNonRegression9 );
+    CPPUNIT_TEST( checkNonRegression10 );
+    CPPUNIT_TEST( checkNonRegression11 );
+//     CPPUNIT_TEST( checkNonRegression12 );
     CPPUNIT_TEST_SUITE_END();
   public:  
     void setUp();
@@ -34,6 +49,7 @@ namespace INTERP_KERNEL
     //
     void ReadWriteInXfigElementary();
     void ReadWriteInXfigGlobal();
+    void BasicGeometricTools();
     void IntersectionBasics();
     void EdgeLinUnitary();
     void IntersectionEdgeOverlapUnitarySegSeg();
@@ -50,6 +66,25 @@ namespace INTERP_KERNEL
     //
     void checkPolygonsIntersection1();
     void checkAreasCalculations();
+    //
+    void checkHighLevelFunctionTest1();
+    //
+    void check1DInterpLin();
+    //
+    void checkNonRegression1();
+    void checkNonRegression2();
+    void checkNonRegression3();
+    void checkNonRegression4();
+    void checkNonRegression5();
+    void checkNonRegression6();
+    void checkNonRegression7();
+    void checkNonRegression8();
+    void checkNonRegression9();
+    void checkNonRegression10();
+    void checkNonRegression11();
+    void checkNonRegression12();
+		//
+		void checkNormalize();
   private:
     EdgeArcCircle *buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd);
     double btw2NodesAndACenter(const Node& n1, const Node& n2, const double *center);

@@ -361,13 +361,13 @@ namespace INTERP_TEST
 		if (SPACEDIM==2 && MESHDIM==2)
 			{
 				Interpolation2D interpolator;
-				interpolator.setOptions(_precision, LOG_LEVEL, _intersectionType);
+				interpolator.setOptions(_precision, LOG_LEVEL, _intersectionType,1);
 				interpolator.interpolateMeshes(sMesh_wrapper, tMesh_wrapper,m);
 			}
 		else if (SPACEDIM==3 && MESHDIM==2)
 			{
 				Interpolation3DSurf interpolator;
-				interpolator.setOptions(_precision,LOG_LEVEL, 0.5,_intersectionType,false);
+				interpolator.setOptions(_precision,LOG_LEVEL, 0.5,_intersectionType,false,1);
 				interpolator.interpolateMeshes(sMesh_wrapper, tMesh_wrapper,m);
 			}
 		else if (SPACEDIM==3 && MESHDIM==3)

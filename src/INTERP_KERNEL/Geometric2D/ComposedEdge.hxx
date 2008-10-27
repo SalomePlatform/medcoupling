@@ -2,61 +2,77 @@
 #define __COMPOSEDNODE_HXX__
 
 #include "Geometric2D_defines.hxx"
-
-#include "AbstractEdge.hxx"
-
+#include <set>
+#include <list>
 #include <vector>
 
 namespace INTERP_KERNEL
 {
-  class GEOMETRIC2D_EXPORT ComposedEdge : public AbstractEdge
+  class Node;
+  class Edge;
+  class Bounds;
+  class ElementaryEdge;
+  class IteratorOnComposedEdge;
+
+  class GEOMETRIC2D_EXPORT ComposedEdge
   {
+    friend class IteratorOnComposedEdge;
   public:
     ComposedEdge() { }
     ComposedEdge(const ComposedEdge& other);
     ComposedEdge(int size):_subEdges(size) { }
     static void Delete(ComposedEdge *pt) { delete pt; }
+    static void SoftDelete(ComposedEdge *pt) { pt->_subEdges.clear(); delete pt; }
     void reverse();
-    int recursiveSize() const;
-    AbstractEdge *clone() const;
+    int recursiveSize() const { return _subEdges.size(); }
+    void initLocations() const;
+    ComposedEdge *clone() const;
     bool isNodeIn(Node *n) const;
-    double getAreaOfZone() const;
+    double getArea() const;
+    double getPerimeter() const;
+    double getHydraulicDiameter() const;
+    double normalize(ComposedEdge *other);
     void fillBounds(Bounds& output) const;
+    int getNbOfEdgeSonsOfSameId(int id) const;
+    void applySimilarity(double xBary, double yBary, double dimChar);
+    void applyGlobalSimilarity(double xBary, double yBary, double dimChar);
+    void dispatchForNode(const ComposedEdge& father, std::vector<int>& nbOfCreatedNodes) const;
+    void dispatchPerimeter(const std::set<int>& ids1, const std::set<int>& ids2,
+                           double& part1, double& part2, double& commonPart) const;
+    double dispatchPerimeterAdv(const ComposedEdge& father, std::vector<double>& result) const;
+    double checkFatherHood(ElementaryEdge *edge, std::vector<double>& result) const;
+    void fillAllEdgeIds(std::set<int>& ids) const;
     void getAllNodes(std::set<Node *>& output) const;
     void getBarycenter(double *bary, double& weigh) const;
     bool completed() const { return getEndNode()==getStartNode(); }
-    ElementaryEdge * &getLastElementary(IteratorOnComposedEdge::ItOnFixdLev &delta);
-    ElementaryEdge * &getFirstElementary(IteratorOnComposedEdge::ItOnFixdLev &delta);
-    void setValueAt(int i, AbstractEdge *val) { delete _subEdges[i]; _subEdges[i]=val; }
     void setValueAt(int i, Edge *e, bool direction=true);
+    double getCommonLengthWith(const ComposedEdge& other) const;
     void clear();
     bool empty() const { return _subEdges.empty(); }
-    AbstractEdge *front() const { return _subEdges.front(); }
-    AbstractEdge *back() const { return _subEdges.back(); }
+    ElementaryEdge *front() const { return _subEdges.front(); }
+    ElementaryEdge *back() const { return _subEdges.back(); }
     void resize(int i) { _subEdges.resize(i); }
     void pushBack(Edge *edge, bool direction=true);
-    void pushBack(AbstractEdge *elem);
+    void pushBack(ElementaryEdge *elem);
+    void pushBack(ComposedEdge *elem);
     int size() const { return _subEdges.size(); }
-    AbstractEdge *&operator[](IteratorOnComposedEdge::ItOnFixdLev i) { return (AbstractEdge *&)_subEdges[i]; }
-    const AbstractEdge *&operator[](IteratorOnComposedEdge::ItOnFixdLev i) const { return (const AbstractEdge *&)_subEdges[i]; }
+    ElementaryEdge *operator[](int i) const;
     Node *getEndNode() const;
     Node *getStartNode() const;
-    AbstractEdge *simplify();
-    bool addEdgeIfIn(ElementaryEdge *edge);
     bool changeEndNodeWith(Node *node) const;
     bool changeStartNodeWith(Node *node) const;
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
-    bool intresicEqual(const AbstractEdge *other) const;
-    bool intresicEqualDirSensitive(const AbstractEdge *other) const;
     bool isInOrOut(Node *nodeToTest) const;
     bool getDirection() const;
     bool intresincEqCoarse(const Edge *other) const;
+  private:
+    std::list<ElementaryEdge *>* getListBehind() { return &_subEdges; }
   protected:
     ~ComposedEdge();
   private:
-    void clearAll(std::vector<AbstractEdge *>::iterator startToDel);
+    void clearAll(std::list<ElementaryEdge *>::iterator startToDel);
   protected:
-    std::vector<AbstractEdge *> _subEdges;
+    std::list<ElementaryEdge *> _subEdges;
   };
 }
 

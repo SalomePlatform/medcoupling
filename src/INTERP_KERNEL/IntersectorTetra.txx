@@ -7,15 +7,13 @@
 #include "TransformedTriangle.hxx"
 #include "MeshUtils.hxx"
 #include "VectorUtils.hxx"
+#include "CellModel.hxx"
 #include "Log.hxx"
 
 #include <cmath>
 #include <cassert>
 #include <string>
 #include <sstream>
-
-using namespace MEDMEM;
-using namespace MED_EN;
 
 /// Smallest volume of the intersecting elements in the transformed space that will be returned as non-zero. 
 /// Since the scale is always the same in the transformed space (the target tetrahedron is unitary), this number is independent of the scale of the meshes.
@@ -32,10 +30,8 @@ namespace INTERP_KERNEL
    * @param targetCell  global number of the target cell
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::IntersectorTetra(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh,
-                                                                                  const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& targetMesh,
-                                                                                  ConnType targetCell)
+  template<class MyMeshType>
+  IntersectorTetra<MyMeshType>::IntersectorTetra(const MyMeshType& srcMesh, const MyMeshType& targetMesh, typename MyMeshType::MyConnType targetCell)
     : _srcMesh(srcMesh), _t(0)
   {   
     // get array of corners of target tetraedron
@@ -53,9 +49,8 @@ namespace INTERP_KERNEL
    * @param tetraCorners  array of four pointers to double[3] arrays containing the coordinates of the
    *                      corners of the tetrahedron
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::IntersectorTetra(const NormalizedUnstructuredMesh<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>& srcMesh,
-                                                                                  const double** tetraCorners)
+  template<class MyMeshType>
+  IntersectorTetra<MyMeshType>::IntersectorTetra(const MyMeshType& srcMesh, const double** tetraCorners)
     : _srcMesh(srcMesh), _t(0)
   {
     // create the affine transform
@@ -68,13 +63,12 @@ namespace INTERP_KERNEL
    * Deletes _t and the coordinates (double[3] vectors) in _nodes
    *
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::~IntersectorTetra()
+  template<class MyMeshType>
+  IntersectorTetra<MyMeshType>::~IntersectorTetra()
   {
     delete _t;
     for(hash_map< int, double* >::iterator iter = _nodes.begin(); iter != _nodes.end() ; ++iter)
       delete[] iter->second;
-	
   }
   
   /**
@@ -90,8 +84,8 @@ namespace INTERP_KERNEL
    *
    * @param element      global number of the source element (1 <= srcCell < # source cells)
    */
-  template<int SPACEDIM, int MESHDIM, class ConnType, NumberingPolicy numPol, class MyMeshType>
-  double IntersectorTetra<SPACEDIM,MESHDIM,ConnType,numPol,MyMeshType>::intersectSourceCell(ConnType element)
+  template<class MyMeshType>
+  double IntersectorTetra<MyMeshType>::intersectSourceCell(typename MyMeshType::MyConnType element)
   {
         
     //{ could be done on outside?
@@ -104,30 +98,20 @@ namespace INTERP_KERNEL
       }
 
     // get type of cell
-    unsigned char nbOfNodes4Type = _srcMesh.getNumberOfNodesOfElement(element);
-    // hack tony for the moment
-    
-    medGeometryElement type;
-    if(nbOfNodes4Type==4)
-      type=MED_EN::MED_TETRA4;
-    else if(nbOfNodes4Type==8)
-      type=MED_EN::MED_HEXA8;
-    else
-      std::cerr << "ca merde sec" << std::endl;
-    ////const medGeometryElement type = _srcMesh.getNumberOfNodesOfElement(element);
-    
-    // get cell model for the element
-    const CELLMODEL& cellModel= CELLMODEL_Map::retrieveCellModel(type);
-
+    NormalizedCellType normCellType=_srcMesh.getTypeOfElement(element);
+    const CellModel& cellModelCell=CellModel::getCellModel(normCellType);
+    unsigned nbOfNodes4Type=cellModelCell.getNumberOfNodes();
     // halfspace filtering
     bool isOutside[8] = {true, true, true, true, true, true, true, true};
     bool isTargetOutside = false;
 
     // calculate the coordinates of the nodes
+    int *cellNodes=new int[nbOfNodes4Type];
     for(int i = 0;i<nbOfNodes4Type;++i)
       {
         // we could store mapping local -> global numbers too, but not sure it is worth it
         const int globalNodeNum = getGlobalNumberOfNode(i, element, _srcMesh);
+        cellNodes[i]=globalNodeNum;
         if(_nodes.find(globalNodeNum) == _nodes.end()) 
           {
             calculateNode(globalNodeNum);
@@ -150,28 +134,16 @@ namespace INTERP_KERNEL
     
     if(!isTargetOutside)
       {
-        for(int i = 1 ; i <= cellModel.getNumberOfConstituents(1) ; ++i)
+        for(unsigned ii = 0 ; ii < cellModelCell.getNumberOfSons() ; ++ii)
           {
-            const medGeometryElement faceType = cellModel.getConstituentType(1, i);
-            const CELLMODEL&  faceModel= CELLMODEL_Map::retrieveCellModel(faceType);
-       
+            NormalizedCellType faceType = cellModelCell.getSonType(ii);
+            const CellModel& faceModel=CellModel::getCellModel(faceType);
             assert(faceModel.getDimension() == 2);
-
-            std::vector<int> faceNodes(faceModel.getNumberOfNodes());
-
-            // get the nodes of the face
-            for(int j = 1; j <= faceModel.getNumberOfNodes(); ++j)
-              {
-                const int locNodeNum = cellModel.getNodeConstituent(1, i, j);
-                assert(locNodeNum >= 1);
-                assert(locNodeNum <= cellModel.getNumberOfNodes());
-
-                faceNodes[j-1] = getGlobalNumberOfNode(locNodeNum-1, element, _srcMesh);
-              }
-
+            int *faceNodes=new int[faceModel.getNumberOfNodes()];      
+            cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
             switch(faceType)
               {
-              case MED_EN::MED_TRIA3:
+              case NORM_TRI3:
                 {
                   // create the face key
                   TriangleFaceKey key = TriangleFaceKey(faceNodes[0], faceNodes[1], faceNodes[2]);
@@ -189,7 +161,7 @@ namespace INTERP_KERNEL
                 }
                 break;
 
-              case MED_EN::MED_QUAD4:
+              case NORM_QUAD4:
 
                 // simple triangulation of faces along a diagonal :
                 // 
@@ -238,9 +210,10 @@ namespace INTERP_KERNEL
                 std::cout << "+++ Error : Only elements with triangular and quadratilateral faces are supported at the moment." << std::endl;
                 assert(false);
               }
+            delete [] faceNodes;
           }
       }
-
+    delete [] cellNodes;
     // reset if it is very small to keep the matrix sparse
     // is this a good idea?
     if(epsilonEqual(totalVolume, 0.0, SPARSE_TRUNCATION_LIMIT))
