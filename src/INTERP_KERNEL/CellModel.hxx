@@ -1,6 +1,8 @@
 #ifndef __CELLMODEL_INTERP_KERNEL_HXX__
 #define __CELLMODEL_INTERP_KERNEL_HXX__
 
+#include <INTERPKERNEL_defines.hxx>
+
 #include "NormalizedUnstructuredMesh.hxx"
 
 #include <map>
@@ -10,7 +12,7 @@ namespace INTERP_KERNEL
   /*!
    * This class descibes all static elements (different from polygons and polyhedron) 3D, 2D and 1D.
    */
-  class CellModel
+  class INTERPKERNEL_EXPORT CellModel
   {
   public:
     static const unsigned MAX_NB_OF_SONS=6;

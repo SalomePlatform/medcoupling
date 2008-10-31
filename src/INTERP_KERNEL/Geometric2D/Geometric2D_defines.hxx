@@ -14,7 +14,7 @@
 #endif 
 
 #ifdef WIN32
-# include <math.h>
+# include <stdlib.h>
 # define fmax __max
 # define fmin __min
 #endif
