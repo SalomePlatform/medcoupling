@@ -50,13 +50,13 @@ Interpolation3D.hxx         MeshUtils.hxx                      TranslationRotati
 Interpolation3DSurf.hxx     NormalizedUnstructuredMesh.hxx     TriangulationIntersector.hxx\
 Interpolation.hxx           PlanarIntersector.hxx              VectorUtils.hxx\
 InterpolationPlanar.hxx     PointLocator.hxx                   VTKNormalizedUnstructuredMesh.hxx\
-InterpolationUtils.hxx      PolygonAlgorithms.hxx\
+InterpolationUtils.hxx      PolygonAlgorithms.hxx              InterpolationOptions.hxx\
 BBTree.txx                  InterpolationPlanar.txx            PlanarIntersector.txx\
 ConvexIntersector.txx       IntersectorHexa.txx                PointLocatorAlgos.txx\
 Geometric2DIntersector.txx  IntersectorTetra.txx               PolygonAlgorithms.txx\
 Interpolation2D.txx         MEDNormalizedUnstructuredMesh.txx  TriangulationIntersector.txx\
 Interpolation3DSurf.txx     MeshElement.txx                    VTKNormalizedUnstructuredMesh.txx\
-Interpolation3D.txx         MeshRegion.txx
+Interpolation3D.txx         MeshRegion.txx                     CellModel.hxx
 
 # Libraries targets
 

@@ -62,6 +62,7 @@ dist_libInterpKernelTest_la_SOURCES= \
 	SingleElementPlanarTests.cxx \
 	PointLocatorTest.cxx \
 	MEDMeshMaker.cxx \
+	InterpolationOptionsTest.hxx \
 	InterpolationOptionsTest.cxx \
 	QuadraticPlanarInterpTest.cxx \
 	QuadraticPlanarInterpTest2.cxx \

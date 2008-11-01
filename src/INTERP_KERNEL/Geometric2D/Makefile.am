@@ -34,7 +34,6 @@ AbstractEdge.hxx     \
 Bounds.hxx           \
 Precision.hxx        \
 ComposedEdge.hxx     \
-ComposedEdgeWithIt.hxx \
 EdgeArcCircle.hxx    \
 Edge.hxx             \
 Edge.txx             \
@@ -72,8 +71,4 @@ Geometric2D_defines.hxx \
 Edge.txx
 
 libInterpGeometric2DAlg_la_CPPFLAGS = -I$(srcdir)/..
-
-EXTRA_DIST += \
-	BasicMainTest.hxx \
-	Test
 
