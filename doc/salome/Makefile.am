@@ -24,6 +24,7 @@
 # Date : 30/11/2001
 # $Header$
 #
+SUBDIRS= tui
 SUBDIRSTUI= tui
 
 dev_docs:

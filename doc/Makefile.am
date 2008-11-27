@@ -22,3 +22,6 @@
 SUBDIRS= MEDMEM salome
 
 EXTRA_DIST= html
+
+dev_docs:
+	(cd salome && $(MAKE) $(AM_MAKEFLAGS) dev_docs)
