@@ -45,6 +45,7 @@ ComponentTopology.hxx\
 ExplicitTopology.hxx\
 ParaFIELD.hxx\
 DEC.hxx\
+DECOptions.hxx \
 MxN_Mapping.hxx\
 StructuredCoincidentDEC.hxx\
 InterpolationMatrix.hxx\
@@ -125,7 +126,6 @@ EXTRA_DIST += \
 	CommInterface.cxx \
 	NonCoincidentDEC.cxx \
 	NonCoincidentDEC.hxx \
-	DECOptions.hxx \
 	README_JR \
 	TODO_JR \
 	Topology.cxx
