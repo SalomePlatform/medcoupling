@@ -47,12 +47,12 @@ MPI_COMM_WORLD processor.This routine must be called by all processors in MPI_CO
 communication layer
 	*/
 MPIProcessorGroup::MPIProcessorGroup(const CommInterface& interface):
-ProcessorGroup(interface)
+ProcessorGroup(interface),_world_comm(MPI_COMM_WORLD)
 {
-  _comm=MPI_COMM_WORLD;
-  _comm_interface.commGroup(MPI_COMM_WORLD, &_group);
+  _comm=_world_comm;
+  _comm_interface.commGroup(_world_comm, &_group);
   int size;
-  _comm_interface.commSize(MPI_COMM_WORLD,&size);
+  _comm_interface.commSize(_world_comm,&size);
   for (int i=0; i<size; i++)
   	_proc_ids.insert(i);
 
@@ -67,17 +67,17 @@ communication layer
 to be understood in terms of MPI_COMM_WORLD ranks.
 	*/
 
-MPIProcessorGroup::MPIProcessorGroup(const CommInterface& interface, set<int> proc_ids):
-ProcessorGroup(interface, proc_ids)
+MPIProcessorGroup::MPIProcessorGroup(const CommInterface& interface, set<int> proc_ids, const MPI_Comm& world_comm):
+  ProcessorGroup(interface, proc_ids),_world_comm(world_comm)
 {
   //Creation of a communicator 
   MPI_Group group_world;
   
   int size_world;
-  _comm_interface.commSize(MPI_COMM_WORLD,&size_world);
+  _comm_interface.commSize(_world_comm,&size_world);
   int rank_world;
-  _comm_interface.commRank(MPI_COMM_WORLD,&rank_world);
-  _comm_interface.commGroup(MPI_COMM_WORLD, &group_world);
+  _comm_interface.commRank(_world_comm,&rank_world);
+  _comm_interface.commGroup(_world_comm, &group_world);
 
   int* ranks=new int[proc_ids.size()];
    
@@ -89,9 +89,10 @@ ProcessorGroup(interface, proc_ids)
       
   _comm_interface.groupIncl(group_world, proc_ids.size(), ranks, &_group);
   
-  _comm_interface.commCreate(MPI_COMM_WORLD, _group, &_comm);
+  _comm_interface.commCreate(_world_comm, _group, &_comm);
   delete[] ranks;
 }
+
 	/*! Creates a processor group that is based on the processors between \a pstart and \a pend.
 This routine must be called by all processors in MPI_COMM_WORLD.
 
@@ -100,16 +101,16 @@ communication layer
 \param pstart id in MPI_COMM_WORLD of the first processor in the group
 \param pend id in MPI_COMM_WORLD of the last processor in the group
 	*/
-MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int pstart, int pend): ProcessorGroup(comm_interface,pstart,pend)
+MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int pstart, int pend): ProcessorGroup(comm_interface,pstart,pend),_world_comm(MPI_COMM_WORLD)
 {
  //Creation of a communicator 
   MPI_Group group_world;
   
   int size_world;
-  _comm_interface.commSize(MPI_COMM_WORLD,&size_world);
+  _comm_interface.commSize(_world_comm,&size_world);
   int rank_world;
-  _comm_interface.commRank(MPI_COMM_WORLD,&rank_world);
-  _comm_interface.commGroup(MPI_COMM_WORLD, &group_world);
+  _comm_interface.commRank(_world_comm,&rank_world);
+  _comm_interface.commGroup(_world_comm, &group_world);
 
   if (pend>size_world-1 || pend <pstart || pstart<0)
     throw MEDMEM::MEDEXCEPTION("invalid argument in MPIProcessorGroup constructor (comm,pfirst,plast)");
@@ -122,7 +123,7 @@ MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int p
 
   _comm_interface.groupIncl(group_world, nprocs, ranks, &_group);
   
-  _comm_interface.commCreate(MPI_COMM_WORLD, _group, &_comm);
+  _comm_interface.commCreate(_world_comm, _group, &_comm);
    delete[] ranks;
 }
 /*!
@@ -130,7 +131,7 @@ MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int p
 */
 
 MPIProcessorGroup::MPIProcessorGroup (const ProcessorGroup& proc_group, set<int> proc_ids) :
-ProcessorGroup(proc_group.getCommInterface())
+ProcessorGroup(proc_group.getCommInterface()),_world_comm(MPI_COMM_WORLD)
 {
 	cout << "MPIProcessorGroup (const ProcessorGroup& proc_group, set<int> proc_ids)" <<endl;
 	cout << "Not implemented yet !"<<endl;
@@ -140,7 +141,7 @@ ProcessorGroup(proc_group.getCommInterface())
 MPIProcessorGroup::~MPIProcessorGroup()
 {
 	_comm_interface.groupFree(&_group);
-	if (_comm!=MPI_COMM_WORLD && _comm !=MPI_COMM_NULL)
+	if (_comm!=_world_comm && _comm !=MPI_COMM_NULL)
 		_comm_interface.commFree(&_comm);
 	
 }
@@ -192,7 +193,7 @@ ProcessorGroup*  MPIProcessorGroup::fuse (const ProcessorGroup& group) const
   {
     procs.insert(*iter);
   }
-  return new MPIProcessorGroup(_comm_interface,procs);
+  return new MPIProcessorGroup(_comm_interface,procs,_world_comm);
 }
 /*!
  @}

@@ -32,8 +32,9 @@ MPI_AccessDEC::MPI_AccessDEC( const ProcessorGroup& local_group,
   for ( i = 0 ; i < union_group->size() ; i++ ) {
      procs.insert(i) ;
   }
-  _MPI_union_group = new ParaMEDMEM::MPIProcessorGroup(
-                                     union_group->getCommInterface() , procs);
+  MPIProcessorGroup *mpilg = (MPIProcessorGroup *)_local_group;
+  _MPI_union_group = new ParaMEDMEM::MPIProcessorGroup( union_group->getCommInterface() , procs,
+							mpilg->getWorldComm());
   delete union_group ;
   _MyRank = _MPI_union_group->myRank() ;
   _GroupSize = _MPI_union_group->size() ;
