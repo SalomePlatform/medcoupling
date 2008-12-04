@@ -81,16 +81,8 @@ libinterpkernel_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
 # the geom2D library is included in the interpkernel one
 libinterpkernel_la_LIBADD= ./Geometric2D/libInterpGeometric2DAlg.la
 
-if MED_ENABLE_KERNEL
-    libinterpkernel_la_CPPFLAGS+= ${KERNEL_CXXFLAGS}
-    libinterpkernel_la_LDFLAGS+= ${KERNEL_LDFLAGS} -lSALOMELocalTrace 
-endif
-
 AM_CPPFLAGS= $(libinterpkernel_la_CPPFLAGS)
 LDADD= $(libinterpkernel_la_LDFLAGS)
-if MED_ENABLE_KERNEL
-     LDADD+=-lSALOMEBasics
-endif
 
 EXTRA_DIST += \
 	BBTree.txx \
