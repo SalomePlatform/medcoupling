@@ -19,10 +19,9 @@
 #ifndef TIMEINTERPOLATOR_HXX_
 #define TIMEINTERPOLATOR_HXX_
 
+#include "ProcessorGroup.hxx"
 #include <map>
 #include <iostream>
-
-#include "ProcessorGroup.hxx"
 
 namespace ParaMEDMEM {
 

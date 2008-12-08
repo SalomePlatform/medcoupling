@@ -19,12 +19,12 @@
 #ifndef _MPIACCESSTEST_HXX_
 #define _MPIACCESSTEST_HXX_
 
+#include "mpi.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <set>
 #include <string>
 #include <iostream>
-#include "mpi.h"
 
 
 class MPIAccessTest : public CppUnit::TestFixture

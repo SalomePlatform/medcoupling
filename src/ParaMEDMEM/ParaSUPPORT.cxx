@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "ParaMESH.hxx"
 #include "ParaSUPPORT.hxx"
 #include "ParaMESH.hxx"
 #include "MEDMEM_Support.hxx"

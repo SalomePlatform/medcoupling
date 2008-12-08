@@ -26,6 +26,7 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <iostream>
 
 namespace ParaMEDMEM
 {
@@ -187,9 +188,9 @@ class MPI_Access {
          struct RequestStruct *aRequestStruct = _MapOfRequestStruct[ RequestId ] ;
          if ( aRequestStruct ) {
            if ( _Trace )
-             cout << "MPI_Access::DeleteRequest" << _MyRank << "( " << RequestId << " ) "
+             std::cout << "MPI_Access::DeleteRequest" << _MyRank << "( " << RequestId << " ) "
                   << aRequestStruct << " MPIRequest " << aRequestStruct->MPIRequest
-                  << " MPIIsRecv " << aRequestStruct->MPIIsRecv << endl ;
+                       << " MPIIsRecv " << aRequestStruct->MPIIsRecv << std::endl ;
            if ( _MapOfRequestStruct[RequestId]->MPIRequest != MPI_REQUEST_NULL ) {
              Request_Free( &_MapOfRequestStruct[RequestId]->MPIRequest ) ;
            }
@@ -200,8 +201,8 @@ class MPI_Access {
          }
          else {
            if ( _Trace )
-             cout << "MPI_Access::DeleteRequest" << _MyRank << "( " << RequestId
-                  << " ) Request not found" << endl ;
+             std::cout << "MPI_Access::DeleteRequest" << _MyRank << "( " << RequestId
+                       << " ) Request not found" << std::endl ;
          }
   }
 // Delete all requests of the array ArrayOfSendRequests
@@ -350,8 +351,8 @@ class MPI_Access {
 // the corresponding target.
   inline void MPI_Access::DeleteSendRecvRequest( int RequestId ) {
          if ( _Trace )
-           cout << "MPI_Access::DeleteSendRecvRequest" << _MyRank
-                << "( " << RequestId << " ) " << endl ;
+           std::cout << "MPI_Access::DeleteSendRecvRequest" << _MyRank
+                     << "( " << RequestId << " ) " << std::endl ;
          if ( MPIIsRecv( RequestId ) ) {
            _RecvRequests[ MPITarget( RequestId ) ].remove( RequestId ) ;
          }

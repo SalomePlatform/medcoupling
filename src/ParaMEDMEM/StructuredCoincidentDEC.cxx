@@ -273,11 +273,11 @@ void StructuredCoincidentDEC::broadcastTopology(BlockTopology*& topo, int tag)
 	
 	if (topo!=0 && topo->getProcGroup()->myRank()==0)
 	{
-		MESSAGE ("Master rank");
+		MESSAGE_MED ("Master rank");
 		topo->serialize(serializer, size);
 		rank_master = group->translateRank(topo->getProcGroup(),0);
-		MESSAGE("Master rank world number is "<<rank_master);
-		MESSAGE("World Size is "<<group->size());
+		MESSAGE_MED("Master rank world number is "<<rank_master);
+		MESSAGE_MED("World Size is "<<group->size());
 		for (int i=0; i< group->size(); i++)
 		{
 			if (i!= rank_master)
@@ -286,9 +286,9 @@ void StructuredCoincidentDEC::broadcastTopology(BlockTopology*& topo, int tag)
 	}
 	else
 	{
-		MESSAGE(" rank "<<group->myRank()<< " waiting ...");
+		MESSAGE_MED(" rank "<<group->myRank()<< " waiting ...");
 		_comm_interface->recv(&rank_master, 1,MPI_INT, MPI_ANY_SOURCE, tag+group->myRank(), *(group->getComm()),&status);
-		MESSAGE(" rank "<<group->myRank()<< "received master rank"<<rank_master);
+		MESSAGE_MED(" rank "<<group->myRank()<< "received master rank"<<rank_master);
 	}
 	// The topology is broadcasted to all processsors in the group
 	_comm_interface->broadcast(&size, 1,MPI_INT,rank_master,*(group->getComm()));
@@ -313,7 +313,7 @@ void StructuredCoincidentDEC::broadcastTopology(BlockTopology*& topo, int tag)
 	delete[] buffer;
 	if (serializer!=0)
 		delete[] serializer;
-	MESSAGE (" rank "<<group->myRank()<< " unserialize is over");
+	MESSAGE_MED (" rank "<<group->myRank()<< " unserialize is over");
 	delete group;
 }
 
@@ -323,7 +323,7 @@ void StructuredCoincidentDEC::recvData()
 {
 	//MPI_COMM_WORLD is used instead of group because there is no
 	//mechanism for creating the union group yet
-	MESSAGE("recvData");
+	MESSAGE_MED("recvData");
 	for (int i=0; i< 4; i++)
 		cout << _recvcounts[i]<<" ";
 	cout <<endl;
@@ -365,7 +365,7 @@ void StructuredCoincidentDEC::recvData()
 
 void StructuredCoincidentDEC::sendData()
 {
-	MESSAGE ("sendData");
+	MESSAGE_MED("sendData");
 	for (int i=0; i< 4; i++)
 		cout << _sendcounts[i]<<" ";
 	cout <<endl;

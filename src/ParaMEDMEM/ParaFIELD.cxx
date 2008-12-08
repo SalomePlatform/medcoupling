@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "CommInterface.hxx"
 #include "MEDMEM_Exception.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
@@ -25,7 +26,6 @@
 #include "UnstructuredParaSUPPORT.hxx"
 #include "ExplicitCoincidentDEC.hxx"
 #include "StructuredCoincidentDEC.hxx"
-#include "CommInterface.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "ParaFIELD.hxx"

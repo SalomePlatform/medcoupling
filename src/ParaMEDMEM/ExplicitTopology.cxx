@@ -16,9 +16,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "CommInterface.hxx"
 #include "MEDMEM_Mesh.hxx"
 #include "MEDMEM_Support.hxx"
-#include "CommInterface.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "ParaSUPPORT.hxx"

@@ -16,10 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "ParaMESH.hxx"
+
 #include <fstream>
 #include <vector>
 
-#include "ParaMESH.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "Topology.hxx"
@@ -39,7 +40,7 @@ ParaMESH::ParaMESH(MEDMEM::driverTypes driver_type, const string& filename,
 throw (MEDMEM::MEDEXCEPTION) :_has_mesh_ownership(true) {
 
   const char* LOC = "MEDSPLITTER::MESHCollectionDriver::read()";
-  BEGIN_OF(LOC);
+  BEGIN_OF_MED(LOC);
   
  
   string meshstring;
@@ -49,7 +50,7 @@ throw (MEDMEM::MEDEXCEPTION) :_has_mesh_ownership(true) {
   
   // reading ascii master file
   try{
-  	MESSAGE("Start reading");
+  	MESSAGE_MED("Start reading");
     ifstream asciiinput(filename.c_str());
     char charbuffer[512];
     asciiinput.getline(charbuffer,512);
@@ -149,7 +150,7 @@ throw (MEDMEM::MEDEXCEPTION) :_has_mesh_ownership(true) {
 	int ncell=_mesh->getNumberOfElements(MED_EN::MED_CELL,MED_EN::MED_ALL_ELEMENTS);
 	int * array=new int[ncell];
 	int offset=0;
-	MESSAGE("Reading cell global numbering for mesh "<< domain_id);
+	MESSAGE_MED("Reading cell global numbering for mesh "<< domain_id);
 	MED_EN::MESH_ENTITIES::const_iterator currentEntity;
 	list<MED_EN::medGeometryElement>::const_iterator iter;
 	currentEntity  = MED_EN::meshEntities.find(MED_EN::MED_CELL);
@@ -167,14 +168,14 @@ throw (MEDMEM::MEDEXCEPTION) :_has_mesh_ownership(true) {
 	}
 	_cellglobal=array;
 	
-	MESSAGE("Reading node global numbering");
+	MESSAGE_MED("Reading node global numbering");
 	int nnode= _mesh->getNumberOfNodes();
 	array=new int[nnode];
 	med_2_3::MEDglobalNumLire(fid,meshname, array, nnode,
 		        med_2_3::MED_NOEUD, med_2_3::MED_POINT1); 
 	_nodeglobal=array;
 	
-	MESSAGE("Reading face global numbering for mesh "<<domain_id);
+	MESSAGE_MED("Reading face global numbering for mesh "<<domain_id);
 	int nbface=_mesh->getNumberOfElements(MED_EN::MED_FACE,MED_EN::MED_ALL_ELEMENTS);
 	array=new int[nbface];
 	currentEntity  = MED_EN::meshEntities.find(MED_EN::MED_FACE);
@@ -195,7 +196,7 @@ throw (MEDMEM::MEDEXCEPTION) :_has_mesh_ownership(true) {
 	
     _block_topology=new BlockTopology(group,ncell); 
   
-     MESSAGE("end of read");
+     MESSAGE_MED("end of read");
       
   }//of try
   catch(...)
@@ -210,7 +211,7 @@ throw (MEDMEM::MEDEXCEPTION) :_has_mesh_ownership(true) {
   //	new ParallelTopology((m_collection->getMesh()),(m_collection->getCZ()),cellglobal,nodeglobal,faceglobal)
    // );
     
-    END_OF("MEDSPLITTER::MESHCollectionDriver::read()")
+    END_OF_MED("MEDSPLITTER::MESHCollectionDriver::read()")
 };
 
 /*! Constructor for creating a ParaMESH from a local mesh and
@@ -254,7 +255,7 @@ void ParaMESH::write(MEDMEM::driverTypes driverType, const string& master_filena
 throw (MEDMEM::MEDEXCEPTION){
 	
   const char* LOC = "ParaMEDMEM::ParaMESH::write()";
-  BEGIN_OF(LOC);
+  BEGIN_OF_MED(LOC);
 	 
 	if (!_block_topology->getProcGroup()->containsMyRank()) return;
 	 
@@ -275,13 +276,13 @@ throw (MEDMEM::MEDEXCEPTION){
 		
 		strcpy(distfilename,suffix.str().c_str());
 		filename[i]=string(distfilename);
-		MESSAGE("File name "<<string(distfilename));
+		MESSAGE_MED("File name "<<string(distfilename));
 	}	
 	
 	//creation of the master file by proc 0 on ProgGroup	
 	if (myrank==0)
 	{
-		MESSAGE("Master File Name "<<master_filename);
+		MESSAGE_MED("Master File Name "<<master_filename);
 		ofstream file(master_filename.c_str());
 		if (!file) throw (MEDEXCEPTION("Unable to create master file"));
 		file <<"#MED Fichier V 2.3"<<" "<<endl;
@@ -297,10 +298,10 @@ throw (MEDMEM::MEDEXCEPTION){
 		
 	int id=_mesh->addDriver(MEDMEM::MED_DRIVER,filename[myrank],_name);
 		
-	MESSAGE("Start writing");
+	MESSAGE_MED("Start writing");
 	_mesh->write(id);
 	_mesh->rmDriver(id);		
-	END_OF("ParaMEDMEM::ParaMESH::write()");
+	END_OF_MED("ParaMEDMEM::ParaMESH::write()");
 };
 
 const int* ParaMESH::getGlobalNumbering(const MED_EN::medEntityMesh entity)const

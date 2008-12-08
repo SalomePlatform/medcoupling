@@ -19,8 +19,8 @@
 #ifndef COMPONENTTOPOLOGY_HXX_
 #define COMPONENTTOPOLOGY_HXX_
 
-#include <vector>
 #include "ProcessorGroup.hxx"
+#include <vector>
 #include "Topology.hxx"
 
 

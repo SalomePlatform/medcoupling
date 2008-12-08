@@ -16,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "ParaGRID.hxx"
+
 #include <fstream>
 #include <vector>
-
-#include "ParaGRID.hxx"
 
 using namespace std;
 
@@ -77,7 +77,7 @@ void ParaGRID::write(MEDMEM::driverTypes driverType, const string& master_filena
 throw (MEDMEM::MEDEXCEPTION){
 	
   const char* LOC = "ParaMEDMEM::ParaGRID::write()";
-  BEGIN_OF(LOC);
+  BEGIN_OF_MED(LOC);
 	 
 	if (!_block_topology->getProcGroup()->containsMyRank()) return;
 	 
@@ -99,7 +99,7 @@ throw (MEDMEM::MEDEXCEPTION){
 		
 		strcpy(distfilename,suffix.str().c_str());
 		filename[i]=string(distfilename);
-		MESSAGE("File name "<<string(distfilename));
+		MESSAGE_MED("File name "<<string(distfilename));
 	}	
 	
 	//creation of the master file by proc 0 on ProgGroup	
@@ -117,10 +117,10 @@ throw (MEDMEM::MEDEXCEPTION){
 		
 	int id=_grid->addDriver(MEDMEM::MED_DRIVER,filename[myrank],_name);
 		
-	MESSAGE("Start writing");
+	MESSAGE_MED("Start writing");
 	_grid->write(id);
 			
-	END_OF("ParaMEDMEM::ParaGRID::write()");
+	END_OF_MED("ParaMEDMEM::ParaGRID::write()");
 };
 
 	

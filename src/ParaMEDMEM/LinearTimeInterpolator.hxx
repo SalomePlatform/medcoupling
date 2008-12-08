@@ -19,10 +19,9 @@
 #ifndef LINEARTIMEINTERPOLATOR_HXX_
 #define LINEARTIMEINTERPOLATOR_HXX_
 
+#include "TimeInterpolator.hxx"
 #include <map>
 #include <iostream>
-
-#include "TimeInterpolator.hxx"
 
 namespace ParaMEDMEM {
 

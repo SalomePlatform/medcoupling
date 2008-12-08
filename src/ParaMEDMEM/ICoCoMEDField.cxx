@@ -16,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "ParaMESH.hxx"
 #include "ICoCoMEDField.hxx"
 #include "ICoCoTrioField.hxx"
 #include "ProcessorGroup.hxx"
-#include "ParaMESH.hxx"
 #include "UnstructuredParaSUPPORT.hxx"
 #include "ParaFIELD.hxx"
 #include "MEDMEM_Mesh.hxx"

@@ -16,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "ParaMESH.hxx"
 #include "Topology.hxx"
 #include "ExplicitTopology.hxx"
 #include "BlockTopology.hxx"
-#include "ParaMESH.hxx"
 #include "UnstructuredParaSUPPORT.hxx"
 #include "MEDMEM_Support.hxx"
 

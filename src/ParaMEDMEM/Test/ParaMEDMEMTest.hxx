@@ -19,12 +19,12 @@
 #ifndef _ParaMEDMEMTEST_HXX_
 #define _ParaMEDMEMTEST_HXX_
 
+#include "mpi.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <set>
 #include <string>
 #include <iostream>
-#include "mpi.h"
 
 
 class ParaMEDMEMTest : public CppUnit::TestFixture

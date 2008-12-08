@@ -18,6 +18,9 @@
 //
 #ifndef PARAMESH_HXX_
 #define PARAMESH_HXX_
+
+#include "CommInterface.hxx"
+
 #include <string>
 #include <vector>
 

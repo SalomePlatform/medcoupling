@@ -19,6 +19,8 @@
 #ifndef PARAGRID_HXX_
 #define PARAGRID_HXX_
 
+#include "CommInterface.hxx"
+
 #include <vector>
 
 #include "MEDMEM_Exception.hxx"

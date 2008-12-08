@@ -18,9 +18,9 @@
 //
 #ifndef PROCESSORGROUP_HXX_
 #define PROCESSORGROUP_HXX_
-#include <set>
-#include "CommInterface.hxx"
 
+#include "CommInterface.hxx"
+#include <set>
 
 namespace ParaMEDMEM
 {

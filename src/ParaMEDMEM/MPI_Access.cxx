@@ -16,9 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "MPI_Access.hxx"
+
 #include <iostream>
 
-#include "MPI_Access.hxx"
 #include "MEDMEM_Exception.hxx"
 
 using namespace std;

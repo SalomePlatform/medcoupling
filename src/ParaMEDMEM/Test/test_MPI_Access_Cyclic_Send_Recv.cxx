@@ -16,11 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include <mpi.h>
 #include <string>
 #include <vector>
 #include <map>
 #include <iostream>
-#include <mpi.h>
 #include "MPIAccessTest.hxx"
 #include <cppunit/TestAssert.h>
 
