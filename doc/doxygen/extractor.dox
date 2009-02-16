@@ -1,0 +1,58 @@
+/*!
+\page extractor Extractor
+
+MEDMEM::Extractor is a tool taking an input field and making a field
+of lower dimension by cutting the given field by a plane or a
+line. The following extractions are possible:
+- 3D -> 2D (3D mesh cut by plane)
+- 3D -> 1D (3D mesh cut by line)
+- 2D -> 1D (2D mesh cut by line in 2D space or by plane in 3D space)
+
+The input field is supposed to comply with following conditions
+- it is constant by element (i.e. has 1 gauss point),
+- it's support mesh does not contain poly elements,
+- volumic elements have planar faces,
+- surfasic elements have linear edges.
+
+The result field is a field constant by element on triangles,
+quadrangles, polygons or edges. It holds ownership of its 
+support, which in its turn holds ownership of its mesh.
+
+\section ExtractorAlgo1 Algorithm to cut mesh in 3D space by plane and in 2D by line
+
+-# Calculate a normal normalized vector to the plane in 3D space
+or the line in 2D space.
+-# For each node of input mesh calculate its distance to the
+plane/line as scalar product of the normal vector and a vector
+node -> coords (coords is the arg of extractPlane() and
+extractLine()). The distance has a sign.
+-# Store the distances of all nodes in a vector<double>.
+-# Analyse edges of each cell. If extremities of an edge have
+different sign, we consider the edge to be cut by plane/line. If at
+least one cut edge of the cell has intersection point not closer than
+a certain precision from edge extremities, we consider the cell to be
+cut and we make a new cell in the new mesh. Also we consider a cell to
+be cut if 3D cell has three intersections at nodes and 2D cell has two
+intersections at nodes.
+-# Calculate an intersection points using ratio of node
+distances. If the intersection point is too close to the edge
+extremity, we take coordinates of a corresponding node. 
+-# Make new nodes of intersection points and set them in proper
+order to make an element. For 2D elements we sort nodes by angle with the
+first edge of the new element. 
+
+\section ExtractorAlgo2 Algorithm to cut 3D mesh by the line
+-# Use descending connectivity to find outer faces. Outer face is
+bound to only one cell.
+-# Find any outer face intersecting with the line. 
+-# Use the reverse descending connectivity or the reverse nodal
+connectivity to get cells to try next intersection.
+-# Find another intersected face among faces of the got cells and so on.
+-# Try to find the next outer face intersecting with the line. This is
+for the case if the input mesh has several domains. To avoid
+unnecessary outer face-line intersection searches, we classify outer
+faces along the line. So we won't try to intersect outer faces that
+are between the first and the last intersected outer faces we have
+already found.
+
+*/

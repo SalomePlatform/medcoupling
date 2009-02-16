@@ -1,0 +1,21 @@
+/*!
+\page grid GRID
+\section GRIDgeneral General Information
+
+The GRID class represents structured meshes in the MEDMEM library.
+As the GRID class inherits from MESH, all of the functionalities that were 
+described in the previous section apply for structured mesh GRID objects.
+In particular, reading and writing from files, general information access 
+are similar. However, because of the particular nature of structured meshes, 
+there exist methods to access information related to the axes of the grid.
+
+The numbering of the cells and nodes in a grid starts at one and
+the inner loop is that of the first axis, the outer loop being the one
+of the last axis (c.f. figure \ref fig_grid_connectivity} ).
+
+\image html grid_example.png "Example for structured mesh connectivity. The numbering is automatically defined from the two input verctors X and Y."
+
+\section grid_outline Outline
+
+Constructors are defined in \ref GRID_constructors, methods related to axes are defined in \ref GRID_axes, while connectivity methods are given in \ref GRID_connectivity.
+*/

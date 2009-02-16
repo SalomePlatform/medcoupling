@@ -1,0 +1,42 @@
+/*!
+\page dualmesh DualMESH
+
+The \ref INTERP_KERNEL::DualMESH "DualMESH" class is an auxiliary class used to perform P0->P1
+interpolation in \ref interpkernel. It takes place of target mesh in
+interpolation process and is initialized by the target mesh.
+
+DualMESH inherits from MEDMEM::MESH. It's API consists of only a
+constructor with one argument of the input target MEDMEM::MESH.
+
+The dual mesh is a polygonal mesh in 2D space or polyhedral mesh in 3D space
+consisting of dual cells built around each node of input target mesh.
+
+In 2D the dual cell is bound by edges connecting barycentres of cells
+sharing the input node with middles of cell edges ending at the input node.
+
+In 3D the dual polyhedron is bound by triangle faces. Each triangle is built
+on three following points:
+- barycentre of a cell sharing the input node;
+- barycentre of a face bounding the cell and sharing the input node;
+- middle of an edge bounding the face and ending at the input node.
+
+\section DualMESHUsage DualMESH usage
+
+An exemple of DualMESH usage to perform P0->P1 interpolation with INTERP_KERNEL::Remapper :
+
+\code
+...
+std::string sourceFileName("source.med");
+MEDMEM::MESH med_source_mesh(MED_DRIVER,sourceFileName,"Source_Mesh");
+std::string targetFileName("target.med");
+MEDMEM::MESH med_target_mesh(MED_DRIVER,targetFileName,"Target_Mesh");
+FIELD<double> sourceField(MED_DRIVER,sourceFileName,"Density",0,0);
+FIELD<double> targetField;
+Remapper mapper;
+mapper.prepare(med_source_mesh, DualMESH(med_target_mesh), "P0P1"); //<--- DualMESH
+mapper.transfer(sourceField,targetField);
+//use targetField
+...
+\endcode
+
+*/

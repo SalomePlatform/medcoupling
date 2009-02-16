@@ -1,0 +1,66 @@
+/*!
+\page tools MEDMEM tools 
+
+\section Introduction
+On top of the MEDMEM library, MEDMEM comes with a few executables that
+are based on the MEDMEM library and that help the user to perform
+common operations on MED files :
+- conversion to other formats,
+- splitting of a %MED file to a parallel %MED file distributed over a
+number of subdomains.
+
+\section medsplitter MEDSPLITTERtool
+
+The purpose of  MEDSPLITTER is to split MED files into
+a series of other MED files forming a partition of the original MED files. It can either work with serial meshes (1 to n) or distributed meshes (p to n). For serial meshes, it accepts MED files from the 2.1 version onwards. For distributed MED files, it accepts MED files from the 2.3 version onwards. 
+
+It can be used either as an executable, \a medsplitter or as a library. The partitioning is made thanks to one of the following library : 
+- METIS (http://glaros.dtc.umn.edu/gkhome/views/metis/index.html)
+- SCOTCH (http://www.labri.fr/perso/pelegrin/scotch/scotch_fr.html)
+
+The arguments to the medsplitter tool can be retrieved by calling :
+\code
+medsplitter --help
+\endcode
+
+For Salome V4.1.0, one gets the following arguments :
+
+\code
+Available options:
+        --help                 : produces this help message
+        --mesh-only            : do not create the fields contained in the original file(s)
+        --distributed          : specifies that the input file is distributed
+        --input-file=<string>  : name of the input MED file
+        --output-file=<string> : name of the resulting file
+        --meshname=<string>    : name of the input mesh (not used with --distributed option)
+        --ndomains=<number>    : number of subdomains in the output file, default is 1
+        --plain-master         : creates a plain masterfile instead of an XML file
+        --creates-boundary-faces: creates the necessary faces so that faces joints are created in the output files
+        --family-splitting       : preserves the family names instead of focusing on the groups
+\endcode
+
+\section sauv2med sauv2med tool
+
+The sauv2med tool enable conversion from a Cast3m \a sauv file into a
+MED file. It is a python script that encapsulates the read/write
+drivers provided by the MEDMEM library.
+
+Calling 
+\code
+sauv2med myfile.med
+\endcode
+generates a \a sauv file named \a myfile.med.sauv
+
+
+\section med2sauv med2sauv tool
+
+med2sauv operator is the operator that is inverse of sauv2med. Its
+behaviour is symmetrical. 
+
+Calling 
+\code
+med2sauv myfile.sauv
+\endcode
+generates a \a med file named \a myfile.sauv.med
+
+*/

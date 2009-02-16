@@ -1,0 +1,44 @@
+/*!
+\page support SUPPORT
+
+\section support_general General information 
+
+The SUPPORT class is the class representing subregions
+ of the mesh in the MEDMEM library. A SUPPORT object groups together
+a set of elements that have similar entity types.
+
+\section support_outline Outline
+
+The reference for the SUPPORT methods are given by the following links :
+- constructors : \ref SUPPORT_constructors,
+- creation methods : \ref SUPPORT_creation,
+- query methods : \ref SUPPORT_query,
+- advanced methods : \ref SUPPORT_advanced.
+
+\section family FAMILY objects
+
+The FAMILY concept is directly linked to the representation of 
+supports in the MED file. It is only useful for directly
+manipulating the arrays that are written/read by the MED drivers. 
+More information can be found on this topic in
+\ref RefManualMedFile "MED reference guide".
+
+A FAMILY is a SUPPORT with some additional methods that concern some optional attributes (we could have none) and groups (we could also have none) :
+
+- \a getIdentifier returns the family identifier (an integer),
+- \a getNumberOfAttributes returns the number of attributes of this family,
+- \a getAttributesIdentifiers and \a getAttributeIdentifier returns an integer array or an integer that represents attribute identifier,
+- \a getAttributesValues and \a getAttributeValue returns an integer array or an integer that represents attribute value.
+- \a getAttributesDescriptions and \a getAttributeDescription returns a string array or a string that represents attribute description,
+- \a getNumberOfGroups returns the number of groups which it belongs to,
+- \a getGroupsNames and \a getGroupName return a string array or a string that represents the group name which it belongs to.
+
+
+\section group_section GROUP objects
+
+A GROUP is a SUPPORT with some additional methods to find FAMILY that makes it up :
+
+- \a getNumberOfFamilies returns the number of FAMILY that makes up the GROUP ;
+- \a getFamilies and \a getFamily return a FAMILY  array or a FAMILY that  makes up the GROUP.
+
+*/
