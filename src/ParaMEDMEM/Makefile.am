@@ -40,6 +40,7 @@ ComponentTopology.hxx\
 ExplicitTopology.hxx\
 ParaFIELD.hxx\
 DEC.hxx\
+DECOptions.hxx\
 MxN_Mapping.hxx\
 StructuredCoincidentDEC.hxx\
 InterpolationMatrix.hxx\

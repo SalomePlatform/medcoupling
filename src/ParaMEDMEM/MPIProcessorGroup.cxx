@@ -210,7 +210,7 @@ namespace ParaMEDMEM
       {
         procs.insert(*iter);
       }
-    return new MPIProcessorGroup(_comm_interface,procs);
+    return new MPIProcessorGroup(_comm_interface,procs, _world_comm);
   }
   /*!
     @}
@@ -221,7 +221,7 @@ namespace ParaMEDMEM
     for (set<int>::const_iterator iter=_proc_ids.begin(); iter!= _proc_ids.end(); iter++)
       procs.insert(*iter);
   
-    return new MPIProcessorGroup(_comm_interface, procs);
+    return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
 
   }
 }
