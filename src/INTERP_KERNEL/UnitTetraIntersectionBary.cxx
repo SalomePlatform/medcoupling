@@ -177,7 +177,7 @@ namespace INTERP_KERNEL
     if ( addSideFaces() < NB_TETRA_SIDES )
       {
         // tetra is not intersected
-        if ( _int_volume != 0.0 )
+        if ( fabs(_int_volume) > 1e-10 )
           {
             // tetra is fully inside the other cell
             baryCenter[0] = baryCenter[1] = baryCenter[2] = 0.25;
