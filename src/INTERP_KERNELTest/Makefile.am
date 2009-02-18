@@ -97,6 +97,6 @@ if MED_ENABLE_KERNEL
 endif
 AM_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
 
-UNIT_TEST_PROG = TestInterpKernel
+UNIT_TEST_PROG = TestINTERP_KERNEL
 
 check : tests
