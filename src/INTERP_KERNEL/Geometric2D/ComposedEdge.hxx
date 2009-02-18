@@ -24,6 +24,7 @@
 #include <set>
 #include <list>
 #include <vector>
+#include <ostream>
 
 namespace INTERP_KERNEL
 {

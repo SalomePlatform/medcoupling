@@ -25,6 +25,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <cstring>
 
 namespace ParaMEDMEM
 {

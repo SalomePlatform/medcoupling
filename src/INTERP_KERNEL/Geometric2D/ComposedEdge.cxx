@@ -22,6 +22,7 @@
 #include "InterpKernelException.hxx"
 
 #include <algorithm>
+#include <memory>
 #include <iterator>
 #include <set>
 

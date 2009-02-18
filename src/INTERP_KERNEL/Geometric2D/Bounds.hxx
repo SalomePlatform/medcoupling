@@ -21,7 +21,7 @@
 
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"
 
-#include <numeric>
+#include <algorithm>
 
 namespace INTERP_KERNEL
 {

@@ -20,6 +20,7 @@
 #include "VectorUtils.hxx"
 
 #include <cmath>
+#include <cstring>
 #include <iostream>
 
 #include "Log.hxx"
