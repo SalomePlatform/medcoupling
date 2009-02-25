@@ -19,6 +19,7 @@
 #include "PointLocatorTest.hxx"
 #include "PointLocator.hxx"
 #include "MEDMeshMaker.hxx"
+#include "MEDMEM_Mesh.hxx"
 
 #include <iostream>
 #include <list>
@@ -90,7 +91,7 @@ namespace INTERP_TEST
     elems.clear();
     
     double xx4[3]={-1.0,0.0,0.0};
-    elems = pl3.locate(x4);
+    elems = pl3.locate(xx4);
     CPPUNIT_ASSERT_EQUAL(0,(int)elems.size());
     elems.clear();
     delete mesh3D;
