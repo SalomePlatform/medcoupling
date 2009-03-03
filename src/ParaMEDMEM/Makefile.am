@@ -18,11 +18,11 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-if MICRO_MED
- SUBDIRS=. 
-else
+##if MICRO_MED
+## SUBDIRS=. 
+##else # MICRO_MED
  SUBDIRS=. MEDLoader
-endif
+##endif # MICRO_MED
 
 if CPPUNIT_IS_OK
  SUBDIRS+= Test
