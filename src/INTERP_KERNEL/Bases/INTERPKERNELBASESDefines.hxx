@@ -21,7 +21,7 @@
 
 //export symbols
 #ifdef WIN32
-# ifdef INTERPKERNELBASES_EXPORTS
+# if defined INTERPKERNELBASES_EXPORTS || defined interpkernelbases_EXPORTS
 #  define INTERPKERNELBASES_EXPORT __declspec(dllexport)
 # else
 #  define INTERPKERNELBASES_EXPORT __declspec(dllimport)

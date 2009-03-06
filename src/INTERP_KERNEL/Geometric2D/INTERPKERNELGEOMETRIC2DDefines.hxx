@@ -21,7 +21,7 @@
 
 //export symbols
 #ifdef WIN32
-# ifdef INTERPKERNELGEOMETRIC2D_EXPORTS
+# if defined INTERPKERNELGEOMETRIC2D_EXPORTS || defined InterpGeometric2DAlg_EXPORTS
 #  define INTERPKERNELGEOMETRIC2D_EXPORT __declspec(dllexport)
 # else
 #  define INTERPKERNELGEOMETRIC2D_EXPORT __declspec(dllimport)
