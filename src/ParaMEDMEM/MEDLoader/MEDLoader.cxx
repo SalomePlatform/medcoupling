@@ -52,6 +52,7 @@ INTERP_KERNEL::NormalizedCellType typmai2[MED_NBR_GEOMETRIE_MAILLE] = { INTERP_K
                                                                         INTERP_KERNEL::NORM_SEG2,
                                                                         INTERP_KERNEL::NORM_SEG3,
                                                                         INTERP_KERNEL::NORM_TRI3,
+                                                                        INTERP_KERNEL::NORM_TRI6,
                                                                         INTERP_KERNEL::NORM_QUAD4,
                                                                         INTERP_KERNEL::NORM_QUAD8,
                                                                         INTERP_KERNEL::NORM_TETRA4,
