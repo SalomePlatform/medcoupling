@@ -28,7 +28,7 @@ if CPPUNIT_IS_OK
  SUBDIRS+= Test
 endif
 
-DIST_SUBDIRS= Test
+DIST_SUBDIRS= MEDLoader Test
 
 lib_LTLIBRARIES= libparamedmem.la
 
