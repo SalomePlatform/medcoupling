@@ -88,12 +88,12 @@ namespace ParaMEDMEM
 
   StructuredCoincidentDEC::~StructuredCoincidentDEC()
   {
-    delete[] _send_buffer;
-    delete[] _recv_buffer;
-    delete[]_send_displs;
-    delete[] _recv_displs;
-    delete[] _send_counts;
-    delete[] _recv_counts;
+    delete [] _send_buffer;
+    delete [] _recv_buffer;
+    delete []_send_displs;
+    delete [] _recv_displs;
+    delete [] _send_counts;
+    delete [] _recv_counts;
     if (! _source_group->containsMyRank())
       delete _topo_source;
     if(!_target_group->containsMyRank())
@@ -104,7 +104,8 @@ namespace ParaMEDMEM
     \addtogroup structuredcoincidentdec
     @{
   */
-  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DEC(local_group,distant_group),_topo_source(0),_topo_target(0),_recv_buffer(0),_send_buffer(0)
+  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DEC(local_group,distant_group),_topo_source(0),_topo_target(0),_recv_buffer(0),_send_buffer(0),
+                                                                                                               _recv_counts(0),_send_counts(0),_recv_displs(0),_send_displs(0)
   {
   }
 

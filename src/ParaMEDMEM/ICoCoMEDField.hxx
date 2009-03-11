@@ -40,7 +40,7 @@ namespace ICoCo
   class MEDField : public ICoCo::Field
   {
   public:
-    MEDField(){};
+    MEDField() { }
     MEDField(ParaMEDMEM::ParaMESH* mesh, ParaMEDMEM::ParaFIELD* field);
     MEDField(TrioField& , const ParaMEDMEM::ProcessorGroup& group);
     virtual ~MEDField();
