@@ -33,6 +33,7 @@ dist_libParaMEDMEMTest_la_SOURCES= \
 	  ParaMEDMEMTest_BlockTopology.cxx \
 	  ParaMEDMEMTest_IntersectionDEC.cxx \
 	  ParaMEDMEMTest_StructuredCoincidentDEC.cxx \
+	  ParaMEDMEMTest_MEDLoader.cxx \
     MPIAccessDECTest.cxx \
     test_AllToAllDEC.cxx \
     test_AllToAllvDEC.cxx \
@@ -68,11 +69,6 @@ libParaMEDMEMTest_la_CPPFLAGS= @CPPUNIT_INCLUDES@ \
 
 libParaMEDMEMTest_la_LDFLAGS= ../MEDLoader/libparamedmemmedloader.la @CPPUNIT_LIBS@ $(MPI_LIBS)
 
-if MED_ENABLE_KERNEL
-    libParaMEDMEMTest_la_CPPFLAGS+= ${KERNEL_CXXFLAGS}
-    libParaMEDMEMTest_la_LDFLAGS+= ${KERNEL_LDFLAGS} -lSALOMELocalTrace 
-endif
-
 # Executables targets
 bin_PROGRAMS = TestParaMEDMEM  \
 							 TestMPIAccessDEC \
@@ -85,10 +81,6 @@ dist_TestMPIAccess_SOURCES = TestMPIAccess.cxx
 LDADD= $(MED2_LIBS) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
 	../libparamedmem.la libParaMEDMEMTest.la \
 	../../INTERP_KERNEL/libinterpkernel.la 
-
-if MED_ENABLE_KERNEL
-     LDADD+= -lSALOMEBasics
-endif
 
 if MED_ENABLE_FVM
      LDADD += $(FVM_LIBS)
