@@ -29,8 +29,8 @@ namespace INTERP_KERNEL
   public:
     Intersector3D(const MyMeshType& targetMesh, const MyMeshType& srcMesh);
   protected:
-    const MyMeshType _target_mesh;
-    const MyMeshType _src_mesh;
+    const MyMeshType& _target_mesh;
+    const MyMeshType& _src_mesh;
   };
 }
 

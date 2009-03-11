@@ -103,11 +103,11 @@ namespace INTERP_KERNEL
 
     Intersector3D<MyMeshType,MatrixType>* intersector=0;
     std::string methC(method);
-    if(method=="P0P0")
+    if(methC=="P0P0")
       intersector=new PolyhedronIntersector<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
-    else if(method=="P0P1")
+    else if(methC=="P0P1")
       intersector=new PolyhedronIntersectorP0P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
-    else if(method=="P1P0")
+    else if(methC=="P1P0")
       intersector=new PolyhedronIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
     else
       throw Exception("Invalid method choosed must be in \"P0P0\", \"P0P1\".");
