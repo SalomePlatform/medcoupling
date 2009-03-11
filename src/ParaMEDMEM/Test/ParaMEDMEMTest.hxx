@@ -37,6 +37,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testBlockTopology_serialize);
   CPPUNIT_TEST(testIntersectionDEC_2D);
   CPPUNIT_TEST(testIntersectionDEC_2DP0P1);
+  CPPUNIT_TEST(testIntersectionDEC_3D);
 
   CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpNativeDEC_2D);
   CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpDEC_2D);
@@ -56,6 +57,12 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testNonCoincidentDEC_3D); 
 #endif
   CPPUNIT_TEST(testStructuredCoincidentDEC);
+  CPPUNIT_TEST(testStructuredCoincidentDEC);
+  CPPUNIT_TEST(testMEDLoaderRead1);
+  CPPUNIT_TEST(testMEDLoaderPolygonRead);
+  CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
+  //CPPUNIT_TEST(testMEDLoaderWrite1);
+  //CPPUNIT_TEST(testMEDLoaderPolygonWrite);
   CPPUNIT_TEST_SUITE_END();
   
 
@@ -72,6 +79,7 @@ public:
   void testBlockTopology_serialize();
   void testIntersectionDEC_2D();
   void testIntersectionDEC_2DP0P1();
+  void testIntersectionDEC_3D();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();
@@ -90,8 +98,12 @@ public:
   void testAsynchronousSlowerSourceIntersectionDEC_2D();
   void testAsynchronousSlowSourceIntersectionDEC_2D();
   void testAsynchronousFastSourceIntersectionDEC_2D();
-
-
+  //
+  void testMEDLoaderRead1();
+  void testMEDLoaderPolygonRead();
+  void testMEDLoaderPolyhedronRead();
+  void testMEDLoaderWrite1();
+  void testMEDLoaderPolygonWrite();
 private:
   void testNonCoincidentDEC(const std::string& filename1, 
                             const std::string& meshname1, 
@@ -102,7 +114,7 @@ private:
                                           double dtB, double tmaxB,
                                           bool WithPointToPoint, bool Asynchronous, bool WithInterp, const char *srcMeth, const char *targetMeth);
   void testIntersectionDEC_2D_(const char *srcMeth, const char *targetMeth);
-  
+  void testIntersectionDEC_3D_(const char *srcMeth, const char *targetMeth);
 };
 
 // to automatically remove temporary files from disk
