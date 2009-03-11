@@ -30,6 +30,7 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingSMesh *New();
     void updateTime();
+    bool isEqual(const MEDCouplingMesh *other, double prec) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     bool isStructured() const;
     int getNumberOfCells() const;

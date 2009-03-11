@@ -28,6 +28,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type);
+    MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const { return _array->getIJ(tupleId,compoId); }
     void setArray(DataArrayDouble *array);
@@ -39,6 +40,7 @@ namespace ParaMEDMEM
     void updateTime();
   private:
     MEDCouplingFieldDouble(TypeOfField type);
+    MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
     ~MEDCouplingFieldDouble();
   private:
     DataArrayDouble *_array;

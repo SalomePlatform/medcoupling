@@ -47,3 +47,14 @@ MEDCouplingField::~MEDCouplingField()
   if(_mesh)
     _mesh->decrRef();
 }
+
+MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._name),_desc(other._name),
+                                                                  _time(other._time),_dt(other._dt),_it(other._it),
+                                                                  _mesh(0),_type(other._type)
+{
+  if(other._mesh)
+    {
+      _mesh=other._mesh;
+      _mesh->incrRef();
+    }
+}

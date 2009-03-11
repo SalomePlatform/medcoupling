@@ -28,8 +28,19 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(TypeOfField type)
   return new MEDCouplingFieldDouble(type);
 }
 
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
+{
+  return new MEDCouplingFieldDouble(*this,recDeepCpy);
+}
+
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type):MEDCouplingField(type),_array(0)
 {
+}
+
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),_array(0)
+{
+  if(other._array)
+    _array=other._array->performCpy(deepCpy);
 }
 
 MEDCouplingFieldDouble::~MEDCouplingFieldDouble()

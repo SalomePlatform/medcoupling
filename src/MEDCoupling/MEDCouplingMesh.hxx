@@ -29,6 +29,7 @@ namespace ParaMEDMEM
   public:
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
+    virtual bool isEqual(const MEDCouplingMesh *other, double prec) const { return _name==other->_name; }
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
     virtual bool isStructured() const = 0;
     virtual int getNumberOfCells() const = 0;
@@ -36,6 +37,8 @@ namespace ParaMEDMEM
     virtual int getSpaceDimension() const = 0;
     virtual int getMeshDimension() const = 0;
   protected:
+    MEDCouplingMesh() { }
+    MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name) { }
     virtual ~MEDCouplingMesh() { }
   private:
     std::string _name;

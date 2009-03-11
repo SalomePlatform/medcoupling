@@ -30,12 +30,33 @@ DataArrayDouble *DataArrayDouble::New()
   return new DataArrayDouble;
 }
 
+DataArrayDouble *DataArrayDouble::deepCopy() const
+{
+  return new DataArrayDouble(*this);
+}
+
+DataArrayDouble *DataArrayDouble::performCpy(bool deepCpy) const
+{
+  if(deepCpy)
+    return deepCopy();
+  else
+    {
+      incrRef();
+      return const_cast<DataArrayDouble *>(this);
+    }
+}
+
 void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
   _mem.alloc(nbOfCompo*_nb_of_tuples);
   declareAsNew();
+}
+
+bool DataArrayDouble::isEqual(DataArrayDouble *other, double prec) const
+{
+  return true;
 }
 
 void DataArrayDouble::reAlloc(int nbOfTuples)
@@ -56,6 +77,22 @@ void DataArrayDouble::useArray(double *array, bool ownership,  DeallocType type,
 DataArrayInt *DataArrayInt::New()
 {
   return new DataArrayInt;
+}
+
+DataArrayInt *DataArrayInt::deepCopy() const
+{
+  return new DataArrayInt(*this);
+}
+
+DataArrayInt *DataArrayInt::performCpy(bool deepCpy) const
+{
+  if(deepCpy)
+    return deepCopy();
+  else
+    {
+      incrRef();
+      return const_cast<DataArrayInt *>(this);
+    }
 }
 
 void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)

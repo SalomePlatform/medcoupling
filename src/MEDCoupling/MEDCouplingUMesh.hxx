@@ -30,7 +30,9 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingUMesh *New();
+    MEDCouplingUMesh *clone(bool recDeepCpy) const;
     void updateTime();
+    bool isEqual(const MEDCouplingMesh *other, double prec) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void setMeshDimension(unsigned meshDim);
     void allocateCells(int nbOfCells);
@@ -38,7 +40,7 @@ namespace ParaMEDMEM
     DataArrayDouble *getCoords() const { return _coords; }
     void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell);
     void finishInsertingCells();
-    const std::set<INTERP_KERNEL::NormalizedCellType> getAllTypes() const { return _types; }
+    const std::set<INTERP_KERNEL::NormalizedCellType>& getAllTypes() const { return _types; }
     void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true);
     DataArrayInt *getNodalConnectivity() const { return _nodal_connec; }
     DataArrayInt *getNodalConnectivityIndex() const { return _nodal_connec_index; }
@@ -50,10 +52,19 @@ namespace ParaMEDMEM
     int getSpaceDimension() const;
     int getMeshDimension() const { return _mesh_dim; }
     int getMeshLength() const;
+    //tools
+    void zipCoords();
+    DataArrayInt *zipCoordsTraducer();
+    void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
+    MEDCouplingUMesh *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
   private:
     MEDCouplingUMesh();
+    MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
     ~MEDCouplingUMesh();
     void computeTypes();
+    void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
+    //tools
+    MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *start, const int *end) const;
   private:
     //! this iterator stores current position in _nodal_connec array.
     mutable int _iterator;
@@ -62,6 +73,8 @@ namespace ParaMEDMEM
     DataArrayInt *_nodal_connec_index;
     DataArrayDouble *_coords;
     std::set<INTERP_KERNEL::NormalizedCellType> _types;
+  private:
+    static const char PART_OF_NAME[];
   };
 }
 

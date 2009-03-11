@@ -37,14 +37,16 @@ namespace ParaMEDMEM
 
   class RefCountObject : public TimeLabel
   {
-  public:
+  protected:
     RefCountObject():_cnt(1) { }
+    RefCountObject(const RefCountObject& other):_cnt(1) { }
+  public:
     bool decrRef() { bool ret=((--_cnt)==0); if(ret)delete this; return ret; }
-    void incrRef() { _cnt++; }
+    void incrRef() const { _cnt++; }
   protected:
     virtual ~RefCountObject() { }
   private:
-    int _cnt;
+    mutable int _cnt;
   };
 }
 

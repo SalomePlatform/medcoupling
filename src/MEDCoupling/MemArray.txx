@@ -25,10 +25,20 @@
 
 #include <sstream>
 #include <algorithm>
-#include <cstring>
 
 namespace ParaMEDMEM
 {
+  template<class T>
+  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(-1),_ownership(false),_pointer(0),_dealloc(CPP_DEALLOC)
+  {
+    if(other._pointer)
+      {
+        T *pointer=new T[other._nb_of_elem];
+        std::copy(other._pointer,other._pointer+other._nb_of_elem,pointer);
+        useArray(pointer,true,CPP_DEALLOC,other._nb_of_elem);
+      }
+  }
+
   template<class T>
   void MemArray<T>::useArray(void *array, bool ownership, DeallocType type, int nbOfElem)
   {

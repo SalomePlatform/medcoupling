@@ -50,6 +50,14 @@ void MEDCouplingSMesh::updateTime()
     updateTimeWith(*_z_array);
 }
 
+bool MEDCouplingSMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+{
+  const MEDCouplingSMesh *otherC=dynamic_cast<const MEDCouplingSMesh *>(other);
+  if(!otherC)
+    return false;
+  return true;
+}
+
 void MEDCouplingSMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   const char msg0[]="Invalid ";

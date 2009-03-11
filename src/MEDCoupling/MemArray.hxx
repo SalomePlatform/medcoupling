@@ -31,6 +31,7 @@ namespace ParaMEDMEM
   {
   public:
     MemArray():_nb_of_elem(-1),_ownership(false),_pointer(0),_dealloc(CPP_DEALLOC) { }
+    MemArray(const MemArray<T>& other);
     T *getPointer() const { return _pointer; }
     MemArray<T> &operator=(const MemArray<T>& other);
     T operator[](int id) const { return _pointer[id]; }
@@ -77,7 +78,10 @@ namespace ParaMEDMEM
   {
   public:
     static DataArrayDouble *New();
+    DataArrayDouble *deepCopy() const;
+    DataArrayDouble *performCpy(bool deepCpy) const;
     void alloc(int nbOfTuple, int nbOfCompo);
+    bool isEqual(DataArrayDouble *other, double prec) const;
     //!alloc or useArray should have been called before.
     void reAlloc(int nbOfTuples);
     double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
@@ -97,10 +101,13 @@ namespace ParaMEDMEM
   {
   public:
     static DataArrayInt *New();
+    DataArrayInt *deepCopy() const;
+    DataArrayInt *performCpy(bool deepCpy) const;
     void alloc(int nbOfTuple, int nbOfCompo);
     //!alloc or useArray should have been called before.
     void reAlloc(int nbOfTuples);
     int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
+    void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
     int *getPointer() const { return _mem.getPointer(); }
     void useArray(int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
