@@ -18,95 +18,108 @@
 # 
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
-from ParaMEDMEM import *
+from libParaMEDMEM_Swig import *
 import sys, os
+import unittest
+import math
 
-MPI_Init(sys.argv)
-
-size = MPI_Comm_size(MPI_COMM_WORLD)
-rank = MPI_Comm_rank(MPI_COMM_WORLD)
-    
-if size < 4:
-    raise RuntimeError, "Expect MPI_COMM_WORLD size >= 4"
-    
-interface = CommInterface()
-    
-self_group   = MPIProcessorGroup(interface, rank, rank)
-target_group = MPIProcessorGroup(interface, 3, size-1)
-source_group = MPIProcessorGroup(interface, 0, 2)
-
-mesh      = 0
-support   = 0
-paramesh  = 0
-parafield = 0
-
-data_dir = os.environ['MED_ROOT_DIR']
-tmp_dir  = os.environ['TMP']
-if tmp_dir == '':
-    tmp_dir = "/tmp"
-    pass
-
-filename_xml1    = data_dir + "/share/salome/resources/med/square1_split"
-filename_2       = data_dir + "/share/salome/resources/med/square1.med"
-filename_seq_wr  = tmp_dir + "/"
-filename_seq_med = tmp_dir + "/myWrField_seq_pointe221.med"
-
-dec = StructuredCoincidentDEC(source_group, target_group)
-MPI_Barrier(MPI_COMM_WORLD)
-    
-if source_group.containsMyRank():
-    filename = filename_xml1 + str(rank+1) + ".med"
-    meshname = "Mesh_2_" + str(rank+1)
-
-    mesh     = MESH(MED_DRIVER, filename, meshname)
-    support  = SUPPORT(mesh, "all elements", MED_CELL)
-    paramesh = ParaMESH(mesh, source_group, "source mesh")
-
-    parasupport = UnstructuredParaSUPPORT( support, source_group);
-    comptopo    = ComponentTopology(6)
-    parafield   = ParaFIELD(parasupport, comptopo)
-
-    nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS);
-    global_numbering = parasupport.getGlobalNumbering()
-
-    value = []
-    for ielem in range(nb_local):
-        for icomp in range(6):
-            value.append(global_numbering[ielem]*6.0+icomp);
+class ParaMEDMEMBasicsTest2(unittest.TestCase):
+    def testStructuredCoincidentDEC(self):
+        MPI_Init(sys.argv)
+        #
+        size = MPI_Comm_size(MPI_COMM_WORLD)
+        rank = MPI_Comm_rank(MPI_COMM_WORLD)
+        #
+        if size < 4:
+            raise RuntimeError, "Expect MPI_COMM_WORLD size >= 4"
+        #
+        interface = CommInterface()
+        #
+        self_group   = MPIProcessorGroup(interface, rank, rank)
+        target_group = MPIProcessorGroup(interface, 3, size-1)
+        source_group = MPIProcessorGroup(interface, 0, 2)
+        #
+        mesh      = 0
+        support   = 0
+        paramesh  = 0
+        parafield = 0
+        comptopo  = 0
+        icocofield= 0
+        #
+        data_dir = os.environ['MED_ROOT_DIR']
+        tmp_dir  = os.environ['TMP']
+        if tmp_dir == '':
+            tmp_dir = "/tmp"
             pass
+        
+        filename_xml1    = data_dir + "/share/salome/resources/med/square1_split"
+        filename_2       = data_dir + "/share/salome/resources/med/square1.med"
+        filename_seq_wr  = tmp_dir + "/"
+        filename_seq_med = tmp_dir + "/myWrField_seq_pointe221.med"
+        
+        dec = StructuredCoincidentDEC(source_group, target_group)
+        MPI_Barrier(MPI_COMM_WORLD)
+        if source_group.containsMyRank():
+            filename = filename_xml1 + str(rank+1) + ".med"
+            meshname = "Mesh_2_" + str(rank+1)
+            mesh=ReadUMeshFromFile(filename,meshname,0)
+            paramesh=ParaMESH(mesh,source_group,"source mesh")
+            comptopo=ComponentTopology(6)
+            parafield=ParaFIELD(ON_CELLS,paramesh,comptopo)
+            nb_local=mesh.getNumberOfCells()
+            global_numbering=paramesh.getGlobalNumberingCell2()
+            value = []
+            for ielem in range(nb_local):
+                for icomp in range(6):
+                    value.append(global_numbering[ielem]*6.0+icomp);
+                    pass
+                pass
+            parafield.getField().setValues(value)
+            icocofield = ICoCoMEDField(paramesh,parafield)
+            dec.setMethod("P0")  
+            dec.attachLocalField(icocofield)      
+            dec.synchronize()
+            dec.sendData()
+            pass
+
+        if target_group.containsMyRank():
+            meshname2 = "Mesh_2"
+            mesh=ReadUMeshFromFile(filename_2, meshname2,0)
+            paramesh=ParaMESH(mesh, self_group, "target mesh")
+            comptopo=ComponentTopology(6,target_group)
+            parafield=ParaFIELD(ON_CELLS,paramesh, comptopo)
+            nb_local=mesh.getNumberOfCells()
+            value = [0.0]*(nb_local*comptopo.nbLocalComponents())
+            parafield.getField().setValues(value)
+            icocofield = ICoCoMEDField(paramesh,parafield)
+            dec.setMethod("P0")
+            dec.attachLocalField(icocofield)
+            dec.synchronize()
+            dec.recvData()
+            recv_value = parafield.getField().getArray().getValues()
+            for i in range(nb_local):
+                first=comptopo.firstLocalComponent()
+                for icomp in range(comptopo.nbLocalComponents()):
+                    self.failUnless(math.fabs(recv_value[i*comptopo.nbLocalComponents()+icomp]-
+                                              (float)(i*6+icomp+first))<1e-12)
+                    pass
+                pass
+            pass
+        comptopo=0
+        interface = 0
+        mesh       =0
+        support    =0
+        paramesh   =0
+        parafield  =0
+        icocofield =0
+        dec=0
+        self_group =0
+        target_group = 0
+        source_group = 0
+        MPI_Barrier(MPI_COMM_WORLD)
+        MPI_Finalize()
+        print "End of test StructuredCoincidentDEC"
         pass
 
-    parafield.getField().setValue(value)
-    icocofield = ICoCo_MEDField(paramesh,parafield)
-    dec.attachLocalField(icocofield)
-    dec.synchronize()
-    dec.sendData()
-    pass
-
-if target_group.containsMyRank():
-
-    meshname2 = "Mesh_2"
-    mesh      = MESH(MED_DRIVER, filename_2, meshname2)
-    support   = SUPPORT(mesh, "all elements", MED_CELL)
-
-    paramesh    = ParaMESH(mesh, self_group, "target mesh")
-    parasupport = UnstructuredParaSUPPORT( support, self_group)
-    comptopo    = ComponentTopology(6, target_group)
-    parafield   = ParaFIELD(parasupport, comptopo)
-
-    nb_local  = support.getNumberOfElements(MED_ALL_ELEMENTS)
-    value = [0.0]*(nb_local*comptopo.nbLocalComponents())
-
-    parafield.getField().setValue(value)
-    icocofield = ICoCo_MEDField(paramesh,parafield)
-
-    dec.attachLocalField(icocofield)
-    dec.synchronize()
-    dec.recvData()
-
-    recv_value = parafield.getField().getValue()
-    pass
-
-MPI_Finalize()
-
-print "End of test StructuredCoincidentDEC"
+    
+unittest.main()
