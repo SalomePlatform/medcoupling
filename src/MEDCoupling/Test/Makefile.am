@@ -24,4 +24,4 @@ TestMEDCoupling_CPPFLAGS=@CPPUNIT_INCLUDES@ -I$(srcdir)/.. -I$(srcdir)/../../INT
 
 TestMEDCoupling_LDFLAGS = @CPPUNIT_LIBS@ ../libmedcoupling.la
 
-dist_TestMEDCoupling_SOURCES = TestMEDCoupling.cxx MEDCouplingBasicsTest.cxx
+dist_TestMEDCoupling_SOURCES = TestMEDCoupling.cxx MEDCouplingBasicsTest.hxx MEDCouplingBasicsTest.cxx

@@ -30,28 +30,75 @@ DIST_SUBDIRS = Bases Geometric2D
 lib_LTLIBRARIES = libinterpkernel.la
 
 
-salomeinclude_HEADERS = \
-INTERPKERNELDefines.hxx \
-BoundingBox.hxx                 PolyhedronIntersector.hxx          RegionNode.hxx\
-ConvexIntersector.hxx           SplitterTetra.hxx                  Intersector3DP0P1.txx \
-Geometric2DIntersector.hxx      Log.hxx                            TargetIntersector.hxx\
-CellModel.hxx                   TetraAffineTransform.hxx           Intersector3DP1P0.hxx \
-InterpKernelMatrix.hxx          MeshElement.hxx                    TransformedTriangle.hxx\
-Interpolation2D.hxx             MeshRegion.hxx                     TransformedTriangleInline.hxx\
-Interpolation3D.hxx             MeshUtils.hxx                      TranslationRotationMatrix.hxx\
-Interpolation3DSurf.hxx         MeshRegion.txx                     TriangulationIntersector.hxx\
-Interpolation.hxx               PlanarIntersector.hxx              VectorUtils.hxx\
-InterpolationPlanar.hxx         PolyhedronIntersectorP1P0.txx      VTKNormalizedUnstructuredMesh.hxx\
-InterpolationUtils.hxx          PolygonAlgorithms.hxx              InterpolationOptions.hxx\
-BBTree.txx                      InterpolationPlanar.txx            PlanarIntersector.txx\
-ConvexIntersector.txx           PolyhedronIntersector.txx          Intersector3DP1P0.txx\
-Geometric2DIntersector.txx      SplitterTetra.txx                  PolygonAlgorithms.txx\
-Interpolation2D.txx             TriangulationIntersector.txx       PolyhedronIntersectorP1P0.hxx\
-Interpolation3DSurf.txx         MeshElement.txx                    VTKNormalizedUnstructuredMesh.txx\
-Interpolation3D.txx             PlanarIntersectorP0P0.hxx          PlanarIntersectorP0P0.txx\
-PolyhedronIntersectorP0P1.hxx   PolyhedronIntersectorP0P1.txx      Intersector3D.hxx\
-Intersector3D.txx               Intersector3DP0P1.hxx 
+salomeinclude_HEADERS = 		\
+BBTree.txx				\
+BoundingBox.hxx				\
+CellModel.hxx				\
+ConvexIntersector.hxx			\
+ConvexIntersector.txx			\
+Geometric2DIntersector.hxx		\
+Geometric2DIntersector.txx		\
+INTERPKERNELDefines.hxx			\
+InterpKernelMatrix.hxx			\
+Interpolation.hxx			\
+Interpolation2D.hxx			\
+Interpolation2D.txx			\
+Interpolation3D.hxx			\
+Interpolation3D.txx			\
+Interpolation3DSurf.hxx			\
+Interpolation3DSurf.txx			\
+InterpolationOptions.hxx		\
+InterpolationPlanar.hxx			\
+InterpolationPlanar.txx			\
+InterpolationUtils.hxx			\
+Intersector3D.hxx			\
+Intersector3D.txx			\
+Intersector3DP0P1.hxx			\
+Intersector3DP0P1.txx			\
+Intersector3DP1P0.hxx			\
+Intersector3DP1P0.txx			\
+Log.hxx					\
+MeshElement.hxx				\
+MeshElement.txx				\
+MeshRegion.hxx				\
+MeshRegion.txx				\
+MeshUtils.hxx				\
+PlanarIntersector.hxx			\
+PlanarIntersector.txx			\
+PlanarIntersectorP0P0.hxx		\
+PlanarIntersectorP0P0.txx		\
+PolygonAlgorithms.hxx			\
+PolygonAlgorithms.txx			\
+PolyhedronIntersector.hxx		\
+PolyhedronIntersector.txx		\
+PolyhedronIntersectorP0P1.hxx		\
+PolyhedronIntersectorP0P1.txx		\
+PolyhedronIntersectorP1P0.hxx		\
+PolyhedronIntersectorP1P0.txx		\
+RegionNode.hxx				\
+SplitterTetra.hxx			\
+SplitterTetra.txx			\
+TargetIntersector.hxx			\
+TetraAffineTransform.hxx		\
+TransformedTriangle.hxx			\
+TransformedTriangleInline.hxx		\
+TranslationRotationMatrix.hxx		\
+TriangulationIntersector.hxx		\
+TriangulationIntersector.txx		\
+UnitTetraIntersectionBary.hxx		\
+VTKNormalizedUnstructuredMesh.hxx	\
+VTKNormalizedUnstructuredMesh.txx	\
+VectorUtils.hxx
 
+EXTRA_DIST +=			\
+InterpKernelUtilities.hxx	\
+Intersector3DP0P0.hxx		\
+Intersector3DP0P0.txx		\
+PlanarIntersectorP0P1.hxx	\
+PlanarIntersectorP0P1.txx	\
+PlanarIntersectorP1P0.hxx	\
+PlanarIntersectorP1P0.txx	\
+VolSurfFormulae.hxx
 
 # Libraries targets
 
