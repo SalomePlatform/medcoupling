@@ -131,7 +131,8 @@ namespace ParaMEDMEM
     _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
     delete[] distant_ids_send;
     delete[] elem_bb;
-    send_mesh->decrRef();
+    if(send_mesh)
+      send_mesh->decrRef();
   }
 
   void ElementLocator::exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth)
