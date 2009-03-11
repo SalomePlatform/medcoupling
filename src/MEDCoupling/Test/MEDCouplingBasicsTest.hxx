@@ -32,6 +32,11 @@ namespace ParaMEDMEM
   {
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest);
     CPPUNIT_TEST( testMesh );
+    CPPUNIT_TEST( testDeepCopy );
+    CPPUNIT_TEST( testRevNodal );
+    CPPUNIT_TEST( testBuildPartOfMySelf );
+    CPPUNIT_TEST( testZipCoords );
+    CPPUNIT_TEST( testEqualMesh );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P1_1 );
     CPPUNIT_TEST( test2DInterpP1P0_1 );
@@ -42,6 +47,11 @@ namespace ParaMEDMEM
     CPPUNIT_TEST_SUITE_END();
   public:
     void testMesh();
+    void testDeepCopy();
+    void testRevNodal();
+    void testBuildPartOfMySelf();
+    void testZipCoords();
+    void testEqualMesh();
     void test2DInterpP0P0_1();
     void test2DInterpP0P1_1();
     void test2DInterpP1P0_1();
