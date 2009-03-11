@@ -182,9 +182,7 @@ namespace ParaMEDMEM
             double surf = target_triangle_surf->getIJ(iter->first,0);
 
             //locating the (iproc, itriangle) pair in the list of columns
-            vector<pair<int,int> >::iterator iter2 =
-              find(_col_offsets.begin(), _col_offsets.end(),
-                   make_pair(iproc_distant,iter->first));
+            map<pair<int,int>,int >::iterator iter2 = _col_offsets.find(make_pair(iproc_distant,iter->first));
             int col_id;
 
             if (iter2 == _col_offsets.end())
@@ -192,15 +190,15 @@ namespace ParaMEDMEM
                 //(iproc, itriangle) is not registered in the list
                 //of distant elements
 
-                _col_offsets.push_back(make_pair(iproc_distant,iter->first));
-                col_id =_col_offsets.size();
+                col_id =_col_offsets.size()+1;
+                _col_offsets.insert(make_pair(make_pair(iproc_distant,iter->first),col_id));
                 _mapping.addElementFromSource(iproc_distant,
                                               distant_elems[iter->first]);
                 _target_volume.push_back(surf);
               }
             else 
               {
-                col_id = iter2 - _col_offsets.begin() + 1;
+                col_id = iter2->second;
               }
 
             //the non zero coefficient is stored 

@@ -51,7 +51,7 @@ namespace ParaMEDMEM
     static MEDCouplingFieldDouble *getSupportUnstructuredVolumes(MEDCouplingUMesh *field);
   private:
     std::vector<int> _row_offsets;
-    std::vector<std::pair<int,int> > _col_offsets;
+    std::map<std::pair<int,int>, int > _col_offsets;
     MEDCouplingUMesh *_source_support; 
     MxN_Mapping _mapping;
  
