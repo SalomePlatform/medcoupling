@@ -58,6 +58,8 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(make_pair(NORM_PYRA13,CellModel(NORM_PYRA13)));
     _map_of_unique_instance.insert(make_pair(NORM_PENTA15,CellModel(NORM_PENTA15)));
     _map_of_unique_instance.insert(make_pair(NORM_HEXA20,CellModel(NORM_HEXA20)));
+    _map_of_unique_instance.insert(make_pair(NORM_POLYGON,CellModel(NORM_POLYGON)));
+    _map_of_unique_instance.insert(make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
   }
 
   CellModel::CellModel(NormalizedCellType type)
