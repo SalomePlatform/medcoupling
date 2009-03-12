@@ -29,14 +29,14 @@ salomeinclude_HEADERS =  \
 
 SWIG_DEF = libMEDCoupling_Swig.i
 
-SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir)
+SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases
 
 dist__libMEDCoupling_Swig_la_SOURCES   = libMEDCoupling_Swig.i
 nodist__libMEDCoupling_Swig_la_SOURCES = libMEDCoupling_Swig_wrap.cxx
 libMEDCoupling_Swig.py: libMEDCoupling_Swig_wrap.cxx
 
 libMEDCoupling_Swig_wrap.cxx: $(SWIG_DEF)
-	$(SWIG) $(SWIG_FLAGS) -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases -o $@  $<
+	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
 _libMEDCoupling_Swig_la_CPPFLAGS = $(CORBA_CXXFLAGS) $(CORBA_INCLUDES) $(PYTHON_INCLUDES) \
 	$(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
