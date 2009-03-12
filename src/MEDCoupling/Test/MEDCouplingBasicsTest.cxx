@@ -435,14 +435,14 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0_1()
       myInterpolator.setIntersectionType(types[i]);
       myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
       CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[0][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[0][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[1][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[2][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2),res[3][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[4][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[4][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2),sumAll(res),1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[1][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[2][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[3][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2.),sumAll(res),1e-12);
       res.clear();
     }
   //clean up
@@ -466,19 +466,19 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P1_1()
       myInterpolator.setIntersectionType(types[i]);
       myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
       CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[0][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[0][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[1][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333329*sqrt(2),res[2][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2),res[3][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2),res[4][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2),res[4][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2),res[5][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333329*sqrt(2),res[6][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2),res[7][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[8][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[8][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(1.25*sqrt(2),sumAll(res),1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[0][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[0][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[1][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333329*sqrt(2.),res[2][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2.),res[3][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2.),res[4][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2.),res[4][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[5][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333329*sqrt(2.),res[6][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666*sqrt(2.),res[7][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[8][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[8][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(1.25*sqrt(2.),sumAll(res),1e-12);
       res.clear();
     }
   //clean up
@@ -502,16 +502,16 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P0_1()
       myInterpolator.setIntersectionType(types[i]);
       myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
       CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2),res[0][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[1][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[3][0],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333333*sqrt(2),res[1][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333333*sqrt(2),res[2][1],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666667*sqrt(2),res[3][2],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[2][3],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2),res[3][3],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2),res[4][3],1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2),sumAll(res),1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[0][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[1][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[3][0],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333333*sqrt(2.),res[1][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.083333333333333333*sqrt(2.),res[2][1],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666667*sqrt(2.),res[3][2],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[2][3],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.041666666666666664*sqrt(2.),res[3][3],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[4][3],1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2.),sumAll(res),1e-12);
       res.clear();
     }
   //clean up
