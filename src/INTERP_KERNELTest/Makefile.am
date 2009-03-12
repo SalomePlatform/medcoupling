@@ -100,3 +100,7 @@ AM_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
 UNIT_TEST_PROG = TestINTERP_KERNEL
 
 check : tests
+
+clean-local:
+	rm -rf *.fig
+

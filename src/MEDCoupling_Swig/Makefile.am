@@ -25,13 +25,13 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 lib_LTLIBRARIES = _libMEDCoupling_Swig.la
 
 salomeinclude_HEADERS =  \
-	libMEDCoupling_Swig.i
+	libMEDCoupling_Swig.i MEDCouplingTypemaps.i
 
-SWIG_DEF = libMEDCoupling_Swig.i
+SWIG_DEF = libMEDCoupling_Swig.i MEDCouplingTypemaps.i
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases
 
-dist__libMEDCoupling_Swig_la_SOURCES   = libMEDCoupling_Swig.i
+dist__libMEDCoupling_Swig_la_SOURCES   = libMEDCoupling_Swig.i MEDCouplingTypemaps.i
 nodist__libMEDCoupling_Swig_la_SOURCES = libMEDCoupling_Swig_wrap.cxx
 libMEDCoupling_Swig.py: libMEDCoupling_Swig_wrap.cxx
 
