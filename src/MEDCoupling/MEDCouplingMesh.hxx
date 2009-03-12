@@ -19,12 +19,13 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGMESH_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGMESH_HXX__
 
+#include "MEDCoupling.hxx"
 #include "RefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingMesh : public RefCountObject
+  class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject
   {
   public:
     void setName(const char *name) { _name=name; }

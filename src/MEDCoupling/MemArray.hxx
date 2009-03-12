@@ -19,6 +19,7 @@
 #ifndef __PARAMEDMEM_MEMARRAY_HXX__
 #define __PARAMEDMEM_MEMARRAY_HXX__
 
+#include "MEDCoupling.hxx"
 #include "RefCountObject.hxx"
 
 #include <string>
@@ -51,7 +52,7 @@ namespace ParaMEDMEM
     DeallocType _dealloc;
   };
 
-  class DataArray : public RefCountObject
+  class MEDCOUPLING_EXPORT DataArray : public RefCountObject
   {
   public:
     void setName(const char *name);
@@ -74,7 +75,7 @@ namespace ParaMEDMEM
 
 namespace ParaMEDMEM
 {
-  class DataArrayDouble : public DataArray
+  class MEDCOUPLING_EXPORT DataArrayDouble : public DataArray
   {
   public:
     static DataArrayDouble *New();
@@ -97,7 +98,7 @@ namespace ParaMEDMEM
     MemArray<double> _mem;
   };
 
-  class DataArrayInt : public DataArray
+  class MEDCOUPLING_EXPORT DataArrayInt : public DataArray
   {
   public:
     static DataArrayInt *New();

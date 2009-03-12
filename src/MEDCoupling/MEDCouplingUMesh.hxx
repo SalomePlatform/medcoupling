@@ -19,6 +19,7 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGUMESH_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGUMESH_HXX__
 
+#include "MEDCoupling.hxx"
 #include "MEDCouplingMesh.hxx"
 #include "MemArray.hxx"
 
@@ -26,7 +27,7 @@
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingUMesh : public MEDCouplingMesh
+  class MEDCOUPLING_EXPORT MEDCouplingUMesh : public MEDCouplingMesh
   {
   public:
     static MEDCouplingUMesh *New();

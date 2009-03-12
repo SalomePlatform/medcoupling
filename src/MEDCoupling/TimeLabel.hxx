@@ -19,13 +19,15 @@
 #ifndef __PARAMEDMEM_TIMELABEL_HXX__
 #define __PARAMEDMEM_TIMELABEL_HXX__
 
+#include "MEDCoupling.hxx"
+
 namespace ParaMEDMEM
 {
   /*!
    * Class representing a label of time of the lastely modified part of this.
    * More _time is high more the object has been modified recently.
    */
-  class TimeLabel
+  class MEDCOUPLING_EXPORT TimeLabel
   {
   public:
     TimeLabel& operator=(const TimeLabel& other);

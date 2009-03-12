@@ -19,6 +19,7 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGFIELD_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGFIELD_HXX__
 
+#include "MEDCoupling.hxx"
 #include "RefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
@@ -28,7 +29,7 @@ namespace ParaMEDMEM
 {
   class MEDCouplingMesh;
 
-  class MEDCouplingField : public RefCountObject
+  class MEDCOUPLING_EXPORT MEDCouplingField : public RefCountObject
   {
   public:
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;

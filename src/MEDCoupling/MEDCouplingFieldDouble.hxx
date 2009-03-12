@@ -19,12 +19,13 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGFIELDDOUBLE_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGFIELDDOUBLE_HXX__
 
+#include "MEDCoupling.hxx"
 #include "MEDCouplingField.hxx"
 #include "MemArray.hxx"
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingFieldDouble : public MEDCouplingField
+  class MEDCOUPLING_EXPORT MEDCouplingFieldDouble : public MEDCouplingField
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type);
