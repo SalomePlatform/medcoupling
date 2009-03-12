@@ -18,6 +18,8 @@
 //
 %module libMEDCoupling_Swig
 
+#define MEDCOUPLING_EXPORT
+
 %{
 #include "MemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
