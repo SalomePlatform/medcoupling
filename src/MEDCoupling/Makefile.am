@@ -27,7 +27,7 @@ endif
 lib_LTLIBRARIES = libmedcoupling.la
 
 
-salomeinclude_HEADERS = \
+salomeinclude_HEADERS = MEDCoupling.hxx \
 MEDCouplingFieldDouble.hxx  MEDCouplingMesh.hxx MEDCouplingUMesh.hxx TimeLabel.hxx \
 MEDCouplingField.hxx MEDCouplingNormalizedUnstructuredMesh.hxx MemArray.hxx        \
 MEDCouplingNormalizedUnstructuredMesh.txx  MemArray.txx RefCountObject.hxx         \
