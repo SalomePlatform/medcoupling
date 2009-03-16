@@ -42,13 +42,14 @@ namespace ICoCo
   }
   
   MEDField::MEDField(TrioField& triofield, const ParaMEDMEM::ProcessorGroup& group):
-  _has_field_ownership(true)
+    _has_field_ownership(true),_support(0)
   {
     _local_mesh = ParaMEDMEM::MEDCouplingUMesh::New();
     _local_mesh->setMeshDimension(triofield._space_dim);
     ParaMEDMEM::DataArrayDouble *myCoords=ParaMEDMEM::DataArrayDouble::New();
     myCoords->alloc(triofield._nbnodes,triofield._space_dim);
     _local_mesh->setCoords(myCoords);
+    myCoords->decrRef();
     double *ptr=myCoords->getPointer();
     std::copy(triofield._coords,triofield._coords+triofield._space_dim*triofield._nbnodes,ptr);
     _local_mesh->allocateCells(triofield._nb_elems);
@@ -86,18 +87,21 @@ namespace ICoCo
       }
     //creating a connectivity table that complies to MED (1 indexing)
     //and passing it to _local_mesh
-    int* conn=new int[triofield._nb_elems*triofield._nodes_per_elem];
+    int* conn=new int[triofield._nodes_per_elem];
     for (int i=0; i<triofield._nb_elems;i++)
+    {
       for(int j=0;j<triofield._nodes_per_elem;j++)
         {
-          conn[j]=(triofield._connectivity)[i*triofield._nb_elems+j];
-          _local_mesh->insertNextCell(elemtype,triofield._nodes_per_elem,conn);
-        }
+          conn[j]=(triofield._connectivity)[i*triofield._nodes_per_elem+j];
+	}
+      _local_mesh->insertNextCell(elemtype,triofield._nodes_per_elem,conn);
+    }
     delete[] conn;
-
-    _local_mesh->setMeshDimension(triofield._mesh_dim);
     
+    _local_mesh->setMeshDimension(triofield._mesh_dim);
+    _local_mesh->finishInsertingCells();
     _mesh=new ParaMEDMEM::ParaMESH(_local_mesh, group, "support for trio field");
+    //_support=new ParaMEDMEM::UnstructuredParaSUPPORT(_local_support,group);
     _comp_topology=new ParaMEDMEM::ComponentTopology(triofield._nb_field_components);
     
     //field on the sending end
@@ -117,7 +121,8 @@ namespace ICoCo
     //field on the receiving end
     else
       {
-        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,_support, *_comp_topology );
+     //   _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,_support, *_comp_topology );
+        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,_mesh, *_comp_topology );
         _field->getField()->setName(triofield.getName().c_str());
         _field->getField()->setTime(triofield._time1);
         _field->getField()->setDtIt(0,triofield._itnumber);
@@ -126,6 +131,7 @@ namespace ICoCo
         for (int i=0; i<triofield._nb_field_components*triofield._nb_elems;i++)
           triofield._field[i]=0.0;
       }
+    _local_mesh->decrRef();
   }
 
   MEDField::~MEDField()
