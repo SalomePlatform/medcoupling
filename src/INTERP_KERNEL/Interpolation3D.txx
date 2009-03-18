@@ -27,7 +27,7 @@
 #include "PolyhedronIntersectorP1P0.txx"
 #include "Log.hxx"
 /// If defined, use recursion to traverse the binary search tree, else use the BBTree class
-#define USE_RECURSIVE_BBOX_FILTER
+//#define USE_RECURSIVE_BBOX_FILTER
 
 #ifdef USE_RECURSIVE_BBOX_FILTER
 #include "MeshRegion.txx"
