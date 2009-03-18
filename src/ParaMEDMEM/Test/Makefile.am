@@ -72,11 +72,13 @@ libParaMEDMEMTest_la_LDFLAGS= ../MEDLoader/libparamedmemmedloader.la @CPPUNIT_LI
 # Executables targets
 bin_PROGRAMS = TestParaMEDMEM  \
 							 TestMPIAccessDEC \
-		  			   TestMPIAccess
+		  			   TestMPIAccess \
+		test_perf
 
 dist_TestParaMEDMEM_SOURCES = TestParaMEDMEM.cxx
 dist_TestMPIAccessDEC_SOURCES = TestMPIAccessDEC.cxx
 dist_TestMPIAccess_SOURCES = TestMPIAccess.cxx
+dist_test_perf_SOURCES = test_perf.cxx
 
 LDADD= $(MED2_LIBS) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
 	../libparamedmem.la libParaMEDMEMTest.la \
