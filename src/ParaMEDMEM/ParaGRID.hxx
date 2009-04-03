@@ -27,17 +27,17 @@ namespace ParaMEDMEM
 {
   class Topology;
   class BlockTopology;
-  class MEDCouplingSMesh;
+  class MEDCouplingRMesh;
 
   class ParaGRID
   {
   public:
-    ParaGRID(MEDCouplingSMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception);
+    ParaGRID(MEDCouplingRMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception);
     BlockTopology * getBlockTopology() const { return _block_topology; }
     virtual ~ParaGRID();
-    MEDCouplingSMesh* getGrid() const { return _grid; }
+    MEDCouplingRMesh* getGrid() const { return _grid; }
   private:
-    MEDCouplingSMesh* _grid;
+    MEDCouplingRMesh* _grid;
     // structured grid topology
     ParaMEDMEM::BlockTopology* _block_topology;
     // stores the x,y,z axes on the global grid

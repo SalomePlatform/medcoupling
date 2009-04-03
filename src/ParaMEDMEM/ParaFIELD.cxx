@@ -62,7 +62,7 @@ namespace ParaMEDMEM
     \endverbatim
 
   */
-  ParaFIELD::ParaFIELD(TypeOfField type, ParaMESH* para_support, const ComponentTopology& component_topology)
+  ParaFIELD::ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* para_support, const ComponentTopology& component_topology)
     :_support(para_support),
      _component_topology(component_topology),_topology(0),
      _field(0),
@@ -88,7 +88,7 @@ namespace ParaMEDMEM
     int nb_components = component_topology.nbLocalComponents();
     if (nb_components!=0)
       {
-        _field=MEDCouplingFieldDouble::New(type);
+        _field=MEDCouplingFieldDouble::New(type,td);
         _field->setMesh(_support->getCellMesh());
         DataArrayDouble *array=DataArrayDouble::New();
         array->alloc(_field->getNumberOfTuples(),nb_components);
@@ -99,8 +99,6 @@ namespace ParaMEDMEM
   
     _field->setName("Default ParaFIELD name");
     _field->setDescription("Default ParaFIELD description");
-    _field->setDtIt(0,0);
-    _field->setTime(0.0);
   } 
 
   /*! \brief Constructor creating the ParaFIELD
@@ -172,15 +170,7 @@ namespace ParaMEDMEM
   double ParaFIELD::getVolumeIntegral(int icomp) const
   {
     CommInterface comm_interface = _topology->getProcGroup()->getCommInterface();
-    MEDCouplingFieldDouble *volume=InterpolationMatrix::getSupportVolumes(_field->getMesh());
-    double *ptr=volume->getArray()->getPointer();
-    int nbOfValues=volume->getArray()->getNbOfElems();
-    double integral=0.;
-    for (int i=0; i<nbOfValues; i++)
-      integral+=_field->getIJ(i,icomp)*ptr[i];
-
-    volume->decrRef();
-
+    double integral=_field->measureAccumulate(icomp);
     double total=0.;
     const MPI_Comm* comm = (dynamic_cast<const MPIProcessorGroup*>(_topology->getProcGroup()))->getComm();
     comm_interface.allReduce(&integral, &total, 1, MPI_DOUBLE, MPI_SUM, *comm);
@@ -188,4 +178,3 @@ namespace ParaMEDMEM
     return total;
   }
 }
-

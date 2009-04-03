@@ -20,6 +20,7 @@
 #define __PLANARINTERSECTOR_HXX__
 
 #include "TargetIntersector.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -45,6 +46,8 @@ namespace INTERP_KERNEL
     int projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB);
     void getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT);
     void getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS);
+    void getRealTargetCoordinatesPermute(ConnType icellT, int offset, std::vector<double>& coordsT);
+    void getRealSourceCoordinatesPermute(ConnType icellS, int offset, std::vector<double>& coordsS);
     void getRealCoordinates(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS, std::vector<double>& coordsT, std::vector<double>& coordsS, int& orientation);
     static int projection(double *Coords_A, double *Coords_B, 
                            int nb_NodesA, int nb_NodesB, double epsilon, double median_plane, bool do_rotate);

@@ -18,7 +18,7 @@
 //
 #include "BlockTopology.hxx"
 #include "MemArray.hxx"
-#include "MEDCouplingSMesh.hxx"
+#include "MEDCouplingRMesh.hxx"
 #include "CommInterface.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
@@ -123,7 +123,7 @@ namespace ParaMEDMEM
    * instead of making the best choice with respect to the 
    * values of the different axes. 
    */
-  BlockTopology::BlockTopology(const ProcessorGroup& group, MEDCouplingSMesh *grid):
+  BlockTopology::BlockTopology(const ProcessorGroup& group, MEDCouplingRMesh *grid):
     _proc_group(&group), _dimension(grid->getSpaceDimension()), _owns_processor_group(false)
   {
     vector <int> axis_length(_dimension);

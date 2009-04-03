@@ -39,20 +39,17 @@ namespace ParaMEDMEM
 
     
     virtual ~InterpolationMatrix();
-    void addContribution(MEDCouplingUMesh& distant_support, int iproc_distant,
+    void addContribution(MEDCouplingPointSet& distant_support, int iproc_distant,
                          int* distant_elems, const std::string& srcMeth, const std::string& targetMeth);
     void multiply(MEDCouplingFieldDouble& field) const;
     void transposeMultiply(MEDCouplingFieldDouble& field)const;
     void prepare();
-    int getNbRows() const {return _row_offsets.size();}
-    MPIAccessDEC* getAccessDEC(){return _mapping.getAccessDEC();}
-
-    static MEDCouplingFieldDouble *getSupportVolumes(MEDCouplingMesh *field);
-    static MEDCouplingFieldDouble *getSupportUnstructuredVolumes(MEDCouplingUMesh *field);
+    int getNbRows() const { return _row_offsets.size(); }
+    MPIAccessDEC* getAccessDEC() { return _mapping.getAccessDEC(); }
   private:
     std::vector<int> _row_offsets;
     std::map<std::pair<int,int>, int > _col_offsets;
-    MEDCouplingUMesh *_source_support; 
+    MEDCouplingPointSet *_source_support; 
     MxN_Mapping _mapping;
  
     const ProcessorGroup& _source_group;

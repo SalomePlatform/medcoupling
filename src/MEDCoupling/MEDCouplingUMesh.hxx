@@ -20,14 +20,14 @@
 #define __PARAMEDMEM_MEDCOUPLINGUMESH_HXX__
 
 #include "MEDCoupling.hxx"
-#include "MEDCouplingMesh.hxx"
+#include "MEDCouplingPointSet.hxx"
 #include "MemArray.hxx"
 
 #include <set>
 
 namespace ParaMEDMEM
 {
-  class MEDCOUPLING_EXPORT MEDCouplingUMesh : public MEDCouplingMesh
+  class MEDCOUPLING_EXPORT MEDCouplingUMesh : public MEDCouplingPointSet
   {
   public:
     static MEDCouplingUMesh *New();
@@ -37,8 +37,6 @@ namespace ParaMEDMEM
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void setMeshDimension(unsigned meshDim);
     void allocateCells(int nbOfCells);
-    void setCoords(DataArrayDouble *coords);
-    DataArrayDouble *getCoords() const { return _coords; }
     void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell);
     void finishInsertingCells();
     const std::set<INTERP_KERNEL::NormalizedCellType>& getAllTypes() const { return _types; }
@@ -47,17 +45,21 @@ namespace ParaMEDMEM
     DataArrayInt *getNodalConnectivityIndex() const { return _nodal_connec_index; }
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     int getNumberOfNodesInCell(int cellId) const;
-    bool isStructured() const;
     int getNumberOfCells() const;
-    int getNumberOfNodes() const;
-    int getSpaceDimension() const;
     int getMeshDimension() const { return _mesh_dim; }
     int getMeshLength() const;
+    //! size of returned tinyInfo must be always the same.
+    void getTinySerializationInformation(std::vector<int>& tinyInfo) const;
+    void resizeForSerialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2);
+    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2);
+    MEDCouplingPointSet *buildObjectFromUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2);
     //tools
     void zipCoords();
     DataArrayInt *zipCoordsTraducer();
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
-    MEDCouplingUMesh *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
+    MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
+    void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
+    MEDCouplingFieldDouble *getMeasureField() const;
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
@@ -72,7 +74,6 @@ namespace ParaMEDMEM
     unsigned _mesh_dim;
     DataArrayInt *_nodal_connec;
     DataArrayInt *_nodal_connec_index;
-    DataArrayDouble *_coords;
     std::set<INTERP_KERNEL::NormalizedCellType> _types;
   private:
     static const char PART_OF_NAME[];

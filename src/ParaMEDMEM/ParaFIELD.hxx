@@ -34,7 +34,7 @@ namespace ParaMEDMEM
   {
   public:
 
-    ParaFIELD(TypeOfField type, ParaMESH* mesh, const ComponentTopology& component_topology); 
+    ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* mesh, const ComponentTopology& component_topology); 
 
 
     ParaFIELD(MEDCouplingFieldDouble* field, const ProcessorGroup& group);

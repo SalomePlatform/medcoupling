@@ -31,7 +31,7 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-  ParaMESH::ParaMESH( MEDCouplingUMesh *subdomain_mesh, MEDCouplingUMesh *subdomain_face,
+  ParaMESH::ParaMESH( MEDCouplingPointSet *subdomain_mesh, MEDCouplingPointSet *subdomain_face,
             DataArrayInt *CorrespElt_local2global, DataArrayInt *CorrespFace_local2global,
             DataArrayInt *CorrespNod_local2global, const ProcessorGroup& proc_group ):
     _cell_mesh(subdomain_mesh),
@@ -55,7 +55,7 @@ namespace ParaMEDMEM
       CorrespNod_local2global->incrRef();
   }
 
-  ParaMESH::ParaMESH( MEDCouplingUMesh *mesh, const ProcessorGroup& proc_group, const std::string& name):
+  ParaMESH::ParaMESH( MEDCouplingPointSet *mesh, const ProcessorGroup& proc_group, const std::string& name):
     _cell_mesh(mesh),
     _face_mesh(0),
     _my_domain_id(proc_group.myRank()),

@@ -143,7 +143,7 @@ namespace INTERP_KERNEL
     const int tab[3][2]={{1,2},{3,2},{1,3}};
     const int *curTab=tab[case1];
     double pt0[3]; pt0[0]=(tmp[curTab[case2]][0]+tmp[0][0])/2.; pt0[1]=(tmp[curTab[case2]][1]+tmp[0][1])/2.; pt0[2]=(tmp[curTab[case2]][2]+tmp[0][2])/2.;
-    double pt1[3]; pt1[0]=(tmp[0][0]+tmp[curTab[0]][0]+tmp[curTab[1]][0])/3.; pt1[1]=(tmp[0][1]+tmp[curTab[0]][1]+tmp[curTab[1]][1])/3.; pt1[1]=(tmp[0][2]+tmp[curTab[0]][2]+tmp[curTab[1]][2])/3.;
+    double pt1[3]; pt1[0]=(tmp[0][0]+tmp[curTab[0]][0]+tmp[curTab[1]][0])/3.; pt1[1]=(tmp[0][1]+tmp[curTab[0]][1]+tmp[curTab[1]][1])/3.; pt1[2]=(tmp[0][2]+tmp[curTab[0]][2]+tmp[curTab[1]][2])/3.;
     double pt2[3]; pt2[0]=(tmp[0][0]+tmp[1][0]+tmp[2][0]+tmp[3][0])/4.; pt2[1]=(tmp[0][1]+tmp[1][1]+tmp[2][1]+tmp[3][1])/4.; pt2[2]=(tmp[0][2]+tmp[1][2]+tmp[2][2]+tmp[3][2])/4.;
     std::copy(pt1,pt1+3,output+case2*3);
     std::copy(pt0,pt0+3,output+(abs(case2-1))*3);

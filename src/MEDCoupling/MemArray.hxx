@@ -21,6 +21,7 @@
 
 #include "MEDCoupling.hxx"
 #include "RefCountObject.hxx"
+#include "InterpKernelException.hxx"
 
 #include <string>
 #include <vector>
@@ -28,18 +29,37 @@
 namespace ParaMEDMEM
 {
   template<class T>
+  class MEDCouplingPointer
+  {
+  public:
+    MEDCouplingPointer():_internal(0),_external(0) { }
+    void null() { _internal=0; _external=0; }
+    bool isNull() const { return _internal==0 && _external==0; }
+    void setInternal(T *pointer);
+    void setExternal(const T *pointer);
+    const T *getConstPointer() const { if(_internal) return _internal; else return _external; }
+    const T *getConstPointerLoc(int offset) const { if(_internal) return _internal+offset; else return _external+offset; }
+    T *getPointer() const { if(_internal) return _internal; throw INTERP_KERNEL::Exception("Trying to write on an external pointer."); }
+  private:
+    T *_internal;
+    const T *_external;
+  };
+
+  template<class T>
   class MemArray
   {
   public:
-    MemArray():_nb_of_elem(-1),_ownership(false),_pointer(0),_dealloc(CPP_DEALLOC) { }
+    MemArray():_nb_of_elem(-1),_ownership(false),_dealloc(CPP_DEALLOC) { }
     MemArray(const MemArray<T>& other);
-    T *getPointer() const { return _pointer; }
+    const T *getConstPointerLoc(int offset) const { return _pointer.getConstPointerLoc(offset); }
+    const T *getConstPointer() const { return _pointer.getConstPointer(); }
+    T *getPointer() const { return _pointer.getPointer(); }
     MemArray<T> &operator=(const MemArray<T>& other);
-    T operator[](int id) const { return _pointer[id]; }
-    T& operator[](int id) { return _pointer[id]; }
+    T operator[](int id) const { return _pointer.getConstPointer()[id]; }
+    T& operator[](int id) { return _pointer.getPointer()[id]; }
     void alloc(int nbOfElements);
     void reAlloc(int newNbOfElements);
-    void useArray(void *array, bool ownership, DeallocType type, int nbOfElem);
+    void useArray(const T *array, bool ownership, DeallocType type, int nbOfElem);
     void writeOnPlace(int id, T element0, const T *others, int sizeOfOthers);
     ~MemArray() { destroy(); }
   private:
@@ -48,7 +68,8 @@ namespace ParaMEDMEM
   private:
     int _nb_of_elem;
     bool _ownership;
-    T *_pointer;
+    MEDCouplingPointer<T> _pointer;
+    //T *_pointer;
     DeallocType _dealloc;
   };
 
@@ -85,10 +106,13 @@ namespace ParaMEDMEM
     bool isEqual(DataArrayDouble *other, double prec) const;
     //!alloc or useArray should have been called before.
     void reAlloc(int nbOfTuples);
+    void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
     double *getPointer() const { return _mem.getPointer(); }
-    void useArray(double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    static void setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
+    const double *getConstPointer() const { return _mem.getConstPointer(); }
+    void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     void updateTime() { }
@@ -107,10 +131,13 @@ namespace ParaMEDMEM
     void alloc(int nbOfTuple, int nbOfCompo);
     //!alloc or useArray should have been called before.
     void reAlloc(int nbOfTuples);
+    void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
     int *getPointer() const { return _mem.getPointer(); }
-    void useArray(int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    static void setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
+    const int *getConstPointer() const { return _mem.getConstPointer(); }
+    void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     void updateTime() { }

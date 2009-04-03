@@ -25,6 +25,8 @@
 
 namespace ParaMEDMEM
 {
+  class MEDCouplingFieldDouble;
+
   class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject
   {
   public:
@@ -37,6 +39,9 @@ namespace ParaMEDMEM
     virtual int getNumberOfNodes() const = 0;
     virtual int getSpaceDimension() const = 0;
     virtual int getMeshDimension() const = 0;
+    // tools
+    virtual void getBoundingBox(double *bbox) const = 0;
+    virtual MEDCouplingFieldDouble *getMeasureField() const = 0;
   protected:
     MEDCouplingMesh() { }
     MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name) { }

@@ -175,6 +175,42 @@ namespace INTERP_KERNEL
       for(int idim=0; idim<SPACEDIM; idim++)
         coordsS[SPACEDIM*iS+idim]=_coordsS[SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+iS)])+idim];
   }
+
+  /*!
+   * @param icellT id in target mesh in format of MyMeshType.
+   * @param offset is a value in C format that indicates the number of circular permutation.
+   * @param coordsT output val that stores coordinates of the target cell automatically resized to the right length.
+   */
+  template<class MyMeshType, class MyMatrix>
+  void PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinatesPermute(ConnType icellT, int offset, std::vector<double>& coordsT)
+  {
+    int nbNodesT=_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1]-_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)];
+    coordsT.resize(SPACEDIM*nbNodesT);
+    for (ConnType iTTmp=0; iTTmp<nbNodesT; iTTmp++)
+      {
+        ConnType iT=(iTTmp+offset)%nbNodesT;
+        for(int idim=0; idim<SPACEDIM; idim++)
+          coordsT[SPACEDIM*iTTmp+idim]=_coordsT[SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectT[OTT<ConnType,numPol>::conn2C(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+iT)])+idim];
+      }
+  }
+
+  /*!
+   * @param icellS id in source mesh in format of MyMeshType.
+   * @param offset is a value in C format that indicates the number of circular permutation.
+   * @param coordsS output val that stores coordinates of the source cell automatically resized to the right length.
+   */
+  template<class MyMeshType, class MyMatrix>
+  void PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinatesPermute(ConnType icellS, int offset, std::vector<double>& coordsS)
+  {
+    int nbNodesS=_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1]-_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
+    coordsS.resize(SPACEDIM*nbNodesS);
+    for (ConnType iSTmp=0; iSTmp<nbNodesS; iSTmp++)
+      {
+        ConnType iS=(iSTmp+offset)%nbNodesS;
+        for(int idim=0; idim<SPACEDIM; idim++)
+          coordsS[SPACEDIM*iSTmp+idim]=_coordsS[SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+iS)])+idim];
+      }
+  }
   
   /*!
    * @param icellT id in target mesh in format of MyMeshType.

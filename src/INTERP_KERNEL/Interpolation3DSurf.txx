@@ -34,6 +34,8 @@ namespace INTERP_KERNEL
   }
 
   Interpolation3DSurf::Interpolation3DSurf(const InterpolationOptions& io):InterpolationPlanar<Interpolation3DSurf>(io)
+									  ,_median_plane(io.getMedianPlane())
+									  ,_surf_3D_adjustment_eps(io.getBoundingBoxAdjustment())
   {
   }
 

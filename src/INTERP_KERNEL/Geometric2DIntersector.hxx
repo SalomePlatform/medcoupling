@@ -22,6 +22,7 @@
 #include "PlanarIntersectorP0P0.hxx"
 #include "PlanarIntersectorP0P1.hxx"
 #include "PlanarIntersectorP1P0.hxx"
+#include "PlanarIntersectorP1P1.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -40,6 +41,7 @@ namespace INTERP_KERNEL
                            double dimCaracteristic, double medianPlane, double precision, int orientation);
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
     double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);
+    double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords);
   private:
     QuadraticPolygon *buildPolygonFrom(const std::vector<double>& coords, NormalizedCellType type);
     QuadraticPolygon *buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type);

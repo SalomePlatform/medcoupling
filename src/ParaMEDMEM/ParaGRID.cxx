@@ -20,7 +20,7 @@
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
 #include "MemArray.hxx"
-#include "MEDCouplingSMesh.hxx"
+#include "MEDCouplingRMesh.hxx"
 #include "InterpKernelUtilities.hxx"
 
 #include <iostream>
@@ -30,7 +30,7 @@ using namespace std;
 namespace ParaMEDMEM
 {
   
-  ParaGRID::ParaGRID(MEDCouplingSMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception)
+  ParaGRID::ParaGRID(MEDCouplingRMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception)
   {
   
     _block_topology = dynamic_cast<BlockTopology*>(topology);
@@ -59,7 +59,7 @@ namespace ParaMEDMEM
       coordinates_names.push_back(array->getName());
       coordinates_units.push_back(array->getInfoOnComponentAt(0));
       }
-      _grid=MEDCouplingSMesh::New();
+      _grid=MEDCouplingRMesh::New();
       _grid->set(xyz_array, coordinates_names,coordinates_units);
       _grid->setName(global_grid->getName());
       _grid->setDescription(global_grid->getDescription());*/

@@ -16,19 +16,20 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __PARAMEDMEM_MEDCOUPLINGSMESH_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGSMESH_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGRMESH_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGRMESH_HXX__
 
+#include "MEDCoupling.hxx"
 #include "MEDCouplingMesh.hxx"
 
 namespace ParaMEDMEM
 {
   class DataArrayDouble;
 
-  class MEDCouplingSMesh : public MEDCouplingMesh
+  class MEDCouplingRMesh : public MEDCouplingMesh
   {
   public:
-    static MEDCouplingSMesh *New();
+    static MEDCouplingRMesh *New();
     void updateTime();
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -41,9 +42,12 @@ namespace ParaMEDMEM
     void setCoords(DataArrayDouble *coordsX,
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);
+    // tools
+    void getBoundingBox(double *bbox) const;
+    MEDCouplingFieldDouble *getMeasureField() const;
   private:
-    MEDCouplingSMesh();
-    ~MEDCouplingSMesh();
+    MEDCouplingRMesh();
+    ~MEDCouplingRMesh();
   private:
     DataArrayDouble *_x_array;
     DataArrayDouble *_y_array;

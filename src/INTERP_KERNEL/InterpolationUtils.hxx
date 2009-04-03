@@ -153,6 +153,32 @@ namespace INTERP_KERNEL
     std::transform(tmp,tmp+SPACEDIM,quadOut+3*SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
   }
 
+  /*!
+   * This method builds a potentially non-convex polygon cell built with the first point of 'triIn' the barycenter of two edges starting or ending with
+   * the first point of 'triIn' and the barycenter of 'triIn'.
+   *
+   * @param triIn is a 6 doubles array in full interlace mode, that represents a triangle.
+   * @param quadOut is a 8 doubles array filled after the following call.
+   */
+  template<int SPACEDIM>
+  inline void fillDualCellOfPolyg(const double *polygIn, int nPtsPolygonIn, double *polygOut)
+  {
+    //1st point
+    std::copy(polygIn,polygIn+SPACEDIM,polygOut);
+    std::transform(polygIn,polygIn+SPACEDIM,polygIn+SPACEDIM,polygOut+SPACEDIM,std::plus<double>());
+    //2nd point
+    std::transform(polygOut+SPACEDIM,polygOut+2*SPACEDIM,polygOut+SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
+    double tmp[SPACEDIM];
+    //
+    for(int i=0;i<nPtsPolygonIn-2;i++)
+      {
+        std::transform(polygIn,polygIn+SPACEDIM,polygIn+(i+2)*SPACEDIM,tmp,std::plus<double>());
+        std::transform(tmp,tmp+SPACEDIM,polygOut+(2*i+3)*SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
+        std::transform(polygIn+(i+1)*SPACEDIM,polygIn+(i+2)*SPACEDIM,tmp,tmp,std::plus<double>());
+        std::transform(tmp,tmp+SPACEDIM,polygOut+(2*i+2)*SPACEDIM,std::bind2nd(std::multiplies<double>(),1./3.));
+      }
+  }
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
   /*     calcul les coordonnées du barycentre d'un polygone   */ 
   /*     le vecteur en entrée est constitué des coordonnées   */

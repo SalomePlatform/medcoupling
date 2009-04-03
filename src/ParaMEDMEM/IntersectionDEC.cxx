@@ -157,7 +157,7 @@ namespace ParaMEDMEM
         //transfering option from IntersectionDEC to ElementLocator                 
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
-        MEDCouplingUMesh* distant_mesh=0; 
+        MEDCouplingPointSet* distant_mesh=0; 
         int* distant_ids=0;
         for (int i=0; i<_target_group->size(); i++)
           {
@@ -189,7 +189,7 @@ namespace ParaMEDMEM
         //transfering option from IntersectionDEC to ElementLocator
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
-        MEDCouplingUMesh* distant_mesh=0;
+        MEDCouplingPointSet* distant_mesh=0;
         int* distant_ids=0;
         for (int i=0; i<_source_group->size(); i++)
           {

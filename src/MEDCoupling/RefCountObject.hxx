@@ -35,6 +35,13 @@ namespace ParaMEDMEM
       ON_NODES = 1
     } TypeOfField;
 
+  typedef enum
+    {
+      NO_TIME = 4,
+      ONE_TIME = 5,
+      LINEAR_TIME = 6
+    } TypeOfTimeDiscretization;
+
   class RefCountObject : public TimeLabel
   {
   protected:

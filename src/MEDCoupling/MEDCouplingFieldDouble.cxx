@@ -18,14 +18,16 @@
 //
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMesh.hxx"
+#include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 
 #include <sstream>
 
 using namespace ParaMEDMEM;
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(TypeOfField type)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTimeDiscretization td)
 {
-  return new MEDCouplingFieldDouble(type);
+  return new MEDCouplingFieldDouble(type,td);
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
@@ -33,95 +35,95 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
   return new MEDCouplingFieldDouble(*this,recDeepCpy);
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type):MEDCouplingField(type),_array(0)
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),
+                                                                                              _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),_array(0)
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),
+                                                                                                  _time_discr(other._time_discr->performCpy(deepCpy))
 {
-  if(other._array)
-    _array=other._array->performCpy(deepCpy);
 }
 
 MEDCouplingFieldDouble::~MEDCouplingFieldDouble()
 {
-  if(_array)
-    _array->decrRef();
+  delete _time_discr;
 }
 
 void MEDCouplingFieldDouble::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Field invalid because no mesh specified !");
-  if(!_array)
+  if(!getArray())
     throw INTERP_KERNEL::Exception("Field invalid because no values set !");
-  if(_type==ON_CELLS)
-    {
-      if(_mesh->getNumberOfCells()!=_array->getNumberOfTuples())
-        {
-          std::ostringstream message;
-          message << "Field on cells invalid because there are " << _mesh->getNumberOfCells();
-          message << " cells in mesh and " << _array->getNumberOfTuples() << " tuples in field !";
-          throw INTERP_KERNEL::Exception(message.str().c_str());
-        }
-    }
-  else if(_type==ON_NODES)
-    {
-      if(_mesh->getNumberOfNodes()!=_array->getNumberOfTuples())
-        {
-          std::ostringstream message;
-          message << "Field on nodes invalid because there are " << _mesh->getNumberOfNodes();
-          message << " cells in mesh and " << _array->getNumberOfTuples() << " tuples in field !";
-          throw INTERP_KERNEL::Exception(message.str().c_str());
-        }
-    }
-  else
-    throw INTERP_KERNEL::Exception("Field of undifined type !!!");
+  _type->checkCoherencyBetween(_mesh,getArray());
+}
+
+double MEDCouplingFieldDouble::accumulate(int compId) const
+{
+  const double *ptr=getArray()->getConstPointer();
+  int nbTuple=getArray()->getNumberOfTuples();
+  int nbComps=getArray()->getNumberOfComponents();
+  double ret=0.;
+  for(int i=0;i<nbTuple;i++)
+    ret+=ptr[i*nbComps+compId];
+  return ret;
+}
+
+double MEDCouplingFieldDouble::measureAccumulate(int compId) const
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform measureAccumulate");
+  MEDCouplingFieldDouble *weight=_type->getWeightingField(_mesh);
+  const double *ptr=weight->getArray()->getConstPointer();
+  int nbOfValues=weight->getArray()->getNbOfElems();
+  double ret=0.;
+  for (int i=0; i<nbOfValues; i++)
+    ret+=getIJ(i,compId)*ptr[i];
+  weight->decrRef();
+  return ret;
+}
+
+void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->checkNoTimePresence();
+}
+
+void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->checkTimePresence(time);
 }
 
 void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)
 {
-  double *ptr=_array->getPointer();
+  double *ptr=getArray()->getPointer();
   ptr+=compoId;
-  int nbOfComp=_array->getNumberOfComponents();
-  int nbOfTuple=_array->getNumberOfTuples();
+  int nbOfComp=getArray()->getNumberOfComponents();
+  int nbOfTuple=getArray()->getNumberOfTuples();
   for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
     *ptr=a*(*ptr)+b;
 }
 
 int MEDCouplingFieldDouble::getNumberOfComponents() const
 {
-  return _array->getNumberOfComponents();
+  return getArray()->getNumberOfComponents();
 }
 
 int MEDCouplingFieldDouble::getNumberOfTuples() const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Impossible to retrieve number of tuples because no mesh specified !");
-  if(_type==ON_CELLS)
-    return _mesh->getNumberOfCells();
-  else if(_type==ON_NODES)
-    return _mesh->getNumberOfNodes();
-  else
-    throw INTERP_KERNEL::Exception("Impossible to retrieve number of tuples because type of entity not implemented yet !");
+  return _type->getNumberOfTuples(_mesh);
 }
 
 void MEDCouplingFieldDouble::updateTime()
 {
   MEDCouplingField::updateTime();
-  if(_array)
-    updateTimeWith(*_array);
+  if(getArray())
+    updateTimeWith(*getArray());
 }
 
 void MEDCouplingFieldDouble::setArray(DataArrayDouble *array)
 {
-  if(array!=_array)
-    {
-      if(_array)
-        _array->decrRef();
-      _array=array;
-      if(_array)
-        _array->incrRef();
-      declareAsNew();
-    }
+  _time_discr->setArray(array,this);
 }

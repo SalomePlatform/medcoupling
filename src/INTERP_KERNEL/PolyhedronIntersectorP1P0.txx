@@ -102,7 +102,7 @@ namespace INTERP_KERNEL
                     else
                       {
                         double val=(*iterRes).second+volume;
-                        resRow.erase(OTT<ConnType,numPol>::indFC(*iterCellS));
+                        resRow.erase(OTT<ConnType,numPol>::indFC(sourceNode));
                         resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(sourceNode),val));
                       }
                   }

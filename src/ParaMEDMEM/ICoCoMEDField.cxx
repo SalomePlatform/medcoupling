@@ -107,11 +107,10 @@ namespace ICoCo
     //field on the sending end
     if (triofield._field!=0)
       {
-        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,_mesh, *_comp_topology );
+        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
         ParaMEDMEM::DataArrayDouble *fieldArr=_field->getField()->getArray();
         _field->getField()->setName(triofield.getName().c_str());
-        _field->getField()->setTime(triofield._time1);
-        _field->getField()->setDtIt(0,triofield._itnumber);
+        _field->getField()->setTime(triofield._time1,0,triofield._itnumber);
         for (int i =0; i<triofield._nb_elems; i++)
           for (int j=0; j<triofield._nb_field_components; j++)
             {
@@ -122,10 +121,9 @@ namespace ICoCo
     else
       {
      //   _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,_support, *_comp_topology );
-        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,_mesh, *_comp_topology );
+        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
         _field->getField()->setName(triofield.getName().c_str());
-        _field->getField()->setTime(triofield._time1);
-        _field->getField()->setDtIt(0,triofield._itnumber);
+        _field->getField()->setTime(triofield._time1,0,triofield._itnumber);
         // the trio field points to the pointer inside the MED field
         triofield._field=const_cast<double*> (_field->getField()->getArray()->getPointer());
         for (int i=0; i<triofield._nb_field_components*triofield._nb_elems;i++)

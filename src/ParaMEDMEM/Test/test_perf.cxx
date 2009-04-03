@@ -159,7 +159,7 @@ void testIntersectionDEC_2D(const string& filename_xml1, const string& meshname1
     paramesh=new ParaMESH (mesh,*source_group,"source mesh");
     
     ParaMEDMEM::ComponentTopology comptopo;
-    parafield = new ParaFIELD(ON_CELLS, paramesh, comptopo);
+    parafield = new ParaFIELD(ON_CELLS, NO_TIME, paramesh, comptopo);
 
     int nb_local=mesh->getNumberOfCells();
     double *value=parafield->getField()->getArray()->getPointer();
@@ -192,7 +192,7 @@ void testIntersectionDEC_2D(const string& filename_xml1, const string& meshname1
 
     paramesh=new ParaMESH (mesh,*target_group,"target mesh");
     ParaMEDMEM::ComponentTopology comptopo;
-    parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+    parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 		
     int nb_local=mesh->getNumberOfCells();
     double *value=parafield->getField()->getArray()->getPointer();

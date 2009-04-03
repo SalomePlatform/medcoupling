@@ -44,6 +44,7 @@ namespace INTERP_KERNEL
 
   void CellModel::buildUniqueInstance()
   {
+    _map_of_unique_instance.insert(make_pair(NORM_POINT0,CellModel(NORM_POINT0)));
     _map_of_unique_instance.insert(make_pair(NORM_SEG2,CellModel(NORM_SEG2)));
     _map_of_unique_instance.insert(make_pair(NORM_SEG3,CellModel(NORM_SEG3)));
     _map_of_unique_instance.insert(make_pair(NORM_TRI3,CellModel(NORM_TRI3)));
@@ -68,6 +69,11 @@ namespace INTERP_KERNEL
     _dyn=false;
     switch(type)
       {
+      case NORM_POINT0:
+        {
+          _nb_of_pts=0; _nb_of_sons=0; _dim=0;
+        }
+        break;
       case NORM_SEG2:
         {
           _nb_of_pts=2; _nb_of_sons=0; _dim=1;

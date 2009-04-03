@@ -23,6 +23,7 @@
 #include "PlanarIntersectorP0P0.txx"
 #include "PlanarIntersectorP0P1.txx"
 #include "PlanarIntersectorP1P0.txx"
+#include "PlanarIntersectorP1P1.txx"
 
 #include "PolygonAlgorithms.txx"
 
@@ -108,6 +109,26 @@ namespace INTERP_KERNEL
         std::cout << std::endl <<"Intersection area = " << result << std::endl;
       }
     
+    return result;
+  }
+
+  template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
+  double ConvexIntersector<MyMeshType,MyMatrix,InterpType>::intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords)
+  {
+    double result = 0;
+    int nbOfNodesS=sourceCoords.size()/SPACEDIM;
+    int nbOfNodesT=targetCoords.size()/SPACEDIM;
+    /*** Compute the intersection area ***/
+    INTERP_KERNEL::PolygonAlgorithms<SPACEDIM> P(_epsilon, PlanarIntersector<MyMeshType,MyMatrix>::_precision);
+    std::deque<double> inter =  P.intersectConvexPolygons(&targetCoords[0], &sourceCoords[0],
+                                                          nbOfNodesT, nbOfNodesS);
+    double area[SPACEDIM];
+    int nb_inter =((int)inter.size())/SPACEDIM;
+    for(int i = 1; i<nb_inter-1; i++)
+      {
+        INTERP_KERNEL::crossprod<SPACEDIM>(&inter[0],&inter[SPACEDIM*i],&inter[SPACEDIM*(i+1)],area);
+        result +=0.5*norm<SPACEDIM>(area);
+      }
     return result;
   }
 }

@@ -21,6 +21,7 @@
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingField.hxx"
+#include "MEDCouplingTimeDiscretization.hxx"
 #include "MemArray.hxx"
 
 namespace ParaMEDMEM
@@ -28,23 +29,29 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingFieldDouble : public MEDCouplingField
   {
   public:
-    static MEDCouplingFieldDouble *New(TypeOfField type);
+    static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    double getIJ(int tupleId, int compoId) const { return _array->getIJ(tupleId,compoId); }
+    void setTime(double val, int dt, int it) { _time_discr->setTime(val,dt,it); }
+    double getTime(int& dt, int& it) const { return _time_discr->getTime(dt,it); }
+    double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
     void setArray(DataArrayDouble *array);
-    DataArrayDouble *getArray() const { return _array; }
+    DataArrayDouble *getArray() const { return _time_discr->getArray(); }
+    double accumulate(int compId) const;
+    double measureAccumulate(int compId) const;
+    void getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception);
+    void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);
     //! \b temporary
     void applyLin(double a, double b, int compoId);
     int getNumberOfComponents() const;
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     void updateTime();
   private:
-    MEDCouplingFieldDouble(TypeOfField type);
+    MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
     ~MEDCouplingFieldDouble();
   private:
-    DataArrayDouble *_array;
+    MEDCouplingTimeDiscretization *_time_discr;
   };
 }
 

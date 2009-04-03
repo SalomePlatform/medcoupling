@@ -25,9 +25,9 @@
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.txx"
 #include "Interpolation3D.txx"
+#include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
-#include "VolSurfFormulae.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 
 // class InterpolationMatrix
@@ -96,7 +96,7 @@ namespace ParaMEDMEM
   //   the subdomain and the actual elem ids on the distant subdomain
   //   ======================================================================
 
-  void InterpolationMatrix::addContribution ( MEDCouplingUMesh& distant_support,
+  void InterpolationMatrix::addContribution ( MEDCouplingPointSet& distant_support,
                                               int iproc_distant,
                                               int* distant_elems,
                                               const std::string& srcMeth,
@@ -112,12 +112,13 @@ namespace ParaMEDMEM
     vector<map<int,double> > surfaces;
     int colSize=0;
     //computation of the intersection volumes between source and target elements
-
+    MEDCouplingUMesh *distant_supportC=dynamic_cast<MEDCouplingUMesh *>(&distant_support);
+    MEDCouplingUMesh *source_supportC=dynamic_cast<MEDCouplingUMesh *>(_source_support);
     if ( distant_support.getMeshDimension() == 2
          && distant_support.getSpaceDimension() == 3 )
       {
-        MEDCouplingNormalizedUnstructuredMesh<3,2> target_wrapper(&distant_support);
-        MEDCouplingNormalizedUnstructuredMesh<3,2> source_wrapper(_source_support);
+        MEDCouplingNormalizedUnstructuredMesh<3,2> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<3,2> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation3DSurf interpolator (*this);
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
@@ -127,8 +128,8 @@ namespace ParaMEDMEM
     else if ( distant_support.getMeshDimension() == 2
               && distant_support.getSpaceDimension() == 2)
       {
-        MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(&distant_support);
-        MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(_source_support);
+        MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation2D interpolator (*this);
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
@@ -138,8 +139,8 @@ namespace ParaMEDMEM
     else if ( distant_support.getMeshDimension() == 3
               && distant_support.getSpaceDimension() ==3 )
       {
-        MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(&distant_support);
-        MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(_source_support);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(source_supportC);
 
         INTERP_KERNEL::Interpolation3D interpolator (*this);
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
@@ -153,10 +154,8 @@ namespace ParaMEDMEM
   
     int source_size=surfaces.size();
 
-    MEDCouplingFieldDouble *target_triangle_surf =
-      getSupportVolumes(&distant_support);
-    MEDCouplingFieldDouble *source_triangle_surf =
-      getSupportVolumes(_source_support) ;
+    MEDCouplingFieldDouble *target_triangle_surf = distant_support.getMeasureField();
+    MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField();
 
     // Storing the source volumes
     _source_volume.resize(source_size);
@@ -363,210 +362,5 @@ namespace ParaMEDMEM
           }
 
       }
-  }
-
-  MEDCouplingFieldDouble* InterpolationMatrix::getSupportVolumes(MEDCouplingMesh * mesh)
-  {
-    if(!mesh->isStructured())
-      return getSupportUnstructuredVolumes((MEDCouplingUMesh *)mesh);
-    else
-      throw INTERP_KERNEL::Exception("Not implemented yet !!!");
-  }
-
-  //   ====================================================================
-  //   brief returns the volumes of the cells underlying the field \a field
-
-  //   For 2D geometries, the returned field contains the areas.
-  //   For 3D geometries, the returned field contains the volumes.
-
-  //   param field field on which cells the volumes are required
-  //   return field containing the volumes
-  //   ====================================================================
-
-  MEDCouplingFieldDouble* InterpolationMatrix::getSupportUnstructuredVolumes(MEDCouplingUMesh * mesh)
-  {
-    int ipt, type ;
-    int nbelem       = mesh->getNumberOfCells() ;
-    int dim_mesh     = mesh->getMeshDimension();
-    int dim_space    = mesh->getSpaceDimension() ;
-    double *coords    = mesh->getCoords()->getPointer() ;
-    int *connec       = mesh->getNodalConnectivity()->getPointer() ;
-    int *connec_index = mesh->getNodalConnectivityIndex()->getPointer() ;
-
-
-    MEDCouplingFieldDouble* field = MEDCouplingFieldDouble::New(ON_CELLS);
-    DataArrayDouble* array = DataArrayDouble::New() ;
-    array->alloc(nbelem, 1) ;
-    double *area_vol = array->getPointer() ;
-
-    switch (dim_mesh)
-      {
-      case 2: // getting the areas
-        for ( int iel=0 ; iel<nbelem ; iel++ )
-          {
-            ipt = connec_index[iel] ;
-            type = connec[ipt] ;
-
-            switch ( type )
-              {
-              case INTERP_KERNEL::NORM_TRI3 :
-              case INTERP_KERNEL::NORM_TRI6 :
-                {
-                  int N1 = connec[ipt+1];
-                  int N2 = connec[ipt+2];
-                  int N3 = connec[ipt+3];
-
-                  area_vol[iel]=INTERP_KERNEL::calculateAreaForTria(coords+(dim_space*N1),
-                                                                    coords+(dim_space*N2),
-                                                                    coords+(dim_space*N3),
-                                                                    dim_space);
-                }
-                break ;
-
-              case INTERP_KERNEL::NORM_QUAD4 :
-              case INTERP_KERNEL::NORM_QUAD8 :
-                {
-                  int N1 = connec[ipt+1];
-                  int N2 = connec[ipt+2];
-                  int N3 = connec[ipt+3];
-                  int N4 = connec[ipt+4];
-
-                  area_vol[iel]=INTERP_KERNEL::calculateAreaForQuad(coords+dim_space*N1,
-                                                                    coords+dim_space*N2,
-                                                                    coords+dim_space*N3,
-                                                                    coords+dim_space*N4,
-                                                                    dim_space) ;
-                }
-                break ;
-
-              case INTERP_KERNEL::NORM_POLYGON :
-                {
-                  // We must remember that the first item is the type. That's
-                  // why we substract 1 to get the number of nodes of this polygon
-                  int size = connec_index[iel+1] - connec_index[iel] - 1 ;
-
-                  double **pts = new double *[size] ;
-
-                  for ( int inod=0 ; inod<size ; inod++ )
-                    {
-                      // Remember the first item is the type
-                      pts[inod] = coords+dim_space*connec[ipt+inod+1] ;
-                    }
-
-                  area_vol[iel]=INTERP_KERNEL::calculateAreaForPolyg((const double **)pts,
-                                                                     size,dim_space);
-                  delete [] pts;
-                }
-                break ;
-
-              default :
-                throw INTERP_KERNEL::Exception("Bad Support to get Areas on it !");
-
-              } // End of switch
-
-          } // End of the loop over the cells
-        break;
-      case 3: // getting the volumes
-        for ( int iel=0 ; iel<nbelem ; iel++ )
-          {
-            ipt = connec_index[iel] ;
-            type = connec[ipt] ;
-
-            switch ( type )
-              {
-              case INTERP_KERNEL::NORM_TETRA4 :
-              case INTERP_KERNEL::NORM_TETRA10 :
-                {
-                  int N1 = connec[ipt+1];
-                  int N2 = connec[ipt+2];
-                  int N3 = connec[ipt+3];
-                  int N4 = connec[ipt+4];
-
-                  area_vol[iel]=INTERP_KERNEL::calculateVolumeForTetra(coords+dim_space*N1,
-                                                                       coords+dim_space*N2,
-                                                                       coords+dim_space*N3,
-                                                                       coords+dim_space*N4) ;
-                }
-                break ;
-
-              case INTERP_KERNEL::NORM_PYRA5 :
-              case INTERP_KERNEL::NORM_PYRA13 :
-                {
-                  int N1 = connec[ipt+1];
-                  int N2 = connec[ipt+2];
-                  int N3 = connec[ipt+3];
-                  int N4 = connec[ipt+4];
-                  int N5 = connec[ipt+5];
-
-                  area_vol[iel]=INTERP_KERNEL::calculateVolumeForPyra(coords+dim_space*N1,
-                                                                      coords+dim_space*N2,
-                                                                      coords+dim_space*N3,
-                                                                      coords+dim_space*N4,
-                                                                      coords+dim_space*N5) ;
-                }
-                break ;
-
-              case INTERP_KERNEL::NORM_PENTA6 :
-              case INTERP_KERNEL::NORM_PENTA15 :
-                {
-                  int N1 = connec[ipt+1];
-                  int N2 = connec[ipt+2];
-                  int N3 = connec[ipt+3];
-                  int N4 = connec[ipt+4];
-                  int N5 = connec[ipt+5];
-                  int N6 = connec[ipt+6];
-
-                  area_vol[iel]=INTERP_KERNEL::calculateVolumeForPenta(coords+dim_space*N1,
-                                                                       coords+dim_space*N2,
-                                                                       coords+dim_space*N3,
-                                                                       coords+dim_space*N4,
-                                                                       coords+dim_space*N5,
-                                                                       coords+dim_space*N6) ;
-                }
-                break ;
-
-              case INTERP_KERNEL::NORM_HEXA8 :
-              case INTERP_KERNEL::NORM_HEXA20 :
-                {
-                  int N1 = connec[ipt+1];
-                  int N2 = connec[ipt+2];
-                  int N3 = connec[ipt+3];
-                  int N4 = connec[ipt+4];
-                  int N5 = connec[ipt+5];
-                  int N6 = connec[ipt+6];
-                  int N7 = connec[ipt+7];
-                  int N8 = connec[ipt+8];
-
-                  area_vol[iel]=INTERP_KERNEL::calculateVolumeForHexa(coords+dim_space*N1,
-                                                                      coords+dim_space*N2,
-                                                                      coords+dim_space*N3,
-                                                                      coords+dim_space*N4,
-                                                                      coords+dim_space*N5,
-                                                                      coords+dim_space*N6,
-                                                                      coords+dim_space*N7,
-                                                                      coords+dim_space*N8) ;
-                }
-                break ;
-
-              case INTERP_KERNEL::NORM_POLYHED :
-                {
-                  throw INTERP_KERNEL::Exception("Not yet implemented !");
-                }
-                break ;
-
-              default:
-                throw INTERP_KERNEL::Exception("Bad Support to get Volume on it !");
-              }
-          }
-        break;
-      default:
-        throw INTERP_KERNEL::Exception("interpolation is not available for this dimension");
-      }
-  
-    field->setArray(array) ;
-    array->decrRef();
-    field->setMesh(mesh) ;
-  
-    return field ;
   }
 }

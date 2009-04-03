@@ -28,35 +28,29 @@
 namespace ParaMEDMEM
 {
   class MEDCouplingMesh;
+  class MEDCouplingFieldDiscretization;
 
   class MEDCOUPLING_EXPORT MEDCouplingField : public RefCountObject
   {
   public:
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
     void setMesh(ParaMEDMEM::MEDCouplingMesh *mesh);
-    void setTime(double val) { _time=val; }
-    double getTime() const { return _time; }
-    void setDtIt(int dt, int it) { _dt=dt; _it=it; }
-    void getDtIt(int& dt, int& it) { dt=_dt; it=_it; }
     ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
     void setName(const char *name) { _name=name; }
     void setDescription(const char *desc) { _desc=desc; }
     const char *getName() const { return _name.c_str(); }
-    TypeOfField getEntity() const { return _type; }
+    TypeOfField getEntity() const;
   protected:
     void updateTime();
   protected:
-    MEDCouplingField(TypeOfField type):_time(0.),_dt(-1),_it(-1),_mesh(0),_type(type) { }
+    MEDCouplingField(TypeOfField type);
     MEDCouplingField(const MEDCouplingField& other);
     virtual ~MEDCouplingField();
   protected:
     std::string _name;
     std::string _desc;
-    double _time;
-    int _dt;
-    int _it;
     MEDCouplingMesh *_mesh;
-    const TypeOfField _type;
+    MEDCouplingFieldDiscretization *_type;
   };
 }
 

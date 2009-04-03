@@ -16,33 +16,31 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __CONVEXINTERSECTOR_HXX__
-#define __CONVEXINTERSECTOR_HXX__
+#ifndef __PLANARINTERSECTORP1P1_HXX__
+#define __PLANARINTERSECTORP1P1_HXX__
 
-#include "PlanarIntersectorP0P0.hxx"
-#include "PlanarIntersectorP0P1.hxx"
-#include "PlanarIntersectorP1P0.hxx"
-#include "PlanarIntersectorP1P1.hxx"
+#include "PlanarIntersector.hxx"
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType >
-  class ConvexIntersector : public InterpType<MyMeshType,MyMatrix,ConvexIntersector<MyMeshType,MyMatrix,InterpType> >
+  template<class MyMeshType, class MyMatrix, class ConcreteP1P1Intersector>
+  class PlanarIntersectorP1P1 : public PlanarIntersector<MyMeshType,MyMatrix>
   {
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
+  protected:
+    PlanarIntersectorP1P1(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double medianPlane, bool doRotate, int orientation, int printLevel);
   public:
-    ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
-                      double dimCaracteristic, double precision, double medianPlane,
-                      bool doRotate, int orientation, int printLevel);
-    double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
-    double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);
-    double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords);
-  private :
-    double _epsilon;
+    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    int getNumberOfRowsOfResMatrix() const;
+    int getNumberOfColsOfResMatrix() const;
+
+    double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords) { return asLeaf().intersectGeometryGeneral(targetCoords,sourceCoords); }
+  protected:
+    ConcreteP1P1Intersector& asLeaf() { return static_cast<ConcreteP1P1Intersector&>(*this); }
   };
 }
 

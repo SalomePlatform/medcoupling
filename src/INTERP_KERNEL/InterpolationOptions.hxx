@@ -51,28 +51,28 @@ namespace INTERP_KERNEL {
     double getPrecision() const { return InterpolationOptions::_precision; }
     void setPrecision(double p) { InterpolationOptions::_precision=p; }
 
-    double getMedianPlane() { return InterpolationOptions::_median_plane; }
+    double getMedianPlane() const { return InterpolationOptions::_median_plane; }
     void setMedianPlane(double mp) { InterpolationOptions::_median_plane=mp; }
     
-    bool getDoRotate() { return InterpolationOptions::_do_rotate; }
+    bool getDoRotate() const { return InterpolationOptions::_do_rotate; }
     void setDoRotate( bool dr) { InterpolationOptions::_do_rotate = dr; }
     
-    double getBoundingBoxAdjustment() { return InterpolationOptions::_bounding_box_adjustment; }
+    double getBoundingBoxAdjustment() const { return InterpolationOptions::_bounding_box_adjustment; }
     void setBoundingBoxAdjustment(double bba) { InterpolationOptions::_bounding_box_adjustment=bba; }
     
-    int getOrientation() { return InterpolationOptions::_orientation; }
+    int getOrientation() const { return InterpolationOptions::_orientation; }
     void setOrientation(int o) { InterpolationOptions::_orientation=o; }
     
-    SplittingPolicy getSplittingPolicy() { return _splitting_policy; }
+    SplittingPolicy getSplittingPolicy() const { return _splitting_policy; }
     void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
     void init()
     {  
       _print_level=0;
       _intersection_type=Triangulation;
-      _precision=1e-12;;
+      _precision=1e-12;
       _median_plane=0.5;
       _do_rotate=true;
-      _bounding_box_adjustment=0.1;
+      _bounding_box_adjustment=1e-4;
       _orientation=0;
       _splitting_policy=GENERAL_48;
     }

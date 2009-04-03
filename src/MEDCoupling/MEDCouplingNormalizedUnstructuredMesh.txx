@@ -41,7 +41,7 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getBoundingBox(dou
       boundingBox[SPACEDIM+i]=-std::numeric_limits<double>::max();
     }
   ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
-  const double *ptr=array->getPointer();
+  const double *ptr=array->getConstPointer();
   int nbOfPts=array->getNbOfElems()/SPACEDIM;
   for(int j=0;j<SPACEDIM;j++)
     {
@@ -90,7 +90,7 @@ template<int SPACEDIM,int MESHDIM>
 const double *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getCoordinatesPtr() const
 {
   ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
-  return array->getPointer();
+  return array->getConstPointer();
 }
 
 template<int SPACEDIM,int MESHDIM>
@@ -124,8 +124,8 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
   _conn_for_interp=new int[initialConnSize-nbOfCell];
   _conn_index_for_interp=new int[nbOfCell+1];
   _conn_index_for_interp[0]=0;
-  const int *work_conn=_mesh->getNodalConnectivity()->getPointer()+1;
-  const int *work_conn_index=_mesh->getNodalConnectivityIndex()->getPointer();
+  const int *work_conn=_mesh->getNodalConnectivity()->getConstPointer()+1;
+  const int *work_conn_index=_mesh->getNodalConnectivityIndex()->getConstPointer();
   int *work_conn_for_interp=_conn_for_interp;
   int *work_conn_index_for_interp=_conn_index_for_interp;
   for(int i=0;i<nbOfCell;i++)

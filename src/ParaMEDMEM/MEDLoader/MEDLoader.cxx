@@ -960,10 +960,9 @@ namespace MEDLoader
     ParaMEDMEM::MEDCouplingUMesh *mesh=readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
     if(typeOfOutField==ON_CELLS)
       keepSpecifiedMeshDim<MEDFieldDoublePerCellType>(fieldPerCellType,meshDim);
-    ParaMEDMEM::MEDCouplingFieldDouble *ret=ParaMEDMEM::MEDCouplingFieldDouble::New(typeOfOutField);
-    ret->setDtIt(iteration,order);
+    ParaMEDMEM::MEDCouplingFieldDouble *ret=ParaMEDMEM::MEDCouplingFieldDouble::New(typeOfOutField,ONE_TIME);
     ret->setName(fieldName);
-    ret->setTime(time);
+    ret->setTime(time,iteration,order);
     ret->setMesh(mesh);
     mesh->decrRef();
     ParaMEDMEM::DataArrayDouble *arr=buildArrayFromRawData(fieldPerCellType);
@@ -1089,7 +1088,7 @@ void MEDLoader::writeParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh)
     }
   if(myRank==0)
     writeMasterFile(fileName,fileNames,mesh->getCellMesh()->getName());
-  writeUMesh(fileNames[myRank].c_str(),mesh->getCellMesh());
+  writeUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()));
 }
 
 void MEDLoader::writeParaField(const char *fileName, const char *meshName, ParaMEDMEM::ParaFIELD *f)

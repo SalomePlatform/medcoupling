@@ -31,7 +31,9 @@ namespace ParaMEDMEM
   class MEDCouplingBasicsTest : public CppUnit::TestFixture
   {
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest);
+    CPPUNIT_TEST( testArray );
     CPPUNIT_TEST( testMesh );
+    CPPUNIT_TEST( testMeshPointsCloud );
     CPPUNIT_TEST( testDeepCopy );
     CPPUNIT_TEST( testRevNodal );
     CPPUNIT_TEST( testBuildPartOfMySelf );
@@ -40,13 +42,18 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P1_1 );
     CPPUNIT_TEST( test2DInterpP1P0_1 );
+    CPPUNIT_TEST( test2DInterpP1P1_1 );
     CPPUNIT_TEST( test3DSurfInterpP0P0_1 );
     CPPUNIT_TEST( test3DSurfInterpP0P1_1 );
     CPPUNIT_TEST( test3DSurfInterpP1P0_1 );
     CPPUNIT_TEST( test3DInterpP0P0_1 );
+    CPPUNIT_TEST( test3DInterpP0P1_1 );
+    CPPUNIT_TEST( test3DInterpP1P0_1 );
     CPPUNIT_TEST_SUITE_END();
   public:
+    void testArray();
     void testMesh();
+    void testMeshPointsCloud();
     void testDeepCopy();
     void testRevNodal();
     void testBuildPartOfMySelf();
@@ -55,16 +62,22 @@ namespace ParaMEDMEM
     void test2DInterpP0P0_1();
     void test2DInterpP0P1_1();
     void test2DInterpP1P0_1();
+    void test2DInterpP1P1_1();
     void test3DSurfInterpP0P0_1();
     void test3DSurfInterpP0P1_1();
     void test3DSurfInterpP1P0_1();
     void test3DInterpP0P0_1();
+    void test3DInterpP0P1_1();
+    void test3DInterpP1P0_1();
   private:
     MEDCouplingUMesh *build2DSourceMesh_1();
     MEDCouplingUMesh *build2DTargetMesh_1();
+    MEDCouplingUMesh *build2DTargetMesh_2();
     MEDCouplingUMesh *build3DSurfSourceMesh_1();
     MEDCouplingUMesh *build3DSurfTargetMesh_1();
+    MEDCouplingUMesh *build3DSurfTargetMesh_2();
     MEDCouplingUMesh *build3DSourceMesh_1();
+    MEDCouplingUMesh *build3DTargetMesh_1();
     double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }

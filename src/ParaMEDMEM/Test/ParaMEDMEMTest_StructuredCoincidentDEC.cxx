@@ -105,7 +105,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     paramesh=new ParaMESH (mesh,source_group,"source mesh");
 
     ParaMEDMEM::ComponentTopology comptopo(6);
-    parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+    parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 
     int nb_local=mesh->getNumberOfCells();
     const int* global_numbering = paramesh->getGlobalNumberingCell();
@@ -132,7 +132,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     paramesh=new ParaMESH (mesh,self_group,"target mesh");
     ParaMEDMEM::ComponentTopology comptopo(6, &target_group);
 
-    parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+    parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
 
     int nb_local=mesh->getNumberOfCells();
     double *value=parafield->getField()->getArray()->getPointer();

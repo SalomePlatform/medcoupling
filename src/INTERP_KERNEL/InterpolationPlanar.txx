@@ -222,8 +222,35 @@ namespace INTERP_KERNEL
             break;
           }
       }
+    else if(meth=="P1P1")
+      {
+        switch (InterpolationOptions::getIntersectionType())
+          {
+          case Triangulation:
+            intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
+                                                                                                  InterpolationOptions::getPrecision(),
+                                                                                                  InterpolationOptions::getMedianPlane(),
+                                                                                                  InterpolationOptions::getOrientation(),
+                                                                                                  InterpolationOptions::getPrintLevel());
+            break;
+          case Convex:
+            intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
+                                                                                           InterpolationOptions::getPrecision(),
+                                                                                           InterpolationOptions::getDoRotate(),
+                                                                                           InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getOrientation(),
+                                                                                           InterpolationOptions::getPrintLevel());
+            break;
+          case Geometric2D:
+            intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                InterpolationOptions::getMedianPlane(),
+                                                                                                InterpolationOptions::getPrecision(),
+                                                                                                InterpolationOptions::getOrientation());
+            break;
+          }
+      }
     else
-      throw INTERP_KERNEL::Exception("Invalid method specified ! Must be in : \"P0P0\" \"P0P1\" or \"P1P0\"");
+      throw INTERP_KERNEL::Exception("Invalid method specified ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");
     /****************************************************************/
     /* Create a search tree based on the bounding boxes             */
     /* Instanciate the intersector and initialise the result vector */

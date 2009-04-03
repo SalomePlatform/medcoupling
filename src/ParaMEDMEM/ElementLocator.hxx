@@ -20,7 +20,6 @@
 #define __ELEMENTLOCATOR_HXX__
 
 #include "InterpolationOptions.hxx"
-#include "MEDCouplingUMesh.hxx"
 
 #include <vector>
 #include <set>
@@ -31,7 +30,7 @@ namespace ParaMEDMEM
   class ProcessorGroup;
   class ParaSUPPORT;
   class InterpolationMatrix;
-
+  class MEDCouplingPointSet;
 
   class ElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
@@ -40,15 +39,15 @@ namespace ParaMEDMEM
 
     virtual ~ElementLocator();
     void exchangeMesh(int idistantrank,
-                      MEDCouplingUMesh*& target_mesh,
+                      MEDCouplingPointSet*& target_mesh,
                       int*& distant_ids);
     void exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth);
   private:
     const ParaMESH&  _local_para_mesh ;
-    MEDCouplingUMesh* _local_cell_mesh;
-    MEDCouplingUMesh* _local_face_mesh;
-    std::vector<MEDCouplingUMesh*> _distant_cell_meshes;
-    std::vector<MEDCouplingUMesh*> _distant_face_meshes;
+    MEDCouplingPointSet* _local_cell_mesh;
+    MEDCouplingPointSet* _local_face_mesh;
+    std::vector<MEDCouplingPointSet*> _distant_cell_meshes;
+    std::vector<MEDCouplingPointSet*> _distant_face_meshes;
     double* _domain_bounding_boxes;
     const ProcessorGroup& _distant_group;
     const ProcessorGroup& _local_group;
@@ -57,11 +56,9 @@ namespace ParaMEDMEM
   
     void _computeBoundingBoxes();
     bool _intersectsBoundingBox(int irank);
-    bool _intersectsBoundingBox(double* bb1, double* bb2, int dim);
-    void _exchangeMesh(MEDCouplingUMesh* local_mesh, MEDCouplingUMesh*& distant_mesh,
+    void _exchangeMesh(MEDCouplingPointSet* local_mesh, MEDCouplingPointSet*& distant_mesh,
                        int iproc_distant, const int* distant_ids_send,
                        int*& distant_ids_recv);
-    MEDCouplingUMesh* _meshFromElems(std::set<int>& elems);
   };
 
 }

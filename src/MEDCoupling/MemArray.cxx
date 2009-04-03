@@ -66,7 +66,19 @@ void DataArrayDouble::reAlloc(int nbOfTuples)
   declareAsNew();
 }
 
-void DataArrayDouble::useArray(double *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
+void DataArrayDouble::setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
+{
+  if(newArray!=arrayToSet)
+    {
+      if(arrayToSet)
+        arrayToSet->decrRef();
+      arrayToSet=newArray;
+      if(arrayToSet)
+        arrayToSet->incrRef();
+    }
+}
+
+void DataArrayDouble::useArray(const double *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
@@ -103,7 +115,7 @@ void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
   declareAsNew();
 }
 
-void DataArrayInt::useArray(int *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
+void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
@@ -116,4 +128,16 @@ void DataArrayInt::reAlloc(int nbOfTuples)
   _mem.reAlloc(_info_on_compo.size()*nbOfTuples);
   _nb_of_tuples=nbOfTuples;
   declareAsNew();
+}
+
+void DataArrayInt::setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)
+{
+  if(newArray!=arrayToSet)
+    {
+      if(arrayToSet)
+        arrayToSet->decrRef();
+      arrayToSet=newArray;
+      if(arrayToSet)
+        arrayToSet->incrRef();
+    }
 }

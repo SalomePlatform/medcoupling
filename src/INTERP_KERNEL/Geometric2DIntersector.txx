@@ -23,6 +23,7 @@
 #include "PlanarIntersectorP0P0.txx"
 #include "PlanarIntersectorP0P1.txx"
 #include "PlanarIntersectorP1P0.txx"
+#include "PlanarIntersectorP1P1.txx"
 #include "CellModel.hxx"
 
 #include "QuadraticPolygon.hxx"
@@ -74,6 +75,24 @@ namespace INTERP_KERNEL
       p2=QuadraticPolygon::buildLinearPolygon(nodes2);
     else
       p2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+    double ret=p1->intersectWith(*p2);
+    delete p1; delete p2;
+    return ret;
+  }
+
+  template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
+  double Geometric2DIntersector<MyMeshType,MyMatrix,InterpType>::intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords)
+  {
+    int nbOfTargetNodes=targetCoords.size()/SPACEDIM;
+    std::vector<Node *> nodes(nbOfTargetNodes);
+    for(int i=0;i<nbOfTargetNodes;i++)
+      nodes[i]=new Node(targetCoords[i*SPACEDIM],targetCoords[i*SPACEDIM+1]);
+    int nbOfSourceNodes=sourceCoords.size()/SPACEDIM;
+    std::vector<Node *> nodes2(nbOfSourceNodes);
+    for(int i=0;i<nbOfSourceNodes;i++)
+      nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
+    QuadraticPolygon *p1=QuadraticPolygon::buildLinearPolygon(nodes);
+    QuadraticPolygon *p2=QuadraticPolygon::buildLinearPolygon(nodes2);
     double ret=p1->intersectWith(*p2);
     delete p1; delete p2;
     return ret;

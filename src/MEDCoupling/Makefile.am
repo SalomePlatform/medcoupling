@@ -31,14 +31,18 @@ salomeinclude_HEADERS = MEDCoupling.hxx \
 MEDCouplingFieldDouble.hxx  MEDCouplingMesh.hxx MEDCouplingUMesh.hxx TimeLabel.hxx \
 MEDCouplingField.hxx MEDCouplingNormalizedUnstructuredMesh.hxx MemArray.hxx        \
 MEDCouplingNormalizedUnstructuredMesh.txx  MemArray.txx RefCountObject.hxx         \
-MEDCouplingSMesh.hxx
+MEDCouplingRMesh.hxx MEDCouplingTimeDiscretization.hxx                             \
+MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx                         \
+MEDCouplingUMeshDesc.hxx
 
 # Libraries targets
 
 dist_libmedcoupling_la_SOURCES = \
-	MEDCouplingField.cxx  MEDCouplingFieldDouble.cxx  \
-	MEDCouplingUMesh.cxx  MemArray.cxx  TimeLabel.cxx \
-	MEDCouplingSMesh.cxx
+	MEDCouplingField.cxx  MEDCouplingFieldDouble.cxx       \
+	MEDCouplingUMesh.cxx  MemArray.cxx  TimeLabel.cxx      \
+	MEDCouplingRMesh.cxx MEDCouplingTimeDiscretization.cxx \
+	MEDCouplingFieldDiscretization.cxx                     \
+	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx
 
 libmedcoupling_la_LDFLAGS= 
 
@@ -56,13 +60,17 @@ endif
 
 EXTRA_DIST += \
 	MEDCouplingFieldDouble.hxx                \
+	MEDCouplingTimeDiscretization.hxx         \
+	MEDCouplingFieldDiscretization.hxx        \
         MEDCouplingMesh.hxx                       \
         MEDCouplingUMesh.hxx                      \
-        MEDCouplingSMesh.hxx                      \
+        MEDCouplingRMesh.hxx                      \
         TimeLabel.hxx                             \
 	MEDCouplingField.hxx                      \
 	MEDCouplingNormalizedUnstructuredMesh.hxx \
 	MemArray.hxx                              \
 	MEDCouplingNormalizedUnstructuredMesh.txx \
 	MemArray.txx                              \
-	RefCountObject.hxx
+	RefCountObject.hxx                        \
+	MEDCouplingPointSet.hxx                   \
+	MEDCouplingUMeshDesc.hxx

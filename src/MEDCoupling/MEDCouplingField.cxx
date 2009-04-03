@@ -18,6 +18,7 @@
 //
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingMesh.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 
 using namespace ParaMEDMEM;
 
@@ -25,6 +26,11 @@ void MEDCouplingField::updateTime()
 {
   if(_mesh)
     updateTimeWith(*_mesh);
+}
+
+TypeOfField MEDCouplingField::getEntity() const
+{
+  return _type->getEnum();
 }
 
 void MEDCouplingField::setMesh(MEDCouplingMesh *mesh)
@@ -46,11 +52,15 @@ MEDCouplingField::~MEDCouplingField()
 {
   if(_mesh)
     _mesh->decrRef();
+  delete _type;
+}
+
+MEDCouplingField::MEDCouplingField(TypeOfField type):_mesh(0),_type(MEDCouplingFieldDiscretization::New(type))
+{
 }
 
 MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._name),_desc(other._name),
-                                                                  _time(other._time),_dt(other._dt),_it(other._it),
-                                                                  _mesh(0),_type(other._type)
+                                                                  _mesh(0),_type(other._type->clone())
 {
   if(other._mesh)
     {

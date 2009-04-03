@@ -34,6 +34,7 @@ dist_libParaMEDMEMTest_la_SOURCES= \
 	  ParaMEDMEMTest_IntersectionDEC.cxx \
 	  ParaMEDMEMTest_StructuredCoincidentDEC.cxx \
 	  ParaMEDMEMTest_MEDLoader.cxx \
+	  ParaMEDMEMTest_ICocoTrio.cxx \
     MPIAccessDECTest.cxx \
     test_AllToAllDEC.cxx \
     test_AllToAllvDEC.cxx \

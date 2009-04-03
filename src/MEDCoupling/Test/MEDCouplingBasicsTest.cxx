@@ -22,6 +22,7 @@
 #include "MemArray.hxx"
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.txx"
+#include "Interpolation3D.txx"
 
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 
@@ -29,6 +30,36 @@
 
 using namespace std;
 using namespace ParaMEDMEM;
+
+void MEDCouplingBasicsTest::testArray()
+{
+  int tmp1[6]={7,6,5,4,3,2};
+  const int tmp2[3]={8,9,10};
+  {
+    MemArray<int> mem;
+    mem.useArray(tmp1,false,CPP_DEALLOC,6);
+    CPPUNIT_ASSERT(tmp1==mem.getConstPointer());
+    CPPUNIT_ASSERT_THROW(mem.getPointer(),INTERP_KERNEL::Exception);
+    CPPUNIT_ASSERT_THROW(mem[2]=7,INTERP_KERNEL::Exception);
+    CPPUNIT_ASSERT_THROW(mem.writeOnPlace(0,12,tmp2,3),INTERP_KERNEL::Exception);
+    mem.writeOnPlace(4,12,tmp2,3);
+  }
+  {
+    int *tmp3=new int[6];
+    std::copy(tmp1,tmp1+6,tmp3);
+    MemArray<int> mem2;
+    mem2.useArray(tmp3,true,CPP_DEALLOC,6);
+    CPPUNIT_ASSERT(tmp3==mem2.getConstPointer());
+    CPPUNIT_ASSERT(tmp3==mem2.getPointer());
+    CPPUNIT_ASSERT_EQUAL(5,mem2[2]);
+    mem2[2]=7;
+    CPPUNIT_ASSERT_EQUAL(7,mem2[2]);
+    mem2.writeOnPlace(0,12,tmp2,3);
+    CPPUNIT_ASSERT_EQUAL(9,mem2[2]);
+    CPPUNIT_ASSERT_EQUAL(12,mem2[0]);
+    mem2.writeOnPlace(4,12,tmp2,3);
+  }
+}
 
 void MEDCouplingBasicsTest::testMesh()
 {
@@ -164,6 +195,37 @@ void MEDCouplingBasicsTest::testMesh()
   mesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::testMeshPointsCloud()
+{
+  double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
+  int *targetConn=0;
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(0);
+  targetMesh->allocateCells(8);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,3);
+  std::copy(targetCoords,targetCoords+27,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  //
+  targetMesh->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(3,targetMesh->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(8,targetMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(9,targetMesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(0,targetMesh->getMeshDimension());
+  //
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::testDeepCopy()
 {
   DataArrayDouble *array=DataArrayDouble::New();
@@ -217,7 +279,9 @@ void MEDCouplingBasicsTest::testBuildPartOfMySelf()
   const int tab1[2]={0,4};
   const int tab2[3]={0,2,3};
   //
-  MEDCouplingUMesh *subMesh=mesh->buildPartOfMySelf(tab1,tab1+2,true);
+  MEDCouplingPointSet *subMeshSimple=mesh->buildPartOfMySelf(tab1,tab1+2,true);
+  MEDCouplingUMesh *subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
+  CPPUNIT_ASSERT(subMesh);
   std::string name(subMesh->getName());
   CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*mesh->getAllTypes().begin());
@@ -235,7 +299,9 @@ void MEDCouplingBasicsTest::testBuildPartOfMySelf()
   CPPUNIT_ASSERT(std::equal(subConnIndex,subConnIndex+3,subMesh->getNodalConnectivityIndex()->getPointer()));
   subMesh->decrRef();
   //
-  subMesh=mesh->buildPartOfMySelf(tab2,tab2+3,true);
+  subMeshSimple=mesh->buildPartOfMySelf(tab2,tab2+3,true);
+  subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
+  CPPUNIT_ASSERT(subMesh);
   name=subMesh->getName();
   CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllTypes().size());
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllTypes().begin());
@@ -279,7 +345,9 @@ void MEDCouplingBasicsTest::testZipCoords()
   oldCoords->decrRef();
   //
   const int tab1[2]={0,4};
-  MEDCouplingUMesh *subMesh=mesh->buildPartOfMySelf(tab1,tab1+2,true);
+  MEDCouplingPointSet *subMeshPtSet=mesh->buildPartOfMySelf(tab1,tab1+2,true);
+  MEDCouplingUMesh *subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshPtSet);
+  CPPUNIT_ASSERT(subMesh);
   DataArrayInt *traducer=subMesh->zipCoordsTraducer();
   const int expectedTraducer[9]={0,1,-1,2,3,4,-1,5,6};
   CPPUNIT_ASSERT(std::equal(expectedTraducer,expectedTraducer+9,traducer->getPointer()));
@@ -295,7 +363,9 @@ void MEDCouplingBasicsTest::testZipCoords()
   CPPUNIT_ASSERT(std::equal(subConnIndex,subConnIndex+3,subMesh->getNodalConnectivityIndex()->getPointer()));
   subMesh->decrRef();
   //
-  subMesh=mesh->buildPartOfMySelf(tab1,tab1+2,false);
+  subMeshPtSet=mesh->buildPartOfMySelf(tab1,tab1+2,false);
+  subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshPtSet);
+  CPPUNIT_ASSERT(subMesh);
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
   CPPUNIT_ASSERT_EQUAL(2,subMesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(7,subMesh->getNumberOfNodes());
@@ -419,6 +489,45 @@ void MEDCouplingBasicsTest::test2DInterpP1P0_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test2DInterpP1P1_1()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_2();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
+  for(int i=0;i<2;i++)
+    {
+      myInterpolator.setPrecision(1e-12);
+      myInterpolator.setIntersectionType(types[i]);
+      myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
+      CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.08333333333333334,res[0][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.05416666666666665,res[1][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666666,res[1][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.08333333333333334,res[2][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.05416666666666665,res[3][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666668,res[3][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1416666666666666,res[4][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02499999999999999,res[4][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02499999999999999,res[4][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.09999999999999999,res[4][3],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666666,res[5][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.09583333333333333,res[5][3],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.08333333333333333,res[6][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666667,res[7][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.09583333333333331,res[7][3],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.04166666666666668,res[8][3],1.e-12);
+      res.clear();
+    }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test3DSurfInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
@@ -522,8 +631,162 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P0_1()
 void MEDCouplingBasicsTest::test3DInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.e6,sumAll(res),1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[0][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(41666.66666666667,res[0][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[0][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[0][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[0][10],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(41666.66666666667,res[1][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[1][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[1][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[2][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[2][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333333,res[2][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[2][9],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[2][11],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(395833.3333333333,res[3][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333333,res[3][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333331,res[3][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[3][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(395833.3333333333,res[3][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[4][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[4][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333333,res[4][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333333,res[4][9],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[4][10],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333333,res[5][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(20833.33333333331,res[5][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[5][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(395833.3333333333,res[5][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(395833.3333333333,res[5][10],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[6][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(250000,res[6][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(541666.6666666667,res[6][9],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[6][11],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(83333.33333333331,res[7][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(479166.6666666667,res[7][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(333333.3333333333,res[7][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(624999.9999999997,res[7][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(479166.6666666667,res[7][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(479166.6666666667,res[7][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(83333.33333333333,res[7][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(83333.33333333331,res[7][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(83333.33333333333,res[7][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(83333.33333333333,res[7][9],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(83333.33333333331,res[7][10],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(479166.6666666667,res[7][11],1e-7);
   //clean up
   sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+void MEDCouplingBasicsTest::test3DInterpP0P1_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DTargetMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DSourceMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
+  CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(244444.4444444445,res[0][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333333,res[0][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(291666.6666666666,res[0][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[0][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(125000,res[1][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(140277.7777777778,res[1][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(119444.4444444444,res[1][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[1][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(119444.4444444444,res[1][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[1][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(26388.88888888889,res[1][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(348611.1111111111,res[2][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888888,res[2][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(244444.4444444444,res[3][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333334,res[3][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(291666.6666666666,res[3][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[3][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(536111.111111111,res[4][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(297222.2222222221,res[4][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(223611.1111111111,res[5][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(125000,res[5][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(125000,res[5][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(26388.88888888892,res[5][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[6][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(536111.1111111109,res[7][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(297222.2222222221,res[7][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(11111.1111111111,res[8][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(11111.11111111111,res[8][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666666,res[8][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(11111.11111111111,res[8][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[8][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[8][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1466666.666666668,res[8][7],1e-7);
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3DInterpP1P0_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
+  CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(125000,res[0][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(140277.7777777778,res[1][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(223611.1111111111,res[1][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(11111.1111111111,res[1][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(119444.4444444444,res[2][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(244444.4444444445,res[2][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(11111.11111111111,res[2][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[3][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333333,res[3][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(125000,res[3][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(536111.1111111109,res[3][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666667,res[3][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(244444.4444444445,res[4][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(119444.4444444445,res[4][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(11111.11111111111,res[4][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(145833.3333333333,res[5][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[5][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(536111.1111111109,res[5][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(125000,res[5][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666666,res[5][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(291666.6666666666,res[6][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(26388.88888888889,res[6][1],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(348611.1111111112,res[6][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(291666.6666666667,res[6][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(166666.6666666666,res[6][8],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[7][0],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[7][2],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(151388.8888888889,res[7][3],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(297222.2222222221,res[7][4],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(26388.88888888892,res[7][5],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[7][6],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(297222.2222222222,res[7][7],1e-7);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1466666.666666668,res[7][8],1e-7);
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
 }
 
 MEDCouplingUMesh *MEDCouplingBasicsTest::build2DSourceMesh_1()
@@ -556,6 +819,30 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_1()
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+14);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,2);
+  std::copy(targetCoords,targetCoords+18,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_2()
+{
+  double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
+  int targetConn[24]={0,3,4, 0,4,1, 1,4,2, 4,5,2, 3,6,4, 6,7,4, 4,7,5, 7,8,5 };
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(8);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+6);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+9);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+12);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+15);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+18);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+21);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(9,2);
@@ -604,6 +891,30 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMesh_1()
   return targetMesh;
 }
 
+MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMesh_2()
+{
+  double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
+  int targetConn[24]={0,3,4, 0,4,1, 1,4,2, 4,5,2, 3,6,4, 6,7,4, 4,7,5, 7,8,5 };
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(8);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+6);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+9);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+12);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+15);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+18);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+21);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,3);
+  std::copy(targetCoords,targetCoords+27,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSourceMesh_1()
 {
   double sourceCoords[27]={ 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 0.0, 200.0, 200.0, 0.0, 200.0, 0.0, 200.0, 0.0, 200.0,
@@ -627,10 +938,31 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSourceMesh_1()
   sourceMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(9,3);
-  std::copy(sourceCoords,sourceCoords+12,myCoords->getPointer());
+  std::copy(sourceCoords,sourceCoords+27,myCoords->getPointer());
   sourceMesh->setCoords(myCoords);
   myCoords->decrRef();
   return sourceMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_1()
+{
+  double targetCoords[81]={ 0., 0., 0., 50., 0., 0. , 200., 0., 0.  , 0., 50., 0., 50., 50., 0. , 200., 50., 0.,   0., 200., 0., 50., 200., 0. , 200., 200., 0. ,
+			    0., 0., 50., 50., 0., 50. , 200., 0., 50.  , 0., 50., 50., 50., 50., 50. , 200., 50., 50.,   0., 200., 50., 50., 200., 50. , 200., 200., 50. ,
+			    0., 0., 200., 50., 0., 200. , 200., 0., 200.  , 0., 50., 200., 50., 50., 200. , 200., 50., 200.,   0., 200., 200., 50., 200., 200. , 200., 200., 200. };
+  int targetConn[64]={0,1,4,3,9,10,13,12, 1,2,5,4,10,11,14,13, 3,4,7,6,12,13,16,15, 4,5,8,7,13,14,17,16,
+		      9,10,13,12,18,19,22,21, 10,11,14,13,19,20,23,22, 12,13,16,15,21,22,25,24, 13,14,17,16,22,23,26,25};
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(3);
+  targetMesh->allocateCells(12);
+  for(int i=0;i<8;i++)
+    targetMesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,targetConn+8*i);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(27,3);
+  std::copy(targetCoords,targetCoords+81,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
 }
 
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)

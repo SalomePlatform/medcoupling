@@ -16,16 +16,16 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "MEDCouplingSMesh.hxx"
+#include "MEDCouplingRMesh.hxx"
 #include "MemArray.hxx"
 
 using namespace ParaMEDMEM;
 
-MEDCouplingSMesh::MEDCouplingSMesh():_x_array(0),_y_array(0),_z_array(0)
+MEDCouplingRMesh::MEDCouplingRMesh():_x_array(0),_y_array(0),_z_array(0)
 {
 }
 
-MEDCouplingSMesh::~MEDCouplingSMesh()
+MEDCouplingRMesh::~MEDCouplingRMesh()
 {
   if(_x_array)
     _x_array->decrRef();
@@ -35,12 +35,12 @@ MEDCouplingSMesh::~MEDCouplingSMesh()
     _z_array->decrRef();
 }
 
-MEDCouplingSMesh *MEDCouplingSMesh::New()
+MEDCouplingRMesh *MEDCouplingRMesh::New()
 {
-  return new MEDCouplingSMesh;
+  return new MEDCouplingRMesh;
 }
 
-void MEDCouplingSMesh::updateTime()
+void MEDCouplingRMesh::updateTime()
 {
   if(_x_array)
     updateTimeWith(*_x_array);
@@ -50,15 +50,15 @@ void MEDCouplingSMesh::updateTime()
     updateTimeWith(*_z_array);
 }
 
-bool MEDCouplingSMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+bool MEDCouplingRMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
-  const MEDCouplingSMesh *otherC=dynamic_cast<const MEDCouplingSMesh *>(other);
+  const MEDCouplingRMesh *otherC=dynamic_cast<const MEDCouplingRMesh *>(other);
   if(!otherC)
     return false;
   return true;
 }
 
-void MEDCouplingSMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
+void MEDCouplingRMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   const char msg0[]="Invalid ";
   const char msg1[]=" array ! Must contain more than 1 element.";
@@ -82,12 +82,12 @@ void MEDCouplingSMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
       }
 }
 
-bool MEDCouplingSMesh::isStructured() const
+bool MEDCouplingRMesh::isStructured() const
 {
   return true;
 }
 
-int MEDCouplingSMesh::getNumberOfCells() const
+int MEDCouplingRMesh::getNumberOfCells() const
 {
   int ret=1;
   if(_x_array)
@@ -99,7 +99,7 @@ int MEDCouplingSMesh::getNumberOfCells() const
   return ret;
 }
 
-int MEDCouplingSMesh::getNumberOfNodes() const
+int MEDCouplingRMesh::getNumberOfNodes() const
 {
   int ret=1;
   if(_x_array)
@@ -111,7 +111,7 @@ int MEDCouplingSMesh::getNumberOfNodes() const
   return ret;
 }
 
-int MEDCouplingSMesh::getSpaceDimension() const
+int MEDCouplingRMesh::getSpaceDimension() const
 {
   int ret=0;
   if(_x_array)
@@ -123,7 +123,7 @@ int MEDCouplingSMesh::getSpaceDimension() const
   return ret;
 }
 
-int MEDCouplingSMesh::getMeshDimension() const
+int MEDCouplingRMesh::getMeshDimension() const
 {
   int ret=0;
   if(_x_array)
@@ -135,7 +135,7 @@ int MEDCouplingSMesh::getMeshDimension() const
   return ret;
 }
 
-DataArrayDouble *MEDCouplingSMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingRMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
 {
   switch(i)
     {
@@ -150,7 +150,7 @@ DataArrayDouble *MEDCouplingSMesh::getCoordsAt(int i) const throw(INTERP_KERNEL:
     }
 }
 
-void MEDCouplingSMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coordsY, DataArrayDouble *coordsZ)
+void MEDCouplingRMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coordsY, DataArrayDouble *coordsZ)
 {
   if(_x_array)
     _x_array->decrRef();
@@ -170,3 +170,12 @@ void MEDCouplingSMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coor
   declareAsNew();
 }
 
+void MEDCouplingRMesh::getBoundingBox(double *bbox) const
+{
+  //not implemented yet !
+}
+
+MEDCouplingFieldDouble *MEDCouplingRMesh::getMeasureField() const
+{
+  //not implemented yet !
+}

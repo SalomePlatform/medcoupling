@@ -19,8 +19,9 @@
 #ifndef __PARAMESH_HXX__
 #define __PARAMESH_HXX__
 
-#include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingPointSet.hxx"
 #include "ProcessorGroup.hxx"
+#include "MemArray.hxx"
 
 #include <string>
 #include <vector>
@@ -34,20 +35,20 @@ namespace ParaMEDMEM
   class ParaMESH
   {
   public:
-    ParaMESH( MEDCouplingUMesh *subdomain_mesh,
-              MEDCouplingUMesh *subdomain_face,
+    ParaMESH( MEDCouplingPointSet *subdomain_mesh,
+              MEDCouplingPointSet *subdomain_face,
               DataArrayInt *CorrespElt_local2global,
               DataArrayInt *CorrespFace_local2global,
               DataArrayInt *CorrespNod_local2global,
               const ProcessorGroup& proc_group ) ;
-    ParaMESH( MEDCouplingUMesh *mesh,
+    ParaMESH( MEDCouplingPointSet *mesh,
               const ProcessorGroup& proc_group, const std::string& name);
 
     virtual ~ParaMESH();
     Topology* getTopology() const { return _explicit_topology; }
     bool isStructured() const { return _cell_mesh->isStructured(); }
-    MEDCouplingUMesh *getCellMesh() const { return _cell_mesh; }
-    MEDCouplingUMesh *getFaceMesh() const { return _face_mesh; }
+    MEDCouplingPointSet *getCellMesh() const { return _cell_mesh; }
+    MEDCouplingPointSet *getFaceMesh() const { return _face_mesh; }
     BlockTopology* getBlockTopology() const { return _block_topology; }
 
     const int* getGlobalNumberingNode() const { return _node_global->getPointer(); } 
@@ -56,8 +57,8 @@ namespace ParaMEDMEM
 
   private:
     //mesh object underlying the ParaMESH object
-    MEDCouplingUMesh *_cell_mesh ;
-    MEDCouplingUMesh *_face_mesh ;
+    MEDCouplingPointSet *_cell_mesh ;
+    MEDCouplingPointSet *_face_mesh ;
 
     //id of the local grid
     int _my_domain_id;

@@ -54,7 +54,7 @@ namespace INTERP_KERNEL
     std::vector<double> targetCellCoords;
     int orientation=1;
     PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),targetCellCoords);
-    NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(icellT);
+    NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(OTT<ConnType,numPol>::indFC(icellT));
     bool isTargetQuad=CellModel::getCellModel(tT).isQuadratic();
     typename MyMatrix::value_type& resRow=res[icellT];
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)

@@ -29,22 +29,39 @@
 namespace ParaMEDMEM
 {
   template<class T>
-  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(-1),_ownership(false),_pointer(0),_dealloc(CPP_DEALLOC)
+  void MEDCouplingPointer<T>::setInternal(T *pointer)
   {
-    if(other._pointer)
+    _internal=pointer;
+    _external=0;
+  }
+
+  template<class T>
+  void MEDCouplingPointer<T>::setExternal(const T *pointer)
+  {
+    _external=pointer;
+    _internal=0;
+  }
+
+  template<class T>
+  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(-1),_ownership(false),_dealloc(CPP_DEALLOC)
+  {
+    if(!other._pointer.isNull())
       {
         T *pointer=new T[other._nb_of_elem];
-        std::copy(other._pointer,other._pointer+other._nb_of_elem,pointer);
+        std::copy(other._pointer.getConstPointer(),other._pointer.getConstPointer()+other._nb_of_elem,pointer);
         useArray(pointer,true,CPP_DEALLOC,other._nb_of_elem);
       }
   }
 
   template<class T>
-  void MemArray<T>::useArray(void *array, bool ownership, DeallocType type, int nbOfElem)
+  void MemArray<T>::useArray(const T *array, bool ownership, DeallocType type, int nbOfElem)
   {
     _nb_of_elem=nbOfElem;
     destroy();
-    _pointer=(T *)array;
+    if(ownership)
+      _pointer.setInternal((T *)array);
+    else
+      _pointer.setExternal(array);
     _ownership=ownership;
     _dealloc=type;
   }
@@ -54,8 +71,9 @@ namespace ParaMEDMEM
   {
     if(id+sizeOfOthers>=_nb_of_elem)
       reAlloc(2*_nb_of_elem+sizeOfOthers+1);
-    _pointer[id]=element0;
-    memcpy(_pointer+id+1,others,sizeOfOthers*sizeof(T));
+    T *pointer=_pointer.getPointer();
+    pointer[id]=element0;
+    std::copy(others,others+sizeOfOthers,pointer+id+1);
   }
 
   template<class T>
@@ -63,7 +81,7 @@ namespace ParaMEDMEM
   {
     destroy();
     _nb_of_elem=nbOfElements;
-    _pointer=new T[_nb_of_elem];
+    _pointer.setInternal(new T[_nb_of_elem]);
     _ownership=true;
     _dealloc=CPP_DEALLOC;
   }
@@ -72,9 +90,10 @@ namespace ParaMEDMEM
   void MemArray<T>::reAlloc(int newNbOfElements)
   {
     T *pointer=new T[newNbOfElements];
-    memcpy(pointer,_pointer,std::min<int>(_nb_of_elem,newNbOfElements)*sizeof(int));
-    destroyPointer(_pointer,_dealloc);
-    _pointer=pointer;
+    std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<int>(_nb_of_elem,newNbOfElements),pointer);
+    if(_ownership)
+      destroyPointer((T *)_pointer.getConstPointer(),_dealloc);
+    _pointer.setInternal(pointer);
     _nb_of_elem=newNbOfElements;
     _ownership=true;
     _dealloc=CPP_DEALLOC;
@@ -106,8 +125,8 @@ namespace ParaMEDMEM
   void MemArray<T>::destroy()
   {
     if(_ownership)
-      destroyPointer(_pointer,_dealloc);
-    _pointer=0;
+      destroyPointer((T *)_pointer.getConstPointer(),_dealloc);
+    _pointer.null();
     _ownership=false;
   }
   
@@ -115,7 +134,7 @@ namespace ParaMEDMEM
   MemArray<T> &MemArray<T>::operator=(const MemArray<T>& other)
   {
     alloc(other._nb_of_elem);
-    memcpy(_pointer,other._pointer,_nb_of_elem*sizeof(T));
+    std::copy(other._pointer.getConstPointer(),other._pointer.getConstPointer()+_nb_of_elem,_pointer.getPointer());
     return *this;
   }
 }

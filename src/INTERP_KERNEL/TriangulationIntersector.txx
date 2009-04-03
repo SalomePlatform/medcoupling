@@ -128,6 +128,35 @@ namespace INTERP_KERNEL
     
     return result;
   }
+
+  template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
+  double TriangulationIntersector<MyMeshType,MyMatrix,InterpType>::intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords)
+  {
+    double result = 0.;
+    ConnType nbNodesS=sourceCoords.size()/SPACEDIM;
+    ConnType nbNodesT=targetCoords.size()/SPACEDIM;
+    //Compute the intersection area
+    double area[SPACEDIM];
+    for(ConnType iT = 1; iT<nbNodesT-1; iT++)
+      {
+        for(ConnType iS = 1; iS<nbNodesS-1; iS++)
+          {
+            std::vector<double> inter;
+            INTERP_KERNEL::intersec_de_triangle(&targetCoords[0],&targetCoords[SPACEDIM*iT],&targetCoords[SPACEDIM*(iT+1)],
+                                                &sourceCoords[0],&sourceCoords[SPACEDIM*iS],&sourceCoords[SPACEDIM*(iS+1)],
+                                                inter, PlanarIntersector<MyMeshType,MyMatrix>::_dim_caracteristic,
+                                                PlanarIntersector<MyMeshType,MyMatrix>::_precision);
+            ConnType nb_inter=((ConnType)inter.size())/2;
+            if(nb_inter >3) inter=reconstruct_polygon(inter);
+            for(ConnType i = 1; i<nb_inter-1; i++)
+              {
+                INTERP_KERNEL::crossprod<2>(&inter[0],&inter[2*i],&inter[2*(i+1)],area);
+                result +=0.5*fabs(area[0]);
+              }
+          }
+      }
+    return result;
+  }
 }
 
 #endif

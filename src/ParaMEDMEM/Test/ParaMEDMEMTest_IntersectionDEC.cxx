@@ -137,9 +137,9 @@ void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT( support,*source_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(srcM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       else
-        parafield = new ParaFIELD(ON_NODES,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
       if(srcM=="P0")
         nb_local=mesh->getNumberOfCells();
@@ -170,9 +170,9 @@ void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(targetM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       else
-        parafield = new ParaFIELD(ON_NODES,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
       if(targetM=="P0")
         nb_local=mesh->getNumberOfCells();
@@ -341,9 +341,9 @@ void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT( support,*source_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(srcM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       else
-        parafield = new ParaFIELD(ON_NODES,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
       if(srcM=="P0")
         nb_local=mesh->getNumberOfCells();
@@ -374,9 +374,9 @@ void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(targetM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       else
-        parafield = new ParaFIELD(ON_NODES,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
       if(targetM=="P0")
         nb_local=mesh->getNumberOfCells();
@@ -597,9 +597,9 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT( support,*source_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(srcM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       else
-        parafield = new ParaFIELD(ON_NODES,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
 
       int nb_local;
       if(srcM=="P0")
@@ -634,9 +634,9 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(targetM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       else
-        parafield = new ParaFIELD(ON_NODES,paramesh, comptopo);
+        parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       
       int nb_local;
       if(targetM=="P0")

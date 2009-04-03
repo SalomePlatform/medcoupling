@@ -67,6 +67,12 @@ PlanarIntersector.hxx			\
 PlanarIntersector.txx			\
 PlanarIntersectorP0P0.hxx		\
 PlanarIntersectorP0P0.txx		\
+PlanarIntersectorP0P1.hxx		\
+PlanarIntersectorP0P1.txx		\
+PlanarIntersectorP1P0.hxx		\
+PlanarIntersectorP1P0.txx		\
+PlanarIntersectorP1P1.hxx		\
+PlanarIntersectorP1P1.txx		\
 PolygonAlgorithms.hxx			\
 PolygonAlgorithms.txx			\
 PolyhedronIntersector.hxx		\
