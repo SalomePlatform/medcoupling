@@ -62,7 +62,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             mesh=ReadUMeshFromFile(filename,meshname,0)
             paramesh=ParaMESH(mesh,source_group,"source mesh")
             comptopo = ComponentTopology()
-            parafield = ParaFIELD(ON_CELLS,paramesh, comptopo)
+            parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
             nb_local=mesh.getNumberOfCells()
             value = [1.0]*nb_local
             parafield.getField().setValues(value)
@@ -76,7 +76,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             mesh=ReadUMeshFromFile(filename,meshname,0)
             paramesh=ParaMESH(mesh,target_group,"target mesh")
             comptopo = ComponentTopology()
-            parafield = ParaFIELD(ON_CELLS,paramesh, comptopo)
+            parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
             nb_local=mesh.getNumberOfCells()
             value = [0.0]*nb_local
             parafield.getField().setValues(value)

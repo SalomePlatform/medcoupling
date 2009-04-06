@@ -61,6 +61,7 @@ using namespace INTERP_KERNEL;
 %include "TimeLabel.hxx"
 %include "RefCountObject.hxx"
 %include "MEDCouplingMesh.hxx"
+%include "MEDCouplingPointSet.hxx"
 %include "MemArray.hxx"
 %include "MEDCouplingMesh.hxx"
 %include "NormalizedUnstructuredMesh.hxx"
@@ -68,7 +69,7 @@ using namespace INTERP_KERNEL;
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingUMesh : public ParaMEDMEM::MEDCouplingMesh
+  class MEDCouplingUMesh : public ParaMEDMEM::MEDCouplingPointSet
   {
   public:
     static MEDCouplingUMesh *New();

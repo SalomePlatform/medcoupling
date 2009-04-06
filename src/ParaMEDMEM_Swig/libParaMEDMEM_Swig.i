@@ -34,6 +34,7 @@
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ICoCoMEDField.hxx"
+#include "ComponentTopology.hxx"
 
 #include "MEDLoader.hxx"
 
@@ -47,13 +48,13 @@ enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
 
 %newobject MEDLoader::ReadUMeshFromFile;
 
-%include "ComponentTopology.hxx"
 %include "CommInterface.hxx"
 %include "ProcessorGroup.hxx"
 %include "DECOptions.hxx"
 %include "ParaMESH.hxx"
 %include "ParaFIELD.hxx"
 %include "MPIProcessorGroup.hxx"
+%include "ComponentTopology.hxx"
 %include "DEC.hxx"
 %include "IntersectionDEC.hxx"
 %include "StructuredCoincidentDEC.hxx"
