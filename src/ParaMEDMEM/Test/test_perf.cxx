@@ -13,6 +13,7 @@
 #include "IntersectionDEC.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
+#include "ComponentTopology.hxx"
 #include "ICoCoMEDField.hxx"
 #include "MEDLoader.hxx"
  

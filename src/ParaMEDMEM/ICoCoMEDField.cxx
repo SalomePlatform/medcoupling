@@ -19,6 +19,7 @@
 #include "ICoCoMEDField.hxx"
 #include "ICoCoTrioField.hxx"
 #include "ProcessorGroup.hxx"
+#include "ComponentTopology.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "NormalizedUnstructuredMesh.hxx"

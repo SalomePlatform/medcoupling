@@ -19,13 +19,14 @@
 #ifndef __COMPONENTTOPOLOGY_HXX__
 #define __COMPONENTTOPOLOGY_HXX__
 
-#include "ProcessorGroup.hxx"
 #include "Topology.hxx"
 
 #include <vector>
 
 namespace ParaMEDMEM
 {
+  class ProcessorGroup;
+
   class ComponentTopology
   {
   public:

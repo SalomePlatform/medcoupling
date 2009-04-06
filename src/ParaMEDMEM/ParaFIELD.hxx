@@ -19,16 +19,15 @@
 #ifndef __PARAFIELD_HXX__
 #define __PARAFIELD_HXX__
 
-#include "ComponentTopology.hxx"
-#include "ParaMESH.hxx"
-#include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingUMesh.hxx"
+#include "RefCountObject.hxx"
 
 namespace ParaMEDMEM
 {
 
-  class ParaSUPPORT;
+  class ParaMESH;
   class ProcessorGroup;
+  class MEDCouplingFieldDouble;
+  class ComponentTopology;
 
   class ParaFIELD
   {
@@ -45,7 +44,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble* getField() const { return _field; }
     Topology* getTopology() const { return _topology; }
     ParaMESH* getSupport() const  { return _support; }
-    int nbComponents() const { return _component_topology.nbComponents(); }
+    int nbComponents() const;
     double getVolumeIntegral(int icomp) const;
     double getL2Norm()const { return -1; }
   private:

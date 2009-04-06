@@ -164,6 +164,12 @@ namespace ParaMEDMEM
   
     delete data_channel;
   }
+  
+  int ParaFIELD::nbComponents() const
+  {
+    return _component_topology.nbComponents();
+  }
+
 
   /*! This method retrieves the integral of component \a icomp
     over the all domain. */

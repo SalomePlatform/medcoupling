@@ -17,6 +17,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "ComponentTopology.hxx"
+#include "ProcessorGroup.hxx"
 #include "InterpolationUtils.hxx"
 
 namespace ParaMEDMEM
