@@ -21,7 +21,7 @@
 #define MEDCOUPLING_EXPORT
 
 %{
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
@@ -58,11 +58,11 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::MemArray::operator[];
 
 %nodefaultctor;
-%include "TimeLabel.hxx"
-%include "RefCountObject.hxx"
+%include "MEDCouplingTimeLabel.hxx"
+%include "MEDCouplingRefCountObject.hxx"
 %include "MEDCouplingMesh.hxx"
 %include "MEDCouplingPointSet.hxx"
-%include "MemArray.hxx"
+%include "MEDCouplingMemArray.hxx"
 %include "MEDCouplingMesh.hxx"
 %include "NormalizedUnstructuredMesh.hxx"
 %include "MEDCouplingField.hxx"
@@ -76,7 +76,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *clone(bool recDeepCpy) const;
     void updateTime();
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    void setMeshDimension(unsigned meshDim);
+    void setMeshDimension(int meshDim);
     void allocateCells(int nbOfCells);
     void setCoords(DataArrayDouble *coords);
     DataArrayDouble *getCoords() const;
