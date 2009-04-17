@@ -20,8 +20,9 @@
 #define __MEDCOUPLINGFIELDDISCRETIZATION_HXX__
 
 #include "MEDCoupling.hxx"
-#include "RefCountObject.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
+#include "MEDCouplingNatureOfField.hxx"
 
 namespace ParaMEDMEM
 {
@@ -34,9 +35,11 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDiscretization *New(TypeOfField type);
     virtual TypeOfField getEnum() const = 0;
+    virtual bool isEqual(const MEDCouplingFieldDiscretization *other) const = 0;
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
     virtual const char *getStringRepr() const = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
+    virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh) const = 0;
   };
@@ -47,7 +50,9 @@ namespace ParaMEDMEM
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
     const char *getStringRepr() const;
+    bool isEqual(const MEDCouplingFieldDiscretization *other) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh) const;
   public:
@@ -61,7 +66,9 @@ namespace ParaMEDMEM
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
     const char *getStringRepr() const;
+    bool isEqual(const MEDCouplingFieldDiscretization *other) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh) const;
   public:

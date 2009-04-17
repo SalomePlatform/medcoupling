@@ -16,11 +16,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __PARAMEDMEM_MEMARRAY_HXX__
-#define __PARAMEDMEM_MEMARRAY_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_HXX__
 
 #include "MEDCoupling.hxx"
-#include "RefCountObject.hxx"
+#include "MEDCouplingTimeLabel.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
 #include <string>
@@ -39,7 +40,7 @@ namespace ParaMEDMEM
     void setExternal(const T *pointer);
     const T *getConstPointer() const { if(_internal) return _internal; else return _external; }
     const T *getConstPointerLoc(int offset) const { if(_internal) return _internal+offset; else return _external+offset; }
-    T *getPointer() const { if(_internal) return _internal; throw INTERP_KERNEL::Exception("Trying to write on an external pointer."); }
+    T *getPointer() const { if(_internal) return _internal; if(_external) throw INTERP_KERNEL::Exception("Trying to write on an external pointer."); else return 0; }
   private:
     T *_internal;
     const T *_external;
@@ -57,6 +58,7 @@ namespace ParaMEDMEM
     MemArray<T> &operator=(const MemArray<T>& other);
     T operator[](int id) const { return _pointer.getConstPointer()[id]; }
     T& operator[](int id) { return _pointer.getPointer()[id]; }
+    bool isEqual(const MemArray<T>& other, T prec) const;
     void alloc(int nbOfElements);
     void reAlloc(int newNbOfElements);
     void useArray(const T *array, bool ownership, DeallocType type, int nbOfElem);
@@ -73,10 +75,11 @@ namespace ParaMEDMEM
     DeallocType _dealloc;
   };
 
-  class MEDCOUPLING_EXPORT DataArray : public RefCountObject
+  class MEDCOUPLING_EXPORT DataArray : public RefCountObject, public TimeLabel
   {
   public:
     void setName(const char *name);
+    bool areInfoEquals(const DataArray& other) const;
     std::string getName() const { return _name; }
     std::string getInfoOnComponent(int i) const { return _info_on_compo[i]; }
     void setInfoOnComponent(int i, const char *info) { _info_on_compo[i]=info; }
@@ -92,7 +95,7 @@ namespace ParaMEDMEM
   };
 }
 
-#include "MemArray.txx"
+#include "MEDCouplingMemArray.txx"
 
 namespace ParaMEDMEM
 {
@@ -103,7 +106,7 @@ namespace ParaMEDMEM
     DataArrayDouble *deepCopy() const;
     DataArrayDouble *performCpy(bool deepCpy) const;
     void alloc(int nbOfTuple, int nbOfCompo);
-    bool isEqual(DataArrayDouble *other, double prec) const;
+    bool isEqual(const DataArrayDouble& other, double prec) const;
     //!alloc or useArray should have been called before.
     void reAlloc(int nbOfTuples);
     void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
@@ -129,6 +132,7 @@ namespace ParaMEDMEM
     DataArrayInt *deepCopy() const;
     DataArrayInt *performCpy(bool deepCpy) const;
     void alloc(int nbOfTuple, int nbOfCompo);
+    bool isEqual(const DataArrayInt& other) const;
     //!alloc or useArray should have been called before.
     void reAlloc(int nbOfTuples);
     void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }

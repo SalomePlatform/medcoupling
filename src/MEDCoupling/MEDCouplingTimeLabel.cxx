@@ -16,45 +16,33 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __PARAMEDMEM_REFCOUNTOBJECT_HXX__
-#define __PARAMEDMEM_REFCOUNTOBJECT_HXX__
+#include "MEDCouplingTimeLabel.hxx"
 
-#include "TimeLabel.hxx"
+using namespace ParaMEDMEM;
 
-namespace ParaMEDMEM
+unsigned int TimeLabel::GLOBAL_TIME=0;
+
+TimeLabel::TimeLabel():_time(GLOBAL_TIME++)
 {
-  typedef enum
-    {
-      C_DEALLOC = 2,
-      CPP_DEALLOC = 3
-    } DeallocType;
-
-  typedef enum
-    {
-      ON_CELLS = 0,
-      ON_NODES = 1
-    } TypeOfField;
-
-  typedef enum
-    {
-      NO_TIME = 4,
-      ONE_TIME = 5,
-      LINEAR_TIME = 6
-    } TypeOfTimeDiscretization;
-
-  class RefCountObject : public TimeLabel
-  {
-  protected:
-    RefCountObject():_cnt(1) { }
-    RefCountObject(const RefCountObject& other):_cnt(1) { }
-  public:
-    bool decrRef() { bool ret=((--_cnt)==0); if(ret)delete this; return ret; }
-    void incrRef() const { _cnt++; }
-  protected:
-    virtual ~RefCountObject() { }
-  private:
-    mutable int _cnt;
-  };
 }
 
-#endif
+TimeLabel::~TimeLabel()
+{
+}
+
+ TimeLabel& TimeLabel::operator=(const TimeLabel& other)
+{
+  _time=GLOBAL_TIME++;
+  return *this;
+}
+
+void TimeLabel::declareAsNew()
+{
+  _time=GLOBAL_TIME++;
+}
+
+void TimeLabel::updateTimeWith(const TimeLabel& other)
+{
+  if(_time<other._time)
+    _time=other._time;
+}

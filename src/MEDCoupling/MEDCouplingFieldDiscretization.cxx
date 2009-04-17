@@ -58,9 +58,19 @@ const char *MEDCouplingFieldDiscretizationP0::getStringRepr() const
   return REPR;
 }
 
+bool MEDCouplingFieldDiscretizationP0::isEqual(const MEDCouplingFieldDiscretization *other) const
+{
+  const MEDCouplingFieldDiscretizationP0 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP0 *>(other);
+  return otherC!=0;
+}
+
 int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *mesh) const
 {
   return mesh->getNumberOfCells();
+}
+
+void MEDCouplingFieldDiscretizationP0::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+{
 }
 
 void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
@@ -94,9 +104,21 @@ const char *MEDCouplingFieldDiscretizationP1::getStringRepr() const
   return REPR;
 }
 
+bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretization *other) const
+{
+  const MEDCouplingFieldDiscretizationP1 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP1 *>(other);
+  return otherC!=0;
+}
+
 int MEDCouplingFieldDiscretizationP1::getNumberOfTuples(const MEDCouplingMesh *mesh) const
 {
   return mesh->getNumberOfNodes();
+}
+
+void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+{
+  if(nat!=ConservativeVolumic)
+    throw INTERP_KERNEL::Exception("Invalid nature for P1 field !");
 }
 
 void MEDCouplingFieldDiscretizationP1::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)

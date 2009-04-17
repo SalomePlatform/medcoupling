@@ -18,7 +18,7 @@
 //
 #include "MEDCouplingUMeshDesc.hxx"
 #include "CellModel.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 using namespace ParaMEDMEM;
 
@@ -42,6 +42,14 @@ MEDCouplingUMeshDesc::~MEDCouplingUMeshDesc()
 MEDCouplingUMeshDesc *MEDCouplingUMeshDesc::New()
 {
   return new MEDCouplingUMeshDesc;
+}
+
+MEDCouplingUMeshDesc *MEDCouplingUMeshDesc::New(const char *meshName, int meshDim)
+{
+  MEDCouplingUMeshDesc *ret=new MEDCouplingUMeshDesc;
+  ret->setName(meshName);
+  ret->setMeshDimension(meshDim);
+  return ret;
 }
 
 void MEDCouplingUMeshDesc::checkCoherency() const throw(INTERP_KERNEL::Exception)
@@ -98,26 +106,28 @@ void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt 
   computeTypes();
 }
 
-void MEDCouplingUMeshDesc::getTinySerializationInformation(std::vector<int>& tinyInfo) const
+void MEDCouplingUMeshDesc::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
-  tinyInfo.resize(7);
-  tinyInfo[0]=getSpaceDimension();
-  tinyInfo[1]=getMeshDimension();
-  tinyInfo[2]=getNumberOfNodes();
-  tinyInfo[3]=getNumberOfCells();
-  tinyInfo[4]=getCellMeshLength();
-  tinyInfo[5]=getNumberOfFaces();
-  tinyInfo[6]=getFaceMeshLength();
+  MEDCouplingPointSet::getTinySerializationInformation(tinyInfo,littleStrings);
+  tinyInfo.push_back(getMeshDimension());
+  tinyInfo.push_back(getNumberOfNodes());
+  tinyInfo.push_back(getNumberOfCells());
+  tinyInfo.push_back(getCellMeshLength());
+  tinyInfo.push_back(getNumberOfFaces());
+  tinyInfo.push_back(getFaceMeshLength());
 }
 
-void MEDCouplingUMeshDesc::resizeForSerialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2)
+void MEDCouplingUMeshDesc::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
 {
-  a1->alloc(tinyInfo[4]+tinyInfo[3]+1+tinyInfo[6]+tinyInfo[5]+1,1);
-  a2->alloc(tinyInfo[2],tinyInfo[0]);
+  std::vector<int> tinyInfoTmp(tinyInfo.begin()+1,tinyInfo.end());
+  MEDCouplingPointSet::resizeForUnserialization(tinyInfoTmp,a1,a2,littleStrings);
+  a1->alloc(tinyInfo[5]+tinyInfo[4]+1+tinyInfo[7]+tinyInfo[6]+1,1);
 }
 
-void MEDCouplingUMeshDesc::serialize(DataArrayInt *&a1, DataArrayDouble *&a2)
+void MEDCouplingUMeshDesc::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 {
+  MEDCouplingPointSet::serialize(a1,a2);
+  //
   a1=DataArrayInt::New();
   a1->alloc(getCellMeshLength()+getNumberOfCells()+1+getFaceMeshLength()+getNumberOfFaces()+1,1);
   int *ptA1=a1->getPointer();
@@ -129,35 +139,33 @@ void MEDCouplingUMeshDesc::serialize(DataArrayInt *&a1, DataArrayDouble *&a2)
   ptA1=std::copy(descConnIndex,descConnIndex+getNumberOfCells()+1,ptA1);
   ptA1=std::copy(faceConn,faceConn+getFaceMeshLength(),ptA1);
   std::copy(faceConnIndex,faceConnIndex+getNumberOfFaces()+1,ptA1);
-  a2=getCoords();
-  a2->incrRef();
 }
 
-MEDCouplingPointSet *MEDCouplingUMeshDesc::buildObjectFromUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2)
+void MEDCouplingUMeshDesc::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
-  MEDCouplingUMeshDesc *meshing=MEDCouplingUMeshDesc::New();
-  meshing->setCoords(a2);
+  std::vector<int> tinyInfoTmp(tinyInfo.begin()+1,tinyInfo.end());
+  MEDCouplingPointSet::unserialization(tinyInfoTmp,a1,a2,littleStrings);
+  //
   const int *recvBuffer=a1->getConstPointer();
   DataArrayInt *descConn=DataArrayInt::New();
-  descConn->alloc(tinyInfo[4],1);
-  std::copy(recvBuffer,recvBuffer+tinyInfo[4],descConn->getPointer());
+  descConn->alloc(tinyInfo[5],1);
+  std::copy(recvBuffer,recvBuffer+tinyInfo[5],descConn->getPointer());
   DataArrayInt *descConnIndex=DataArrayInt::New();
-  descConnIndex->alloc(tinyInfo[3]+1,1);
-  std::copy(recvBuffer+tinyInfo[4],recvBuffer+tinyInfo[4]+tinyInfo[3]+1,descConnIndex->getPointer());
+  descConnIndex->alloc(tinyInfo[4]+1,1);
+  std::copy(recvBuffer+tinyInfo[5],recvBuffer+tinyInfo[5]+tinyInfo[4]+1,descConnIndex->getPointer());
   DataArrayInt *faceConn=DataArrayInt::New();
-  faceConn->alloc(tinyInfo[6],1);
-  std::copy(recvBuffer+tinyInfo[4]+tinyInfo[3]+1,recvBuffer+tinyInfo[4]+tinyInfo[3]+1+tinyInfo[6],faceConn->getPointer());
+  faceConn->alloc(tinyInfo[7],1);
+  std::copy(recvBuffer+tinyInfo[5]+tinyInfo[4]+1,recvBuffer+tinyInfo[5]+tinyInfo[4]+1+tinyInfo[7],faceConn->getPointer());
   DataArrayInt *faceConnIndex=DataArrayInt::New();
-  faceConnIndex->alloc(tinyInfo[5]+1,1);
-  std::copy(recvBuffer+tinyInfo[4]+tinyInfo[3]+1+tinyInfo[6],
-            recvBuffer+tinyInfo[4]+tinyInfo[3]+1+tinyInfo[6]+tinyInfo[5]+1,faceConnIndex->getPointer());
-  meshing->setConnectivity(descConn,descConnIndex,faceConn,faceConnIndex);
+  faceConnIndex->alloc(tinyInfo[6]+1,1);
+  std::copy(recvBuffer+tinyInfo[5]+tinyInfo[4]+1+tinyInfo[7],
+            recvBuffer+tinyInfo[5]+tinyInfo[5]+1+tinyInfo[7]+tinyInfo[6]+1,faceConnIndex->getPointer());
+  setConnectivity(descConn,descConnIndex,faceConn,faceConnIndex);
   descConn->decrRef();
   descConnIndex->decrRef();
   faceConn->decrRef();
   faceConnIndex->decrRef();
-  meshing->setMeshDimension(tinyInfo[1]);
-  return meshing;
+  setMeshDimension(tinyInfo[2]);
 }
 
 void MEDCouplingUMeshDesc::giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
@@ -178,8 +186,9 @@ void MEDCouplingUMeshDesc::giveElemsInBoundingBox(const double *bbox, double eps
           elem_bb[i*2+1]=-std::numeric_limits<double>::max();
         }
 
-      for (int iface=conn_index[ielem]+1; iface<conn_index[ielem+1]; iface++)//+1 due to offset of cell type.
+      for (int jface=conn_index[ielem]+1; jface<conn_index[ielem+1]; jface++)//+1 due to offset of cell type.
         {
+          int iface=conn[jface];
           for(int inode=face_index[iface]+1;inode<face_index[iface+1];inode++)
             {
               int node=face[inode];

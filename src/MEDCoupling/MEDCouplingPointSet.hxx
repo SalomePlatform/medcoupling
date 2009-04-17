@@ -44,12 +44,14 @@ namespace ParaMEDMEM
     DataArrayDouble *getCoords() const { return _coords; }
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     void getBoundingBox(double *bbox) const;
+    static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
     virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
     //! size of returned tinyInfo must be always the same.
-    virtual void getTinySerializationInformation(std::vector<int>& tinyInfo) const = 0;
-    virtual void resizeForSerialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2) = 0;
-    virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) = 0;
-    virtual MEDCouplingPointSet *buildObjectFromUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2) = 0;
+    virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
+    virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+    virtual void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
+                                 const std::vector<std::string>& littleStrings);
     virtual void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) = 0;
   protected:
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);

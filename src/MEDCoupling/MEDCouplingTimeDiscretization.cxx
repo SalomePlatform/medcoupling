@@ -17,7 +17,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "MEDCouplingTimeDiscretization.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <cmath>
 
@@ -40,6 +40,68 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::New(TypeOfTimeDisc
     default:
       throw INTERP_KERNEL::Exception("Time discretization not implemented yet");
     }
+}
+
+bool MEDCouplingTimeDiscretization::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+{
+  if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
+    return false;
+  if(_array==0 && other->_array==0)
+    return true;
+  if(_array==0 || other->_array==0)
+    return false;
+  if(_array==other->_array)
+    return true;
+  return _array->isEqual(*other->_array,prec);
+}
+
+void MEDCouplingTimeDiscretization::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+  if(_array)
+    {
+      tinyInfo.push_back(_array->getNumberOfTuples());
+      tinyInfo.push_back(_array->getNumberOfComponents());
+    }
+  else
+    {
+      tinyInfo.push_back(-1);
+      tinyInfo.push_back(-1);
+    }
+}
+
+void MEDCouplingTimeDiscretization::resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays)
+{
+  arrays.resize(1);
+  if(_array!=0)
+    _array->decrRef();
+  DataArrayDouble *arr=0;
+  if(tinyInfoI[0]!=-1 && tinyInfoI[1]!=-1)
+    {
+      arr=DataArrayDouble::New();
+      arr->alloc(tinyInfoI[0],tinyInfoI[1]);
+    }
+  _array=arr;
+  arrays[0]=arr;
+}
+
+void MEDCouplingTimeDiscretization::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+{
+  _time_tolerance=tinyInfoD[0];
+  int nbOfCompo=_array->getNumberOfComponents();
+  for(int i=0;i<nbOfCompo;i++)
+    _array->setInfoOnComponent(i,tinyInfoS[i].c_str());
+}
+
+void MEDCouplingTimeDiscretization::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+{
+  tinyInfo.push_back(_time_tolerance);
+}
+
+void MEDCouplingTimeDiscretization::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
+{
+  int nbOfCompo=_array->getNumberOfComponents();
+  for(int i=0;i<nbOfCompo;i++)
+    tinyInfo.push_back(_array->getInfoOnComponent(i));
 }
 
 MEDCouplingTimeDiscretization::MEDCouplingTimeDiscretization():_time_tolerance(TIME_TOLERANCE_DFT),_array(0)
@@ -110,6 +172,14 @@ MEDCouplingNoTimeLabel::MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretizati
 {
 }
 
+bool MEDCouplingNoTimeLabel::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+{
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  if(!otherC)
+    return false;
+  return MEDCouplingTimeDiscretization::isEqual(other,prec);
+}
+
 MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::performCpy(bool deepCpy) const
 {
   return new MEDCouplingNoTimeLabel(*this,deepCpy);
@@ -172,6 +242,41 @@ MEDCouplingWithTimeStep::MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& 
 
 MEDCouplingWithTimeStep::MEDCouplingWithTimeStep():_time(0.),_dt(-1),_it(-1)
 {
+}
+
+void MEDCouplingWithTimeStep::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+  MEDCouplingTimeDiscretization::getTinySerializationIntInformation(tinyInfo);
+  tinyInfo.push_back(_dt);
+  tinyInfo.push_back(_it);
+}
+
+void MEDCouplingWithTimeStep::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+{
+  MEDCouplingTimeDiscretization::getTinySerializationDbleInformation(tinyInfo);
+  tinyInfo.push_back(_time);
+}
+
+void MEDCouplingWithTimeStep::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+{
+  MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
+  _time=tinyInfoD[1];
+  _dt=tinyInfoI[2];
+  _it=tinyInfoI[3];
+}
+
+bool MEDCouplingWithTimeStep::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+{
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    return false;
+  if(_dt!=otherC->_dt)
+    return false;
+  if(_it!=otherC->_it)
+    return false;
+  if(std::fabs(_time-otherC->_time)>_time_tolerance)
+    return false;
+  return MEDCouplingTimeDiscretization::isEqual(other,prec);
 }
 
 MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::performCpy(bool deepCpy) const
@@ -259,4 +364,40 @@ void MEDCouplingTwoTimeSteps::getArrays(std::vector<DataArrayDouble *>& arrays) 
   arrays.resize(2);
   arrays[0]=_array;
   arrays[1]=_end_array;
+}
+
+void MEDCouplingTwoTimeSteps::resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays)
+{
+  arrays.resize(2);
+  if(_array!=0)
+    _array->decrRef();
+  if(_end_array!=0)
+    _end_array->decrRef();
+  DataArrayDouble *arr=0;
+  if(tinyInfoI[0]!=-1 && tinyInfoI[1]!=-1)
+    {
+      arr=DataArrayDouble::New();
+      arr->alloc(tinyInfoI[0],tinyInfoI[1]);
+    }
+  _array=arr;
+  arrays[0]=arr;
+  arr=0;
+  if(tinyInfoI[2]!=-1 && tinyInfoI[3]!=-1)
+    {
+      arr=DataArrayDouble::New();
+      arr->alloc(tinyInfoI[2],tinyInfoI[3]);
+    }
+  _end_array=arr;
+  arrays[1]=arr;
+}
+
+void MEDCouplingTwoTimeSteps::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+{
+  MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
+  _start_time=tinyInfoD[1];
+  _end_time=tinyInfoD[2];
+  _start_dt=tinyInfoI[2];
+  _end_dt=tinyInfoI[3];
+  _start_it=tinyInfoI[4];
+  _end_it=tinyInfoI[5];
 }

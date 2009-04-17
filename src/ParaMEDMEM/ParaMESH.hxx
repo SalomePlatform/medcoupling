@@ -21,7 +21,7 @@
 
 #include "MEDCouplingPointSet.hxx"
 #include "ProcessorGroup.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <string>
 #include <vector>

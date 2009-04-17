@@ -16,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __PARAMEDMEM_MEMARRAY_TXX__
-#define __PARAMEDMEM_MEMARRAY_TXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
+#define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 
@@ -74,6 +74,23 @@ namespace ParaMEDMEM
     T *pointer=_pointer.getPointer();
     pointer[id]=element0;
     std::copy(others,others+sizeOfOthers,pointer+id+1);
+  }
+
+  template<class T>
+  bool MemArray<T>::isEqual(const MemArray<T>& other, T prec) const
+  {
+    if(_nb_of_elem!=other._nb_of_elem)
+      return false;
+    const T *pt1=_pointer.getConstPointer();
+    const T *pt2=other._pointer.getConstPointer();
+    if(pt1==0 && pt2==0)
+      return true;
+    if(pt1==0 || pt2==0)
+      return false;
+    for(int i=0;i<_nb_of_elem;i++)
+      if(pt1[i]-pt2[i]<-prec || (pt1[i]-pt2[i])>prec)
+        return false;
+    return true;
   }
 
   template<class T>

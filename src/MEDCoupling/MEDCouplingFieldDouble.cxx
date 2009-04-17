@@ -35,12 +35,31 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
   return new MEDCouplingFieldDouble(*this,recDeepCpy);
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),
+bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+{
+  const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
+  if(!otherC)
+    return false;
+  if(_nature!=otherC->_nature)
+    return false;
+  if(!MEDCouplingField::isEqual(other,meshPrec,valsPrec))
+    return false;
+  if(!_time_discr->isEqual(otherC->_time_discr,valsPrec))
+    return false;
+  return true;
+}
+
+TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
+{
+  return _time_discr->getEnum();
+}
+
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),_nature(NoNature),
                                                                                               _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),_nature(other._nature),
                                                                                                   _time_discr(other._time_discr->performCpy(deepCpy))
 {
 }
@@ -123,7 +142,76 @@ void MEDCouplingFieldDouble::updateTime()
     updateTimeWith(*getArray());
 }
 
+void MEDCouplingFieldDouble::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
+{
+  _type->checkCompatibilityWithNature(nat);
+  _nature=nat;
+}
+
 void MEDCouplingFieldDouble::setArray(DataArrayDouble *array)
 {
   _time_discr->setArray(array,this);
+}
+
+void MEDCouplingFieldDouble::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
+{
+  tinyInfo.clear();
+  _time_discr->getTinySerializationStrInformation(tinyInfo);
+  tinyInfo.push_back(_name);
+  tinyInfo.push_back(_desc);
+}
+
+/*!
+ * This method retrieves some critical values to resize and prepare remote instance.
+ * The first two elements returned in tinyInfo correspond to the parameters to give in constructor.
+ * @param tinyInfo out parameter resized correctly after the call. The length of this vector is tiny.
+ */
+void MEDCouplingFieldDouble::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+  tinyInfo.clear();
+  tinyInfo.push_back((int)_type->getEnum());
+  tinyInfo.push_back((int)_time_discr->getEnum());
+  tinyInfo.push_back((int)_nature);
+  _time_discr->getTinySerializationIntInformation(tinyInfo);
+}
+
+/*!
+ * This method retrieves some critical values to resize and prepare remote instance.
+ * @param tinyInfo out parameter resized correctly after the call. The length of this vector is tiny.
+ */
+void MEDCouplingFieldDouble::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+{
+  tinyInfo.clear();
+  _time_discr->getTinySerializationDbleInformation(tinyInfo);
+}
+
+/*!
+ * This method has to be called to the new instance filled by CORBA, MPI, File...
+ * @param tinyInfoI is the value retrieves from distant result of getTinySerializationIntInformation on source instance to be copied.
+ * @param arrays out parameter is a vector resized to the right size. The pointers in the vector is already owned by 'this' after the call of this method.
+ *               No decrRef must be applied to every instances in returned vector.
+ */
+void MEDCouplingFieldDouble::resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays)
+{
+  std::vector<int> tinyInfoI2(tinyInfoI.begin()+3,tinyInfoI.end());
+  _time_discr->resizeForUnserialization(tinyInfoI2,arrays);
+}
+
+void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+{
+  std::vector<int> tinyInfoI2(tinyInfoI.begin()+3,tinyInfoI.end());
+  _time_discr->finishUnserialization(tinyInfoI2,tinyInfoD,tinyInfoS);
+  _nature=(NatureOfField)tinyInfoI[2];
+  int nbOfElemS=tinyInfoS.size();
+  _name=tinyInfoS[nbOfElemS-2];
+  _desc=tinyInfoS[nbOfElemS-1];
+}
+
+/*!
+ * Contrary to MEDCouplingPointSet class the returned arrays are \b not the responsabilities af the caller.
+ * The values returned must be consulted only in readonly mode.
+ */
+void MEDCouplingFieldDouble::serialize(std::vector<DataArrayDouble *>& arrays) const
+{
+  _time_discr->getArrays(arrays);
 }

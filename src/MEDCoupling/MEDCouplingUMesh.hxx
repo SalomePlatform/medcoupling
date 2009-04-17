@@ -21,7 +21,7 @@
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingPointSet.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <set>
 
@@ -31,11 +31,13 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingUMesh *New();
+    static MEDCouplingUMesh *New(const char *meshName, int meshDim);
     MEDCouplingUMesh *clone(bool recDeepCpy) const;
     void updateTime();
+    MEDCouplingMeshType getType() const { return UNSTRUCTURED; }
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    void setMeshDimension(unsigned meshDim);
+    void setMeshDimension(int meshDim);
     void allocateCells(int nbOfCells);
     void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell);
     void finishInsertingCells();
@@ -46,13 +48,14 @@ namespace ParaMEDMEM
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     int getNumberOfNodesInCell(int cellId) const;
     int getNumberOfCells() const;
-    int getMeshDimension() const { return _mesh_dim; }
+    int getMeshDimension() const;
     int getMeshLength() const;
     //! size of returned tinyInfo must be always the same.
-    void getTinySerializationInformation(std::vector<int>& tinyInfo) const;
-    void resizeForSerialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2);
-    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2);
-    MEDCouplingPointSet *buildObjectFromUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2);
+    void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
+    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+    void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
+                         const std::vector<std::string>& littleStrings);
     //tools
     void zipCoords();
     DataArrayInt *zipCoordsTraducer();
@@ -71,7 +74,7 @@ namespace ParaMEDMEM
   private:
     //! this iterator stores current position in _nodal_connec array.
     mutable int _iterator;
-    unsigned _mesh_dim;
+    int _mesh_dim;
     DataArrayInt *_nodal_connec;
     DataArrayInt *_nodal_connec_index;
     std::set<INTERP_KERNEL::NormalizedCellType> _types;

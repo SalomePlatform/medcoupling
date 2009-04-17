@@ -17,7 +17,9 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "MEDCouplingPointSet.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingUMeshDesc.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 using namespace ParaMEDMEM;
 
@@ -81,7 +83,13 @@ void MEDCouplingPointSet::setCoords(DataArrayDouble *coords)
 
 bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, double prec) const
 {
-  return _coords->isEqual(other._coords,prec);
+  if(_coords==0 && other._coords==0)
+    return true;
+  if(_coords==0 || other._coords==0)
+    return false;
+  if(_coords==other._coords)
+    return true;
+  return _coords->isEqual(*other._coords,prec);
 }
 
 void MEDCouplingPointSet::getBoundingBox(double *bbox) const
@@ -108,6 +116,81 @@ void MEDCouplingPointSet::getBoundingBox(double *bbox) const
             }
         }
     }
+}
+
+MEDCouplingPointSet *MEDCouplingPointSet::buildInstanceFromMeshType(MEDCouplingMeshType type)
+{
+  switch(type)
+    {
+    case UNSTRUCTURED:
+      return MEDCouplingUMesh::New();
+    case UNSTRUCTURED_DESC:
+      return MEDCouplingUMeshDesc::New();
+    default:
+      throw INTERP_KERNEL::Exception("Invalid type of mesh specified");
+    }
+}
+
+void MEDCouplingPointSet::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+{
+  if(_coords)
+    {
+      int spaceDim=getSpaceDimension();
+      littleStrings.resize(spaceDim+1);
+      littleStrings[0]=getName();
+      for(int i=0;i<spaceDim;i++)
+        littleStrings[i+1]=getCoords()->getInfoOnComponent(i);
+      tinyInfo.clear();
+      tinyInfo.push_back(getType());
+      tinyInfo.push_back(spaceDim);
+      tinyInfo.push_back(getNumberOfNodes());
+    }
+  else
+    {
+      littleStrings.resize(1);
+      littleStrings[0]=getName();
+      tinyInfo.clear();
+      tinyInfo.push_back(getType());
+      tinyInfo.push_back(-1);
+      tinyInfo.push_back(-1);
+    }
+}
+
+void MEDCouplingPointSet::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
+{
+  if(_coords)
+    {
+      a2=getCoords();
+      a2->incrRef();
+    }
+  else
+    a2=0;
+}
+
+void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
+{
+  if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
+    {
+      a2->alloc(tinyInfo[2],tinyInfo[1]);
+      littleStrings.resize(tinyInfo[1]+1);
+    }
+  else
+    {
+      littleStrings.resize(1);
+    }
+}
+
+void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+{
+  if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
+    {
+      setCoords(a2);
+      setName(littleStrings[0].c_str());
+      for(int i=0;i<tinyInfo[1];i++)
+        getCoords()->setInfoOnComponent(i,littleStrings[i+1].c_str());
+    }
+  else
+    setName(littleStrings[0].c_str());
 }
 
 // =============================================
@@ -140,3 +223,4 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
     }
   return true;
 }
+

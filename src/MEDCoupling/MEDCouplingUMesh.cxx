@@ -32,6 +32,14 @@ MEDCouplingUMesh *MEDCouplingUMesh::New()
   return new MEDCouplingUMesh;
 }
 
+MEDCouplingUMesh *MEDCouplingUMesh::New(const char *meshName, int meshDim)
+{
+  MEDCouplingUMesh *ret=new MEDCouplingUMesh;
+  ret->setName(meshName);
+  ret->setMeshDimension(meshDim);
+  return ret;
+}
+
 MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
 {
   return new MEDCouplingUMesh(*this,recDeepCpy);
@@ -50,13 +58,15 @@ void MEDCouplingUMesh::updateTime()
     }
 }
 
-MEDCouplingUMesh::MEDCouplingUMesh():_iterator(-1),_mesh_dim(-1),
+MEDCouplingUMesh::MEDCouplingUMesh():_iterator(-1),_mesh_dim(-2),
                                      _nodal_connec(0),_nodal_connec_index(0)
 {
 }
 
 void MEDCouplingUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
+  if(_mesh_dim<-1)
+    throw INTERP_KERNEL::Exception("No mesh dimension specified !");
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
     {
       if(INTERP_KERNEL::CellModel::getCellModel(*iter).getDimension()!=_mesh_dim)
@@ -68,8 +78,10 @@ void MEDCouplingUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
     }
 }
 
-void MEDCouplingUMesh::setMeshDimension(unsigned meshDim)
+void MEDCouplingUMesh::setMeshDimension(int meshDim)
 {
+  if(meshDim<-1)
+    throw INTERP_KERNEL::Exception("Invalid meshDim specified ! Must be greater or equal to -1 !");
   _mesh_dim=meshDim;
   declareAsNew();
 }
@@ -118,11 +130,11 @@ void MEDCouplingUMesh::finishInsertingCells()
 
 bool MEDCouplingUMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
-  checkFullyDefined();
+  //checkFullyDefined();
   const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
   if(!otherC)
     return false;
-  otherC->checkFullyDefined();
+  //otherC->checkFullyDefined();
   if(!MEDCouplingMesh::isEqual(other,prec))
     return false;
   if(_mesh_dim!=otherC->_mesh_dim)
@@ -131,6 +143,18 @@ bool MEDCouplingUMesh::isEqual(const MEDCouplingMesh *other, double prec) const
     return false;
   if(!areCoordsEqual(*otherC,prec))
     return false;
+  if(_nodal_connec!=0 || otherC->_nodal_connec!=0)
+    if(_nodal_connec==0 || otherC->_nodal_connec==0)
+      return false;
+  if(_nodal_connec!=otherC->_nodal_connec)
+    if(!_nodal_connec->isEqual(*otherC->_nodal_connec))
+      return false;
+  if(_nodal_connec_index!=0 || otherC->_nodal_connec_index!=0)
+    if(_nodal_connec_index==0 || otherC->_nodal_connec_index==0)
+      return false;
+  if(_nodal_connec_index!=otherC->_nodal_connec_index)
+    if(!_nodal_connec_index->isEqual(*otherC->_nodal_connec_index))
+      return false;
   return true;
 }
 
@@ -352,7 +376,17 @@ int MEDCouplingUMesh::getNumberOfCells() const
     else
       return _iterator;
   else
-    throw INTERP_KERNEL::Exception("Unable to get number of cells because no connectivity specified !");
+    if(_mesh_dim==-1)
+      return 1;
+    else
+      throw INTERP_KERNEL::Exception("Unable to get number of cells because no connectivity specified !");
+}
+
+int MEDCouplingUMesh::getMeshDimension() const
+{
+  if(_mesh_dim<-1)
+    throw INTERP_KERNEL::Exception("No mesh dimension specified !");
+  return _mesh_dim;
 }
 
 int MEDCouplingUMesh::getMeshLength() const
@@ -360,60 +394,65 @@ int MEDCouplingUMesh::getMeshLength() const
   return _nodal_connec->getNbOfElems();
 }
 
-void MEDCouplingUMesh::getTinySerializationInformation(std::vector<int>& tinyInfo) const
+void MEDCouplingUMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
-  tinyInfo.resize(5);
-  tinyInfo[0] = getSpaceDimension();
-  tinyInfo[1] = getMeshDimension();
-  tinyInfo[2] = getNumberOfNodes();
-  tinyInfo[3] = getNumberOfCells();
-  tinyInfo[4] = getMeshLength();
+  MEDCouplingPointSet::getTinySerializationInformation(tinyInfo,littleStrings);
+  tinyInfo.push_back(getMeshDimension());
+  tinyInfo.push_back(getNumberOfCells());
+  if(_nodal_connec)
+    tinyInfo.push_back(getMeshLength());
+  else
+    tinyInfo.push_back(-1);
 }
 
 /*!
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingUMesh::resizeForSerialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2)
+void MEDCouplingUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
 {
-  a1->alloc(tinyInfo[4]+tinyInfo[3]+1,1);
-  a2->alloc(tinyInfo[2],tinyInfo[0]);
+  MEDCouplingPointSet::resizeForUnserialization(tinyInfo,a1,a2,littleStrings);
+  if(tinyInfo[5]!=-1)
+    a1->alloc(tinyInfo[5]+tinyInfo[4]+1,1);
 }
 
-void MEDCouplingUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2)
+void MEDCouplingUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 {
-  a1=DataArrayInt::New();
-  a1->alloc(getMeshLength()+getNumberOfCells()+1,1);
-  int *ptA1=a1->getPointer();
-  const int *conn=getNodalConnectivity()->getConstPointer();
-  const int *index=getNodalConnectivityIndex()->getConstPointer();
-  ptA1=std::copy(index,index+getNumberOfCells()+1,ptA1);
-  std::copy(conn,conn+getMeshLength(),ptA1);
-  a2=getCoords();
-  a2->incrRef();
+  MEDCouplingPointSet::serialize(a1,a2);
+  if(getMeshDimension()>-1)
+    {
+      a1=DataArrayInt::New();
+      a1->alloc(getMeshLength()+getNumberOfCells()+1,1);
+      int *ptA1=a1->getPointer();
+      const int *conn=getNodalConnectivity()->getConstPointer();
+      const int *index=getNodalConnectivityIndex()->getConstPointer();
+      ptA1=std::copy(index,index+getNumberOfCells()+1,ptA1);
+      std::copy(conn,conn+getMeshLength(),ptA1);
+    }
+  else
+    a1=0;
 }
 
 /*!
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildObjectFromUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2)
+void MEDCouplingUMesh::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
-  MEDCouplingUMesh* meshing = MEDCouplingUMesh::New() ;
-  // Coordinates
-  meshing->setCoords(a2);
-  // Connectivity
-  const int *recvBuffer=a1->getConstPointer();
-  DataArrayInt* myConnecIndex=DataArrayInt::New();
-  myConnecIndex->alloc(tinyInfo[3]+1,1);
-  std::copy(recvBuffer,recvBuffer+tinyInfo[3]+1,myConnecIndex->getPointer());
-  DataArrayInt* myConnec=DataArrayInt::New();
-  myConnec->alloc(tinyInfo[4],1);
-  std::copy(recvBuffer+tinyInfo[3]+1,recvBuffer+tinyInfo[3]+1+tinyInfo[4],myConnec->getPointer());
-  meshing->setConnectivity(myConnec, myConnecIndex) ;
-  myConnec->decrRef();
-  myConnecIndex->decrRef();
-  //
-  meshing->setMeshDimension(tinyInfo[1]);
-  return meshing;
+  MEDCouplingPointSet::unserialization(tinyInfo,a1,a2,littleStrings);
+  setMeshDimension(tinyInfo[3]);
+  if(tinyInfo[5]!=-1)
+    {
+      // Connectivity
+      const int *recvBuffer=a1->getConstPointer();
+      DataArrayInt* myConnecIndex=DataArrayInt::New();
+      myConnecIndex->alloc(tinyInfo[4]+1,1);
+      std::copy(recvBuffer,recvBuffer+tinyInfo[4]+1,myConnecIndex->getPointer());
+      DataArrayInt* myConnec=DataArrayInt::New();
+      myConnec->alloc(tinyInfo[5],1);
+      std::copy(recvBuffer+tinyInfo[4]+1,recvBuffer+tinyInfo[4]+1+tinyInfo[5],myConnec->getPointer());
+      setConnectivity(myConnec, myConnecIndex) ;
+      myConnec->decrRef();
+      myConnecIndex->decrRef();
+    }
 }
 
 MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *start, const int *end) const

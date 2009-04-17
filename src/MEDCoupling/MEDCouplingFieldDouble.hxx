@@ -22,7 +22,8 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingNatureOfField.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 namespace ParaMEDMEM
 {
@@ -30,8 +31,12 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
+    bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
+    TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    NatureOfField getNature() const { return _nature; }
+    void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void setTime(double val, int dt, int it) { _time_discr->setTime(val,dt,it); }
     double getTime(int& dt, int& it) const { return _time_discr->getTime(dt,it); }
     double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
@@ -46,11 +51,19 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const;
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     void updateTime();
+    //
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    void serialize(std::vector<DataArrayDouble *>& arrays) const;
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
     ~MEDCouplingFieldDouble();
   private:
+    NatureOfField _nature;
     MEDCouplingTimeDiscretization *_time_discr;
   };
 }

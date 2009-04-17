@@ -20,18 +20,27 @@
 #define __PARAMEDMEM_MEDCOUPLINGMESH_HXX__
 
 #include "MEDCoupling.hxx"
-#include "RefCountObject.hxx"
+#include "MEDCouplingTimeLabel.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
 namespace ParaMEDMEM
 {
+  typedef enum
+    {
+      UNSTRUCTURED = 5,
+      UNSTRUCTURED_DESC = 6,
+      CARTESIAN = 7,
+    } MEDCouplingMeshType;
+
   class MEDCouplingFieldDouble;
 
-  class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject
+  class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
   public:
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
+    virtual MEDCouplingMeshType getType() const = 0;
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const { return _name==other->_name; }
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
     virtual bool isStructured() const = 0;

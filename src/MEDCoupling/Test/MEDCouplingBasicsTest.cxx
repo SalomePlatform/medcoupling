@@ -19,7 +19,7 @@
 #include "MEDCouplingBasicsTest.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.txx"
 #include "Interpolation3D.txx"
@@ -226,6 +226,38 @@ void MEDCouplingBasicsTest::testMeshPointsCloud()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::testMeshM1D()
+{
+  MEDCouplingUMesh *meshM1D=MEDCouplingUMesh::New();
+  CPPUNIT_ASSERT_THROW(meshM1D->getMeshDimension(),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(meshM1D->getNumberOfNodes(),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(meshM1D->getNumberOfCells(),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(meshM1D->setMeshDimension(-2),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(meshM1D->setMeshDimension(-10),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(meshM1D->checkCoherency(),INTERP_KERNEL::Exception);
+  meshM1D->setMeshDimension(-1);
+  meshM1D->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(-1,meshM1D->getMeshDimension());
+  CPPUNIT_ASSERT_EQUAL(1,meshM1D->getNumberOfCells());
+  CPPUNIT_ASSERT_THROW(meshM1D->getNumberOfNodes(),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(meshM1D->getSpaceDimension(),INTERP_KERNEL::Exception);
+  MEDCouplingUMesh *cpy=meshM1D->clone(true);
+  CPPUNIT_ASSERT(cpy->isEqual(meshM1D,1e-12));
+  cpy->decrRef();
+  MEDCouplingFieldDouble *fieldOnCells=MEDCouplingFieldDouble::New(ON_CELLS);
+  fieldOnCells->setMesh(meshM1D);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(1,6);
+  fieldOnCells->setArray(array);
+  double *tmp=array->getPointer();
+  array->decrRef();
+  fill(tmp,tmp+6,7.);
+  fieldOnCells->checkCoherency();
+  //
+  fieldOnCells->decrRef();
+  meshM1D->decrRef();
+}
+
 void MEDCouplingBasicsTest::testDeepCopy()
 {
   DataArrayDouble *array=DataArrayDouble::New();
@@ -383,10 +415,158 @@ void MEDCouplingBasicsTest::testEqualMesh()
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingUMesh *mesh2=build2DTargetMesh_1();
   //
-  
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh1,1e-12));
+  //
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(mesh2->isEqual(mesh1,1e-12));
+  double *pt=mesh2->getCoords()->getPointer();
+  double tmp=pt[1];
+  pt[1]=5.999;
+  CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(!mesh2->isEqual(mesh1,1e-12));
+  pt[1]=tmp;
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(mesh2->isEqual(mesh1,1e-12));
+  //
+  int *pt2=mesh1->getNodalConnectivity()->getPointer();
+  pt2[5]++;
+  CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(!mesh2->isEqual(mesh1,1e-12));
+  pt2[5]--;
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(mesh2->isEqual(mesh1,1e-12));
+  //
+  pt2=mesh1->getNodalConnectivityIndex()->getPointer();
+  pt2[1]++;
+  CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(!mesh2->isEqual(mesh1,1e-12));
+  pt2[1]--;
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(mesh2->isEqual(mesh1,1e-12));
+  //
+  std::string tmp3=mesh1->getName();
+  mesh1->setName("lllll");
+  CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(!mesh2->isEqual(mesh1,1e-12));
+  mesh1->setName(tmp3.c_str());
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(mesh2->isEqual(mesh1,1e-12));
+  //
+  tmp3=mesh2->getCoords()->getInfoOnComponent(1);
+  mesh2->getCoords()->setInfoOnComponent(1,"kkkkkk");
+  CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(!mesh2->isEqual(mesh1,1e-12));
+  mesh2->getCoords()->setInfoOnComponent(1,tmp3.c_str());
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(mesh2->isEqual(mesh1,1e-12));
   //
   mesh1->decrRef();
   mesh2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testEqualFieldDouble()
+{
+  MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
+  MEDCouplingUMesh *mesh2=build2DTargetMesh_1();
+  //
+  MEDCouplingFieldDouble *fieldOnCells1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  fieldOnCells1->setMesh(mesh1);
+  MEDCouplingFieldDouble *fieldOnCells2=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  fieldOnCells2->setMesh(mesh2);
+  //
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells2->decrRef();
+  //
+  MEDCouplingFieldDouble *fieldOnNodes1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnNodes1,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnNodes1->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnNodes1->decrRef();
+  //
+  fieldOnCells2=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells1->decrRef();
+  fieldOnCells1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells1->setTime(4.,6,7);
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells2->setTime(4.,6,7);
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells1->setName("Power");
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells2->setName("Power");
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  //
+  fieldOnCells1->setMesh(mesh1);
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells2->setMesh(mesh1);
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  DataArrayDouble *arr=DataArrayDouble::New();
+  arr->setName("popo");
+  arr->alloc(mesh1->getNumberOfCells(),3);
+  double *pt=arr->getPointer();
+  std::fill(pt,pt+mesh1->getNumberOfCells()*3,6.);
+  fieldOnCells1->setArray(arr);
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  fieldOnCells2->setArray(arr);
+  arr->decrRef();
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  //
+  DataArrayDouble *arr2=arr->deepCopy();
+  fieldOnCells2->setArray(arr2);
+  arr2->decrRef();
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  pt[4]=6.1;
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  pt[4]=6.;
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  arr2->setName("popo2");
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  //
+  arr2->setName("popo");
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  //
+  arr2->setInfoOnComponent(2,"jjj");
+  CPPUNIT_ASSERT(!fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(!fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  arr->setInfoOnComponent(2,"jjj");
+  CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
+  CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
+  //
+  fieldOnCells1->decrRef();
+  fieldOnCells2->decrRef();
+  //
+  mesh1->decrRef();
+  mesh2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testNatureChecking()
+{
+  MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  field->setNature(Integral);
+  field->setNature(ConservativeVolumic);
+  field->setNature(IntegralGlobConstraint);
+  field->decrRef();
+  field=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
+  field->setNature(ConservativeVolumic);
+  CPPUNIT_ASSERT_THROW(field->setNature(Integral),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(field->setNature(IntegralGlobConstraint),INTERP_KERNEL::Exception);
+  field->decrRef();
 }
 
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()
@@ -793,8 +973,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DSourceMesh_1()
 {
   double sourceCoords[8]={-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7};
   int sourceConn[6]={0,3,1,0,2,3};
-  MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
-  sourceMesh->setMeshDimension(2);
+  MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New("my name of mesh 2D",2);
   sourceMesh->allocateCells(2);
   sourceMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,sourceConn);
   sourceMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,sourceConn+3);

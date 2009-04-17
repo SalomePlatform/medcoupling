@@ -28,20 +28,20 @@ lib_LTLIBRARIES = libmedcoupling.la
 
 
 salomeinclude_HEADERS = MEDCoupling.hxx \
-MEDCouplingFieldDouble.hxx  MEDCouplingMesh.hxx MEDCouplingUMesh.hxx TimeLabel.hxx \
-MEDCouplingField.hxx MEDCouplingNormalizedUnstructuredMesh.hxx MemArray.hxx        \
-MEDCouplingNormalizedUnstructuredMesh.txx  MemArray.txx RefCountObject.hxx         \
-MEDCouplingRMesh.hxx MEDCouplingTimeDiscretization.hxx                             \
-MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx                         \
-MEDCouplingUMeshDesc.hxx
+MEDCouplingFieldDouble.hxx  MEDCouplingMesh.hxx MEDCouplingUMesh.hxx MEDCouplingTimeLabel.hxx     \
+MEDCouplingField.hxx MEDCouplingNormalizedUnstructuredMesh.hxx MEDCouplingMemArray.hxx            \
+MEDCouplingNormalizedUnstructuredMesh.txx  MEDCouplingMemArray.txx MEDCouplingRefCountObject.hxx  \
+MEDCouplingCMesh.hxx MEDCouplingTimeDiscretization.hxx                                            \
+MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx                                        \
+MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx
 
 # Libraries targets
 
 dist_libmedcoupling_la_SOURCES = \
-	MEDCouplingField.cxx  MEDCouplingFieldDouble.cxx       \
-	MEDCouplingUMesh.cxx  MemArray.cxx  TimeLabel.cxx      \
-	MEDCouplingRMesh.cxx MEDCouplingTimeDiscretization.cxx \
-	MEDCouplingFieldDiscretization.cxx                     \
+	MEDCouplingField.cxx  MEDCouplingFieldDouble.cxx                          \
+	MEDCouplingUMesh.cxx  MEDCouplingMemArray.cxx  MEDCouplingTimeLabel.cxx   \
+	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                    \
+	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx          \
 	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx
 
 libmedcoupling_la_LDFLAGS= 
@@ -64,13 +64,14 @@ EXTRA_DIST += \
 	MEDCouplingFieldDiscretization.hxx        \
         MEDCouplingMesh.hxx                       \
         MEDCouplingUMesh.hxx                      \
-        MEDCouplingRMesh.hxx                      \
-        TimeLabel.hxx                             \
+        MEDCouplingCMesh.hxx                      \
+        MEDCouplingTimeLabel.hxx                  \
 	MEDCouplingField.hxx                      \
 	MEDCouplingNormalizedUnstructuredMesh.hxx \
-	MemArray.hxx                              \
+	MEDCouplingMemArray.hxx                   \
 	MEDCouplingNormalizedUnstructuredMesh.txx \
-	MemArray.txx                              \
-	RefCountObject.hxx                        \
+	MEDCouplingMemArray.txx                   \
+	MEDCouplingRefCountObject.hxx             \
 	MEDCouplingPointSet.hxx                   \
-	MEDCouplingUMeshDesc.hxx
+	MEDCouplingUMeshDesc.hxx                  \
+	MEDCouplingNatureOfField.hxx

@@ -31,6 +31,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingUMeshDesc *New();
+    static MEDCouplingUMeshDesc *New(const char *meshName, int meshDim);
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void setMeshDimension(unsigned meshDim);
     int getNumberOfCells() const;
@@ -38,12 +39,14 @@ namespace ParaMEDMEM
     int getCellMeshLength() const;
     int getFaceMeshLength() const;
     int getMeshDimension() const { return _mesh_dim; }
+    MEDCouplingMeshType getType() const { return UNSTRUCTURED_DESC; }
     void setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx);
     //tools to overload
-    void getTinySerializationInformation(std::vector<int>& tinyInfo) const;
-    void resizeForSerialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2);
-    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2);
-    MEDCouplingPointSet *buildObjectFromUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2);
+    void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
+    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+    void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
+                         const std::vector<std::string>& littleStrings);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
     MEDCouplingFieldDouble *getMeasureField() const;

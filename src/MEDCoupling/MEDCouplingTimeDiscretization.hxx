@@ -20,7 +20,7 @@
 #define __MEDCOUPLINGTIMEDISCRETIZATION_HXX__
 
 #include "MEDCoupling.hxx"
-#include "RefCountObject.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
 #include <vector>
@@ -37,6 +37,13 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy);
   public:
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
+    virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
+    virtual TypeOfTimeDiscretization getEnum() const = 0;
+    virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    virtual void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
+    virtual void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     virtual MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const = 0;
     void setTimeTolerance(double val);
     double getTimeTolerance() const { return _time_tolerance; }
@@ -72,6 +79,8 @@ namespace ParaMEDMEM
   public:
     MEDCouplingNoTimeLabel();
     MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCpy);
+    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception) { }
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
@@ -96,6 +105,11 @@ namespace ParaMEDMEM
     MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCpy);
   public:
     MEDCouplingWithTimeStep();
+    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception);
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
@@ -130,6 +144,8 @@ namespace ParaMEDMEM
     void setEndTime(double time, int dt, int it) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_dt=dt; _end_it=it; }
     double getStartTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_start_dt; it=_start_it; return _start_time; }
     double getEndTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_end_dt; it=_end_it; return _end_time; }
+    void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
   protected:
     double _start_time;
     double _end_time;
@@ -143,6 +159,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingLinearTime : public MEDCouplingTwoTimeSteps
   {
   public:
+    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     static const TypeOfTimeDiscretization DISCRETIZATION=LINEAR_TIME;
   };
 }

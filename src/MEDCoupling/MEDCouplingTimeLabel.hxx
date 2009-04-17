@@ -16,34 +16,32 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __PARAGRID_HXX__
-#define __PARAGRID_HXX__
+#ifndef __PARAMEDMEM_TIMELABEL_HXX__
+#define __PARAMEDMEM_TIMELABEL_HXX__
 
-#include "InterpolationUtils.hxx"
-
-#include <vector>
+#include "MEDCoupling.hxx"
 
 namespace ParaMEDMEM
 {
-  class Topology;
-  class BlockTopology;
-  class MEDCouplingCMesh;
-
-  class ParaGRID
+  /*!
+   * Class representing a label of time of the lastely modified part of this.
+   * More _time is high more the object has been modified recently.
+   */
+  class MEDCOUPLING_EXPORT TimeLabel
   {
   public:
-    ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception);
-    BlockTopology * getBlockTopology() const { return _block_topology; }
-    virtual ~ParaGRID();
-    MEDCouplingCMesh* getGrid() const { return _grid; }
+    TimeLabel& operator=(const TimeLabel& other);
+    //! This method should be called when write access has been done on this.
+    void declareAsNew();
+    //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggragates objects.
+    virtual void updateTime() = 0;
+  protected:
+    TimeLabel();
+    virtual ~TimeLabel();
+    void updateTimeWith(const TimeLabel& other);
   private:
-    MEDCouplingCMesh* _grid;
-    // structured grid topology
-    ParaMEDMEM::BlockTopology* _block_topology;
-    // stores the x,y,z axes on the global grid
-    std::vector<std::vector<double> > _global_axis;
-    //id of the local grid
-    int _my_domain_id;
+    static unsigned int GLOBAL_TIME;
+    unsigned int _time;
   };
 }
 

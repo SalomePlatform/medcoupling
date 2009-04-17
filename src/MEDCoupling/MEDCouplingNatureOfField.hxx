@@ -16,29 +16,18 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "TimeLabel.hxx"
+#ifndef __MEDCOUPLINGNATUREOFFIELD_HXX__
+#define __MEDCOUPLINGNATUREOFFIELD_HXX__
 
-using namespace ParaMEDMEM;
-
-unsigned int TimeLabel::GLOBAL_TIME=0;
-
-TimeLabel::TimeLabel():_time(GLOBAL_TIME++)
+namespace ParaMEDMEM
 {
+  typedef enum
+    {
+      NoNature               = 17,
+      ConservativeVolumic    = 26,
+      Integral               = 32,
+      IntegralGlobConstraint = 35
+    } NatureOfField;
 }
 
- TimeLabel& TimeLabel::operator=(const TimeLabel& other)
-{
-  _time=GLOBAL_TIME++;
-  return *this;
-}
-
-void TimeLabel::declareAsNew()
-{
-  _time=GLOBAL_TIME++;
-}
-
-void TimeLabel::updateTimeWith(const TimeLabel& other)
-{
-  if(_time<other._time)
-    _time=other._time;
-}
+#endif

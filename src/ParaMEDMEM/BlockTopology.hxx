@@ -27,7 +27,7 @@
 namespace ParaMEDMEM
 {
   class ComponentTopology;
-  class MEDCouplingRMesh;
+  class MEDCouplingCMesh;
 
   typedef enum{Block,Cycle} CYCLE_TYPE; 
 
@@ -35,7 +35,7 @@ namespace ParaMEDMEM
   {
   public:
     BlockTopology() { }
-    BlockTopology(const ProcessorGroup& group, MEDCouplingRMesh *grid); 
+    BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid); 
     BlockTopology(const BlockTopology& geom_topo, const ComponentTopology& comp_topo);
     BlockTopology(const ProcessorGroup& group, int nb_elem);
     virtual ~BlockTopology();

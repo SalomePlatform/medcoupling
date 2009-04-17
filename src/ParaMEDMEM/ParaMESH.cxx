@@ -21,7 +21,7 @@
 #include "MPIProcessorGroup.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <fstream>
 #include <vector>

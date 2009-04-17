@@ -16,31 +16,42 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __PARAMEDMEM_TIMELABEL_HXX__
-#define __PARAMEDMEM_TIMELABEL_HXX__
-
-#include "MEDCoupling.hxx"
+#ifndef __PARAMEDMEM_MEDCOUPLINGREFCOUNTOBJECT_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGREFCOUNTOBJECT_HXX__
 
 namespace ParaMEDMEM
 {
-  /*!
-   * Class representing a label of time of the lastely modified part of this.
-   * More _time is high more the object has been modified recently.
-   */
-  class MEDCOUPLING_EXPORT TimeLabel
+  typedef enum
+    {
+      C_DEALLOC = 2,
+      CPP_DEALLOC = 3
+    } DeallocType;
+
+  typedef enum
+    {
+      ON_CELLS = 0,
+      ON_NODES = 1
+    } TypeOfField;
+
+  typedef enum
+    {
+      NO_TIME = 4,
+      ONE_TIME = 5,
+      LINEAR_TIME = 6
+    } TypeOfTimeDiscretization;
+
+  class RefCountObject
   {
-  public:
-    TimeLabel& operator=(const TimeLabel& other);
-    //! This method should be called when write access has been done on this.
-    void declareAsNew();
-    //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggragates objects.
-    virtual void updateTime() = 0;
   protected:
-    TimeLabel();
-    void updateTimeWith(const TimeLabel& other);
+    RefCountObject();
+    RefCountObject(const RefCountObject& other);
+  public:
+    bool decrRef();
+    void incrRef() const;
+  protected:
+    virtual ~RefCountObject();
   private:
-    static unsigned int GLOBAL_TIME;
-    unsigned int _time;
+    mutable int _cnt;
   };
 }
 

@@ -181,7 +181,10 @@ namespace ParaMEDMEM
     // First stage : exchanging sizes
     // ------------------------------
     vector<int> tinyInfoLocal,tinyInfoDistant;
-    local_mesh->getTinySerializationInformation(tinyInfoLocal);
+    vector<string> tinyInfoLocalS;
+    //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
+    //the transmitted mesh.
+    local_mesh->getTinySerializationInformation(tinyInfoLocal,tinyInfoLocalS);
     tinyInfoLocal.push_back(local_mesh->getNumberOfCells());
     tinyInfoDistant.resize(tinyInfoLocal.size());
     std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
@@ -201,8 +204,12 @@ namespace ParaMEDMEM
     DataArrayDouble *v2Local=0;
     DataArrayInt *v1Distant=DataArrayInt::New();
     DataArrayDouble *v2Distant=DataArrayDouble::New();
+    //serialization of local mesh to send data to distant proc.
     local_mesh->serialize(v1Local,v2Local);
-    local_mesh->resizeForSerialization(tinyInfoDistant,v1Distant,v2Distant);
+    //Building the right instance of copy of distant mesh.
+    MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::buildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
+    std::vector<std::string> unusedTinyDistantSts;
+    distant_mesh_tmp->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     comm_interface.sendRecv(v1Local->getPointer(), v1Local->getNbOfElems(), MPI_INT,
                             iprocdistant_in_union, 1111,
                             v1Distant->getPointer(), v1Distant->getNbOfElems(), MPI_INT,
@@ -215,8 +222,12 @@ namespace ParaMEDMEM
                             *comm, &status);
     if(v1Distant->getNbOfElems()>0)
       {
-        distant_mesh=local_mesh->buildObjectFromUnserialization(tinyInfoDistant,v1Distant,v2Distant);
+        distant_mesh=distant_mesh_tmp;
+        //finish unserialization
+        distant_mesh->unserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
       }
+    else
+      distant_mesh_tmp->decrRef();
     distant_ids_recv=new int[tinyInfoDistant.back()];
     comm_interface.sendRecv((void *)distant_ids_send,tinyInfoLocal.back(), MPI_INT,
                             iprocdistant_in_union, 1113,

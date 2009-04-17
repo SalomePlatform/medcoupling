@@ -22,7 +22,7 @@
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 
 #include "MEDCouplingUMesh.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 template<int SPACEDIM,int MESHDIM>
 MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(ParaMEDMEM::MEDCouplingUMesh *mesh):_mesh(mesh)

@@ -22,6 +22,23 @@
 
 using namespace ParaMEDMEM;
 
+bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+{
+  if(_name!=other->_name)
+    return false;
+  if(_desc!=other->_desc)
+    return false;
+  if(!_type->isEqual(other->_type))
+    return false;
+  if(_mesh==0 && other->_mesh==0)
+    return true;
+  if(_mesh==0 || other->_mesh==0)
+    return false;
+  if(_mesh==other->_mesh)
+    return true;
+  return _mesh->isEqual(other->_mesh,meshPrec);
+}
+
 void MEDCouplingField::updateTime()
 {
   if(_mesh)
@@ -33,12 +50,12 @@ TypeOfField MEDCouplingField::getEntity() const
   return _type->getEnum();
 }
 
-void MEDCouplingField::setMesh(MEDCouplingMesh *mesh)
+void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
 {
   if(mesh!=_mesh)
     {
       if(_mesh)
-        _mesh->decrRef();
+        ((MEDCouplingMesh *)_mesh)->decrRef();
       _mesh=mesh;
       if(_mesh)
         {
@@ -51,7 +68,7 @@ void MEDCouplingField::setMesh(MEDCouplingMesh *mesh)
 MEDCouplingField::~MEDCouplingField()
 {
   if(_mesh)
-    _mesh->decrRef();
+    ((MEDCouplingMesh *)_mesh)->decrRef();
   delete _type;
 }
 

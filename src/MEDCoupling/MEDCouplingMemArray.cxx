@@ -16,13 +16,22 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "MemArray.txx"
+#include "MEDCouplingMemArray.txx"
 
 using namespace ParaMEDMEM;
 
 void DataArray::setName(const char *name)
 {
   _name=name;
+}
+
+bool DataArray::areInfoEquals(const DataArray& other) const
+{
+  if(_nb_of_tuples!=other._nb_of_tuples)
+    return false;
+  if(_name!=other._name)
+    return false;
+  return _info_on_compo==other._info_on_compo;
 }
 
 DataArrayDouble *DataArrayDouble::New()
@@ -54,9 +63,11 @@ void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
   declareAsNew();
 }
 
-bool DataArrayDouble::isEqual(DataArrayDouble *other, double prec) const
+bool DataArrayDouble::isEqual(const DataArrayDouble& other, double prec) const
 {
-  return true;
+  if(!areInfoEquals(other))
+    return false;
+  return _mem.isEqual(other._mem,prec);
 }
 
 void DataArrayDouble::reAlloc(int nbOfTuples)
@@ -113,6 +124,13 @@ void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
   _info_on_compo.resize(nbOfCompo);
   _mem.alloc(nbOfCompo*_nb_of_tuples);
   declareAsNew();
+}
+
+bool DataArrayInt::isEqual(const DataArrayInt& other) const
+{
+  if(!areInfoEquals(other))
+    return false;
+  return _mem.isEqual(other._mem,0);
 }
 
 void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)

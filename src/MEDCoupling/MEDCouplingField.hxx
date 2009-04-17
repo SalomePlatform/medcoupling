@@ -20,7 +20,8 @@
 #define __PARAMEDMEM_MEDCOUPLINGFIELD_HXX__
 
 #include "MEDCoupling.hxx"
-#include "RefCountObject.hxx"
+#include "MEDCouplingTimeLabel.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
 #include <string>
@@ -30,13 +31,15 @@ namespace ParaMEDMEM
   class MEDCouplingMesh;
   class MEDCouplingFieldDiscretization;
 
-  class MEDCOUPLING_EXPORT MEDCouplingField : public RefCountObject
+  class MEDCOUPLING_EXPORT MEDCouplingField : public RefCountObject, public TimeLabel
   {
   public:
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
-    void setMesh(ParaMEDMEM::MEDCouplingMesh *mesh);
-    ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
+    virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
+    void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
+    const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
     void setName(const char *name) { _name=name; }
+    const char *getDescription() const { return _desc.c_str(); }
     void setDescription(const char *desc) { _desc=desc; }
     const char *getName() const { return _name.c_str(); }
     TypeOfField getEntity() const;
@@ -49,7 +52,7 @@ namespace ParaMEDMEM
   protected:
     std::string _name;
     std::string _desc;
-    MEDCouplingMesh *_mesh;
+    const MEDCouplingMesh *_mesh;
     MEDCouplingFieldDiscretization *_type;
   };
 }

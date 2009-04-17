@@ -19,7 +19,7 @@
 #ifndef __PARAFIELD_HXX__
 #define __PARAFIELD_HXX__
 
-#include "RefCountObject.hxx"
+#include "MEDCouplingRefCountObject.hxx"
 
 namespace ParaMEDMEM
 {

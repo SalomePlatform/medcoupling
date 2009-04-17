@@ -16,35 +16,31 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __PARAGRID_HXX__
-#define __PARAGRID_HXX__
+#include "MEDCouplingRefCountObject.hxx"
 
-#include "InterpolationUtils.hxx"
+using namespace ParaMEDMEM;
 
-#include <vector>
-
-namespace ParaMEDMEM
+RefCountObject::RefCountObject():_cnt(1)
 {
-  class Topology;
-  class BlockTopology;
-  class MEDCouplingCMesh;
-
-  class ParaGRID
-  {
-  public:
-    ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) throw(INTERP_KERNEL::Exception);
-    BlockTopology * getBlockTopology() const { return _block_topology; }
-    virtual ~ParaGRID();
-    MEDCouplingCMesh* getGrid() const { return _grid; }
-  private:
-    MEDCouplingCMesh* _grid;
-    // structured grid topology
-    ParaMEDMEM::BlockTopology* _block_topology;
-    // stores the x,y,z axes on the global grid
-    std::vector<std::vector<double> > _global_axis;
-    //id of the local grid
-    int _my_domain_id;
-  };
 }
 
-#endif
+RefCountObject::RefCountObject(const RefCountObject& other):_cnt(1)
+{
+}
+
+bool RefCountObject::decrRef()
+{
+  bool ret=((--_cnt)==0);
+  if(ret)
+    delete this;
+  return ret;
+}
+
+void RefCountObject::incrRef() const
+{
+  _cnt++;
+}
+
+RefCountObject::~RefCountObject()
+{
+}
