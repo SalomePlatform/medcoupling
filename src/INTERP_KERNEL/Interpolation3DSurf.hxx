@@ -35,6 +35,8 @@ namespace INTERP_KERNEL
   public:
     bool doRotate() const { return _do_rotate; }
     double medianPlane() const { return _median_plane; }
+    double surf3DAdjustmentEps() const { return _surf_3D_adjustment_eps; }
+    void setSurf3DAdjustmentEps(double val) { _surf_3D_adjustment_eps=val; }
     template<class MyMeshType, class MyMatrixRow>
       void performAdjustmentOfBB(PlanarIntersector<MyMeshType,MyMatrixRow>* intersector, std::vector<double>& bbox) const
     { intersector->adjustBoundingBoxes(bbox,_surf_3D_adjustment_eps); }

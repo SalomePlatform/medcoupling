@@ -66,6 +66,7 @@ using namespace INTERP_KERNEL;
 %include "MEDCouplingMesh.hxx"
 %include "NormalizedUnstructuredMesh.hxx"
 %include "MEDCouplingField.hxx"
+%include "MEDCouplingNatureOfField.hxx"
 
 namespace ParaMEDMEM
 {
@@ -163,6 +164,8 @@ namespace ParaMEDMEM
     void applyLin(double a, double b, int compoId);
     int getNumberOfComponents() const;
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
+    NatureOfField getNature() const { return _nature; }
+    void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void updateTime();
     %extend {
       void setValues(PyObject *li)

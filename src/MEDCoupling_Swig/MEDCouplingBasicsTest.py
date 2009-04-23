@@ -38,6 +38,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         field=MEDCouplingFieldDouble.New(ON_CELLS)
         field.setMesh(mesh)
+        field.setNature(Integral)
         myCoords=DataArrayDouble.New()
         sampleTab=[]
         for i in range(nbOfCells*9):
