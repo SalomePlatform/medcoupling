@@ -19,64 +19,82 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
+# Library targets
 lib_LTLIBRARIES = libInterpKernelTest.la
 
-salomeinclude_HEADERS = CppUnitTest.hxx      \
-	TransformedTriangleTest.hxx          \
-	TransformedTriangleIntersectTest.hxx \
-	InterpolationTestSuite.hxx           \
-	SingleElementTetraTests.hxx          \
-	MultiElementTetraTests.hxx           \
-	HexaTests.hxx                        \
-	MeshTestToolkit.hxx                  \
-	MeshTestToolkit.txx                  \
-	BBTreeTest.hxx                       \
-	RemapperTest.hxx                     \
-	SingleElementPlanarTests.hxx         \
-	MultiElement2DTests.hxx              \
-	InterpolationPlanarTestSuite.hxx     \
-	UnitTetraIntersectionBaryTest.hxx    \
-	PointLocatorTest.hxx                 \
-	MEDMeshMaker.hxx                     \
-	QuadraticPlanarInterpTest.hxx
-
-EXTRA_DIST +=                                \
-	BasicMainTest.hxx                    \
+UNUSED_FILES =                               \
 	Interpolation3DTest.cxx              \
 	Interpolation3DTest.hxx              \
 	MultiElement3DSurfTests.hxx          \
-	TestingUtils.hxx                     \
-	perf_test.sh
+	TestingUtils.hxx
 
-CLEANFILES =            \
+EXTRA_DIST +=                                \
+	perf_test.sh                         \
+        $(UNUSED_FILES)
+
+CLEANFILES =                                 \
         UnitTestsResult
 
-dist_libInterpKernelTest_la_SOURCES=         \
-	CppUnitTest.cxx                      \
-	TransformedTriangleTest.cxx          \
-	UnitTetraIntersectionBaryTest.cxx    \
-	TransformedTriangleIntersectTest.cxx \
+libInterpKernelTest_la_SOURCES=              \
+	BBTreeTest.hxx                       \
 	BBTreeTest.cxx                       \
-	RemapperTest.cxx                     \
-	SingleElementPlanarTests.cxx         \
-	PointLocatorTest.cxx                 \
-	MEDMeshMaker.cxx                     \
-	InterpolationOptionsTest.hxx         \
-	InterpolationOptionsTest.cxx         \
+	CppUnitTest.hxx                      \
+	CppUnitTest.cxx                      \
+	InterpolationPlanarTestSuite.hxx     \
+	QuadraticPlanarInterpTest.hxx        \
 	QuadraticPlanarInterpTest.cxx        \
 	QuadraticPlanarInterpTest2.cxx       \
 	QuadraticPlanarInterpTest3.cxx       \
 	QuadraticPlanarInterpTest4.cxx       \
-	QuadraticPlanarInterpTest5.cxx
+	QuadraticPlanarInterpTest5.cxx       \
+	SingleElementPlanarTests.hxx         \
+	SingleElementPlanarTests.cxx         \
+	TransformedTriangleIntersectTest.hxx \
+	TransformedTriangleIntersectTest.cxx \
+	TransformedTriangleTest.hxx          \
+	TransformedTriangleTest.cxx          \
+	UnitTetraIntersectionBaryTest.hxx    \
+	UnitTetraIntersectionBaryTest.cxx
 
-libInterpKernelTest_la_CPPFLAGS = @CPPUNIT_INCLUDES@ $(MED2_INCLUDES) $(HDF5_INCLUDES) \
-	-I$(srcdir)/.. -I$(srcdir)/../MEDWrapper/V2_1/Core -I$(srcdir)/../MEDMEM \
-	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D \
-	-I$(srcdir)/../INTERP_KERNEL/Bases -DOPTIMIZE -DLOG_LEVEL=0
+libInterpKernelTest_la_CPPFLAGS =                \
+	@CPPUNIT_INCLUDES@                       \
+	-I$(srcdir)/../INTERP_KERNEL             \
+	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
+	-I$(srcdir)/../INTERP_KERNEL/Bases       \
+	-DOPTIMIZE -DLOG_LEVEL=0
 
-libInterpKernelTest_la_LDFLAGS  = @CPPUNIT_LIBS@ ../MEDWrapper/V2_1/Core/libmed_V2_1.la        \
-				  ../INTERP_KERNEL/libinterpkernel.la ../INTERP_KERNEL/Geometric2D/libInterpGeometric2DAlg.la \
-				  ../MEDMEM/libmedmem.la -lm 
+libInterpKernelTest_la_LDFLAGS  =                \
+	@CPPUNIT_LIBS@                           \
+	../INTERP_KERNEL/libinterpkernel.la      \
+	../INTERP_KERNEL/Geometric2D/libInterpGeometric2DAlg.la
+
+if !MED_ENABLE_MICROMED
+   libInterpKernelTest_la_SOURCES +=         \
+	InterpolationOptionsTest.hxx         \
+	InterpolationOptionsTest.cxx         \
+	InterpolationTestSuite.hxx           \
+	MEDMeshMaker.hxx                     \
+	MEDMeshMaker.cxx                     \
+	MeshTestToolkit.hxx                  \
+	MeshTestToolkit.txx                  \
+	MultiElement2DTests.hxx              \
+	MultiElementTetraTests.hxx           \
+	PointLocatorTest.hxx                 \
+	PointLocatorTest.cxx                 \
+	RemapperTest.hxx                     \
+	RemapperTest.cxx                     \
+	SingleElementTetraTests.hxx
+
+   libInterpKernelTest_la_CPPFLAGS +=            \
+	-DDISABLE_MICROMED                       \
+	$(MED2_INCLUDES) $(HDF5_INCLUDES)        \
+	-I$(srcdir)/../MEDWrapper/V2_1/Core      \
+	-I$(srcdir)/../MEDMEM
+
+   libInterpKernelTest_la_LDFLAGS +=             \
+	../MEDWrapper/V2_1/Core/libmed_V2_1.la   \
+	../MEDMEM/libmedmem.la -lm 
+endif
 
 if MED_ENABLE_KERNEL
     libInterpKernelTest_la_CPPFLAGS += ${KERNEL_CXXFLAGS}
@@ -84,18 +102,35 @@ if MED_ENABLE_KERNEL
 endif
 
 # Executables targets
-bin_PROGRAMS = TestINTERP_KERNEL \
-	PerfTest
+bin_PROGRAMS = TestINTERP_KERNEL
 
-dist_TestINTERP_KERNEL_SOURCES = TestInterpKernel.cxx
-dist_PerfTest_SOURCES = PerfTest.cxx
-
-LDADD = $(MED2_LIBS) $(libInterpKernelTest_la_LDFLAGS) \
-	libInterpKernelTest.la
-if MED_ENABLE_KERNEL
-     LDADD += -lSALOMEBasics
+if !MED_ENABLE_MICROMED
+   bin_PROGRAMS += PerfTest
 endif
-AM_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
+
+TestINTERP_KERNEL_SOURCES =      \
+	BasicMainTest.hxx        \
+	TestInterpKernel.cxx
+
+TestINTERP_KERNEL_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
+TestINTERP_KERNEL_LDADD = $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
+
+if !MED_ENABLE_MICROMED
+   TestINTERP_KERNEL_SOURCES += HexaTests.hxx
+endif
+
+PerfTest_SOURCES =               \
+	PerfTest.cxx             \
+	MeshTestToolkit.hxx      \
+	MeshTestToolkit.txx
+
+PerfTest_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
+PerfTest_LDADD = $(MED2_LIBS) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
+
+if MED_ENABLE_KERNEL
+     TestINTERP_KERNEL_LDADD += -lSALOMEBasics
+     PerfTest_LDADD   += -lSALOMEBasics
+endif
 
 UNIT_TEST_PROG = TestINTERP_KERNEL
 
@@ -103,4 +138,3 @@ check : tests
 
 clean-local:
 	rm -rf *.fig
-

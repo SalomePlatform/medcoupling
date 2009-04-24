@@ -30,6 +30,9 @@
 using namespace std;
 using namespace INTERP_KERNEL;
 
+namespace INTERP_TEST
+{
+
 void QuadraticPlanarInterpTest::checkPolygonsIntersection1()
 {
   //The "most" basic test1
@@ -1656,4 +1659,6 @@ void QuadraticPlanarInterpTest::checkNormalize()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.2640792652913602,e1->getCurveLength(),1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.034741420428165526,e1->getAreaOfZone(),1e-13);
   e1->decrRef();
+}
+
 }

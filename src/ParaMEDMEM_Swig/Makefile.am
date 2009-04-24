@@ -27,12 +27,12 @@ lib_LTLIBRARIES = _libParaMEDMEM_Swig.la
 salomeinclude_HEADERS =  \
 	libParaMEDMEM_Swig.i
 
-SWIG_DEF = libParaMEDMEM_Swig.i
+SWIG_DEF = libParaMEDMEM_Swig.i libParaMEDMEM_Swig.typemap
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) $(MPI_INCLUDES)  -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling -I$(srcdir)/../MEDCoupling_Swig \
 	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../ParaMEDMEM/MEDLoader
 
-dist__libParaMEDMEM_Swig_la_SOURCES   = libParaMEDMEM_Swig.i
+dist__libParaMEDMEM_Swig_la_SOURCES   = $(SWIG_DEF)
 nodist__libParaMEDMEM_Swig_la_SOURCES = libParaMEDMEM_Swig_wrap.cxx
 libParaMEDMEM_Swig.py: libParaMEDMEM_Swig_wrap.cxx
 

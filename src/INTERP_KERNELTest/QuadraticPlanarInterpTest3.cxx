@@ -29,6 +29,8 @@
 using namespace std;
 using namespace INTERP_KERNEL;
 
+namespace INTERP_TEST
+{
 
 void QuadraticPlanarInterpTest::checkInOutDetection()
 {
@@ -319,4 +321,6 @@ void QuadraticPlanarInterpTest::checkBasicsOfPolygons(QuadraticPolygon& pol1, Qu
         CPPUNIT_ASSERT(it1.current()->getDirection());
       nIter1=it1.current()->getEndNode();
     }
+}
+
 }

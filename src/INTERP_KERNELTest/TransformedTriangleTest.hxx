@@ -20,7 +20,7 @@
 #define __TU_TRANSFORMED_TRIANGLE_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "../TransformedTriangle.hxx"
+#include "TransformedTriangle.hxx"
 
 #define ERR_TOL 1.0e-8
 

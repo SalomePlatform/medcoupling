@@ -20,7 +20,7 @@
 #define __TU_TRANSFORMED_TRIANGLE_INTERSECT_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "../TransformedTriangle.hxx"
+#include "TransformedTriangle.hxx"
 
 namespace INTERP_TEST
 {

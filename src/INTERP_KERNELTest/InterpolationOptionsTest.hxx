@@ -20,7 +20,7 @@
 #define __TU_INTERPOLATIONOPTIONS_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "../InterpolationOptions.hxx"
+#include "InterpolationOptions.hxx"
 #include "MEDMEM_Field.hxx"
 
 namespace INTERP_TEST

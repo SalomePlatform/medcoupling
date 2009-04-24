@@ -29,6 +29,9 @@
 using namespace std;
 using namespace INTERP_KERNEL;
 
+namespace INTERP_TEST
+{
+
 static const double ADMISSIBLE_ERROR = 1.e-14;
 
 void QuadraticPlanarInterpTest::setUp()
@@ -1020,4 +1023,6 @@ void QuadraticPlanarInterpTest::IntersectionPointOnlyUnitarySegSeg()
   v1.clear(); v2.clear(); v3.clear();
   ComposedEdge::Delete(&v2);
   ComposedEdge::Delete(&v1);
+}
+
 }

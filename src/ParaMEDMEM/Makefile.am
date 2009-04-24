@@ -18,17 +18,20 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-##if MICRO_MED
-## SUBDIRS=. 
-##else # MICRO_MED
- SUBDIRS=. MEDLoader
-##endif # MICRO_MED
+###
+# MEDLoader and Test sub-folders are available only if MED2 is detected ok
+### 
+
+if MED_ENABLE_MED2
+  SUBDIRS = . MEDLoader
 
 if CPPUNIT_IS_OK
- SUBDIRS+= Test
+ SUBDIRS += Test
 endif
 
-DIST_SUBDIRS= MEDLoader Test
+endif
+
+DIST_SUBDIRS = MEDLoader Test
 
 lib_LTLIBRARIES= libparamedmem.la
 

@@ -19,9 +19,9 @@
 #ifndef __TU_MESH_TEST_TOOLKIT_HXX__
 #define __TU_MESH_TEST_TOOLKIT_HXX__
 
-#include "../Interpolation3D.hxx"
-#include "../Interpolation3D.txx"
-#include "../InterpolationPlanar.hxx"
+#include "Interpolation3D.hxx"
+#include "Interpolation3D.txx"
+#include "InterpolationPlanar.hxx"
 
 #include <vector>
 #include <map>

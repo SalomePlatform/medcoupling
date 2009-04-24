@@ -21,12 +21,13 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-namespace INTERP_KERNEL
-{
-  class Node;
-  class EdgeArcCircle;
-  class QuadraticPolygon;
+#include "EdgeArcCircle.hxx"
+#include "QuadraticPolygon.hxx"
 
+using namespace INTERP_KERNEL;
+
+namespace INTERP_TEST
+{
   class QuadraticPlanarInterpTest : public CppUnit::TestFixture
   {
     CPPUNIT_TEST_SUITE( QuadraticPlanarInterpTest );

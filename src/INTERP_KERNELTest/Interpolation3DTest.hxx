@@ -20,7 +20,7 @@
 #define __TU_INTERPOLATION_3D_TEST_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
-#include "../Interpolation3D.hxx"
+#include "Interpolation3D.hxx"
 
 #define ERR_TOL 1.0e-8
 

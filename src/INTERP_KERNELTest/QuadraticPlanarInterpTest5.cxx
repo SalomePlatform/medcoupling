@@ -30,6 +30,9 @@
 using namespace std;
 using namespace INTERP_KERNEL;
 
+namespace INTERP_TEST
+{
+
 class DoubleEqual
 {
 public:
@@ -1165,4 +1168,6 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0030()
   CPPUNIT_ASSERT(std::equal(val3.begin(),val3.end(),test3_res));
   delete pol1;
   delete pol2;
+}
+
 }

@@ -28,6 +28,9 @@
 using namespace std;
 using namespace INTERP_KERNEL;
 
+namespace INTERP_TEST
+{
+
 static const double ADMISSIBLE_ERROR = 1.e-14;
 
 void QuadraticPlanarInterpTest::IntersectArcCircleBase()
@@ -666,4 +669,6 @@ double QuadraticPlanarInterpTest::btw2NodesAndACenter(const Node& n1, const Node
   if(tmp1[0]*tmp2[1]-tmp1[1]*tmp2[0]<0)
     ret=-ret;
   return ret;
+}
+
 }
