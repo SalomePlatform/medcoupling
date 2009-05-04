@@ -33,7 +33,7 @@ namespace ParaMEDMEM
     MPIProcessorGroup(const CommInterface& interface);
     MPIProcessorGroup(const CommInterface& interface, std::set<int> proc_ids, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     MPIProcessorGroup (const ProcessorGroup& proc_group, std::set<int> proc_ids);
-    MPIProcessorGroup(const CommInterface& interface,int pstart, int pend);
+    MPIProcessorGroup(const CommInterface& interface,int pstart, int pend, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     virtual ~MPIProcessorGroup();
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const;
     void intersect (ProcessorGroup&) { }

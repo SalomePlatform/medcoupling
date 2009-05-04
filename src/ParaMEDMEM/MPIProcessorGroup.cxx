@@ -118,7 +118,7 @@ namespace ParaMEDMEM
     \param pstart id in MPI_COMM_WORLD of the first processor in the group
     \param pend id in MPI_COMM_WORLD of the last processor in the group
   */
-  MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int pstart, int pend): ProcessorGroup(comm_interface,pstart,pend),_world_comm(MPI_COMM_WORLD)
+  MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int pstart, int pend, const MPI_Comm& world_comm): ProcessorGroup(comm_interface,pstart,pend),_world_comm(world_comm)
   {
     //Creation of a communicator 
     MPI_Group group_world;
