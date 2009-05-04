@@ -17,8 +17,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "InterpolationOptionsTest.hxx"
-#include "MEDNormalizedUnstructuredMesh.hxx"
-#include "Interpolation2D.hxx"
+#include "MEDNormalizedUnstructuredMesh.txx"
+#include "Interpolation2D.txx"
 #include <iostream>
 #include <vector>
 
