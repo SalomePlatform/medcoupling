@@ -25,9 +25,9 @@ namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>
   PlanarIntersectorP1P0<MyMeshType,MyMatrix,ConcreteP1P0Intersector>::PlanarIntersectorP1P0(const MyMeshType& meshT, const MyMeshType& meshS,
-                                                                                              double dimCaracteristic, double precision, double medianPlane,
-                                                                                              bool doRotate, int orientation, int printLevel):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,medianPlane,doRotate,orientation,printLevel)
+                                                                                            double dimCaracteristic, double precision, double md3DSurf, double medianPlane,
+                                                                                            bool doRotate, int orientation, int printLevel):
+    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,medianPlane,doRotate,orientation,printLevel)
   {
   }
 
@@ -80,7 +80,8 @@ namespace INTERP_KERNEL
                 if(SPACEDIM==3)
                   orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&targetCellCoordsTmp[0],quadrangle,targetCellCoords.size()/SPACEDIM,4);
                 double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,targetCellCoordsTmp,isTargetQuad);
-                if (( surf > 0.0 && PlanarIntersector<MyMeshType,MyMatrix>::_orientation >=0 ) || ( surf < 0.0 && PlanarIntersector<MyMeshType,MyMatrix>::_orientation <=0 ))
+                surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
+                if(surf!=0.)
                   {
                     typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(curNodeSInCmode));
                     if(iterRes==resRow.end())

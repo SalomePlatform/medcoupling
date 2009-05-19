@@ -16,26 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __INTERPOLATION3DSURF_HXX__
-#define __INTERPOLATION3DSURF_HXX__
-
-#include "InterpolationPlanar.hxx"
 #include "InterpolationOptions.hxx"
 
-namespace INTERP_KERNEL
-{
-  class Interpolation3DSurf : public InterpolationPlanar<Interpolation3DSurf>
-  {
-  public:
-    Interpolation3DSurf();
-    Interpolation3DSurf(const InterpolationOptions& io);
-    void setOptions(double precision, int printLevel, double medianPlane, 
-                    IntersectionType intersectionType, bool doRotate, int orientation=0);
-  public:
-    template<class MyMeshType, class MyMatrixRow>
-    void performAdjustmentOfBB(PlanarIntersector<MyMeshType,MyMatrixRow>* intersector, std::vector<double>& bbox) const
-    { intersector->adjustBoundingBoxes(bbox,InterpolationPlanar<Interpolation3DSurf>::getBoundingBoxAdjustment(),InterpolationPlanar<Interpolation3DSurf>::getBoundingBoxAdjustmentAbs()); }
-  };
-}
+const double INTERP_KERNEL::InterpolationOptions::DFT_MEDIAN_PLANE=0.5;
 
-#endif
+const double INTERP_KERNEL::InterpolationOptions::DFT_SURF3D_ADJ_EPS=1.e-4;
+
+const double INTERP_KERNEL::InterpolationOptions::DFT_MAX_DIST_3DSURF_INTERSECT=-1.;

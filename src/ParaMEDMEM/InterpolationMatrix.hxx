@@ -26,12 +26,15 @@
 
 namespace ParaMEDMEM
 {
+  class GlobalizerMeshWorkingSide;
+  class GlobalizerMeshLazySide;
+
   class InterpolationMatrix : public INTERP_KERNEL::InterpolationOptions,
                               public DECOptions
   {
   public:
     
-    InterpolationMatrix(ParaMEDMEM::ParaMESH *source_support, 
+    InterpolationMatrix(const ParaMEDMEM::ParaFIELD *source_field, 
                         const ProcessorGroup& source_group,
                         const ProcessorGroup& target_group,
                         const DECOptions& dec_opt,
@@ -41,22 +44,43 @@ namespace ParaMEDMEM
     virtual ~InterpolationMatrix();
     void addContribution(MEDCouplingPointSet& distant_support, int iproc_distant,
                          int* distant_elems, const std::string& srcMeth, const std::string& targetMeth);
+    void finishContributionW(GlobalizerMeshWorkingSide& globalizer);
+    void finishContributionL(GlobalizerMeshLazySide& globalizer);
     void multiply(MEDCouplingFieldDouble& field) const;
     void transposeMultiply(MEDCouplingFieldDouble& field)const;
     void prepare();
     int getNbRows() const { return _row_offsets.size(); }
     MPIAccessDEC* getAccessDEC() { return _mapping.getAccessDEC(); }
   private:
+    void computeConservVolDenoW(GlobalizerMeshWorkingSide& globalizer);
+    void computeIntegralDenoW(GlobalizerMeshWorkingSide& globalizer);
+    void computeGlobConstraintDenoW(GlobalizerMeshWorkingSide& globalizer);
+    void computeConservVolDenoL(GlobalizerMeshLazySide& globalizer);
+    void computeIntegralDenoL(GlobalizerMeshLazySide& globalizer);
+    void computeGlobConstraintDenoL(GlobalizerMeshLazySide& globalizer);
+    
+    void computeLocalColSum(std::vector<double>& res) const;
+    void computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<int> >& resPerProcI,
+                            std::vector<std::vector<double> >& resPerProcD) const;
+    void computeGlobalRowSum(GlobalizerMeshWorkingSide& globalizer, std::vector<std::vector<double> >& denoStrorage);
+    void computeGlobalColSum(std::vector<std::vector<double> >& denoStrorage);
+    void divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& resPerProcI,
+                              const std::vector<std::vector<double> >& resPerProcD, std::vector<std::vector<double> >& deno);
+  private:
+    bool isSurfaceComputationNeeded(const std::string& method) const;
+  private:
+    const ParaMEDMEM::ParaFIELD *_source_field;
     std::vector<int> _row_offsets;
     std::map<std::pair<int,int>, int > _col_offsets;
-    MEDCouplingPointSet *_source_support; 
+    MEDCouplingPointSet *_source_support;
     MxN_Mapping _mapping;
  
     const ProcessorGroup& _source_group;
     const ProcessorGroup& _target_group;
-    std::vector<double> _target_volume;
-    std::vector<double> _source_volume;
+    std::vector< std::vector<double> > _target_volume;
     std::vector<std::vector<std::pair<int,double> > > _coeffs;
+    std::vector<std::vector<double> > _deno_multiply;
+    std::vector<std::vector<double> > _deno_reverse_multiply;
   };
 }
 

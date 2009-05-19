@@ -115,7 +115,8 @@ dist_libinterpkernel_la_SOURCES = \
 	BoundingBox.cxx \
 	TetraAffineTransform.cxx\
 	CellModel.cxx\
-	UnitTetraIntersectionBary.cxx
+	UnitTetraIntersectionBary.cxx \
+	InterpolationOptions.cxx
 
 libinterpkernel_la_CPPFLAGS=-I$(srcdir)/Geometric2D -I$(srcdir)/Bases
 

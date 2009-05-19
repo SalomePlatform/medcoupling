@@ -49,11 +49,15 @@ namespace ParaMEDMEM
                          const std::vector<std::string>& littleStrings);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
+    MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
+    void renumberConnectivity(const int *newNodeNumbers);
     MEDCouplingFieldDouble *getMeasureField() const;
+    DataArrayInt *zipCoordsTraducer();
   private:
     MEDCouplingUMeshDesc();
     ~MEDCouplingUMeshDesc();
     void computeTypes();
+    void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
   private:
     unsigned _mesh_dim;
     DataArrayInt *_desc_connec;

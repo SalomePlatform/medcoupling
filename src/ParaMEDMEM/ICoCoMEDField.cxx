@@ -94,7 +94,7 @@ namespace ICoCo
       for(int j=0;j<triofield._nodes_per_elem;j++)
         {
           conn[j]=(triofield._connectivity)[i*triofield._nodes_per_elem+j];
-	}
+        }
       _local_mesh->insertNextCell(elemtype,triofield._nodes_per_elem,conn);
     }
     delete[] conn;

@@ -21,29 +21,39 @@
 
 #include "InterpolationOptions.hxx"
 
+#include <mpi.h>
 #include <vector>
 #include <set>
 
 namespace ParaMEDMEM
 {
-  class ParaMESH;
+  class ParaFIELD;
   class ProcessorGroup;
   class ParaSUPPORT;
   class InterpolationMatrix;
   class MEDCouplingPointSet;
+  class DataArrayInt;
 
   class ElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
   public:
-    ElementLocator(const ParaMESH& sourceMesh, const ProcessorGroup& distant_group);
+    ElementLocator(const ParaFIELD& sourceField, const ProcessorGroup& distant_group);
 
     virtual ~ElementLocator();
     void exchangeMesh(int idistantrank,
                       MEDCouplingPointSet*& target_mesh,
                       int*& distant_ids);
     void exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth);
+    const std::vector<int>& getDistantProcIds() const { return _distant_proc_ids; }
+    const MPI_Comm *getCommunicator() const;
   private:
-    const ParaMESH&  _local_para_mesh ;
+    void _computeBoundingBoxes();
+    bool _intersectsBoundingBox(int irank);
+    void _exchangeMesh(MEDCouplingPointSet* local_mesh, MEDCouplingPointSet*& distant_mesh,
+                       int iproc_distant, const DataArrayInt* distant_ids_send,
+                       int*& distant_ids_recv);
+  private:
+    const ParaFIELD&  _local_para_field ;
     MEDCouplingPointSet* _local_cell_mesh;
     MEDCouplingPointSet* _local_face_mesh;
     std::vector<MEDCouplingPointSet*> _distant_cell_meshes;
@@ -53,12 +63,6 @@ namespace ParaMEDMEM
     const ProcessorGroup& _local_group;
     ProcessorGroup* _union_group;
     std::vector<int> _distant_proc_ids;
-  
-    void _computeBoundingBoxes();
-    bool _intersectsBoundingBox(int irank);
-    void _exchangeMesh(MEDCouplingPointSet* local_mesh, MEDCouplingPointSet*& distant_mesh,
-                       int iproc_distant, const int* distant_ids_send,
-                       int*& distant_ids_recv);
   };
 
 }

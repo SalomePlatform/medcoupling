@@ -28,8 +28,7 @@
 #include "InterpolationMatrix.hxx"
 #include "IntersectionDEC.hxx"
 #include "ElementLocator.hxx"
-
-
+#include "GlobalizerMesh.hxx"
 
 namespace ParaMEDMEM
 {  
@@ -144,21 +143,21 @@ namespace ParaMEDMEM
   */
   void IntersectionDEC::synchronize()
   {
-    ParaMEDMEM::ParaMESH* para_mesh = _local_field->getSupport();
-    //cout <<"size of Interpolation Matrix"<<sizeof(InterpolationMatrix)<<endl;
-    _interpolation_matrix = new InterpolationMatrix (para_mesh, *_source_group,*_target_group,*this,*this); 
+    delete _interpolation_matrix;
+    _interpolation_matrix = new InterpolationMatrix (_local_field, *_source_group,*_target_group,*this,*this); 
 
     //setting up the communication DEC on both sides  
     if (_source_group->containsMyRank())
       {
         //locate the distant meshes
-        ElementLocator locator(*para_mesh, *_target_group);
+        ElementLocator locator(*_local_field, *_target_group);
 
         //transfering option from IntersectionDEC to ElementLocator                 
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
         MEDCouplingPointSet* distant_mesh=0; 
         int* distant_ids=0;
+        std::string distantMeth;
         for (int i=0; i<_target_group->size(); i++)
           {
             //        int idistant_proc = (i+_source_group->myRank())%_target_group->size();
@@ -166,26 +165,26 @@ namespace ParaMEDMEM
 
             //gathers pieces of the target meshes that can intersect the local mesh
             locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
-            std::string distantMeth;
-            locator.exchangeMethod(_method,idistant_proc,distantMeth);
             if (distant_mesh !=0)
               {
+                locator.exchangeMethod(_method,idistant_proc,distantMeth);
                 //adds the contribution of the distant mesh on the local one
                 int idistant_proc_in_union=_union_group->translateRank(_target_group,idistant_proc);
                 std::cout <<"add contribution from proc "<<idistant_proc_in_union<<" to proc "<<_union_group->myRank()<<std::endl;
                 _interpolation_matrix->addContribution(*distant_mesh,idistant_proc_in_union,distant_ids,_method,distantMeth);
-
                 distant_mesh->decrRef();
                 delete[] distant_ids;
                 distant_mesh=0;
                 distant_ids=0;
               }
-          }  
+          }
+        GlobalizerMeshWorkingSide globalizer(locator.getCommunicator(),_local_field->getField(),distantMeth,locator.getDistantProcIds());
+        _interpolation_matrix->finishContributionW(globalizer);
       }
 
     if (_target_group->containsMyRank())
       {
-        ElementLocator locator(*para_mesh, *_source_group);
+        ElementLocator locator(*_local_field, *_source_group);
         //transfering option from IntersectionDEC to ElementLocator
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
@@ -198,16 +197,18 @@ namespace ParaMEDMEM
             //gathers pieces of the target meshes that can intersect the local mesh
             locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
             std::cout << " Data sent from "<<_union_group->myRank()<<" to source proc "<< idistant_proc<<std::endl;
-            std::string distantMeth;
-            locator.exchangeMethod(_method,idistant_proc,distantMeth);
             if (distant_mesh!=0)
               {
+                std::string distantMeth;
+                locator.exchangeMethod(_method,idistant_proc,distantMeth);
                 distant_mesh->decrRef();
                 delete[] distant_ids;
                 distant_mesh=0;
                 distant_ids=0;
               }
-          }      
+          }
+        GlobalizerMeshLazySide globalizer(locator.getCommunicator(),_local_field->getField(),locator.getDistantProcIds());
+        _interpolation_matrix->finishContributionL(globalizer);
       }
     _interpolation_matrix->prepare();
   }

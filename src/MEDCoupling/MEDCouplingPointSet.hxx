@@ -44,8 +44,13 @@ namespace ParaMEDMEM
     DataArrayDouble *getCoords() const { return _coords; }
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     void getBoundingBox(double *bbox) const;
+    void zipCoords();
+    void rotate(const double *center, const double *vector, double angle);
+    void translate(const double *vector);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
     virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
+    virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
+    virtual void renumberConnectivity(const int *newNodeNumbers) = 0;
     //! size of returned tinyInfo must be always the same.
     virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
@@ -53,8 +58,12 @@ namespace ParaMEDMEM
     virtual void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
                                  const std::vector<std::string>& littleStrings);
     virtual void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) = 0;
+    virtual DataArrayInt *zipCoordsTraducer() = 0;
   protected:
+    virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception) = 0;
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
+    void rotate2D(const double *center, double angle);
+    void rotate3D(const double *center, const double *vect, double angle);
   protected:
     DataArrayDouble *_coords;
   };

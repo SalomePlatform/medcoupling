@@ -38,6 +38,8 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testIntersectionDEC_2D);
   CPPUNIT_TEST(testIntersectionDEC_2DP0P1);
   CPPUNIT_TEST(testIntersectionDEC_3D);
+  CPPUNIT_TEST(testIntersectionDECNonOverlapp_2D_P0P0);
+  CPPUNIT_TEST(testIntersectionDECNonOverlapp_2D_P0P1P1P0);
 
   CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpNativeDEC_2D);
   CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpDEC_2D);
@@ -81,6 +83,8 @@ public:
   void testIntersectionDEC_2D();
   void testIntersectionDEC_2DP0P1();
   void testIntersectionDEC_3D();
+  void testIntersectionDECNonOverlapp_2D_P0P0();
+  void testIntersectionDECNonOverlapp_2D_P0P1P1P0();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();

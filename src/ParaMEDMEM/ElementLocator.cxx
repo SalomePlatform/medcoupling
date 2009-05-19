@@ -21,9 +21,11 @@
 #include "ElementLocator.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
+#include "ParaFIELD.hxx"
 #include "ParaMESH.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 
 #include <map>
 #include <set>
@@ -33,12 +35,12 @@ using namespace std;
 
 namespace ParaMEDMEM 
 { 
-  ElementLocator::ElementLocator(const ParaMESH& sourceMesh,
+  ElementLocator::ElementLocator(const ParaFIELD& sourceField,
                                  const ProcessorGroup& distant_group)
-    : _local_para_mesh(sourceMesh),
-      _local_cell_mesh(sourceMesh.getCellMesh()),
-      _local_face_mesh(sourceMesh.getFaceMesh()),
-      _local_group(*sourceMesh.getBlockTopology()->getProcGroup()),
+    : _local_para_field(sourceField),
+      _local_cell_mesh(sourceField.getSupport()->getCellMesh()),
+      _local_face_mesh(sourceField.getSupport()->getFaceMesh()),
+      _local_group(*sourceField.getSupport()->getBlockTopology()->getProcGroup()),
       _distant_group(distant_group)
   { 
     _union_group = _local_group.fuse(distant_group);
@@ -49,6 +51,12 @@ namespace ParaMEDMEM
   {
     delete _union_group;
     delete [] _domain_bounding_boxes;
+  }
+
+  const MPI_Comm *ElementLocator::getCommunicator() const
+  {
+    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
+    return group->getComm();
   }
 
   // ==========================================================================
@@ -74,6 +82,16 @@ namespace ParaMEDMEM
     vector<int> elems;
     double* distant_bb =  _domain_bounding_boxes+rank*2*dim;
     _local_cell_mesh->giveElemsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
+    
+    DataArrayInt *distant_ids_send;
+    MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(&elems[0],&elems[elems.size()],distant_ids_send);
+    _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
+    distant_ids_send->decrRef();
+    
+    if(send_mesh)
+      send_mesh->decrRef();
+#if 0
+    int* distant_ids_send=0;
     //send_mesh contains null pointer if elems is empty
     MEDCouplingPointSet* send_mesh = _local_cell_mesh->buildPartOfMySelf(&elems[0],&elems[elems.size()],false);
     // Constituting an array containing the ids of the elements that are 
@@ -81,21 +99,16 @@ namespace ParaMEDMEM
     // This array  enables the correct redistribution of the data when the
     // interpolated field is transmitted to the target array
 
-    int* distant_ids_send=0;
     if (elems.size()>0)
       {
         distant_ids_send = new int[elems.size()];
-        int index=0;
-        for (std::vector<int>::const_iterator iter = elems.begin(); iter!= elems.end(); iter++)
-          {
-            distant_ids_send[index]=*iter;
-            index++;
-          }
+        std::copy(elems.begin(),elems.end(),distant_ids_send);
       }
     _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
     delete[] distant_ids_send;
     if(send_mesh)
       send_mesh->decrRef();
+#endif
   }
 
   void ElementLocator::exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth)
@@ -173,7 +186,7 @@ namespace ParaMEDMEM
   void ElementLocator::_exchangeMesh( MEDCouplingPointSet* local_mesh,
                                       MEDCouplingPointSet*& distant_mesh,
                                       int iproc_distant,
-                                      const int* distant_ids_send,
+                                      const DataArrayInt* distant_ids_send,
                                       int*& distant_ids_recv)
   {
     CommInterface comm_interface=_union_group->getCommInterface();
@@ -185,7 +198,7 @@ namespace ParaMEDMEM
     //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
     //the transmitted mesh.
     local_mesh->getTinySerializationInformation(tinyInfoLocal,tinyInfoLocalS);
-    tinyInfoLocal.push_back(local_mesh->getNumberOfCells());
+    tinyInfoLocal.push_back(distant_ids_send->getNumberOfTuples());
     tinyInfoDistant.resize(tinyInfoLocal.size());
     std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
     MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
@@ -229,7 +242,7 @@ namespace ParaMEDMEM
     else
       distant_mesh_tmp->decrRef();
     distant_ids_recv=new int[tinyInfoDistant.back()];
-    comm_interface.sendRecv((void *)distant_ids_send,tinyInfoLocal.back(), MPI_INT,
+    comm_interface.sendRecv((void *)distant_ids_send->getConstPointer(),tinyInfoLocal.back(), MPI_INT,
                             iprocdistant_in_union, 1113,
                             distant_ids_recv,tinyInfoDistant.back(), MPI_INT,
                             iprocdistant_in_union,1113,

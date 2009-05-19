@@ -63,6 +63,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             paramesh=ParaMESH(mesh,source_group,"source mesh")
             comptopo = ComponentTopology()
             parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
+            parafield.getField().setNature(ConservativeVolumic)
             nb_local=mesh.getNumberOfCells()
             value = [1.0]*nb_local
             parafield.getField().setValues(value)
@@ -77,6 +78,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             paramesh=ParaMESH(mesh,target_group,"target mesh")
             comptopo = ComponentTopology()
             parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
+            parafield.getField().setNature(ConservativeVolumic)
             nb_local=mesh.getNumberOfCells()
             value = [0.0]*nb_local
             parafield.getField().setValues(value)

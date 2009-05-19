@@ -22,6 +22,7 @@
 #include "VolSurfFormulae.hxx"
 
 #include <sstream>
+#include <limits>
 
 using namespace ParaMEDMEM;
 
@@ -198,13 +199,6 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataA
     }
 }
 
-void MEDCouplingUMesh::zipCoords()
-{
-  checkFullyDefined();
-  DataArrayInt *traducer=zipCoordsTraducer();
-  traducer->decrRef();
-}
-
 struct MEDCouplingAccVisit
 {
   MEDCouplingAccVisit():_new_nb_of_nodes(0) { }
@@ -263,6 +257,49 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *start, const
 }
 
 /*!
+ * Keeps from 'this' only cells which constituing point id is in the ids specified by 'start' and 'end'.
+ * The return newly allocated mesh will share the same coordinates as 'this'.
+ * Parameter 'fullyIn' specifies if a cell that has part of its nodes in ids array is kept or not.
+ * If 'fullyIn' is true only cells whose ids are \b fully contained in ['start','end') tab will be kept.
+ */
+MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
+{
+  std::set<int> fastFinder(start,end);
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  std::vector<int> cellIdsKept;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      std::set<int> connOfCell(conn+connIndex[i]+1,conn+connIndex[i+1]);
+      connOfCell.erase(-1);//polyhedron separator
+      int refLgth=std::min(connOfCell.size(),fastFinder.size());
+      std::set<int> locMerge;
+      std::insert_iterator< std::set<int> > it(locMerge,locMerge.begin());
+      std::set_intersection(connOfCell.begin(),connOfCell.end(),fastFinder.begin(),fastFinder.end(),it);
+      if(locMerge.size()==refLgth && fullyIn || locMerge.size()!=0 && !fullyIn)
+        cellIdsKept.push_back(i);
+    }
+  return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[cellIdsKept.size()],true);
+}
+
+void MEDCouplingUMesh::renumberConnectivity(const int *newNodeNumbers)
+{
+  int *conn=getNodalConnectivity()->getPointer();
+  const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  for(int i=0;i<nbOfCells;i++)
+    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
+      {
+        int& node=conn[iconn];
+        if(node>=0)//avoid polyhedron separator
+          {
+            node=newNodeNumbers[node];
+          }
+      }
+}
+
+/*!
  * Given a boundary box 'bbox' returns elements 'elems' contained in this 'bbox'.
  * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
  * added in 'elems' parameter.
@@ -286,16 +323,18 @@ void MEDCouplingUMesh::giveElemsInBoundingBox(const double *bbox, double eps, st
       for (int inode=conn_index[ielem]+1; inode<conn_index[ielem+1]; inode++)//+1 due to offset of cell type.
         {
           int node= conn[inode];
-     
-          for (int idim=0; idim<dim; idim++)
+          if(node>=0)//avoid polyhedron separator
             {
-              if ( coords[node*dim+idim] < elem_bb[idim*2] )
+              for (int idim=0; idim<dim; idim++)
                 {
-                  elem_bb[idim*2] = coords[node*dim+idim] ;
-                }
-              if ( coords[node*dim+idim] > elem_bb[idim*2+1] )
-                {
-                  elem_bb[idim*2+1] = coords[node*dim+idim] ;
+                  if ( coords[node*dim+idim] < elem_bb[idim*2] )
+                    {
+                      elem_bb[idim*2] = coords[node*dim+idim] ;
+                    }
+                  if ( coords[node*dim+idim] > elem_bb[idim*2+1] )
+                    {
+                      elem_bb[idim*2+1] = coords[node*dim+idim] ;
+                    }
                 }
             }
         }
@@ -532,10 +571,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField() const
                 int N2 = connec[ipt+2];
                 int N3 = connec[ipt+3];
 
-                area_vol[iel]=INTERP_KERNEL::calculateAreaForTria(coords+(dim_space*N1),
-                                                                  coords+(dim_space*N2),
-                                                                  coords+(dim_space*N3),
-                                                                  dim_space);
+                area_vol[iel]=fabs(INTERP_KERNEL::calculateAreaForTria(coords+(dim_space*N1),
+                                                                       coords+(dim_space*N2),
+                                                                       coords+(dim_space*N3),
+                                                                       dim_space));
               }
               break ;
 
@@ -547,11 +586,11 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField() const
                 int N3 = connec[ipt+3];
                 int N4 = connec[ipt+4];
 
-                area_vol[iel]=INTERP_KERNEL::calculateAreaForQuad(coords+dim_space*N1,
-                                                                  coords+dim_space*N2,
-                                                                  coords+dim_space*N3,
-                                                                  coords+dim_space*N4,
-                                                                  dim_space) ;
+                area_vol[iel]=fabs(INTERP_KERNEL::calculateAreaForQuad(coords+dim_space*N1,
+                                                                       coords+dim_space*N2,
+                                                                       coords+dim_space*N3,
+                                                                       coords+dim_space*N4,
+                                                                       dim_space));
               }
               break ;
 

@@ -20,6 +20,8 @@
 #include "CellModel.hxx"
 #include "MEDCouplingMemArray.hxx"
 
+#include <limits>
+
 using namespace ParaMEDMEM;
 
 MEDCouplingUMeshDesc::MEDCouplingUMeshDesc():_mesh_dim(-1),_desc_connec(0),_desc_connec_index(0),
@@ -219,7 +221,23 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf(const int *start, c
   return 0;
 }
 
+MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
+{
+  //not implemented yet
+  return 0;
+}
+
+void MEDCouplingUMeshDesc::renumberConnectivity(const int *newNodeNumbers)
+{
+}
+
 MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureField() const
+{
+  //not implemented yet.
+  return 0;
+}
+
+DataArrayInt *MEDCouplingUMeshDesc::zipCoordsTraducer()
 {
   //not implemented yet.
   return 0;
@@ -236,4 +254,10 @@ void MEDCouplingUMeshDesc::computeTypes()
       for(const int *pt=connIndex;pt!=connIndex+nbOfElem;pt++)
         _types.insert((INTERP_KERNEL::NormalizedCellType)conn[*pt]);
     }
+}
+
+void MEDCouplingUMeshDesc::checkFullyDefined() const throw(INTERP_KERNEL::Exception)
+{
+  if(!_desc_connec || !_desc_connec_index || !_nodal_connec_face || !_nodal_connec_face_index || !_coords)
+    throw INTERP_KERNEL::Exception("full connectivity and coordinates not set in unstructured mesh.");
 }

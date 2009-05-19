@@ -37,7 +37,8 @@ namespace ParaMEDMEM
   {
   public:
     DEC():_local_field(0) { }
-    DEC(ProcessorGroup& source_group, ProcessorGroup& target_group); 
+    DEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
+    void setNature(NatureOfField nature);
     void attachLocalField( MEDCouplingFieldDouble* field);
     void attachLocalField(const ParaFIELD* field);
     void attachLocalField(const ICoCo::Field* field);

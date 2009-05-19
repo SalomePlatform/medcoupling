@@ -35,8 +35,8 @@ namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
   Geometric2DIntersector<MyMeshType,MyMatrix,InterpType>::Geometric2DIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                                                                          double dimCaracteristic, double medianPlane, double precision, int orientation):
-    InterpType<MyMeshType,MyMatrix,Geometric2DIntersector<MyMeshType,MyMatrix,InterpType> >(meshT,meshS,dimCaracteristic, precision, medianPlane, true, orientation, 0)
+                                                                          double dimCaracteristic, double md3DSurf, double medianPlane, double precision, int orientation):
+    InterpType<MyMeshType,MyMatrix,Geometric2DIntersector<MyMeshType,MyMatrix,InterpType> >(meshT,meshS,dimCaracteristic, precision, md3DSurf, medianPlane, true, orientation, 0)
   {
     QUADRATIC_PLANAR::_precision=dimCaracteristic*precision;
   }

@@ -54,6 +54,7 @@ InterpolationMatrix.hxx\
 IntersectionDEC.hxx\
 ExplicitCoincidentDEC.hxx\
 ElementLocator.hxx\
+GlobalizerMesh.hxx\
 ExplicitMapping.hxx\
 ICoCoField.hxx \
 ICoCoMEDField.hxx \
@@ -74,6 +75,7 @@ StructuredCoincidentDEC.cxx\
 ExplicitCoincidentDEC.cxx\
 IntersectionDEC.cxx\
 ElementLocator.cxx\
+GlobalizerMesh.cxx\
 MPIAccessDEC.cxx \
 TimeInterpolator.cxx \
 LinearTimeInterpolator.cxx\

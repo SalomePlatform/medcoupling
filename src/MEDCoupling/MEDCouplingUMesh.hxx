@@ -57,10 +57,11 @@ namespace ParaMEDMEM
     void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
                          const std::vector<std::string>& littleStrings);
     //tools
-    void zipCoords();
     DataArrayInt *zipCoordsTraducer();
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
+    MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
+    void renumberConnectivity(const int *newNodeNumbers);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCouplingFieldDouble *getMeasureField() const;
   private:

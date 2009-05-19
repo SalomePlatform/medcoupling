@@ -33,9 +33,9 @@ namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
   ConvexIntersector<MyMeshType,MyMatrix,InterpType>::ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
-                                                                double dimCaracteristic, double precision,
-                                                                double medianPlane, bool doRotate , int oriantation, int printLevel)
-    :InterpType<MyMeshType,MyMatrix,ConvexIntersector<MyMeshType,MyMatrix,InterpType> >(meshT,meshS,dimCaracteristic, precision, medianPlane, doRotate, oriantation, printLevel),
+                                                                       double dimCaracteristic, double precision, double md3DSurf,
+                                                                       double medianPlane, bool doRotate , int oriantation, int printLevel)
+    :InterpType<MyMeshType,MyMatrix,ConvexIntersector<MyMeshType,MyMatrix,InterpType> >(meshT,meshS,dimCaracteristic, precision, md3DSurf, medianPlane, doRotate, oriantation, printLevel),
      _epsilon(precision*dimCaracteristic)
   {
     if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 1)

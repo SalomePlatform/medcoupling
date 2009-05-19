@@ -38,6 +38,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDeepCopy );
     CPPUNIT_TEST( testRevNodal );
     CPPUNIT_TEST( testBuildPartOfMySelf );
+    CPPUNIT_TEST( testBuildPartOfMySelfNode );
     CPPUNIT_TEST( testZipCoords );
     CPPUNIT_TEST( testEqualMesh );
     CPPUNIT_TEST( testEqualFieldDouble );
@@ -49,6 +50,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test3DSurfInterpP0P0_1 );
     CPPUNIT_TEST( test3DSurfInterpP0P1_1 );
     CPPUNIT_TEST( test3DSurfInterpP1P0_1 );
+    CPPUNIT_TEST( test3DSurfInterpP1P1_1 );
+    CPPUNIT_TEST( test3DSurfInterpP0P0_2 );
+    CPPUNIT_TEST( test3DSurfInterpP0P0_3 );
     CPPUNIT_TEST( test3DInterpP0P0_1 );
     CPPUNIT_TEST( test3DInterpP0P1_1 );
     CPPUNIT_TEST( test3DInterpP1P0_1 );
@@ -61,6 +65,7 @@ namespace ParaMEDMEM
     void testDeepCopy();
     void testRevNodal();
     void testBuildPartOfMySelf();
+    void testBuildPartOfMySelfNode();
     void testZipCoords();
     void testEqualMesh();
     void testEqualFieldDouble();
@@ -72,6 +77,9 @@ namespace ParaMEDMEM
     void test3DSurfInterpP0P0_1();
     void test3DSurfInterpP0P1_1();
     void test3DSurfInterpP1P0_1();
+    void test3DSurfInterpP1P1_1();
+    void test3DSurfInterpP0P0_2();
+    void test3DSurfInterpP0P0_3();
     void test3DInterpP0P0_1();
     void test3DInterpP0P1_1();
     void test3DInterpP1P0_1();
@@ -80,7 +88,9 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *build2DTargetMesh_1();
     MEDCouplingUMesh *build2DTargetMesh_2();
     MEDCouplingUMesh *build3DSurfSourceMesh_1();
+    MEDCouplingUMesh *build3DSurfSourceMesh_2();
     MEDCouplingUMesh *build3DSurfTargetMesh_1();
+    MEDCouplingUMesh *build3DSurfTargetMeshPerm_1();
     MEDCouplingUMesh *build3DSurfTargetMesh_2();
     MEDCouplingUMesh *build3DSourceMesh_1();
     MEDCouplingUMesh *build3DTargetMesh_1();

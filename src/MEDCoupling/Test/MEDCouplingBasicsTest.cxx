@@ -352,6 +352,54 @@ void MEDCouplingBasicsTest::testBuildPartOfMySelf()
   mesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::testBuildPartOfMySelfNode()
+{
+  MEDCouplingUMesh *mesh=build2DTargetMesh_1();
+  const int tab1[2]={5,7};
+  MEDCouplingPointSet *subMeshSimple=mesh->buildPartOfMySelfNode(tab1,tab1+2,true);
+  MEDCouplingUMesh *subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
+  CPPUNIT_ASSERT(subMesh);
+  CPPUNIT_ASSERT_EQUAL(1,(int)subMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*subMesh->getAllTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(1,subMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(5,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(2,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  const int subConn[5]={4,7,8,5,4};
+  const int subConnIndex[3]={0,5};
+  CPPUNIT_ASSERT(std::equal(subConn,subConn+5,subMesh->getNodalConnectivity()->getPointer()));
+  CPPUNIT_ASSERT(std::equal(subConnIndex,subConnIndex+2,subMesh->getNodalConnectivityIndex()->getPointer()));
+  CPPUNIT_ASSERT(subMesh->getCoords()==mesh->getCoords());
+  subMeshSimple->decrRef();
+  //
+  subMeshSimple=mesh->buildPartOfMySelfNode(tab1,tab1+2,false);
+  subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
+  CPPUNIT_ASSERT(subMesh);
+  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++subMesh->getAllTypes().begin()));
+  CPPUNIT_ASSERT_EQUAL(3,subMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(14,subMesh->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(4,subMesh->getNodalConnectivityIndex()->getNbOfElems());
+  const int subConn2[14]={3,4,5,2,4,6,7,4,3,4,7,8,5,4};
+  const int subConnIndex2[4]={0,4,9,14};
+  CPPUNIT_ASSERT(std::equal(subConn2,subConn2+14,subMesh->getNodalConnectivity()->getPointer()));
+  CPPUNIT_ASSERT(std::equal(subConnIndex2,subConnIndex2+4,subMesh->getNodalConnectivityIndex()->getPointer()));
+  CPPUNIT_ASSERT(subMesh->getCoords()==mesh->getCoords());
+  subMeshSimple->decrRef();
+  //testing the case where length of tab2 is greater than max number of node per cell.
+  const int tab2[7]={0,3,2,1,4,5,6};
+  subMeshSimple=mesh->buildPartOfMySelfNode(tab2,tab2+7,true);
+  subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
+  CPPUNIT_ASSERT(subMesh);
+  CPPUNIT_ASSERT_EQUAL(2,(int)subMesh->getAllTypes().size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,*subMesh->getAllTypes().begin());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,*(++subMesh->getAllTypes().begin()));
+  CPPUNIT_ASSERT_EQUAL(3,subMesh->getNumberOfCells());
+  subMeshSimple->decrRef();
+  //
+  mesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::testZipCoords()
 {
   MEDCouplingUMesh *mesh=build2DTargetMesh_1();
@@ -808,6 +856,203 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P0_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test3DSurfInterpP1P1_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_2();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3DSurf myInterpolator;
+  vector<map<int,double> > res;
+  INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
+  for(int i=0;i<2;i++)
+    {
+      myInterpolator.setPrecision(1e-12);
+      myInterpolator.setIntersectionType(types[i]);
+      myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
+      CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.08333333333333334*sqrt(2.),res[0][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.05416666666666665*sqrt(2.),res[1][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666666*sqrt(2.),res[1][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.08333333333333334*sqrt(2.),res[2][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.05416666666666665*sqrt(2.),res[3][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666668*sqrt(2.),res[3][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1416666666666666*sqrt(2.),res[4][0],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02499999999999999*sqrt(2.),res[4][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02499999999999999*sqrt(2.),res[4][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.09999999999999999*sqrt(2.),res[4][3],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666666*sqrt(2.),res[5][1],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.09583333333333333*sqrt(2.),res[5][3],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.08333333333333333*sqrt(2.),res[6][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.02916666666666667*sqrt(2.),res[7][2],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.09583333333333331*sqrt(2.),res[7][3],1.e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.04166666666666668*sqrt(2.),res[8][3],1.e-12);
+      res.clear();
+    }
+  //
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3DSurfInterpP0P0_2()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DSurfTargetMeshPerm_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3DSurf myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::Triangulation);
+  {
+    myInterpolator.setOrientation(2);
+    myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+    CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[1][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[2][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[3][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2.),sumAll(res),1e-12);
+    res.clear();
+  }
+  {
+    myInterpolator.setOrientation(0);
+    myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+    CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[1][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.125*sqrt(2.),res[2][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[3][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.75*sqrt(2.),sumAll(res),1e-12);
+    res.clear();
+  }
+  {
+    myInterpolator.setOrientation(1);
+    myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+    CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[1][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[3][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[4][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.875*sqrt(2.),sumAll(res),1e-12);
+    res.clear();
+  }
+  {
+    myInterpolator.setOrientation(-1);
+    myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+    CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.125*sqrt(2.),res[2][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.125*sqrt(2.),sumAll(res),1e-12);
+    res.clear();
+  }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+/*!
+ * Test of precision option implemented by Fabien that represents distance of "barycenter" to the other cell.
+ */
+void MEDCouplingBasicsTest::test3DSurfInterpP0P0_3()
+{
+  INTERP_KERNEL::Interpolation3DSurf myInterpolator;
+  vector<map<int,double> > res;
+  double vecTrans[3]={0.,0.,1.e-10};
+  double vec[3]={0.,-1.,0.};
+  double pt[3]={-0.3,-0.3,5.e-11};
+  const int N=32;
+  const double deltaA=M_PI/N;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::Triangulation);
+  myInterpolator.setMaxDistance3DSurfIntersect(1e-9);
+  for(int i=0;i<N;i++)
+    {
+      res.clear();
+      MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_2();
+      sourceMesh->rotate(pt,vec,i*deltaA);
+      MEDCouplingUMesh *targetMesh=build3DSurfSourceMesh_2();
+      targetMesh->translate(vecTrans);
+      targetMesh->rotate(pt,vec,i*deltaA);
+      MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+      myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+      CPPUNIT_ASSERT_EQUAL(2,(int)res.size());
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,sumAll(res),1e-12);
+      sourceMesh->decrRef();
+      targetMesh->decrRef();
+    }
+  //
+  myInterpolator.setMaxDistance3DSurfIntersect(1e-11);
+  for(int i=0;i<N;i++)
+    {
+      res.clear();
+      MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_2();
+      sourceMesh->rotate(pt,vec,i*deltaA);
+      MEDCouplingUMesh *targetMesh=build3DSurfSourceMesh_2();
+      targetMesh->translate(vecTrans);
+      targetMesh->rotate(pt,vec,i*deltaA);
+      MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+      myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+      CPPUNIT_ASSERT_EQUAL(2,(int)res.size());
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,sumAll(res),1e-12);
+      sourceMesh->decrRef();
+      targetMesh->decrRef();
+    }
+  //
+  res.clear();
+  myInterpolator.setMaxDistance3DSurfIntersect(-1.);//unactivate fabien lookup
+  MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_2();
+  MEDCouplingUMesh *targetMesh=build3DSurfSourceMesh_2();
+  targetMesh->translate(vecTrans);
+  myInterpolator.setBoundingBoxAdjustment(1e-11);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper0(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper0(targetMesh);
+  myInterpolator.interpolateMeshes(sourceWrapper0,targetWrapper0,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(2,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,sumAll(res),1e-12);
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+  //
+  res.clear();
+  sourceMesh=build3DSurfSourceMesh_2();
+  targetMesh=build3DSurfSourceMesh_2();
+  targetMesh->translate(vecTrans);
+  myInterpolator.setBoundingBoxAdjustment(1e-9);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper1(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper1(targetMesh);
+  myInterpolator.interpolateMeshes(sourceWrapper1,targetWrapper1,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(2,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,sumAll(res),1e-12);
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+  //keeping the same bbox adj == 1.e-11 but trying rotation
+  res.clear();
+  sourceMesh=build3DSurfSourceMesh_2();
+  sourceMesh->rotate(pt,vec,M_PI/4.);
+  targetMesh=build3DSurfSourceMesh_2();
+  targetMesh->translate(vecTrans);
+  targetMesh->rotate(pt,vec,M_PI/4.);
+  myInterpolator.setBoundingBoxAdjustment(1e-11);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper2(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper2(targetMesh);
+  myInterpolator.interpolateMeshes(sourceWrapper2,targetWrapper2,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(2,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,sumAll(res),1e-12);
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test3DInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
@@ -1049,10 +1294,52 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfSourceMesh_1()
   return sourceMesh;
 }
 
+MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfSourceMesh_2()
+{
+  double sourceCoords[12]={-0.3,-0.3,0., 0.7,-0.3,0., -0.3,0.7,0., 0.7,0.7,0.};
+  int sourceConn[6]={0,3,1,0,2,3};
+  MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
+  sourceMesh->setMeshDimension(2);
+  sourceMesh->allocateCells(2);
+  sourceMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,sourceConn);
+  sourceMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,sourceConn+3);
+  sourceMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(4,3);
+  std::copy(sourceCoords,sourceCoords+12,myCoords->getPointer());
+  sourceMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return sourceMesh;
+}
+
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMesh_1()
 {
   double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
   int targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(5);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+14);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,3);
+  std::copy(targetCoords,targetCoords+27,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
+/*!
+ * Idem build3DSurfTargetMesh_1 except that cell id 2 is not correctly numbered.
+ */
+MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfTargetMeshPerm_1()
+{
+  double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
+  int targetConn[18]={0,3,4,1, 1,4,2, 4,2,5, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(5);

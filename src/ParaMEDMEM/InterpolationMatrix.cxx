@@ -17,6 +17,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "ParaMESH.hxx"
+#include "ParaFIELD.hxx"
 #include "ProcessorGroup.hxx"
 #include "MxN_Mapping.hxx"
 #include "InterpolationMatrix.hxx"
@@ -29,6 +30,7 @@
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
+#include "GlobalizerMesh.hxx"
 
 // class InterpolationMatrix
 // This class enables the storage of an interpolation matrix Wij mapping 
@@ -51,28 +53,23 @@ namespace ParaMEDMEM
   //   param method interpolation method
   //   ====================================================================
 
-  InterpolationMatrix::InterpolationMatrix(ParaMEDMEM::ParaMESH *source_support, 
+  InterpolationMatrix::InterpolationMatrix(const ParaMEDMEM::ParaFIELD *source_field, 
                                            const ProcessorGroup& source_group,
                                            const ProcessorGroup& target_group,
                                            const DECOptions& dec_options,
                                            const INTERP_KERNEL::InterpolationOptions& interp_options):
-    _source_support(source_support->getCellMesh()),
+    _source_field(source_field),
+    _source_support(source_field->getSupport()->getCellMesh()),
     _mapping(source_group, target_group, dec_options),
     _source_group(source_group),
     _target_group(target_group),
-    _source_volume(0),
     DECOptions(dec_options),
     INTERP_KERNEL::InterpolationOptions(interp_options)
   {
-    int nbelems = _source_support->getNumberOfCells();
-
+    int nbelems = source_field->getField()->getNumberOfTuples();
     _row_offsets.resize(nbelems+1);
-    for (int i=0; i<nbelems+1; i++)
-      {
-        _row_offsets[i]=0;
-      }
-
     _coeffs.resize(nbelems);
+    _target_volume.resize(nbelems);
   }
 
   InterpolationMatrix::~InterpolationMatrix()
@@ -106,8 +103,8 @@ namespace ParaMEDMEM
       {
         throw INTERP_KERNEL::Exception("local and distant meshes do not have the same space and mesh dimensions");
       }
-    std::string interpMethod(srcMeth);
-    interpMethod+=targetMeth;
+    std::string interpMethod(targetMeth);
+    interpMethod+=srcMeth;
     //creating the interpolator structure
     vector<map<int,double> > surfaces;
     int colSize=0;
@@ -137,7 +134,7 @@ namespace ParaMEDMEM
         source_wrapper.ReleaseTempArrays();
       }
     else if ( distant_support.getMeshDimension() == 3
-              && distant_support.getSpaceDimension() ==3 )
+              && distant_support.getSpaceDimension() == 3 )
       {
         MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(distant_supportC);
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(source_supportC);
@@ -153,22 +150,15 @@ namespace ParaMEDMEM
       }
   
     int source_size=surfaces.size();
+    bool needTargetSurf=isSurfaceComputationNeeded(targetMeth);
 
-    MEDCouplingFieldDouble *target_triangle_surf = distant_support.getMeasureField();
-    MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField();
-
-    // Storing the source volumes
-    _source_volume.resize(source_size);
-    for (int i=0; i<source_size; i++)
-      {
-        _source_volume[i] = source_triangle_surf->getIJ(i,0);
-      }
-
-    source_triangle_surf->decrRef();
+    MEDCouplingFieldDouble *target_triangle_surf;
+    if(needTargetSurf)
+      target_triangle_surf = distant_support.getMeasureField();
 
     //loop over the elements to build the interpolation
     //matrix structures
-    for (int ielem=0; ielem < surfaces.size(); ielem++) 
+    for (int ielem=0; ielem < source_size; ielem++) 
       {
         _row_offsets[ielem+1] += surfaces[ielem].size();
         //_source_indices.push_back(make_pair(iproc_distant, ielem));
@@ -178,7 +168,9 @@ namespace ParaMEDMEM
              iter++)
           {
             //surface of the target triangle
-            double surf = target_triangle_surf->getIJ(iter->first,0);
+            double surf;
+            if(needTargetSurf)
+              surf = target_triangle_surf->getIJ(iter->first,0);
 
             //locating the (iproc, itriangle) pair in the list of columns
             map<pair<int,int>,int >::iterator iter2 = _col_offsets.find(make_pair(iproc_distant,iter->first));
@@ -189,11 +181,11 @@ namespace ParaMEDMEM
                 //(iproc, itriangle) is not registered in the list
                 //of distant elements
 
-                col_id =_col_offsets.size()+1;
+                col_id =_col_offsets.size();
                 _col_offsets.insert(make_pair(make_pair(iproc_distant,iter->first),col_id));
                 _mapping.addElementFromSource(iproc_distant,
                                               distant_elems[iter->first]);
-                _target_volume.push_back(surf);
+                //target_volume.push_back(surf);
               }
             else 
               {
@@ -204,13 +196,208 @@ namespace ParaMEDMEM
             //ielem is the row,
             //col_id is the number of the column
             //iter->second is the value of the coefficient
-
+            if(needTargetSurf)
+              _target_volume[ielem].push_back(surf);
             _coeffs[ielem].push_back(make_pair(col_id,iter->second));
           }
       }
-    target_triangle_surf->decrRef();
+    if(needTargetSurf)
+      target_triangle_surf->decrRef();
+  }
+
+  void InterpolationMatrix::finishContributionW(GlobalizerMeshWorkingSide& globalizer)
+  {
+    NatureOfField nature=globalizer.getLocalNature();
+    switch(nature)
+      {
+      case ConservativeVolumic:
+        computeConservVolDenoW(globalizer);
+        break;
+      case Integral:
+        computeIntegralDenoW(globalizer);
+        break;
+      case IntegralGlobConstraint:
+        computeGlobConstraintDenoW(globalizer);
+        break;
+      default:
+        throw INTERP_KERNEL::Exception("Not recognized nature of field. Change nature of Field.");
+        break;
+      }
+    /*for(map<pair<int,int>,int>::iterator iter=_col_offsets.begin();iter!=_col_offsets.end();iter++)
+          if((*iter).second==9)
+            cout << (*iter).first.first << " ** " << (*iter).first.second << endl;
+    cout << "--> " << _col_offsets[make_pair(4,74)] << endl;
+    for(vector<vector<pair<int,double> > >::iterator iter3=_coeffs.begin();iter3!=_coeffs.end();iter3++)
+      for(vector<pair<int,double> >::iterator iter4=(*iter3).begin();iter4!=(*iter3).end();iter4++)
+        if((*iter4).first==569)
+          cout << " __ " << iter3-_coeffs.begin() << "___" << (*iter4).second << endl; 
+    ostringstream st; st << "deno_" << _deno_multiply[0][0];
+    ofstream fs(st.str().c_str());
+    for(vector<vector<double> >::iterator iter1=_deno_multiply.begin();iter1!=_deno_multiply.end();iter1++)
+      {
+        for(vector<double>::iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+          fs << *iter2 << " ";
+        fs << endl;
+        }*/
+  }
+
+  void InterpolationMatrix::finishContributionL(GlobalizerMeshLazySide& globalizer)
+  {
+    NatureOfField nature=globalizer.getLocalNature();
+    switch(nature)
+      {
+      case ConservativeVolumic:
+        computeConservVolDenoL(globalizer);
+        break;
+      case Integral:
+        computeIntegralDenoL(globalizer);
+        break;
+      case IntegralGlobConstraint:
+        computeGlobConstraintDenoL(globalizer);
+        break;
+      default:
+        throw INTERP_KERNEL::Exception("Not recognized nature of field. Change nature of Field.");
+        break;
+      }
   }
   
+  void InterpolationMatrix::computeConservVolDenoW(GlobalizerMeshWorkingSide& globalizer)
+  {
+    computeGlobalRowSum(globalizer,_deno_multiply);
+    computeGlobalColSum(_deno_reverse_multiply);
+  }
+  
+  void InterpolationMatrix::computeConservVolDenoL(GlobalizerMeshLazySide& globalizer)
+  {
+    globalizer.recvFromWorkingSide();
+    globalizer.sendToWorkingSide();
+  }
+
+  void InterpolationMatrix::computeIntegralDenoW(GlobalizerMeshWorkingSide& globalizer)
+  {
+    MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField();
+    _deno_multiply.resize(_coeffs.size());
+    vector<vector<double> >::iterator iter6=_deno_multiply.begin();
+    const double *values=source_triangle_surf->getArray()->getConstPointer();
+    for(vector<vector<pair<int,double> > >::const_iterator iter4=_coeffs.begin();iter4!=_coeffs.end();iter4++,iter6++,values++)
+      {
+        (*iter6).resize((*iter4).size());
+        std::fill((*iter6).begin(),(*iter6).end(),*values);
+      }
+    source_triangle_surf->decrRef();
+    _deno_reverse_multiply=_target_volume;
+  }
+  
+  /*!
+   * Nothing to do because surface computation is on working side.
+   */
+  void InterpolationMatrix::computeIntegralDenoL(GlobalizerMeshLazySide& globalizer)
+  {
+  }
+
+  void InterpolationMatrix::computeGlobConstraintDenoW(GlobalizerMeshWorkingSide& globalizer)
+  {
+    computeGlobalColSum(_deno_multiply);
+    computeGlobalRowSum(globalizer,_deno_reverse_multiply);
+  }
+
+  void InterpolationMatrix::computeGlobConstraintDenoL(GlobalizerMeshLazySide& globalizer)
+  {
+    globalizer.recvFromWorkingSide();
+    globalizer.sendToWorkingSide();
+  }
+
+  void InterpolationMatrix::computeGlobalRowSum(GlobalizerMeshWorkingSide& globalizer, std::vector<std::vector<double> >& denoStrorage)
+  {
+    //stores id in distant procs sorted by lazy procs connected with
+    vector< vector<int> > rowsPartialSumI;
+    //stores the corresponding values.
+    vector< vector<double> > rowsPartialSumD;
+    computeLocalRowSum(globalizer.getProcIdsInInteraction(),rowsPartialSumI,rowsPartialSumD);
+    globalizer.sendSumToLazySide(rowsPartialSumI,rowsPartialSumD);
+    globalizer.recvSumFromLazySide(rowsPartialSumD);
+    divideByGlobalRowSum(globalizer.getProcIdsInInteraction(),rowsPartialSumI,rowsPartialSumD,denoStrorage);
+  }
+
+  /*!
+   * @param distantProcs in parameter that indicates which lazy procs are concerned.
+   * @param resPerProcI out parameter that must be cleared before calling this method. The size of 1st dimension is equal to the size of 'distantProcs'.
+   *                    It contains the element ids (2nd dimension) of the corresponding lazy proc.
+   * @param  resPerProcD out parameter with the same format than 'resPerProcI'. It contains corresponding sum values.
+   */
+  void InterpolationMatrix::computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<int> >& resPerProcI,
+                                               std::vector<std::vector<double> >& resPerProcD) const
+  {
+    resPerProcI.resize(distantProcs.size());
+    resPerProcD.resize(distantProcs.size());
+    std::vector<double> res(_col_offsets.size());
+    for(vector<vector<pair<int,double> > >::const_iterator iter=_coeffs.begin();iter!=_coeffs.end();iter++)
+      for(vector<pair<int,double> >::const_iterator iter3=(*iter).begin();iter3!=(*iter).end();iter3++)
+        res[(*iter3).first]+=(*iter3).second;
+    set<int> procsSet;
+    int id;
+    const vector<std::pair<int,int> >& mapping=_mapping.getSendingIds();
+    for(vector<std::pair<int,int> >::const_iterator iter2=mapping.begin();iter2!=mapping.end();iter2++)
+      {
+        std::pair<set<int>::iterator,bool> isIns=procsSet.insert((*iter2).first);
+        if(isIns.second)
+          id=std::find(distantProcs.begin(),distantProcs.end(),(*iter2).first)-distantProcs.begin();
+        resPerProcI[id].push_back((*iter2).second);
+        resPerProcD[id].push_back(res[iter2-mapping.begin()]);
+      }
+    /*
+    for(map<pair<int,int>, int >::const_iterator iter2=_col_offsets.begin();iter2!=_col_offsets.end();iter2++)
+      {
+        std::pair<set<int>::iterator,bool> isIns=procsSet.insert((*iter2).first.first);
+        if(isIns.second)
+          id=std::find(distantProcs.begin(),distantProcs.end(),(*iter2).first.first)-distantProcs.begin();
+        resPerProcI[id].push_back((*iter2).first.second);
+        resPerProcD[id].push_back(res[(*iter2).second]);
+        }*/
+  }
+
+  void InterpolationMatrix::divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& resPerProcI,
+                                                 const std::vector<std::vector<double> >& resPerProcD, std::vector<std::vector<double> >& deno)
+  {
+    map<int,double> fastSums;
+    int procId=0;
+    const vector<std::pair<int,int> >& mapping=_mapping.getSendingIds();
+    map< int, map<int,int> > distIdToLocId;
+    for(map< pair<int,int>,int >::iterator iter8=_col_offsets.begin();iter8!=_col_offsets.end();iter8++)
+          distIdToLocId[(*iter8).first.first][mapping[(*iter8).second].second]=(*iter8).first.second;
+
+    for(vector<int>::const_iterator iter1=distantProcs.begin();iter1!=distantProcs.end();iter1++,procId++)
+      {
+        const std::vector<int>& currentProcI=resPerProcI[procId];
+        const std::vector<double>& currentProcD=resPerProcD[procId];
+        vector<double>::const_iterator iter3=currentProcD.begin();
+        for(vector<int>::const_iterator iter2=currentProcI.begin();iter2!=currentProcI.end();iter2++,iter3++)
+          fastSums[_col_offsets[std::make_pair(*iter1,distIdToLocId[*iter1][*iter2])]]=*iter3;
+      }
+    deno.resize(_coeffs.size());
+    vector<vector<double> >::iterator iter6=deno.begin();
+    for(vector<vector<pair<int,double> > >::const_iterator iter4=_coeffs.begin();iter4!=_coeffs.end();iter4++,iter6++)
+      {
+        (*iter6).resize((*iter4).size());
+        vector<double>::iterator iter7=(*iter6).begin();
+        for(vector<pair<int,double> >::const_iterator iter5=(*iter4).begin();iter5!=(*iter4).end();iter5++,iter7++)
+          *iter7=fastSums[(*iter5).first];
+      }
+  }
+
+  void InterpolationMatrix::computeGlobalColSum(std::vector<std::vector<double> >& denoStrorage)
+  {
+    denoStrorage.resize(_coeffs.size());
+    vector<vector<double> >::iterator iter2=denoStrorage.begin();
+    for(vector<vector<pair<int,double> > >::const_iterator iter1=_coeffs.begin();iter1!=_coeffs.end();iter1++,iter2++)
+      {
+        (*iter2).resize((*iter1).size());
+        double sumOfCurrentRow=0.;
+        for(vector<pair<int,double> >::const_iterator iter3=(*iter1).begin();iter3!=(*iter1).end();iter3++)
+          sumOfCurrentRow+=(*iter3).second;
+        std::fill((*iter2).begin(),(*iter2).end(),sumOfCurrentRow);
+      }
+  }
 
   // ==================================================================
   // The call to this method updates the arrays on the target side
@@ -222,11 +409,11 @@ namespace ParaMEDMEM
 
   void InterpolationMatrix::prepare()
   {
-    int nbelems = _source_support->getNumberOfCells();
+    int nbelems = _source_field->getField()->getNumberOfTuples();
     for (int ielem=0; ielem < nbelems; ielem++)
       {
         _row_offsets[ielem+1]+=_row_offsets[ielem];
-      }  
+      }
     _mapping.prepareSendRecv();
   }
 
@@ -251,7 +438,7 @@ namespace ParaMEDMEM
     //computing the matrix multiply on source side
     if (_source_group.containsMyRank())
       {
-        int nbrows = _source_support->getNumberOfCells();
+        int nbrows = _coeffs.size();
 
         // performing W.S
         // W is the intersection matrix
@@ -266,23 +453,11 @@ namespace ParaMEDMEM
                   {
                     int colid= _coeffs[irow][icol-_row_offsets[irow]].first;
                     double value = _coeffs[irow][icol-_row_offsets[irow]].second;
-                    target_value[(colid-1)*nbcomp+icomp]+=value*coeff_row;
+                    double deno = _deno_multiply[irow][icol-_row_offsets[irow]];
+                    target_value[colid*nbcomp+icomp]+=value*coeff_row/deno;
                   }
               }
           }
-
-        // performing VT^(-1).(W.S)
-        // where VT^(-1) is the inverse of the diagonal matrix containing 
-        // the volumes of target cells
-
-        for (int i=0; i<_col_offsets.size();i++)
-          {
-            for (int icomp=0; icomp<nbcomp; icomp++)
-              {
-                target_value[i*nbcomp+icomp] /= _target_volume[i];
-              }
-          }
-
       }
 
     if (_target_group.containsMyRank())
@@ -317,7 +492,6 @@ namespace ParaMEDMEM
 
   void InterpolationMatrix::transposeMultiply(MEDCouplingFieldDouble& field) const
   {
-    //  int nbcomp = field.getNumberOfComponents();
     int nbcomp = field.getArray()->getNumberOfComponents();
     vector<double> source_value(_col_offsets.size()* nbcomp,0.0);
     _mapping.reverseSendRecv(&source_value[0],field);
@@ -325,7 +499,7 @@ namespace ParaMEDMEM
     //treatment of the transpose matrix multiply on the source side
     if (_source_group.containsMyRank())
       {
-        int nbrows    = _source_support->getNumberOfCells();
+        int nbrows    = _coeffs.size();
         double *array = field.getArray()->getPointer() ;
 
         // Initialization
@@ -340,27 +514,19 @@ namespace ParaMEDMEM
               {
                 int colid    = _coeffs[irow][icol-_row_offsets[irow]].first;
                 double value = _coeffs[irow][icol-_row_offsets[irow]].second;
-          
+                double deno = _deno_reverse_multiply[irow][icol-_row_offsets[irow]];
                 for (int icomp=0; icomp<nbcomp; icomp++)
                   {
-                    double coeff_row = source_value[(colid-1)*nbcomp+icomp];
-                    array[irow*nbcomp+icomp] += value*coeff_row;
+                    double coeff_row = source_value[colid*nbcomp+icomp];
+                    array[irow*nbcomp+icomp] += value*coeff_row/deno;
                   }
               }
           }
-
-        //performing VS^(-1).(WT.T)
-        //VS^(-1) is the inverse of the diagonal matrix storing
-        //volumes of the source cells
-
-        for (int irow=0; irow<nbrows; irow++)
-          {
-            for (int icomp=0; icomp<nbcomp; icomp++)
-              {
-                array[irow*nbcomp+icomp] /= _source_volume[irow];
-              }
-          }
-
       }
+  }
+
+  bool InterpolationMatrix::isSurfaceComputationNeeded(const std::string& method) const
+  {
+    return method=="P0";
   }
 }

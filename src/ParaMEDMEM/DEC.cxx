@@ -89,7 +89,14 @@ namespace ParaMEDMEM
       delete _local_field;
     delete _icoco_field;
     delete _union_group;
-  }  
+  }
+
+  void DEC::setNature(NatureOfField nature)
+  {
+    if(_local_field)
+      _local_field->getField()->setNature(nature);
+  }
+
   /*! Attaches a local field to a DEC.
     If the processor is on the receiving end of the DEC, the field
     will be updated by a recvData() call.
@@ -154,7 +161,7 @@ namespace ParaMEDMEM
           localgroup=_source_group;
         else
           localgroup=_target_group;
-	//delete _icoco_field;
+        //delete _icoco_field;
         _icoco_field=new ICoCo::MEDField(*const_cast<ICoCo::TrioField* >(triofield), *localgroup);
         attachLocalField(_icoco_field);
         return;

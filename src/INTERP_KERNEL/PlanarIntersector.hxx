@@ -36,11 +36,11 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     //! \addtogroup InterpKerGrpIntPlan @{
-    PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double medianPlane, bool doRotate, int orientation, int printLevel);
+    PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
     //! @}
     virtual ~PlanarIntersector();
     void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
-    void adjustBoundingBoxes(std::vector<double>& bbox, double Surf3DAdjustmentEps);
+    void adjustBoundingBoxes(std::vector<double>& bbox, double surf3DAdjustmentEps, double surf3DAdjustmentEpsAbs);
     inline void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
   protected :
     int projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB);
@@ -49,8 +49,9 @@ namespace INTERP_KERNEL
     void getRealTargetCoordinatesPermute(ConnType icellT, int offset, std::vector<double>& coordsT);
     void getRealSourceCoordinatesPermute(ConnType icellS, int offset, std::vector<double>& coordsS);
     void getRealCoordinates(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS, std::vector<double>& coordsT, std::vector<double>& coordsS, int& orientation);
-    static int projection(double *Coords_A, double *Coords_B, 
-                           int nb_NodesA, int nb_NodesB, double epsilon, double median_plane, bool do_rotate);
+    double getValueRegardingOption(double val) const;
+    static int projection(double *Coords_A, double *Coords_B,
+                          int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double median_plane, bool do_rotate);
     static void rotate3DTriangle( double* PP1, double*PP2, double*PP3,
                                   TranslationRotationMatrix& rotation_matrix);
   protected:
@@ -63,6 +64,7 @@ namespace INTERP_KERNEL
     const MyMeshType& _meshT;
     const MyMeshType& _meshS;
     double _dim_caracteristic;
+    double _max_distance_3Dsurf_intersect;
     double _precision;
     double _median_plane;
     bool _do_rotate;

@@ -29,9 +29,9 @@
 namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix>
-  PlanarIntersector<MyMeshType,MyMatrix>::PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double medianPlane, bool doRotate, int orientation, int printLevel):
+  PlanarIntersector<MyMeshType,MyMatrix>::PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel):
     _meshT(meshT),_meshS(meshS),
-    _dim_caracteristic(dimCaracteristic),_precision(precision),_median_plane(medianPlane),
+    _dim_caracteristic(dimCaracteristic),_max_distance_3Dsurf_intersect(md3DSurf),_precision(precision),_median_plane(medianPlane),
     _do_rotate(doRotate),_orientation(orientation),_print_level(printLevel)
   {
     _connectT=meshT.getConnectivityPtr();
@@ -127,7 +127,7 @@ namespace INTERP_KERNEL
     \param bbox vector containing the bounding boxes
   */
   template<class MyMeshType, class MyMatrix>
-  void PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(std::vector<double>& bbox, double Surf3DAdjustmentEps)
+  void PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(std::vector<double>& bbox, double surf3DAdjustmentEps, double surf3DAdjustmentEpsAbs)
   {
     /* We build the segment tree for locating possible matching intersections*/
   
@@ -142,8 +142,8 @@ namespace INTERP_KERNEL
           }
         for(int idim=0; idim<SPACEDIM; idim++)
           {            
-            bbox[i*2*SPACEDIM+2*idim  ] -= Surf3DAdjustmentEps*max;
-            bbox[i*2*SPACEDIM+2*idim+1] += Surf3DAdjustmentEps*max;
+            bbox[i*2*SPACEDIM+2*idim  ] -= surf3DAdjustmentEps*max+surf3DAdjustmentEpsAbs;
+            bbox[i*2*SPACEDIM+2*idim+1] += surf3DAdjustmentEps*max+surf3DAdjustmentEpsAbs;
           }
       }
   }
@@ -224,58 +224,6 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void PlanarIntersector<MyMeshType,MyMatrix>::getRealCoordinates(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS, std::vector<double>& coordsT, std::vector<double>& coordsS, int& orientation)
   {
-    /*double epsilon=_precision*_dim_caracteristic;
-      coordsT.resize(SPACEDIM*nbNodesT);
-      coordsS.resize(SPACEDIM*nbNodesS);
-      int nb_dist_NodesT=nbNodesT;
-      int nb_dist_NodesS=nbNodesS;
-      int i_last = nbNodesT - 1;
-      const double * Pi_last=_coordsT +_connectT[OTT<ConnType,numPol>::conn2C(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+i_last)];
-
-      for (int iT=0; iT<nbNodesT; iT++)
-      {
-      const double * PiT = _coordsT + SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectT[OTT<ConnType,numPol>::conn2C(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+iT)]);
-      if(distance2<SPACEDIM>(Pi_last, PiT)>epsilon)
-      {
-      for (int idim=0; idim<SPACEDIM; idim++)
-      coordsT[SPACEDIM*iT+idim]=PiT[idim];
-      i_last=iT; Pi_last = PiT;
-      }
-      else 
-      nb_dist_NodesT--;
-      }
-      coordsT.resize(nb_dist_NodesT*SPACEDIM);
-      i_last = nbNodesS - 1;
-      Pi_last=_coordsS + SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+i_last)]);
-      for (int iS=0; iS<nbNodesS; iS++)
-      {
-      const double * PiS=_coordsS+SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+iS)]);
-      if(distance2<SPACEDIM>(Pi_last, PiS)>epsilon)
-      {
-      for (int idim=0; idim<SPACEDIM; idim++)
-      coordsS[SPACEDIM*iS+idim]=PiS[idim];
-      i_last=iS; Pi_last = PiS;
-      }
-      else
-      nb_dist_NodesS--;
-      }
-      coordsS.resize(nb_dist_NodesS*SPACEDIM);
-      //project cells T and S on the median plane
-      // and rotate the median plane
-      if(SPACEDIM==3) 
-      orientation = projectionThis(&coordsT[0], &coordsS[0], nb_dist_NodesT, nb_dist_NodesS);
-
-      //DEBUG PRINTS
-      if(_print_level >= 3) 
-      {
-      std::cout << std::endl << "Cell coordinates (possibly after projection)" << std::endl;
-      std::cout << std::endl << "icellT= " << icellT << ", nb nodes T= " <<  nbNodesT << std::endl;
-      for(int iT =0; iT< nbNodesT; iT++)
-      {for (int idim=0; idim<SPACEDIM; idim++) std::cout << coordsT[SPACEDIM*iT+idim] << " "; std::cout << std::endl;}
-      std::cout << std::endl << "icellS= " << icellS << ", nb nodes S= " <<  nbNodesS << std::endl;
-      for(int iS =0; iS< nbNodesS; iS++)
-      {for (int idim=0; idim<SPACEDIM; idim++) std::cout << coordsS[SPACEDIM*iS+idim]<< " "; std::cout << std::endl; }
-      }*/
     coordsT.resize(SPACEDIM*nbNodesT);
     coordsS.resize(SPACEDIM*nbNodesS);
     for (int idim=0; idim<SPACEDIM; idim++)
@@ -302,16 +250,36 @@ namespace INTERP_KERNEL
           {for (int idim=0; idim<SPACEDIM; idim++) std::cout << coordsS[SPACEDIM*iS+idim]<< " "; std::cout << std::endl; }
       }
   }
+  
+  /*!
+   * Filtering out zero surfaces and badly oriented surfaces
+   * _orientation = -1,0,1,2
+   * -1 : the intersection is taken into account if target and cells have different orientation
+   * 0 : the intersection is always taken into account
+   * 1 : the intersection is taken into account if target and cells have the same orientation
+   * 2 : the absolute value of intersection is always taken into account 
+   */
+  template<class MyMeshType, class MyMatrix>
+  double PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(double val) const
+  {
+    if(_orientation==0)
+      return val;
+    if(_orientation==2)
+      return fabs(val);
+    if (( val > 0.0 && _orientation==1) || ( val < 0.0 && _orientation==-1 ))
+      return val;
+    return 0.;
+  }
 
   template<class MyMeshType, class MyMatrix>
   int PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB)
   {
-    return projection(Coords_A,Coords_B,nb_NodesA,nb_NodesB,_dim_caracteristic*_precision,_median_plane,_do_rotate);
+    return projection(Coords_A,Coords_B,nb_NodesA,nb_NodesB,_dim_caracteristic*_precision,_max_distance_3Dsurf_intersect,_median_plane,_do_rotate);
   }
 
   template<class MyMeshType, class MyMatrix>
   int PlanarIntersector<MyMeshType,MyMatrix>::projection(double *Coords_A, double *Coords_B, 
-                                                         int nb_NodesA, int nb_NodesB, double epsilon, double median_plane, bool do_rotate)
+                                                         int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double median_plane, bool do_rotate)
   {
     double normal_A[3]={0,0,0};
     double normal_B[3]={0,0,0};
@@ -344,6 +312,32 @@ namespace INTERP_KERNEL
         normB = sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
       }
 
+    //fabien option
+    if(md3DSurf>0.)
+      {
+        double coords_GA[3];
+        for (int i=0;i<3;i++)
+          {
+            coords_GA[i]=0.;
+            for (int j=0;j<nb_NodesA;j++)
+              coords_GA[i]+=Coords_A[3*j+i];
+            coords_GA[i]/=nb_NodesA;
+          }
+        double G1[3],G2[3],G3[3];
+      for (int i=0;i<3;i++)
+        {
+          G1[i]=Coords_B[i]-coords_GA[i];
+          G2[i]=Coords_B[i+3]-coords_GA[i];
+          G3[i]=Coords_B[i+6]-coords_GA[i];
+        }
+      double prodvect[3];
+      prodvect[0]=G1[1]*G2[2]-G1[2]*G2[1];
+      prodvect[1]=G1[2]*G2[0]-G1[0]*G2[2];
+      prodvect[2]=G1[0]*G2[1]-G1[1]*G2[0];
+      double prodscal=prodvect[0]*G3[0]+prodvect[1]*G3[1]+prodvect[2]*G3[2];
+      if(fabs(prodscal)>md3DSurf)
+        return 0;
+      }
     if(i_A2<nb_NodesA && i_B2<nb_NodesB)
       {
         //Build the normal of the median plane

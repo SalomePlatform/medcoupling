@@ -24,18 +24,11 @@
 
 namespace INTERP_KERNEL
 {
-  const double Interpolation3DSurf::DFT_MEDIAN_PLANE=0.5;
-  const double Interpolation3DSurf::DFT_SURF3D_ADJ_EPS=1e-4;
-  
-  Interpolation3DSurf::Interpolation3DSurf():_do_rotate(true)
-                                            ,_median_plane(DFT_MEDIAN_PLANE)
-                                            ,_surf_3D_adjustment_eps(DFT_SURF3D_ADJ_EPS)
+  Interpolation3DSurf::Interpolation3DSurf()
   {
   }
 
   Interpolation3DSurf::Interpolation3DSurf(const InterpolationOptions& io):InterpolationPlanar<Interpolation3DSurf>(io)
-									  ,_median_plane(io.getMedianPlane())
-									  ,_surf_3D_adjustment_eps(io.getBoundingBoxAdjustment())
   {
   }
 
@@ -63,8 +56,8 @@ namespace INTERP_KERNEL
                                        IntersectionType intersectionType, bool doRotate, int orientation)
   {
     InterpolationPlanar<Interpolation3DSurf>::setOptions(precision,printLevel,intersectionType, orientation);
-    _do_rotate=doRotate;
-    _median_plane=medianPlane;
+    InterpolationPlanar<Interpolation3DSurf>::setDoRotate(doRotate);
+    InterpolationPlanar<Interpolation3DSurf>::setMedianPlane(medianPlane);
   }
 }
 

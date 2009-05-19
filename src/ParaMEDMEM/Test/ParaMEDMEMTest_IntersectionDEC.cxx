@@ -138,7 +138,10 @@ void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT( support,*source_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(srcM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+        {
+          parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+        }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
@@ -171,7 +174,10 @@ void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(targetM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+        {
+          parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+        }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
@@ -342,7 +348,10 @@ void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT( support,*source_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(srcM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+        {
+          parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+        }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
@@ -375,7 +384,10 @@ void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *ta
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(targetM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+        {
+          parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+        }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       int nb_local;
@@ -521,6 +533,420 @@ void ParaMEDMEMTest::testAsynchronousFastSourceIntersectionDEC_2D()
   testAsynchronousIntersectionDEC_2D(0.01,1,0.11,1,true,true,true,"P0","P0");
 }
 
+void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
+{
+  //
+  const double sourceCoordsAll[2][8]={{0.4,0.5,0.4,1.5,1.6,1.5,1.6,0.5},
+                                      {0.3,-0.5,1.6,-0.5,1.6,-1.5,0.3,-1.5}};
+  const double targetCoordsAll[3][16]={{0.7,1.45,0.7,1.65,0.9,1.65,0.9,1.45,  1.1,1.4,1.1,1.6,1.3,1.6,1.3,1.4},
+                                       {0.7,-0.6,0.7,0.7,0.9,0.7,0.9,-0.6,  1.1,-0.7,1.1,0.6,1.3,0.6,1.3,-0.7},
+                                       {0.7,-1.55,0.7,-1.35,0.9,-1.35,0.9,-1.55,  1.1,-1.65,1.1,-1.45,1.3,-1.45,1.3,-1.65}};
+  int conn4All[8]={0,1,2,3,4,5,6,7};
+  double targetResults[3][2]={{34.,34.},{38.333333333333336,42.666666666666664},{47.,47.}};
+  double targetResults2[3][2]={{0.28333333333333344,0.56666666666666687},{1.8564102564102569,2.0128205128205132},{1.0846153846153845,0.36153846153846159}};
+  double targetResults3[3][2]={{3.7777777777777781,7.5555555555555562},{24.511111111111113,26.355555555555558},{14.1,4.7}};
+  //
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //
+  if(size!=5)
+    return ;
+  int nproc_source = 2;
+  set<int> self_procs;
+  set<int> procs_source;
+  set<int> procs_target;
+  
+  for (int i=0; i<nproc_source; i++)
+    procs_source.insert(i);
+  for (int i=nproc_source; i<size; i++)
+    procs_target.insert(i);
+  self_procs.insert(rank);
+  //
+  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
+  ParaMEDMEM::ParaMESH *paramesh=0;
+  ParaMEDMEM::ParaFIELD* parafield=0;
+  ICoCo::Field* icocofield=0;
+  //
+  ParaMEDMEM::CommInterface interface;
+  //
+  ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
+  ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
+  ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(source_group->containsMyRank())
+    {
+      std::ostringstream stream; stream << "sourcemesh2D proc " << rank;
+      mesh=MEDCouplingUMesh::New(stream.str().c_str(),2);
+      mesh->allocateCells(2);
+      mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn4All);
+      mesh->finishInsertingCells();
+      DataArrayDouble *myCoords=DataArrayDouble::New();
+      myCoords->alloc(4,2);
+      const double *sourceCoords=sourceCoordsAll[rank];
+      std::copy(sourceCoords,sourceCoords+8,myCoords->getPointer());
+      mesh->setCoords(myCoords);
+      myCoords->decrRef();
+      paramesh=new ParaMESH(mesh,*source_group,"source mesh");
+      ParaMEDMEM::ComponentTopology comptopo;
+      parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      double *value=parafield->getField()->getArray()->getPointer();
+      value[0]=34+13*((double)rank);
+    }
+  else
+    {
+      std::ostringstream stream; stream << "targetmesh2D proc " << rank-nproc_source;
+      mesh=MEDCouplingUMesh::New(stream.str().c_str(),2);
+      mesh->allocateCells(2);
+      mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn4All);
+      mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn4All+4);
+      mesh->finishInsertingCells();
+      DataArrayDouble *myCoords=DataArrayDouble::New();
+      myCoords->alloc(8,2);
+      const double *targetCoords=targetCoordsAll[rank-nproc_source];
+      std::copy(targetCoords,targetCoords+16,myCoords->getPointer());
+      mesh->setCoords(myCoords);
+      myCoords->decrRef();
+      paramesh=new ParaMESH (mesh,*target_group,"target mesh");
+      ParaMEDMEM::ComponentTopology comptopo;
+      parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+    }
+  //test 1 - Conservative volumic
+  ParaMEDMEM::IntersectionDEC dec(*source_group,*target_group);
+  parafield->getField()->setNature(ConservativeVolumic);
+  if (source_group->containsMyRank())
+    { 
+      dec.setMethod("P0");
+      dec.attachLocalField(parafield);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.sendData();
+    }
+  else
+    {
+      dec.setMethod("P0");
+      dec.attachLocalField(parafield);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      const double *expected=targetResults[rank-nproc_source];
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
+    }
+  //test 2 - Integral
+  ParaMEDMEM::IntersectionDEC dec2(*source_group,*target_group);
+  parafield->getField()->setNature(Integral);
+  if (source_group->containsMyRank())
+    { 
+      dec2.setMethod("P0");
+      dec2.attachLocalField(parafield);
+      dec2.synchronize();
+      dec2.setForcedRenormalization(false);
+      dec2.sendData();
+    }
+  else
+    {
+      dec2.setMethod("P0");
+      dec2.attachLocalField(parafield);
+      dec2.synchronize();
+      dec2.setForcedRenormalization(false);
+      dec2.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      const double *expected=targetResults2[rank-nproc_source];
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
+    }
+  //test 3 - Integral with global constraint
+  ParaMEDMEM::IntersectionDEC dec3(*source_group,*target_group);
+  parafield->getField()->setNature(IntegralGlobConstraint);
+  if (source_group->containsMyRank())
+    { 
+      dec3.setMethod("P0");
+      dec3.attachLocalField(parafield);
+      dec3.synchronize();
+      dec3.setForcedRenormalization(false);
+      dec3.sendData();
+    }
+  else
+    {
+      dec3.setMethod("P0");
+      dec3.attachLocalField(parafield);
+      dec3.synchronize();
+      dec3.setForcedRenormalization(false);
+      dec3.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      const double *expected=targetResults3[rank-nproc_source];
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
+    }
+  //test 4 - Conservative volumic reversed
+  ParaMEDMEM::IntersectionDEC dec4(*source_group,*target_group);
+  parafield->getField()->setNature(ConservativeVolumic);
+  if (source_group->containsMyRank())
+    { 
+      dec4.setMethod("P0");
+      dec4.attachLocalField(parafield);
+      dec4.synchronize();
+      dec4.setForcedRenormalization(false);
+      dec4.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      const double expected[]={37.8518518518519,43.5333333333333};
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
+    }
+  else
+    {
+      dec4.setMethod("P0");
+      dec4.attachLocalField(parafield);
+      dec4.synchronize();
+      dec4.setForcedRenormalization(false);
+      double *res=parafield->getField()->getArray()->getPointer();
+      const double *toSet=targetResults[rank-nproc_source];
+      res[0]=toSet[0];
+      res[1]=toSet[1];
+      dec4.sendData();
+    }
+  //test 5 - Integral reversed
+  ParaMEDMEM::IntersectionDEC dec5(*source_group,*target_group);
+  parafield->getField()->setNature(Integral);
+  if (source_group->containsMyRank())
+    { 
+      dec5.setMethod("P0");
+      dec5.attachLocalField(parafield);
+      dec5.synchronize();
+      dec5.setForcedRenormalization(false);
+      dec5.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      const double expected[]={0.794600591715977,1.35631163708087};
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
+    }
+  else
+    {
+      dec5.setMethod("P0");
+      dec5.attachLocalField(parafield);
+      dec5.synchronize();
+      dec5.setForcedRenormalization(false);
+      double *res=parafield->getField()->getArray()->getPointer();
+      const double *toSet=targetResults2[rank-nproc_source];
+      res[0]=toSet[0];
+      res[1]=toSet[1];
+      dec5.sendData();
+    }
+  //test 6 - Integral with global constraint reversed
+  ParaMEDMEM::IntersectionDEC dec6(*source_group,*target_group);
+  parafield->getField()->setNature(IntegralGlobConstraint);
+  if (source_group->containsMyRank())
+    { 
+      dec6.setMethod("P0");
+      dec6.attachLocalField(parafield);
+      dec6.synchronize();
+      dec6.setForcedRenormalization(false);
+      dec6.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      const double expected[]={36.4592592592593,44.5407407407407};
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
+    }
+  else
+    {
+      dec6.setMethod("P0");
+      dec6.attachLocalField(parafield);
+      dec6.synchronize();
+      dec6.setForcedRenormalization(false);
+      double *res=parafield->getField()->getArray()->getPointer();
+      const double *toSet=targetResults3[rank-nproc_source];
+      res[0]=toSet[0];
+      res[1]=toSet[1];
+      dec6.sendData();
+    }
+  //
+  delete parafield;
+  mesh->decrRef();
+  delete paramesh;
+  delete self_group;
+  delete target_group;
+  delete source_group;
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
+void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
+{
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //
+  if(size!=5)
+    return ;
+  int nproc_source = 2;
+  set<int> self_procs;
+  set<int> procs_source;
+  set<int> procs_target;
+  
+  for (int i=0; i<nproc_source; i++)
+    procs_source.insert(i);
+  for (int i=nproc_source; i<size; i++)
+    procs_target.insert(i);
+  self_procs.insert(rank);
+  //
+  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
+  ParaMEDMEM::ParaMESH *paramesh=0;
+  ParaMEDMEM::ParaFIELD *parafieldP0=0,*parafieldP1=0;
+  ICoCo::Field* icocofield=0;
+  //
+  ParaMEDMEM::CommInterface interface;
+  //
+  ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
+  ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
+  ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(source_group->containsMyRank())
+    {
+      if(rank==0)
+        {
+          double coords[6]={-0.3,-0.3, 0.7,0.7, 0.7,-0.3};
+          int conn[3]={0,1,2};
+          int globalNode[3]={1,2,0};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc0",2);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(3,2);
+          std::copy(coords,coords+6,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      if(rank==1)
+        {
+          double coords[6]={-0.3,-0.3, -0.3,0.7, 0.7,0.7};
+          int conn[3]={0,1,2};
+          int globalNode[3]={1,3,2};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc1",2);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(3,2);
+          std::copy(coords,coords+6,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      paramesh=new ParaMESH(mesh,*source_group,"source mesh");
+      ParaMEDMEM::ComponentTopology comptopo;
+      parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      parafieldP1 = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
+      double *valueP0=parafieldP0->getField()->getArray()->getPointer();
+      double *valueP1=parafieldP1->getField()->getArray()->getPointer();
+      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP1->getField()->setNature(ConservativeVolumic);
+      if(rank==0)
+        {
+          valueP0[0]=31.;
+          valueP1[0]=34.; valueP1[1]=77.; valueP1[2]=53.;
+        }
+      if(rank==1)
+        {
+          valueP0[0]=47.;
+          valueP1[0]=34.; valueP1[1]=57.; valueP1[2]=77.;
+        }
+    }
+  else
+    {
+      if(rank==2)
+        {
+          double coords[10]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2 };
+          int conn[7]={0,3,4,1, 1,4,2};
+          int globalNode[5]={4,3,0,2,1};
+          mesh=MEDCouplingUMesh::New("Target mesh Proc2",2);
+          mesh->allocateCells(2);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+4);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(5,2);
+          std::copy(coords,coords+10,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      if(rank==3)
+        {
+          double coords[6]={0.2,0.2, 0.7,-0.3, 0.7,0.2};
+          int conn[3]={0,2,1};
+          int globalNode[3]={1,0,5};
+          mesh=MEDCouplingUMesh::New("Target mesh Proc3",2);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(3,2);
+          std::copy(coords,coords+6,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      if(rank==4)
+        {
+          double coords[12]={-0.3,0.2, -0.3,0.7, 0.2,0.7, 0.2,0.2, 0.7,0.7, 0.7,0.2};
+          int conn[8]={0,1,2,3, 3,2,4,5};
+          int globalNode[6]={2,6,7,1,8,5};
+          mesh=MEDCouplingUMesh::New("Target mesh Proc4",2);
+          mesh->allocateCells(2);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(6,2);
+          std::copy(coords,coords+12,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      ParaMEDMEM::ComponentTopology comptopo;
+      paramesh=new ParaMESH(mesh,*target_group,"target mesh");
+      parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      parafieldP1 = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
+      parafieldP0->getField()->setNature(ConservativeVolumic);
+      parafieldP1->getField()->setNature(ConservativeVolumic);
+    }
+  // test 1 - P0 P1
+  ParaMEDMEM::IntersectionDEC dec(*source_group,*target_group);
+  if (source_group->containsMyRank())
+    { 
+      dec.setMethod("P0");
+      dec.attachLocalField(parafieldP0);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.sendData();
+    }
+  else
+    {
+      dec.setMethod("P1");
+      dec.attachLocalField(parafieldP1);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.recvData();
+      /*const double *res=parafield->getField()->getArray()->getConstPointer();
+      const double *expected=targetResults[rank-nproc_source];
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);*/
+    }
+  //
+  delete parafieldP0;
+  delete parafieldP1;
+  mesh->decrRef();
+  delete paramesh;
+  delete self_group;
+  delete target_group;
+  delete source_group;
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
 /*!
  * Tests an asynchronous exchange between two codes
  * one sends data with dtA as an interval, the max time being tmaxA
@@ -592,13 +1018,16 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
       meshname<< "Mesh_2_"<< rank+1;
       
       mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
-    
+
       paramesh=new ParaMESH (mesh,*source_group,"source mesh");
     
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT( support,*source_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(srcM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+        {
+          parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);//InvertIntegral);//ConservativeVolumic);
+        }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
 
@@ -630,12 +1059,15 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
       meshname<< "Mesh_3_"<<rank-nproc_source+1;
       
       mesh = MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
-      
+
       paramesh=new ParaMESH (mesh,*target_group,"target mesh");
       //      ParaMEDMEM::ParaSUPPORT* parasupport=new UnstructuredParaSUPPORT(support,*target_group);
       ParaMEDMEM::ComponentTopology comptopo;
       if(targetM=="P0")
-        parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+        {
+          parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);//InvertIntegral);//ConservativeVolumic);
+        }
       else
         parafield = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       

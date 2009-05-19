@@ -229,6 +229,7 @@ void ParaMEDMEMTest::testICocoTrio1()
 	  else
 	    dec_emetteur.attachLocalField((ICoCo::Field*) &champ_recepteur);
 
+          dec_emetteur.setNature(ConservativeVolumic);
 
 	  if(init)
             dec_emetteur.synchronize();

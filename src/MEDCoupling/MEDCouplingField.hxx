@@ -28,6 +28,7 @@
 
 namespace ParaMEDMEM
 {
+  class DataArrayInt;
   class MEDCouplingMesh;
   class MEDCouplingFieldDiscretization;
 
@@ -43,6 +44,7 @@ namespace ParaMEDMEM
     void setDescription(const char *desc) { _desc=desc; }
     const char *getName() const { return _name.c_str(); }
     TypeOfField getEntity() const;
+    MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
   protected:
     void updateTime();
   protected:
