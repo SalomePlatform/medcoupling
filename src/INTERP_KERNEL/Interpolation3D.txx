@@ -253,8 +253,8 @@ namespace INTERP_KERNEL
       
       // create BBTree structure
       // - get bounding boxes
-    double bboxes[6 * numSrcElems];
-    int srcElemIdx[numSrcElems];
+    double* bboxes = new double[6 * numSrcElems];
+    int* srcElemIdx = new int[numSrcElems];
     for(unsigned long i = 0; i < numSrcElems ; ++i)
       {
         // get source bboxes in right order
@@ -271,6 +271,9 @@ namespace INTERP_KERNEL
       }
     
     BBTree<3,ConnType> tree(bboxes, srcElemIdx, 0, numSrcElems);
+    
+    delete [] bboxes;
+    delete [] srcElemIdx;
     
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
