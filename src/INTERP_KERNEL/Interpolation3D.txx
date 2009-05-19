@@ -272,9 +272,6 @@ namespace INTERP_KERNEL
     
     BBTree<3,ConnType> tree(bboxes, srcElemIdx, 0, numSrcElems);
     
-    delete [] bboxes;
-    delete [] srcElemIdx;
-    
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
     for(unsigned long i = 0; i < numTargetElems; ++i)
@@ -297,6 +294,9 @@ namespace INTERP_KERNEL
 
         intersector->intersectCells(targetIdx,intersectElems,result);
       }
+
+    delete [] bboxes;
+    delete [] srcElemIdx;
     
 #endif
     // free allocated memory
