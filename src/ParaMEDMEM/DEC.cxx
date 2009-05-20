@@ -216,7 +216,7 @@ namespace ParaMEDMEM
   {
     if (_local_field)
       {
-        TypeOfField entity = _local_field->getField()->getEntity();
+        TypeOfField entity = _local_field->getField()->getTypeOfField();
         if ( getMethod() == "P0" )
           {
             if ( entity != ON_CELLS )

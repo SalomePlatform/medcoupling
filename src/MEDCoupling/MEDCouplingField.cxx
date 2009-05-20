@@ -45,7 +45,7 @@ void MEDCouplingField::updateTime()
     updateTimeWith(*_mesh);
 }
 
-TypeOfField MEDCouplingField::getEntity() const
+TypeOfField MEDCouplingField::getTypeOfField() const
 {
   return _type->getEnum();
 }

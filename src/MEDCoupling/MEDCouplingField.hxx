@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     const char *getDescription() const { return _desc.c_str(); }
     void setDescription(const char *desc) { _desc=desc; }
     const char *getName() const { return _name.c_str(); }
-    TypeOfField getEntity() const;
+    TypeOfField getTypeOfField() const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
   protected:
     void updateTime();
