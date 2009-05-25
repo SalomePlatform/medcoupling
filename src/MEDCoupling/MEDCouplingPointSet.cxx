@@ -234,7 +234,7 @@ void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, Data
 // =============================================
 bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps)
 {
-  double bbtemp[2*dim];
+  double* bbtemp = new double[2*dim];
   double deltamax=0.0;
 
   for (int i=0; i< dim; i++)
@@ -256,8 +256,12 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
       bool intersects = (bbtemp[idim*2]<bb2[idim*2+1])
         && (bb2[idim*2]<bbtemp[idim*2+1]) ;
       if (!intersects)
-        return false; 
+	{
+	  delete [] bbtemp;
+	  return false; 
+	}
     }
+  delete [] bbtemp;
   return true;
 }
 
