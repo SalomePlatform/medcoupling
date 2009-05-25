@@ -19,6 +19,8 @@
 #ifndef __INTERPOLATIONOPTIONS_HXX__
 #define __INTERPOLATIONOPTIONS_HXX__
 
+#include "INTERPKERNELDefines.hxx"
+
 namespace INTERP_KERNEL
 {
   typedef enum { Triangulation, Convex, Geometric2D } IntersectionType;
@@ -28,7 +30,7 @@ namespace INTERP_KERNEL
   /// that result from the split.
   typedef enum  { PLANAR_FACE_5 = 5, PLANAR_FACE_6 = 6, GENERAL_24 = 24, GENERAL_48 = 48 } SplittingPolicy;
   
-  class InterpolationOptions
+  class INTERPKERNEL_EXPORT InterpolationOptions
   {
   private :
     int _print_level ;

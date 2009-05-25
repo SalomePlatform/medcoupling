@@ -19,6 +19,8 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGREFCOUNTOBJECT_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGREFCOUNTOBJECT_HXX__
 
+#include "MEDCoupling.hxx"
+
 namespace ParaMEDMEM
 {
   typedef enum
@@ -40,7 +42,7 @@ namespace ParaMEDMEM
       LINEAR_TIME = 6
     } TypeOfTimeDiscretization;
 
-  class RefCountObject
+  class MEDCOUPLING_EXPORT RefCountObject
   {
   protected:
     RefCountObject();
