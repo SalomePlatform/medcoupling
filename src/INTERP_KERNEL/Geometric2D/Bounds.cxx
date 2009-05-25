@@ -168,7 +168,7 @@ Position Bounds::nearlyWhere(double x, double y) const
   bool thinY=Node::areDoubleEquals(_y_min,_y_max);
   if(!thinX)
     {
-      if(Node::areDoubleEquals(x,_x_min) || Node::areDoubleEquals(x,_x_max) && (y<_y_max+QUADRATIC_PLANAR::_precision) && (y>_y_min-QUADRATIC_PLANAR::_precision))
+      if((Node::areDoubleEquals(x,_x_min) || Node::areDoubleEquals(x,_x_max)) && ((y<_y_max+QUADRATIC_PLANAR::_precision) && (y>_y_min-QUADRATIC_PLANAR::_precision)))
         return ON_BOUNDARY_POS;
     }
   else
@@ -176,7 +176,7 @@ Position Bounds::nearlyWhere(double x, double y) const
       return OUT;
   if(!thinY)
     {
-      if(Node::areDoubleEquals(y,_y_min) || Node::areDoubleEquals(y,_y_max) && (x<_x_max+QUADRATIC_PLANAR::_precision) && (x>_x_min-QUADRATIC_PLANAR::_precision))
+      if((Node::areDoubleEquals(y,_y_min) || Node::areDoubleEquals(y,_y_max)) && ((x<_x_max+QUADRATIC_PLANAR::_precision) && (x>_x_min-QUADRATIC_PLANAR::_precision)))
         return ON_BOUNDARY_POS;
     }
   else
