@@ -267,7 +267,7 @@ namespace INTERP_KERNEL
     if(_orientation==2)
       return fabs(val);
     if (( val > 0.0 && _orientation==1) || ( val < 0.0 && _orientation==-1 ))
-      return val;
+      return _orientation*val;
     return 0.;
   }
 

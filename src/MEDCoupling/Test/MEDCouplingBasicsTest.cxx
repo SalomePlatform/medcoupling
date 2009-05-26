@@ -951,8 +951,8 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0_2()
     myInterpolator.setOrientation(-1);
     myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
     CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.125*sqrt(2.),res[2][0],1e-12);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.125*sqrt(2.),sumAll(res),1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[2][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),sumAll(res),1e-12);
     res.clear();
   }
   //clean up
