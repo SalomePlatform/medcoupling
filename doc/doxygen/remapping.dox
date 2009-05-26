@@ -49,10 +49,14 @@ Similar options as for the 2D remapping are available, plus some additional opti
  * <TR><TD> Precision </TD><TD>Accuracy of the computations is
  * precision times the characteristic size of the meshes </TD><TD>
  * positive real numbers </TD><TD> 1.E-12 </TD></TR>
+ * <TR><TD> Orientation </TD><TD>Specifies orientation to take into account. If -1 only negative intersection area are taken into account.  If 1 only positive intersection
+ *  area are taken into account. If 0 intersection area are always taken into account. If 2 intersection area are always taken into account (as 0) difference is that absolute value</TD><TD> -1,0,1,2 </TD><TD> 0 </TD></TR>
  * <TR><TD>DoRotate </TD><TD>Performs a rotation of the coordinate
  system such that the median plane is the Oxy plane </TD><TD>
  boolean true or false </TD><TD> true </TD></TR>
- * <TR><TD>BoundingBoxAdjustment</TD><TD>When detecting an intersection between bounding boxes, the bounding are expanded by a factor (1+BoundingBoxAdjustment). It is particularly useful when detecting intersections for 3D surfaces for which the bounding boxes might not actually intersect. </TD><TD>  real numbers </TD><TD> 0.1 </TD></TR>
+ * <TR><TD>BoundingBoxAdjustment</TD><TD>When detecting an intersection between bounding boxes, the bounding are expanded by a factor (1+BoundingBoxAdjustment). It is particularly useful when detecting intersections for 3D surfaces for which the bounding boxes might not actually intersect. </TD><TD> positive real numbers </TD><TD> 1.e-4 </TD></TR>
+ * <TR><TD>BoundingBoxAdjustmentAbs</TD><TD>When detecting an intersection between bounding boxes, the bounding are expanded uniformaly in the 3 dimension of space with the absolute value BoundingBoxAdjustmentAbs. It is particularly useful when detecting intersections for 3D surfaces for which the bounding boxes might not actually intersect. </TD><TD> positive real numbers </TD><TD> 0. </TD></TR>
+ * <TR><TD>MaxDistance3DSurfIntersect</TD><TD>Before atempting an intersection in 3D surf test the distance D between fast barycenter of target cell and medium source plane P. If option < 0. no interpretation of D is done. If option > 0. then if D<option intersection is taken into account and if D>option intersection is equal to 0. . This option exists in order to have an iso behaviour whatever the angle of plane P and OXY OYZ OXZ contrary to BBoxAdjestments options.  </TD><TD> real numbers </TD><TD> -1. </TD></TR>
  *</TABLE>
 
 Note that choosing the Triangle Intersection_type necessarily set the DoRotate option to true.
