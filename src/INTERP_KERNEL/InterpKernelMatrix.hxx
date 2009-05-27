@@ -97,14 +97,13 @@ namespace INTERP_KERNEL
       _coeffs(0), _cols(0), _is_configured(false)
     {
       _nb_rows=matrix.size();
+			_auxiliary_matrix.resize(_nb_rows);
       for (int i=0; i<_nb_rows; i++)
         {
-          _auxiliary_matrix[i].resize(matrix[i].size());
-          typename std::map<int,T>::iterator it;
+					typename std::map<int,T>::iterator it;
           for (it=matrix[i].begin(); it != matrix[i].end(); it++)
-            _auxiliary_matrix[i].push_back(*it);
-        }
-      
+            _auxiliary_matrix[i].push_back(*it);//MN: pq push_back plutot que simple affectation?
+        }      
     }
     /*!Copy constructor
      */
@@ -190,6 +189,31 @@ namespace INTERP_KERNEL
           for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
             output[i]+=input[icol]*_coeffs[j];
+          }
+        }
+    }
+
+    /*!
+      
+      Transpose-multiplies vector \a input and stores the result in 
+      vector \a output.
+			nb_cols is the number of columns of the matrix, which is not an attribute of the class 
+      The vector pointed by \a input must be dimensioned
+      to the number of lines _nb_rows while the vector pointed by output must be
+      dimensioned to the number of columns nb_cols.
+    */
+    void transposeMultiply(const T* const input, T* const output, int nb_cols)
+    {
+      if (!_is_configured)
+        configure();
+      
+			for (int icol=0; icol< nb_cols; icol++)
+				output[icol]=0;
+      for (int i=0; i< _nb_rows; i++)
+        {
+					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+            int icol = _cols[j];
+            output[icol]+=input[i]*_coeffs[j];
           }
         }
     }
