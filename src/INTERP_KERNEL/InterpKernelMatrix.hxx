@@ -231,7 +231,7 @@ namespace INTERP_KERNEL
         configure();
       
 			for (int icol=0; icol< nb_cols; icol++)
-				output[icol]=0;
+				output[icol]=0.;
       for (int i=0; i< _nb_rows; i++)
         {
 					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
@@ -257,7 +257,7 @@ namespace INTERP_KERNEL
         configure();
       
 			for (int icol=0; icol< nb_cols; icol++)
-				output[icol]=0;
+				output[icol]=0.;
       for (int i=0; i< _nb_rows; i++)
         {
 					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
@@ -267,8 +267,46 @@ namespace INTERP_KERNEL
           }
         }
     }
-    
-    /*! This operation freezes the profile of the matrix
+		
+    /*
+			Sums the coefficients of each column of the matrix
+			nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+			The vector output must be dimensioned to nb_cols
+		*/
+		void colSum(std::vector< T >& output, int nb_cols)
+		{
+			if (!_is_configured)
+        configure();
+			
+			for (int icol=0; icol< nb_cols; icol++)
+				output[icol]=0.;
+      for (int i=0; i< _nb_rows; i++)
+        {
+					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+            int icol = _cols[j];
+            output[icol]+=_coeffs[j];
+          }
+        }
+		}
+
+		/*
+			Sums the coefficients of each row of the matrix
+			The vector output must be dimensioned to _nb_rows
+		*/
+		void rowSum(std::vector< T >& output)
+		{
+			if (!_is_configured)
+        configure();
+			
+			for (int i=0; i< _nb_rows; i++)
+        {
+          output[i]=0;
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) 
+            output[i]+=_coeffs[j];
+				}
+		}
+
+		/*! This operation freezes the profile of the matrix
       and puts it under a CSR form so that it becomes
       efficient both in terms of memory occupation and
       in terms of multiplication */
@@ -303,6 +341,11 @@ namespace INTERP_KERNEL
     {
       return _auxiliary_matrix[irow];
     }
+
+		int getNbRows()
+		{
+			return _nb_rows;
+		}
     
   };
   
