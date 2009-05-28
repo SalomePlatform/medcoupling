@@ -170,8 +170,7 @@ namespace INTERP_KERNEL
       _auxiliary_matrix[OTT<int,type>::ind2C(irow)].push_back(std::make_pair(icol, value));
     }
     
-    /*!
-      
+    /*!      
       Matrix multiplies vector \a input and stores the result in 
       vector \a output.
       The vector pointed by \a input must be dimensioned
@@ -193,11 +192,35 @@ namespace INTERP_KERNEL
         }
     }
 
-    /*!
+    /*!      
+      Matrix multiplies vector \a input and stores the result in 
+      vector \a output.
+			input and output are supposed to represent the same field 
+			discretised on two different on meshes.
+			nb_comp is the number of components of the fields input and output
+      The vector pointed by \a input must be dimensioned
+      to the number of columns times nb_comp while the vector pointed by output must be
+      dimensioned to the number of rows times nb_comp.
+    */
+    void multiply(const T* const input, T* const output, int nb_comp)
+    {
+      if (!_is_configured)
+        configure();
       
+      for (int i=0; i< _nb_rows; i++)
+        {
+          output[i]=0;
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+            int icol = _cols[j];
+						for(int comp = 0; comp < nb_comp; comp++)
+							output[i*nb_comp+comp]+=input[icol*nb_comp+comp]*_coeffs[j];
+          }
+        }
+    }   
+		/*!      
       Transpose-multiplies vector \a input and stores the result in 
       vector \a output.
-			nb_cols is the number of columns of the matrix, which is not an attribute of the class 
+			nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
       The vector pointed by \a input must be dimensioned
       to the number of lines _nb_rows while the vector pointed by output must be
       dimensioned to the number of columns nb_cols.
@@ -214,6 +237,33 @@ namespace INTERP_KERNEL
 					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
             output[icol]+=input[i]*_coeffs[j];
+          }
+        }
+    }
+		/*!      
+      Transpose-multiplies vector \a input and stores the result in 
+      vector \a output.
+			input and output are supposed to represent the same field 
+			discretised on two different on meshes.
+			nb_comp is the number of components of the fields input and output
+			nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      The vector pointed by \a input must be dimensioned
+      to _nb_rows*nb_comp while the vector pointed by output must be
+      dimensioned to nb_cols*nb_comp.
+    */
+    void transposeMultiply(const T* const input, T* const output, int nb_cols, int nb_comp)
+    {
+      if (!_is_configured)
+        configure();
+      
+			for (int icol=0; icol< nb_cols; icol++)
+				output[icol]=0;
+      for (int i=0; i< _nb_rows; i++)
+        {
+					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+            int icol = _cols[j];
+						for(int comp = 0; comp < nb_comp; comp++)
+							output[icol*nb_comp+comp]+=input[i*nb_comp+comp]*_coeffs[j];
           }
         }
     }
