@@ -129,14 +129,10 @@ void ParaMEDMEMTest::testNonCoincidentDEC(const string& filename1,
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
   
-  string data_dir                   = getenv("MED_ROOT_DIR") + "/share/salome/resources/med/";
-  string tmp_dir                    = getenv("TMP");
-  if (tmp_dir == "")
-    tmp_dir = "/tmp";
-  string filename_xml1              = data_dir + filename1;
-  string filename_xml2              = data_dir + filename2; 
-  string filename_seq_wr            = tmp_dir + "/";
-  string filename_seq_med           = tmp_dir + "/myWrField_seq_pointe221.med";
+  string filename_xml1              = getResourceFile(filename1);
+  string filename_xml2              = getResourceFile(filename2); 
+  //string filename_seq_wr            = makeTmpFile("");
+  //string filename_seq_med           = makeTmpFile("myWrField_seq_pointe221.med");
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;

@@ -108,14 +108,10 @@ void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *ta
   ParaMEDMEM::ParaFIELD* parafield;
   ICoCo::Field* icocofield ;
   
-  string data_dir                   = getenv("MED_ROOT_DIR");
-  string tmp_dir                    = getenv("TMP");
-  if (tmp_dir == "")
-    tmp_dir = "/tmp";
-  string filename_xml1              = data_dir + "/share/salome/resources/med/square1_split";
-  string filename_xml2              = data_dir + "/share/salome/resources/med/square2_split"; 
-  string filename_seq_wr            = tmp_dir + "/";
-  string filename_seq_med           = tmp_dir + "/myWrField_seq_pointe221.med";
+  string filename_xml1              = getResourceFile("square1_split");
+  string filename_xml2              = getResourceFile("square2_split");
+  //string filename_seq_wr            = makeTmpFile("");
+  //string filename_seq_med           = makeTmpFile("myWrField_seq_pointe221.med");
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;
@@ -318,14 +314,13 @@ void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *ta
   ParaMEDMEM::ParaFIELD* parafield;
   ICoCo::Field* icocofield ;
   
-  string data_dir                   = getenv("MED_ROOT_DIR");
   string tmp_dir                    = getenv("TMP");
   if (tmp_dir == "")
     tmp_dir = "/tmp";
-  string filename_xml1              = data_dir + "/share/salome/resources/med/Mesh3D_10_2d";
-  string filename_xml2              = data_dir + "/share/salome/resources/med/Mesh3D_11"; 
-  string filename_seq_wr            = tmp_dir + "/";
-  string filename_seq_med           = tmp_dir + "/myWrField_seq_pointe221.med";
+  string filename_xml1              = getResourceFile("Mesh3D_10_2d");
+  string filename_xml2              = getResourceFile("Mesh3D_11");
+  //string filename_seq_wr            = makeTmpFile("");
+  //string filename_seq_med           = makeTmpFile("myWrField_seq_pointe221.med");
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;
@@ -994,14 +989,13 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
   double * value ;
   ICoCo::Field* icocofield ;
 
-  string data_dir                   = getenv("MED_ROOT_DIR");
   string tmp_dir                    = getenv("TMP");
   if (tmp_dir == "")
     tmp_dir = "/tmp";
-  string filename_xml1              = data_dir + "/share/salome/resources/med/square1_split";
-  string filename_xml2              = data_dir + "/share/salome/resources/med/square2_split"; 
-  string filename_seq_wr            = tmp_dir + "/";
-  string filename_seq_med           = tmp_dir + "/myWrField_seq_pointe221.med";
+  string filename_xml1              = getResourceFile("square1_split");
+  string filename_xml2              = getResourceFile("square2_split"); 
+  //string filename_seq_wr            = makeTmpFile("");
+  //string filename_seq_med           = makeTmpFile("myWrField_seq_pointe221.med");
   
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;

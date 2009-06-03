@@ -15,12 +15,10 @@ using namespace ParaMEDMEM;
 
 void ParaMEDMEMTest::testMEDLoaderRead1()
 {
-  string medRootDir=getenv("MED_ROOT_DIR");
-  medRootDir+="/share/salome/resources/med/pointe_import22.med";
-  const char *fileName=medRootDir.c_str();
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName);
+  string fileName=getResourceFile("pointe_import22.med");
+  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName,meshNames[0].c_str(),0);
+  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(16,mesh->getNumberOfCells());
@@ -38,13 +36,13 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   mesh->decrRef();
   //
-  vector<string> families=MEDLoader::GetMeshFamilyNames(fileName,meshNames[0].c_str());
+  vector<string> families=MEDLoader::GetMeshFamilyNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(8,(int)families.size());
   CPPUNIT_ASSERT(families[2]=="FAMILLE_ELEMENT_3");
   //
   vector<string> families2;
   families2.push_back(families[2]);
-  mesh=MEDLoader::ReadUMeshFromFamilies(fileName,meshNames[0].c_str(),0,families2);
+  mesh=MEDLoader::ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getNumberOfCells());
@@ -58,7 +56,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   mesh->decrRef();
   //
-  vector<string> groups=MEDLoader::GetMeshGroupsNames(fileName,meshNames[0].c_str());
+  vector<string> groups=MEDLoader::GetMeshGroupsNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(5,(int)groups.size());
   CPPUNIT_ASSERT(groups[0]=="groupe1");
   CPPUNIT_ASSERT(groups[1]=="groupe2");
@@ -67,7 +65,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(groups[4]=="groupe5");
   vector<string> groups2;
   groups2.push_back(groups[0]);
-  mesh=MEDLoader::ReadUMeshFromGroups(fileName,meshNames[0].c_str(),0,groups2);
+  mesh=MEDLoader::ReadUMeshFromGroups(fileName.c_str(),meshNames[0].c_str(),0,groups2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(7,mesh->getNumberOfCells());
@@ -82,20 +80,20 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   mesh->decrRef();
   //
-  std::vector<std::string> fieldsName=MEDLoader::GetCellFieldNamesOnMesh(fileName,meshNames[0].c_str());
+  std::vector<std::string> fieldsName=MEDLoader::GetCellFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(2,(int)fieldsName.size());
   CPPUNIT_ASSERT(fieldsName[0]=="fieldcelldoublescalar");
   CPPUNIT_ASSERT(fieldsName[1]=="fieldcelldoublevector");
-  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName,fieldsName[0].c_str());
+  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
   CPPUNIT_ASSERT_EQUAL(-1,its0[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0[0].second);
-  std::vector<std::pair<int,int> > its1=MEDLoader::GetCellFieldIterations(fileName,fieldsName[1].c_str());
+  std::vector<std::pair<int,int> > its1=MEDLoader::GetCellFieldIterations(fileName.c_str(),fieldsName[1].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its1.size());
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].second);
   //
-  MEDCouplingFieldDouble *field0=MEDLoader::ReadFieldDoubleCell(fileName,meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field0=MEDLoader::ReadFieldDoubleCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field0->checkCoherency();
   CPPUNIT_ASSERT(field0->getName()==fieldsName[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0->getNumberOfComponents());
@@ -124,7 +122,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
   field0->decrRef();
   //
-  MEDCouplingFieldDouble *field1=MEDLoader::ReadFieldDoubleCell(fileName,meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
+  MEDCouplingFieldDouble *field1=MEDLoader::ReadFieldDoubleCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
   field1->checkCoherency();
   CPPUNIT_ASSERT(field1->getName()==fieldsName[1]);
   CPPUNIT_ASSERT_EQUAL(3,field1->getNumberOfComponents());
@@ -153,11 +151,11 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
   field1->decrRef();
   //fields on nodes
-  std::vector<std::string> fieldsNameNode=MEDLoader::GetNodeFieldNamesOnMesh(fileName,meshNames[0].c_str());
+  std::vector<std::string> fieldsNameNode=MEDLoader::GetNodeFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(2,(int)fieldsNameNode.size());
   CPPUNIT_ASSERT(fieldsNameNode[0]=="fieldnodedouble");
   CPPUNIT_ASSERT(fieldsNameNode[1]=="fieldnodeint");
-  std::vector<std::pair<int,int> > its0Node=MEDLoader::GetNodeFieldIterations(fileName,fieldsNameNode[0].c_str());
+  std::vector<std::pair<int,int> > its0Node=MEDLoader::GetNodeFieldIterations(fileName.c_str(),fieldsNameNode[0].c_str());
   CPPUNIT_ASSERT_EQUAL(3,(int)its0Node.size());
   CPPUNIT_ASSERT_EQUAL(1,its0Node[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].second);
@@ -165,7 +163,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[1].second);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].first);//strange but like that
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].second);
-  MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName,meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -179,7 +177,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName,meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[1].first,its0Node[1].second);
+  field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[1].first,its0Node[1].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -207,7 +205,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName,meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
+  field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -238,13 +236,11 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
 
 void ParaMEDMEMTest::testMEDLoaderPolygonRead()
 {
-  string medRootDir=getenv("MED_ROOT_DIR");
-  medRootDir+="/share/salome/resources/med/polygones.med";
-  const char *fileName=medRootDir.c_str();
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName);
+  string fileName=getResourceFile("polygones.med");
+  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   CPPUNIT_ASSERT(meshNames[0]=="Bord");
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName,meshNames[0].c_str(),0);
+  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
@@ -266,14 +262,14 @@ void ParaMEDMEMTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT_EQUAL(725943,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+539,0));
   mesh->decrRef();
   //
-  std::vector<std::string> fieldsName=MEDLoader::GetCellFieldNamesOnMesh(fileName,meshNames[0].c_str());
+  std::vector<std::string> fieldsName=MEDLoader::GetCellFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(3,(int)fieldsName.size());
   CPPUNIT_ASSERT(fieldsName[0]=="bord_:_distorsion");
   CPPUNIT_ASSERT(fieldsName[1]=="bord_:_familles");
   CPPUNIT_ASSERT(fieldsName[2]=="bord_:_non-ortho");
-  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName,fieldsName[0].c_str());
+  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
-  MEDCouplingFieldDouble *field=MEDLoader::ReadFieldDoubleCell(fileName,meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field=MEDLoader::ReadFieldDoubleCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field->checkCoherency();
   CPPUNIT_ASSERT(field->getName()==fieldsName[0]);
   CPPUNIT_ASSERT_EQUAL(1,field->getNumberOfComponents());
@@ -303,13 +299,11 @@ void ParaMEDMEMTest::testMEDLoaderPolygonRead()
 
 void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
 {
-  string medRootDir=getenv("MED_ROOT_DIR");
-  medRootDir+="/share/salome/resources/med/poly3D.med";
-  const char *fileName=medRootDir.c_str();
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName);
+  string fileName=getResourceFile("poly3D.med");
+  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   CPPUNIT_ASSERT(meshNames[0]=="poly3D");
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName,meshNames[0].c_str(),0);
+  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
@@ -325,7 +319,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(155,std::accumulate(mesh->getNodalConnectivityIndex()->getPointer(),mesh->getNodalConnectivityIndex()->getPointer()+4,0));
   mesh->decrRef();
   //
-  mesh=MEDLoader::ReadUMeshFromFile(fileName,meshNames[0].c_str(),-1);
+  mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),-1);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
@@ -343,7 +337,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(619,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+83,0));
   mesh->decrRef();
   //
-  vector<string> families=MEDLoader::GetMeshFamilyNames(fileName,meshNames[0].c_str());
+  vector<string> families=MEDLoader::GetMeshFamilyNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(4,(int)families.size());
   CPPUNIT_ASSERT(families[0]=="FAMILLE_FACE_POLYGONS3");
   CPPUNIT_ASSERT(families[1]=="FAMILLE_FACE_QUAD41");
@@ -351,7 +345,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT(families[3]=="FAMILLE_ZERO");
   vector<string> families2;
   families2.push_back(families[0]);
-  mesh=MEDLoader::ReadUMeshFromFamilies(fileName,meshNames[0].c_str(),-1,families2);
+  mesh=MEDLoader::ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),-1,families2);
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
@@ -364,7 +358,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(117,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+19,0));
   mesh->decrRef();
   //
-  mesh=MEDLoader::ReadUMeshFromFamilies(fileName,meshNames[0].c_str(),0,families2);
+  mesh=MEDLoader::ReadUMeshFromFamilies(fileName.c_str(),meshNames[0].c_str(),0,families2);
   CPPUNIT_ASSERT_EQUAL(3,mesh->getSpaceDimension());
   CPPUNIT_ASSERT_EQUAL(0,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
@@ -376,8 +370,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
 void ParaMEDMEMTest::testMEDLoaderWrite1()
 {
   const char meshName[]="MEDLoaderWrite1";
-  string tmpRootDir=getenv("TMP");
-  string outFileName=tmpRootDir+"/toto22137.med";
+  string outFileName=makeTmpFile("toto22137.med");
   double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
   int targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
@@ -429,16 +422,13 @@ void ParaMEDMEMTest::testMEDLoaderWrite1()
 
 void ParaMEDMEMTest::testMEDLoaderPolygonWrite()
 {
-  string medRootDir=getenv("MED_ROOT_DIR");
-  medRootDir+="/share/salome/resources/med/polygones.med";
-  const char *fileName=medRootDir.c_str();
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName);
+  string fileName=getResourceFile("polygones.med");
+  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   CPPUNIT_ASSERT(meshNames[0]=="Bord");
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName,meshNames[0].c_str(),0);
+  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   mesh->checkCoherency();
-  string tmpRootDir=getenv("TMP");
-  string outFileName=tmpRootDir+"/toto22138.med";
+  string outFileName=makeTmpFile("toto22138.med");
   MEDLoader::writeUMesh(outFileName.c_str(),mesh);
   //
   MEDCouplingUMesh *mesh2=MEDLoader::ReadUMeshFromFile(outFileName.c_str(),meshNames[0].c_str(),0);

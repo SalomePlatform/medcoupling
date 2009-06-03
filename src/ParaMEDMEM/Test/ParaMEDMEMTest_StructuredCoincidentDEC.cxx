@@ -74,15 +74,10 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
 
-  string data_dir = getenv("MED_ROOT_DIR");
-  string tmp_dir = getenv("TMP");
-  if (tmp_dir == "")
-    tmp_dir = "/tmp";
-  string filename_xml1 = data_dir
-    + "/share/salome/resources/med/square1_split";
-  string filename_2 = data_dir + "/share/salome/resources/med/square1.med";
-  string filename_seq_wr = tmp_dir + "/";
-  string filename_seq_med = tmp_dir + "/myWrField_seq_pointe221.med";
+  string filename_xml1 = getResourceFile("square1_split");
+  string filename_2    = getResourceFile("square1.med");
+  //string filename_seq_wr  = makeTmpFile("");
+  //string filename_seq_med = makeTmpFile("myWrField_seq_pointe221.med");
 
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;
