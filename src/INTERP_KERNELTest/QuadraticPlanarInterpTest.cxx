@@ -22,6 +22,7 @@
 #include "ElementaryEdge.hxx"
 #include "ComposedEdge.hxx"
 #include "EdgeLin.hxx"
+#include "TestInterpKernelUtils.hxx"
 
 #include <sstream>
 #include <iostream>
@@ -71,20 +72,13 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
 
 void QuadraticPlanarInterpTest::ReadWriteInXfigGlobal()
 {
-  string dataBaseDir(getenv("MED_ROOT_DIR"));
-  dataBaseDir+="/share/salome/resources/med/";
-  string tmp;
-  tmp=dataBaseDir; tmp+="Pol1.fig";
-  QuadraticPolygon pol1(tmp.c_str());
+  QuadraticPolygon pol1(INTERP_TEST::getResourceFile("Pol1.fig").c_str());
   pol1.dumpInXfigFile("Pol1_gen.fig");
-  tmp=dataBaseDir; tmp+="Pol2.fig";
-  QuadraticPolygon pol2(tmp.c_str());
+  QuadraticPolygon pol2(INTERP_TEST::getResourceFile("Pol2.fig").c_str());
   pol2.dumpInXfigFile("Pol2_gen.fig");
-  tmp=dataBaseDir; tmp+="Pol3.fig";
-  QuadraticPolygon pol3(tmp.c_str());
+  QuadraticPolygon pol3(INTERP_TEST::getResourceFile("Pol3.fig").c_str());
   pol3.dumpInXfigFile("Pol3_gen.fig");
-  tmp=dataBaseDir; tmp+="Pol4.fig";
-  QuadraticPolygon pol4(tmp.c_str());
+  QuadraticPolygon pol4(INTERP_TEST::getResourceFile("Pol4.fig").c_str());
   CPPUNIT_ASSERT_EQUAL(1,pol4.size());
   ElementaryEdge *edge1=dynamic_cast<ElementaryEdge *>(pol4[0]);
   CPPUNIT_ASSERT(edge1);

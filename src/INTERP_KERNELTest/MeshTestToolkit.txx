@@ -16,6 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "TestInterpKernelUtils.hxx"
+
 #include "MEDNormalizedUnstructuredMesh.hxx"
 #include "MEDNormalizedUnstructuredMesh.txx"
 
@@ -364,16 +366,13 @@ namespace INTERP_TEST
   template <int SPACEDIM, int MESHDIM>
   void MeshTestToolkit<SPACEDIM,MESHDIM>::calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) const
   {
-    const string dataBaseDir = getenv("MED_ROOT_DIR");
-    const string dataDir = dataBaseDir + string("/share/salome/resources/med/");
-
     LOG(1, std::endl << "=== -> intersecting src = " << mesh1path << ", target = " << mesh2path );
 
     LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-    MESH sMesh(MED_DRIVER, dataDir+mesh1path, mesh1);
+    MESH sMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh1path), mesh1);
   
     LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-    MESH tMesh(MED_DRIVER, dataDir+mesh2path, mesh2);
+    MESH tMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh2path), mesh2);
 
     MEDNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> sMesh_wrapper(&sMesh);
     MEDNormalizedUnstructuredMesh<SPACEDIM,MESHDIM> tMesh_wrapper(&tMesh);

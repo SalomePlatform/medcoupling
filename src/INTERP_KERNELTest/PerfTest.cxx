@@ -21,6 +21,7 @@
 #include "MeshTestToolkit.txx"
 #include "Log.hxx"
 #include "VectorUtils.hxx"
+#include "TestInterpKernelUtils.hxx"
 
 #include "MEDMEM_Mesh.hxx"
 #include "MEDNormalizedUnstructuredMesh.hxx"
@@ -66,17 +67,14 @@ namespace INTERP_TEST
      */
     void calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) 
     {
-      const string dataBaseDir = getenv("MED_ROOT_DIR");
-      const string dataDir = dataBaseDir + "/share/salome/resources/med/";
-
       LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
       
       LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-      const MESH sMesh(MED_DRIVER, dataDir+mesh1path, mesh1);
+      const MESH sMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh1path), mesh1);
     
     
       LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-      const MESH tMesh(MED_DRIVER, dataDir+mesh2path, mesh2);
+      const MESH tMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh2path), mesh2);
       
       MEDNormalizedUnstructuredMesh<3,3> sMesh_wrapper(&sMesh);
       MEDNormalizedUnstructuredMesh<3,3> tMesh_wrapper(&tMesh);

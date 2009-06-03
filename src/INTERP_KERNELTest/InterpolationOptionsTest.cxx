@@ -19,6 +19,7 @@
 #include "InterpolationOptionsTest.hxx"
 #include "MEDNormalizedUnstructuredMesh.txx"
 #include "Interpolation2D.txx"
+#include "TestInterpKernelUtils.hxx"
 #include <iostream>
 #include <vector>
 
@@ -44,12 +45,10 @@ namespace INTERP_TEST
    * a bbox overlapping the bboxes of the tree
    */
   void InterpolationOptionsTest::test_InterpolationOptions() {
-    string sourcename=getenv("MED_ROOT_DIR");
-    sourcename +="/share/salome/resources/med/square1.med";
+    string sourcename=INTERP_TEST::getResourceFile("square1.med");
     MEDMEM::MESH source_mesh (MED_DRIVER,sourcename,"Mesh_2");
 
-    string targetname=getenv("MED_ROOT_DIR");
-    targetname +="/share/salome/resources/med/square2.med";
+    string targetname=INTERP_TEST::getResourceFile("square2.med");
     MEDMEM::MESH target_mesh (MED_DRIVER,targetname,"Mesh_3");
 
     MEDMEM::SUPPORT source_support(&source_mesh,"on All support");
