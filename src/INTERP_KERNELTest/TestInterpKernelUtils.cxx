@@ -22,6 +22,8 @@
 
 #include "TestInterpKernelUtils.hxx"
 
+#include <cstdlib>
+
 namespace INTERP_TEST
 {
   std::string getResourceFile( const std::string& filename )
