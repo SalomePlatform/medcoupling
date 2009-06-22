@@ -150,7 +150,7 @@ namespace ParaMEDMEM
     if (_source_group->containsMyRank())
       {
         //locate the distant meshes
-        ElementLocator locator(*_local_field, *_target_group);
+        ElementLocator locator(*_local_field, *_target_group, *_source_group);
 
         //transfering option from IntersectionDEC to ElementLocator                 
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
@@ -184,7 +184,7 @@ namespace ParaMEDMEM
 
     if (_target_group->containsMyRank())
       {
-        ElementLocator locator(*_local_field, *_source_group);
+        ElementLocator locator(*_local_field, *_source_group, *_target_group);
         //transfering option from IntersectionDEC to ElementLocator
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 

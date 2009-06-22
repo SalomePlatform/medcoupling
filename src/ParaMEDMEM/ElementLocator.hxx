@@ -37,7 +37,7 @@ namespace ParaMEDMEM
   class ElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
   public:
-    ElementLocator(const ParaFIELD& sourceField, const ProcessorGroup& distant_group);
+    ElementLocator(const ParaFIELD& sourceField, const ProcessorGroup& distant_group, const ProcessorGroup& local_group);
 
     virtual ~ElementLocator();
     void exchangeMesh(int idistantrank,

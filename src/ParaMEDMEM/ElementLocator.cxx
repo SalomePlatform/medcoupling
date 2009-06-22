@@ -36,11 +36,12 @@ using namespace std;
 namespace ParaMEDMEM 
 { 
   ElementLocator::ElementLocator(const ParaFIELD& sourceField,
-                                 const ProcessorGroup& distant_group)
+                                 const ProcessorGroup& distant_group,
+                                 const ProcessorGroup& local_group)
     : _local_para_field(sourceField),
       _local_cell_mesh(sourceField.getSupport()->getCellMesh()),
       _local_face_mesh(sourceField.getSupport()->getFaceMesh()),
-      _local_group(*sourceField.getSupport()->getBlockTopology()->getProcGroup()),
+      _local_group(local_group),
       _distant_group(distant_group)
   { 
     _union_group = _local_group.fuse(distant_group);
