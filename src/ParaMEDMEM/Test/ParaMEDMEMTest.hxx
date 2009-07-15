@@ -111,6 +111,11 @@ public:
   void testMEDLoaderPolyhedronRead();
   void testMEDLoaderWrite1();
   void testMEDLoaderPolygonWrite();
+
+  std::string getResourceFile( const std::string& );
+  std::string getTmpDirectory();
+  std::string makeTmpFile( const std::string&, const std::string& = "" );
+
 private:
   void testNonCoincidentDEC(const std::string& filename1, 
                             const std::string& meshname1, 

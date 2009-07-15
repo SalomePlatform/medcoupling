@@ -54,7 +54,9 @@ libInterpKernelTest_la_SOURCES=              \
 	TransformedTriangleTest.hxx          \
 	TransformedTriangleTest.cxx          \
 	UnitTetraIntersectionBaryTest.hxx    \
-	UnitTetraIntersectionBaryTest.cxx
+	UnitTetraIntersectionBaryTest.cxx    \
+	TestInterpKernelUtils.hxx            \
+	TestInterpKernelUtils.cxx
 
 libInterpKernelTest_la_CPPFLAGS =                \
 	@CPPUNIT_INCLUDES@                       \
@@ -122,7 +124,9 @@ endif
 PerfTest_SOURCES =               \
 	PerfTest.cxx             \
 	MeshTestToolkit.hxx      \
-	MeshTestToolkit.txx
+	MeshTestToolkit.txx      \
+	TestInterpKernelUtils.hxx\
+	TestInterpKernelUtils.cxx
 
 PerfTest_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
 PerfTest_LDADD = $(MED2_LIBS) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
