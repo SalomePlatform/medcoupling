@@ -109,6 +109,7 @@ namespace ICoCo
     if (triofield._field!=0)
       {
         _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
+        _field->getField()->setNature(ParaMEDMEM::ConservativeVolumic);
         ParaMEDMEM::DataArrayDouble *fieldArr=_field->getField()->getArray();
         _field->getField()->setName(triofield.getName().c_str());
         _field->getField()->setTime(triofield._time1,0,triofield._itnumber);
@@ -123,6 +124,7 @@ namespace ICoCo
       {
      //   _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,_support, *_comp_topology );
         _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
+        _field->getField()->setNature(ParaMEDMEM::ConservativeVolumic);
         _field->getField()->setName(triofield.getName().c_str());
         _field->getField()->setTime(triofield._time1,0,triofield._itnumber);
         // the trio field points to the pointer inside the MED field
