@@ -256,10 +256,10 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
       bool intersects = (bbtemp[idim*2]<bb2[idim*2+1])
         && (bb2[idim*2]<bbtemp[idim*2+1]) ;
       if (!intersects)
-	{
-	  delete [] bbtemp;
-	  return false; 
-	}
+        {
+          delete [] bbtemp;
+          return false; 
+        }
     }
   delete [] bbtemp;
   return true;
