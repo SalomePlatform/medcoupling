@@ -88,19 +88,13 @@ namespace ParaMEDMEM
     if ( MaxTag == 0 )
       MaxTag = (mpitagub/MODULO_TAG-1)*MODULO_TAG ;
     MPI_Comm_rank( *_intra_communicator, &_my_rank ) ;
-    cout << "MPIAccess::MPIAccess" << _my_rank << " this " << this << " BaseTag " << BaseTag
-         << " MaxTag " << MaxTag << " mpitagub " << mpitagub << " (minimum 32767) "
-         << " flag " << flag << endl ;
     if ( !flag | (BaseTag < 0) | (BaseTag >= MaxTag) | (MaxTag > mpitagub) )
       throw INTERP_KERNEL::Exception("wrong call to MPIAccess constructor");
 
     _processor_group = ProcessorGroup ;
     _processor_group_size = _processor_group->size() ;
     _trace = false ;
-    
-    cout << "MPIAccess::MPIAccess" << _my_rank << " _processor_group_size "
-         << _processor_group_size << endl ;
-    
+
     _base_request = -1 ;
     _max_request = std::numeric_limits<int>::max() ;
     _request = _base_request ;
@@ -145,13 +139,11 @@ namespace ParaMEDMEM
 
   MPIAccess::~MPIAccess()
   {
-    cout << "MPIAccess::~MPIAccess" << _my_rank << " this " << this << endl ;
     delete [] _send_request ;
     delete [] _recv_request ;
     delete [] _send_MPI_tag ;
     delete [] _recv_MPI_Tag ;
     MPI_Type_free(&_MPI_TIME) ;
-    cout << "End of MPIAccess::~MPIAccess" << _my_rank << " this " << this << endl ;
   }
 
   /*
