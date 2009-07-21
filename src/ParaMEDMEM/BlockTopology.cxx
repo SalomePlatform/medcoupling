@@ -86,13 +86,13 @@ namespace ParaMEDMEM
       {
         int axis_size=_local_array_indices[idim].size()-1;
         int axis_nb_elem=_local_array_indices[idim][axis_size];
-        increment=increment/axis_nb_elem;
+        increment=axis_nb_elem==0?0:increment/axis_nb_elem;
         proc_increment = proc_increment/(axis_size);
         int proc_axis=subdomain_id/proc_increment;
         subdomain_id=subdomain_id%proc_increment;
         int local_axis_nb_elem=_local_array_indices[idim][proc_axis+1]-_local_array_indices[idim][proc_axis];
         local_increment = (local_axis_nb_elem==0)?0:(local_increment/local_axis_nb_elem);
-        int iaxis=loc/local_increment+_local_array_indices[idim][proc_axis];
+        int iaxis=((local_increment==0)?0:(loc/local_increment))+_local_array_indices[idim][proc_axis];
         global+=increment*iaxis;
         loc = (local_increment==0)?0:(loc%local_increment);
       }
