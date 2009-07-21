@@ -25,31 +25,31 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 noinst_LTLIBRARIES = libInterpGeometric2DAlg.la
 
 dist_libInterpGeometric2DAlg_la_SOURCES = \
-AbstractEdge.cxx     \
-Bounds.cxx           \
-Precision.cxx        \
-ComposedEdge.cxx     \
-EdgeArcCircle.cxx    \
-Edge.cxx             \
-EdgeInfLin.cxx       \
-EdgeLin.cxx          \
-ElementaryEdge.cxx   \
-Node.cxx             \
+AbstractEdge.cxx               \
+Bounds.cxx                     \
+InterpKernelGeo2DPrecision.cxx \
+ComposedEdge.cxx               \
+EdgeArcCircle.cxx              \
+Edge.cxx                       \
+EdgeInfLin.cxx                 \
+EdgeLin.cxx                    \
+ElementaryEdge.cxx             \
+Node.cxx                       \
 QuadraticPolygon.cxx
 
 salomeinclude_HEADERS =  \
 INTERPKERNELGEOMETRIC2DDefines.hxx \
-AbstractEdge.hxx         \
-Bounds.hxx               \
-Precision.hxx            \
-ComposedEdge.hxx         \
-EdgeArcCircle.hxx        \
-Edge.hxx                 \
-EdgeInfLin.hxx           \
-EdgeLin.hxx              \
-ElementaryEdge.hxx       \
-Node.hxx                 \
-QuadraticPolygon.hxx     \
+AbstractEdge.hxx                   \
+Bounds.hxx                         \
+InterpKernelGeo2DPrecision.hxx     \
+ComposedEdge.hxx                   \
+EdgeArcCircle.hxx                  \
+Edge.hxx                           \
+EdgeInfLin.hxx                     \
+EdgeLin.hxx                        \
+ElementaryEdge.hxx                 \
+Node.hxx                           \
+QuadraticPolygon.hxx               \
 Edge.txx
 
 libInterpGeometric2DAlg_la_CPPFLAGS = -I$(srcdir)/../Bases

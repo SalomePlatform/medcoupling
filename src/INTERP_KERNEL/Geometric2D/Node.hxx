@@ -19,7 +19,7 @@
 #ifndef __NODE_HXX__
 #define __NODE_HXX__
 
-#include "Precision.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"
 
 #include <cmath>
