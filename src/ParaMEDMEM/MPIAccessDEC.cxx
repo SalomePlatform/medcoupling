@@ -73,7 +73,6 @@ namespace ParaMEDMEM
     _data_messages->resize( _group_size ) ;
     _time_interpolator = NULL ;
     _map_of_send_buffers = new map< int , SendBuffStruct * > ;
-    cout << "MPIAccessDEC" << _my_rank << " Asynchronous " << _asynchronous << endl ;
   }
 
   MPIAccessDEC::~MPIAccessDEC()
@@ -102,10 +101,6 @@ namespace ParaMEDMEM
                                           double InterpPrecision, int nStepBefore,
                                           int nStepAfter )
   {
-    cout << "MPIAccessDEC::SetTimeInterpolator" << _my_rank << " Asynchronous "
-         << _asynchronous << " TimeInterpolationMethod " << aTimeInterp
-         << " InterpPrecision " << InterpPrecision << " nStepBefore " << nStepBefore
-         << " nStepAfter " << nStepAfter << endl ;
     if ( _time_interpolator )
       delete _time_interpolator ;
     switch ( aTimeInterp )
@@ -300,10 +295,6 @@ namespace ParaMEDMEM
               }
             else
               {
-                cout << "SendRecv" << _my_rank << " target " << target << " sendbuf "
-                     << &((double *) sendbuf)[sendoffset] << " sendcount " << sendcount
-                     << " recvbuf " << &((double *) recvbuf)[recvoffset] << " recvcount "
-                     << recvcount << endl ;
                 sts = _MPI_access->sendRecv( &((double *) sendbuf)[sendoffset] , sendcount ,
                                              sendtype , target , SendRequestId ,
                                              &((double *) recvbuf)[recvoffset] ,
