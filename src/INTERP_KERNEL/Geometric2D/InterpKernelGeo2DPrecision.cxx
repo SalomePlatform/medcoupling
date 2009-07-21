@@ -16,7 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "Precision.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
 
 double INTERP_KERNEL::QUADRATIC_PLANAR::_precision=1e-14;
 
