@@ -51,9 +51,9 @@ namespace ParaMEDMEM
     MEDCouplingPointSet *getFaceMesh() const { return _face_mesh; }
     BlockTopology* getBlockTopology() const { return _block_topology; }
 
-    const int* getGlobalNumberingNode() const { return _node_global->getPointer(); } 
-    const int* getGlobalNumberingFace() const { return _face_global->getPointer(); } 
-    const int* getGlobalNumberingCell() const { return _cell_global->getPointer(); } 
+    const int* getGlobalNumberingNode() const { return _node_global->getConstPointer(); } 
+    const int* getGlobalNumberingFace() const { return _face_global->getConstPointer(); } 
+    const int* getGlobalNumberingCell() const { return _cell_global->getConstPointer(); } 
 
   private:
     //mesh object underlying the ParaMESH object
