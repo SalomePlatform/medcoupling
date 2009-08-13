@@ -52,7 +52,7 @@ libmedcoupling_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
 # the geom2D library is included in the interpkernel one
 libmedcoupling_la_LIBADD= ../INTERP_KERNEL/libinterpkernel.la
 
-AM_CPPFLAGS= $(libinterpkernel_la_CPPFLAGS)
+AM_CPPFLAGS += $(libinterpkernel_la_CPPFLAGS)
 LDADD= $(libinterpkernel_la_LDFLAGS)
 if MED_ENABLE_KERNEL
      LDADD+=-lSALOMEBasics

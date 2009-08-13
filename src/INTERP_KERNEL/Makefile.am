@@ -125,5 +125,5 @@ libinterpkernel_la_LDFLAGS=
 # the geom2D library is included in the interpkernel one
 libinterpkernel_la_LIBADD= ./Geometric2D/libInterpGeometric2DAlg.la Bases/libinterpkernelbases.la
 
-AM_CPPFLAGS= $(libinterpkernel_la_CPPFLAGS)
+AM_CPPFLAGS += $(libinterpkernel_la_CPPFLAGS)
 LDADD= $(libinterpkernel_la_LDFLAGS)
