@@ -31,7 +31,6 @@
 #include "MultiElement2DTests.hxx"
 #include "MultiElementTetraTests.hxx"
 #include "PointLocatorTest.hxx"
-#include "RemapperTest.hxx"
 #include "SingleElementTetraTests.hxx"
 #endif
 
@@ -52,7 +51,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION( InterpolationOptionsTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElement2DTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( MultiElementTetraTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( PointLocatorTest);
-CPPUNIT_TEST_SUITE_REGISTRATION( RemapperTest);
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementTetraTests );
 #endif
 
