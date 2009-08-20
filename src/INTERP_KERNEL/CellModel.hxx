@@ -43,19 +43,24 @@ namespace INTERP_KERNEL
     bool isDynamic() const { return _dyn; }
     bool isQuadratic() const { return _quadratic; }
     unsigned getDimension() const { return _dim; }
+    bool isCompatibleWith(NormalizedCellType type) const;
     //! sonId is in C format.
     const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
     unsigned getNumberOfNodes() const { return _nb_of_pts; }
     unsigned getNumberOfSons() const { return _nb_of_sons; }
+    unsigned getNumberOfSons2(const int *conn, int lgth) const;
     unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
     NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
-    void fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
+    NormalizedCellType getSonType2(unsigned sonId) const;
+    unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
+    unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
   private:
     bool _dyn;
     bool _quadratic;
     unsigned _dim;
     unsigned _nb_of_pts;
     unsigned _nb_of_sons;
+    NormalizedCellType _type;
     unsigned _sons_con[MAX_NB_OF_SONS][MAX_NB_OF_NODES_PER_ELEM];
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];
     NormalizedCellType _sons_type[MAX_NB_OF_SONS];

@@ -20,6 +20,7 @@
 
 #include "InterpKernelException.hxx"
 
+#include <algorithm>
 #include <sstream>
 #include <limits>
 
@@ -40,6 +41,25 @@ namespace INTERP_KERNEL
         throw Exception(stream.str().c_str());
       }
     return (*iter).second;
+  }
+
+  /*!
+   * This method is compatible with all types including dynamic one.
+   */
+  bool CellModel::isCompatibleWith(NormalizedCellType type) const
+  {
+    if(_type==type)
+      return true;
+    const CellModel& other=getCellModel(type);
+    if(_dim!=other.getDimension())
+      return false;
+    bool b1=isQuadratic();
+    bool b2=other.isQuadratic();
+    if((b1 && !b2) || (!b1 && b2))
+      return false;
+    b1=isDynamic();
+    b2=other.isDynamic();
+    return b1 || b2;
   }
 
   void CellModel::buildUniqueInstance()
@@ -63,7 +83,7 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
   }
 
-  CellModel::CellModel(NormalizedCellType type)
+  CellModel::CellModel(NormalizedCellType type):_type(type)
   {
     _quadratic=false;
     _dyn=false;
@@ -228,11 +248,69 @@ namespace INTERP_KERNEL
       }
   }
 
-  void CellModel::fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const
+  /*!
+   * Equivalent to getNumberOfSons except that this method deals with dynamic type.
+   */
+  unsigned CellModel::getNumberOfSons2(const int *conn, int lgth) const
+  {
+    if(!isDynamic())
+      return getNumberOfSons();
+    if(_dim==2)//polygon
+      return lgth;
+    else
+      return std::count(conn,conn+lgth,-1)+1;
+  }
+
+  /*!
+   * Equivalent to getSonType except that this method deals with dynamic type.
+   */
+  NormalizedCellType CellModel::getSonType2(unsigned sonId) const
+  {
+    if(!isDynamic())
+      return getSonType(sonId);
+    if(_dim==2)//polygon
+      return NORM_SEG2;
+    //polyedron
+    return NORM_POLYGON;
+  }
+
+  /*!
+   * \b WARNING this method do not manage correctly types that return true at the call of isDynamic. Use fillSonCellNodalConnectivity2 instead.
+   */
+  unsigned CellModel::fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const
   {
     unsigned nbOfTurnLoop=_nb_of_sons_con[sonId];
     const unsigned *sonConn=_sons_con[sonId];
     for(unsigned i=0;i<nbOfTurnLoop;i++)
       sonNodalConn[i]=nodalConn[sonConn[i]];
+    return nbOfTurnLoop;
+  }
+
+  unsigned CellModel::fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const
+  {
+    typeOfSon=getSonType2(sonId);
+    if(!isDynamic())
+      return fillSonCellNodalConnectivity(sonId,nodalConn,sonNodalConn);
+    else
+      {
+        if(_dim==2)//polygon
+          {
+            sonNodalConn[0]=nodalConn[sonId];
+            sonNodalConn[1]=nodalConn[(sonId+1)%lgth];
+            return 2;
+          }
+        else
+          {//polyedron
+            const int *where=nodalConn;
+            for(int i=0;i<sonId;i++)
+              {
+                where=std::find(where,nodalConn+lgth,-1);
+                where++;
+              }
+            const int *where2=std::find(where,nodalConn+lgth,-1);
+            std::copy(where,where2,sonNodalConn);
+            return where2-where;
+          }
+      }
   }
 }
