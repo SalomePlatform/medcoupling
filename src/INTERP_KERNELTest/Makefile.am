@@ -83,8 +83,6 @@ if !MED_ENABLE_MICROMED
 	MultiElementTetraTests.hxx           \
 	PointLocatorTest.hxx                 \
 	PointLocatorTest.cxx                 \
-	RemapperTest.hxx                     \
-	RemapperTest.cxx                     \
 	SingleElementTetraTests.hxx
 
    libInterpKernelTest_la_CPPFLAGS +=            \
