@@ -23,6 +23,7 @@
 
 #include <sstream>
 #include <limits>
+#include <list>
 
 using namespace ParaMEDMEM;
 
@@ -199,12 +200,175 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataA
     }
 }
 
+/*!
+ * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
+ * For speed reasons no check of this will be done.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const
+{
+  checkFullyDefined();
+  int nbOfCells=getNumberOfCells();
+  int nbOfNodes=getNumberOfNodes();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connIndex=_nodal_connec_index->getConstPointer();
+  std::vector< std::vector<int> > descMeshConnB(nbOfCells);
+  std::vector< std::vector<int> > revDescMeshConnB;
+  std::vector< std::vector<int> > revNodalB(nbOfNodes);
+  std::vector<int> meshDM1Conn;
+  std::vector<int> meshDM1ConnIndex(1); meshDM1ConnIndex[0]=0;
+  std::vector<int> meshDM1Type;
+  for(int eltId=0;eltId<nbOfCells;eltId++)
+    {
+      int pos=connIndex[eltId];
+      int posP1=connIndex[eltId+1];
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[pos]);
+      unsigned nbOfSons=cm.getNumberOfSons2(conn+pos+1,posP1-pos-1);
+      int *tmp=new int[posP1-pos];
+      for(unsigned i=0;i<nbOfSons;i++)
+        {
+          INTERP_KERNEL::NormalizedCellType cmsId;
+          unsigned nbOfNodesSon=cm.fillSonCellNodalConnectivity2(i,conn+pos+1,posP1-pos-1,tmp,cmsId);
+          const INTERP_KERNEL::CellModel& cms=INTERP_KERNEL::CellModel::getCellModel(cmsId);
+          std::set<int> shareableCells(revNodalB[tmp[0]].begin(),revNodalB[tmp[0]].end());
+          for(unsigned j=1;j<nbOfNodesSon && !shareableCells.empty();j++)
+            {
+              std::set<int> tmp2(revNodalB[tmp[j]].begin(),revNodalB[tmp[j]].end());
+              std::set<int> tmp3;
+              std::set_intersection(tmp2.begin(),tmp2.end(),shareableCells.begin(),shareableCells.end(),inserter(tmp3,tmp3.begin()));
+              shareableCells=tmp3;
+            }
+          std::list<int> shareableCellsL(shareableCells.begin(),shareableCells.end());
+          std::set<int> ref(tmp,tmp+nbOfNodesSon);
+          for(std::list<int>::iterator iter=shareableCellsL.begin();iter!=shareableCellsL.end();)
+            {
+              if(cms.isCompatibleWith((INTERP_KERNEL::NormalizedCellType)meshDM1Type[*iter]))
+                {
+                  std::set<int> ref2(meshDM1Conn.begin()+meshDM1ConnIndex[*iter],meshDM1Conn.begin()+meshDM1ConnIndex[(*iter)+1]);
+                  if(ref==ref2)
+                    break;
+                  else
+                    iter=shareableCellsL.erase(iter);
+                }
+              else
+                iter=shareableCellsL.erase(iter);
+            }
+          if(shareableCellsL.empty())
+            {
+              meshDM1Conn.insert(meshDM1Conn.end(),tmp,tmp+nbOfNodesSon);
+              meshDM1ConnIndex.push_back(meshDM1ConnIndex.back()+nbOfNodesSon);
+              int cellDM1Id=meshDM1Type.size();
+              meshDM1Type.push_back((int)cmsId);
+              for(unsigned k=0;k<nbOfNodesSon;k++)
+                revNodalB[tmp[k]].push_back(cellDM1Id);
+              revDescMeshConnB.resize(cellDM1Id+1);
+              revDescMeshConnB.back().push_back(eltId);
+              descMeshConnB[eltId].push_back(cellDM1Id);
+            }
+          else
+            {
+              int DM1cellId=shareableCellsL.front();
+              revDescMeshConnB[DM1cellId].push_back(eltId);
+              descMeshConnB[eltId].push_back(DM1cellId);
+            }
+        }
+      delete [] tmp;
+    }
+  revNodalB.clear();
+  //
+  std::string name="Mesh constituent of "; name+=getName();
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New(name.c_str(),getMeshDimension()-1);
+  ret->setCoords(getCoords());
+  int nbOfCellsInConstituent=meshDM1Type.size();
+  ret->allocateCells(nbOfCellsInConstituent);
+  revDescIndx->alloc(nbOfCellsInConstituent+1,1);
+  int *tmp3=revDescIndx->getPointer(); tmp3[0]=0;
+  for(int ii=0;ii<nbOfCellsInConstituent;ii++)
+    {
+      ret->insertNextCell((INTERP_KERNEL::NormalizedCellType)meshDM1Type[ii],meshDM1ConnIndex[ii+1]-meshDM1ConnIndex[ii],&meshDM1Conn[meshDM1ConnIndex[ii]]);
+      tmp3[ii+1]=tmp3[ii]+revDescMeshConnB[ii].size();
+    }
+  ret->finishInsertingCells();
+  revDesc->alloc(tmp3[nbOfCellsInConstituent],1);
+  tmp3=revDesc->getPointer();
+  for(std::vector< std::vector<int> >::const_iterator iter2=revDescMeshConnB.begin();iter2!=revDescMeshConnB.end();iter2++)
+    tmp3=std::copy((*iter2).begin(),(*iter2).end(),tmp3);
+  meshDM1Type.clear(); meshDM1ConnIndex.clear(); meshDM1Conn.clear();
+  descIndx->alloc(nbOfCells+1,1);
+  tmp3=descIndx->getPointer(); tmp3[0]=0;
+  for(int jj=0;jj<nbOfCells;jj++)
+    tmp3[jj+1]=tmp3[jj]+descMeshConnB[jj].size();
+  desc->alloc(tmp3[nbOfCells],1);
+  tmp3=desc->getPointer();
+  for(std::vector< std::vector<int> >::const_iterator iter3=descMeshConnB.begin();iter3!=descMeshConnB.end();iter3++)
+    tmp3=std::copy((*iter3).begin(),(*iter3).end(),tmp3);
+  //
+  return ret;
+}
+
 struct MEDCouplingAccVisit
 {
   MEDCouplingAccVisit():_new_nb_of_nodes(0) { }
   int operator()(int val) { if(val!=-1) return _new_nb_of_nodes++; else return -1; }
   int _new_nb_of_nodes;
 };
+
+/*!
+ * This method convert this into dynamic types without changing geometry.
+ * That is to say if 'this' is a 2D, mesh after the invocation of this method it will contain only polygons.
+ * If 'this' is a 3D mesh after the invocation of this method it will contain only polyhedra.
+ * If mesh dimension is not in [2,3] an exception is thrown.
+ * Of course pay attention that the resulting mesh is slower than previous one.
+ * This method is above all designed to test more extensively algorithms able to deal with polygons/polyhedra.
+ */
+void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConvert)
+{
+  checkFullyDefined();
+  int dim=getMeshDimension();
+  if(dim<2 || dim>3)
+    throw INTERP_KERNEL::Exception("Invalid mesh dimension : must be 2 or 3 !");
+  if(dim==2)
+    {
+      const int *connIndex=_nodal_connec_index->getConstPointer();
+      int *conn=_nodal_connec->getPointer();
+      for(std::vector<int>::const_iterator iter=cellIdsToConvert.begin();iter!=cellIdsToConvert.end();iter++)
+        conn[connIndex[*iter]]=INTERP_KERNEL::NORM_POLYGON;
+    }
+  else
+    {
+      int *connIndex=_nodal_connec_index->getPointer();
+      int connIndexLgth=_nodal_connec_index->getNbOfElems();
+      const int *connOld=_nodal_connec->getConstPointer();
+      int connOldLgth=_nodal_connec->getNbOfElems();
+      std::vector<int> connNew(connOld,connOld+connOldLgth);
+      for(std::vector<int>::const_iterator iter=cellIdsToConvert.begin();iter!=cellIdsToConvert.end();iter++)
+        {
+          int pos=connIndex[*iter];
+          int posP1=connIndex[(*iter)+1];
+          int lgthOld=posP1-pos-1;
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)connNew[pos]);
+          connNew[pos]=INTERP_KERNEL::NORM_POLYHED;
+          unsigned nbOfFaces=cm.getNumberOfSons2(&connNew[pos+1],lgthOld);
+          int *tmp=new int[nbOfFaces*lgthOld];
+          int *work=tmp;
+          for(int j=0;j<nbOfFaces;j++)
+            {
+              INTERP_KERNEL::NormalizedCellType type;
+              unsigned offset=cm.fillSonCellNodalConnectivity2(j,&connNew[pos+1],lgthOld,work,type);
+              work+=offset;
+              *work++=-1;
+            }
+          unsigned newLgth=work-tmp-1;
+          unsigned delta=newLgth-lgthOld;
+          std::transform(connIndex+(*iter)+1,connIndex+connIndexLgth,connIndex+(*iter)+1,std::bind2nd(std::plus<int>(),delta));
+          connNew.insert(connNew.begin()+posP1,tmp+lgthOld,tmp+newLgth);
+          std::copy(tmp,tmp+lgthOld,connNew.begin()+pos+1);
+          delete [] tmp;
+        }
+      _nodal_connec->alloc(connNew.size(),1);
+      int *newConnPtr=_nodal_connec->getPointer();
+      std::copy(connNew.begin(),connNew.end(),newConnPtr);
+    }
+}
 
 /*!
  * Array returned is the correspondance old to new.
@@ -257,7 +421,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *start, const
 }
 
 /*!
- * Keeps from 'this' only cells which constituing point id is in the ids specified by 'start' and 'end'.
+ * Keeps from 'this' only cells which constituing point id are in the ids specified by ['start','end').
  * The return newly allocated mesh will share the same coordinates as 'this'.
  * Parameter 'fullyIn' specifies if a cell that has part of its nodes in ids array is kept or not.
  * If 'fullyIn' is true only cells whose ids are \b fully contained in ['start','end') tab will be kept.
@@ -281,6 +445,59 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, c
         cellIdsKept.push_back(i);
     }
   return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[cellIdsKept.size()],true);
+}
+
+MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
+{
+  DataArrayInt *desc=DataArrayInt::New();
+  DataArrayInt *descIndx=DataArrayInt::New();
+  DataArrayInt *revDesc=DataArrayInt::New();
+  DataArrayInt *revDescIndx=DataArrayInt::New();
+  //
+  MEDCouplingUMesh *meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  revDesc->decrRef();
+  desc->decrRef();
+  descIndx->decrRef();
+  int nbOfCells=meshDM1->getNumberOfCells();
+  const int *revDescIndxC=revDescIndx->getConstPointer();
+  std::vector<int> boundaryCells;
+  for(int i=0;i<nbOfCells;i++)
+    if(revDescIndxC[i+1]-revDescIndxC[i]==1)
+      boundaryCells.push_back(i);
+  revDescIndx->decrRef();
+  MEDCouplingPointSet *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[boundaryCells.size()],keepCoords);
+  meshDM1->decrRef();
+  return ret;
+}
+
+void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
+{
+  DataArrayInt *desc=DataArrayInt::New();
+  DataArrayInt *descIndx=DataArrayInt::New();
+  DataArrayInt *revDesc=DataArrayInt::New();
+  DataArrayInt *revDescIndx=DataArrayInt::New();
+  //
+  MEDCouplingUMesh *meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  revDesc->decrRef();
+  desc->decrRef();
+  descIndx->decrRef();
+  std::set<int> ret;
+  int nbOfCells=meshDM1->getNumberOfCells();
+  const int *revDescIndxC=revDescIndx->getConstPointer();
+  std::vector<int> boundaryCells;
+  for(int i=0;i<nbOfCells;i++)
+    if(revDescIndxC[i+1]-revDescIndxC[i]==1)
+      boundaryCells.push_back(i);
+  revDescIndx->decrRef();
+  const int *conn=meshDM1->getNodalConnectivity()->getConstPointer();
+  const int *connIndx=meshDM1->getNodalConnectivityIndex()->getConstPointer();
+  for(std::vector<int>::const_iterator iter=boundaryCells.begin();iter!=boundaryCells.end();iter++)
+    for(int k=connIndx[*iter]+1;k<connIndx[(*iter)+1];k++)
+      ret.insert(conn[k]);
+  nodes.resize(ret.size());
+  std::copy(ret.begin(),ret.end(),nodes.begin());
+  //
+  meshDM1->decrRef();
 }
 
 void MEDCouplingUMesh::renumberConnectivity(const int *newNodeNumbers)

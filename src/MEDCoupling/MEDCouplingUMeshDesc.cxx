@@ -227,6 +227,17 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfNode(const int *star
   return 0;
 }
 
+void MEDCouplingUMeshDesc::findBoundaryNodes(std::vector<int>& nodes) const
+{
+  //not implemented yet
+}
+
+MEDCouplingPointSet *MEDCouplingUMeshDesc::buildBoundaryMesh(bool keepCoords) const
+{
+  //not implemented yet
+  return 0;
+}
+
 void MEDCouplingUMeshDesc::renumberConnectivity(const int *newNodeNumbers)
 {
 }

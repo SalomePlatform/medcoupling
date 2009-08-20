@@ -50,6 +50,8 @@ namespace ParaMEDMEM
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
     MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
+    void findBoundaryNodes(std::vector<int>& nodes) const;
+    MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     void renumberConnectivity(const int *newNodeNumbers);
     MEDCouplingFieldDouble *getMeasureField() const;
     DataArrayInt *zipCoordsTraducer();

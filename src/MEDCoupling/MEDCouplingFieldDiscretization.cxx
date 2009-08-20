@@ -172,6 +172,11 @@ DataArrayInt *MEDCouplingFieldDiscretizationP1::invertArrayO2N2N2O(const MEDCoup
   return ret;
 }
 
+/*!
+ * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
+* @ param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
+ * Example : The first node id of returned mesh has the (*di)[0] id in 'mesh'
+ */
 MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const
 {
   MEDCouplingPointSet* ret=((const MEDCouplingPointSet *) mesh)->buildPartOfMySelf(start,end,true);

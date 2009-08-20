@@ -50,6 +50,8 @@ namespace ParaMEDMEM
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
     virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
     virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
+    virtual void findBoundaryNodes(std::vector<int>& nodes) const = 0;
+    virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
     virtual void renumberConnectivity(const int *newNodeNumbers) = 0;
     //! size of returned tinyInfo must be always the same.
     virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
