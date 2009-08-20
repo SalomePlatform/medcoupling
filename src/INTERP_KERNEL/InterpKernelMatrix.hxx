@@ -97,10 +97,10 @@ namespace INTERP_KERNEL
       _coeffs(0), _cols(0), _is_configured(false)
     {
       _nb_rows=matrix.size();
-			_auxiliary_matrix.resize(_nb_rows);
+      _auxiliary_matrix.resize(_nb_rows);
       for (int i=0; i<_nb_rows; i++)
         {
-					typename std::map<int,T>::iterator it;
+          typename std::map<int,T>::iterator it;
           for (it=matrix[i].begin(); it != matrix[i].end(); it++)
             _auxiliary_matrix[i].push_back(*it);//MN: pq push_back plutot que simple affectation?
         }      
@@ -184,7 +184,7 @@ namespace INTERP_KERNEL
       
       for (int i=0; i< _nb_rows; i++)
         {
-          output[i]=0;
+          output[i]=0.;
           for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
             output[i]+=input[icol]*_coeffs[j];
@@ -195,9 +195,9 @@ namespace INTERP_KERNEL
     /*!      
       Matrix multiplies vector \a input and stores the result in 
       vector \a output.
-			input and output are supposed to represent the same field 
-			discretised on two different on meshes.
-			nb_comp is the number of components of the fields input and output
+      input and output are supposed to represent the same field 
+      discretised on two different on meshes.
+      nb_comp is the number of components of the fields input and output
       The vector pointed by \a input must be dimensioned
       to the number of columns times nb_comp while the vector pointed by output must be
       dimensioned to the number of rows times nb_comp.
@@ -209,18 +209,19 @@ namespace INTERP_KERNEL
       
       for (int i=0; i< _nb_rows; i++)
         {
-          output[i]=0;
+          for(int comp = 0; comp < nb_comp; comp++)
+            output[i*nb_comp+comp]=0.;
           for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
-						for(int comp = 0; comp < nb_comp; comp++)
-							output[i*nb_comp+comp]+=input[icol*nb_comp+comp]*_coeffs[j];
+            for(int comp = 0; comp < nb_comp; comp++)
+              output[i*nb_comp+comp]+=input[icol*nb_comp+comp]*_coeffs[j];
           }
         }
     }   
-		/*!      
+    /*!      
       Transpose-multiplies vector \a input and stores the result in 
       vector \a output.
-			nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
       The vector pointed by \a input must be dimensioned
       to the number of lines _nb_rows while the vector pointed by output must be
       dimensioned to the number of columns nb_cols.
@@ -230,23 +231,23 @@ namespace INTERP_KERNEL
       if (!_is_configured)
         configure();
       
-			for (int icol=0; icol< nb_cols; icol++)
-				output[icol]=0.;
+      for (int icol=0; icol< nb_cols; icol++)
+        output[icol]=0.;
       for (int i=0; i< _nb_rows; i++)
         {
-					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
             output[icol]+=input[i]*_coeffs[j];
           }
         }
     }
-		/*!      
+    /*!      
       Transpose-multiplies vector \a input and stores the result in 
       vector \a output.
-			input and output are supposed to represent the same field 
-			discretised on two different on meshes.
-			nb_comp is the number of components of the fields input and output
-			nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      input and output are supposed to represent the same field 
+      discretised on two different on meshes.
+      nb_comp is the number of components of the fields input and output
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
       The vector pointed by \a input must be dimensioned
       to _nb_rows*nb_comp while the vector pointed by output must be
       dimensioned to nb_cols*nb_comp.
@@ -256,57 +257,59 @@ namespace INTERP_KERNEL
       if (!_is_configured)
         configure();
       
-			for (int icol=0; icol< nb_cols; icol++)
-				output[icol]=0.;
+      for (int icol=0; icol< nb_cols; icol++)
+        for(int comp = 0; comp < nb_comp; comp++)
+          output[icol*nb_comp+comp]=0.;
+
       for (int i=0; i< _nb_rows; i++)
         {
-					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
-						for(int comp = 0; comp < nb_comp; comp++)
-							output[icol*nb_comp+comp]+=input[i*nb_comp+comp]*_coeffs[j];
+            for(int comp = 0; comp < nb_comp; comp++)
+              output[icol*nb_comp+comp]+=input[i*nb_comp+comp]*_coeffs[j];
           }
         }
     }
 		
     /*
-			Sums the coefficients of each column of the matrix
-			nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
-			The vector output must be dimensioned to nb_cols
-		*/
-		void colSum(std::vector< T >& output, int nb_cols)
-		{
-			if (!_is_configured)
+      Sums the coefficients of each column of the matrix
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      The vector output must be dimensioned to nb_cols
+    */
+    void colSum(std::vector< T >& output, int nb_cols)
+    {
+      if (!_is_configured)
         configure();
 			
-			for (int icol=0; icol< nb_cols; icol++)
-				output[icol]=0.;
+      for (int icol=0; icol< nb_cols; icol++)
+        output[icol]=0.;
       for (int i=0; i< _nb_rows; i++)
         {
-					for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
             int icol = _cols[j];
             output[icol]+=_coeffs[j];
           }
         }
-		}
+    }
 
-		/*
-			Sums the coefficients of each row of the matrix
-			The vector output must be dimensioned to _nb_rows
-		*/
-		void rowSum(std::vector< T >& output)
-		{
-			if (!_is_configured)
+    /*
+      Sums the coefficients of each row of the matrix
+      The vector output must be dimensioned to _nb_rows
+    */
+    void rowSum(std::vector< T >& output)
+    {
+      if (!_is_configured)
         configure();
 			
-			for (int i=0; i< _nb_rows; i++)
+      for (int i=0; i< _nb_rows; i++)
         {
           output[i]=0;
           for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) 
             output[i]+=_coeffs[j];
-				}
-		}
+        }
+    }
 
-		/*! This operation freezes the profile of the matrix
+    /*! This operation freezes the profile of the matrix
       and puts it under a CSR form so that it becomes
       efficient both in terms of memory occupation and
       in terms of multiplication */
@@ -342,10 +345,10 @@ namespace INTERP_KERNEL
       return _auxiliary_matrix[irow];
     }
 
-		int getNbRows()
-		{
-			return _nb_rows;
-		}
+    int getNbRows()
+    {
+      return _nb_rows;
+    }
     
   };
   
