@@ -37,12 +37,18 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testMeshM1D );
     CPPUNIT_TEST( testDeepCopy );
     CPPUNIT_TEST( testRevNodal );
+    CPPUNIT_TEST( testConvertToPolyTypes );
+    CPPUNIT_TEST( testDescConn2D );
+    CPPUNIT_TEST( testDescConn3D );
+    CPPUNIT_TEST( testFindBoundaryNodes );
+    CPPUNIT_TEST( testBoundaryMesh );
     CPPUNIT_TEST( testBuildPartOfMySelf );
     CPPUNIT_TEST( testBuildPartOfMySelfNode );
     CPPUNIT_TEST( testZipCoords );
     CPPUNIT_TEST( testEqualMesh );
     CPPUNIT_TEST( testEqualFieldDouble );
     CPPUNIT_TEST( testNatureChecking );
+    CPPUNIT_TEST( testBuildSubMeshData );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P1_1 );
     CPPUNIT_TEST( test2DInterpP1P0_1 );
@@ -56,6 +62,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test3DInterpP0P0_1 );
     CPPUNIT_TEST( test3DInterpP0P1_1 );
     CPPUNIT_TEST( test3DInterpP1P0_1 );
+    CPPUNIT_TEST( test3DInterpP0P0Empty );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testArray();
@@ -64,12 +71,18 @@ namespace ParaMEDMEM
     void testMeshM1D();
     void testDeepCopy();
     void testRevNodal();
+    void testConvertToPolyTypes();
+    void testDescConn2D();
+    void testDescConn3D();
+    void testFindBoundaryNodes();
+    void testBoundaryMesh();
     void testBuildPartOfMySelf();
     void testBuildPartOfMySelfNode();
     void testZipCoords();
     void testEqualMesh();
     void testEqualFieldDouble();
     void testNatureChecking();
+    void testBuildSubMeshData();
     void test2DInterpP0P0_1();
     void test2DInterpP0P1_1();
     void test2DInterpP1P0_1();
@@ -83,6 +96,7 @@ namespace ParaMEDMEM
     void test3DInterpP0P0_1();
     void test3DInterpP0P1_1();
     void test3DInterpP1P0_1();
+    void test3DInterpP0P0Empty();
   private:
     MEDCouplingUMesh *build2DSourceMesh_1();
     MEDCouplingUMesh *build2DTargetMesh_1();
