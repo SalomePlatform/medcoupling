@@ -57,6 +57,12 @@ namespace ParaMEDMEM
       _send_proc_offsets[i+1]++;
   }
 
+  void MxN_Mapping::initialize()
+  {
+    _sending_ids.clear();
+    std::fill(_send_proc_offsets.begin(),_send_proc_offsets.end(),0);
+  }
+
   void MxN_Mapping::prepareSendRecv()
   {
     CommInterface comm_interface=_union_group->getCommInterface();
@@ -287,7 +293,6 @@ namespace ParaMEDMEM
     delete[] senddispls; 
     delete[] recvdispls;
   }
-
 
   ostream & operator<< (ostream & f ,const AllToAllMethod & alltoallmethod )
   {

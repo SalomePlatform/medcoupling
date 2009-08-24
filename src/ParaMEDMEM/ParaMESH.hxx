@@ -45,15 +45,20 @@ namespace ParaMEDMEM
               const ProcessorGroup& proc_group, const std::string& name);
 
     virtual ~ParaMESH();
+    void setNodeGlobal(DataArrayInt *nodeGlobal);
+    void setCellGlobal(DataArrayInt *cellGlobal);
     Topology* getTopology() const { return _explicit_topology; }
     bool isStructured() const { return _cell_mesh->isStructured(); }
     MEDCouplingPointSet *getCellMesh() const { return _cell_mesh; }
     MEDCouplingPointSet *getFaceMesh() const { return _face_mesh; }
     BlockTopology* getBlockTopology() const { return _block_topology; }
 
-    const int* getGlobalNumberingNode() const { return _node_global->getConstPointer(); } 
-    const int* getGlobalNumberingFace() const { return _face_global->getConstPointer(); } 
-    const int* getGlobalNumberingCell() const { return _cell_global->getConstPointer(); } 
+    DataArrayInt* getGlobalNumberingNodeDA() const { if(_node_global) _node_global->incrRef(); return _node_global; }
+    DataArrayInt* getGlobalNumberingFaceDA() const { if(_face_global) _face_global->incrRef(); return _face_global; }
+    DataArrayInt* getGlobalNumberingCellDA() const { if(_cell_global) _cell_global->incrRef(); return _cell_global; }
+    const int* getGlobalNumberingNode() const { if(_node_global) return _node_global->getConstPointer(); return 0; }
+    const int* getGlobalNumberingFace() const { if(_face_global) return _face_global->getConstPointer(); return 0; }
+    const int* getGlobalNumberingCell() const { if(_cell_global) return _cell_global->getConstPointer(); return 0; }
 
   private:
     //mesh object underlying the ParaMESH object

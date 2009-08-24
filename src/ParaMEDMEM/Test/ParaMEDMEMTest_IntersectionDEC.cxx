@@ -33,6 +33,7 @@
 #include "MEDLoader.hxx"
  
 #include <string>
+#include <iterator>
 
 // use this define to enable lines, execution of which leads to Segmentation Fault
 #define ENABLE_FAULTS
@@ -854,6 +855,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
     }
   else
     {
+      const char targetMeshName[]="target mesh";
       if(rank==2)
         {
           double coords[10]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2 };
@@ -869,6 +871,12 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
           std::copy(coords,coords+10,myCoords->getPointer());
           mesh->setCoords(myCoords);
           myCoords->decrRef();
+          paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
+          DataArrayInt *da=DataArrayInt::New();
+          const int globalNumberingP2[5]={0,1,2,3,4};
+          da->useArray(globalNumberingP2,false,CPP_DEALLOC,5,1);
+          paramesh->setNodeGlobal(da);
+          da->decrRef();
         }
       if(rank==3)
         {
@@ -884,6 +892,12 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
           std::copy(coords,coords+6,myCoords->getPointer());
           mesh->setCoords(myCoords);
           myCoords->decrRef();
+          paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
+          DataArrayInt *da=DataArrayInt::New();
+          const int globalNumberingP3[3]={4,2,5};
+          da->useArray(globalNumberingP3,false,CPP_DEALLOC,3,1);
+          paramesh->setNodeGlobal(da);
+          da->decrRef();
         }
       if(rank==4)
         {
@@ -900,9 +914,14 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
           std::copy(coords,coords+12,myCoords->getPointer());
           mesh->setCoords(myCoords);
           myCoords->decrRef();
+          paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
+          DataArrayInt *da=DataArrayInt::New();
+          const int globalNumberingP4[6]={3,6,7,4,8,5};
+          da->useArray(globalNumberingP4,false,CPP_DEALLOC,6,1);
+          paramesh->setNodeGlobal(da);
+          da->decrRef();
         }
       ParaMEDMEM::ComponentTopology comptopo;
-      paramesh=new ParaMESH(mesh,*target_group,"target mesh");
       parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
       parafieldP1 = new ParaFIELD(ON_NODES,NO_TIME,paramesh, comptopo);
       parafieldP0->getField()->setNature(ConservativeVolumic);
@@ -917,6 +936,16 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
       dec.synchronize();
       dec.setForcedRenormalization(false);
       dec.sendData();
+      dec.recvData();
+      const double *valueP0=parafieldP0->getField()->getArray()->getPointer();
+      if(rank==0)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(34.42857143,valueP0[0],1e-7);
+        }
+      if(rank==1)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(44.,valueP0[0],1e-7);
+        }
     }
   else
     {
@@ -925,10 +954,32 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
       dec.synchronize();
       dec.setForcedRenormalization(false);
       dec.recvData();
-      /*const double *res=parafield->getField()->getArray()->getConstPointer();
-      const double *expected=targetResults[rank-nproc_source];
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);*/
+      const double *res=parafieldP1->getField()->getArray()->getConstPointer();
+      if(rank==2)
+        {
+          const double expectP2[5]={39.0, 31.0, 31.0, 47.0, 39.0};
+          CPPUNIT_ASSERT_EQUAL(5,parafieldP1->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
+          for(int kk=0;kk<5;kk++)
+	    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP2[kk],res[kk],1e-12);
+        }
+      if(rank==3)
+        {
+          const double expectP3[3]={39.0, 31.0, 31.0};
+          CPPUNIT_ASSERT_EQUAL(3,parafieldP1->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
+          for(int kk=0;kk<3;kk++)
+	    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP3[kk],res[kk],1e-12);
+        }
+      if(rank==4)
+        {
+          const double expectP4[6]={47.0, 47.0, 47.0, 39.0, 39.0, 31.0};
+          CPPUNIT_ASSERT_EQUAL(6,parafieldP1->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
+          for(int kk=0;kk<6;kk++)
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP4[kk],res[kk],1e-12);
+        }
+      dec.sendData();
     }
   //
   delete parafieldP0;

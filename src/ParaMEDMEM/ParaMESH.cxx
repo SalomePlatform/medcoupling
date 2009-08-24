@@ -78,6 +78,30 @@ namespace ParaMEDMEM
       }
   }
 
+  void ParaMESH::setNodeGlobal(DataArrayInt *nodeGlobal)
+  {
+    if(nodeGlobal!=_node_global)
+      {
+        if(_node_global)
+          _node_global->decrRef();
+        _node_global=nodeGlobal;
+        if(_node_global)
+          _node_global->incrRef();
+      }
+  }
+
+  void ParaMESH::setCellGlobal(DataArrayInt *cellGlobal)
+  {
+    if(cellGlobal!=_cell_global)
+      {
+        if(_cell_global)
+          _cell_global->decrRef();
+        _cell_global=cellGlobal;
+        if(_cell_global)
+          _cell_global->incrRef();
+      }
+  }
+
   ParaMESH::~ParaMESH()
   {
     if(_cell_mesh)
@@ -91,8 +115,6 @@ namespace ParaMEDMEM
       _cell_global->decrRef();
     if(_face_global)
       _face_global->decrRef();
-    if(_node_global)
-      _node_global->decrRef();
     delete _explicit_topology;
   }
 

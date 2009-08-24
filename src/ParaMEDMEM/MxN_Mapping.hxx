@@ -43,7 +43,9 @@ namespace ParaMEDMEM
     void reverseSendRecv(double* field, MEDCouplingFieldDouble& field) const ;
  
     //
-    const std::vector<std::pair<int,int> >& getSendingIds() const { return _sending_ids; }//tmp
+    const std::vector<std::pair<int,int> >& getSendingIds() const { return _sending_ids; }
+    const std::vector<int>& getSendProcsOffsets() const { return _send_proc_offsets; }
+    void initialize();
 
     MPIAccessDEC* getAccessDEC(){ return _access_DEC; }
   private :

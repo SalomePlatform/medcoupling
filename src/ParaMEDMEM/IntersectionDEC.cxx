@@ -28,7 +28,6 @@
 #include "InterpolationMatrix.hxx"
 #include "IntersectionDEC.hxx"
 #include "ElementLocator.hxx"
-#include "GlobalizerMesh.hxx"
 
 namespace ParaMEDMEM
 {  
@@ -161,7 +160,7 @@ namespace ParaMEDMEM
         for (int i=0; i<_target_group->size(); i++)
           {
             //        int idistant_proc = (i+_source_group->myRank())%_target_group->size();
-            int       idistant_proc=i;
+            int idistant_proc=i;
 
             //gathers pieces of the target meshes that can intersect the local mesh
             locator.exchangeMesh(idistant_proc,distant_mesh,distant_ids);
@@ -178,8 +177,7 @@ namespace ParaMEDMEM
                 distant_ids=0;
               }
           }
-        GlobalizerMeshWorkingSide globalizer(locator.getCommunicator(),_local_field->getField(),distantMeth,locator.getDistantProcIds());
-        _interpolation_matrix->finishContributionW(globalizer);
+       _interpolation_matrix->finishContributionW(locator);
       }
 
     if (_target_group->containsMyRank())
@@ -207,8 +205,7 @@ namespace ParaMEDMEM
                 distant_ids=0;
               }
           }
-        GlobalizerMeshLazySide globalizer(locator.getCommunicator(),_local_field->getField(),locator.getDistantProcIds());
-        _interpolation_matrix->finishContributionL(globalizer);
+        _interpolation_matrix->finishContributionL(locator);
       }
     _interpolation_matrix->prepare();
   }

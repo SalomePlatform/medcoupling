@@ -20,6 +20,7 @@
 #define __ELEMENTLOCATOR_HXX__
 
 #include "InterpolationOptions.hxx"
+#include "MEDCouplingNatureOfField.hxx"
 
 #include <mpi.h>
 #include <vector>
@@ -46,6 +47,30 @@ namespace ParaMEDMEM
     void exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth);
     const std::vector<int>& getDistantProcIds() const { return _distant_proc_ids; }
     const MPI_Comm *getCommunicator() const;
+    NatureOfField getLocalNature() const;
+    //Working side methods
+    void recvPolicyFromLazySideW(std::vector<int>& policy);
+    void sendSumToLazySideW(const std::vector< std::vector<int> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds);
+    void recvSumFromLazySideW(std::vector< std::vector<double> >& globalSumRelToDistantIds);
+    void sendCandidatesForAddElementsW(const std::vector<int>& distantGlobIds);
+    void recvAddElementsFromLazyProcsW(std::vector<std::vector<int> >& elementsToAdd);
+    //
+    void sendLocalIdsToLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds);
+    void recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds, std::vector< std::vector<int> >& globalIds);
+    void recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<int> >& globalIds);
+    void sendPartialSumToLazyProcsW(const std::vector<int>& distantGlobIds, const std::vector<double>& sum);
+    //Lazy side methods
+    int sendPolicyToWorkingSideL();
+    void recvFromWorkingSideL();
+    void sendToWorkingSideL();
+    //
+    void recvLocalIdsFromWorkingSideL();
+    void sendGlobalIdsToWorkingSideL();
+    void sendCandidatesGlobalIdsToWorkingSideL();
+    //
+    void recvSumFromWorkingSideL();
+    void recvCandidatesForAddElementsL();
+    void sendAddElementsToWorkingSideL();
   private:
     void _computeBoundingBoxes();
     bool _intersectsBoundingBox(int irank);
@@ -63,6 +88,15 @@ namespace ParaMEDMEM
     const ProcessorGroup& _local_group;
     ProcessorGroup* _union_group;
     std::vector<int> _distant_proc_ids;
+    const MPI_Comm *_comm;
+    //Attributes only used by lazy side
+    std::vector<double> _values_added;
+    std::vector< std::vector<int> > _ids_per_working_proc;
+    std::vector< std::vector<int> > _ids_per_working_proc3;
+    std::vector< std::vector<double> > _values_per_working_proc;
+  public:
+    static const int CUMULATIVE_POLICY=3;
+    static const int NO_POST_TREATMENT_POLICY=7;
   };
 
 }

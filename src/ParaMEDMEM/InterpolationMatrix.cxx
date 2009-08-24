@@ -30,7 +30,9 @@
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "GlobalizerMesh.hxx"
+#include "ElementLocator.hxx"
+
+#include <algorithm>
 
 // class InterpolationMatrix
 // This class enables the storage of an interpolation matrix Wij mapping 
@@ -95,7 +97,7 @@ namespace ParaMEDMEM
 
   void InterpolationMatrix::addContribution ( MEDCouplingPointSet& distant_support,
                                               int iproc_distant,
-                                              int* distant_elems,
+                                              const int* distant_elems,
                                               const std::string& srcMeth,
                                               const std::string& targetMeth)
   {
@@ -148,112 +150,135 @@ namespace ParaMEDMEM
       {
         throw INTERP_KERNEL::Exception("no interpolator exists for these mesh and space dimensions ");
       }
-  
-    int source_size=surfaces.size();
     bool needTargetSurf=isSurfaceComputationNeeded(targetMeth);
 
-    MEDCouplingFieldDouble *target_triangle_surf;
+    MEDCouplingFieldDouble *target_triangle_surf=0;
     if(needTargetSurf)
       target_triangle_surf = distant_support.getMeasureField();
+    fillDSFromVM(iproc_distant,distant_elems,surfaces,target_triangle_surf);
 
+    if(needTargetSurf)
+      target_triangle_surf->decrRef();
+  }
+
+  void InterpolationMatrix::fillDSFromVM(int iproc_distant, const int* distant_elems, const std::vector< std::map<int,double> >& values, MEDCouplingFieldDouble *surf)
+  {
     //loop over the elements to build the interpolation
     //matrix structures
+    int source_size=values.size();
     for (int ielem=0; ielem < source_size; ielem++) 
       {
-        _row_offsets[ielem+1] += surfaces[ielem].size();
-        //_source_indices.push_back(make_pair(iproc_distant, ielem));
-
-        for (map<int,double>::const_iterator iter = surfaces[ielem].begin();
-             iter != surfaces[ielem].end();
-             iter++)
+        _row_offsets[ielem+1] += values[ielem].size();
+        for(map<int,double>::const_iterator iter=values[ielem].begin();iter!=values[ielem].end();iter++)
           {
-            //surface of the target triangle
-            double surf;
-            if(needTargetSurf)
-              surf = target_triangle_surf->getIJ(iter->first,0);
-
+            int localId;
+            if(distant_elems)
+              localId=distant_elems[iter->first];
+            else
+              localId=iter->first;
             //locating the (iproc, itriangle) pair in the list of columns
-            map<pair<int,int>,int >::iterator iter2 = _col_offsets.find(make_pair(iproc_distant,iter->first));
+            map<pair<int,int>,int >::iterator iter2 = _col_offsets.find(make_pair(iproc_distant,localId));
             int col_id;
 
             if (iter2 == _col_offsets.end())
               {
                 //(iproc, itriangle) is not registered in the list
                 //of distant elements
-
                 col_id =_col_offsets.size();
-                _col_offsets.insert(make_pair(make_pair(iproc_distant,iter->first),col_id));
-                _mapping.addElementFromSource(iproc_distant,
-                                              distant_elems[iter->first]);
-                //target_volume.push_back(surf);
+                _col_offsets.insert(make_pair(make_pair(iproc_distant,localId),col_id));
+                _mapping.addElementFromSource(iproc_distant,localId);
               }
             else 
               {
                 col_id = iter2->second;
               }
-
             //the non zero coefficient is stored 
             //ielem is the row,
             //col_id is the number of the column
             //iter->second is the value of the coefficient
-            if(needTargetSurf)
-              _target_volume[ielem].push_back(surf);
+            if(surf)
+              {
+                double surface = surf->getIJ(iter->first,0);
+                _target_volume[ielem].push_back(surface);
+              }
             _coeffs[ielem].push_back(make_pair(col_id,iter->second));
           }
       }
-    if(needTargetSurf)
-      target_triangle_surf->decrRef();
   }
 
-  void InterpolationMatrix::finishContributionW(GlobalizerMeshWorkingSide& globalizer)
+  void InterpolationMatrix::serializeMe(std::vector< std::vector< std::map<int,double> > >& data1, std::vector<int>& data2) const
   {
-    NatureOfField nature=globalizer.getLocalNature();
+    data1.clear();
+    data2.clear();
+    const std::vector<std::pair<int,int> >& sendingIds=_mapping.getSendingIds();
+    std::set<int> procsS;
+    for(std::vector<std::pair<int,int> >::const_iterator iter1=sendingIds.begin();iter1!=sendingIds.end();iter1++)
+      procsS.insert((*iter1).first);
+    data1.resize(procsS.size());
+    data2.resize(procsS.size());
+    std::copy(procsS.begin(),procsS.end(),data2.begin());
+    std::map<int,int> fastProcAcc;
+    int id=0;
+    for(std::set<int>::const_iterator iter2=procsS.begin();iter2!=procsS.end();iter2++,id++)
+      fastProcAcc[*iter2]=id;
+    int nbOfSrcElt=_coeffs.size();
+    for(std::vector< std::vector< std::map<int,double> > >::iterator iter3=data1.begin();iter3!=data1.end();iter3++)
+      (*iter3).resize(nbOfSrcElt);
+    id=0;
+    for(std::vector< std::vector< std::pair<int,double> > >::const_iterator iter4=_coeffs.begin();iter4!=_coeffs.end();iter4++,id++)
+      {
+        for(std::vector< std::pair<int,double> >::const_iterator iter5=(*iter4).begin();iter5!=(*iter4).end();iter5++)
+          {
+            const std::pair<int,int>& elt=sendingIds[(*iter5).first];
+            data1[fastProcAcc[elt.first]][id][elt.second]=(*iter5).second;
+          }
+      }
+  }
+
+  void InterpolationMatrix::initialize()
+  {
+    int lgth=_coeffs.size();
+    _row_offsets.clear(); _row_offsets.resize(lgth+1);
+    _coeffs.clear(); _coeffs.resize(lgth);
+    _target_volume.clear(); _target_volume.resize(lgth);
+    _col_offsets.clear();
+    _mapping.initialize();
+  }
+
+  void InterpolationMatrix::finishContributionW(ElementLocator& elementLocator)
+  {
+    NatureOfField nature=elementLocator.getLocalNature();
     switch(nature)
       {
       case ConservativeVolumic:
-        computeConservVolDenoW(globalizer);
+        computeConservVolDenoW(elementLocator);
         break;
       case Integral:
-        computeIntegralDenoW(globalizer);
+        computeIntegralDenoW(elementLocator);
         break;
       case IntegralGlobConstraint:
-        computeGlobConstraintDenoW(globalizer);
+        computeGlobConstraintDenoW(elementLocator);
         break;
       default:
         throw INTERP_KERNEL::Exception("Not recognized nature of field. Change nature of Field.");
         break;
       }
-    /*for(map<pair<int,int>,int>::iterator iter=_col_offsets.begin();iter!=_col_offsets.end();iter++)
-          if((*iter).second==9)
-            cout << (*iter).first.first << " ** " << (*iter).first.second << endl;
-    cout << "--> " << _col_offsets[make_pair(4,74)] << endl;
-    for(vector<vector<pair<int,double> > >::iterator iter3=_coeffs.begin();iter3!=_coeffs.end();iter3++)
-      for(vector<pair<int,double> >::iterator iter4=(*iter3).begin();iter4!=(*iter3).end();iter4++)
-        if((*iter4).first==569)
-          cout << " __ " << iter3-_coeffs.begin() << "___" << (*iter4).second << endl; 
-    ostringstream st; st << "deno_" << _deno_multiply[0][0];
-    ofstream fs(st.str().c_str());
-    for(vector<vector<double> >::iterator iter1=_deno_multiply.begin();iter1!=_deno_multiply.end();iter1++)
-      {
-        for(vector<double>::iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
-          fs << *iter2 << " ";
-        fs << endl;
-        }*/
   }
 
-  void InterpolationMatrix::finishContributionL(GlobalizerMeshLazySide& globalizer)
+  void InterpolationMatrix::finishContributionL(ElementLocator& elementLocator)
   {
-    NatureOfField nature=globalizer.getLocalNature();
+    NatureOfField nature=elementLocator.getLocalNature();
     switch(nature)
       {
       case ConservativeVolumic:
-        computeConservVolDenoL(globalizer);
+        computeConservVolDenoL(elementLocator);
         break;
       case Integral:
-        computeIntegralDenoL(globalizer);
+        computeIntegralDenoL(elementLocator);
         break;
       case IntegralGlobConstraint:
-        computeGlobConstraintDenoL(globalizer);
+        //this is not a bug doing like ConservativeVolumic
+        computeConservVolDenoL(elementLocator);
         break;
       default:
         throw INTERP_KERNEL::Exception("Not recognized nature of field. Change nature of Field.");
@@ -261,19 +286,39 @@ namespace ParaMEDMEM
       }
   }
   
-  void InterpolationMatrix::computeConservVolDenoW(GlobalizerMeshWorkingSide& globalizer)
+  void InterpolationMatrix::computeConservVolDenoW(ElementLocator& elementLocator)
   {
-    computeGlobalRowSum(globalizer,_deno_multiply);
     computeGlobalColSum(_deno_reverse_multiply);
+    computeGlobalRowSum(elementLocator,_deno_multiply,_deno_reverse_multiply);
   }
   
-  void InterpolationMatrix::computeConservVolDenoL(GlobalizerMeshLazySide& globalizer)
+  void InterpolationMatrix::computeConservVolDenoL(ElementLocator& elementLocator)
   {
-    globalizer.recvFromWorkingSide();
-    globalizer.sendToWorkingSide();
+    int pol1=elementLocator.sendPolicyToWorkingSideL();
+    if(pol1==ElementLocator::NO_POST_TREATMENT_POLICY)
+      {
+        elementLocator.recvFromWorkingSideL();
+        elementLocator.sendToWorkingSideL();
+      }
+    else if(ElementLocator::CUMULATIVE_POLICY)
+      {
+        //ask for lazy side to deduce ids eventually missing on working side and to send it back.
+        elementLocator.recvLocalIdsFromWorkingSideL();
+        elementLocator.sendCandidatesGlobalIdsToWorkingSideL();
+        elementLocator.recvCandidatesForAddElementsL();
+        elementLocator.sendAddElementsToWorkingSideL();
+        //Working side has updated its eventually missing ids updates its global ids with lazy side procs contribution
+        elementLocator.recvLocalIdsFromWorkingSideL();
+        elementLocator.sendGlobalIdsToWorkingSideL();
+        //like no post treatment
+        elementLocator.recvFromWorkingSideL();
+        elementLocator.sendToWorkingSideL();
+      }
+    else
+      throw INTERP_KERNEL::Exception("Not managed policy detected on lazy side : not implemented !");
   }
 
-  void InterpolationMatrix::computeIntegralDenoW(GlobalizerMeshWorkingSide& globalizer)
+  void InterpolationMatrix::computeIntegralDenoW(ElementLocator& elementLocator)
   {
     MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField();
     _deno_multiply.resize(_coeffs.size());
@@ -291,32 +336,58 @@ namespace ParaMEDMEM
   /*!
    * Nothing to do because surface computation is on working side.
    */
-  void InterpolationMatrix::computeIntegralDenoL(GlobalizerMeshLazySide& globalizer)
+  void InterpolationMatrix::computeIntegralDenoL(ElementLocator& elementLocator)
   {
   }
 
-  void InterpolationMatrix::computeGlobConstraintDenoW(GlobalizerMeshWorkingSide& globalizer)
+  void InterpolationMatrix::computeGlobConstraintDenoW(ElementLocator& elementLocator)
   {
     computeGlobalColSum(_deno_multiply);
-    computeGlobalRowSum(globalizer,_deno_reverse_multiply);
+    computeGlobalRowSum(elementLocator,_deno_reverse_multiply,_deno_multiply);
   }
 
-  void InterpolationMatrix::computeGlobConstraintDenoL(GlobalizerMeshLazySide& globalizer)
-  {
-    globalizer.recvFromWorkingSide();
-    globalizer.sendToWorkingSide();
-  }
-
-  void InterpolationMatrix::computeGlobalRowSum(GlobalizerMeshWorkingSide& globalizer, std::vector<std::vector<double> >& denoStrorage)
+  void InterpolationMatrix::computeGlobalRowSum(ElementLocator& elementLocator, std::vector<std::vector<double> >& denoStrorage, std::vector<std::vector<double> >& denoStrorageInv)
   {
     //stores id in distant procs sorted by lazy procs connected with
     vector< vector<int> > rowsPartialSumI;
+    //stores for each lazy procs connected with, if global info is available and if it's the case the policy
+    vector<int> policyPartial;
     //stores the corresponding values.
     vector< vector<double> > rowsPartialSumD;
-    computeLocalRowSum(globalizer.getProcIdsInInteraction(),rowsPartialSumI,rowsPartialSumD);
-    globalizer.sendSumToLazySide(rowsPartialSumI,rowsPartialSumD);
-    globalizer.recvSumFromLazySide(rowsPartialSumD);
-    divideByGlobalRowSum(globalizer.getProcIdsInInteraction(),rowsPartialSumI,rowsPartialSumD,denoStrorage);
+    elementLocator.recvPolicyFromLazySideW(policyPartial);
+    int pol1=mergePolicies(policyPartial);
+    if(pol1==ElementLocator::NO_POST_TREATMENT_POLICY)
+      {
+        computeLocalRowSum(elementLocator.getDistantProcIds(),rowsPartialSumI,rowsPartialSumD);
+        elementLocator.sendSumToLazySideW(rowsPartialSumI,rowsPartialSumD);
+        elementLocator.recvSumFromLazySideW(rowsPartialSumD);
+      }
+    else if(pol1==ElementLocator::CUMULATIVE_POLICY)
+      {
+        //updateWithNewAdditionnalElements(addingElements);
+        //stores for each lazy procs connected with, the ids in global mode if it exists (regarding policyPartial). This array has exactly the size of  rowsPartialSumI,
+        //if policyPartial has CUMALATIVE_POLICY in each.
+        vector< vector<int> > globalIdsPartial;
+        computeLocalRowSum(elementLocator.getDistantProcIds(),rowsPartialSumI,rowsPartialSumD);
+        elementLocator.sendLocalIdsToLazyProcsW(rowsPartialSumI);
+        elementLocator.recvCandidatesGlobalIdsFromLazyProcsW(globalIdsPartial);
+        std::vector< std::vector<int> > addingElements;
+        findAdditionnalElements(elementLocator,addingElements,rowsPartialSumI,globalIdsPartial);
+        addGhostElements(elementLocator.getDistantProcIds(),addingElements);
+        rowsPartialSumI.clear();
+        globalIdsPartial.clear();
+        computeLocalRowSum(elementLocator.getDistantProcIds(),rowsPartialSumI,rowsPartialSumD);
+        elementLocator.sendLocalIdsToLazyProcsW(rowsPartialSumI);
+        elementLocator.recvGlobalIdsFromLazyProcsW(rowsPartialSumI,globalIdsPartial);
+        //
+        elementLocator.sendSumToLazySideW(rowsPartialSumI,rowsPartialSumD);
+        elementLocator.recvSumFromLazySideW(rowsPartialSumD);
+        mergeRowSum3(globalIdsPartial,rowsPartialSumD);
+        mergeCoeffs(elementLocator.getDistantProcIds(),rowsPartialSumI,globalIdsPartial,denoStrorageInv);
+      }
+    else
+      throw INTERP_KERNEL::Exception("Not managed policy detected : not implemented !");
+    divideByGlobalRowSum(elementLocator.getDistantProcIds(),rowsPartialSumI,rowsPartialSumD,denoStrorage);
   }
 
   /*!
@@ -345,15 +416,225 @@ namespace ParaMEDMEM
         resPerProcI[id].push_back((*iter2).second);
         resPerProcD[id].push_back(res[iter2-mapping.begin()]);
       }
-    /*
-    for(map<pair<int,int>, int >::const_iterator iter2=_col_offsets.begin();iter2!=_col_offsets.end();iter2++)
+  }
+
+  /*!
+   * This method is only usable when CUMULATIVE_POLICY detected. This method finds elements ids (typically nodes) lazy side that
+   * are not present in columns of 'this' and that should regarding cumulative merge of elements regarding their global ids.
+   */
+  void InterpolationMatrix::findAdditionnalElements(ElementLocator& elementLocator, std::vector<std::vector<int> >& elementsToAdd,
+                                                    const std::vector<std::vector<int> >& resPerProcI, const std::vector<std::vector<int> >& globalIdsPartial)
+  {
+    std::set<int> globalIds;
+    int nbLazyProcs=globalIdsPartial.size();
+    for(int i=0;i<nbLazyProcs;i++)
+      globalIds.insert(globalIdsPartial[i].begin(),globalIdsPartial[i].end());
+    std::vector<int> tmp(globalIds.size());
+    std::copy(globalIds.begin(),globalIds.end(),tmp.begin());
+    globalIds.clear();
+    elementLocator.sendCandidatesForAddElementsW(tmp);
+    elementLocator.recvAddElementsFromLazyProcsW(elementsToAdd);
+  }
+
+  void InterpolationMatrix::addGhostElements(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& elementsToAdd)
+  {
+    std::vector< std::vector< std::map<int,double> > > data1;
+    std::vector<int> data2;
+    serializeMe(data1,data2);
+    initialize();
+    int nbOfDistProcs=distantProcs.size();
+    for(int i=0;i<nbOfDistProcs;i++)
       {
-        std::pair<set<int>::iterator,bool> isIns=procsSet.insert((*iter2).first.first);
-        if(isIns.second)
-          id=std::find(distantProcs.begin(),distantProcs.end(),(*iter2).first.first)-distantProcs.begin();
-        resPerProcI[id].push_back((*iter2).first.second);
-        resPerProcD[id].push_back(res[(*iter2).second]);
-        }*/
+        int procId=distantProcs[i];
+        const std::vector<int>& eltsForThisProc=elementsToAdd[i];
+        if(!eltsForThisProc.empty())
+          {
+            std::vector<int>::iterator iter1=std::find(data2.begin(),data2.end(),procId);
+            std::map<int,double> *toFeed=0;
+            if(iter1!=data2.end())
+              {//to test
+                int rank=iter1-data2.begin();
+                toFeed=&(data1[rank].back());
+              }
+            else
+              {
+                iter1=std::lower_bound(data2.begin(),data2.end(),procId);
+                int rank=iter1-data2.begin();
+                data2.insert(iter1,procId);
+                std::vector< std::map<int,double> > tmp(data1.front().size());
+                data1.insert(data1.begin()+rank,tmp);
+                toFeed=&(data1[rank].back());
+              }
+            for(std::vector<int>::const_iterator iter2=eltsForThisProc.begin();iter2!=eltsForThisProc.end();iter2++)
+              (*toFeed)[*iter2]=0.;
+          }
+      }
+    //
+    nbOfDistProcs=data2.size();
+    for(int j=0;j<nbOfDistProcs;j++)
+      fillDSFromVM(data2[j],0,data1[j],0);
+  }
+
+  int InterpolationMatrix::mergePolicies(const std::vector<int>& policyPartial)
+  {
+    if(policyPartial.empty())
+      return ElementLocator::NO_POST_TREATMENT_POLICY;
+    int ref=policyPartial[0];
+     std::vector<int>::const_iterator iter1=std::find_if(policyPartial.begin(),policyPartial.end(),std::bind2nd(std::not_equal_to<int>(),ref));
+    if(iter1!=policyPartial.end())
+      {
+        std::ostringstream msg; msg << "Incompatible policies between lazy procs each other : proc # " << iter1-policyPartial.begin();
+        throw INTERP_KERNEL::Exception(msg.str().c_str());
+      }
+    return ref;
+  }
+
+  /*!
+   * This method introduce global ids aspects in computed 'rowsPartialSumD'.
+   * As precondition rowsPartialSumD.size()==policyPartial.size()==globalIdsPartial.size(). Foreach i in [0;rowsPartialSumD.size() ) rowsPartialSumD[i].size()==globalIdsPartial[i].size()
+   * @param rowsPartialSumD : in parameter, Partial row sum computed for each lazy procs connected with.
+   * @param rowsPartialSumI : in parameter, Corresponding local ids for each lazy procs connected with.
+   * @param globalIdsPartial : in parameter, the global numbering, of elements connected with.
+   * @param globalIdsLazySideInteraction : out parameter, constituted from all global ids of lazy procs connected with.
+   * @para sumCorresponding : out parameter, relative to 'globalIdsLazySideInteraction'
+   */
+  void InterpolationMatrix::mergeRowSum(const std::vector< std::vector<double> >& rowsPartialSumD, const std::vector< std::vector<int> >& globalIdsPartial,
+                                        std::vector<int>& globalIdsLazySideInteraction, std::vector<double>& sumCorresponding)
+  {
+    std::map<int,double> sumToReturn;
+    int nbLazyProcs=rowsPartialSumD.size();
+    for(int i=0;i<nbLazyProcs;i++)
+      {
+        const std::vector<double>& rowSumOfP=rowsPartialSumD[i];
+        const std::vector<int>& globalIdsOfP=globalIdsPartial[i];
+        std::vector<double>::const_iterator iter1=rowSumOfP.begin();
+        std::vector<int>::const_iterator iter2=globalIdsOfP.begin();
+        for(;iter1!=rowSumOfP.end();iter1++,iter2++)
+          sumToReturn[*iter2]+=*iter1;
+      }
+    //
+    int lgth=sumToReturn.size();
+    globalIdsLazySideInteraction.resize(lgth);
+    sumCorresponding.resize(lgth);
+    std::vector<int>::iterator iter3=globalIdsLazySideInteraction.begin();
+    std::vector<double>::iterator iter4=sumCorresponding.begin();
+    for(std::map<int,double>::const_iterator iter5=sumToReturn.begin();iter5!=sumToReturn.end();iter5++,iter3++,iter4++)
+      {
+        *iter3=(*iter5).first;
+        *iter4=(*iter5).second;
+      }
+  }
+
+  /*!
+   * This method simply reorganize the result contained in 'sumCorresponding' computed by lazy side into 'rowsPartialSumD' with help of 'globalIdsPartial' and 'globalIdsLazySideInteraction'
+   *
+   * @param globalIdsPartial : in parameter, global ids sorted by lazy procs
+   * @param rowsPartialSumD : in/out parameter, with exactly the same size as 'globalIdsPartial'
+   * @param globalIdsLazySideInteraction : in parameter that represents ALL the global ids of every lazy procs in interaction
+   * @param sumCorresponding : in parameter with same size as 'globalIdsLazySideInteraction' that stores the corresponding sum of 'globalIdsLazySideInteraction'
+   */
+  void InterpolationMatrix::mergeRowSum2(const std::vector< std::vector<int> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD,
+                                         const std::vector<int>& globalIdsLazySideInteraction, const std::vector<double>& sumCorresponding)
+  {
+    std::map<int,double> acc;
+    std::vector<int>::const_iterator iter1=globalIdsLazySideInteraction.begin();
+    std::vector<double>::const_iterator iter2=sumCorresponding.begin();
+    for(;iter1!=globalIdsLazySideInteraction.end();iter1++,iter2++)
+      acc[*iter1]=*iter2;
+    //
+    int nbLazyProcs=globalIdsPartial.size();
+    for(int i=0;i<nbLazyProcs;i++)
+      {
+        const std::vector<int>& tmp1=globalIdsPartial[i];
+        std::vector<double>& tmp2=rowsPartialSumD[i];
+        std::vector<int>::const_iterator iter3=tmp1.begin();
+        std::vector<double>::iterator iter4=tmp2.begin();
+        for(;iter3!=tmp1.end();iter3++,iter4++)
+          *iter4=acc[*iter3];
+      }
+  }
+  
+  void InterpolationMatrix::mergeRowSum3(const std::vector< std::vector<int> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD)
+  {
+    std::map<int,double> sum;
+    std::vector< std::vector<int> >::const_iterator iter1=globalIdsPartial.begin();
+    std::vector< std::vector<double> >::iterator iter2=rowsPartialSumD.begin();
+    for(;iter1!=globalIdsPartial.end();iter1++,iter2++)
+      {
+        std::vector<int>::const_iterator iter3=(*iter1).begin();
+        std::vector<double>::const_iterator iter4=(*iter2).begin();
+        for(;iter3!=(*iter1).end();iter3++,iter4++)
+          sum[*iter3]+=*iter4;
+      }
+    iter2=rowsPartialSumD.begin();
+    for(iter1=globalIdsPartial.begin();iter1!=globalIdsPartial.end();iter1++,iter2++)
+      {
+        std::vector<int>::const_iterator iter3=(*iter1).begin();
+        std::vector<double>::iterator iter4=(*iter2).begin();
+        for(;iter3!=(*iter1).end();iter3++,iter4++)
+          *iter4=sum[*iter3];
+      }
+  }
+
+  /*!
+   * This method updates this->_coeffs attribute in order to take into account hidden (because having the same global number) similar nodes in _coeffs array.
+   * If in this->_coeffs two distant element id have the same global id their values will be replaced for each by the sum of the two.
+   * @param procsInInteraction input parameter : specifies the procId in absolute of distant lazy procs in interaction with
+   * @param rowsPartialSumI input parameter : local ids of distant lazy procs elements in interaction with
+   * @param globalIdsPartial input parameter : global ids of distant lazy procs elements in interaction with
+   */
+  void InterpolationMatrix::mergeCoeffs(const std::vector<int>& procsInInteraction, const std::vector< std::vector<int> >& rowsPartialSumI,
+                                        const std::vector<std::vector<int> >& globalIdsPartial, std::vector<std::vector<double> >& denoStrorageInv)
+  {
+    //preparing fast access structures
+    std::map<int,int> procT;
+    int localProcId=0;
+    for(std::vector<int>::const_iterator iter1=procsInInteraction.begin();iter1!=procsInInteraction.end();iter1++,localProcId++)
+      procT[*iter1]=localProcId;
+    int size=procsInInteraction.size();
+    std::vector<std::map<int,int> > localToGlobal(size);
+    for(int i=0;i<size;i++)
+      {
+        std::map<int,int>& myLocalToGlobal=localToGlobal[i];
+        const std::vector<int>& locals=rowsPartialSumI[i];
+        const std::vector<int>& globals=globalIdsPartial[i];
+        std::vector<int>::const_iterator iter3=locals.begin();
+        std::vector<int>::const_iterator iter4=globals.begin();
+        for(;iter3!=locals.end();iter3++,iter4++)
+          myLocalToGlobal[*iter3]=*iter4;
+      }
+    //
+    const vector<std::pair<int,int> >& mapping=_mapping.getSendingIds();
+    std::map<int,double> globalIdVal;
+    //accumulate for same global id on lazy part.
+    for(vector<vector<pair<int,double> > >::iterator iter1=_coeffs.begin();iter1!=_coeffs.end();iter1++)
+      for(vector<pair<int,double> >::iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+        {
+          const std::pair<int,int>& distantLocalLazyId=mapping[(*iter2).first];
+          int localLazyProcId=procT[distantLocalLazyId.first];
+          int globalDistantLazyId=localToGlobal[localLazyProcId][distantLocalLazyId.second];
+          globalIdVal[globalDistantLazyId]+=(*iter2).second;
+        }
+    //perform merge
+    std::vector<std::vector<double> >::iterator iter3=denoStrorageInv.begin();
+    for(vector<vector<pair<int,double> > >::iterator iter1=_coeffs.begin();iter1!=_coeffs.end();iter1++,iter3++)
+      {
+        double val=(*iter3).back();
+        (*iter3).resize((*iter1).size());
+        std::vector<double>::iterator iter4=(*iter3).begin();
+        for(vector<pair<int,double> >::iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++,iter4++)
+          {
+            const std::pair<int,int>& distantLocalLazyId=mapping[(*iter2).first];
+            int localLazyProcId=procT[distantLocalLazyId.first];
+            int globalDistantLazyId=localToGlobal[localLazyProcId][distantLocalLazyId.second];
+            double newVal=globalIdVal[globalDistantLazyId];
+            if((*iter2).second!=0.)
+              (*iter4)=val*newVal/(*iter2).second;
+            else
+              (*iter4)=std::numeric_limits<double>::max();
+            (*iter2).second=newVal;
+          }
+      }
   }
 
   void InterpolationMatrix::divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& resPerProcI,
@@ -361,18 +642,13 @@ namespace ParaMEDMEM
   {
     map<int,double> fastSums;
     int procId=0;
-    const vector<std::pair<int,int> >& mapping=_mapping.getSendingIds();
-    map< int, map<int,int> > distIdToLocId;
-    for(map< pair<int,int>,int >::iterator iter8=_col_offsets.begin();iter8!=_col_offsets.end();iter8++)
-          distIdToLocId[(*iter8).first.first][mapping[(*iter8).second].second]=(*iter8).first.second;
-
     for(vector<int>::const_iterator iter1=distantProcs.begin();iter1!=distantProcs.end();iter1++,procId++)
       {
         const std::vector<int>& currentProcI=resPerProcI[procId];
         const std::vector<double>& currentProcD=resPerProcD[procId];
         vector<double>::const_iterator iter3=currentProcD.begin();
         for(vector<int>::const_iterator iter2=currentProcI.begin();iter2!=currentProcI.end();iter2++,iter3++)
-          fastSums[_col_offsets[std::make_pair(*iter1,distIdToLocId[*iter1][*iter2])]]=*iter3;
+          fastSums[_col_offsets[std::make_pair(*iter1,*iter2)]]=*iter3;
       }
     deno.resize(_coeffs.size());
     vector<vector<double> >::iterator iter6=deno.begin();
@@ -396,6 +672,17 @@ namespace ParaMEDMEM
         for(vector<pair<int,double> >::const_iterator iter3=(*iter1).begin();iter3!=(*iter1).end();iter3++)
           sumOfCurrentRow+=(*iter3).second;
         std::fill((*iter2).begin(),(*iter2).end(),sumOfCurrentRow);
+      }
+  }
+
+  void InterpolationMatrix::resizeGlobalColSum(std::vector<std::vector<double> >& denoStrorage)
+  {
+    vector<vector<double> >::iterator iter2=denoStrorage.begin();
+    for(vector<vector<pair<int,double> > >::const_iterator iter1=_coeffs.begin();iter1!=_coeffs.end();iter1++,iter2++)
+      {
+        double val=(*iter2).back();
+        (*iter2).resize((*iter1).size());
+        std::fill((*iter2).begin(),(*iter2).end(),val);
       }
   }
 

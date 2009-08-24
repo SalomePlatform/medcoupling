@@ -23,11 +23,12 @@
 
 namespace ParaMEDMEM
 {
-
+  class DataArrayInt;
   class ParaMESH;
   class ProcessorGroup;
   class MEDCouplingFieldDouble;
   class ComponentTopology;
+  class Topology;
 
   class ParaFIELD
   {
@@ -42,6 +43,8 @@ namespace ParaMEDMEM
     void synchronizeTarget( ParaMEDMEM::ParaFIELD* source_field);
     void synchronizeSource( ParaMEDMEM::ParaFIELD* target_field);
     MEDCouplingFieldDouble* getField() const { return _field; }
+    DataArrayInt* returnCumulativeGlobalNumbering() const;
+    DataArrayInt* returnGlobalNumbering() const;
     Topology* getTopology() const { return _topology; }
     ParaMESH* getSupport() const  { return _support; }
     int nbComponents() const;

@@ -164,6 +164,44 @@ namespace ParaMEDMEM
   
     delete data_channel;
   }
+
+  /*!
+   * This method returns, if it exists, an array with only one component and as many as tuples as _field has.
+   * This array gives for every element on which this->_field lies, its global number, if this->_field is nodal.
+   * For example if _field is a nodal field : returned array will be the nodal global numbers.
+   * The content of this method is used to inform Working side to accumulate data recieved by lazy side.
+   */
+  DataArrayInt* ParaFIELD::returnCumulativeGlobalNumbering() const
+  {
+    if(!_field)
+      return 0;
+    TypeOfField type=_field->getTypeOfField();
+    switch(type)
+      {
+      case ON_CELLS:
+        return 0;
+      case ON_NODES:
+        return _support->getGlobalNumberingNodeDA();
+      default:
+        return 0;
+      }
+  }
+
+  DataArrayInt* ParaFIELD::returnGlobalNumbering() const
+  {
+    if(!_field)
+      return 0;
+    TypeOfField type=_field->getTypeOfField();
+    switch(type)
+      {
+      case ON_CELLS:
+        return _support->getGlobalNumberingCellDA();
+      case ON_NODES:
+        return _support->getGlobalNumberingNodeDA();
+      default:
+        return 0;
+      }
+  }
   
   int ParaFIELD::nbComponents() const
   {

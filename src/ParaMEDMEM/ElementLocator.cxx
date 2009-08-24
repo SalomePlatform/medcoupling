@@ -46,6 +46,7 @@ namespace ParaMEDMEM
   { 
     _union_group = _local_group.fuse(distant_group);
     _computeBoundingBoxes();
+    _comm=getCommunicator();
   }
 
   ElementLocator::~ElementLocator()
@@ -58,6 +59,11 @@ namespace ParaMEDMEM
   {
     MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
     return group->getComm();
+  }
+
+  NatureOfField ElementLocator::getLocalNature() const
+  {
+    return _local_para_field.getField()->getNature();
   }
 
   // ==========================================================================
@@ -91,25 +97,6 @@ namespace ParaMEDMEM
     
     if(send_mesh)
       send_mesh->decrRef();
-#if 0
-    int* distant_ids_send=0;
-    //send_mesh contains null pointer if elems is empty
-    MEDCouplingPointSet* send_mesh = _local_cell_mesh->buildPartOfMySelf(&elems[0],&elems[elems.size()],false);
-    // Constituting an array containing the ids of the elements that are 
-    // going to be sent to the distant subdomain.
-    // This array  enables the correct redistribution of the data when the
-    // interpolated field is transmitted to the target array
-
-    if (elems.size()>0)
-      {
-        distant_ids_send = new int[elems.size()];
-        std::copy(elems.begin(),elems.end(),distant_ids_send);
-      }
-    _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
-    delete[] distant_ids_send;
-    if(send_mesh)
-      send_mesh->decrRef();
-#endif
   }
 
   void ElementLocator::exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth)
@@ -252,5 +239,400 @@ namespace ParaMEDMEM
     v2Local->decrRef();
     v1Distant->decrRef();
     v2Distant->decrRef();
+  }
+  
+  /*!
+   * connected with ElementLocator::sendPolicyToWorkingSideL
+   */
+  void ElementLocator::recvPolicyFromLazySideW(std::vector<int>& policy)
+  {
+    policy.resize(_distant_proc_ids.size());
+    int procId=0;
+    CommInterface comm;
+    MPI_Status status;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        int toRecv;
+        comm.recv((void *)&toRecv,1,MPI_INT,*iter,1120,*_comm,&status);
+        policy[procId]=toRecv;
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::recvFromWorkingSideL
+   */
+  void ElementLocator::sendSumToLazySideW(const std::vector< std::vector<int> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds)
+  {
+    int procId=0;
+    CommInterface comm;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        const vector<int>& eltIds=distantLocEltIds[procId];
+        const vector<double>& valued=partialSumRelToDistantIds[procId];
+        int lgth=eltIds.size();
+        comm.send(&lgth,1,MPI_INT,*iter,1114,*_comm);
+        comm.send((void *)&eltIds[0],lgth,MPI_INT,*iter,1115,*_comm);
+        comm.send((void *)&valued[0],lgth,MPI_DOUBLE,*iter,1116,*_comm);
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::sendToWorkingSideL
+   */
+  void ElementLocator::recvSumFromLazySideW(std::vector< std::vector<double> >& globalSumRelToDistantIds)
+  {
+    int procId=0;
+    CommInterface comm;
+    MPI_Status status;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        std::vector<double>& vec=globalSumRelToDistantIds[procId];
+        comm.recv(&vec[0],vec.size(),MPI_DOUBLE,*iter,1117,*_comm,&status);
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::recvLocalIdsFromWorkingSideL
+   */
+  void ElementLocator::sendLocalIdsToLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds)
+  {
+    int procId=0;
+    CommInterface comm;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        const vector<int>& eltIds=distantLocEltIds[procId];
+        int lgth=eltIds.size();
+        comm.send(&lgth,1,MPI_INT,*iter,1121,*_comm);
+        comm.send((void *)&eltIds[0],lgth,MPI_INT,*iter,1122,*_comm);
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::sendGlobalIdsToWorkingSideL
+   */
+  void ElementLocator::recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds, std::vector< std::vector<int> >& globalIds)
+  {
+    int procId=0;
+    CommInterface comm;
+    MPI_Status status;
+    globalIds.resize(_distant_proc_ids.size());
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        const std::vector<int>& vec=distantLocEltIds[procId];
+        std::vector<int>& global=globalIds[procId];
+        global.resize(vec.size());
+        comm.recv(&global[0],vec.size(),MPI_INT,*iter,1123,*_comm,&status);
+      }
+  }
+  
+  /*!
+   * connected with ElementLocator::sendCandidatesGlobalIdsToWorkingSideL
+   */
+  void ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<int> >& globalIds)
+  {
+    int procId=0;
+    CommInterface comm;
+    MPI_Status status;
+    globalIds.resize(_distant_proc_ids.size());
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        std::vector<int>& global=globalIds[procId];
+        int lgth;
+        comm.recv(&lgth,1,MPI_INT,*iter,1132,*_comm,&status);
+        global.resize(lgth);
+        comm.recv(&global[0],lgth,MPI_INT,*iter,1133,*_comm,&status);
+      }
+  }
+  
+  /*!
+   * connected with ElementLocator::recvSumFromWorkingSideL
+   */
+  void ElementLocator::sendPartialSumToLazyProcsW(const std::vector<int>& distantGlobIds, const std::vector<double>& sum)
+  {
+    int procId=0;
+    CommInterface comm;
+    int lgth=distantGlobIds.size();
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        comm.send(&lgth,1,MPI_INT,*iter,1124,*_comm);
+        comm.send((void*)&distantGlobIds[0],lgth,MPI_INT,*iter,1125,*_comm);
+        comm.send((void*)&sum[0],lgth,MPI_DOUBLE,*iter,1126,*_comm);
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::recvCandidatesForAddElementsL
+   */
+  void ElementLocator::sendCandidatesForAddElementsW(const std::vector<int>& distantGlobIds)
+  {
+    int procId=0;
+    CommInterface comm;
+    int lgth=distantGlobIds.size();
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        comm.send(&lgth,1,MPI_INT,*iter,1128,*_comm);
+        comm.send((void*)&distantGlobIds[0],lgth,MPI_INT,*iter,1129,*_comm);
+      }
+  }
+  
+  /*!
+   * connected with ElementLocator::sendAddElementsToWorkingSideL
+   */
+  void ElementLocator::recvAddElementsFromLazyProcsW(std::vector<std::vector<int> >& elementsToAdd)
+  {
+    int procId=0;
+    CommInterface comm;
+    MPI_Status status;
+    int lgth=_distant_proc_ids.size();
+    elementsToAdd.resize(lgth);
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        int locLgth;
+        std::vector<int>& eltToFeed=elementsToAdd[procId];
+        comm.recv(&locLgth,1,MPI_INT,*iter,1130,*_comm,&status);
+        eltToFeed.resize(locLgth);
+        comm.recv(&eltToFeed[0],locLgth,MPI_INT,*iter,1131,*_comm,&status);
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::recvPolicyFromLazySideW
+   */
+  int ElementLocator::sendPolicyToWorkingSideL()
+  {
+    CommInterface comm;
+    int toSend;
+    DataArrayInt *isCumulative=_local_para_field.returnCumulativeGlobalNumbering();
+    if(isCumulative)
+      {
+        toSend=CUMULATIVE_POLICY;
+        isCumulative->decrRef();
+      }
+    else
+      toSend=NO_POST_TREATMENT_POLICY;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++)
+      comm.send(&toSend,1,MPI_INT,*iter,1120,*_comm);
+    return toSend;
+  }
+
+  /*!
+   * connected with ElementLocator::sendSumToLazySideW
+   */
+  void ElementLocator::recvFromWorkingSideL()
+  {
+    _values_added.resize(_local_para_field.getField()->getNumberOfTuples());
+    int procId=0;
+    CommInterface comm;
+    _ids_per_working_proc.resize(_distant_proc_ids.size());
+    MPI_Status status;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        int lgth;
+        comm.recv(&lgth,1,MPI_INT,*iter,1114,*_comm,&status);
+        vector<int>& ids=_ids_per_working_proc[procId];
+        ids.resize(lgth);
+        vector<double> values(lgth);
+        comm.recv(&ids[0],lgth,MPI_INT,*iter,1115,*_comm,&status);
+        comm.recv(&values[0],lgth,MPI_DOUBLE,*iter,1116,*_comm,&status);
+        for(int i=0;i<lgth;i++)
+          _values_added[ids[i]]+=values[i];
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::recvSumFromLazySideW
+   */
+  void ElementLocator::sendToWorkingSideL()
+  {
+    int procId=0;
+    CommInterface comm;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<double> valsToSend(ids.size());
+        vector<double>::iterator iter3=valsToSend.begin();
+        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter3++)
+          *iter3=_values_added[*iter2];
+        comm.send(&valsToSend[0],ids.size(),MPI_DOUBLE,*iter,1117,*_comm);
+        //ids.clear();
+      }
+    //_ids_per_working_proc.clear();
+  }
+
+  /*!
+   * connected with ElementLocator::sendLocalIdsToLazyProcsW
+   */
+  void ElementLocator::recvLocalIdsFromWorkingSideL()
+  {
+    int procId=0;
+    CommInterface comm;
+    _ids_per_working_proc.resize(_distant_proc_ids.size());
+    MPI_Status status;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        int lgth;
+        vector<int>& ids=_ids_per_working_proc[procId];
+        comm.recv(&lgth,1,MPI_INT,*iter,1121,*_comm,&status);
+        ids.resize(lgth);
+        comm.recv(&ids[0],lgth,MPI_INT,*iter,1122,*_comm,&status);
+      }
+  }
+
+  /*!
+   * connected with ElementLocator::recvGlobalIdsFromLazyProcsW
+   */
+  void ElementLocator::sendGlobalIdsToWorkingSideL()
+  {
+    int procId=0;
+    CommInterface comm;
+    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
+    const int *globalIdsC=globalIds->getConstPointer();
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        const vector<int>& ids=_ids_per_working_proc[procId];
+        vector<int> valsToSend(ids.size());
+        vector<int>::iterator iter1=valsToSend.begin();
+        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
+          *iter1=globalIdsC[*iter2];
+        comm.send(&valsToSend[0],ids.size(),MPI_INT,*iter,1123,*_comm);
+      }
+    if(globalIds)
+      globalIds->decrRef();
+  }
+
+  /*!
+   * connected with ElementLocator::sendPartialSumToLazyProcsW
+   */
+  void ElementLocator::recvSumFromWorkingSideL()
+  {
+    int procId=0;
+    int wProcSize=_distant_proc_ids.size();
+    CommInterface comm;
+    _ids_per_working_proc.resize(wProcSize);
+    _values_per_working_proc.resize(wProcSize);
+    MPI_Status status;
+    std::map<int,double> sums;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        int lgth;
+        comm.recv(&lgth,1,MPI_INT,*iter,1124,*_comm,&status);
+        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<double>& vals=_values_per_working_proc[procId];
+        ids.resize(lgth);
+        vals.resize(lgth);
+        comm.recv(&ids[0],lgth,MPI_INT,*iter,1125,*_comm,&status);
+        comm.recv(&vals[0],lgth,MPI_DOUBLE,*iter,1126,*_comm,&status);
+        vector<int>::const_iterator iter1=ids.begin();
+        vector<double>::const_iterator iter2=vals.begin();
+        for(;iter1!=ids.end();iter1++,iter2++)
+          sums[*iter1]+=*iter2;
+      }
+    //assign sum to prepare sending to working side
+    for(procId=0;procId<wProcSize;procId++)
+      {
+        vector<int>& ids=_ids_per_working_proc[procId];
+        vector<double>& vals=_values_per_working_proc[procId];
+        vector<int>::const_iterator iter1=ids.begin();
+        vector<double>::iterator iter2=vals.begin();
+        for(;iter1!=ids.end();iter1++,iter2++)
+          *iter2=sums[*iter1];
+        ids.clear();
+      }
+  }
+
+  /*!
+   * Foreach working procs Wi compute and push it in _ids_per_working_proc3,
+   * if it exist, local id of nodes that are in interaction with an another lazy proc than this
+   * and that exists in this \b but with no interaction with this.
+   * The computation is performed here. sendAddElementsToWorkingSideL is only in charge to send
+   * precomputed _ids_per_working_proc3 attribute.
+   * connected with ElementLocator::sendCandidatesForAddElementsW
+   */
+  void ElementLocator::recvCandidatesForAddElementsL()
+  {
+    int procId=0;
+    int wProcSize=_distant_proc_ids.size();
+    CommInterface comm;
+    _ids_per_working_proc3.resize(wProcSize);
+    MPI_Status status;
+    std::map<int,double> sums;
+    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
+    const int *globalIdsC=globalIds->getConstPointer();
+    int nbElts=globalIds->getNumberOfTuples();
+    std::set<int> globalIdsS(globalIdsC,globalIdsC+nbElts);
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        const std::vector<int>& ids0=_ids_per_working_proc[procId];
+        int lgth0=ids0.size();
+        std::set<int> elts0;
+        for(int i=0;i<lgth0;i++)
+          elts0.insert(globalIdsC[ids0[i]]);
+        int lgth;
+        comm.recv(&lgth,1,MPI_INT,*iter,1128,*_comm,&status);
+        vector<int> ids(lgth);
+        comm.recv(&ids[0],lgth,MPI_INT,*iter,1129,*_comm,&status);
+        set<int> ids1(ids.begin(),ids.end());
+        ids.clear();
+        set<int> tmp5,tmp6;
+        set_intersection(globalIdsS.begin(),globalIdsS.end(),ids1.begin(),ids1.end(),inserter(tmp5,tmp5.begin()));
+        set_difference(tmp5.begin(),tmp5.end(),elts0.begin(),elts0.end(),inserter(tmp6,tmp6.begin()));
+        std::vector<int>& ids2=_ids_per_working_proc3[procId];
+        ids2.resize(tmp6.size());
+        std::copy(tmp6.begin(),tmp6.end(),ids2.begin());
+        //global->local
+        for(std::vector<int>::iterator iter2=ids2.begin();iter2!=ids2.end();iter2++)
+          *iter2=std::find(globalIdsC,globalIdsC+nbElts,*iter2)-globalIdsC;
+      }
+    if(globalIds)
+      globalIds->decrRef();
+  }
+
+  /*!
+   * connected with ElementLocator::recvAddElementsFromLazyProcsW
+   */
+  void ElementLocator::sendAddElementsToWorkingSideL()
+  {
+    int procId=0;
+    CommInterface comm;
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        const std::vector<int>& vals=_ids_per_working_proc3[procId];
+        int size=vals.size();
+        comm.send((void *)&size,1,MPI_INT,*iter,1130,*_comm);
+        comm.send((void *)&vals[0],size,MPI_INT,*iter,1131,*_comm);
+      }
+  }
+
+  /*!
+   * This method sends to working side Wi only nodes in interaction with Wi \b and located on boundary, to reduce number.
+   * connected with ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW
+   */
+  void ElementLocator::sendCandidatesGlobalIdsToWorkingSideL()
+  { 
+    int procId=0;
+    CommInterface comm;
+    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
+    const int *globalIdsC=globalIds->getConstPointer();
+    std::vector<int> candidates;
+    _local_para_field.getSupport()->getCellMesh()->findBoundaryNodes(candidates);
+    for(std::vector<int>::iterator iter1=candidates.begin();iter1!=candidates.end();iter1++)
+      (*iter1)=globalIdsC[*iter1];
+    std::set<int> candidatesS(candidates.begin(),candidates.end());
+    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
+      {
+        const vector<int>& ids=_ids_per_working_proc[procId];
+        vector<int> valsToSend(ids.size());
+        vector<int>::iterator iter1=valsToSend.begin();
+        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
+          *iter1=globalIdsC[*iter2];
+        std::set<int> tmp2(valsToSend.begin(),valsToSend.end());
+        std::vector<int> tmp3;
+        set_intersection(candidatesS.begin(),candidatesS.end(),tmp2.begin(),tmp2.end(),std::back_insert_iterator< std::vector<int> >(tmp3));
+        int lgth=tmp3.size();
+        comm.send(&lgth,1,MPI_INT,*iter,1132,*_comm);
+        comm.send(&tmp3[0],lgth,MPI_INT,*iter,1133,*_comm);
+      }
+    if(globalIds)
+      globalIds->decrRef();
   }
 }
