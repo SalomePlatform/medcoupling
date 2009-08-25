@@ -961,7 +961,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
           CPPUNIT_ASSERT_EQUAL(5,parafieldP1->getField()->getNumberOfTuples());
           CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
           for(int kk=0;kk<5;kk++)
-	    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP2[kk],res[kk],1e-12);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP2[kk],res[kk],1e-12);
         }
       if(rank==3)
         {
@@ -969,7 +969,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
           CPPUNIT_ASSERT_EQUAL(3,parafieldP1->getField()->getNumberOfTuples());
           CPPUNIT_ASSERT_EQUAL(1,parafieldP1->getField()->getNumberOfComponents());
           for(int kk=0;kk<3;kk++)
-	    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP3[kk],res[kk],1e-12);
+            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectP3[kk],res[kk],1e-12);
         }
       if(rank==4)
         {
