@@ -185,10 +185,11 @@ namespace INTERP_KERNEL
       for (int i=0; i< _nb_rows; i++)
         {
           output[i]=0.;
-          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
-            int icol = _cols[j];
-            output[i]+=input[icol]*_coeffs[j];
-          }
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              output[i]+=input[icol]*_coeffs[j];
+            }
         }
     }
 
@@ -211,11 +212,12 @@ namespace INTERP_KERNEL
         {
           for(int comp = 0; comp < nb_comp; comp++)
             output[i*nb_comp+comp]=0.;
-          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
-            int icol = _cols[j];
-            for(int comp = 0; comp < nb_comp; comp++)
-              output[i*nb_comp+comp]+=input[icol*nb_comp+comp]*_coeffs[j];
-          }
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              for(int comp = 0; comp < nb_comp; comp++)
+                output[i*nb_comp+comp]+=input[icol*nb_comp+comp]*_coeffs[j];
+            }
         }
     }   
     /*!      
@@ -235,10 +237,11 @@ namespace INTERP_KERNEL
         output[icol]=0.;
       for (int i=0; i< _nb_rows; i++)
         {
-          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
-            int icol = _cols[j];
-            output[icol]+=input[i]*_coeffs[j];
-          }
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              output[icol]+=input[i]*_coeffs[j];
+            }
         }
     }
     /*!      
@@ -263,14 +266,14 @@ namespace INTERP_KERNEL
 
       for (int i=0; i< _nb_rows; i++)
         {
-          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
-            int icol = _cols[j];
-            for(int comp = 0; comp < nb_comp; comp++)
-              output[icol*nb_comp+comp]+=input[i*nb_comp+comp]*_coeffs[j];
-          }
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              for(int comp = 0; comp < nb_comp; comp++)
+                output[icol*nb_comp+comp]+=input[i*nb_comp+comp]*_coeffs[j];
+            }
         }
     }
-		
     /*
       Sums the coefficients of each column of the matrix
       nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
@@ -280,15 +283,15 @@ namespace INTERP_KERNEL
     {
       if (!_is_configured)
         configure();
-			
       for (int icol=0; icol< nb_cols; icol++)
         output[icol]=0.;
       for (int i=0; i< _nb_rows; i++)
         {
-          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
-            int icol = _cols[j];
-            output[icol]+=_coeffs[j];
-          }
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              output[icol]+=_coeffs[j];
+            }
         }
     }
 
@@ -300,7 +303,6 @@ namespace INTERP_KERNEL
     {
       if (!_is_configured)
         configure();
-			
       for (int i=0; i< _nb_rows; i++)
         {
           output[i]=0;
