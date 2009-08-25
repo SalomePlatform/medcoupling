@@ -61,6 +61,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testStructuredCoincidentDEC);
   CPPUNIT_TEST(testStructuredCoincidentDEC);
   CPPUNIT_TEST(testICocoTrio1);
+  CPPUNIT_TEST(testGauthier1);
   CPPUNIT_TEST(testMEDLoaderRead1);
   CPPUNIT_TEST(testMEDLoaderPolygonRead);
   CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
@@ -105,6 +106,7 @@ public:
   void testAsynchronousFastSourceIntersectionDEC_2D();
   //
   void testICocoTrio1();
+  void testGauthier1();
   //
   void testMEDLoaderRead1();
   void testMEDLoaderPolygonRead();
