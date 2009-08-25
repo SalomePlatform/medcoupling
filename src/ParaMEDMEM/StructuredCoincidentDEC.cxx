@@ -47,7 +47,7 @@ namespace ParaMEDMEM
 
     The remapping between the two supports is based on identity of global
     ids, instead of geometrical considerations as it is the case for
-    NonCoincidentDEC and IntersectionDEC. Therefore, this DEC must not be used 
+    NonCoincidentDEC and InterpKernelDEC. Therefore, this DEC must not be used 
     for coincident meshes that do not have the same numbering.
 
     As all the other DECs, its use is made of two phases :

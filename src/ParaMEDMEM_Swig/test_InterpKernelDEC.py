@@ -24,7 +24,7 @@ import unittest
 import math
 
 class ParaMEDMEMBasicsTest(unittest.TestCase):
-    def testIntersectionDEC_2D(self):
+    def testInterpKernelDEC_2D(self):
         MPI_Init(sys.argv)
         size = MPI_Comm_size(MPI_COMM_WORLD)
         rank = MPI_Comm_rank(MPI_COMM_WORLD)
@@ -38,7 +38,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         interface = CommInterface()
         target_group = MPIProcessorGroup(interface, procs_target)
         source_group = MPIProcessorGroup(interface, procs_source)
-        dec = IntersectionDEC(source_group, target_group)
+        dec = InterpKernelDEC(source_group, target_group)
         
         mesh       =0
         support    =0

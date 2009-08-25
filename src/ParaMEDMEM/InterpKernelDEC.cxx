@@ -26,18 +26,18 @@
 #include "ParaMESH.hxx"
 #include "DEC.hxx"
 #include "InterpolationMatrix.hxx"
-#include "IntersectionDEC.hxx"
+#include "InterpKernelDEC.hxx"
 #include "ElementLocator.hxx"
 
 namespace ParaMEDMEM
 {  
 
   /*!
-    \defgroup intersectiondec IntersectionDEC
+    \defgroup interpkerneldec InterpKernelDEC
 
     \section overview Overview
 
-    The IntersectionDEC enables the \ref conservativeremapping of fields between two parallel codes. This remapping is based on the computation of intersection volumes between elements from code A and elements from code B. The computation is possible for 3D meshes, 2D meshes, and 3D-surface meshes. Dimensions must be similar for code A and code B (for instance, though it could be desirable, it is not yet possible to couple 3D surfaces with 2D surfaces).
+    The InterpKernelDEC enables the \ref conservativeremapping of fields between two parallel codes. This remapping is based on the computation of intersection volumes between elements from code A and elements from code B. The computation is possible for 3D meshes, 2D meshes, and 3D-surface meshes. Dimensions must be similar for code A and code B (for instance, though it could be desirable, it is not yet possible to couple 3D surfaces with 2D surfaces).
 
     In the present version, only fields lying on elements are considered.
 
@@ -45,15 +45,15 @@ namespace ParaMEDMEM
 
     \image latex NonCoincident_small.eps "Example showing the transfer from a field based on a quadrangular mesh to a triangular mesh. In a P0-P0 interpolation, to obtain the value on a triangle, the values on quadrangles are weighted by their intersection area and summed."
 
-    A typical use of IntersectionDEC encompasses two distinct phases :
-    - A setup phase during which the intersection volumes are computed and the communication structures are setup. This corresponds to calling the IntersectionDEC::synchronize() method.
+    A typical use of InterpKernelDEC encompasses two distinct phases :
+    - A setup phase during which the intersection volumes are computed and the communication structures are setup. This corresponds to calling the InterpKernelDEC::synchronize() method.
     - A use phase during which the remappings are actually performed. This corresponds to the calls to sendData() and recvData() which actually trigger the data exchange. The data exchange are synchronous in the current version of the library so that recvData() and sendData() calls must be synchronized on code A and code B processor groups. 
 
-    The following code excerpt illutrates a typical use of the IntersectionDEC class.
+    The following code excerpt illutrates a typical use of the InterpKernelDEC class.
 
     \code
     ...
-    IntersectionDEC dec(groupA, groupB);
+    InterpKernelDEC dec(groupA, groupB);
     dec.attachLocalField(field);
     dec.synchronize();
     if (groupA.containsMyRank())
@@ -80,15 +80,15 @@ namespace ParaMEDMEM
 
 
 
-    \section intersectiondec_options Options
-    On top of \ref dec_options, options supported by %IntersectionDEC objects are
+    \section interpkerneldec_options Options
+    On top of \ref dec_options, options supported by %InterpKernelDEC objects are
     related to the underlying Intersector class. 
     All the options available in the intersector objects are
-    available for the %IntersectionDEC object. The various options available for  * intersectors can be reviewed in \ref InterpKerIntersectors.
+    available for the %InterpKernelDEC object. The various options available for  * intersectors can be reviewed in \ref InterpKerIntersectors.
  
     For instance :
     \verbatim
-    IntersectionDEC dec(source_group, target_group);
+    InterpKernelDEC dec(source_group, target_group);
     dec.attachLocalField(field);
     dec.setOptions("DoRotate",false);
     dec.setOptions("Precision",1e-12);
@@ -99,16 +99,16 @@ namespace ParaMEDMEM
   */
 
   /*!
-    \addtogroup intersectiondec
+    \addtogroup interpkerneldec
     @{
   */
   
-  IntersectionDEC::IntersectionDEC()
+  InterpKernelDEC::InterpKernelDEC()
   {  
   }
 
   /*!
-    This constructor creates an IntersectionDEC which has \a source_group as a working side 
+    This constructor creates an InterpKernelDEC which has \a source_group as a working side 
     and  \a target_group as an idle side. All the processors will actually participate, but intersection computations will be performed on the working side during the \a synchronize() phase.
     The constructor must be called synchronously on all processors of both processor groups.
 
@@ -116,13 +116,13 @@ namespace ParaMEDMEM
     \param target_group lazy side ProcessorGroup
 
   */
-  IntersectionDEC::IntersectionDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
+  InterpKernelDEC::InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
     DEC(source_group, target_group),_interpolation_matrix(0)
   {
 
   }
 
-  IntersectionDEC::~IntersectionDEC()
+  InterpKernelDEC::~InterpKernelDEC()
   {
     if (_interpolation_matrix !=0)
       delete _interpolation_matrix;
@@ -140,7 +140,7 @@ namespace ParaMEDMEM
     the working side during a \a sendData() call.
 
   */
-  void IntersectionDEC::synchronize()
+  void InterpKernelDEC::synchronize()
   {
     delete _interpolation_matrix;
     _interpolation_matrix = new InterpolationMatrix (_local_field, *_source_group,*_target_group,*this,*this); 
@@ -151,7 +151,7 @@ namespace ParaMEDMEM
         //locate the distant meshes
         ElementLocator locator(*_local_field, *_target_group, *_source_group);
 
-        //transfering option from IntersectionDEC to ElementLocator                 
+        //transfering option from InterpKernelDEC to ElementLocator                 
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
         MEDCouplingPointSet* distant_mesh=0; 
@@ -183,7 +183,7 @@ namespace ParaMEDMEM
     if (_target_group->containsMyRank())
       {
         ElementLocator locator(*_local_field, *_source_group, *_target_group);
-        //transfering option from IntersectionDEC to ElementLocator
+        //transfering option from InterpKernelDEC to ElementLocator
         locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
 
         MEDCouplingPointSet* distant_mesh=0;
@@ -214,7 +214,7 @@ namespace ParaMEDMEM
   /*!
     Receives the data whether the processor is on the working side or on the lazy side. It must match a \a sendData() call on the other side.
   */
-  void IntersectionDEC::recvData()
+  void InterpKernelDEC::recvData()
   {
     if (_source_group->containsMyRank())
       _interpolation_matrix->transposeMultiply(*_local_field->getField());
@@ -232,7 +232,7 @@ namespace ParaMEDMEM
     will be time-interpolated from the field values received.
     \param time time at which the value is desired
   */
-  void IntersectionDEC::recvData( double time )
+  void InterpKernelDEC::recvData( double time )
   {
     _interpolation_matrix->getAccessDEC()->setTime(time);
     recvData() ;
@@ -242,7 +242,7 @@ namespace ParaMEDMEM
     Sends the data whether the processor is on the working side or on the lazy side.
     It must match a recvData() call on the other side.
   */
-  void IntersectionDEC::sendData()
+  void InterpKernelDEC::sendData()
   {
     if (_source_group->containsMyRank())
       {
@@ -261,7 +261,7 @@ namespace ParaMEDMEM
     \param time time at which the value is available
     \param deltatime time interval between the value presently sent and the next one. 
   */
-  void IntersectionDEC::sendData( double time , double deltatime )
+  void InterpKernelDEC::sendData( double time , double deltatime )
   {
     _interpolation_matrix->getAccessDEC()->setTime(time,deltatime);
     sendData() ;

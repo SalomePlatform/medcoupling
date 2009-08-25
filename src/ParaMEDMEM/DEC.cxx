@@ -55,7 +55,7 @@
  The following code excerpt shows how to set options for an object that inherits from DEC :
 
  \code
- IntersectionDEC dec(source_group,target_group);
+ InterpKernelDEC dec(source_group,target_group);
  dec.setOptions("ForcedRenormalization",true);
  dec.attachLocalField(field);
  dec.synchronize();

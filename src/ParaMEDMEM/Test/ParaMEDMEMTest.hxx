@@ -35,24 +35,24 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testMPIProcessorGroup_rank);
   CPPUNIT_TEST(testBlockTopology_constructor);
   CPPUNIT_TEST(testBlockTopology_serialize);
-  CPPUNIT_TEST(testIntersectionDEC_2D);
-  CPPUNIT_TEST(testIntersectionDEC_2DP0P1);
-  CPPUNIT_TEST(testIntersectionDEC_3D);
-  CPPUNIT_TEST(testIntersectionDECNonOverlapp_2D_P0P0);
-  CPPUNIT_TEST(testIntersectionDECNonOverlapp_2D_P0P1P1P0);
+  CPPUNIT_TEST(testInterpKernelDEC_2D);
+  CPPUNIT_TEST(testInterpKernelDEC_2DP0P1);
+  CPPUNIT_TEST(testInterpKernelDEC_3D);
+  CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P0);
+  CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P1P1P0);
 
-  CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpNativeDEC_2D);
-  CPPUNIT_TEST(testSynchronousEqualIntersectionWithoutInterpDEC_2D);
-  CPPUNIT_TEST(testSynchronousEqualIntersectionDEC_2D);
-  CPPUNIT_TEST(testSynchronousFasterSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testSynchronousSlowerSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testSynchronousSlowSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testSynchronousFastSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousEqualIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousFasterSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousSlowerSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousSlowSourceIntersectionDEC_2D);
-  CPPUNIT_TEST(testAsynchronousFastSourceIntersectionDEC_2D);
+  CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);
+  CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);
+  CPPUNIT_TEST(testSynchronousEqualInterpKernelDEC_2D);
+  CPPUNIT_TEST(testSynchronousFasterSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testSynchronousSlowerSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testSynchronousSlowSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testSynchronousFastSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testAsynchronousEqualInterpKernelDEC_2D);
+  CPPUNIT_TEST(testAsynchronousFasterSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testAsynchronousSlowerSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testAsynchronousSlowSourceInterpKernelDEC_2D);
+  CPPUNIT_TEST(testAsynchronousFastSourceInterpKernelDEC_2D);
 #ifdef MED_ENABLE_FVM
   //can be added again after FVM correction for 2D
   //  CPPUNIT_TEST(testNonCoincidentDEC_2D);
@@ -81,29 +81,29 @@ public:
   void testMPIProcessorGroup_rank();
   void testBlockTopology_constructor();
   void testBlockTopology_serialize();
-  void testIntersectionDEC_2D();
-  void testIntersectionDEC_2DP0P1();
-  void testIntersectionDEC_3D();
-  void testIntersectionDECNonOverlapp_2D_P0P0();
-  void testIntersectionDECNonOverlapp_2D_P0P1P1P0();
+  void testInterpKernelDEC_2D();
+  void testInterpKernelDEC_2DP0P1();
+  void testInterpKernelDEC_3D();
+  void testInterpKernelDECNonOverlapp_2D_P0P0();
+  void testInterpKernelDECNonOverlapp_2D_P0P1P1P0();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();
 #endif
   void testStructuredCoincidentDEC();
-  void testSynchronousEqualIntersectionWithoutInterpNativeDEC_2D();
-  void testSynchronousEqualIntersectionWithoutInterpDEC_2D();
-  void testSynchronousEqualIntersectionDEC_2D();
-  void testSynchronousFasterSourceIntersectionDEC_2D();
-  void testSynchronousSlowerSourceIntersectionDEC_2D();
-  void testSynchronousSlowSourceIntersectionDEC_2D();
-  void testSynchronousFastSourceIntersectionDEC_2D();
+  void testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D();
+  void testSynchronousEqualInterpKernelWithoutInterpDEC_2D();
+  void testSynchronousEqualInterpKernelDEC_2D();
+  void testSynchronousFasterSourceInterpKernelDEC_2D();
+  void testSynchronousSlowerSourceInterpKernelDEC_2D();
+  void testSynchronousSlowSourceInterpKernelDEC_2D();
+  void testSynchronousFastSourceInterpKernelDEC_2D();
 
-  void testAsynchronousEqualIntersectionDEC_2D();
-  void testAsynchronousFasterSourceIntersectionDEC_2D();
-  void testAsynchronousSlowerSourceIntersectionDEC_2D();
-  void testAsynchronousSlowSourceIntersectionDEC_2D();
-  void testAsynchronousFastSourceIntersectionDEC_2D();
+  void testAsynchronousEqualInterpKernelDEC_2D();
+  void testAsynchronousFasterSourceInterpKernelDEC_2D();
+  void testAsynchronousSlowerSourceInterpKernelDEC_2D();
+  void testAsynchronousSlowSourceInterpKernelDEC_2D();
+  void testAsynchronousFastSourceInterpKernelDEC_2D();
   //
   void testICocoTrio1();
   void testGauthier1();
@@ -124,11 +124,11 @@ private:
                             const std::string& filename2, 
                             const std::string& meshname2,
                             int nbprocsource, double epsilon);
-  void testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA, 
+  void testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA, 
                                           double dtB, double tmaxB,
                                           bool WithPointToPoint, bool Asynchronous, bool WithInterp, const char *srcMeth, const char *targetMeth);
-  void testIntersectionDEC_2D_(const char *srcMeth, const char *targetMeth);
-  void testIntersectionDEC_3D_(const char *srcMeth, const char *targetMeth);
+  void testInterpKernelDEC_2D_(const char *srcMeth, const char *targetMeth);
+  void testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth);
 };
 
 // to automatically remove temporary files from disk

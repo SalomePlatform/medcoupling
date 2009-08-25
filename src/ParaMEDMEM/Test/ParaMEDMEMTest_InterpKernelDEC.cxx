@@ -25,7 +25,7 @@
 #include "Topology.hxx"
 #include "DEC.hxx"
 #include "MxN_Mapping.hxx"
-#include "IntersectionDEC.hxx"
+#include "InterpKernelDEC.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ComponentTopology.hxx"
@@ -45,33 +45,33 @@
 using namespace std;
 using namespace ParaMEDMEM;
  
-void ParaMEDMEMTest::testIntersectionDEC_2D()
+void ParaMEDMEMTest::testInterpKernelDEC_2D()
 {
-  testIntersectionDEC_2D_("P0","P0");
+  testInterpKernelDEC_2D_("P0","P0");
 }
 
-void ParaMEDMEMTest::testIntersectionDEC_3D()
+void ParaMEDMEMTest::testInterpKernelDEC_3D()
 {
-  testIntersectionDEC_3D_("P0","P0");
+  testInterpKernelDEC_3D_("P0","P0");
 }
 
-void ParaMEDMEMTest::testIntersectionDEC_2DP0P1()
+void ParaMEDMEMTest::testInterpKernelDEC_2DP0P1()
 {
-  //testIntersectionDEC_2D_("P0","P1");
+  //testInterpKernelDEC_2D_("P0","P1");
 }
 
 /*
- * Check methods defined in IntersectionDEC.hxx
+ * Check methods defined in InterpKernelDEC.hxx
  *
- IntersectionDEC();
- IntersectionDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group);
- virtual ~IntersectionDEC();
+ InterpKernelDEC();
+ InterpKernelDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group);
+ virtual ~InterpKernelDEC();
  void synchronize();
  void recvData();
  void sendData();
 */
  
-void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *targetMeth)
+void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *targetMeth)
 {
   std::string srcM(srcMeth);
   std::string targetM(targetMeth);
@@ -102,7 +102,7 @@ void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *ta
   
   //loading the geometry for the source group
 
-  ParaMEDMEM::IntersectionDEC dec (*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
 
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::ParaMESH* paramesh;
@@ -274,10 +274,10 @@ void ParaMEDMEMTest::testIntersectionDEC_2D_(const char *srcMeth, const char *ta
   delete icocofield;
 
   MPI_Barrier(MPI_COMM_WORLD);
-  cout << "end of IntersectionDEC_2D test"<<endl;
+  cout << "end of InterpKernelDEC_2D test"<<endl;
 }
 
-void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *targetMeth)
+void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth)
 {
   std::string srcM(srcMeth);
   std::string targetM(targetMeth);
@@ -308,7 +308,7 @@ void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *ta
   
   //loading the geometry for the source group
 
-  ParaMEDMEM::IntersectionDEC dec (*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
 
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::ParaMESH* paramesh;
@@ -470,66 +470,66 @@ void ParaMEDMEMTest::testIntersectionDEC_3D_(const char *srcMeth, const char *ta
   delete icocofield;
 
   MPI_Barrier(MPI_COMM_WORLD);
-  cout << "end of IntersectionDEC_3D test"<<endl;
+  cout << "end of InterpKernelDEC_3D test"<<endl;
 }
 
 //Synchronous tests without interpolation with native mode (AllToAll(v) from lam/MPI:
-void ParaMEDMEMTest::testSynchronousEqualIntersectionWithoutInterpNativeDEC_2D()
+void ParaMEDMEMTest::testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.1,1,0.1,1,false,false,false,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.1,1,0.1,1,false,false,false,"P0","P0");
 }
 
 //Synchronous tests without interpolation :
-void ParaMEDMEMTest::testSynchronousEqualIntersectionWithoutInterpDEC_2D()
+void ParaMEDMEMTest::testSynchronousEqualInterpKernelWithoutInterpDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.1,1,0.1,1,true,false,false,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.1,1,0.1,1,true,false,false,"P0","P0");
 }
 
 //Synchronous tests with interpolation :
-void ParaMEDMEMTest::testSynchronousEqualIntersectionDEC_2D()
+void ParaMEDMEMTest::testSynchronousEqualInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.1,1,0.1,1,true,false,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.1,1,0.1,1,true,false,true,"P0","P0");
 }
-void ParaMEDMEMTest::testSynchronousFasterSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testSynchronousFasterSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.09,1,0.1,1,true,false,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.09,1,0.1,1,true,false,true,"P0","P0");
 }
-void ParaMEDMEMTest::testSynchronousSlowerSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testSynchronousSlowerSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.11,1,0.1,1,true,false,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.11,1,0.1,1,true,false,true,"P0","P0");
 }
-void ParaMEDMEMTest::testSynchronousSlowSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testSynchronousSlowSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.11,1,0.01,1,true,false,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.11,1,0.01,1,true,false,true,"P0","P0");
 }
-void ParaMEDMEMTest::testSynchronousFastSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testSynchronousFastSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.01,1,0.11,1,true,false,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.01,1,0.11,1,true,false,true,"P0","P0");
 }
 
 //Asynchronous tests with interpolation :
-void ParaMEDMEMTest::testAsynchronousEqualIntersectionDEC_2D()
+void ParaMEDMEMTest::testAsynchronousEqualInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.1,1,0.1,1,true,true,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.1,1,0.1,1,true,true,true,"P0","P0");
 }
-void ParaMEDMEMTest::testAsynchronousFasterSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testAsynchronousFasterSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.09,1,0.1,1,true,true,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.09,1,0.1,1,true,true,true,"P0","P0");
 }
-void ParaMEDMEMTest::testAsynchronousSlowerSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testAsynchronousSlowerSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.11,1,0.1,1,true,true,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.11,1,0.1,1,true,true,true,"P0","P0");
 }
-void ParaMEDMEMTest::testAsynchronousSlowSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testAsynchronousSlowSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.11,1,0.01,1,true,true,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.11,1,0.01,1,true,true,true,"P0","P0");
 }
-void ParaMEDMEMTest::testAsynchronousFastSourceIntersectionDEC_2D()
+void ParaMEDMEMTest::testAsynchronousFastSourceInterpKernelDEC_2D()
 {
-  testAsynchronousIntersectionDEC_2D(0.01,1,0.11,1,true,true,true,"P0","P0");
+  testAsynchronousInterpKernelDEC_2D(0.01,1,0.11,1,true,true,true,"P0","P0");
 }
 
-void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
+void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
 {
   //
   const double sourceCoordsAll[2][8]={{0.4,0.5,0.4,1.5,1.6,1.5,1.6,0.5},
@@ -610,7 +610,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
       parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
     }
   //test 1 - Conservative volumic
-  ParaMEDMEM::IntersectionDEC dec(*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec(*source_group,*target_group);
   parafield->getField()->setNature(ConservativeVolumic);
   if (source_group->containsMyRank())
     { 
@@ -633,7 +633,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
   //test 2 - Integral
-  ParaMEDMEM::IntersectionDEC dec2(*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec2(*source_group,*target_group);
   parafield->getField()->setNature(Integral);
   if (source_group->containsMyRank())
     { 
@@ -656,7 +656,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
   //test 3 - Integral with global constraint
-  ParaMEDMEM::IntersectionDEC dec3(*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec3(*source_group,*target_group);
   parafield->getField()->setNature(IntegralGlobConstraint);
   if (source_group->containsMyRank())
     { 
@@ -679,7 +679,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
   //test 4 - Conservative volumic reversed
-  ParaMEDMEM::IntersectionDEC dec4(*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec4(*source_group,*target_group);
   parafield->getField()->setNature(ConservativeVolumic);
   if (source_group->containsMyRank())
     { 
@@ -706,7 +706,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
       dec4.sendData();
     }
   //test 5 - Integral reversed
-  ParaMEDMEM::IntersectionDEC dec5(*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec5(*source_group,*target_group);
   parafield->getField()->setNature(Integral);
   if (source_group->containsMyRank())
     { 
@@ -733,7 +733,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
       dec5.sendData();
     }
   //test 6 - Integral with global constraint reversed
-  ParaMEDMEM::IntersectionDEC dec6(*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec6(*source_group,*target_group);
   parafield->getField()->setNature(IntegralGlobConstraint);
   if (source_group->containsMyRank())
     { 
@@ -770,7 +770,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P0()
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
-void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
+void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
 {
   int size;
   int rank;
@@ -928,7 +928,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
       parafieldP1->getField()->setNature(ConservativeVolumic);
     }
   // test 1 - P0 P1
-  ParaMEDMEM::IntersectionDEC dec(*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec(*source_group,*target_group);
   if (source_group->containsMyRank())
     { 
       dec.setMethod("P0");
@@ -998,7 +998,7 @@ void ParaMEDMEMTest::testIntersectionDECNonOverlapp_2D_P0P1P1P0()
  * one sends data with dtA as an interval, the max time being tmaxA
  * the other one receives with dtB as an interval, the max time being tmaxB
  */
-void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA, 
+void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA, 
                                                         double dtB, double tmaxB, bool WithPointToPoint, bool Asynchronous,
                                                         bool WithInterp, const char *srcMeth, const char *targetMeth)
 {
@@ -1031,7 +1031,7 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
     
   //loading the geometry for the source group
 
-  ParaMEDMEM::IntersectionDEC dec (*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
   
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::ParaMESH* paramesh;
@@ -1151,7 +1151,7 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
       dec.setForcedRenormalization(false);
       for (double time=0; time<tmaxA+1e-10; time+=dtA)
         {
-          cout << "testAsynchronousIntersectionDEC_2D" << rank << " time " << time
+          cout << "testAsynchronousInterpKernelDEC_2D" << rank << " time " << time
                << " dtA " << dtA << " tmaxA " << tmaxA << endl ;
           if ( time+dtA < tmaxA+1e-7 ) {
             dec.sendData( time , dtA );
@@ -1187,11 +1187,11 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
       vector<double> times;
       for (double time=0; time<tmaxB+1e-10; time+=dtB)
         {
-          cout << "testAsynchronousIntersectionDEC_2D" << rank << " time " << time
+          cout << "testAsynchronousInterpKernelDEC_2D" << rank << " time " << time
                << " dtB " << dtB << " tmaxB " << tmaxB << endl ;
           dec.recvData( time );
           double vi = parafield->getVolumeIntegral(0);
-          cout << "testAsynchronousIntersectionDEC_2D" << rank << " time " << time
+          cout << "testAsynchronousInterpKernelDEC_2D" << rank << " time " << time
                << " VolumeIntegral " << vi
                << " time*10000 " << time*10000 << endl ;
           
@@ -1208,8 +1208,8 @@ void ParaMEDMEMTest::testAsynchronousIntersectionDEC_2D(double dtA, double tmaxA
   mesh->decrRef() ;
   delete icocofield ;
 
-  cout << "testAsynchronousIntersectionDEC_2D" << rank << " MPI_Barrier " << endl ;
+  cout << "testAsynchronousInterpKernelDEC_2D" << rank << " MPI_Barrier " << endl ;
  
   if (Asynchronous) MPI_Barrier(MPI_COMM_WORLD);
-  cout << "end of IntersectionDEC_2D test"<<endl;
+  cout << "end of InterpKernelDEC_2D test"<<endl;
 }

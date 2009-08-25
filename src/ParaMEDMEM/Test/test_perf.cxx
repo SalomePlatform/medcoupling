@@ -10,7 +10,7 @@
 #include "Topology.hxx"
 #include "DEC.hxx"
 #include "MxN_Mapping.hxx"
-#include "IntersectionDEC.hxx"
+#include "InterpKernelDEC.hxx"
 #include "ParaMESH.hxx"
 #include "ParaFIELD.hxx"
 #include "ComponentTopology.hxx"
@@ -33,7 +33,7 @@
 using namespace std;
 using namespace ParaMEDMEM;
  
-void testIntersectionDEC_2D(const string& filename1, const string& meshname1,
+void testInterpKernelDEC_2D(const string& filename1, const string& meshname1,
                             const string& filename2, const string& meshname2,
                             int nproc_source, double epsilon, bool tri, bool all);
 void get_time( float *telps, float *tuser, float *tsys, float *tcpu );
@@ -87,12 +87,12 @@ int main(int argc, char *argv[])
   }
 
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  testIntersectionDEC_2D(filename1,meshname1,filename2,meshname2,nproc_source,epsilon,tri,all);
+  testInterpKernelDEC_2D(filename1,meshname1,filename2,meshname2,nproc_source,epsilon,tri,all);
 
   MPI_Finalize();
 }
 
-void testIntersectionDEC_2D(const string& filename_xml1, const string& meshname1,
+void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1,
                             const string& filename_xml2, const string& meshname2,
                             int nproc_source, double epsilon, bool tri, bool all)
 {
@@ -120,7 +120,7 @@ void testIntersectionDEC_2D(const string& filename_xml1, const string& meshname1
   
   //loading the geometry for the source group
 
-  ParaMEDMEM::IntersectionDEC dec (*source_group,*target_group);
+  ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
   if(tri)
     dec.setIntersectionType(INTERP_KERNEL::Triangulation);
   else
@@ -262,7 +262,7 @@ void testIntersectionDEC_2D(const string& filename_xml1, const string& meshname1
   delete icocofield;
 
   MPI_Barrier(MPI_COMM_WORLD);
-  cout << "end of IntersectionDEC_2D test"<<endl;
+  cout << "end of InterpKernelDEC_2D test"<<endl;
 }
 
 void get_time( float *telps, float *tuser, float *tsys, float *tcpu )

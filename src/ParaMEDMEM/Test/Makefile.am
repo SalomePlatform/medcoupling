@@ -33,7 +33,7 @@ dist_libParaMEDMEMTest_la_SOURCES = \
 	ParaMEDMEMTest.cxx \
 	ParaMEDMEMTest_MPIProcessorGroup.cxx \
 	ParaMEDMEMTest_BlockTopology.cxx \
-	ParaMEDMEMTest_IntersectionDEC.cxx \
+	ParaMEDMEMTest_InterpKernelDEC.cxx \
 	ParaMEDMEMTest_StructuredCoincidentDEC.cxx \
 	ParaMEDMEMTest_MEDLoader.cxx \
 	ParaMEDMEMTest_ICocoTrio.cxx \

@@ -45,11 +45,11 @@ using namespace ParaMEDMEM;
 using namespace MEDMEM;
  
 /*
- * Check methods defined in IntersectionDEC.hxx
+ * Check methods defined in InterpKernelDEC.hxx
  *
- IntersectionDEC();
- IntersectionDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group);
- virtual ~IntersectionDEC();
+ InterpKernelDEC();
+ InterpKernelDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group);
+ virtual ~InterpKernelDEC();
  void synchronize();
  void recvData();
  void sendData();

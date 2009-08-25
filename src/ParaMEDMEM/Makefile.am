@@ -51,7 +51,7 @@ DECOptions.hxx\
 MxN_Mapping.hxx\
 StructuredCoincidentDEC.hxx\
 InterpolationMatrix.hxx\
-IntersectionDEC.hxx\
+InterpKernelDEC.hxx\
 ExplicitCoincidentDEC.hxx\
 ElementLocator.hxx\
 ExplicitMapping.hxx\
@@ -72,7 +72,7 @@ MPIAccess.cxx \
 InterpolationMatrix.cxx\
 StructuredCoincidentDEC.cxx\
 ExplicitCoincidentDEC.cxx\
-IntersectionDEC.cxx\
+InterpKernelDEC.cxx\
 ElementLocator.cxx\
 MPIAccessDEC.cxx \
 TimeInterpolator.cxx \

@@ -16,8 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __INTERSECTIONDEC_HXX__
-#define __INTERSECTIONDEC_HXX__
+#ifndef __INTERPKERNELDEC_HXX__
+#define __INTERPKERNELDEC_HXX__
 
 #include "DEC.hxx"
 #include "MxN_Mapping.hxx"
@@ -27,12 +27,12 @@ namespace ParaMEDMEM
 {
   class InterpolationMatrix;
 
-  class IntersectionDEC : public DEC, public INTERP_KERNEL::InterpolationOptions
+  class InterpKernelDEC : public DEC, public INTERP_KERNEL::InterpolationOptions
   {
   public:  
-    IntersectionDEC();
-    IntersectionDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
-    virtual ~IntersectionDEC();
+    InterpKernelDEC();
+    InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
+    virtual ~InterpKernelDEC();
     void synchronize();
     void recvData();
     void recvData(double time);

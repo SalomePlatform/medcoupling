@@ -333,13 +333,13 @@ mpirun -np 5 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH
 gcov TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
 	                      ParaMEDMEMTest_MPIProcessorGroup.cxx \
 	                      ParaMEDMEMTest_BlockTopology.cxx \
-	                      ParaMEDMEMTest_IntersectionDEC.cxx \
+	                      ParaMEDMEMTest_InterpKernelDEC.cxx \
                         ../BlockTopology.cxx \
                         ../ComponentTopology.cxx \
                         ../DEC.cxx \
                         ../ElementLocator.cxx \
                         ../InterpolationMatrix.cxx \
-                        ../IntersectionDEC.cxx \
+                        ../InterpKernelDEC.cxx \
                         ../MPIProcessorGroup.cxx \
                         ../MxN_Mapping.cxx \
                         ../ParaFIELD.cxx \
@@ -354,13 +354,13 @@ gcov TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
 gcov -o ../ TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
 	                             ParaMEDMEMTest_MPIProcessorGroup.cxx \
 	                             ParaMEDMEMTest_BlockTopology.cxx \
-	                             ParaMEDMEMTest_IntersectionDEC.cxx \
+	                             ParaMEDMEMTest_InterpKernelDEC.cxx \
                                ../BlockTopology.cxx \
                                ../ComponentTopology.cxx \
                                ../DEC.cxx \
                                ../ElementLocator.cxx \
                                ../InterpolationMatrix.cxx \
-                               ../IntersectionDEC.cxx \
+                               ../InterpKernelDEC.cxx \
                                ../MPIProcessorGroup.cxx \
                                ../MxN_Mapping.cxx \
                                ../ParaFIELD.cxx \

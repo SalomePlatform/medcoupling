@@ -47,9 +47,9 @@ namespace ParaMEDMEM
     It is not available for 3D surfaces. The computation enables fast parallel localization, based on the 
     FVM library. The computation is based on a point in element search, followed 
     by a field evaluation at the point location. Thus, it is typically
-    faster than the \ref intersectiondec which gives a \ref conservativeremapping.
+    faster than the \ref interpkerneldec which gives a \ref conservativeremapping.
     It is particularly true for the initialisation phase (synchronize)
-    which is very computationnaly intensive in \ref intersectiondec.
+    which is very computationnaly intensive in \ref interpkerneldec.
 
     In the present version, only fields lying on elements are considered. 
     The value is estimated by locating the barycenter of the target

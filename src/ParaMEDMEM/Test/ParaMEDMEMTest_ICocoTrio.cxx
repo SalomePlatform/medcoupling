@@ -4,7 +4,7 @@
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "DEC.hxx"
-#include "IntersectionDEC.hxx"
+#include "InterpKernelDEC.hxx"
 #include <set>
 #include <time.h>
 #include "ICoCoTrioField.hxx"
@@ -173,7 +173,7 @@ void ParaMEDMEMTest::testICocoTrio1()
   else
     cas="emetteur";
 
-  IntersectionDEC dec_emetteur(emetteur_group, recepteur_group);
+  InterpKernelDEC dec_emetteur(emetteur_group, recepteur_group);
 
   TrioField champ_emetteur, champ_recepteur;
    

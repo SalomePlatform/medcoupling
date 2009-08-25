@@ -6,7 +6,7 @@
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "DEC.hxx"
-#include "IntersectionDEC.hxx"
+#include "InterpKernelDEC.hxx"
 #include <set>
 #include <time.h>
 #include "ICoCoTrioField.hxx"
@@ -208,7 +208,7 @@ void ParaMEDMEMTest::testGauthier1()
   for (int send=0;send<2;send++)
     for (int rec=0;rec<2;rec++)
       {
-        IntersectionDEC dec_emetteur(emetteur_group, recepteur_group);
+        InterpKernelDEC dec_emetteur(emetteur_group, recepteur_group);
         dec_emetteur.setOrientation(2);
         TrioField champ_emetteur, champ_recepteur;
    

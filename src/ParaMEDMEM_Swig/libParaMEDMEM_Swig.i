@@ -28,7 +28,7 @@
 #include "Topology.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "DEC.hxx"
-#include "IntersectionDEC.hxx"
+#include "InterpKernelDEC.hxx"
 #include "NonCoincidentDEC.hxx"
 #include "StructuredCoincidentDEC.hxx"
 #include "ParaMESH.hxx"
@@ -56,7 +56,7 @@ enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
 %include "MPIProcessorGroup.hxx"
 %include "ComponentTopology.hxx"
 %include "DEC.hxx"
-%include "IntersectionDEC.hxx"
+%include "InterpKernelDEC.hxx"
 %include "StructuredCoincidentDEC.hxx"
 
 %rename(ICoCoMEDField) ICoCo::MEDField;

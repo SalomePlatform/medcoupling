@@ -296,7 +296,7 @@ Presentation-ParaMEDMEM :
   mode de fonctionnement reste naturellement disponible.
 
 . Cela repose sur trois nouvelles options creees avec registerOption
-  dans le constructeur de IntersectionDEC :
+  dans le constructeur de InterpKernelDEC :
   + Asynchronous : true ou false (par defaut)
   + TimeInterpolation : WithoutTimeInterp (par defaut) ou LinearTimeInterp
     typedef enum{WithoutTimeInterp,LinearTimeInterp} TimeInterpolationMethod;
@@ -306,7 +306,7 @@ Presentation-ParaMEDMEM :
     dans MxN_Mapping.hxx
 
 . Le choix des options se fait avec le Data Exchange Channel :
-  + ParaMEDMEM::IntersectionDEC dec (*source_group,*target_group);
+  + ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
   + dec.setOption("Asynchronous",true);
   + dec.setOption("TimeInterpolation",LinearTimeInterp);
   + dec.setOption("AllToAllMethod",PointToPoint);
@@ -321,17 +321,17 @@ Presentation-ParaMEDMEM :
     et TimeInterpolation : methodes Asynchronous et
     SetTimeInterpolator de MPI_AccessDEC.
 
-. ParaMEDMEM::IntersectionDEC comporte maintenant une surcharge des
+. ParaMEDMEM::InterpKernelDEC comporte maintenant une surcharge des
   methodes recvData() et sendData() :
-  + void IntersectionDEC::recvData( double time ) qui appelle
+  + void InterpKernelDEC::recvData( double time ) qui appelle
     SetTime(time) de MPI_AccessDEC et
     recvData()
-  + void IntersectionDEC::sendData( double time , double deltatime )
+  + void InterpKernelDEC::sendData( double time , double deltatime )
     qui appelle 
     SetTime(time,deltatime) de MPI_AccessDEC et
     sendData()
 
-. recvData() et sendData() de ParaMEDMEM::IntersectionDEC
+. recvData() et sendData() de ParaMEDMEM::InterpKernelDEC
   appellent multiply et transposeMultiply de l'InterpolationMatrix
   qui appellent sendRecv et reverseSendRecv de MxN_Mapping
   qui appellent comm_interface.allToAllV en mode "Native"
