@@ -21,6 +21,8 @@
 
 #include "INTERPKERNELDefines.hxx"
 
+#include <string>
+
 namespace INTERP_KERNEL
 {
   typedef enum { Triangulation, Convex, Geometric2D } IntersectionType;
@@ -90,10 +92,31 @@ namespace INTERP_KERNEL
       _orientation=0;
       _splitting_policy=GENERAL_48;
     }
+    bool setOptionDouble(const std::string& key, double value);
+    bool setOptionInt(const std::string& key, int value);
+    bool setOptionString(const std::string& key, std::string& value);
   private:
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;
     static const double DFT_MAX_DIST_3DSURF_INTERSECT;
+  public:
+    static const char PRECISION_STR[];
+    static const char MEDIANE_PLANE_STR[];
+    static const char BOUNDING_BOX_ADJ_STR[];
+    static const char BOUNDING_BOX_ADJ_ABS_STR[];
+    static const char MAX_DISTANCE_3DSURF_INSECT_STR[];
+    static const char PRINT_LEV_STR[];
+    static const char DO_ROTATE_STR[];
+    static const char ORIENTATION_STR[];
+    static const char INTERSEC_TYPE_STR[];
+    static const char SPLITTING_POLICY_STR[];
+    static const char TRIANGULATION_INTERSECT2D_STR[];
+    static const char CONVEX_INTERSECT2D_STR[];
+    static const char GEOMETRIC_INTERSECT2D_STR[];
+    static const char PLANAR_SPLIT_FACE_5_STR[];
+    static const char PLANAR_SPLIT_FACE_6_STR[];
+    static const char GENERAL_SPLIT_24_STR[];
+    static const char GENERAL_SPLIT_48_STR[];
   };
 
 }
