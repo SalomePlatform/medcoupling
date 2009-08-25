@@ -18,8 +18,11 @@
 //
 #include "InterpKernelException.hxx"
 
+#include <iostream>
+
 INTERP_KERNEL::Exception::Exception(const char *what):_reason(what)
 {
+  std::cerr << "AN INTERP_KERNEL::EXCEPTION HAS BEEN THROWN : " << what << "**********" << std::endl;
 }
 
 INTERP_KERNEL::Exception::Exception(const char *what, const char *file, int line):_reason(what)
