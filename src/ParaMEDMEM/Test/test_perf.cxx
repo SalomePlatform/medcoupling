@@ -34,8 +34,8 @@ using namespace std;
 using namespace ParaMEDMEM;
  
 void testIntersectionDEC_2D(const string& filename1, const string& meshname1,
-			    const string& filename2, const string& meshname2,
-			    int nproc_source, double epsilon, bool tri, bool all);
+                            const string& filename2, const string& meshname2,
+                            int nproc_source, double epsilon, bool tri, bool all);
 void get_time( float *telps, float *tuser, float *tsys, float *tcpu );
 
 int main(int argc, char *argv[])
@@ -93,8 +93,8 @@ int main(int argc, char *argv[])
 }
 
 void testIntersectionDEC_2D(const string& filename_xml1, const string& meshname1,
-			    const string& filename_xml2, const string& meshname2,
-			    int nproc_source, double epsilon, bool tri, bool all)
+                            const string& filename_xml2, const string& meshname2,
+                            int nproc_source, double epsilon, bool tri, bool all)
 {
   float tcpu, tcpu_u, tcpu_s, telps;
   int size;
@@ -194,7 +194,7 @@ void testIntersectionDEC_2D(const string& filename_xml1, const string& meshname1
     paramesh=new ParaMESH (mesh,*target_group,"target mesh");
     ParaMEDMEM::ComponentTopology comptopo;
     parafield = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
-		
+
     int nb_local=mesh->getNumberOfCells();
     double *value=parafield->getField()->getArray()->getPointer();
     for(int ielem=0; ielem<nb_local;ielem++)

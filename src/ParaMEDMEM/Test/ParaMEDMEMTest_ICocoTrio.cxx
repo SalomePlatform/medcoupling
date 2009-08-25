@@ -20,7 +20,6 @@ void synchronize_bool(bool& stop, synctype s)
 {
   int my_stop;
   int my_stop_temp = stop?1:0;
-	
   if (s==sync_and)
     MPI_Allreduce(&my_stop_temp,&my_stop,1,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD);
   else if (s==sync_or)
@@ -65,7 +64,7 @@ void remplit_coord(double* coords)
   for (int i=4;i<8;i++)
     {
       for (int d=0;d<3;d++)
-	coords[i*3+d]=coords[(i-4)*3+d];
+        coords[i*3+d]=coords[(i-4)*3+d];
       coords[i*3+1]+=1e-5;
     }
 
@@ -187,7 +186,7 @@ void ParaMEDMEMTest::testICocoTrio1()
     {
       champ_emetteur._field=new double[champ_emetteur._nb_elems];
       for (int ele=0;ele<champ_emetteur._nb_elems;ele++)
-	champ_emetteur._field[ele]=1;
+        champ_emetteur._field[ele]=1;
       
       champ_emetteur._has_field_ownership=true;
     }
@@ -208,45 +207,46 @@ void ParaMEDMEMTest::testICocoTrio1()
     cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl; 
     for (int non_unif=0;non_unif<2;non_unif++)
       {
-	// if (champ_recepteur._field)
-	//   delete [] champ_recepteur._field;
-	champ_recepteur._field=0;
-	// champ_recepteur._has_field_ownership=false;
+        // if (champ_recepteur._field)
+        //   delete [] champ_recepteur._field;
+        champ_recepteur._field=0;
+        // champ_recepteur._has_field_ownership=false;
   
 
   
-	if (cas=="emetteur") 
-	  if (non_unif)
-	    champ_emetteur._field[0]=40;
-	bool ok=false; // Is the time interval successfully solved ?
+        if (cas=="emetteur") 
+          if (non_unif)
+            champ_emetteur._field[0]=40;
+        bool ok=false; // Is the time interval successfully solved ?
     
-	// Loop on the time interval tries
-	if(1) {
-      
-
-	  if (cas=="emetteur")
-	    dec_emetteur.attachLocalField((ICoCo::Field*) &champ_emetteur);
-	  else
-	    dec_emetteur.attachLocalField((ICoCo::Field*) &champ_recepteur);
-
-          dec_emetteur.setNature(ConservativeVolumic);
-
-	  if(init)
-            dec_emetteur.synchronize();
-	  init=false;
-
-	  if (cas=="emetteur") {
-	    dec_emetteur.sendData();
-	    affiche(champ_emetteur);
-	  }
-	  else if (cas=="recepteur") {
-	    dec_emetteur.recvData();
-	    affiche(champ_recepteur);
-	  }
-	  else
-          throw 0;
-        }
-	stop=true;
+        // Loop on the time interval tries
+        if(1)
+          {
+            if (cas=="emetteur")
+              dec_emetteur.attachLocalField((ICoCo::Field*) &champ_emetteur);
+            else
+              dec_emetteur.attachLocalField((ICoCo::Field*) &champ_recepteur);
+            
+            dec_emetteur.setNature(ConservativeVolumic);
+            
+            if(init)
+              dec_emetteur.synchronize();
+            init=false;
+            
+            if (cas=="emetteur")
+              {
+                dec_emetteur.sendData();
+                affiche(champ_emetteur);
+              }
+            else if (cas=="recepteur")
+              {
+                dec_emetteur.recvData();
+                affiche(champ_recepteur);
+              }
+            else
+              throw 0;
+          }
+        stop=true;
       }
-}
+  }
 }
