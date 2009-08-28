@@ -242,7 +242,7 @@ void MEDCouplingUMeshDesc::renumberConnectivity(const int *newNodeNumbers)
 {
 }
 
-MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureField() const
+MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureField(bool isAbs) const
 {
   //not implemented yet.
   return 0;

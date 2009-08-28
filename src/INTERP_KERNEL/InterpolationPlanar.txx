@@ -20,6 +20,7 @@
 #define __INTERPOLATIONPLANAR_TXX__
 
 #include "InterpolationPlanar.hxx"
+#include "Interpolation.txx"
 #include "InterpolationOptions.hxx"
 #include "PlanarIntersector.hxx"
 #include "PlanarIntersector.txx"
@@ -36,10 +37,6 @@
 
 namespace INTERP_KERNEL
 {
-
-  template<class RealPlanar>
-  const double InterpolationPlanar<RealPlanar>::DEFAULT_PRECISION=1.e-12;
-
   /**
    * \defgroup interpolationPlanar InterpolationPlanar
    *
@@ -58,7 +55,6 @@ namespace INTERP_KERNEL
                                                          
   {
   }
-
 
   /**
    *  \brief  Function used to set the options for the intersection calculation

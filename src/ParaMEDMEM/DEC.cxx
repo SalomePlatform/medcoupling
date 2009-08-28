@@ -188,12 +188,12 @@ namespace ParaMEDMEM
     \f]
 
   */
-  void DEC::renormalizeTargetField()
+  void DEC::renormalizeTargetField(bool isWAbs)
   {
     if (_source_group->containsMyRank())
       for (int icomp=0; icomp<_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
         {
-          double total_norm = _local_field->getVolumeIntegral(icomp+1);
+          double total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
           double source_norm = total_norm;
           _comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
 
@@ -202,7 +202,7 @@ namespace ParaMEDMEM
       {
         for (int icomp=0; icomp<_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
           {
-            double total_norm = _local_field->getVolumeIntegral(icomp+1);
+            double total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
             double source_norm=total_norm;
             _comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
 

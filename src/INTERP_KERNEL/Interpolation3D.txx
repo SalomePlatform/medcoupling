@@ -20,6 +20,7 @@
 #define __INTERPOLATION3D_TXX__
 
 #include "Interpolation3D.hxx"
+#include "Interpolation.txx"
 #include "MeshElement.txx"
 #include "TransformedTriangle.hxx"
 #include "PolyhedronIntersector.txx"
@@ -315,7 +316,6 @@ namespace INTERP_KERNEL
     return ret;
 
   }
-
 }
 
 #endif

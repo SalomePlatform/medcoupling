@@ -42,7 +42,7 @@ namespace ParaMEDMEM
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
     virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh) const = 0;
+    virtual MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const = 0;
     virtual MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const = 0;
   };
 
@@ -56,7 +56,7 @@ namespace ParaMEDMEM
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh) const;
+    MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const;
   public:
     static const char REPR[];
@@ -73,7 +73,7 @@ namespace ParaMEDMEM
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh) const;
+    MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const;
     static DataArrayInt *invertArrayO2N2N2O(const MEDCouplingMesh *mesh, const DataArrayInt *di);
   public:

@@ -89,11 +89,11 @@ double MEDCouplingFieldDouble::accumulate(int compId) const
   return ret;
 }
 
-double MEDCouplingFieldDouble::measureAccumulate(int compId) const
+double MEDCouplingFieldDouble::measureAccumulate(int compId, bool isWAbs) const
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform measureAccumulate");
-  MEDCouplingFieldDouble *weight=_type->getWeightingField(_mesh);
+  MEDCouplingFieldDouble *weight=_type->getWeightingField(_mesh,isWAbs);
   const double *ptr=weight->getArray()->getConstPointer();
   int nbOfValues=weight->getArray()->getNbOfElems();
   double ret=0.;

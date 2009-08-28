@@ -40,6 +40,8 @@ const char INTERP_KERNEL::InterpolationOptions::DO_ROTATE_STR[]="DoRotate";
 
 const char INTERP_KERNEL::InterpolationOptions::ORIENTATION_STR[]="Orientation";
 
+const char INTERP_KERNEL::InterpolationOptions::MEASURE_ABS_STR[]="MeasureAbs";
+
 const char INTERP_KERNEL::InterpolationOptions::INTERSEC_TYPE_STR[]="IntersectionType";
 
 const char INTERP_KERNEL::InterpolationOptions::SPLITTING_POLICY_STR[]="SplittingPolicy";
@@ -105,6 +107,11 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, i
       {
         setOrientation(value);
         return true;
+      }
+    else if(key==MEASURE_ABS_STR)
+      {
+        bool valBool=(value!=0);
+        setMeasureAbsStatus(valBool);
       }
     else
       return false;

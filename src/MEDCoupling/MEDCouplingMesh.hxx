@@ -50,7 +50,7 @@ namespace ParaMEDMEM
     virtual int getMeshDimension() const = 0;
     // tools
     virtual void getBoundingBox(double *bbox) const = 0;
-    virtual MEDCouplingFieldDouble *getMeasureField() const = 0;
+    virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
   protected:
     MEDCouplingMesh() { }
     MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name) { }

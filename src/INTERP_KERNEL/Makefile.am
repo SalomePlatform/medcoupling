@@ -41,6 +41,7 @@ Geometric2DIntersector.txx		\
 INTERPKERNELDefines.hxx			\
 InterpKernelMatrix.hxx			\
 Interpolation.hxx			\
+Interpolation.txx                       \
 Interpolation2D.hxx			\
 Interpolation2D.txx			\
 Interpolation3D.hxx			\
@@ -91,6 +92,8 @@ TransformedTriangleInline.hxx		\
 TranslationRotationMatrix.hxx		\
 TriangulationIntersector.hxx		\
 TriangulationIntersector.txx		\
+IntegralUniformIntersector.hxx          \
+IntegralUniformIntersector.txx          \
 UnitTetraIntersectionBary.hxx		\
 VTKNormalizedUnstructuredMesh.hxx	\
 VTKNormalizedUnstructuredMesh.txx	\
@@ -104,7 +107,9 @@ PlanarIntersectorP0P1.hxx	\
 PlanarIntersectorP0P1.txx	\
 PlanarIntersectorP1P0.hxx	\
 PlanarIntersectorP1P0.txx	\
-VolSurfFormulae.hxx
+VolSurfFormulae.hxx             \
+VolSurfUser.hxx                 \
+VolSurfUser.txx
 
 # Libraries targets
 

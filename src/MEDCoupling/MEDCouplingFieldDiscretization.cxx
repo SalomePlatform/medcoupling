@@ -86,9 +86,9 @@ void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMe
     }
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getWeightingField(const MEDCouplingMesh *mesh) const
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
-  return mesh->getMeasureField();
+  return mesh->getMeasureField(isAbs);
 }
 
 /*!
@@ -149,7 +149,7 @@ void MEDCouplingFieldDiscretizationP1::checkCoherencyBetween(const MEDCouplingMe
     }
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(const MEDCouplingMesh *mesh) const
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
   //not implemented yet.
   //Dual mesh to build

@@ -48,7 +48,7 @@ namespace ParaMEDMEM
     Topology* getTopology() const { return _topology; }
     ParaMESH* getSupport() const  { return _support; }
     int nbComponents() const;
-    double getVolumeIntegral(int icomp) const;
+    double getVolumeIntegral(int icomp, bool isWAbs) const;
     double getL2Norm()const { return -1; }
   private:
     MEDCouplingFieldDouble* _field;

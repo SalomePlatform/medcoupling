@@ -38,8 +38,15 @@ namespace INTERP_KERNEL
     Interpolation(const InterpolationOptions& io) :InterpolationOptions(io){}
     //interpolation of two triangular meshes.
     template<class MatrixType, class MyMeshType>
-    int interpolateMeshes(const MyMeshType& mesh1, const MyMeshType& mesh2, MatrixType& result)
-    { return asLeaf().interpolateMeshes(mesh1,mesh2,result); }
+    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result)
+    { return asLeaf().interpolateMeshes(meshS,meshT,result); }
+    template<class MyMeshType, class MatrixType>
+    int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const char *method) { return fromToIntegralUniform(true,meshT,result,method); }
+    template<class MyMeshType, class MatrixType>
+    int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const char *method) { return fromToIntegralUniform(false,meshS,result,method); }
+  protected:
+    template<class MyMeshType, class MatrixType>
+    int fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const char *method);
   protected:
     TrueMainInterpolator& asLeaf() { return static_cast<TrueMainInterpolator&>(*this); }
   };

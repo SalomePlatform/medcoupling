@@ -53,7 +53,7 @@ namespace ParaMEDMEM
     void findBoundaryNodes(std::vector<int>& nodes) const;
     MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     void renumberConnectivity(const int *newNodeNumbers);
-    MEDCouplingFieldDouble *getMeasureField() const;
+    MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     DataArrayInt *zipCoordsTraducer();
   private:
     MEDCouplingUMeshDesc();

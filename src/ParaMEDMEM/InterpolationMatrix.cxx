@@ -154,7 +154,7 @@ namespace ParaMEDMEM
 
     MEDCouplingFieldDouble *target_triangle_surf=0;
     if(needTargetSurf)
-      target_triangle_surf = distant_support.getMeasureField();
+      target_triangle_surf = distant_support.getMeasureField(getMeasureAbsStatus());
     fillDSFromVM(iproc_distant,distant_elems,surfaces,target_triangle_surf);
 
     if(needTargetSurf)
@@ -320,7 +320,7 @@ namespace ParaMEDMEM
 
   void InterpolationMatrix::computeIntegralDenoW(ElementLocator& elementLocator)
   {
-    MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField();
+    MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField(getMeasureAbsStatus());
     _deno_multiply.resize(_coeffs.size());
     vector<vector<double> >::iterator iter6=_deno_multiply.begin();
     const double *values=source_triangle_surf->getArray()->getConstPointer();

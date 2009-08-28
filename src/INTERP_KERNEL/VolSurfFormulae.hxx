@@ -16,8 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef VOLSURFFORMULAE
-#define VOLSURFFORMULAE
+#ifndef __VOLSURFFORMULAE_HXX__
+#define __VOLSURFFORMULAE_HXX__
 
 #include <math.h>
 

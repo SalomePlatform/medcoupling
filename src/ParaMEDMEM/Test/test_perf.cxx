@@ -210,7 +210,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
   double field_after_int;
   
   if (source_group->containsMyRank()){ 
-    field_before_int = parafield->getVolumeIntegral(0);
+    field_before_int = parafield->getVolumeIntegral(0,true);
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     dec.synchronize();
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
@@ -229,7 +229,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
       cout << "SEND DATA : Telapse = " << telps << " TuserCPU = " << tcpu_u << " TsysCPU = " << tcpu_s << " TCPU = " << tcpu << endl;
     dec.recvData();
      
-    field_after_int = parafield->getVolumeIntegral(0);
+    field_after_int = parafield->getVolumeIntegral(0,true);
 //    CPPUNIT_ASSERT_DOUBLES_EQUAL(field_before_int, field_after_int, epsilon);
       
   }

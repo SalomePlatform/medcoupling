@@ -46,6 +46,7 @@ namespace INTERP_KERNEL
     double _bounding_box_adjustment_abs ;
     double _max_distance_for_3Dsurf_intersect;
     int _orientation ;
+    bool _measure_abs;
     SplittingPolicy _splitting_policy ;
 
   public:
@@ -76,6 +77,9 @@ namespace INTERP_KERNEL
 
     int getOrientation() const { return _orientation; }
     void setOrientation(int o) { _orientation=o; }
+
+    bool getMeasureAbsStatus() const { return _measure_abs; }
+    void setMeasureAbsStatus(bool newStatus) { _measure_abs=newStatus; }
     
     SplittingPolicy getSplittingPolicy() const { return _splitting_policy; }
     void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
@@ -90,6 +94,7 @@ namespace INTERP_KERNEL
       _bounding_box_adjustment_abs=0.;
       _max_distance_for_3Dsurf_intersect=DFT_MAX_DIST_3DSURF_INTERSECT;
       _orientation=0;
+      _measure_abs=true;
       _splitting_policy=GENERAL_48;
     }
     bool setOptionDouble(const std::string& key, double value);
@@ -108,6 +113,7 @@ namespace INTERP_KERNEL
     static const char PRINT_LEV_STR[];
     static const char DO_ROTATE_STR[];
     static const char ORIENTATION_STR[];
+    static const char MEASURE_ABS_STR[];
     static const char INTERSEC_TYPE_STR[];
     static const char SPLITTING_POLICY_STR[];
     static const char TRIANGULATION_INTERSECT2D_STR[];

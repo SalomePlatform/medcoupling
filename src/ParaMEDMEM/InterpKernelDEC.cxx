@@ -222,7 +222,7 @@ namespace ParaMEDMEM
       {
         _interpolation_matrix->multiply(*_local_field->getField());
         if (getForcedRenormalization())
-          renormalizeTargetField();
+          renormalizeTargetField(getMeasureAbsStatus());
       }
   }
 
@@ -249,7 +249,7 @@ namespace ParaMEDMEM
     
         _interpolation_matrix->multiply(*_local_field->getField());
         if (getForcedRenormalization())
-          renormalizeTargetField();
+          renormalizeTargetField(getMeasureAbsStatus());
     
       }
     else if (_target_group->containsMyRank())

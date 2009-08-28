@@ -50,7 +50,7 @@ namespace ParaMEDMEM
     virtual void synchronize()=0;
     virtual ~DEC();
     virtual void computeProcGroup() { }
-    void renormalizeTargetField();
+    void renormalizeTargetField(bool isWAbs);
   protected:
     void compareFieldAndMethod() const throw(INTERP_KERNEL::Exception);
   protected:

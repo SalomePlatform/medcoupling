@@ -31,8 +31,6 @@ namespace INTERP_KERNEL
   {
   private:
     double _dim_caracteristic;
-    static const double DEFAULT_PRECISION;
-
   public:
     InterpolationPlanar();
     InterpolationPlanar(const InterpolationOptions & io);
@@ -43,15 +41,13 @@ namespace INTERP_KERNEL
     
     // Main function to interpolate triangular and quadratic meshes
     template<class MyMeshType, class MatrixType>
-      int interpolateMeshes(const MyMeshType& mesh1, const MyMeshType& mesh2, MatrixType& result, const char *method);
-    
+    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result, const char *method);
   public:
     bool doRotate() const { return asLeafInterpPlanar().doRotate(); }
     double medianPlane() const { return asLeafInterpPlanar().medianPlane(); }
     template<class MyMeshType, class MyMatrixRow>
       void performAdjustmentOfBB(PlanarIntersector<MyMeshType,MyMatrixRow>* intersector, std::vector<double>& bbox) const
     { return asLeafInterpPlanar().performAdjustmentOfBB(intersector,bbox); }
-
   protected:
     RealPlanar& asLeafInterpPlanar() { return static_cast<RealPlanar&>(*this); }
     const RealPlanar& asLeafInterpPlanar() const { return static_cast< const RealPlanar& >(*this); }

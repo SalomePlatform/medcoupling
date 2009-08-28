@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     void setArray(DataArrayDouble *array);
     DataArrayDouble *getArray() const { return _time_discr->getArray(); }
     double accumulate(int compId) const;
-    double measureAccumulate(int compId) const;
+    double measureAccumulate(int compId, bool isWAbs) const;
     void getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);
     //! \b temporary

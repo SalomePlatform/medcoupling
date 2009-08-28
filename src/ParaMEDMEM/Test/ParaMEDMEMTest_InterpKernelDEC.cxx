@@ -199,7 +199,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
   
   if (source_group->containsMyRank())
     { 
-      field_before_int = parafield->getVolumeIntegral(0);
+      field_before_int = parafield->getVolumeIntegral(0,true);
       dec.synchronize();
       cout<<"DEC usage"<<endl;
       dec.setForcedRenormalization(false);
@@ -223,7 +223,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      field_after_int = parafield->getVolumeIntegral(0);
+      field_after_int = parafield->getVolumeIntegral(0,true);
       
       
       //      MPI_Bcast(&field_before_int,1,MPI_DOUBLE,0,MPI_COMM_WORLD);
@@ -406,7 +406,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
   
   if (source_group->containsMyRank())
     { 
-      field_before_int = parafield->getVolumeIntegral(0);
+      field_before_int = parafield->getVolumeIntegral(0,true);
       dec.synchronize();
       cout<<"DEC usage"<<endl;
       dec.setForcedRenormalization(false);
@@ -430,7 +430,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      field_after_int = parafield->getVolumeIntegral(0);
+      field_after_int = parafield->getVolumeIntegral(0,true);
 
       CPPUNIT_ASSERT_DOUBLES_EQUAL(field_before_int, field_after_int, 1e-6);
     
@@ -1190,7 +1190,7 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
           cout << "testAsynchronousInterpKernelDEC_2D" << rank << " time " << time
                << " dtB " << dtB << " tmaxB " << tmaxB << endl ;
           dec.recvData( time );
-          double vi = parafield->getVolumeIntegral(0);
+          double vi = parafield->getVolumeIntegral(0,true);
           cout << "testAsynchronousInterpKernelDEC_2D" << rank << " time " << time
                << " VolumeIntegral " << vi
                << " time*10000 " << time*10000 << endl ;

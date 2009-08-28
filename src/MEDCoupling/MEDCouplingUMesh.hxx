@@ -67,7 +67,7 @@ namespace ParaMEDMEM
     MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     void renumberConnectivity(const int *newNodeNumbers);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
-    MEDCouplingFieldDouble *getMeasureField() const;
+    MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);

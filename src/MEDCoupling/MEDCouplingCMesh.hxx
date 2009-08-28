@@ -45,7 +45,7 @@ namespace ParaMEDMEM
                    DataArrayDouble *coordsZ=0);
     // tools
     void getBoundingBox(double *bbox) const;
-    MEDCouplingFieldDouble *getMeasureField() const;
+    MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
   private:
     MEDCouplingCMesh();
     ~MEDCouplingCMesh();

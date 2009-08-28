@@ -175,7 +175,7 @@ void MEDCouplingCMesh::getBoundingBox(double *bbox) const
   //not implemented yet !
 }
 
-MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField() const
+MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
 {
   //not implemented yet !
   return 0;
