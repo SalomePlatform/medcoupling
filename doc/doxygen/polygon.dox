@@ -48,8 +48,8 @@ as a \c MED_POLYHEDRA element.
 
 - The standard element index connectivity table writes : {1, 5 }
 - The standard element connectivity table writes : {1, 2, 3, 4 }
-- The polyhedra face connectivity index table writes :{1, 5}
-- The polyhedra connectivity index table writes : {1, 4, 7, 10, 13}
+- The polyhedra connectivity index table writes :{1, 5}
+- The polyhedra connectivity face index table writes : {1, 4, 7, 10, 13}
 - The polyhedra connectivity (face/node connectivity) table writes : {2, 3, 5, 2, 4, 5, 4, 5, 3, 2, 3, 4}
 
 Note that as they are not needed as such, the face numberings are not stored
