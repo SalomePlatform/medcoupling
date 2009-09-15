@@ -22,6 +22,6 @@ bin_PROGRAMS= TestMEDCoupling
 
 TestMEDCoupling_CPPFLAGS=@CPPUNIT_INCLUDES@ -I$(srcdir)/.. -I$(srcdir)/../../INTERP_KERNEL/Bases -I$(srcdir)/../../INTERP_KERNELTest -I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Geometric2D
 
-TestMEDCoupling_LDFLAGS = @CPPUNIT_LIBS@ ../libmedcoupling.la
+TestMEDCoupling_LDFLAGS = @CPPUNIT_LIBS@ ../libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la
 
 dist_TestMEDCoupling_SOURCES = TestMEDCoupling.cxx MEDCouplingBasicsTest.hxx MEDCouplingBasicsTest.cxx
