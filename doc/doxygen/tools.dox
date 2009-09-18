@@ -39,6 +39,21 @@ Available options:
         --family-splitting       : preserves the family names instead of focusing on the groups
 \endcode
 
+\section renumber RENUMBER tool
+
+The purpose of RENUMBER is to renumber the cell of a mesh in order to
+make numerical computation easier. This tool works with meshes
+which contain only one cell type and can renumber it according to two
+different methods:
+- Reverse Cuthill McKee (with the Boost Graph Library http://www.boost.org/doc/libs/1_40_0/libs/graph/doc/table_of_contents.html)
+- Nested Dissection (with the METIS library
+http://glaros.dtc.umn.edu/gkhome/views/metis/index.html)
+
+It can be used in this way :
+\code
+renumber MEDFile_in MeshName Method[BOOST/METIS] MEDFile_out
+\endcode
+
 \section sauv2med sauv2med tool
 
 The sauv2med tool enable conversion from a Cast3m \a sauv file into a
