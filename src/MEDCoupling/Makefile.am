@@ -33,7 +33,8 @@ MEDCouplingField.hxx MEDCouplingNormalizedUnstructuredMesh.hxx MEDCouplingMemArr
 MEDCouplingNormalizedUnstructuredMesh.txx  MEDCouplingMemArray.txx MEDCouplingRefCountObject.hxx  \
 MEDCouplingCMesh.hxx MEDCouplingTimeDiscretization.hxx                                            \
 MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx                                        \
-MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx
+MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx                                             \
+MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx
 
 # Libraries targets
 
