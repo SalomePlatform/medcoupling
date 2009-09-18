@@ -51,6 +51,8 @@ Interpolation3DSurf.txx			\
 InterpolationOptions.hxx		\
 InterpolationPlanar.hxx			\
 InterpolationPlanar.txx			\
+InterpolationCC.hxx                     \
+InterpolationCC.txx                     \
 InterpolationUtils.hxx			\
 Intersector3D.hxx			\
 Intersector3D.txx			\
