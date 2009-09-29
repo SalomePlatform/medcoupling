@@ -27,6 +27,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cstring>
+#include <limits>
 
 using namespace std;
 using namespace INTERP_KERNEL;
@@ -208,19 +209,19 @@ double QuadraticPolygon::intersectWith(const QuadraticPolygon& other, double* ba
   barycenter[0] = barycenter[1] = 0.;
   vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
   for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
-  {
-    double area = fabs((*iter)->getArea());
-    (*iter)->getBarycenter(bary);
-    delete *iter;
-    ret+=area;
-    barycenter[0] += bary[0]*area;
-    barycenter[1] += bary[1]*area;
-  }
+    {
+      double area = fabs((*iter)->getArea());
+      (*iter)->getBarycenter(bary);
+      delete *iter;
+      ret+=area;
+      barycenter[0] += bary[0]*area;
+      barycenter[1] += bary[1]*area;
+    }
   if ( ret > std::numeric_limits<double>::min() )
-  {
-    barycenter[0] /= ret;
-    barycenter[1] /= ret;
-  }
+    {
+      barycenter[0] /= ret;
+      barycenter[1] /= ret;
+    }
   return ret;
 }
 
