@@ -62,10 +62,9 @@ drivers provided by the MEDMEM library.
 
 Calling 
 \code
-sauv2med myfile.med
+sauv2med myfile.sauv
 \endcode
-generates a \a sauv file named \a myfile.med.sauv
-
+generates a \a med file named \a myfile.sauv.med
 
 \section med2sauv med2sauv tool
 
@@ -74,8 +73,8 @@ behaviour is symmetrical.
 
 Calling 
 \code
-med2sauv myfile.sauv
+med2sauv myfile.med
 \endcode
-generates a \a med file named \a myfile.sauv.med
+generates a \a sauv file named \a myfile.med.sauv
 
 */

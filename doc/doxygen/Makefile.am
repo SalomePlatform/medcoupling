@@ -25,14 +25,12 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
 
-userdocdir = $(prefix)/doc/user
-
 install-data-local : html-local
-	$(INSTALL) -d $(DESTDIR)$(userdocdir)
-	cp -rp doc_ref_user/html $(DESTDIR)$(userdocdir)
+	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED
+	cp -rp doc_ref_user/html/*.* $(DESTDIR)$(docdir)/gui/MED
 
 uninstall-local:
-	rm -rf $(DESTDIR)$(userdocdir)
+	rm -rf $(DESTDIR)$(docdir)/gui/MED
 
 clean-local:
 	rm -rf doc_ref_user log_user
