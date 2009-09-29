@@ -339,8 +339,6 @@ namespace INTERP_KERNEL
   template<class MyMeshType>
   double SplitterTetra<MyMeshType>::intersectTetra(const double** tetraCorners)
   {
-    typedef typename MyMeshType::MyConnType ConnType;
-    const NumberingPolicy numPol=MyMeshType::My_numPol;
     //{ could be done on outside?
     // check if we have planar tetra element
     if(_t->determinant() == 0.0)
