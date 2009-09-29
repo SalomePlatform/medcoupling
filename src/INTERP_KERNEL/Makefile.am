@@ -62,6 +62,8 @@ Intersector3DP1P0.hxx			\
 Intersector3DP1P0.txx			\
 Intersector3DP1P0Bary.hxx		\
 Intersector3DP1P0Bary.txx		\
+Intersector3DP1P1.hxx			\
+Intersector3DP1P1.txx			\
 Log.hxx					\
 MeshElement.hxx				\
 MeshElement.txx				\
@@ -90,6 +92,8 @@ PolyhedronIntersectorP1P0.hxx		\
 PolyhedronIntersectorP1P0.txx		\
 PolyhedronIntersectorP1P0Bary.hxx	\
 PolyhedronIntersectorP1P0Bary.txx	\
+PolyhedronIntersectorP1P1.hxx		\
+PolyhedronIntersectorP1P1.txx		\
 RegionNode.hxx				\
 SplitterTetra.hxx			\
 SplitterTetra.txx			\
@@ -107,10 +111,6 @@ VTKNormalizedUnstructuredMesh.hxx	\
 VTKNormalizedUnstructuredMesh.txx	\
 VectorUtils.hxx
 
-#PolyhedronIntersectorP1P1.hxx		
-#PolyhedronIntersectorP1P1.txx		
-#Intersector3DP1P1.hxx			
-#Intersector3DP1P1.txx			
 
 EXTRA_DIST +=			\
 InterpKernelUtilities.hxx	\
