@@ -33,9 +33,9 @@ namespace INTERP_KERNEL
   class INTERPKERNEL_EXPORT UnitTetraIntersectionBary : protected TransformedTriangle
   {
   public:
-    UnitTetraIntersectionBary();
+    UnitTetraIntersectionBary(bool isTetraInversed=false);
 
-    void init();
+    void init(bool isTetraInversed=false);
     /*!
      * \brief Stores a part of triangle common with the unit tetrahedron
      *  \param triangle - triangle side of other cell, whose calculateIntersectionVolume()
@@ -68,7 +68,10 @@ namespace INTERP_KERNEL
     double  _int_volume;
 
     /// faces of intersection polyhedron
-    std::list< std::vector< double* > > _faces;
+    std::list< std::vector< double* > >   _faces;
+    std::vector< std::vector< double > >  _polyNormals;
+
+    bool _isTetraInversed;
   };
 
 }
