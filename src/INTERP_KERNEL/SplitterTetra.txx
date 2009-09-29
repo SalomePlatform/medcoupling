@@ -27,6 +27,7 @@
 #include "VectorUtils.hxx"
 #include "CellModel.hxx"
 #include "Log.hxx"
+#include "UnitTetraIntersectionBary.hxx"
 
 #include <cmath>
 #include <cassert>
@@ -126,6 +127,15 @@ namespace INTERP_KERNEL
   }
 
   /*!
+   * \Forget already calculated triangles, which is crucial for calculation of barycenter of intersection
+   */
+  template<class MyMeshType>
+  void SplitterTetra<MyMeshType>::clearVolumesCache()
+  {
+    _volumes.clear();
+  }
+
+  /*!
    * This method destroys the 4 pointers pointed by tetraCorners[0],tetraCorners[1],tetraCorners[2] and tetraCorners[3]
    * @param i is in 0..23 included.
    * @param output is expected to be sized of 12 in order to.
@@ -165,7 +175,8 @@ namespace INTERP_KERNEL
    * @param element      global number of the source element in C mode.
    */
   template<class MyMeshType>
-  double SplitterTetra<MyMeshType>::intersectSourceCell(typename MyMeshType::MyConnType element)
+  double SplitterTetra<MyMeshType>::intersectSourceCell(typename MyMeshType::MyConnType element,
+                                                        double*                         baryCentre)
   {
     typedef typename MyMeshType::MyConnType ConnType;
     const NumberingPolicy numPol=MyMeshType::My_numPol;
@@ -218,6 +229,9 @@ namespace INTERP_KERNEL
     
     if(!isTargetOutside)
       {
+        /// calculator of intersection barycentre
+        UnitTetraIntersectionBary baryCalculator( _t->determinant() < 0.);
+
         for(unsigned ii = 0 ; ii < cellModelCell.getNumberOfSons() ; ++ii)
           {
             NormalizedCellType faceType = cellModelCell.getSonType(ii);
@@ -238,10 +252,12 @@ namespace INTERP_KERNEL
                       TransformedTriangle tri(_nodes[faceNodes[0]], _nodes[faceNodes[1]], _nodes[faceNodes[2]]);
                       calculateVolume(tri, key);
                       totalVolume += _volumes[key];
+                      if ( baryCentre )
+                        baryCalculator.addSide( tri );
                     } else {    
-                    // count negative as face has reversed orientation
-                    totalVolume -= _volumes[key];
-                  }
+                      // count negative as face has reversed orientation
+                      totalVolume -= _volumes[key];
+                    }
                 }
                 break;
 
@@ -296,6 +312,11 @@ namespace INTERP_KERNEL
               }
             delete [] faceNodes;
           }
+
+        if ( baryCentre ) {
+          baryCalculator.getBary( baryCentre );
+          _t->reverseApply( baryCentre, baryCentre );
+        }
       }
     delete [] cellNodes;
     // reset if it is very small to keep the matrix sparse
@@ -305,6 +326,76 @@ namespace INTERP_KERNEL
         totalVolume = 0.0;
       }
     
+    LOG(2, "Volume = " << totalVolume << ", det= " << _t->determinant());
+
+    // NB : fault in article, Grandy, [8] : it is the determinant of the inverse transformation 
+    // that should be used (which is equivalent to dividing by the determinant)
+    return std::fabs(1.0 / _t->determinant() * totalVolume) ;
+  }
+
+  /**
+   * Calculates the volume of intersection of this tetrahedron with another one.
+   */
+  template<class MyMeshType>
+  double SplitterTetra<MyMeshType>::intersectTetra(const double** tetraCorners)
+  {
+    typedef typename MyMeshType::MyConnType ConnType;
+    const NumberingPolicy numPol=MyMeshType::My_numPol;
+    //{ could be done on outside?
+    // check if we have planar tetra element
+    if(_t->determinant() == 0.0)
+    {
+      // tetra is planar
+      LOG(2, "Planar tetra -- volume 0");
+      return 0.0;
+    }
+
+    const unsigned nbOfNodes4Type=4;
+    // halfspace filtering
+    bool isOutside[8] = {true, true, true, true, true, true, true, true};
+    bool isTargetOutside = false;
+
+    // calculate the transformed coordinates of the nodes
+    double nodes[nbOfNodes4Type][3];
+    for(int i = 0;i<nbOfNodes4Type;++i)
+    {
+      _t->apply(nodes[i], tetraCorners[i]);
+      checkIsOutside(nodes[i], isOutside);
+    }
+
+    // halfspace filtering check
+    // NB : might not be beneficial for caching of triangles
+    for(int i = 0; i < 8; ++i)
+    {
+      if(isOutside[i])
+      {
+        isTargetOutside = true;
+      }
+    }
+
+    double totalVolume = 0.0;
+
+    if(!isTargetOutside)
+    {
+      const CellModel& cellModelCell=CellModel::getCellModel(NORM_TETRA4);
+      int cellNodes[4] = { 0, 1, 2, 3 }, faceNodes[3];
+
+      for(unsigned ii = 0 ; ii < 4 ; ++ii)
+      {
+        cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
+        
+        TransformedTriangle tri(nodes[faceNodes[0]], nodes[faceNodes[1]], nodes[faceNodes[2]]);
+        double vol = tri.calculateIntersectionVolume();
+        totalVolume += vol;
+      }
+      
+      // reset if it is very small to keep the matrix sparse
+      // is this a good idea?
+      if(epsilonEqual(totalVolume, 0.0, SPARSE_TRUNCATION_LIMIT))
+      {
+        totalVolume = 0.0;
+      }
+    }
     LOG(2, "Volume = " << totalVolume << ", det= " << _t->determinant());
 
     // NB : fault in article, Grandy, [8] : it is the determinant of the inverse transformation 

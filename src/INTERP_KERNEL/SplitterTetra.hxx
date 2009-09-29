@@ -205,13 +205,17 @@ namespace INTERP_KERNEL
 
     ~SplitterTetra();
 
-    double intersectSourceCell(typename MyMeshType::MyConnType srcCell);
+    double intersectSourceCell(typename MyMeshType::MyConnType srcCell, double* baryCentre=0);
+
+    double intersectTetra(const double** tetraCorners);
 
     typename MyMeshType::MyConnType getId(int id) { return _conn[id]; }
     
     void splitIntoDualCells(SplitterTetra<MyMeshType> **output);
 
     void splitMySelfForDual(double* output, int i, typename MyMeshType::MyConnType& nodeId);
+
+    void clearVolumesCache();
 
   private:
     // member functions
