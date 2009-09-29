@@ -202,6 +202,33 @@ double QuadraticPolygon::intersectWith(const QuadraticPolygon& other) const
  * This is possible because loc attribute in Edge class is mutable.
  * This implies that if 'this' or/and 'other' are reused for intersect* method initLocations has to be called on each of this/them.
  */
+double QuadraticPolygon::intersectWith(const QuadraticPolygon& other, double* barycenter) const
+{
+  double ret=0., bary[2];
+  barycenter[0] = barycenter[1] = 0.;
+  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+  {
+    double area = fabs((*iter)->getArea());
+    (*iter)->getBarycenter(bary);
+    delete *iter;
+    ret+=area;
+    barycenter[0] += bary[0]*area;
+    barycenter[1] += bary[1]*area;
+  }
+  if ( ret > std::numeric_limits<double>::min() )
+  {
+    barycenter[0] /= ret;
+    barycenter[1] /= ret;
+  }
+  return ret;
+}
+
+/*!
+ * \b WARNING this method is const and other is const too. \b BUT location of Edges in 'this' and 'other' are nevertheless modified.
+ * This is possible because loc attribute in Edge class is mutable.
+ * This implies that if 'this' or/and 'other' are reused for intersect* method initLocations has to be called on each of this/them.
+ */
 void QuadraticPolygon::intersectForPerimeter(const QuadraticPolygon& other, double& perimeterThisPart, double& perimeterOtherPart, double& perimeterCommonPart) const
 {
   perimeterThisPart=0.; perimeterOtherPart=0.; perimeterCommonPart=0.;

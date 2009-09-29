@@ -50,6 +50,7 @@ namespace INTERP_KERNEL
     //! Before intersecting as intersectWith a normalization is done.
     double intersectWithAbs(QuadraticPolygon& other);
     double intersectWith(const QuadraticPolygon& other) const;
+    double intersectWith(const QuadraticPolygon& other, double* barycenter) const;
     std::vector<QuadraticPolygon *> intersectMySelfWith(const QuadraticPolygon& other) const;
     void intersectForPerimeter(const QuadraticPolygon& other, double& perimeterThisPart, double& perimeterOtherPart, double& perimeterCommonPart) const;
     void intersectForPerimeterAdvanced(const QuadraticPolygon& other, std::vector< double >& polThis, std::vector< double >& polOther) const;
