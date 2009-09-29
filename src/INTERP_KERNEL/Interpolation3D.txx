@@ -27,7 +27,7 @@
 #include "PolyhedronIntersectorP0P1.txx"
 #include "PolyhedronIntersectorP1P0.txx"
 #include "PolyhedronIntersectorP1P0Bary.txx"
-#include "PolyhedronIntersectorP0P1.txx"
+#include "PolyhedronIntersectorP1P1.txx"
 #include "Log.hxx"
 /// If defined, use recursion to traverse the binary search tree, else use the BBTree class
 //#define USE_RECURSIVE_BBOX_FILTER
@@ -114,6 +114,8 @@ namespace INTERP_KERNEL
       intersector=new PolyhedronIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
     else if(methC=="P1P0Bary")
       intersector=new PolyhedronIntersectorP1P0Bary<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+    else if(methC=="P1P1")
+      intersector=new PolyhedronIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
     else
       throw Exception("Invalid method choosed must be in \"P0P0\", \"P0P1\".");
     // create empty maps for all source elements
