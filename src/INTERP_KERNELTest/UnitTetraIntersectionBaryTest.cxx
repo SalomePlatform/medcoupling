@@ -34,11 +34,15 @@ namespace INTERP_TEST
 {
   void fill_UnitTetraIntersectionBary(UnitTetraIntersectionBary& bary, double nodes[][3])
   {
-    int faceConn[4][3] = { { 0, 2, 1 },
-                           { 0, 1, 3 },
-                           { 1, 2, 3 },
-                           { 3, 2, 0 } };
-    bary.init();
+    int faceConn[4][3] = { { 0, 1, 2 },// inverse order
+                           { 0, 3, 1 },
+                           { 1, 3, 2 },
+                           { 3, 0, 2 } };
+//     int faceConn[4][3] = { { 0, 2, 1 },
+//                            { 0, 1, 3 },
+//                            { 1, 2, 3 },
+//                            { 3, 2, 0 } };
+    bary.init(true);
     for ( int i = 0; i < 4; ++i ) {
       int* faceNodes = faceConn[ i ];
       TransformedTriangle tri(nodes[faceNodes[0]], nodes[faceNodes[1]], nodes[faceNodes[2]]);
@@ -243,6 +247,24 @@ namespace INTERP_TEST
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.250000, baryCenter[0], 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.230952, baryCenter[1], 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.260714, baryCenter[2], 1e-5);
+  }
+  void UnitTetraIntersectionBaryTest::test_UnitTetraIntersectionBary_12()
+  {
+    // cutting tetra has one corner inside the UT and one its side passes through an UT edge
+    double nodes[4][3] = { { 0.25, 0.25, 0.25 }, // 0
+                           { 1.75,-0.25,-0.25 }, // OX
+                           { 0.5 , 0.25, 0.25 }, // OY
+                           { 0.5 , 0   , 0.5  } };//OZ
+    UnitTetraIntersectionBary bary;
+    fill_UnitTetraIntersectionBary(bary,nodes);
+    double baryCenter[3];
+    bool ok    = bary.getBary( baryCenter );
+    double vol = bary.getVolume();
+    CPPUNIT_ASSERT( ok );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.005208 , vol, 1e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.562500, baryCenter[0], 1e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.125000, baryCenter[1], 1e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.250000, baryCenter[2], 1e-5);
   }
 
   void UnitTetraIntersectionBaryTest::test_TetraAffineTransform_reverseApply()
