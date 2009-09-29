@@ -26,6 +26,8 @@
 #include "PolyhedronIntersector.txx"
 #include "PolyhedronIntersectorP0P1.txx"
 #include "PolyhedronIntersectorP1P0.txx"
+#include "PolyhedronIntersectorP1P0Bary.txx"
+#include "PolyhedronIntersectorP0P1.txx"
 #include "Log.hxx"
 /// If defined, use recursion to traverse the binary search tree, else use the BBTree class
 //#define USE_RECURSIVE_BBOX_FILTER
@@ -103,13 +105,15 @@ namespace INTERP_KERNEL
       targetElems[i] = new MeshElement<ConnType>(i, targetMesh);
 
     Intersector3D<MyMeshType,MatrixType>* intersector=0;
-    std::string methC(method);
+    std::string methC = InterpolationOptions::filterInterpolationMethod(method);
     if(methC=="P0P0")
       intersector=new PolyhedronIntersector<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
     else if(methC=="P0P1")
       intersector=new PolyhedronIntersectorP0P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
     else if(methC=="P1P0")
       intersector=new PolyhedronIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+    else if(methC=="P1P0Bary")
+      intersector=new PolyhedronIntersectorP1P0Bary<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
     else
       throw Exception("Invalid method choosed must be in \"P0P0\", \"P0P1\".");
     // create empty maps for all source elements
