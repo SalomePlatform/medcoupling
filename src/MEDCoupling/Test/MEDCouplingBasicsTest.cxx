@@ -1452,6 +1452,57 @@ void MEDCouplingBasicsTest::test3DInterpP1P0_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test3DInterpP1P1_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSourceMesh_2();
+  MEDCouplingUMesh *targetMesh=build3DTargetMesh_2();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
+  CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
+  double res3D[8][28]= {{124999.9998734956, 245370.37040407892, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 203703.70363489218, 187500.00010210334, 0.0, 0.0, 4629.6296278851705, 0.0, 215277.77775140284, 209722.22233129849, 0.0, 0.0, 0.0, 0.0, 104166.66659405759, 121296.29636805809, 0.0, 250000.0000034722},
+                        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 120370.37036767052, 0.0, 0.0, 38888.888890105758, 0.0, 0.0, 45370.370367507297, 0.0, 0.0, 45370.370372929341, 83333.333326388965, 0.0},
+                        {0.0, 0.0, 0.0, 97222.222222222161, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 97222.222222222292, 0.0, 97222.222222428492, 41666.666666666664, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                        {0.0, 277777.77779597207, 199074.07407081372, 0.0, 0.0, 0.0, 4629.6296296296196, 0.0, 321759.25925580953, 83333.333333333256, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4629.6296276787943, 0.0, 0.0, 251388.88888547334, 194444.44445378651, 0.0, 79629.62962210011, 250000.00000347217, 0.0, 0.0, 0.0, 0.0},
+                        {0.0, 0.0, 0.0, 0.0, 85185.185185185197, 4629.6296296296277, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 118518.51851851863, 0.0, 41666.666666666657, 83333.333333333343, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                        {0.0, 324074.07409050438, 0.0, 0.0, 0.0, 247685.18518518523, 6481.4814814814881, 0.0, 173611.11111694883, 0.0, 164814.81481481477, 0.0, 4629.6296296296259, 208333.33333273651, 0.0, 83333.333333333328, 203703.7037000655, 250000.00000000003, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                        {124999.99999702119, 423611.11112090992, 134259.2592592593, 194444.4444444445, 164814.81481481463, 164351.85185185185, 203703.70370370374, 250000.00000000009, 0.0, 0.0, 0.0, 0.0, 6481.4814814814981, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                        {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 118518.51851851857, 0.0, 4629.6296296296377, 83333.333333333343, 85185.185185185226, 41666.666666666657, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}};
+  int i=0;
+  double sum = 0;
+  //cout.precision(18);
+  for(std::vector<std::map<int,double> >::const_iterator iter1=res.begin();iter1!=res.end();iter1++,i++)
+  {
+    //cout<< "res3D[" <<i<< "][]={";
+    for(int j=0;j<28;j++)
+    {
+      std::map<int,double>::const_iterator iter2=(*iter1).find(j);
+      if(iter2!=(*iter1).end())
+      {
+        //cout<< iter2->second<< ", ";
+        sum += iter2->second;
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(res3D[i][j],(*iter2).second,1.e-3);
+      }
+      else
+      {
+        //cout << "0.0, ";
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res3D[i][j],1e-14);
+      }
+    }
+    //cout << "}" << endl;
+  }
+  //cout << "Sum = " << sum << endl;
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8000000,sum,1.e-5);
+  //clean-up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+
+}
+
 void MEDCouplingBasicsTest::test3DInterpP0P0Empty()
 {
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
@@ -1811,28 +1862,22 @@ void MEDCouplingBasicsTest::test3DInterpP1P0Bary_1()
 
   double sum = 0;
   int i=0;
-  //cout.precision(18);
   for(std::vector<std::map<int,double> >::const_iterator iter1=res.begin();iter1!=res.end();iter1++,i++)
   {
-    //cout<< "res3D[" <<i<< "][]={";
     for(int j=0;j<28;j++)
     {
       std::map<int,double>::const_iterator iter2=(*iter1).find(j);
       if(iter2!=(*iter1).end())
       {
-        //cout/* << std::setw(18)*/ << iter2->second<< ", ";
         sum += iter2->second;
         CPPUNIT_ASSERT_DOUBLES_EQUAL(res3D[i][j],(*iter2).second,1.e-5);
       }
       else
       {
-        //cout << "0.0, ";
         CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res3D[i][j],1e-14);
       }
     }
-    //cout << "}" << endl;
   }
-  //cout << "Sum = " << sum << endl;
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8000000,sum,1.e-5);
   //clean up
   sourceMesh->decrRef();

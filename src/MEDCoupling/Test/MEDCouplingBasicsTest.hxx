@@ -63,6 +63,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test3DInterpP0P0_1 );
     CPPUNIT_TEST( test3DInterpP0P1_1 );
     CPPUNIT_TEST( test3DInterpP1P0_1 );
+    CPPUNIT_TEST( test3DInterpP1P1_1 );
     CPPUNIT_TEST( test3DInterpP0P0Empty );
     CPPUNIT_TEST( test2DInterpP0IntegralUniform );
     CPPUNIT_TEST( test3DSurfInterpP0IntegralUniform );
@@ -106,6 +107,7 @@ namespace ParaMEDMEM
     void test3DInterpP0P0_1();
     void test3DInterpP0P1_1();
     void test3DInterpP1P0_1();
+    void test3DInterpP1P1_1();
     void testInterpolationCC();
     void test3DInterpP0P0Empty();
     void test2DInterpP0IntegralUniform();
