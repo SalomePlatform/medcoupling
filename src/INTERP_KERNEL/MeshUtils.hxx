@@ -88,7 +88,6 @@ namespace INTERP_KERNEL
                                         double*                         barycentricCoords)
   {
     std::vector<const double*> nodes( NB_NODES );
-    typedef typename MyMeshType::MyConnType ConnType;
     for ( int node = 0; node < NB_NODES; ++node )
       {
         nodes[ node ] = getCoordsOfNode( node, element, mesh );
