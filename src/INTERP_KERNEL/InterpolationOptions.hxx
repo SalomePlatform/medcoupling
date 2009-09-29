@@ -48,6 +48,7 @@ namespace INTERP_KERNEL
     int _orientation ;
     bool _measure_abs;
     SplittingPolicy _splitting_policy ;
+    bool _P1P0_bary_method; // issue 0020440
 
   public:
     InterpolationOptions() { init(); }
@@ -83,6 +84,11 @@ namespace INTERP_KERNEL
     
     SplittingPolicy getSplittingPolicy() const { return _splitting_policy; }
     void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
+
+    void setP1P0BaryMethod(bool isP1P0) { _P1P0_bary_method=isP1P0; }
+    bool getP1P0BaryMethod() const { return _P1P0_bary_method; }
+    std::string filterInterpolationMethod(const std::string& meth) const;
+
     void init()
     {  
       _print_level=0;
@@ -96,6 +102,7 @@ namespace INTERP_KERNEL
       _orientation=0;
       _measure_abs=true;
       _splitting_policy=GENERAL_48;
+      _P1P0_bary_method=false;
     }
     bool setOptionDouble(const std::string& key, double value);
     bool setOptionInt(const std::string& key, int value);

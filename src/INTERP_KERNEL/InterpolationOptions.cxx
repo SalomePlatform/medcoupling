@@ -164,3 +164,16 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key
     }
   return false;
 }
+
+//================================================================================
+/*!
+ * \brief Return "P1P0Bary" if meth=="P1P0" && this->_P1P0_bary_method=true
+ */
+//================================================================================
+
+std::string INTERP_KERNEL::InterpolationOptions::filterInterpolationMethod(const std::string& meth) const
+{
+  if ( _P1P0_bary_method && meth == "P1P0" )
+    return "P1P0Bary";
+  return meth;
+}
