@@ -34,6 +34,18 @@ namespace INTERP_KERNEL
     PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,
                                            medianPlane,doRotate,orientation,printLevel)
   {
+    // SPEC:
+    // "Limitation. For the P1P0 barycentric improvement only triangle source cells in 2D and
+    // tetrahedrons in 3D will be supported by interpolators. If a non
+    // triangle/tetrahedron source cell is detected an INTERP_KERNEL::Exception should be thrown."
+
+    // Check types of source elements here rather than in intersectCells() since a wrong type can be
+    // found late after a long time of calculation.
+
+    const unsigned long numSrcElems = meshS.getNumberOfElements();
+    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+      if ( meshS.getTypeOfElement( i ) != NORM_TRI3 )
+        throw INTERP_KERNEL::Exception("P1P0 barycentric algorithm works only with triangular source meshes");
   }
 
   PLAN_INTER_TEMPLATE
