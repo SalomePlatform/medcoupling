@@ -53,5 +53,5 @@ unsigned long MEDCouplingNormalizedCartesianMesh<SPACEDIM,MESHDIM>::nbCellsAlong
 template<int SPACEDIM,int MESHDIM>
 const double * MEDCouplingNormalizedCartesianMesh<SPACEDIM,MESHDIM>::getCoordsAlongAxis(int axis) const
 {
-  return _mesh->getCoordsAt(axis)->getPointer();
+  return _mesh->getCoordsAt(axis)->getConstPointer();
 }
