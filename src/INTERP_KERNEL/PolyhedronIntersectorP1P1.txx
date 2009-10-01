@@ -30,25 +30,34 @@ namespace INTERP_KERNEL
 
   /**
    * Constructor creating object from target cell global number 
-   * The constructor first calculates the necessary nodes, 
-   * (depending on the splitting policy) and then splits the hexahedron into 
-   * tetrahedra, placing these in the internal vector _tetra.
    * 
    * @param targetMesh  mesh containing the target elements
    * @param srcMesh     mesh containing the source elements
    * @param policy      splitting policy to be used
-   *
-   * WARNING : in _split attribute, sourceMesh and targetMesh are switched in order to fit intersectCells feature.
    */
   template<class MyMeshType, class MyMatrix>
   PolyhedronIntersectorP1P1<MyMeshType,MyMatrix>::PolyhedronIntersectorP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy policy):Intersector3DP1P1<MyMeshType,MyMatrix>(targetMesh,srcMesh)
   {
+    // SPEC:
+    // "Limitation. Concerning P1P1 3D improvement only tetrahedron will be supported.
+    // If another type than tetrahedron is detected an INTERP_KERNEL::Exception should be thrown"
+
+    // Check types of elements here rather than in intersectCells() since a wrong type can be
+    // found late after a long time of calculation.
+
+    const unsigned long numSrcElems = srcMesh.getNumberOfElements();
+    for(unsigned long i = 0 ; i < numSrcElems ; ++i)
+      if ( srcMesh.getTypeOfElement( i ) != NORM_TETRA4 )
+        throw INTERP_KERNEL::Exception("P1P1 3D algorithm works only with tetrahedral meshes");
+
+    const unsigned long numTgtElems = targetMesh.getNumberOfElements();
+    for(unsigned long i = 0 ; i < numTgtElems ; ++i)
+      if ( targetMesh.getTypeOfElement( i ) != NORM_TETRA4 )
+        throw INTERP_KERNEL::Exception("P1P1 3D algorithm works only with tetrahedral meshes");
   }
 
   /**
    * Destructor.
-   * Liberates the SplitterTetra objects and potential sub-node points that have been allocated.
-   *
    */
   template<class MyMeshType, class MyMatrix>
   PolyhedronIntersectorP1P1<MyMeshType,MyMatrix>::~PolyhedronIntersectorP1P1()
@@ -58,17 +67,16 @@ namespace INTERP_KERNEL
   /**
    * Calculates the volume of intersection of an element in the source mesh and the target element
    * represented by the object.
-   * The calculation is performed by calling the corresponding method for
-   * each SplitterTetra object created by the splitting.
    * 
    * @param targetCell in C mode.
    * @param srcCells in C mode.
-   *
-   * WARNING : for all methods on _split object source and target are switched !
    */
   template<class MyMeshType, class MyMatrix>
   void PolyhedronIntersectorP1P1<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {
+#ifdef _DEBUG_
+    UnitTetraIntersectionBary b; b.init();
+#endif
     // split the targetCell into dual cells
     std::pair< int, double[12] > subTetraNodes[24]; // a node of sub tetra and its coordinates
     const double* nodes[4]; int conn[4];
@@ -103,7 +111,7 @@ namespace INTERP_KERNEL
           double volume = tmp->intersectTetra( tetraNodesT );
           if(volume!=0.)
           {
-            ConnType tgtNode=OTT<ConnType,numPol>::indFC( subTetraNodes[j].first );
+            ConnType tgtNode=subTetraNodes[j].first;
             typename MyMatrix::value_type& resRow = res[tgtNode];
             typename MyMatrix::value_type::const_iterator iterRes=resRow.find( sourceNode );
             if(iterRes!=resRow.end())
