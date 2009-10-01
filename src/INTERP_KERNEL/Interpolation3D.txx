@@ -299,7 +299,8 @@ namespace INTERP_KERNEL
 
         tree.getIntersectingElems(targetBox, intersectElems);
 
-        intersector->intersectCells(targetIdx,intersectElems,result);
+        if ( !intersectElems.empty() )
+          intersector->intersectCells(targetIdx,intersectElems,result);
       }
 
     delete [] bboxes;
