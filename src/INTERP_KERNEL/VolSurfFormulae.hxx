@@ -373,9 +373,9 @@ namespace INTERP_KERNEL
                     + 2.0*(I + R + U + X + Y + Z) + AA ) / 27.0 ;
   }
 
-  // =========================
-  // Calculate Volume for Poly
-  // =========================
+  // =========================================================================================================================
+  // Calculate Volume for Generic Polyedron, even not convex one, WARNING !!! The polyedron's faces must be correctly ordered
+  // =========================================================================================================================
   inline double calculateVolumeForPolyh(const double ***pts,
                                         const int *nbOfNodesPerFaces,
                                         int nbOfFaces,
@@ -395,6 +395,30 @@ namespace INTERP_KERNEL
         volume+=vecForAlt[0]*normal[0]+vecForAlt[1]*normal[1]+vecForAlt[2]*normal[2];
       }
     return -volume/3.;
+  }
+
+  // ============================================================================================================================================
+  // Calculate Volume for NON Generic Polyedron. Only polydrons with bary included in pts is supported by this method. Result is always positive.
+  // ============================================================================================================================================
+  inline double calculateVolumeForPolyhAbs(const double ***pts,
+                                           const int *nbOfNodesPerFaces,
+                                           int nbOfFaces,
+                                           const double *bary)
+  {
+    double volume=0.;
+    
+    for ( int i=0; i<nbOfFaces; i++ )
+      {
+        double normal[3];
+        double vecForAlt[3];
+
+        calculateNormalForPolyg(pts[i],nbOfNodesPerFaces[i],normal);
+        vecForAlt[0]=bary[0]-pts[i][0][0];
+        vecForAlt[1]=bary[1]-pts[i][0][1];
+        vecForAlt[2]=bary[2]-pts[i][0][2];
+        volume+=fabs(vecForAlt[0]*normal[0]+vecForAlt[1]*normal[1]+vecForAlt[2]*normal[2]);
+      }
+    return volume/3.;
   }
 
   template<int N>
