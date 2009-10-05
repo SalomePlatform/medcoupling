@@ -56,6 +56,8 @@ InterpolationCC.txx                     \
 InterpolationUtils.hxx			\
 Intersector3D.hxx			\
 Intersector3D.txx			\
+Intersector3DP0P0.hxx	          	\
+Intersector3DP0P0.txx	          	\
 Intersector3DP0P1.hxx			\
 Intersector3DP0P1.txx			\
 Intersector3DP1P0.hxx			\
@@ -109,7 +111,10 @@ IntegralUniformIntersector.txx          \
 UnitTetraIntersectionBary.hxx		\
 VTKNormalizedUnstructuredMesh.hxx	\
 VTKNormalizedUnstructuredMesh.txx	\
-VectorUtils.hxx
+VectorUtils.hxx                         \
+VolSurfFormulae.hxx                     \
+VolSurfUser.hxx                         \
+VolSurfUser.txx
 
 
 EXTRA_DIST +=			\
