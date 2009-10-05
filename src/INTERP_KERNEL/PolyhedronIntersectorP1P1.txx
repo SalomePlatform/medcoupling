@@ -78,15 +78,17 @@ namespace INTERP_KERNEL
     UnitTetraIntersectionBary b; b.init();
 #endif
     // split the targetCell into dual cells
-    std::pair< int, double[12] > subTetraNodes[24]; // a node of sub tetra and its coordinates
+    std::pair< int, std::vector<double> > subTetraNodes[24]; // a node of sub tetra and its coordinates
     const double* nodes[4]; int conn[4];
     for(int node = 0; node < 4 ; ++node)
       nodes[node]=getCoordsOfNode2(node, OTT<ConnType,numPol>::indFC(targetCell),
                                    Intersector3D<MyMeshType,MyMatrix>::_target_mesh,conn[node]);
     SplitterTetra<MyMeshType> tgtTetra(Intersector3D<MyMeshType,MyMatrix>::_src_mesh, nodes, conn);
     for (int i=0; i<24; i++)
-      tgtTetra.splitMySelfForDual(subTetraNodes[i].second,i,subTetraNodes[i].first);
-
+    {
+      subTetraNodes[i].second.resize(12);
+      tgtTetra.splitMySelfForDual(&subTetraNodes[i].second[0],i,subTetraNodes[i].first);
+    }
     // intersect each source tetrahedron with each of target dual cells
     SplitterTetra<MyMeshType>* subTetrasS[24];
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
@@ -106,7 +108,7 @@ namespace INTERP_KERNEL
         ConnType sourceNode=OTT<ConnType,numPol>::indFC(tmp->getId(0));
         for(int j=0;j<24;j++)
         {
-          const double* tetraNodes12 = subTetraNodes[j].second;
+          const double* tetraNodes12 = &subTetraNodes[j].second[0];
           const double* tetraNodesT[4]={ tetraNodes12, tetraNodes12+3, tetraNodes12+6, tetraNodes12+9 };
           double volume = tmp->intersectTetra( tetraNodesT );
           if(volume!=0.)
