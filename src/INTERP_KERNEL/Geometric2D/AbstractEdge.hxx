@@ -19,6 +19,8 @@
 #ifndef __ABSTRACTEDGE_HXX__
 #define __ABSTRACTEDGE_HXX__
 
+#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+
 #include <set>
 #include <list>
 #include <fstream>
@@ -35,7 +37,7 @@ namespace INTERP_KERNEL
   /*!
    * Asumption is done with this iterator that we iterate on a container containing more than one edge.
    */
-  class IteratorOnComposedEdge
+  class INTERPKERNELGEOMETRIC2D_EXPORT IteratorOnComposedEdge
   {
     friend class ComposedEdge;
     friend class ElementaryEdge;

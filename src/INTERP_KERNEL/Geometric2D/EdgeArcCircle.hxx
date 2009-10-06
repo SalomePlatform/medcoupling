@@ -19,11 +19,12 @@
 #ifndef __EDGEARCCIRCLE_HXX__
 #define __EDGEARCCIRCLE_HXX__
 
+#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
 #include "Edge.hxx"
 
 namespace INTERP_KERNEL
 {
-  class ArcCArcCIntersector : public SameTypeEdgeIntersector
+  class INTERPKERNELGEOMETRIC2D_EXPORT ArcCArcCIntersector : public SameTypeEdgeIntersector
   {
   public:
     ArcCArcCIntersector(const EdgeArcCircle& e1, const EdgeArcCircle& e2);
@@ -42,7 +43,7 @@ namespace INTERP_KERNEL
     double _dist;
   };
 
-  class ArcCSegIntersector : public CrossTypeEdgeIntersector
+  class INTERPKERNELGEOMETRIC2D_EXPORT ArcCSegIntersector : public CrossTypeEdgeIntersector
   {
   public:
     ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e2, bool reverse=true);
@@ -61,7 +62,7 @@ namespace INTERP_KERNEL
     double _determinant;
   };
   
-  class EdgeArcCircle : public Edge
+  class INTERPKERNELGEOMETRIC2D_EXPORT EdgeArcCircle : public Edge
   {
   public:
     EdgeArcCircle(std::istream& lineInXfig);
