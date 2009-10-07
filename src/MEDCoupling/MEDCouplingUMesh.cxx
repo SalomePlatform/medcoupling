@@ -444,7 +444,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, c
       if(locMerge.size()==refLgth && fullyIn || locMerge.size()!=0 && !fullyIn)
         cellIdsKept.push_back(i);
     }
-  return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[cellIdsKept.size()],true);
+  return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[0]+cellIdsKept.size(),true);
 }
 
 MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
@@ -465,7 +465,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
     if(revDescIndxC[i+1]-revDescIndxC[i]==1)
       boundaryCells.push_back(i);
   revDescIndx->decrRef();
-  MEDCouplingPointSet *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[boundaryCells.size()],keepCoords);
+  MEDCouplingPointSet *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[0]+boundaryCells.size(),keepCoords);
   meshDM1->decrRef();
   return ret;
 }

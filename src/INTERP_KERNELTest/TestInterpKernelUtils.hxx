@@ -23,12 +23,14 @@
 #ifndef _TESTINTERPKERNELUTILS_HXX_
 #define _TESTINTERPKERNELUTILS_HXX_
 
+#include "InterpKernelTestExport.hxx"
+
 #include <string>
 
 namespace INTERP_TEST
 {
 
-  std::string getResourceFile( const std::string& );
+  INTERPKERNELTEST_EXPORT std::string getResourceFile( const std::string& );
 
 } // namespace INTERP_TEST
 

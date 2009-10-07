@@ -1569,7 +1569,21 @@ void MEDCouplingBasicsTest::testInterpolationCC()
     for ( map<int,double>::iterator s_v = res[i].begin(); s_v != res[i].end(); ++s_v)
     {
       sum += s_v->second;
-      vals.insert( precis * round( s_v->second / precis ));
+      double vvv;
+#ifdef WNT
+      double vv = s_v->second / precis;
+      if(vv>=0.0)
+	{
+	  vvv = floor(vv+0.5);
+	}
+      else
+	{
+	  vvv = ceil(vv-0.5);
+	}
+#else
+      vvv = round( s_v->second / precis );
+#endif
+      vals.insert( precis * vvv );
     }
   //cout << "tgt: " << i << " src: " << s_v->first << " - w: " << s_v->second << endl;
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, sum, precis );

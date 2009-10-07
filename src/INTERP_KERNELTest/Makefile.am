@@ -123,9 +123,7 @@ endif
 PerfTest_SOURCES =               \
 	PerfTest.cxx             \
 	MeshTestToolkit.hxx      \
-	MeshTestToolkit.txx      \
-	TestInterpKernelUtils.hxx\
-	TestInterpKernelUtils.cxx
+	MeshTestToolkit.txx
 
 PerfTest_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
 PerfTest_LDADD = $(MED2_LIBS) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
