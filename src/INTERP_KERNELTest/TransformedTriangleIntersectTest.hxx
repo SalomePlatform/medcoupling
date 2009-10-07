@@ -20,12 +20,14 @@
 #define __TU_TRANSFORMED_TRIANGLE_INTERSECT_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "InterpKernelTestExport.hxx"
 #include "TransformedTriangle.hxx"
 
 namespace INTERP_TEST
 {
 
-  class TransformedTriangleIntersectTest : public CppUnit::TestFixture
+  class INTERPKERNELTEST_EXPORT TransformedTriangleIntersectTest : public CppUnit::TestFixture
   {
 
     CPPUNIT_TEST_SUITE( TransformedTriangleIntersectTest );

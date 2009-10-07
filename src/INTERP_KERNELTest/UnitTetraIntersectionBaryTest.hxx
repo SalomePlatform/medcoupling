@@ -24,13 +24,15 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "InterpKernelTestExport.hxx"
+
 namespace INTERP_TEST
 {
   /**
    * \brief Test suite testing UnitTetraIntersectionBary class.
    *
    */
-  class UnitTetraIntersectionBaryTest : public CppUnit::TestFixture
+  class INTERPKERNELTEST_EXPORT UnitTetraIntersectionBaryTest : public CppUnit::TestFixture
   {
     CPPUNIT_TEST_SUITE( UnitTetraIntersectionBaryTest );
     CPPUNIT_TEST( test_UnitTetraIntersectionBary_12 );

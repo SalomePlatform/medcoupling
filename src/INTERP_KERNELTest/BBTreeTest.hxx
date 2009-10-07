@@ -20,6 +20,8 @@
 #define __TU_BB_TREE_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "InterpKernelTestExport.hxx"
 #include "BBTree.txx"
 
 namespace INTERP_TEST
@@ -29,7 +31,7 @@ namespace INTERP_TEST
    * \brief Test suite testing some of the low level methods of TransformedTriangle.
    *
    */
-  class BBTreeTest : public CppUnit::TestFixture
+  class INTERPKERNELTEST_EXPORT BBTreeTest : public CppUnit::TestFixture
   {
 
     CPPUNIT_TEST_SUITE( BBTreeTest );

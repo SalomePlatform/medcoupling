@@ -20,6 +20,8 @@
 #define __TU_TRANSFORMED_TRIANGLE_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "InterpKernelTestExport.hxx"
 #include "TransformedTriangle.hxx"
 
 #define ERR_TOL 1.0e-8
@@ -33,7 +35,7 @@ namespace INTERP_TEST
    * \brief Test suite testing some of the low level methods of TransformedTriangle.
    *
    */
-  class TransformedTriangleTest : public CppUnit::TestFixture
+  class INTERPKERNELTEST_EXPORT TransformedTriangleTest : public CppUnit::TestFixture
   {
 
     CPPUNIT_TEST_SUITE( TransformedTriangleTest );

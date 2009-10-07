@@ -20,6 +20,8 @@
 #define __TU_INTERPOLATIONOPTIONS_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "InterpKernelTestExport.hxx"
 #include "InterpolationOptions.hxx"
 #include "MEDMEM_Field.hxx"
 
@@ -30,7 +32,7 @@ namespace INTERP_TEST
    * \brief Test suite testing some of the low level methods of TransformedTriangle.
    *
    */
-  class InterpolationOptionsTest : public CppUnit::TestFixture
+  class INTERPKERNELTEST_EXPORT InterpolationOptionsTest : public CppUnit::TestFixture
   {
 
     CPPUNIT_TEST_SUITE( InterpolationOptionsTest );

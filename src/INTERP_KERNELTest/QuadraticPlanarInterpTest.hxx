@@ -21,6 +21,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "InterpKernelTestExport.hxx"
 #include "EdgeArcCircle.hxx"
 #include "QuadraticPolygon.hxx"
 
@@ -28,7 +29,7 @@ using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
 {
-  class QuadraticPlanarInterpTest : public CppUnit::TestFixture
+  class INTERPKERNELTEST_EXPORT QuadraticPlanarInterpTest : public CppUnit::TestFixture
   {
     CPPUNIT_TEST_SUITE( QuadraticPlanarInterpTest );
     CPPUNIT_TEST( ReadWriteInXfigElementary );

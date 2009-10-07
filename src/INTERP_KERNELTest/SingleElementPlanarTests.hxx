@@ -19,6 +19,7 @@
 #ifndef __SINGLE_ELEMENT_PLANAR_TESTS_HXX_
 #define __SINGLE_ELEMENT_PLANAR_TESTS_HXX_ 
 
+#include "InterpKernelTestExport.hxx"
 #include "InterpolationPlanarTestSuite.hxx"
 
 namespace INTERP_TEST 
@@ -28,7 +29,7 @@ namespace INTERP_TEST
    * This serves mainly to verify that the volume calculations between elements is correct.
    *
    */
-  class SingleElementPlanarTests : public InterpolationPlanarTestSuite
+  class INTERPKERNELTEST_EXPORT SingleElementPlanarTests : public InterpolationPlanarTestSuite
   {
     CPPUNIT_TEST_SUITE( SingleElementPlanarTests );
     
