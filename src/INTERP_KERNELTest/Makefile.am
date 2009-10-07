@@ -36,6 +36,7 @@ CLEANFILES =                                 \
         UnitTestsResult
 
 libInterpKernelTest_la_SOURCES=              \
+	InterpKernelTestExport.hxx           \
 	BBTreeTest.hxx                       \
 	BBTreeTest.cxx                       \
 	CppUnitTest.hxx                      \
