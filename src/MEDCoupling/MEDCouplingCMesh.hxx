@@ -26,7 +26,7 @@ namespace ParaMEDMEM
 {
   class DataArrayDouble;
 
-  class MEDCouplingCMesh : public MEDCouplingMesh
+  class MEDCOUPLING_EXPORT MEDCouplingCMesh : public MEDCouplingMesh
   {
   public:
     static MEDCouplingCMesh *New();
