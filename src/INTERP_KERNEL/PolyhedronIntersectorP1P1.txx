@@ -47,12 +47,12 @@ namespace INTERP_KERNEL
 
     const unsigned long numSrcElems = srcMesh.getNumberOfElements();
     for(unsigned long i = 0 ; i < numSrcElems ; ++i)
-      if ( srcMesh.getTypeOfElement( i ) != NORM_TETRA4 )
+      if ( srcMesh.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TETRA4 )
         throw INTERP_KERNEL::Exception("P1P1 3D algorithm works only with tetrahedral meshes");
 
     const unsigned long numTgtElems = targetMesh.getNumberOfElements();
     for(unsigned long i = 0 ; i < numTgtElems ; ++i)
-      if ( targetMesh.getTypeOfElement( i ) != NORM_TETRA4 )
+      if ( targetMesh.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TETRA4 )
         throw INTERP_KERNEL::Exception("P1P1 3D algorithm works only with tetrahedral meshes");
   }
 
