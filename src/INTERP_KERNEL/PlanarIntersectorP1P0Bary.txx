@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
 
     const unsigned long numSrcElems = meshS.getNumberOfElements();
     for(unsigned long i = 0 ; i < numSrcElems ; ++i)
-      if ( meshS.getTypeOfElement( i ) != NORM_TRI3 )
+      if ( meshS.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TRI3 )
         throw INTERP_KERNEL::Exception("P1P0 barycentric algorithm works only with triangular source meshes");
   }
 
