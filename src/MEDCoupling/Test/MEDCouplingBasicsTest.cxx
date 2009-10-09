@@ -1885,7 +1885,7 @@ void MEDCouplingBasicsTest::test3DInterpP1P0Bary_1()
       if(iter2!=(*iter1).end())
       {
         sum += iter2->second;
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(res3D[i][j],(*iter2).second,1.e-5);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(res3D[i][j],(*iter2).second,1.e-3);
       }
       else
       {
