@@ -39,8 +39,9 @@ namespace INTERP_KERNEL
 
   inline bool samePoint( const double* p1, const double* p2 )
   {
-    //return ( p1[0]==p2[0] && p1[1]==p2[1] && p1[2]==p2[2]);
-    return ( epsilonEqual( p1[0], p2[0]) && epsilonEqual( p1[1], p2[1]) && epsilonEqual( p1[2], p2[2]));
+    return ( epsilonEqual( p1[0], p2[0]) &&
+             epsilonEqual( p1[1], p2[1]) &&
+             epsilonEqual( p1[2], p2[2]));
   }
 
   //================================================================================
@@ -103,20 +104,36 @@ namespace INTERP_KERNEL
 
     // check if polygon orientation is same as the one of triangle
     vector<double*>::const_iterator p = pPolygonA->begin(), pEnd = pPolygonA->end();
+#ifdef DMP_UNITTETRAINTERSECTIONBARY
+    cout.precision(18);
+    cout << "**** int polygon() " << endl;
+    while ( p != pEnd )
+    {
+      double* pp = *p++;
+      cout << pEnd - p << ": ( " << pp[0] << ", " << pp[1] << ", " << pp[2] << " )" << endl;
+    }
+    p = pPolygonA->begin();
+#endif
     double* p1 = *p++;
     double* p2 = *p;
     while ( samePoint( p1, p2 ) && ++p != pEnd )
       p2 = *p;
     if ( p == pEnd )
       {
+#ifdef DMP_UNITTETRAINTERSECTIONBARY
+        cout << "All points equal" << endl;
+#endif
         clearPolygons();
         return;
       }
     double* p3 = *p;
-    while ( samePoint( p2, p3 ) && ++p != pEnd )
+    while (( samePoint( p2, p3 ) || samePoint( p1, p3 )) && ++p != pEnd )
       p3 = *p;
     if ( p == pEnd )
       {
+#ifdef DMP_UNITTETRAINTERSECTIONBARY
+        cout << "Only two points differ" << endl;
+#endif
         clearPolygons();
         return ;
       }
@@ -174,6 +191,7 @@ namespace INTERP_KERNEL
         double* p = faceCorner[i];
         cout << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << endl;
       }
+    cout << "NORM: ( " << _polyNormals.back()[0] << ", " << _polyNormals.back()[1] << ", " << _polyNormals.back()[2] << " )" << endl;
 #endif
     clearPolygons();
   }
@@ -263,8 +281,10 @@ namespace INTERP_KERNEL
     baryCenter[2] /= _int_volume;
 
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
+    cout.precision(5);
     cout << "**** Barycenter " << baryCenter[0] <<", "<< baryCenter[1] <<", "<< baryCenter[2]
          << "\t **** Volume " << _int_volume << endl;
+    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
 #endif
     return true;
   }
@@ -304,7 +324,7 @@ namespace INTERP_KERNEL
       }
       for ( int j = 0; j < 3 && !sideAdded[j]; ++j )
       {
-        if ( coordSum[j] == 0 )
+        if ( epsilonEqual( coordSum[j], 0.0 ))
           sideAdded[j] = bool( ++nbAddedSides );
       }
       if ( !sideAdded[3] &&
@@ -344,8 +364,8 @@ namespace INTERP_KERNEL
         {
           if ( !sideFaces[ j ] )
             continue;
-          p1OnSide = ( p1[j] == 0. );
-          p2OnSide = ( p2[j] == 0. );
+          p1OnSide = epsilonEqual( p1[j], 0. );
+          p2OnSide = epsilonEqual( p2[j], 0. );
           if ( p1OnSide && p2OnSide )
           {
             // segment p1-p2 is on j-th orthogonal side of tetra
@@ -407,27 +427,24 @@ namespace INTERP_KERNEL
     int nbCutOffCorners = 0;
     for ( int ic = 0; ic < NB_TETRA_NODES; ++ic )
     {
-      //if ( !passedCorners[ ic ] && !cutOffCorners[ ic ])
+      f = _faces.begin(), fEnd = _faces.end();
+      for ( int iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
       {
-//         double corner[3] = { 0., 0., 0. };
-//         if ( ic ) corner[ ic-1 ] = 1.0;
+        vector< double* >& polygon = *f;
 
-        f = _faces.begin(), fEnd = _faces.end();
-        for ( int iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
+        double corner2Poly[3] = { polygon[0][0], polygon[0][1], polygon[0][2] };
+        if ( ic ) corner2Poly[ ic-1 ] -= 1.0;
+
+        // _polyNormals are outside of a tetrahedron
+        double dot = dotprod<3>( corner2Poly, &_polyNormals[iF][0] );
+        if ( dot < -DEFAULT_ABS_TOL*DEFAULT_ABS_TOL )
         {
-          vector< double* >& polygon = *f;
-
-          double corner2Poly[3] = { polygon[0][0], polygon[0][1], polygon[0][2] };
-          if ( ic ) corner2Poly[ ic-1 ] -= 1.0;
-
-          // _polyNormals are outside of a tetrahedron
-          double dot = dotprod<3>( corner2Poly, &_polyNormals[iF][0] );
-          if ( dot < -DEFAULT_ABS_TOL )
-          {
-            cutOffCorners[ ic ] = true;
-            nbCutOffCorners++;
-            break;
-          }
+#ifdef DMP_UNITTETRAINTERSECTIONBARY
+          cout << "side " << iF+1 << ": cut " << ic << endl;
+#endif
+          cutOffCorners[ ic ] = true;
+          nbCutOffCorners++;
+          break;
         }
       }
     }
@@ -458,10 +475,10 @@ namespace INTERP_KERNEL
         int cutOffIndex = -1, passThIndex = -1;// no cut off neither pass through
         int pCut[] = { 0,0,0 }, pPass[] = { 0,0,0 };
 
-        if ( p[ind1]==0.)
+        if ( epsilonEqual( p[ind1], 0.))
         {
           // point is on orthogonal edge
-          if ( !isSegmentEnd && p2[ind1]==0. )
+          if ( !isSegmentEnd && epsilonEqual( p2[ind1], 0. ))
             isSegmentOnEdge = true;
 
           if ( !isSegmentOnEdge )
@@ -469,25 +486,25 @@ namespace INTERP_KERNEL
             pCut[ind2] = isSegmentEnd; // believe that cutting triangles are well oriented
             cutOffIndex = pCut[0] + 2*pCut[1] + 3*pCut[2];
           }
-          if ( p[ind2]==0. || p[ind2]==1.)
+          if ( epsilonEqual( p[ind2], 0.) || epsilonEqual( p[ind2], 1.))
           {
-            pPass[ind2] = int(p[ind2]);
+            pPass[ind2] = ( p[ind2] < 0.5 ) ? 0 : 1;
             passThIndex = pPass[0] + 2*pPass[1] + 3*pPass[2];
           }
         }
-        else if ( p[ind2]==0.)
+        else if ( epsilonEqual( p[ind2], 0.))
         {
           // point is on orthogonal edge
-          if ( !isSegmentEnd && p2[ind2]==0. )
+          if ( !isSegmentEnd && epsilonEqual( p2[ind2], 0. ))
             isSegmentOnEdge = true;
           if ( !isSegmentEnd )
           {// segment ends are on different edges
             pCut[ind1] = 1-isSegmentEnd;
             cutOffIndex = pCut[0] + 2*pCut[1] + 3*pCut[2];
           }
-          if ( p[ind1]==0. || p[ind1]==1.)
+          if ( epsilonEqual( p[ind1], 0.) || epsilonEqual( p[ind1], 1.))
           {
-            pPass[ind1] = int(p[ind1]);
+            pPass[ind1] = ( p[ind1] < 0.5 ) ? 0 : 1;
             passThIndex = pPass[0] + 2*pPass[1] + 3*pPass[2];
           }
         }
@@ -508,16 +525,19 @@ namespace INTERP_KERNEL
           continue;
         }
         // remember cut off and passed through points
-        if ( passThIndex >= 0. )
+        if ( passThIndex >= 0 )
         {
           passedCorners[ passThIndex ] = true;
           if ( cutOffCorners[ passThIndex ] )
           {
             nbCutOffCorners--;
             cutOffCorners[ passThIndex ] = false;
+#ifdef DMP_UNITTETRAINTERSECTIONBARY
+            cout << "PASS THROUGH " << passThIndex << endl;
+#endif
           }
         }
-        if ( cutOffIndex >= 0. )
+        if ( cutOffIndex >= 0 )
         {
           nbCutOnSide++;
           if ( !passedCorners[ cutOffIndex ] && !cutOffCorners[ cutOffIndex ] )
