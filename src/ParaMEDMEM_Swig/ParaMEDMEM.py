@@ -1,4 +1,3 @@
-#! /usr/bin/python
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
 #           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
