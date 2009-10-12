@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
 
 from libMEDMEM_Swig import *
 import os
