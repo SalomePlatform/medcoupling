@@ -50,13 +50,21 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testNatureChecking );
     CPPUNIT_TEST( testBuildSubMeshData );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
+    CPPUNIT_TEST( test2DInterpP0P0PL_1 );
     CPPUNIT_TEST( test2DInterpP0P1_1 );
+    CPPUNIT_TEST( test2DInterpP0P1PL_1 );
     CPPUNIT_TEST( test2DInterpP1P0_1 );
+    CPPUNIT_TEST( test2DInterpP1P0PL_1 );
     CPPUNIT_TEST( test2DInterpP1P1_1 );
+    CPPUNIT_TEST( test2DInterpP1P1PL_1 );
     CPPUNIT_TEST( test3DSurfInterpP0P0_1 );
+    CPPUNIT_TEST( test3DSurfInterpP0P0PL_1 );
     CPPUNIT_TEST( test3DSurfInterpP0P1_1 );
+    CPPUNIT_TEST( test3DSurfInterpP0P1PL_1 );
     CPPUNIT_TEST( test3DSurfInterpP1P0_1 );
+    CPPUNIT_TEST( test3DSurfInterpP1P0PL_1 );
     CPPUNIT_TEST( test3DSurfInterpP1P1_1 );
+    CPPUNIT_TEST( test3DSurfInterpP1P1PL_1 );
     CPPUNIT_TEST( test3DSurfInterpP0P0_2 );
     CPPUNIT_TEST( test3DSurfInterpP0P0_3 );
     CPPUNIT_TEST( testInterpolationCC );
@@ -73,7 +81,6 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test2DInterpP1P0Bary_1 );
     CPPUNIT_TEST( test3DSurfInterpP1P0Bary_1 );
     CPPUNIT_TEST( test3DInterpP1P0Bary_1 );
-
     CPPUNIT_TEST_SUITE_END();
   public:
     void testArray();
@@ -95,13 +102,21 @@ namespace ParaMEDMEM
     void testNatureChecking();
     void testBuildSubMeshData();
     void test2DInterpP0P0_1();
+    void test2DInterpP0P0PL_1();
     void test2DInterpP0P1_1();
+    void test2DInterpP0P1PL_1();
     void test2DInterpP1P0_1();
+    void test2DInterpP1P0PL_1();
     void test2DInterpP1P1_1();
+    void test2DInterpP1P1PL_1();
     void test3DSurfInterpP0P0_1();
+    void test3DSurfInterpP0P0PL_1();
     void test3DSurfInterpP0P1_1();
+    void test3DSurfInterpP0P1PL_1();
     void test3DSurfInterpP1P0_1();
+    void test3DSurfInterpP1P0PL_1();
     void test3DSurfInterpP1P1_1();
+    void test3DSurfInterpP1P1PL_1();
     void test3DSurfInterpP0P0_2();
     void test3DSurfInterpP0P0_3();
     void test3DInterpP0P0_1();

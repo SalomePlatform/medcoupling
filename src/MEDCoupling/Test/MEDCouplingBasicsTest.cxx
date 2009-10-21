@@ -886,6 +886,32 @@ void MEDCouplingBasicsTest::test2DInterpP0P0_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test2DInterpP0P0PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  //
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  //
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test2DInterpP0P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
@@ -922,6 +948,38 @@ void MEDCouplingBasicsTest::test2DInterpP0P1_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test2DInterpP0P1PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
+  CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[8][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[8][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(12.,sumAll(res),1e-12);
+  res.clear();
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test2DInterpP1P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
@@ -950,6 +1008,43 @@ void MEDCouplingBasicsTest::test2DInterpP1P0_1()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,sumAll(res),1e-12);
       res.clear();
     }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DInterpP1P0PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[0][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[0][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.333333333333333333,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[1][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666666,res[1][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666666,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[2][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.333333333333333333,res[2][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[3][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[3][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[3][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[4][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,res[4][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  res.clear();
   //clean up
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -994,6 +1089,40 @@ void MEDCouplingBasicsTest::test2DInterpP1P1_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test2DInterpP1P1PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
+  CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,res[0][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,res[2][1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][2],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.,res[4][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.,res[4][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][2],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][2],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,res[8][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(25.,sumAll(res),1e-12);
+  res.clear();
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test3DSurfInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
@@ -1020,6 +1149,33 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0_1()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2.),sumAll(res),1e-12);
       res.clear();
     }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3DSurfInterpP0P0PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3DSurf myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  res.clear();
   //clean up
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -1061,6 +1217,38 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P1_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test3DSurfInterpP0P1PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3DSurf myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
+  CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[8][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[8][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(12.,sumAll(res),1e-12);
+  res.clear();
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test3DSurfInterpP1P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
@@ -1089,6 +1277,43 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P0_1()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2.),sumAll(res),1e-12);
       res.clear();
     }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3DSurfInterpP1P0PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3DSurf myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[0][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[0][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.333333333333333333,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[1][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666666,res[1][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666666,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[2][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.333333333333333333,res[2][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[3][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[3][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[3][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[4][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,res[4][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  res.clear();
   //clean up
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -1129,6 +1354,40 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P1_1()
       res.clear();
     }
   //
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3DSurfInterpP1P1PL_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3DSurf myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
+  CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,res[0][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,res[2][1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][2],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.,res[4][0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.,res[4][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][2],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][2],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,res[8][3],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(25.,sumAll(res),1e-12);
+  res.clear();
+  //clean up
   sourceMesh->decrRef();
   targetMesh->decrRef();
 }
@@ -1573,13 +1832,13 @@ void MEDCouplingBasicsTest::testInterpolationCC()
 #ifdef WNT
       double vv = s_v->second / precis;
       if(vv>=0.0)
-	{
-	  vvv = floor(vv+0.5);
-	}
+        {
+          vvv = floor(vv+0.5);
+        }
       else
-	{
-	  vvv = ceil(vv-0.5);
-	}
+        {
+          vvv = ceil(vv-0.5);
+        }
 #else
       vvv = round( s_v->second / precis );
 #endif
@@ -1885,7 +2144,7 @@ void MEDCouplingBasicsTest::test3DInterpP1P0Bary_1()
       if(iter2!=(*iter1).end())
       {
         sum += iter2->second;
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(res3D[i][j],(*iter2).second,1.e-3);
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(res3D[i][j],(*iter2).second,1.e-5);
       }
       else
       {
