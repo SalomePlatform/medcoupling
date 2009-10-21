@@ -213,12 +213,13 @@ namespace INTERP_KERNEL
   /*     triaCoords are in full interlace                  */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
 
+  template<int SPACEDIM>
   inline void barycentric_coords(const double* triaCoords, const double* p, double* bc)
   {
     // matrix 2x2
     double
-      T11 = triaCoords[0]-triaCoords[4], T12 = triaCoords[2]-triaCoords[4],
-      T21 = triaCoords[1]-triaCoords[5], T22 = triaCoords[3]-triaCoords[5];
+      T11 = triaCoords[0]-triaCoords[2*SPACEDIM], T12 = triaCoords[SPACEDIM]-triaCoords[2*SPACEDIM],
+      T21 = triaCoords[1]-triaCoords[2*SPACEDIM+1], T22 = triaCoords[SPACEDIM+1]-triaCoords[2*SPACEDIM+1];
     // matrix determinant
     double Tdet = T11*T22 - T12*T21;
     if ( fabs( Tdet ) < std::numeric_limits<double>::min() ) {
@@ -228,7 +229,7 @@ namespace INTERP_KERNEL
     // matrix inverse
     double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
     // vector
-    double r11 = p[0]-triaCoords[4], r12 = p[1]-triaCoords[5];
+    double r11 = p[0]-triaCoords[2*SPACEDIM], r12 = p[1]-triaCoords[2*SPACEDIM+1];
     // barycentric coordinates: mutiply matrix by vector
     bc[0] = (t11 * r11 + t12 * r12)/Tdet;
     bc[1] = (t21 * r11 + t22 * r12)/Tdet;

@@ -177,7 +177,7 @@ namespace INTERP_KERNEL
       barycenter[0] = ( barycenter[0] + inter[0] + inter[SPACEDIM*(nb_inter-1)]  ) / nb_inter;
       barycenter[1] = ( barycenter[1] + inter[1] + inter[SPACEDIM*(nb_inter-1)+1]) / nb_inter;
       res.resize(3);
-      barycentric_coords( sourceTria, &barycenter[0], &res[0]);
+      barycentric_coords<2>( sourceTria, &barycenter[0], &res[0]);
       res[0] *= area;
       res[1] *= area;
       res[2] *= area;

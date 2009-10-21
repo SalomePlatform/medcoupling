@@ -38,6 +38,8 @@ ConvexIntersector.hxx			\
 ConvexIntersector.txx			\
 Geometric2DIntersector.hxx		\
 Geometric2DIntersector.txx		\
+PointLocator2DIntersector.hxx           \
+PointLocator2DIntersector.txx           \
 INTERPKERNELDefines.hxx			\
 InterpKernelMatrix.hxx			\
 Interpolation.hxx			\
@@ -72,6 +74,7 @@ MeshElement.txx				\
 MeshRegion.hxx				\
 MeshRegion.txx				\
 MeshUtils.hxx				\
+PointLocatorAlgos.txx                   \
 PlanarIntersector.hxx			\
 PlanarIntersector.txx			\
 PlanarIntersectorP0P0.hxx		\
@@ -82,6 +85,12 @@ PlanarIntersectorP1P0.hxx		\
 PlanarIntersectorP1P0.txx		\
 PlanarIntersectorP1P0Bary.hxx		\
 PlanarIntersectorP1P0Bary.txx		\
+PlanarIntersectorP0P1PL.hxx		\
+PlanarIntersectorP0P1PL.txx		\
+PlanarIntersectorP1P0PL.hxx		\
+PlanarIntersectorP1P0PL.txx		\
+PlanarIntersectorP1P1PL.hxx             \
+PlanarIntersectorP1P1PL.txx             \
 PlanarIntersectorP1P1.hxx		\
 PlanarIntersectorP1P1.txx		\
 PolygonAlgorithms.hxx			\

@@ -52,6 +52,8 @@ const char INTERP_KERNEL::InterpolationOptions::CONVEX_INTERSECT2D_STR[]="Convex
 
 const char INTERP_KERNEL::InterpolationOptions::GEOMETRIC_INTERSECT2D_STR[]="Geometric2D";
 
+const char INTERP_KERNEL::InterpolationOptions::POINTLOCATOR_INTERSECT2D_STR[]="PointLocator2D";
+
 const char INTERP_KERNEL::InterpolationOptions::PLANAR_SPLIT_FACE_5_STR[]="PLANAR_FACE_5";
 
 const char INTERP_KERNEL::InterpolationOptions::PLANAR_SPLIT_FACE_6_STR[]="PLANAR_FACE_6";
@@ -136,6 +138,11 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key
           setIntersectionType(INTERP_KERNEL::Geometric2D);
           return true;
         }
+      else if(value==POINTLOCATOR_INTERSECT2D_STR)
+        {
+          setIntersectionType(INTERP_KERNEL::PointLocator2D);
+          return true;
+        }
     }
   else if(key==SPLITTING_POLICY_STR) 
     {
@@ -164,12 +171,6 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key
     }
   return false;
 }
-
-//================================================================================
-/*!
- * \brief Return "P1P0Bary" if meth=="P1P0" && this->_P1P0_bary_method=true
- */
-//================================================================================
 
 std::string INTERP_KERNEL::InterpolationOptions::filterInterpolationMethod(const std::string& meth) const
 {

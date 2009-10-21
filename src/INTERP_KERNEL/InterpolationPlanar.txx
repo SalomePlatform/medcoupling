@@ -30,6 +30,14 @@
 #include "ConvexIntersector.txx"
 #include "Geometric2DIntersector.hxx"
 #include "Geometric2DIntersector.txx"
+#include "PointLocator2DIntersector.hxx"
+#include "PointLocator2DIntersector.txx"
+#include "PlanarIntersectorP0P1PL.hxx"
+#include "PlanarIntersectorP0P1PL.txx"
+#include "PlanarIntersectorP1P0PL.hxx"
+#include "PlanarIntersectorP1P0PL.txx"
+#include "PlanarIntersectorP1P1PL.hxx"
+#include "PlanarIntersectorP1P1PL.txx"
 #include "VectorUtils.hxx"
 #include "BBTree.txx"
 
@@ -165,6 +173,13 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
+          case PointLocator2D:
+            intersector=new PointLocator2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                   InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                   InterpolationOptions::getMedianPlane(),
+                                                                                                   InterpolationOptions::getPrecision(),
+                                                                                                   InterpolationOptions::getOrientation());
+            break;
           }
       }
     else if(meth=="P0P1")
@@ -194,6 +209,13 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
+            break;
+          case PointLocator2D:
+            intersector=new PlanarIntersectorP0P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                           InterpolationOptions::getMedianPlane(),
+                                                                           InterpolationOptions::getPrecision(),
+                                                                           InterpolationOptions::getOrientation());
             break;
           }
       }
@@ -225,6 +247,13 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
+          case PointLocator2D:
+            intersector=new PlanarIntersectorP1P0PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                       InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                       InterpolationOptions::getMedianPlane(),
+                                                                       InterpolationOptions::getPrecision(),
+                                                                       InterpolationOptions::getOrientation());
+            break;
           }
       }
     else if(meth=="P1P0Bary")
@@ -254,6 +283,9 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
+        break;
+      case PointLocator2D:
+        throw INTERP_KERNEL::Exception("Invalid intersector (PointLocator2D) for P1P0Bary !");
         break;
       }
     }
@@ -285,10 +317,17 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
+          case PointLocator2D:
+            intersector=new PlanarIntersectorP1P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                           InterpolationOptions::getMedianPlane(),
+                                                                           InterpolationOptions::getPrecision(),
+                                                                           InterpolationOptions::getOrientation());
+            break;
           }
       }
     else
-      throw INTERP_KERNEL::Exception("Invalid method specified ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");
+      throw INTERP_KERNEL::Exception("Invalid method specified or intersection type ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");
     /****************************************************************/
     /* Create a search tree based on the bounding boxes             */
     /* Instanciate the intersector and initialise the result vector */

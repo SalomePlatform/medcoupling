@@ -488,6 +488,20 @@ namespace INTERP_KERNEL
         bary[i]=temp/nbPts;
       }
   }
+
+  template<int SPACEDIM>
+  inline void calculateBarycenterDyn2(const double *pts, int nbPts, double *bary)
+  {
+    for(int i=0;i<SPACEDIM;i++)
+      {
+        double temp=0.;
+        for(int j=0;j<nbPts;j++)
+          {
+            temp+=pts[j*SPACEDIM+i];
+          }
+        bary[i]=temp/nbPts;
+      }
+  }
 }
 
 #endif

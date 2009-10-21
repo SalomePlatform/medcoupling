@@ -25,7 +25,7 @@
 
 namespace INTERP_KERNEL
 {
-  typedef enum { Triangulation, Convex, Geometric2D } IntersectionType;
+  typedef enum { Triangulation, Convex, Geometric2D, PointLocator2D } IntersectionType;
   /// Type describing the different ways in which the hexahedron can be split into tetrahedra.
   /// The PLANAR_* policies persume that each face is to be considered planar, while the general
   /// policies make no such hypothesis. The integer at the end gives the number of tetrahedra
@@ -49,7 +49,6 @@ namespace INTERP_KERNEL
     bool _measure_abs;
     SplittingPolicy _splitting_policy ;
     bool _P1P0_bary_method; // issue 0020440
-
   public:
     InterpolationOptions() { init(); }
     int getPrintLevel() const { return _print_level; }
@@ -87,6 +86,7 @@ namespace INTERP_KERNEL
 
     void setP1P0BaryMethod(bool isP1P0) { _P1P0_bary_method=isP1P0; }
     bool getP1P0BaryMethod() const { return _P1P0_bary_method; }
+
     std::string filterInterpolationMethod(const std::string& meth) const;
 
     void init()
@@ -126,6 +126,7 @@ namespace INTERP_KERNEL
     static const char TRIANGULATION_INTERSECT2D_STR[];
     static const char CONVEX_INTERSECT2D_STR[];
     static const char GEOMETRIC_INTERSECT2D_STR[];
+    static const char POINTLOCATOR_INTERSECT2D_STR[];
     static const char PLANAR_SPLIT_FACE_5_STR[];
     static const char PLANAR_SPLIT_FACE_6_STR[];
     static const char GENERAL_SPLIT_24_STR[];
