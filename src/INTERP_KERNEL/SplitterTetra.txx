@@ -199,7 +199,7 @@ namespace INTERP_KERNEL
 
     // calculate the coordinates of the nodes
     int *cellNodes=new int[nbOfNodes4Type];
-    for(int i = 0;i<nbOfNodes4Type;++i)
+    for(int i = 0;i<(int)nbOfNodes4Type;++i)
       {
         // we could store mapping local -> global numbers too, but not sure it is worth it
         const int globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(element), _src_mesh);
