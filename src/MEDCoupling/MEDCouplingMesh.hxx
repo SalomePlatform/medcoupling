@@ -30,7 +30,7 @@ namespace ParaMEDMEM
     {
       UNSTRUCTURED = 5,
       UNSTRUCTURED_DESC = 6,
-      CARTESIAN = 7,
+      CARTESIAN = 7
     } MEDCouplingMeshType;
 
   class MEDCouplingFieldDouble;
