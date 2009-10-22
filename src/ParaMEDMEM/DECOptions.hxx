@@ -37,10 +37,10 @@ namespace ParaMEDMEM
     bool _forcedRenormalization;
   public:
     DECOptions():_method("P0"),
-                 _timeInterpolationMethod(WithoutTimeInterp),
                  _asynchronous(false),
-                 _forcedRenormalization(false),
-                 _allToAllMethod(Native)
+                 _timeInterpolationMethod(WithoutTimeInterp),
+                 _allToAllMethod(Native),
+                 _forcedRenormalization(false)
     {
     }
     

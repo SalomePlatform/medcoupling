@@ -101,7 +101,7 @@ namespace ParaMEDMEM
    
     // copying proc_ids in ranks
     copy<set<int>::const_iterator,int*> (proc_ids.begin(), proc_ids.end(), ranks);
-    for (int i=0; i< proc_ids.size();i++)
+    for (int i=0; i< (int)proc_ids.size();i++)
       if (ranks[i]>size_world-1)
         throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
       

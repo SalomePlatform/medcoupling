@@ -333,7 +333,7 @@ namespace ParaMEDMEM
   // SendRequestIds to a destination rank
   int MPIAccess::sendRequestIds(int destrank, int size, int *ArrayOfSendRequests)
   {
-    if (size < _send_requests[destrank].size() )
+    if (size < (int)_send_requests[destrank].size() )
       throw INTERP_KERNEL::Exception("wrong call to MPIAccess::SendRequestIds");
     int i = 0 ;
     list< int >::const_iterator iter ;
@@ -346,7 +346,7 @@ namespace ParaMEDMEM
   // RecvRequestIds from a sourcerank
   int MPIAccess::recvRequestIds(int sourcerank, int size, int *ArrayOfRecvRequests)
   {
-    if (size < _recv_requests[sourcerank].size() )
+    if (size < (int)_recv_requests[sourcerank].size() )
       throw INTERP_KERNEL::Exception("wrong call to MPIAccess::RecvRequestIds");
     int i = 0 ;
     list< int >::const_iterator iter ;
