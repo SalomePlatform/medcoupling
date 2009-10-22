@@ -355,7 +355,7 @@ namespace INTERP_KERNEL
 
     // calculate the transformed coordinates of the nodes
     double nodes[nbOfNodes4Type][3];
-    for(int i = 0;i<nbOfNodes4Type;++i)
+    for(int i = 0;i<(int)nbOfNodes4Type;++i)
     {
       _t->apply(nodes[i], tetraCorners[i]);
       checkIsOutside(nodes[i], isOutside);
