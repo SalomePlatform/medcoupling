@@ -42,17 +42,17 @@ namespace INTERP_KERNEL
   {
     std::vector<double> CoordsT;
     typename MyMatrix::value_type& resRow=res[icellT];
-    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(icellT,CoordsT);
+    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),CoordsT);
     double baryT[SPACEDIM];
     double baryTTmp[SPACEDIM];
     calculateBarycenterDyn2<SPACEDIM>(&CoordsT[0],CoordsT.size()/SPACEDIM,baryT);
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
       {
-        NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(*iter);
+        NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iter));
         if(tS!=NORM_TRI3)
           throw INTERP_KERNEL::Exception("Invalid source cell detected for meshdim==2. Only TRI3 supported !");
         std::vector<double> CoordsS;
-        PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(*iter,CoordsS);
+        PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(*iter),CoordsS);
         if(SPACEDIM==2)
           {
             std::copy(baryT,baryT+SPACEDIM,baryTTmp);
@@ -66,16 +66,16 @@ namespace INTERP_KERNEL
             PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&CoordsS[0],littleTargetCell,3,3);
             std::copy(littleTargetCell,littleTargetCell+3,baryTTmp);
           }
-        if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(baryTTmp,&CoordsS[0],3) )
+        if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(baryTTmp,&CoordsS[0],3,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
           {
             double resLoc[3];
             barycentric_coords<SPACEDIM>(&CoordsS[0],baryTTmp,resLoc);
-            const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectS+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[*iter]);
+            const ConnType *startOfCellNodeConnS=PlanarIntersector<MyMeshType,MyMatrix>::_connectS+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[*iter]);
             for(int nodeIdS=0;nodeIdS<3;nodeIdS++)
               {
                 if(fabs(resLoc[nodeIdS])>PlanarIntersector<MyMeshType,MyMatrix>::_precision)
                   {
-                    ConnType curNodeSInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[nodeIdS]);
+                    ConnType curNodeSInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConnS[nodeIdS]);
                     typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(curNodeSInCmode));
                     if(iterRes==resRow.end())
                       resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(curNodeSInCmode),resLoc[nodeIdS]));

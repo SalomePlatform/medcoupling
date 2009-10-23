@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
     double baryT[SPACEDIM];
     pT->getBarycenter(baryT);
     delete pT;
-    if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(baryT,&CoordsS[0],nbNodesS) )
+    if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(baryT,&CoordsS[0],nbNodesS,InterpType<MyMeshType,MyMatrix,PTLOC2D_INTERSECTOR >::_precision))
       return 1.;
     return 0.;
   }

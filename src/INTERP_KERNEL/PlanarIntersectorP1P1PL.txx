@@ -40,15 +40,15 @@ namespace INTERP_KERNEL
   void PlanarIntersectorP1P1PL<MyMeshType,MyMatrix>::intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res)
   {
     std::vector<double> CoordsT;
-    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(icellT,CoordsT);
+    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),CoordsT);
     int nbOfNodesT=CoordsT.size()/SPACEDIM;
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
       {
-        NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(*iter);
+        NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iter));
         if(tS!=NORM_TRI3)
           throw INTERP_KERNEL::Exception("Invalid source cell detected for meshdim==2. Only TRI3 supported !");
         std::vector<double> CoordsS;
-        PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(*iter,CoordsS);
+        PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(*iter),CoordsS);
         std::vector<double> CoordsTTmp(CoordsT);
         if(SPACEDIM==3)
           PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&CoordsS[0],&CoordsTTmp[0],CoordsS.size()/SPACEDIM,nbOfNodesT);
@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
         for(int nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
           {
             typename MyMatrix::value_type& resRow=res[OTT<ConnType,numPol>::ind2C(startOfCellNodeConnT[nodeIdT])];
-            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&CoordsTTmp[nodeIdT*SPACEDIM],&CoordsS[0],3) )
+            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&CoordsTTmp[nodeIdT*SPACEDIM],&CoordsS[0],3,PlanarIntersector<MyMeshType,MyMatrix>::_precision) )
               {
                 double resLoc[3];
                 barycentric_coords<SPACEDIM>(&CoordsS[0],&CoordsTTmp[nodeIdT*SPACEDIM],resLoc);

@@ -41,10 +41,10 @@ namespace INTERP_KERNEL
     std::vector< std::vector<double> > coordsOfSources(icellsS.size());
     int ii=0;
     for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++,ii++)
-      PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(*iter,coordsOfSources[ii]);
-    const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectT+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT]);
+      PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(*iter),coordsOfSources[ii]);
+    const ConnType *startOfCellNodeConnT=PlanarIntersector<MyMeshType,MyMatrix>::_connectT+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT]);
     std::vector<double> coordsTarget;
-    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(icellT,coordsTarget);
+    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),coordsTarget);
     int nbNodesT=coordsTarget.size()/SPACEDIM;
     ii=0;
     for(typename std::vector<ConnType>::const_iterator iter2=icellsS.begin();iter2!=icellsS.end();iter2++,ii++)
@@ -55,9 +55,9 @@ namespace INTERP_KERNEL
           PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&tmpSource[0],&tmpTarget[0],tmpSource.size()/SPACEDIM,nbNodesT);
         for(int nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)
           {
-            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&tmpTarget[0]+nodeIdT*SPACEDIM,&tmpSource[0],tmpSource.size()/SPACEDIM) )
+            if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(&tmpTarget[0]+nodeIdT*SPACEDIM,&tmpSource[0],tmpSource.size()/SPACEDIM,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
               {
-                ConnType curNodeTInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[nodeIdT]);
+                ConnType curNodeTInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConnT[nodeIdT]);
                 typename MyMatrix::value_type& resRow=res[curNodeTInCmode];
                 typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(*iter2));
                 if(iterRes==resRow.end())
