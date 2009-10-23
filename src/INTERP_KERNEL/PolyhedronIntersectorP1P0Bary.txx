@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
 
     const unsigned long numSrcElems = srcMesh.getNumberOfElements();
     for(unsigned long i = 0 ; i < numSrcElems ; ++i)
-      if ( srcMesh.getTypeOfElement( i ) != NORM_TETRA4 )
+      if ( srcMesh.getTypeOfElement( OTT<ConnType,numPol>::indFC(i) ) != NORM_TETRA4 )
         throw INTERP_KERNEL::Exception("P1P0 barycentric algorithm works only with tetrahedral source meshes");
   }
 

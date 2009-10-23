@@ -100,18 +100,18 @@ namespace INTERP_KERNEL
       return retlist;
     }
 
-    static bool isElementContainsPointAlg2D(const double *ptToTest, const double *cellPts, int nbEdges)
+    static bool isElementContainsPointAlg2D(const double *ptToTest, const double *cellPts, int nbEdges, double eps)
     {
-      // with dimension 2, it suffices to check all the edges
-      // and see if the sign of double products from the point
-      //is always the same.
-      //                 C
-      //                / \
-      //               /   \
-      //     Xo       /     \ 
-      //             A-------B
-      //
-      //here XA^XC and XC^XB have different signs
+      /* with dimension 2, it suffices to check all the edges
+         and see if the sign of double products from the point
+         is always the same.
+                         C
+                        / \
+                       /   \
+             Xo       /     \ 
+                     A-------B
+       
+         here XA^XC and XC^XB have different signs*/
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       int* sign = new int[nbEdges];
       for (int iedge=0; iedge<nbEdges; iedge++)
@@ -119,9 +119,9 @@ namespace INTERP_KERNEL
           const double* A=cellPts+SPACEDIM*iedge;
           const double* B=cellPts+SPACEDIM*((iedge+1)%nbEdges);
           double a=mon_determinant(ptToTest, A, B);
-          if(a<-1e-12)
+          if(a<-eps)
             sign[iedge]=-1;
-          else if(a>1e-12)
+          else if(a>eps)
             sign[iedge]=1;
           else
             sign[iedge]=0;
@@ -131,9 +131,32 @@ namespace INTERP_KERNEL
       return ret;
     }
 
-    static bool isElementContainsPointAlg3D(const double *ptToTest, const double *cellPts, int nbEdges)
+    static bool isElementContainsPointAlg3D(const double *ptToTest, const int *conn_elem, const double *coords, const CellModel& cmType, double eps)
     {
-      return true;
+      const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+      typedef typename MyMeshType::MyConnType ConnType;
+      const NumberingPolicy numPol=MyMeshType::My_numPol;
+      
+      int nbfaces = cmType.getNumberOfSons();
+      int* sign = new int[nbfaces];
+      for (int iface=0; iface<nbfaces; iface++)
+        {
+          const unsigned* connface=cmType.getNodesConstituentTheSon(iface);
+          const double* AA=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[0]]));
+          const double* BB=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[1]]));
+          const double* CC=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[2]]));
+                                                        
+          double Vol=triple_product(AA,BB,CC,ptToTest);
+          if (Vol<-eps)
+            sign[iface]=-1;
+          else if (Vol>eps)
+            sign[iface]=1;
+              else
+                sign[iface]=0;
+        }
+      bool ret=decideFromSign(sign, nbfaces);
+      delete [] sign;
+      return ret;
     }
 
     static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const int *conn_elem)
@@ -153,33 +176,14 @@ namespace INTERP_KERNEL
               const double* a=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[iedge]));
               std::copy(a,a+SPACEDIM,pts+iedge*SPACEDIM);
             }
-          bool ret=isElementContainsPointAlg2D(ptToTest,pts,nbEdges);
+          bool ret=isElementContainsPointAlg2D(ptToTest,pts,nbEdges,1e-12);
           delete [] pts;
           return ret;
         }
                         
       if (SPACEDIM==3)
         {
-          int nbfaces = cmType.getNumberOfSons();
-          int* sign = new int[nbfaces];
-          for (int iface=0; iface<nbfaces; iface++)
-            {
-              const unsigned* connface=cmType.getNodesConstituentTheSon(iface);
-              const double* AA=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[0]]));
-              const double* BB=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[1]]));
-              const double* CC=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[2]]));
-                                                        
-              double Vol=triple_product(AA,BB,CC,ptToTest);
-              if (Vol<-1e-12)
-                sign[iface]=-1;
-              else if (Vol>1e-12)
-                sign[iface]=1;
-              else
-                sign[iface]=0;
-            }
-          bool ret=decideFromSign(sign, nbfaces);
-          delete [] sign;
-          return ret;
+          return isElementContainsPointAlg3D(ptToTest,conn_elem,coords,cmType,1e-12);
         }
     }
         
