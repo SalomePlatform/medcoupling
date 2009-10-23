@@ -52,7 +52,7 @@ const char INTERP_KERNEL::InterpolationOptions::CONVEX_INTERSECT2D_STR[]="Convex
 
 const char INTERP_KERNEL::InterpolationOptions::GEOMETRIC_INTERSECT2D_STR[]="Geometric2D";
 
-const char INTERP_KERNEL::InterpolationOptions::POINTLOCATOR_INTERSECT2D_STR[]="PointLocator2D";
+const char INTERP_KERNEL::InterpolationOptions::POINTLOCATOR_INTERSECT_STR[]="PointLocator";
 
 const char INTERP_KERNEL::InterpolationOptions::PLANAR_SPLIT_FACE_5_STR[]="PLANAR_FACE_5";
 
@@ -138,9 +138,9 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key
           setIntersectionType(INTERP_KERNEL::Geometric2D);
           return true;
         }
-      else if(value==POINTLOCATOR_INTERSECT2D_STR)
+      else if(value==POINTLOCATOR_INTERSECT_STR)
         {
-          setIntersectionType(INTERP_KERNEL::PointLocator2D);
+          setIntersectionType(INTERP_KERNEL::PointLocator);
           return true;
         }
     }
