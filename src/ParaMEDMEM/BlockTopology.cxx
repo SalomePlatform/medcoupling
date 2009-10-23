@@ -124,7 +124,7 @@ namespace ParaMEDMEM
    * values of the different axes. 
    */
   BlockTopology::BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid):
-    _proc_group(&group), _dimension(grid->getSpaceDimension()), _owns_processor_group(false)
+    _dimension(grid->getSpaceDimension()), _proc_group(&group), _owns_processor_group(false)
   {
     vector <int> axis_length(_dimension);
     _nb_elems=1;
@@ -209,7 +209,7 @@ namespace ParaMEDMEM
    * to \a group will cause an MPI error, while calling from a subset
    * of \a group will result in a deadlock. 
    */
-  BlockTopology::BlockTopology(const ProcessorGroup& group, int nb_elem):_proc_group(&group),_dimension(1),_owns_processor_group(false)
+  BlockTopology::BlockTopology(const ProcessorGroup& group, int nb_elem):_dimension(1),_proc_group(&group),_owns_processor_group(false)
   {
     int* nbelems_per_proc = new int[group.size()];
     const MPIProcessorGroup* mpi_group=dynamic_cast<const MPIProcessorGroup*>(_proc_group);
@@ -279,7 +279,7 @@ namespace ParaMEDMEM
         buffer.push_back(_nb_procs_per_dim[i]);
         buffer.push_back(_cycle_type[i]);
         buffer.push_back(_local_array_indices[i].size());
-        for (int j=0; j<_local_array_indices[i].size(); j++)
+        for (int j=0; j<(int)_local_array_indices[i].size(); j++)
           buffer.push_back(_local_array_indices[i][j]);
       }
   
@@ -320,7 +320,7 @@ namespace ParaMEDMEM
         _nb_procs_per_dim[i]=*(ptr_serializer++);
         _cycle_type[i]=(CYCLE_TYPE)*(ptr_serializer++);
         _local_array_indices[i].resize(*(ptr_serializer++));
-        for (int j=0; j<_local_array_indices[i].size(); j++)
+        for (int j=0; j<(int)_local_array_indices[i].size(); j++)
           _local_array_indices[i][j]=*(ptr_serializer++);
       }
     set<int> procs;

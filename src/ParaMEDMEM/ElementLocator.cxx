@@ -41,8 +41,8 @@ namespace ParaMEDMEM
     : _local_para_field(sourceField),
       _local_cell_mesh(sourceField.getSupport()->getCellMesh()),
       _local_face_mesh(sourceField.getSupport()->getFaceMesh()),
-      _local_group(local_group),
-      _distant_group(distant_group)
+      _distant_group(distant_group),
+      _local_group(local_group)
   { 
     _union_group = _local_group.fuse(distant_group);
     _computeBoundingBoxes();

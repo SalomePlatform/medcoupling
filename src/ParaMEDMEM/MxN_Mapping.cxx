@@ -28,8 +28,7 @@ namespace ParaMEDMEM
 {
 
   MxN_Mapping::MxN_Mapping(const ProcessorGroup& source_group, const ProcessorGroup& target_group,const DECOptions& dec_options)
-    : _union_group(source_group.fuse(target_group)),
-      DECOptions(dec_options)
+    : DECOptions(dec_options),_union_group(source_group.fuse(target_group))
   {
     _access_DEC = new MPIAccessDEC(source_group,target_group,getAsynchronous());
     _access_DEC->setTimeInterpolator(getTimeInterpolationMethod());
@@ -109,7 +108,7 @@ namespace ParaMEDMEM
         recvdispls[i]=_recv_proc_offsets[i];
       }
     vector<int> offsets = _send_proc_offsets;
-    for (int i=0; i<_sending_ids.size();i++)
+    for (int i=0; i<(int)_sending_ids.size();i++)
       {
         int iproc = _sending_ids[i].first;
         isendbuf[offsets[iproc]]=_sending_ids[i].second;
@@ -167,7 +166,7 @@ namespace ParaMEDMEM
     //building the buffer of the elements to be sent
     vector<int> offsets = _send_proc_offsets;
 
-    for (int i=0; i<_sending_ids.size();i++)
+    for (int i=0; i<(int)_sending_ids.size();i++)
       { 
         int iproc = _sending_ids[i].first;
         for (int icomp=0; icomp<nbcomp; icomp++)

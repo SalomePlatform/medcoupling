@@ -55,6 +55,6 @@ namespace ICoCo
     ParaMEDMEM::ParaMESH* _support;
     ParaMEDMEM::ComponentTopology* _comp_topology;
   };
-};
+}
 
 #endif

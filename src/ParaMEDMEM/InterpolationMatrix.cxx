@@ -60,13 +60,13 @@ namespace ParaMEDMEM
                                            const ProcessorGroup& target_group,
                                            const DECOptions& dec_options,
                                            const INTERP_KERNEL::InterpolationOptions& interp_options):
+    INTERP_KERNEL::InterpolationOptions(interp_options),
+    DECOptions(dec_options),
     _source_field(source_field),
     _source_support(source_field->getSupport()->getCellMesh()),
     _mapping(source_group, target_group, dec_options),
     _source_group(source_group),
-    _target_group(target_group),
-    DECOptions(dec_options),
-    INTERP_KERNEL::InterpolationOptions(interp_options)
+    _target_group(target_group)
   {
     int nbelems = source_field->getField()->getNumberOfTuples();
     _row_offsets.resize(nbelems+1);

@@ -85,10 +85,10 @@ namespace ParaMEDMEM
       _comm_buffer=new int[_mapping.size()*2];
       std::vector<int> offsets(_distant_domains.size());
       offsets[0]=0;
-      for (int i=1; i<_distant_domains.size();i++)
+      for (int i=1; i<(int)_distant_domains.size();i++)
         offsets[i]=offsets[i-1]+_numbers[i-1];
       
-      for (int i=0; i< _mapping.size(); i++)
+      for (int i=0; i<(int)_mapping.size(); i++)
         {
           int offset= offsets[_mapping[i].first];
           _comm_buffer[offset*2]=idproc;
@@ -151,7 +151,7 @@ namespace ParaMEDMEM
         {
           _numbers=new int[nbDistantDomains()];
           _domains=new int[nbDistantDomains()];
-          for (int i=0; i< _mapping.size(); i++)
+          for (int i=0; i<(int)_mapping.size(); i++)
             {
               if ( counts.find(_mapping[i].first) == counts.end())
                 counts.insert(std::make_pair(_mapping[i].first,1));

@@ -71,7 +71,7 @@ void MEDCouplingUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("No mesh dimension specified !");
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
     {
-      if(INTERP_KERNEL::CellModel::getCellModel(*iter).getDimension()!=_mesh_dim)
+      if((int)INTERP_KERNEL::CellModel::getCellModel(*iter).getDimension()!=_mesh_dim)
         {
           std::ostringstream message;
           message << "Mesh invalid because dimension is " << _mesh_dim << " and there is presence of cell(s) with type " << (*iter);
@@ -350,7 +350,7 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
           unsigned nbOfFaces=cm.getNumberOfSons2(&connNew[pos+1],lgthOld);
           int *tmp=new int[nbOfFaces*lgthOld];
           int *work=tmp;
-          for(int j=0;j<nbOfFaces;j++)
+          for(int j=0;j<(int)nbOfFaces;j++)
             {
               INTERP_KERNEL::NormalizedCellType type;
               unsigned offset=cm.fillSonCellNodalConnectivity2(j,&connNew[pos+1],lgthOld,work,type);
@@ -441,7 +441,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, c
       std::set<int> locMerge;
       std::insert_iterator< std::set<int> > it(locMerge,locMerge.begin());
       std::set_intersection(connOfCell.begin(),connOfCell.end(),fastFinder.begin(),fastFinder.end(),it);
-      if(locMerge.size()==refLgth && fullyIn || locMerge.size()!=0 && !fullyIn)
+      if((int)locMerge.size()==refLgth && fullyIn || locMerge.size()!=0 && !fullyIn)
         cellIdsKept.push_back(i);
     }
   return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[0]+cellIdsKept.size(),true);
