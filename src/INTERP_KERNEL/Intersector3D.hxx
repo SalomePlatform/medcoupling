@@ -27,7 +27,17 @@ namespace INTERP_KERNEL
   class Intersector3D : public TargetIntersector<MyMeshType,MyMatrix>
   {
   public:
+    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+    typedef typename MyMeshType::MyConnType ConnType;
+    static const NumberingPolicy numPol=MyMeshType::My_numPol;
+  public:
     Intersector3D(const MyMeshType& targetMesh, const MyMeshType& srcMesh);
+    void getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const;
+    void getRealSourceCoordinates(ConnType icellT, std::vector<double>& coordsT) const;
+    const ConnType *getStartConnOfTargetCell(ConnType icellT) const;
+    const ConnType *getStartConnOfSourceCell(ConnType icellS) const;
+    void getConnOfSourceCell(ConnType icellS, typename std::vector<ConnType>& res) const;
   protected:
     const MyMeshType& _target_mesh;
     const MyMeshType& _src_mesh;

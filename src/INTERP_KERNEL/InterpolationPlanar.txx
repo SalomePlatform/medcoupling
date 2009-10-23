@@ -173,7 +173,7 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
-          case PointLocator2D:
+          case PointLocator:
             intersector=new PointLocator2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT, myMeshS, _dim_caracteristic,
                                                                                                    InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                                    InterpolationOptions::getMedianPlane(),
@@ -210,7 +210,7 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
-          case PointLocator2D:
+          case PointLocator:
             intersector=new PlanarIntersectorP0P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                            InterpolationOptions::getMedianPlane(),
@@ -247,7 +247,7 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
-          case PointLocator2D:
+          case PointLocator:
             intersector=new PlanarIntersectorP1P0PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
                                                                        InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                        InterpolationOptions::getMedianPlane(),
@@ -284,8 +284,8 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
         break;
-      case PointLocator2D:
-        throw INTERP_KERNEL::Exception("Invalid intersector (PointLocator2D) for P1P0Bary !");
+      case PointLocator:
+        throw INTERP_KERNEL::Exception("Invalid intersector (PointLocator) for P1P0Bary !");
         break;
       }
     }
@@ -317,7 +317,7 @@ namespace INTERP_KERNEL
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
-          case PointLocator2D:
+          case PointLocator:
             intersector=new PlanarIntersectorP1P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                            InterpolationOptions::getMedianPlane(),
