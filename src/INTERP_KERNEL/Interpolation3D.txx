@@ -61,7 +61,7 @@ namespace INTERP_KERNEL
   Interpolation3D::Interpolation3D(const InterpolationOptions& io):Interpolation<Interpolation3D>(io)
   {
   }
-    
+
   /**
    * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
    * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
@@ -77,7 +77,7 @@ namespace INTERP_KERNEL
    * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
    * 
-   
+
    * @param srcMesh     3-dimensional source mesh
    * @param targetMesh  3-dimesional target mesh, containing only tetraedra
    * @param result      matrix in which the result is stored 
@@ -95,12 +95,12 @@ namespace INTERP_KERNEL
 
     std::vector<MeshElement<ConnType>*> srcElems(numSrcElems);
     std::vector<MeshElement<ConnType>*> targetElems(numTargetElems);
-    
+
     std::map<MeshElement<ConnType>*, int> indices;
-    
+
     for(unsigned long i = 0 ; i < numSrcElems ; ++i)
       srcElems[i] = new MeshElement<ConnType>(i, srcMesh);       
-    
+
     for(unsigned long i = 0 ; i < numTargetElems ; ++i)
       targetElems[i] = new MeshElement<ConnType>(i, targetMesh);
 
@@ -122,7 +122,7 @@ namespace INTERP_KERNEL
     result.resize(intersector->getNumberOfRowsOfResMatrix());
 
 #ifdef USE_RECURSIVE_BBOX_FILTER
-    
+
     /*
      * Performs a depth-first search over srcMesh, using bounding boxes to recursively eliminate the elements of targetMesh
      * which cannot intersect smaller and smaller regions of srcMesh. At each level, each region is divided in two, forming
@@ -137,7 +137,7 @@ namespace INTERP_KERNEL
     // intersects that of the source region
 
     RegionNode<ConnType>* firstNode = new RegionNode<ConnType>();
-      
+
     MeshRegion<ConnType>& srcRegion = firstNode->getSrcRegion();
 
     for(unsigned long i = 0 ; i < numSrcElems ; ++i)
@@ -188,11 +188,11 @@ namespace INTERP_KERNEL
 
             RegionNode<ConnType>* leftNode = new RegionNode<ConnType>();
             RegionNode<ConnType>* rightNode = new RegionNode<ConnType>();
-             
+
             // split current source region
             //} decide on axis
             static BoundingBox::BoxCoord axis = BoundingBox::XMAX;
-             
+
             currNode->getTargetRegion().split(leftNode->getTargetRegion(), rightNode->getTargetRegion(), axis, targetMesh);
 
             LOG(5, "After split, left target region has " << leftNode->getTargetRegion().getNumberOfElements()
@@ -212,19 +212,19 @@ namespace INTERP_KERNEL
                 iter != currNode->getSrcRegion().getEndElements() ; ++iter)
               {
                 LOG(6, " --- New target node");
-                
+
                 if(!leftNode->getTargetRegion().isDisjointWithElementBoundingBox(**iter))
                   {
                     leftNode->getSrcRegion().addElement(*iter, srcMesh);
                     ++numLeftElements;
                   }
-                
+
                 if(!rightNode->getTargetRegion().isDisjointWithElementBoundingBox(**iter))
                   {
                     rightNode->getSrcRegion().addElement(*iter, srcMesh);
                     ++numRightElements;
                   }
-                
+
               }
 
             LOG(5, "Left src region has " << numLeftElements << " elements and right src region has " 
@@ -249,7 +249,7 @@ namespace INTERP_KERNEL
                 delete rightNode;
               }
           }
-             
+
         // all nodes are deleted here
         delete currNode;
 
@@ -257,7 +257,7 @@ namespace INTERP_KERNEL
       }
 
 #else // Use BBTree
-      
+
       // create BBTree structure
       // - get bounding boxes
     double* bboxes = new double[6 * numSrcElems];
@@ -276,9 +276,9 @@ namespace INTERP_KERNEL
         // source indices have to begin with zero for BBox, I think
         srcElemIdx[i] = srcElems[i]->getIndex();
       }
-    
+
     BBTree<3,ConnType> tree(bboxes, srcElemIdx, 0, numSrcElems);
-    
+
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
     for(unsigned long i = 0; i < numTargetElems; ++i)
@@ -305,7 +305,7 @@ namespace INTERP_KERNEL
 
     delete [] bboxes;
     delete [] srcElemIdx;
-    
+
 #endif
     // free allocated memory
     int ret=intersector->getNumberOfColsOfResMatrix();

@@ -85,48 +85,48 @@ namespace INTERP_KERNEL
                                    Intersector3D<MyMeshType,MyMatrix>::_target_mesh,conn[node]);
     SplitterTetra<MyMeshType> tgtTetra(Intersector3D<MyMeshType,MyMatrix>::_src_mesh, nodes, conn);
     for (int i=0; i<24; i++)
-    {
-      subTetraNodes[i].second.resize(12);
-      tgtTetra.splitMySelfForDual(&subTetraNodes[i].second[0],i,subTetraNodes[i].first);
-    }
+      {
+        subTetraNodes[i].second.resize(12);
+        tgtTetra.splitMySelfForDual(&subTetraNodes[i].second[0],i,subTetraNodes[i].first);
+      }
     // intersect each source tetrahedron with each of target dual cells
     SplitterTetra<MyMeshType>* subTetrasS[24];
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
-    {
-      // split a source cell into dual cells
-      for(int node = 0; node < 4 ; ++node)
-        nodes[node]=getCoordsOfNode2(node, OTT<ConnType,numPol>::indFC(*iterCellS),
-                                     Intersector3D<MyMeshType,MyMatrix>::_src_mesh,conn[node]);
-
-      SplitterTetra<MyMeshType> srcTetra(Intersector3D<MyMeshType,MyMatrix>::_target_mesh, nodes, conn);
-      srcTetra.splitIntoDualCells(subTetrasS);
-
-      // intersect each target subTetra with each source one
-      for(int i=0;i<24;i++)
       {
-        SplitterTetra<MyMeshType> *tmp=subTetrasS[i];
-        ConnType sourceNode=OTT<ConnType,numPol>::indFC(tmp->getId(0));
-        for(int j=0;j<24;j++)
-        {
-          const double* tetraNodes12 = &subTetraNodes[j].second[0];
-          const double* tetraNodesT[4]={ tetraNodes12, tetraNodes12+3, tetraNodes12+6, tetraNodes12+9 };
-          double volume = tmp->intersectTetra( tetraNodesT );
-          if(volume!=0.)
+        // split a source cell into dual cells
+        for(int node = 0; node < 4 ; ++node)
+          nodes[node]=getCoordsOfNode2(node, OTT<ConnType,numPol>::indFC(*iterCellS),
+                                       Intersector3D<MyMeshType,MyMatrix>::_src_mesh,conn[node]);
+
+        SplitterTetra<MyMeshType> srcTetra(Intersector3D<MyMeshType,MyMatrix>::_target_mesh, nodes, conn);
+        srcTetra.splitIntoDualCells(subTetrasS);
+
+        // intersect each target subTetra with each source one
+        for(int i=0;i<24;i++)
           {
-            ConnType tgtNode=subTetraNodes[j].first;
-            typename MyMatrix::value_type& resRow = res[tgtNode];
-            typename MyMatrix::value_type::const_iterator iterRes=resRow.find( sourceNode );
-            if(iterRes!=resRow.end())
-            {
-              volume += (*iterRes).second;
-              resRow.erase(sourceNode);
-            }
-            resRow.insert(std::make_pair(sourceNode,volume));
+            SplitterTetra<MyMeshType> *tmp=subTetrasS[i];
+            ConnType sourceNode=OTT<ConnType,numPol>::indFC(tmp->getId(0));
+            for(int j=0;j<24;j++)
+              {
+                const double* tetraNodes12 = &subTetraNodes[j].second[0];
+                const double* tetraNodesT[4]={ tetraNodes12, tetraNodes12+3, tetraNodes12+6, tetraNodes12+9 };
+                double volume = tmp->intersectTetra( tetraNodesT );
+                if(volume!=0.)
+                  {
+                    ConnType tgtNode=subTetraNodes[j].first;
+                    typename MyMatrix::value_type& resRow = res[tgtNode];
+                    typename MyMatrix::value_type::const_iterator iterRes=resRow.find( sourceNode );
+                    if(iterRes!=resRow.end())
+                      {
+                        volume += (*iterRes).second;
+                        resRow.erase(sourceNode);
+                      }
+                    resRow.insert(std::make_pair(sourceNode,volume));
+                  }
+              }
+            delete tmp;
           }
-        }
-        delete tmp;
       }
-    }
   }
 }
 
