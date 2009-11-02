@@ -131,21 +131,22 @@ namespace INTERP_KERNEL
       return ret;
     }
 
-    static bool isElementContainsPointAlg3D(const double *ptToTest, const int *conn_elem, const double *coords, const CellModel& cmType, double eps)
+    static bool isElementContainsPointAlg3D(const double *ptToTest, const typename MyMeshType::MyConnType *conn_elem, int conn_elem_sz, const double *coords, const CellModel& cmType, double eps)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
       
-      int nbfaces = cmType.getNumberOfSons();
-      int* sign = new int[nbfaces];
+      int nbfaces = cmType.getNumberOfSons2(conn_elem,conn_elem_sz);
+      int *sign = new int[nbfaces];
+      int *connOfSon = new int[conn_elem_sz];
       for (int iface=0; iface<nbfaces; iface++)
         {
-          const unsigned* connface=cmType.getNodesConstituentTheSon(iface);
-          const double* AA=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[0]]));
-          const double* BB=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[1]]));
-          const double* CC=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[connface[2]]));
-                                                        
+          NormalizedCellType typeOfSon;
+          cmType.fillSonCellNodalConnectivity2(iface,conn_elem,conn_elem_sz,connOfSon,typeOfSon);
+          const double* AA=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[0]));
+          const double* BB=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[1]));
+          const double* CC=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(connOfSon[2]));                                                       
           double Vol=triple_product(AA,BB,CC,ptToTest);
           if (Vol<-eps)
             sign[iface]=-1;
@@ -156,10 +157,11 @@ namespace INTERP_KERNEL
         }
       bool ret=decideFromSign(sign, nbfaces);
       delete [] sign;
+      delete [] connOfSon;
       return ret;
     }
 
-    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const int *conn_elem)
+    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const typename MyMeshType::MyConnType *conn_elem, int conn_elem_sz)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
@@ -183,7 +185,7 @@ namespace INTERP_KERNEL
                         
       if (SPACEDIM==3)
         {
-          return isElementContainsPointAlg3D(ptToTest,conn_elem,coords,cmType,1e-12);
+          return isElementContainsPointAlg3D(ptToTest,conn_elem,conn_elem_sz,coords,cmType,1e-12);
         }
     }
         
@@ -198,8 +200,9 @@ namespace INTERP_KERNEL
       const ConnType* conn=_mesh.getConnectivityPtr();
       const ConnType* conn_index= _mesh.getConnectivityIndexPtr();
       const ConnType* conn_elem=conn+OTT<ConnType,numPol>::ind2C(conn_index[i]);
+      int conn_elem_sz=conn_index[i+1]-conn_index[i];
       NormalizedCellType type=_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
-      return isElementContainsPoint(x,type,coords,conn_elem);
+      return isElementContainsPoint(x,type,coords,conn_elem,conn_elem_sz);
     }
                 
     static bool decideFromSign(const int* sign, int nbelem)

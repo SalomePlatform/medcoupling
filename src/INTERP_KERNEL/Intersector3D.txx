@@ -36,14 +36,14 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void Intersector3D<MyMeshType,MyMatrix>::getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const
   {
-    const ConnType *myConectT=_target_mesh.getConnectivityPtr();
-    const ConnType *myConIndexT=_target_mesh.getConnectivityIndexPtr();
-    const double *myCoordsT=_target_mesh.getCoordinatesPtr();
-    int nbNodesT=myConIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1]-myConIndexT[OTT<ConnType,numPol>::ind2C(icellT)];
+    int nbNodesT=_target_mesh.getNumberOfNodesOfElement(icellT);
     coordsT.resize(SPACEDIM*nbNodesT);
+    std::vector<double>::iterator iter=coordsT.begin();
     for (ConnType iT=0; iT<nbNodesT; iT++)
-      for(int idim=0; idim<SPACEDIM; idim++)
-        coordsT[SPACEDIM*iT+idim]=myCoordsT[SPACEDIM*OTT<ConnType,numPol>::coo2C(myConectT[OTT<ConnType,numPol>::conn2C(myConIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+iT)])+idim];
+      {
+        const double *coordsCur=getCoordsOfNode(iT,icellT,_target_mesh);
+        iter=std::copy(coordsCur,coordsCur+SPACEDIM,iter);
+      }
   }
 
   /*!
@@ -52,14 +52,14 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void Intersector3D<MyMeshType,MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS) const
   {
-    const ConnType *myConectS=_src_mesh.getConnectivityPtr();
-    const ConnType *myConIndexS=_src_mesh.getConnectivityIndexPtr();
-    const double *myCoordsS=_src_mesh.getCoordinatesPtr();
-    int nbNodesS=myConIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1]-myConIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
+    int nbNodesS=_src_mesh.getNumberOfNodesOfElement(icellS);
     coordsS.resize(SPACEDIM*nbNodesS);
+    std::vector<double>::iterator iter=coordsS.begin();
     for (ConnType iS=0; iS<nbNodesS; iS++)
-      for(int idim=0; idim<SPACEDIM; idim++)
-        coordsS[SPACEDIM*iS+idim]=myCoordsS[SPACEDIM*OTT<ConnType,numPol>::coo2C(myConectS[OTT<ConnType,numPol>::conn2C(myConIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+iS)])+idim];
+      {
+        const double *coordsCur=getCoordsOfNode(iS,icellS,_src_mesh);
+        iter=std::copy(coordsCur,coordsCur+SPACEDIM,iter);
+      }
   }
 
   /*!

@@ -29,7 +29,7 @@ namespace INTERP_KERNEL
    * @param      node       the node for which the global number is sought (ALWAYS in C mode)
    * @param      element    an element of the mesh (in numPol policy)
    * @param      mesh       a mesh
-   * @return    the node's global number so that (its coordinates in the coordinates array are at [SPACEDIM*globalNumber, SPACEDIM*globalNumber + 2]
+   * @return    the node's global number so that (its coordinates in the coordinates array are at [SPACEDIM*globalNumber, SPACEDIM*globalNumber + SPACEDIM]
    */
   template<class MyMeshType>
   inline typename MyMeshType::MyConnType getGlobalNumberOfNode(typename MyMeshType::MyConnType node, typename MyMeshType::MyConnType element, const MyMeshType& mesh)
@@ -37,7 +37,20 @@ namespace INTERP_KERNEL
     typedef typename MyMeshType::MyConnType ConnType;
     const NumberingPolicy numPol=MyMeshType::My_numPol;
     const ConnType elemIdx=OTT<ConnType,numPol>::conn2C(mesh.getConnectivityIndexPtr()[OTT<ConnType,numPol>::ind2C(element)]);
-    return OTT<ConnType,numPol>::coo2C(mesh.getConnectivityPtr()[elemIdx + node]);
+    if(mesh.getTypeOfElement(element)!=INTERP_KERNEL::NORM_POLYHED)
+      return OTT<ConnType,numPol>::coo2C(mesh.getConnectivityPtr()[elemIdx + node]);
+    else
+      {
+        const ConnType *startNodalConnOfElem=mesh.getConnectivityPtr()+elemIdx;
+        ConnType ptr=0,ret=0;
+        while(startNodalConnOfElem[ret]==-1 || ptr!=node)
+          {
+            ret++;
+            if(startNodalConnOfElem[ret]!=-1)
+              ptr++;
+          }
+        return OTT<ConnType,numPol>::coo2C(startNodalConnOfElem[ret]);
+      }
   }
 
   /**
@@ -53,7 +66,8 @@ namespace INTERP_KERNEL
   {
     typedef typename MyMeshType::MyConnType ConnType;
     const ConnType connIdx = getGlobalNumberOfNode(node, element, mesh);
-    return mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*connIdx;
+    const double *ret=mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*connIdx;
+    return ret;
   }
 
   /**

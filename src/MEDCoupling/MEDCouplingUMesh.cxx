@@ -572,8 +572,12 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
 
 int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
 {
-  int *ptI=_nodal_connec_index->getPointer();
-  return ptI[cellId+1]-ptI[cellId]-1;
+  const int *ptI=_nodal_connec_index->getConstPointer();
+  const int *pt=_nodal_connec->getConstPointer();
+  if(pt[ptI[cellId]]!=INTERP_KERNEL::NORM_POLYHED)
+    return ptI[cellId+1]-ptI[cellId]-1;
+  else
+    return std::count_if(pt+ptI[cellId]+1,pt+ptI[cellId+1],std::bind2nd(std::not_equal_to<int>(),-1));
 }
 
 void MEDCouplingUMesh::setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes)

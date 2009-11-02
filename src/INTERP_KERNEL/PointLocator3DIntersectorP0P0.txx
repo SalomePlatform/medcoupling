@@ -66,7 +66,7 @@ namespace INTERP_KERNEL
         const CellModel& cmTypeS=CellModel::getCellModel(tS);
         std::vector<ConnType> connOfCurCellS;
         Intersector3DP0P0<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
-        if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(bary,&connOfCurCellS[0],coordsS,cmTypeS,_precision))
+        if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(bary,&connOfCurCellS[0],connOfCurCellS.size(),coordsS,cmTypeS,_precision))
           {
             resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(*iterCellS),1));
           }

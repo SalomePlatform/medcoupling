@@ -1652,6 +1652,142 @@ void MEDCouplingBasicsTest::test3DInterpP0P0PL_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test3DInterpP0P0PL_2()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
+  std::vector<int> cellsIds(targetMesh->getNumberOfCells());
+  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  targetMesh->convertToPolyTypes(cellsIds);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][9],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][4],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][5],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][11],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(21.,sumAll(res),1e-12);
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3DInterpP0P0PL_3()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
+  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  sourceMesh->convertToPolyTypes(cellsIds);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][9],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][4],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][5],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][11],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(21.,sumAll(res),1e-12);
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3DInterpP0P0PL_4()
+{
+  MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
+  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  sourceMesh->convertToPolyTypes(cellsIds);
+  cellsIds.resize(targetMesh->getNumberOfCells());
+  for(int j=0;j<targetMesh->getNumberOfCells();j++)
+    cellsIds[j]=j;
+  targetMesh->convertToPolyTypes(cellsIds);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][8],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][7],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][10],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][9],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][4],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][5],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][11],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(21.,sumAll(res),1e-12);
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test3DInterpP0P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DTargetMesh_1();

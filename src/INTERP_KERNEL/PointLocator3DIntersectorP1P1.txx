@@ -67,7 +67,7 @@ namespace INTERP_KERNEL
             typename MyMatrix::value_type& resRow=res[OTT<ConnType,numPol>::ind2C(startOfCellNodeConnT[nodeIdT])];
             std::vector<ConnType> connOfCurCellS;
             Intersector3DP1P1<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
-            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(&CoordsT[nodeIdT*SPACEDIM],&connOfCurCellS[0],coordsS,cmTypeS,_precision) )
+            if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(&CoordsT[nodeIdT*SPACEDIM],&connOfCurCellS[0],connOfCurCellS.size(),coordsS,cmTypeS,_precision) )
               {
                 double resLoc[4];
                 std::vector<double> localCoordsS;
