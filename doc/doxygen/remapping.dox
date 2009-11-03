@@ -26,13 +26,19 @@ meshes with mixed triangular and quadrangular elements.
 - Geometric2D: Any type of 2D cells (linear, quadratic, convex-polygons,
 non-convex polygons) is supported by this algorithm. Due to its
 flexibility this algo is slower than the other.
+- PointLocator: This is \b non \b conservative interpolator. For P0P0, it
+locate the barycenter of target cell in the source cells. For P1P0, it
+locates barycenter of target cell and compute barycentric coordinates
+in source cell (Works only with trangle). For P0P1 locate target nodes
+in source cells. For P1P1 compute for each target node its barycentric
+coordinates in source cell.
 
 The following options are available for the 2D intersection computations:
  * <TABLE BORDER=1 >
  * <TR><TD>Option</TD><TD>Description</TD><TD> Admitted values</TD><TD>Default</TD></TR>
  * <TR><TD> Intersection_type</TD><TD>Specifies the algorithm to be
  * used in the computation of the cell-cell intersections</TD><TD>
- * Triangle, Convex, \ref interpkernelGeo2D "Geometric2D"</TD><TD> Triangle </TD></TR>
+ * Triangle, Convex, \ref interpkernelGeo2D "Geometric2D", PointLocator</TD><TD> Triangle </TD></TR>
  * <TR><TD> Precision </TD><TD>Accuracy of the computations is precision times the characteristic size of the meshes </TD><TD>  positive real numbers</TD><TD> 1.0E-12 </TD></TR>
  * <TR><TD>PrintLevel </TD><TD>Level of verboseness during the computations </TD><TD> 0, 1, 2, 3 </TD><TD>0 </TD></TR>
  *</TABLE>
@@ -72,11 +78,30 @@ more details.
 
 \subsection InterpKer3DIntFeatureP0P0 P0->P0 intersectors features.
 
-When remapping three dimensional fields, volumes of intersection between polyhedral cells are to be computed. We use the method of Jeffrey Grandy, 1999 (see \ref references) to intersect arbitrary polyhedra. The basic algorithm computes the intersection of a tetrahedron with an arbitrary (possibly non convex) polyhedron. Using splitting techniques, it is possible to transform the problem of computing the intersection between two general polyhedra into several tetrahedron-polyhedron intersection calculations. For the moment it is only possible to remap fields on meshes having mixed tetrahedral and hexahedral cells. When using a mesh with hexahedral cells, several splitting techniques may be employed depending mainly on wether the faces are planar or not. The following options are available for the splitting:
+When remapping three dimensional fields, volumes of intersection
+between polyhedral cells are to be computed.
+Two methods are available :
+- Triangle : the method of Jeffrey Grandy, 1999 (see \ref references)
+to intersect arbitrary polyhedra. The basic algorithm computes the
+intersection of a tetrahedron with an arbitrary (possibly non convex)
+polyhedron. Using splitting techniques, it is possible to transform
+the problem of computing the intersection between two general
+polyhedra into several tetrahedron-polyhedron intersection
+calculations. For the moment it is only possible to remap fields on
+meshes having mixed tetrahedral and hexahedral cells. When using a
+mesh with hexahedral cells, several splitting techniques may be
+employed depending mainly on wether the faces are planar or not. The
+following options are available for the splitting:
+- PointLocator : \b non \b conservative intersector based on the same
+principle than described in 2D.
 
  * <TABLE BORDER=1 >
  * <TR><TD>Option</TD><TD>Description</TD><TD> Admitted values</TD><TD>Default</TD></TR>
- * <TR><TD> SplittingPolicy </TD><TD> Way in which the hexahedra are split into tetrahedra </TD><TD> PLANAR_FACE_5,  PLANAR_FACE_6, GENERAL_24, GENERAL_48</TD><TD> GENERAL_48 </TD></TR>
+ * <TR><TD> Intersection_type</TD><TD>Specifies the algorithm to be
+ * used in the computation of the cell-cell intersections</TD><TD>
+ * Triangle, PointLocator</TD><TD> Triangle </TD></TR>
+ * <TR><TD> SplittingPolicy </TD><TD> Way in which the hexahedra are
+ * split into tetrahedra (only if Intersection_type==Triangle) </TD><TD> PLANAR_FACE_5,  PLANAR_FACE_6, GENERAL_24, GENERAL_48</TD><TD> GENERAL_48 </TD></TR>
  * <TR><TD>PrintLevel </TD><TD>Level of verboseness during the computations </TD><TD> 1, 2, 3, 4, 5 </TD><TD>0 </TD></TR>
  * </TABLE>
 
