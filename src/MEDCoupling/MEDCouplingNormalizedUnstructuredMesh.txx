@@ -100,7 +100,7 @@ const int *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getConnectiv
 }
 
 template<int SPACEDIM,int MESHDIM>
-void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::ReleaseTempArrays()
+void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::releaseTempArrays()
 {
   delete [] _conn_for_interp;
   delete [] _conn_index_for_interp;
@@ -113,7 +113,7 @@ MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::~MEDCouplingNormalizedU
 {
   if(_mesh)
     _mesh->decrRef();
-  ReleaseTempArrays();
+  releaseTempArrays();
 }
 
 template<int SPACEDIM,int MESHDIM>

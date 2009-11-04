@@ -121,8 +121,8 @@ namespace ParaMEDMEM
 
         INTERP_KERNEL::Interpolation3DSurf interpolator (*this);
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
-        target_wrapper.ReleaseTempArrays();
-        source_wrapper.ReleaseTempArrays();
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
       }
     else if ( distant_support.getMeshDimension() == 2
               && distant_support.getSpaceDimension() == 2)
@@ -132,8 +132,8 @@ namespace ParaMEDMEM
 
         INTERP_KERNEL::Interpolation2D interpolator (*this);
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
-        target_wrapper.ReleaseTempArrays();
-        source_wrapper.ReleaseTempArrays();
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
       }
     else if ( distant_support.getMeshDimension() == 3
               && distant_support.getSpaceDimension() == 3 )
@@ -143,8 +143,8 @@ namespace ParaMEDMEM
 
         INTERP_KERNEL::Interpolation3D interpolator (*this);
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
-        target_wrapper.ReleaseTempArrays();
-        source_wrapper.ReleaseTempArrays();
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
       }
     else
       {

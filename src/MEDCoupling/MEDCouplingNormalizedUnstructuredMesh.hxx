@@ -44,7 +44,7 @@ public:
   const int *getConnectivityPtr() const;
   const double *getCoordinatesPtr() const;
   const int *getConnectivityIndexPtr() const;
-  void ReleaseTempArrays();
+  void releaseTempArrays();
   ~MEDCouplingNormalizedUnstructuredMesh();
 private:
   void prepare();

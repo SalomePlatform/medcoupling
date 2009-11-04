@@ -182,7 +182,7 @@ rules :
         -# \code const MyConnType *getConnectivityPtr() const \endcode
         -# \code const double *getCoordinatesPtr() const \endcode
         -# \code const MyConnType *getConnectivityIndexPtr() const \endcode
-        -# \code void ReleaseTempArrays() \endcode
+        -# \code void releaseTempArrays() \endcode
       - Formats of arrays
         - the array returned by \c getCoordinatesPtr must be a \b full \b interlace array.
         - the arrays returned by \c getConnectivityPtr and \c
