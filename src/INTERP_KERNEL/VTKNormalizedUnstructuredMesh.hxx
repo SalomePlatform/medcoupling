@@ -43,7 +43,7 @@ public:
   const vtkIdType *getConnectivityPtr() const;
   const double *getCoordinatesPtr() const;
   const vtkIdType *getConnectivityIndexPtr() const;
-  void ReleaseTempArrays();
+  void releaseTempArrays();
 protected:
   void putinMEDFormat() const;
 protected:

@@ -35,7 +35,7 @@ template<int MESHDIM>
 VTKNormalizedUnstructuredMesh<MESHDIM>::~VTKNormalizedUnstructuredMesh()
 {
   _mesh_in_vtk_mode->Delete();
-  ReleaseTempArrays();
+  releaseTempArrays();
 }
 
 template<int MESHDIM>
@@ -123,7 +123,7 @@ void VTKNormalizedUnstructuredMesh<MESHDIM>::putinMEDFormat() const
 }
 
 template<int MESHDIM>
-void VTKNormalizedUnstructuredMesh<MESHDIM>::ReleaseTempArrays()
+void VTKNormalizedUnstructuredMesh<MESHDIM>::releaseTempArrays()
 {
   delete [] _tmp_index_array;
   _tmp_index_array=0;
