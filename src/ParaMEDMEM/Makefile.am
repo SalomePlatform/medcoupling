@@ -81,6 +81,8 @@ DEC.cxx\
 ExplicitTopology.cxx\
 MxN_Mapping.cxx\
 ICoCoMEDField.cxx\
+ICoCoField.cxx\
+ICoCoTrioField.cxx\
 ParaFIELD.cxx\
 ParaGRID.cxx\
 BlockTopology.cxx
