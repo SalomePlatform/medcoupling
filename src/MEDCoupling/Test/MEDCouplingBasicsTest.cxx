@@ -912,6 +912,103 @@ void MEDCouplingBasicsTest::test2DInterpP0P0PL_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test2DInterpP0P0PL_2()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  std::vector<int> cellsIds(targetMesh->getNumberOfCells());
+  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  targetMesh->convertToPolyTypes(cellsIds);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  //
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  //
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DInterpP0P0PL_3()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  sourceMesh->convertToPolyTypes(cellsIds);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  //
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  //
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DInterpP0P0PL_4()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  sourceMesh->convertToPolyTypes(cellsIds);
+  cellsIds.resize(targetMesh->getNumberOfCells());
+  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  targetMesh->convertToPolyTypes(cellsIds);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  //
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  //
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test2DInterpP0P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
@@ -980,6 +1077,48 @@ void MEDCouplingBasicsTest::test2DInterpP0P1PL_1()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::test2DInterpP0P1PL_2()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  sourceMesh->convertToPolyTypes(cellsIds);
+  //
+  cellsIds.resize(targetMesh->getNumberOfCells());
+  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  targetMesh->convertToPolyTypes(cellsIds);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
+  CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[3][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[5][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[6][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[8][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[8][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(12.,sumAll(res),1e-12);
+  res.clear();
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test2DInterpP1P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
@@ -1017,6 +1156,48 @@ void MEDCouplingBasicsTest::test2DInterpP1P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::PointLocator);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
+  CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,res[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[0][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[0][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.333333333333333333,res[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[1][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666666,res[1][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.166666666666666666,res[2][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[2][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.333333333333333333,res[2][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[3][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[3][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[3][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,res[4][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[4][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,res[4][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,res[4][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,sumAll(res),1e-12);
+  res.clear();
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DInterpP1P0PL_2()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  //
+  std::vector<int >cellsIds(targetMesh->getNumberOfCells());
+  for(int i=0;i<targetMesh->getNumberOfCells();i++)
+    cellsIds[i]=i;
+  targetMesh->convertToPolyTypes(cellsIds);
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
