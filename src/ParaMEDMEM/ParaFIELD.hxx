@@ -56,8 +56,6 @@ namespace ParaMEDMEM
     Topology* _topology; 
 
     ParaMESH* _support;
-    bool _has_field_ownership;
-    bool _has_support_ownership;
   };
 
 }

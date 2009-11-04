@@ -65,9 +65,7 @@ namespace ParaMEDMEM
   ParaFIELD::ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* para_support, const ComponentTopology& component_topology)
     :_field(0),
      _component_topology(component_topology),_topology(0),
-     _support(para_support),
-     _has_field_ownership(true),
-     _has_support_ownership(false)
+     _support(para_support)
   {
     if (para_support->isStructured() || (para_support->getTopology()->getProcGroup()->size()==1 && component_topology.nbBlocks()!=1))
       {
@@ -110,9 +108,7 @@ namespace ParaMEDMEM
   ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, const ProcessorGroup& proc_group):
     _field(subdomain_field),
     _component_topology(ComponentTopology(_field->getNumberOfComponents())),_topology(0),
-    _support(),
-    _has_field_ownership(false),
-    _has_support_ownership(true)
+    _support()
   {
     if(_field)
       _field->incrRef();
