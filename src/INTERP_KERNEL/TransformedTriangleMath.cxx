@@ -354,7 +354,10 @@ namespace INTERP_KERNEL
     
     //? is this more stable? -> no subtraction
     //    return asin( dotProd / ( lenNormal * lenEdgeVec ) ) + 3.141592625358979 / 2.0;
-    return atan(1.0)*4.0 - acos( dotProd / ( lenNormal * lenEdgeVec ) );
+    double tmp=dotProd / ( lenNormal * lenEdgeVec );
+    tmp=std::max(tmp,-1.);
+    tmp=std::min(tmp,1.);
+    return atan(1.0)*4.0 - acos(tmp);
 
   }
 
