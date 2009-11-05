@@ -41,6 +41,7 @@
 #include "VectorUtils.hxx"
 #include "BBTree.txx"
 
+#include <limits>
 #include <time.h>
 
 namespace INTERP_KERNEL
@@ -130,16 +131,24 @@ namespace INTERP_KERNEL
     
     double BoxS[2*SPACEDIM]; myMeshS.getBoundingBox(BoxS);
     double BoxT[2*SPACEDIM]; myMeshT.getBoundingBox(BoxT);
-    double diagonalS=getDistanceBtw2Pts<SPACEDIM>(BoxS+SPACEDIM,BoxS);
-    double DimCaracteristicS=diagonalS/nbMailleS;
-    double diagonalT=getDistanceBtw2Pts<SPACEDIM>(BoxT+SPACEDIM,BoxT);
-    double DimCaracteristicT=diagonalT/nbMailleT;
+    double diagonalS,dimCaracteristicS=std::numeric_limits<double>::max();
+    if(nbMailleS!=0)
+      {
+        diagonalS=getDistanceBtw2Pts<SPACEDIM>(BoxS+SPACEDIM,BoxS);
+        dimCaracteristicS=diagonalS/nbMailleS;
+      }
+    double diagonalT,dimCaracteristicT=std::numeric_limits<double>::max();
+    if(nbMailleT!=0)
+      {
+        diagonalT=getDistanceBtw2Pts<SPACEDIM>(BoxT+SPACEDIM,BoxT);
+        dimCaracteristicT=diagonalT/nbMailleT;
+      }
     
-    _dim_caracteristic=std::min(DimCaracteristicS, DimCaracteristicT);
+    _dim_caracteristic=std::min(dimCaracteristicS, dimCaracteristicT);
     if (InterpolationOptions::getPrintLevel()>=1)
       {
-        std::cout << "  - Characteristic size of the source mesh : " << DimCaracteristicS << std::endl;
-        std::cout << "  - Characteristic size of the target mesh: " << DimCaracteristicT << std::endl;
+        std::cout << "  - Characteristic size of the source mesh : " << dimCaracteristicS << std::endl;
+        std::cout << "  - Characteristic size of the target mesh: " << dimCaracteristicT << std::endl;
         std::cout << "InterpolationPlanar::computation of the intersections" << std::endl;
       }
     
