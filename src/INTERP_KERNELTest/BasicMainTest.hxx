@@ -31,6 +31,10 @@
 #include <iostream>
 #include <fstream>
 
+#ifndef WIN32
+#include <fpu_control.h>
+#endif
+
 // ============================================================================
 /*!
  *  Main program source for Unit Tests with cppunit package does not depend
@@ -40,6 +44,10 @@
 
 int main(int argc, char* argv[])
 {
+#ifndef WIN32
+  fpu_control_t cw = _FPU_DEFAULT & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM);
+  _FPU_SETCW(cw);
+#endif
   // --- Create the event manager and test controller
   CPPUNIT_NS::TestResult controller;
 
