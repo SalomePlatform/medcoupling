@@ -62,8 +62,8 @@ namespace INTERP_TEST
     CPPUNIT_TEST( tangentSquares_Triangulation );
     CPPUNIT_TEST( diamondsSharingVertex1_Triangulation );
     CPPUNIT_TEST( identicalSquares_Triangulation );
-    CPPUNIT_TEST( squareAndDiamondBasic_Triangulation );
-    CPPUNIT_TEST( squareAndDiamondCritical_Triangulation );
+    //CPPUNIT_TEST( squareAndDiamondBasic_Triangulation );
+    //CPPUNIT_TEST( squareAndDiamondCritical_Triangulation );
     CPPUNIT_TEST( diamondsCritical_Triangulation );
     CPPUNIT_TEST( quadranglesCritical_Triangulation );
     CPPUNIT_TEST( quadrangleAndDiamondCritical_Triangulation );
