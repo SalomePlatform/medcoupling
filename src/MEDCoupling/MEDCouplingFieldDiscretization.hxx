@@ -35,6 +35,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDiscretization *New(TypeOfField type);
+    static TypeOfField getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other) const = 0;
     virtual MEDCouplingFieldDiscretization *clone() const = 0;

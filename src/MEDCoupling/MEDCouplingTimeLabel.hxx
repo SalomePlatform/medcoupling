@@ -39,6 +39,7 @@ namespace ParaMEDMEM
     TimeLabel();
     virtual ~TimeLabel();
     void updateTimeWith(const TimeLabel& other);
+    unsigned int getTimeOfThis() const { return _time; }
   private:
     static unsigned int GLOBAL_TIME;
     unsigned int _time;

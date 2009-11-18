@@ -18,10 +18,16 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-bin_PROGRAMS= TestMEDCoupling
+bin_PROGRAMS= TestMEDCoupling TestMEDCouplingRemapper
 
 TestMEDCoupling_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(srcdir)/../../INTERP_KERNEL/Bases -I$(srcdir)/../../INTERP_KERNELTest -I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Geometric2D
 
 TestMEDCoupling_LDFLAGS = @CPPUNIT_LIBS@ ../libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la
 
 dist_TestMEDCoupling_SOURCES = TestMEDCoupling.cxx MEDCouplingBasicsTest.hxx MEDCouplingBasicsTest.cxx
+
+TestMEDCouplingRemapper_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(srcdir)/../../INTERP_KERNEL/Bases -I$(srcdir)/../../INTERP_KERNELTest -I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Geometric2D
+
+TestMEDCouplingRemapper_LDFLAGS = @CPPUNIT_LIBS@ ../libmedcouplingremapper.la ../../INTERP_KERNEL/libinterpkernel.la
+
+dist_TestMEDCouplingRemapper_SOURCES = TestMEDCouplingRemapper.cxx MEDCouplingRemapperTest.hxx MEDCouplingRemapperTest.cxx

@@ -89,7 +89,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionDouble(const std::string& key
       setMaxDistance3DSurfIntersect(value);
       return true;
     }
-  else 
+  else
     return false;
 }
 
@@ -114,6 +114,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, i
       {
         bool valBool=(value!=0);
         setMeasureAbsStatus(valBool);
+        return true;
       }
     else
       return false;

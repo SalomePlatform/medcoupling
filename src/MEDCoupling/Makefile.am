@@ -24,7 +24,7 @@ endif
 
 # first '.' says that this folder must be compiled before Test (MEDMEM/Test uses MEDMEM)
 
-lib_LTLIBRARIES = libmedcoupling.la
+lib_LTLIBRARIES = libmedcoupling.la libmedcouplingremapper.la
 
 
 salomeinclude_HEADERS = MEDCoupling.hxx \
@@ -34,7 +34,8 @@ MEDCouplingNormalizedUnstructuredMesh.txx  MEDCouplingMemArray.txx MEDCouplingRe
 MEDCouplingCMesh.hxx MEDCouplingTimeDiscretization.hxx                                            \
 MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx                                        \
 MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx                                             \
-MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx
+MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx                     \
+MEDCouplingRemapper.hxx
 
 # Libraries targets
 
@@ -52,6 +53,16 @@ libmedcoupling_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
 
 # the geom2D library is included in the interpkernel one
 libmedcoupling_la_LIBADD= ../INTERP_KERNEL/libinterpkernel.la
+
+dist_libmedcouplingremapper_la_SOURCES = MEDCouplingRemapper.cxx
+
+libmedcouplingremapper_la_CPPFLAGS =  @CXXTMPDPTHFLAGS@ \
+	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL \
+	-I$(srcdir)/../INTERP_KERNEL/Geometric2D
+
+libmedcouplingremapper_la_LDFLAGS = 
+
+libmedcouplingremapper_la_LIBADD = libmedcoupling.la
 
 AM_CPPFLAGS += $(libinterpkernel_la_CPPFLAGS)
 LDADD= $(libinterpkernel_la_LDFLAGS)
@@ -75,4 +86,5 @@ EXTRA_DIST += \
 	MEDCouplingRefCountObject.hxx             \
 	MEDCouplingPointSet.hxx                   \
 	MEDCouplingUMeshDesc.hxx                  \
-	MEDCouplingNatureOfField.hxx
+	MEDCouplingNatureOfField.hxx              \
+	MEDCouplingRemapper.hxx

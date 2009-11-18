@@ -52,6 +52,24 @@ namespace INTERP_KERNEL
       throw INTERP_KERNEL::Exception("Invalid method specified in fromIntegralUniform : must be in { \"P0\", \"P1\"}");
     return ret;
   }
+
+  template<class TrueMainInterpolator>
+  void Interpolation<TrueMainInterpolator>::checkAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception)
+  {
+    const int NB_OF_METH_MANAGED=4;
+    const char *METH_MANAGED[NB_OF_METH_MANAGED]={"P0P0","P0P1","P1P0","P1P1"};
+    std::string methodC(method);
+    bool found=false;
+    for(int i=0;i<NB_OF_METH_MANAGED && !found;i++)
+      found=(methodC==METH_MANAGED[i]);
+    if(!found)
+      {
+        std::string msg("The interpolation method : \'"); msg+=method; msg+="\' not managed !";
+        throw INTERP_KERNEL::Exception(msg.c_str());
+      }
+    srcMeth=methodC.substr(0,2);
+    trgMeth=methodC.substr(2);
+  }
 }
 
 #endif

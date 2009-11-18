@@ -27,6 +27,9 @@
  */
 #include "INTERPKERNELDefines.hxx"
 #include "InterpolationOptions.hxx"
+#include "InterpKernelException.hxx"
+
+#include <string>
 
 namespace INTERP_KERNEL
 {
@@ -44,6 +47,7 @@ namespace INTERP_KERNEL
     int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const char *method) { return fromToIntegralUniform(true,meshT,result,method); }
     template<class MyMeshType, class MatrixType>
     int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const char *method) { return fromToIntegralUniform(false,meshS,result,method); }
+    static void checkAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception);
   protected:
     template<class MyMeshType, class MatrixType>
     int fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const char *method);

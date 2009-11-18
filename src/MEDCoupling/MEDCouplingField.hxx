@@ -45,6 +45,7 @@ namespace ParaMEDMEM
     const char *getName() const { return _name.c_str(); }
     TypeOfField getTypeOfField() const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
+    MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
   protected:
     void updateTime();
   protected:

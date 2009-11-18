@@ -45,6 +45,16 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
     }
 }
 
+TypeOfField MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception)
+{
+  std::string reprCpp(repr);
+  if(reprCpp==MEDCouplingFieldDiscretizationP0::REPR)
+    return MEDCouplingFieldDiscretizationP0::TYPE;
+  if(reprCpp==MEDCouplingFieldDiscretizationP1::REPR)
+    return MEDCouplingFieldDiscretizationP1::TYPE;
+  throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
+}
+
 TypeOfField MEDCouplingFieldDiscretizationP0::getEnum() const
 {
   return TYPE;
