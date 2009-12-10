@@ -12,19 +12,19 @@
 #include <ICoCoField.hxx>
 namespace ICoCo
 {
-	/*!
-		\brief structure for coupling Trio codes via the ICoCo interface
+        /*!
+                \brief structure for coupling Trio codes via the ICoCo interface
 
-		This structure contains all the necessary information 
-		for constructing a ParaMEDMEM::ParaFIELD (with the addition of the MPI
-		communicator). The ICoCo API specifies two kinds of calls for
-		the ICoCo::Field : either with the mesh only or with the entire information (mesh and field).
-		This structure can therefore be left without _time, _nb_field_components, _field
-		information, which are related to the field values.
+                This structure contains all the necessary information 
+                for constructing a ParaMEDMEM::ParaFIELD (with the addition of the MPI
+                communicator). The ICoCo API specifies two kinds of calls for
+                the ICoCo::Field : either with the mesh only or with the entire information (mesh and field).
+                This structure can therefore be left without _time, _nb_field_components, _field
+                information, which are related to the field values.
 
-		_coords and _connectivity tables are always owned by the TrioField.
+                _coords and _connectivity tables are always owned by the TrioField.
 
-	 */
+         */
   class TrioField:public Field
   {
   public:

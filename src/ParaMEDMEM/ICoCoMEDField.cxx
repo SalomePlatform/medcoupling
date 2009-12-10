@@ -91,11 +91,11 @@ namespace ICoCo
     int* conn=new int[triofield._nodes_per_elem];
     for (int i=0; i<triofield._nb_elems;i++)
       {
-	for(int j=0;j<triofield._nodes_per_elem;j++)
-	  {
-	    conn[j]=(triofield._connectivity)[i*triofield._nodes_per_elem+j];
-	  }
-	_local_mesh->insertNextCell(elemtype,triofield._nodes_per_elem,conn);
+        for(int j=0;j<triofield._nodes_per_elem;j++)
+          {
+            conn[j]=(triofield._connectivity)[i*triofield._nodes_per_elem+j];
+          }
+        _local_mesh->insertNextCell(elemtype,triofield._nodes_per_elem,conn);
       }
     delete[] conn;
     
@@ -109,17 +109,17 @@ namespace ICoCo
     int nb_case=triofield.nb_values();
     if (triofield._type==0)
       {
-	_field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
-	
+        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
+        
       }
     else
       {
-	_field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_NODES,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
-	
+        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_NODES,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
+        
       }
     if (triofield._field!=0)
       {
-	//  _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
+        //  _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
         _field->getField()->setNature(ParaMEDMEM::ConservativeVolumic);
         ParaMEDMEM::DataArrayDouble *fieldArr=_field->getField()->getArray();
         _field->getField()->setName(triofield.getName().c_str());
@@ -133,7 +133,7 @@ namespace ICoCo
     //field on the receiving end
     else
       {
-	//        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
+        //        _field =  new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME,_mesh, *_comp_topology );
         _field->getField()->setNature(ParaMEDMEM::ConservativeVolumic);
         _field->getField()->setName(triofield.getName().c_str());
         _field->getField()->setTime(triofield._time1,0,triofield._itnumber);

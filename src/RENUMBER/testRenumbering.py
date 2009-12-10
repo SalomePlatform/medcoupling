@@ -44,7 +44,7 @@ for i in range(9):
 f.rmDriver(id)
 
 nbcell2dboost=m.getNumberOfElementsWithPoly(MED_CELL,MED_ALL_ELEMENTS)
-connectivite=[2,6,13,11,11,13,14,12,6,5,15,13,12,14,10,4,13,15,16,14,5,1,7,15,14,16,9,10,15,7,8,16,16,8,3,9]
+connectivite=[2,6,13,11, 11,13,14,12, 6,5,15,13, 12,14,10,4, 13,15,16,14,5,1,7,15,14,16,9,10,15,7,8,16,16,8,3,9]
 connectivite_index=[1,5,9,13,17,21,25,29,33,37]
 conn=m.getConnectivity(MED_FULL_INTERLACE,MED_NODAL,MED_CELL,MED_QUAD4)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
@@ -90,14 +90,19 @@ meshname="Mesh_1"
 print "TEST 2D Boost with polygons"
 method="BOOST"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
+print string_to_execute
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
 nbcell2dpolyboost=m.getNumberOfElementsWithPoly(MED_CELL,MED_ALL_ELEMENTS)
-connectivite=[2,5,9,10,11,10,9,12,5,6,8,9,4,11,12,16,12,9,8,13,6,1,7,8,16,12,13,15,13,8,7,14,15,13,14,3]
+connectivite=[11,10,9,12, 15,13,14,3, 6,1,7,8, 4,11,12,16, 2,5,9,10, 5,6,8,9,16,12,13,15,12,9,8,13,13,8,7,14]
 connectivite_index=[1,5,9,13,17,21,25,29,33,37]
 conn=m.getPolygonsConnectivity(MED_FULL_INTERLACE,MED_CELL)
+print "getNumberOfTypesWithPoly(MED_CELL)", m.getNumberOfTypesWithPoly(MED_CELL)
+print "getNumberOfTypes(MED_CELL)", m.getNumberOfTypes(MED_CELL)
+print "getNumberOfTypesWithPoly(MED_FACE)", m.getNumberOfTypesWithPoly(MED_FACE)
 conn_index=m.getPolygonsConnectivityIndex(MED_FULL_INTERLACE,MED_CELL);
 conn2dpolyboost=(len(conn)==len(connectivite))
+print len(conn), len(connectivite), conn
 if conn2dpolyboost:
     for i in range(0,len(connectivite)):
         conn2dpolyboost=conn2dpolyboost&(conn[i]==connectivite[i])
@@ -106,6 +111,8 @@ if conn_index2dpolyboost:
     for i in range(0,len(connectivite_index)):
         conn_index2dpolyboost=conn_index2dpolyboost&(conn_index[i]==connectivite_index[i])
 PolyBoost2D=conn2dpolyboost&conn_index2dpolyboost&(nbcell2dpolyboost==9)
+print "conn2dpolyboost",conn2dpolyboost,"conn_index2dpolyboost",conn_index2dpolyboost,nbcell2dpolyboost
+sys.exit(1)
 os.remove(dir_mesh+"/out_"+filename)
 
 print "TEST 2D Metis with polygons"

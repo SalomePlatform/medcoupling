@@ -63,7 +63,7 @@ void TrioField::save(ostream& os) const{
   for (int i=0;i<_nb_elems;i++) 
     {
       for (int j=0;j<_nodes_per_elem;j++)
-	os << " "<<_connectivity[i*_nodes_per_elem+j];
+        os << " "<<_connectivity[i*_nodes_per_elem+j];
       os<<endl;
     }
   
@@ -71,7 +71,7 @@ void TrioField::save(ostream& os) const{
   for (int i=0;i<_nbnodes;i++) 
     {
       for (int j=0;j<_space_dim;j++)
-	os <<" "<< _coords[i*_space_dim+j] ;
+        os <<" "<< _coords[i*_space_dim+j] ;
       os  << endl;
     }
   
@@ -82,11 +82,11 @@ void TrioField::save(ostream& os) const{
     {
       os <<1<<endl;
       for (int i=0;i<nb_values();i++) 
-	{
-	  for (int j=0;j<_nb_field_components;j++)
-	    os <<" "<< _field[i*_nb_field_components+j];
-	  os << endl;
-	}
+        {
+          for (int j=0;j<_nb_field_components;j++)
+            os <<" "<< _field[i*_nb_field_components+j];
+          os << endl;
+        }
     }
   else
     {
@@ -115,7 +115,7 @@ void TrioField::restore(istream& in) {
   for (int i=0;i<_nb_elems;i++) 
     {
       for (int j=0;j<_nodes_per_elem;j++)
-	in>>_connectivity[i*_nodes_per_elem+j];
+        in>>_connectivity[i*_nodes_per_elem+j];
       
     }
   if (_coords)
@@ -124,7 +124,7 @@ void TrioField::restore(istream& in) {
   for (int i=0;i<_nbnodes;i++) 
     {
       for (int j=0;j<_space_dim;j++)
-	in>> _coords[i*_space_dim+j] ;
+        in>> _coords[i*_space_dim+j] ;
      
     }
   
@@ -136,14 +136,14 @@ void TrioField::restore(istream& in) {
   if (test)
     {
       if (_field)
-	delete [] _field;
+        delete [] _field;
       _field=new double[_nb_field_components*nb_values()];
       for (int i=0;i<nb_values();i++) 
-	{
-	  for (int j=0;j<_nb_field_components;j++)
-	    in>> _field[i*_nb_field_components+j];
-	 
-	}
+        {
+          for (int j=0;j<_nb_field_components;j++)
+            in>> _field[i*_nb_field_components+j];
+         
+        }
     }
   else
     {
@@ -219,14 +219,14 @@ TrioField& TrioField::operator=(const TrioField& NewField){
     _nb_field_components=NewField._nb_field_components;
 
     if (!NewField._connectivity)
-	_connectivity=0;
+        _connectivity=0;
     else {
       _connectivity=new int[_nodes_per_elem*_nb_elems];
       memcpy( _connectivity,NewField._connectivity,_nodes_per_elem*_nb_elems*sizeof(int));
     }
 
     if (!NewField._coords)
-	_coords=0;
+        _coords=0;
     else {
        _coords=new double[_nbnodes*_space_dim];
        memcpy( _coords,NewField._coords,_nbnodes*_space_dim*sizeof(double));

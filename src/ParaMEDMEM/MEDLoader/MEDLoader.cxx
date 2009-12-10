@@ -201,12 +201,12 @@ namespace MEDLoader
         char *attdes=new char[MED_TAILLE_DESC*natt+1];
         char *gro=new char[MED_TAILLE_LNOM*ngro+1];
         MEDfamInfo(fid,(char *)meshName,i+1,nomfam,&numfam,attide,attval,attdes,&natt,gro,&ngro);
-	for(int j=0;j<ngro;j++)
-	  {
-	    std::string cur=buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
-	    if(std::find(ret.begin(),ret.end(),cur)==ret.end())
-	      ret.push_back(cur);
-	  }
+        for(int j=0;j<ngro;j++)
+          {
+            std::string cur=buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
+            if(std::find(ret.begin(),ret.end(),cur)==ret.end())
+              ret.push_back(cur);
+          }
         delete [] attdes;
         delete [] gro;
         delete [] attide;
@@ -452,8 +452,8 @@ namespace MEDLoader
         char *gro=new char[MED_TAILLE_LNOM*ngro+1];
         MEDfamInfo(fid,(char *)meshName,i+1,nomfam,&numfam,attide,attval,attdes,&natt,gro,&ngro);
         std::string cur=buildStringFromFortran(nomfam,sizeof(nomfam));
-	if(std::find(fams.begin(),fams.end(),cur)!=fams.end())
-	  ret.push_back(numfam);
+        if(std::find(fams.begin(),fams.end(),cur)!=fams.end())
+          ret.push_back(numfam);
         delete [] attdes;
         delete [] gro;
         delete [] attide;
@@ -480,15 +480,15 @@ namespace MEDLoader
         char *gro=new char[MED_TAILLE_LNOM*ngro+1];
         MEDfamInfo(fid,(char *)meshName,i+1,nomfam,&numfam,attide,attval,attdes,&natt,gro,&ngro);
         std::string cur=buildStringFromFortran(nomfam,sizeof(nomfam));
-	for(int j=0;j<ngro;j++)
-	  {
-	    std::string cur=buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
-	    if(std::find(grps.begin(),grps.end(),cur)!=grps.end())
-	      {
-		ret.push_back(numfam);
-		break;
-	      }
-	  }
+        for(int j=0;j<ngro;j++)
+          {
+            std::string cur=buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
+            if(std::find(grps.begin(),grps.end(),cur)!=grps.end())
+              {
+                ret.push_back(numfam);
+                break;
+              }
+          }
         delete [] attdes;
         delete [] gro;
         delete [] attide;
@@ -637,9 +637,9 @@ namespace MEDLoader
     unsigned ret=0;
     for(typename std::list<T>::const_iterator iter=conn.begin();iter!=conn.end();iter++)
       {
-	unsigned curDim=INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getDimension();
-	if(ret<curDim)
-	  ret=curDim;
+        unsigned curDim=INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getDimension();
+        if(ret<curDim)
+          ret=curDim;
       }
     return ret;
   }
@@ -649,14 +649,14 @@ namespace MEDLoader
   {
     for(typename std::list<T>::iterator iter=conn.begin();iter!=conn.end();)
       {
-	unsigned curDim=INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getDimension();
-	if(curDim!=meshDim)
-	  {
-	    (*iter).releaseArray();
-	    iter=conn.erase(iter);
-	  }
-	else
-	  iter++;
+        unsigned curDim=INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getDimension();
+        if(curDim!=meshDim)
+          {
+            (*iter).releaseArray();
+            iter=conn.erase(iter);
+          }
+        else
+          iter++;
       }
   }
   
@@ -719,35 +719,35 @@ namespace MEDLoader
   };
 
   void tradMEDFileCoreFrmt2MEDCouplingUMesh(const std::list<MEDLoader::MEDConnOfOneElemType>& medConnFrmt,
-						       DataArrayInt* &conn,
-						       DataArrayInt* &connIndex,
-						       const std::vector<int>& familiesToKeep)
+                                                       DataArrayInt* &conn,
+                                                       DataArrayInt* &connIndex,
+                                                       const std::vector<int>& familiesToKeep)
   {
     bool keepAll=familiesToKeep.empty();
     if(medConnFrmt.empty())
       {
-	conn=0;
-	connIndex=0;
-	return ;
+        conn=0;
+        connIndex=0;
+        return ;
       }
     std::list<MEDLoader::MEDConnOfOneElemType>::const_iterator iter=medConnFrmt.begin();
     int totalNbOfCells=0;
     int totalNbOfMedConn=0;
     for(;iter!=medConnFrmt.end();iter++)
       {
-	const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::getCellModel((*iter).getType());
-	if(keepAll)
+        const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::getCellModel((*iter).getType());
+        if(keepAll)
           totalNbOfCells+=(*iter).getLength();
-	else
-	  for(std::vector<int>::const_iterator iter2=familiesToKeep.begin();iter2!=familiesToKeep.end();iter2++)
+        else
+          for(std::vector<int>::const_iterator iter2=familiesToKeep.begin();iter2!=familiesToKeep.end();iter2++)
             totalNbOfCells+=std::count((*iter).getFam(),(*iter).getFam()+(*iter).getLength(),*iter2);
-	if(!cellMod.isDynamic())
-	  if(keepAll)
-	    totalNbOfMedConn+=(*iter).getLength()*cellMod.getNumberOfNodes();
-	  else
-	    for(std::vector<int>::const_iterator iter2=familiesToKeep.begin();iter2!=familiesToKeep.end();iter2++)
-	      totalNbOfMedConn+=std::count((*iter).getFam(),(*iter).getFam()+(*iter).getLength(),*iter2)*cellMod.getNumberOfNodes();
-	else
+        if(!cellMod.isDynamic())
+          if(keepAll)
+            totalNbOfMedConn+=(*iter).getLength()*cellMod.getNumberOfNodes();
+          else
+            for(std::vector<int>::const_iterator iter2=familiesToKeep.begin();iter2!=familiesToKeep.end();iter2++)
+              totalNbOfMedConn+=std::count((*iter).getFam(),(*iter).getFam()+(*iter).getLength(),*iter2)*cellMod.getNumberOfNodes();
+        else
           if(keepAll)
             totalNbOfMedConn+=(*iter).getConnLength();
           else
@@ -766,12 +766,12 @@ namespace MEDLoader
     int *connPtr=conn->getPointer();
     for(iter=medConnFrmt.begin();iter!=medConnFrmt.end();iter++)
       {
-	INTERP_KERNEL::NormalizedCellType type=(*iter).getType();
-	const int *sourceConn=(*iter).getArray();
+        INTERP_KERNEL::NormalizedCellType type=(*iter).getType();
+        const int *sourceConn=(*iter).getArray();
         const int *sourceIndex=(*iter).getIndex();
-	const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::getCellModel(type);
-	int nbOfCellsInCurType;
-	int nbOfNodesIn1Cell=cellMod.getNumberOfNodes();
+        const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::getCellModel(type);
+        int nbOfCellsInCurType;
+        int nbOfNodesIn1Cell=cellMod.getNumberOfNodes();
         nbOfCellsInCurType=(*iter).getLength();
         bool isDyn=cellMod.isDynamic();
         int *tmpConnPtr;
@@ -835,14 +835,14 @@ namespace MEDLoader
     const int *connIdxPtr=connIndex->getPointer();
     for(int i=0;i<nbOfElem;i++)
       {
-	int delta=connIdxPtr[1]-connIdxPtr[0];
-	if(*connPtr==type)
-	  {
-	    conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
-	    ret++;
+        int delta=connIdxPtr[1]-connIdxPtr[0];
+        if(*connPtr==type)
+          {
+            conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
+            ret++;
           }
-	connIdxPtr++;
-	connPtr+=delta;
+        connIdxPtr++;
+        connPtr+=delta;
       }
     std::transform(conn4MEDFile.begin(),conn4MEDFile.end(),conn4MEDFile.begin(),std::bind2nd(std::plus<int>(),1));
     return ret;
@@ -858,14 +858,14 @@ namespace MEDLoader
     for(int i=0;i<nbOfElem;i++)
       {
         int delta=connIdxPtr[1]-connIdxPtr[0];
-	if(*connPtr==INTERP_KERNEL::NORM_POLYGON)
-	  {
-	    conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
+        if(*connPtr==INTERP_KERNEL::NORM_POLYGON)
+          {
+            conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
             connIndex4MEDFile.push_back(connIndex4MEDFile.back()+delta-1);
-	    ret++;
+            ret++;
           }
         connIdxPtr++;
-	connPtr+=delta;
+        connPtr+=delta;
       }
     std::transform(conn4MEDFile.begin(),conn4MEDFile.end(),conn4MEDFile.begin(),std::bind2nd(std::plus<int>(),1));
     return ret;
