@@ -196,14 +196,13 @@ void ComposedEdge::getBarycenter(double *bary) const
   bary[1]/=area;
 }
 
-double ComposedEdge::normalize(ComposedEdge *other)
+double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary)
 {
   Bounds b;
   b.prepareForAggregation();
   fillBounds(b); 
   other->fillBounds(b);
   double dimChar=b.getCaracteristicDim();
-  double xBary,yBary;
   b.getBarycenter(xBary,yBary);
   applyGlobalSimilarity(xBary,yBary,dimChar);
   other->applyGlobalSimilarity(xBary,yBary,dimChar);

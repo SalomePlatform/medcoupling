@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
                                             double precision, int orientation):
     InterpType<MyMeshType,MyMatrix,GEO2D_INTERSECTOR >(meshT,meshS,dimCaracteristic, precision, md3DSurf, medianPlane, true, orientation, 0)
   {
-    QUADRATIC_PLANAR::_precision=dimCaracteristic*precision;
+    QUADRATIC_PLANAR::_precision=precision;
   }
   
   INTERSECTOR_TEMPLATE
@@ -58,7 +58,7 @@ namespace INTERP_KERNEL
     NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(icellS);
     QuadraticPolygon *p1=buildPolygonFrom(CoordsT,tT);
     QuadraticPolygon *p2=buildPolygonFrom(CoordsS,tS);
-    double ret=p1->intersectWith(*p2);
+    double ret=p1->intersectWithAbs(*p2);
     delete p1; delete p2;
     return ret;
   }
@@ -83,7 +83,7 @@ namespace INTERP_KERNEL
       p2=QuadraticPolygon::buildLinearPolygon(nodes2);
     else
       p2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
-    double ret=p1->intersectWith(*p2);
+    double ret=p1->intersectWithAbs(*p2);
     delete p1; delete p2;
     return ret;
   }
@@ -102,7 +102,7 @@ namespace INTERP_KERNEL
       nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
     QuadraticPolygon *p1=QuadraticPolygon::buildLinearPolygon(nodes);
     QuadraticPolygon *p2=QuadraticPolygon::buildLinearPolygon(nodes2);
-    double ret=p1->intersectWith(*p2);
+    double ret=p1->intersectWithAbs(*p2);
     delete p1; delete p2;
     return ret;
   }
@@ -138,7 +138,7 @@ namespace INTERP_KERNEL
     else
       p2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
     double barycenter[2];
-    double ret=p1->intersectWith(*p2,barycenter);
+    double ret=p1->intersectWithAbs(*p2,barycenter);
     delete p1; delete p2;
     if ( ret > std::numeric_limits<double>::min() )
     {

@@ -52,7 +52,7 @@ namespace INTERP_KERNEL
     double getPerimeter() const;
     double getHydraulicDiameter() const;
     void getBarycenter(double *bary) const;
-    double normalize(ComposedEdge *other);
+    double normalize(ComposedEdge *other, double& xBary, double& yBary);
     void fillBounds(Bounds& output) const;
     void applySimilarity(double xBary, double yBary, double dimChar);
     void applyGlobalSimilarity(double xBary, double yBary, double dimChar);

@@ -170,13 +170,40 @@ void QuadraticPolygon::dumpInXfigFile(std::ostream& stream, int resolution, cons
  */
 double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
 {
-  double ret=0.;
-  double fact=normalize(&other);
+  double ret=0.,xBaryBB,yBaryBB;
+  double fact=normalize(&other,xBaryBB,yBaryBB);
   vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
   for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
     {
       ret+=fabs((*iter)->getArea());
       delete *iter;
+    }
+  return ret*fact*fact;
+}
+
+/*!
+ * Warning contrary to intersectWith method this method is \b NOT const. 'this' and 'other' are modified after call of this method.
+ */
+double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other, double* barycenter)
+{
+  double ret=0.,bary[2],area,xBaryBB,yBaryBB;
+  barycenter[0] = barycenter[1] = 0.;
+  double fact=normalize(&other,xBaryBB,yBaryBB);
+  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+    {
+      area=fabs((*iter)->getArea());
+      (*iter)->getBarycenter(bary);
+      delete *iter;
+      ret+=area;
+      barycenter[0] += bary[0]*area;
+      barycenter[1] += bary[1]*area;
+    }
+  if ( ret > std::numeric_limits<double>::min() )
+    {
+      barycenter[0]=barycenter[0]/ret*fact+xBaryBB;
+      barycenter[1]=barycenter[1]/ret*fact+yBaryBB;
+      
     }
   return ret*fact*fact;
 }
