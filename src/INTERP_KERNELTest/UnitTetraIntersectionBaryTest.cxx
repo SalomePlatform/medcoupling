@@ -24,6 +24,7 @@
 #include "UnitTetraIntersectionBary.hxx"
 #include "TetraAffineTransform.hxx"
 #include "InterpolationUtils.hxx"
+#include "SplitterTetra.txx"
 
 #include <iostream>
 
@@ -265,6 +266,36 @@ namespace INTERP_TEST
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.562500, baryCenter[0], 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.125000, baryCenter[1], 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.250000, baryCenter[2], 1e-5);
+  }
+
+  struct __MESH_DUMMY
+  {
+    typedef int MyConnType;
+  };
+
+  void UnitTetraIntersectionBaryTest::test_UnitTetraIntersectionBary_13()
+  {
+    double T[] = {
+      66.6666666666666714,133.333333333333343,66.6666666666666714,
+      100,200,100,
+      100,100,100,
+      200,200,0 };
+    
+    double S[] = {
+      100,166.666666666666657,66.6666666666666714,
+      100,150,50,
+      75,150,75,
+      100,100,100};
+
+    int conn[4] = { 0,1,2,3 };
+    
+    const double* tnodes[4]={ T, T+3, T+6, T+9 };
+    const double* snodes[4]={ S, S+3, S+6, S+9 };
+    
+    __MESH_DUMMY dummyMesh;
+    SplitterTetra<__MESH_DUMMY> src( dummyMesh, snodes, conn );
+    double volume = src.intersectTetra( tnodes );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(6944.4444444444443,volume,1e-9);
   }
 
   void UnitTetraIntersectionBaryTest::test_TetraAffineTransform_reverseApply()
