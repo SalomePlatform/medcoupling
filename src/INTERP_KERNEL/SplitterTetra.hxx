@@ -21,6 +21,7 @@
 
 #include "TransformedTriangle.hxx"
 #include "TetraAffineTransform.hxx"
+#include "InterpolationOptions.hxx"
 
 #include <assert.h>
 #include <vector>
