@@ -1625,7 +1625,8 @@ void QuadraticPlanarInterpTest::checkNormalize()
   QuadraticPolygon pol2; pol2.pushBack(e4_5); pol2.pushBack(e5_6); pol2.pushBack(e6_4);
   n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef(); n5->decrRef(); n6->decrRef();
   double area1Start=pol1.getArea();
-  double fact=pol1.normalize(&pol2);
+  double xb,yb;
+  double fact=pol1.normalize(&pol2,xb,yb);
   double area1End=pol1.getArea();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(area1Start,area1End*fact*fact,1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(13.,fact,1.e-14);
