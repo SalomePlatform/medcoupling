@@ -24,6 +24,8 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 
+#include <limits>
+
 template<int SPACEDIM,int MESHDIM>
 MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(ParaMEDMEM::MEDCouplingUMesh *mesh):_mesh(mesh)
 {
