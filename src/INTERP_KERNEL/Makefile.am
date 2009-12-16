@@ -55,6 +55,8 @@ InterpolationPlanar.hxx			\
 InterpolationPlanar.txx			\
 InterpolationCC.hxx                     \
 InterpolationCC.txx                     \
+InterpolationCU2D.hxx                   \
+InterpolationCU2D.txx                   \
 InterpolationUtils.hxx			\
 Intersector3D.hxx			\
 Intersector3D.txx			\

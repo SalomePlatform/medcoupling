@@ -24,6 +24,7 @@
 #include "Interpolation3DSurf.txx"
 #include "Interpolation3D.txx"
 #include "InterpolationCC.txx"
+#include <InterpolationCU2D.txx>
 
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingNormalizedCartesianMesh.txx"
@@ -2261,8 +2262,8 @@ void MEDCouplingBasicsTest::testInterpolationCC()
       mesh[i]->setCoords( coords, coords, coords );
       coords->decrRef();
     }
-  MEDCouplingNormalizedCartesianMesh<3,3> targetWrapper(mesh[1]);
-  MEDCouplingNormalizedCartesianMesh<3,3> sourceWrapper(mesh[0]);
+  MEDCouplingNormalizedCartesianMesh<3> targetWrapper(mesh[1]);
+  MEDCouplingNormalizedCartesianMesh<3> sourceWrapper(mesh[0]);
   CPPUNIT_ASSERT_EQUAL( 27,int( sourceWrapper.getNumberOfElements()));
   CPPUNIT_ASSERT_EQUAL( 3, int( sourceWrapper.nbCellsAlongAxis(0)));
   CPPUNIT_ASSERT_EQUAL( 3, int( sourceWrapper.nbCellsAlongAxis(1)));
@@ -2310,6 +2311,59 @@ void MEDCouplingBasicsTest::testInterpolationCC()
 
   mesh[0]->decrRef();
   mesh[1]->decrRef();
+}
+
+void MEDCouplingBasicsTest::testInterpolationCU2D()
+{
+  MEDCouplingCMesh* meshC = MEDCouplingCMesh::New();
+  DataArrayDouble* coords = DataArrayDouble::New();
+  double arr[4] = { 0/3, 1/3., 2/3., 3/3. };
+  coords->useArray( arr, /*ownership=*/false, CPP_DEALLOC, 4, 1 );
+  meshC->setCoords( coords, coords );
+  coords->decrRef();
+
+  MEDCouplingUMesh * meshU = buildCU2DMesh_U();
+
+  MEDCouplingNormalizedCartesianMesh<2>      sourceWrapper(meshC);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(meshU);
+  INTERP_KERNEL::InterpolationCU2D myInterpolator;
+  vector<map<int,double> > res;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+
+//   cout.precision(18);
+//   for ( int i = 0; i < (int)res.size(); ++i )
+//     for ( map<int,double>::iterator s_v = res[i].begin(); s_v != res[i].end(); ++s_v)
+//     {
+//       cout << "CPPUNIT_ASSERT_DOUBLES_EQUAL( "<<s_v->second<<" ,res["<<i<<"]["<<s_v->first<<"],precis);"<<endl;
+//     }
+
+  const double precis = 1e-7;
+  CPPUNIT_ASSERT_EQUAL(5,int( res.size()));
+  double sum = sumAll(res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1, sum, precis );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[0][1],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[0][3],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0277778 ,res[0][4],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[1][3],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0277778 ,res[1][4],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.1111111 ,res[1][6],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[1][7],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0277778 ,res[2][4],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[2][5],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[2][7],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.1111111 ,res[2][8],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0416667 ,res[3][1],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0138889 ,res[3][2],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0277778 ,res[3][4],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0416667 ,res[3][5],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0138889 ,res[4][1],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0972222 ,res[4][2],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0138889 ,res[4][5],precis);
+
+
+  meshC->decrRef();
+  meshU->decrRef();
 }
 
 void MEDCouplingBasicsTest::test2DInterpP0IntegralUniform()
@@ -2789,6 +2843,27 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_2()
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
   return targetMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::buildCU2DMesh_U()
+{
+  double coords[18]={0.0,0.0, 0.5,0.0, 1.0,0.0, 0.0,0.5, 0.5,0.5, 1.0,0.5, 0.0,1.0, 0.5,1.0, 1.0,1.0 };
+  int conn[18]={0,1,4,3, 3,4,7,6, 4,5,8,7, 1,5,4, 1,2,5 };
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
+  mesh->setMeshDimension(2);
+  mesh->allocateCells(5);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+8);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+12);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+15);
+  mesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,2);
+  std::copy(coords,coords+18,myCoords->getPointer());
+  mesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return mesh;
 }
 
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSurfSourceMesh_1()
