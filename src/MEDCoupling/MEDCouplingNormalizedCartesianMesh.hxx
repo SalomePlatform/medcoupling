@@ -26,12 +26,12 @@ namespace ParaMEDMEM
   class MEDCouplingCMesh;
 }
 
-template<int SPACEDIM,int MESHDIM>
+template<int SPACEDIM>
 class MEDCouplingNormalizedCartesianMesh : public INTERP_KERNEL::GenericMesh
 {
 public:
   static const int MY_SPACEDIM=SPACEDIM;
-  static const int MY_MESHDIM=MESHDIM;
+  static const int MY_MESHDIM=SPACEDIM;
   typedef int MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
