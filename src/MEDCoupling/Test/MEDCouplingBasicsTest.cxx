@@ -2331,17 +2331,11 @@ void MEDCouplingBasicsTest::testInterpolationCU2D()
   myInterpolator.setPrecision(1e-12);
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
 
-//   cout.precision(18);
-//   for ( int i = 0; i < (int)res.size(); ++i )
-//     for ( map<int,double>::iterator s_v = res[i].begin(); s_v != res[i].end(); ++s_v)
-//     {
-//       cout << "CPPUNIT_ASSERT_DOUBLES_EQUAL( "<<s_v->second<<" ,res["<<i<<"]["<<s_v->first<<"],precis);"<<endl;
-//     }
-
   const double precis = 1e-7;
-  CPPUNIT_ASSERT_EQUAL(5,int( res.size()));
   double sum = sumAll(res);
+  CPPUNIT_ASSERT_EQUAL(5,int( res.size()));
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 1, sum, precis );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.1111111 ,res[0][0],precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[0][1],precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0555556 ,res[0][3],precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0277778 ,res[0][4],precis);
@@ -2360,6 +2354,36 @@ void MEDCouplingBasicsTest::testInterpolationCU2D()
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0138889 ,res[4][1],precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0972222 ,res[4][2],precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.0138889 ,res[4][5],precis);
+
+  vector<map<int,double> > resRev;
+  myInterpolator.interpolateMeshesRev(targetWrapper,sourceWrapper,resRev,"P0P0");
+
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[0][0] ,resRev[0][0],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[0][1] ,resRev[1][0],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[3][1] ,resRev[1][3],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[4][1] ,resRev[1][4],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[3][2] ,resRev[2][3],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[4][2] ,resRev[2][4],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[0][3] ,resRev[3][0],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[1][3] ,resRev[3][1],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[0][4] ,resRev[4][0],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[1][4] ,resRev[4][1],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[2][4] ,resRev[4][2],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[3][4] ,resRev[4][3],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[2][5] ,resRev[5][2],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[3][5] ,resRev[5][3],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[4][5] ,resRev[5][4],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[1][6] ,resRev[6][1],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[1][7] ,resRev[7][1],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[2][7] ,resRev[7][2],precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( res[2][8] ,resRev[8][2],precis);
+
+//   cout.precision(18);
+//   for ( int i = 0; i < (int)res.size(); ++i )
+//     for ( map<int,double>::iterator s_v = res[i].begin(); s_v != res[i].end(); ++s_v)
+//     {
+//       cout << "CPPUNIT_ASSERT_DOUBLES_EQUAL( "<<s_v->second<<" ,res["<<i<<"]["<<s_v->first<<"],precis);"<<endl;
+//     }
 
 
   meshC->decrRef();
