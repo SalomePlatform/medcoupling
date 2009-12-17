@@ -224,7 +224,7 @@ namespace INTERP_KERNEL
     //  Double and triple product calculations                           
     // ----------------------------------------------------------------------------------
     
-
+		void resetNearZeroCoordinates();
 
     bool areDoubleProductsConsistent(const TriSegment seg) const;
 

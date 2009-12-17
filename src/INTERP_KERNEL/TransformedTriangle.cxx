@@ -126,6 +126,8 @@ namespace INTERP_KERNEL
     _coords[5*Q + 4] = 1 - q[0] - q[1];
     _coords[5*R + 4] = 1 - r[0] - r[1];
 
+		resetNearZeroCoordinates();
+
     // initialise rest of data
     preCalculateDoubleProducts();
 

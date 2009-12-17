@@ -35,7 +35,7 @@ namespace INTERP_TEST
   class INTERPKERNELTEST_EXPORT UnitTetraIntersectionBaryTest : public CppUnit::TestFixture
   {
     CPPUNIT_TEST_SUITE( UnitTetraIntersectionBaryTest );
-    //CPPUNIT_TEST( test_UnitTetraIntersectionBary_13 );
+    CPPUNIT_TEST( test_UnitTetraIntersectionBary_13 );
     CPPUNIT_TEST( test_UnitTetraIntersectionBary_12 );
     CPPUNIT_TEST( test_UnitTetraIntersectionBary_1 );
     CPPUNIT_TEST( test_UnitTetraIntersectionBary_2 );
