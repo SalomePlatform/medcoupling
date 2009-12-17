@@ -73,15 +73,14 @@ namespace INTERP_KERNEL
   const double TransformedTriangle::TRIPLE_PRODUCT_ANGLE_THRESHOLD = 0.1;
 
 
-
-	// after transformation to the U-space, coordinates are inaccurate
-	// small variations around zero should not be taken into account
-	void TransformedTriangle::resetNearZeroCoordinates()
-	{
-		for (int i=0; i<15; i++)
-			if (fabs(_coords[i])<TransformedTriangle::MACH_EPS*20.0) _coords[i]=0.0;
-	}
-
+  // after transformation to the U-space, coordinates are inaccurate
+  // small variations around zero should not be taken into account
+  void TransformedTriangle::resetNearZeroCoordinates()
+  {
+    for (int i=0; i<15; i++)
+      if (fabs(_coords[i])<TransformedTriangle::MACH_EPS*20.0) _coords[i]=0.0;
+  }
+  
   // ----------------------------------------------------------------------------------
   //  Double and triple product calculations                           
   // ----------------------------------------------------------------------------------
