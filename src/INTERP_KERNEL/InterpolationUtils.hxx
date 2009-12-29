@@ -687,6 +687,11 @@ namespace INTERP_KERNEL
     V[1]=-AB[0]*AC[2]+AB[2]*AC[0];
     V[2]=AB[0]*AC[1]-AB[1]*AC[0];    
   }
+  template<> inline
+  void crossprod<1>( const double * A, const double * B, const double * C, double * V)
+  {
+    // just to be able to compile
+  }
   
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Checks wether point A is inside the quadrangle BCDE */
