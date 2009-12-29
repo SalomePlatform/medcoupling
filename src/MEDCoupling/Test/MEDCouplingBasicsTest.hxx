@@ -73,7 +73,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test3DSurfInterpP0P0_2 );
     CPPUNIT_TEST( test3DSurfInterpP0P0_3 );
     CPPUNIT_TEST( testInterpolationCC );
+    CPPUNIT_TEST( testInterpolationCU1D );
     CPPUNIT_TEST( testInterpolationCU2D );
+    CPPUNIT_TEST( testInterpolationCU3D );
     CPPUNIT_TEST( test3DInterpP0P0_1 );
     CPPUNIT_TEST( test3DInterpP0P0PL_1 );
     CPPUNIT_TEST( test3DInterpP0P0PL_2 );
@@ -150,7 +152,9 @@ namespace ParaMEDMEM
     void test3DInterpP1P1_1();
     void test3DInterpP1P1PL_1();
     void testInterpolationCC();
+    void testInterpolationCU1D();
     void testInterpolationCU2D();
+    void testInterpolationCU3D();
     void test3DInterpP0P0Empty();
     void test2DInterpP0IntegralUniform();
     void test3DSurfInterpP0IntegralUniform();
@@ -169,7 +173,9 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *build2DTargetMesh_1();
     MEDCouplingUMesh *build2DTargetMeshPerm_1();
     MEDCouplingUMesh *build2DTargetMesh_2();
+    MEDCouplingUMesh *buildCU1DMesh_U();
     MEDCouplingUMesh *buildCU2DMesh_U();
+    MEDCouplingUMesh *buildCU3DMesh_U();
     MEDCouplingUMesh *build3DSurfSourceMesh_1();
     MEDCouplingUMesh *build3DSurfSourceMesh_2();
     MEDCouplingUMesh *build3DSurfTargetMesh_1();
