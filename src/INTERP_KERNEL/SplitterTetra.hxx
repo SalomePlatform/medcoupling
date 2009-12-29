@@ -323,32 +323,32 @@ namespace INTERP_KERNEL
     _volumes.insert(std::make_pair(key, vol));
   }
 
-  template<class MyMeshType>
+  template<class MyMeshTypeT, class MyMeshTypeS=MyMeshTypeT>
   class SplitterTetra2
   {
   public:
-    SplitterTetra2(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy policy);
+    SplitterTetra2(const MyMeshTypeT& targetMesh, const MyMeshTypeS& srcMesh, SplittingPolicy policy);
     ~SplitterTetra2();
     void releaseArrays();
-    void splitTargetCell(typename MyMeshType::MyConnType targetCell, typename MyMeshType::MyConnType nbOfNodesT,
-                         typename std::vector< SplitterTetra<MyMeshType>* >& tetra);
-    void fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshType>* >& tetra);
-    void sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshType>* >& tetra);
-    void calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshType>* >& tetra);
-    void calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshType>* >& tetra);
-    void calculateSubNodes(const MyMeshType& targetMesh, typename MyMeshType::MyConnType targetCell);
-    inline const double* getCoordsOfSubNode(typename MyMeshType::MyConnType node);
-    inline const double* getCoordsOfSubNode2(typename MyMeshType::MyConnType node, typename MyMeshType::MyConnType& nodeId);
+    void splitTargetCell(typename MyMeshTypeT::MyConnType targetCell, typename MyMeshTypeT::MyConnType nbOfNodesT,
+                         typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell);
+    inline const double* getCoordsOfSubNode(typename MyMeshTypeT::MyConnType node);
+    inline const double* getCoordsOfSubNode2(typename MyMeshTypeT::MyConnType node, typename MyMeshTypeT::MyConnType& nodeId);
     template<int n>
-    inline void calcBarycenter(double* barycenter, const typename MyMeshType::MyConnType* pts);
+    inline void calcBarycenter(double* barycenter, const typename MyMeshTypeT::MyConnType* pts);
   private:
-    const MyMeshType& _target_mesh;
-    const MyMeshType& _src_mesh;
+    const MyMeshTypeT& _target_mesh;
+    const MyMeshTypeS& _src_mesh;
     SplittingPolicy _splitting_pol;
     /// vector of pointers to double[3] containing the coordinates of the
     /// (sub) - nodes of split target cell
     std::vector<const double*> _nodes;
-    std::vector<typename MyMeshType::MyConnType> _node_ids;
+    std::vector<typename MyMeshTypeT::MyConnType> _node_ids;
   };
 
   /**
@@ -358,9 +358,9 @@ namespace INTERP_KERNEL
    * @param  barycenter  pointer to double[3] array in which to store the result
    * @param  pts pointer to int[n] array containing the (sub)-nodes for which to calculate the barycenter
    */
-  template<class MyMeshType>
+  template<class MyMeshTypeT, class MyMeshTypeS>
   template<int n>
-  inline void SplitterTetra2<MyMeshType>::calcBarycenter(double* barycenter, const typename MyMeshType::MyConnType* pts)
+  inline void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calcBarycenter(double* barycenter, const typename MyMeshTypeT::MyConnType* pts)
   {
     barycenter[0] = barycenter[1] = barycenter[2] = 0.0;
     for(int i = 0; i < n ; ++i)
@@ -382,8 +382,8 @@ namespace INTERP_KERNEL
    * @param  node  local number of the (sub)-node 0,..,7 are the elements nodes, sub-nodes are numbered from 8,..
    * @return pointer to double[3] containing the coordinates of the nodes
    */
-  template<class MyMeshType>
-  inline const double* SplitterTetra2<MyMeshType>::getCoordsOfSubNode(typename MyMeshType::MyConnType node)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  inline const double* SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::getCoordsOfSubNode(typename MyMeshTypeT::MyConnType node)
   {
     // replace "at()" with [] for unsafe but faster access
     return _nodes.at(node);
@@ -396,8 +396,8 @@ namespace INTERP_KERNEL
    * @param nodeId is an output that is node id in target whole mesh in C mode.
    * @return pointer to double[3] containing the coordinates of the nodes
    */
-  template<class MyMeshType>
-  const double* SplitterTetra2<MyMeshType>::getCoordsOfSubNode2(typename MyMeshType::MyConnType node, typename MyMeshType::MyConnType& nodeId)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  const double* SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::getCoordsOfSubNode2(typename MyMeshTypeT::MyConnType node, typename MyMeshTypeT::MyConnType& nodeId)
   {
     const double *ret=_nodes.at(node);
     if(node<8)

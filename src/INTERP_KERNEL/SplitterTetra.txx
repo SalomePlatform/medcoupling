@@ -403,20 +403,20 @@ namespace INTERP_KERNEL
 
   ////////////////////////////////////////////////////////
 
-  template<class MyMeshType>
-  SplitterTetra2<MyMeshType>::SplitterTetra2(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy policy):_target_mesh(targetMesh),_src_mesh(srcMesh),
-                                                                                                                              _splitting_pol(policy)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::SplitterTetra2(const MyMeshTypeT& targetMesh, const MyMeshTypeS& srcMesh, SplittingPolicy policy)
+    :_target_mesh(targetMesh),_src_mesh(srcMesh),_splitting_pol(policy)
   {
   }
 
-  template<class MyMeshType>
-  SplitterTetra2<MyMeshType>::~SplitterTetra2()
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::~SplitterTetra2()
   {
     releaseArrays();
   }
 
-  template<class MyMeshType>
-  void SplitterTetra2<MyMeshType>::releaseArrays()
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::releaseArrays()
   {
     // free potential sub-mesh nodes that have been allocated
     if(_nodes.size()>=8)
@@ -435,12 +435,13 @@ namespace INTERP_KERNEL
    * @param targetCell in C mode.
    * @param tetra is the output result tetra containers.
    */
-  template<class MyMeshType>
-  void SplitterTetra2<MyMeshType>::splitTargetCell(typename MyMeshType::MyConnType targetCell, typename MyMeshType::MyConnType nbOfNodesT,
-                                                   typename std::vector< SplitterTetra<MyMeshType>* >& tetra)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitTargetCell(typename MyMeshTypeT::MyConnType targetCell,
+                                                                 typename MyMeshTypeT::MyConnType nbOfNodesT,
+                                                                 typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
-    typedef typename MyMeshType::MyConnType ConnType;
-    const NumberingPolicy numPol=MyMeshType::My_numPol;
+    typedef typename MyMeshTypeT::MyConnType ConnType;
+    const NumberingPolicy numPol=MyMeshTypeT::My_numPol;
     const int numTetra = static_cast<int>(_splitting_pol);
     if(nbOfNodesT==4)
       {
@@ -454,7 +455,7 @@ namespace INTERP_KERNEL
             nodes[node]=getCoordsOfNode2(node, OTT<ConnType,numPol>::indFC(targetCell),_target_mesh,conn[node]);
           }
         std::copy(conn,conn+4,_node_ids.begin());
-        SplitterTetra<MyMeshType>* t = new SplitterTetra<MyMeshType>(_src_mesh, nodes,conn);
+        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
         return ;
       }
@@ -504,8 +505,8 @@ namespace INTERP_KERNEL
    * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the 
    *                 splitting to be reused on the subzones of the GENERAL_* types of splitting
    */
-  template<class MyMeshType>
-  void SplitterTetra2<MyMeshType>::fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshType>* >& tetra)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
     // Schema according to which the splitting is performed.
     // Each line represents one tetrahedron. The numbering is as follows :
@@ -539,7 +540,7 @@ namespace INTERP_KERNEL
           {
             nodes[j] = getCoordsOfSubNode2(subZone[ SPLIT_NODES_5[4*i+j] ],conn[j]);
           }
-        SplitterTetra<MyMeshType>* t = new SplitterTetra<MyMeshType>(_src_mesh, nodes,conn);
+        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
       }
   }
@@ -551,8 +552,8 @@ namespace INTERP_KERNEL
    * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the 
    *                 splitting to be reused on the subzones of the GENERAL_* types of splitting
    */
-  template<class MyMeshType>
-  void SplitterTetra2<MyMeshType>::sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshType>* >& tetra)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
     // Schema according to which the splitting is performed.
     // Each line represents one tetrahedron. The numbering is as follows :
@@ -585,7 +586,7 @@ namespace INTERP_KERNEL
           {
             nodes[j] = getCoordsOfSubNode2(subZone[ SPLIT_NODES_6[4*i+j] ],conn[j]);
           }
-        SplitterTetra<MyMeshType>* t = new SplitterTetra<MyMeshType>(_src_mesh, nodes,conn);
+        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
       }
   }
@@ -597,8 +598,8 @@ namespace INTERP_KERNEL
    * The submesh nodes introduced are the barycenters of the faces and the barycenter of the cell.
    * 
    */
-  template<class MyMeshType>
-  void SplitterTetra2<MyMeshType>::calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshType>* >& tetra)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
     // The two nodes of the original mesh cell used in each tetrahedron.
     // The tetrahedra all have nodes (cellCenter, faceCenter, edgeNode1, edgeNode2)
@@ -653,7 +654,7 @@ namespace INTERP_KERNEL
             nodes[2] = getCoordsOfSubNode2(TETRA_EDGES[2*row],conn[2]);
             nodes[3] = getCoordsOfSubNode2(TETRA_EDGES[2*row + 1],conn[3]);
            
-            SplitterTetra<MyMeshType>* t = new SplitterTetra<MyMeshType>(_src_mesh, nodes, conn);
+            SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes, conn);
             tetra.push_back(t);
           }
       }
@@ -668,8 +669,8 @@ namespace INTERP_KERNEL
    * is done by calling sixSplit().
    * 
    */
-  template<class MyMeshType>
-  void SplitterTetra2<MyMeshType>::calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshType>* >& tetra)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
     // Define 8 hexahedral subzones as in Grandy, p449
     // the values correspond to the nodes that correspond to nodes 1,2,3,4,5,6,7,8 in the subcell
@@ -703,8 +704,8 @@ namespace INTERP_KERNEL
    * @param policy      the splitting policy of the object
    *
    */
-  template<class MyMeshType>
-  void SplitterTetra2<MyMeshType>::calculateSubNodes(const MyMeshType& targetMesh, typename MyMeshType::MyConnType targetCell)
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell)
   {
     // retrieve real mesh nodes
     _node_ids.resize(8);
