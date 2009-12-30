@@ -65,6 +65,7 @@ namespace INTERP_KERNEL
   class _StabIntersector: public IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, _StabIntersector<MyCMeshType, MyUMeshType, MyMatrix> >
   {
   public:
+    _StabIntersector(const MyCMeshType& meshS, const MyUMeshType& meshT) : IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, _StabIntersector<MyCMeshType, MyUMeshType, MyMatrix> >(meshS, meshT) {}
     double intersectGeometry(typename MyUMeshType::MyConnType icellT, const std::vector<typename MyCMeshType::MyConnType>& icellC) { throw Exception("You must provide an intersector as the 4-th template argument of IntersectorCU"); return 0; }
   };
 }
