@@ -47,6 +47,7 @@ namespace ParaMEDMEM
     void zipCoords();
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
+    void tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
     virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
     virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;

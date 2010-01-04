@@ -49,6 +49,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testEqualFieldDouble );
     CPPUNIT_TEST( testNatureChecking );
     CPPUNIT_TEST( testBuildSubMeshData );
+    CPPUNIT_TEST( testExtrudedMesh1 );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_2 );
@@ -117,6 +118,7 @@ namespace ParaMEDMEM
     void testEqualFieldDouble();
     void testNatureChecking();
     void testBuildSubMeshData();
+    void testExtrudedMesh1();
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
     void test2DInterpP0P0PL_2();
@@ -183,6 +185,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *build3DSurfTargetMesh_2();
     MEDCouplingUMesh *build3DSourceMesh_1();
     MEDCouplingUMesh *build3DTargetMesh_1();
+    MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
     double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }

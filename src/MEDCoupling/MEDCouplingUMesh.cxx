@@ -441,7 +441,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, c
       std::set<int> locMerge;
       std::insert_iterator< std::set<int> > it(locMerge,locMerge.begin());
       std::set_intersection(connOfCell.begin(),connOfCell.end(),fastFinder.begin(),fastFinder.end(),it);
-      if((int)locMerge.size()==refLgth && fullyIn || locMerge.size()!=0 && !fullyIn)
+      if(((int)locMerge.size()==refLgth && fullyIn) || (locMerge.size()!=0 && !fullyIn))
         cellIdsKept.push_back(i);
     }
   return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[0]+cellIdsKept.size(),true);

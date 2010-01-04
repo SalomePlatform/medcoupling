@@ -154,6 +154,18 @@ void MEDCouplingPointSet::translate(const double *vector)
   updateTime();
 }
 
+void MEDCouplingPointSet::tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
+{
+  if(_coords==other._coords)
+    return ;
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("Current instance has no coords whereas other has !");
+  if(!other._coords)
+    throw INTERP_KERNEL::Exception("Other instance has no coords whereas current has !");
+  if(!_coords->isEqual(*other._coords,epsilon))
+    throw INTERP_KERNEL::Exception("Coords are not the same !");
+}
+
 MEDCouplingPointSet *MEDCouplingPointSet::buildInstanceFromMeshType(MEDCouplingMeshType type)
 {
   switch(type)

@@ -35,7 +35,7 @@ MEDCouplingCMesh.hxx MEDCouplingTimeDiscretization.hxx                          
 MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx                                        \
 MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx                                             \
 MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx                     \
-MEDCouplingRemapper.hxx
+MEDCouplingRemapper.hxx MEDCouplingExtrudedMesh.hxx
 
 # Libraries targets
 
@@ -44,7 +44,8 @@ dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingUMesh.cxx  MEDCouplingMemArray.cxx  MEDCouplingTimeLabel.cxx   \
 	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                    \
 	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx          \
-	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx
+	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx                          \
+	MEDCouplingExtrudedMesh.cxx
 
 libmedcoupling_la_LDFLAGS= 
 
