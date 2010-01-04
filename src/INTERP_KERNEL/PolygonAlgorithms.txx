@@ -490,8 +490,10 @@ namespace INTERP_KERNEL
                 break;
               case 2 :
                 if(!_Inter.empty())
-                  if(i_glob < N1)  for(idim=0;idim<DIM;idim++) _Inter.push_back(P_1[DIM*i_glob+idim]);
-                  else for(idim=0;idim<DIM;idim++) _Inter.push_back(P_2[DIM*(i_glob-N1)+idim]);
+                  {
+                    if(i_glob < N1)  for(idim=0;idim<DIM;idim++) _Inter.push_back(P_1[DIM*i_glob+idim]);
+                    else for(idim=0;idim<DIM;idim++) _Inter.push_back(P_2[DIM*(i_glob-N1)+idim]);
+                  }
                 return _Inter;
               case 0 ://To do if possible : remove this case from here
                 if(_Inter.empty() && (i_glob < N1) != which_start){
