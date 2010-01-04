@@ -186,7 +186,7 @@ namespace INTERP_KERNEL
         for ( int iInd = 0; iInd < structIndices.size(); ++iInd )
           intersector->intersectCells( iT, structIndices[iInd], result );
       }
-
+    delete intersector;
     return ret;
   }
 
