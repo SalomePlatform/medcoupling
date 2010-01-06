@@ -66,8 +66,6 @@ IntersectorCU2D.hxx			\
 IntersectorCU2D.txx			\
 IntersectorCU3D.hxx			\
 IntersectorCU3D.txx			\
-IntersectorCU2D.hxx			\
-IntersectorCU2D.txx			\
 Intersector3D.hxx			\
 Intersector3D.txx			\
 Intersector3DP0P0.hxx	          	\
