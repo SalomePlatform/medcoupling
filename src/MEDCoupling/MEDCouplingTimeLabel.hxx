@@ -35,11 +35,11 @@ namespace ParaMEDMEM
     void declareAsNew();
     //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggragates objects.
     virtual void updateTime() = 0;
+    unsigned int getTimeOfThis() const { return _time; }
   protected:
     TimeLabel();
     virtual ~TimeLabel();
     void updateTimeWith(const TimeLabel& other);
-    unsigned int getTimeOfThis() const { return _time; }
   private:
     static unsigned int GLOBAL_TIME;
     unsigned int _time;

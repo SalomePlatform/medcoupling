@@ -43,6 +43,10 @@ namespace ParaMEDMEM
     void setCoords(DataArrayDouble *coords);
     DataArrayDouble *getCoords() const { return _coords; }
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
+    virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged) = 0;
+    void findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const;
+    DataArrayInt *buildNewNumberingFromCommNodesFrmt(const DataArrayInt *comm, const DataArrayInt *commIndex,
+                                                     int& newNbOfNodes) const;
     void getBoundingBox(double *bbox) const;
     void zipCoords();
     void rotate(const double *center, const double *vector, double angle);
@@ -53,7 +57,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
     virtual void findBoundaryNodes(std::vector<int>& nodes) const = 0;
     virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
-    virtual void renumberConnectivity(const int *newNodeNumbers) = 0;
+    virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     //! size of returned tinyInfo must be always the same.
     virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
@@ -67,6 +71,9 @@ namespace ParaMEDMEM
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
     void rotate2D(const double *center, double angle);
     void rotate3D(const double *center, const double *vect, double angle);
+    template<int SPACEDIM>
+    void findCommonNodesAlg(std::vector<double>& bbox,
+                            int nbNodes, double prec, std::vector<int>& c, std::vector<int>& cI) const;
   protected:
     DataArrayDouble *_coords;
   };

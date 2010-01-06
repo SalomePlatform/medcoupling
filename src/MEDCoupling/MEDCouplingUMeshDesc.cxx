@@ -215,6 +215,13 @@ void MEDCouplingUMeshDesc::giveElemsInBoundingBox(const double *bbox, double eps
   delete [] elem_bb;
 }
 
+DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged)
+{
+  //not implemented yet.
+  areNodesMerged=false;
+  return 0;
+}
+
 MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
 {
   //not implemented yet.
@@ -238,8 +245,10 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildBoundaryMesh(bool keepCoords) co
   return 0;
 }
 
-void MEDCouplingUMeshDesc::renumberConnectivity(const int *newNodeNumbers)
+void MEDCouplingUMeshDesc::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
+  MEDCouplingPointSet::renumberNodes(newNodeNumbers,newNbOfNodes);
+  //not implemented yet
 }
 
 MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureField(bool isAbs) const

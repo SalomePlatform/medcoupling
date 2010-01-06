@@ -79,6 +79,7 @@ namespace ParaMEDMEM
   {
   public:
     void setName(const char *name);
+    void copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::Exception);
     bool areInfoEquals(const DataArray& other) const;
     std::string getName() const { return _name; }
     std::string getInfoOnComponent(int i) const { return _info_on_compo[i]; }

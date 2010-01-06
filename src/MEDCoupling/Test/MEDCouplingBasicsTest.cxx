@@ -887,6 +887,102 @@ void MEDCouplingBasicsTest::testExtrudedMesh1()
   mesh2D->decrRef();
 }
 
+void MEDCouplingBasicsTest::testFindCommonNodes()
+{
+  DataArrayInt *comm,*commI;
+  MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
+  targetMesh->findCommonNodes(comm,commI,1e-10);
+  CPPUNIT_ASSERT_EQUAL(1,commI->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,comm->getNumberOfTuples());
+  int newNbOfNodes;
+  DataArrayInt *o2n=targetMesh->buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(27,newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(27,o2n->getNumberOfTuples());
+  const int o2nExp1[27]=
+    {
+      0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+      21,22,23,24,25,26
+    };
+  CPPUNIT_ASSERT(std::equal(o2nExp1,o2nExp1+27,o2n->getConstPointer()));
+  o2n->decrRef();
+  comm->decrRef();
+  commI->decrRef();
+  targetMesh->decrRef();
+  //
+  targetMesh=build3DTargetMeshMergeNode_1();
+  CPPUNIT_ASSERT_EQUAL(31,targetMesh->getNumberOfNodes());
+  targetMesh->findCommonNodes(comm,commI,1e-10);
+  CPPUNIT_ASSERT_EQUAL(3,commI->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(6,comm->getNumberOfTuples());
+  const int commExpected[6]={1,27,28,29,23,30};
+  const int commIExpected[3]={0,4,6};
+  CPPUNIT_ASSERT(std::equal(commExpected,commExpected+6,comm->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(commIExpected,commIExpected+3,commI->getConstPointer()));
+  o2n=targetMesh->buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(31,o2n->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(27,newNbOfNodes);
+  const int o2nExp2[31]=
+    {
+      0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+      21,22,23,24,25,26,1,1,1,23
+    };
+  CPPUNIT_ASSERT(std::equal(o2nExp2,o2nExp2+31,o2n->getConstPointer()));
+  o2n->decrRef();
+  comm->decrRef();
+  commI->decrRef();
+  targetMesh->decrRef();
+  //
+  targetMesh=build3DTargetMesh_1();
+  bool areNodesMerged;
+  unsigned int time=targetMesh->getTimeOfThis();
+  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged);
+  targetMesh->updateTime();
+  CPPUNIT_ASSERT(time==targetMesh->getTimeOfThis());
+  CPPUNIT_ASSERT(!areNodesMerged);
+  targetMesh->decrRef();
+  o2n->decrRef();
+  //
+  targetMesh=build3DTargetMeshMergeNode_1();
+  time=targetMesh->getTimeOfThis();
+  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged);
+  targetMesh->updateTime();
+  CPPUNIT_ASSERT(time!=targetMesh->getTimeOfThis());
+  CPPUNIT_ASSERT(areNodesMerged);
+  int connExp[72]={18,0,1,4,3,9,10,13,12, 18,1,2,5,4,10,11,14,13, 18,3,4,7,6,12,13,16,15,
+                   18,4,5,8,7,13,14,17,16,
+                   18,9,10,13,12,18,19,22,21, 18,10,11,14,13,19,20,23,22, 18,12,13,16,15,21,22,25,24,
+                   18,13,14,17,16,22,23,26,25};
+  CPPUNIT_ASSERT_EQUAL(72,targetMesh->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(connExp,connExp+72,targetMesh->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(27,targetMesh->getCoords()->getNumberOfTuples());
+  double coordsExp[81]={ 0., 0., 0., 50., 0., 0. , 200., 0., 0.  , 0., 50., 0., 50., 50., 0. ,
+                         200., 50., 0.,   0., 200., 0., 50., 200., 0. , 200., 200., 0. ,
+                         0., 0., 50., 50., 0., 50. , 200., 0., 50.  , 0., 50., 50., 50.,
+                         50., 50. , 200., 50., 50.,   0., 200., 50., 50., 200., 50. ,
+                         200., 200., 50. , 0., 0., 200., 50., 0., 200. , 200., 0., 200.  
+                         , 0., 50., 200., 50., 50., 200. , 200., 50., 200., 
+                         0., 200., 200., 50., 200., 200. , 200., 200., 200. };
+  CPPUNIT_ASSERT(std::equal(coordsExp,coordsExp+81,targetMesh->getCoords()->getConstPointer()));
+  targetMesh->decrRef();
+  o2n->decrRef();
+  //2D
+  targetMesh=build2DTargetMeshMergeNode_1();
+  CPPUNIT_ASSERT_EQUAL(18,targetMesh->getNumberOfNodes());
+  time=targetMesh->getTimeOfThis();
+  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged);
+  CPPUNIT_ASSERT(time!=targetMesh->getTimeOfThis());
+  CPPUNIT_ASSERT(areNodesMerged);
+  CPPUNIT_ASSERT_EQUAL(9,targetMesh->getNumberOfNodes());
+  int connExp2[23]={4,0,4,3,1, 3,1,3,2, 3,3,5,2, 4,4,6,7,3, 4,7,8,5,3};
+  CPPUNIT_ASSERT_EQUAL(23,targetMesh->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(connExp2,connExp2+23,targetMesh->getNodalConnectivity()->getConstPointer()));
+  double coordsExp2[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, 0.2,0.2, -0.3,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7};
+  CPPUNIT_ASSERT_EQUAL(9,targetMesh->getCoords()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(coordsExp2,coordsExp2+18,targetMesh->getCoords()->getConstPointer()));
+  targetMesh->decrRef();
+  o2n->decrRef();
+}
+
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
@@ -3236,6 +3332,48 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_1()
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(27,3);
   std::copy(targetCoords,targetCoords+81,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshMergeNode_1()
+{
+  double targetCoords[36]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,-0.3, 0.2,-0.3, 0.2,-0.3, 0.2,0.2, 0.2,0.2, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7, 0.2,0.7 };
+  int targetConn[18]={0,9,7,5, 4,6,2, 10,11,8, 9,14,15,7, 17,16,13,6};
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(5);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+14);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(18,2);
+  std::copy(targetCoords,targetCoords+36,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMeshMergeNode_1()
+{
+  double targetCoords[93]={ 0., 0., 0., 50., 0., 0. , 200., 0., 0.  , 0., 50., 0., 50., 50., 0. , 200., 50., 0.,   0., 200., 0., 50., 200., 0. , 200., 200., 0. ,
+                            0., 0., 50., 50., 0., 50. , 200., 0., 50.  , 0., 50., 50., 50., 50., 50. , 200., 50., 50.,   0., 200., 50., 50., 200., 50. , 200., 200., 50. ,
+                            0., 0., 200., 50., 0., 200. , 200., 0., 200.  , 0., 50., 200., 50., 50., 200. , 200., 50., 200.,   0., 200., 200., 50., 200., 200. , 200., 200., 200., 50.,0.,0., 50.,0.,0., 50.,0.,0.,  200., 50., 200.};
+  int targetConn[64]={0,29,4,3,9,10,13,12, 28,2,5,4,10,11,14,13, 3,4,7,6,12,13,16,15, 4,5,8,7,13,14,17,16,
+                      9,10,13,12,18,19,22,21, 10,11,14,13,19,20,23,22, 12,13,16,15,21,22,25,24, 13,14,17,16,22,30,26,25};
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(3);
+  targetMesh->allocateCells(12);
+  for(int i=0;i<8;i++)
+    targetMesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,targetConn+8*i);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(31,3);
+  std::copy(targetCoords,targetCoords+93,myCoords->getPointer());
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
   return targetMesh;

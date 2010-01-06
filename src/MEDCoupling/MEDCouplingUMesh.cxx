@@ -412,6 +412,25 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
   return ret;
 }
 
+/*!
+ * @param areNodesMerged if at least two nodes have been merged.
+ * @return old to new node correspondance.
+ */
+DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerged)
+{
+  DataArrayInt *comm,*commI;
+  findCommonNodes(comm,commI,precision);
+  int newNbOfNodes;
+  int oldNbOfNodes=getNumberOfNodes();
+  DataArrayInt *ret=buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
+  areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
+  comm->decrRef();
+  commI->decrRef();
+  if(areNodesMerged)
+    renumberNodes(ret->getConstPointer(),newNbOfNodes);
+  return ret;
+}
+
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
 {
   MEDCouplingUMesh *ret=buildPartOfMySelfKeepCoords(start,end);
@@ -500,8 +519,9 @@ void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
   meshDM1->decrRef();
 }
 
-void MEDCouplingUMesh::renumberConnectivity(const int *newNodeNumbers)
+void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
+  MEDCouplingPointSet::renumberNodes(newNodeNumbers,newNbOfNodes);
   int *conn=getNodalConnectivity()->getPointer();
   const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
   int nbOfCells=getNumberOfCells();
@@ -586,6 +606,7 @@ void MEDCouplingUMesh::setConnectivity(DataArrayInt *conn, DataArrayInt *connInd
   DataArrayInt::setArrayIn(connIndex,_nodal_connec_index);
   if(isComputingTypes)
     computeTypes();
+  declareAsNew();
 }
 
 MEDCouplingUMesh::MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy):MEDCouplingPointSet(other,deepCpy),_iterator(-1),_mesh_dim(other._mesh_dim),

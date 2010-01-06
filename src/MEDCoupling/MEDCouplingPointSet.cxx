@@ -20,6 +20,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingUMeshDesc.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingPointSet.txx"
 
 #include <cmath>
 #include <limits>
@@ -94,6 +95,107 @@ bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, doubl
   if(_coords==other._coords)
     return true;
   return _coords->isEqual(*other._coords,prec);
+}
+
+/*!
+ * @param comm out parameter (not inout)
+ * @param commIndex out parameter (not inout)
+ */
+void MEDCouplingPointSet::findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const
+{
+  comm=DataArrayInt::New();
+  commIndex=DataArrayInt::New();
+  //
+  int nbNodesOld=getNumberOfNodes();
+  int spaceDim=getSpaceDimension();
+  std::vector<double> bbox(2*nbNodesOld*spaceDim);
+  const double *coordsPtr=_coords->getConstPointer();
+  for(int i=0;i<nbNodesOld;i++)
+    {
+      for(int j=0;j<spaceDim;j++)
+        {
+          bbox[2*spaceDim*i+2*j]=coordsPtr[spaceDim*i+j];
+          bbox[2*spaceDim*i+2*j+1]=coordsPtr[spaceDim*i+j];
+        }
+    }
+  //
+  std::vector<int> c,cI(1);
+  switch(spaceDim)
+    {
+    case 3:
+      findCommonNodesAlg<3>(bbox,nbNodesOld,prec,c,cI);
+      break;
+    case 2:
+      findCommonNodesAlg<2>(bbox,nbNodesOld,prec,c,cI);
+      break;
+    case 1:
+      findCommonNodesAlg<1>(bbox,nbNodesOld,prec,c,cI);
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1,2 or 3.");
+    }
+  commIndex->alloc(cI.size(),1);
+  std::copy(cI.begin(),cI.end(),commIndex->getPointer());
+  comm->alloc(cI.back(),1);
+  std::copy(c.begin(),c.end(),comm->getPointer());
+}
+
+/*!
+ * @param comm in param in the same format than one returned by findCommonNodes method.
+ * @param commI in param in the same format than one returned by findCommonNodes method.
+ * @return the old to new correspondance array.
+ */
+DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommNodesFrmt(const DataArrayInt *comm, const DataArrayInt *commIndex,
+                                                                      int& newNbOfNodes) const
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  int nbNodesOld=getNumberOfNodes();
+  ret->alloc(nbNodesOld,1);
+  std::fill(ret->getPointer(),ret->getPointer()+nbNodesOld,-1);
+  int *retPtr=ret->getPointer();
+  std::vector<int> commRemain(comm->getConstPointer(),comm->getConstPointer()+comm->getNumberOfTuples());
+  std::vector<int> commIRemain(commIndex->getConstPointer(),commIndex->getConstPointer()+commIndex->getNumberOfTuples());
+  int newNb=0;
+  for(int iNode=0;iNode<nbNodesOld;iNode++)
+    {
+      if(retPtr[iNode]!=-1)
+        continue;
+      if(commRemain.empty())
+        {
+          retPtr[iNode]=newNb++;
+          continue;
+        }
+      if(commRemain[0]!=iNode)
+        retPtr[iNode]=newNb;
+      else
+        {
+          for(std::vector<int>::const_iterator iNode2=commRemain.begin();
+              iNode2!=commRemain.begin()+commIRemain[1];iNode2++)
+            retPtr[*iNode2]=newNb;
+          int delta=commIRemain[1];
+          commRemain.erase(commRemain.begin(),commRemain.begin()+commIRemain[1]);
+          commIRemain.erase(commIRemain.begin());
+          std::transform(commIRemain.begin(),commIRemain.end(),commIRemain.begin(),std::bind2nd(std::minus<int>(),delta));
+        }
+      newNb++;
+    }
+  newNbOfNodes=newNb;
+  return ret;
+}
+
+void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
+{
+  DataArrayDouble *newCoords=DataArrayDouble::New();
+  int spaceDim=getSpaceDimension();
+  newCoords->alloc(newNbOfNodes,spaceDim);
+  newCoords->copyStringInfoFrom(*_coords);
+  int oldNbOfNodes=getNumberOfNodes();
+  double *ptToFill=newCoords->getPointer();
+  const double *oldCoordsPtr=_coords->getConstPointer();
+  for(int i=0;i<oldNbOfNodes;i++)
+    std::copy(oldCoordsPtr+i*spaceDim,oldCoordsPtr+(i+1)*spaceDim,ptToFill+newNodeNumbers[i]*spaceDim);
+  setCoords(newCoords);
+  newCoords->decrRef();
 }
 
 void MEDCouplingPointSet::getBoundingBox(double *bbox) const

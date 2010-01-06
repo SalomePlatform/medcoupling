@@ -48,11 +48,12 @@ namespace ParaMEDMEM
     void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
                          const std::vector<std::string>& littleStrings);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
+    DataArrayInt *mergeNodes(double precision, bool& areNodesMerged);
     MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
     MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
     void findBoundaryNodes(std::vector<int>& nodes) const;
     MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
-    void renumberConnectivity(const int *newNodeNumbers);
+    void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     DataArrayInt *zipCoordsTraducer();
   private:

@@ -156,7 +156,7 @@ public:
             bool intersects = true;
             for (int idim=0; idim<dim; idim++)
               {
-                if (bb_ptr[idim*2]-bb[idim*2+1]>-_epsilon|| bb_ptr[idim*2+1]-bb[idim*2]<_epsilon)
+                if (bb_ptr[idim*2]-bb[idim*2+1]>_epsilon|| bb_ptr[idim*2+1]-bb[idim*2]<-_epsilon)
                   intersects=false;
               }
             if (intersects)

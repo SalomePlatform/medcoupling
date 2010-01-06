@@ -61,11 +61,12 @@ namespace ParaMEDMEM
     DataArrayInt *zipCoordsTraducer();
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
+    DataArrayInt *mergeNodes(double precision, bool& areNodesMerged);
     MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
     MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
     void findBoundaryNodes(std::vector<int>& nodes) const;
     MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
-    void renumberConnectivity(const int *newNodeNumbers);
+    void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
   private:

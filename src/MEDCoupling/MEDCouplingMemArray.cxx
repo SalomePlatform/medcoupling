@@ -25,6 +25,14 @@ void DataArray::setName(const char *name)
   _name=name;
 }
 
+void DataArray::copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::Exception)
+{
+  if(_info_on_compo.size()!=other._info_on_compo.size())
+    throw INTERP_KERNEL::Exception("Size of arrays mismatches on copyStringInfoFrom !");
+  _name=other._name;
+  _info_on_compo=other._info_on_compo;
+}
+
 bool DataArray::areInfoEquals(const DataArray& other) const
 {
   if(_nb_of_tuples!=other._nb_of_tuples)
