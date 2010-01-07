@@ -33,7 +33,7 @@ namespace ParaMEDMEM
                                                std::vector<int>& c, std::vector<int>& cI) const
   {
     const double *coordsPtr=_coords->getConstPointer();
-    BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbNodes,prec);
+    BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbNodes,-prec);
     double bb[2*SPACEDIM];
     double prec2=prec*prec;
     for(int i=0;i<nbNodes;i++)

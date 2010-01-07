@@ -122,8 +122,8 @@ public:
 
 
       }
-    _max_left=max_left+_epsilon;
-    _min_right=min_right-_epsilon;
+    _max_left=max_left+std::abs(_epsilon);
+    _min_right=min_right-std::abs(_epsilon);
     _left=new BBTree(bbs, &(new_elems_left[0]), level+1, new_elems_left.size(),_epsilon);
     _right=new BBTree(bbs, &(new_elems_right[0]), level+1, new_elems_right.size(),_epsilon);
   
@@ -156,7 +156,7 @@ public:
             bool intersects = true;
             for (int idim=0; idim<dim; idim++)
               {
-                if (bb_ptr[idim*2]-bb[idim*2+1]>_epsilon|| bb_ptr[idim*2+1]-bb[idim*2]<-_epsilon)
+                if (bb_ptr[idim*2]-bb[idim*2+1]>-_epsilon|| bb_ptr[idim*2+1]-bb[idim*2]<_epsilon)
                   intersects=false;
               }
             if (intersects)
