@@ -122,8 +122,8 @@ public:
 
 
       }
-    _max_left=max_left+std::abs(_epsilon);
-    _min_right=min_right-std::abs(_epsilon);
+    _max_left=max_left+((double)std::abs(_epsilon));
+    _min_right=min_right-((double)std::abs(_epsilon));
     _left=new BBTree(bbs, &(new_elems_left[0]), level+1, new_elems_left.size(),_epsilon);
     _right=new BBTree(bbs, &(new_elems_right[0]), level+1, new_elems_right.size(),_epsilon);
   
