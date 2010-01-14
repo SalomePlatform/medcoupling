@@ -192,7 +192,7 @@ namespace INTERP_KERNEL
     // get type of cell
     NormalizedCellType normCellType=_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(element));
     const CellModel& cellModelCell=CellModel::getCellModel(normCellType);
-    unsigned nbOfNodes4Type=cellModelCell.getNumberOfNodes();
+    unsigned nbOfNodes4Type=cellModelCell.isDynamic() ? _src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(element)) : cellModelCell.getNumberOfNodes();
     // halfspace filtering
     bool isOutside[8] = {true, true, true, true, true, true, true, true};
     bool isTargetOutside = false;
@@ -226,26 +226,45 @@ namespace INTERP_KERNEL
       }
 
     double totalVolume = 0.0;
-    
+
     if(!isTargetOutside)
       {
         /// calculator of intersection barycentre
         UnitTetraIntersectionBary baryCalculator( _t->determinant() < 0.);
 
-        for(unsigned ii = 0 ; ii < cellModelCell.getNumberOfSons() ; ++ii)
+        // get nb of sons of a cell
+        const ConnType* rawCellConn = _src_mesh.getConnectivityPtr() + OTT<ConnType,numPol>::conn2C( _src_mesh.getConnectivityIndexPtr()[ element ]);
+        const int rawNbCellNodes = _src_mesh.getConnectivityIndexPtr()[ element+1 ] - _src_mesh.getConnectivityIndexPtr()[ element ];
+        unsigned nbOfSons = cellModelCell.getNumberOfSons2(rawCellConn, rawNbCellNodes);
+
+        for(unsigned ii = 0 ; ii < nbOfSons; ++ii)
           {
-            NormalizedCellType faceType = cellModelCell.getSonType(ii);
-            const CellModel& faceModel=CellModel::getCellModel(faceType);
-            assert(faceModel.getDimension() == 2);
-            int *faceNodes=new int[faceModel.getNumberOfNodes()];      
-            cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
+            // get sons connectivity
+            NormalizedCellType faceType;
+            int *faceNodes, nbFaceNodes;
+            if ( cellModelCell.isDynamic() )
+              {
+                faceNodes=new int[nbOfNodes4Type];
+                nbFaceNodes = cellModelCell.fillSonCellNodalConnectivity2(ii,rawCellConn,rawNbCellNodes,faceNodes,faceType);
+                for ( int i = 0; i < nbFaceNodes; ++i )
+                  faceNodes[i] = OTT<ConnType,numPol>::coo2C(faceNodes[i]);
+              }
+            else
+              {
+                faceType = cellModelCell.getSonType(ii);
+                const CellModel& faceModel=CellModel::getCellModel(faceType);
+                assert(faceModel.getDimension() == 2);
+                faceNodes=new int[faceModel.getNumberOfNodes()];      
+                cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
+              }
+            // intersect a son with the unit tetra
             switch(faceType)
               {
               case NORM_TRI3:
                 {
                   // create the face key
                   TriangleFaceKey key = TriangleFaceKey(faceNodes[0], faceNodes[1], faceNodes[2]);
-             
+
                   // calculate the triangle if needed
                   if(_volumes.find(key) == _volumes.end())
                     {
@@ -264,7 +283,7 @@ namespace INTERP_KERNEL
               case NORM_QUAD4:
 
                 // simple triangulation of faces along a diagonal :
-                // 
+                //
                 // 2 ------ 3
                 // |      / |
                 // |     /  |
@@ -302,6 +321,26 @@ namespace INTERP_KERNEL
                     { 
                       // count negative as face has reversed orientation
                       totalVolume -= _volumes[key2];
+                    }
+                }
+                break;
+
+              case NORM_POLYGON:
+                {
+                  int nbTria = nbFaceNodes - 2; // split polygon into nbTria triangles
+                  for ( int iTri = 0; iTri < nbTria; ++iTri )
+                    {
+                      TriangleFaceKey key = TriangleFaceKey(faceNodes[0], faceNodes[1+iTri], faceNodes[2+iTri]);
+                      if(_volumes.find(key) == _volumes.end())
+                        {
+                          TransformedTriangle tri(_nodes[faceNodes[0]], _nodes[faceNodes[1+iTri]], _nodes[faceNodes[2+iTri]]);
+                          calculateVolume(tri, key);
+                          totalVolume += _volumes[key];
+                        }
+                      else
+                        {
+                          totalVolume -= _volumes[key];
+                        }
                     }
                 }
                 break;
