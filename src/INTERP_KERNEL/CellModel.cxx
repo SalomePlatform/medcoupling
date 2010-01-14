@@ -183,7 +183,7 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=3; _sons_con[1][1]=5; _sons_con[1][2]=4; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=0; _sons_con[2][1]=3; _sons_con[2][2]=4; _sons_con[2][3]=1; _nb_of_sons_con[2]=4;
           _sons_con[3][0]=1; _sons_con[3][1]=4; _sons_con[3][2]=5; _sons_con[3][3]=2; _nb_of_sons_con[3]=4;
-          _sons_con[4][0]=2; _sons_con[4][1]=4; _sons_con[4][2]=5; _sons_con[4][3]=0; _nb_of_sons_con[4]=4;
+          _sons_con[4][0]=2; _sons_con[4][1]=5; _sons_con[4][2]=3; _sons_con[4][3]=0; _nb_of_sons_con[4]=4;
         }
         break;
       case NORM_TETRA10:
