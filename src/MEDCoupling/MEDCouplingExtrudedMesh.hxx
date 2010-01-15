@@ -49,6 +49,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getMeasureField(bool) const;
     static int findCorrespCellByNodalConn(const std::vector<int>& nodalConnec,
                                           const int *revNodalPtr, const int *revNodalIndxPtr) throw(INTERP_KERNEL::Exception);
+    void rotate(const double *center, const double *vector, double angle);
+    void translate(const double *vector);
   private:
     MEDCouplingExtrudedMesh(MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     void computeExtrusion(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);

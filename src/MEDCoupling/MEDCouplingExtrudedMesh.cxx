@@ -259,6 +259,18 @@ int MEDCouplingExtrudedMesh::findCorrespCellByNodalConn(const std::vector<int>& 
   throw INTERP_KERNEL::Exception(ostr.str().c_str());
 }
 
+void MEDCouplingExtrudedMesh::rotate(const double *center, const double *vector, double angle)
+{
+  _mesh2D->rotate(center,vector,angle);
+  _mesh1D->rotate(center,vector,angle);
+}
+
+void MEDCouplingExtrudedMesh::translate(const double *vector)
+{
+  _mesh2D->translate(vector);
+  _mesh1D->translate(vector);
+}
+
 void MEDCouplingExtrudedMesh::computeExtrusionAlg(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
 {
   _mesh3D_ids->alloc(mesh3D->getNumberOfCells(),1);

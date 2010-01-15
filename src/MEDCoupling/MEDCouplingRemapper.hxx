@@ -29,6 +29,7 @@
 
 namespace ParaMEDMEM
 {
+  class MEDCouplingMesh;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
 }
@@ -40,7 +41,7 @@ namespace ParaMEDMEM
   public:
     MEDCouplingRemapper();
     ~MEDCouplingRemapper();
-    int prepare(const MEDCouplingUMesh *srcMesh, const MEDCouplingUMesh *targetMesh, const char *method);
+    int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method);
     void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
     void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
     MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
@@ -49,6 +50,8 @@ namespace ParaMEDMEM
     bool setOptionDouble(const std::string& key, double value);
     bool setOptionString(const std::string& key, std::string& value);
   private:
+    int prepareUU(const char *method);
+    int prepareEE(const char *method);
     void updateTime();
     void releaseData(bool matrixSuppression);
     void computeDeno(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
@@ -62,8 +65,8 @@ namespace ParaMEDMEM
     static void computeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
                                        std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse);
   private:
-    MEDCouplingUMesh *_src_mesh;
-    MEDCouplingUMesh *_target_mesh;
+    MEDCouplingMesh *_src_mesh;
+    MEDCouplingMesh *_target_mesh;
     std::string _src_method;
     std::string _target_method;
     NatureOfField _nature_of_deno;

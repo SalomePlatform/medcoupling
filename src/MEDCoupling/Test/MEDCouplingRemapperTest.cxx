@@ -18,6 +18,7 @@
 //
 #include "MEDCouplingRemapperTest.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingRemapper.hxx"
@@ -528,6 +529,25 @@ void MEDCouplingRemapperTest::testNatureOfField()
   targetMesh->decrRef();
 }
 
+void MEDCouplingRemapperTest::testExtruded()
+{
+  MEDCouplingUMesh *mesh2DS=0;
+  MEDCouplingUMesh *mesh3DS=build3DExtrudedUMesh_1(mesh2DS);
+  MEDCouplingExtrudedMesh *extS=MEDCouplingExtrudedMesh::New(mesh3DS,mesh2DS,1);
+  mesh3DS->decrRef();
+  mesh2DS->decrRef();
+  MEDCouplingUMesh *mesh2DT=0;
+  MEDCouplingUMesh *mesh3DT=build3DExtrudedUMesh_1(mesh2DT);
+  MEDCouplingExtrudedMesh *extT=MEDCouplingExtrudedMesh::New(mesh3DT,mesh2DT,1);
+  //
+  //
+  mesh3DT->decrRef();
+  mesh2DT->decrRef();
+  //
+  extS->decrRef();
+  extT->decrRef();
+}
+
 MEDCouplingUMesh *MEDCouplingRemapperTest::build3DSourceMesh_2()
 {
   double sourceCoords[84]={100.0, 100.0, 0.0, 100.0, 100.0, 100.0, 100.0, 0.0, 100.0, 100.0, 0.0, 0.0, 0.0, 100.0, 0.0, 0.0, 100.0, 100.0, 0.0,
@@ -853,6 +873,82 @@ MEDCouplingUMesh *MEDCouplingRemapperTest::build3DTargetMesh_1()
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
   return targetMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingRemapperTest::build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D)
+{
+  double coords[180]={
+    0.,0.,0., 1.,1.,0., 1.,1.25,0., 0.,1.,0., 1.,1.5,0., 2.,0.,0., 2.,1.,0., 1.,2.,0., 0.,2.,0., 3.,1.,0.,
+    3.,2.,0., 0.,1.,0., 1.,3.,0., 2.,2.,0., 2.,3.,0.,
+    0.,0.,1., 1.,1.,1., 1.,1.25,1., 0.,1.,1., 1.,1.5,1., 2.,0.,1., 2.,1.,1., 1.,2.,1., 0.,2.,1., 3.,1.,1.,
+    3.,2.,1., 0.,1.,1., 1.,3.,1., 2.,2.,1., 2.,3.,1.,
+    0.,0.,2., 1.,1.,2., 1.,1.25,2., 0.,1.,2., 1.,1.5,2., 2.,0.,2., 2.,1.,2., 1.,2.,2., 0.,2.,2., 3.,1.,2.,
+    3.,2.,2., 0.,1.,2., 1.,3.,2., 2.,2.,2., 2.,3.,2.,
+    0.,0.,3., 1.,1.,3., 1.,1.25,3., 0.,1.,3., 1.,1.5,3., 2.,0.,3., 2.,1.,3., 1.,2.,3., 0.,2.,3., 3.,1.,3.,
+    3.,2.,3., 0.,1.,3., 1.,3.,3., 2.,2.,3., 2.,3.,3.};
+
+  int conn[354]={
+    // 0
+    0,11,1,3,15,26,16,18,   1,2,4,7,13,6,-1,1,16,21,6,-1,6,21,28,13,-1,13,7,22,28,-1,7,4,19,22,-1,4,2,17,19,-1,2,1,16,17,-1,16,21,28,22,19,17,
+    1,6,5,3,16,21,20,18,   13,10,9,6,28,25,24,21,
+    11,8,7,4,2,1,-1,11,26,16,1,-1,1,16,17,2,-1,2,17,19,4,-1,4,19,22,7,-1,7,8,23,22,-1,8,11,26,23,-1,26,16,17,19,22,23,
+    7,12,14,13,22,27,29,28,
+    // 1
+    15,26,16,18,30,41,31,33,   16,17,19,22,28,21,-1,16,31,36,21,-1,21,36,43,28,-1,28,22,37,43,-1,22,19,34,37,-1,19,17,32,34,-1,17,16,31,32,-1,31,36,43,37,34,32,
+    16,21,20,18,31,36,35,33,   28,25,24,21,43,40,39,36,
+    26,23,22,19,17,16,-1,26,41,31,16,-1,16,31,32,17,-1,17,32,34,19,-1,19,34,37,22,-1,22,23,38,37,-1,23,26,41,38,-1,41,31,32,34,37,38,
+    22,27,29,28,37,42,44,43,
+    // 2
+    30,41,31,33,45,56,46,48,  31,32,34,37,43,36,-1,31,46,51,36,-1,36,51,58,43,-1,43,37,52,58,-1,37,34,49,52,-1,34,32,47,49,-1,32,31,46,47,-1,46,51,58,52,49,47,
+    31,36,35,33,46,51,50,48,  43,40,39,36,58,55,54,51,
+    41,38,37,34,32,31,-1,41,56,46,31,-1,31,46,47,32,-1,32,47,49,34,-1,34,49,52,37,-1,37,38,53,52,-1,38,41,56,53,-1,56,46,47,49,52,53,
+    37,42,44,43,52,57,59,58
+  };
+  int conn2[28]={7,12,14,13, 11,8,7,4,2,1, 13,10,9,6, 1,6,5,3, 1,2,4,7,13,6, 0,11,1,3};
+  //
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
+  ret->setMeshDimension(3);
+  ret->allocateCells(18);
+  //
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYHED,43,conn+8);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+51);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+59);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYHED,43,conn+67);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+110);
+  //
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+118);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYHED,43,conn+126);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+169);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+177);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYHED,43,conn+185);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+228);
+  //
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+236);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYHED,43,conn+244);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+287);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+295);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYHED,43,conn+303);
+  ret->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+346);
+  //
+  ret->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(60,3);
+  std::copy(coords,coords+180,myCoords->getPointer());
+  ret->setCoords(myCoords);
+  //
+  mesh2D=MEDCouplingUMesh::New();
+  mesh2D->setMeshDimension(2);
+  mesh2D->allocateCells(6);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_POLYGON,6,conn2+4);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2+10);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2+14);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_POLYGON,6,conn2+18);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2+24);
+  mesh2D->setCoords(myCoords);
+  myCoords->decrRef();
+  return ret;
 }
 
 double MEDCouplingRemapperTest::sumAll(const std::vector< std::map<int,double> >& matrix)

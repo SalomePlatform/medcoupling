@@ -37,69 +37,21 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
   releaseData(false);
 }
 
-int MEDCouplingRemapper::prepare(const MEDCouplingUMesh *srcMesh, const MEDCouplingUMesh *targetMesh, const char *method)
+int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method)
 {
   releaseData(true);
-  _src_mesh=(MEDCouplingUMesh *)srcMesh; _target_mesh=(MEDCouplingUMesh *)targetMesh;
+  _src_mesh=(MEDCouplingMesh *)srcMesh; _target_mesh=(MEDCouplingMesh *)targetMesh;
   _src_mesh->incrRef(); _target_mesh->incrRef();
-  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
-  const int srcMeshDim=_src_mesh->getMeshDimension();
-  const int srcSpaceDim=_src_mesh->getSpaceDimension();
-  const int trgMeshdim=_target_mesh->getMeshDimension();
-  const int trgSpaceDim=_target_mesh->getSpaceDimension();
-  if(trgSpaceDim!=srcSpaceDim)
-    throw INTERP_KERNEL::Exception("Incoherent space dimension detected between target and source.");
-  int nbCols;
-  if(srcMeshDim==2 && trgMeshdim==2 && srcSpaceDim==2)
+  int meshInterpType=((int)_src_mesh->getType()*16)+(int)_target_mesh->getType();
+  switch(meshInterpType)
     {
-      MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(_src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(_target_mesh);
-      INTERP_KERNEL::Interpolation2D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    case 85://Unstructured-Unstructured
+      return prepareUU(method);
+    case 136://Extruded-Extruded
+      return prepareEE(method);
+    default:
+      throw INTERP_KERNEL::Exception("Not managed type of meshes !");
     }
-  else if(srcMeshDim==3 && trgMeshdim==3 && srcSpaceDim==3)
-    {
-      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(_src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(_target_mesh);
-      INTERP_KERNEL::Interpolation3D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
-    }
-  else if(srcMeshDim==2 && trgMeshdim==2 && srcSpaceDim==3)
-    {
-      MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(_src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(_target_mesh);
-      INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
-    }
-  else if(srcMeshDim==3 && trgMeshdim==1 && srcSpaceDim==3)
-    {
-      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
-        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
-      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(_src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(_target_mesh);
-      INTERP_KERNEL::Interpolation3D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
-    }
-  else if(srcMeshDim==1 && trgMeshdim==3 && srcSpaceDim==3)
-    {
-      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
-        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
-      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(_src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(_target_mesh);
-      INTERP_KERNEL::Interpolation3D interpolation(*this);
-      std::vector<std::map<int,double> > matrixTmp;
-      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
-      reverseMatrix(matrixTmp,nbCols,_matrix);
-      nbCols=matrixTmp.size();
-    }
-  else
-    throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension");
-  _deno_multiply.clear();
-  _deno_multiply.resize(_matrix.size());
-  _deno_reverse_multiply.clear();
-  _deno_reverse_multiply.resize(nbCols);
-  declareAsNew();
-  return 1;
 }
 
 void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue)
@@ -193,6 +145,75 @@ bool MEDCouplingRemapper::setOptionDouble(const std::string& key, double value)
 bool MEDCouplingRemapper::setOptionString(const std::string& key, std::string& value)
 {
   return INTERP_KERNEL::InterpolationOptions::setOptionString(key,value);
+}
+
+int MEDCouplingRemapper::prepareUU(const char *method)
+{
+  MEDCouplingUMesh *src_mesh=(MEDCouplingUMesh *)_src_mesh;
+  MEDCouplingUMesh *target_mesh=(MEDCouplingUMesh *)_target_mesh;
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
+  const int srcMeshDim=src_mesh->getMeshDimension();
+  const int srcSpaceDim=src_mesh->getSpaceDimension();
+  const int trgMeshdim=target_mesh->getMeshDimension();
+  const int trgSpaceDim=target_mesh->getSpaceDimension();
+  if(trgSpaceDim!=srcSpaceDim)
+    throw INTERP_KERNEL::Exception("Incoherent space dimension detected between target and source.");
+  int nbCols;
+  if(srcMeshDim==2 && trgMeshdim==2 && srcSpaceDim==2)
+    {
+      MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation2D interpolation(*this);
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
+  else if(srcMeshDim==3 && trgMeshdim==3 && srcSpaceDim==3)
+    {
+      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation3D interpolation(*this);
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
+  else if(srcMeshDim==2 && trgMeshdim==2 && srcSpaceDim==3)
+    {
+      MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
+  else if(srcMeshDim==3 && trgMeshdim==1 && srcSpaceDim==3)
+    {
+      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
+      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation3D interpolation(*this);
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
+  else if(srcMeshDim==1 && trgMeshdim==3 && srcSpaceDim==3)
+    {
+      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
+      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation3D interpolation(*this);
+      std::vector<std::map<int,double> > matrixTmp;
+      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+      reverseMatrix(matrixTmp,nbCols,_matrix);
+      nbCols=matrixTmp.size();
+    }
+  else
+    throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension");
+  _deno_multiply.clear();
+  _deno_multiply.resize(_matrix.size());
+  _deno_reverse_multiply.clear();
+  _deno_reverse_multiply.resize(nbCols);
+  declareAsNew();
+  return 1;
+}
+
+int MEDCouplingRemapper::prepareEE(const char *method)
+{
+  return 0;
 }
 
 void MEDCouplingRemapper::updateTime()

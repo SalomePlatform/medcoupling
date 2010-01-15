@@ -180,3 +180,21 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
   //not implemented yet !
   return 0;
 }
+
+void MEDCouplingCMesh::rotate(const double *center, const double *vector, double angle)
+{
+  throw INTERP_KERNEL::Exception("No rotation available on CMesh : Traduce it to StructuredMesh to apply it !");
+}
+
+void MEDCouplingCMesh::translate(const double *vector)
+{
+  if(_x_array)
+    std::transform(_x_array->getConstPointer(),_x_array->getConstPointer()+_x_array->getNbOfElems(),
+                   _x_array->getPointer(),std::bind2nd(std::plus<double>(),vector[0]));
+  if(_y_array)
+    std::transform(_y_array->getConstPointer(),_y_array->getConstPointer()+_y_array->getNbOfElems(),
+                   _y_array->getPointer(),std::bind2nd(std::plus<double>(),vector[1]));
+  if(_z_array)
+    std::transform(_z_array->getConstPointer(),_z_array->getConstPointer()+_z_array->getNbOfElems(),
+                   _z_array->getPointer(),std::bind2nd(std::plus<double>(),vector[2]));
+}

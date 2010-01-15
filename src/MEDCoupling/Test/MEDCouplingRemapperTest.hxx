@@ -36,6 +36,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test2DInterpMultiMethods );
     CPPUNIT_TEST( testMultiDimCombi );
     CPPUNIT_TEST( testNatureOfField );
+    CPPUNIT_TEST( testExtruded );
     CPPUNIT_TEST_SUITE_END();
   public:
     void test2DInterpP0P0_1();
@@ -43,6 +44,7 @@ namespace ParaMEDMEM
     void test2DInterpMultiMethods();
     void testMultiDimCombi();
     void testNatureOfField();
+    void testExtruded();
   private:
     MEDCouplingUMesh *build3DSourceMesh_2();
     MEDCouplingUMesh *build3DTargetMesh_2();
@@ -59,6 +61,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *build3DSurfTargetMesh_2();
     MEDCouplingUMesh *build3DSourceMesh_1();
     MEDCouplingUMesh *build3DTargetMesh_1();
+    MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
     double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }
