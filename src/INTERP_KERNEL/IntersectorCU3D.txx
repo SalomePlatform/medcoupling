@@ -46,7 +46,7 @@ namespace INTERP_KERNEL
     static const int MY_SPACEDIM=3;
     static const int MY_MESHDIM=3;
     typedef int MyConnType;
-    static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
+    static const NumberingPolicy My_numPol=ALL_C_MODE;
 
     _Cartesian3D2UnstructHexMesh(const double * coords[3]): _coordsC(coords) {}
     void setHexa(int I, int J, int K) // indices in C mode
@@ -71,11 +71,21 @@ namespace INTERP_KERNEL
       static int conInd[] = { 0,8 };
       return conInd;
     }
-    INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const
-    { return INTERP_KERNEL::NORM_HEXA8; }
+    void getBoundingBox(double *boundingBox) const
+    {
+      boundingBox[BoundingBox::XMIN] = _coordsU[0];
+      boundingBox[BoundingBox::XMAX] = _coordsU[0+1*MY_SPACEDIM];
+      boundingBox[BoundingBox::YMIN] = _coordsU[1];
+      boundingBox[BoundingBox::YMAX] = _coordsU[1+2*MY_SPACEDIM];
+      boundingBox[BoundingBox::ZMIN] = _coordsU[2];
+      boundingBox[BoundingBox::ZMAX] = _coordsU[2+4*MY_SPACEDIM];
+    }
+    NormalizedCellType getTypeOfElement(int eltId) const { return NORM_HEXA8; }
+    unsigned char getNumberOfNodesOfElement(int eltId) const { return 8; }
     unsigned long getNumberOfElements() const { return 1; }
     unsigned long getNumberOfNodes()    const { return 8; }
     const double *getCoordinatesPtr()   const { return _coordsU; }
+    void releaseTempArrays() {}
   private:
     const double** _coordsC;
     double         _coordsU[3*8];
