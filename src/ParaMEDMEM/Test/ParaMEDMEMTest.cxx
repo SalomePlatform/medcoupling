@@ -23,6 +23,7 @@
 #include <cmath>
 #include <list>
 #include <stdexcept>
+#include <stdlib.h>
 
 //================================================================================
 /*!
