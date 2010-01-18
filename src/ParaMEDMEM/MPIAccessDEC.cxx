@@ -19,6 +19,8 @@
 
 #include "MPIAccessDEC.hxx"
 
+#include <cstring>
+
 using namespace std;
 
 namespace ParaMEDMEM

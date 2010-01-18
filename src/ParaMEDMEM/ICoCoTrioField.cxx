@@ -9,6 +9,7 @@
 #include <ICoCoTrioField.hxx>
 #include <string.h>
 #include <iostream>
+#include <stdlib.h>
 
 using namespace ICoCo;
 using namespace std;

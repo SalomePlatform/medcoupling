@@ -39,8 +39,8 @@ namespace ParaMEDMEM
     void addElementFromSource(int distant_proc, int distant_elem);
     void prepareSendRecv();
     void sendRecv(MEDCouplingFieldDouble& field);
-    void sendRecv(double* field, MEDCouplingFieldDouble& field) const ;
-    void reverseSendRecv(double* field, MEDCouplingFieldDouble& field) const ;
+    void sendRecv(double* sendfield, MEDCouplingFieldDouble& field) const ;
+    void reverseSendRecv(double* recvfield, MEDCouplingFieldDouble& field) const ;
  
     //
     const std::vector<std::pair<int,int> >& getSendingIds() const { return _sending_ids; }
