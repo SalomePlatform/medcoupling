@@ -18,6 +18,7 @@
 #include "MEDLoader.hxx"
  
 #include <string>
+#include <cstring>
 
 // use this define to enable lines, execution of which leads to Segmentation Fault
 #define ENABLE_FAULTS

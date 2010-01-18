@@ -141,35 +141,35 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
      rtimedispls[i] = i ;
   }
 
-  double time[maxproc] ;
+  double timeLoc[maxproc] ;
   double deltatime[maxproc] = {1.,2.1,3.2,4.3,5.4,6.5,7.6,8.7,9.8,10.9,11.} ;
   double maxtime[maxproc] ;
   double nextdeltatime[maxproc] ;
   for ( i = 0 ; i < size ; i++ ) {
-     time[i] = 0 ;
+     timeLoc[i] = 0 ;
      maxtime[i] = maxreq ;
      nextdeltatime[i] = deltatime[i] ;
   }
-  time_t begintime = std::time(NULL) ;
-  for ( time[myrank] = 0 ; time[myrank] <= maxtime[myrank] && nextdeltatime[myrank] != 0 ;
-        time[myrank]+=nextdeltatime[myrank] ) {
+  time_t begintime = time(NULL) ;
+  for ( timeLoc[myrank] = 0 ; timeLoc[myrank] <= maxtime[myrank] && nextdeltatime[myrank] != 0 ;
+        timeLoc[myrank]+=nextdeltatime[myrank] ) {
 //local and target times
      int target ;
      for ( target = 0 ; target < size ; target++ ) {
         nextdeltatime[target] = deltatime[target] ;
-        if ( time[target] != 0 ) {
-          if ( time[target]+nextdeltatime[target] > maxtime[target] ) {
+        if ( timeLoc[target] != 0 ) {
+          if ( timeLoc[target]+nextdeltatime[target] > maxtime[target] ) {
             nextdeltatime[target] = 0 ;
           }
         }
         if ( target != myrank ) {
-          while ( time[myrank] >= time[target] ) {
-               time[target] += deltatime[target] ;
+          while ( timeLoc[myrank] >= timeLoc[target] ) {
+               timeLoc[target] += deltatime[target] ;
           }
         }
      }
-     MyMPIAccessDEC->setTime( time[myrank] , nextdeltatime[myrank] ) ;
-     cout << "test" << myrank << "=====TIME " << time[myrank] << "=====DELTATIME "
+     MyMPIAccessDEC->setTime( timeLoc[myrank] , nextdeltatime[myrank] ) ;
+     cout << "test" << myrank << "=====TIME " << timeLoc[myrank] << "=====DELTATIME "
           << nextdeltatime[myrank] << "=====MAXTIME " << maxtime[myrank] << " ======"
           << endl ; 
      double * sendbuf = new double[datamsglength*size] ;
@@ -181,7 +181,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
         for ( j = 0 ; j < datamsglength ; j++ ) {
            //sendbuf[j] = myrank*10000 + (j/datamsglength)*100 + j ;
            sendbuf[target*datamsglength+j] = myrank*1000000 + target*10000 +
-                                             (time[myrank]/deltatime[myrank])*100 + j ;
+                                             (timeLoc[myrank]/deltatime[myrank])*100 + j ;
            //cout << " " << (int ) sendbuf[target*datamsglength+j] ;
            recvbuf[target*datamsglength+j] = -1 ;
         }
@@ -222,18 +222,18 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
            int index = target*datamsglength+j ;
            if ( j < recvcounts[target] ) {
              if ( fabs(recvbuf[index] - (target*1000000 + myrank*10000 +
-                  (time[target]/deltatime[target])*100 + j)) > 101) {
+                  (timeLoc[target]/deltatime[target])*100 + j)) > 101) {
                badrecvbuf = true ;
-               cout << "test_AllToAllvTimeDoubleDEC" << myrank << " target " << target << " time[target] "
-                    << time[target] << " recvbuf[" << index << "] " << (int ) recvbuf[index]
+               cout << "test_AllToAllvTimeDoubleDEC" << myrank << " target " << target << " timeLoc[target] "
+                    << timeLoc[target] << " recvbuf[" << index << "] " << (int ) recvbuf[index]
                     << " # " << (int ) (target*1000000 +
-                       myrank*10000 + (time[target]/deltatime[target])*100 + j)
+                       myrank*10000 + (timeLoc[target]/deltatime[target])*100 + j)
                     << endl ;
              }
              else if ( badrecvbuf ) {
                cout << "test_AllToAllvTimeDoubleDEC" << myrank << " recvbuf[" << index << "] "
                     << recvbuf[index] << " ~= " << (int ) (target*1000000 +
-                       myrank*10000 + (time[target]/deltatime[target])*100 + j) << endl ;
+                       myrank*10000 + (timeLoc[target]/deltatime[target])*100 + j) << endl ;
              }
            }
            else if ( recvbuf[index] != -1 ) {
@@ -298,7 +298,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
          << " RecvRequests = 0 OK" << endl ;
   }
 
-  time_t endtime = std::time(NULL) ;
+  time_t endtime = time(NULL) ;
   cout << "test_AllToAllvTimeDoubleDEC" << myrank << " begintime " << begintime << " endtime " << endtime
        << " elapse " << endtime-begintime << " " << maxtime[myrank]/deltatime[myrank]
        << " calls to AllToAll" << endl ;
@@ -322,7 +322,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDoubleDEC( bool Asynchronous ) {
 
 //  MPI_Finalize();
 
-  endtime = std::time(NULL) ;
+  endtime = time(NULL) ;
 
   cout << "test_AllToAllvTimeDoubleDEC" << myrank << " OK begintime " << begintime << " endtime " << endtime
        << " elapse " << endtime-begintime << " " << maxtime[myrank]/deltatime[myrank]

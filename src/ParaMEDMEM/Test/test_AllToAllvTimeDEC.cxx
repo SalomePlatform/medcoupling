@@ -150,7 +150,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
     //rtimedispls[i] = i*mpi_access->TimeExtent() ;
   }
 
-  double time = 0 ;
+  double timeLoc = 0 ;
   double deltatime[maxproc] = {1.,2.1,3.2,4.3,5.4,6.5,7.6,8.7,9.8,10.9,11.} ;
   double maxtime ;
   double nextdeltatime = deltatime[myrank] ;
@@ -161,18 +161,18 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
     maxtime = maxreq ;
     //    MyMPIAccessDEC->InitTime( time , nextdeltatime , maxtime ) ;
   }
-  time_t begintime = std::time(NULL) ;
+  time_t begintime = time(NULL) ;
   //  for ( time = 0 ; time <= maxtime ; time+=deltatime[myrank] ) {
-  for ( time = 0 ; time <= maxtime && nextdeltatime != 0 ; time+=nextdeltatime ) {
+  for ( timeLoc = 0 ; timeLoc <= maxtime && nextdeltatime != 0 ; timeLoc+=nextdeltatime ) {
     nextdeltatime = deltatime[myrank] ;
-    if ( time != 0 ) {
+    if ( timeLoc != 0 ) {
       nextdeltatime = deltatime[myrank] ;
-      if ( time+nextdeltatime > maxtime ) {
+      if ( timeLoc+nextdeltatime > maxtime ) {
         nextdeltatime = 0 ;
       }
       //       MyMPIAccessDEC->NextTime( nextdeltatime ) ;
     }
-    MyMPIAccessDEC->setTime( time , nextdeltatime ) ;
+    MyMPIAccessDEC->setTime( timeLoc , nextdeltatime ) ;
     cout << "test_AllToAllvTimeDEC" << myrank << "=====TIME " << time << "=====DELTATIME "
          << nextdeltatime << "=====MAXTIME " << maxtime << " ======" << endl ; 
     int * sendbuf = new int[datamsglength*size] ;
@@ -187,11 +187,11 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
     if ( UseMPI_Alltoallv ) {
       const MPI_Comm* comm = MyMPIAccessDEC->getComm();
       TimeMessage * aSendTimeMessage = new TimeMessage ;
-      aSendTimeMessage->time = time ;
+      aSendTimeMessage->time = timeLoc ;
       //       aSendTimeMessage->deltatime = deltatime[myrank] ;
       aSendTimeMessage->deltatime = nextdeltatime ;
       //       aSendTimeMessage->maxtime = maxtime ;
-      aSendTimeMessage->tag = (int ) (time/deltatime[myrank]) ;
+      aSendTimeMessage->tag = (int ) (timeLoc/deltatime[myrank]) ;
       TimeMessage * aRecvTimeMessage = new TimeMessage[size] ;
       interface.allToAllV(aSendTimeMessage, sendtimecounts , stimedispls ,
                           mpi_access->timeType() ,
@@ -323,7 +323,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
          << " RecvRequests = 0 OK" << endl ;
   }
 
-  time_t endtime = std::time(NULL) ;
+  time_t endtime = time(NULL) ;
   cout << "test_AllToAllvTimeDEC" << myrank << " begintime " << begintime << " endtime " << endtime
        << " elapse " << endtime-begintime << " " << maxtime/deltatime[myrank]
        << " calls to AllToAll" << endl ;
@@ -348,7 +348,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
 
   //  MPI_Finalize();
 
-  endtime = std::time(NULL) ;
+  endtime = time(NULL) ;
 
   cout << "test_AllToAllvTimeDEC" << myrank << " OK begintime " << begintime << " endtime " << endtime
        << " elapse " << endtime-begintime << " " << maxtime/deltatime[myrank]
