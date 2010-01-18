@@ -458,9 +458,10 @@ namespace INTERP_KERNEL
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::releaseArrays()
   {
     // free potential sub-mesh nodes that have been allocated
-    if(_nodes.size()>=8)
+    typename MyMeshTypeT::MyConnType nbOfNodesT = _node_ids.size();// Issue 0020634.
+    if(_nodes.size()>=/*8*/nbOfNodesT)
       {
-        std::vector<const double*>::iterator iter = _nodes.begin() + 8;
+        std::vector<const double*>::iterator iter = _nodes.begin() + /*8*/nbOfNodesT;
         while(iter != _nodes.end())
           {
             delete[] *iter;
@@ -498,6 +499,8 @@ namespace INTERP_KERNEL
         tetra.push_back(t);
         return ;
       }
+    // Issue 0020634. To pass nbOfNodesT to calculateSubNodes (don't want to add an arg)
+    _node_ids.resize(nbOfNodesT);
 
     // pre-calculate nodes
     calculateSubNodes(_target_mesh, OTT<ConnType,numPol>::indFC(targetCell));
@@ -505,35 +508,51 @@ namespace INTERP_KERNEL
     tetra.reserve(numTetra);
     _nodes.reserve(30); // we never have more than this
 
-    switch(_splitting_pol)
+    switch ( nbOfNodesT )
       {
-      case PLANAR_FACE_5:
+      case 8:
         {
-          const int subZone[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-          fiveSplit(subZone,tetra);
-        }
-        break;
+          switch(_splitting_pol)
+            {
+            case PLANAR_FACE_5:
+              {
+                const int subZone[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+                fiveSplit(subZone,tetra);
+              }
+              break;
 
-      case PLANAR_FACE_6:
-        {
-          const int subZone[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
-          sixSplit(subZone,tetra);
-        }
-        break;
+            case PLANAR_FACE_6:
+              {
+                const int subZone[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+                sixSplit(subZone,tetra);
+              }
+              break;
 
-      case GENERAL_24:
-        {
-          calculateGeneral24Tetra(tetra);
-        }
-        break;
+            case GENERAL_24:
+              {
+                calculateGeneral24Tetra(tetra);
+              }
+              break;
 
-      case GENERAL_48:
-        {
-          calculateGeneral48Tetra(tetra);
+            case GENERAL_48:
+              {
+                calculateGeneral48Tetra(tetra);
+              }
+              break;
+            default:
+              assert(false);
+            }
+          break;
         }
-        break;
+      case 5:
+        {
+          splitPenta5(tetra);
+          break;
+        }
       default:
-        assert(false);
+        {
+          splitConvex(targetCell, tetra);
+        }
       }
   }
 
@@ -733,6 +752,94 @@ namespace INTERP_KERNEL
   }
   
   /**
+   * Splits the NORM_PYRA5 into 2 tetrahedra.
+   */
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitPenta5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  {
+    static const int SPLIT_PENTA_5[2][4] = 
+      {
+        {
+          0, 1, 2, 4
+        },
+        {
+          0, 2, 3, 4
+        }
+      };
+    
+    // create tetrahedra
+    const double* nodes[4];
+    int conn[4];
+    for(int i = 0; i < 2; ++i)
+      {
+        for(int j = 0; j < 4; ++j)
+          nodes[j] = getCoordsOfSubNode2(SPLIT_PENTA_5[i][j],conn[j]);
+        SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
+        tetra.push_back(t);
+      }
+  }
+  
+  /**
+   * Splits a convex cell into tetrahedra.
+   */
+  template<class MyMeshTypeT, class MyMeshTypeS>
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitConvex(typename MyMeshTypeT::MyConnType targetCell,
+                                                             typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  {
+    // Each face of a cell is split into triangles and
+    // each of triangles and a cell barycenter form a tetrahedron.
+
+    typedef typename MyMeshTypeT::MyConnType ConnType;
+    const NumberingPolicy numPol=MyMeshTypeT::My_numPol;
+
+    // get type of cell and nb of cell nodes
+    NormalizedCellType normCellType=_target_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(targetCell));
+    const CellModel& cellModelCell=CellModel::getCellModel(normCellType);
+    unsigned nbOfCellNodes=cellModelCell.isDynamic() ? _target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell)) : cellModelCell.getNumberOfNodes();
+
+    // get nb of cell sons (faces)
+    const ConnType* rawCellConn = _target_mesh.getConnectivityPtr() + OTT<ConnType,numPol>::conn2C( _target_mesh.getConnectivityIndexPtr()[ targetCell ]);
+    const int rawNbCellNodes = _target_mesh.getConnectivityIndexPtr()[ targetCell+1 ] - _target_mesh.getConnectivityIndexPtr()[ targetCell ];
+    unsigned nbOfSons = cellModelCell.getNumberOfSons2(rawCellConn, rawNbCellNodes);
+
+    // indices of nodes of a son
+    static vector<int> allNodeIndices; // == 0,1,2,...,nbOfCellNodes-1
+    while ( allNodeIndices.size() < nbOfCellNodes )
+      allNodeIndices.push_back( allNodeIndices.size() );
+    vector<int> classicFaceNodes(4);
+    int* faceNodes = cellModelCell.isDynamic() ? &allNodeIndices[0] : &classicFaceNodes[0];
+
+    // nodes of tetrahedron
+    int conn[4];
+    const double* nodes[4];
+    nodes[3] = getCoordsOfSubNode2( nbOfCellNodes,conn[3]); // barycenter
+
+    for(unsigned ii = 0 ; ii < nbOfSons; ++ii)
+      {
+        // get indices of son's nodes: it's just next portion of allNodeIndices for polyhedron
+        // and some of allNodeIndices accodring to cell model for a classsic cell 
+        unsigned nbFaceNodes = cellModelCell.getNumberOfNodesConstituentTheSon2(ii, rawCellConn, rawNbCellNodes);
+        if ( normCellType != NORM_POLYHED )
+          cellModelCell.fillSonCellNodalConnectivity(ii,&allNodeIndices[0],faceNodes);
+
+        int nbTetra = nbFaceNodes - 2; // split polygon into nbTetra triangles
+
+        // create tetrahedra
+        for(int i = 0; i < nbTetra; ++i)
+          {
+            nodes[0] = getCoordsOfSubNode2( faceNodes[0],  conn[0]);
+            nodes[1] = getCoordsOfSubNode2( faceNodes[1+i],conn[1]);
+            nodes[2] = getCoordsOfSubNode2( faceNodes[2+i],conn[2]);
+            SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
+            tetra.push_back(t);
+          }
+
+        if ( normCellType == NORM_POLYHED )
+          faceNodes += nbFaceNodes; // go to the next face
+      }
+  }
+  
+  /**
    * Precalculates all the nodes.
    * Retrieves the mesh nodes and allocates the necessary sub-mesh 
    * nodes according to the splitting policy used.
@@ -747,82 +854,102 @@ namespace INTERP_KERNEL
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell)
   {
     // retrieve real mesh nodes
-    _node_ids.resize(8);
-    for(int node = 0; node < 8 ; ++node)
+    
+    typename MyMeshTypeT::MyConnType nbOfNodesT = _node_ids.size();// Issue 0020634. _node_ids.resize(8);
+    for(int node = 0; node < nbOfNodesT ; ++node)
       {
         // calculate only normal nodes
         _nodes.push_back(getCoordsOfNode2(node, targetCell, targetMesh,_node_ids[node]));
       }
 
-    // create sub-mesh nodes if needed
-    switch(_splitting_pol)
+    switch ( nbOfNodesT )
       {
-      case GENERAL_24:
-        {
-          // Each sub-node is the barycenter of 4 other nodes.
-          // For the faces, these are on the orignal mesh.
-          // For the barycenter, the four face sub-nodes are used.
-          static const int GENERAL_24_SUB_NODES[28] = 
-            {
-              0,1,4,5,// sub-node 9 (face)
-              0,1,2,3,// sub-node 10 (face)
-              0,3,4,7,// sub-node 11 (face)
-              1,2,5,6,// sub-node 12 (face)
-              4,5,6,7,// sub-node 13 (face)
-              2,3,6,7,// sub-node 14 (face)
-              9,10,11,12// sub-node 15 (cell)
-            };
-         
-          for(int i = 0; i < 7; ++i)
-            {
-              double* barycenter = new double[3];
-              calcBarycenter<4>(barycenter, &GENERAL_24_SUB_NODES[4*i]);
-              _nodes.push_back(barycenter);
-            }
-        }
-        break;
-       
-      case GENERAL_48:
-        {
-          // Each sub-node is the barycenter of two other nodes.
-          // For the edges, these lie on the original mesh.
-          // For the faces, these are the edge sub-nodes.
-          // For the cell these are two face sub-nodes.
-          static const int GENERAL_48_SUB_NODES[38] = 
-            {
-              0,1,   // sub-node 9 (edge)
-              0,4,   // sub-node 10 (edge)
-              1,5,   // sub-node 11 (edge)
-              4,5,   // sub-node 12 (edge)
-              0,3,   // sub-node 13 (edge)
-              1,2,   // sub-node 14 (edge)
-              4,7,   // sub-node 15 (edge)
-              5,6,   // sub-node 16 (edge)
-              2,3,   // sub-node 17 (edge)
-              3,7,   // sub-node 18 (edge)
-              2,6,   // sub-node 19 (edge)
-              6,7,   // sub-node 20 (edge)
-              8,11,  // sub-node 21 (face)
-              12,13, // sub-node 22 (face)
-              9,17,  // sub-node 23 (face)
-              10,18, // sub-node 24 (face)
-              14,15, // sub-node 25 (face)
-              16,19, // sub-node 26 (face)
-              20,25  // sub-node 27 (cell)
-            };
+      case 8:
 
-          for(int i = 0; i < 19; ++i)
+        // create sub-mesh nodes if needed
+        switch(_splitting_pol)
+          {
+          case GENERAL_24:
             {
-              double* barycenter = new double[3];
-              calcBarycenter<2>(barycenter, &GENERAL_48_SUB_NODES[2*i]);
-              _nodes.push_back(barycenter);
+              // Each sub-node is the barycenter of 4 other nodes.
+              // For the faces, these are on the orignal mesh.
+              // For the barycenter, the four face sub-nodes are used.
+              static const int GENERAL_24_SUB_NODES[28] = 
+                {
+                  0,1,4,5,// sub-node 9 (face)
+                  0,1,2,3,// sub-node 10 (face)
+                  0,3,4,7,// sub-node 11 (face)
+                  1,2,5,6,// sub-node 12 (face)
+                  4,5,6,7,// sub-node 13 (face)
+                  2,3,6,7,// sub-node 14 (face)
+                  9,10,11,12// sub-node 15 (cell)
+                };
+
+              for(int i = 0; i < 7; ++i)
+                {
+                  double* barycenter = new double[3];
+                  calcBarycenter(4, barycenter, &GENERAL_24_SUB_NODES[4*i]);
+                  _nodes.push_back(barycenter);
+                }
             }
+            break;
+
+          case GENERAL_48:
+            {
+              // Each sub-node is the barycenter of two other nodes.
+              // For the edges, these lie on the original mesh.
+              // For the faces, these are the edge sub-nodes.
+              // For the cell these are two face sub-nodes.
+              static const int GENERAL_48_SUB_NODES[38] = 
+                {
+                  0,1,   // sub-node 9 (edge)
+                  0,4,   // sub-node 10 (edge)
+                  1,5,   // sub-node 11 (edge)
+                  4,5,   // sub-node 12 (edge)
+                  0,3,   // sub-node 13 (edge)
+                  1,2,   // sub-node 14 (edge)
+                  4,7,   // sub-node 15 (edge)
+                  5,6,   // sub-node 16 (edge)
+                  2,3,   // sub-node 17 (edge)
+                  3,7,   // sub-node 18 (edge)
+                  2,6,   // sub-node 19 (edge)
+                  6,7,   // sub-node 20 (edge)
+                  8,11,  // sub-node 21 (face)
+                  12,13, // sub-node 22 (face)
+                  9,17,  // sub-node 23 (face)
+                  10,18, // sub-node 24 (face)
+                  14,15, // sub-node 25 (face)
+                  16,19, // sub-node 26 (face)
+                  20,25  // sub-node 27 (cell)
+                };
+
+              for(int i = 0; i < 19; ++i)
+                {
+                  double* barycenter = new double[3];
+                  calcBarycenter(2, barycenter, &GENERAL_48_SUB_NODES[2*i]);
+                  _nodes.push_back(barycenter);
+                }
+            }
+            break;
+
+          default:
+            break;
+          }
+
+      case 5: // NORM_PYRA5
+        break;
+
+      default: // convex 3d cell
+        {
+          // add barycenter of a cell
+          vector<int> allIndices(nbOfNodesT);
+          for ( int i = 0; i < nbOfNodesT; ++i ) allIndices[i] = i;
+          double* barycenter = new double[3];
+          calcBarycenter(nbOfNodesT, barycenter, &allIndices[0]);
+          _nodes.push_back(barycenter);
         }
-        break;
-       
-      default:
-        break;
       }
+
   }
 }
 

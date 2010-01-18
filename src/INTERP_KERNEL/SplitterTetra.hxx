@@ -336,11 +336,14 @@ namespace INTERP_KERNEL
     void sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void splitPenta5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void splitConvex(typename MyMeshTypeT::MyConnType                     targetCell,
+                     typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell);
     inline const double* getCoordsOfSubNode(typename MyMeshTypeT::MyConnType node);
     inline const double* getCoordsOfSubNode2(typename MyMeshTypeT::MyConnType node, typename MyMeshTypeT::MyConnType& nodeId);
-    template<int n>
-    inline void calcBarycenter(double* barycenter, const typename MyMeshTypeT::MyConnType* pts);
+    //template<int n>
+    inline void calcBarycenter(int n, double* barycenter, const typename MyMeshTypeT::MyConnType* pts);
   private:
     const MyMeshTypeT& _target_mesh;
     const MyMeshTypeS& _src_mesh;
@@ -359,8 +362,8 @@ namespace INTERP_KERNEL
    * @param  pts pointer to int[n] array containing the (sub)-nodes for which to calculate the barycenter
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
-  template<int n>
-  inline void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calcBarycenter(double* barycenter, const typename MyMeshTypeT::MyConnType* pts)
+  //template<int n>
+  inline void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calcBarycenter(int n, double* barycenter, const typename MyMeshTypeT::MyConnType* pts)
   {
     barycenter[0] = barycenter[1] = barycenter[2] = 0.0;
     for(int i = 0; i < n ; ++i)
