@@ -50,6 +50,7 @@ namespace INTERP_KERNEL
     unsigned getNumberOfSons() const { return _nb_of_sons; }
     unsigned getNumberOfSons2(const int *conn, int lgth) const;
     unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
+    unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const;
     NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
     NormalizedCellType getSonType2(unsigned sonId) const;
     unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;

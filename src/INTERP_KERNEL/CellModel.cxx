@@ -313,4 +313,33 @@ namespace INTERP_KERNEL
           }
       }
   }
+
+  //================================================================================
+  /*!
+   * \brief Return number of nodes in sonId-th son of a Dynamic() cell
+   */
+  //================================================================================
+
+  unsigned CellModel::getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const
+  {
+    if(!isDynamic())
+      return getNumberOfNodesConstituentTheSon(sonId);
+
+    if(_dim==2)//polygon
+      {
+        return 2;
+      }
+    else
+      {//polyedron
+        const int *where=nodalConn;
+        for(int i=0;i<sonId;i++)
+          {
+            where=std::find(where,nodalConn+lgth,-1);
+            where++;
+          }
+        const int *where2=std::find(where,nodalConn+lgth,-1);
+        return where2-where;
+      }
+  }
+
 }
