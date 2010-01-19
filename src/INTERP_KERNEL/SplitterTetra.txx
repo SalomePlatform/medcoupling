@@ -547,7 +547,7 @@ namespace INTERP_KERNEL
         }
       case 5:
         {
-          splitPenta5(tetra);
+          splitPyram5(tetra);
           break;
         }
       default:
@@ -756,9 +756,9 @@ namespace INTERP_KERNEL
    * Splits the NORM_PYRA5 into 2 tetrahedra.
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
-  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitPenta5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
+  void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitPyram5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
-    static const int SPLIT_PENTA_5[2][4] = 
+    static const int SPLIT_PYPA5[2][4] = 
       {
         {
           0, 1, 2, 4
@@ -774,7 +774,7 @@ namespace INTERP_KERNEL
     for(int i = 0; i < 2; ++i)
       {
         for(int j = 0; j < 4; ++j)
-          nodes[j] = getCoordsOfSubNode2(SPLIT_PENTA_5[i][j],conn[j]);
+          nodes[j] = getCoordsOfSubNode2(SPLIT_PYPA5[i][j],conn[j]);
         SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
       }

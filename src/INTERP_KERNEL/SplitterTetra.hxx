@@ -336,7 +336,7 @@ namespace INTERP_KERNEL
     void sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void calculateGeneral24Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
-    void splitPenta5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
+    void splitPyram5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void splitConvex(typename MyMeshTypeT::MyConnType                     targetCell,
                      typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra);
     void calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell);
