@@ -33,6 +33,7 @@
 #include <cassert>
 #include <string>
 #include <sstream>
+#include <vector>
 
 /// Smallest volume of the intersecting elements in the transformed space that will be returned as non-zero. 
 /// Since the scale is always the same in the transformed space (the target tetrahedron is unitary), this number is independent of the scale of the meshes.
@@ -803,10 +804,10 @@ namespace INTERP_KERNEL
     unsigned nbOfSons = cellModelCell.getNumberOfSons2(rawCellConn, rawNbCellNodes);
 
     // indices of nodes of a son
-    static vector<int> allNodeIndices; // == 0,1,2,...,nbOfCellNodes-1
+    static std::vector<int> allNodeIndices; // == 0,1,2,...,nbOfCellNodes-1
     while ( allNodeIndices.size() < nbOfCellNodes )
       allNodeIndices.push_back( allNodeIndices.size() );
-    vector<int> classicFaceNodes(4);
+    std::vector<int> classicFaceNodes(4);
     int* faceNodes = cellModelCell.isDynamic() ? &allNodeIndices[0] : &classicFaceNodes[0];
 
     // nodes of tetrahedron
@@ -942,7 +943,7 @@ namespace INTERP_KERNEL
       default: // convex 3d cell
         {
           // add barycenter of a cell
-          vector<int> allIndices(nbOfNodesT);
+          std::vector<int> allIndices(nbOfNodesT);
           for ( int i = 0; i < nbOfNodesT; ++i ) allIndices[i] = i;
           double* barycenter = new double[3];
           calcBarycenter(nbOfNodesT, barycenter, &allIndices[0]);
