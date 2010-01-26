@@ -32,6 +32,7 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
+    bool areCompatible(const MEDCouplingField *other) const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -58,9 +59,11 @@ namespace ParaMEDMEM
     void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     void serialize(std::vector<DataArrayDouble *>& arrays) const;
+    static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
+    MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, TypeOfField type);
     ~MEDCouplingFieldDouble();
   private:
     NatureOfField _nature;

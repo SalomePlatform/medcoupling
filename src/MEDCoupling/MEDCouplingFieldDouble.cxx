@@ -49,6 +49,20 @@ bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshP
   return true;
 }
 
+bool MEDCouplingFieldDouble::areCompatible(const MEDCouplingField *other) const
+{
+  if(!MEDCouplingField::areCompatible(other))
+    return false;
+  const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
+  if(!otherC)
+    return false;
+  if(_nature!=otherC->_nature)
+    return false;
+  if(!_time_discr->areCompatible(otherC->_time_discr))
+    return false;
+  return true;
+}
+
 TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
 {
   return _time_discr->getEnum();
@@ -61,6 +75,11 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscr
 
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),_nature(other._nature),
                                                                                                   _time_discr(other._time_discr->performCpy(deepCpy))
+{
+}
+
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, TypeOfField type):MEDCouplingField(type),
+                                                                                                                     _nature(n),_time_discr(td)
 {
 }
 
@@ -208,10 +227,26 @@ void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyI
 }
 
 /*!
- * Contrary to MEDCouplingPointSet class the returned arrays are \b not the responsabilities af the caller.
+ * Contrary to MEDCouplingPointSet class the returned arrays are \b not the responsabilities of the caller.
  * The values returned must be consulted only in readonly mode.
  */
 void MEDCouplingFieldDouble::serialize(std::vector<DataArrayDouble *>& arrays) const
 {
   _time_discr->getArrays(arrays);
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply mergeFields on them !");
+  const MEDCouplingMesh *m1=f1->getMesh();
+  const MEDCouplingMesh *m2=f2->getMesh();
+  MEDCouplingMesh *m=m1->mergeMyselfWith(m2);
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->aggregate(f2->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(m);
+  m->decrRef();
+  ret->setName(f1->getName());
+  ret->setDescription(f1->getDescription());
+  return ret;
 }

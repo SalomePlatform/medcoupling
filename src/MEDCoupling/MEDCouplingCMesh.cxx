@@ -198,3 +198,9 @@ void MEDCouplingCMesh::translate(const double *vector)
     std::transform(_z_array->getConstPointer(),_z_array->getConstPointer()+_z_array->getNbOfElems(),
                    _z_array->getPointer(),std::bind2nd(std::plus<double>(),vector[2]));
 }
+
+MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
+{
+  //not implemented yet !
+  return 0;
+}

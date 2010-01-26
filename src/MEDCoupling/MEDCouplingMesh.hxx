@@ -54,6 +54,8 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
     virtual void translate(const double *vector) = 0;
+    virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
+    virtual bool areCompatible(const MEDCouplingMesh *other) const;
   protected:
     MEDCouplingMesh() { }
     MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name) { }

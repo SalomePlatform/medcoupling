@@ -56,6 +56,7 @@ namespace ParaMEDMEM
     void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     DataArrayInt *zipCoordsTraducer();
+    MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
   private:
     MEDCouplingUMeshDesc();
     ~MEDCouplingUMeshDesc();

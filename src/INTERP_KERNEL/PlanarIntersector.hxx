@@ -42,6 +42,8 @@ namespace INTERP_KERNEL
     void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
     void adjustBoundingBoxes(std::vector<double>& bbox, double surf3DAdjustmentEps, double surf3DAdjustmentEpsAbs);
     inline void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
+    static int projection(double *Coords_A, double *Coords_B,
+                          int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double median_plane, bool do_rotate);
   protected :
     int projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB);
     void getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT);
@@ -50,8 +52,6 @@ namespace INTERP_KERNEL
     void getRealSourceCoordinatesPermute(ConnType icellS, int offset, std::vector<double>& coordsS);
     void getRealCoordinates(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS, std::vector<double>& coordsT, std::vector<double>& coordsS, int& orientation);
     double getValueRegardingOption(double val) const;
-    static int projection(double *Coords_A, double *Coords_B,
-                          int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double median_plane, bool do_rotate);
     static void rotate3DTriangle( double* PP1, double*PP2, double*PP3,
                                   TranslationRotationMatrix& rotation_matrix);
   protected:

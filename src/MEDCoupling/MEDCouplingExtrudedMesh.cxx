@@ -271,6 +271,12 @@ void MEDCouplingExtrudedMesh::translate(const double *vector)
   _mesh1D->translate(vector);
 }
 
+MEDCouplingMesh *MEDCouplingExtrudedMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
+{
+  // not implemented yet !
+  return 0;
+}
+
 void MEDCouplingExtrudedMesh::computeExtrusionAlg(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
 {
   _mesh3D_ids->alloc(mesh3D->getNumberOfCells(),1);

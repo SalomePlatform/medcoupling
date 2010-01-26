@@ -39,6 +39,15 @@ bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, d
   return _mesh->isEqual(other->_mesh,meshPrec);
 }
 
+bool MEDCouplingField::areCompatible(const MEDCouplingField *other) const
+{
+  if(!_type->isEqual(other->_type))
+    return false;
+  if(!_mesh->areCompatible(other->_mesh))
+    return false;
+  return true;
+}
+
 void MEDCouplingField::updateTime()
 {
   if(_mesh)

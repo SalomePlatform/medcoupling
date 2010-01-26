@@ -69,6 +69,9 @@ namespace ParaMEDMEM
     void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    void checkButterflyCells(std::vector<int>& cells) const;
+    MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
+    static MEDCouplingUMesh *mergeMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);

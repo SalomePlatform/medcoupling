@@ -105,6 +105,21 @@ void DataArrayDouble::useArray(const double *array, bool ownership,  DeallocType
   declareAsNew();
 }
 
+DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array aggregation !");
+  int nbOfTuple1=a1->getNumberOfTuples();
+  int nbOfTuple2=a2->getNumberOfTuples();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple1+nbOfTuple2,nbOfComp);
+  double *pt=std::copy(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple1*nbOfComp,ret->getPointer());
+  std::copy(a2->getConstPointer(),a2->getConstPointer()+nbOfTuple2*nbOfComp,pt);
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
 DataArrayInt *DataArrayInt::New()
 {
   return new DataArrayInt;
@@ -167,3 +182,19 @@ void DataArrayInt::setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)
         arrayToSet->incrRef();
     }
 }
+
+DataArrayInt *DataArrayInt::aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array aggregation !");
+  int nbOfTuple1=a1->getNumberOfTuples();
+  int nbOfTuple2=a2->getNumberOfTuples();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfTuple1+nbOfTuple2-offsetA2,nbOfComp);
+  int *pt=std::copy(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple1*nbOfComp,ret->getPointer());
+  std::copy(a2->getConstPointer()+offsetA2*nbOfComp,a2->getConstPointer()+nbOfTuple2*nbOfComp,pt);
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+

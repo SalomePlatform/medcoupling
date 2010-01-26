@@ -52,6 +52,7 @@ namespace ParaMEDMEM
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     void tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
+    static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
     virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
     virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
@@ -71,6 +72,8 @@ namespace ParaMEDMEM
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
     void rotate2D(const double *center, double angle);
     void rotate3D(const double *center, const double *vect, double angle);
+    void project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const;
+    static bool isButterfly2DCell(const std::vector<double>& res, bool isQuad);
     template<int SPACEDIM>
     void findCommonNodesAlg(std::vector<double>& bbox,
                             int nbNodes, double prec, std::vector<int>& c, std::vector<int>& cI) const;

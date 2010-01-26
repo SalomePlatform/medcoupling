@@ -45,6 +45,7 @@ namespace INTERP_KERNEL
     ~QuadraticPolygon();
     void closeMe() const;
     void circularPermute();
+    bool isButterfly() const;
     void dumpInXfigFile(const char *fileName) const;
     void dumpInXfigFileWithOther(const ComposedEdge& other, const char *fileName) const;
     //! Before intersecting as intersectWith a normalization is done.

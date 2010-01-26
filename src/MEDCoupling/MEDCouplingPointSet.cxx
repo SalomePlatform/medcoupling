@@ -21,6 +21,9 @@
 #include "MEDCouplingUMeshDesc.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingPointSet.txx"
+#include "PlanarIntersector.txx"
+#include "QuadraticPolygon.hxx"
+#include "Node.hxx"
 
 #include <cmath>
 #include <limits>
@@ -268,6 +271,14 @@ void MEDCouplingPointSet::tryToShareSameCoords(MEDCouplingPointSet& other, doubl
     throw INTERP_KERNEL::Exception("Coords are not the same !");
 }
 
+DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2)
+{
+  int spaceDim=m1->getSpaceDimension();
+  if(spaceDim!=m2->getSpaceDimension())
+    throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of mergeNodesArray !");
+  return DataArrayDouble::aggregate(m1->getCoords(),m2->getCoords());
+}
+
 MEDCouplingPointSet *MEDCouplingPointSet::buildInstanceFromMeshType(MEDCouplingMeshType type)
 {
   switch(type)
@@ -434,4 +445,56 @@ void MEDCouplingPointSet::rotate2D(const double *center, double angle)
       coords[i*2]=matrix[0]*tmp[0]+matrix[1]*tmp[1]+center[0];
       coords[i*2+1]=matrix[2]*tmp[0]+matrix[3]*tmp[1]+center[1];
     }
+}
+
+class DummyClsMCPS
+{
+public:
+  static const int MY_SPACEDIM=3;
+  static const int MY_MESHDIM=2;
+  typedef int MyConnType;
+  static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
+};
+
+void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const
+{
+  const double *coords=_coords->getConstPointer();
+  int spaceDim=getSpaceDimension();
+  for(const int *it=startConn;it!=endConn;it++)
+    res.insert(res.end(),coords+spaceDim*(*it),coords+spaceDim*(*it+1));
+  if(spaceDim==2)
+    return ;
+  if(spaceDim==3)
+    {
+      std::vector<double> cpy(res);
+      int nbNodes=endConn-startConn;
+      INTERP_KERNEL::PlanarIntersector<DummyClsMCPS,int>::projection(&res[0],&cpy[0],nbNodes,nbNodes,1.e-12,0.,0.,true);
+      res.resize(2*nbNodes);
+      for(int i=0;i<nbNodes;i++)
+        {
+          res[2*i]=cpy[3*i];
+          res[2*i+1]=cpy[3*i+1];
+        }
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("Invalid spacedim for project2DCellOnXY !");
+}
+
+bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad)
+{
+  int nbOfNodes=res.size()/2;
+  std::vector<INTERP_KERNEL::Node *> nodes(nbOfNodes);
+  for(int i=0;i<nbOfNodes;i++)
+    {
+      INTERP_KERNEL::Node *tmp=new INTERP_KERNEL::Node(res[2*i],res[2*i+1]);
+      nodes[i]=tmp;
+    }
+  INTERP_KERNEL::QuadraticPolygon *pol=0;
+  if(isQuad)
+    pol=INTERP_KERNEL::QuadraticPolygon::buildArcCirclePolygon(nodes);
+  else
+    pol=INTERP_KERNEL::QuadraticPolygon::buildLinearPolygon(nodes);
+  bool ret=pol->isButterfly();
+  delete pol;
+  return ret;
 }

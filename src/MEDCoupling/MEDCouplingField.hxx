@@ -36,6 +36,7 @@ namespace ParaMEDMEM
   {
   public:
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual bool areCompatible(const MEDCouplingField *other) const;
     virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
     const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }

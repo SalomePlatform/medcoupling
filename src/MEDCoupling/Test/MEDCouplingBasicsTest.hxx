@@ -51,6 +51,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testBuildSubMeshData );
     CPPUNIT_TEST( testExtrudedMesh1 );
     CPPUNIT_TEST( testFindCommonNodes );
+    CPPUNIT_TEST( testCheckButterflyCells );
+    CPPUNIT_TEST( testMergeMesh1 );
+    CPPUNIT_TEST( testMergeField1 );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_2 );
@@ -121,6 +124,9 @@ namespace ParaMEDMEM
     void testBuildSubMeshData();
     void testExtrudedMesh1();
     void testFindCommonNodes();
+    void testCheckButterflyCells();
+    void testMergeMesh1();
+    void testMergeField1();
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
     void test2DInterpP0P0PL_2();
@@ -190,6 +196,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *build2DTargetMeshMergeNode_1();
     MEDCouplingUMesh *build3DTargetMeshMergeNode_1();
     MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
+    MEDCouplingUMesh *build2DTargetMeshMerged_1();
     double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }

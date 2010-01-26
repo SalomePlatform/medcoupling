@@ -129,6 +129,32 @@ void QuadraticPolygon::circularPermute()
     }
 }
 
+bool QuadraticPolygon::isButterfly() const
+{
+  for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++)
+    {
+      Edge *e1=(*it)->getPtr();
+      std::list<ElementaryEdge *>::const_iterator it2=it;
+      it2++;
+      for(;it2!=_sub_edges.end();it2++)
+        {
+          MergePoints commonNode;
+          ComposedEdge *outVal1=new ComposedEdge;
+          ComposedEdge *outVal2=new ComposedEdge;
+          Edge *e2=(*it2)->getPtr();
+          if(e1->intersectWith(e2,commonNode,*outVal1,*outVal2))
+            {
+              Delete(outVal1);
+              Delete(outVal2);
+              return true;
+            }
+          Delete(outVal1);
+          Delete(outVal2);
+        }
+    }
+  return false;
+}
+
 void QuadraticPolygon::dumpInXfigFileWithOther(const ComposedEdge& other, const char *fileName) const
 {
   ofstream file(fileName);
@@ -498,10 +524,12 @@ void QuadraticPolygon::closePolygons(std::list<QuadraticPolygon *>& pol2Zip, con
           continue;
         }
       if(!directionKnownInPol1)
-        if(!(*iter)->amIAChanceToBeCompletedBy(pol1,*this,directionInPol1))
-          { delete *iter; iter=pol2Zip.erase(iter); continue; }
-        else
-          directionKnownInPol1=true;
+        {
+          if(!(*iter)->amIAChanceToBeCompletedBy(pol1,*this,directionInPol1))
+            { delete *iter; iter=pol2Zip.erase(iter); continue; }
+          else
+            directionKnownInPol1=true;
+        }
       list<QuadraticPolygon *>::iterator iter2=iter; iter2++;
       list<QuadraticPolygon *>::iterator iter3=(*iter)->fillAsMuchAsPossibleWith(pol1,iter2,pol2Zip.end(),directionInPol1);
       if(iter3!=pol2Zip.end())

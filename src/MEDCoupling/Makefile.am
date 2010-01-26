@@ -45,12 +45,12 @@ dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                    \
 	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx          \
 	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx                          \
-	MEDCouplingExtrudedMesh.cxx
+	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx
 
 libmedcoupling_la_LDFLAGS= 
 
 libmedcoupling_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
-	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL
+	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D
 
 # the geom2D library is included in the interpkernel one
 libmedcoupling_la_LIBADD= ../INTERP_KERNEL/libinterpkernel.la

@@ -791,6 +791,9 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
   const int *connec_index=getNodalConnectivityIndex()->getConstPointer();
 
   MEDCouplingFieldDouble* field=MEDCouplingFieldDouble::New(ON_CELLS);
+  std::string name="MeasureOfMesh_";
+  name+=getName();
+  field->setName(name.c_str());
   DataArrayDouble* array=DataArrayDouble::New();
   array->alloc(nbelem,1);
   double *area_vol = array->getPointer();
@@ -807,4 +810,79 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
   array->decrRef();
   field->setMesh(const_cast<MEDCouplingUMesh *>(this));  
   return field ;
+}
+
+/*!
+ * This method is only available for a mesh with meshDim==2 and spaceDim==2||spaceDim==3.
+ * This method returns a vector 'cells' where all detected butterfly cells have been added to cells.
+ */
+void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
+{
+  const char msg[]="Butterfly detection work only for 2D cells with spaceDim==2 or 3!";
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception(msg);
+  int spaceDim=getSpaceDimension();
+  if(spaceDim!=2 && spaceDim!=3)
+    throw INTERP_KERNEL::Exception(msg);
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  std::vector<double> cell2DinS2;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      int offset=connI[i];
+      int nbOfNodesForCell=connI[i+1]-offset-1;
+      if(nbOfNodesForCell<=3)
+        continue;
+      bool isQuad=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[offset]).isQuadratic();
+      project2DCellOnXY(conn+offset+1,conn+connI[i+1],cell2DinS2);
+      if(isButterfly2DCell(cell2DinS2,isQuad))
+        cells.push_back(i);
+      cell2DinS2.clear();
+    }
+}
+
+MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
+{
+  if(other->getType()!=UNSTRUCTURED)
+    throw INTERP_KERNEL::Exception("Merge of umesh only available with umesh each other !");
+  const MEDCouplingUMesh *otherC=static_cast<const MEDCouplingUMesh *>(other);
+  return mergeMeshes(this,otherC);
+}
+
+MEDCouplingUMesh *MEDCouplingUMesh::mergeMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2)
+{
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
+  DataArrayDouble *pts=mergeNodesArray(mesh1,mesh2);
+  ret->setCoords(pts);
+  pts->decrRef();
+  int meshDim=mesh1->getMeshDimension();
+  if(meshDim!=mesh2->getMeshDimension())
+    throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, mergeMeshes impossible !");
+  ret->setMeshDimension(meshDim);
+  int delta=mesh1->getMeshLength();
+  int pos=mesh1->getNumberOfCells();
+  int nbOfCells2=mesh2->getNumberOfCells();
+  int end=mesh1->getNumberOfCells()+nbOfCells2+1;
+  DataArrayInt *nodalIndex=DataArrayInt::aggregate(mesh1->getNodalConnectivityIndex(),
+                                                   mesh2->getNodalConnectivityIndex(),1);
+  std::transform(nodalIndex->getConstPointer()+pos+1,nodalIndex->getConstPointer()+end,
+                 nodalIndex->getPointer()+pos+1,std::bind2nd(std::plus<double>(),delta));
+  DataArrayInt *newNodal2=mesh2->getNodalConnectivity()->deepCopy();
+  delta=mesh1->getNumberOfNodes();
+  const int *nI2=mesh2->getNodalConnectivityIndex()->getConstPointer();
+  int *pt=newNodal2->getPointer();
+  for(int i=0;i<nbOfCells2;i++)
+    {
+      pt++;
+      for(int j=0;j<nI2[i+1]-nI2[i]-1;j++,pt++)
+        if(*pt!=-1)
+          *pt+=delta;
+    }
+  DataArrayInt *nodal=DataArrayInt::aggregate(mesh1->getNodalConnectivity(),newNodal2,0);
+  newNodal2->decrRef();
+  ret->setConnectivity(nodal,nodalIndex,true);
+  nodalIndex->decrRef();
+  nodal->decrRef();
+  return ret;
 }

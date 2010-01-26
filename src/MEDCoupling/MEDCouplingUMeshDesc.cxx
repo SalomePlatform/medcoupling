@@ -281,3 +281,10 @@ void MEDCouplingUMeshDesc::checkFullyDefined() const throw(INTERP_KERNEL::Except
   if(!_desc_connec || !_desc_connec_index || !_nodal_connec_face || !_nodal_connec_face_index || !_coords)
     throw INTERP_KERNEL::Exception("full connectivity and coordinates not set in unstructured mesh.");
 }
+
+MEDCouplingMesh *MEDCouplingUMeshDesc::mergeMyselfWith(const MEDCouplingMesh *other) const
+{  
+  //not implemented yet.
+  return 0;
+}
+

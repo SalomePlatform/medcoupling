@@ -118,6 +118,7 @@ namespace ParaMEDMEM
     const double *getConstPointer() const { return _mem.getConstPointer(); }
     void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
+    static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     void updateTime() { }
   private:
@@ -142,6 +143,7 @@ namespace ParaMEDMEM
     int *getPointer() const { return _mem.getPointer(); }
     static void setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     const int *getConstPointer() const { return _mem.getConstPointer(); }
+    static DataArrayInt *aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     //! nothing to do here because this class does not aggregate any TimeLabel instance.

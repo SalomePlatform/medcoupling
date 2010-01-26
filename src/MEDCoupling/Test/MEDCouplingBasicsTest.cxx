@@ -31,6 +31,7 @@
 #include "MEDCouplingNormalizedCartesianMesh.txx"
 
 #include <cmath>
+#include <functional>
 
 using namespace std;
 using namespace ParaMEDMEM;
@@ -981,6 +982,93 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
   CPPUNIT_ASSERT(std::equal(coordsExp2,coordsExp2+18,targetMesh->getCoords()->getConstPointer()));
   targetMesh->decrRef();
   o2n->decrRef();
+}
+
+void MEDCouplingBasicsTest::testCheckButterflyCells()
+{
+  std::vector<int> cells;
+  MEDCouplingUMesh *sourceMesh=build2DTargetMesh_1();
+  sourceMesh->checkButterflyCells(cells);
+  CPPUNIT_ASSERT(cells.empty());
+  int *pt=sourceMesh->getNodalConnectivity()->getPointer();
+  std::swap(pt[15],pt[16]);
+  sourceMesh->checkButterflyCells(cells);
+  CPPUNIT_ASSERT_EQUAL(1,(int)cells.size());
+  CPPUNIT_ASSERT_EQUAL(3,cells[0]);
+  cells.clear();
+  std::swap(pt[15],pt[16]);
+  sourceMesh->checkButterflyCells(cells);
+  CPPUNIT_ASSERT(cells.empty());
+  sourceMesh->decrRef();
+  // 3D surf
+  sourceMesh=build3DSurfTargetMesh_1();
+  sourceMesh->checkButterflyCells(cells);
+  CPPUNIT_ASSERT(cells.empty());
+  pt=sourceMesh->getNodalConnectivity()->getPointer();
+  std::swap(pt[15],pt[16]);
+  sourceMesh->checkButterflyCells(cells);
+  CPPUNIT_ASSERT_EQUAL(1,(int)cells.size());
+  CPPUNIT_ASSERT_EQUAL(3,cells[0]);
+  cells.clear();
+  std::swap(pt[15],pt[16]);
+  sourceMesh->checkButterflyCells(cells);
+  CPPUNIT_ASSERT(cells.empty());
+  sourceMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::testMergeMesh1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  MEDCouplingUMesh *m2=build2DSourceMesh_1();
+  const double vec[2]={1.,0.};
+  m2->translate(vec);
+  MEDCouplingMesh *m3=m1->mergeMyselfWith(m2);
+  MEDCouplingUMesh *m3C=dynamic_cast<MEDCouplingUMesh *>(m3);
+  CPPUNIT_ASSERT(m3C);
+  m3->checkCoherency();
+  MEDCouplingUMesh *m4=build2DTargetMeshMerged_1();
+  CPPUNIT_ASSERT(m3->isEqual(m4,1.e-12));
+  m4->decrRef();
+  bool isMerged;
+  DataArrayInt *da=m3C->mergeNodes(1.e-12,isMerged);
+  CPPUNIT_ASSERT_EQUAL(11,m3C->getNumberOfNodes());
+  CPPUNIT_ASSERT(isMerged);
+  da->decrRef();
+  m3->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testMergeField1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  MEDCouplingUMesh *m2=build2DSourceMesh_1();
+  const double vec[2]={1.,0.};
+  m2->translate(vec);
+  MEDCouplingFieldDouble *f1=m1->getMeasureField(true);
+  MEDCouplingFieldDouble *f2=m2->getMeasureField(true);
+  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::mergeFields(f1,f2);
+  f3->checkCoherency();
+  MEDCouplingUMesh *m4=build2DTargetMeshMerged_1();
+  CPPUNIT_ASSERT(f3->getMesh()->isEqual(m4,1.e-12));
+  std::string name=f3->getName();
+  CPPUNIT_ASSERT(name=="MeasureOfMesh_");
+  CPPUNIT_ASSERT(f3->getTypeOfField()==ON_CELLS);
+  CPPUNIT_ASSERT(f3->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(1,f3->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(7,f3->getNumberOfTuples());
+  double values[7]={0.25,0.125,0.125,0.25,0.25,0.5,0.5};
+  const double *tmp=f3->getArray()->getConstPointer();
+  std::transform(tmp,tmp+7,values,values,std::minus<double>());
+  std::transform(values,values+7,values,std::ptr_fun<double,double>(fabs));
+  double max=*std::max_element(values,values+7);
+  CPPUNIT_ASSERT(max<1.e-12);
+  m4->decrRef();
+  f3->decrRef();
+  f1->decrRef();
+  f2->decrRef();
+  m1->decrRef();
+  m2->decrRef();
 }
 
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()
@@ -3453,6 +3541,35 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DExtrudedUMesh_1(MEDCouplingUMesh
   mesh2D->setCoords(myCoords);
   myCoords->decrRef();
   return ret;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshMerged_1()
+{
+  double targetCoords[26]={
+    -0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
+    0.7,-0.3, 1.7,-0.3, 0.7,0.7, 1.7,0.7
+  };
+  int targetConn[24]={
+    0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4,
+    9,12,10,9,11,12
+  };
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(10);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+14);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+18);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+21);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(13,2);
+  std::copy(targetCoords,targetCoords+26,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
 }
 
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)
