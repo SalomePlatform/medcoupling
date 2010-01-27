@@ -21,6 +21,7 @@
 #include "BlockTopology.hxx"
 #include "ComponentTopology.hxx"
 #include "ParaFIELD.hxx"
+#include "ParaMESH.hxx"
 #include "DEC.hxx"
 #include "ICoCoField.hxx"
 #include "ICoCoMEDField.hxx"
@@ -128,10 +129,12 @@ namespace ParaMEDMEM
       local_group=_target_group;
     else
       throw INTERP_KERNEL::Exception("Invalid procgroup for field attachment to DEC");
-        
-    _local_field= new ParaFIELD(field, *local_group);
+    ParaMESH *paramesh=new ParaMESH((MEDCouplingPointSet *)field->getMesh(),*local_group,field->getMesh()->getName());
+    _local_field = new ParaFIELD(field, paramesh, *local_group);
     _owns_field=true;
-    _comm_interface=&(local_group->getCommInterface());
+    _local_field->setOwnSupport(true);
+    attachLocalField(_local_field);
+    //_comm_interface=&(local_group->getCommInterface());
   }
 
   /*! 

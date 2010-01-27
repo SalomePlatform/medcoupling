@@ -36,6 +36,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testBlockTopology_constructor);
   CPPUNIT_TEST(testBlockTopology_serialize);
   CPPUNIT_TEST(testInterpKernelDEC_2D);
+  CPPUNIT_TEST(testInterpKernelDEC2_2D);
   CPPUNIT_TEST(testInterpKernelDEC_2DP0P1);
   CPPUNIT_TEST(testInterpKernelDEC_3D);
   CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P0);
@@ -83,6 +84,7 @@ public:
   void testBlockTopology_constructor();
   void testBlockTopology_serialize();
   void testInterpKernelDEC_2D();
+  void testInterpKernelDEC2_2D();
   void testInterpKernelDEC_2DP0P1();
   void testInterpKernelDEC_3D();
   void testInterpKernelDECNonOverlapp_2D_P0P0();
@@ -130,6 +132,7 @@ private:
                                           double dtB, double tmaxB,
                                           bool WithPointToPoint, bool Asynchronous, bool WithInterp, const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC_2D_(const char *srcMeth, const char *targetMeth);
+  void testInterpKernelDEC2_2D_(const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth);
 };
 

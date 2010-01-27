@@ -20,6 +20,7 @@
 #define __PARAFIELD_HXX__
 
 #include "MEDCouplingRefCountObject.hxx"
+#include "ComponentTopology.hxx"
 
 namespace ParaMEDMEM
 {
@@ -37,12 +38,13 @@ namespace ParaMEDMEM
     ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* mesh, const ComponentTopology& component_topology); 
 
 
-    ParaFIELD(MEDCouplingFieldDouble* field, const ProcessorGroup& group);
+    ParaFIELD(MEDCouplingFieldDouble* field, ParaMESH *sup, const ProcessorGroup& group);
   
     virtual ~ParaFIELD();
     void synchronizeTarget( ParaMEDMEM::ParaFIELD* source_field);
     void synchronizeSource( ParaMEDMEM::ParaFIELD* target_field);
     MEDCouplingFieldDouble* getField() const { return _field; }
+    void setOwnSupport(bool v) const { _own_support=v; }
     DataArrayInt* returnCumulativeGlobalNumbering() const;
     DataArrayInt* returnGlobalNumbering() const;
     Topology* getTopology() const { return _topology; }
@@ -52,9 +54,9 @@ namespace ParaMEDMEM
     double getL2Norm()const { return -1; }
   private:
     MEDCouplingFieldDouble* _field;
-    const  ParaMEDMEM::ComponentTopology& _component_topology;
+    ParaMEDMEM::ComponentTopology _component_topology;
     Topology* _topology; 
-
+    mutable bool _own_support;
     ParaMESH* _support;
   };
 

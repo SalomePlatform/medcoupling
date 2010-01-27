@@ -50,6 +50,11 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D()
   testInterpKernelDEC_2D_("P0","P0");
 }
 
+void ParaMEDMEMTest::testInterpKernelDEC2_2D()
+{
+  testInterpKernelDEC2_2D_("P0","P0");
+}
+
 void ParaMEDMEMTest::testInterpKernelDEC_3D()
 {
   testInterpKernelDEC_3D_("P0","P0");
@@ -275,6 +280,161 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
 
   MPI_Barrier(MPI_COMM_WORLD);
   cout << "end of InterpKernelDEC_2D test"<<endl;
+}
+
+void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *targetMeth)
+{
+  std::string srcM(srcMeth);
+  std::string targetM(targetMeth);
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
+  //the test is meant to run on five processors
+  if (size !=5) return ;
+   
+  int nproc_source = 3;
+  set<int> self_procs;
+  set<int> procs_source;
+  set<int> procs_target;
+  
+  for (int i=0; i<nproc_source; i++)
+    procs_source.insert(i);
+  for (int i=nproc_source; i<size; i++)
+    procs_target.insert(i);
+  self_procs.insert(rank);
+  
+  ParaMEDMEM::CommInterface interface;
+    
+  ParaMEDMEM::ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
+  ParaMEDMEM::ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
+  ParaMEDMEM::ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  
+  //loading the geometry for the source group
+
+  ParaMEDMEM::InterpKernelDEC dec (*source_group,*target_group);
+
+  ParaMEDMEM::MEDCouplingUMesh* mesh;
+  ParaMEDMEM::MEDCouplingFieldDouble* mcfield;
+  
+  string filename_xml1              = getResourceFile("square1_split");
+  string filename_xml2              = getResourceFile("square2_split");
+  
+  // To remove tmp files from disk
+  ParaMEDMEMTest_TmpFilesRemover aRemover;
+  
+  MPI_Barrier(MPI_COMM_WORLD);
+  if (source_group->containsMyRank())
+    {
+      string master = filename_xml1;
+      
+      ostringstream strstream;
+      strstream <<master<<rank+1<<".med";
+      ostringstream meshname ;
+      meshname<< "Mesh_2_"<< rank+1;
+      
+      mesh=MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      ParaMEDMEM::ComponentTopology comptopo;
+      if(srcM=="P0")
+        {
+          mcfield = MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+          mcfield->setMesh(mesh);
+          DataArrayDouble *array=DataArrayDouble::New();
+          array->alloc(mcfield->getNumberOfTuples(),1);
+          mcfield->setArray(array);
+          array->decrRef();
+          mcfield->setNature(ConservativeVolumic);
+        }
+      else
+        {
+          mcfield = MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+          mcfield->setMesh(mesh);
+          DataArrayDouble *array=DataArrayDouble::New();
+          array->alloc(mcfield->getNumberOfTuples(),1);
+          mcfield->setArray(array);
+          array->decrRef();
+        }
+      int nb_local;
+      if(srcM=="P0")
+        nb_local=mesh->getNumberOfCells();
+      else
+        nb_local=mesh->getNumberOfNodes();
+      double *value=mcfield->getArray()->getPointer();
+      for(int ielem=0; ielem<nb_local;ielem++)
+        value[ielem]=1.0;
+      dec.setMethod(srcMeth);
+      dec.attachLocalField(mcfield);
+    }
+  
+  //loading the geometry for the target group
+  if (target_group->containsMyRank())
+    {
+      string master= filename_xml2;
+      ostringstream strstream;
+      strstream << master<<(rank-nproc_source+1)<<".med";
+      ostringstream meshname ;
+      meshname<< "Mesh_3_"<<rank-nproc_source+1;
+      mesh = MEDLoader::ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
+      ParaMEDMEM::ComponentTopology comptopo;
+      if(targetM=="P0")
+        {
+          mcfield = MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+          mcfield->setMesh(mesh);
+          DataArrayDouble *array=DataArrayDouble::New();
+          array->alloc(mcfield->getNumberOfTuples(),1);
+          mcfield->setArray(array);
+          array->decrRef();
+          mcfield->setNature(ConservativeVolumic);
+        }
+      else
+        {
+          mcfield = MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
+          mcfield->setMesh(mesh);
+          DataArrayDouble *array=DataArrayDouble::New();
+          array->alloc(mcfield->getNumberOfTuples(),1);
+          mcfield->setArray(array);
+          array->decrRef();
+        }
+      int nb_local;
+      if(targetM=="P0")
+        nb_local=mesh->getNumberOfCells();
+      else
+        nb_local=mesh->getNumberOfNodes();
+      double *value=mcfield->getArray()->getPointer();
+      for(int ielem=0; ielem<nb_local;ielem++)
+        value[ielem]=0.0;
+      dec.setMethod(targetMeth);
+      dec.attachLocalField(mcfield);
+    }
+    
+  
+  //attaching a DEC to the source group 
+
+  if (source_group->containsMyRank())
+    { 
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.sendData();
+      dec.recvData();
+    }
+  
+  //attaching a DEC to the target group
+  if (target_group->containsMyRank())
+    {
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.recvData();
+      dec.sendData();
+    }
+  delete source_group;
+  delete target_group;
+  delete self_group;
+  mcfield->decrRef();
+  mesh->decrRef();
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  cout << "end of InterpKernelDEC2_2D test"<<endl;
 }
 
 void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *targetMeth)
@@ -563,7 +723,6 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
   ParaMEDMEM::MEDCouplingUMesh *mesh=0;
   ParaMEDMEM::ParaMESH *paramesh=0;
   ParaMEDMEM::ParaFIELD* parafield=0;
-  ICoCo::Field* icocofield=0;
   //
   ParaMEDMEM::CommInterface interface;
   //
@@ -793,7 +952,6 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
   ParaMEDMEM::MEDCouplingUMesh *mesh=0;
   ParaMEDMEM::ParaMESH *paramesh=0;
   ParaMEDMEM::ParaFIELD *parafieldP0=0,*parafieldP1=0;
-  ICoCo::Field* icocofield=0;
   //
   ParaMEDMEM::CommInterface interface;
   //
@@ -808,7 +966,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
         {
           double coords[6]={-0.3,-0.3, 0.7,0.7, 0.7,-0.3};
           int conn[3]={0,1,2};
-          int globalNode[3]={1,2,0};
+          //int globalNode[3]={1,2,0};
           mesh=MEDCouplingUMesh::New("Source mesh Proc0",2);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
@@ -823,7 +981,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
         {
           double coords[6]={-0.3,-0.3, -0.3,0.7, 0.7,0.7};
           int conn[3]={0,1,2};
-          int globalNode[3]={1,3,2};
+          //int globalNode[3]={1,3,2};
           mesh=MEDCouplingUMesh::New("Source mesh Proc1",2);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
@@ -860,7 +1018,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
         {
           double coords[10]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2 };
           int conn[7]={0,3,4,1, 1,4,2};
-          int globalNode[5]={4,3,0,2,1};
+          //int globalNode[5]={4,3,0,2,1};
           mesh=MEDCouplingUMesh::New("Target mesh Proc2",2);
           mesh->allocateCells(2);
           mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
@@ -882,7 +1040,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
         {
           double coords[6]={0.2,0.2, 0.7,-0.3, 0.7,0.2};
           int conn[3]={0,2,1};
-          int globalNode[3]={1,0,5};
+          //int globalNode[3]={1,0,5};
           mesh=MEDCouplingUMesh::New("Target mesh Proc3",2);
           mesh->allocateCells(1);
           mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
@@ -903,7 +1061,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
         {
           double coords[12]={-0.3,0.2, -0.3,0.7, 0.2,0.7, 0.2,0.2, 0.7,0.7, 0.7,0.2};
           int conn[8]={0,1,2,3, 3,2,4,5};
-          int globalNode[6]={2,6,7,1,8,5};
+          //int globalNode[6]={2,6,7,1,8,5};
           mesh=MEDCouplingUMesh::New("Target mesh Proc4",2);
           mesh->allocateCells(2);
           mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
@@ -1037,7 +1195,6 @@ void ParaMEDMEMTest::testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA
   ParaMEDMEM::ParaMESH* paramesh;
   ParaMEDMEM::ParaFIELD* parafield;
   
-  double * value ;
   ICoCo::Field* icocofield ;
 
   string tmp_dir                    = getenv("TMP");

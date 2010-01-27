@@ -64,7 +64,7 @@ namespace ParaMEDMEM
   */
   ParaFIELD::ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* para_support, const ComponentTopology& component_topology)
     :_field(0),
-     _component_topology(component_topology),_topology(0),
+     _component_topology(component_topology),_topology(0),_own_support(false),
      _support(para_support)
   {
     if (para_support->isStructured() || (para_support->getTopology()->getProcGroup()->size()==1 && component_topology.nbBlocks()!=1))
@@ -105,21 +105,23 @@ namespace ParaMEDMEM
     This constructor supposes that support underlying \a subdomain_field has no ParaSUPPORT 
     attached and it therefore recreates one. It therefore takes ownership over _support. The component topology associated with the field is a basic one (all components on the same processor). 
   */
-  ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, const ProcessorGroup& proc_group):
+  ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, ParaMESH *sup, const ProcessorGroup& proc_group):
     _field(subdomain_field),
-    _component_topology(ComponentTopology(_field->getNumberOfComponents())),_topology(0),
-    _support()
+    _component_topology(ComponentTopology(_field->getNumberOfComponents())),_topology(0),_own_support(false),
+    _support(sup)
   {
     if(_field)
       _field->incrRef();
-    const ExplicitTopology* source_topo=dynamic_cast<const ExplicitTopology*> (_support->getTopology());
-    _topology=new ExplicitTopology(*source_topo,_component_topology.nbLocalComponents());
+    const BlockTopology* source_topo=dynamic_cast<const BlockTopology*> (_support->getTopology());
+    _topology=new BlockTopology(*source_topo,_component_topology.nbLocalComponents());
   }
 
   ParaFIELD::~ParaFIELD()
   {
     if(_field)
       _field->decrRef();
+    if(_own_support)
+      delete _support;
     delete _topology;
   }
 
