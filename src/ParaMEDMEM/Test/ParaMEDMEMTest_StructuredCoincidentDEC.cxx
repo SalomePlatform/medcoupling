@@ -111,12 +111,12 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
       for (int icomp=0; icomp<6; icomp++)
         value[ielem*6+icomp]=global_numbering[ielem]*6+icomp;
 
-    ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
+    //ICoCo::Field* icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
 
-    dec.attachLocalField(icocofield);
+    dec.attachLocalField(parafield);
     dec.synchronize();
     dec.sendData();
-    delete icocofield;
+    //delete icocofield;
   }
 
   //loading the geometry for the target group
@@ -135,9 +135,9 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     for (int ielem=0; ielem<nb_local; ielem++)
       for (int icomp=0; icomp<comptopo.nbLocalComponents(); icomp++)
         value[ielem*comptopo.nbLocalComponents()+icomp]=0.0;
-    ICoCo::Field* icocofield=new ICoCo::MEDField(paramesh,parafield);
+    //ICoCo::Field* icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
 
-    dec.attachLocalField(icocofield);
+    dec.attachLocalField(parafield);
     dec.synchronize();
     dec.recvData();
 
@@ -148,7 +148,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
       for (int icomp = 0; icomp < comptopo.nbLocalComponents(); icomp++)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(recv_value[i*comptopo.nbLocalComponents()+icomp],(double)(i*6+icomp+first),1e-12);
     }
-    delete icocofield;
+    //delete icocofield;
   }
   delete parafield;
   delete paramesh;

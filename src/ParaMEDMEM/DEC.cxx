@@ -166,7 +166,7 @@ namespace ParaMEDMEM
           localgroup=_target_group;
         delete _icoco_field;
         
-        _icoco_field=new ICoCo::MEDField(*const_cast<ICoCo::TrioField* >(triofield), *localgroup);
+        _icoco_field=new ICoCo::MEDField(*const_cast<ICoCo::TrioField* >(triofield));
         attachLocalField(_icoco_field);
         return;
       }

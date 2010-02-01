@@ -168,7 +168,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=1.0;
     
-    icocofield=new ICoCo::MEDField(paramesh,parafield);
+    icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
      
     dec.attachLocalField(icocofield);
   }
@@ -200,7 +200,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     double *value=parafield->getField()->getArray()->getPointer();
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=0.0;
-    icocofield=new ICoCo::MEDField(paramesh,parafield);
+    icocofield=new ICoCo::MEDField((MEDCouplingUMesh *)paramesh->getCellMesh(),parafield->getField());
       
     dec.attachLocalField(icocofield);
   }

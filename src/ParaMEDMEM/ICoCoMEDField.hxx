@@ -25,14 +25,6 @@
 
 #include <vector>
 
-namespace ParaMEDMEM
-{
-  class ParaMESH;
-  class ParaFIELD;
-  class ParaSUPPORT;
-  class ComponentTopology;
-  class ProcessorGroup;
-}
 namespace ICoCo
 {
   class TrioField;
@@ -40,20 +32,15 @@ namespace ICoCo
   class MEDField : public ICoCo::Field
   {
   public:
-    MEDField() { }
-    MEDField(ParaMEDMEM::ParaMESH* mesh, ParaMEDMEM::ParaFIELD* field);
-    MEDField(TrioField& , const ParaMEDMEM::ProcessorGroup& group);
+    MEDField():_mesh(0),_field(0) { }
+    MEDField(ParaMEDMEM::MEDCouplingUMesh* mesh, ParaMEDMEM::MEDCouplingFieldDouble* field);
+    MEDField(TrioField&);
     virtual ~MEDField();
-    ParaMEDMEM::ParaFIELD* getField() const  { return _field; }
-    ParaMEDMEM::ParaMESH* getMesh()const { return _mesh; }
+    ParaMEDMEM::MEDCouplingFieldDouble* getField() const  { return _field; }
+    ParaMEDMEM::MEDCouplingUMesh* getMesh()const { return _mesh; }
   private:
-    ParaMEDMEM::ParaMESH* _mesh;
-    ParaMEDMEM::ParaFIELD* _field;
-    ParaMEDMEM::MEDCouplingFieldDouble* _local_field;
-    bool _has_field_ownership;
-    ParaMEDMEM::MEDCouplingUMesh* _local_mesh;
-    ParaMEDMEM::ParaMESH* _support;
-    ParaMEDMEM::ComponentTopology* _comp_topology;
+    ParaMEDMEM::MEDCouplingUMesh* _mesh;
+    ParaMEDMEM::MEDCouplingFieldDouble* _field;
   };
 }
 
