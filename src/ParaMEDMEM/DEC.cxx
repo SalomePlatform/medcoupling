@@ -130,6 +130,8 @@ namespace ParaMEDMEM
     else
       throw INTERP_KERNEL::Exception("Invalid procgroup for field attachment to DEC");
     ParaMESH *paramesh=new ParaMESH((MEDCouplingPointSet *)field->getMesh(),*local_group,field->getMesh()->getName());
+    if(_owns_field)
+      delete _local_field; 
     _local_field = new ParaFIELD(field, paramesh, *local_group);
     _owns_field=true;
     _local_field->setOwnSupport(true);
