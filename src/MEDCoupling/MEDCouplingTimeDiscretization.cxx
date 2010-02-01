@@ -625,6 +625,12 @@ bool MEDCouplingConstOnTimeInterval::isEqual(const MEDCouplingTimeDiscretization
     return false;
   if(std::fabs(_start_time-otherC->_start_time)>_time_tolerance)
     return false;
+  if(_end_dt!=otherC->_end_dt)
+    return false;
+  if(_end_it!=otherC->_end_it)
+    return false;
+  if(std::fabs(_end_time-otherC->_end_time)>_time_tolerance)
+    return false;
   return MEDCouplingTimeDiscretization::isEqual(other,prec);
 }
 

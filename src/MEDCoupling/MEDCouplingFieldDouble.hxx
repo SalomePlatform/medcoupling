@@ -40,7 +40,11 @@ namespace ParaMEDMEM
     NatureOfField getNature() const { return _nature; }
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void setTime(double val, int dt, int it) { _time_discr->setTime(val,dt,it); }
+    void setStartTime(double val, int dt, int it) { _time_discr->setStartTime(val,dt,it); }
+    void setEndTime(double val, int dt, int it) { _time_discr->setEndTime(val,dt,it); }
     double getTime(int& dt, int& it) const { return _time_discr->getTime(dt,it); }
+    double getStartTime(int& dt, int& it) const { return _time_discr->getStartTime(dt,it); }
+    double getEndTime(int& dt, int& it) const { return _time_discr->getEndTime(dt,it); }
     double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
     void setArray(DataArrayDouble *array);
     DataArrayDouble *getArray() const { return _time_discr->getArray(); }
