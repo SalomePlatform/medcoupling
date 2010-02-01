@@ -105,6 +105,15 @@ void DataArrayDouble::useArray(const double *array, bool ownership,  DeallocType
   declareAsNew();
 }
 
+void DataArrayDouble::checkNoNullValues() const throw(INTERP_KERNEL::Exception)
+{
+  const double *tmp=getConstPointer();
+  int nbOfElems=getNbOfElems();
+  const double *where=std::find(tmp,tmp+nbOfElems,0.);
+  if(where!=tmp+nbOfElems)
+    throw INTERP_KERNEL::Exception("A value 0.0 have been detected !");
+}
+
 DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
   int nbOfComp=a1->getNumberOfComponents();
@@ -116,6 +125,66 @@ DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const Dat
   ret->alloc(nbOfTuple1+nbOfTuple2,nbOfComp);
   double *pt=std::copy(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple1*nbOfComp,ret->getPointer());
   std::copy(a2->getConstPointer(),a2->getConstPointer()+nbOfTuple2*nbOfComp,pt);
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::add(const DataArrayDouble *a1, const DataArrayDouble *a2)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array add !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array add !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,nbOfComp);
+  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::plus<double>());
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::substract(const DataArrayDouble *a1, const DataArrayDouble *a2)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array substract !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array substract !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,nbOfComp);
+  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::minus<double>());
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const DataArrayDouble *a2)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array multiply !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiply !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,nbOfComp);
+  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::multiplies<double>());
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::divide(const DataArrayDouble *a1, const DataArrayDouble *a2)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array divide !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divide !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,nbOfComp);
+  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::divides<double>());
   ret->copyStringInfoFrom(*a1);
   return ret;
 }

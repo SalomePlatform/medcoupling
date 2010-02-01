@@ -20,12 +20,15 @@
 #include "MEDCouplingMemArray.hxx"
 
 #include <cmath>
+#include <iterator>
 
 using namespace ParaMEDMEM;
 
 const char MEDCouplingNoTimeLabel::EXCEPTION_MSG[]="MEDCouplingNoTimeLabel::setTime : no time info attached.";
 
 const char MEDCouplingWithTimeStep::EXCEPTION_MSG[]="No data on this time.";
+
+const char MEDCouplingConstOnTimeInterval::EXCEPTION_MSG[]="No data on this time.";
 
 const double MEDCouplingTimeDiscretization::TIME_TOLERANCE_DFT=1.e-12;
 
@@ -37,6 +40,8 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::New(TypeOfTimeDisc
       return new MEDCouplingNoTimeLabel;
     case MEDCouplingWithTimeStep::DISCRETIZATION:
       return new MEDCouplingWithTimeStep;
+    case MEDCouplingConstOnTimeInterval::DISCRETIZATION:
+      return new MEDCouplingConstOnTimeInterval;
     default:
       throw INTERP_KERNEL::Exception("Time discretization not implemented yet");
     }
@@ -50,6 +55,8 @@ bool MEDCouplingTimeDiscretization::areCompatible(const MEDCouplingTimeDiscretiz
     return true;
   if(_array==0 || other->_array==0)
     return false;
+  if(_array->getNumberOfComponents()!=other->_array->getNumberOfComponents())
+    return false;
   return true;
 }
 
@@ -60,6 +67,21 @@ bool MEDCouplingTimeDiscretization::isEqual(const MEDCouplingTimeDiscretization 
   if(_array==other->_array)
     return true;
   return _array->isEqual(*other->_array,prec);
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::buildNewTimeReprFromThis(const MEDCouplingTimeDiscretization *other,
+                                                                                       TypeOfTimeDiscretization type, bool deepCpy) const
+{
+  MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(type);
+  DataArrayDouble *arrSrc=getArray();
+  DataArrayDouble *arr=0;
+  if(arrSrc)
+    arr=arrSrc->performCpy(deepCpy);
+  else
+    arr=0;
+  ret->setArray(arr,0);
+  arr->decrRef();
+  return ret;
 }
 
 void MEDCouplingTimeDiscretization::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
@@ -172,6 +194,38 @@ bool MEDCouplingTimeDiscretization::isStrictlyBefore(const MEDCouplingTimeDiscre
   return time1<time2;
 }
 
+void MEDCouplingTimeDiscretization::applyLin(double a, double b, int compoId)
+{
+  double *ptr=_array->getPointer()+compoId;
+  int nbOfComp=_array->getNumberOfComponents();
+  int nbOfTuple=_array->getNumberOfTuples();
+  for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
+    *ptr=a*(*ptr)+b;
+}
+
+void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate func)
+{
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=_array->getNumberOfTuples();
+  int oldNbOfComp=_array->getNumberOfComponents();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=_array->getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      if(!func(ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp))
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed !";
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  _array->decrRef();
+  _array=newArr;
+}
+
 MEDCouplingNoTimeLabel::MEDCouplingNoTimeLabel()
 {
 }
@@ -204,6 +258,54 @@ MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::aggregate(const MEDCoupli
   MEDCouplingNoTimeLabel *ret=new MEDCouplingNoTimeLabel;
   ret->setTimeTolerance(getTimeTolerance());
   DataArrayDouble *arr=DataArrayDouble::aggregate(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::add(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("add on mismatched time discretization !");
+  MEDCouplingNoTimeLabel *ret=new MEDCouplingNoTimeLabel;
+  DataArrayDouble *arr=DataArrayDouble::add(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::substract(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("substract on mismatched time discretization !");
+  MEDCouplingNoTimeLabel *ret=new MEDCouplingNoTimeLabel;
+  DataArrayDouble *arr=DataArrayDouble::substract(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::multiply(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("multiply on mismatched time discretization !");
+  MEDCouplingNoTimeLabel *ret=new MEDCouplingNoTimeLabel;
+  DataArrayDouble *arr=DataArrayDouble::multiply(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingNoTimeLabel::divide(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("divide on mismatched time discretization !");
+  MEDCouplingNoTimeLabel *ret=new MEDCouplingNoTimeLabel;
+  DataArrayDouble *arr=DataArrayDouble::divide(getArray(),other->getArray());
   ret->setArray(arr,0);
   arr->decrRef();
   return ret;
@@ -299,7 +401,9 @@ bool MEDCouplingWithTimeStep::areCompatible(const MEDCouplingTimeDiscretization 
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
     return false;
   const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
-  return otherC!=0;
+  if(!otherC)
+    return false;
+  return std::fabs(_time-otherC->_time)<_time_tolerance;
 }
 
 bool MEDCouplingWithTimeStep::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
@@ -324,6 +428,66 @@ MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::aggregate(const MEDCoupl
   MEDCouplingWithTimeStep *ret=new MEDCouplingWithTimeStep;
   ret->setTimeTolerance(getTimeTolerance());
   DataArrayDouble *arr=DataArrayDouble::aggregate(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::add(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("add on mismatched time discretization !");
+  MEDCouplingWithTimeStep *ret=new MEDCouplingWithTimeStep;
+  DataArrayDouble *arr=DataArrayDouble::add(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::substract(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("substract on mismatched time discretization !");
+  MEDCouplingWithTimeStep *ret=new MEDCouplingWithTimeStep;
+  DataArrayDouble *arr=DataArrayDouble::substract(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::multiply(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("multiply on mismatched time discretization !");
+  MEDCouplingWithTimeStep *ret=new MEDCouplingWithTimeStep;
+  DataArrayDouble *arr=DataArrayDouble::multiply(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::divide(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("divide on mismatched time discretization !");
+  MEDCouplingWithTimeStep *ret=new MEDCouplingWithTimeStep;
+  DataArrayDouble *arr=DataArrayDouble::divide(getArray(),other->getArray());
   ret->setArray(arr,0);
   arr->decrRef();
   int tmp1,tmp2;
@@ -384,6 +548,208 @@ void MEDCouplingWithTimeStep::getValueOnDiscTime(int eltId, int dt, int it, doub
       throw INTERP_KERNEL::Exception("No array existing.");
   else
     throw INTERP_KERNEL::Exception("No data on this discrete time.");
+}
+
+MEDCouplingConstOnTimeInterval::MEDCouplingConstOnTimeInterval():_start_time(0.),_end_time(0.),_start_dt(-1),_end_dt(-1),_start_it(-1),_end_it(-1)
+{
+}
+
+void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+  MEDCouplingTimeDiscretization::getTinySerializationIntInformation(tinyInfo);
+  tinyInfo.push_back(_start_dt);
+  tinyInfo.push_back(_start_it);
+  tinyInfo.push_back(_end_dt);
+  tinyInfo.push_back(_end_it);
+}
+
+void MEDCouplingConstOnTimeInterval::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+{
+  MEDCouplingTimeDiscretization::getTinySerializationDbleInformation(tinyInfo);
+  tinyInfo.push_back(_start_time);
+  tinyInfo.push_back(_end_time);
+}
+
+void MEDCouplingConstOnTimeInterval::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
+{
+  MEDCouplingTimeDiscretization::finishUnserialization(tinyInfoI,tinyInfoD,tinyInfoS);
+  _start_time=tinyInfoD[1];
+  _end_time=tinyInfoD[2];
+  _start_dt=tinyInfoI[2];
+  _start_it=tinyInfoI[3];
+  _end_dt=tinyInfoI[4];
+  _end_it=tinyInfoI[5];
+}
+
+MEDCouplingConstOnTimeInterval::MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCpy):
+  MEDCouplingTimeDiscretization(other,deepCpy),_start_time(other._start_time),_end_time(other._end_time),_start_dt(other._start_dt),
+  _end_dt(other._end_dt),_start_it(other._start_it),_end_it(other._end_it)
+{
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::performCpy(bool deepCpy) const
+{
+  return new MEDCouplingConstOnTimeInterval(*this,deepCpy);
+}
+
+DataArrayDouble *MEDCouplingConstOnTimeInterval::getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception)
+{
+  if(time>_start_time-_time_tolerance && time<_end_time+_time_tolerance)
+    {
+      if(_array)
+        _array->incrRef();
+      return _array;
+    }
+  else
+    throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+bool MEDCouplingConstOnTimeInterval::areCompatible(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areCompatible(other))
+    return false;
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    return false;
+  return (std::fabs(_start_time-otherC->_start_time)<_time_tolerance && std::fabs(_end_time-otherC->_end_time)<_time_tolerance);
+}
+
+bool MEDCouplingConstOnTimeInterval::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+{
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    return false;
+  if(_start_dt!=otherC->_start_dt)
+    return false;
+  if(_start_it!=otherC->_start_it)
+    return false;
+  if(std::fabs(_start_time-otherC->_start_time)>_time_tolerance)
+    return false;
+  return MEDCouplingTimeDiscretization::isEqual(other,prec);
+}
+
+void MEDCouplingConstOnTimeInterval::getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception)
+{
+  if(time>_start_time-_time_tolerance && time<_end_time+_time_tolerance)
+    if(_array)
+      _array->getTuple(eltId,value);
+    else
+      throw INTERP_KERNEL::Exception("No array existing.");
+  else
+    throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingConstOnTimeInterval::getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception)
+{
+  if(dt>=_start_dt && dt<=_end_dt)
+    if(_array)
+      _array->getTuple(eltId,value);
+    else
+      throw INTERP_KERNEL::Exception("No array existing.");
+  else
+    throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingConstOnTimeInterval::checkNoTimePresence() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("No time specified on a field defined as constant on one time interval");
+}
+
+void MEDCouplingConstOnTimeInterval::checkTimePresence(double time) const throw(INTERP_KERNEL::Exception)
+{
+  if(time<_start_time-_time_tolerance || time>_end_time+_time_tolerance)
+    {
+      std::ostringstream stream;
+      stream << "The field is defined between times " << _start_time << " and " << _end_time << " with tolerance ";
+      stream << _time_tolerance << " and trying to access on time = " << time;
+      throw INTERP_KERNEL::Exception(stream.str().c_str());
+    }
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::aggregate(const MEDCouplingTimeDiscretization *other) const
+{
+   const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("aggregation on mismatched time discretization !");
+  MEDCouplingConstOnTimeInterval *ret=new MEDCouplingConstOnTimeInterval;
+  ret->setTimeTolerance(getTimeTolerance());
+  DataArrayDouble *arr=DataArrayDouble::aggregate(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  tmp3=getEndTime(tmp1,tmp2);
+  ret->setEndTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::add(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("add on mismatched time discretization !");
+  MEDCouplingConstOnTimeInterval *ret=new MEDCouplingConstOnTimeInterval;
+  DataArrayDouble *arr=DataArrayDouble::add(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  tmp3=getEndTime(tmp1,tmp2);
+  ret->setEndTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+ 
+MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::substract(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("substract on mismatched time discretization !");
+  MEDCouplingConstOnTimeInterval *ret=new MEDCouplingConstOnTimeInterval;
+  DataArrayDouble *arr=DataArrayDouble::substract(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  tmp3=getEndTime(tmp1,tmp2);
+  ret->setEndTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::multiply(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("multiply on mismatched time discretization !");
+  MEDCouplingConstOnTimeInterval *ret=new MEDCouplingConstOnTimeInterval;
+  DataArrayDouble *arr=DataArrayDouble::multiply(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  tmp3=getEndTime(tmp1,tmp2);
+  ret->setEndTime(tmp3,tmp1,tmp2);
+  return ret;
+}
+
+MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::divide(const MEDCouplingTimeDiscretization *other) const
+{
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("divide on mismatched time discretization !");
+  MEDCouplingConstOnTimeInterval *ret=new MEDCouplingConstOnTimeInterval;
+  DataArrayDouble *arr=DataArrayDouble::divide(getArray(),other->getArray());
+  ret->setArray(arr,0);
+  arr->decrRef();
+  int tmp1,tmp2;
+  double tmp3=getStartTime(tmp1,tmp2);
+  ret->setStartTime(tmp3,tmp1,tmp2);
+  tmp3=getEndTime(tmp1,tmp2);
+  ret->setEndTime(tmp3,tmp1,tmp2);
+  return ret;
 }
 
 MEDCouplingTwoTimeSteps::MEDCouplingTwoTimeSteps():_start_time(0.),_end_time(0.),_start_dt(-1),_end_dt(-1),_start_it(-1),_end_it(-1),_end_array(0)

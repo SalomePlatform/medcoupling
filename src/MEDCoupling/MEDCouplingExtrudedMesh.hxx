@@ -52,6 +52,8 @@ namespace ParaMEDMEM
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
+    DataArrayDouble *getCoordinatesAndOwner() const;
+    DataArrayDouble *getBarycenterAndOwner() const;
   private:
     MEDCouplingExtrudedMesh(MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     void computeExtrusion(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);

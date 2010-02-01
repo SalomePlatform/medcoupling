@@ -71,7 +71,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     void checkButterflyCells(std::vector<int>& cells) const;
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
-    static MEDCouplingUMesh *mergeMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
+    DataArrayDouble *getBarycenterAndOwner() const;
+    static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);

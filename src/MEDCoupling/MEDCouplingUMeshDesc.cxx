@@ -288,3 +288,8 @@ MEDCouplingMesh *MEDCouplingUMeshDesc::mergeMyselfWith(const MEDCouplingMesh *ot
   return 0;
 }
 
+DataArrayDouble *MEDCouplingUMeshDesc::getBarycenterAndOwner() const
+{
+  //not implemented yet.
+  return 0;
+}

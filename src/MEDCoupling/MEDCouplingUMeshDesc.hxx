@@ -57,6 +57,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     DataArrayInt *zipCoordsTraducer();
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
+    DataArrayDouble *getBarycenterAndOwner() const;
   private:
     MEDCouplingUMeshDesc();
     ~MEDCouplingUMeshDesc();

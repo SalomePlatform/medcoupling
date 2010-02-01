@@ -39,8 +39,14 @@ namespace ParaMEDMEM
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
+    virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(const MEDCouplingTimeDiscretization *other,
+                                                                    TypeOfTimeDiscretization type, bool deepCpy) const;
     virtual TypeOfTimeDiscretization getEnum() const = 0;
     virtual MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const = 0;
     virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
@@ -68,6 +74,10 @@ namespace ParaMEDMEM
     virtual void setEndTime(double time, int dt, int it) throw(INTERP_KERNEL::Exception) = 0;
     virtual void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception) = 0;
+    //
+    virtual void applyLin(double a, double b, int compoId);
+    virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
+    //
     virtual ~MEDCouplingTimeDiscretization();
   protected:
     double _time_tolerance;
@@ -83,6 +93,10 @@ namespace ParaMEDMEM
     MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCpy);
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
@@ -111,6 +125,10 @@ namespace ParaMEDMEM
     MEDCouplingWithTimeStep();
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
@@ -134,6 +152,46 @@ namespace ParaMEDMEM
     double _time;
     int _dt;
     int _it;
+  };
+
+  class MEDCOUPLING_EXPORT MEDCouplingConstOnTimeInterval : public MEDCouplingTimeDiscretization
+  {
+  protected:
+    MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCpy);
+  public:
+    MEDCouplingConstOnTimeInterval();
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
+    bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
+    DataArrayDouble *getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception);
+    void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
+    void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);
+    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    void setStartTime(double time, int dt, int it) throw(INTERP_KERNEL::Exception) { _start_time=time; _start_dt=dt; _start_it=it; }
+    void setEndTime(double time, int dt, int it) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_dt=dt; _end_it=it; }
+    double getStartTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_start_dt; it=_start_it; return _start_time; }
+    double getEndTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_end_dt; it=_end_it; return _end_time; }
+    void checkNoTimePresence() const throw(INTERP_KERNEL::Exception);
+    void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
+  public:
+    static const TypeOfTimeDiscretization DISCRETIZATION=CONST_ON_TIME_INTERVAL;
+  private:
+    static const char EXCEPTION_MSG[];
+  protected:
+    double _start_time;
+    double _end_time;
+    int _start_dt;
+    int _end_dt;
+    int _start_it;
+    int _end_it;
   };
 
   class MEDCOUPLING_EXPORT MEDCouplingTwoTimeSteps : public MEDCouplingTimeDiscretization

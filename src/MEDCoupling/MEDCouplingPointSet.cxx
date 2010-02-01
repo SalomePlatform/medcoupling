@@ -89,6 +89,13 @@ void MEDCouplingPointSet::setCoords(DataArrayDouble *coords)
     }
 }
 
+DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
+{
+  if(_coords)
+    _coords->incrRef();
+  return _coords;
+}
+
 bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, double prec) const
 {
   if(_coords==0 && other._coords==0)

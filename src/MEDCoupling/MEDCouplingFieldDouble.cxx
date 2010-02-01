@@ -35,6 +35,16 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
   return new MEDCouplingFieldDouble(*this,recDeepCpy);
 }
 
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const
+{
+  MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(_time_discr,td,deepCpy);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(getNature(),tdo,getTypeOfField());
+  ret->setMesh(getMesh());
+  ret->setName(getName());
+  ret->setDescription(getDescription());
+  return ret;
+}
+
 bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
 {
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
@@ -134,12 +144,12 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, dou
 
 void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)
 {
-  double *ptr=getArray()->getPointer();
-  ptr+=compoId;
-  int nbOfComp=getArray()->getNumberOfComponents();
-  int nbOfTuple=getArray()->getNumberOfTuples();
-  for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
-    *ptr=a*(*ptr)+b;
+  _time_discr->applyLin(a,b,compoId);
+}
+
+void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
+{
+  _time_discr->applyFunc(nbOfComp,func);
 }
 
 int MEDCouplingFieldDouble::getNumberOfComponents() const
@@ -248,5 +258,53 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFie
   m->decrRef();
   ret->setName(f1->getName());
   ret->setDescription(f1->getDescription());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply addFields on them !");
+  if(f1->getMesh()!=f2->getMesh())
+    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; addFields impossible !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->add(f2->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply substractFields on them !");
+  if(f1->getMesh()!=f2->getMesh())
+    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; substractFields impossible !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->substract(f2->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to applymultiplyFields  on them !");
+  if(f1->getMesh()!=f2->getMesh())
+    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; multiplyFields impossible !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply divideFields on them !");
+  if(f1->getMesh()!=f2->getMesh())
+    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; divideFields impossible !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->divide(f2->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
   return ret;
 }

@@ -118,7 +118,12 @@ namespace ParaMEDMEM
     const double *getConstPointer() const { return _mem.getConstPointer(); }
     void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
+    void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *multiply(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    static DataArrayDouble *divide(const DataArrayDouble *a1, const DataArrayDouble *a2);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     void updateTime() { }
   private:

@@ -34,6 +34,7 @@ namespace ParaMEDMEM
       EXTRUDED = 8
     } MEDCouplingMeshType;
 
+  class DataArrayDouble;
   class MEDCouplingFieldDouble;
 
   class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject, public TimeLabel
@@ -49,13 +50,17 @@ namespace ParaMEDMEM
     virtual int getNumberOfNodes() const = 0;
     virtual int getSpaceDimension() const = 0;
     virtual int getMeshDimension() const = 0;
+    virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
+    virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
     // tools
     virtual void getBoundingBox(double *bbox) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
+    virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
     virtual void translate(const double *vector) = 0;
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
     virtual bool areCompatible(const MEDCouplingMesh *other) const;
+    static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
   protected:
     MEDCouplingMesh() { }
     MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name) { }

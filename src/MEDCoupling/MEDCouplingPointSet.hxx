@@ -42,6 +42,7 @@ namespace ParaMEDMEM
     int getSpaceDimension() const;
     void setCoords(DataArrayDouble *coords);
     DataArrayDouble *getCoords() const { return _coords; }
+    DataArrayDouble *getCoordinatesAndOwner() const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged) = 0;
     void findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const;

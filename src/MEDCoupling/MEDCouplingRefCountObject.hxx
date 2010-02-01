@@ -39,8 +39,11 @@ namespace ParaMEDMEM
     {
       NO_TIME = 4,
       ONE_TIME = 5,
-      LINEAR_TIME = 6
+      LINEAR_TIME = 6,
+      CONST_ON_TIME_INTERVAL = 7
     } TypeOfTimeDiscretization;
+
+  typedef bool (*FunctionToEvaluate)(const double *pos, double *res);
 
   class MEDCOUPLING_EXPORT RefCountObject
   {

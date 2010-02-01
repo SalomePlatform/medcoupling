@@ -847,10 +847,37 @@ MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other)
   if(other->getType()!=UNSTRUCTURED)
     throw INTERP_KERNEL::Exception("Merge of umesh only available with umesh each other !");
   const MEDCouplingUMesh *otherC=static_cast<const MEDCouplingUMesh *>(other);
-  return mergeMeshes(this,otherC);
+  return mergeUMeshes(this,otherC);
 }
 
-MEDCouplingUMesh *MEDCouplingUMesh::mergeMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2)
+DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int spaceDim=getSpaceDimension();
+  int nbOfCells=getNumberOfCells();
+  ret->alloc(nbOfCells,spaceDim);
+  double *ptToFill=ret->getPointer();
+  double *tmp=new double[spaceDim];
+  const int *nodal=_nodal_connec->getConstPointer();
+  const int *nodalI=_nodal_connec_index->getConstPointer();
+  const double *coor=_coords->getConstPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      int nbOfPts=0;
+      std::fill(tmp,tmp+spaceDim,0.);
+      for(const int *node=nodal+nodalI[i]+1;node!=nodal+nodalI[i+1];node++)
+        if(*node!=-1)
+          {
+            std::transform(tmp,tmp+spaceDim,coor+(*node)*spaceDim,tmp,std::plus<double>());
+            nbOfPts++;
+          }
+      ptToFill=std::transform(tmp,tmp+spaceDim,ptToFill,std::bind2nd(std::divides<double>(),(double)nbOfPts));
+    }
+  delete [] tmp;
+  return ret;
+}
+
+MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2)
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
   DataArrayDouble *pts=mergeNodesArray(mesh1,mesh2);

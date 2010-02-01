@@ -116,6 +116,7 @@ void MEDCouplingExtrudedMesh::updateTime()
 
 MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const
 {
+  //not implemented yet
   return 0;
 }
 
@@ -277,6 +278,35 @@ MEDCouplingMesh *MEDCouplingExtrudedMesh::mergeMyselfWith(const MEDCouplingMesh 
   return 0;
 }
 
+DataArrayDouble *MEDCouplingExtrudedMesh::getCoordinatesAndOwner() const
+{
+  DataArrayDouble *arr2D=_mesh2D->getCoords();
+  DataArrayDouble *arr1D=_mesh1D->getCoords();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(getNumberOfNodes(),3);
+  int nbOf1DLev=_mesh1D->getNumberOfNodes();
+  int nbOf2DNodes=_mesh2D->getNumberOfNodes();
+  const double *ptSrc=arr2D->getConstPointer();
+  double *pt=ret->getPointer();
+  std::copy(ptSrc,ptSrc+3*nbOf2DNodes,pt);
+  for(int i=1;i<nbOf1DLev;i++)
+    {
+      std::copy(ptSrc,ptSrc+3*nbOf2DNodes,pt+3*i*nbOf2DNodes);
+      double vec[3];
+      std::copy(arr1D->getConstPointer()+3*i,arr1D->getConstPointer()+3*(i+1),vec);
+      std::transform(arr1D->getConstPointer()+3*(i-1),arr1D->getConstPointer()+3*i,vec,vec,std::minus<double>());
+      for(int j=0;j<nbOf2DNodes;j++)
+        std::transform(vec,vec+3,pt+3*(i*nbOf2DNodes+j),pt+3*(i*nbOf2DNodes+j),std::plus<double>());
+    }
+  return ret;
+}
+
+DataArrayDouble *MEDCouplingExtrudedMesh::getBarycenterAndOwner() const
+{
+  //not yet implemented
+  return 0;
+}
+
 void MEDCouplingExtrudedMesh::computeExtrusionAlg(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
 {
   _mesh3D_ids->alloc(mesh3D->getNumberOfCells(),1);
@@ -336,4 +366,3 @@ void MEDCouplingExtrudedMesh::computeExtrusionAlg(MEDCouplingUMesh *mesh3D) thro
   revDesc->decrRef();
   revDescIndx->decrRef();
 }
-

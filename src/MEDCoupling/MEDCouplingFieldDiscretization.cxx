@@ -81,6 +81,11 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *m
   return mesh->getNumberOfCells();
 }
 
+DataArrayDouble *MEDCouplingFieldDiscretizationP0::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getBarycenterAndOwner();
+}
+
 void MEDCouplingFieldDiscretizationP0::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
 {
 }
@@ -140,6 +145,11 @@ bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretizat
 int MEDCouplingFieldDiscretizationP1::getNumberOfTuples(const MEDCouplingMesh *mesh) const
 {
   return mesh->getNumberOfNodes();
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationP1::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getCoordinatesAndOwner();
 }
 
 void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)

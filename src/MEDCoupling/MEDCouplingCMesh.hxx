@@ -49,6 +49,8 @@ namespace ParaMEDMEM
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
+    DataArrayDouble *getCoordinatesAndOwner() const;
+    DataArrayDouble *getBarycenterAndOwner() const;
   private:
     MEDCouplingCMesh();
     ~MEDCouplingCMesh();

@@ -125,14 +125,7 @@ int MEDCouplingCMesh::getSpaceDimension() const
 
 int MEDCouplingCMesh::getMeshDimension() const
 {
-  int ret=0;
-  if(_x_array)
-    ret++;
-  if(_y_array)
-    ret++;
-  if(_z_array)
-    ret++;
-  return ret;
+  return getSpaceDimension();
 }
 
 DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
@@ -203,4 +196,46 @@ MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh *other)
 {
   //not implemented yet !
   return 0;
+}
+
+DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int spaceDim=getSpaceDimension();
+  ret->alloc(getNumberOfNodes(),spaceDim);
+  double *pt=ret->getPointer();
+  int pos=0;
+  int nbOfElem;
+  const double *cptr;
+  DataArrayDouble *tabs[3]={_x_array,_y_array,_z_array};
+  for(int j=0;j<3;j++)
+    {
+      nbOfElem=tabs[j]->getNbOfElems();
+      cptr=tabs[j]->getConstPointer();
+      for(int i=0;i<nbOfElem;i++)
+        pt[i*spaceDim+pos]=cptr[i];
+      pos++;
+    }
+  return ret;
+}
+
+DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int spaceDim=getSpaceDimension();
+  ret->alloc(getNumberOfCells(),spaceDim);
+  DataArrayDouble *tabs[3]={_x_array,_y_array,_z_array};
+  double *pt=ret->getPointer();
+  int pos=0;
+  int nbOfElem;
+  const double *cptr;
+  for(int j=0;j<3;j++)
+    {
+      nbOfElem=tabs[j]->getNbOfElems()-1;
+      cptr=tabs[j]->getConstPointer();
+      for(int i=0;i<nbOfElem;i++)
+        pt[i*spaceDim+pos]=(cptr[i]+cptr[i+1])/2.;
+      pos++;
+    }
+  return ret;
 }
