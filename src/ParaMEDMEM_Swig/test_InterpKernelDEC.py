@@ -68,7 +68,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             nb_local=mesh.getNumberOfCells()
             value = [1.0]*nb_local
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(paramesh,parafield)
+            icocofield = ICoCoMEDField(mesh,parafield.getField())
             dec.setMethod("P0")
             dec.attachLocalField(icocofield)
             pass
@@ -83,18 +83,18 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
             nb_local=mesh.getNumberOfCells()
             value = [0.0]*nb_local
             parafield.getField().setValues(value)
-            icocofield = ICoCoMEDField(paramesh,parafield)
+            icocofield = ICoCoMEDField(mesh,parafield.getField())
             dec.setMethod("P0")
             dec.attachLocalField(icocofield)
             pass
         
         if source_group.containsMyRank():
-            field_before_int = parafield.getVolumeIntegral(0)
+            field_before_int = parafield.getVolumeIntegral(0,True)
             dec.synchronize()
             dec.setForcedRenormalization(False)
             dec.sendData()
             dec.recvData()
-            field_after_int=parafield.getVolumeIntegral(0);
+            field_after_int=parafield.getVolumeIntegral(0,True);
             self.failUnless(math.fabs(field_after_int-field_before_int)<1e-8)
             pass
         else:
