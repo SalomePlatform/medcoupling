@@ -22,7 +22,7 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-noinst_LTLIBRARIES = libInterpGeometric2DAlg.la
+lib_LTLIBRARIES = libInterpGeometric2DAlg.la
 
 dist_libInterpGeometric2DAlg_la_SOURCES = \
 AbstractEdge.cxx               \
