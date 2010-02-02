@@ -21,6 +21,7 @@
 
 %include "libParaMEDMEM_Swig.typemap"
 %include "libMEDCoupling_Swig.i"
+%include "libMEDLoader_Swig.i"
 
 %{
 #include "CommInterface.hxx"
@@ -36,8 +37,6 @@
 #include "ICoCoMEDField.hxx"
 #include "ComponentTopology.hxx"
 
-#include "MEDLoader.hxx"
-
 #include <mpi.h>
 
 using namespace ParaMEDMEM;
@@ -45,8 +44,6 @@ using namespace ICoCo;
       
 enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
 %}
-
-%newobject MEDLoader::ReadUMeshFromFile;
 
 %include "CommInterface.hxx"
 %include "ProcessorGroup.hxx"
@@ -63,11 +60,6 @@ enum mpi_constants { mpi_comm_world, mpi_comm_self, mpi_double, mpi_int };
 %include "ICoCoMEDField.hxx"
 
 %nodefaultctor;
-
-namespace MEDLoader
-{
-  ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, const char *meshName=0, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-}
 
 /* This object can be used only if MED_ENABLE_FVM is defined*/
 #ifdef MED_ENABLE_FVM

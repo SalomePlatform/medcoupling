@@ -18,6 +18,9 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
+SUBDIRS = . Swig
+
+
 lib_LTLIBRARIES = libmedloader.la
 
 salomeinclude_HEADERS= \

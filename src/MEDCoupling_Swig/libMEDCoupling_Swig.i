@@ -46,8 +46,11 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::deepCopy;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
+%newobject ParaMEDMEM::MEDCouplingMesh::mergeMyselfWith;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelf;
-%newobject ParaMEDMEM::MEDCouplingUMesh::zipCoordsTraducer;
+%newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getMeasureField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshes;
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingUMesh "$this->decrRef();"
 %feature("unref") DataArrayInt "$this->decrRef();"
@@ -114,7 +117,18 @@ namespace ParaMEDMEM
           PyList_SetItem(res,i,PyInt_FromLong(*iL));
         return res;
       }
+      PyObject *mergeNodes(double precision)
+      {
+        bool ret1;
+        DataArrayInt *ret0=self->mergeNodes(precision,ret1);
+        PyObject *res = PyList_New(2);
+        PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(res,1,SWIG_From_bool(ret1));
+        return res;
+      }
     }
+    MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
   };
 }
 

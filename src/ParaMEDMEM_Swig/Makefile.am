@@ -30,7 +30,8 @@ salomeinclude_HEADERS =  \
 SWIG_DEF = libParaMEDMEM_Swig.i libParaMEDMEM_Swig.typemap
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) $(MPI_INCLUDES)  -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling -I$(srcdir)/../MEDCoupling_Swig \
-	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../ParaMEDLoader -I$(srcdir)/../MEDLoader
+	-I$(srcdir)/../MEDLoader/Swig -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../ParaMEDLoader        \
+	-I$(srcdir)/../MEDLoader
 
 dist__libParaMEDMEM_Swig_la_SOURCES   = $(SWIG_DEF)
 nodist__libParaMEDMEM_Swig_la_SOURCES = libParaMEDMEM_Swig_wrap.cxx

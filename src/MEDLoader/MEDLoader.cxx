@@ -92,7 +92,7 @@ namespace MEDLoader
                                     int iteration, int order, ParaMEDMEM::TypeOfField typeOfOutField, double& time);
   std::vector<int> getIdsFromFamilies(const char *fileName, const char *meshName, const std::vector<std::string>& fams);
   std::vector<int> getIdsFromGroups(const char *fileName, const char *meshName, const std::vector<std::string>& grps);
-  med_int getIdFromMeshName(med_idt fid, const char *meshName) throw(INTERP_KERNEL::Exception);
+  med_int getIdFromMeshName(med_idt fid, const char *meshName, std::string& trueMeshName) throw(INTERP_KERNEL::Exception);
   void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entite_maillage& whichEntity);
   void readUMeshDataInMedFile(med_idt fid, med_int meshId, double *&coords, int& nCoords, int& spaceDim, std::list<MEDLoader::MEDConnOfOneElemType>& conn);
   int buildMEDSubConnectivityOfOneType(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
@@ -534,13 +534,19 @@ namespace MEDLoader
     return ret;
   }
 
-  med_int getIdFromMeshName(med_idt fid, const char *meshName) throw(INTERP_KERNEL::Exception)
+  med_int getIdFromMeshName(med_idt fid, const char *meshName, std::string& trueMeshName) throw(INTERP_KERNEL::Exception)
   {
     if(meshName==0)
       return 1;
+    if(meshName==0)
+      {
+        std::vector<std::string> meshes=getMeshNamesFid(fid);
+        if(meshes.empty())
+          throw INTERP_KERNEL::Exception("No mesh in file");
+        trueMeshName=meshes[0];
+        return 1;
+      }
     std::string meshNameStr(meshName);
-    if(meshNameStr=="?")
-      return 1;
     std::vector<std::string> meshes=getMeshNamesFid(fid);
     if(meshes.empty())
       throw INTERP_KERNEL::Exception("No mesh in file");
@@ -552,6 +558,7 @@ namespace MEDLoader
         std::copy(meshes.begin(),meshes.end(),std::ostream_iterator<std::string>(os2," "));
         throw INTERP_KERNEL::Exception(os2.str().c_str());
       }
+    trueMeshName=meshName;
     return iter-meshes.begin()+1;
   }
 
@@ -939,7 +946,8 @@ namespace MEDLoader
   {
   //Extraction data from MED file.
     med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
-    med_int mid=getIdFromMeshName(fid,meshName);
+    std::string trueMeshName;
+    med_int mid=getIdFromMeshName(fid,meshName,trueMeshName);
     double *coords;
     int nCoords;
     int spaceDim;
@@ -952,7 +960,7 @@ namespace MEDLoader
     MEDfermer(fid);
     //Put data in returned data structure.
     MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
-    ret->setName(meshName);
+    ret->setName(trueMeshName.c_str());
     ret->setMeshDimension(meshDimExtract);
     //
     DataArrayDouble *coordsArr=DataArrayDouble::New();
@@ -1006,6 +1014,14 @@ MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char 
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
   return readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
+}
+
+ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> familiesToKeep;
+  std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
+  unsigned meshDim;
+  return readUMeshFromFileLev1(fileName,0,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
 }
 
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
