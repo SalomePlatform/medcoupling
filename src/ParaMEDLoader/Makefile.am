@@ -18,22 +18,24 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES= libparamedmemmedloader.la
+lib_LTLIBRARIES = libparamedloader.la
 
 salomeinclude_HEADERS= \
-MEDLoader.hxx
+ParaMEDLoader.hxx
 
-dist_libparamedmemmedloader_la_SOURCES= \
-MEDLoader.cxx
+dist_libparamedloader_la_SOURCES= \
+ParaMEDLoader.cxx
 
 #libmedmem_la_LDFLAGS= -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome 
-libparamedmemmedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
-	-I$(srcdir)/../../INTERP_KERNEL \
-	-I$(srcdir)/../../INTERP_KERNEL/Geometric2D \
-	-I$(srcdir)/../../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../../MEDCoupling \
-	-I$(srcdir)/../
+libparamedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+	-I$(srcdir)/../INTERP_KERNEL \
+	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
+	-I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader \
+	-I$(srcdir)/../ParaMEDMEM
 
-# change motivated by the bug KERNEL4778.
-libparamedmemmedloader_la_LDFLAGS= ../../MEDCoupling/libmedcoupling.la \
-../../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED2_LIBS) $(HDF5_LIBS)
+libparamedloader_la_LDFLAGS= ../ParaMEDMEM/libparamedmem.la \
+	../MEDLoader/libmedloader.la \
+	../MEDCoupling/libmedcoupling.la \
+	../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED2_LIBS) $(HDF5_LIBS)

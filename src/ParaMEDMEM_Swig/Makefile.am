@@ -30,7 +30,7 @@ salomeinclude_HEADERS =  \
 SWIG_DEF = libParaMEDMEM_Swig.i libParaMEDMEM_Swig.typemap
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) $(MPI_INCLUDES)  -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling -I$(srcdir)/../MEDCoupling_Swig \
-	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../ParaMEDMEM/MEDLoader
+	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../ParaMEDLoader -I$(srcdir)/../MEDLoader
 
 dist__libParaMEDMEM_Swig_la_SOURCES   = $(SWIG_DEF)
 nodist__libParaMEDMEM_Swig_la_SOURCES = libParaMEDMEM_Swig_wrap.cxx
@@ -43,11 +43,11 @@ _libParaMEDMEM_Swig_la_CPPFLAGS = $(CORBA_CXXFLAGS) $(CORBA_INCLUDES) $(PYTHON_I
 	$(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
 	$(MPI_INCLUDES) -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling_Swig -I$(srcdir)/../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../MEDCoupling -I$(srcdir)/../ParaMEDMEM/MEDLoader
+	-I$(srcdir)/../MEDCoupling -I$(srcdir)/../ParaMEDLoader -I$(srcdir)/../MEDLoader
 
 _libParaMEDMEM_Swig_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
 	../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la \
-	../ParaMEDMEM/libparamedmem.la ../ParaMEDMEM/MEDLoader/libparamedmemmedloader.la
+	../ParaMEDMEM/libparamedmem.la ../ParaMEDLoader/libparamedloader.la
 
 if MED_ENABLE_KERNEL
   _libParaMEDMEM_Swig_la_CPPFLAGS += ${KERNEL_CXXFLAGS}

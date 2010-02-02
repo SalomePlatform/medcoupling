@@ -18,9 +18,8 @@
 //
 #include "MEDLoader.hxx"
 #include "CellModel.hxx"
-#include "ParaMESH.hxx"
-#include "BlockTopology.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
 extern "C"
@@ -76,6 +75,43 @@ INTERP_KERNEL::NormalizedCellType typmai2[MED_NBR_GEOMETRIE_MAILLE+2] = { INTERP
 
 using namespace ParaMEDMEM;
 
+namespace MEDLoader
+{
+  class FieldPerTypeCopier
+  {
+  public:
+    FieldPerTypeCopier(double *ptr):_ptr(ptr) { }
+    void operator()(const MEDLoader::MEDFieldDoublePerCellType& elt) { _ptr=std::copy(elt.getArray(),elt.getArray()+elt.getNbOfValues(),_ptr); }
+  private:
+    double *_ptr;
+  };
+  
+  std::string buildStringFromFortran(const char *expr, int lgth);
+  std::vector<std::string> getMeshNamesFid(med_idt fid);
+  void readFieldDoubleDataInMedFile(const char *fileName, const char *meshName, const char *fieldName, std::list<MEDLoader::MEDFieldDoublePerCellType>& field,
+                                    int iteration, int order, ParaMEDMEM::TypeOfField typeOfOutField, double& time);
+  std::vector<int> getIdsFromFamilies(const char *fileName, const char *meshName, const std::vector<std::string>& fams);
+  std::vector<int> getIdsFromGroups(const char *fileName, const char *meshName, const std::vector<std::string>& grps);
+  med_int getIdFromMeshName(med_idt fid, const char *meshName) throw(INTERP_KERNEL::Exception);
+  void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entite_maillage& whichEntity);
+  void readUMeshDataInMedFile(med_idt fid, med_int meshId, double *&coords, int& nCoords, int& spaceDim, std::list<MEDLoader::MEDConnOfOneElemType>& conn);
+  int buildMEDSubConnectivityOfOneType(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
+                                       std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile);
+  MEDCouplingUMesh *readUMeshFromFileLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<int>& ids,
+                                          const std::vector<INTERP_KERNEL::NormalizedCellType>& typesToKeep, unsigned& meshDimExtract) throw(INTERP_KERNEL::Exception);
+  void tradMEDFileCoreFrmt2MEDCouplingUMesh(const std::list<MEDLoader::MEDConnOfOneElemType>& medConnFrmt,
+                                            DataArrayInt* &conn,
+                                            DataArrayInt* &connIndex,
+                                            const std::vector<int>& familiesToKeep);
+  ParaMEDMEM::DataArrayDouble *buildArrayFromRawData(const std::list<MEDLoader::MEDFieldDoublePerCellType>& fieldPerType);
+  int buildMEDSubConnectivityOfOneTypesPolyg(DataArrayInt *conn, DataArrayInt *connIndex, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile);
+  int buildMEDSubConnectivityOfOneTypesPolyh(DataArrayInt *conn, DataArrayInt *connIndex, std::vector<int>& conn4MEDFile,
+                                             std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile);
+  int buildMEDSubConnectivityOfOneTypeStaticTypes(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile);
+  ParaMEDMEM::MEDCouplingFieldDouble *readFieldDoubleLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order,
+                                                          ParaMEDMEM::TypeOfField typeOfOutField);
+}
+
 const char WHITE_SPACES[]=" \n";
 
 /*!
@@ -117,22 +153,22 @@ void MEDLoader::MEDFieldDoublePerCellType::releaseArray()
   delete [] _values;
 }
 
-std::string buildStringFromFortran(const char *expr, int lgth)
-{
-  std::string ret(expr,lgth);
-  std::string whiteSpaces(WHITE_SPACES);
-  std::size_t lgthReal=strlen(ret.c_str());
-  std::string ret2=ret.substr(0,lgthReal);
-  std::size_t found=ret2.find_last_not_of(whiteSpaces);
-  if (found!=std::string::npos)
-    ret2.erase(found+1);
-  else
-    ret2.clear();//ret is all whitespace
-  return ret2;
-}
-
 namespace MEDLoader
 {
+  std::string buildStringFromFortran(const char *expr, int lgth)
+  {
+    std::string ret(expr,lgth);
+    std::string whiteSpaces(WHITE_SPACES);
+    std::size_t lgthReal=strlen(ret.c_str());
+    std::string ret2=ret.substr(0,lgthReal);
+    std::size_t found=ret2.find_last_not_of(whiteSpaces);
+    if (found!=std::string::npos)
+      ret2.erase(found+1);
+    else
+      ret2.clear();//ret is all whitespace
+    return ret2;
+  }
+
   std::vector<std::string> getMeshNamesFid(med_idt fid)
   {
     med_maillage type_maillage;
@@ -463,7 +499,7 @@ namespace MEDLoader
     return ret;
   }
 
-    std::vector<int> getIdsFromGroups(const char *fileName, const char *meshName, const std::vector<std::string>& grps)
+  std::vector<int> getIdsFromGroups(const char *fileName, const char *meshName, const std::vector<std::string>& grps)
   {
     std::vector<int> ret;
     med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
@@ -683,15 +719,6 @@ namespace MEDLoader
   {
   public:
     int operator()(int res, const MEDLoader::MEDFieldDoublePerCellType& elt) { return res+elt.getNbOfTuple(); }
-  };
-
-  class FieldPerTypeCopier
-  {
-  public:
-    FieldPerTypeCopier(double *ptr):_ptr(ptr) { }
-    void operator()(const MEDLoader::MEDFieldDoublePerCellType& elt) { _ptr=std::copy(elt.getArray(),elt.getArray()+elt.getNbOfValues(),_ptr); }
-  private:
-    double *_ptr;
   };
 
   ParaMEDMEM::DataArrayDouble *buildArrayFromRawData(const std::list<MEDLoader::MEDFieldDoublePerCellType>& fieldPerType)
@@ -971,20 +998,6 @@ namespace MEDLoader
     releaseMEDFileCoreFrmt<MEDLoader::MEDFieldDoublePerCellType>(fieldPerCellType);
     return ret;
   }
-  
-  /*!
-   * This method builds the master file 'fileName' of a parallel MED file defined in 'fileNames'.
-   */
-  void writeMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName)
-  {
-    int nbOfDom=fileNames.size();
-    std::ofstream fs(fileName);
-    fs << "#MED Fichier V 2.3" << " " << std::endl;
-    fs << "#"<<" " << std::endl;
-    fs << nbOfDom <<" " << std::endl;
-    for(int i=0;i<nbOfDom;i++)
-      fs << meshName << " " << i+1 << " " << meshName << "_" << i+1 << " localhost " << fileNames[i] << " " << std::endl;
-  }
 }
 
 MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
@@ -1073,24 +1086,6 @@ void MEDLoader::writeUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *m
   MEDfermer(fid);
 }
 
-void MEDLoader::writeParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh)
-{
-  if(!mesh->getBlockTopology()->getProcGroup()->containsMyRank())
-    return ;
-  int myRank=mesh->getBlockTopology()->getProcGroup()->myRank();
-  int nbDomains=mesh->getBlockTopology()->getProcGroup()->size();
-  std::vector<std::string> fileNames(nbDomains);
-  for(int i=0;i<nbDomains;i++)
-    {
-      std::ostringstream sstr;
-      sstr << fileName << i+1 << ".med";
-      fileNames[i]=sstr.str();
-    }
-  if(myRank==0)
-    writeMasterFile(fileName,fileNames,mesh->getCellMesh()->getName());
-  writeUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()));
-}
-
-void MEDLoader::writeParaField(const char *fileName, const char *meshName, ParaMEDMEM::ParaFIELD *f)
+void MEDLoader::writeField(const char *fileName, const char *meshName, ParaMEDMEM::MEDCouplingFieldDouble *f)
 {
 }

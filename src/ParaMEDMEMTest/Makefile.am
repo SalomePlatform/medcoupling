@@ -65,16 +65,17 @@ dist_libParaMEDMEMTest_la_SOURCES = \
 libParaMEDMEMTest_la_CPPFLAGS = \
 	@CPPUNIT_INCLUDES@ \
 	$(MPI_INCLUDES) \
-	-I$(srcdir)/../../INTERP_KERNEL \
-	-I$(srcdir)/../../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../../INTERP_KERNEL/Geometric2D \
-	-I$(srcdir)/../../ParaMEDMEM \
-	-I$(srcdir)/../../MEDCoupling \
-	-I$(srcdir)/../MEDLoader
+	-I$(srcdir)/../INTERP_KERNEL \
+	-I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
+	-I$(srcdir)/../ParaMEDMEM \
+	-I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader  \
+	-I$(srcdir)/../ParaMEDLoader
 
 libParaMEDMEMTest_la_LDFLAGS = \
-	../libparamedmem.la \
-	../MEDLoader/libparamedmemmedloader.la \
+	../ParaMEDMEM/libparamedmem.la \
+	../ParaMEDLoader/libparamedloader.la \
 	@CPPUNIT_LIBS@ $(MPI_LIBS)
 
 # Executables targets
@@ -91,7 +92,7 @@ dist_test_perf_SOURCES = test_perf.cxx
 
 LDADD = $(MED2_LIBS) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
 	libParaMEDMEMTest.la \
-	../../INTERP_KERNEL/libinterpkernel.la 
+	../INTERP_KERNEL/libinterpkernel.la 
 
 if MED_ENABLE_FVM
 	LDADD += $(FVM_LIBS)

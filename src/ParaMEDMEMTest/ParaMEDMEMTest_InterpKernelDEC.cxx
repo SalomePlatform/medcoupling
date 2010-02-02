@@ -30,7 +30,9 @@
 #include "ParaFIELD.hxx"
 #include "ComponentTopology.hxx"
 #include "ICoCoMEDField.hxx"
+#include "ParaMEDLoader.hxx"
 #include "MEDLoader.hxx"
+
  
 #include <string>
 #include <iterator>
@@ -216,14 +218,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      MEDLoader::writeParaField("./sourcesquareb","boundary",parafield);
+      MEDLoader::writeField("./sourcesquareb","boundary",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
       MEDLoader::writeParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      MEDLoader::writeParaField("./sourcesquare","boundary",parafield);
+      MEDLoader::writeField("./sourcesquare","boundary",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -246,7 +248,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
 
       dec.recvData();
       MEDLoader::writeParaMesh("./targetsquareb",paramesh);
-      MEDLoader::writeParaField("./targetsquareb", "boundary",parafield);
+      MEDLoader::writeField("./targetsquareb", "boundary",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
@@ -254,7 +256,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       aRemover.Register(filename.str().c_str());
       dec.sendData();
       MEDLoader::writeParaMesh("./targetsquare",paramesh);
-      MEDLoader::writeParaField("./targetsquare", "boundary",parafield);
+      MEDLoader::writeField("./targetsquare", "boundary",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
@@ -578,14 +580,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      MEDLoader::writeParaField("./sourcesquareb","boundary",parafield);
+      MEDLoader::writeField("./sourcesquareb","boundary",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
       MEDLoader::writeParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      MEDLoader::writeParaField("./sourcesquare","boundary",parafield);
+      MEDLoader::writeField("./sourcesquare","boundary",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -604,7 +606,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
 
       dec.recvData();
       MEDLoader::writeParaMesh("./targetsquareb",paramesh);
-      MEDLoader::writeParaField("./targetsquareb", "boundary",parafield);
+      MEDLoader::writeField("./targetsquareb", "boundary",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
@@ -612,7 +614,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       aRemover.Register(filename.str().c_str());
       dec.sendData();
       MEDLoader::writeParaMesh("./targetsquare",paramesh);
-      MEDLoader::writeParaField("./targetsquare", "boundary",parafield);
+      MEDLoader::writeField("./targetsquare", "boundary",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");

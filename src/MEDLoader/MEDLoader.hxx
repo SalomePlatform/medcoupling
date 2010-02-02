@@ -27,8 +27,6 @@
 
 namespace ParaMEDMEM
 {
-  class ParaMESH;
-  class ParaFIELD;
   class DataArrayInt;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
@@ -88,8 +86,7 @@ namespace MEDLoader
   ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   void writeUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh);
-  void writeParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh);
-  void writeParaField(const char *fileName, const char *meshName, ParaMEDMEM::ParaFIELD *f);
+  void writeField(const char *fileName, const char *meshName, ParaMEDMEM::MEDCouplingFieldDouble *f);
 }
 
 #endif
