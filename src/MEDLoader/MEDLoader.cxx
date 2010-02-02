@@ -537,8 +537,6 @@ namespace MEDLoader
   med_int getIdFromMeshName(med_idt fid, const char *meshName, std::string& trueMeshName) throw(INTERP_KERNEL::Exception)
   {
     if(meshName==0)
-      return 1;
-    if(meshName==0)
       {
         std::vector<std::string> meshes=getMeshNamesFid(fid);
         if(meshes.empty())
