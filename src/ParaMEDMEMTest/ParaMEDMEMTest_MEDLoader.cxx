@@ -395,7 +395,7 @@ void ParaMEDMEMTest::testMEDLoaderWrite1()
   bool normalThrow=false;
   try
     {
-      MEDLoader::writeUMesh(outFileName.c_str(),mesh);
+      MEDLoader::WriteUMesh(outFileName.c_str(),mesh);
     }
   catch(INTERP_KERNEL::Exception& e)
     {
@@ -403,7 +403,7 @@ void ParaMEDMEMTest::testMEDLoaderWrite1()
     }
   CPPUNIT_ASSERT(normalThrow);
   mesh->setName(meshName);
-  MEDLoader::writeUMesh(outFileName.c_str(),mesh);
+  MEDLoader::WriteUMesh(outFileName.c_str(),mesh);
   mesh->decrRef();
   //
   mesh=MEDLoader::ReadUMeshFromFile(outFileName.c_str(),meshName,0);
@@ -429,7 +429,7 @@ void ParaMEDMEMTest::testMEDLoaderPolygonWrite()
   MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
   mesh->checkCoherency();
   string outFileName=makeTmpFile("toto22138.med");
-  MEDLoader::writeUMesh(outFileName.c_str(),mesh);
+  MEDLoader::WriteUMesh(outFileName.c_str(),mesh);
   //
   MEDCouplingUMesh *mesh2=MEDLoader::ReadUMeshFromFile(outFileName.c_str(),meshNames[0].c_str(),0);
   //

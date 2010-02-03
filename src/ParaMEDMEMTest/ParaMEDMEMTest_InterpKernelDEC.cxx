@@ -212,20 +212,20 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       dec.setForcedRenormalization(false);
 
       dec.sendData();
-      MEDLoader::writeParaMesh("./sourcesquareb",paramesh);
+      ParaMEDLoader::WriteParaMesh("./sourcesquareb",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquareb");
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      MEDLoader::writeField("./sourcesquareb","boundary",parafield->getField());
+      MEDLoader::WriteField("./sourcesquareb",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
-      MEDLoader::writeParaMesh("./sourcesquare",paramesh);
+      ParaMEDLoader::WriteParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      MEDLoader::writeField("./sourcesquare","boundary",parafield->getField());
+      MEDLoader::WriteField("./sourcesquare",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -247,16 +247,16 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       dec.setForcedRenormalization(false);
 
       dec.recvData();
-      MEDLoader::writeParaMesh("./targetsquareb",paramesh);
-      MEDLoader::writeField("./targetsquareb", "boundary",parafield->getField());
+      ParaMEDLoader::WriteParaMesh("./targetsquareb",paramesh);
+      MEDLoader::WriteField("./targetsquareb",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
       filename<<"./targetsquareb_"<<target_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
       dec.sendData();
-      MEDLoader::writeParaMesh("./targetsquare",paramesh);
-      MEDLoader::writeField("./targetsquare", "boundary",parafield->getField());
+      ParaMEDLoader::WriteParaMesh("./targetsquare",paramesh);
+      MEDLoader::WriteField("./targetsquare",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
@@ -574,20 +574,20 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       dec.setForcedRenormalization(false);
 
       dec.sendData();
-      MEDLoader::writeParaMesh("./sourcesquareb",paramesh);
+      ParaMEDLoader::WriteParaMesh("./sourcesquareb",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquareb");
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      MEDLoader::writeField("./sourcesquareb","boundary",parafield->getField());
+      MEDLoader::WriteField("./sourcesquareb",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
-      MEDLoader::writeParaMesh("./sourcesquare",paramesh);
+      ParaMEDLoader::WriteParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      MEDLoader::writeField("./sourcesquare","boundary",parafield->getField());
+      MEDLoader::WriteField("./sourcesquare",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -605,16 +605,16 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       dec.setForcedRenormalization(false);
 
       dec.recvData();
-      MEDLoader::writeParaMesh("./targetsquareb",paramesh);
-      MEDLoader::writeField("./targetsquareb", "boundary",parafield->getField());
+      ParaMEDLoader::WriteParaMesh("./targetsquareb",paramesh);
+      MEDLoader::WriteField("./targetsquareb",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
       filename<<"./targetsquareb_"<<target_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
       dec.sendData();
-      MEDLoader::writeParaMesh("./targetsquare",paramesh);
-      MEDLoader::writeField("./targetsquare", "boundary",parafield->getField());
+      ParaMEDLoader::WriteParaMesh("./targetsquare",paramesh);
+      MEDLoader::WriteField("./targetsquare",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
