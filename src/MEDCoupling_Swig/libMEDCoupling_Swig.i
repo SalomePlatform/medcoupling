@@ -40,6 +40,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::mergeFields;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::DataArrayDouble::deepCopy;
 %newobject ParaMEDMEM::DataArrayDouble::performCpy;
@@ -181,6 +182,7 @@ namespace ParaMEDMEM
     NatureOfField getNature() const { return _nature; }
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void updateTime();
+    static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     %extend {
       void setValues(PyObject *li)
       {
@@ -193,6 +195,16 @@ namespace ParaMEDMEM
           }
         else
           PyErr_SetString(PyExc_TypeError,"setValuesCpy : field must contain an array behind");
+      }
+      PyObject *getTime()
+      {
+        int tmp1,tmp2;
+        double tmp0=self->getTime(tmp1,tmp2);
+        PyObject *res = PyList_New(3);
+        PyList_SetItem(res,0,SWIG_From_double(tmp0));
+        PyList_SetItem(res,1,SWIG_From_int(tmp1));
+        PyList_SetItem(res,2,SWIG_From_int(tmp2));
+        return res;
       }
     }
   };

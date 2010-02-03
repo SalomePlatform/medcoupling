@@ -32,8 +32,9 @@ namespace ParaMEDMEM
   class MEDCouplingFieldDouble;
 }
 
-namespace MEDLoader
+class MEDLoader
 {
+public:
   class MEDConnOfOneElemType
   {
   public:
@@ -73,21 +74,23 @@ namespace MEDLoader
     INTERP_KERNEL::NormalizedCellType _type;
   };
   //
-  std::vector<std::string> GetMeshNames(const char *fileName);
-  std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName);
-  std::vector<std::string> GetMeshFamilyNames(const char *fileName, const char *meshName);
-  std::vector<std::string> GetCellFieldNamesOnMesh(const char *fileName, const char *meshName);
-  std::vector<std::string> GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName);
-  std::vector< std::pair<int,int> > GetCellFieldIterations(const char *fileName, const char *fieldName);
-  std::vector< std::pair<int,int> > GetNodeFieldIterations(const char *fileName, const char *fieldName);
-  ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams);
-  ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps);
-  ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
-  ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
-  ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
-  void writeUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh);
-  void writeField(const char *fileName, const char *meshName, ParaMEDMEM::MEDCouplingFieldDouble *f);
-}
+  static std::vector<std::string> GetMeshNames(const char *fileName);
+  static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName);
+  static std::vector<std::string> GetMeshFamilyNames(const char *fileName, const char *meshName);
+  static std::vector<std::string> GetCellFieldNamesOnMesh(const char *fileName, const char *meshName);
+  static std::vector<std::string> GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName);
+  static std::vector< std::pair<int,int> > GetCellFieldIterations(const char *fileName, const char *fieldName);
+  static std::vector< std::pair<int,int> > GetNodeFieldIterations(const char *fileName, const char *fieldName);
+  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams);
+  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps);
+  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
+  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
+  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
+  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
+  static void WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh);
+  static void WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
+private:
+  MEDLoader();
+};
 
 #endif
