@@ -17,10 +17,11 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingMesh.hxx"
+#include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
-#include "MEDCouplingPointSet.hxx"
+#include <limits>
+#include <algorithm>
 
 using namespace ParaMEDMEM;
 
@@ -107,6 +108,13 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getWeightingField(cons
 }
 
 /*!
+ * Nothing to do. It's not a bug.
+ */
+void MEDCouplingFieldDiscretizationP0::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+{
+}
+
+/*!
  * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
  * @ param di is an array returned that specifies entity ids (here cells ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first cell id of returned mesh has the (*di)[0] id in 'mesh'
@@ -174,6 +182,38 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(cons
   //not implemented yet.
   //Dual mesh to build
   return 0;
+}
+
+void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+{
+  int oldNbOfElems=old2New->getNbOfElems();
+  const int *old2NewPtr=old2New->getConstPointer();
+  int nbOfComp=arr->getNumberOfComponents();
+  int newNbOfTuples=(*std::max_element(old2NewPtr,old2NewPtr+oldNbOfElems))+1;
+  DataArrayDouble *arrCpy=arr->deepCopy();
+  const double *ptSrc=arrCpy->getConstPointer();
+  arr->reAlloc(newNbOfTuples);
+  double *ptToFill=arr->getPointer();
+  std::fill(ptToFill,ptToFill+nbOfComp*newNbOfTuples,std::numeric_limits<double>::max());
+  for(int i=0;i<oldNbOfElems;i++)
+    {
+      int newNb=old2NewPtr[i];
+      if(std::find_if(ptToFill+newNb*nbOfComp,ptToFill+(newNb+1)*nbOfComp,std::bind2nd(std::not_equal_to<double>(),std::numeric_limits<double>::max()))
+         ==ptToFill+(newNb+1)*nbOfComp)
+        std::copy(ptSrc+i*nbOfComp,ptSrc+(i+1)*nbOfComp,ptToFill+newNb*nbOfComp);
+      else
+        {
+          if(!std::equal(ptSrc+i*nbOfComp,ptSrc+(i+1)*nbOfComp,ptToFill+newNb*nbOfComp))
+            {
+              arrCpy->decrRef();
+              std::ostringstream oss;
+              oss << "Node " << i << " and " << std::find(old2NewPtr,old2NewPtr+i,newNb)-old2NewPtr
+                  << " have been merged and nodal field on them are different !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+  arrCpy->decrRef();
 }
 
 /*!

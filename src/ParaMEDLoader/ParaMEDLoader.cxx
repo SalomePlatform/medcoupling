@@ -26,7 +26,11 @@
 
 using namespace ParaMEDMEM;
 
-void MEDLoader::writeParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh)
+ParaMEDLoader::ParaMEDLoader()
+{
+}
+
+void ParaMEDLoader::WriteParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh)
 {
   if(!mesh->getBlockTopology()->getProcGroup()->containsMyRank())
     return ;
@@ -40,14 +44,14 @@ void MEDLoader::writeParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh)
       fileNames[i]=sstr.str();
     }
   if(myRank==0)
-    writeMasterFile(fileName,fileNames,mesh->getCellMesh()->getName());
-  writeUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()));
+    WriteMasterFile(fileName,fileNames,mesh->getCellMesh()->getName());
+  MEDLoader::WriteUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()));
 }
 
 /*!
  * This method builds the master file 'fileName' of a parallel MED file defined in 'fileNames'.
  */
-void MEDLoader::writeMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName)
+void ParaMEDLoader::WriteMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName)
 {
   int nbOfDom=fileNames.size();
   std::ofstream fs(fileName);

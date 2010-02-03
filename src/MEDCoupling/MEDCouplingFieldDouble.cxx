@@ -17,7 +17,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingMesh.hxx"
+#include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 
@@ -243,6 +243,34 @@ void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyI
 void MEDCouplingFieldDouble::serialize(std::vector<DataArrayDouble *>& arrays) const
 {
   _time_discr->getArrays(arrays);
+}
+
+/*!
+ * \b Warning ! This method potentially modifies the underlying mesh ! If the mesh is shared by other fields, these fields could be unavailable.
+ */
+bool MEDCouplingFieldDouble::mergeNodes(double eps)
+{
+  MEDCouplingPointSet *meshC=dynamic_cast<MEDCouplingPointSet *>((MEDCouplingMesh *)(_mesh));
+  if(!meshC)
+    throw INTERP_KERNEL::Exception("Invalid mesh to apply mergeNodes on it !");
+  bool ret;
+  DataArrayInt *arr=meshC->mergeNodes(eps,ret);
+  if(!ret)//no nodes have been merged.
+    return ret;
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  try
+    {
+      for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+        _type->renumberValuesOnNodes(arr,*iter);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      arr->decrRef();
+      throw e;
+    }
+  arr->decrRef();
+  return true;
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)

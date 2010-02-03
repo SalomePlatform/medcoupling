@@ -1074,6 +1074,7 @@ void MEDCouplingBasicsTest::testMergeField1()
 bool func1(const double *pt, double *res);
 bool func2(const double *pt, double *res);
 bool func3(const double *pt, double *res);
+bool func4(const double *pt, double *res);
 
 bool func1(const double *pt, double *res)
 {
@@ -1272,6 +1273,38 @@ void MEDCouplingBasicsTest::testOperationsOnFields()
   f1->decrRef();
   f2->decrRef();
   m->decrRef();
+}
+
+bool func4(const double *pt, double *res)
+{
+  res[0]=pt[0]+pt[1]+pt[2];
+  return true;
+}
+
+void MEDCouplingBasicsTest::testMergeNodesOnField()
+{
+  double *tmp;
+  MEDCouplingUMesh *targetMesh=build3DTargetMeshMergeNode_1();
+  MEDCouplingFieldDouble *f1=targetMesh->fillFromAnalytic(ON_NODES,1,func4);
+  f1->mergeNodes(1e-10);
+  f1->decrRef();
+  targetMesh->decrRef();
+  //
+  targetMesh=build3DTargetMeshMergeNode_1();
+  f1=targetMesh->fillFromAnalytic(ON_NODES,1,func4);
+  tmp=f1->getArray()->getPointer();
+  tmp[0]=1000.;
+  f1->mergeNodes(1e-10);
+  f1->decrRef();
+  targetMesh->decrRef();
+  //
+  targetMesh=build3DTargetMeshMergeNode_1();
+  f1=targetMesh->fillFromAnalytic(ON_NODES,1,func4);
+  tmp=f1->getArray()->getPointer();
+  tmp[1]=1000.;
+  CPPUNIT_ASSERT_THROW(f1->mergeNodes(1e-10),INTERP_KERNEL::Exception);
+  f1->decrRef();
+  targetMesh->decrRef();
 }
 
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()

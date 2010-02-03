@@ -60,7 +60,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         if source_group.containsMyRank():
             filename = filename_xml1 + str(rank+1) + ".med"
             meshname = "Mesh_2_" + str(rank+1)
-            mesh=ReadUMeshFromFile(filename,meshname,0)
+            mesh=MEDLoader.ReadUMeshFromFile(filename,meshname,0)
             paramesh=ParaMESH(mesh,source_group,"source mesh")
             comptopo = ComponentTopology()
             parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
@@ -75,7 +75,7 @@ class ParaMEDMEMBasicsTest(unittest.TestCase):
         else:
             filename = filename_xml2 + str(rank - nproc_source + 1) + ".med"
             meshname = "Mesh_3_" + str(rank - nproc_source + 1)
-            mesh=ReadUMeshFromFile(filename,meshname,0)
+            mesh=MEDLoader.ReadUMeshFromFile(filename,meshname,0)
             paramesh=ParaMESH(mesh,target_group,"target mesh")
             comptopo = ComponentTopology()
             parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)

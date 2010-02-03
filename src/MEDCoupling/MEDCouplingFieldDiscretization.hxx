@@ -46,6 +46,7 @@ namespace ParaMEDMEM
     virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const = 0;
     virtual MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const = 0;
+    virtual void renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const = 0;
   };
 
   class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationP0 : public MEDCouplingFieldDiscretization
@@ -60,6 +61,7 @@ namespace ParaMEDMEM
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    void renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const;
   public:
     static const char REPR[];
@@ -79,6 +81,7 @@ namespace ParaMEDMEM
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const;
+    void renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const;
     static DataArrayInt *invertArrayO2N2N2O(const MEDCouplingMesh *mesh, const DataArrayInt *di);
   public:
     static const char REPR[];

@@ -28,10 +28,13 @@ namespace ParaMEDMEM
   class ParaFIELD;
 }
 
-namespace MEDLoader
+class ParaMEDLoader
 {
-  void writeParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh);
-  void writeMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName);
-}
+public:
+  static void WriteParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *mesh);
+  static void WriteMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName);
+private:
+  ParaMEDLoader();
+};
 
 #endif

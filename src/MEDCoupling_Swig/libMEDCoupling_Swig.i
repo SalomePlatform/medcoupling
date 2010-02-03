@@ -182,6 +182,7 @@ namespace ParaMEDMEM
     NatureOfField getNature() const { return _nature; }
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void updateTime();
+    bool mergeNodes(double eps);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     %extend {
       void setValues(PyObject *li)
