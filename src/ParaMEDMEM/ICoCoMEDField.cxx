@@ -115,6 +115,8 @@ namespace ICoCo
     ParaMEDMEM::DataArrayDouble *fieldArr=ParaMEDMEM::DataArrayDouble::New();
     fieldArr->alloc(_field->getNumberOfTuples(),triofield._nb_field_components);
     _field->setName(triofield.getName().c_str());
+    std::string meshName("SupportOf_"); meshName+=_field->getName();
+    _mesh->setName(meshName.c_str());
     _field->setTime(triofield._time1,0,triofield._itnumber);
     if (triofield._field!=0)
       {
