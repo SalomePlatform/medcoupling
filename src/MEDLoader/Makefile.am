@@ -18,8 +18,11 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-SUBDIRS = . Swig
+if !MED_ENABLE_MICROMED
+  SUBDIRS = . Swig
+endif
 
+#DIST_SUBDIRS = Swig
 
 lib_LTLIBRARIES = libmedloader.la
 
