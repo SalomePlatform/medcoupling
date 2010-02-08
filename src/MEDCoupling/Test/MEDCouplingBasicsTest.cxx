@@ -1307,6 +1307,16 @@ void MEDCouplingBasicsTest::testMergeNodesOnField()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::testCheckConsecutiveCellTypes()
+{
+  MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  CPPUNIT_ASSERT(sourceMesh->checkConsecutiveCellTypes());
+  CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypes());
+  targetMesh->decrRef();
+  sourceMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();

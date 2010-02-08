@@ -60,15 +60,15 @@ public:
   class MEDFieldDoublePerCellType
   {
   public:
-    MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int nval);
+    MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple);
     INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
     int getNbComp() const { return _ncomp; }
-    int getNbOfTuple() const { return _nval; }
-    int getNbOfValues() const { return _ncomp*_nval; }
+    int getNbOfTuple() const { return _ntuple; }
+    int getNbOfValues() const { return _ncomp*_ntuple; }
     double *getArray() const { return _values; }
     void releaseArray();
   private:
-    int _nval;
+    int _ntuple;
     int _ncomp;
     double *_values;
     INTERP_KERNEL::NormalizedCellType _type;
@@ -87,8 +87,9 @@ public:
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
-  static void WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh);
-  static void WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
+  static void WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch);
+  static void WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
+  static void WriteFieldUsingAlreadyWrittenMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
 private:
   MEDLoader();
 };

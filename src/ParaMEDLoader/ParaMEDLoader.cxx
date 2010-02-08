@@ -45,7 +45,7 @@ void ParaMEDLoader::WriteParaMesh(const char *fileName, ParaMEDMEM::ParaMESH *me
     }
   if(myRank==0)
     WriteMasterFile(fileName,fileNames,mesh->getCellMesh()->getName());
-  MEDLoader::WriteUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()));
+  MEDLoader::WriteUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()),true);
 }
 
 /*!

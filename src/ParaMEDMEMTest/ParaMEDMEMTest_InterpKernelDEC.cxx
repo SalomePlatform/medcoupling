@@ -218,14 +218,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      MEDLoader::WriteField("./sourcesquareb",parafield->getField());
+      //MEDLoader::WriteField("./sourcesquareb",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
       ParaMEDLoader::WriteParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      MEDLoader::WriteField("./sourcesquare",parafield->getField());
+      //MEDLoader::WriteField("./sourcesquare",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -248,7 +248,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
 
       dec.recvData();
       ParaMEDLoader::WriteParaMesh("./targetsquareb",paramesh);
-      MEDLoader::WriteField("./targetsquareb",parafield->getField());
+      //MEDLoader::WriteField("./targetsquareb",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
@@ -256,7 +256,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_2D_(const char *srcMeth, const char *ta
       aRemover.Register(filename.str().c_str());
       dec.sendData();
       ParaMEDLoader::WriteParaMesh("./targetsquare",paramesh);
-      MEDLoader::WriteField("./targetsquare",parafield->getField());
+      //MEDLoader::WriteField("./targetsquare",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
@@ -580,14 +580,14 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       ostringstream filename;
       filename<<"./sourcesquareb_"<<source_group->myRank()+1;
       aRemover.Register(filename.str().c_str());
-      MEDLoader::WriteField("./sourcesquareb",parafield->getField());
+      //MEDLoader::WriteField("./sourcesquareb",parafield->getField());
    
       dec.recvData();
       cout <<"writing"<<endl;
       ParaMEDLoader::WriteParaMesh("./sourcesquare",paramesh);
       if (source_group->myRank()==0)
         aRemover.Register("./sourcesquare");
-      MEDLoader::WriteField("./sourcesquare",parafield->getField());
+      //MEDLoader::WriteField("./sourcesquare",parafield->getField());
       
      
       filename<<"./sourcesquare_"<<source_group->myRank()+1;
@@ -606,7 +606,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
 
       dec.recvData();
       ParaMEDLoader::WriteParaMesh("./targetsquareb",paramesh);
-      MEDLoader::WriteField("./targetsquareb",parafield->getField());
+      //MEDLoader::WriteField("./targetsquareb",parafield->getField());
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");
       ostringstream filename;
@@ -614,7 +614,7 @@ void ParaMEDMEMTest::testInterpKernelDEC_3D_(const char *srcMeth, const char *ta
       aRemover.Register(filename.str().c_str());
       dec.sendData();
       ParaMEDLoader::WriteParaMesh("./targetsquare",paramesh);
-      MEDLoader::WriteField("./targetsquare",parafield->getField());
+      //MEDLoader::WriteField("./targetsquare",parafield->getField());
       
       if (target_group->myRank()==0)
         aRemover.Register("./targetsquareb");

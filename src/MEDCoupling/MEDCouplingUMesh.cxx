@@ -842,6 +842,36 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
     }
 }
 
+namespace ParaMEDMEMImpl
+{
+  class ConnReader
+  {
+  public:
+    ConnReader(const int *c, int val):_conn(c),_val(val) { }
+    bool operator() (const int& pos) { return _conn[pos]!=_val; }
+  private:
+    const int *_conn;
+    int _val;
+  };
+}
+
+bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
+{
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  std::set<INTERP_KERNEL::NormalizedCellType> types;
+  for(const int *i=connI;i!=connI+nbOfCells;)
+    {
+      INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
+      if(types.find(curType)!=types.end())
+            return false;
+      types.insert(curType);
+      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+    }
+  return true;
+}
+
 MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
 {
   if(other->getType()!=UNSTRUCTURED)
@@ -880,6 +910,7 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
 MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2)
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
+  ret->setName("merge");
   DataArrayDouble *pts=mergeNodesArray(mesh1,mesh2);
   ret->setCoords(pts);
   pts->decrRef();

@@ -27,10 +27,10 @@ endif
 lib_LTLIBRARIES = libmedloader.la
 
 salomeinclude_HEADERS= \
-MEDLoader.hxx
+MEDLoader.hxx MEDLoaderBase.hxx
 
 dist_libmedloader_la_SOURCES= \
-MEDLoader.cxx
+MEDLoader.cxx MEDLoaderBase.cxx
 
 libmedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \

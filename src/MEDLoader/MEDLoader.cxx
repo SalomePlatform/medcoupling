@@ -17,6 +17,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "MEDLoader.hxx"
+#include "MEDLoaderBase.hxx"
 #include "CellModel.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -73,6 +74,40 @@ INTERP_KERNEL::NormalizedCellType typmai2[MED_NBR_GEOMETRIE_MAILLE+2] = { INTERP
                                                                           INTERP_KERNEL::NORM_POLYGON,
                                                                           INTERP_KERNEL::NORM_POLYHED };
 
+med_geometrie_element typmai3[32] = { MED_POINT1,//0
+                                      MED_SEG2,//1
+                                      MED_SEG3,//2
+                                      MED_TRIA3,//3
+                                      MED_QUAD4,//4
+                                      MED_POLYGONE,//5
+                                      MED_TRIA6,//6
+                                      MED_NONE,//7
+                                      MED_QUAD8,//8
+                                      MED_NONE,//9
+                                      MED_NONE,//10
+                                      MED_NONE,//11
+                                      MED_NONE,//12
+                                      MED_NONE,//13
+                                      MED_TETRA4,//14
+                                      MED_PYRA5,//15
+                                      MED_PENTA6,//16
+                                      MED_NONE,//17
+                                      MED_HEXA8,//18
+                                      MED_NONE,//19
+                                      MED_TETRA10,//20
+                                      MED_NONE,//21
+                                      MED_NONE,//22
+                                      MED_PYRA13,//23
+                                      MED_NONE,//24
+                                      MED_PENTA15,//25
+                                      MED_NONE,//26
+                                      MED_NONE,//27
+                                      MED_NONE,//28
+                                      MED_NONE,//29
+                                      MED_HEXA20,//30
+                                      MED_POLYEDRE//31
+};
+
 using namespace ParaMEDMEM;
 
 namespace MEDLoaderNS
@@ -84,6 +119,16 @@ namespace MEDLoaderNS
     void operator()(const MEDLoader::MEDFieldDoublePerCellType& elt) { _ptr=std::copy(elt.getArray(),elt.getArray()+elt.getNbOfValues(),_ptr); }
   private:
     double *_ptr;
+  };
+ 
+  class ConnReaderML
+  {
+  public:
+    ConnReaderML(const int *c, int val):_conn(c),_val(val) { }
+    bool operator() (const int& pos) { return _conn[pos]!=_val; }
+  private:
+    const int *_conn;
+    int _val;
   };
   
   std::string buildStringFromFortran(const char *expr, int lgth);
@@ -110,6 +155,10 @@ namespace MEDLoaderNS
   int buildMEDSubConnectivityOfOneTypeStaticTypes(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile);
   ParaMEDMEM::MEDCouplingFieldDouble *readFieldDoubleLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order,
                                                           ParaMEDMEM::TypeOfField typeOfOutField);
+  void appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
+  void prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, std::list<MEDLoader::MEDFieldDoublePerCellType>& split);
+  void writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool forceFromScratch);
+  void writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
 }
 
 const char WHITE_SPACES[]=" \n";
@@ -144,7 +193,7 @@ void MEDLoader::MEDConnOfOneElemType::releaseArray()
   delete [] _global;
 }
 
-MEDLoader::MEDFieldDoublePerCellType::MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int nval):_nval(nval),_ncomp(ncomp),_values(values),_type(type)
+MEDLoader::MEDFieldDoublePerCellType::MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple):_ntuple(ntuple),_ncomp(ncomp),_values(values),_type(type)
 {
 }
 
@@ -460,6 +509,23 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                 {
                   int nval=MEDnVal(fid,(char *)fieldName,tabEnt[typeOfOutField],tabType[typeOfOutField][j],iteration,order,(char *)meshName,MED_COMPACT);
                   double *valr=new double[ncomp*nval];
+                  //
+                  med_int ngauss=0;
+                  med_int numdt=0,numo=0,nbrefmaa;
+                  char dt_unit[MED_TAILLE_PNOM+1]="";
+                  char maa_ass[MED_TAILLE_NOM+1]="";
+                  med_float dt=0.0;
+                  med_booleen local;
+                  med_int nbPdt=MEDnPasdetemps(fid,(char *)fieldName,MED_MAILLE,tabType[typeOfOutField][j]);
+                  bool found2=false;
+                  for(int k=0;k<nbPdt && !found2;k++)
+                    {
+                      MEDpasdetempsInfo(fid,(char *)fieldName,MED_MAILLE,tabType[typeOfOutField][j],k+1,&ngauss,
+                                        &numdt,&numo,dt_unit,&dt,maa_ass,&local,&nbrefmaa);
+                      found2=(numdt==iteration && numo==order);
+                      if(found2)
+                        time=dt;
+                    }
                   MEDchampLire(fid,(char *)meshName,(char *)fieldName,(unsigned char*)valr,MED_FULL_INTERLACE,MED_ALL,locname,
                                pflname,MED_COMPACT,tabEnt[typeOfOutField],tabType[typeOfOutField][j],iteration,order);
                   field.push_back(MEDLoader::MEDFieldDoublePerCellType(typmai2[j],valr,ncomp,nval));
@@ -1052,9 +1118,9 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleNode(const char *f
   return MEDLoaderNS::readFieldDoubleLev1(fileName,meshName,meshDimRelToMax,fieldName,iteration,order,ON_NODES);
 }
 
-void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh)
+void MEDLoaderNS::writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool forceFromScratch)
 {
-  med_idt fid=MEDouvrir((char *)fileName,MED_CREATION);
+  med_idt fid=MEDouvrir((char *)fileName,forceFromScratch?MED_CREATION:MED_LECTURE_ECRITURE);
   std::string meshName(mesh->getName());
   if(meshName=="")
     {
@@ -1104,6 +1170,169 @@ void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *m
   MEDfermer(fid);
 }
 
-void MEDLoader::WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
 {
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE_ECRITURE);
+  int nbComp=f->getNumberOfComponents();
+  char *comp=new char[nbComp*MED_TAILLE_PNOM+1];
+  std::fill(comp,comp+nbComp*MED_TAILLE_PNOM,' ');
+  comp[nbComp*MED_TAILLE_PNOM]='\0';
+  char *unit=new char[nbComp*MED_TAILLE_PNOM+1];
+  std::fill(unit,unit+nbComp*MED_TAILLE_PNOM,' ');
+  unit[nbComp*MED_TAILLE_PNOM]='\0';
+  MEDchampCr(fid,(char *)f->getName(),MED_FLOAT64,comp,unit,nbComp);
+  med_int numdt,numo;
+  med_float dt;
+  ParaMEDMEM::TypeOfTimeDiscretization td=f->getTimeDiscretization();
+  if(td==ParaMEDMEM::NO_TIME)
+    {
+      numdt=MED_NOPDT; numo=MED_NONOR; dt=0.0;
+    }
+  else if(td==ParaMEDMEM::ONE_TIME)
+    {
+      int tmp1,tmp2;
+      double tmp0=f->getTime(tmp1,tmp2);
+      numdt=(med_int)tmp1; numo=(med_int)tmp2;
+      dt=(med_float)tmp0;
+    }
+  const double *pt=f->getArray()->getConstPointer();
+  switch(f->getTypeOfField())
+    {
+    case ParaMEDMEM::ON_CELLS:
+      {
+        std::list<MEDLoader::MEDFieldDoublePerCellType> split;
+        prepareCellFieldDoubleForWriting(f,split);
+        for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=split.begin();iter!=split.end();iter++)
+          {
+            char nommaa[MED_TAILLE_NOM+1];
+            std::fill(nommaa,nommaa+MED_TAILLE_NOM,' '); nommaa[MED_TAILLE_NOM]='\0';
+            strcpy(nommaa,f->getMesh()->getName());
+            MEDchampEcr(fid,(char *)nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,(*iter).getNbOfTuple(),
+                        (char *)MED_NOGAUSS,MED_ALL,(char *)MED_NOPFL,MED_NO_PFLMOD,MED_MAILLE,
+                        typmai3[(int)(*iter).getType()],numdt,(char *)"",dt,numo);
+            pt+=(*iter).getNbOfTuple()*nbComp;
+          }
+        break;
+      }
+    case ParaMEDMEM::ON_NODES:
+      {
+        int nbOfTuples=f->getArray()->getNumberOfTuples();
+        MEDchampEcr(fid,(char *)f->getMesh()->getName(),(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,nbOfTuples,(char *)MED_NOGAUSS,
+                    MED_ALL,(char *)MED_NOPFL,MED_NO_PFLMOD,MED_NOEUD,MED_NONE,numdt,(char *)"",dt,numo);
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("Not managed this type of FIELD !");
+    }
+  delete [] comp;
+  delete [] unit;
+  MEDfermer(fid);
+}
+
+void MEDLoaderNS::prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, std::list<MEDLoader::MEDFieldDoublePerCellType>& split)
+{
+  int nbComp=f->getNumberOfComponents();
+  const MEDCouplingMesh *mesh=f->getMesh();
+  const MEDCouplingUMesh *meshC=dynamic_cast<const MEDCouplingUMesh *>(mesh);
+  if(!meshC)
+    throw INTERP_KERNEL::Exception("Not implemented yet for not unstructured mesh !");
+  if(!meshC->checkConsecutiveCellTypes())
+    throw INTERP_KERNEL::Exception("Unstructuded mesh has not consecutive cell types !");
+  const int *connI=meshC->getNodalConnectivityIndex()->getConstPointer();
+  const int *conn=meshC->getNodalConnectivity()->getConstPointer();
+  int nbOfCells=meshC->getNumberOfCells();
+  INTERP_KERNEL::NormalizedCellType curType;
+  for(const int *pt=connI;pt!=connI+nbOfCells;)
+    {
+      curType=(INTERP_KERNEL::NormalizedCellType)conn[*pt];
+      const int *pt2=std::find_if(pt+1,connI+nbOfCells,ConnReaderML(conn,(int)curType));
+      split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt));
+      pt=pt2;
+    }
+}
+
+void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch)
+{
+  MEDCouplingUMesh *mesh=dynamic_cast<MEDCouplingUMesh *>((MEDCouplingMesh *)f->getMesh());
+  writeUMeshDirectly(fileName,mesh,forceFromScratch);
+  appendFieldDirectly(fileName,f);
+}
+
+void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
+{
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(writeFromScratch)
+    {
+      MEDLoaderNS::writeUMeshDirectly(fileName,mesh,true);
+      return ;
+    }
+  if(status==MEDLoaderBase::NOT_EXIST)
+    {
+      MEDLoaderNS::writeUMeshDirectly(fileName,mesh,true);
+      return;
+    }
+  else
+    {
+      std::vector<std::string> meshNames=GetMeshNames(fileName);
+      std::string fileNameCpp(mesh->getName());
+      if(std::find(meshNames.begin(),meshNames.end(),fileNameCpp)==meshNames.end())
+        MEDLoaderNS::writeUMeshDirectly(fileName,mesh,false);
+      else
+        {
+          std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
+          oss << fileNameCpp << "\" !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+void MEDLoader::WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
+{
+  f->checkCoherency();
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(writeFromScratch)
+    {
+      MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,true);
+     return ;
+    }
+  if(status==MEDLoaderBase::NOT_EXIST)
+    {
+     MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,true);
+     return ;
+    }
+  else
+    {
+      std::vector<std::string> meshNames=GetMeshNames(fileName);
+      std::string fileNameCpp(f->getMesh()->getName());
+      if(std::find(meshNames.begin(),meshNames.end(),fileNameCpp)==meshNames.end())
+        MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,false);
+      else
+        {
+          std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
+          oss << fileNameCpp << "\" !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str()); 
+        }
+    }
+}
+
+void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+{
+  f->checkCoherency();
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  if(status!=MEDLoaderBase::EXIST_RW)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions or not exists !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDLoaderNS::appendFieldDirectly(fileName,f);
 }
