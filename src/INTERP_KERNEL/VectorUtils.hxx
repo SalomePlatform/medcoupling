@@ -25,17 +25,17 @@
 #include <cmath>
 #include <map>
 
-/// Precision used for tests of 3D part of INTERP_KERNEL
-#define VOL_PREC 1.0e-6
-
-/// Default relative tolerance in epsilonEqualRelative
-#define DEFAULT_REL_TOL 1.0e-6
-
-/// Default absolute tolerance in epsilonEqual and epsilonEqualRelative
-#define DEFAULT_ABS_TOL 5.0e-12
-
 namespace INTERP_KERNEL
 {
+  /// Precision used for tests of 3D part of INTERP_KERNEL
+  const double VOL_PREC = 1.0e-6;
+  
+  /// Default relative tolerance in epsilonEqualRelative
+  const double DEFAULT_REL_TOL = 1.0e-6;
+  
+  /// Default absolute tolerance in epsilonEqual and epsilonEqualRelative
+  const double DEFAULT_ABS_TOL = 5.0e-12;
+
   /**
    * @param a first point. Should point on a array of size at least equal to SPACEDIM.
    * @param b second point. Should point on a array of size at least equal to SPACEDIM.
