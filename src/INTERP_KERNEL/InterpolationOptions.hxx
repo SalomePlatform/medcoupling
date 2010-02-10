@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
   
   class INTERPKERNEL_EXPORT InterpolationOptions
   {
-  private :
+  protected:
     int _print_level ;
     IntersectionType _intersection_type;
     double _precision;
@@ -49,6 +49,8 @@ namespace INTERP_KERNEL
     bool _measure_abs;
     SplittingPolicy _splitting_policy ;
     bool _P1P0_bary_method; // issue 0020440
+
+    bool _setInterpolationOptions;
   public:
     InterpolationOptions() { init(); }
     int getPrintLevel() const { return _print_level; }
@@ -103,10 +105,23 @@ namespace INTERP_KERNEL
       _measure_abs=true;
       _splitting_policy=GENERAL_48;
       _P1P0_bary_method=false;
+      _setInterpolationOptions=false;
     }
     bool setOptionDouble(const std::string& key, double value);
     bool setOptionInt(const std::string& key, int value);
     bool setOptionString(const std::string& key, std::string& value);
+    void setInterpolationOptions(long print_level,
+                                 const char * intersection_type,
+                                 double precision,
+                                 double median_plane,
+                                 bool do_rotate,
+                                 double bounding_box_adjustment,
+                                 double bounding_box_adjustment_abs,
+                                 double max_distance_for_3Dsurf_intersect,
+                                 long orientation,
+                                 bool measure_abs,
+                                 const char * splitting_policy,
+                                 bool P1P0_bary_method );
   private:
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;

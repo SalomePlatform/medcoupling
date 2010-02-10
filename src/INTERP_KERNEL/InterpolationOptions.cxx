@@ -179,3 +179,49 @@ std::string INTERP_KERNEL::InterpolationOptions::filterInterpolationMethod(const
     return "P1P0Bary";
   return meth;
 }
+
+void INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_level,
+                                                                  const char * intersection_type,
+                                                                  double precision,
+                                                                  double median_plane,
+                                                                  bool do_rotate,
+                                                                  double bounding_box_adjustment,
+                                                                  double bounding_box_adjustment_abs,
+                                                                  double max_distance_for_3Dsurf_intersect,
+                                                                  long orientation,
+                                                                  bool measure_abs,
+                                                                  const char * splitting_policy,
+                                                                  bool P1P0_bary_method )
+{
+  std::string interType = intersection_type;
+  std::string splitPolicy = splitting_policy;
+
+  _setInterpolationOptions=true;
+  _print_level=print_level;
+  if( interType.find("Triangulation") != std::string::npos )
+    _intersection_type=INTERP_KERNEL::Triangulation;
+  else if( interType.find("Convex") != std::string::npos )
+    _intersection_type=INTERP_KERNEL::Convex;
+  else if( interType.find("Geometric2D") != std::string::npos )
+    _intersection_type=INTERP_KERNEL::Geometric2D;
+  else if( interType.find("PointLocator") != std::string::npos )
+    _intersection_type=INTERP_KERNEL::PointLocator;
+  _precision=precision;
+  _median_plane=median_plane;
+  _do_rotate=do_rotate;
+  _bounding_box_adjustment=bounding_box_adjustment;
+  _bounding_box_adjustment_abs=bounding_box_adjustment_abs;
+  _max_distance_for_3Dsurf_intersect=max_distance_for_3Dsurf_intersect;
+  _orientation=orientation;
+  _measure_abs=measure_abs;
+  if( splitPolicy.find("PLANAR_FACE_5") != std::string::npos )
+    _splitting_policy=INTERP_KERNEL::PLANAR_FACE_5;
+  else if( splitPolicy.find("PLANAR_FACE_6") != std::string::npos )
+    _splitting_policy=INTERP_KERNEL::PLANAR_FACE_6;
+  else if( splitPolicy.find("GENERAL_24") != std::string::npos )
+    _splitting_policy=INTERP_KERNEL::GENERAL_24;
+  else if( splitPolicy.find("GENERAL_48") != std::string::npos )
+    _splitting_policy=INTERP_KERNEL::GENERAL_48;
+  _P1P0_bary_method=P1P0_bary_method;
+}
+
