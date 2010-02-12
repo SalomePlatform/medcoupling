@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
   
   class INTERPKERNEL_EXPORT InterpolationOptions
   {
-  protected:
+  private:
     int _print_level ;
     IntersectionType _intersection_type;
     double _precision;
@@ -50,7 +50,6 @@ namespace INTERP_KERNEL
     SplittingPolicy _splitting_policy ;
     bool _P1P0_bary_method; // issue 0020440
 
-    bool _setInterpolationOptions;
   public:
     InterpolationOptions() { init(); }
     int getPrintLevel() const { return _print_level; }
@@ -105,13 +104,9 @@ namespace INTERP_KERNEL
       _measure_abs=true;
       _splitting_policy=GENERAL_48;
       _P1P0_bary_method=false;
-      _setInterpolationOptions=false;
     }
-    bool setOptionDouble(const std::string& key, double value);
-    bool setOptionInt(const std::string& key, int value);
-    bool setOptionString(const std::string& key, std::string& value);
-    void setInterpolationOptions(long print_level,
-                                 const char * intersection_type,
+    bool setInterpolationOptions(long print_level,
+                                 std::string intersection_type,
                                  double precision,
                                  double median_plane,
                                  bool do_rotate,
@@ -120,8 +115,12 @@ namespace INTERP_KERNEL
                                  double max_distance_for_3Dsurf_intersect,
                                  long orientation,
                                  bool measure_abs,
-                                 const char * splitting_policy,
+                                 std::string splitting_policy,
                                  bool P1P0_bary_method );
+    void copyOptions(InterpolationOptions & other) { *this = other; }
+    bool setOptionDouble(const std::string& key, double value);
+    bool setOptionInt(const std::string& key, int value);
+    bool setOptionString(const std::string& key, std::string& value);
   private:
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;
