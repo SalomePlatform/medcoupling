@@ -22,8 +22,8 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingPointSet.txx"
 #include "PlanarIntersector.txx"
-#include "QuadraticPolygon.hxx"
-#include "Node.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "InterpKernelGeo2DNode.hxx"
 
 #include <cmath>
 #include <limits>

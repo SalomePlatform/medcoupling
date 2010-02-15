@@ -3800,6 +3800,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshMerged_1()
     9,12,10,9,11,12
   };
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setName("merge");
   targetMesh->setMeshDimension(2);
   targetMesh->allocateCells(10);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
