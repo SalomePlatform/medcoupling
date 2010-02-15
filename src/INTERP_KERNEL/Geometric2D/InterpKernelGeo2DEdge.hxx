@@ -16,14 +16,14 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __EDGE_HXX__
-#define __EDGE_HXX__
+#ifndef __INTERPKERNELGEO2DEDGE_HXX__
+#define __INTERPKERNELGEO2DEDGE_HXX__
 
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"
-#include "ComposedEdge.hxx"
+#include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelException.hxx"
-#include "Bounds.hxx"
-#include "Node.hxx"
+#include "InterpKernelGeo2DBounds.hxx"
+#include "InterpKernelGeo2DNode.hxx"
 
 #include <iostream>
 #include <vector>

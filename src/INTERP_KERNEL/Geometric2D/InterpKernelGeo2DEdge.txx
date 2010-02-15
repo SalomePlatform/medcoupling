@@ -16,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __EDGE_TXX__
-#define __EDGE_TXX__
+#ifndef __INTERPKERNELGEO2DEDGE_TXX__
+#define __INTERPKERNELGEO2DEDGE_TXX__
 
-#include "EdgeArcCircle.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 
 template<INTERP_KERNEL::TypeOfMod4QuadEdge type>
 INTERP_KERNEL::Edge *INTERP_KERNEL::Edge::buildEdgeFrom(Node *start, Node *middle, Node *end)

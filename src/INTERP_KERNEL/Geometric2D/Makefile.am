@@ -25,32 +25,32 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 lib_LTLIBRARIES = libInterpGeometric2DAlg.la
 
 dist_libInterpGeometric2DAlg_la_SOURCES = \
-AbstractEdge.cxx               \
-Bounds.cxx                     \
-InterpKernelGeo2DPrecision.cxx \
-ComposedEdge.cxx               \
-EdgeArcCircle.cxx              \
-Edge.cxx                       \
-EdgeInfLin.cxx                 \
-EdgeLin.cxx                    \
-ElementaryEdge.cxx             \
-Node.cxx                       \
-QuadraticPolygon.cxx
+InterpKernelGeo2DAbstractEdge.cxx         \
+InterpKernelGeo2DBounds.cxx               \
+InterpKernelGeo2DPrecision.cxx            \
+InterpKernelGeo2DComposedEdge.cxx         \
+InterpKernelGeo2DEdgeArcCircle.cxx        \
+InterpKernelGeo2DEdge.cxx                 \
+InterpKernelGeo2DEdgeInfLin.cxx           \
+InterpKernelGeo2DEdgeLin.cxx              \
+InterpKernelGeo2DElementaryEdge.cxx       \
+InterpKernelGeo2DNode.cxx                 \
+InterpKernelGeo2DQuadraticPolygon.cxx
 
-salomeinclude_HEADERS =  \
-INTERPKERNELGEOMETRIC2DDefines.hxx \
-AbstractEdge.hxx                   \
-Bounds.hxx                         \
-InterpKernelGeo2DPrecision.hxx     \
-ComposedEdge.hxx                   \
-EdgeArcCircle.hxx                  \
-Edge.hxx                           \
-EdgeInfLin.hxx                     \
-EdgeLin.hxx                        \
-ElementaryEdge.hxx                 \
-Node.hxx                           \
-QuadraticPolygon.hxx               \
-Edge.txx
+salomeinclude_HEADERS =                \
+INTERPKERNELGEOMETRIC2DDefines.hxx     \
+InterpKernelGeo2DAbstractEdge.hxx      \
+InterpKernelGeo2DBounds.hxx            \
+InterpKernelGeo2DPrecision.hxx         \
+InterpKernelGeo2DComposedEdge.hxx      \
+InterpKernelGeo2DEdgeArcCircle.hxx     \
+InterpKernelGeo2DEdge.hxx              \
+InterpKernelGeo2DEdgeInfLin.hxx        \
+InterpKernelGeo2DEdgeLin.hxx           \
+InterpKernelGeo2DElementaryEdge.hxx    \
+InterpKernelGeo2DNode.hxx              \
+InterpKernelGeo2DQuadraticPolygon.hxx  \
+InterpKernelGeo2DEdge.txx
 
 libInterpGeometric2DAlg_la_CPPFLAGS = -I$(srcdir)/../Bases
 

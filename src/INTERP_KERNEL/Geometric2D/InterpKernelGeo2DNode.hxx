@@ -16,8 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __NODE_HXX__
-#define __NODE_HXX__
+#ifndef __INTERPKERNELGEO2DNODE_HXX__
+#define __INTERPKERNELGEO2DNODE_HXX__
 
 #include "InterpKernelGeo2DPrecision.hxx"
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"

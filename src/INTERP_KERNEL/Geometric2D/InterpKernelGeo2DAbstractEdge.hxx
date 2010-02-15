@@ -16,8 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __ABSTRACTEDGE_HXX__
-#define __ABSTRACTEDGE_HXX__
+#ifndef __INTERPKERNELGEO2DABSTRACTEDGE_HXX__
+#define __INTERPKERNELGEO2DABSTRACTEDGE_HXX__
 
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"
 

@@ -16,8 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "EdgeLin.hxx"
-#include "Node.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
+#include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelException.hxx"
 
 using namespace std;

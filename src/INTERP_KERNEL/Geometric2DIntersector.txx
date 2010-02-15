@@ -27,10 +27,10 @@
 #include "PlanarIntersectorP1P0Bary.txx"
 #include "CellModel.hxx"
 
-#include "QuadraticPolygon.hxx"
-#include "EdgeArcCircle.hxx"
-#include "EdgeLin.hxx"
-#include "Node.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
+#include "InterpKernelGeo2DNode.hxx"
 
 #define GEO2D_INTERSECTOR    Geometric2DIntersector<MyMeshType,MyMatrix,InterpType>
 #define INTERSECTOR_TEMPLATE template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>

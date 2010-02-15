@@ -16,14 +16,14 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __QUADRATICPOLYGON_HXX__
-#define __QUADRATICPOLYGON_HXX__
+#ifndef __INTERPKERNELGEO2DQUADRATICPOLYGON_HXX__
+#define __INTERPKERNELGEO2DQUADRATICPOLYGON_HXX__
 
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"
 
-#include "ComposedEdge.hxx"
-#include "AbstractEdge.hxx"
-#include "ElementaryEdge.hxx"
+#include "InterpKernelGeo2DComposedEdge.hxx"
+#include "InterpKernelGeo2DAbstractEdge.hxx"
+#include "InterpKernelGeo2DElementaryEdge.hxx"
 
 #include <list>
 #include <vector>

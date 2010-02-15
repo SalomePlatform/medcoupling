@@ -24,7 +24,7 @@
 #include "CellModel.hxx"
 
 #include "PointLocatorAlgos.txx"
-#include "QuadraticPolygon.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "MeshUtils.hxx"
 
 namespace INTERP_KERNEL

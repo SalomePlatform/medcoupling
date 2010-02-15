@@ -16,9 +16,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "ElementaryEdge.hxx"
+#include "InterpKernelGeo2DElementaryEdge.hxx"
 #include "InterpKernelException.hxx"
-#include "Edge.hxx"
+#include "InterpKernelGeo2DEdge.hxx"
 
 using namespace INTERP_KERNEL;
 

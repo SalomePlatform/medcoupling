@@ -16,8 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __BOUNDS_HXX__
-#define __BOUNDS_HXX__
+#ifndef __INTERPKERNELGEO2DBOUNDS_HXX__
+#define __INTERPKERNELGEO2DBOUNDS_HXX__
 
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"
 

@@ -16,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __EDGEINFLIN_HXX__
-#define __EDGEINFLIN_HXX__
+#ifndef __INTERPKERNELGEO2DEDGEINFLIN_HXX__
+#define __INTERPKERNELGEO2DEDGEINFLIN_HXX__
 
-#include "EdgeLin.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
 
 namespace INTERP_KERNEL
 {

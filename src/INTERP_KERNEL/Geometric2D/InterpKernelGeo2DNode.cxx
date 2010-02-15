@@ -16,8 +16,8 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "Node.hxx"
-#include "EdgeArcCircle.hxx"
+#include "InterpKernelGeo2DNode.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 
 using namespace std;
 using namespace INTERP_KERNEL;

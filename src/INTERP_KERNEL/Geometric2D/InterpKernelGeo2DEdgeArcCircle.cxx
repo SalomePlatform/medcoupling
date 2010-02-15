@@ -16,10 +16,10 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "EdgeArcCircle.hxx"
-#include "EdgeLin.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelException.hxx"
-#include "Node.hxx"
+#include "InterpKernelGeo2DNode.hxx"
 
 #include <sstream>
 #include <algorithm>

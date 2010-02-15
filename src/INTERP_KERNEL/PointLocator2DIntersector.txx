@@ -27,7 +27,7 @@
 #include "PlanarIntersectorP1P0Bary.txx"
 #include "CellModel.hxx"
 
-#include "QuadraticPolygon.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "PointLocatorAlgos.txx"
 
 #define PTLOC2D_INTERSECTOR PointLocator2DIntersector<MyMeshType,MyMatrix,InterpType>

@@ -16,13 +16,13 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "QuadraticPolygon.hxx"
-#include "ElementaryEdge.hxx"
-#include "EdgeArcCircle.hxx"
-#include "AbstractEdge.hxx"
-#include "EdgeLin.hxx"
-#include "Bounds.hxx"
-#include "Edge.txx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "InterpKernelGeo2DElementaryEdge.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DAbstractEdge.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
+#include "InterpKernelGeo2DBounds.hxx"
+#include "InterpKernelGeo2DEdge.txx"
 
 #include <fstream>
 #include <iomanip>
