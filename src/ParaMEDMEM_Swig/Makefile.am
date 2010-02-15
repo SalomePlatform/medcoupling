@@ -57,9 +57,7 @@ endif
 
 CLEANFILES = libParaMEDMEM_Swig_wrap.cxx libParaMEDMEM_Swig.py
 
-nodist_salomescript_DATA= libParaMEDMEM_Swig.py
-
 dist_salomescript_DATA= test_InterpKernelDEC.py \
 			test_NonCoincidentDEC.py \
 			test_StructuredCoincodentDEC.py \
-			ParaMEDMEM.py
+			ParaMEDMEM.py libParaMEDMEM_Swig.py

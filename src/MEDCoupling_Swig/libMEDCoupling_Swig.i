@@ -78,6 +78,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingUMesh *New();
+    static MEDCouplingUMesh *New(const char *meshName, int meshDim);
     MEDCouplingUMesh *clone(bool recDeepCpy) const;
     void updateTime();
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -170,11 +171,14 @@ namespace ParaMEDMEM
   class MEDCouplingFieldDouble : public ParaMEDMEM::MEDCouplingField
   {
   public:
-    static MEDCouplingFieldDouble *New(TypeOfField type);
+    static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const;
     void setArray(DataArrayDouble *array);
+    void setTime(double val, int dt, int it);
+    void setStartTime(double val, int dt, int it);
+    void setEndTime(double val, int dt, int it);
     DataArrayDouble *getArray() const { return _array; }
     void applyLin(double a, double b, int compoId);
     int getNumberOfComponents() const;
@@ -201,6 +205,28 @@ namespace ParaMEDMEM
       {
         int tmp1,tmp2;
         double tmp0=self->getTime(tmp1,tmp2);
+        PyObject *res = PyList_New(3);
+        PyList_SetItem(res,0,SWIG_From_double(tmp0));
+        PyList_SetItem(res,1,SWIG_From_int(tmp1));
+        PyList_SetItem(res,2,SWIG_From_int(tmp2));
+        return res;
+      }
+
+      PyObject *getStartTime()
+      {
+        int tmp1,tmp2;
+        double tmp0=self->getStartTime(tmp1,tmp2);
+        PyObject *res = PyList_New(3);
+        PyList_SetItem(res,0,SWIG_From_double(tmp0));
+        PyList_SetItem(res,1,SWIG_From_int(tmp1));
+        PyList_SetItem(res,2,SWIG_From_int(tmp2));
+        return res;
+      }
+
+      PyObject *getEndTime()
+      {
+        int tmp1,tmp2;
+        double tmp0=self->getEndTime(tmp1,tmp2);
         PyObject *res = PyList_New(3);
         PyList_SetItem(res,0,SWIG_From_double(tmp0));
         PyList_SetItem(res,1,SWIG_From_int(tmp1));
