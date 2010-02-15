@@ -22,8 +22,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"
-#include "EdgeArcCircle.hxx"
-#include "QuadraticPolygon.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
 
 using namespace INTERP_KERNEL;
 

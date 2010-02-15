@@ -17,11 +17,11 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "QuadraticPlanarInterpTest.hxx"
-#include "QuadraticPolygon.hxx"
-#include "EdgeArcCircle.hxx"
-#include "ElementaryEdge.hxx"
-#include "ComposedEdge.hxx"
-#include "EdgeLin.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DElementaryEdge.hxx"
+#include "InterpKernelGeo2DComposedEdge.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
 #include "TestInterpKernelUtils.hxx"
 
 #include <sstream>
