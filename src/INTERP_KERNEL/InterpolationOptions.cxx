@@ -193,10 +193,7 @@ bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_lev
                                                                   std::string splitting_policy,
                                                                   bool P1P0_bary_method )
 {
-  bool ret=true;
-
   _print_level=print_level;
-  ret = setOptionString(INTERSEC_TYPE_STR,intersection_type);
   _precision=precision;
   _median_plane=median_plane;
   _do_rotate=do_rotate;
@@ -205,9 +202,7 @@ bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_lev
   _max_distance_for_3Dsurf_intersect=max_distance_for_3Dsurf_intersect;
   _orientation=orientation;
   _measure_abs=measure_abs;
-  ret = setOptionString(SPLITTING_POLICY_STR,splitting_policy);
   _P1P0_bary_method=P1P0_bary_method;
-
-  return ret;
+  return(setOptionString(INTERSEC_TYPE_STR,intersection_type) && setOptionString(SPLITTING_POLICY_STR,splitting_policy));
 }
 
