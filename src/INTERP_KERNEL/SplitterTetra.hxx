@@ -22,23 +22,12 @@
 #include "TransformedTriangle.hxx"
 #include "TetraAffineTransform.hxx"
 #include "InterpolationOptions.hxx"
+#include "InterpKernelHashMap.hxx"
 
 #include <assert.h>
 #include <vector>
 #include <functional>
 #include <map>
-#ifdef WIN32
-# include <hash_map>
-#else
-# include <ext/hash_map>
-#endif
-
-#ifndef WIN32
-using __gnu_cxx::hash_map;
-#else
-using stdext::hash_map;
-using stdext::hash_compare;
-#endif
 
 namespace INTERP_KERNEL
 {
@@ -87,13 +76,6 @@ namespace INTERP_KERNEL
     {
       return _hashVal;
     }
-
-#ifdef WIN32
-    operator size_t () const
-    {
-      return _hashVal;
-    }
-#endif
      
     inline void sort3Ints(int* sorted, int node1, int node2, int node3);
 
@@ -150,20 +132,13 @@ namespace INTERP_KERNEL
           }
       }
   }
-}
-#ifndef WIN32
-namespace __gnu_cxx
-{
-
 
   /**
-   * \brief Template specialization of __gnu_cxx::hash<T> function object for use with a __gnu_cxx::hash_map 
+   * \brief Template specialization of INTERP_KERNEL::hash<T> function object for use with a 
    * with TriangleFaceKey as key class.
    * 
    */
-  template<>
-  class hash<INTERP_KERNEL::TriangleFaceKey>
-
+  template<> class hash<INTERP_KERNEL::TriangleFaceKey>
   {
   public:
     /**
@@ -178,16 +153,6 @@ namespace __gnu_cxx
     }
   };
 }
-#else
-  struct TriangleFaceKeyComparator
-  {
-    bool operator()(const INTERP_KERNEL::TriangleFaceKey& key1,
-                    const INTERP_KERNEL::TriangleFaceKey& key2 ) const
-    {
-      return key1.hashVal() < key2.hashVal();
-    }
-  };
-#endif
 
 namespace INTERP_KERNEL
 {
@@ -236,14 +201,14 @@ namespace INTERP_KERNEL
     /// affine transform associated with this target element
     TetraAffineTransform* _t;
     
-    /// hash_map relating node numbers to transformed nodes, used for caching
-    hash_map< int , double* > _nodes;
+    /// HashMap relating node numbers to transformed nodes, used for caching
+    HashMap< int , double* > _nodes;
     
-    /// hash_map relating triangular faces to calculated volume contributions, used for caching
-    hash_map< TriangleFaceKey, double
-#ifdef WIN32
-        , hash_compare<TriangleFaceKey,TriangleFaceKeyComparator> 
-#endif
+    /// HashMap relating triangular faces to calculated volume contributions, used for caching
+    HashMap< TriangleFaceKey, double
+// #ifdef WIN32
+//         , hash_compare<TriangleFaceKey,TriangleFaceKeyComparator> 
+// #endif
     > _volumes;
 
     /// reference to the source mesh

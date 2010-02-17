@@ -123,7 +123,7 @@ namespace INTERP_KERNEL
   SplitterTetra<MyMeshType>::~SplitterTetra()
   {
     delete _t;
-    for(hash_map< int, double* >::iterator iter = _nodes.begin(); iter != _nodes.end() ; ++iter)
+    for(HashMap< int, double* >::iterator iter = _nodes.begin(); iter != _nodes.end() ; ++iter)
       delete[] iter->second;
   }
 
@@ -207,7 +207,7 @@ namespace INTERP_KERNEL
         cellNodes[i]=globalNodeNum;
         if(_nodes.find(globalNodeNum) == _nodes.end()) 
           {
-            //for(hash_map< int , double* >::iterator iter3=_nodes.begin();iter3!=_nodes.end();iter3++)
+            //for(HashMap< int , double* >::iterator iter3=_nodes.begin();iter3!=_nodes.end();iter3++)
             //  std::cout << (*iter3).first << " ";
             //std::cout << std::endl << "*** " << globalNodeNum << std::endl;
             calculateNode(globalNodeNum);

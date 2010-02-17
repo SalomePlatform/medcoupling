@@ -27,7 +27,11 @@ lib_LTLIBRARIES = libinterpkernelbases.la
 salomeinclude_HEADERS =         \
 INTERPKERNELBASESDefines.hxx    \
 InterpKernelException.hxx       \
-NormalizedUnstructuredMesh.hxx
+NormalizedUnstructuredMesh.hxx  \
+InterpKernelStlExt.hxx          \
+InterpKernelHashMap.hxx         \
+InterpKernelHashTable.hxx       \
+InterpKernelHashFun.hxx
 
 # Libraries targets
 
