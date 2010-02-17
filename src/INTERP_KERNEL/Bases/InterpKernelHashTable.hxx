@@ -523,12 +523,12 @@ namespace INTERP_KERNEL
     {
       _Node* __n = _M_get_node();
       __n->_M_next = 0;
-      __try
+      try
         {
           this->get_allocator().construct(&__n->_M_val, __obj);
           return __n;
         }
-      __catch(...)
+      catch(...)
         {
           _M_put_node(__n);
           __throw_exception_again;
@@ -890,7 +890,7 @@ namespace INTERP_KERNEL
         if (__n > __old_n)
           {
             _Vector_type __tmp(__n, (_Node*)(0), _M_buckets.get_allocator());
-            __try
+            try
               {
                 for (size_type __bucket = 0; __bucket < __old_n; ++__bucket)
                   {
@@ -906,7 +906,7 @@ namespace INTERP_KERNEL
                   }
                 _M_buckets.swap(__tmp);
               }
-            __catch(...)
+            catch(...)
               {
                 for (size_type __bucket = 0; __bucket < __tmp.size();++__bucket)
                   {
@@ -983,7 +983,7 @@ namespace INTERP_KERNEL
     _M_buckets.clear();
     _M_buckets.reserve(__ht._M_buckets.size());
     _M_buckets.insert(_M_buckets.end(), __ht._M_buckets.size(), (_Node*) 0);
-    __try
+    try
       {
         for (size_type __i = 0; __i < __ht._M_buckets.size(); ++__i) {
           const _Node* __cur = __ht._M_buckets[__i];
@@ -1002,7 +1002,7 @@ namespace INTERP_KERNEL
         }
         _M_num_elements = __ht._M_num_elements;
       }
-    __catch(...)
+    catch(...)
       {
         clear();
         __throw_exception_again;
