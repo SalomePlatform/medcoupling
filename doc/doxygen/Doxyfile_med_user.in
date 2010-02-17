@@ -82,7 +82,7 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          MEDMEM_Support.* \
                          MEDMEM_Field.* \
                          MEDMEM_Med.* \
-                         IntersectionDEC.* \
+                         InterpKernelDEC.* \
                          DEC.* \
                          MPIProcessorGroup.* \
                          StructuredCoincidentDEC.* \
@@ -96,14 +96,14 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          PlanarIntersector.* \
                          TargetIntersector.* \
                          Interpolation.* \
-                         AbstractEdge.* \
-                         Edge.* \
-                         EdgeArcCircle.* \
-                         EdgeLin.* \
-                         ComposedEdge.* \
-                         ElementaryEdge.* \
-                         Node.* \
-                         QuadraticPolygon.* \
+                         InterpKernelGeo2DAbstractEdge.* \
+                         InterpKernelGeo2DEdge.* \
+                         InterpKernelGeo2DEdgeArcCircle.* \
+                         InterpKernelGeo2DEdgeLin.* \
+                         InterpKernelGeo2DComposedEdge.* \
+                         InterpKernelGeo2DElementaryEdge.* \
+                         InterpKernelGeo2DNode.* \
+                         InterpKernelGeo2DQuadraticPolygon.* \
                          ParaFIELD.* \
                          *.dox
 RECURSIVE              = NO
