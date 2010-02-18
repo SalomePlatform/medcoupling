@@ -44,9 +44,9 @@ namespace INTERP_KERNEL
     int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result)
     { return asLeaf().interpolateMeshes(meshS,meshT,result); }
     template<class MyMeshType, class MatrixType>
-    int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const char *method) { return fromToIntegralUniform(true,meshT,result,method); }
+    int fromIntegralUniform(const MyMeshType& meshT, MatrixType& result, const char *method) { return fromToIntegralUniform(false,meshT,result,method); }
     template<class MyMeshType, class MatrixType>
-    int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const char *method) { return fromToIntegralUniform(false,meshS,result,method); }
+    int toIntegralUniform(const MyMeshType& meshS, MatrixType& result, const char *method) { return fromToIntegralUniform(true,meshS,result,method); }
     static void checkAndSplitInterpolationMethod(const char *method, std::string& srcMeth, std::string& trgMeth) throw(INTERP_KERNEL::Exception);
   protected:
     template<class MyMeshType, class MatrixType>
