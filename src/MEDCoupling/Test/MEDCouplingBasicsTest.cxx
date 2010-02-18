@@ -2980,7 +2980,7 @@ void MEDCouplingBasicsTest::test2DInterpP0IntegralUniform()
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
   vector<map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(5,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,res[0][1],1e-12);
@@ -2989,7 +2989,7 @@ void MEDCouplingBasicsTest::test2DInterpP0IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][4],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,sumAll(res),1e-12);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,res[1][0],1e-12);
@@ -3004,7 +3004,7 @@ void MEDCouplingBasicsTest::test2DInterpP0IntegralUniform()
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper2(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator2;
   CPPUNIT_ASSERT(myInterpolator2.getMeasureAbsStatus());
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator2.fromIntegralUniform(targetWrapper2,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(5,myInterpolator2.toIntegralUniform(targetWrapper2,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,res[0][1],1e-12);
@@ -3015,7 +3015,7 @@ void MEDCouplingBasicsTest::test2DInterpP0IntegralUniform()
   res.clear();
   myInterpolator2.setMeasureAbsStatus(false);
   CPPUNIT_ASSERT(!myInterpolator2.getMeasureAbsStatus());
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator2.fromIntegralUniform(targetWrapper2,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(5,myInterpolator2.toIntegralUniform(targetWrapper2,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.125,res[0][1],1e-12);
@@ -3032,7 +3032,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0IntegralUniform()
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   vector<map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(5,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(5,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[0][1],1e-12);
@@ -3041,7 +3041,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[0][4],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.*sqrt(2.),sumAll(res),1e-12);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(5,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25*sqrt(2.),res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125*sqrt(2.),res[1][0],1e-12);
@@ -3058,7 +3058,7 @@ void MEDCouplingBasicsTest::test3DInterpP0IntegralUniform()
   INTERP_KERNEL::Interpolation3D myInterpolator;
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
   vector<map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(8,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(8,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(125000.,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(375000.,res[0][1],1e-6);
@@ -3070,7 +3070,7 @@ void MEDCouplingBasicsTest::test3DInterpP0IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3375000.,res[0][7],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8000000.,sumAll(res),1e-6);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.toIntegralUniform(targetWrapper,res,"P0"));
+  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P0"));
   CPPUNIT_ASSERT_EQUAL(8,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(125000.,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(375000.,res[1][0],1e-6);
@@ -3092,14 +3092,14 @@ void MEDCouplingBasicsTest::test2DInterpP1IntegralUniform()
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
   vector<map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(4,myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
+  CPPUNIT_ASSERT_EQUAL(4,myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.33333333333333331,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666,res[0][1],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666,res[0][2],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.33333333333333331,res[0][3],1e-12);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
+  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(4,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.33333333333333331,res[0][0],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.16666666666666666,res[1][0],1e-12);
@@ -3116,7 +3116,7 @@ void MEDCouplingBasicsTest::test3DInterpP1IntegralUniform()
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(sourceMesh);
   INTERP_KERNEL::Interpolation3D myInterpolator;
   vector<map<int,double> > res;
-  CPPUNIT_ASSERT_EQUAL(9,myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
+  CPPUNIT_ASSERT_EQUAL(9,myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[0][1],1e-6);
@@ -3129,7 +3129,7 @@ void MEDCouplingBasicsTest::test3DInterpP1IntegralUniform()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2000000.,res[0][8],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8000000.,sumAll(res),1e-6);
   res.clear();
-  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.toIntegralUniform(targetWrapper,res,"P1"));
+  CPPUNIT_ASSERT_EQUAL(1,myInterpolator.fromIntegralUniform(targetWrapper,res,"P1"));
   CPPUNIT_ASSERT_EQUAL(9,(int)res.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[0][0],1e-6);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(833333.333333333,res[1][0],1e-6);
