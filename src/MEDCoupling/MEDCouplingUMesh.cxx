@@ -782,34 +782,40 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *start
  */
 MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
 {
-  int ipt;
-  INTERP_KERNEL::NormalizedCellType type;
-  int nbelem=getNumberOfCells();
-  int dim_space=getSpaceDimension();
-  const double *coords=getCoords()->getConstPointer();
-  const int *connec=getNodalConnectivity()->getConstPointer();
-  const int *connec_index=getNodalConnectivityIndex()->getConstPointer();
-
-  MEDCouplingFieldDouble* field=MEDCouplingFieldDouble::New(ON_CELLS);
   std::string name="MeasureOfMesh_";
   name+=getName();
+  int nbelem=getNumberOfCells();
+  MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS);
   field->setName(name.c_str());
   DataArrayDouble* array=DataArrayDouble::New();
   array->alloc(nbelem,1);
-  double *area_vol = array->getPointer();
-  for(int iel=0;iel<nbelem;iel++)
-    {
-      ipt=connec_index[iel];
-      type=(INTERP_KERNEL::NormalizedCellType)connec[ipt];
-      area_vol[iel]=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[iel+1]-ipt-1,coords,dim_space);
-    }
-  if(isAbs)
-    for(int iel=0;iel<nbelem;iel++)
-      area_vol[iel]=fabs(area_vol[iel]);
+  double *area_vol=array->getPointer();
   field->setArray(array) ;
   array->decrRef();
-  field->setMesh(const_cast<MEDCouplingUMesh *>(this));  
-  return field ;
+  field->setMesh(const_cast<MEDCouplingUMesh *>(this));
+  if(getMeshDimension()!=-1)
+    {
+      int ipt;
+      INTERP_KERNEL::NormalizedCellType type;
+      int dim_space=getSpaceDimension();
+      const double *coords=getCoords()->getConstPointer();
+      const int *connec=getNodalConnectivity()->getConstPointer();
+      const int *connec_index=getNodalConnectivityIndex()->getConstPointer();
+      for(int iel=0;iel<nbelem;iel++)
+        {
+          ipt=connec_index[iel];
+          type=(INTERP_KERNEL::NormalizedCellType)connec[ipt];
+          area_vol[iel]=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[iel+1]-ipt-1,coords,dim_space);
+        }
+      if(isAbs)
+        for(int iel=0;iel<nbelem;iel++)
+          area_vol[iel]=fabs(area_vol[iel]);
+    }
+  else
+    {
+      area_vol[0]=std::numeric_limits<double>::max();
+    }
+  return field;
 }
 
 /*!
