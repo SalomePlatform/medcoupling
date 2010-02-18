@@ -153,34 +153,39 @@ int MEDCouplingRemapper::prepareUU(const char *method)
   MEDCouplingUMesh *target_mesh=(MEDCouplingUMesh *)_target_mesh;
   INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
   const int srcMeshDim=src_mesh->getMeshDimension();
-  const int srcSpaceDim=src_mesh->getSpaceDimension();
-  const int trgMeshdim=target_mesh->getMeshDimension();
-  const int trgSpaceDim=target_mesh->getSpaceDimension();
+  int srcSpaceDim=-1;
+  if(srcMeshDim!=-1)
+    srcSpaceDim=src_mesh->getSpaceDimension();
+  const int trgMeshDim=target_mesh->getMeshDimension();
+  int trgSpaceDim=-1;
+  if(trgMeshDim!=-1)
+    trgSpaceDim=target_mesh->getSpaceDimension();
   if(trgSpaceDim!=srcSpaceDim)
-    throw INTERP_KERNEL::Exception("Incoherent space dimension detected between target and source.");
+    if(trgSpaceDim!=-1 && srcSpaceDim!=-1)
+      throw INTERP_KERNEL::Exception("Incoherent space dimension detected between target and source.");
   int nbCols;
-  if(srcMeshDim==2 && trgMeshdim==2 && srcSpaceDim==2)
+  if(srcMeshDim==2 && trgMeshDim==2 && srcSpaceDim==2)
     {
       MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation2D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
-  else if(srcMeshDim==3 && trgMeshdim==3 && srcSpaceDim==3)
+  else if(srcMeshDim==3 && trgMeshDim==3 && srcSpaceDim==3)
     {
       MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
-  else if(srcMeshDim==2 && trgMeshdim==2 && srcSpaceDim==3)
+  else if(srcMeshDim==2 && trgMeshDim==2 && srcSpaceDim==3)
     {
       MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh);
       MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(target_mesh);
       INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
-  else if(srcMeshDim==3 && trgMeshdim==1 && srcSpaceDim==3)
+  else if(srcMeshDim==3 && trgMeshDim==1 && srcSpaceDim==3)
     {
       if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
         throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
@@ -189,7 +194,7 @@ int MEDCouplingRemapper::prepareUU(const char *method)
       INTERP_KERNEL::Interpolation3D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
-  else if(srcMeshDim==1 && trgMeshdim==3 && srcSpaceDim==3)
+  else if(srcMeshDim==1 && trgMeshDim==3 && srcSpaceDim==3)
     {
       if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
         throw INTERP_KERNEL::Exception("Invalid interpolation requested between 3D and 1D ! Select PointLocator as intersection type !");
@@ -200,6 +205,52 @@ int MEDCouplingRemapper::prepareUU(const char *method)
       nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
       reverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
+    }
+  else if(trgMeshDim==-1)
+    {
+      if(srcMeshDim==2 && srcSpaceDim==2)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
+          INTERP_KERNEL::Interpolation2D interpolation(*this);
+          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,_src_method.c_str());
+        }
+      else if(srcMeshDim==3 && srcSpaceDim==3)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+          INTERP_KERNEL::Interpolation3D interpolation(*this);
+          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,_src_method.c_str());
+        }
+      else if(srcMeshDim==2 && srcSpaceDim==3)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh);
+          INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
+          nbCols=interpolation.toIntegralUniform(source_mesh_wrapper,_matrix,_src_method.c_str());
+        }
+      else
+        throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension of source mesh to -1D targetMesh");
+    }
+  else if(srcMeshDim==-1)
+    {
+      if(trgMeshDim==2 && trgSpaceDim==2)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation2D interpolation(*this);
+          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,_target_method.c_str());
+        }
+      else if(trgMeshDim==3 && trgSpaceDim==3)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation3D interpolation(*this);
+          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,_target_method.c_str());
+        }
+      else if(trgMeshDim==2 && trgSpaceDim==3)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
+          nbCols=interpolation.fromIntegralUniform(source_mesh_wrapper,_matrix,_target_method.c_str());
+        }
+      else
+        throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension of source mesh from -1D sourceMesh");
     }
   else
     throw INTERP_KERNEL::Exception("No interpolation available for the given mesh and space dimension");
@@ -263,6 +314,16 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
         MEDCouplingFieldDouble *denoR=trgField->getDiscretization()->getWeightingField(trgField->getMesh(),true);
         const double *denoPtr=deno->getArray()->getConstPointer();
         const double *denoRPtr=denoR->getArray()->getConstPointer();
+        if(trgField->getMesh()->getMeshDimension()==-1)
+          {
+            double *denoRPtr2=denoR->getArray()->getPointer();
+            denoRPtr2[0]=std::accumulate(denoPtr,denoPtr+deno->getNumberOfTuples(),0.);
+          }
+        if(srcField->getMesh()->getMeshDimension()==-1)
+          {
+            double *denoPtr2=deno->getArray()->getPointer();
+            denoPtr2[0]=std::accumulate(denoRPtr,denoRPtr+denoR->getNumberOfTuples(),0.);
+          }
         int idx=0;
         for(std::vector<std::map<int,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
           for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
