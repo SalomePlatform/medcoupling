@@ -1153,6 +1153,194 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P1P1P0()
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
+void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
+{
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //
+  if(size!=3)
+    return ;
+  int nproc_source=2;
+  set<int> procs_source;
+  set<int> procs_target;
+  //
+  for (int i=0; i<nproc_source; i++)
+    procs_source.insert(i);
+  for (int i=nproc_source;i<size; i++)
+    procs_target.insert(i);
+  //
+  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
+  ParaMEDMEM::ParaMESH *paramesh=0;
+  ParaMEDMEM::ParaFIELD *parafield=0;
+  //
+  ParaMEDMEM::CommInterface interface;
+  //
+  ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
+  ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(source_group->containsMyRank())
+    {
+      double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
+      mesh=MEDCouplingUMesh::New();
+      mesh->setMeshDimension(2);
+      DataArrayDouble *myCoords=DataArrayDouble::New();
+      myCoords->alloc(9,2);
+      std::copy(targetCoords,targetCoords+18,myCoords->getPointer());
+      mesh->setCoords(myCoords);
+      myCoords->decrRef();
+      if(rank==0)
+        {
+          int targetConn[7]={0,3,4,1, 1,4,2};
+          mesh->allocateCells(2);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
+          mesh->finishInsertingCells();
+        }
+      else
+        { 
+          int targetConn[11]={4,5,2, 6,7,4,3, 7,8,5,4};
+          mesh->allocateCells(3);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+3);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+7);
+          mesh->finishInsertingCells();
+        }
+      ParaMEDMEM::ComponentTopology comptopo;
+      paramesh=new ParaMESH(mesh,*source_group,"source mesh");
+      parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      parafield->getField()->setNature(ConservativeVolumic);
+      double *vals=parafield->getField()->getArray()->getPointer();
+      if(rank==0)
+        { vals[0]=7.; vals[1]=8.; }
+      else
+        { vals[0]=9.; vals[1]=10.; vals[2]=11.; }
+    }
+  else
+    {
+      mesh=MEDCouplingUMesh::New("an example of -1 D mesh",-1);
+      ParaMEDMEM::ComponentTopology comptopo;
+      paramesh=new ParaMESH(mesh,*target_group,"target mesh");
+      parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      parafield->getField()->setNature(ConservativeVolumic);
+    }
+  ParaMEDMEM::InterpKernelDEC dec(*source_group,*target_group);
+  if(source_group->containsMyRank())
+    {
+      dec.setMethod("P0");
+      dec.attachLocalField(parafield);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.sendData();
+      dec.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      if(rank==0)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[1],1e-12);
+        }
+      else
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[1],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[2],1e-12);
+        }
+    }
+  else
+    {
+      dec.setMethod("P0");
+      dec.attachLocalField(parafield);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[0],1e-12);
+      dec.sendData();
+    }
+  ParaMEDMEM::InterpKernelDEC dec2(*source_group,*target_group);
+  dec2.setMethod("P0");
+  parafield->getField()->setNature(IntegralGlobConstraint);
+  if(source_group->containsMyRank())
+    {
+      double *vals=parafield->getField()->getArray()->getPointer();
+      if(rank==0)
+        { vals[0]=7.; vals[1]=8.; }
+      else
+        { vals[0]=9.; vals[1]=10.; vals[2]=11.; }
+      dec2.attachLocalField(parafield);
+      dec2.synchronize();
+      dec2.sendData();
+      dec2.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      if(rank==0)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(11.25,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(5.625,res[1],1e-12);
+        }
+      else
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(5.625,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(11.25,res[1],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(11.25,res[2],1e-12);
+        }
+    }
+  else
+    {
+      dec2.attachLocalField(parafield);
+      dec2.synchronize();
+      dec2.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(45.,res[0],1e-12);
+      dec2.sendData();
+    }
+  //
+  ParaMEDMEM::InterpKernelDEC dec3(*source_group,*target_group);
+  dec3.setMethod("P0");
+  parafield->getField()->setNature(Integral);
+  if(source_group->containsMyRank())
+    {
+      double *vals=parafield->getField()->getArray()->getPointer();
+      if(rank==0)
+        { vals[0]=7.; vals[1]=8.; }
+      else
+        { vals[0]=9.; vals[1]=10.; vals[2]=11.; }
+      dec3.attachLocalField(parafield);
+      dec3.synchronize();
+      dec3.sendData();
+      dec3.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      if(rank==0)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(11.25,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(5.625,res[1],1e-12);
+        }
+      else
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(5.625,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(11.25,res[1],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(11.25,res[2],1e-12);
+        }
+    }
+  else
+    {
+      dec3.attachLocalField(parafield);
+      dec3.synchronize();
+      dec3.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(45.,res[0],1e-12);
+      dec3.sendData();
+    }
+  delete parafield;
+  delete paramesh;
+  mesh->decrRef();
+  delete target_group;
+  delete source_group;
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
 /*!
  * Tests an asynchronous exchange between two codes
  * one sends data with dtA as an interval, the max time being tmaxA
