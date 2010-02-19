@@ -120,6 +120,18 @@ MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const
   return 0;
 }
 
+MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureFieldOnNode(bool) const
+{
+  //not implemented yet
+  return 0;
+}
+
+MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::buildOrthogonalField() const
+{
+  //not implemented yet
+  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::buildOrthogonalField not implemented yet !");
+}
+
 MEDCouplingExtrudedMesh::~MEDCouplingExtrudedMesh()
 {
   if(_mesh2D)

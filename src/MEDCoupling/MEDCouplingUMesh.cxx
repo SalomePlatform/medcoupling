@@ -20,6 +20,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "CellModel.hxx"
 #include "VolSurfUser.txx"
+#include "InterpolationUtils.hxx"
 
 #include <sstream>
 #include <limits>
@@ -838,6 +839,69 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
       area_vol[0]=std::numeric_limits<double>::max();
     }
   return field;
+}
+
+MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) const
+{
+  MEDCouplingFieldDouble *tmp=getMeasureField(abs);
+  std::string name="MeasureOnNodeOfMesh_";
+  name+=getName();
+  int nbNodes=getNumberOfNodes();
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_NODES);
+  double cst=1./((double)getMeshDimension()+1.);
+  DataArrayDouble* array=DataArrayDouble::New();
+  array->alloc(nbNodes,1);
+  double *valsToFill=array->getPointer();
+  std::fill(valsToFill,valsToFill+nbNodes,0.);
+  const double *values=tmp->getArray()->getConstPointer();
+  DataArrayInt *da=DataArrayInt::New();
+  DataArrayInt *daInd=DataArrayInt::New();
+  getReverseNodalConnectivity(da,daInd);
+  const int *daPtr=da->getConstPointer();
+  const int *daIPtr=daInd->getConstPointer();
+  for(int i=0;i<nbNodes;i++)
+    for(const int *cell=daPtr+daIPtr[i];cell!=daPtr+daIPtr[i+1];cell++)
+      valsToFill[i]+=cst*values[*cell];
+  ret->setMesh(this);
+  da->decrRef();
+  daInd->decrRef();
+  ret->setArray(array);
+  array->decrRef();
+  tmp->decrRef();
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
+{
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 2 !");
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  DataArrayDouble *array=DataArrayDouble::New();
+  int nbOfCells=getNumberOfCells();
+  array->alloc(nbOfCells,3);
+  double *vals=array->getPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const int *conn=_nodal_connec->getConstPointer();
+  const double *coords=_coords->getConstPointer();
+  if(getSpaceDimension()==3)
+    {
+      for(int i=0;i<nbOfCells;i++,vals+=3)
+        {
+          int offset=connI[i];
+          INTERP_KERNEL::crossprod<3>(coords+3*conn[offset+1],coords+3*conn[offset+2],coords+3*conn[offset+3],vals);
+          double n=INTERP_KERNEL::norm<3>(vals);
+          std::transform(vals,vals+3,vals,std::bind2nd(std::multiplies<double>(),1./n));
+        }
+    }
+  else
+    {
+      for(int i=0;i<nbOfCells;i++)
+        { vals[3*i]=1.; vals[3*i+1]=1.; vals[3*i+2]=1.; }
+    }
+  ret->setArray(array);
+  array->decrRef();
+  ret->setMesh(this);
+  return ret;
 }
 
 /*!

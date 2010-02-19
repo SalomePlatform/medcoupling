@@ -1140,6 +1140,13 @@ void MEDCouplingBasicsTest::testFillFromAnalytic()
   std::transform(values3,values3+18,values3,std::ptr_fun<double,double>(fabs));
   max=*std::max_element(values3,values3+18);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
+  double values4[2];
+  f1->accumulate(values4);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,values4[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.2,values4[1],1.e-12);
+  f1->measureAccumulate(true,values4);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,values4[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,values4[1],1.e-12);
   f1->decrRef();
   //
   CPPUNIT_ASSERT_THROW(f1=m->fillFromAnalytic(ON_NODES,1,func3),INTERP_KERNEL::Exception);
@@ -1315,6 +1322,20 @@ void MEDCouplingBasicsTest::testCheckConsecutiveCellTypes()
   CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypes());
   targetMesh->decrRef();
   sourceMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::testBuildOrthogonalField()
+{
+  MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
+  MEDCouplingFieldDouble *field=targetMesh->buildOrthogonalField();
+  double expected[3]={0.70710678118654746,0.,-0.70710678118654746};
+  CPPUNIT_ASSERT_EQUAL(5,field->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,field->getNumberOfComponents());
+  const double *vals=field->getArray()->getConstPointer();
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i%3],vals[i],1e-12);
+  field->decrRef();
+  targetMesh->decrRef();
 }
 
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()

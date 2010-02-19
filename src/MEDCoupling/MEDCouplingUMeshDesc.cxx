@@ -262,6 +262,20 @@ MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureField(bool isAbs) const
   return 0;
 }
 
+MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureFieldOnNode(bool isAbs) const
+{
+  //not implemented yet.
+  return 0;
+}
+
+MEDCouplingFieldDouble *MEDCouplingUMeshDesc::buildOrthogonalField() const
+{
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("Expected a cmesh with meshDim == 2 !");
+  //not implemented yet !
+  return 0;
+}
+
 DataArrayInt *MEDCouplingUMeshDesc::zipCoordsTraducer()
 {
   //not implemented yet.

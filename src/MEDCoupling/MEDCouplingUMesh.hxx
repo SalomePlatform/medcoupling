@@ -70,6 +70,8 @@ namespace ParaMEDMEM
     void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
+    MEDCouplingFieldDouble *buildOrthogonalField() const;
     void checkButterflyCells(std::vector<int>& cells) const;
     bool checkConsecutiveCellTypes() const;
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;

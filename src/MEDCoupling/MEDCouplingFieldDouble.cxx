@@ -118,6 +118,16 @@ double MEDCouplingFieldDouble::accumulate(int compId) const
   return ret;
 }
 
+void MEDCouplingFieldDouble::accumulate(double *res) const
+{
+  const double *ptr=getArray()->getConstPointer();
+  int nbTuple=getArray()->getNumberOfTuples();
+  int nbComps=getArray()->getNumberOfComponents();
+  std::fill(res,res+nbComps,0.);
+  for(int i=0;i<nbTuple;i++)
+    std::transform(ptr+i*nbComps,ptr+(i+1)*nbComps,res,res,std::plus<double>());
+}
+
 double MEDCouplingFieldDouble::measureAccumulate(int compId, bool isWAbs) const
 {
   if(!_mesh)
@@ -130,6 +140,26 @@ double MEDCouplingFieldDouble::measureAccumulate(int compId, bool isWAbs) const
     ret+=getIJ(i,compId)*ptr[i];
   weight->decrRef();
   return ret;
+}
+
+void MEDCouplingFieldDouble::measureAccumulate(bool isWAbs, double *res) const
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform measureAccumulate2");
+  MEDCouplingFieldDouble *weight=_type->getWeightingField(_mesh,isWAbs);
+  const double *ptr=weight->getArray()->getConstPointer();
+  int nbOfValues=weight->getArray()->getNbOfElems();
+  int nbComps=getArray()->getNumberOfComponents();
+  const double *vals=getArray()->getConstPointer();
+  std::fill(res,res+nbComps,0.);
+  double *tmp=new double[nbComps];
+  for (int i=0; i<nbOfValues; i++)
+    {
+      std::transform(vals+i*nbComps,vals+(i+1)*nbComps,tmp,std::bind2nd(std::multiplies<double>(),ptr[i]));
+      std::transform(tmp,tmp+nbComps,res,res,std::plus<double>());
+    }
+  weight->decrRef();
+  delete [] tmp;
 }
 
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)

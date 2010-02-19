@@ -18,6 +18,7 @@
 //
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 
 using namespace ParaMEDMEM;
 
@@ -172,6 +173,29 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
 {
   //not implemented yet !
   return 0;
+}
+
+MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureFieldOnNode(bool isAbs) const
+{
+  //not implemented yet !
+  return 0;
+}
+
+MEDCouplingFieldDouble *MEDCouplingCMesh::buildOrthogonalField() const
+{
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("Expected a cmesh with meshDim == 2 !");
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  DataArrayDouble *array=DataArrayDouble::New();
+  int nbOfCells=getNumberOfCells();
+  array->alloc(nbOfCells,3);
+  double *vals=array->getPointer();
+  for(int i=0;i<nbOfCells;i++)
+    { vals[3*i]=1.; vals[3*i+1]=1.; vals[3*i+2]=1.; }
+  ret->setArray(array);
+  array->decrRef();
+  ret->setMesh(this);
+  return ret;
 }
 
 void MEDCouplingCMesh::rotate(const double *center, const double *vector, double angle)

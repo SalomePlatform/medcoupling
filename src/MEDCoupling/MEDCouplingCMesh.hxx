@@ -46,6 +46,8 @@ namespace ParaMEDMEM
     // tools
     void getBoundingBox(double *bbox) const;
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
+    MEDCouplingFieldDouble *buildOrthogonalField() const;
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;

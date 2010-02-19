@@ -179,9 +179,7 @@ void MEDCouplingFieldDiscretizationP1::checkCoherencyBetween(const MEDCouplingMe
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
-  //not implemented yet.
-  //Dual mesh to build
-  return 0;
+  return mesh->getMeasureFieldOnNode(isAbs);
 }
 
 void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const

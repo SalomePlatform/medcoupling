@@ -59,6 +59,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testOperationsOnFields );
     CPPUNIT_TEST( testMergeNodesOnField );
     CPPUNIT_TEST( testCheckConsecutiveCellTypes );
+    CPPUNIT_TEST( testBuildOrthogonalField );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_2 );
@@ -137,6 +138,7 @@ namespace ParaMEDMEM
     void testOperationsOnFields();
     void testMergeNodesOnField();
     void testCheckConsecutiveCellTypes();
+    void testBuildOrthogonalField();
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
     void test2DInterpP0P0PL_2();

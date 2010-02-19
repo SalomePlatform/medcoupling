@@ -56,6 +56,8 @@ namespace ParaMEDMEM
     MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
+    MEDCouplingFieldDouble *buildOrthogonalField() const;
     DataArrayInt *zipCoordsTraducer();
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getBarycenterAndOwner() const;
