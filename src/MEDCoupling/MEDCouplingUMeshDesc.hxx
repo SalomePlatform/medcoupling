@@ -43,6 +43,7 @@ namespace ParaMEDMEM
     void setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx);
     //tools to overload
     void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    bool isEmptyMesh(const std::vector<int>& tinyInfo) const;
     void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
     void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,

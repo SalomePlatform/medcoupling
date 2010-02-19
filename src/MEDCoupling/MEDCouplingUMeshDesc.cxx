@@ -119,6 +119,11 @@ void MEDCouplingUMeshDesc::getTinySerializationInformation(std::vector<int>& tin
   tinyInfo.push_back(getFaceMeshLength());
 }
 
+bool MEDCouplingUMeshDesc::isEmptyMesh(const std::vector<int>& tinyInfo) const
+{
+  return tinyInfo[5]<=0;
+}
+
 void MEDCouplingUMeshDesc::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
 {
   std::vector<int> tinyInfoTmp(tinyInfo.begin()+1,tinyInfo.end());

@@ -433,10 +433,22 @@ DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerge
 
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
 {
-  MEDCouplingUMesh *ret=buildPartOfMySelfKeepCoords(start,end);
-  if(!keepCoords)
-    ret->zipCoords();
-  return ret;
+  if(getMeshDimension()!=-1)
+    {
+      MEDCouplingUMesh *ret=buildPartOfMySelfKeepCoords(start,end);
+      if(!keepCoords)
+        ret->zipCoords();
+      return ret;
+    }
+  else
+    {
+      if(end-start!=1)
+        throw INTERP_KERNEL::Exception("-1D mesh has only one cell !");
+      if(start[0]!=0)
+        throw INTERP_KERNEL::Exception("-1D mesh has only one cell : 0 !");
+      incrRef();
+      return (MEDCouplingUMesh *)this;
+    }
 }
 
 /*!
@@ -543,6 +555,11 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
  */
 void MEDCouplingUMesh::giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
 {
+  if(getMeshDimension()==-1)
+    {
+      elems.push_back(0);
+      return;
+    }
   int dim=getSpaceDimension();
   double* elem_bb=new double[2*dim];
   const int* conn      = getNodalConnectivity()->getConstPointer();
@@ -684,6 +701,11 @@ void MEDCouplingUMesh::getTinySerializationInformation(std::vector<int>& tinyInf
     tinyInfo.push_back(getMeshLength());
   else
     tinyInfo.push_back(-1);
+}
+
+bool MEDCouplingUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
+{
+  return tinyInfo[4]<=0;
 }
 
 /*!
