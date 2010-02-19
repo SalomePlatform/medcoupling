@@ -62,6 +62,7 @@ namespace ParaMEDMEM
     virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     //! size of returned tinyInfo must be always the same.
     virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;
     virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
     virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     virtual void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
