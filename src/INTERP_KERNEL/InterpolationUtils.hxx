@@ -623,7 +623,7 @@ namespace INTERP_KERNEL
   /* Computes the norm of vector v */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
   template<int dim> 
-  inline double norm( double * v)
+  inline double norm(const double * v)
   {   
     double result =0;
     for(int idim =0; idim<dim; idim++) result+=v[idim]*v[idim];
