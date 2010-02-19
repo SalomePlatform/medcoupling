@@ -101,10 +101,6 @@ namespace ParaMEDMEM
                                               const std::string& srcMeth,
                                               const std::string& targetMeth)
   {
-    if (distant_support.getMeshDimension() != _source_support->getMeshDimension())
-      {
-        throw INTERP_KERNEL::Exception("local and distant meshes do not have the same space and mesh dimensions");
-      }
     std::string interpMethod(targetMeth);
     interpMethod+=srcMeth;
     //creating the interpolator structure
@@ -113,8 +109,58 @@ namespace ParaMEDMEM
     //computation of the intersection volumes between source and target elements
     MEDCouplingUMesh *distant_supportC=dynamic_cast<MEDCouplingUMesh *>(&distant_support);
     MEDCouplingUMesh *source_supportC=dynamic_cast<MEDCouplingUMesh *>(_source_support);
-    if ( distant_support.getMeshDimension() == 2
-         && distant_support.getSpaceDimension() == 3 )
+    if ( distant_support.getMeshDimension() == -1 )
+      {
+        if(source_supportC->getMeshDimension()==2 && source_supportC->getSpaceDimension()==2)
+          {
+            MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(source_supportC);
+            INTERP_KERNEL::Interpolation2D interpolation(*this);
+            colSize=interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth.c_str());
+          }
+        else if(source_supportC->getMeshDimension()==3 && source_supportC->getSpaceDimension()==3)
+          {
+            MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(source_supportC);
+            INTERP_KERNEL::Interpolation3D interpolation(*this);
+            colSize=interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth.c_str());
+          }
+        else if(source_supportC->getMeshDimension()==2 && source_supportC->getSpaceDimension()==3)
+          {
+            MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(source_supportC);
+            INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
+            colSize=interpolation.fromIntegralUniform(source_mesh_wrapper,surfaces,srcMeth.c_str());
+          }
+        else
+          throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of source mesh to -1D targetMesh");
+      }
+    else if ( source_supportC->getMeshDimension() == -1 )
+      {
+        if(distant_supportC->getMeshDimension()==2 && distant_supportC->getSpaceDimension()==2)
+          {
+            MEDCouplingNormalizedUnstructuredMesh<2,2> distant_mesh_wrapper(distant_supportC);
+            INTERP_KERNEL::Interpolation2D interpolation(*this);
+            colSize=interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth.c_str());
+          }
+        else if(distant_supportC->getMeshDimension()==3 && distant_supportC->getSpaceDimension()==3)
+          {
+            MEDCouplingNormalizedUnstructuredMesh<3,3> distant_mesh_wrapper(distant_supportC);
+            INTERP_KERNEL::Interpolation3D interpolation(*this);
+            colSize=interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth.c_str());
+          }
+        else if(distant_supportC->getMeshDimension()==2 && distant_supportC->getSpaceDimension()==3)
+          {
+            MEDCouplingNormalizedUnstructuredMesh<3,2> distant_mesh_wrapper(distant_supportC);
+            INTERP_KERNEL::Interpolation3DSurf interpolation(*this);
+            colSize=interpolation.toIntegralUniform(distant_mesh_wrapper,surfaces,srcMeth.c_str());
+          }
+        else
+          throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of distant mesh to -1D sourceMesh");
+      }
+    else if (distant_support.getMeshDimension() != _source_support->getMeshDimension())
+      {
+        throw INTERP_KERNEL::Exception("local and distant meshes do not have the same space and mesh dimensions");
+      }
+    else if ( distant_support.getMeshDimension() == 2
+              && distant_support.getSpaceDimension() == 3 )
       {
         MEDCouplingNormalizedUnstructuredMesh<3,2> target_wrapper(distant_supportC);
         MEDCouplingNormalizedUnstructuredMesh<3,2> source_wrapper(source_supportC);
@@ -254,8 +300,13 @@ namespace ParaMEDMEM
         computeConservVolDenoW(elementLocator);
         break;
       case Integral:
-        computeIntegralDenoW(elementLocator);
-        break;
+        {
+          if(!elementLocator.isM1DCorr())
+            computeIntegralDenoW(elementLocator);
+          else
+            computeGlobConstraintDenoW(elementLocator);
+          break;
+        }
       case IntegralGlobConstraint:
         computeGlobConstraintDenoW(elementLocator);
         break;
@@ -274,8 +325,13 @@ namespace ParaMEDMEM
         computeConservVolDenoL(elementLocator);
         break;
       case Integral:
-        computeIntegralDenoL(elementLocator);
-        break;
+        {
+          if(!elementLocator.isM1DCorr())
+            computeIntegralDenoL(elementLocator);
+          else
+            computeConservVolDenoL(elementLocator);
+          break;
+        }
       case IntegralGlobConstraint:
         //this is not a bug doing like ConservativeVolumic
         computeConservVolDenoL(elementLocator);

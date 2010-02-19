@@ -172,7 +172,7 @@ namespace ParaMEDMEM
                 std::cout <<"add contribution from proc "<<idistant_proc_in_union<<" to proc "<<_union_group->myRank()<<std::endl;
                 _interpolation_matrix->addContribution(*distant_mesh,idistant_proc_in_union,distant_ids,_method,distantMeth);
                 distant_mesh->decrRef();
-                delete[] distant_ids;
+                delete [] distant_ids;
                 distant_mesh=0;
                 distant_ids=0;
               }
@@ -200,7 +200,7 @@ namespace ParaMEDMEM
                 std::string distantMeth;
                 locator.exchangeMethod(_method,idistant_proc,distantMeth);
                 distant_mesh->decrRef();
-                delete[] distant_ids;
+                delete [] distant_ids;
                 distant_mesh=0;
                 distant_ids=0;
               }

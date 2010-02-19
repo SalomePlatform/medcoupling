@@ -78,16 +78,13 @@ namespace ParaMEDMEM
                                     MEDCouplingPointSet*& distant_mesh,
                                     int*& distant_ids)
   {
-    int dim  = _local_cell_mesh->getSpaceDimension();
     int rank = _union_group->translateRank(&_distant_group,idistantrank);
 
     if (find(_distant_proc_ids.begin(), _distant_proc_ids.end(),rank)==_distant_proc_ids.end())
-      {
-        return;
-      }
+      return;
    
     vector<int> elems;
-    double* distant_bb =  _domain_bounding_boxes+rank*2*dim;
+    double* distant_bb = _domain_bounding_boxes+rank*2*_local_cell_mesh_space_dim;
     _local_cell_mesh->giveElemsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
     
     DataArrayInt *distant_ids_send;
@@ -104,7 +101,7 @@ namespace ParaMEDMEM
     CommInterface comm_interface=_union_group->getCommInterface();
     MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
     const MPI_Comm* comm=(group->getComm());
-    MPI_Status status; 
+    MPI_Status status;
     // it must be converted to union numbering before communication
     int idistRankInUnion = group->translateRank(&_distant_group,idistantrank);
     char *recv_buffer=new char[4];
@@ -125,27 +122,46 @@ namespace ParaMEDMEM
   void ElementLocator::_computeBoundingBoxes()
   {
     CommInterface comm_interface =_union_group->getCommInterface();
-    int dim = _local_cell_mesh->getSpaceDimension();
-    _domain_bounding_boxes = new double[2*dim*_union_group->size()];
-    double * minmax=new double [2*dim];
-    _local_cell_mesh->getBoundingBox(minmax);
-
     MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
     const MPI_Comm* comm = group->getComm();
-    comm_interface.allGather(minmax, 2*dim, MPI_DOUBLE,
-                             _domain_bounding_boxes,2*dim, MPI_DOUBLE, 
+    _local_cell_mesh_space_dim = -1;
+    if(_local_cell_mesh->getMeshDimension() != -1)
+      _local_cell_mesh_space_dim=_local_cell_mesh->getSpaceDimension();
+    int *spaceDimForAll=new int[_union_group->size()];
+    comm_interface.allGather(&_local_cell_mesh_space_dim, 1, MPI_INT,
+                             spaceDimForAll,1, MPI_INT, 
+                             *comm);
+    _local_cell_mesh_space_dim=*std::max_element(spaceDimForAll,spaceDimForAll+_union_group->size());
+    _is_m1d_corr=((*std::min_element(spaceDimForAll,spaceDimForAll+_union_group->size()))==-1);
+    for(int i=0;i<_union_group->size();i++)
+      if(spaceDimForAll[i]!=_local_cell_mesh_space_dim && spaceDimForAll[i]!=-1)
+        throw INTERP_KERNEL::Exception("Spacedim not matches !");
+    delete [] spaceDimForAll;
+    _domain_bounding_boxes = new double[2*_local_cell_mesh_space_dim*_union_group->size()];
+    double * minmax=new double [2*_local_cell_mesh_space_dim];
+    if(_local_cell_mesh->getMeshDimension() != -1)
+      _local_cell_mesh->getBoundingBox(minmax);
+    else
+      for(int i=0;i<_local_cell_mesh_space_dim;i++)
+        {
+          minmax[i*2]=-std::numeric_limits<double>::max();
+          minmax[i*2+1]=std::numeric_limits<double>::max();
+        }
+
+    comm_interface.allGather(minmax, 2*_local_cell_mesh_space_dim, MPI_DOUBLE,
+                             _domain_bounding_boxes,2*_local_cell_mesh_space_dim, MPI_DOUBLE, 
                              *comm);
   
     for (int i=0; i< _distant_group.size(); i++)
       {
-        int rank= _union_group->translateRank(&_distant_group,i);
+        int rank=_union_group->translateRank(&_distant_group,i);
 
         if (_intersectsBoundingBox(rank))
           {
             _distant_proc_ids.push_back(rank);
           }
       }
-    delete[] minmax;
+    delete [] minmax;
   }
 
 
@@ -154,11 +170,10 @@ namespace ParaMEDMEM
   // =============================================
   bool ElementLocator::_intersectsBoundingBox(int irank)
   {
-    int dim=_local_cell_mesh->getSpaceDimension();
-    double*  local_bb = _domain_bounding_boxes+_union_group->myRank()*2*dim;
-    double*  distant_bb =  _domain_bounding_boxes+irank*2*dim;
+    double*  local_bb = _domain_bounding_boxes+_union_group->myRank()*2*_local_cell_mesh_space_dim;
+    double*  distant_bb =  _domain_bounding_boxes+irank*2*_local_cell_mesh_space_dim;
 
-    for (int idim=0; idim < _local_cell_mesh->getSpaceDimension(); idim++)
+    for (int idim=0; idim < _local_cell_mesh_space_dim; idim++)
       {
         const double eps =  1e-12;
         bool intersects = (distant_bb[idim*2]<local_bb[idim*2+1]+eps)
@@ -211,17 +226,45 @@ namespace ParaMEDMEM
     MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::buildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
     std::vector<std::string> unusedTinyDistantSts;
     distant_mesh_tmp->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
-    comm_interface.sendRecv(v1Local->getPointer(), v1Local->getNbOfElems(), MPI_INT,
+    int nbLocalElems=0;
+    int nbDistElem=0;
+    int *ptLocal=0;
+    int *ptDist=0;
+    if(v1Local)
+      {
+        nbLocalElems=v1Local->getNbOfElems();
+        ptLocal=v1Local->getPointer();
+      }
+    if(v1Distant)
+      {
+        nbDistElem=v1Distant->getNbOfElems();
+        ptDist=v1Distant->getPointer();
+      }
+    comm_interface.sendRecv(ptLocal, nbLocalElems, MPI_INT,
                             iprocdistant_in_union, 1111,
-                            v1Distant->getPointer(), v1Distant->getNbOfElems(), MPI_INT,
+                            ptDist, nbDistElem, MPI_INT,
                             iprocdistant_in_union,1111,
                             *comm, &status);
-    comm_interface.sendRecv(v2Local->getPointer(), v2Local->getNbOfElems(), MPI_DOUBLE,
+    nbLocalElems=0;
+    double *ptLocal2=0;
+    double *ptDist2=0;
+    if(v2Local)
+      {
+        nbLocalElems=v2Local->getNbOfElems();
+        ptLocal2=v2Local->getPointer();
+      }
+    nbDistElem=0;
+    if(v2Distant)
+      {
+        nbDistElem=v2Distant->getNbOfElems();
+        ptDist2=v2Distant->getPointer();
+      }
+    comm_interface.sendRecv(ptLocal2, nbLocalElems, MPI_DOUBLE,
                             iprocdistant_in_union, 1112,
-                            v2Distant->getPointer(), v2Distant->getNbOfElems(), MPI_DOUBLE,
+                            ptDist2, nbDistElem, MPI_DOUBLE,
                             iprocdistant_in_union, 1112, 
                             *comm, &status);
-    if(v1Distant->getNbOfElems()>0)
+    if(!distant_mesh_tmp->isEmptyMesh(tinyInfoDistant))
       {
         distant_mesh=distant_mesh_tmp;
         //finish unserialization
@@ -235,10 +278,14 @@ namespace ParaMEDMEM
                             distant_ids_recv,tinyInfoDistant.back(), MPI_INT,
                             iprocdistant_in_union,1113,
                             *comm, &status);
-    v1Local->decrRef();
-    v2Local->decrRef();
-    v1Distant->decrRef();
-    v2Distant->decrRef();
+    if(v1Local)
+      v1Local->decrRef();
+    if(v2Local)
+      v2Local->decrRef();
+    if(v1Distant)
+      v1Distant->decrRef();
+    if(v2Distant)
+      v2Distant->decrRef();
   }
   
   /*!

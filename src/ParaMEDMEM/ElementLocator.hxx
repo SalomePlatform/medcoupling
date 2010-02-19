@@ -48,6 +48,8 @@ namespace ParaMEDMEM
     const std::vector<int>& getDistantProcIds() const { return _distant_proc_ids; }
     const MPI_Comm *getCommunicator() const;
     NatureOfField getLocalNature() const;
+    //! This method is used to informed if there is -1D mesh on distant_group side or on local_group side.
+    bool isM1DCorr() const { return _is_m1d_corr; }
     //Working side methods
     void recvPolicyFromLazySideW(std::vector<int>& policy);
     void sendSumToLazySideW(const std::vector< std::vector<int> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds);
@@ -80,6 +82,8 @@ namespace ParaMEDMEM
   private:
     const ParaFIELD&  _local_para_field ;
     MEDCouplingPointSet* _local_cell_mesh;
+    int _local_cell_mesh_space_dim;
+    bool _is_m1d_corr;
     MEDCouplingPointSet* _local_face_mesh;
     std::vector<MEDCouplingPointSet*> _distant_cell_meshes;
     std::vector<MEDCouplingPointSet*> _distant_face_meshes;
