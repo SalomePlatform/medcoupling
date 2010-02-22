@@ -1,0 +1,549 @@
+#include "InterpKernelFunction.hxx"
+#include "InterpKernelValue.hxx"
+
+#include <cmath>
+
+using namespace INTERP_KERNEL;
+
+const char IdentityFunction::REPR[]="Id";
+
+const char PositiveFunction::REPR[]="+";
+
+const char NegateFunction::REPR[]="-";
+
+const char CosFunction::REPR[]="cos";
+
+const char SinFunction::REPR[]="sin";
+
+const char TanFunction::REPR[]="tan";
+
+const char SqrtFunction::REPR[]="sqrt";
+
+const char AbsFunction::REPR[]="abs";
+
+const char PlusFunction::REPR[]="+";
+
+const char MinusFunction::REPR[]="-";
+
+const char MultFunction::REPR[]="*";
+
+const char DivFunction::REPR[]="/";
+
+const char PowFunction::REPR[]="^";
+
+const char ExpFunction::REPR[]="exp";
+
+const char LnFunction::REPR[]="ln";
+
+const char MaxFunction::REPR[]="max";
+
+const char MinFunction::REPR[]="min";
+
+Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams) throw(INTERP_KERNEL::Exception)
+{
+  switch(nbOfParams)
+    {
+    case 1:
+      return buildUnaryFuncFromString(type);
+    case 2:
+      return buildBinaryFuncFromString(type);
+    default:
+      throw INTERP_KERNEL::Exception("Invalid number of params detected : limited to 2 !");
+    }
+}
+
+Function *FunctionsFactory::buildUnaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception)
+{
+  std::string tmp(type);
+  if(tmp.empty())
+    return new IdentityFunction;
+  if(tmp==CosFunction::REPR)
+    return new CosFunction;
+  if(tmp==SinFunction::REPR)
+    return new SinFunction;
+  if(tmp==TanFunction::REPR)
+    return new TanFunction;
+  if(tmp==SqrtFunction::REPR)
+    return new SqrtFunction;
+  if(tmp==AbsFunction::REPR)
+    return new AbsFunction;
+  if(tmp==PositiveFunction::REPR)
+    return new PositiveFunction;
+  if(tmp==NegateFunction::REPR)
+    return new NegateFunction;
+  if(tmp==ExpFunction::REPR)
+    return new ExpFunction;
+  if(tmp==LnFunction::REPR)
+    return new LnFunction;
+  //
+  std::string msg("Invalid unary function detected : \"");
+  msg+=type; msg+="\"";
+  throw INTERP_KERNEL::Exception(msg.c_str());
+}
+
+Function *FunctionsFactory::buildBinaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception)
+{
+  std::string tmp(type);
+  if(tmp==PositiveFunction::REPR)
+    return new PlusFunction;
+  if(tmp==NegateFunction::REPR)
+    return new MinusFunction;
+  if(tmp==MultFunction::REPR)
+    return new MultFunction;
+  if(tmp==DivFunction::REPR)
+    return new DivFunction;
+  if(tmp==PowFunction::REPR)
+    return new PowFunction;
+  if(tmp==MaxFunction::REPR)
+    return new MaxFunction;
+  if(tmp==MinFunction::REPR)
+    return new MinFunction;
+  std::string msg("Invalid binary function detected : \"");
+  msg+=type; msg+="\"";
+  throw INTERP_KERNEL::Exception(msg.c_str());
+}
+
+Function *FunctionsFactory::buildBinaryFuncFromString(char type) throw(INTERP_KERNEL::Exception)
+{
+  char tmp[2]; tmp[0]=type; tmp[1]='\0';
+  return buildBinaryFuncFromString(tmp);
+}
+
+Function::~Function()
+{
+}
+
+IdentityFunction::~IdentityFunction()
+{
+}
+
+void IdentityFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+}
+
+const char *IdentityFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool IdentityFunction::isACall() const
+{
+  return false;
+}
+
+PositiveFunction::~PositiveFunction()
+{
+}
+
+int UnaryFunction::getNbInputParams() const
+{
+  return 1;
+}
+
+void PositiveFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+}
+
+const char *PositiveFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool PositiveFunction::isACall() const
+{
+  return false;
+}
+
+NegateFunction::~NegateFunction()
+{
+}
+
+void NegateFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->negate();
+}
+
+const char *NegateFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool NegateFunction::isACall() const
+{
+  return false;
+}
+
+CosFunction::~CosFunction()
+{
+}
+
+void CosFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->cos();
+}
+
+const char *CosFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool CosFunction::isACall() const
+{
+  return true;
+}
+
+SinFunction::~SinFunction()
+{
+}
+
+void SinFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->sin();
+}
+
+const char *SinFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool SinFunction::isACall() const
+{
+  return true;
+}
+
+TanFunction::~TanFunction()
+{
+}
+
+void TanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->tan();
+}
+
+const char *TanFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool TanFunction::isACall() const
+{
+  return true;
+}
+
+SqrtFunction::~SqrtFunction()
+{
+}
+
+void SqrtFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->sqrt();
+}
+
+const char *SqrtFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool SqrtFunction::isACall() const
+{
+  return true;
+}
+
+AbsFunction::~AbsFunction()
+{
+}
+
+void AbsFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->abs();
+}
+
+const char *AbsFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool AbsFunction::isACall() const
+{
+  return false;
+}
+
+void ExpFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->exp();
+}
+ 
+const char *ExpFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool ExpFunction::isACall() const
+{
+  return true;
+}
+
+LnFunction::~LnFunction()
+{
+}
+
+void LnFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->ln();
+}
+
+const char *LnFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool LnFunction::isACall() const
+{
+  return true;
+}
+
+int BinaryFunction::getNbInputParams() const
+{
+  return 2;
+}
+
+PlusFunction::~PlusFunction()
+{
+}
+
+void PlusFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->plus(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+const char *PlusFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool PlusFunction::isACall() const
+{
+  return false;
+}
+
+MinusFunction::~MinusFunction()
+{
+}
+
+void MinusFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->minus(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+const char *MinusFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool MinusFunction::isACall() const
+{
+  return false;
+}
+
+MultFunction::~MultFunction()
+{
+}
+
+void MultFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3=val1->mult(val2);
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+const char *MultFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool MultFunction::isACall() const
+{
+  return false;
+}
+
+DivFunction::~DivFunction()
+{
+}
+
+void DivFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->div(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+const char *DivFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool DivFunction::isACall() const
+{
+  return false;
+}
+
+PowFunction::~PowFunction()
+{
+}
+
+void PowFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->pow(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+const char *PowFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool PowFunction::isACall() const
+{
+  return true;
+}
+
+ExpFunction::~ExpFunction()
+{
+}
+
+MaxFunction::~MaxFunction()
+{
+}
+
+void MaxFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->max(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+const char *MaxFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool MaxFunction::isACall() const
+{
+  return false;
+}
+
+MinFunction::~MinFunction()
+{
+}
+
+void MinFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->min(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+const char *MinFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool MinFunction::isACall() const
+{
+  return false;
+}

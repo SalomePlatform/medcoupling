@@ -19,6 +19,7 @@
 
 #include "CppUnitTest.hxx"
 #include "BBTreeTest.hxx"
+#include "ExprEvalInterpTest.hxx"
 #include "QuadraticPlanarInterpTest.hxx"
 #include "SingleElementPlanarTests.hxx"
 #include "TransformedTriangleIntersectTest.hxx"
@@ -39,6 +40,7 @@ using namespace INTERP_TEST;
 //--- Registers the fixture into the 'registry'
 
 CPPUNIT_TEST_SUITE_REGISTRATION( BBTreeTest);
+CPPUNIT_TEST_SUITE_REGISTRATION( ExprEvalInterpTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( QuadraticPlanarInterpTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementPlanarTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleIntersectTest );

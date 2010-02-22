@@ -42,6 +42,8 @@ libInterpKernelTest_la_SOURCES=              \
 	CppUnitTest.hxx                      \
 	CppUnitTest.cxx                      \
 	InterpolationPlanarTestSuite.hxx     \
+	ExprEvalInterpTest.hxx               \
+	ExprEvalInterpTest.cxx               \
 	QuadraticPlanarInterpTest.hxx        \
 	QuadraticPlanarInterpTest.cxx        \
 	QuadraticPlanarInterpTest2.cxx       \
@@ -64,6 +66,7 @@ libInterpKernelTest_la_CPPFLAGS =                \
 	-I$(srcdir)/../INTERP_KERNEL             \
 	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
 	-I$(srcdir)/../INTERP_KERNEL/Bases       \
+	-I$(srcdir)/../INTERP_KERNEL/ExprEval    \
 	-DOPTIMIZE -DLOG_LEVEL=0
 
 libInterpKernelTest_la_LDFLAGS  =                \
