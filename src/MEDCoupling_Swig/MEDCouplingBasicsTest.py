@@ -56,6 +56,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ## deep full recursively copy of field -> both field and mesh underneath copied
         field2=field.clone(True)
         field2.setMesh(field.getMesh().clone(True))
+        mesh3=mesh.clone(True)
+        field3=mesh3.fillFromAnalytic(ON_CELLS,2,"x*IVec+(y+z)*JVec")
+        field3.applyFunc("u*u*u+cos(u)")
         pass
     def setUp(self):
         pass

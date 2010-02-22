@@ -48,6 +48,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingMesh::mergeMyselfWith;
+%newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelf;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getMeasureField;
@@ -187,6 +188,8 @@ namespace ParaMEDMEM
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void updateTime();
     bool mergeNodes(double eps);
+    void applyFunc(int nbOfComp, const char *func);
+    void applyFunc(const char *func);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     %extend {
       void setValues(PyObject *li)
