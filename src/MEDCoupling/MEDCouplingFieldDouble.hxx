@@ -57,6 +57,8 @@ namespace ParaMEDMEM
     //! \b temporary
     void applyLin(double a, double b, int compoId);
     void applyFunc(int nbOfComp, FunctionToEvaluate func);
+    void applyFunc(int nbOfComp, const char *func);
+    void applyFunc(const char *func);
     int getNumberOfComponents() const;
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     void updateTime();

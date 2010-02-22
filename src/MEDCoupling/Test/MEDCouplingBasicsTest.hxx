@@ -55,7 +55,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testMergeMesh1 );
     CPPUNIT_TEST( testMergeField1 );
     CPPUNIT_TEST( testFillFromAnalytic );
+    CPPUNIT_TEST( testFillFromAnalytic2 );
     CPPUNIT_TEST( testApplyFunc );
+    CPPUNIT_TEST( testApplyFunc2 );
     CPPUNIT_TEST( testOperationsOnFields );
     CPPUNIT_TEST( testMergeNodesOnField );
     CPPUNIT_TEST( testCheckConsecutiveCellTypes );
@@ -134,7 +136,9 @@ namespace ParaMEDMEM
     void testMergeMesh1();
     void testMergeField1();
     void testFillFromAnalytic();
+    void testFillFromAnalytic2();
     void testApplyFunc();
+    void testApplyFunc2();
     void testOperationsOnFields();
     void testMergeNodesOnField();
     void testCheckConsecutiveCellTypes();

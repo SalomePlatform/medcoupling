@@ -77,6 +77,8 @@ namespace ParaMEDMEM
     //
     virtual void applyLin(double a, double b, int compoId);
     virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
+    virtual void applyFunc(int nbOfComp, const char *func);
+    virtual void applyFunc(const char *func);
     //
     virtual ~MEDCouplingTimeDiscretization();
   protected:

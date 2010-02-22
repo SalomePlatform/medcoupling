@@ -381,12 +381,9 @@ Value *ValueDoubleExpr::pow(const Value *other) const throw(INTERP_KERNEL::Excep
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   double p=otherC->getData()[0];
-  if(p<0.)
-    {
-      double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),0.));
-      if(it!=_dest_data+_sz_dest_data)
-        throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. and b<0. !");
-    }
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),0.));
+  if(it!=_dest_data+_sz_dest_data)
+    throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. !");
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind2nd(std::ptr_fun(powl),p));
   return ret;

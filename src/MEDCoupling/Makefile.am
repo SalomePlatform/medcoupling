@@ -50,7 +50,9 @@ dist_libmedcoupling_la_SOURCES = \
 libmedcoupling_la_LDFLAGS= 
 
 libmedcoupling_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
-	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D
+	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D \
+	-I$(srcdir)/../INTERP_KERNEL/ExprEval
 
 # the geom2D library is included in the interpkernel one
 libmedcoupling_la_LIBADD= ../INTERP_KERNEL/libinterpkernel.la

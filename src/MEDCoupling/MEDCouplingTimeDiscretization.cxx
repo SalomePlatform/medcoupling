@@ -19,6 +19,8 @@
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingMemArray.hxx"
 
+#include "InterpKernelExprParser.hxx"
+
 #include <cmath>
 #include <iterator>
 
@@ -218,6 +220,78 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate f
           std::ostringstream oss; oss << "For tuple # " << i << " with value (";
           std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
           oss << ") : Evaluation of function failed !";
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  _array->decrRef();
+  _array=newArr;
+}
+
+void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  std::set<std::string> vars;
+  expr.getTrueSetOfVars(vars);
+  int oldNbOfComp=_array->getNumberOfComponents();
+  if(vars.size()>oldNbOfComp)
+    {
+      std::ostringstream oss; oss << "The field has a " << oldNbOfComp << " components and there are ";
+      oss << vars.size() << " variables : ";
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector<std::string> varsV(vars.begin(),vars.end());
+  expr.prepareExprEvaluation(varsV);
+  //
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=_array->getNumberOfTuples();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=_array->getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      try
+        {
+          expr.evaluateExpr(nbOfComp,ptrToFill+i*nbOfComp,ptr+i*oldNbOfComp);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed !" << e.what();
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  _array->decrRef();
+  _array=newArr;
+}
+
+void MEDCouplingTimeDiscretization::applyFunc(const char *func)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  expr.prepareExprEvaluationVec();
+  //
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=_array->getNumberOfTuples();
+  int nbOfComp=_array->getNumberOfComponents();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=_array->getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      try
+        {
+          expr.evaluateExpr(nbOfComp,ptrToFill+i*nbOfComp,ptr+i*nbOfComp);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+nbOfComp*i,ptr+nbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed ! " << e.what();
           newArr->decrRef();
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }

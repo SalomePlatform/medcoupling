@@ -21,6 +21,8 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 
+#include "InterpKernelExprParser.hxx"
+
 #include <sstream>
 #include <iterator>
 
@@ -53,6 +55,55 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
           std::ostringstream oss; oss << "For tuple # " << i << " localized on (";
           std::copy(locPtr+nbCompIn*i,locPtr+nbCompIn*(i+1),std::ostream_iterator<double>(oss,", "));
           oss << ") : Evaluation of function failed !";
+          loc->decrRef();
+          array->decrRef();
+          ret->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      ptToFill+=nbOfComp;
+    }
+  loc->decrRef();
+  ret->setArray(array);
+  array->decrRef();
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  std::set<std::string> vars;
+  expr.getTrueSetOfVars(vars);
+  if(vars.size()>getSpaceDimension())
+    {
+      std::ostringstream oss; oss << "The mesh has a spaceDim==" << getSpaceDimension() << " and there are ";
+      oss << vars.size() << " variables : ";
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector<std::string> varsV(vars.begin(),vars.end());
+  expr.prepareExprEvaluation(varsV);
+  //
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(t);
+  ret->setMesh(this);
+  DataArrayDouble *loc=ret->getDiscretization()->getLocalizationOfDiscValues(this);
+  DataArrayDouble *array=DataArrayDouble::New();
+  int nbOfTuple=loc->getNumberOfTuples();
+  int nbCompIn=loc->getNumberOfComponents();
+  const double *locPtr=loc->getConstPointer();
+  array->alloc(nbOfTuple,nbOfComp);
+  double *ptToFill=array->getPointer();
+  for(int i=0;i<nbOfTuple;i++)
+    {
+      try
+        {
+          expr.evaluateExpr(nbOfComp,ptToFill,locPtr+nbCompIn*i);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " localized on (";
+          std::copy(locPtr+nbCompIn*i,locPtr+nbCompIn*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed ! " << e.what();
           loc->decrRef();
           array->decrRef();
           ret->decrRef();

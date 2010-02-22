@@ -1154,6 +1154,76 @@ void MEDCouplingBasicsTest::testFillFromAnalytic()
   m->decrRef();
 }
 
+void MEDCouplingBasicsTest::testFillFromAnalytic2()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f1=m->fillFromAnalytic(ON_CELLS,1,"y+x");
+  f1->checkCoherency();
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_CELLS);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
+  double values1[5]={-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9};
+  const double *tmp=f1->getArray()->getConstPointer();
+  std::transform(tmp,tmp+5,values1,values1,std::minus<double>());
+  std::transform(values1,values1+5,values1,std::ptr_fun<double,double>(fabs));
+  double max=*std::max_element(values1,values1+5);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
+  f1->decrRef();
+  //
+  f1=m->fillFromAnalytic(ON_NODES,1,"y+2*x");
+  f1->checkCoherency();
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  double values2[9]={-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1};
+  tmp=f1->getArray()->getConstPointer();
+  std::transform(tmp,tmp+9,values2,values2,std::minus<double>());
+  std::transform(values2,values2+9,values2,std::ptr_fun<double,double>(fabs));
+  max=*std::max_element(values2,values2+9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
+  f1->decrRef();
+  f1=m->fillFromAnalytic(ON_NODES,1,"2.*x+y");
+  f1->checkCoherency();
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  tmp=f1->getArray()->getConstPointer();
+  double values2Bis[9]={-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1};
+  std::transform(tmp,tmp+9,values2Bis,values2Bis,std::minus<double>());
+  std::transform(values2,values2Bis+9,values2Bis,std::ptr_fun<double,double>(fabs));
+  max=*std::max_element(values2Bis,values2Bis+9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
+  f1->decrRef();
+  //
+  f1=m->fillFromAnalytic(ON_NODES,2,"(x+y)*IVec+2*(x+y)*JVec");
+  f1->checkCoherency();
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(2,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  double values3[18]={-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8};
+  tmp=f1->getArray()->getConstPointer();
+  std::transform(tmp,tmp+18,values3,values3,std::minus<double>());
+  std::transform(values3,values3+18,values3,std::ptr_fun<double,double>(fabs));
+  max=*std::max_element(values3,values3+18);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
+  double values4[2];
+  f1->accumulate(values4);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,values4[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.2,values4[1],1.e-12);
+  f1->measureAccumulate(true,values4);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,values4[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,values4[1],1.e-12);
+  f1->decrRef();
+  //
+  CPPUNIT_ASSERT_THROW(f1=m->fillFromAnalytic(ON_NODES,1,"1./(x-0.2)"),INTERP_KERNEL::Exception);
+  //
+  m->decrRef();
+}
+
 void MEDCouplingBasicsTest::testApplyFunc()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
@@ -1173,6 +1243,49 @@ void MEDCouplingBasicsTest::testApplyFunc()
   std::transform(tmp,tmp+9,values1,values1,std::minus<double>());
   std::transform(values1,values1+9,values1,std::ptr_fun<double,double>(fabs));
   double max=*std::max_element(values1,values1+9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
+  f1->decrRef();
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testApplyFunc2()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f1=m->fillFromAnalytic(ON_NODES,2,func2);
+  f1->checkCoherency();
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(2,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  //
+  MEDCouplingFieldDouble *f2=f1->clone(true);
+  f2->applyFunc("abs(u)^2.4+2*u");
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(2,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  double values2[18]={-0.9065304805418678, -0.85105859001709905, -0.19601892829446504, -0.37898777756476987,
+                      0.91090317490482353, 2.1853504664669781, -0.19601892829446504, -0.37898777756476987,
+                      0.91090317490482353, 2.1853504664669781, 2.5765725275664879, 7.6987743736515295,
+                      0.91090317490482353, 2.1853504664669781, 2.5765725275664879, 7.6987743736515295,
+                      5.0423700574830965, 17.435300118916864};
+  const double *tmp=f2->getArray()->getConstPointer();
+  std::transform(tmp,tmp+18,values2,values2,std::minus<double>());
+  std::transform(values2,values2+18,values2,std::ptr_fun<double,double>(fabs));
+  double max=*std::max_element(values2,values2+18);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
+  f2->decrRef();
+  //
+  f1->applyFunc(1,"x+y");
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  double values1[9]={-1.8,-0.3,1.2,-0.3,1.2,2.7,1.2,2.7,4.2};
+  tmp=f1->getArray()->getConstPointer();
+  std::transform(tmp,tmp+9,values1,values1,std::minus<double>());
+  std::transform(values1,values1+9,values1,std::ptr_fun<double,double>(fabs));
+  max=*std::max_element(values1,values1+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
   m->decrRef();

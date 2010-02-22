@@ -182,6 +182,16 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
   _time_discr->applyFunc(nbOfComp,func);
 }
 
+void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
+{
+  _time_discr->applyFunc(nbOfComp,func);
+}
+
+void MEDCouplingFieldDouble::applyFunc(const char *func)
+{
+  _time_discr->applyFunc(func);
+}
+
 int MEDCouplingFieldDouble::getNumberOfComponents() const
 {
   return getArray()->getNumberOfComponents();
