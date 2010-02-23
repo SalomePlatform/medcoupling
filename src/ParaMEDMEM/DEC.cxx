@@ -103,9 +103,12 @@ namespace ParaMEDMEM
     will be updated by a recvData() call.
     Reversely, if the processor is on the sending end, the field will be read, possibly transformed, and sent appropriately to the other side.
   */
-  void DEC::attachLocalField(const ParaFIELD* field) 
+  void DEC::attachLocalField(const ParaFIELD* field, bool ownPt) 
   {
+    if(_owns_field)
+      delete _local_field;
     _local_field=field;
+    _owns_field=ownPt;
     _comm_interface=&(field->getTopology()->getProcGroup()->getCommInterface());
     compareFieldAndMethod();
   }
@@ -130,12 +133,9 @@ namespace ParaMEDMEM
     else
       throw INTERP_KERNEL::Exception("Invalid procgroup for field attachment to DEC");
     ParaMESH *paramesh=new ParaMESH((MEDCouplingPointSet *)field->getMesh(),*local_group,field->getMesh()->getName());
-    if(_owns_field)
-      delete _local_field; 
-    _local_field = new ParaFIELD(field, paramesh, *local_group);
-    _owns_field=true;
-    _local_field->setOwnSupport(true);
-    attachLocalField(_local_field);
+    ParaFIELD *tmp=new ParaFIELD(field, paramesh, *local_group);
+    tmp->setOwnSupport(true);
+    attachLocalField(tmp,true);
     //_comm_interface=&(local_group->getCommInterface());
   }
 
