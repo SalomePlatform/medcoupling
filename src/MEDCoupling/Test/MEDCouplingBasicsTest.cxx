@@ -1449,6 +1449,28 @@ void MEDCouplingBasicsTest::testBuildOrthogonalField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i%3],vals[i],1e-12);
   field->decrRef();
   targetMesh->decrRef();
+  // testing 
+  double targetCoords[12]={0.,0.,0.,0.5,0.,0.5,1.,0.,1.,0.,1.,0.};
+  int targetConn[4]={0,1,2,3};
+  targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(1);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(4,3);
+  std::copy(targetCoords,targetCoords+12,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  field=targetMesh->buildOrthogonalField();
+  CPPUNIT_ASSERT_EQUAL(1,field->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,field->getNumberOfComponents());
+  vals=field->getArray()->getConstPointer();
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.70710678118654746,vals[0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,vals[1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.70710678118654746,vals[2],1e-12);
+  field->decrRef();
+  targetMesh->decrRef();
 }
 
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()

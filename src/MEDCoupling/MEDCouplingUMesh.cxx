@@ -883,12 +883,14 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
   const int *connI=_nodal_connec_index->getConstPointer();
   const int *conn=_nodal_connec->getConstPointer();
   const double *coords=_coords->getConstPointer();
+  DataArrayDouble *loc=getBarycenterAndOwner();
+  const double *locPtr=loc->getConstPointer();
   if(getSpaceDimension()==3)
     {
       for(int i=0;i<nbOfCells;i++,vals+=3)
         {
           int offset=connI[i];
-          INTERP_KERNEL::crossprod<3>(coords+3*conn[offset+1],coords+3*conn[offset+2],coords+3*conn[offset+3],vals);
+          INTERP_KERNEL::crossprod<3>(locPtr+3*i,coords+3*conn[offset+1],coords+3*conn[offset+2],vals);
           double n=INTERP_KERNEL::norm<3>(vals);
           std::transform(vals,vals+3,vals,std::bind2nd(std::multiplies<double>(),1./n));
         }
@@ -896,9 +898,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
   else
     {
       for(int i=0;i<nbOfCells;i++)
-        { vals[3*i]=1.; vals[3*i+1]=1.; vals[3*i+2]=1.; }
+        { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
     }
   ret->setArray(array);
+  loc->decrRef();
   array->decrRef();
   ret->setMesh(this);
   return ret;
