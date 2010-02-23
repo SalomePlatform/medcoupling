@@ -367,6 +367,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
         value[ielem]=1.0;
       dec.setMethod(srcMeth);
       dec.attachLocalField(mcfield);
+      dec.attachLocalField(mcfield);
     }
   
   //loading the geometry for the target group
@@ -407,6 +408,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       dec.setMethod(targetMeth);
+      dec.attachLocalField(mcfield);
       dec.attachLocalField(mcfield);
     }
     
