@@ -1343,6 +1343,105 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
+void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
+{
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //
+  if(size!=3)
+    return ;
+  set<int> procs_source;
+  set<int> procs_target;
+  //
+  procs_source.insert(0);
+  procs_target.insert(1);
+  //
+  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
+  ParaMEDMEM::ParaMESH *paramesh=0;
+  ParaMEDMEM::ParaFIELD *parafield=0;
+  //
+  ParaMEDMEM::CommInterface interface;
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  double targetCoords[8]={ 0.,0., 1., 0., 0., 1., 1., 1. };
+  CommInterface comm;
+  int grpIds[2]={0,1};
+  MPI_Group grp,group_world;
+  comm.commGroup(MPI_COMM_WORLD,&group_world);
+  comm.groupIncl(group_world,2,grpIds,&grp);
+  MPI_Comm partialComm;
+  comm.commCreate(MPI_COMM_WORLD,grp,&partialComm);
+  //
+  ProcessorGroup* target_group=0;
+  ProcessorGroup* source_group=0;
+  //
+  ParaMEDMEM::InterpKernelDEC *dec=0;
+  if(rank==0 || rank==1)
+    {
+      target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target,partialComm);
+      source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source,partialComm);
+      if(source_group->containsMyRank())
+        {    
+          mesh=MEDCouplingUMesh::New();
+          mesh->setMeshDimension(2);
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(4,2);
+          std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          int targetConn[4]={0,2,3,1};
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+          mesh->finishInsertingCells();
+          ParaMEDMEM::ComponentTopology comptopo;
+          paramesh=new ParaMESH(mesh,*source_group,"source mesh");
+          parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+          double *vals=parafield->getField()->getArray()->getPointer();
+          vals[0]=7.;
+          dec=new ParaMEDMEM::InterpKernelDEC(*source_group,*target_group);
+          dec->attachLocalField(parafield);
+          dec->synchronize();
+          dec->sendData();
+          dec->recvData();
+        }
+      else
+        {
+          mesh=MEDCouplingUMesh::New();
+          mesh->setMeshDimension(2);
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(4,2);
+          std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          int targetConn[6]={0,2,1,2,3,1};
+          mesh->allocateCells(2);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
+          mesh->finishInsertingCells();
+          ParaMEDMEM::ComponentTopology comptopo;
+          paramesh=new ParaMESH(mesh,*target_group,"target mesh");
+          parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+          dec=new ParaMEDMEM::InterpKernelDEC(*source_group,*target_group);
+          dec->attachLocalField(parafield);
+          dec->synchronize();
+          dec->recvData();
+          dec->sendData();
+        }
+    }
+  delete parafield;
+  delete paramesh;
+  if(mesh)
+    mesh->decrRef();
+  delete target_group;
+  delete source_group;
+  delete dec;
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
 /*!
  * Tests an asynchronous exchange between two codes
  * one sends data with dtA as an interval, the max time being tmaxA
