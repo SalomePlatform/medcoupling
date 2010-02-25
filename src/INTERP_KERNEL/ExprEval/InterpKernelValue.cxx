@@ -326,7 +326,7 @@ void ValueDoubleExpr::tan() throw(INTERP_KERNEL::Exception)
 
 void ValueDoubleExpr::abs() throw(INTERP_KERNEL::Exception)
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun(fabs));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(fabs));
 }
 
 void ValueDoubleExpr::exp() throw(INTERP_KERNEL::Exception)
