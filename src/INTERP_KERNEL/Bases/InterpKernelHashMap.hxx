@@ -369,9 +369,9 @@ namespace std
     
     insert_iterator(_Container& __x, typename _Container::iterator) : container(&__x) {}
     
-    insert_iterator<_Container>& operator=(const typename _Container::value_type& __value)
+    insert_iterator<_Container>& operator=(const typename _Container::value_type& __value__)
     {
-      container->insert(__value);
+      container->insert(__value__);
       return *this;
     }
     
@@ -404,9 +404,9 @@ namespace std
 
     insert_iterator(_Container& __x, typename _Container::iterator) : container(&__x) {}
 
-    insert_iterator<_Container>& operator=(const typename _Container::value_type& __value)
+    insert_iterator<_Container>& operator=(const typename _Container::value_type& __value__)
     {
-      container->insert(__value);
+      container->insert(__value__);
       return *this;
     }
 
