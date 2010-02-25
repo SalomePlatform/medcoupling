@@ -32,4 +32,14 @@
 #  define MEDCOUPLING_EXPORT
 #endif
 
+#ifdef WNT
+#  if defined medcouplingremapper_EXPORTS
+#    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllexport )
+#  else
+#    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllimport )
+#  endif
+#else
+#  define MEDCOUPLINGREMAPPER_EXPORT
+#endif
+
 #endif

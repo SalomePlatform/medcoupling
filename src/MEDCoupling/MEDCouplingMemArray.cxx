@@ -18,6 +18,8 @@
 //
 #include "MEDCouplingMemArray.txx"
 
+#include <functional>
+
 using namespace ParaMEDMEM;
 
 void DataArray::setName(const char *name)

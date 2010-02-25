@@ -22,6 +22,7 @@
 
 #include <limits>
 #include <algorithm>
+#include  <functional>
 
 using namespace ParaMEDMEM;
 

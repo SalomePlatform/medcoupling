@@ -20,6 +20,8 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
+#include <functional>
+
 using namespace ParaMEDMEM;
 
 MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)

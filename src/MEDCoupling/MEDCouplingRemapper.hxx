@@ -36,7 +36,7 @@ namespace ParaMEDMEM
 
 namespace ParaMEDMEM
 {
-  class MEDCOUPLING_EXPORT MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
+  class MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
   {
   public:
     MEDCouplingRemapper();
