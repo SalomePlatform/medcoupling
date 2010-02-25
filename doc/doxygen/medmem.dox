@@ -80,6 +80,16 @@ number and its order number.
 In %MED File a field is only flagged by its name. For instance,
 a temperature at times \a t=0.0 s, \a t=1.0 s, \a t=2.0 s will be considered as  a single field in Med File terminology, while it will be considered as three distinct fields in the Med Memory sense.
 
+\subsection medmem_drivers Drivers for reading and writing
+
+MEDMEM supports data exchange in following formats:
+- \b GIBI - reading and writing the mesh and the fields in ASCII format.
+- \b VTK - writing the mesh and the fields in ASCII and binary formats.
+- \b EnSight - reading and writing the mesh and the fields in ASCII and binary formats.
+- \b PORFLOW - reading the mesh in ASCII format.
+
+Limitation of length of names in GIBI format is overcome by storing names in the string pile.
+
 \section medmem_api Med Memory API
 
 \subsection medmem_conventions Conventions
