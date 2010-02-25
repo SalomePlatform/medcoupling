@@ -393,7 +393,7 @@ Value *ValueDoubleExpr::max(const Value *other) const throw(INTERP_KERNEL::Excep
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun(fmax));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun<const double&, const double&, const double& >(std::max));
   return ret;
 }
 
@@ -401,6 +401,6 @@ Value *ValueDoubleExpr::min(const Value *other) const throw(INTERP_KERNEL::Excep
 {
   const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun(fmin));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun<const double&, const double&, const double& >(std::min));
   return ret;
 }
