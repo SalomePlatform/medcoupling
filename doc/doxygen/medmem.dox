@@ -32,7 +32,7 @@ As will be seen in section \ref medmem_api, the API consists of very few classes
 - supports and derived classes : \ref support ,
 - mesh generation tool : \ref meshing ,
 - fields : \ref field ,
-- drivers for reading and writing in MED, GIBI and VTK files.
+- \ref medmem_drivers "drivers for reading and writing" in MED, GIBI and VTK files.
 
 All these are detailed in the following sections. The C++ 
 formalism will be used for the description in these sections.
@@ -88,7 +88,8 @@ MEDMEM supports data exchange in following formats:
 - \b EnSight - reading and writing the mesh and the fields in ASCII and binary formats.
 - \b PORFLOW - reading the mesh in ASCII format.
 
-Limitation of length of names in GIBI format is overcome by storing names in the string pile.
+Limitation of length of names in GIBI format is overcome by storing names in the specific string pile of GIBI file.
+This pile is used to map actual long names of the data objects to their shortened representation.
 
 \section medmem_api Med Memory API
 
