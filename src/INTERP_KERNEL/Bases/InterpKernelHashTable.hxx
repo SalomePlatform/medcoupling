@@ -531,7 +531,7 @@ namespace INTERP_KERNEL
       catch(...)
         {
           _M_put_node(__n);
-          __throw_exception_again;
+          throw;
         }
     }
 
@@ -917,7 +917,7 @@ namespace INTERP_KERNEL
                         __tmp[__bucket] = __next;
                       }
                   }
-                __throw_exception_again;
+                throw;
               }
           }
       }
@@ -1005,7 +1005,7 @@ namespace INTERP_KERNEL
     catch(...)
       {
         clear();
-        __throw_exception_again;
+        throw;
       }
   }
 }
