@@ -843,7 +843,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
 
 MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) const
 {
-  MEDCouplingFieldDouble *tmp=getMeasureField(abs);
+  MEDCouplingFieldDouble *tmp=getMeasureField(isAbs);
   std::string name="MeasureOnNodeOfMesh_";
   name+=getName();
   int nbNodes=getNumberOfNodes();
@@ -1020,7 +1020,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, 
   DataArrayInt *nodalIndex=DataArrayInt::aggregate(mesh1->getNodalConnectivityIndex(),
                                                    mesh2->getNodalConnectivityIndex(),1);
   std::transform(nodalIndex->getConstPointer()+pos+1,nodalIndex->getConstPointer()+end,
-                 nodalIndex->getPointer()+pos+1,std::bind2nd(std::plus<double>(),delta));
+                 nodalIndex->getPointer()+pos+1,std::bind2nd(std::plus<int>(),delta));
   DataArrayInt *newNodal2=mesh2->getNodalConnectivity()->deepCopy();
   delta=mesh1->getNumberOfNodes();
   const int *nI2=mesh2->getNodalConnectivityIndex()->getConstPointer();

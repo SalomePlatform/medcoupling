@@ -91,8 +91,8 @@ void MEDCouplingExtrudedMesh::getBoundingBox(double *bbox) const
   std::fill(bbox1DMax,bbox1DMax+3,-(std::numeric_limits<double>::max()));
   for(int i=0;i<nbOfNodes1D;i++)
     {
-		std::transform(nodes1D+3*i,nodes1D+3*(i+1),bbox1DMin,bbox1DMin,std::ptr_fun(std::min<double>));
-		std::transform(nodes1D+3*i,nodes1D+3*(i+1),bbox1DMax,bbox1DMax,std::ptr_fun(std::max<double>));
+      std::transform(nodes1D+3*i,nodes1D+3*(i+1),bbox1DMin,bbox1DMin,static_cast<const double& (*)(const double&, const double&)>(std::min<double>));
+      std::transform(nodes1D+3*i,nodes1D+3*(i+1),bbox1DMax,bbox1DMax,static_cast<const double& (*)(const double&, const double&)>(std::max<double>));
     }
   std::transform(bbox1DMax,bbox1DMax+3,bbox1DMin,tmp,std::minus<double>());
   int id=std::max_element(tmp,tmp+3)-tmp;
