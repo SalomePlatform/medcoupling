@@ -1193,7 +1193,7 @@ void MEDCouplingBasicsTest::testFillFromAnalytic2()
   tmp=f1->getArray()->getConstPointer();
   double values2Bis[9]={-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1};
   std::transform(tmp,tmp+9,values2Bis,values2Bis,std::minus<double>());
-  std::transform(values2,values2Bis+9,values2Bis,std::ptr_fun<double,double>(fabs));
+  std::transform(values2,values2+9,values2Bis,std::ptr_fun<double,double>(fabs));
   max=*std::max_element(values2Bis,values2Bis+9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,max,1.e-12);
   f1->decrRef();
