@@ -33,7 +33,7 @@ namespace INTERP_KERNEL
     };
 
     template<typename _T1, typename _T2>
-    inline void Construct(_T1* __p, const _T2& __value) { ::new(static_cast<void*>(__p)) _T1(__value); }
+    inline void Construct(_T1* __p, const _T2& __value__) { ::new(static_cast<void*>(__p)) _T1(__value__); }
 
     template<typename _Tp> inline void Destroy(_Tp* __pointer) { __pointer->~_Tp(); }
   }
