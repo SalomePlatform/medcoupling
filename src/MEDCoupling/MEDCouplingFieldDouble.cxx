@@ -22,6 +22,7 @@
 #include "MEDCouplingFieldDiscretization.hxx"
 
 #include <sstream>
+#include <functional>
 
 using namespace ParaMEDMEM;
 
