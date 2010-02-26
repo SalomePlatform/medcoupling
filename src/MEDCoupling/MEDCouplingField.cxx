@@ -43,6 +43,8 @@ bool MEDCouplingField::areCompatible(const MEDCouplingField *other) const
 {
   if(!_type->isEqual(other->_type))
     return false;
+  if(_mesh==other->_mesh)
+    return true;
   if(!_mesh->areCompatible(other->_mesh))
     return false;
   return true;
