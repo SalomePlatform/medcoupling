@@ -32,7 +32,7 @@ bool MEDCouplingMesh::areCompatible(const MEDCouplingMesh *other) const
 {
   if(getMeshDimension()!=other->getMeshDimension())
     return false;
-  if(getSpaceDimension()!=other->getMeshDimension())
+  if(getSpaceDimension()!=other->getSpaceDimension())
     return false;
   return true;
 }
