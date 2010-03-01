@@ -385,7 +385,7 @@ Value *ValueDoubleExpr::pow(const Value *other) const throw(INTERP_KERNEL::Excep
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. !");
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind2nd(std::ptr_fun(powl),p));
+  std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind2nd(std::ptr_fun<double,double,double>(std::pow),p));
   return ret;
 }
 
