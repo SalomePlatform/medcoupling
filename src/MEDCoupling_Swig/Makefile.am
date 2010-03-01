@@ -27,15 +27,15 @@ lib_LTLIBRARIES = _libMEDCoupling_Swig.la _libMEDCouplingRemapper_Swig.la
 salomeinclude_HEADERS =  \
 	libMEDCoupling_Swig.i libMEDCouplingRemapper_Swig.i MEDCouplingTypemaps.i
 
-SWIG_DEF = libMEDCoupling_Swig.i MEDCouplingTypemaps.i
+BUILT_SOURCES = libMEDCoupling_SwigWRAP.cxx libMEDCouplingRemapper_SwigWRAP.cxx
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL
 
 dist__libMEDCoupling_Swig_la_SOURCES   = libMEDCoupling_Swig.i MEDCouplingTypemaps.i
-nodist__libMEDCoupling_Swig_la_SOURCES = libMEDCoupling_Swig_wrap.cxx
-libMEDCoupling_Swig.py: libMEDCoupling_Swig_wrap.cxx
+nodist__libMEDCoupling_Swig_la_SOURCES = libMEDCoupling_SwigWRAP.cxx
+libMEDCoupling_Swig.py: libMEDCoupling_SwigWRAP.cxx
 
-libMEDCoupling_Swig_wrap.cxx: $(SWIG_DEF)
+libMEDCoupling_SwigWRAP.cxx: libMEDCoupling_Swig.i MEDCouplingTypemaps.i
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
 _libMEDCoupling_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
@@ -45,10 +45,10 @@ _libMEDCoupling_Swig_la_LDFLAGS  = -module $(PYTHON_LIBS) \
 	../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la
 
 dist__libMEDCouplingRemapper_Swig_la_SOURCES   = libMEDCouplingRemapper_Swig.i
-nodist__libMEDCouplingRemapper_Swig_la_SOURCES = libMEDCouplingRemapper_Swig_wrap.cxx
-libMEDCouplingRemapper_Swig.py: libMEDCouplingRemapper_Swig_wrap.cxx
+nodist__libMEDCouplingRemapper_Swig_la_SOURCES = libMEDCouplingRemapper_SwigWRAP.cxx
+libMEDCouplingRemapper_Swig.py: libMEDCouplingRemapper_SwigWRAP.cxx
 
-libMEDCouplingRemapper_Swig_wrap.cxx: libMEDCouplingRemapper_Swig.i
+libMEDCouplingRemapper_SwigWRAP.cxx: libMEDCouplingRemapper_Swig.i MEDCouplingTypemaps.i
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
 _libMEDCouplingRemapper_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
@@ -57,6 +57,6 @@ _libMEDCouplingRemapper_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
 _libMEDCouplingRemapper_Swig_la_LDFLAGS  = -module $(PYTHON_LIBS) \
 	../MEDCoupling/libmedcouplingremapper.la ../INTERP_KERNEL/libinterpkernel.la
 
-CLEANFILES = libMEDCoupling_Swig_wrap.cxx libMEDCoupling_Swig.py libMEDCouplingRemapper_Swig_wrap.cxx libMEDCouplingRemapper_Swig.py
+CLEANFILES = libMEDCoupling_SwigWRAP.cxx libMEDCoupling_Swig.py libMEDCouplingRemapper_SwigWRAP.cxx libMEDCouplingRemapper_Swig.py
 
 dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py libMEDCoupling_Swig.py libMEDCouplingRemapper_Swig.py
