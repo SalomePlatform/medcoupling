@@ -269,14 +269,14 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     ptr[i]=(double)(i+7);
   array->decrRef();
-  MEDCouplingFieldDouble *trgfield=remapper.transferField(srcField,4.57);
-  const double *values=trgfield->getArray()->getConstPointer();
+  MEDCouplingFieldDouble *trgField=remapper.transferField(srcField,4.57);
+  const double *values=trgField->getArray()->getConstPointer();
   const double valuesExpected[5]={7.5 ,7. ,7.,8.,7.5};
-  CPPUNIT_ASSERT_EQUAL(5,trgfield->getArray()->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,trgField->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getArray()->getNumberOfComponents());
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected[i0],values[i0],1e-12);
-  trgfield->decrRef();
+  trgField->decrRef();
   srcField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -294,14 +294,14 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     ptr[i]=(double)(i+8);
   array->decrRef();
-  trgfield=remapper.transferField(srcField,4.57);
-  CPPUNIT_ASSERT_EQUAL(5,trgfield->getArray()->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  trgField=remapper.transferField(srcField,4.57);
+  CPPUNIT_ASSERT_EQUAL(5,trgField->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getArray()->getNumberOfComponents());
   const double valuesExpected2[5]={8.5,8.,8.,9.,8.5};
-  values=trgfield->getArray()->getConstPointer();
+  values=trgField->getArray()->getConstPointer();
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[i0],values[i0],1e-12);
-  trgfield->decrRef();
+  trgField->decrRef();
   srcField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -319,15 +319,15 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     ptr[i]=(double)(i+7);
   array->decrRef();
-  trgfield=remapper.transferField(srcField,4.57);
-  CPPUNIT_ASSERT_EQUAL(8,trgfield->getArray()->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  trgField=remapper.transferField(srcField,4.57);
+  CPPUNIT_ASSERT_EQUAL(8,trgField->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getArray()->getNumberOfComponents());
   const double valuesExpected3[8]={13.166666666666668, 13.888888888888888, 10.722222222222223, 10.870370370370372,
                                    14.555555555555555, 13.888888888888889, 14.444444444444443, 11.72222222222222};
-  values=trgfield->getArray()->getConstPointer();
+  values=trgField->getArray()->getConstPointer();
   for(int i0=0;i0<8;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected3[i0],values[i0],1e-12);
-  trgfield->decrRef();
+  trgField->decrRef();
   srcField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -346,14 +346,14 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     ptr[i]=(double)(i+7);
   array->decrRef();
-  trgfield=remapper.transferField(srcField,4.57);
-  CPPUNIT_ASSERT_EQUAL(8,trgfield->getArray()->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  trgField=remapper.transferField(srcField,4.57);
+  CPPUNIT_ASSERT_EQUAL(8,trgField->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getArray()->getNumberOfComponents());
   const double valuesExpected4[8]={7.,11.,8.,12.,9.,13.,10.,14.};
-  values=trgfield->getArray()->getConstPointer();
+  values=trgField->getArray()->getConstPointer();
   for(int i0=0;i0<8;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected4[i0],values[i0],1e-12);
-  trgfield->decrRef();
+  trgField->decrRef();
   srcField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -372,14 +372,14 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     ptr[i]=(double)(i+7);
   array->decrRef();
-  trgfield=remapper.transferField(srcField,4.57);
-  CPPUNIT_ASSERT_EQUAL(8,trgfield->getArray()->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  trgField=remapper.transferField(srcField,4.57);
+  CPPUNIT_ASSERT_EQUAL(8,trgField->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getArray()->getNumberOfComponents());
   const double valuesExpected5[8]={7.,9.,11.,13.,8.,10.,12.,14.};
-  values=trgfield->getArray()->getConstPointer();
+  values=trgField->getArray()->getConstPointer();
   for(int i0=0;i0<8;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected5[i0],values[i0],1e-12);
-  trgfield->decrRef();
+  trgField->decrRef();
   srcField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -397,21 +397,21 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
     ptr[i]=(double)(i+7);
   array->decrRef();
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
-  trgfield=remapper.transferField(srcField,4.57);
-  values=trgfield->getArray()->getConstPointer();
-  CPPUNIT_ASSERT_EQUAL(1,trgfield->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,trgfield->getNumberOfComponents());
+  trgField=remapper.transferField(srcField,4.57);
+  values=trgField->getArray()->getConstPointer();
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getNumberOfComponents());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,values[0],1e-14);
   srcField->decrRef();
-  srcField=remapper.reverseTransferField(trgfield,4.220173);
+  srcField=remapper.reverseTransferField(trgField,4.220173);
   CPPUNIT_ASSERT_EQUAL(5,srcField->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,srcField->getNumberOfComponents());
   values=srcField->getArray()->getConstPointer();
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,values[i0],1e-14);
   srcField->decrRef();
-  trgfield->setNature(Integral);
-  srcField=remapper.reverseTransferField(trgfield,4.220173);
+  trgField->setNature(Integral);
+  srcField=remapper.reverseTransferField(trgField,4.220173);
   CPPUNIT_ASSERT_EQUAL(5,srcField->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,srcField->getNumberOfComponents());
   values=srcField->getArray()->getConstPointer();
@@ -419,7 +419,38 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected6[i0],values[i0],1e-14);
   srcField->decrRef();
-  trgfield->decrRef();
+  trgField->decrRef();
+  // ------------- -1D -> 2D
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(targetMesh,sourceMesh,"P0P0"));
+  trgField=MEDCouplingFieldDouble::New(ON_CELLS);
+  trgField->setNature(ConservativeVolumic);
+  trgField->setMesh(targetMesh);
+  array=DataArrayDouble::New();
+  array->alloc(targetMesh->getNumberOfCells(),1);
+  trgField->setArray(array);
+  ptr=array->getPointer();
+  ptr[0]=7.;
+  array->decrRef();
+  srcField=remapper.transferField(trgField,4.221073);
+  values=srcField->getArray()->getConstPointer();
+  for(int i0=0;i0<5;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,values[i0],1e-14);
+  srcField->decrRef();
+  trgField->setNature(IntegralGlobConstraint);
+  srcField=remapper.transferField(trgField,4.221073);
+  values=srcField->getArray()->getConstPointer();
+  const double valuesExpected7[5]={1.75,0.875,0.875,1.75,1.75};
+  for(int i0=0;i0<5;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected7[i0],values[i0],1e-14);
+  srcField->decrRef();
+  trgField->setNature(Integral);
+  srcField=remapper.transferField(trgField,4.221073);
+  values=srcField->getArray()->getConstPointer();
+  for(int i0=0;i0<5;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected7[i0],values[i0],1e-14);
+  //
+  srcField->decrRef();
+  trgField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
 }
