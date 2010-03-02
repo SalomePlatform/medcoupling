@@ -54,7 +54,7 @@ namespace INTERP_KERNEL
     NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(icellT);
     QuadraticPolygon *pT=buildPolygonFrom(CoordsT,tT);
     double baryT[SPACEDIM];
-    pT->getBarycenter(baryT);
+    pT->getBarycenterGeneral(baryT);
     delete pT;
     if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(baryT,&CoordsS[0],nbNodesS,InterpType<MyMeshType,MyMatrix,PTLOC2D_INTERSECTOR >::_precision))
       return 1.;
@@ -94,7 +94,7 @@ namespace INTERP_KERNEL
       nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
     QuadraticPolygon *p=QuadraticPolygon::buildLinearPolygon(nodes2);
     double bary[SPACEDIM];
-    p->getBarycenter(bary);
+    p->getBarycenterGeneral(bary);
     delete p;
     if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(bary,&targetCoords[0],nbOfTargetNodes) )
       return 1.;

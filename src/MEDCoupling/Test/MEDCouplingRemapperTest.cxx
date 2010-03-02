@@ -383,6 +383,30 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   srcField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
+  // ------------- 2D -> 1D
+  sourceMesh=build2DTargetMesh_1();
+  targetMesh=build1DTargetMesh_2();
+  remapper.setIntersectionType(INTERP_KERNEL::PointLocator);
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
+  srcField=MEDCouplingFieldDouble::New(ON_CELLS);
+  srcField->setNature(ConservativeVolumic);
+  srcField->setMesh(sourceMesh);
+  array=DataArrayDouble::New();
+  array->alloc(sourceMesh->getNumberOfCells(),1);
+  srcField->setArray(array);
+  ptr=array->getPointer();
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    ptr[i]=(double)(i+7);
+  array->decrRef();
+  trgField=remapper.transferField(srcField,4.57);
+  const double valuesExpected8[5]={9.,8.,11.,7.,11.};
+  values=trgField->getArray()->getConstPointer();
+  for(int i0=0;i0<5;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected8[i0],values[i0],1e-12);
+  trgField->decrRef();
+  srcField->decrRef();
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
   // ------------- 2D -> -1D
   sourceMesh=build2DTargetMesh_1();
   targetMesh=MEDCouplingUMesh::New("an example of -1 D mesh",-1);
@@ -682,6 +706,27 @@ MEDCouplingUMesh *MEDCouplingRemapperTest::build1DTargetMesh_1()
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,3);
   std::copy(targetCoords,targetCoords+36,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingRemapperTest::build1DTargetMesh_2()
+{
+  double targetCoords[20]={
+    0.59,0.09, 0.69,0.19, 0.21,-0.29,0.31,-0.19, 0.45,0.25,0.65,0.45,
+    -0.2,-0.2,0.11,0.11, 0.25,0.25, 0.45,0.45
+  };
+  int targetConn[10]={0,1, 2,3, 4,5, 6,7, 8,9};
+
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New("my name of mesh 1D 2",1);
+  targetMesh->allocateCells(5);
+  for(int i=0;i<5;i++)
+    targetMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,targetConn+2*i);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(10,2);
+  std::copy(targetCoords,targetCoords+20,myCoords->getPointer());
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
   return targetMesh;

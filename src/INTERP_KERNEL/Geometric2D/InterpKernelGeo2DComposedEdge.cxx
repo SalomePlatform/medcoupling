@@ -196,6 +196,19 @@ void ComposedEdge::getBarycenter(double *bary) const
   bary[1]/=area;
 }
 
+/*!
+ * Idem ComposedEdge::getBarycenter except that the special case where _sub_edges==1 is dealt here.
+ */
+void ComposedEdge::getBarycenterGeneral(double *bary) const
+{
+  if(_sub_edges.empty())
+    throw INTERP_KERNEL::Exception("ComposedEdge::getBarycenterGeneral called on an empty polygon !");
+  if(_sub_edges.size()>2)
+    return getBarycenter(bary);
+  double w;
+  _sub_edges.back()->getBarycenter(bary,w);
+}
+
 double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary)
 {
   Bounds b;

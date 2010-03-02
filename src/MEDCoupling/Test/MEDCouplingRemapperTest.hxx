@@ -49,6 +49,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *build3DSourceMesh_2();
     MEDCouplingUMesh *build3DTargetMesh_2();
     MEDCouplingUMesh *build1DTargetMesh_1();
+    MEDCouplingUMesh *build1DTargetMesh_2();
     MEDCouplingUMesh *build2DSourceMesh_1();
     MEDCouplingUMesh *build2DTargetMesh_1();
     MEDCouplingUMesh *build2DTargetMeshPerm_1();
