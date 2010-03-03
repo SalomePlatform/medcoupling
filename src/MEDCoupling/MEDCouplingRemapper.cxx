@@ -215,6 +215,18 @@ int MEDCouplingRemapper::prepareUU(const char *method)
       INTERP_KERNEL::Interpolation2D interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
+  else if(srcMeshDim==1 && trgMeshDim==2 && srcSpaceDim==2)
+    {
+      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
+        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 1D and 2D ! Select PointLocator as intersection type !");
+      MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation2D interpolation(*this);
+      std::vector<std::map<int,double> > matrixTmp;
+      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+      reverseMatrix(matrixTmp,nbCols,_matrix);
+      nbCols=matrixTmp.size();
+    }
   else if(trgMeshDim==-1)
     {
       if(srcMeshDim==2 && srcSpaceDim==2)
