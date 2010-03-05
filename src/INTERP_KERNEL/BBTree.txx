@@ -36,7 +36,7 @@ private:
   int _level;
   double _max_left;
   double _min_right;
-  double* _bb;
+  const double *_bb;
   typename std::vector<ConnType> _elems;
   bool _terminal;
   ConnType _nbelems;
@@ -64,7 +64,7 @@ public:
     \endcode
   */
 
-  BBTree(double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1E-12):
+  BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1E-12):
     _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems),_epsilon(epsilon)
   {
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)
