@@ -35,6 +35,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDiscretization *New(TypeOfField type);
+    double getPrecision() const { return _precision; }
+    void setPrecision(double val) { _precision=val; }
     static TypeOfField getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other) const = 0;
@@ -45,8 +47,14 @@ namespace ParaMEDMEM
     virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const = 0;
+    virtual void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const = 0;
     virtual MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const = 0;
     virtual void renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const = 0;
+  protected:
+    MEDCouplingFieldDiscretization();
+  protected:
+    double _precision;
+    static const double DFLT_PRECISION;
   };
 
   class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationP0 : public MEDCouplingFieldDiscretization
@@ -61,6 +69,7 @@ namespace ParaMEDMEM
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     void renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const;
   public:
@@ -80,6 +89,7 @@ namespace ParaMEDMEM
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const;
     void renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const;
     static DataArrayInt *invertArrayO2N2N2O(const MEDCouplingMesh *mesh, const DataArrayInt *di);

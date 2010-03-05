@@ -395,7 +395,12 @@ void MEDCouplingNoTimeLabel::checkTimePresence(double time) const throw(INTERP_K
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
 
-DataArrayDouble *MEDCouplingNoTimeLabel::getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception)
+std::vector< const DataArrayDouble *> MEDCouplingNoTimeLabel::getArraysForTime(double time) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingNoTimeLabel::getValueForTime(double time, const std::vector<double>& vals, double *res) const
 {
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
@@ -590,16 +595,21 @@ void MEDCouplingWithTimeStep::checkTimePresence(double time) const throw(INTERP_
     }
 }
 
-DataArrayDouble *MEDCouplingWithTimeStep::getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception)
+std::vector< const DataArrayDouble *> MEDCouplingWithTimeStep::getArraysForTime(double time) const throw(INTERP_KERNEL::Exception)
 {
   if(std::fabs(time-_time)<=_time_tolerance)
     {
-      if(_array)
-        _array->incrRef();
-      return _array;
+      std::vector< const DataArrayDouble *> ret(1);
+      ret[0]=_array;
+      return ret;
     }
   else
     throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingWithTimeStep::getValueForTime(double time, const std::vector<double>& vals, double *res) const
+{
+  std::copy(vals.begin(),vals.end(),res);
 }
 
 void MEDCouplingWithTimeStep::getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception)
@@ -666,16 +676,21 @@ MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::performCpy(bool d
   return new MEDCouplingConstOnTimeInterval(*this,deepCpy);
 }
 
-DataArrayDouble *MEDCouplingConstOnTimeInterval::getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception)
+std::vector< const DataArrayDouble *> MEDCouplingConstOnTimeInterval::getArraysForTime(double time) const throw(INTERP_KERNEL::Exception)
 {
   if(time>_start_time-_time_tolerance && time<_end_time+_time_tolerance)
     {
-      if(_array)
-        _array->incrRef();
-      return _array;
+      std::vector< const DataArrayDouble *> ret(1);
+      ret[0]=_array;
+      return ret;
     }
   else
     throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingConstOnTimeInterval::getValueForTime(double time, const std::vector<double>& vals, double *res) const
+{
+  std::copy(vals.begin(),vals.end(),res);
 }
 
 bool MEDCouplingConstOnTimeInterval::areCompatible(const MEDCouplingTimeDiscretization *other) const

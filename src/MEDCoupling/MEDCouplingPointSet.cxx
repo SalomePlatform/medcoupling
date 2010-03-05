@@ -402,6 +402,13 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
  */
 void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, double angle)
 {
+  double *coords=_coords->getPointer();
+  int nbNodes=getNumberOfNodes();
+  rotate3DAlg(center,vect,angle,nbNodes,coords);
+}
+
+void MEDCouplingPointSet::rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords)
+{
   double sina=sin(angle);
   double cosa=cos(angle);
   double vectorNorm[3];
@@ -422,8 +429,6 @@ void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, dou
   std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),sina));
   std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
   //rotation matrix computed.
-  double *coords=_coords->getPointer();
-  int nbNodes=getNumberOfNodes();
   double tmp[3];
   for(int i=0; i<nbNodes; i++)
     {
@@ -439,12 +444,17 @@ void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, dou
  */
 void MEDCouplingPointSet::rotate2D(const double *center, double angle)
 {
+  double *coords=_coords->getPointer();
+  int nbNodes=getNumberOfNodes();
+  rotate2DAlg(center,angle,nbNodes,coords);
+}
+
+void MEDCouplingPointSet::rotate2DAlg(const double *center, double angle, int nbNodes, double *coords)
+{
   double cosa=cos(angle);
   double sina=sin(angle);
   double matrix[4];
   matrix[0]=cosa; matrix[1]=-sina; matrix[2]=sina; matrix[3]=cosa;
-  double *coords=_coords->getPointer();
-  int nbNodes=getNumberOfNodes();
   double tmp[2];
   for(int i=0; i<nbNodes; i++)
     {

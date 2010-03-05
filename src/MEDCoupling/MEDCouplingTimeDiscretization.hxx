@@ -61,8 +61,8 @@ namespace ParaMEDMEM
     virtual void setArrays(const std::vector<DataArrayDouble *>& arrays, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getArray() const { return _array; }
     virtual DataArrayDouble *getEndArray() const { return _array; }
-    //! Warning contrary to getArray method this method returns an object to deal with.
-    virtual DataArrayDouble *getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void getValueForTime(double time, const std::vector<double>& vals, double *res) const = 0; 
     virtual void getArrays(std::vector<DataArrayDouble *>& arrays) const;
     virtual bool isBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     virtual bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
@@ -104,7 +104,8 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception) { }
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception);
+    std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
+    void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     bool isBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     double getStartTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception);
@@ -144,6 +145,8 @@ namespace ParaMEDMEM
     double getStartTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_dt; it=_it; return _time; }
     double getEndTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_dt; it=_it; return _time; }
     DataArrayDouble *getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception);
+    std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
+    void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);
   public:
@@ -168,7 +171,8 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
-    DataArrayDouble *getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception);
+    std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
+    void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }

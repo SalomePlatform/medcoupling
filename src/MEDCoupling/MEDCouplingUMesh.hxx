@@ -72,7 +72,12 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCouplingFieldDouble *buildOrthogonalField() const;
+    int getElementContainingPoint(const double *pos, double eps) const;
+    void getElementsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
+    void getElementsContainingPoints(const double *pos, int nbOfPoints, double eps,
+                                     std::vector<int>& elts, std::vector<int>& eltsIndex) const;
     void checkButterflyCells(std::vector<int>& cells) const;
+    void getBoundingBoxForBBTree(std::vector<double>& bbox) const;
     bool checkConsecutiveCellTypes() const;
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getBarycenterAndOwner() const;
@@ -85,6 +90,9 @@ namespace ParaMEDMEM
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     //tools
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *start, const int *end) const;
+    template<int SPACEDIM>
+    void getElementsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
+                                        double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
   private:
     //! this iterator stores current position in _nodal_connec array.
     mutable int _iterator;

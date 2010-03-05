@@ -26,6 +26,8 @@
 
 using namespace ParaMEDMEM;
 
+const double MEDCouplingFieldDiscretization::DFLT_PRECISION=1.e-12;
+
 const char MEDCouplingFieldDiscretizationP0::REPR[]="P0";
 
 const TypeOfField MEDCouplingFieldDiscretizationP0::TYPE=ON_CELLS;
@@ -33,6 +35,10 @@ const TypeOfField MEDCouplingFieldDiscretizationP0::TYPE=ON_CELLS;
 const char MEDCouplingFieldDiscretizationP1::REPR[]="P1";
 
 const TypeOfField MEDCouplingFieldDiscretizationP1::TYPE=ON_NODES;
+
+MEDCouplingFieldDiscretization::MEDCouplingFieldDiscretization():_precision(DFLT_PRECISION)
+{
+}
 
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField type)
 {
@@ -108,6 +114,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getWeightingField(cons
   return mesh->getMeasureField(isAbs);
 }
 
+void MEDCouplingFieldDiscretizationP0::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
+{
+  int id=mesh->getElementContainingPoint(loc,_precision);
+  arr->getTuple(id,res);
+}
+
 /*!
  * Nothing to do. It's not a bug.
  */
@@ -181,6 +193,10 @@ void MEDCouplingFieldDiscretizationP1::checkCoherencyBetween(const MEDCouplingMe
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
   return mesh->getMeasureFieldOnNode(isAbs);
+}
+
+void MEDCouplingFieldDiscretizationP1::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
+{
 }
 
 void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const

@@ -56,6 +56,7 @@ namespace ParaMEDMEM
     virtual void getBoundingBox(double *bbox) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
+    virtual int getElementContainingPoint(const double *pos, double eps) const = 0;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const;
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;

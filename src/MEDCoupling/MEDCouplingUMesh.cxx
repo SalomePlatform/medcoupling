@@ -21,6 +21,8 @@
 #include "CellModel.hxx"
 #include "VolSurfUser.txx"
 #include "InterpolationUtils.hxx"
+#include "PointLocatorAlgos.txx"
+#include "BBTree.txx"
 
 #include <sstream>
 #include <limits>
@@ -907,6 +909,140 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
   return ret;
 }
 
+/*{
+    const double *coordsPtr=_coords->getConstPointer();
+    BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbNodes,-prec);
+    double bb[2*SPACEDIM];
+    double prec2=prec*prec;
+    for(int i=0;i<nbNodes;i++)
+      {
+        if(std::find(c.begin(),c.end(),i)!=c.end())
+          continue;
+        for(int j=0;j<SPACEDIM;j++)
+          {
+            bb[2*j]=coordsPtr[SPACEDIM*i+j];
+            bb[2*j+1]=coordsPtr[SPACEDIM*i+j];
+          }
+        std::vector<int> intersectingElems;
+        myTree.getIntersectingElems(bb,intersectingElems);
+        if(intersectingElems.size()>1)
+          {
+            std::vector<int> commonNodes;
+            for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
+              if(*it!=i)
+                if(INTERP_KERNEL::distance2<SPACEDIM>(coordsPtr+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<prec2)
+                  commonNodes.push_back(*it);
+            if(!commonNodes.empty())
+              {
+                cI.push_back(cI.back()+commonNodes.size()+1);
+                c.push_back(i);
+                c.insert(c.end(),commonNodes.begin(),commonNodes.end());
+              }
+          }
+          }*/
+
+int MEDCouplingUMesh::getElementContainingPoint(const double *pos, double eps) const
+{
+  std::vector<int> elts;
+  getElementsContainingPoint(pos,eps,elts);
+  if(elts.empty())
+    return -1;
+  return elts.front();
+}
+
+void MEDCouplingUMesh::getElementsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+{
+  std::vector<int> eltsIndex;
+  getElementsContainingPoints(pos,1,eps,elts,eltsIndex);
+}
+
+namespace ParaMEDMEM
+{
+  template<const int SPACEDIMM>
+  class DummyClsMCUG
+  {
+  public:
+    static const int MY_SPACEDIM=SPACEDIMM;
+    static const int MY_MESHDIM=8;
+    typedef int MyConnType;
+    static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
+  };
+}
+
+template<int SPACEDIM>
+void MEDCouplingUMesh::getElementsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
+                                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
+{
+  std::vector<double> bbox;
+  eltsIndex.resize(nbOfPoints+1);
+  eltsIndex[0]=0;
+  elts.clear();
+  getBoundingBoxForBBTree(bbox);
+  int nbOfCells=getNumberOfCells();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  double bb[2*SPACEDIM];
+  for(int j=0;j<SPACEDIM;j++)
+    { bb[2*j]=std::numeric_limits<double>::max(); bb[2*j+1]=-std::numeric_limits<double>::max(); }
+  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,-eps);
+  for(int i=0;i<nbOfPoints;i++)
+    {
+      eltsIndex[i+1]=eltsIndex[i];
+      for(int j=0;j<SPACEDIM;j++)
+        {
+          bb[2*j]=std::min(bb[2*j],pos[SPACEDIM*i+j]);
+          bb[2*j+1]=std::max(bb[2*j+1],pos[SPACEDIM*i+j]);
+        }
+      std::vector<int> candidates;
+      myTree.getIntersectingElems(bb,candidates);
+      for(std::vector<int>::const_iterator iter=candidates.begin();iter!=candidates.end();iter++)
+        {
+          int sz=connI[(*iter)+1]-connI[*iter]-1;
+          if(INTERP_KERNEL::PointLocatorAlgos<DummyClsMCUG<SPACEDIM> >::isElementContainsPoint(pos+i*SPACEDIM,
+                                                                                               (INTERP_KERNEL::NormalizedCellType)conn[connI[*iter]],
+                                                                                               coords,conn+connI[*iter]+1,sz,eps))
+            {
+              eltsIndex[i+1]++;
+              elts.push_back(*iter);
+            }
+        }
+    }
+}
+
+void MEDCouplingUMesh::getElementsContainingPoints(const double *pos, int nbOfPoints, double eps,
+                                                   std::vector<int>& elts, std::vector<int>& eltsIndex) const
+{
+  int spaceDim=getSpaceDimension();
+  int mDim=getMeshDimension();
+  if(spaceDim==3)
+    {
+      if(mDim==3)
+        {
+          const double *coords=_coords->getConstPointer();
+          getElementsContainingPointsAlg<3>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
+        }
+      /*else if(mDim==2)
+        {
+          
+        }*/
+      else
+        throw INTERP_KERNEL::Exception("For spaceDim==3 only meshDim==3 implemented for getelementscontainingpoints !");
+    }
+  else if(spaceDim==2)
+    {
+      if(mDim==2)
+        {
+          const double *coords=_coords->getConstPointer();
+          getElementsContainingPointsAlg<2>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
+        }
+      else
+        throw INTERP_KERNEL::Exception("For spaceDim==2 only meshDim==2 implemented for getelementscontainingpoints !");
+    }
+
+
+  
+}
+
 /*!
  * This method is only available for a mesh with meshDim==2 and spaceDim==2||spaceDim==3.
  * This method returns a vector 'cells' where all detected butterfly cells have been added to cells.
@@ -934,6 +1070,40 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
       if(isButterfly2DCell(cell2DinS2,isQuad))
         cells.push_back(i);
       cell2DinS2.clear();
+    }
+}
+
+/*!
+ * This method aggregate the bbox of each cell and put it into bbox parameter.
+ * @param bbox out parameter of size 2*spacedim*nbOfcells.
+ */
+void MEDCouplingUMesh::getBoundingBoxForBBTree(std::vector<double>& bbox) const
+{
+  int spaceDim=getSpaceDimension();
+  int nbOfCells=getNumberOfCells();
+  bbox.resize(2*nbOfCells*spaceDim);
+  for(int i=0;i<nbOfCells*spaceDim;i++)
+    {
+      bbox[2*i]=std::numeric_limits<double>::max();
+      bbox[2*i+1]=-std::numeric_limits<double>::max();
+    }
+  const double *coordsPtr=_coords->getConstPointer();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      int offset=connI[i]+1;
+      int nbOfNodesForCell=connI[i+1]-offset;
+      for(int j=0;j<nbOfNodesForCell;j++)
+        {
+          int nodeId=conn[offset+j];
+          if(nodeId>=0)
+            for(int k=0;k<spaceDim;k++)
+              {
+                bbox[2*spaceDim*i+2*k]=std::min(bbox[2*spaceDim*i+2*k],coordsPtr[spaceDim*nodeId+k]);
+                bbox[2*spaceDim*i+2*k+1]=std::max(bbox[2*spaceDim*i+2*k+1],coordsPtr[spaceDim*nodeId+k]);
+              }
+        }
     }
 }
 

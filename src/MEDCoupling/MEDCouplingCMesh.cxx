@@ -200,6 +200,12 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::buildOrthogonalField() const
   return ret;
 }
 
+int MEDCouplingCMesh::getElementContainingPoint(const double *pos, double eps) const
+{
+  //not implemented yet !
+  return -1;
+}
+
 void MEDCouplingCMesh::rotate(const double *center, const double *vector, double angle)
 {
   throw INTERP_KERNEL::Exception("No rotation available on CMesh : Traduce it to StructuredMesh to apply it !");

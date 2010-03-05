@@ -1473,6 +1473,102 @@ void MEDCouplingBasicsTest::testBuildOrthogonalField()
   targetMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::testGetElementsContainingPoint()
+{
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  double pos[12]={0.,0.,0.4,0.4,0.,0.4,0.1,0.1,0.25,0.,0.65,0.};
+  std::vector<int> t1,t2;
+  //2D basic
+  targetMesh->getElementsContainingPoints(pos,6,1e-12,t1,t2);
+  CPPUNIT_ASSERT_EQUAL(6,(int)t1.size());
+  CPPUNIT_ASSERT_EQUAL(7,(int)t2.size());
+  const int expectedValues1[6]={0,4,3,0,1,2};
+  const int expectedValues2[7]={0,1,2,3,4,5,6};
+  CPPUNIT_ASSERT(std::equal(t1.begin(),t1.end(),expectedValues1));
+  CPPUNIT_ASSERT(std::equal(t2.begin(),t2.end(),expectedValues2));
+  //2D with no help of bounding box.
+  double center[2]={0.2,0.2};
+  MEDCouplingPointSet::rotate2DAlg(center,0.78539816339744830962,6,pos);
+  targetMesh->rotate(center,0,0.78539816339744830962);
+  t1.clear(); t2.clear();
+  targetMesh->getElementsContainingPoints(pos,6,1e-12,t1,t2);
+  CPPUNIT_ASSERT_EQUAL(6,(int)t1.size());
+  CPPUNIT_ASSERT_EQUAL(7,(int)t2.size());
+  CPPUNIT_ASSERT(std::equal(t1.begin(),t1.end(),expectedValues1));
+  CPPUNIT_ASSERT(std::equal(t2.begin(),t2.end(),expectedValues2));
+  //2D outside
+  const double pos1bis[2]={-0.3303300858899107,-0.11819805153394641};
+  CPPUNIT_ASSERT_EQUAL(-1,targetMesh->getElementContainingPoint(pos1bis,1e-12));
+  targetMesh->decrRef();
+  //test limits 2D
+  targetMesh=build2DTargetMesh_1();
+  const double pos2[2]={0.2,-0.05};
+  t1.clear();
+  targetMesh->getElementsContainingPoint(pos2,1e-12,t1);
+  CPPUNIT_ASSERT_EQUAL(2,(int)t1.size());
+  const int expectedValues3[2]={0,1};
+  CPPUNIT_ASSERT(std::equal(t1.begin(),t1.end(),expectedValues3));
+  const double pos3[2]={0.2,0.2};
+  t1.clear();
+  targetMesh->getElementsContainingPoint(pos3,1e-12,t1);
+  CPPUNIT_ASSERT_EQUAL(5,(int)t1.size());
+  const int expectedValues4[5]={0,1,2,3,4};
+  CPPUNIT_ASSERT(std::equal(t1.begin(),t1.end(),expectedValues4));
+  CPPUNIT_ASSERT_EQUAL(0,targetMesh->getElementContainingPoint(pos3,1e-12));
+  targetMesh->decrRef();
+  //3D
+  targetMesh=build3DTargetMesh_1();
+  const double pos4[3]={25.,25.,25.};
+  CPPUNIT_ASSERT_EQUAL(0,targetMesh->getElementContainingPoint(pos4,1e-12));
+  const double pos5[3]={50.,50.,50.};
+  t1.clear();
+  targetMesh->getElementsContainingPoint(pos5,1e-12,t1);
+  CPPUNIT_ASSERT_EQUAL(8,(int)t1.size());
+  const int expectedValues5[8]={0,1,2,3,4,5,6,7};
+  CPPUNIT_ASSERT(std::equal(t1.begin(),t1.end(),expectedValues5));
+  const double pos6[3]={0., 50., 0.};
+  t1.clear();
+  targetMesh->getElementsContainingPoint(pos6,1e-12,t1);
+  CPPUNIT_ASSERT_EQUAL(2,(int)t1.size());
+  const int expectedValues6[2]={0,2};
+  CPPUNIT_ASSERT(std::equal(t1.begin(),t1.end(),expectedValues6));
+  //3D outside
+  const double pos7[3]={-1.0,-1.0,0.};
+  CPPUNIT_ASSERT_EQUAL(-1,targetMesh->getElementContainingPoint(pos7,1e-12));
+  //3D outside 2
+  const double center2[3]={0.,0.,0.};
+  const double vec2[3]={0.,-1.,0.};
+  targetMesh->rotate(center2,vec2,0.78539816339744830962);
+  const double pos8[3]={-25,25.,12.};
+  CPPUNIT_ASSERT_EQUAL(-1,targetMesh->getElementContainingPoint(pos8,1e-12));
+  //
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::testGetValueOn1()
+{
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *fieldOnCells=MEDCouplingFieldDouble::New(ON_CELLS);
+  int nbOfCells=targetMesh->getNumberOfCells();
+  fieldOnCells->setMesh(targetMesh);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(nbOfCells,2);
+  fieldOnCells->setArray(array);
+  double *tmp=array->getPointer();
+  for(int i=0;i<nbOfCells;i++)
+    { tmp[2*i]=7.+(double)i; tmp[2*i+1]=17.+(double)i; }
+  array->decrRef();
+  //
+  const double pos1[2]={0.25,0.};
+  double res[2];
+  fieldOnCells->getValueOn(pos1,res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,res[0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(18.,res[1],1e-12);
+  //
+  fieldOnCells->decrRef();
+  targetMesh->decrRef();
+}
+
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();

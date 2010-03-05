@@ -165,12 +165,21 @@ void MEDCouplingFieldDouble::measureAccumulate(bool isWAbs, double *res) const
 
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
 {
-  _time_discr->checkNoTimePresence();
+  const DataArrayDouble *arr=_time_discr->getArray();
+  _type->getValueOn(arr,_mesh,spaceLoc,res);
 }
 
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception)
 {
-  _time_discr->checkTimePresence(time);
+  std::vector< const DataArrayDouble *> arrs=_time_discr->getArraysForTime(time);
+  std::vector<double> res2;
+  for(std::vector< const DataArrayDouble *>::const_iterator iter=arrs.begin();iter!=arrs.end();iter++)
+    {
+      int sz=res2.size();
+      res2.resize(sz+(*iter)->getNumberOfComponents());
+      _type->getValueOn(*iter,_mesh,spaceLoc,&res2[sz]);
+    }
+  _time_discr->getValueForTime(time,res2,res);
 }
 
 void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)

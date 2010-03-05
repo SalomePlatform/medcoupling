@@ -312,3 +312,9 @@ DataArrayDouble *MEDCouplingUMeshDesc::getBarycenterAndOwner() const
   //not implemented yet.
   return 0;
 }
+
+int MEDCouplingUMeshDesc::getElementContainingPoint(const double *pos, double eps) const
+{
+  //not implemented yet.
+  return -1;
+}
