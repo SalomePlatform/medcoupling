@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
   {
   public:
     virtual ~GenericPointLocatorAlgos() { }
-    virtual std::list<int> locates(const double* x) = 0;     
+    virtual std::list<int> locates(const double* x, double eps) = 0;     
   };
         
   template<class MyMeshType>
@@ -84,7 +84,7 @@ namespace INTERP_KERNEL
         
     //returns the list of elements that contains 
     //the point pointed to by x
-    std::list<typename MyMeshType::MyConnType> locates(const double* x)
+    std::list<typename MyMeshType::MyConnType> locates(const double* x, double eps)
     {
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
@@ -94,7 +94,7 @@ namespace INTERP_KERNEL
       for(int i=0; i< candidates.size(); i++)
         {
           int ielem=candidates[i];
-          if (elementContainsPoint(ielem,x))
+          if (elementContainsPoint(ielem,x,eps))
             retlist.push_back(OTT<ConnType,numPol>::indFC(ielem));
         }
       return retlist;
@@ -161,7 +161,7 @@ namespace INTERP_KERNEL
       return ret;
     }
 
-    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const typename MyMeshType::MyConnType *conn_elem, int conn_elem_sz)
+    static bool isElementContainsPoint(const double *ptToTest, NormalizedCellType type, const double *coords, const typename MyMeshType::MyConnType *conn_elem, int conn_elem_sz, double eps)
     {
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
@@ -178,18 +178,18 @@ namespace INTERP_KERNEL
               const double* a=coords+SPACEDIM*(OTT<ConnType,numPol>::ind2C(conn_elem[iedge]));
               std::copy(a,a+SPACEDIM,pts+iedge*SPACEDIM);
             }
-          bool ret=isElementContainsPointAlg2D(ptToTest,pts,nbEdges,1e-12);
+          bool ret=isElementContainsPointAlg2D(ptToTest,pts,nbEdges,eps);
           delete [] pts;
           return ret;
         }
                         
       if (SPACEDIM==3)
         {
-          return isElementContainsPointAlg3D(ptToTest,conn_elem,conn_elem_sz,coords,cmType,1e-12);
+          return isElementContainsPointAlg3D(ptToTest,conn_elem,conn_elem_sz,coords,cmType,eps);
         }
     }
         
-    bool elementContainsPoint(typename MyMeshType::MyConnType i, const double* x)
+    bool elementContainsPoint(typename MyMeshType::MyConnType i, const double* x, double eps)
     {
       //as i is extracted from the BBTRee, it is already in C numbering
       //it is not necessary to convert it from F to C
@@ -202,7 +202,7 @@ namespace INTERP_KERNEL
       const ConnType* conn_elem=conn+OTT<ConnType,numPol>::ind2C(conn_index[i]);
       int conn_elem_sz=conn_index[i+1]-conn_index[i];
       NormalizedCellType type=_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
-      return isElementContainsPoint(x,type,coords,conn_elem,conn_elem_sz);
+      return isElementContainsPoint(x,type,coords,conn_elem,conn_elem_sz,eps);
     }
                 
     static bool decideFromSign(const int* sign, int nbelem)
