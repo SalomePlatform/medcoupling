@@ -361,6 +361,33 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
         computeColSumAndRowSum(_matrix,_deno_multiply,_deno_reverse_multiply);
         break;
       }
+    case RevIntegral:
+      {
+        MEDCouplingFieldDouble *deno=trgField->getDiscretization()->getWeightingField(trgField->getMesh(),true);
+        MEDCouplingFieldDouble *denoR=srcField->getDiscretization()->getWeightingField(srcField->getMesh(),true);
+        const double *denoPtr=deno->getArray()->getConstPointer();
+        const double *denoRPtr=denoR->getArray()->getConstPointer();
+        if(trgField->getMesh()->getMeshDimension()==-1)
+          {
+            double *denoRPtr2=denoR->getArray()->getPointer();
+            denoRPtr2[0]=std::accumulate(denoPtr,denoPtr+deno->getNumberOfTuples(),0.);
+          }
+        if(srcField->getMesh()->getMeshDimension()==-1)
+          {
+            double *denoPtr2=deno->getArray()->getPointer();
+            denoPtr2[0]=std::accumulate(denoRPtr,denoRPtr+denoR->getNumberOfTuples(),0.);
+          }
+        int idx=0;
+        for(std::vector<std::map<int,double> >::const_iterator iter1=_matrix.begin();iter1!=_matrix.end();iter1++,idx++)
+          for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+            {
+              _deno_multiply[idx][(*iter2).first]=denoPtr[idx];
+              _deno_reverse_multiply[(*iter2).first][idx]=denoRPtr[(*iter2).first];
+            }
+        deno->decrRef();
+        denoR->decrRef();
+        break;
+      }
     case NoNature:
       throw INTERP_KERNEL::Exception("No nature specified ! Select one !");
     }

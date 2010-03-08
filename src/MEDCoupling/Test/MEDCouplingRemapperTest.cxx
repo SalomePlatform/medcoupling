@@ -94,6 +94,15 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected2[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
+  srcField->setNature(RevIntegral);
+  trgfield=remapper.transferField(srcField,4.57);
+  values=trgfield->getArray()->getConstPointer();
+  CPPUNIT_ASSERT_EQUAL(5,trgfield->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  for(int i0=0;i0<5;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected[i0],values[i0],1e-12);
+  trgfield->decrRef();
+  //
   srcField->decrRef();
   //clean up
   sourceMesh->decrRef();
@@ -551,6 +560,16 @@ void MEDCouplingRemapperTest::testNatureOfField()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected3[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
+  srcField->setNature(RevIntegral);
+  trgfield=remapper.transferField(srcField,4.220173);
+  values=trgfield->getArray()->getConstPointer();
+  const double valuesExpected9[4]={2.48, 3.766666666666666, 4.220173, 1.9199999999999999};
+  CPPUNIT_ASSERT_EQUAL(4,trgfield->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  for(int i0=0;i0<4;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected9[i0],values[i0],1e-12);
+  trgfield->decrRef();
+  //
   srcField->decrRef();
   // REVERSE ***********
   trgfield=MEDCouplingFieldDouble::New(ON_CELLS);
@@ -618,6 +637,16 @@ void MEDCouplingRemapperTest::testNatureOfField()
   CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
   for(int i0=0;i0<2;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected7[i0],values[i0],1e-12);
+  trgfield->decrRef();
+  //
+  srcField->setNature(RevIntegral);
+  trgfield=remapper.transferField(srcField,4.220173);
+  values=trgfield->getArray()->getConstPointer();
+  const double valuesExpected10[2]={5.08, 3.56};
+  CPPUNIT_ASSERT_EQUAL(2,trgfield->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  for(int i0=0;i0<2;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected10[i0],values[i0],1e-12);
   trgfield->decrRef();
   //
   srcField->decrRef();

@@ -26,7 +26,8 @@ namespace ParaMEDMEM
       NoNature               = 17,
       ConservativeVolumic    = 26,
       Integral               = 32,
-      IntegralGlobConstraint = 35
+      IntegralGlobConstraint = 35,
+      RevIntegral            = 37
     } NatureOfField;
 }
 
