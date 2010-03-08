@@ -51,6 +51,7 @@ namespace INTERP_KERNEL
     unsigned getNumberOfSons2(const int *conn, int lgth) const;
     unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
     unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const;
+    NormalizedCellType getExtrudedType() const { return _extruded_type; }
     NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
     NormalizedCellType getSonType2(unsigned sonId) const;
     unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
@@ -62,6 +63,7 @@ namespace INTERP_KERNEL
     unsigned _nb_of_pts;
     unsigned _nb_of_sons;
     NormalizedCellType _type;
+    NormalizedCellType _extruded_type;
     unsigned _sons_con[MAX_NB_OF_SONS][MAX_NB_OF_NODES_PER_ELEM];
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];
     NormalizedCellType _sons_type[MAX_NB_OF_SONS];

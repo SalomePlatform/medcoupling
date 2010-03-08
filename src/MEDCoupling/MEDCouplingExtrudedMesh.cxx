@@ -19,6 +19,7 @@
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "CellModel.hxx"
 
 #include <limits>
 #include <algorithm>
@@ -74,6 +75,45 @@ int MEDCouplingExtrudedMesh::getSpaceDimension() const
 int MEDCouplingExtrudedMesh::getMeshDimension() const
 {
   return 3;
+}
+
+INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cellId) const
+{
+  int nbOfCells2D=_mesh2D->getNumberOfCells();
+  int locId=cellId%nbOfCells2D;
+  INTERP_KERNEL::NormalizedCellType tmp=_mesh2D->getTypeOfCell(locId);
+  return INTERP_KERNEL::CellModel::getCellModel(tmp).getExtrudedType();
+}
+
+void MEDCouplingExtrudedMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+{
+  int nbOfCells2D=_mesh2D->getNumberOfCells();
+  int nbOfNodes2D=_mesh2D->getNumberOfNodes();
+  int locId=cellId%nbOfCells2D;
+  int lev=cellId/nbOfCells2D;
+  std::vector<int> tmp,tmp2;
+  _mesh2D->getNodeIdsOfCell(locId,tmp);
+  tmp2=tmp;
+  std::transform(tmp.begin(),tmp.end(),tmp.begin(),std::bind2nd(std::plus<int>(),nbOfNodes2D*lev));
+  std::transform(tmp2.begin(),tmp2.end(),tmp2.begin(),std::bind2nd(std::plus<int>(),nbOfNodes2D*(lev+1)));
+  conn.insert(conn.end(),tmp.begin(),tmp.end());
+  conn.insert(conn.end(),tmp2.begin(),tmp2.end());
+}
+
+void MEDCouplingExtrudedMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+{
+  int nbOfNodes2D=_mesh2D->getNumberOfNodes();
+  int locId=nodeId%nbOfNodes2D;
+  int lev=nodeId/nbOfNodes2D;
+  std::vector<double> tmp,tmp2;
+  _mesh2D->getCoordinatesOfNode(locId,tmp);
+  tmp2=tmp;
+  int spaceDim=_mesh1D->getSpaceDimension();
+  const double *z=_mesh1D->getCoords()->getConstPointer();
+  std::transform(tmp.begin(),tmp.end(),z+lev*spaceDim,tmp.begin(),std::plus<double>());
+  std::transform(tmp2.begin(),tmp2.end(),z+(lev+1)*spaceDim,tmp2.begin(),std::plus<double>());
+  coo.insert(coo.end(),tmp.begin(),tmp.end());
+  coo.insert(coo.end(),tmp2.begin(),tmp2.end());
 }
 
 void MEDCouplingExtrudedMesh::checkCoherency() const throw (INTERP_KERNEL::Exception)

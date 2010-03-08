@@ -266,6 +266,23 @@ void MEDCouplingPointSet::translate(const double *vector)
   updateTime();
 }
 
+void MEDCouplingPointSet::scale(const double *point, double factor)
+{
+  double *coords=_coords->getPointer();
+  int nbNodes=getNumberOfNodes();
+  int dim=getSpaceDimension();
+  double *tmp=new double[dim];
+  for(int i=0;i<nbNodes;i++)
+    {
+      std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::minus<double>());
+      std::transform(coords+i*dim,coords+(i+1)*dim,coords+i*dim,std::bind2nd(std::multiplies<double>(),factor));
+      std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::plus<double>());
+    }
+  delete [] tmp;
+  _coords->declareAsNew();
+  updateTime();
+}
+
 void MEDCouplingPointSet::tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
 {
   if(_coords==other._coords)

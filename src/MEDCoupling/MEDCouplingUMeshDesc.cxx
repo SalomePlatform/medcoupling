@@ -99,6 +99,23 @@ int MEDCouplingUMeshDesc::getFaceMeshLength() const
   return _nodal_connec_face->getNbOfElems();
 }
 
+INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshDesc::getTypeOfCell(int cellId) const
+{
+  const int *desc_connec=_desc_connec->getConstPointer();
+  const int *desc_connec_index=_desc_connec_index->getConstPointer();
+  return (INTERP_KERNEL::NormalizedCellType)desc_connec[desc_connec_index[cellId]+1];
+}
+
+void MEDCouplingUMeshDesc::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+{
+  //not implemented yet.
+}
+
+void MEDCouplingUMeshDesc::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+{
+  //not implemented yet.
+}
+
 void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx)
 {
   DataArrayInt::setArrayIn(descConn,_desc_connec);

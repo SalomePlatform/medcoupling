@@ -52,6 +52,7 @@ namespace ParaMEDMEM
     void zipCoords();
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
+    void scale(const double *point, double factor);
     void tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);

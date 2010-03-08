@@ -610,6 +610,22 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
   return (INTERP_KERNEL::NormalizedCellType) pt[ptI[cellId]];
 }
 
+void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+{
+  const int *ptI=_nodal_connec_index->getConstPointer();
+  const int *pt=_nodal_connec->getConstPointer();
+  for(const int *w=pt+ptI[cellId]+1;w!=pt+ptI[cellId+1];w++)
+    if(*w>=0)
+      conn.push_back(*w);
+}
+
+void MEDCouplingUMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+{
+  const double *cooPtr=_coords->getConstPointer();
+  int spaceDim=getSpaceDimension();
+  coo.insert(coo.end(),cooPtr+spaceDim*nodeId,cooPtr+spaceDim*(nodeId+1));
+}
+
 int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
 {
   const int *ptI=_nodal_connec_index->getConstPointer();

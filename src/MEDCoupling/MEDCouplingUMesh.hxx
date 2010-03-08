@@ -46,6 +46,8 @@ namespace ParaMEDMEM
     DataArrayInt *getNodalConnectivity() const { return _nodal_connec; }
     DataArrayInt *getNodalConnectivityIndex() const { return _nodal_connec_index; }
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     int getNumberOfNodesInCell(int cellId) const;
     int getNumberOfCells() const;
     int getMeshDimension() const;

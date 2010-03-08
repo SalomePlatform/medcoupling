@@ -87,21 +87,22 @@ namespace INTERP_KERNEL
   {
     _quadratic=false;
     _dyn=false;
+    _extruded_type=NORM_ERROR;
     switch(type)
       {
       case NORM_POINT0:
         {
-          _nb_of_pts=0; _nb_of_sons=0; _dim=0;
+          _nb_of_pts=0; _nb_of_sons=0; _dim=0; _extruded_type=NORM_SEG2;
         }
         break;
       case NORM_SEG2:
         {
-          _nb_of_pts=2; _nb_of_sons=0; _dim=1;
+          _nb_of_pts=2; _nb_of_sons=0; _dim=1; _extruded_type=NORM_QUAD4;
         }
         break;
       case NORM_SEG3:
         {
-          _nb_of_pts=3; _nb_of_sons=0; _dim=1;
+          _nb_of_pts=3; _nb_of_sons=0; _dim=1; _extruded_type=NORM_QUAD8;
         }
         break;
       case NORM_TETRA4:
@@ -133,7 +134,7 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _nb_of_sons_con[0]=2;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _nb_of_sons_con[1]=2;
           _sons_con[2][0]=2; _sons_con[2][1]=3; _nb_of_sons_con[2]=2;
-          _sons_con[3][0]=3; _sons_con[3][1]=0; _nb_of_sons_con[3]=2;
+          _sons_con[3][0]=3; _sons_con[3][1]=0; _nb_of_sons_con[3]=2; _extruded_type=NORM_HEXA8;
         }
         break;
       case NORM_TRI3:
@@ -142,7 +143,7 @@ namespace INTERP_KERNEL
           _sons_type[0]=NORM_SEG2; _sons_type[1]=NORM_SEG2; _sons_type[2]=NORM_SEG2;
           _sons_con[0][0]=0; _sons_con[0][1]=1; _nb_of_sons_con[0]=2;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _nb_of_sons_con[1]=2;
-          _sons_con[2][0]=2; _sons_con[2][1]=0; _nb_of_sons_con[2]=2;
+          _sons_con[2][0]=2; _sons_con[2][1]=0; _nb_of_sons_con[2]=2; _extruded_type=NORM_PENTA6;
         }
         break;
       case NORM_TRI6:
@@ -151,7 +152,7 @@ namespace INTERP_KERNEL
           _sons_type[0]=NORM_SEG3; _sons_type[1]=NORM_SEG3; _sons_type[2]=NORM_SEG3;
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=3; _nb_of_sons_con[0]=3;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=4; _nb_of_sons_con[1]=3;
-          _sons_con[2][0]=2; _sons_con[2][1]=0; _sons_con[2][2]=5; _nb_of_sons_con[2]=3; _quadratic=true;
+          _sons_con[2][0]=2; _sons_con[2][1]=0; _sons_con[2][2]=5; _nb_of_sons_con[2]=3; _quadratic=true; _extruded_type=NORM_PENTA15;
         }
         break;
       case NORM_QUAD8:
@@ -161,7 +162,7 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=4; _nb_of_sons_con[0]=3;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=5; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=2; _sons_con[2][1]=3; _sons_con[2][2]=6; _nb_of_sons_con[2]=3;
-          _sons_con[3][0]=3; _sons_con[3][1]=0; _sons_con[3][2]=7; _nb_of_sons_con[3]=3; _quadratic=true;
+          _sons_con[3][0]=3; _sons_con[3][1]=0; _sons_con[3][2]=7; _nb_of_sons_con[3]=3; _quadratic=true; _extruded_type=NORM_HEXA20;
         }
         break;
       case NORM_PYRA5:
@@ -232,7 +233,7 @@ namespace INTERP_KERNEL
         break;
       case NORM_POLYGON:
         {
-          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true;
+          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _extruded_type=NORM_POLYHED;
         }
         break;
       case NORM_POLYHED:

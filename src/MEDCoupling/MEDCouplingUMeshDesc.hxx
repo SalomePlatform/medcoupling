@@ -39,6 +39,9 @@ namespace ParaMEDMEM
     int getCellMeshLength() const;
     int getFaceMeshLength() const;
     int getMeshDimension() const { return _mesh_dim; }
+    INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCouplingMeshType getType() const { return UNSTRUCTURED_DESC; }
     void setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx);
     //tools to overload

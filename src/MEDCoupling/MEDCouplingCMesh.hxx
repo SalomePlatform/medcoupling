@@ -39,6 +39,12 @@ namespace ParaMEDMEM
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     int getMeshDimension() const;
+    int getCellIdFromPos(int i, int j, int k) const;
+    int getNodeIdFromPos(int i, int j, int k) const;
+    static void getPosFromId(int nodeId, int spaceDim, const int *split, int *res);
+    INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     DataArrayDouble *getCoordsAt(int i) const throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coordsX,
                    DataArrayDouble *coordsY=0,
@@ -54,6 +60,9 @@ namespace ParaMEDMEM
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
+    //some useful methods
+    void getSplitCellValues(int *res) const;
+    void getSplitNodeValues(int *res) const;
   private:
     MEDCouplingCMesh();
     ~MEDCouplingCMesh();

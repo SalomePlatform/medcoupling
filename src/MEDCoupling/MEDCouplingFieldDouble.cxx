@@ -163,6 +163,12 @@ void MEDCouplingFieldDouble::measureAccumulate(bool isWAbs, double *res) const
   delete [] tmp;
 }
 
+void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *arr=_time_discr->getArray();
+  _type->getValueOnPos(arr,_mesh,i,j,k,res);
+}
+
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
@@ -343,8 +349,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingField
 {
   if(!f1->areCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply addFields on them !");
-  if(f1->getMesh()!=f2->getMesh())
-    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; addFields impossible !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->add(f2->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
@@ -355,8 +359,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplin
 {
   if(!f1->areCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply substractFields on them !");
-  if(f1->getMesh()!=f2->getMesh())
-    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; substractFields impossible !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->substract(f2->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
@@ -367,8 +369,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCoupling
 {
   if(!f1->areCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to applymultiplyFields  on them !");
-  if(f1->getMesh()!=f2->getMesh())
-    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; multiplyFields impossible !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
@@ -379,8 +379,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFi
 {
   if(!f1->areCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply divideFields on them !");
-  if(f1->getMesh()!=f2->getMesh())
-    throw INTERP_KERNEL::Exception("Fields are not lying on same mesh ; divideFields impossible !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->divide(f2->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());

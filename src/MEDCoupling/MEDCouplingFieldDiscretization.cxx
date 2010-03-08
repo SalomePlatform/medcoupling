@@ -18,7 +18,10 @@
 //
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingPointSet.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+
+#include "InterpolationUtils.hxx"
 
 #include <limits>
 #include <algorithm>
@@ -117,6 +120,17 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getWeightingField(cons
 void MEDCouplingFieldDiscretizationP0::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
 {
   int id=mesh->getElementContainingPoint(loc,_precision);
+  if(id==-1)
+    throw INTERP_KERNEL::Exception("Specified point is detected outside of mesh : unable to apply P0::getValueOn !");
+  arr->getTuple(id,res);
+}
+
+void MEDCouplingFieldDiscretizationP0::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
+{
+  const MEDCouplingCMesh *meshC=dynamic_cast<const MEDCouplingCMesh *>(mesh);
+  if(!meshC)
+    throw INTERP_KERNEL::Exception("P0::getValueOnPos is only accessible for structured meshes !");
+  int id=meshC->getCellIdFromPos(i,j,k);
   arr->getTuple(id,res);
 }
 
@@ -197,6 +211,44 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(cons
 
 void MEDCouplingFieldDiscretizationP1::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
 {
+  int id=mesh->getElementContainingPoint(loc,_precision);
+  if(id==-1)
+    throw INTERP_KERNEL::Exception("Specified point is detected outside of mesh : unable to apply P1::getValueOn !");
+  INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(id);
+  if(type!=INTERP_KERNEL::NORM_SEG2 && type!=INTERP_KERNEL::NORM_TRI3 && type!=INTERP_KERNEL::NORM_TETRA4)
+    throw INTERP_KERNEL::Exception("P1 getValueOn is not specified for not simplex cells !");
+  std::vector<int> conn;
+  std::vector<double> coo;
+  mesh->getNodeIdsOfCell(id,conn);
+  for(std::vector<int>::const_iterator iter=conn.begin();iter!=conn.end();iter++)
+    mesh->getCoordinatesOfNode(*iter,coo);
+  int spaceDim=mesh->getSpaceDimension();
+  int nbOfNodes=conn.size();
+  std::vector<const double *> vec(nbOfNodes);
+  for(int i=0;i<nbOfNodes;i++)
+    vec[i]=&coo[i*spaceDim];
+  double *tmp=new double[nbOfNodes];
+  INTERP_KERNEL::barycentric_coords(vec,loc,tmp);
+  int sz=arr->getNumberOfComponents();
+  double *tmp2=new double[sz];
+  std::fill(res,res+sz,0.);
+  for(int i=0;i<nbOfNodes;i++)
+    {
+      arr->getTuple(conn[i],tmp2);
+      std::transform(tmp2,tmp2+sz,tmp2,std::bind2nd(std::multiplies<double>(),tmp[i]));
+      std::transform(res,res+sz,tmp2,res,std::plus<double>());
+    }
+  delete [] tmp;
+  delete [] tmp2;
+}
+
+void MEDCouplingFieldDiscretizationP1::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
+{
+  const MEDCouplingCMesh *meshC=dynamic_cast<const MEDCouplingCMesh *>(mesh);
+  if(!meshC)
+    throw INTERP_KERNEL::Exception("P1::getValueOnPos is only accessible for structured meshes !");
+  int id=meshC->getNodeIdFromPos(i,j,k);
+  arr->getTuple(id,res);
 }
 
 void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const

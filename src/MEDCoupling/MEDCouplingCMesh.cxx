@@ -21,6 +21,8 @@
 #include "MEDCouplingFieldDouble.hxx"
 
 #include <functional>
+#include <algorithm>
+#include <numeric>
 
 using namespace ParaMEDMEM;
 
@@ -114,6 +116,61 @@ int MEDCouplingCMesh::getNumberOfNodes() const
   return ret;
 }
 
+void MEDCouplingCMesh::getSplitCellValues(int *res) const
+{
+  int spaceDim=getSpaceDimension();
+  for(int l=0;l<spaceDim;l++)
+    {
+      int val=1;
+      for(int p=l;p<spaceDim-1;p++)
+        val*=getCoordsAt(p)->getNbOfElems()-1;
+      res[spaceDim-l-1]=val;
+    }
+}
+
+void MEDCouplingCMesh::getSplitNodeValues(int *res) const
+{
+  int spaceDim=getSpaceDimension();
+  for(int l=0;l<spaceDim;l++)
+    {
+      int val=1;
+      for(int p=l;p<spaceDim-1;p++)
+        val*=getCoordsAt(p)->getNbOfElems();
+      res[spaceDim-l-1]=val;
+    }
+}
+
+int MEDCouplingCMesh::getCellIdFromPos(int i, int j, int k) const
+{
+  int tmp[3]={i,j,k};
+  int tmp2[3];
+  int spaceDim=getSpaceDimension();
+  getSplitCellValues(tmp2);
+  std::transform(tmp,tmp+spaceDim,tmp2,tmp,std::multiplies<int>());
+  return std::accumulate(tmp,tmp+spaceDim,0);
+}
+
+int MEDCouplingCMesh::getNodeIdFromPos(int i, int j, int k) const
+{
+  int tmp[3]={i,j,k};
+  int tmp2[3];
+  int spaceDim=getSpaceDimension();
+  getSplitNodeValues(tmp2);
+  std::transform(tmp,tmp+spaceDim,tmp2,tmp,std::multiplies<int>());
+  return std::accumulate(tmp,tmp+spaceDim,0);
+}
+
+void MEDCouplingCMesh::getPosFromId(int nodeId, int spaceDim, const int *split, int *res)
+{
+  int work=nodeId;
+  for(int i=spaceDim-1;i>=0;i--)
+    {
+      int pos=work/split[i];
+      work=work%split[i];
+      res[i]=pos;
+    }
+}
+
 int MEDCouplingCMesh::getSpaceDimension() const
 {
   int ret=0;
@@ -129,6 +186,31 @@ int MEDCouplingCMesh::getSpaceDimension() const
 int MEDCouplingCMesh::getMeshDimension() const
 {
   return getSpaceDimension();
+}
+
+INTERP_KERNEL::NormalizedCellType MEDCouplingCMesh::getTypeOfCell(int cellId) const
+{
+  switch(getMeshDimension())
+    {
+    case 3:
+      return INTERP_KERNEL::NORM_HEXA8;
+    case 2:
+      return INTERP_KERNEL::NORM_QUAD4;
+    case 1:
+      return INTERP_KERNEL::NORM_SEG2;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingCMesh::getTypeOfCell !");
+    }
+}
+
+void MEDCouplingCMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+{
+  //not implemented yet
+}
+
+void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+{
+  //not implemented yet
 }
 
 DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
@@ -234,19 +316,21 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
 {
   DataArrayDouble *ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
-  ret->alloc(getNumberOfNodes(),spaceDim);
+  int nbNodes=getNumberOfNodes();
+  ret->alloc(nbNodes,spaceDim);
   double *pt=ret->getPointer();
-  int pos=0;
-  int nbOfElem;
-  const double *cptr;
-  DataArrayDouble *tabs[3]={_x_array,_y_array,_z_array};
-  for(int j=0;j<3;j++)
+  int tmp[3];
+  getSplitNodeValues(tmp);
+  DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
+  const double *tabsPtr[3];
+  for(int j=0;j<spaceDim;j++)
+    tabsPtr[j]=tabs[j]->getConstPointer();
+  int tmp2[3];
+  for(int i=0;i<nbNodes;i++)
     {
-      nbOfElem=tabs[j]->getNbOfElems();
-      cptr=tabs[j]->getConstPointer();
-      for(int i=0;i<nbOfElem;i++)
-        pt[i*spaceDim+pos]=cptr[i];
-      pos++;
+      getPosFromId(i,spaceDim,tmp,tmp2);
+      for(int j=0;j<spaceDim;j++)
+        pt[i*spaceDim+j]=tabsPtr[j][tmp2[j]];
     }
   return ret;
 }
@@ -255,19 +339,27 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
 {
   DataArrayDouble *ret=DataArrayDouble::New();
   int spaceDim=getSpaceDimension();
-  ret->alloc(getNumberOfCells(),spaceDim);
-  DataArrayDouble *tabs[3]={_x_array,_y_array,_z_array};
+  int nbCells=getNumberOfCells();
+  ret->alloc(nbCells,spaceDim);
   double *pt=ret->getPointer();
-  int pos=0;
-  int nbOfElem;
-  const double *cptr;
-  for(int j=0;j<3;j++)
+  int tmp[3];
+  getSplitCellValues(tmp);
+  DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
+  std::vector<double> tabsPtr[3];
+  for(int j=0;j<spaceDim;j++)
     {
-      nbOfElem=tabs[j]->getNbOfElems()-1;
-      cptr=tabs[j]->getConstPointer();
-      for(int i=0;i<nbOfElem;i++)
-        pt[i*spaceDim+pos]=(cptr[i]+cptr[i+1])/2.;
-      pos++;
+      int sz=tabs[j]->getNbOfElems()-1;
+      const double *srcPtr=tabs[j]->getConstPointer();
+      tabsPtr[j].insert(tabsPtr[j].end(),srcPtr,srcPtr+sz);
+      std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),srcPtr+1,tabsPtr[j].begin(),std::plus<double>());
+      std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),tabsPtr[j].begin(),std::bind2nd(std::multiplies<double>(),0.5));
+    }
+  int tmp2[3];
+  for(int i=0;i<nbCells;i++)
+    {
+      getPosFromId(i,spaceDim,tmp,tmp2);
+      for(int j=0;j<spaceDim;j++)
+        pt[i*spaceDim+j]=tabsPtr[j][tmp2[j]];
     }
   return ret;
 }
