@@ -199,8 +199,8 @@ void MEDCouplingBasicsTest::test2DInterpP0P1_1()
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation2D myInterpolator;
   vector<map<int,double> > res;
-  INTERP_KERNEL::IntersectionType types[3]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Convex, INTERP_KERNEL::Geometric2D};
-  for(int i=0;i<3;i++)
+  INTERP_KERNEL::IntersectionType types[2]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
+  for(int i=0;i<2;i++)
     {
       myInterpolator.setPrecision(1e-12);
       myInterpolator.setIntersectionType(types[i]);
@@ -494,8 +494,8 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0_1()
   MEDCouplingNormalizedUnstructuredMesh<3,2> targetWrapper(targetMesh);
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
   vector<map<int,double> > res;
-  INTERP_KERNEL::IntersectionType types[3]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Convex, INTERP_KERNEL::Geometric2D};
-  for(int i=0;i<3;i++)
+  INTERP_KERNEL::IntersectionType types[3]={INTERP_KERNEL::Triangulation, INTERP_KERNEL::Geometric2D};
+  for(int i=0;i<2;i++)
     {
       myInterpolator.setPrecision(1e-12);
       myInterpolator.setIntersectionType(types[i]);
