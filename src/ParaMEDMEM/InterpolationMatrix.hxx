@@ -53,9 +53,11 @@ namespace ParaMEDMEM
   private:
     void computeConservVolDenoW(ElementLocator& elementLocator);
     void computeIntegralDenoW(ElementLocator& elementLocator);
+    void computeRevIntegralDenoW(ElementLocator& elementLocator);
     void computeGlobConstraintDenoW(ElementLocator& elementLocator);
     void computeConservVolDenoL(ElementLocator& elementLocator);
     void computeIntegralDenoL(ElementLocator& elementLocator);
+    void computeRevIntegralDenoL(ElementLocator& elementLocator);
     
     void computeLocalColSum(std::vector<double>& res) const;
     void computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<int> >& resPerProcI,

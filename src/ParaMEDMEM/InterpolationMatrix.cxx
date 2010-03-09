@@ -310,6 +310,14 @@ namespace ParaMEDMEM
       case IntegralGlobConstraint:
         computeGlobConstraintDenoW(elementLocator);
         break;
+      case RevIntegral:
+        {
+          if(!elementLocator.isM1DCorr())
+            computeRevIntegralDenoW(elementLocator);
+          else
+            computeConservVolDenoW(elementLocator);
+          break;
+        }
       default:
         throw INTERP_KERNEL::Exception("Not recognized nature of field. Change nature of Field.");
         break;
@@ -336,6 +344,14 @@ namespace ParaMEDMEM
         //this is not a bug doing like ConservativeVolumic
         computeConservVolDenoL(elementLocator);
         break;
+      case RevIntegral:
+        {
+          if(!elementLocator.isM1DCorr())
+            computeRevIntegralDenoL(elementLocator);
+          else
+            computeConservVolDenoL(elementLocator);
+          break;
+        }
       default:
         throw INTERP_KERNEL::Exception("Not recognized nature of field. Change nature of Field.");
         break;
@@ -388,6 +404,21 @@ namespace ParaMEDMEM
     source_triangle_surf->decrRef();
     _deno_reverse_multiply=_target_volume;
   }
+
+  void InterpolationMatrix::computeRevIntegralDenoW(ElementLocator& elementLocator)
+  {
+    _deno_multiply=_target_volume;
+    MEDCouplingFieldDouble *source_triangle_surf = _source_support->getMeasureField(getMeasureAbsStatus());
+    _deno_reverse_multiply.resize(_coeffs.size());
+    vector<vector<double> >::iterator iter6=_deno_reverse_multiply.begin();
+    const double *values=source_triangle_surf->getArray()->getConstPointer();
+    for(vector<vector<pair<int,double> > >::const_iterator iter4=_coeffs.begin();iter4!=_coeffs.end();iter4++,iter6++,values++)
+      {
+        (*iter6).resize((*iter4).size());
+        std::fill((*iter6).begin(),(*iter6).end(),*values);
+      }
+    source_triangle_surf->decrRef();
+  }
   
   /*!
    * Nothing to do because surface computation is on working side.
@@ -395,6 +426,14 @@ namespace ParaMEDMEM
   void InterpolationMatrix::computeIntegralDenoL(ElementLocator& elementLocator)
   {
   }
+
+  /*!
+   * Nothing to do because surface computation is on working side.
+   */
+  void InterpolationMatrix::computeRevIntegralDenoL(ElementLocator& elementLocator)
+  {
+  }
+
 
   void InterpolationMatrix::computeGlobConstraintDenoW(ElementLocator& elementLocator)
   {
