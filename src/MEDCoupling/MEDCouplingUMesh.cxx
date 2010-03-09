@@ -925,51 +925,19 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
   return ret;
 }
 
-/*{
-    const double *coordsPtr=_coords->getConstPointer();
-    BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbNodes,-prec);
-    double bb[2*SPACEDIM];
-    double prec2=prec*prec;
-    for(int i=0;i<nbNodes;i++)
-      {
-        if(std::find(c.begin(),c.end(),i)!=c.end())
-          continue;
-        for(int j=0;j<SPACEDIM;j++)
-          {
-            bb[2*j]=coordsPtr[SPACEDIM*i+j];
-            bb[2*j+1]=coordsPtr[SPACEDIM*i+j];
-          }
-        std::vector<int> intersectingElems;
-        myTree.getIntersectingElems(bb,intersectingElems);
-        if(intersectingElems.size()>1)
-          {
-            std::vector<int> commonNodes;
-            for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
-              if(*it!=i)
-                if(INTERP_KERNEL::distance2<SPACEDIM>(coordsPtr+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<prec2)
-                  commonNodes.push_back(*it);
-            if(!commonNodes.empty())
-              {
-                cI.push_back(cI.back()+commonNodes.size()+1);
-                c.push_back(i);
-                c.insert(c.end(),commonNodes.begin(),commonNodes.end());
-              }
-          }
-          }*/
-
-int MEDCouplingUMesh::getElementContainingPoint(const double *pos, double eps) const
+int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) const
 {
   std::vector<int> elts;
-  getElementsContainingPoint(pos,eps,elts);
+  getCellsContainingPoint(pos,eps,elts);
   if(elts.empty())
     return -1;
   return elts.front();
 }
 
-void MEDCouplingUMesh::getElementsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
   std::vector<int> eltsIndex;
-  getElementsContainingPoints(pos,1,eps,elts,eltsIndex);
+  getCellsContainingPoints(pos,1,eps,elts,eltsIndex);
 }
 
 namespace ParaMEDMEM
@@ -986,8 +954,8 @@ namespace ParaMEDMEM
 }
 
 template<int SPACEDIM>
-void MEDCouplingUMesh::getElementsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
-                                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
+void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
+                                                   double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
 {
   std::vector<double> bbox;
   eltsIndex.resize(nbOfPoints+1);
@@ -1025,8 +993,8 @@ void MEDCouplingUMesh::getElementsContainingPointsAlg(const double *coords, cons
     }
 }
 
-void MEDCouplingUMesh::getElementsContainingPoints(const double *pos, int nbOfPoints, double eps,
-                                                   std::vector<int>& elts, std::vector<int>& eltsIndex) const
+void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps,
+                                                std::vector<int>& elts, std::vector<int>& eltsIndex) const
 {
   int spaceDim=getSpaceDimension();
   int mDim=getMeshDimension();
@@ -1035,7 +1003,7 @@ void MEDCouplingUMesh::getElementsContainingPoints(const double *pos, int nbOfPo
       if(mDim==3)
         {
           const double *coords=_coords->getConstPointer();
-          getElementsContainingPointsAlg<3>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
+          getCellsContainingPointsAlg<3>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
         }
       /*else if(mDim==2)
         {
@@ -1049,7 +1017,7 @@ void MEDCouplingUMesh::getElementsContainingPoints(const double *pos, int nbOfPo
       if(mDim==2)
         {
           const double *coords=_coords->getConstPointer();
-          getElementsContainingPointsAlg<2>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
+          getCellsContainingPointsAlg<2>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
         }
       else
         throw INTERP_KERNEL::Exception("For spaceDim==2 only meshDim==2 implemented for getelementscontainingpoints !");

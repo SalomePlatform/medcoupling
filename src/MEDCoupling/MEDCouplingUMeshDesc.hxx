@@ -60,7 +60,7 @@ namespace ParaMEDMEM
     void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
-    int getElementContainingPoint(const double *pos, double eps) const;
+    int getCellContainingPoint(const double *pos, double eps) const;
     MEDCouplingFieldDouble *buildOrthogonalField() const;
     DataArrayInt *zipCoordsTraducer();
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;

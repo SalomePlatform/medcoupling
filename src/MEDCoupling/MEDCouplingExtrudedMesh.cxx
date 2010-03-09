@@ -172,7 +172,7 @@ MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::buildOrthogonalField() const
   throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::buildOrthogonalField not implemented yet !");
 }
 
-int MEDCouplingExtrudedMesh::getElementContainingPoint(const double *pos, double eps) const
+int MEDCouplingExtrudedMesh::getCellContainingPoint(const double *pos, double eps) const
 {
   //not implemented yet
   return -1;

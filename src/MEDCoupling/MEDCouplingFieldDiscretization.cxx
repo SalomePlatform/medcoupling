@@ -119,7 +119,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getWeightingField(cons
 
 void MEDCouplingFieldDiscretizationP0::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
 {
-  int id=mesh->getElementContainingPoint(loc,_precision);
+  int id=mesh->getCellContainingPoint(loc,_precision);
   if(id==-1)
     throw INTERP_KERNEL::Exception("Specified point is detected outside of mesh : unable to apply P0::getValueOn !");
   arr->getTuple(id,res);
@@ -211,7 +211,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(cons
 
 void MEDCouplingFieldDiscretizationP1::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
 {
-  int id=mesh->getElementContainingPoint(loc,_precision);
+  int id=mesh->getCellContainingPoint(loc,_precision);
   if(id==-1)
     throw INTERP_KERNEL::Exception("Specified point is detected outside of mesh : unable to apply P1::getValueOn !");
   INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(id);

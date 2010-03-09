@@ -282,7 +282,7 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::buildOrthogonalField() const
   return ret;
 }
 
-int MEDCouplingCMesh::getElementContainingPoint(const double *pos, double eps) const
+int MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps) const
 {
   //not implemented yet !
   return -1;
