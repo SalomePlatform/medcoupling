@@ -950,6 +950,13 @@ namespace ParaMEDMEM
     static const int MY_MESHDIM=8;
     typedef int MyConnType;
     static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
+    // begin
+    // useless, but for windows compilation ...
+    const double* getCoordinatesPtr() const { return 0; }
+    const int* getConnectivityPtr() const { return 0; }
+    const int* getConnectivityIndexPtr() const { return 0; }
+    INTERP_KERNEL::NormalizedCellType getTypeOfElement(int) const { return (INTERP_KERNEL::NormalizedCellType)0; }
+    // end
   };
 }
 
