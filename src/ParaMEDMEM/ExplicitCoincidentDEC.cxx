@@ -31,7 +31,8 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-
+  /*! \defgroup explicitcoincidentdec ExplicitCoincidentDEC
+   */
   ExplicitCoincidentDEC::ExplicitCoincidentDEC():_toposource(0),_topotarget(0)
   {  
   }
@@ -39,6 +40,12 @@ namespace ParaMEDMEM
   ExplicitCoincidentDEC::~ExplicitCoincidentDEC()
   {
   }
+
+
+  /*!
+    \addtogroup explicitcoincidentdec
+    @{
+  */
 
   /*! Synchronization process for exchanging topologies
    */
@@ -380,5 +387,8 @@ namespace ParaMEDMEM
     _comm_interface->allToAllV(_sendbuffer, _sendcounts, _senddispls, MPI_DOUBLE, 
                                _recvbuffer, _recvcounts, _recvdispls, MPI_DOUBLE,MPI_COMM_WORLD);
   }
+  /*!
+    @}
+  */
 }
 
