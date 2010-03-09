@@ -77,7 +77,7 @@ namespace ParaMEDMEM
     int getCellContainingPoint(const double *pos, double eps) const;
     void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
     void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps,
-                                     std::vector<int>& elts, std::vector<int>& eltsIndex) const;
+                                  std::vector<int>& elts, std::vector<int>& eltsIndex) const;
     void checkButterflyCells(std::vector<int>& cells) const;
     void getBoundingBoxForBBTree(std::vector<double>& bbox) const;
     bool checkConsecutiveCellTypes() const;
