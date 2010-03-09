@@ -51,7 +51,7 @@ namespace ParaMEDMEM
     for coincident meshes that do not have the same numbering.
 
     As all the other DECs, its use is made of two phases :
-    - a setup phase during whih the topologies are exchanged so that
+    - a setup phase during which the topologies are exchanged so that
     the target side knows from which processors it should expect 
     the data.
     - a send/recv phase during which the field data is actually transferred.
@@ -213,7 +213,7 @@ namespace ParaMEDMEM
   }
 
   /*!
-   *  Creates the _buffers for receiving the fields on the target side
+   *  Creates the buffers for receiving the fields on the target side
    */
   void StructuredCoincidentDEC::prepareTargetDE()
   {
