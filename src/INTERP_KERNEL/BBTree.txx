@@ -125,8 +125,15 @@ public:
       }
     _max_left=max_left+std::abs(_epsilon);
     _min_right=min_right-std::abs(_epsilon);
-    _left=new BBTree(bbs, &(new_elems_left[0]), level+1, new_elems_left.size(),_epsilon);
-    _right=new BBTree(bbs, &(new_elems_right[0]), level+1, new_elems_right.size(),_epsilon);
+    ConnType *tmp;
+    tmp=0;
+    if(!new_elems_left.empty())
+      tmp=&(new_elems_left[0]);
+    _left=new BBTree(bbs, tmp, level+1, new_elems_left.size(),_epsilon);
+    tmp=0;
+    if(!new_elems_right.empty())
+      tmp=&(new_elems_right[0]);
+    _right=new BBTree(bbs, tmp, level+1, new_elems_right.size(),_epsilon);
   
   }
 

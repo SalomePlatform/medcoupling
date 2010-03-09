@@ -347,7 +347,10 @@ namespace INTERP_KERNEL
     std::vector<double> bbox;
     intersector->createBoundingBoxes(myMeshS,bbox); // create the bounding boxes
     performAdjustmentOfBB(intersector,bbox);
-    BBTree<SPACEDIM,ConnType> my_tree(&bbox[0], 0, 0,nbMailleS);//creating the search structure 
+    const double *bboxPtr=0;
+    if(nbMailleS>0)
+      bboxPtr=&bbox[0];
+    BBTree<SPACEDIM,ConnType> my_tree(bboxPtr, 0, 0,nbMailleS);//creating the search structure 
 
     long end_filtering=clock();
 
