@@ -74,6 +74,7 @@ INPUT                  = @srcdir@ \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
+                         @srcdir@/../../src/MEDCoupling \
                          @srcdir@/../../src/MEDMEM
 
 FILE_PATTERNS          = MEDMEM_Mesh.* \
@@ -105,6 +106,14 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          InterpKernelGeo2DNode.* \
                          InterpKernelGeo2DQuadraticPolygon.* \
                          ParaFIELD.* \
+			 MEDCouplingMesh.* \
+                         MEDCouplingUMesh.* \
+			 MEDCouplingUMeshDesc.* \
+			 MEDCouplingPointSet.* \
+			 MEDCouplingCMesh.* \
+			 MEDCouplingFieldDouble.* \
+			 MEDCouplingFieldDiscretization.* \
+			 MEDCouplingTimeDiscretization.* \
                          *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS
