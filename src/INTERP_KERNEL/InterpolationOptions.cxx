@@ -102,7 +102,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, i
     }
     else if(key==DO_ROTATE_STR) 
       {
-        setDoRotate(value);
+        setDoRotate(value != 0);
         return true;
       }
     else if(key==ORIENTATION_STR) 

@@ -91,7 +91,7 @@ namespace INTERP_KERNEL
       std::vector<ConnType> candidates;
       _tree->getElementsAroundPoint(x,candidates);
       std::list<ConnType> retlist;
-      for(int i=0; i< candidates.size(); i++)
+      for(unsigned int i=0; i< candidates.size(); i++)
         {
           int ielem=candidates[i];
           if (elementContainsPoint(ielem,x,eps))

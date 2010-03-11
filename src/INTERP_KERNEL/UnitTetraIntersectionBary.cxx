@@ -325,11 +325,11 @@ namespace INTERP_KERNEL
       for ( int j = 0; j < 3 && !sideAdded[j]; ++j )
       {
         if ( epsilonEqual( coordSum[j], 0.0 ))
-          sideAdded[j] = bool( ++nbAddedSides );
+          sideAdded[j] = ++nbAddedSides != 0 ;
       }
       if ( !sideAdded[3] &&
            ( epsilonEqual( (coordSum[0]+coordSum[1]+coordSum[2]) / polygon.size(), 1. )))
-        sideAdded[3] = bool( ++nbAddedSides );
+        sideAdded[3] = ++nbAddedSides != 0 ;
     }
     if ( nbAddedSides == NB_TETRA_SIDES )
       return nbAddedSides;
@@ -559,7 +559,7 @@ namespace INTERP_KERNEL
         // at least 3 segments - all corners of a side are cut off
         for (int cutIndex = 0; cutIndex < NB_TETRA_NODES; ++cutIndex )
           if ( cutIndex != i+1 && !passedCorners[ cutIndex ] && !cutOffCorners[ cutIndex ])
-            cutOffCorners[ cutIndex ] = bool ( ++nbCutOffCorners );
+            cutOffCorners[ cutIndex ] = ++nbCutOffCorners != 0 ;
       }
 
     }
@@ -570,7 +570,7 @@ namespace INTERP_KERNEL
     {
       for (int cutIndex = 1; cutIndex < NB_TETRA_NODES; ++cutIndex )
         if ( !passedCorners[ cutIndex ] && !cutOffCorners[ cutIndex ])
-          cutOffCorners[ cutIndex ] = bool ( ++nbCutOffCorners );
+          cutOffCorners[ cutIndex ] = ++nbCutOffCorners != 0 ;
     }
 
     // Add to faces on tetra sides the corners not cut off by segments of intersection polygons

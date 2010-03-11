@@ -460,7 +460,7 @@ namespace INTERP_KERNEL
   {
     // free potential sub-mesh nodes that have been allocated
     typename MyMeshTypeT::MyConnType nbOfNodesT = _node_ids.size();// Issue 0020634.
-    if(_nodes.size()>=/*8*/nbOfNodesT)
+    if((int)_nodes.size()>=/*8*/nbOfNodesT)
       {
         std::vector<const double*>::iterator iter = _nodes.begin() + /*8*/nbOfNodesT;
         while(iter != _nodes.end())

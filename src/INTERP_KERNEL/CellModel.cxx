@@ -333,7 +333,7 @@ namespace INTERP_KERNEL
     else
       {//polyedron
         const int *where=nodalConn;
-        for(int i=0;i<sonId;i++)
+        for(unsigned int i=0;i<sonId;i++)
           {
             where=std::find(where,nodalConn+lgth,-1);
             where++;

@@ -145,7 +145,7 @@ namespace INTERP_KERNEL
     // intersect a cartesian 3d cell with tetra
     _uHexMesh->setHexa( _FMIC(icellS[0]),_FMIC(icellS[1]),_FMIC(icellS[2])); // set cell at i,j,k
     double res = 0;
-    for ( int t = 0; t < tetra.size(); ++t )
+    for ( unsigned int t = 0; t < tetra.size(); ++t )
       {
         res += tetra[t]->intersectSourceCell( 0 );
         delete tetra[t];

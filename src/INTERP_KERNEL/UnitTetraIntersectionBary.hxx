@@ -30,31 +30,31 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT UnitTetraIntersectionBary : protected TransformedTriangle
+  class UnitTetraIntersectionBary : protected TransformedTriangle
   {
   public:
-    UnitTetraIntersectionBary(bool isTetraInversed=false);
+    INTERPKERNEL_EXPORT UnitTetraIntersectionBary(bool isTetraInversed=false);
 
-    void init(bool isTetraInversed=false);
+    INTERPKERNEL_EXPORT void init(bool isTetraInversed=false);
     /*!
      * \brief Stores a part of triangle common with the unit tetrahedron
      *  \param triangle - triangle side of other cell, whose calculateIntersectionVolume()
      *                    must have already been called
      */
-    void addSide(const TransformedTriangle& triangle);
+    INTERPKERNEL_EXPORT void addSide(const TransformedTriangle& triangle);
 
     /*!
      * \brief Computes and return coordinates of barycentre
      */
-    bool getBary(double* baryCenter);
+    INTERPKERNEL_EXPORT bool getBary(double* baryCenter);
 
     /*!
      * \brief Returns volume of intersection
      *  \retval double - 
      */
-    inline double getVolume() const { return _int_volume; }
+    INTERPKERNEL_EXPORT inline double getVolume() const { return _int_volume; }
 
-    virtual ~UnitTetraIntersectionBary();
+    INTERPKERNEL_EXPORT virtual ~UnitTetraIntersectionBary();
 
   private:
 

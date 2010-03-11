@@ -30,7 +30,7 @@ namespace INTERP_KERNEL
   /*!
    * This class descibes all static elements (different from polygons and polyhedron) 3D, 2D and 1D.
    */
-  class INTERPKERNEL_EXPORT CellModel
+  class CellModel
   {
   public:
     static const unsigned MAX_NB_OF_SONS=6;
@@ -39,23 +39,23 @@ namespace INTERP_KERNEL
     CellModel(NormalizedCellType type);
     static void buildUniqueInstance();
   public:
-    static const CellModel& getCellModel(NormalizedCellType type);
-    bool isDynamic() const { return _dyn; }
-    bool isQuadratic() const { return _quadratic; }
-    unsigned getDimension() const { return _dim; }
-    bool isCompatibleWith(NormalizedCellType type) const;
+    INTERPKERNEL_EXPORT static const CellModel& getCellModel(NormalizedCellType type);
+    INTERPKERNEL_EXPORT bool isDynamic() const { return _dyn; }
+    INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }
+    INTERPKERNEL_EXPORT unsigned getDimension() const { return _dim; }
+    INTERPKERNEL_EXPORT bool isCompatibleWith(NormalizedCellType type) const;
     //! sonId is in C format.
-    const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
-    unsigned getNumberOfNodes() const { return _nb_of_pts; }
-    unsigned getNumberOfSons() const { return _nb_of_sons; }
-    unsigned getNumberOfSons2(const int *conn, int lgth) const;
-    unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
-    unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const;
-    NormalizedCellType getExtrudedType() const { return _extruded_type; }
-    NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
-    NormalizedCellType getSonType2(unsigned sonId) const;
-    unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
-    unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
+    INTERPKERNEL_EXPORT const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfNodes() const { return _nb_of_pts; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfSons() const { return _nb_of_sons; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfSons2(const int *conn, int lgth) const;
+    INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const;
+    INTERPKERNEL_EXPORT NormalizedCellType getExtrudedType() const { return _extruded_type; }
+    INTERPKERNEL_EXPORT NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
+    INTERPKERNEL_EXPORT NormalizedCellType getSonType2(unsigned sonId) const;
+    INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
+    INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
   private:
     bool _dyn;
     bool _quadratic;

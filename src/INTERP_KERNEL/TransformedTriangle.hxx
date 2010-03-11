@@ -92,7 +92,7 @@ namespace INTERP_KERNEL
    *    If OPTIMIZE is defined, a large number of methods will be prefixed with inline and some optimizations concerning the tests 
    * with zero double products will be used.
    */
-  class INTERPKERNEL_EXPORT TransformedTriangle
+  class TransformedTriangle
   {
  
 
@@ -128,20 +128,20 @@ namespace INTERP_KERNEL
     /// NB : order corresponds to TetraEdges (Grandy, table III)
     enum DoubleProduct { C_YZ = 0, C_ZX, C_XY, C_ZH, C_XH, C_YH, C_01, C_10, NO_DP };
 
-    TransformedTriangle(double* p, double* q, double* r); 
-    ~TransformedTriangle();
+    INTERPKERNEL_EXPORT TransformedTriangle(double* p, double* q, double* r); 
+    INTERPKERNEL_EXPORT ~TransformedTriangle();
 
-    double calculateIntersectionVolume(); 
+    INTERPKERNEL_EXPORT double calculateIntersectionVolume(); 
 
-    void dumpCoords() const;
+    INTERPKERNEL_EXPORT void dumpCoords() const;
 
     // Queries of member values used by UnitTetraIntersectionBary
 
-    const double* getCorner(TriCorner corner) const { return _coords + 5*corner; }
+    INTERPKERNEL_EXPORT const double* getCorner(TriCorner corner) const { return _coords + 5*corner; }
 
-    const std::vector<double*>& getPolygonA() const { return _polygonA; }
+    INTERPKERNEL_EXPORT const std::vector<double*>& getPolygonA() const { return _polygonA; }
 
-    double getVolume() const { return _volume; }
+    INTERPKERNEL_EXPORT double getVolume() const { return _volume; }
 
   protected:
 
