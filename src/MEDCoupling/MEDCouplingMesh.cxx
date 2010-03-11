@@ -37,6 +37,17 @@ bool MEDCouplingMesh::areCompatible(const MEDCouplingMesh *other) const
   return true;
 }
 
+/*!
+ * This method builds a field lying on 'this' with 'nbOfComp' components.
+ * 'func' is a pointer that points to a function that takes 2 arrays in parameter and returns a boolean.
+ * The first array is a in-param of size this->getSpaceDimension and the second an out param of size 'nbOfComp'.
+ * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
+ * evaluate.
+ * @param t type of field returned and specifies where the evaluation of func will be done.
+ * @param nbOfComp number of components of returned field.
+ * @param func pointer to a function that should return false if the evaluation failed. (division by 0. for example)
+ * @return field with counter = 1.
+ */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const
 {
   MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(t);
@@ -68,6 +79,16 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
   return ret;
 }
 
+/*!
+ * This method builds a field lying on 'this' with 'nbOfComp' components.
+ * 'func' is a string that is the expression to evaluate.
+ * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
+ * evaluate.
+ * @param t type of field returned and specifies where the evaluation of func will be done.
+ * @param nbOfComp number of components of returned field.
+ * @param func expression.
+ * @return field with counter = 1.
+ */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const
 {
   INTERP_KERNEL::ExprParser expr(func);
@@ -117,6 +138,10 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
   return ret;
 }
 
+/*!
+ * retruns a newly created mesh with counter=1 
+ * that is the union of mesh1 and mesh2 if possible. The cells of mesh2 will appear after cells of 'mesh1'. Idem for nodes.
+ */
 MEDCouplingMesh *MEDCouplingMesh::mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
 {
   return mesh1->mergeMyselfWith(mesh2);

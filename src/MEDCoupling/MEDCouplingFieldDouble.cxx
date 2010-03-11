@@ -108,6 +108,9 @@ void MEDCouplingFieldDouble::checkCoherency() const throw(INTERP_KERNEL::Excepti
   _type->checkCoherencyBetween(_mesh,getArray());
 }
 
+/*!
+ * Returns the accumulation (the sum) of comId_th component of each tuples of default array.
+ */
 double MEDCouplingFieldDouble::accumulate(int compId) const
 {
   const double *ptr=getArray()->getConstPointer();
@@ -119,6 +122,10 @@ double MEDCouplingFieldDouble::accumulate(int compId) const
   return ret;
 }
 
+/*!
+ * Returns the accumulation (the sum) of all tuples of default array.
+ * The res is expected to be of size getNumberOfComponents().
+ */
 void MEDCouplingFieldDouble::accumulate(double *res) const
 {
   const double *ptr=getArray()->getConstPointer();
@@ -129,6 +136,11 @@ void MEDCouplingFieldDouble::accumulate(double *res) const
     std::transform(ptr+i*nbComps,ptr+(i+1)*nbComps,res,res,std::plus<double>());
 }
 
+/*!
+ * Returns the accumulation (the sum) of comId_th component of each tuples weigthed by the field
+ * returns by getWeightingField relative of the _type of field of default array.
+ * This method is usefull to check the conservativity of interpolation method.
+ */
 double MEDCouplingFieldDouble::measureAccumulate(int compId, bool isWAbs) const
 {
   if(!_mesh)
@@ -143,6 +155,11 @@ double MEDCouplingFieldDouble::measureAccumulate(int compId, bool isWAbs) const
   return ret;
 }
 
+/*!
+ * Returns the accumulation (the sum) of each tuples weigthed by the field
+ * returns by getWeightingField relative of the _type of field of default array.
+ * This method is usefull to check the conservativity of interpolation method.
+ */
 void MEDCouplingFieldDouble::measureAccumulate(bool isWAbs, double *res) const
 {
   if(!_mesh)
@@ -163,18 +180,32 @@ void MEDCouplingFieldDouble::measureAccumulate(bool isWAbs, double *res) const
   delete [] tmp;
 }
 
+/*!
+ * This method is reserved for field lying on structured mesh spatial support. It returns the value of cell localized by (i,j,k)
+ * If spatial support is not structured mesh an exception will be thrown.
+ * @param res out array expected to be equal to size getNumberOfComponents()
+ */
 void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
   _type->getValueOnPos(arr,_mesh,i,j,k,res);
 }
 
+/*!
+ * Returns value of 'this' on default time of point 'spaceLoc' using spatial discretization.
+ * If 'point' is outside the spatial discretization of this an exception will be thrown.
+ */
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
   _type->getValueOn(arr,_mesh,spaceLoc,res);
 }
 
+/*!
+ * Returns value of 'this' on time 'time' of point 'spaceLoc' using spatial discretization.
+ * If 'time' is not covered by this->_time_discr an exception will be thrown.
+ * If 'point' is outside the spatial discretization of this an exception will be thrown.
+ */
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception)
 {
   std::vector< const DataArrayDouble *> arrs=_time_discr->getArraysForTime(time);
@@ -188,21 +219,38 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, dou
   _time_discr->getValueForTime(time,res2,res);
 }
 
+/*!
+ * Applies a*x+b on 'compoId'th component of each cell.
+ */
 void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)
 {
   _time_discr->applyLin(a,b,compoId);
 }
 
+/*!
+ * Applyies the function specified by pointer 'func' on each tuples on all arrays contained in _time_discr.
+ * If '*func' returns false during one evaluation an exception will be thrown.
+ */
 void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
 {
   _time_discr->applyFunc(nbOfComp,func);
 }
 
+/*!
+ * Applyies the function specified by the string repr 'func' on each tuples on all arrays contained in _time_discr.
+ * If '*func' fails in evaluation during one evaluation an exception will be thrown.
+ * The field will contain 'nbOfComp' components after the call.
+ */
 void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
 {
   _time_discr->applyFunc(nbOfComp,func);
 }
 
+/*!
+ * Applyies the function specified by the string repr 'func' on each tuples on all arrays contained in _time_discr.
+ * If '*func' fails in evaluation during one evaluation an exception will be thrown.
+ * The field will contain exactly the same number of components after the call.
+ */
 void MEDCouplingFieldDouble::applyFunc(const char *func)
 {
   _time_discr->applyFunc(func);
@@ -223,8 +271,7 @@ int MEDCouplingFieldDouble::getNumberOfTuples() const throw(INTERP_KERNEL::Excep
 void MEDCouplingFieldDouble::updateTime()
 {
   MEDCouplingField::updateTime();
-  if(getArray())
-    updateTimeWith(*getArray());
+  updateTimeWith(*_time_discr);
 }
 
 void MEDCouplingFieldDouble::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)

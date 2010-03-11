@@ -43,6 +43,7 @@ namespace ParaMEDMEM
     void setCoords(DataArrayDouble *coords);
     DataArrayDouble *getCoords() const { return _coords; }
     DataArrayDouble *getCoordinatesAndOwner() const;
+    bool isEqual(const MEDCouplingMesh *other, double prec) const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged) = 0;
     void findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const;
@@ -53,7 +54,7 @@ namespace ParaMEDMEM
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     void scale(const double *point, double factor);
-    void tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
+    void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
     static void rotate2DAlg(const double *center, double angle, int nbNodes, double *coords);

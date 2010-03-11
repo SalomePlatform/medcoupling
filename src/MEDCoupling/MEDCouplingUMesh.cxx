@@ -113,6 +113,12 @@ void MEDCouplingUMesh::allocateCells(int nbOfCells)
   declareAsNew();
 }
 
+/*!
+ * Appends a cell in connectivity array.
+ * @param type type of cell to add.
+ * @param size number of nodes constituting this cell.
+ * @param nodalConnOfCell the connectivity of the cell to add.
+ */
 void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell)
 {
   int *pt=_nodal_connec_index->getPointer();
@@ -123,6 +129,9 @@ void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, in
   pt[++_iterator]=idx+size+1;
 }
 
+/*!
+ * Method to be called to cloture the insertion of cells using this->insertNextCell.
+ */
 void MEDCouplingUMesh::finishInsertingCells()
 {
   const int *pt=_nodal_connec_index->getConstPointer();
@@ -131,22 +140,25 @@ void MEDCouplingUMesh::finishInsertingCells()
   _nodal_connec->reAlloc(idx);
   _nodal_connec_index->reAlloc(_iterator+1);
   _iterator=-1;
+  _nodal_connec->declareAsNew();
+  _nodal_connec_index->declareAsNew();
+  updateTime();
 }
 
+/*!
+ * This method is a method that compares 'this' and 'other'.
+ * This method compares \b all attributes, even names and component names.
+ */
 bool MEDCouplingUMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
-  //checkFullyDefined();
   const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
   if(!otherC)
     return false;
-  //otherC->checkFullyDefined();
-  if(!MEDCouplingMesh::isEqual(other,prec))
+  if(!MEDCouplingPointSet::isEqual(other,prec))
     return false;
   if(_mesh_dim!=otherC->_mesh_dim)
     return false;
   if(_types!=otherC->_types)
-    return false;
-  if(!areCoordsEqual(*otherC,prec))
     return false;
   if(_nodal_connec!=0 || otherC->_nodal_connec!=0)
     if(_nodal_connec==0 || otherC->_nodal_connec==0)
@@ -434,6 +446,12 @@ DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerge
   return ret;
 }
 
+/*!
+ * build a sub part of 'this'. This sub part is defined by the cell ids contained in the array in [start,end).
+ * @param start start of array containing the cell ids to keep.
+ * @param end end of array of cell ids to keep. \b WARNING end param is \b not included ! Idem STL standard definitions.
+ * @param keepCoords that specifies if you want or not to keep coords as this or zip it (see zipCoords)
+ */
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
 {
   if(getMeshDimension()!=-1)
@@ -481,6 +499,12 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, c
   return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[0]+cellIdsKept.size(),true);
 }
 
+/*!
+ * This method returns a mesh with meshDim=this->getMeshDimension()-1.
+ * This returned mesh contains cells that are linked with one and only one cell of this.
+ * @param keepCoords specifies if zipCoords is called on returned mesh before being returned.
+ * @return mesh with ref counter equal to 1.
+ */
 MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
 {
   DataArrayInt *desc=DataArrayInt::New();
@@ -504,6 +528,9 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
   return ret;
 }
 
+/*!
+ * This methods returns set of nodes lying on the boundary of this.
+ */
 void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
 {
   DataArrayInt *desc=DataArrayInt::New();
@@ -534,6 +561,13 @@ void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
   meshDM1->decrRef();
 }
 
+/*
+ * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
+ * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
+ * This value is asked because often known by the caller of this method.
+ * @param newNodeNumbers array specifying the new numbering.
+ * @param newNbOfNodes the new number of nodes.
+ */
 void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
   MEDCouplingPointSet::renumberNodes(newNodeNumbers,newNbOfNodes);
@@ -549,6 +583,8 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
             node=newNodeNumbers[node];
           }
       }
+  _nodal_connec->declareAsNew();
+  updateTime();
 }
 
 /*!
@@ -603,6 +639,9 @@ void MEDCouplingUMesh::giveElemsInBoundingBox(const double *bbox, double eps, st
   delete [] elem_bb;
 }
 
+/*!
+ * Returns the cell type of cell with id 'cellId'.
+ */
 INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) const
 {
   const int *ptI=_nodal_connec_index->getConstPointer();
@@ -610,6 +649,9 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
   return (INTERP_KERNEL::NormalizedCellType) pt[ptI[cellId]];
 }
 
+/*!
+ * Appends the nodal connectivity in 'conn' of cell with id 'cellId'.
+ */
 void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   const int *ptI=_nodal_connec_index->getConstPointer();
@@ -619,6 +661,9 @@ void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) cons
       conn.push_back(*w);
 }
 
+/*!
+ * Returns coordinates of node with id 'nodeId' and append it in 'coo'.
+ */
 void MEDCouplingUMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
   const double *cooPtr=_coords->getConstPointer();
@@ -636,6 +681,10 @@ int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
     return std::count_if(pt+ptI[cellId]+1,pt+ptI[cellId+1],std::bind2nd(std::not_equal_to<int>(),-1));
 }
 
+/*!
+ * Method reserved for advanced users having prepared their connectivity before.
+ * Arrays 'conn' and 'connIndex' will be aggregated without any copy and their counter will be incremented.
+ */
 void MEDCouplingUMesh::setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes)
 {
   DataArrayInt::setArrayIn(conn,_nodal_connec);
@@ -645,6 +694,10 @@ void MEDCouplingUMesh::setConnectivity(DataArrayInt *conn, DataArrayInt *connInd
   declareAsNew();
 }
 
+/*!
+ * Copy constructor. If 'deepCpy' is false 'this' is a shallow copy of other.
+ * If 'deeCpy' is true all arrays (coordinates and connectivities) are deeply copied.
+ */
 MEDCouplingUMesh::MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy):MEDCouplingPointSet(other,deepCpy),_iterator(-1),_mesh_dim(other._mesh_dim),
                                                                                 _nodal_connec(0),_nodal_connec_index(0),
                                                                                 _types(other._types)
@@ -663,6 +716,9 @@ MEDCouplingUMesh::~MEDCouplingUMesh()
     _nodal_connec_index->decrRef();
 }
 
+/*!
+ * This method recomputes all cell types of 'this'.
+ */
 void MEDCouplingUMesh::computeTypes()
 {
   if(_nodal_connec && _nodal_connec_index)
@@ -706,11 +762,17 @@ int MEDCouplingUMesh::getMeshDimension() const
   return _mesh_dim;
 }
 
+/*!
+ * This method is for test reason. Normally the integer returned is not useable by user.
+ */
 int MEDCouplingUMesh::getMeshLength() const
 {
   return _nodal_connec->getNbOfElems();
 }
 
+/*!
+ * First step of serialization process. Used by ParaMEDMEM and MEDCouplingCorba to transfert data between process.
+ */
 void MEDCouplingUMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   MEDCouplingPointSet::getTinySerializationInformation(tinyInfo,littleStrings);
@@ -722,12 +784,16 @@ void MEDCouplingUMesh::getTinySerializationInformation(std::vector<int>& tinyInf
     tinyInfo.push_back(-1);
 }
 
+/*!
+ * First step of unserialization process.
+ */
 bool MEDCouplingUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
 {
   return tinyInfo[4]<=0;
 }
 
 /*!
+ * Second step of serialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
 void MEDCouplingUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
@@ -737,6 +803,9 @@ void MEDCouplingUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo
     a1->alloc(tinyInfo[5]+tinyInfo[4]+1,1);
 }
 
+/*!
+ * Third and final step of serialization process.
+ */
 void MEDCouplingUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 {
   MEDCouplingPointSet::serialize(a1,a2);
@@ -755,6 +824,7 @@ void MEDCouplingUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 }
 
 /*!
+ * Second and final unserialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
 void MEDCouplingUMesh::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
@@ -777,6 +847,11 @@ void MEDCouplingUMesh::unserialization(const std::vector<int>& tinyInfo, DataArr
     }
 }
 
+/*!
+ * This is the low algorithm of buildPartOfMySelf. 
+ * Keeps from 'this' only cells which constituing point id are in the ids specified by ['start','end').
+ * The return newly allocated mesh will share the same coordinates as 'this'.
+ */
 MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *start, const int *end) const
 {
   checkFullyDefined();
@@ -859,6 +934,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
   return field;
 }
 
+/*!
+ * This methods returns a field on nodes and no time. This method is usefull to check "P1*" conservative interpolators.
+ * This field returns the getMeasureField of the dualMesh in P1 sens of 'this'.
+ */
 MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) const
 {
   MEDCouplingFieldDouble *tmp=getMeasureField(isAbs);
@@ -889,6 +968,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) cons
   return ret;
 }
 
+/*!
+ * This methods returns a vector field on cells that represents the orthogonal vector normalized of each 2D cell of this.
+ * This method is only callable on mesh with meshdim == 2 and spacedim==2 or 3.
+ */
 MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
 {
   if(getMeshDimension()!=2)
@@ -925,6 +1008,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
   return ret;
 }
 
+/*!
+ * Returns a cell if any that contains the point located on 'pos' with precison eps.
+ * If 'pos' is outside 'this' -1 is returned. If several cells contain this point the cell with the smallest id is returned.
+ */
 int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) const
 {
   std::vector<int> elts;
@@ -934,6 +1021,9 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
   return elts.front();
 }
 
+/*!
+ * Returns all cellIds in 'elts' of point 'pos' with eps accuracy.
+ */
 void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
   std::vector<int> eltsIndex;
@@ -1128,6 +1218,9 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
   return true;
 }
 
+/*!
+ * Returns a newly created mesh (with ref count ==1) that contains merge of 'this' and 'other'.
+ */
 MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
 {
   if(other->getType()!=UNSTRUCTURED)
@@ -1136,6 +1229,11 @@ MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other)
   return mergeUMeshes(this,otherC);
 }
 
+/*!
+ * Returns an array with this->getNumberOfCells() tuples and this->getSpaceDimension() dimension.
+ * The false barycenter is computed that is to say barycenter of a cell is computed using average on each
+ * components of coordinates of the cell.
+ */
 DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
 {
   DataArrayDouble *ret=DataArrayDouble::New();
@@ -1163,6 +1261,9 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
   return ret;
 }
 
+/*!
+ * Returns a newly created mesh (with ref count ==1) that contains merge of 'mesh1' and 'other'.
+ */
 MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2)
 {
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();

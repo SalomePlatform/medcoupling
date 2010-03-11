@@ -20,6 +20,7 @@
 #define __MEDCOUPLINGTIMEDISCRETIZATION_HXX__
 
 #include "MEDCoupling.hxx"
+#include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
 
@@ -30,12 +31,13 @@ namespace ParaMEDMEM
   class DataArrayDouble;
   class TimeLabel;
 
-  class MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization
+  class MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization : public TimeLabel
   {
   protected:
     MEDCouplingTimeDiscretization();
     MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy);
   public:
+    void updateTime();
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;

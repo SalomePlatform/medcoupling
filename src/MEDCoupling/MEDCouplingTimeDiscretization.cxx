@@ -49,6 +49,12 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::New(TypeOfTimeDisc
     }
 }
 
+void MEDCouplingTimeDiscretization::updateTime()
+{
+  if(_array)
+    updateTimeWith(*_array);
+}
+
 bool MEDCouplingTimeDiscretization::areCompatible(const MEDCouplingTimeDiscretization *other) const
 {
   if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)

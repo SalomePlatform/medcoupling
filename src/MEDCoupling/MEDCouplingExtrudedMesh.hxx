@@ -34,7 +34,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingExtrudedMesh : public MEDCouplingMesh
   {
   public:
-    static MEDCouplingExtrudedMesh *New(MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     MEDCouplingMeshType getType() const;
     bool isStructured() const;
     int getNumberOfCells() const;
@@ -61,9 +61,9 @@ namespace ParaMEDMEM
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
   private:
-    MEDCouplingExtrudedMesh(MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
-    void computeExtrusion(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);
-    void computeExtrusionAlg(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);
+    MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    void computeExtrusion(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);
+    void computeExtrusionAlg(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);
     void build1DExtrusion(int idIn3DDesc, int newId, int nbOf1DLev, MEDCouplingUMesh *subMesh,
                           const int *desc3D, const int *descIndx3D,
                           const int *revDesc3D, const int *revDescIndx3D,

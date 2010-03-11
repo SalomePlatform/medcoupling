@@ -31,7 +31,14 @@
 
 using namespace ParaMEDMEM;
 
-MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New(MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
+/*!
+ * Build an extruded mesh instance from 3D and 2D unstructured mesh lying on the \b same \b coords.
+ * @param mesh3D 3D unstructured mesh.
+ * @param mesh2D 2D unstructured mesh lying on the same coordinates than mesh3D. \b Warning mesh2D is \b not \b const
+ * because the mesh is aggregated and potentially modified by rotate or translate method.
+ * @param cell2DId Id of cell in mesh2D mesh where the computation of 1D mesh will be done.
+ */
+MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
 {
   return new MEDCouplingExtrudedMesh(mesh3D,mesh2D,cell2DId);
 }
@@ -41,7 +48,7 @@ MEDCouplingMeshType MEDCouplingExtrudedMesh::getType() const
   return EXTRUDED;
 }
 
-MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
+MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
 try:_mesh2D(mesh2D),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(cell2DId)
 {
   if(_mesh2D!=0)
@@ -188,7 +195,7 @@ MEDCouplingExtrudedMesh::~MEDCouplingExtrudedMesh()
     _mesh3D_ids->decrRef();
 }
 
-void MEDCouplingExtrudedMesh::computeExtrusion(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::computeExtrusion(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
 {
   const char errMsg1[]="2D mesh is empty unable to compute extrusion !";
   const char errMsg2[]="Coords between 2D and 3D meshes are not the same ! Try MEDCouplingPointSet::tryToShareSameCoords method";
@@ -365,7 +372,7 @@ DataArrayDouble *MEDCouplingExtrudedMesh::getBarycenterAndOwner() const
   return 0;
 }
 
-void MEDCouplingExtrudedMesh::computeExtrusionAlg(MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception)
 {
   _mesh3D_ids->alloc(mesh3D->getNumberOfCells(),1);
   int nbOf1DLev=mesh3D->getNumberOfCells()/_mesh2D->getNumberOfCells();
