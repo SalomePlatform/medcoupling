@@ -22,7 +22,7 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES = libinterpkernelbases.la
+noinst_LTLIBRARIES = libinterpkernelbases.la
 
 salomeinclude_HEADERS =         \
 INTERPKERNELBASESDefines.hxx    \

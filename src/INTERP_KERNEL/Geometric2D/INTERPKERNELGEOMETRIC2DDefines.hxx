@@ -20,14 +20,16 @@
 #define __INTERPKERNELGEOMETRIC2DDEFINES_HXX__
 
 //export symbols
-#ifdef WIN32
-# if defined INTERPKERNELGEOMETRIC2D_EXPORTS || defined InterpGeometric2DAlg_EXPORTS
-#  define INTERPKERNELGEOMETRIC2D_EXPORT __declspec(dllexport)
-# else
-#  define INTERPKERNELGEOMETRIC2D_EXPORT __declspec(dllimport)
-# endif
-#else
-# define INTERPKERNELGEOMETRIC2D_EXPORT
-#endif 
+// #ifdef WIN32
+// # if defined INTERPKERNELGEOMETRIC2D_EXPORTS || defined InterpGeometric2DAlg_EXPORTS
+// #  define INTERPKERNELGEOMETRIC2D_EXPORT __declspec(dllexport)
+// # else
+// #  define INTERPKERNELGEOMETRIC2D_EXPORT __declspec(dllimport)
+// # endif
+// #else
+// # define INTERPKERNELGEOMETRIC2D_EXPORT
+// #endif 
+
+#define INTERPKERNELGEOMETRIC2D_EXPORT
 
 #endif

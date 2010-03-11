@@ -20,14 +20,16 @@
 #define __INTERPKERNELBASESDEFINES_HXX__
 
 //export symbols
-#ifdef WIN32
-# if defined INTERPKERNELBASES_EXPORTS || defined interpkernelbases_EXPORTS
-#  define INTERPKERNELBASES_EXPORT __declspec(dllexport)
-# else
-#  define INTERPKERNELBASES_EXPORT __declspec(dllimport)
-# endif
-#else
-# define INTERPKERNELBASES_EXPORT
-#endif 
+// #ifdef WIN32
+// # if defined INTERPKERNELBASES_EXPORTS || defined interpkernelbases_EXPORTS
+// #  define INTERPKERNELBASES_EXPORT __declspec(dllexport)
+// # else
+// #  define INTERPKERNELBASES_EXPORT __declspec(dllimport)
+// # endif
+// #else
+// # define INTERPKERNELBASES_EXPORT
+// #endif 
+
+#define INTERPKERNELBASES_EXPORT
 
 #endif

@@ -20,14 +20,21 @@
 #define __INTERPKERNELEXPREVALDEFINES_HXX__
 
 //export symbols
-#ifdef WIN32
-# if defined INTERPKERNELEXPREVAL_EXPORTS || defined interpkernelexpreval_EXPORTS
-#  define INTERPKERNELEXPREVAL_EXPORT __declspec(dllexport)
-# else
-#  define INTERPKERNELEXPREVAL_EXPORT __declspec(dllimport)
-# endif
-#else
-# define INTERPKERNELEXPREVAL_EXPORT
-#endif 
+// #ifdef WIN32
+// # if defined INTERPKERNELEXPREVAL_EXPORTS || defined interpkernelexpreval_EXPORTS
+// #  define INTERPKERNELEXPREVAL_EXPORT __declspec(dllexport)
+// # else
+// #  define INTERPKERNELEXPREVAL_EXPORT __declspec(dllimport)
+// # endif
+// #else
+// # define INTERPKERNELEXPREVAL_EXPORT
+// #endif 
+
+#define INTERPKERNELEXPREVAL_EXPORT
+
+#ifdef WNT
+#pragma warning( disable : 4290 )    // See http://msdn.microsoft.com/en-us/library/sa28fef8%28VS.80%29.aspx
+#endif
+
 
 #endif

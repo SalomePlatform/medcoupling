@@ -316,7 +316,7 @@ void Unit::tryToInterprate() const
           _decomp_in_base=expr.evaluateUnit();
           _is_interpretation_ok=true;
         }
-      catch(INTERP_KERNEL::Exception& e) { }
+      catch(INTERP_KERNEL::Exception&) { }
     }
 }
 
