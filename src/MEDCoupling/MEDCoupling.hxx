@@ -42,4 +42,8 @@
 #  define MEDCOUPLINGREMAPPER_EXPORT
 #endif
 
+#ifdef WNT
+#pragma warning( disable : 4290 )
+#endif
+
 #endif

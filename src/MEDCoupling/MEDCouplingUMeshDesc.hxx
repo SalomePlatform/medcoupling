@@ -27,44 +27,43 @@
 
 namespace ParaMEDMEM
 {
-  class MEDCOUPLING_EXPORT MEDCouplingUMeshDesc : public MEDCouplingPointSet
+  class MEDCouplingUMeshDesc : public MEDCouplingPointSet
   {
   public:
-    static MEDCouplingUMeshDesc *New();
-    static MEDCouplingUMeshDesc *New(const char *meshName, int meshDim);
-    void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    void setMeshDimension(unsigned meshDim);
-    int getNumberOfCells() const;
-    int getNumberOfFaces() const;
-    int getCellMeshLength() const;
-    int getFaceMeshLength() const;
-    int getMeshDimension() const { return _mesh_dim; }
-    INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
-    void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
-    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
-    MEDCouplingMeshType getType() const { return UNSTRUCTURED_DESC; }
-    void setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx);
+    MEDCOUPLING_EXPORT static MEDCouplingUMeshDesc *New();
+    MEDCOUPLING_EXPORT static MEDCouplingUMeshDesc *New(const char *meshName, int meshDim);
+    MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setMeshDimension(unsigned meshDim);
+    MEDCOUPLING_EXPORT int getNumberOfCells() const;
+    MEDCOUPLING_EXPORT int getNumberOfFaces() const;
+    MEDCOUPLING_EXPORT int getCellMeshLength() const;
+    MEDCOUPLING_EXPORT int getFaceMeshLength() const;
+    MEDCOUPLING_EXPORT int getMeshDimension() const { return _mesh_dim; }
+    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    MEDCOUPLING_EXPORT void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
+    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED_DESC; }
+    MEDCOUPLING_EXPORT void setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx);
     //tools to overload
-    void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
-    bool isEmptyMesh(const std::vector<int>& tinyInfo) const;
-    void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
-    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
-    void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
-                         const std::vector<std::string>& littleStrings);
-    void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
-    DataArrayInt *mergeNodes(double precision, bool& areNodesMerged);
-    MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
-    MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
-    void findBoundaryNodes(std::vector<int>& nodes) const;
-    MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
-    void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
-    MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
-    MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
-    int getCellContainingPoint(const double *pos, double eps) const;
-    MEDCouplingFieldDouble *buildOrthogonalField() const;
-    DataArrayInt *zipCoordsTraducer();
-    MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
-    DataArrayDouble *getBarycenterAndOwner() const;
+    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    MEDCOUPLING_EXPORT bool isEmptyMesh(const std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
+    MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+    MEDCOUPLING_EXPORT void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
+    MEDCOUPLING_EXPORT void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
+    MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged);
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
+    MEDCOUPLING_EXPORT void findBoundaryNodes(std::vector<int>& nodes) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
+    MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
+    MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
+    MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer();
+    MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
   private:
     MEDCouplingUMeshDesc();
     ~MEDCouplingUMeshDesc();

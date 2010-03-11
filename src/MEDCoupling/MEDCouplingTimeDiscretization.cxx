@@ -241,7 +241,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
   std::set<std::string> vars;
   expr.getTrueSetOfVars(vars);
   int oldNbOfComp=_array->getNumberOfComponents();
-  if(vars.size()>oldNbOfComp)
+  if((int)vars.size()>oldNbOfComp)
     {
       std::ostringstream oss; oss << "The field has a " << oldNbOfComp << " components and there are ";
       oss << vars.size() << " variables : ";

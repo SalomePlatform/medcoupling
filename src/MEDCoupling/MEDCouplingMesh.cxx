@@ -95,7 +95,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
   expr.parse();
   std::set<std::string> vars;
   expr.getTrueSetOfVars(vars);
-  if(vars.size()>getSpaceDimension())
+  if((int)vars.size()>getSpaceDimension())
     {
       std::ostringstream oss; oss << "The mesh has a spaceDim==" << getSpaceDimension() << " and there are ";
       oss << vars.size() << " variables : ";

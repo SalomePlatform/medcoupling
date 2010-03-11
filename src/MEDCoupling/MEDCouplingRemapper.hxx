@@ -36,19 +36,19 @@ namespace ParaMEDMEM
 
 namespace ParaMEDMEM
 {
-  class MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
+  class MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
   {
   public:
-    MEDCouplingRemapper();
-    ~MEDCouplingRemapper();
-    int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method);
-    void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
-    void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
-    MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
-    MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
-    bool setOptionInt(const std::string& key, int value);
-    bool setOptionDouble(const std::string& key, double value);
-    bool setOptionString(const std::string& key, std::string& value);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper();
+    MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper();
+    MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method);
+    MEDCOUPLINGREMAPPER_EXPORT void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionInt(const std::string& key, int value);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionDouble(const std::string& key, double value);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, std::string& value);
   private:
     int prepareUU(const char *method);
     int prepareEE(const char *method);
