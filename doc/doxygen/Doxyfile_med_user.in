@@ -111,6 +111,7 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
 			 MEDCouplingUMeshDesc.* \
 			 MEDCouplingPointSet.* \
 			 MEDCouplingCMesh.* \
+			 MEDCouplingExtrudedMesh.* \
 			 MEDCouplingFieldDouble.* \
 			 MEDCouplingFieldDiscretization.* \
 			 MEDCouplingTimeDiscretization.* \

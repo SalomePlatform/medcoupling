@@ -317,7 +317,18 @@ type, only n arrays are needed. In this type of mesh space dimension
 \b and mesh dimension are equals and the value is n. The n arrays will have only one component and the values
 contained in these arrays will be ascendantly sorted.
 
-The class that incarnate this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingCMesh.
+The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingCMesh.
+
+\section MEDCouplingExtrudedMeshes Extruded Mesh
+
+An extruded mesh is a mesh also called 2.5 D. It a convolution of 2D
+unstructured mesh with 1D unstructured mesh. The problem is that this
+type of mesh is not managed by any file format that's why to build an
+instance of this mesh you need 3D unstructured mesh and a 2D
+unstructured mesh lying on the same coordinates. The advantage of this
+structure is that the interpolation time is optimized.
+
+The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingExtrudedMesh.
 */
 
 /*!
