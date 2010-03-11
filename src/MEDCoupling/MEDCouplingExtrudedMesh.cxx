@@ -55,7 +55,7 @@ try:_mesh2D(mesh2D),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(
     _mesh2D->incrRef();
   computeExtrusion(mesh3D);
 }
-catch(INTERP_KERNEL::Exception& ex)
+catch(INTERP_KERNEL::Exception&)
   {
   }
 
