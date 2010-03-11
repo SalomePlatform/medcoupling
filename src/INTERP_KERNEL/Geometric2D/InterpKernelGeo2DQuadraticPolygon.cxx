@@ -56,7 +56,7 @@ QuadraticPolygon::QuadraticPolygon(const char *file)
         }
       while(1);
     }
-  catch(ifstream::failure& e)
+  catch(ifstream::failure&)
     {
     }
   front()->changeStartNodeWith(back()->getEndNode());
