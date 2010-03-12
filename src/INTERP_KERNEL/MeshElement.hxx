@@ -68,7 +68,7 @@ namespace INTERP_KERNEL
    * has a smaller YMIN is sorted before one with a larger YMIN.
    *
    */
-  class INTERPKERNEL_EXPORT ElementBBoxOrder
+  class ElementBBoxOrder
   {
   public : 
     
