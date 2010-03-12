@@ -170,8 +170,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
@@ -207,8 +207,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
@@ -244,8 +244,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
@@ -281,8 +281,8 @@ namespace INTERP_KERNEL
         intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0Bary>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
         break;
@@ -314,8 +314,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
