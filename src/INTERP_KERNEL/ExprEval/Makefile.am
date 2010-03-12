@@ -49,8 +49,6 @@ libinterpkernelexpreval_la_CPPFLAGS=-I$(srcdir)/../Bases
 
 libinterpkernelexpreval_la_LDFLAGS=
 
-libinterpkernelexpreval_la_LIBADD= ../Bases/libinterpkernelbases.la
-
 AM_CPPFLAGS += $(libinterpkernelexpreval_la_CPPFLAGS)
 
 LDADD= $(libinterpkernelexpreval_la_LDFLAGS)

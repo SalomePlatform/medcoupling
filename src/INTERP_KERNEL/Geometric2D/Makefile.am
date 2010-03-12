@@ -53,5 +53,3 @@ InterpKernelGeo2DQuadraticPolygon.hxx  \
 InterpKernelGeo2DEdge.txx
 
 libInterpGeometric2DAlg_la_CPPFLAGS = -I$(srcdir)/../Bases
-
-libInterpGeometric2DAlg_la_LIBADD = ../Bases/libinterpkernelbases.la
