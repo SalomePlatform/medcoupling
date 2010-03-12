@@ -47,7 +47,7 @@ namespace INTERP_TEST
    */
   void PointLocatorTest::test_PointLocator() {
     MEDMEM::MESH* mesh2D= MEDMeshMaker(2,2,MED_EN::MED_QUAD4);
-    INTERP_KERNEL::PointLocator pl(*mesh2D) ;
+    MEDMEM::PointLocator pl(*mesh2D) ;
     double x[2]={0.0,0.0};
     std::list<int> elems = pl.locate(x);
     CPPUNIT_ASSERT_EQUAL(1,(int)elems.size());
@@ -72,7 +72,7 @@ namespace INTERP_TEST
     delete mesh2D;
 
     MEDMEM::MESH* mesh3D= MEDMeshMaker(3,2,MED_EN::MED_HEXA8);
-    INTERP_KERNEL::PointLocator pl3(*mesh3D);
+    MEDMEM::PointLocator pl3(*mesh3D);
     double xx[3]={0.0,0.0,0.0};
     elems = pl3.locate(xx);
     CPPUNIT_ASSERT_EQUAL(1,(int)elems.size());
