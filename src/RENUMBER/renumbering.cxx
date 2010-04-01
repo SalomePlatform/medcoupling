@@ -334,7 +334,6 @@ int main (int argc, char** argv)
         }
       int drv=newField.addDriver(MED_DRIVER,filename_out,field_names[ifield]);
       newField.write(drv);
-      delete (SUPPORT *) newField.getSupport();
     }
   t_field=clock();
   cout << " : " << (t_field-t_family)/(double) CLOCKS_PER_SEC << "s" << endl;

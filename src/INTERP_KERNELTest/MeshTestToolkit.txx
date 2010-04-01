@@ -124,8 +124,8 @@ namespace INTERP_TEST
       }
     const double *tabS = f->getValue();
     std::copy(tabS,tabS+mesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS),tab);
-    delete sup;
-    delete f;
+    sup->removeReference();
+    f->removeReference();
   }
 
   /**
