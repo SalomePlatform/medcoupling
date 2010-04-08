@@ -141,7 +141,20 @@ VTKNormalizedUnstructuredMesh.txx	\
 VectorUtils.hxx                         \
 VolSurfFormulae.hxx                     \
 VolSurfUser.hxx                         \
-VolSurfUser.txx
+VolSurfUser.txx                         \
+CurveIntersector.hxx                    \
+CurveIntersector.txx                    \
+CurveIntersectorP0P0.hxx                \
+CurveIntersectorP0P0.txx                \
+CurveIntersectorP0P1.hxx                \
+CurveIntersectorP1P0.hxx                \
+CurveIntersectorP1P1.hxx                \
+Interpolation1D.hxx	                \
+Interpolation1D.txx	                \
+Interpolation2DCurve.hxx                \
+Interpolation2DCurve.txx                \
+InterpolationCurve.hxx	                \
+InterpolationCurve.txx
 
 
 EXTRA_DIST +=			\
