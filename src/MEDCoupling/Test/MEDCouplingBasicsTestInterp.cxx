@@ -26,6 +26,8 @@
 #include "Interpolation3D.txx"
 #include "InterpolationCC.txx"
 #include "InterpolationCU.txx"
+#include "Interpolation2DCurve.txx"
+#include "Interpolation1D.txx"
 
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingNormalizedCartesianMesh.txx"
@@ -2015,6 +2017,197 @@ void MEDCouplingBasicsTest::test3DTo1DInterpP0P0PL_1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,res[7][7],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,sumAll(res),1e-12);
   //
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test1DInterp_1()
+{
+  //      c1   c0    c2    - pay attention to cell order!
+  // S: o---o------o---o
+  // T:   o---o------o---o
+  //      n0  n1     n2  n3
+  //
+  // ---+---+------+---+---> X
+  //    0.  1.     3.  4.   
+  MEDCouplingUMesh *sourceMesh=build1DMesh(0);
+  MEDCouplingUMesh *targetMesh=build1DMesh(0.5);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<1,1> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<1,1> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation1D myInterpolator;
+  const double precis = 1e-13;
+  myInterpolator.setPrecision(precis);
+
+  // P0P0
+  vector<map<int,double> > res;
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+  CPPUNIT_ASSERT_EQUAL( 3, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.5, res[0][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[0][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[1][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[2][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 3.5, sumAll(res), precis);
+
+  // P1P0
+  res.clear();
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
+  CPPUNIT_ASSERT_EQUAL( 3, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[0][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.5, res[0][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[2][3], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 3.5, sumAll(res), precis);
+
+  // P0P1
+  res.clear();
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
+
+  CPPUNIT_ASSERT_EQUAL( 4, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[0][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.5, res[1][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[2][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, res[2][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 3.5, sumAll(res), precis);
+
+  // P1P1
+  res.clear();
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
+  CPPUNIT_ASSERT_EQUAL( 4, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[0][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[1][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.0, res[2][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[2][3], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 3.5, sumAll(res), precis);
+
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DCurveInterpP0P0_1()
+{
+  // coincident meshes
+  MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
+  MEDCouplingUMesh *targetMesh=build2DCurveMesh(0,0);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,1> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,1> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2DCurve myInterpolator;
+  const double precis = 1e-13;
+  myInterpolator.setPrecision(precis);
+  vector<map<int,double> > res;
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+
+  CPPUNIT_ASSERT_EQUAL( 2, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( sqrt(2),res[0][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1., res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.+sqrt(2), sumAll(res), precis);
+
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DCurveInterpP0P0_2()
+{
+  // equal meshes shifted one from another along X by 0.5
+  MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0.5,0);
+  MEDCouplingUMesh *targetMesh=build2DCurveMesh(0,0);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,1> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,1> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2DCurve myInterpolator;
+  const double precis = 1e-13;
+  myInterpolator.setPrecision(precis);
+  myInterpolator.setMedianPlane(1.);// median line on target
+  vector<map<int,double> > res;
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
+
+  double tolInters = myInterpolator.getBoundingBoxAdjustmentAbs() * sqrt(2);
+  CPPUNIT_ASSERT_EQUAL( 2, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0,res[0][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( tolInters,res[0][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5, res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5+tolInters, sumAll(res), precis);
+
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DCurveInterpP0P1_1()
+{
+  // coincident meshes
+  MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
+  MEDCouplingUMesh *targetMesh=build2DCurveMesh(0,0);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,1> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,1> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2DCurve myInterpolator;
+  const double precis = 1e-13;
+  myInterpolator.setPrecision(precis);
+  vector<map<int,double> > res;
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
+
+  const double len1 = 1., len0 = sqrt(2);
+  CPPUNIT_ASSERT_EQUAL( 3, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[0][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len0, res[1][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len0, res[2][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( len0+len1, sumAll(res), precis);
+
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DCurveInterpP1P0_1()
+{
+  // coincident meshes
+  MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
+  MEDCouplingUMesh *targetMesh=build2DCurveMesh(0,0);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,1> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,1> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2DCurve myInterpolator;
+  const double precis = 1e-13;
+  myInterpolator.setPrecision(precis);
+  vector<map<int,double> > res;
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
+
+  const double len1 = 1., len0 = sqrt(2);
+  CPPUNIT_ASSERT_EQUAL( 2, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[1][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len0, res[0][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len0, res[0][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( len0+len1, sumAll(res), precis);
+
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2DCurveInterpP1P1_1()
+{
+  // coincident meshes
+  MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
+  MEDCouplingUMesh *targetMesh=build2DCurveMesh(0,0);
+  //
+  MEDCouplingNormalizedUnstructuredMesh<2,1> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,1> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2DCurve myInterpolator;
+  const double precis = 1e-13;
+  myInterpolator.setPrecision(precis);
+  vector<map<int,double> > res;
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
+
+  const double len1 = 1., len0 = sqrt(2);
+  CPPUNIT_ASSERT_EQUAL( 3, int( res.size()) );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[0][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*(len0+len1), res[1][1], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len0, res[2][2], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( len0+len1, sumAll(res), precis);
+
   sourceMesh->decrRef();
   targetMesh->decrRef();
 }

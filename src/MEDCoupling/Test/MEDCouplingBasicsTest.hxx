@@ -90,10 +90,12 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test3DSurfInterpP1P1PL_1 );
     CPPUNIT_TEST( test3DSurfInterpP0P0_2 );
     CPPUNIT_TEST( test3DSurfInterpP0P0_3 );
+
     CPPUNIT_TEST( testInterpolationCC );
     CPPUNIT_TEST( testInterpolationCU1D );
     CPPUNIT_TEST( testInterpolationCU2D );
     CPPUNIT_TEST( testInterpolationCU3D );
+
     CPPUNIT_TEST( test3DInterpP0P0_1 );
     CPPUNIT_TEST( test3DInterpP0P0PL_1 );
     CPPUNIT_TEST( test3DInterpP0P0PL_2 );
@@ -115,6 +117,14 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test3DSurfInterpP1P0Bary_1 );
     CPPUNIT_TEST( test3DInterpP1P0Bary_1 );
     CPPUNIT_TEST( test3DTo1DInterpP0P0PL_1 );
+
+    CPPUNIT_TEST( test1DInterp_1 );
+    CPPUNIT_TEST( test2DCurveInterpP0P0_1 );
+    CPPUNIT_TEST( test2DCurveInterpP0P0_2 );
+    CPPUNIT_TEST( test2DCurveInterpP0P1_1 );
+    CPPUNIT_TEST( test2DCurveInterpP1P0_1 );
+    CPPUNIT_TEST( test2DCurveInterpP1P1_1 );
+
     CPPUNIT_TEST_SUITE_END();
   public:
     void testArray();
@@ -187,10 +197,12 @@ namespace ParaMEDMEM
     void test3DInterpP1P0PL_1();
     void test3DInterpP1P1_1();
     void test3DInterpP1P1PL_1();
+
     void testInterpolationCC();
     void testInterpolationCU1D();
     void testInterpolationCU2D();
     void testInterpolationCU3D();
+
     void test3DInterpP0P0Empty();
     void test2DInterpP0IntegralUniform();
     void test3DSurfInterpP0IntegralUniform();
@@ -201,6 +213,14 @@ namespace ParaMEDMEM
     void test3DSurfInterpP1P0Bary_1();
     void test3DInterpP1P0Bary_1();
     void test3DTo1DInterpP0P0PL_1();
+
+    void test1DInterp_1();
+    void test2DCurveInterpP0P0_1();
+    void test2DCurveInterpP0P0_2();
+    void test2DCurveInterpP0P1_1();
+    void test2DCurveInterpP1P0_1();
+    void test2DCurveInterpP1P1_1();
+
   private:
     MEDCouplingUMesh *build3DSourceMesh_2();
     MEDCouplingUMesh *build3DTargetMesh_2();
@@ -223,6 +243,8 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *build3DTargetMeshMergeNode_1();
     MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
     MEDCouplingUMesh *build2DTargetMeshMerged_1();
+    MEDCouplingUMesh *build2DCurveMesh(double dx, double dy);
+    MEDCouplingUMesh *build1DMesh(double dx);
     double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }

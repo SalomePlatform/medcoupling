@@ -544,6 +544,53 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMeshMerged_1()
   return targetMesh;
 }
 
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DCurveMesh(double dx, double dy)
+{
+  // 1d mesh:
+  //
+  //       *
+  //      /
+  // *---*
+  double targetCoords[3*2]=
+    {
+      0.+dx,0.+dy, 1.+dx,0.+dy, 2.+dx,1.+dy
+    };
+  int targetConn[2*2]={1,2, 0,1};
+
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New("2Dcurve 1D mesh",1);
+  targetMesh->allocateCells(2);
+  for(int i=0;i<2;i++)
+    targetMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,targetConn+2*i);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(3,2);
+  std::copy(targetCoords,targetCoords+3*2,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build1DMesh(double dx)
+{
+  double targetCoords[4]=
+    {
+      0.+dx, 1.+dx, 3.+dx, 4.+dx
+    };
+  int targetConn[2*3]={1,2, 0,1, 2,3};
+
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New("1D mesh",1);
+  targetMesh->allocateCells(3);
+  for(int i=0;i<3;i++)
+    targetMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,targetConn+2*i);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(4,1);
+  std::copy(targetCoords,targetCoords+4,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)
 {
   double ret=0.;
