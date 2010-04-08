@@ -25,6 +25,9 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
 
+guidocdir = $(docdir)/gui/MED
+guidoc_DATA = images/head.png
+
 install-data-local : html-local
 	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED
 	cp -rp doc_ref_user/html/*.* $(DESTDIR)$(docdir)/gui/MED
@@ -47,4 +50,6 @@ EXTRA_DIST += figures \
 	      polygon.dox \
 	      remapping.dox \
 	      support.dox \
-	      tools.dox
+	      tools.dox \
+	      static/footer.html \
+	      static/doxygen.css

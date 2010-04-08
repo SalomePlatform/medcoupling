@@ -19,12 +19,6 @@
 #ifndef __INTERPOLATION_HXX__
 #define __INTERPOLATION_HXX__
 
-/**
- * \mainpage
- * Status : documentation of 3D - part of intersection matrix calculation more or less complete
- *
- *
- */
 #include "INTERPKERNELDefines.hxx"
 #include "InterpolationOptions.hxx"
 #include "InterpKernelException.hxx"

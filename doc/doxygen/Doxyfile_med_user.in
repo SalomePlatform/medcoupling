@@ -24,8 +24,8 @@
 # General configuration options
 #---------------------------------------------------------------------------
 #
-PROJECT_NAME           = "Med Memory Users' Guide"
-PROJECT_NUMBER         = @VERSION@
+PROJECT_NAME           = "SALOME MED Users' Guide"
+PROJECT_NUMBER         =
 OUTPUT_DIRECTORY       = doc_ref_user
 OUTPUT_LANGUAGE        = English
 EXTRACT_ALL            = YES
@@ -145,9 +145,9 @@ IGNORE_PREFIX          =
 #---------------------------------------------------------------------------
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
-HTML_HEADER            = 
-HTML_FOOTER            = 
-HTML_STYLESHEET        = 
+HTML_HEADER            = @builddir@/static/header.html
+HTML_FOOTER            = @srcdir@/static/footer.html
+HTML_STYLESHEET        = @srcdir@/static/doxygen.css
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = YES
 GENERATE_CHI           = YES
