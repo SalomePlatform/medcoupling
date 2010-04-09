@@ -71,8 +71,8 @@ namespace INTERP_KERNEL
                                              BASE_INTERSECTOR::_meshS, segmentsS);
           for ( int s = 0; s < segmentsS.size(); ++s )
             {
-              double surf = BASE_INTERSECTOR::intersectSegments(segmentsS[s]._coords.data(),
-                                                                coordsT.data() + t*SPACEDIM);
+              double surf = BASE_INTERSECTOR::intersectSegments(&segmentsS[s]._coords[0],
+                                                                &coordsT[0] + t*SPACEDIM);
               if(surf!=0.)
                 {
                   int nS = segmentsS[s]._nodeId;

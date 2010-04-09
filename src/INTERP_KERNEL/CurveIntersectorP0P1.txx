@@ -71,8 +71,8 @@ namespace INTERP_KERNEL
             int s, nbSegS = 1 + BASE_INTERSECTOR::getRealSourceCoordinates(iS,coordsS);
             for ( s = 0; s < nbSegS; ++s )
               {
-                double surf = BASE_INTERSECTOR::intersectSegments(segmentsT[t]._coords.data(),
-                                                                  coordsS.data() + s*SPACEDIM);
+                double surf = BASE_INTERSECTOR::intersectSegments(&segmentsT[t]._coords[0],
+                                                                  &coordsS[0] + s*SPACEDIM);
                 if(surf!=0.)
                   {
                     typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(iS));

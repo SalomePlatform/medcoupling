@@ -64,8 +64,8 @@ namespace INTERP_KERNEL
           int s, nbSegS = 1 + BASE_INTERSECTOR::getRealSourceCoordinates(iS,coordsS);
           for ( s = 0; s < nbSegS; ++s )
             {
-              double surf = BASE_INTERSECTOR::intersectSegments(coordsT.data() + t*SPACEDIM,
-                                                                coordsS.data() + s*SPACEDIM);
+              double surf = BASE_INTERSECTOR::intersectSegments(&coordsT[0] + t*SPACEDIM,
+                                                                &coordsS[0] + s*SPACEDIM);
               if(surf!=0.)
                 resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(iS),surf));
             }
