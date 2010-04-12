@@ -2101,9 +2101,9 @@ void MEDCouplingBasicsTest::test2DCurveInterpP0P0_1()
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
 
   CPPUNIT_ASSERT_EQUAL( 2, int( res.size()) );
-  CPPUNIT_ASSERT_DOUBLES_EQUAL( sqrt(2),res[0][0], precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( sqrt(2.),res[0][0], precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 1., res[1][1], precis);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.+sqrt(2), sumAll(res), precis);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( 1.+sqrt(2.), sumAll(res), precis);
 
   sourceMesh->decrRef();
   targetMesh->decrRef();
@@ -2124,7 +2124,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP0P0_2()
   vector<map<int,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P0");
 
-  double tolInters = myInterpolator.getBoundingBoxAdjustmentAbs() * sqrt(2);
+  double tolInters = myInterpolator.getBoundingBoxAdjustmentAbs() * sqrt(2.);
   CPPUNIT_ASSERT_EQUAL( 2, int( res.size()) );
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0,res[0][0], precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( tolInters,res[0][1], precis);
@@ -2149,7 +2149,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP0P1_1()
   vector<map<int,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P0P1");
 
-  const double len1 = 1., len0 = sqrt(2);
+  const double len1 = 1., len0 = sqrt(2.);
   CPPUNIT_ASSERT_EQUAL( 3, int( res.size()) );
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[0][1], precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len0, res[1][0], precis);
@@ -2175,7 +2175,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP1P0_1()
   vector<map<int,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P0");
 
-  const double len1 = 1., len0 = sqrt(2);
+  const double len1 = 1., len0 = sqrt(2.);
   CPPUNIT_ASSERT_EQUAL( 2, int( res.size()) );
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[1][0], precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len0, res[0][1], precis);
@@ -2201,7 +2201,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP1P1_1()
   vector<map<int,double> > res;
   myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,res,"P1P1");
 
-  const double len1 = 1., len0 = sqrt(2);
+  const double len1 = 1., len0 = sqrt(2.);
   CPPUNIT_ASSERT_EQUAL( 3, int( res.size()) );
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*len1, res[0][0], precis);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.5*(len0+len1), res[1][1], precis);
