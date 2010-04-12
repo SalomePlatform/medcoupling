@@ -32,6 +32,9 @@ namespace ParaMEDMEM
   public:  
     InterpKernelDEC();
     InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
+    InterpKernelDEC(const int *src_ids_bg, const int *src_ids_end,
+                    const int *trg_ids_bg, const int *trg_ids_end,
+                    const MPI_Comm& world_comm=MPI_COMM_WORLD);
     virtual ~InterpKernelDEC();
     void synchronize();
     void recvData();

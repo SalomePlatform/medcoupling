@@ -210,8 +210,16 @@ namespace ParaMEDMEM
       {
         procs.insert(*iter);
       }
-    return new MPIProcessorGroup(_comm_interface,procs, _world_comm);
+    return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
   }
+
+  int MPIProcessorGroup::myRank() const
+  { 
+    int rank;
+    MPI_Comm_rank(_comm,&rank);
+    return rank;
+  }
+  
   /*!
     @}
   */

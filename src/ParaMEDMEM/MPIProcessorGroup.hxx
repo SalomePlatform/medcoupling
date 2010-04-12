@@ -37,7 +37,7 @@ namespace ParaMEDMEM
     virtual ~MPIProcessorGroup();
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const;
     void intersect (ProcessorGroup&) { }
-    int myRank() const { int rank; MPI_Comm_rank(_comm,&rank); return rank; }
+    int myRank() const;
     bool containsMyRank() const { int rank; MPI_Group_rank(_group, &rank); return (rank!=MPI_UNDEFINED); }
     int translateRank(const ProcessorGroup* group, int rank) const;
     const MPI_Comm* getComm() const { return &_comm; }

@@ -122,6 +122,13 @@ namespace ParaMEDMEM
 
   }
 
+  InterpKernelDEC::InterpKernelDEC(const int *src_ids_bg, const int *src_ids_end,
+                                   const int *trg_ids_bg, const int *trg_ids_end,
+                                   const MPI_Comm& world_comm):DEC(src_ids_bg,src_ids_end,trg_ids_bg,trg_ids_end,world_comm),
+                                                               _interpolation_matrix(0)
+  {
+  }
+
   InterpKernelDEC::~InterpKernelDEC()
   {
     if (_interpolation_matrix !=0)
@@ -142,6 +149,8 @@ namespace ParaMEDMEM
   */
   void InterpKernelDEC::synchronize()
   {
+    if(!isInUnion())
+      return ;
     delete _interpolation_matrix;
     _interpolation_matrix = new InterpolationMatrix (_local_field, *_source_group,*_target_group,*this,*this); 
 
