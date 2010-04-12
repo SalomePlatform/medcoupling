@@ -329,17 +329,17 @@ namespace ParaMEDMEM
       return;
     if(isInSourceSide())
       {
-	if(way)
-	  sendData();
-	else
-	  recvData();
+        if(way)
+          sendData();
+        else
+          recvData();
       }
     else if(isInTargetSide())
       {
-	if(way)
-	  recvData();
-	else
-	  sendData();
+        if(way)
+          recvData();
+        else
+          sendData();
       }
   }
 }
