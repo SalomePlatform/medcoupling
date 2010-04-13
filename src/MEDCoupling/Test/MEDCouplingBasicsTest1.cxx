@@ -1408,6 +1408,18 @@ void MEDCouplingBasicsTest::testOperationsOnFields2()
   f3->decrRef();
   f1->decrRef();
   f2->decrRef();
+  //
+  f1=m->buildOrthogonalField();
+  f2=m->fillFromAnalytic(ON_CELLS,1,"x");
+  f3=(*f1)*(*f2);
+  const double expected2[15]={-0.035355339059327376,0.,0.035355339059327376, 0.2592724864350674,0.,-0.2592724864350674, 0.37712361663282529,0.,-0.37712361663282529, -0.035355339059327376,0.,0.035355339059327376, 0.31819805153394637,0.,-0.31819805153394637};
+  val=f3->getArray()->getConstPointer();
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],val[i],1.e-12);
+  f3->decrRef();
+  f1->decrRef();
+  f2->decrRef();
+  //
   m->decrRef();
 }
 
@@ -1668,4 +1680,8 @@ void MEDCouplingBasicsTest::testScale()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],val[i],1e-12);
   //
   mesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::testTryToShareSameCoords()
+{
 }
