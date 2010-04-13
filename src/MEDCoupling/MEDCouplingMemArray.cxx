@@ -175,6 +175,7 @@ DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const Data
       ret=DataArrayDouble::New();
       ret->alloc(nbOfTuple,nbOfComp);
       std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::multiplies<double>());
+      ret->copyStringInfoFrom(*a1);
     }
   else
     {
@@ -199,11 +200,11 @@ DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const Data
           double *res=ret->getPointer();
           for(int i=0;i<nbOfTuple;i++)
             res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::multiplies<double>(),aMinPtr[i]));
+          ret->copyStringInfoFrom(*aMax);
         }
       else
         throw INTERP_KERNEL::Exception("Nb of components mismatch for array multiply !");
     }
-  ret->copyStringInfoFrom(*a1);
   return ret;
 }
 

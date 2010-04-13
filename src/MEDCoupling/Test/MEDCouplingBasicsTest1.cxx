@@ -1417,6 +1417,13 @@ void MEDCouplingBasicsTest::testOperationsOnFields2()
   for(int i=0;i<15;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],val[i],1.e-12);
   f3->decrRef();
+  //
+  f3=(*f2)*(*f1);
+  val=f3->getArray()->getConstPointer();
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],val[i],1.e-12);
+  f3->decrRef();
+  //
   f1->decrRef();
   f2->decrRef();
   //
