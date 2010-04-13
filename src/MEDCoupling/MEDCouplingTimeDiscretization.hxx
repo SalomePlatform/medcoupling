@@ -40,6 +40,7 @@ namespace ParaMEDMEM
     void updateTime();
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
+    virtual bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(const MEDCouplingTimeDiscretization *other,
                                                                     TypeOfTimeDiscretization type, bool deepCpy) const;
@@ -103,6 +104,7 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception) { }
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
@@ -136,6 +138,7 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
@@ -172,6 +175,7 @@ namespace ParaMEDMEM
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
     void getValueForTime(double time, const std::vector<double>& vals, double *res) const;

@@ -33,6 +33,7 @@ namespace ParaMEDMEM
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     bool areCompatible(const MEDCouplingField *other) const;
+    bool areCompatibleForMul(const MEDCouplingField *other) const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;

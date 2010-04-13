@@ -74,6 +74,20 @@ bool MEDCouplingFieldDouble::areCompatible(const MEDCouplingField *other) const
   return true;
 }
 
+bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) const
+{
+  if(!MEDCouplingField::areCompatible(other))
+    return false;
+  const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
+  if(!otherC)
+    return false;
+  if(_nature!=otherC->_nature)
+    return false;
+  if(!_time_discr->areCompatibleForMul(otherC->_time_discr))
+    return false;
+  return true;
+}
+
 TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
 {
   return _time_discr->getEnum();
@@ -414,7 +428,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplin
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
-  if(!f1->areCompatible(f2))
+  if(!f1->areCompatibleForMul(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to applymultiplyFields  on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());

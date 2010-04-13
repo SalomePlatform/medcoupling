@@ -68,6 +68,22 @@ bool MEDCouplingTimeDiscretization::areCompatible(const MEDCouplingTimeDiscretiz
   return true;
 }
 
+bool MEDCouplingTimeDiscretization::areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
+{
+  if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
+    return false;
+  if(_array==0 && other->_array==0)
+    return true;
+  if(_array==0 || other->_array==0)
+    return false;
+  int nbC1=_array->getNumberOfComponents();
+  int nbC2=other->_array->getNumberOfComponents();
+  int nbMin=std::min(nbC1,nbC2);
+  if(nbC1!=nbC2 && nbMin!=1)
+    return false;
+  return true;
+}
+
 bool MEDCouplingTimeDiscretization::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
 {
   if(!areCompatible(other))
@@ -322,6 +338,14 @@ bool MEDCouplingNoTimeLabel::areCompatible(const MEDCouplingTimeDiscretization *
   return otherC!=0;
 }
 
+bool MEDCouplingNoTimeLabel::areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areCompatibleForMul(other))
+    return false;
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  return otherC!=0;
+}
+
 bool MEDCouplingNoTimeLabel::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
 {
   const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
@@ -484,6 +508,16 @@ void MEDCouplingWithTimeStep::finishUnserialization(const std::vector<int>& tiny
 bool MEDCouplingWithTimeStep::areCompatible(const MEDCouplingTimeDiscretization *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
+    return false;
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  if(!otherC)
+    return false;
+  return std::fabs(_time-otherC->_time)<_time_tolerance;
+}
+
+bool MEDCouplingWithTimeStep::areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areCompatibleForMul(other))
     return false;
   const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
   if(!otherC)
@@ -700,6 +734,16 @@ void MEDCouplingConstOnTimeInterval::getValueForTime(double time, const std::vec
 }
 
 bool MEDCouplingConstOnTimeInterval::areCompatible(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areCompatible(other))
+    return false;
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  if(!otherC)
+    return false;
+  return (std::fabs(_start_time-otherC->_start_time)<_time_tolerance && std::fabs(_end_time-otherC->_end_time)<_time_tolerance);
+}
+
+bool MEDCouplingConstOnTimeInterval::areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
     return false;

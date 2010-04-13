@@ -163,15 +163,46 @@ DataArrayDouble *DataArrayDouble::substract(const DataArrayDouble *a1, const Dat
 
 DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
-  int nbOfComp=a1->getNumberOfComponents();
-  if(nbOfComp!=a2->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Nb of components mismatch for array multiply !");
   int nbOfTuple=a1->getNumberOfTuples();
-  if(nbOfTuple!=a2->getNumberOfTuples())
+  int nbOfTuple2=a2->getNumberOfTuples();
+  int nbOfComp=a1->getNumberOfComponents();
+  int nbOfComp2=a2->getNumberOfComponents();
+  if(nbOfTuple!=nbOfTuple2)
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiply !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::multiplies<double>());
+  DataArrayDouble *ret=0;
+  if(nbOfComp==nbOfComp2)
+    {
+      ret=DataArrayDouble::New();
+      ret->alloc(nbOfTuple,nbOfComp);
+      std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::multiplies<double>());
+    }
+  else
+    {
+      int nbOfCompMin,nbOfCompMax;
+      const DataArrayDouble *aMin, *aMax;
+      if(nbOfComp>nbOfComp2)
+        {
+          nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+          aMin=a2; aMax=a1;
+        }
+      else
+        {
+          nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+          aMin=a1; aMax=a2;
+        }
+      if(nbOfCompMin==1)
+        {
+          ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple,nbOfCompMax);
+          const double *aMinPtr=aMin->getConstPointer();
+          const double *aMaxPtr=aMax->getConstPointer();
+          double *res=ret->getPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::multiplies<double>(),aMinPtr[i]));
+        }
+      else
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array multiply !");
+    }
   ret->copyStringInfoFrom(*a1);
   return ret;
 }
