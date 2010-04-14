@@ -500,6 +500,23 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, c
 }
 
 /*!
+ * Contrary to MEDCouplingUMesh::buildPartOfMySelfNode method this method a mesh with a meshDimension equal to
+ * this->getMeshDimension()-1. The return newly allocated mesh will share the same coordinates as 'this'.
+ * Parameter 'fullyIn' specifies if a face that has part of its nodes in ids array is kept or not.
+ * If 'fullyIn' is true only faces whose ids are \b fully contained in ['start','end') tab will be kept.
+ */
+MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
+{
+  DataArrayInt *desc,*descIndx,*revDesc,*revDescIndx;
+  desc=DataArrayInt::New(); descIndx=DataArrayInt::New(); revDesc=DataArrayInt::New(); revDescIndx=DataArrayInt::New();
+  MEDCouplingUMesh *subMesh=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  desc->decrRef(); descIndx->decrRef(); revDesc->decrRef(); revDescIndx->decrRef();
+  MEDCouplingUMesh *ret=(MEDCouplingUMesh *)subMesh->buildPartOfMySelfNode(start,end,fullyIn);
+  subMesh->decrRef();
+  return ret;
+}
+
+/*!
  * This method returns a mesh with meshDim=this->getMeshDimension()-1.
  * This returned mesh contains cells that are linked with one and only one cell of this.
  * @param keepCoords specifies if zipCoords is called on returned mesh before being returned.

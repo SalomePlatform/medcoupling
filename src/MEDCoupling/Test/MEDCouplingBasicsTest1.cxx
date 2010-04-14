@@ -1691,4 +1691,39 @@ void MEDCouplingBasicsTest::testScale()
 
 void MEDCouplingBasicsTest::testTryToShareSameCoords()
 {
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  MEDCouplingUMesh *m2=build2DTargetMesh_1();
+  CPPUNIT_ASSERT(m1->getCoords()!=m2->getCoords());
+  m1->tryToShareSameCoords(*m2,1e-12);
+  CPPUNIT_ASSERT(m1->getCoords()==m2->getCoords());
+  m1->tryToShareSameCoords(*m2,1e-12);
+  CPPUNIT_ASSERT(m1->getCoords()==m2->getCoords());
+  m2->tryToShareSameCoords(*m1,1e-12);
+  CPPUNIT_ASSERT(m1->getCoords()==m2->getCoords());
+  m1->decrRef();
+  m2->decrRef();
+  //
+  m1=build2DTargetMesh_1();
+  m2=build2DTargetMesh_2();
+  CPPUNIT_ASSERT(m1->getCoords()!=m2->getCoords());
+  m1->tryToShareSameCoords(*m2,1e-12);
+  CPPUNIT_ASSERT(m1->getCoords()==m2->getCoords());
+  m1->tryToShareSameCoords(*m2,1e-12);
+  CPPUNIT_ASSERT(m1->getCoords()==m2->getCoords());
+  m2->tryToShareSameCoords(*m1,1e-12);
+  CPPUNIT_ASSERT(m1->getCoords()==m2->getCoords());
+  m1->decrRef();
+  m2->decrRef();
+  //
+  m1=build2DTargetMesh_1();
+  m2=build2DSourceMesh_1();
+  CPPUNIT_ASSERT(m1->getCoords()!=m2->getCoords());
+  CPPUNIT_ASSERT_THROW(m1->tryToShareSameCoords(*m2,1e-12),INTERP_KERNEL::Exception);
+  m1->decrRef();
+  m2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testFindNodeOnPlane()
+{
+  
 }

@@ -68,6 +68,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testCMesh0 );
     CPPUNIT_TEST( testScale );
     CPPUNIT_TEST( testTryToShareSameCoords );
+    CPPUNIT_TEST( testFindNodeOnPlane );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_2 );
@@ -165,6 +166,7 @@ namespace ParaMEDMEM
     void testCMesh0();
     void testScale();
     void testTryToShareSameCoords();
+    void testFindNodeOnPlane();
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
     void test2DInterpP0P0PL_2();

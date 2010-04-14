@@ -347,6 +347,31 @@ void MEDCouplingPointSet::tryToShareSameCoords(const MEDCouplingPointSet& other,
 }
 
 /*!
+ * This method is expecting to be called for meshes so that getSpaceDimension() returns 3.
+ * This method returns in 'nodes' output all the nodes that are at a distance lower than epsilon from plane
+ * defined by the point 'pt' and the vector 'vec'.
+ * @param pt points to an array of size 3 and represents a point that owns to plane.
+ * @param vec points to an array of size 3 and represents the normal vector of the plane. The norm of the vector is not compulsory equal to 1. But norm must be greater than 10*abs(eps)
+ * @param eps is the maximal distance around the plane where node in this->_coords will be picked.
+ * @param nodes is the output of the method. The vector is not compulsory empty before call. The nodes that fulfills the condition will be added at the end of the nodes.
+ */
+void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception)
+{
+  if(getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid spacedim to be applied on this ! Must be equal to 3 !");
+  int nbOfNodes=getNumberOfNodes();
+  double a=vec[0],b=vec[1],c=vec[2],d=-pt[0]*vec[0]-pt[1]*vec[1]-pt[2]*vec[2];
+  double deno=sqrt(a*a+b*b+c*c);
+  const double *work=_coords->getConstPointer();
+  for(int i=0;i<nbOfNodes;i++)
+    {
+      if(std::abs(a*work[0]+b*work[1]+c*work[2]+d)/deno<eps)
+        nodes.push_back(i);
+      work+=3;
+    }
+}
+
+/*!
  * merge _coords arrays of m1 and m2 and returns the union. The returned instance is newly created with ref count == 1.
  */
 DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2)

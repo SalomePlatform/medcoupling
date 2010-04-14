@@ -256,6 +256,12 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfNode(const int *star
   return 0;
 }
 
+MEDCouplingPointSet *MEDCouplingUMeshDesc::buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
+{
+  //not implemented yet
+  return 0;
+}
+
 void MEDCouplingUMeshDesc::findBoundaryNodes(std::vector<int>& nodes) const
 {
   //not implemented yet
