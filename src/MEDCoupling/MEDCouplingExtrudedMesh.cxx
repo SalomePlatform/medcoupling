@@ -325,6 +325,24 @@ int MEDCouplingExtrudedMesh::findCorrespCellByNodalConn(const std::vector<int>& 
   throw INTERP_KERNEL::Exception(ostr.str().c_str());
 }
 
+/*!
+ * This method is callable on 1Dmeshes (meshDim==1 && spaceDim==3) returned by MEDCouplingExtrudedMesh::getMesh1D typically.
+ * These 1Dmeshes (meshDim==1 && spaceDim==3) have a special semantic because these meshes do not specify a static location but a translation along a path.
+ * This method checks that 'm1' and 'm2' are compatible, if not an exception is thrown. In case these meshes ('m1' and 'm2') are compatible 2 corresponding meshes
+ * are created ('m1r' and 'm2r') that can be used for interpolation.
+ * @param m1 input mesh with meshDim==1 and spaceDim==3
+ * @param m2 input mesh with meshDim==1 and spaceDim==3
+ * @param m1r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==2
+ * @param m2r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==2
+ * @throw in case that m1 and m2 are not compatible each other.
+ */
+void MEDCouplingExtrudedMesh::project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
+                                              MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r) throw(INTERP_KERNEL::Exception)
+{
+  m1r=0;
+  m2r=0;
+}
+
 void MEDCouplingExtrudedMesh::rotate(const double *center, const double *vector, double angle)
 {
   _mesh2D->rotate(center,vector,angle);

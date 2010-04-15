@@ -20,8 +20,10 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 
+#include "Interpolation2DCurve.txx"
 #include "Interpolation2D.txx"
 #include "Interpolation3D.txx"
 #include "Interpolation3DSurf.txx"
@@ -285,7 +287,33 @@ int MEDCouplingRemapper::prepareUU(const char *method)
 
 int MEDCouplingRemapper::prepareEE(const char *method)
 {
-  return 0;
+  MEDCouplingExtrudedMesh *src_mesh=(MEDCouplingExtrudedMesh *)_src_mesh;
+  MEDCouplingExtrudedMesh *target_mesh=(MEDCouplingExtrudedMesh *)_target_mesh;
+  std::string methC(method);
+  if(methC!="P0P0")
+    throw INTERP_KERNEL::Exception("Only P0P0 method implemented for Extruded/Extruded meshes !");
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh->getMesh2D());
+  MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh->getMesh2D());
+  INTERP_KERNEL::Interpolation2D interpolation(*this);
+  std::vector<std::map<int,double> > matrix2D;
+  int nbCols2D=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,method);
+  MEDCouplingUMesh *s1D,*t1D;
+  MEDCouplingExtrudedMesh::project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),s1D,t1D);
+  MEDCouplingNormalizedUnstructuredMesh<2,1> s1DWrapper(s1D);
+  MEDCouplingNormalizedUnstructuredMesh<2,1> t1DWrapper(t1D);
+  std::vector<std::map<int,double> > matrix1D;
+  int nbCols1D=interpolation.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,method);
+  INTERP_KERNEL::Interpolation2DCurve myInterpolator;
+  //
+  _matrix.resize(matrix2D.size()*matrix1D.size());
+  //
+  _deno_multiply.clear();
+  _deno_multiply.resize(_matrix.size());
+  _deno_reverse_multiply.clear();
+  _deno_reverse_multiply.resize(nbCols2D*nbCols1D);
+  declareAsNew();
+  return 1;
 }
 
 void MEDCouplingRemapper::updateTime()
