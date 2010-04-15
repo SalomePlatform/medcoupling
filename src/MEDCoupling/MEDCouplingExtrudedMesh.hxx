@@ -47,6 +47,7 @@ namespace ParaMEDMEM
     void checkCoherency() const throw (INTERP_KERNEL::Exception);
     void getBoundingBox(double *bbox) const;
     void updateTime();
+    MEDCouplingUMesh *getMesh2D() const { return _mesh2D; }
     MEDCouplingUMesh *getMesh1D() const { return _mesh1D; }
     DataArrayInt *getMesh3DIds() const { return _mesh3D_ids; }
     MEDCouplingFieldDouble *getMeasureField(bool) const;

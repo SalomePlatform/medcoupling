@@ -1725,5 +1725,21 @@ void MEDCouplingBasicsTest::testTryToShareSameCoords()
 
 void MEDCouplingBasicsTest::testFindNodeOnPlane()
 {
-  
+  MEDCouplingUMesh *mesh=build3DTargetMesh_1();
+  std::vector<int> n;
+  double pt[3]={300.,300.,0.};
+  double v[3]={0.,0.,2.};
+  mesh->findNodesOnPlane(pt,v,1e-12,n);
+  CPPUNIT_ASSERT_EQUAL(9,(int)n.size());
+  MEDCouplingUMesh *m3dSurf=(MEDCouplingUMesh *)mesh->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
+  MEDCouplingExtrudedMesh *me=MEDCouplingExtrudedMesh::New(mesh,m3dSurf,0);
+  const DataArrayInt *da=me->getMesh3DIds();
+  CPPUNIT_ASSERT_EQUAL(8,me->getNumberOfCells());
+  const int expected[8]={0,1,2,3,4,5,6,7};
+  const int *val=da->getConstPointer();
+  for(int i=0;i<8;i++)
+    CPPUNIT_ASSERT_EQUAL(expected[i],val[i]);
+  me->decrRef();
+  m3dSurf->decrRef();
+  mesh->decrRef();
 }
