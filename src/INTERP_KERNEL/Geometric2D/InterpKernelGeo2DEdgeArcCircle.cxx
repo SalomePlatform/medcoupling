@@ -24,7 +24,6 @@
 #include <sstream>
 #include <algorithm>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 ArcCArcCIntersector::ArcCArcCIntersector(const EdgeArcCircle& e1, const EdgeArcCircle& e2):SameTypeEdgeIntersector(e1,e2),_dist(0.)
@@ -153,7 +152,7 @@ bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeA
   a=EdgeArcCircle::normalizeAngle(phi-angle0L+M_PI);
   if(EdgeArcCircle::isIn2Pi(angle0L,angleL,a))
     cmpContainer[sizeOfCmpContainer++]=cst-cst2;
-  a=*max_element(cmpContainer,cmpContainer+sizeOfCmpContainer);
+  a=*std::max_element(cmpContainer,cmpContainer+sizeOfCmpContainer);
   return Node::areDoubleEqualsWP(a,1.,2.);
 }
 
@@ -507,7 +506,7 @@ void EdgeArcCircle::dumpInXfigFile(std::ostream& stream, bool direction, int res
   middle->dumpInXfigFile(stream,resolution,box);
   middle->decrRef();
   direction?_end->dumpInXfigFile(stream,resolution,box):_start->dumpInXfigFile(stream,resolution,box);
-  stream << endl;
+  stream << std::endl;
 }
 
 void EdgeArcCircle::update(Node *m)

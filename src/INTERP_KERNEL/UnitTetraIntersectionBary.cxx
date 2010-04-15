@@ -31,7 +31,6 @@
 
 //#define DMP_UNITTETRAINTERSECTIONBARY
 
-using namespace std;
 
 namespace INTERP_KERNEL
 {
@@ -103,14 +102,14 @@ namespace INTERP_KERNEL
       }
 
     // check if polygon orientation is same as the one of triangle
-    vector<double*>::const_iterator p = pPolygonA->begin(), pEnd = pPolygonA->end();
+    std::vector<double*>::const_iterator p = pPolygonA->begin(), pEnd = pPolygonA->end();
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-    cout.precision(18);
-    cout << "**** int polygon() " << endl;
+    std::cout.precision(18);
+    std::cout << "**** int polygon() " << std::endl;
     while ( p != pEnd )
     {
       double* pp = *p++;
-      cout << pEnd - p << ": ( " << pp[0] << ", " << pp[1] << ", " << pp[2] << " )" << endl;
+      std::cout << pEnd - p << ": ( " << pp[0] << ", " << pp[1] << ", " << pp[2] << " )" << std::endl;
     }
     p = pPolygonA->begin();
 #endif
@@ -121,7 +120,7 @@ namespace INTERP_KERNEL
     if ( p == pEnd )
       {
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-        cout << "All points equal" << endl;
+        std::cout << "All points equal" << std::endl;
 #endif
         clearPolygons();
         return;
@@ -132,7 +131,7 @@ namespace INTERP_KERNEL
     if ( p == pEnd )
       {
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-        cout << "Only two points differ" << endl;
+        std::cout << "Only two points differ" << std::endl;
 #endif
         clearPolygons();
         return ;
@@ -142,14 +141,14 @@ namespace INTERP_KERNEL
     if (_isTetraInversed) reverse = !reverse;
 
     // store polygon
-    _faces.push_back( vector< double* > () );
-    vector< double* >& faceCorner = _faces.back();
+	_faces.push_back( std::vector< double* > () );
+    std::vector< double* >& faceCorner = _faces.back();
     faceCorner.resize( pPolygonA->size()/* + 1*/ );
 
     int i = 0;
     if ( reverse )
       {
-        vector<double*>::const_reverse_iterator polyF = pPolygonA->rbegin(), polyEnd;
+        std::vector<double*>::const_reverse_iterator polyF = pPolygonA->rbegin(), polyEnd;
         for ( polyEnd = pPolygonA->rend(); polyF != polyEnd; ++i, ++polyF )
           if ( i==0 || !samePoint( *polyF, faceCorner[i-1] ))
             copyVector3( *polyF, faceCorner[i] = new double[3] );
@@ -161,7 +160,7 @@ namespace INTERP_KERNEL
       }
     else
       {
-        vector<double*>::const_iterator polyF = pPolygonA->begin(), polyEnd;
+        std::vector<double*>::const_iterator polyF = pPolygonA->begin(), polyEnd;
         for ( polyEnd = pPolygonA->end(); polyF != polyEnd; ++i, ++polyF )
           if ( i==0 || !samePoint( *polyF, faceCorner[i-1] ))
             copyVector3( *polyF, faceCorner[i] = new double[3] );
@@ -181,17 +180,17 @@ namespace INTERP_KERNEL
 
         if ( _polyNormals.empty() )
           _polyNormals.reserve(4);
-        _polyNormals.push_back( vector< double >( polyNormal, polyNormal+3 ));
+        _polyNormals.push_back( std::vector< double >( polyNormal, polyNormal+3 ));
       }
 
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-    cout << "**** addSide() " << _faces.size() << endl;
+    std::cout << "**** addSide() " << _faces.size() << std::endl;
     for ( int i = 0; i < faceCorner.size(); ++i )
       {
         double* p = faceCorner[i];
-        cout << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << endl;
+        std::cout << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << std::endl;
       }
-    cout << "NORM: ( " << _polyNormals.back()[0] << ", " << _polyNormals.back()[1] << ", " << _polyNormals.back()[2] << " )" << endl;
+    std::cout << "NORM: ( " << _polyNormals.back()[0] << ", " << _polyNormals.back()[1] << ", " << _polyNormals.back()[2] << " )" << std::endl;
 #endif
     clearPolygons();
   }
@@ -227,17 +226,17 @@ namespace INTERP_KERNEL
 
     baryCenter[0] = baryCenter[1] = baryCenter[2] = 0.;
 
-    list< vector< double* > >::iterator f = _faces.begin(), fEnd = _faces.end();
+    std::list< std::vector< double* > >::iterator f = _faces.begin(), fEnd = _faces.end();
     double * P = f->at(0);
 
     for ( ++f; f != fEnd; ++f )
       {
-        vector< double* >& polygon = *f;
+        std::vector< double* >& polygon = *f;
         if ( polygon.empty() )
           continue;
 
         bool pBelongsToPoly = false;
-        vector<double*>::iterator v = polygon.begin(), vEnd = polygon.end();
+        std::vector<double*>::iterator v = polygon.begin(), vEnd = polygon.end();
         for ( ; !pBelongsToPoly && v != vEnd; ++v )
           pBelongsToPoly = samePoint( P, *v );
         if ( pBelongsToPoly )
@@ -281,10 +280,10 @@ namespace INTERP_KERNEL
     baryCenter[2] /= _int_volume;
 
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-    cout.precision(5);
-    cout << "**** Barycenter " << baryCenter[0] <<", "<< baryCenter[1] <<", "<< baryCenter[2]
-         << "\t **** Volume " << _int_volume << endl;
-    cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    std::cout.precision(5);
+    std::cout << "**** Barycenter " << baryCenter[0] <<", "<< baryCenter[1] <<", "<< baryCenter[2]
+         << "\t **** Volume " << _int_volume << std::endl;
+    std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
 #endif
     return true;
   }
@@ -310,10 +309,10 @@ namespace INTERP_KERNEL
 
     bool sideAdded[NB_TETRA_SIDES] = { false, false, false, false };
     int nbAddedSides = 0;
-    list< vector< double* > >::iterator f = _faces.begin(), fEnd = _faces.end();
+    std::list< std::vector< double* > >::iterator f = _faces.begin(), fEnd = _faces.end();
     for ( ; f != fEnd; ++f )
     {
-      vector< double* >& polygon = *f;
+      std::vector< double* >& polygon = *f;
       double coordSum[3] = {0,0,0};
       for ( int i = 0; i < (int)polygon.size(); ++i )
       {
@@ -340,20 +339,20 @@ namespace INTERP_KERNEL
 
     int nbIntersectPolygs = _faces.size();
 
-    vector< double* > * sideFaces[ 4 ]; // future polygons on sides of tetra
+    std::vector< double* > * sideFaces[ 4 ]; // future polygons on sides of tetra
     for ( int i = 0; i < NB_TETRA_SIDES; ++i )
     {
       sideFaces[ i ]=0;
       if ( !sideAdded[ i ] )
       {
-        _faces.push_back( vector< double* > () );
+        _faces.push_back( std::vector< double* > () );
         sideFaces[ i ] = &_faces.back();
       }
     }
     f = _faces.begin(), fEnd = _faces.end();
     for ( int iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
     {
-      vector< double* >& polygon = *f;
+      std::vector< double* >& polygon = *f;
       for ( int i = 0; i < (int)polygon.size(); ++i )
       {
         // segment ends
@@ -389,21 +388,21 @@ namespace INTERP_KERNEL
       }
     }
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-    cout << "**** after Add segments to sides " << endl;
+    std::cout << "**** after Add segments to sides " << std::endl;
     for ( int i = 0; i < NB_TETRA_SIDES; ++i )
     {
-      cout << "\t Side " << i << endl;
+      std::cout << "\t Side " << i << std::endl;
       if ( !sideFaces[i] )
       {
-        cout << "\t cut by triagle" << endl;
+        std::cout << "\t cut by triagle" << std::endl;
       }
       else
       {
-        vector< double* >& sideFace = *sideFaces[i];
+        std::vector< double* >& sideFace = *sideFaces[i];
         for ( int i = 0; i < sideFace.size(); ++i )
         {
           double* p = sideFace[i];
-          cout << "\t" << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << endl;
+          std::cout << "\t" << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << std::endl;
         }
       }
     }
@@ -430,7 +429,7 @@ namespace INTERP_KERNEL
       f = _faces.begin(), fEnd = _faces.end();
       for ( int iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
       {
-        vector< double* >& polygon = *f;
+        std::vector< double* >& polygon = *f;
 
         double corner2Poly[3] = { polygon[0][0], polygon[0][1], polygon[0][2] };
         if ( ic ) corner2Poly[ ic-1 ] -= 1.0;
@@ -440,7 +439,7 @@ namespace INTERP_KERNEL
         if ( dot < -DEFAULT_ABS_TOL*DEFAULT_ABS_TOL )
         {
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-          cout << "side " << iF+1 << ": cut " << ic << endl;
+          std::cout << "side " << iF+1 << ": cut " << ic << std::endl;
 #endif
           cutOffCorners[ ic ] = true;
           nbCutOffCorners++;
@@ -452,7 +451,7 @@ namespace INTERP_KERNEL
     for ( int i = 0; i < 3; ++i ) // loop on orthogonal faces of the unit tetra
     {
       if ( !sideFaces[i] ) continue;
-      vector< double* >& sideFace = *sideFaces[i];
+      std::vector< double* >& sideFace = *sideFaces[i];
 
       int nbPoints = sideFace.size();
       if ( nbPoints == 0 )
@@ -533,7 +532,7 @@ namespace INTERP_KERNEL
             nbCutOffCorners--;
             cutOffCorners[ passThIndex ] = false;
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-            cout << "PASS THROUGH " << passThIndex << endl;
+            std::cout << "PASS THROUGH " << passThIndex << std::endl;
 #endif
           }
         }
@@ -580,7 +579,7 @@ namespace INTERP_KERNEL
       for ( int i = 0; i < NB_TETRA_SIDES; ++i )
       {
         if ( !sideFaces[ i ] ) continue;
-        vector< double* >& sideFace = *sideFaces[i];
+        std::vector< double* >& sideFace = *sideFaces[i];
 
         int excludeCorner = (i + 1) % NB_TETRA_NODES;
         for ( int ic = 0; ic < NB_TETRA_NODES; ++ic )
@@ -597,30 +596,30 @@ namespace INTERP_KERNEL
     }
 
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-    cout << "**** after Add corners to sides " << endl;
+    std::cout << "**** after Add corners to sides " << std::endl;
     for ( int i = 0; i < NB_TETRA_SIDES; ++i )
     {
-      cout << "\t Side " << i << endl;
+      std::cout << "\t Side " << i << std::endl;
       if ( !sideFaces[i] ) {
-        cout << "\t cut by triagle" << endl;
+        std::cout << "\t cut by triagle" << std::endl;
       }
       else 
       {
-        vector< double* >& sideFace = *sideFaces[i];
+        std::vector< double* >& sideFace = *sideFaces[i];
         for ( int i = 0; i < sideFace.size(); ++i )
         {
           double* p = sideFace[i];
-          cout << "\t" << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << endl;
+          std::cout << "\t" << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << std::endl;
         }
       }
     }
-    cout << "Cut off corners: ";
+    std::cout << "Cut off corners: ";
     if ( nbCutOffCorners == 0 )
-      cout << "NO";
+      std::cout << "NO";
     else 
       for ( int ic = 0; ic < NB_TETRA_NODES; ++ic )
-        cout << cutOffCorners[ ic ];
-    cout << endl;
+        std::cout << cutOffCorners[ ic ];
+    std::cout << std::endl;
 #endif
     // ------------------------------------------------------------------------
     // Sort corners of filled up faces on tetra sides and exclude equal points
@@ -629,7 +628,7 @@ namespace INTERP_KERNEL
     int iF = 0;
     for ( f = _faces.begin(); f != fEnd; ++f, ++iF )
     {
-      vector< double* >&  face = *f;
+      std::vector< double* >&  face = *f;
       if ( face.size() >= 3 )
       {
         clearPolygons(); // free memory of _polygonA
@@ -643,7 +642,7 @@ namespace INTERP_KERNEL
           sortIntersectionPolygon( A, _barycenterA );
         }
         // exclude equal points
-        vector< double* >::iterator v = _polygonA.begin(), vEnd = _polygonA.end();
+        std::vector< double* >::iterator v = _polygonA.begin(), vEnd = _polygonA.end();
         face.push_back( *v );
         *v = 0;
         for ( ++v; v != vEnd; ++v )
@@ -669,15 +668,15 @@ namespace INTERP_KERNEL
       }
     }
 #ifdef DMP_UNITTETRAINTERSECTIONBARY
-    cout << "**** after HEALING all faces " << endl;
+    std::cout << "**** after HEALING all faces " << std::endl;
     for (iF=0, f = _faces.begin(); f != fEnd; ++f, ++iF )
     {
-      cout << "\t Side " << iF << endl;
-      vector< double* >& sideFace = *f;
+      std::cout << "\t Side " << iF << std::endl;
+      std::vector< double* >& sideFace = *f;
       for ( int i = 0; i < sideFace.size(); ++i )
       {
         double* p = sideFace[i];
-        cout << "\t" << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << endl;
+        std::cout << "\t" << i << ": ( " << p[0] << ", " << p[1] << ", " << p[2] << " )" << std::endl;
       }
     }
 #endif
@@ -712,11 +711,11 @@ namespace INTERP_KERNEL
 
   void UnitTetraIntersectionBary::clearPolygons(bool andFaces)
   {
-    for(vector<double*>::iterator it = _polygonA.begin() ; it != _polygonA.end() ; ++it)
+    for(std::vector<double*>::iterator it = _polygonA.begin() ; it != _polygonA.end() ; ++it)
       {  delete[] *it;
         *it = 0; 
       }
-    for(vector<double*>::iterator it = _polygonB.begin() ; it != _polygonB.end() ; ++it)
+    for(std::vector<double*>::iterator it = _polygonB.begin() ; it != _polygonB.end() ; ++it)
       { 
         delete[] *it; 
         *it = 0; 
@@ -727,11 +726,11 @@ namespace INTERP_KERNEL
 
     if ( andFaces )
       {
-        list< vector< double* > >::iterator f = this->_faces.begin(), fEnd = this->_faces.end();
+        std::list< std::vector< double* > >::iterator f = this->_faces.begin(), fEnd = this->_faces.end();
         for ( ; f != fEnd; ++f )
           {
-            vector< double* >& polygon = *f;
-            for(vector<double*>::iterator it = polygon.begin() ; it != polygon.end() ; ++it)
+            std::vector< double* >& polygon = *f;
+            for(std::vector<double*>::iterator it = polygon.begin() ; it != polygon.end() ; ++it)
               { 
                 delete[] *it;
                 *it = 0;

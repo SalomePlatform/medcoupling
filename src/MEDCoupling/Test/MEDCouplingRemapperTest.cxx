@@ -25,7 +25,6 @@
 
 #include <cmath>
 
-using namespace std;
 using namespace ParaMEDMEM;
 
 void MEDCouplingRemapperTest::test2DInterpP0P0_1()

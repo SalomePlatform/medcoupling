@@ -24,8 +24,6 @@
 #include <sstream>
 #include <limits>
 
-using namespace std;
-
 namespace INTERP_KERNEL
 {
   std::map<NormalizedCellType,CellModel> CellModel::_map_of_unique_instance;
@@ -34,10 +32,10 @@ namespace INTERP_KERNEL
   {
     if(_map_of_unique_instance.empty())
       buildUniqueInstance();
-    const map<NormalizedCellType,CellModel>::iterator iter=_map_of_unique_instance.find(type);
+    const std::map<NormalizedCellType,CellModel>::iterator iter=_map_of_unique_instance.find(type);
     if(iter==_map_of_unique_instance.end())
       {
-        ostringstream stream; stream << "no cellmodel for normalized type " << type;
+        std::ostringstream stream; stream << "no cellmodel for normalized type " << type;
         throw Exception(stream.str().c_str());
       }
     return (*iter).second;
@@ -64,23 +62,23 @@ namespace INTERP_KERNEL
 
   void CellModel::buildUniqueInstance()
   {
-    _map_of_unique_instance.insert(make_pair(NORM_POINT0,CellModel(NORM_POINT0)));
-    _map_of_unique_instance.insert(make_pair(NORM_SEG2,CellModel(NORM_SEG2)));
-    _map_of_unique_instance.insert(make_pair(NORM_SEG3,CellModel(NORM_SEG3)));
-    _map_of_unique_instance.insert(make_pair(NORM_TRI3,CellModel(NORM_TRI3)));
-    _map_of_unique_instance.insert(make_pair(NORM_QUAD4,CellModel(NORM_QUAD4)));
-    _map_of_unique_instance.insert(make_pair(NORM_TRI6,CellModel(NORM_TRI6)));
-    _map_of_unique_instance.insert(make_pair(NORM_QUAD8,CellModel(NORM_QUAD8)));
-    _map_of_unique_instance.insert(make_pair(NORM_TETRA4,CellModel(NORM_TETRA4)));
-    _map_of_unique_instance.insert(make_pair(NORM_HEXA8,CellModel(NORM_HEXA8)));
-    _map_of_unique_instance.insert(make_pair(NORM_PYRA5,CellModel(NORM_PYRA5)));
-    _map_of_unique_instance.insert(make_pair(NORM_PENTA6,CellModel(NORM_PENTA6)));
-    _map_of_unique_instance.insert(make_pair(NORM_TETRA10,CellModel(NORM_TETRA10)));
-    _map_of_unique_instance.insert(make_pair(NORM_PYRA13,CellModel(NORM_PYRA13)));
-    _map_of_unique_instance.insert(make_pair(NORM_PENTA15,CellModel(NORM_PENTA15)));
-    _map_of_unique_instance.insert(make_pair(NORM_HEXA20,CellModel(NORM_HEXA20)));
-    _map_of_unique_instance.insert(make_pair(NORM_POLYGON,CellModel(NORM_POLYGON)));
-    _map_of_unique_instance.insert(make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_POINT0,CellModel(NORM_POINT0)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_SEG2,CellModel(NORM_SEG2)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_SEG3,CellModel(NORM_SEG3)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_TRI3,CellModel(NORM_TRI3)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_QUAD4,CellModel(NORM_QUAD4)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_TRI6,CellModel(NORM_TRI6)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_QUAD8,CellModel(NORM_QUAD8)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_TETRA4,CellModel(NORM_TETRA4)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_HEXA8,CellModel(NORM_HEXA8)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_PYRA5,CellModel(NORM_PYRA5)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_PENTA6,CellModel(NORM_PENTA6)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_TETRA10,CellModel(NORM_TETRA10)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_PYRA13,CellModel(NORM_PYRA13)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_PENTA15,CellModel(NORM_PENTA15)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_HEXA20,CellModel(NORM_HEXA20)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_POLYGON,CellModel(NORM_POLYGON)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
   }
 
   CellModel::CellModel(NormalizedCellType type):_type(type)

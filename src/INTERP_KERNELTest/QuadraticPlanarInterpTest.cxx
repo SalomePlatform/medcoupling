@@ -27,7 +27,6 @@
 #include <sstream>
 #include <iostream>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
@@ -50,7 +49,7 @@ void QuadraticPlanarInterpTest::cleanUp()
 void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
 {
   //Testing bounds calculation. For Seg2
-  istringstream stream("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4700");
+  std::istringstream stream("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4700");
   EdgeLin *e1=new EdgeLin(stream);
   Bounds bound=e1->getBounds();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,bound[0],ADMISSIBLE_ERROR);
@@ -58,7 +57,7 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.34,bound[2],ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.47,bound[3],ADMISSIBLE_ERROR);
   e1->decrRef();
-  istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4500 4700 3200 3400");
+  std::istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4500 4700 3200 3400");
   e1=new EdgeLin(stream2);
   bound=e1->getBounds();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,bound[0],ADMISSIBLE_ERROR);
@@ -154,9 +153,9 @@ void QuadraticPlanarInterpTest::BasicGeometricTools()
 void QuadraticPlanarInterpTest::IntersectionBasics()
 {
   //Testing intersection of Bounds.
-  istringstream stream1("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
+  std::istringstream stream1("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
   EdgeLin *e1=new EdgeLin(stream1);
-  istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
+  std::istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
   EdgeLin *e2=new EdgeLin(stream2);
   Bounds *bound=e1->getBounds().amIIntersectingWith(e2->getBounds()); CPPUNIT_ASSERT(bound);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,(*bound)[0],ADMISSIBLE_ERROR);
@@ -166,9 +165,9 @@ void QuadraticPlanarInterpTest::IntersectionBasics()
   delete bound;
   e2->decrRef(); e1->decrRef();
   //
-  istringstream stream3("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3000 7200 6000 3700");
+  std::istringstream stream3("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3000 7200 6000 3700");
   EdgeLin *e3=new EdgeLin(stream3);
-  istringstream stream4("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4800 6600 7200 4200");
+  std::istringstream stream4("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4800 6600 7200 4200");
   EdgeLin *e4=new EdgeLin(stream4);
   bound=e3->getBounds().amIIntersectingWith(e4->getBounds()); CPPUNIT_ASSERT(bound);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.48,(*bound)[0],ADMISSIBLE_ERROR);

@@ -26,7 +26,6 @@
 #include <cmath>
 #include <functional>
 
-using namespace std;
 using namespace ParaMEDMEM;
 
 void MEDCouplingBasicsTest::testArray()
@@ -95,7 +94,7 @@ void MEDCouplingBasicsTest::testMesh()
   //test 1 - no copy ownership C++
   myCoords=DataArrayDouble::New();
   double *tmp=new double[3*nbOfNodes];
-  copy(coords,coords+3*nbOfNodes,tmp);
+  std::copy(coords,coords+3*nbOfNodes,tmp);
   myCoords->useArray(tmp,true,CPP_DEALLOC,nbOfNodes,3);
   mesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -104,7 +103,7 @@ void MEDCouplingBasicsTest::testMesh()
   //test 2 - no copy ownership C
   myCoords=DataArrayDouble::New();
   tmp=(double *)malloc(3*nbOfNodes*sizeof(double));
-  copy(coords,coords+3*nbOfNodes,tmp);
+  std::copy(coords,coords+3*nbOfNodes,tmp);
   myCoords->useArray(tmp,true,C_DEALLOC,nbOfNodes,3);
   mesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -114,7 +113,7 @@ void MEDCouplingBasicsTest::testMesh()
   myCoords=DataArrayDouble::New();
   myCoords->alloc(nbOfNodes,3);
   tmp=myCoords->getPointer();
-  copy(coords,coords+3*nbOfNodes,tmp);
+  std::copy(coords,coords+3*nbOfNodes,tmp);
   // test 3 bis deepcopy
   DataArrayDouble *myCoords2=DataArrayDouble::New();
   *myCoords2=*myCoords;
@@ -163,7 +162,7 @@ void MEDCouplingBasicsTest::testMesh()
   fieldOnCells->setArray(array);
   tmp=array->getPointer();
   array->decrRef();
-  fill(tmp,tmp+9*nbOfCells,7.);
+  std::fill(tmp,tmp+9*nbOfCells,7.);
   //content of field changed -> declare it.
   fieldOnCells->declareAsNew();
   fieldOnCells->checkCoherency();
@@ -249,7 +248,7 @@ void MEDCouplingBasicsTest::testMeshM1D()
   fieldOnCells->setArray(array);
   double *tmp=array->getPointer();
   array->decrRef();
-  fill(tmp,tmp+6,7.);
+  std::fill(tmp,tmp+6,7.);
   fieldOnCells->checkCoherency();
   //
   fieldOnCells->decrRef();
@@ -260,7 +259,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
 {
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(5,3);
-  fill(array->getPointer(),array->getPointer()+5*3,7.);
+  std::fill(array->getPointer(),array->getPointer()+5*3,7.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,array->getIJ(3,2),1e-14);
   double *tmp1=array->getPointer();
   DataArrayDouble *array2=array->deepCopy();
@@ -272,7 +271,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
   //
   DataArrayInt *array3=DataArrayInt::New();
   array3->alloc(5,3);
-  fill(array3->getPointer(),array3->getPointer()+5*3,17);
+  std::fill(array3->getPointer(),array3->getPointer()+5*3,17);
   CPPUNIT_ASSERT_EQUAL(17,array3->getIJ(3,2));
   int *tmp3=array3->getPointer();
   DataArrayInt *array4=array3->deepCopy();

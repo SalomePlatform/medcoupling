@@ -25,7 +25,6 @@
 
 #include <algorithm>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 MergePoints::MergePoints():_ass1Start1(0),_ass1End1(0),_ass1Start2(0),_ass1End2(0),
@@ -303,8 +302,8 @@ bool IntersectElement::isIncludedByBoth() const
   
 bool EdgeIntersector::intersect(const Bounds *whereToFind, std::vector<Node *>& newNodes, bool& order, MergePoints& commonNode)
 {
-  list< IntersectElement > listOfIntesc=getIntersectionsCharacteristicVal();
-  list< IntersectElement >::iterator iter;
+  std::list< IntersectElement > listOfIntesc=getIntersectionsCharacteristicVal();
+  std::list< IntersectElement >::iterator iter;
   for(iter=listOfIntesc.begin();iter!=listOfIntesc.end();)
     {
       if((*iter).isOnMergedExtremity())
@@ -342,10 +341,10 @@ bool EdgeIntersector::intersect(const Bounds *whereToFind, std::vector<Node *>& 
     }
   else
     {
-      vector<IntersectElement> vecOfIntesc(listOfIntesc.begin(),listOfIntesc.end());
+      std::vector<IntersectElement> vecOfIntesc(listOfIntesc.begin(),listOfIntesc.end());
       listOfIntesc.clear();
       sort(vecOfIntesc.begin(),vecOfIntesc.end());
-      for(vector<IntersectElement>::iterator iterV=vecOfIntesc.begin();iterV!=vecOfIntesc.end();iterV++)
+      for(std::vector<IntersectElement>::iterator iterV=vecOfIntesc.begin();iterV!=vecOfIntesc.end();iterV++)
         newNodes.push_back((*iterV).getNodeAndReleaseIt());
       order=vecOfIntesc.front().isLowerOnOther(vecOfIntesc.back());
     }
@@ -532,10 +531,10 @@ void Edge::addSubEdgeInVector(Node *start, Node *end, ComposedEdge& vec) const
  */
 void Edge::getNormalVector(double *vectOutput) const
 {
-  copy((const double *)(*_end),(const double *)(*_end)+2,vectOutput);
-  transform(vectOutput,vectOutput+2,(const double *)(*_start),vectOutput,minus<double>());
+  std::copy((const double *)(*_end),(const double *)(*_end)+2,vectOutput);
+  std::transform(vectOutput,vectOutput+2,(const double *)(*_start),vectOutput,std::minus<double>());
   double norm=1./Node::norm(vectOutput);
-  transform(vectOutput,vectOutput+2,vectOutput,bind2nd(multiplies<double>(),norm));
+  std::transform(vectOutput,vectOutput+2,vectOutput,bind2nd(std::multiplies<double>(),norm));
   double tmp=vectOutput[0];
   vectOutput[0]=vectOutput[1];
   vectOutput[1]=-tmp;
@@ -607,7 +606,7 @@ void Edge::interpolate1DLin(const std::vector<double>& distrib1, const std::vect
   MergePoints commonNode;
   for(int i=0;i<nbOfV1;i++)
     {
-      vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind2nd(greater_equal<double>(),distrib1[i]));
+		std::vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind2nd(std::greater_equal<double>(),distrib1[i]));
       if(iter!=distrib2.end())
         {
           for(int j=(iter-1)-distrib2.begin();j<nbOfV2;j++)
@@ -681,17 +680,17 @@ bool Edge::intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersecto
     return intersectOverlapped(f1,f2,intersector,commonNode,outValForF1,outValForF2);
   if(obviousNoIntersection)
     return false;
-  vector<Node *> newNodes;
+  std::vector<Node *> newNodes;
   bool order;
   if(intersector->intersect(whereToFind,newNodes,order,commonNode))
     {
       if(newNodes.empty())
         throw Exception("Internal error occured - error in intersector implementation!");// This case should never happen
-      vector<Node *>::iterator iter=newNodes.begin();
-      vector<Node *>::reverse_iterator iterR=newNodes.rbegin();
+      std::vector<Node *>::iterator iter=newNodes.begin();
+      std::vector<Node *>::reverse_iterator iterR=newNodes.rbegin();
       f1->addSubEdgeInVector(f1->getStartNode(),*iter,outValForF1);
       f2->addSubEdgeInVector(f2->getStartNode(),order?*iter:*iterR,outValForF2);
-      for(vector<Node *>::iterator iter=newNodes.begin();iter!=newNodes.end();iter++,iterR++)
+      for(std::vector<Node *>::iterator iter=newNodes.begin();iter!=newNodes.end();iter++,iterR++)
         {
           if((iter+1)==newNodes.end())
             {

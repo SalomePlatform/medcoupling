@@ -24,8 +24,6 @@
 #include <cmath>
 #include <iostream>
 
-using namespace std;
-
 namespace INTERP_TEST
 {
 
@@ -89,7 +87,7 @@ namespace INTERP_TEST
         {
           std::cerr << deque1[i] << " ";
         }
-      std::cerr<< endl;
+      std::cerr<< std::endl;
     }
     void vectPrintOut(std::vector< double > vect)
     {
@@ -97,7 +95,7 @@ namespace INTERP_TEST
         {
           std::cerr << vect[i] << " ";
         }
-      std::cerr<< endl;
+      std::cerr<< std::endl;
     }  
     void tabPrintOut( const double * tab,int size)
     {
@@ -105,7 +103,7 @@ namespace INTERP_TEST
         {
           std::cerr << tab[i] << " ";
         }
-      std::cerr<< endl;
+      std::cerr<< std::endl;
     }  
 
     /**

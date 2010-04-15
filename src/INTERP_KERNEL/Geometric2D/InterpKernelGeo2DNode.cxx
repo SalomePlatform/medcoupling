@@ -19,7 +19,6 @@
 #include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 Node::Node(double x, double y):_cnt(1),_loc(UNKNOWN)

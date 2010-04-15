@@ -39,7 +39,6 @@
 #include "Log.hxx"
 
 using namespace MEDMEM;
-using namespace std;
 using namespace INTERP_KERNEL;
 using namespace MED_EN;
 
@@ -50,7 +49,7 @@ double sumVolume(const IntersectionMatrix& m)
   vector<double> volumes;
   for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           volumes.push_back(iter2->second);
           //    vol += std::fabs(iter2->second);
@@ -73,7 +72,7 @@ bool areCompatitable(const IntersectionMatrix& m1, const IntersectionMatrix& m2)
   int i = 0;
   for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           int j = iter2->first;
           if(m2.at(j-1).count(i+1) == 0)
@@ -108,13 +107,13 @@ bool testSymmetric(const IntersectionMatrix& m1, const IntersectionMatrix& m2)
 
   for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           int j = iter2->first;
           const double v1 = iter2->second;
           //if(m2[j - 1].count(i+1) > 0)
           //  {
-          map<int, double> theMap =  m2.at(j-1);
+          std::map<int, double> theMap =  m2.at(j-1);
           const double v2 = theMap[i + 1];
           if(v1 != v2)
             {
@@ -142,7 +141,7 @@ bool testDiagonal(const IntersectionMatrix& m)
   bool isDiagonal = true;
   for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           int j = iter2->first;
           const double vol = iter2->second;
@@ -170,13 +169,13 @@ bool testDiagonal(const IntersectionMatrix& m)
 void dumpIntersectionMatrix(const IntersectionMatrix& m) 
 {
   int i = 0;
-  std::cout << "Intersection matrix is " << endl;
+  std::cout << "Intersection matrix is " << std::endl;
   for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
     
-          std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << endl;
+          std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << std::endl;
     
         }
       ++i;
@@ -206,8 +205,8 @@ std::pair<int,int> countNumberOfMatrixEntries(const IntersectionMatrix& m)
 
 void calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) 
 {
-  const string dataBaseDir = getenv("MED_ROOT_DIR");
-  const string dataDir = dataBaseDir + "/share/salome/resources/med/";
+  const std::string dataBaseDir = getenv("MED_ROOT_DIR");
+  const std::string dataDir = dataBaseDir + "/share/salome/resources/med/";
 
   LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
 

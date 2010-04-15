@@ -22,7 +22,6 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 
-using namespace std;
 using namespace ParaMEDMEM;
 
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DSourceMesh_2()

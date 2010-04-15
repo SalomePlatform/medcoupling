@@ -19,14 +19,13 @@
 #include "ExprEvalInterpTest.hxx"
 #include "InterpKernelExprParser.hxx"
 
-using namespace std;
 using namespace INTERP_TEST;
 
 void ExprEvalInterpTest::testBuildStringFromFortran()
 {
   char toto1[]="123456  ";
   char result[]="123456";
-  string titi;
+  std::string titi;
   titi=INTERP_KERNEL::ExprParser::buildStringFromFortran(toto1,8);
   CPPUNIT_ASSERT_EQUAL(6,(int)titi.length());
   CPPUNIT_ASSERT(titi==result);
@@ -57,8 +56,8 @@ void ExprEvalInterpTest::testDeleteWhiteSpaces()
 {
   char toto[]=" jkhjkh ooooppp l ";
   char result[]="jkhjkhoooopppl";
-  string totoS(toto);
-  string totoR=INTERP_KERNEL::ExprParser::deleteWhiteSpaces(totoS);
+  std::string totoS(toto);
+  std::string totoR=INTERP_KERNEL::ExprParser::deleteWhiteSpaces(totoS);
   CPPUNIT_ASSERT(totoR==result);
   CPPUNIT_ASSERT_EQUAL(14,(int)totoR.length());
   //

@@ -52,7 +52,6 @@
 //#define VOL_PREC 1.0e-6
 
 using namespace MEDMEM;
-using namespace std;
 using namespace MED_EN;
 using namespace INTERP_KERNEL;
 
@@ -75,7 +74,7 @@ namespace INTERP_TEST
       {
         if(iter->count(i) != 0.0)
           {
-            map<int, double>::const_iterator iter2 = iter->find(i);
+            std::map<int, double>::const_iterator iter2 = iter->find(i);
             vol += fabs(iter2->second);
           }
       }
@@ -95,7 +94,7 @@ namespace INTERP_TEST
   {
     double vol = 0.0;
     const std::map<int, double>& col = m[i];
-    for(map<int, double>::const_iterator iter = col.begin() ; iter != col.end() ; ++iter)
+    for(std::map<int, double>::const_iterator iter = col.begin() ; iter != col.end() ; ++iter)
       {
         vol += fabs(iter->second);
       }
@@ -139,10 +138,10 @@ namespace INTERP_TEST
   double MeshTestToolkit<SPACEDIM,MESHDIM>::sumVolume(const IntersectionMatrix& m) const
   {
     
-    vector<double> volumes;
+    std::vector<double> volumes;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             volumes.push_back(fabs(iter2->second));
           }
@@ -222,7 +221,7 @@ namespace INTERP_TEST
     int i = 0;
     for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
       {
-        for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             int j = iter2->first;
             if(m2.at(j-1).count(i+1) == 0)
@@ -265,13 +264,13 @@ namespace INTERP_TEST
 
     for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
       {
-        for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             int j = iter2->first;
             const double v1 = fabs(iter2->second);
             //if(m2[j - 1].count(i+1) > 0)
             //  {
-            map<int, double> theMap =  m2.at(j-1);
+            std::map<int, double> theMap =  m2.at(j-1);
             const double v2 = fabs(theMap[i + 1]); 
             if(v1 != v2)
               {

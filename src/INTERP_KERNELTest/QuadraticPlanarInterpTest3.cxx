@@ -26,7 +26,6 @@
 #include <sstream>
 #include <iostream>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
