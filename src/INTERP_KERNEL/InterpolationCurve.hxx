@@ -33,8 +33,8 @@ namespace INTERP_KERNEL
 
     // Main function to interpolate
     template<class MyMeshType, class MatrixType>
-      int interpolateMeshes(const MyMeshType& mesh1, const MyMeshType& mesh2,
-                            MatrixType& result, const char *method);
+    int interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT,
+                          MatrixType& result, const char *method);
     
   };
 }

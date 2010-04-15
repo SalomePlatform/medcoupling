@@ -20,6 +20,7 @@
 #define __CURVEINTERSECTOR_TXX__
 
 #include "CurveIntersector.hxx"
+#include "InterpolationUtils.hxx"
 
 #include <limits>
 

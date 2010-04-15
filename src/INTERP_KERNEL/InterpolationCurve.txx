@@ -88,38 +88,42 @@ namespace INTERP_KERNEL
     
     CurveIntersector<MyMeshType,MatrixType>* intersector=0;
     std::string meth(method);
-    if(meth=="P0P0") {
-      intersector = new CurveIntersectorP0P0<MyMeshType,MatrixType>
-        (myMeshT, myMeshS,
-         InterpolationOptions::getPrecision(),
-         InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-         InterpolationOptions::getMedianPlane(),
-         InterpolationOptions::getPrintLevel());
-    }
-    else if(meth=="P0P1") {
-      intersector = new CurveIntersectorP0P1<MyMeshType,MatrixType>
-        (myMeshT, myMeshS,
-         InterpolationOptions::getPrecision(),
-         InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-         InterpolationOptions::getMedianPlane(),
-         InterpolationOptions::getPrintLevel());
-    }
-    else if(meth=="P1P0") {
-      intersector = new CurveIntersectorP1P0<MyMeshType,MatrixType>
-        (myMeshT, myMeshS,
-         InterpolationOptions::getPrecision(),
-         InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-         InterpolationOptions::getMedianPlane(),
-         InterpolationOptions::getPrintLevel());
-    }
-    else if(meth=="P1P1") {
-      intersector = new CurveIntersectorP1P1<MyMeshType,MatrixType>
-        (myMeshT, myMeshS,
-         InterpolationOptions::getPrecision(),
-         InterpolationOptions::getBoundingBoxAdjustmentAbs(),
-         InterpolationOptions::getMedianPlane(),
-         InterpolationOptions::getPrintLevel());
-    }
+    if(meth=="P0P0")
+      {
+        intersector = new CurveIntersectorP0P0<MyMeshType,MatrixType>
+          (myMeshT, myMeshS,
+           InterpolationOptions::getPrecision(),
+           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+           InterpolationOptions::getMedianPlane(),
+           InterpolationOptions::getPrintLevel());
+      }
+    else if(meth=="P0P1")
+      {
+        intersector = new CurveIntersectorP0P1<MyMeshType,MatrixType>
+          (myMeshT, myMeshS,
+           InterpolationOptions::getPrecision(),
+           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+           InterpolationOptions::getMedianPlane(),
+           InterpolationOptions::getPrintLevel());
+      }
+    else if(meth=="P1P0")
+      {
+        intersector = new CurveIntersectorP1P0<MyMeshType,MatrixType>
+          (myMeshT, myMeshS,
+           InterpolationOptions::getPrecision(),
+           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+           InterpolationOptions::getMedianPlane(),
+           InterpolationOptions::getPrintLevel());
+      }
+    else if(meth=="P1P1")
+      {
+        intersector = new CurveIntersectorP1P1<MyMeshType,MatrixType>
+          (myMeshT, myMeshS,
+           InterpolationOptions::getPrecision(),
+           InterpolationOptions::getBoundingBoxAdjustmentAbs(),
+           InterpolationOptions::getMedianPlane(),
+           InterpolationOptions::getPrintLevel());
+      }
     else
       throw INTERP_KERNEL::Exception("Invalid method specified ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");
     /****************************************************************/
@@ -144,26 +148,27 @@ namespace INTERP_KERNEL
     long start_intersection = clock();
     const ConnType *connIndxT = myMeshT.getConnectivityIndexPtr();
     for(int iT=0; iT<nbMailleT; iT++)
-    {
-      int nb_nodesT = connIndxT[iT+1] - connIndxT[iT];
-      std::vector<int> intersecting_elems;
-      double bb[2*SPACEDIM];
-      intersector->getElemBB(bb,myMeshT,OTT<ConnType,numPol>::indFC(iT),nb_nodesT);
-      my_tree.getIntersectingElems(bb, intersecting_elems);
-      intersector->intersectCells(iT,intersecting_elems,result);
-      counter += intersecting_elems.size();
-    }
+      {
+        int nb_nodesT = connIndxT[iT+1] - connIndxT[iT];
+        std::vector<int> intersecting_elems;
+        double bb[2*SPACEDIM];
+        intersector->getElemBB(bb,myMeshT,OTT<ConnType,numPol>::indFC(iT),nb_nodesT);
+        my_tree.getIntersectingElems(bb, intersecting_elems);
+        intersector->intersectCells(iT,intersecting_elems,result);
+        counter += intersecting_elems.size();
+      }
     int ret = intersector->getNumberOfColsOfResMatrix();
     delete intersector;
-
-    if (InterpolationOptions::getPrintLevel() >= 1) {
-      long end_intersection=clock();
-      std::cout << "Filtering time= " << end_filtering-start_filtering << std::endl;
-      std::cout << "Intersection time= " << end_intersection-start_intersection << std::endl;
-      long global_end =clock();    
-      std::cout << "Number of computed intersections = " << counter << std::endl;
-      std::cout << "Global time= " << global_end - global_start << std::endl;
-    }
+    
+    if (InterpolationOptions::getPrintLevel() >= 1)
+      {
+        long end_intersection=clock();
+        std::cout << "Filtering time= " << end_filtering-start_filtering << std::endl;
+        std::cout << "Intersection time= " << end_intersection-start_intersection << std::endl;
+        long global_end =clock();    
+        std::cout << "Number of computed intersections = " << counter << std::endl;
+        std::cout << "Global time= " << global_end - global_start << std::endl;
+      }
     return ret;
   }
 }
