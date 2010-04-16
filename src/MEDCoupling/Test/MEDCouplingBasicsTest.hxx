@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testNatureChecking );
     CPPUNIT_TEST( testBuildSubMeshData );
     CPPUNIT_TEST( testExtrudedMesh1 );
+    CPPUNIT_TEST( testExtrudedMesh2 );
     CPPUNIT_TEST( testFindCommonNodes );
     CPPUNIT_TEST( testCheckButterflyCells );
     CPPUNIT_TEST( testMergeMesh1 );
@@ -148,6 +149,7 @@ namespace ParaMEDMEM
     void testNatureChecking();
     void testBuildSubMeshData();
     void testExtrudedMesh1();
+    void testExtrudedMesh2();
     void testFindCommonNodes();
     void testCheckButterflyCells();
     void testMergeMesh1();
@@ -225,31 +227,32 @@ namespace ParaMEDMEM
     void test2DCurveInterpP1P0_1();
     void test2DCurveInterpP1P1_1();
 
-  private:
-    MEDCouplingUMesh *build3DSourceMesh_2();
-    MEDCouplingUMesh *build3DTargetMesh_2();
-    MEDCouplingUMesh *build1DTargetMesh_1();
-    MEDCouplingUMesh *build2DSourceMesh_1();
-    MEDCouplingUMesh *build2DTargetMesh_1();
-    MEDCouplingUMesh *build2DTargetMeshPerm_1();
-    MEDCouplingUMesh *build2DTargetMesh_2();
-    MEDCouplingUMesh *buildCU1DMesh_U();
-    MEDCouplingUMesh *buildCU2DMesh_U();
-    MEDCouplingUMesh *buildCU3DMesh_U();
-    MEDCouplingUMesh *build3DSurfSourceMesh_1();
-    MEDCouplingUMesh *build3DSurfSourceMesh_2();
-    MEDCouplingUMesh *build3DSurfTargetMesh_1();
-    MEDCouplingUMesh *build3DSurfTargetMeshPerm_1();
-    MEDCouplingUMesh *build3DSurfTargetMesh_2();
-    MEDCouplingUMesh *build3DSourceMesh_1();
-    MEDCouplingUMesh *build3DTargetMesh_1();
-    MEDCouplingUMesh *build2DTargetMeshMergeNode_1();
-    MEDCouplingUMesh *build3DTargetMeshMergeNode_1();
-    MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
-    MEDCouplingUMesh *build2DTargetMeshMerged_1();
-    MEDCouplingUMesh *build2DCurveMesh(double dx, double dy);
-    MEDCouplingUMesh *build1DMesh(double dx);
-    double sumAll(const std::vector< std::map<int,double> >& matrix);
+  public:
+    static MEDCouplingUMesh *build3DSourceMesh_2();
+    static MEDCouplingUMesh *build3DTargetMesh_2();
+    static MEDCouplingUMesh *build1DTargetMesh_1();
+    static MEDCouplingUMesh *build2DSourceMesh_1();
+    static MEDCouplingUMesh *build2DTargetMesh_1();
+    static MEDCouplingUMesh *build2DTargetMeshPerm_1();
+    static MEDCouplingUMesh *build2DTargetMesh_2();
+    static MEDCouplingUMesh *buildCU1DMesh_U();
+    static MEDCouplingUMesh *buildCU2DMesh_U();
+    static MEDCouplingUMesh *buildCU3DMesh_U();
+    static MEDCouplingUMesh *build3DSurfSourceMesh_1();
+    static MEDCouplingUMesh *build3DSurfSourceMesh_2();
+    static MEDCouplingUMesh *build3DSurfTargetMesh_1();
+    static MEDCouplingUMesh *build3DSurfTargetMeshPerm_1();
+    static MEDCouplingUMesh *build3DSurfTargetMesh_2();
+    static MEDCouplingUMesh *build3DSourceMesh_1();
+    static MEDCouplingUMesh *build3DTargetMesh_1();
+    static MEDCouplingUMesh *build2DTargetMeshMergeNode_1();
+    static MEDCouplingUMesh *build3DTargetMeshMergeNode_1();
+    static MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
+    static void build3DExtrudedUMesh_2(MEDCouplingUMesh *&meshN, MEDCouplingUMesh *&meshTT);
+    static MEDCouplingUMesh *build2DTargetMeshMerged_1();
+    static MEDCouplingUMesh *build2DCurveMesh(double dx, double dy);
+    static MEDCouplingUMesh *build1DMesh(double dx);
+    static double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }
 

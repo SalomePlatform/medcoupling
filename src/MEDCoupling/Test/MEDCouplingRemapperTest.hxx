@@ -46,24 +46,9 @@ namespace ParaMEDMEM
     void testNatureOfField();
     void testExtruded();
   private:
-    MEDCouplingUMesh *build3DSourceMesh_2();
-    MEDCouplingUMesh *build3DTargetMesh_2();
-    MEDCouplingUMesh *build1DTargetMesh_1();
-    MEDCouplingUMesh *build1DTargetMesh_2();
-    MEDCouplingUMesh *build2DSourceMesh_1();
-    MEDCouplingUMesh *build2DTargetMesh_1();
-    MEDCouplingUMesh *build2DTargetMeshPerm_1();
-    MEDCouplingUMesh *build2DTargetMesh_2();
-    MEDCouplingUMesh *build2DTargetMesh_3();
-    MEDCouplingUMesh *build3DSurfSourceMesh_1();
-    MEDCouplingUMesh *build3DSurfSourceMesh_2();
-    MEDCouplingUMesh *build3DSurfTargetMesh_1();
-    MEDCouplingUMesh *build3DSurfTargetMeshPerm_1();
-    MEDCouplingUMesh *build3DSurfTargetMesh_2();
-    MEDCouplingUMesh *build3DSourceMesh_1();
-    MEDCouplingUMesh *build3DTargetMesh_1();
-    MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
-    double sumAll(const std::vector< std::map<int,double> >& matrix);
+    static MEDCouplingUMesh *build1DTargetMesh_2();
+    static MEDCouplingUMesh *build2DTargetMesh_3();
+    static MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
   };
 }
 

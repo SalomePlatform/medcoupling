@@ -880,6 +880,48 @@ void MEDCouplingBasicsTest::testExtrudedMesh1()
   mesh2D->decrRef();
 }
 
+void MEDCouplingBasicsTest::testExtrudedMesh2()
+{
+  MEDCouplingUMesh *mN,*mTT;
+  build3DExtrudedUMesh_2(mN,mTT);
+  //
+  bool b=false;
+  DataArrayInt *da=mTT->mergeNodes(1e-12,b);
+  CPPUNIT_ASSERT(b);
+  da->decrRef();
+  std::vector<int> n;
+  double pt[3]={300.,300.,0.};
+  double v[3]={0.,0.,2.};
+  mTT->findNodesOnPlane(pt,v,1e-12,n);
+  CPPUNIT_ASSERT_EQUAL(43,(int)n.size());
+  MEDCouplingUMesh *mTT3dSurf=(MEDCouplingUMesh *)mTT->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
+  MEDCouplingExtrudedMesh *meTT=MEDCouplingExtrudedMesh::New(mTT,mTT3dSurf,0);
+  CPPUNIT_ASSERT_EQUAL(200,meTT->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(10,meTT->getMesh2D()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(20,meTT->getMesh1D()->getNumberOfCells());
+  mTT3dSurf->decrRef();
+  //
+  b=false;
+  da=mN->mergeNodes(1e-12,b);
+  da->decrRef();
+  CPPUNIT_ASSERT(!b);
+  n.clear();
+  mN->findNodesOnPlane(pt,v,1e-12,n);
+  CPPUNIT_ASSERT_EQUAL(30,(int)n.size());
+  MEDCouplingUMesh *mN3dSurf=(MEDCouplingUMesh *)mN->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
+  MEDCouplingExtrudedMesh *meN=MEDCouplingExtrudedMesh::New(mN,mN3dSurf,0);
+  CPPUNIT_ASSERT_EQUAL(40,meN->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(20,meN->getMesh2D()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(2,meN->getMesh1D()->getNumberOfCells());
+  mN3dSurf->decrRef();
+  //
+  meTT->decrRef();
+  meN->decrRef();
+  //
+  mN->decrRef();
+  mTT->decrRef();
+}
+
 void MEDCouplingBasicsTest::testFindCommonNodes()
 {
   DataArrayInt *comm,*commI;
