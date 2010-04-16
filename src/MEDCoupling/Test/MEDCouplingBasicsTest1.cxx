@@ -882,8 +882,8 @@ void MEDCouplingBasicsTest::testExtrudedMesh1()
 
 void MEDCouplingBasicsTest::testExtrudedMesh2()
 {
-  MEDCouplingUMesh *mN,*mTT;
-  build3DExtrudedUMesh_2(mN,mTT);
+  MEDCouplingUMesh *mN,*mTT,*mTF;
+  build3DExtrudedUMesh_2(mN,mTT,mTF);
   //
   bool b=false;
   DataArrayInt *da=mTT->mergeNodes(1e-12,b);
@@ -915,11 +915,27 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
   CPPUNIT_ASSERT_EQUAL(2,meN->getMesh1D()->getNumberOfCells());
   mN3dSurf->decrRef();
   //
+  b=false;
+  da=mTF->mergeNodes(1e-12,b);
+  da->decrRef();
+  CPPUNIT_ASSERT(!b);
+  n.clear();
+  mTF->findNodesOnPlane(pt,v,1e-12,n);
+  CPPUNIT_ASSERT_EQUAL(27,(int)n.size());
+  MEDCouplingUMesh *mTF3dSurf=(MEDCouplingUMesh *)mTF->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
+  MEDCouplingExtrudedMesh *meTF=MEDCouplingExtrudedMesh::New(mTF,mTF3dSurf,0);
+  CPPUNIT_ASSERT_EQUAL(340,meTF->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(17,meTF->getMesh2D()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(20,meTF->getMesh1D()->getNumberOfCells());
+  mTF3dSurf->decrRef();
+  //
   meTT->decrRef();
   meN->decrRef();
+  meTF->decrRef();
   //
   mN->decrRef();
   mTT->decrRef();
+  mTF->decrRef();
 }
 
 void MEDCouplingBasicsTest::testFindCommonNodes()

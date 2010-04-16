@@ -515,7 +515,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build3DExtrudedUMesh_1(MEDCouplingUMesh
   return ret;
 }
 
-void MEDCouplingBasicsTest::build3DExtrudedUMesh_2(MEDCouplingUMesh *&meshN, MEDCouplingUMesh *&meshTT)
+void MEDCouplingBasicsTest::build3DExtrudedUMesh_2(MEDCouplingUMesh *&meshN, MEDCouplingUMesh *&meshTT, MEDCouplingUMesh *&meshTF)
 {
   const double coordsN[270]={
     0, 0, 0, 0.10803000450134277, 0, 0, 0.21606000900268554, 0, 0, 0.28808000564575198, 0, 0, 0.36010002136230468, 0, 0, 0.43212001800537109, 0, 0, 0,
@@ -582,6 +582,21 @@ void MEDCouplingBasicsTest::build3DExtrudedUMesh_2(MEDCouplingUMesh *&meshN, MED
   myCoords->alloc(1720,3);
   std::copy(coordsTT,coordsTT+5160,myCoords->getPointer());
   meshTT->setCoords(myCoords);
+  myCoords->decrRef();
+  //
+  meshTF=MEDCouplingUMesh::New();
+  meshTF->setName("meshExtrudedTF");
+  meshTF->setMeshDimension(3);
+  meshTF->allocateCells(340);
+  for(int i=0;i<320;i++)
+    meshTF->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,connTFH8+8*i);
+  for(int i=0;i<20;i++)
+    meshTF->insertNextCell(INTERP_KERNEL::NORM_POLYHED,connTFPOLH_I[i+1]-connTFPOLH_I[i],connTFPOLH+connTFPOLH_I[i]);
+  meshTF->finishInsertingCells();
+  myCoords=DataArrayDouble::New();
+  myCoords->alloc(567,3);
+  std::copy(coordsTF,coordsTF+1701,myCoords->getPointer());
+  meshTF->setCoords(myCoords);
   myCoords->decrRef();
 }
 

@@ -248,7 +248,7 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *build2DTargetMeshMergeNode_1();
     static MEDCouplingUMesh *build3DTargetMeshMergeNode_1();
     static MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
-    static void build3DExtrudedUMesh_2(MEDCouplingUMesh *&meshN, MEDCouplingUMesh *&meshTT);
+    static void build3DExtrudedUMesh_2(MEDCouplingUMesh *&meshN, MEDCouplingUMesh *&meshTT, MEDCouplingUMesh *&meshTF);
     static MEDCouplingUMesh *build2DTargetMeshMerged_1();
     static MEDCouplingUMesh *build2DCurveMesh(double dx, double dy);
     static MEDCouplingUMesh *build1DMesh(double dx);
