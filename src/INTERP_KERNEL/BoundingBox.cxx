@@ -45,7 +45,7 @@ namespace INTERP_KERNEL
 
     for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
       {
-		_coords[c] = std::min(pt1[c], pt2[c]);
+        _coords[c] = std::min(pt1[c], pt2[c]);
         _coords[c + 3] = std::max(pt1[c], pt2[c]);
       }
 

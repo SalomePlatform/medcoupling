@@ -141,7 +141,7 @@ namespace INTERP_KERNEL
     if (_isTetraInversed) reverse = !reverse;
 
     // store polygon
-	_faces.push_back( std::vector< double* > () );
+    _faces.push_back( std::vector< double* > () );
     std::vector< double* >& faceCorner = _faces.back();
     faceCorner.resize( pPolygonA->size()/* + 1*/ );
 
