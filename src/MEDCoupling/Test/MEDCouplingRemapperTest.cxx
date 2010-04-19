@@ -754,6 +754,7 @@ void MEDCouplingRemapperTest::testExtruded2()
     };
   for(int i=0;i<200;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],trgField->getArray()->getConstPointer()[i],1e-3);//1e-3 precision due to non coincidence in 1D mesh
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(std::accumulate(expected1,expected1+200,0.),std::accumulate(vals1,vals1+40,0.),1e-10);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(std::accumulate(expected1,expected1+200,0.),std::accumulate(trgField->getArray()->getConstPointer(),trgField->getArray()->getConstPointer()+200,0.),1e-10);
   trgField->decrRef();
   //
@@ -777,6 +778,7 @@ void MEDCouplingRemapperTest::testExtruded2()
                          1600., 1600., 1600.};
   for(int i=0;i<340;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],trgField->getArray()->getConstPointer()[i],1e-3);//1e-3 precision due to non coincidence in 1D mesh
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(std::accumulate(expected2,expected2+340,0.),std::accumulate(vals1,vals1+40,0.),1e-10);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(std::accumulate(expected2,expected2+340,0.),std::accumulate(trgField->getArray()->getConstPointer(),trgField->getArray()->getConstPointer()+340,0.),1e-10);
   trgField->decrRef();
   srcField->decrRef();
