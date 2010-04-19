@@ -23,6 +23,7 @@
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 
+#include "Interpolation1D.txx"
 #include "Interpolation2DCurve.txx"
 #include "Interpolation2D.txx"
 #include "Interpolation3D.txx"
@@ -295,19 +296,21 @@ int MEDCouplingRemapper::prepareEE(const char *method)
   INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
   MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh->getMesh2D());
   MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh->getMesh2D());
-  INTERP_KERNEL::Interpolation2D interpolation(*this);
+  INTERP_KERNEL::Interpolation2D interpolation2D(*this);
   std::vector<std::map<int,double> > matrix2D;
-  int nbCols2D=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,method);
+  int nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,method);
   MEDCouplingUMesh *s1D,*t1D;
   double v[3];
   MEDCouplingExtrudedMesh::project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),getPrecision(),s1D,t1D,v);
-  MEDCouplingNormalizedUnstructuredMesh<2,1> s1DWrapper(s1D);
-  MEDCouplingNormalizedUnstructuredMesh<2,1> t1DWrapper(t1D);
+  MEDCouplingNormalizedUnstructuredMesh<1,1> s1DWrapper(s1D);
+  MEDCouplingNormalizedUnstructuredMesh<1,1> t1DWrapper(t1D);
   std::vector<std::map<int,double> > matrix1D;
-  int nbCols1D=interpolation.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,method);
-  INTERP_KERNEL::Interpolation2DCurve myInterpolator;
-  //
-  _matrix.resize(matrix2D.size()*matrix1D.size());
+  INTERP_KERNEL::Interpolation1D interpolation1D(*this);
+  int nbCols1D=interpolation1D.interpolateMeshes(s1DWrapper,t1DWrapper,matrix1D,method);
+  s1D->decrRef();
+  t1D->decrRef();
+  buildFinalInterpolationMatrixByConvolution(matrix1D,matrix2D,src_mesh->getMesh3DIds()->getConstPointer(),nbCols2D,nbCols1D,
+                                             target_mesh->getMesh3DIds()->getConstPointer());
   //
   _deno_multiply.clear();
   _deno_multiply.resize(_matrix.size());
@@ -521,5 +524,31 @@ void MEDCouplingRemapper::computeColSumAndRowSum(const std::vector<std::map<int,
     {
       for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
         deno[idx][(*iter2).first]=values[(*iter2).first];
+    }
+}
+
+void MEDCouplingRemapper::buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<int,double> >& m1D,
+                                                                     const std::vector< std::map<int,double> >& m2D,
+                                                                     const int *corrCellIdSrc, int nbOf2DCellsSrc, int nbOf1DCellsSrc,
+                                                                     const int *corrCellIdTrg)
+{
+  int nbOf2DCellsTrg=m2D.size();
+  int nbOf1DCellsTrg=m1D.size();
+  int nbOf3DCellsTrg=nbOf2DCellsTrg*nbOf1DCellsTrg;
+  _matrix.resize(nbOf3DCellsTrg);
+  int id2R=0;
+  for(std::vector< std::map<int,double> >::const_iterator iter2R=m2D.begin();iter2R!=m2D.end();iter2R++,id2R++)
+    {
+      for(std::map<int,double>::const_iterator iter2C=(*iter2R).begin();iter2C!=(*iter2R).end();iter2C++)
+        {
+          int id1R=0;
+          for(std::vector< std::map<int,double> >::const_iterator iter1R=m1D.begin();iter1R!=m1D.end();iter1R++,id1R++)
+            {
+              for(std::map<int,double>::const_iterator iter1C=(*iter1R).begin();iter1C!=(*iter1R).end();iter1C++)
+                {
+                  _matrix[corrCellIdTrg[id1R*nbOf2DCellsTrg+id2R]][corrCellIdSrc[(*iter1C).first*nbOf2DCellsSrc+(*iter2C).first]]=(*iter1C).second*((*iter2C).second);
+                }
+            }
+        }
     }
 }

@@ -25,6 +25,7 @@
 #include "BBTree.txx"
 
 #include <sstream>
+#include <numeric>
 #include <limits>
 #include <list>
 
@@ -1101,10 +1102,53 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildLinearField() const
        getNodeIdsOfCell(i,conn);
        pt=std::transform(coo+conn[1]*spaceDim,coo+(conn[1]+1)*spaceDim,coo+conn[0]*spaceDim,pt,std::minus<double>());
      }
-   array->alloc(nbOfCells,spaceDim);
+   ret->setArray(array);
    array->decrRef();
    ret->setMesh(this);
    return ret;   
+}
+
+/*!
+ * This method is only callable on mesh with meshdim == 1 containing only SEG2 and spaceDim==3.
+ * This method projects this on the 3D line defined by (pt,v). This methods first checks that all SEG2 are along v vector.
+ * @param pt reference point of the line
+ * @param v normalized director vector of the line
+ * @param eps max precision before throwing an exception
+ * @param res output of size this->getNumberOfCells
+ */
+void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, double *res) const
+{
+  if(getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 1 for project1D !");
+   if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
+     throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for project1D !");
+   if(getSpaceDimension()!=3)
+     throw INTERP_KERNEL::Exception("Expected a umesh with spaceDim==3 for project1D !");
+   MEDCouplingFieldDouble *f=buildLinearField();
+   const double *fPtr=f->getArray()->getConstPointer();
+   double tmp[3];
+   for(int i=0;i<getNumberOfCells();i++)
+     {
+       const double *tmp1=fPtr+3*i;
+       tmp[0]=tmp1[1]*v[2]-tmp1[2]*v[1];
+       tmp[1]=tmp1[2]*v[0]-tmp1[0]*v[2];
+       tmp[2]=tmp1[0]*v[1]-tmp1[1]*v[0];
+       double n1=INTERP_KERNEL::norm<3>(tmp);
+       n1/=INTERP_KERNEL::norm<3>(tmp1);
+       if(n1>eps)
+         {
+           f->decrRef();
+           throw INTERP_KERNEL::Exception("UMesh::Projection 1D failed !");
+         }
+     }
+   const double *coo=getCoords()->getConstPointer();
+   for(int i=0;i<getNumberOfNodes();i++)
+     {
+       std::transform(coo+i*3,coo+i*3+3,pt,tmp,std::minus<double>());
+       std::transform(tmp,tmp+3,v,tmp,std::multiplies<double>());
+       res[i]=std::accumulate(tmp,tmp+3,0.);
+     }
+   f->decrRef();
 }
 
 /*!

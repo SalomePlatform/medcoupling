@@ -58,6 +58,10 @@ namespace ParaMEDMEM
     void computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
     void computeProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
     void computeReverseProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
+    void buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<int,double> >& m1D,
+                                                    const std::vector< std::map<int,double> >& m2D,
+                                                    const int *corrCellIdSrc, int nbOf2DCellsSrc, int nbOf1DCellsSrc,
+                                                    const int *corrCellIdTrg);
     static void reverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn,
                               std::vector<std::map<int,double> >& matOut);
     static void computeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,
