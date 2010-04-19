@@ -121,9 +121,13 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
     MEDCOUPLING_EXPORT static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void substractEqual(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT static DataArrayDouble *multiply(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayDouble *other);
     MEDCOUPLING_EXPORT static DataArrayDouble *divide(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() { }
   private:
@@ -153,6 +157,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() { }
+  public:
+    MEDCOUPLING_EXPORT static int *checkAndPreparePermutation(const int *start, const int *end);
   private:
     DataArrayInt() { }
   private:

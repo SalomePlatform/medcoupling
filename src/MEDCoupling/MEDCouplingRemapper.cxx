@@ -299,7 +299,8 @@ int MEDCouplingRemapper::prepareEE(const char *method)
   std::vector<std::map<int,double> > matrix2D;
   int nbCols2D=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,method);
   MEDCouplingUMesh *s1D,*t1D;
-  MEDCouplingExtrudedMesh::project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),s1D,t1D);
+  double v[3];
+  MEDCouplingExtrudedMesh::project1DMeshes(src_mesh->getMesh1D(),target_mesh->getMesh1D(),getPrecision(),s1D,t1D,v);
   MEDCouplingNormalizedUnstructuredMesh<2,1> s1DWrapper(s1D);
   MEDCouplingNormalizedUnstructuredMesh<2,1> t1DWrapper(t1D);
   std::vector<std::map<int,double> > matrix1D;

@@ -332,15 +332,19 @@ int MEDCouplingExtrudedMesh::findCorrespCellByNodalConn(const std::vector<int>& 
  * are created ('m1r' and 'm2r') that can be used for interpolation.
  * @param m1 input mesh with meshDim==1 and spaceDim==3
  * @param m2 input mesh with meshDim==1 and spaceDim==3
- * @param m1r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==2
- * @param m2r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==2
+ * @param eps tolerance acceptable to determine compatibility
+ * @param m1r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==1
+ * @param m2r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==1
+ * @param v is the output normalized vector of the common direction of 'm1' and 'm2'  
  * @throw in case that m1 and m2 are not compatible each other.
  */
-void MEDCouplingExtrudedMesh::project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
-                                              MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
+                                              MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v) throw(INTERP_KERNEL::Exception)
 {
-  m1r=0;
-  m2r=0;
+  m1r=m1->clone(true);
+  m2r=m2->clone(true);
+  m1r->changeSpaceDimension(1);
+  m2r->changeSpaceDimension(1);
 }
 
 void MEDCouplingExtrudedMesh::rotate(const double *center, const double *vector, double angle)

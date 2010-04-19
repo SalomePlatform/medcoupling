@@ -56,8 +56,8 @@ namespace ParaMEDMEM
     int getCellContainingPoint(const double *pos, double eps) const;
     static int findCorrespCellByNodalConn(const std::vector<int>& nodalConnec,
                                           const int *revNodalPtr, const int *revNodalIndxPtr) throw(INTERP_KERNEL::Exception);
-    static void project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
-                                MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r) throw(INTERP_KERNEL::Exception);
+    static void project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
+                                MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v) throw(INTERP_KERNEL::Exception);
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;

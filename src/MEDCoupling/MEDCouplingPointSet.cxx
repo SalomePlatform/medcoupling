@@ -330,6 +330,44 @@ void MEDCouplingPointSet::scale(const double *point, double factor)
 }
 
 /*!
+ * This method is only available for already defined coordinates.
+ * If not an INTERP_KERNEL::Exception is thrown. The 'newSpaceDim' input must be greater or equal to 1.
+ * This method simply convert this to newSpaceDim space :
+ * - by putting a 0. for each \f$ i^{th} \f$ components of each coord of nodes so that i>=getSpaceDim(), if 'newSpaceDim'>getSpaceDimsion()
+ * - by ignoring each \f$ i^{th} \f$ components of each coord of nodes so that i >= 'newSpaceDim', 'newSpaceDim'<getSpaceDimension()
+ * If newSpaceDim==getSpaceDim() nothing is done by this method.
+ */
+void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception)
+{
+  if(getCoords()==0)
+    throw INTERP_KERNEL::Exception("changeSpaceDimension must be called on an MEDCouplingPointSet instance with coordinates set !");
+  if(newSpaceDim<1)
+    throw INTERP_KERNEL::Exception("changeSpaceDimension must be called a newSpaceDim >=1 !");
+  int oldSpaceDim=getSpaceDimension();
+  if(newSpaceDim==oldSpaceDim)
+    return ;
+  DataArrayDouble *newCoords=DataArrayDouble::New();
+  newCoords->alloc(getCoords()->getNumberOfTuples(),newSpaceDim);
+  const double *oldc=getCoords()->getConstPointer();
+  double *nc=newCoords->getPointer();
+  int nbOfNodes=getNumberOfNodes();
+  int dim=std::min(oldSpaceDim,newSpaceDim);
+  for(int i=0;i<nbOfNodes;i++)
+    {
+      int j=0;
+      for(;j<dim;j++)
+        nc[newSpaceDim*i+j]=oldc[i*oldSpaceDim+j];
+      for(;j<newSpaceDim;j++)
+        nc[newSpaceDim*i+j]=0.;
+    }
+  newCoords->setName(getCoords()->getName().c_str());
+  for(int i=0;i<dim;i++)
+    newCoords->setInfoOnComponent(i,getCoords()->getInfoOnComponent(i).c_str());
+  setCoords(newCoords);
+  newCoords->decrRef();
+}
+
+/*!
  * This method try to substitute this->_coords with other._coords if arrays match.
  * This method potentially modifies 'this' if it succeeds, otherway an exception is thrown.
  */

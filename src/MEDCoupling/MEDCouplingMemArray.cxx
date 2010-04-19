@@ -146,6 +146,18 @@ DataArrayDouble *DataArrayDouble::add(const DataArrayDouble *a1, const DataArray
   return ret;
 }
 
+void DataArrayDouble::addEqual(const DataArrayDouble *other)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=other->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array add !");
+  int nbOfTuple=getNumberOfTuples();
+  if(nbOfTuple!=other->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array add !");
+  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::plus<double>());
+  declareAsNew();
+}
+
 DataArrayDouble *DataArrayDouble::substract(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
   int nbOfComp=a1->getNumberOfComponents();
@@ -159,6 +171,18 @@ DataArrayDouble *DataArrayDouble::substract(const DataArrayDouble *a1, const Dat
   std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::minus<double>());
   ret->copyStringInfoFrom(*a1);
   return ret;
+}
+
+void DataArrayDouble::substractEqual(const DataArrayDouble *other)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=other->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array substract !");
+  int nbOfTuple=getNumberOfTuples();
+  if(nbOfTuple!=other->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array substract !");
+  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::minus<double>());
+  declareAsNew();
 }
 
 DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const DataArrayDouble *a2)
@@ -208,6 +232,36 @@ DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const Data
   return ret;
 }
 
+void DataArrayDouble::multiplyEqual(const DataArrayDouble *other)
+{
+  int nbOfTuple=getNumberOfTuples();
+  int nbOfTuple2=other->getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfComp2=other->getNumberOfComponents();
+  if(nbOfTuple!=nbOfTuple2)
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiplyEqual !");
+  DataArrayDouble *ret=0;
+  if(nbOfComp==nbOfComp2)
+    {
+      ret=DataArrayDouble::New();
+      ret->alloc(nbOfTuple,nbOfComp);
+      std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::multiplies<double>());
+    }
+  else
+    {
+      if(nbOfComp2==1)
+        {
+          const double *ptr=other->getConstPointer();
+          double *myPtr=getPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            myPtr=std::transform(myPtr,myPtr+nbOfComp,myPtr,std::bind2nd(std::multiplies<double>(),ptr[i]));
+        }
+      else
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array multiplyEqual !");
+    }
+  declareAsNew();
+}
+
 DataArrayDouble *DataArrayDouble::divide(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
   int nbOfComp=a1->getNumberOfComponents();
@@ -221,6 +275,18 @@ DataArrayDouble *DataArrayDouble::divide(const DataArrayDouble *a1, const DataAr
   std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::divides<double>());
   ret->copyStringInfoFrom(*a1);
   return ret;
+}
+
+void DataArrayDouble::divideEqual(const DataArrayDouble *other)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=other->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array divideEqual !");
+  int nbOfTuple=getNumberOfTuples();
+  if(nbOfTuple!=other->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divideEqual !");
+  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::divides<double>());
+  declareAsNew();
 }
 
 DataArrayInt *DataArrayInt::New()
@@ -301,3 +367,22 @@ DataArrayInt *DataArrayInt::aggregate(const DataArrayInt *a1, const DataArrayInt
   return ret;
 }
 
+int *DataArrayInt::checkAndPreparePermutation(const int *start, const int *end)
+{
+  int sz=std::distance(start,end);
+  int *ret=new int[sz];
+  int *work=new int[sz];
+  std::copy(start,end,work);
+  std::sort(work,work+sz);
+  if(std::unique(work,work+sz)!=work+sz)
+    {
+      delete [] work;
+      delete [] ret;
+      throw INTERP_KERNEL::Exception("Some elements are equals in the specified array !");
+    }
+  int *iter2=ret;
+  for(const int *iter=start;iter!=end;iter++,iter2++)
+    *iter2=std::distance(work,std::find(work,work+sz,*iter));
+  delete [] work;
+  return ret;
+}
