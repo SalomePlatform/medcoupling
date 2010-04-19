@@ -294,9 +294,9 @@ int MEDCouplingRemapper::prepareEE(const char *method)
   if(methC!="P0P0")
     throw INTERP_KERNEL::Exception("Only P0P0 method implemented for Extruded/Extruded meshes !");
   INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
-  MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh->getMesh2D());
-  MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh->getMesh2D());
-  INTERP_KERNEL::Interpolation2D interpolation2D(*this);
+  MEDCouplingNormalizedUnstructuredMesh<3,2> source_mesh_wrapper(src_mesh->getMesh2D());
+  MEDCouplingNormalizedUnstructuredMesh<3,2> target_mesh_wrapper(target_mesh->getMesh2D());
+  INTERP_KERNEL::Interpolation3DSurf interpolation2D(*this);
   std::vector<std::map<int,double> > matrix2D;
   int nbCols2D=interpolation2D.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,matrix2D,method);
   MEDCouplingUMesh *s1D,*t1D;
@@ -550,5 +550,17 @@ void MEDCouplingRemapper::buildFinalInterpolationMatrixByConvolution(const std::
                 }
             }
         }
+    }
+}
+
+void MEDCouplingRemapper::printMatrix(const std::vector<std::map<int,double> > m)
+{
+  int id=0;
+  for(std::vector<std::map<int,double> >::const_iterator iter1=m.begin();iter1!=m.end();iter1++,id++)
+    {
+      std::cout << "Target Cell # " << id << " : ";
+      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+        std::cout << "(" << (*iter2).first << "," << (*iter2).second << "), ";
+      std::cout << std::endl;
     }
 }
