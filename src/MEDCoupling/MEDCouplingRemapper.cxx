@@ -553,7 +553,7 @@ void MEDCouplingRemapper::buildFinalInterpolationMatrixByConvolution(const std::
     }
 }
 
-void MEDCouplingRemapper::printMatrix(const std::vector<std::map<int,double> > m)
+void MEDCouplingRemapper::printMatrix(const std::vector<std::map<int,double> >& m)
 {
   int id=0;
   for(std::vector<std::map<int,double> >::const_iterator iter1=m.begin();iter1!=m.end();iter1++,id++)
