@@ -416,6 +416,13 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingField
   return ret;
 }
 
+void MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other)
+{
+  if(!areCompatible(&other))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply += on them !");
+  _time_discr->addEqual(other._time_discr);
+}
+
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1->areCompatible(f2))
@@ -426,14 +433,28 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplin
   return ret;
 }
 
+void MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other)
+{
+  if(!areCompatible(&other))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply -= on them !");
+  _time_discr->substractEqual(other._time_discr);
+}
+
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
 {
   if(!f1->areCompatibleForMul(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to applymultiplyFields  on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply multiplyFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
   return ret;
+}
+
+void MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other)
+{
+  if(!areCompatibleForMul(&other))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply *= on them !");
+  _time_discr->multiplyEqual(other._time_discr);
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
@@ -444,4 +465,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFi
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
   return ret;
+}
+
+void MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other)
+{
+  if(!areCompatible(&other))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
+  _time_discr->divideEqual(other._time_discr);
 }

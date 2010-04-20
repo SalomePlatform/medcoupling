@@ -1487,6 +1487,43 @@ void MEDCouplingBasicsTest::testOperationsOnFields2()
   m->decrRef();
 }
 
+void MEDCouplingBasicsTest::testOperationsOnFields3()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  MEDCouplingFieldDouble *f1=m->fillFromAnalytic(ON_NODES,1,"x+y+z");
+  MEDCouplingFieldDouble *f2=m->fillFromAnalytic(ON_NODES,1,"a*a+b+c*c");
+  (*f1)/=(*f2);
+  f1->checkCoherency();
+  CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
+  CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
+  const double expected1[9]={-2.4999999999999991, 1.2162162162162162, 0.77868852459016391,
+                             0.7407407407407407, 1.129032258064516, 0.81632653061224492,
+                             0.86538461538461531, 1.0919540229885056, 0.84302325581395343};
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  const double *val=f1->getArray()->getConstPointer();
+  for(int i=0;i<9;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],val[i],1.e-12);
+  f1->decrRef();
+  f2->decrRef();
+  //
+  f1=m->buildOrthogonalField();
+  f2=m->fillFromAnalytic(ON_CELLS,1,"x");
+  (*f1)*=(*f2);
+  const double expected2[15]={-0.035355339059327376,0.,0.035355339059327376, 0.2592724864350674,0.,-0.2592724864350674, 0.37712361663282529,0.,-0.37712361663282529, -0.035355339059327376,0.,0.035355339059327376, 0.31819805153394637,0.,-0.31819805153394637};
+  val=f1->getArray()->getConstPointer();
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],val[i],1.e-12);
+  f1->decrRef();
+  //
+  f1=m->buildOrthogonalField();
+  CPPUNIT_ASSERT_THROW((*f2)*=(*f1),INTERP_KERNEL::Exception);
+  f1->decrRef();
+  f2->decrRef();
+  //
+  m->decrRef();
+}
+
 bool func4(const double *pt, double *res)
 {
   res[0]=pt[0]+pt[1]+pt[2];
@@ -1799,4 +1836,45 @@ void MEDCouplingBasicsTest::testFindNodeOnPlane()
   me->decrRef();
   m3dSurf->decrRef();
   mesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::testRenumberCells()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=build3DSurfTargetMesh_1();
+  CPPUNIT_ASSERT(m->isEqual(m2,0));
+  const int arr[5]={12,3,25,2,26};
+  m->renumberCells(arr,arr+5,true);
+  CPPUNIT_ASSERT(!m->isEqual(m2,0));
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,m->getTypeOfCell(0));
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,m->getTypeOfCell(1));
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,m->getTypeOfCell(2));
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,m->getTypeOfCell(3));
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,m->getTypeOfCell(4));
+  const int arr2[5]={5,-1,-5,4,8};
+  m->renumberCells(arr2,arr2+5,true);
+  CPPUNIT_ASSERT(m->isEqual(m2,0));
+  m->decrRef();
+  m2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testChangeSpaceDimension()
+{
+  MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=build2DTargetMesh_1();
+  //
+  CPPUNIT_ASSERT_EQUAL(3,m1->getSpaceDimension());
+  m1->changeSpaceDimension(2);
+  CPPUNIT_ASSERT_EQUAL(2,m1->getSpaceDimension());
+  m1->setName(m2->getName());
+  CPPUNIT_ASSERT(m1->isEqual(m2,1e-12));
+  m1->changeSpaceDimension(3);
+  CPPUNIT_ASSERT_EQUAL(3,m1->getSpaceDimension());
+  const double expected[27]={-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0.};
+  const double *val=m1->getCoords()->getConstPointer();
+  for(int i=0;i<27;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i],val[i],1e-14);
+  //
+  m1->decrRef();
+  m2->decrRef();
 }

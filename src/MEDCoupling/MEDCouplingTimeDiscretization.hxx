@@ -47,9 +47,13 @@ namespace ParaMEDMEM
     virtual TypeOfTimeDiscretization getEnum() const = 0;
     virtual MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const = 0;
     virtual MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual void addEqual(const MEDCouplingTimeDiscretization *other) = 0;
     virtual MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual void substractEqual(const MEDCouplingTimeDiscretization *other) = 0;
     virtual MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual void multiplyEqual(const MEDCouplingTimeDiscretization *other) = 0;
     virtual MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual void divideEqual(const MEDCouplingTimeDiscretization *other) = 0;
     virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
@@ -99,9 +103,13 @@ namespace ParaMEDMEM
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    void addEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    void substractEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    void multiplyEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    void divideEqual(const MEDCouplingTimeDiscretization *other);
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
@@ -133,9 +141,13 @@ namespace ParaMEDMEM
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    void addEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    void substractEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    void multiplyEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    void divideEqual(const MEDCouplingTimeDiscretization *other);
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
@@ -184,9 +196,13 @@ namespace ParaMEDMEM
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    void addEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    void substractEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    void multiplyEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    void divideEqual(const MEDCouplingTimeDiscretization *other);
     void setStartTime(double time, int dt, int it) throw(INTERP_KERNEL::Exception) { _start_time=time; _start_dt=dt; _start_it=it; }
     void setEndTime(double time, int dt, int it) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_dt=dt; _end_it=it; }
     double getStartTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_start_dt; it=_start_it; return _start_time; }

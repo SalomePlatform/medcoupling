@@ -25,6 +25,7 @@
 #include "BBTree.txx"
 
 #include <sstream>
+#include <numeric>
 #include <limits>
 #include <list>
 
@@ -605,6 +606,57 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
 }
 
 /*!
+ * This method renumbers cells of 'this' using the array specified by [old2NewBg;old2NewEnd)
+ * If std::distance(old2NewBg,old2NewEnd)!=this->getNumberOfCells() an INTERP_KERNEL::Exception will be thrown.
+ *
+ * If 'check' equals true the method will check that any elements in [old2NewBg;old2NewEnd) is unique ; if not
+ * an INTERP_KERNEL::Exception will be thrown. When 'check' equals true [old2NewBg;old2NewEnd) is not expected to
+ * be strictly in [0;this->getNumberOfCells()).
+ *
+ * If 'check' equals false the method will not check the content of [old2NewBg;old2NewEnd).
+ * To avoid any throw of SIGSEGV when 'check' equals false, the elements in [old2NewBg;old2NewEnd) should be unique and
+ * should be contained in[0;this->getNumberOfCells()).
+ */
+void MEDCouplingUMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check)
+{
+  int nbCells=getNumberOfCells();
+  const int *array=old2NewBg;
+  if(std::distance(old2NewBg,old2NewEnd)!=nbCells)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::renumberCells expected to take an array of size getNumberOfCells !");
+  if(check)
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+  //
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  DataArrayInt *newConn=DataArrayInt::New();
+  newConn->alloc(_nodal_connec->getNumberOfTuples(),_nodal_connec->getNumberOfComponents());
+  newConn->copyStringInfoFrom(*_nodal_connec);
+  DataArrayInt *newConnI=DataArrayInt::New();
+  newConnI->alloc(_nodal_connec_index->getNumberOfTuples(),_nodal_connec_index->getNumberOfComponents());
+  newConnI->copyStringInfoFrom(*_nodal_connec_index);
+  //
+  int *newC=newConn->getPointer();
+  int *newCI=newConnI->getPointer();
+  int loc=0;
+  newCI[0]=loc;
+  for(int i=0;i<nbCells;i++)
+    {
+      int pos=std::distance(array,std::find(array,array+nbCells,i));
+      int nbOfElts=connI[pos+1]-connI[pos];
+      newC=std::copy(conn+connI[pos],conn+connI[pos+1],newC);
+      loc+=nbOfElts;
+      newCI[i+1]=loc;
+    }
+  //
+  setConnectivity(newConn,newConnI);
+  //
+  newConn->decrRef();
+  newConnI->decrRef();
+  if(check)
+    delete [] (int *)array;
+}
+
+/*!
  * Given a boundary box 'bbox' returns elements 'elems' contained in this 'bbox'.
  * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
  * added in 'elems' parameter.
@@ -1023,6 +1075,80 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
   array->decrRef();
   ret->setMesh(this);
   return ret;
+}
+
+/*!
+ * This methods returns a vector newly created field on cells that represents the director vector of each 1D cell of this.
+ * This method is only callable on mesh with meshdim == 1 containing only SEG2.
+ */
+MEDCouplingFieldDouble *MEDCouplingUMesh::buildLinearField() const
+{
+   if(getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 1 for buildLinearField !");
+   if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
+     throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for buildLinearField !");
+   MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+   DataArrayDouble *array=DataArrayDouble::New();
+   int nbOfCells=getNumberOfCells();
+   int spaceDim=getSpaceDimension();
+   array->alloc(nbOfCells,spaceDim);
+   double *pt=array->getPointer();
+   const double *coo=getCoords()->getConstPointer();
+   std::vector<int> conn;
+   conn.reserve(2);
+   for(int i=0;i<nbOfCells;i++)
+     {
+       conn.resize(0);
+       getNodeIdsOfCell(i,conn);
+       pt=std::transform(coo+conn[1]*spaceDim,coo+(conn[1]+1)*spaceDim,coo+conn[0]*spaceDim,pt,std::minus<double>());
+     }
+   ret->setArray(array);
+   array->decrRef();
+   ret->setMesh(this);
+   return ret;   
+}
+
+/*!
+ * This method is only callable on mesh with meshdim == 1 containing only SEG2 and spaceDim==3.
+ * This method projects this on the 3D line defined by (pt,v). This methods first checks that all SEG2 are along v vector.
+ * @param pt reference point of the line
+ * @param v normalized director vector of the line
+ * @param eps max precision before throwing an exception
+ * @param res output of size this->getNumberOfCells
+ */
+void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, double *res) const
+{
+  if(getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 1 for project1D !");
+   if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
+     throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for project1D !");
+   if(getSpaceDimension()!=3)
+     throw INTERP_KERNEL::Exception("Expected a umesh with spaceDim==3 for project1D !");
+   MEDCouplingFieldDouble *f=buildLinearField();
+   const double *fPtr=f->getArray()->getConstPointer();
+   double tmp[3];
+   for(int i=0;i<getNumberOfCells();i++)
+     {
+       const double *tmp1=fPtr+3*i;
+       tmp[0]=tmp1[1]*v[2]-tmp1[2]*v[1];
+       tmp[1]=tmp1[2]*v[0]-tmp1[0]*v[2];
+       tmp[2]=tmp1[0]*v[1]-tmp1[1]*v[0];
+       double n1=INTERP_KERNEL::norm<3>(tmp);
+       n1/=INTERP_KERNEL::norm<3>(tmp1);
+       if(n1>eps)
+         {
+           f->decrRef();
+           throw INTERP_KERNEL::Exception("UMesh::Projection 1D failed !");
+         }
+     }
+   const double *coo=getCoords()->getConstPointer();
+   for(int i=0;i<getNumberOfNodes();i++)
+     {
+       std::transform(coo+i*3,coo+i*3+3,pt,tmp,std::minus<double>());
+       std::transform(tmp,tmp+3,v,tmp,std::multiplies<double>());
+       res[i]=std::accumulate(tmp,tmp+3,0.);
+     }
+   f->decrRef();
 }
 
 /*!

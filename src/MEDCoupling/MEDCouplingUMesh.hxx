@@ -70,10 +70,13 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void findBoundaryNodes(std::vector<int>& nodes) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
+    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check);
     MEDCOUPLING_EXPORT void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildLinearField() const;
+    MEDCOUPLING_EXPORT void project1D(const double *pt, const double *v, double eps, double *res) const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
     MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
     MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;

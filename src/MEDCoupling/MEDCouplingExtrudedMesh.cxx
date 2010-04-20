@@ -19,7 +19,10 @@
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingFieldDouble.hxx"
 #include "CellModel.hxx"
+
+#include "InterpolationUtils.hxx"
 
 #include <limits>
 #include <algorithm>
@@ -332,15 +335,32 @@ int MEDCouplingExtrudedMesh::findCorrespCellByNodalConn(const std::vector<int>& 
  * are created ('m1r' and 'm2r') that can be used for interpolation.
  * @param m1 input mesh with meshDim==1 and spaceDim==3
  * @param m2 input mesh with meshDim==1 and spaceDim==3
- * @param m1r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==2
- * @param m2r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==2
+ * @param eps tolerance acceptable to determine compatibility
+ * @param m1r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==1
+ * @param m2r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==1
+ * @param v is the output normalized vector of the common direction of 'm1' and 'm2'  
  * @throw in case that m1 and m2 are not compatible each other.
  */
-void MEDCouplingExtrudedMesh::project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2,
-                                              MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
+                                              MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v) throw(INTERP_KERNEL::Exception)
 {
-  m1r=0;
-  m2r=0;
+  if(m1->getSpaceDimension()!=3 || m1->getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Input meshes are expected to have a spaceDim==3 for projec1D !");
+  m1r=m1->clone(true);
+  m2r=m2->clone(true);
+  m1r->changeSpaceDimension(1);
+  m2r->changeSpaceDimension(1);
+  std::vector<int> c;
+  std::vector<double> ref,ref2;
+  m1->getNodeIdsOfCell(0,c);
+  m1->getCoordinatesOfNode(c[0],ref);
+  m1->getCoordinatesOfNode(c[1],ref2);
+  std::transform(ref2.begin(),ref2.end(),ref.begin(),v,std::minus<double>());
+  double n=INTERP_KERNEL::norm<3>(v);
+  std::transform(v,v+3,v,std::bind2nd(std::multiplies<double>(),1/n));
+  m1->project1D(&ref[0],v,eps,m1r->getCoords()->getPointer());
+  m2->project1D(&ref[0],v,eps,m2r->getCoords()->getPointer());
+  
 }
 
 void MEDCouplingExtrudedMesh::rotate(const double *center, const double *vector, double angle)

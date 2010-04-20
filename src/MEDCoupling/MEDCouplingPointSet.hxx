@@ -54,6 +54,7 @@ namespace ParaMEDMEM
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     void scale(const double *point, double factor);
+    void changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception);
     void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     void findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);

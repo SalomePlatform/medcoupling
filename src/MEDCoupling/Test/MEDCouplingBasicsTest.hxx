@@ -61,6 +61,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testApplyFunc2 );
     CPPUNIT_TEST( testOperationsOnFields );
     CPPUNIT_TEST( testOperationsOnFields2 );
+    CPPUNIT_TEST( testOperationsOnFields3 );
     CPPUNIT_TEST( testMergeNodesOnField );
     CPPUNIT_TEST( testCheckConsecutiveCellTypes );
     CPPUNIT_TEST( testBuildOrthogonalField );
@@ -70,6 +71,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testScale );
     CPPUNIT_TEST( testTryToShareSameCoords );
     CPPUNIT_TEST( testFindNodeOnPlane );
+    CPPUNIT_TEST( testRenumberCells );
+    CPPUNIT_TEST( testChangeSpaceDimension );
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_2 );
@@ -160,6 +163,7 @@ namespace ParaMEDMEM
     void testApplyFunc2();
     void testOperationsOnFields();
     void testOperationsOnFields2();
+    void testOperationsOnFields3();
     void testMergeNodesOnField();
     void testCheckConsecutiveCellTypes();
     void testBuildOrthogonalField();
@@ -169,6 +173,8 @@ namespace ParaMEDMEM
     void testScale();
     void testTryToShareSameCoords();
     void testFindNodeOnPlane();
+    void testRenumberCells();
+    void testChangeSpaceDimension();
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
     void test2DInterpP0P0PL_2();
