@@ -234,6 +234,7 @@ int main (int argc, char** argv)
   vector<int> iternumber;
   vector<int> ordernumber;
   vector<int> types;
+  int nb_fields_tot=0;
   for (int ifield = 0; ifield < nb_fields; ifield++)
     {
       deque<DT_IT_> dtit=med_struct.getFieldIteration(f_names[ifield]);
@@ -242,7 +243,7 @@ int main (int argc, char** argv)
           field_names.push_back(f_names[ifield]);
           iternumber.push_back(iter->dt);
           ordernumber.push_back(iter->it);
-
+          ++nb_fields_tot;
           FIELD_* field = med_struct.getField(f_names[ifield],iter->dt,iter->it);
           if (dynamic_cast<FIELD<double>*>(field))
             types.push_back(1);
@@ -326,7 +327,7 @@ int main (int argc, char** argv)
   cout << "Computing fields      ";
   cout.flush();
   bool exist_type;
-  for(int ifield=0;ifield<nb_fields;++ifield)
+  for(int ifield=0;ifield<nb_fields_tot;++ifield)
     {
       exist_type=false;
       FIELD<double> myField(MED_DRIVER,filename_in,field_names[ifield],iternumber[ifield],ordernumber[ifield]);
