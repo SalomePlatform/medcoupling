@@ -207,6 +207,69 @@ namespace INTERP_KERNEL
     return Bary;
   }
 
+  /*!
+   * \brief Solve system equation in matrix form using Gaussian elimination algorithm
+   *  \param M - N x N+1 matrix
+   *  \param sol - vector of N solutions
+   *  \retval bool - true if succeeded
+   */
+  template<unsigned nbRow>
+  bool solveSystemOfEquations(double M[nbRow][nbRow+1], double* sol)
+  {
+    const int nbCol=nbRow+1;
+
+    // make upper triangular matrix (forward elimination)
+
+    int iR[nbRow];// = { 0, 1, 2 };
+    for ( int i = 0; i < nbRow; ++i ) iR[i] = i;
+
+    for ( int i = 0; i < nbRow-1; ++i ) // nullify nbRow-1 rows
+      {
+        // swap rows to have max value of i-th column in i-th row
+        double max = std::fabs( M[ iR[i] ][i] );
+        for ( int r = i+1; r < nbRow; ++r ) {
+          double m = std::fabs( M[ iR[r] ][i] );
+          if ( m > max ) {
+            max = m;
+            std::swap( iR[r], iR[i] );
+          }
+        }
+        if ( max < std::numeric_limits<double>::min() ) {
+          //sol[0]=1; sol[1]=sol[2]=sol[3]=0;
+          return false; // no solution
+        }
+        // make 0 below M[i][i] (actually we do not modify i-th column)
+        double* tUpRow = M[ iR[i] ];
+        for ( int r = i+1; r < nbRow; ++r ) {
+          double* mRow = M[ iR[r] ];
+          double coef = mRow[ i ] / tUpRow[ i ];
+          for ( int c = i+1; c < nbCol; ++c )
+            mRow[ c ] -= tUpRow[ c ] * coef;
+        }
+      }
+    double* mRow = M[ iR[nbRow-1] ];
+    if ( std::fabs( mRow[ nbRow-1 ] ) < std::numeric_limits<double>::min() ) {
+      //sol[0]=1; sol[1]=sol[2]=sol[3]=0;
+      return false; // no solution
+    }
+    mRow[ nbRow ] /= mRow[ nbRow-1 ];
+
+    // calculate solution (back substitution)
+
+    sol[ nbRow-1 ] = mRow[ nbRow ];
+
+    for ( int i = nbRow-2; i+1; --i )
+      {
+        mRow = M[ iR[i] ];
+        sol[ i ] = mRow[ nbRow ];
+        for ( int j = nbRow-1; j > i; --j )
+          sol[ i ] -= sol[j]*mRow[ j ];
+        sol[ i ] /= mRow[ i ];
+      }
+
+    return true;
+  }
+
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /*     Calculate barycentric coordinates of a 2D point p */ 
@@ -268,65 +331,20 @@ namespace INTERP_KERNEL
       }
     else // TETRA4
       {
-        bc[3]=0; // for no solution
-
         // Find bc by solving system of 3 equations using Gaussian elimination algorithm
         // bc1*( x1 - x4 ) + bc2*( x2 - x4 ) + bc3*( x3 - x4 ) = px - x4
         // bc1*( y1 - y4 ) + bc2*( y2 - y4 ) + bc3*( y3 - y4 ) = px - y4
         // bc1*( z1 - z4 ) + bc2*( z2 - z4 ) + bc3*( z3 - z4 ) = px - z4
-        const int nbCol=4, nbRow=3;
 
-        double T[nbRow][nbCol]=
+        double T[3][4]=
           {{ n[0][_X]-n[3][_X], n[1][_X]-n[3][_X], n[2][_X]-n[3][_X], p[_X]-n[3][_X] },
            { n[0][_Y]-n[3][_Y], n[1][_Y]-n[3][_Y], n[2][_Y]-n[3][_Y], p[_Y]-n[3][_Y] },
            { n[0][_Z]-n[3][_Z], n[1][_Z]-n[3][_Z], n[2][_Z]-n[3][_Z], p[_Z]-n[3][_Z] }};
 
-        // make upper triangular matrix (forward elimination)
-
-        int iR[nbRow] = { 0, 1, 2 };
-
-        for ( int i = 0; i < 2; ++i ) // nullify 2 rows
-          {
-            // swap rows to have max value of i-th column in i-th row
-            double max = std::fabs( T[ iR[i] ][i] );
-            for ( int r = i+1; r < nbRow; ++r ) {
-              double t = std::fabs( T[ iR[r] ][i] );
-              if ( t > max ) {
-                max = t;
-                std::swap( iR[r], iR[i] );
-              }
-            }
-            if ( max < std::numeric_limits<double>::min() ) {
-              bc[0]=1; bc[1]=bc[2]=bc[3]=0;
-              return; // no solution
-            }
-            // make 0 below T[i][i] (actually we do not modify i-th column)
-            double* tUpRow = T[ iR[i] ];
-            for ( int r = i+1; r < nbRow; ++r ) {
-              double* tRow = T[ iR[r] ];
-              double coef = tRow[ i ] / tUpRow[ i ];
-              for ( int c = i+1; c < nbCol; ++c )
-                tRow[ c ] -= tUpRow[ c ] * coef;
-            }
-          }
-        double* tRow = T[ iR[2] ];
-        if ( std::fabs( tRow[ 2 ] ) < std::numeric_limits<double>::min() ) {
-          bc[0]=1; bc[1]=bc[2]=bc[3]=0;
-          return; // no solution
-        }
-        tRow[ 3 ] /= tRow[ 2 ];
-
-        // calculate solution (back substitution)
-
-        bc[ 2 ] = tRow[ 3 ];
-
-        tRow = T[ iR[1] ];
-        bc[ 1 ] = (tRow[ 3 ] - bc[2]*tRow[ 2 ]) / tRow[ 1 ];
-
-        tRow = T[ iR[0] ];
-        bc[ 0 ] = (tRow[ 3 ] - bc[2]*tRow[ 2 ] - bc[1]*tRow[ 1 ]) / tRow[ 0 ];
-
-        bc[ 3 ] = 1. - bc[0] - bc[1] - bc[2];
+        if ( !solveSystemOfEquations<3>( T, bc ))
+          bc[0]=1., bc[1] = bc[2] = bc[3] = 0;
+        else
+          bc[ 3 ] = 1. - bc[0] - bc[1] - bc[2];
       }
   }
 
@@ -614,7 +632,7 @@ namespace INTERP_KERNEL
   /* Computes the dot product of a and b */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   template<int dim> 
-  inline double dotprod( double * a, double * b)
+  inline double dotprod( const double * a, const double * b)
   {
     double result=0;
     for(int idim = 0; idim < dim ; idim++) result += a[idim]*b[idim];
