@@ -37,6 +37,9 @@ namespace INTERP_TEST
 
     CPPUNIT_TEST_SUITE( BBTreeTest );
     CPPUNIT_TEST( test_BBTree );
+    CPPUNIT_TEST( test_DirectedBB_1D );
+    CPPUNIT_TEST( test_DirectedBB_2D );
+    CPPUNIT_TEST( test_DirectedBB_3D );
     CPPUNIT_TEST_SUITE_END();
 
    
@@ -47,6 +50,9 @@ namespace INTERP_TEST
 
     // tests
     void test_BBTree();
+    void test_DirectedBB_1D();
+    void test_DirectedBB_2D();
+    void test_DirectedBB_3D();
 
   };
 

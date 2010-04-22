@@ -73,6 +73,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check);
     MEDCOUPLING_EXPORT void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
+    MEDCOUPLING_EXPORT void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;

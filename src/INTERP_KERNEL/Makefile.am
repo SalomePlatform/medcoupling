@@ -155,7 +155,8 @@ Interpolation1D.txx	                \
 Interpolation2DCurve.hxx                \
 Interpolation2DCurve.txx                \
 InterpolationCurve.hxx	                \
-InterpolationCurve.txx
+InterpolationCurve.txx			\
+DirectedBoundingBox.hxx
 
 
 EXTRA_DIST +=			\
@@ -180,7 +181,8 @@ dist_libinterpkernel_la_SOURCES = \
 	TetraAffineTransform.cxx\
 	CellModel.cxx\
 	UnitTetraIntersectionBary.cxx \
-	InterpolationOptions.cxx
+	InterpolationOptions.cxx \
+	DirectedBoundingBox.cxx
 
 libinterpkernel_la_CPPFLAGS=-I$(srcdir)/Geometric2D -I$(srcdir)/Bases
 

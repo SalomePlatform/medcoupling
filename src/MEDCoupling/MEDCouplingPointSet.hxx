@@ -25,6 +25,11 @@
 
 #include <vector>
 
+namespace INTERP_KERNEL
+{
+  class DirectedBoundingBox;
+}
+
 namespace ParaMEDMEM
 {
   class DataArrayInt;
@@ -76,10 +81,12 @@ namespace ParaMEDMEM
     virtual void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
                                  const std::vector<std::string>& littleStrings);
     virtual void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) = 0;
+    virtual void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) = 0;
     virtual DataArrayInt *zipCoordsTraducer() = 0;
   protected:
     virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception) = 0;
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
+    static bool intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps);
     void rotate2D(const double *center, double angle);
     void rotate3D(const double *center, const double *vect, double angle);
     void project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const;
