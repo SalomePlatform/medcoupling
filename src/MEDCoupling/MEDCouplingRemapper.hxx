@@ -51,7 +51,7 @@ namespace ParaMEDMEM
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionDouble(const std::string& key, double value);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, std::string& value);
   public:
-    static void printMatrix(const std::vector<std::map<int,double> >& m);
+    MEDCOUPLINGREMAPPER_EXPORT static void printMatrix(const std::vector<std::map<int,double> >& m);
   private:
     int prepareUU(const char *method);
     int prepareEE(const char *method);
