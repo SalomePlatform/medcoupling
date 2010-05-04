@@ -31,7 +31,7 @@
 #define __MAX(i)      _minmax[i*2+1]
 #define __MYID        (long(this)%10000)
 #define __DMP(msg) \
-   cout << msg << endl
+   //cout << msg << endl
 
 using namespace std;
 
