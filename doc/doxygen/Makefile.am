@@ -50,4 +50,5 @@ EXTRA_DIST += figures \
 	      support.dox \
 	      tools.dox \
 	      static/footer.html \
-	      static/doxygen.css
+	      static/doxygen.css \
+	      images

@@ -148,8 +148,11 @@ CurveIntersector.txx                    \
 CurveIntersectorP0P0.hxx                \
 CurveIntersectorP0P0.txx                \
 CurveIntersectorP0P1.hxx                \
+CurveIntersectorP0P1.txx                \
 CurveIntersectorP1P0.hxx                \
+CurveIntersectorP1P0.txx                \
 CurveIntersectorP1P1.hxx                \
+CurveIntersectorP1P1.txx                \
 Interpolation1D.hxx	                \
 Interpolation1D.txx	                \
 Interpolation2DCurve.hxx                \
