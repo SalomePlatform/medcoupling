@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __TU_BB_TREE_HXX__
 #define __TU_BB_TREE_HXX__
 
@@ -36,6 +37,9 @@ namespace INTERP_TEST
 
     CPPUNIT_TEST_SUITE( BBTreeTest );
     CPPUNIT_TEST( test_BBTree );
+    CPPUNIT_TEST( test_DirectedBB_1D );
+    CPPUNIT_TEST( test_DirectedBB_2D );
+    CPPUNIT_TEST( test_DirectedBB_3D );
     CPPUNIT_TEST_SUITE_END();
 
    
@@ -46,6 +50,9 @@ namespace INTERP_TEST
 
     // tests
     void test_BBTree();
+    void test_DirectedBB_1D();
+    void test_DirectedBB_2D();
+    void test_DirectedBB_3D();
 
   };
 

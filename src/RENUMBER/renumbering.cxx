@@ -1,3 +1,22 @@
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
 #include <string>
 #include <stdlib.h>
 #include <iostream>
@@ -215,6 +234,7 @@ int main (int argc, char** argv)
   vector<int> iternumber;
   vector<int> ordernumber;
   vector<int> types;
+  int nb_fields_tot=0;
   for (int ifield = 0; ifield < nb_fields; ifield++)
     {
       deque<DT_IT_> dtit=med_struct.getFieldIteration(f_names[ifield]);
@@ -223,7 +243,7 @@ int main (int argc, char** argv)
           field_names.push_back(f_names[ifield]);
           iternumber.push_back(iter->dt);
           ordernumber.push_back(iter->it);
-
+          ++nb_fields_tot;
           FIELD_* field = med_struct.getField(f_names[ifield],iter->dt,iter->it);
           if (dynamic_cast<FIELD<double>*>(field))
             types.push_back(1);
@@ -307,7 +327,7 @@ int main (int argc, char** argv)
   cout << "Computing fields      ";
   cout.flush();
   bool exist_type;
-  for(int ifield=0;ifield<nb_fields;++ifield)
+  for(int ifield=0;ifield<nb_fields_tot;++ifield)
     {
       exist_type=false;
       FIELD<double> myField(MED_DRIVER,filename_in,field_names[ifield],iternumber[ifield],ordernumber[ifield]);

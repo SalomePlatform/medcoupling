@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGREMAPPER_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGREMAPPER_HXX__
 
@@ -50,7 +51,7 @@ namespace ParaMEDMEM
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionDouble(const std::string& key, double value);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, std::string& value);
   public:
-    static void printMatrix(const std::vector<std::map<int,double> >& m);
+    MEDCOUPLINGREMAPPER_EXPORT static void printMatrix(const std::vector<std::map<int,double> >& m);
   private:
     int prepareUU(const char *method);
     int prepareEE(const char *method);

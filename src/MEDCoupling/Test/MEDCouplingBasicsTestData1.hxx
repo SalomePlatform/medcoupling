@@ -1,3 +1,22 @@
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
 int connITT[201]={0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1029, 1058, 1087, 1116, 1145, 1174, 1203,
                     1232, 1261, 1290, 1319, 1348, 1377, 1406, 1435, 1464, 1493, 1522, 1551, 1580, 1609, 1638, 1667, 1696, 1725, 1754, 1783, 1812, 1841, 1870, 1899,
                     1928, 1957, 1986, 2015, 2044, 2073, 2102, 2131, 2160, 2189, 2218, 2247, 2276, 2305, 2334, 2363, 2392, 2421, 2450, 2479, 2508, 2537, 2566, 2595,

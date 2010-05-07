@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include <mpi.h>
 #include "CommInterface.hxx"
 #include "ElementLocator.hxx"
@@ -26,12 +27,15 @@
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "DirectedBoundingBox.hxx"
 
 #include <map>
 #include <set>
 #include <limits>
 
 using namespace std;
+
+#define USE_DIRECTED_BB
 
 namespace ParaMEDMEM 
 { 
@@ -84,8 +88,15 @@ namespace ParaMEDMEM
       return;
    
     vector<int> elems;
+#ifdef USE_DIRECTED_BB
+    INTERP_KERNEL::DirectedBoundingBox dbb;
+    double* distant_bb = _domain_bounding_boxes+rank*dbb.dataSize(_local_cell_mesh_space_dim);
+    dbb.setData(distant_bb);
+    _local_cell_mesh->giveElemsInBoundingBox(dbb,getBoundingBoxAdjustment(),elems);
+#else
     double* distant_bb = _domain_bounding_boxes+rank*2*_local_cell_mesh_space_dim;
     _local_cell_mesh->giveElemsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
+#endif
     
     DataArrayInt *distant_ids_send;
     MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(&elems[0],&elems[elems.size()],distant_ids_send);
@@ -137,8 +148,20 @@ namespace ParaMEDMEM
       if(spaceDimForAll[i]!=_local_cell_mesh_space_dim && spaceDimForAll[i]!=-1)
         throw INTERP_KERNEL::Exception("Spacedim not matches !");
     delete [] spaceDimForAll;
-    _domain_bounding_boxes = new double[2*_local_cell_mesh_space_dim*_union_group->size()];
-    double * minmax=new double [2*_local_cell_mesh_space_dim];
+#ifdef USE_DIRECTED_BB
+    INTERP_KERNEL::DirectedBoundingBox dbb;
+    int bbSize = dbb.dataSize(_local_cell_mesh_space_dim);
+    _domain_bounding_boxes = new double[bbSize*_union_group->size()];
+    if(_local_cell_mesh->getMeshDimension() != -1)
+      dbb = INTERP_KERNEL::DirectedBoundingBox(_local_cell_mesh->getCoords()->getPointer(),
+                                               _local_cell_mesh->getNumberOfNodes(),
+                                               _local_cell_mesh_space_dim);
+    std::vector<double> dbbData = dbb.getData();
+    double * minmax= &dbbData[0];
+#else
+    int bbSize = 2*_local_cell_mesh_space_dim;
+    _domain_bounding_boxes = new double[bbSize*_union_group->size()];
+    double * minmax=new double [bbSize];
     if(_local_cell_mesh->getMeshDimension() != -1)
       _local_cell_mesh->getBoundingBox(minmax);
     else
@@ -147,9 +170,10 @@ namespace ParaMEDMEM
           minmax[i*2]=-std::numeric_limits<double>::max();
           minmax[i*2+1]=std::numeric_limits<double>::max();
         }
+#endif
 
-    comm_interface.allGather(minmax, 2*_local_cell_mesh_space_dim, MPI_DOUBLE,
-                             _domain_bounding_boxes,2*_local_cell_mesh_space_dim, MPI_DOUBLE, 
+    comm_interface.allGather(minmax, bbSize, MPI_DOUBLE,
+                             _domain_bounding_boxes,bbSize, MPI_DOUBLE, 
                              *comm);
   
     for (int i=0; i< _distant_group.size(); i++)
@@ -170,6 +194,12 @@ namespace ParaMEDMEM
   // =============================================
   bool ElementLocator::_intersectsBoundingBox(int irank)
   {
+#ifdef USE_DIRECTED_BB
+    INTERP_KERNEL::DirectedBoundingBox local_dbb, distant_dbb;
+    local_dbb.setData( _domain_bounding_boxes+_union_group->myRank()*local_dbb.dataSize( _local_cell_mesh_space_dim ));
+    distant_dbb.setData( _domain_bounding_boxes+irank*distant_dbb.dataSize( _local_cell_mesh_space_dim ));
+    return !local_dbb.isDisjointWith( distant_dbb );
+#else
     double*  local_bb = _domain_bounding_boxes+_union_group->myRank()*2*_local_cell_mesh_space_dim;
     double*  distant_bb =  _domain_bounding_boxes+irank*2*_local_cell_mesh_space_dim;
 
@@ -181,6 +211,7 @@ namespace ParaMEDMEM
         if (!intersects) return false; 
       }
     return true;
+#endif
   } 
 
   // ======================

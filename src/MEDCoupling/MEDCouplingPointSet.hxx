@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGPOINTSET_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGPOINTSET_HXX__
 
@@ -23,6 +24,11 @@
 #include "MEDCouplingMesh.hxx"
 
 #include <vector>
+
+namespace INTERP_KERNEL
+{
+  class DirectedBoundingBox;
+}
 
 namespace ParaMEDMEM
 {
@@ -75,10 +81,12 @@ namespace ParaMEDMEM
     virtual void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
                                  const std::vector<std::string>& littleStrings);
     virtual void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) = 0;
+    virtual void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) = 0;
     virtual DataArrayInt *zipCoordsTraducer() = 0;
   protected:
     virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception) = 0;
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
+    static bool intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps);
     void rotate2D(const double *center, double angle);
     void rotate3D(const double *center, const double *vect, double angle);
     void project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const;

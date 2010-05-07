@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2009-2010  OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,11 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // File      : IntersectorCU2D.hxx
 // Created   : Thu Dec 17 14:10:00 2009
 // Author    : Edward AGAPOV (eap)
-
-
+//
 #ifndef __IntersectorCU2D_HXX__
 #define __IntersectorCU2D_HXX__
 

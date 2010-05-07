@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "CellModel.hxx"
@@ -23,6 +24,7 @@
 #include "InterpolationUtils.hxx"
 #include "PointLocatorAlgos.txx"
 #include "BBTree.txx"
+#include "DirectedBoundingBox.hxx"
 
 #include <sstream>
 #include <numeric>
@@ -701,6 +703,58 @@ void MEDCouplingUMesh::giveElemsInBoundingBox(const double *bbox, double eps, st
             }
         }
       if (intersectsBoundingBox(elem_bb, bbox, dim, eps))
+        {
+          elems.push_back(ielem);
+        }
+    }
+  delete [] elem_bb;
+}
+
+/*!
+ * Given a boundary box 'bbox' returns elements 'elems' contained in this 'bbox'.
+ * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
+ * added in 'elems' parameter.
+ */
+void MEDCouplingUMesh::giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems)
+{
+  if(getMeshDimension()==-1)
+    {
+      elems.push_back(0);
+      return;
+    }
+  int dim=getSpaceDimension();
+  double* elem_bb=new double[2*dim];
+  const int* conn      = getNodalConnectivity()->getConstPointer();
+  const int* conn_index= getNodalConnectivityIndex()->getConstPointer();
+  const double* coords = getCoords()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  for ( int ielem=0; ielem<nbOfCells;ielem++ )
+    {
+      for (int i=0; i<dim; i++)
+        {
+          elem_bb[i*2]=std::numeric_limits<double>::max();
+          elem_bb[i*2+1]=-std::numeric_limits<double>::max();
+        }
+
+      for (int inode=conn_index[ielem]+1; inode<conn_index[ielem+1]; inode++)//+1 due to offset of cell type.
+        {
+          int node= conn[inode];
+          if(node>=0)//avoid polyhedron separator
+            {
+              for (int idim=0; idim<dim; idim++)
+                {
+                  if ( coords[node*dim+idim] < elem_bb[idim*2] )
+                    {
+                      elem_bb[idim*2] = coords[node*dim+idim] ;
+                    }
+                  if ( coords[node*dim+idim] > elem_bb[idim*2+1] )
+                    {
+                      elem_bb[idim*2+1] = coords[node*dim+idim] ;
+                    }
+                }
+            }
+        }
+      if (intersectsBoundingBox(bbox, elem_bb, dim, eps))
         {
           elems.push_back(ielem);
         }

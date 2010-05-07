@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingUMeshDesc.hxx"
@@ -24,6 +25,7 @@
 #include "PlanarIntersector.txx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DNode.hxx"
+#include "DirectedBoundingBox.hxx"
 
 #include <cmath>
 #include <limits>
@@ -547,6 +549,33 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
     }
   delete [] bbtemp;
   return true;
+}
+
+/*!
+ * Intersect 2 given Bounding Boxes.
+ */
+bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps)
+{
+  double* bbtemp = new double[2*dim];
+  double deltamax=0.0;
+
+  for (int i=0; i< dim; i++)
+    {
+      double delta = bb2[2*i+1]-bb2[2*i];
+      if ( delta > deltamax )
+        {
+          deltamax = delta ;
+        }
+    }
+  for (int i=0; i<dim; i++)
+    {
+      bbtemp[i*2]=bb2[i*2]-deltamax*eps;
+      bbtemp[i*2+1]=bb2[i*2+1]+deltamax*eps;
+    }
+  
+  bool intersects = !bb1.isDisjointWith( bbtemp );
+  delete [] bbtemp;
+  return intersects;
 }
 
 /*!

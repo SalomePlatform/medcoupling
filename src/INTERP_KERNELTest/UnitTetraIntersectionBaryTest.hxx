@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,9 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // File      : UnitTetraIntersectionBaryTests.hxx
 // Created   : Thu Nov  6 17:11:27 2008
 // Author    : Edward AGAPOV (eap)
+//
 #ifndef __UNITTETRAINTERSECTIONBARYTEST_HXX__
 #define __UNITTETRAINTERSECTIONBARYTEST_HXX__
 

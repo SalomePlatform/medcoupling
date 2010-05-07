@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,9 +16,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "BBTreeTest.hxx"
 #include <iostream>
 #include <vector>
+#include "DirectedBoundingBox.hxx"
+
 namespace INTERP_TEST
 {
 
@@ -80,5 +83,225 @@ namespace INTERP_TEST
     delete[] bbox;
   }
 
+  void BBTreeTest::test_DirectedBB_3D()
+  {
+    // a rectangle 1x2 extruded along vector (10,0,10)
+    const int nbP = 8, dim = 3;
+    double coords[nbP*dim] =
+      {
+        0,0,0,    2,0,0,   2,1,0,   0,1,0, 
+        10,0,10, 12,0,10, 12,1,10, 10,1,10
+      };
+    INTERP_KERNEL::DirectedBoundingBox bb( coords, nbP, dim);
+    bb.enlarge( 1e-12 );
+
+    // corners of extrusion are IN
+    for ( int i = 0; i < nbP*dim; i+=dim )
+      CPPUNIT_ASSERT( !bb.isOut( coords + i ));
+
+    // points near corners of extrusion are OUT
+    double p[nbP*dim] = 
+      {
+        0,0,3,  6,0,3,   5,1,2,   0,1,2, 
+        8,0,9, 11,0,8, 11,0.5,8, 8,0.5,9
+      };
+    for ( int i = 0; i < nbP*dim; i+=dim )
+      CPPUNIT_ASSERT( bb.isOut( p + i ));
+
+    // the extrusions  shifted by 3 in XOY plane are OUT
+    double shifted_X[nbP*dim] =
+      {
+        3,0,0,    5,0,0,   5,1,0,   3,1,0, 
+        13,0,10, 15,0,10, 15,1,10, 13,1,10
+      };
+    double shifted_x[nbP*dim] =
+      {
+        -3,0,0, -1,0,0, -1,1,0, -3,1,0, 
+        7,0,10, 9,0,10, 9,1,10, 7,1,10
+      };
+    double shifted_Y[nbP*dim] =
+      {
+        0,3,0,    2,3,0,   2,4,0,   0,4,0, 
+        10,3,10, 12,3,10, 12,4,10, 10,4,10
+      };
+    double shifted_y[nbP*dim] =
+      {
+        0,-3,0,    2,-3,0,   2,-2,0,   0,-2,0, 
+        10,-3,10, 12,-3,10, 12,-2,10, 10,-2,10
+      };
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_x( shifted_x, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_X( shifted_X, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_y( shifted_y, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_Y( shifted_Y, nbP, dim);
+
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_x ));
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_X ));
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_y ));
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_Y ));
+
+    // intersecting box is IN
+    double inters_coords[nbP*dim] =
+      {
+        0,0,0,    2,0,0,   2,1,0,   0,1,0, 
+        0,0,2,    2,0,2,   2,1,2,   0,1,2
+      };
+    INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
+    CPPUNIT_ASSERT( !bb.isDisjointWith( ibb ));
+
+    // overlapping non-directed BB
+    double overlappingBB[2*dim] =
+      {
+        5,6, 0, 1, -5,4
+      };
+    CPPUNIT_ASSERT( !bb.isDisjointWith( overlappingBB ));
+
+    // non-overlapping non-directed BB
+    double nonoverlappingBB_1[2*dim] =
+      {
+        5,6, 0,1, -5,2
+      };
+    CPPUNIT_ASSERT( bb.isDisjointWith( nonoverlappingBB_1 ));
+    double nonoverlappingBB_2[2*dim] =
+      {
+        5,6, 0,1, 7,20
+      };
+    CPPUNIT_ASSERT( bb.isDisjointWith( nonoverlappingBB_2 ));
+  }
+
+  void BBTreeTest::test_DirectedBB_2D()
+  {
+    // a segment of length 2 extruded along vector (10,10)
+    const int nbP = 4, dim = 2;
+    double coords[nbP*dim] =
+      {
+        0,0,    2,0,
+        10,10, 12,10,
+      };
+    INTERP_KERNEL::DirectedBoundingBox bb( coords, nbP, dim);
+    bb.enlarge( 1e-12 );
+
+    // corners of extrusion are IN
+    for ( int i = 0; i < nbP*dim; i+=dim )
+      CPPUNIT_ASSERT( !bb.isOut( coords + i ));
+
+    // points near corners of extrusion are OUT
+    double p[nbP*dim] = 
+      {
+        1,2,  4,1,
+        11,8, 8,9,
+      };
+    for ( int i = 0; i < nbP*dim; i+=dim )
+      CPPUNIT_ASSERT( bb.isOut( p + i ));
+
+    // the extrusions shifted by 3 along OX are OUT
+    double shifted_X[nbP*dim] =
+      {
+        3,0,    5,0,
+        13,10, 15,10,
+      };
+    double shifted_x[nbP*dim] =
+      {
+        -3,0, -1,0,
+        7,10, 9,10,
+      };
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_x( shifted_x, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_X( shifted_X, nbP, dim);
+
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_x ));
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_X ));
+
+    // intersecting box is IN
+    double inters_coords[nbP*dim] =
+      {
+        0,0,    2,0, 
+        0,2,    2,2
+      };
+    INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
+    CPPUNIT_ASSERT( !bb.isDisjointWith( ibb ));
+
+    // overlapping non-directed BB
+    double overlappingBB[2*dim] =
+      {
+        5,6, -5,4
+      };
+    CPPUNIT_ASSERT( !bb.isDisjointWith( overlappingBB ));
+
+    // non-overlapping non-directed BB
+    double nonoverlappingBB_1[2*dim] =
+      {
+        5,6, -5,2
+      };
+    CPPUNIT_ASSERT( bb.isDisjointWith( nonoverlappingBB_1 ));
+    double nonoverlappingBB_2[2*dim] =
+      {
+        5,6, 7,20
+      };
+    CPPUNIT_ASSERT( bb.isDisjointWith( nonoverlappingBB_2 ));
+  }
+
+  void BBTreeTest::test_DirectedBB_1D()
+  {
+    const int nbP = 2, dim = 1;
+    double coords[nbP*dim] =
+      {
+        0, 10
+      };
+    INTERP_KERNEL::DirectedBoundingBox bb( coords, nbP, dim);
+    bb.enlarge( 1e-12 );
+
+    // coords are IN
+    for ( int i = 0; i < nbP*dim; i+=dim )
+      CPPUNIT_ASSERT( !bb.isOut( coords + i ));
+
+    // points near ends are OUT
+    double p[nbP*dim] = 
+      {
+        -0.0001, 10.1
+      };
+    for ( int i = 0; i < nbP*dim; i+=dim )
+      CPPUNIT_ASSERT( bb.isOut( p + i ));
+
+    // shifted boxes are OUT
+    double shifted_X[nbP*dim] =
+      {
+        10.1, 11
+      };
+    double shifted_x[nbP*dim] =
+      {
+        -3.0, -0.001
+      };
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_x( shifted_x, nbP, dim);
+    INTERP_KERNEL::DirectedBoundingBox shiftedBB_X( shifted_X, nbP, dim);
+
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_x ));
+    CPPUNIT_ASSERT( bb.isDisjointWith( shiftedBB_X ));
+
+    // intersecting box is IN
+    double inters_coords[nbP*dim] =
+      {
+        -2,2
+      };
+    INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
+    CPPUNIT_ASSERT( !bb.isDisjointWith( ibb ));
+
+    // overlapping non-directed BB
+    double overlappingBB[2*dim] =
+      {
+        -5,4
+      };
+    CPPUNIT_ASSERT( !bb.isDisjointWith( overlappingBB ));
+
+    // non-overlapping non-directed BB
+    double nonoverlappingBB_1[2*dim] =
+      {
+        -5,-2
+      };
+    CPPUNIT_ASSERT( bb.isDisjointWith( nonoverlappingBB_1 ));
+    double nonoverlappingBB_2[2*dim] =
+      {
+        11,16
+      };
+    CPPUNIT_ASSERT( bb.isDisjointWith( nonoverlappingBB_2 ));
+  }
 
 }

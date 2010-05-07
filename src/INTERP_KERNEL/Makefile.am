@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  MED files in memory
 #  File   : Makefile.am
 #  Author : Vincent BERGEAUD (CEA/DEN/DANS/DM2S/SFME/LGLS)
@@ -147,14 +148,18 @@ CurveIntersector.txx                    \
 CurveIntersectorP0P0.hxx                \
 CurveIntersectorP0P0.txx                \
 CurveIntersectorP0P1.hxx                \
+CurveIntersectorP0P1.txx                \
 CurveIntersectorP1P0.hxx                \
+CurveIntersectorP1P0.txx                \
 CurveIntersectorP1P1.hxx                \
+CurveIntersectorP1P1.txx                \
 Interpolation1D.hxx	                \
 Interpolation1D.txx	                \
 Interpolation2DCurve.hxx                \
 Interpolation2DCurve.txx                \
 InterpolationCurve.hxx	                \
-InterpolationCurve.txx
+InterpolationCurve.txx			\
+DirectedBoundingBox.hxx
 
 
 EXTRA_DIST +=			\
@@ -179,7 +184,8 @@ dist_libinterpkernel_la_SOURCES = \
 	TetraAffineTransform.cxx\
 	CellModel.cxx\
 	UnitTetraIntersectionBary.cxx \
-	InterpolationOptions.cxx
+	InterpolationOptions.cxx \
+	DirectedBoundingBox.cxx
 
 libinterpkernel_la_CPPFLAGS=-I$(srcdir)/Geometric2D -I$(srcdir)/Bases
 
