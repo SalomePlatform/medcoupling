@@ -186,7 +186,8 @@ namespace ParaMEDMEM
             _distant_proc_ids.push_back(rank);
           }
       }
-#ifndef USE_DIRECTED_BB
+#ifdef USE_DIRECTED_BB
+#else
     delete [] minmax;
 #endif
   }
