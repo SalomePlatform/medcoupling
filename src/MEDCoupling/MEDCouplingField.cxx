@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
@@ -43,6 +44,8 @@ bool MEDCouplingField::areCompatible(const MEDCouplingField *other) const
 {
   if(!_type->isEqual(other->_type))
     return false;
+  if(_mesh==other->_mesh)
+    return true;
   if(!_mesh->areCompatible(other->_mesh))
     return false;
   return true;

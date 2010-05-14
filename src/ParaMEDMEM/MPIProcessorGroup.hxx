@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __MPIPROCESSORGROUP_HXX__
 #define __MPIPROCESSORGROUP_HXX__
 
@@ -37,7 +38,7 @@ namespace ParaMEDMEM
     virtual ~MPIProcessorGroup();
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const;
     void intersect (ProcessorGroup&) { }
-    int myRank() const { int rank; MPI_Comm_rank(_comm,&rank); return rank; }
+    int myRank() const;
     bool containsMyRank() const { int rank; MPI_Group_rank(_group, &rank); return (rank!=MPI_UNDEFINED); }
     int translateRank(const ProcessorGroup* group, int rank) const;
     const MPI_Comm* getComm() const { return &_comm; }

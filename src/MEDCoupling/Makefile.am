@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 if CPPUNIT_IS_OK
@@ -50,7 +51,9 @@ dist_libmedcoupling_la_SOURCES = \
 libmedcoupling_la_LDFLAGS= 
 
 libmedcoupling_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
-	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D
+	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D \
+	-I$(srcdir)/../INTERP_KERNEL/ExprEval
 
 # the geom2D library is included in the interpkernel one
 libmedcoupling_la_LIBADD= ../INTERP_KERNEL/libinterpkernel.la

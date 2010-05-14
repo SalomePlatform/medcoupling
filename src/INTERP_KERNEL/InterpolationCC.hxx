@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2009-2010  OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,11 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // File      : InterpolationCC.hxx
 // Created   : Fri Aug 14 11:33:17 2009
 // Author    : Edward AGAPOV (eap)
-
-
+//
 #ifndef __InterpolationCC_HXX__
 #define __InterpolationCC_HXX__
 

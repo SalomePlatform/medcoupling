@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,9 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // File      : UnitTetraIntersectionBaryTest.cxx
 // Created   : Thu Dec 11 15:54:41 2008
 // Author    : Edward AGAPOV (eap)
+//
 #include "UnitTetraIntersectionBaryTest.hxx"
 
 #include "UnitTetraIntersectionBary.hxx"
@@ -29,7 +31,6 @@
 #include <iostream>
 
 using namespace INTERP_KERNEL;
-using namespace std;
 
 namespace INTERP_TEST
 {
@@ -323,7 +324,7 @@ namespace INTERP_TEST
                            {-4.0, 9.0, 3.0 },
                            { 0.0, 0.0, 0.0 }, 
                            { 6.0, 1.0,10.0 }};
-    vector<const double*> n (4);
+    std::vector<const double*> n (4);
     n[0] = &nodes[0][0];
     n[1] = &nodes[1][0];
     n[2] = &nodes[2][0];

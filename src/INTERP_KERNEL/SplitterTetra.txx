@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -460,7 +460,7 @@ namespace INTERP_KERNEL
   {
     // free potential sub-mesh nodes that have been allocated
     typename MyMeshTypeT::MyConnType nbOfNodesT = _node_ids.size();// Issue 0020634.
-    if(_nodes.size()>=/*8*/nbOfNodesT)
+    if((int)_nodes.size()>=/*8*/nbOfNodesT)
       {
         std::vector<const double*>::iterator iter = _nodes.begin() + /*8*/nbOfNodesT;
         while(iter != _nodes.end())

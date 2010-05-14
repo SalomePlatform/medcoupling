@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,6 +19,7 @@
 
 #include "CppUnitTest.hxx"
 #include "BBTreeTest.hxx"
+#include "ExprEvalInterpTest.hxx"
 #include "QuadraticPlanarInterpTest.hxx"
 #include "SingleElementPlanarTests.hxx"
 #include "TransformedTriangleIntersectTest.hxx"
@@ -39,6 +40,7 @@ using namespace INTERP_TEST;
 //--- Registers the fixture into the 'registry'
 
 CPPUNIT_TEST_SUITE_REGISTRATION( BBTreeTest);
+CPPUNIT_TEST_SUITE_REGISTRATION( ExprEvalInterpTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( QuadraticPlanarInterpTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementPlanarTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleIntersectTest );

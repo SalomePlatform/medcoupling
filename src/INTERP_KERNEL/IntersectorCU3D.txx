@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2009-2010  OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -145,7 +145,7 @@ namespace INTERP_KERNEL
     // intersect a cartesian 3d cell with tetra
     _uHexMesh->setHexa( _FMIC(icellS[0]),_FMIC(icellS[1]),_FMIC(icellS[2])); // set cell at i,j,k
     double res = 0;
-    for ( int t = 0; t < tetra.size(); ++t )
+    for ( unsigned int t = 0; t < tetra.size(); ++t )
       {
         res += tetra[t]->intersectSourceCell( 0 );
         delete tetra[t];

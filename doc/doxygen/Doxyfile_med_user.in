@@ -1,7 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
-#
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -19,13 +16,14 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # Doxyfile 0.1
 #---------------------------------------------------------------------------
 # General configuration options
 #---------------------------------------------------------------------------
 #
-PROJECT_NAME           = "Med Memory Users' Guide"
-PROJECT_NUMBER         = @VERSION@
+PROJECT_NAME           = "SALOME MED Users' Guide"
+PROJECT_NUMBER         =
 OUTPUT_DIRECTORY       = doc_ref_user
 OUTPUT_LANGUAGE        = English
 EXTRACT_ALL            = YES
@@ -74,6 +72,7 @@ INPUT                  = @srcdir@ \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
+                         @srcdir@/../../src/MEDCoupling \
                          @srcdir@/../../src/MEDMEM
 
 FILE_PATTERNS          = MEDMEM_Mesh.* \
@@ -105,6 +104,15 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          InterpKernelGeo2DNode.* \
                          InterpKernelGeo2DQuadraticPolygon.* \
                          ParaFIELD.* \
+			 MEDCouplingMesh.* \
+                         MEDCouplingUMesh.* \
+			 MEDCouplingUMeshDesc.* \
+			 MEDCouplingPointSet.* \
+			 MEDCouplingCMesh.* \
+			 MEDCouplingExtrudedMesh.* \
+			 MEDCouplingFieldDouble.* \
+			 MEDCouplingFieldDiscretization.* \
+			 MEDCouplingTimeDiscretization.* \
                          *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS
@@ -135,9 +143,9 @@ IGNORE_PREFIX          =
 #---------------------------------------------------------------------------
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
-HTML_HEADER            = 
-HTML_FOOTER            = 
-HTML_STYLESHEET        = 
+HTML_HEADER            = @builddir@/static/header.html
+HTML_FOOTER            = @srcdir@/static/footer.html
+HTML_STYLESHEET        = @srcdir@/static/doxygen.css
 HTML_ALIGN_MEMBERS     = YES
 GENERATE_HTMLHELP      = YES
 GENERATE_CHI           = YES

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include <mpi.h>
 #include "CommInterface.hxx"
 #include "Topology.hxx"
@@ -51,7 +52,7 @@ namespace ParaMEDMEM
     for coincident meshes that do not have the same numbering.
 
     As all the other DECs, its use is made of two phases :
-    - a setup phase during whih the topologies are exchanged so that
+    - a setup phase during which the topologies are exchanged so that
     the target side knows from which processors it should expect 
     the data.
     - a send/recv phase during which the field data is actually transferred.
@@ -213,7 +214,7 @@ namespace ParaMEDMEM
   }
 
   /*!
-   *  Creates the _buffers for receiving the fields on the target side
+   *  Creates the buffers for receiving the fields on the target side
    */
   void StructuredCoincidentDEC::prepareTargetDE()
   {

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include <mpi.h>
 #include "CommInterface.hxx"
 #include "Topology.hxx"
@@ -31,7 +32,8 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-
+  /*! \defgroup explicitcoincidentdec ExplicitCoincidentDEC
+   */
   ExplicitCoincidentDEC::ExplicitCoincidentDEC():_toposource(0),_topotarget(0)
   {  
   }
@@ -39,6 +41,12 @@ namespace ParaMEDMEM
   ExplicitCoincidentDEC::~ExplicitCoincidentDEC()
   {
   }
+
+
+  /*!
+    \addtogroup explicitcoincidentdec
+    @{
+  */
 
   /*! Synchronization process for exchanging topologies
    */
@@ -380,5 +388,8 @@ namespace ParaMEDMEM
     _comm_interface->allToAllV(_sendbuffer, _sendcounts, _senddispls, MPI_DOUBLE, 
                                _recvbuffer, _recvcounts, _recvdispls, MPI_DOUBLE,MPI_COMM_WORLD);
   }
+  /*!
+    @}
+  */
 }
 

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGCMESH_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGCMESH_HXX__
 
@@ -39,6 +40,12 @@ namespace ParaMEDMEM
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     int getMeshDimension() const;
+    int getCellIdFromPos(int i, int j, int k) const;
+    int getNodeIdFromPos(int i, int j, int k) const;
+    static void getPosFromId(int nodeId, int spaceDim, const int *split, int *res);
+    INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     DataArrayDouble *getCoordsAt(int i) const throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coordsX,
                    DataArrayDouble *coordsY=0,
@@ -46,11 +53,17 @@ namespace ParaMEDMEM
     // tools
     void getBoundingBox(double *bbox) const;
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
+    MEDCouplingFieldDouble *buildOrthogonalField() const;
+    int getCellContainingPoint(const double *pos, double eps) const;
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
+    //some useful methods
+    void getSplitCellValues(int *res) const;
+    void getSplitNodeValues(int *res) const;
   private:
     MEDCouplingCMesh();
     ~MEDCouplingCMesh();

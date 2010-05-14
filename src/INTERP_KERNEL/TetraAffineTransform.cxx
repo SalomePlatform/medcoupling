@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "TetraAffineTransform.hxx"
 #include "VectorUtils.hxx"
 
@@ -210,17 +211,15 @@ namespace INTERP_KERNEL
    */
   void TetraAffineTransform::dump() const
   {
-    using namespace std;
-    
     std::cout << "A = " << std::endl << "[";
     for(int i = 0; i < 3; ++i)
       {
         std::cout << _linear_transform[3*i] << ", " << _linear_transform[3*i + 1] << ", " << _linear_transform[3*i + 2];
-        if(i != 2 ) std::cout << endl;
+        if(i != 2 ) std::cout << std::endl;
       }
-    std::cout << "]" << endl;
+    std::cout << "]" << std::endl;
     
-    std::cout << "b = " << "[" << _translation[0] << ", " << _translation[1] << ", " << _translation[2] << "]" << endl;
+    std::cout << "b = " << "[" << _translation[0] << ", " << _translation[1] << ", " << _translation[2] << "]" << std::endl;
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "QuadraticPlanarInterpTest.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
@@ -26,7 +27,6 @@
 #include <sstream>
 #include <iostream>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST

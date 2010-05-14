@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __INTERPKERNELSTLEXT_HXX__
 #define __INTERPKERNELSTLEXT_HXX__
 
@@ -33,7 +34,7 @@ namespace INTERP_KERNEL
     };
 
     template<typename _T1, typename _T2>
-    inline void Construct(_T1* __p, const _T2& __value) { ::new(static_cast<void*>(__p)) _T1(__value); }
+    inline void Construct(_T1* __p, const _T2& __value__) { ::new(static_cast<void*>(__p)) _T1(__value__); }
 
     template<typename _Tp> inline void Destroy(_Tp* __pointer) { __pointer->~_Tp(); }
   }

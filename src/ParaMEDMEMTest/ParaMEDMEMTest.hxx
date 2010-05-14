@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef _ParaMEDMEMTEST_HXX_
 #define _ParaMEDMEMTEST_HXX_
 
@@ -42,6 +43,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P0);
   CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P1P1P0);
   CPPUNIT_TEST(testInterpKernelDEC2DM1D_P0P0);
+  CPPUNIT_TEST(testInterpKernelDECPartialProcs);
 
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);
@@ -65,6 +67,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testICocoTrio1);
   CPPUNIT_TEST(testGauthier1);
   CPPUNIT_TEST(testGauthier2);
+  CPPUNIT_TEST(testFabienAPI1);
   CPPUNIT_TEST(testMEDLoaderRead1);
   CPPUNIT_TEST(testMEDLoaderPolygonRead);
   CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
@@ -91,6 +94,7 @@ public:
   void testInterpKernelDECNonOverlapp_2D_P0P0();
   void testInterpKernelDECNonOverlapp_2D_P0P1P1P0();
   void testInterpKernelDEC2DM1D_P0P0();
+  void testInterpKernelDECPartialProcs();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();
@@ -113,6 +117,7 @@ public:
   void testICocoTrio1();
   void testGauthier1();
   void testGauthier2();
+  void testFabienAPI1();
   //
   void testMEDLoaderRead1();
   void testMEDLoaderPolygonRead();

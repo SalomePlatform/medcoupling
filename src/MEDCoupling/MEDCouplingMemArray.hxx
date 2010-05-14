@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_HXX__
 
@@ -75,18 +76,18 @@ namespace ParaMEDMEM
     DeallocType _dealloc;
   };
 
-  class MEDCOUPLING_EXPORT DataArray : public RefCountObject, public TimeLabel
+  class DataArray : public RefCountObject, public TimeLabel
   {
   public:
-    void setName(const char *name);
-    void copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::Exception);
-    bool areInfoEquals(const DataArray& other) const;
-    std::string getName() const { return _name; }
-    std::string getInfoOnComponent(int i) const { return _info_on_compo[i]; }
-    void setInfoOnComponent(int i, const char *info) { _info_on_compo[i]=info; }
-    int getNumberOfComponents() const { return _info_on_compo.size(); }
-    int getNumberOfTuples() const { return _nb_of_tuples; }
-    int getNbOfElems() const { return _info_on_compo.size()*_nb_of_tuples; }
+    MEDCOUPLING_EXPORT void setName(const char *name);
+    MEDCOUPLING_EXPORT void copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool areInfoEquals(const DataArray& other) const;
+    MEDCOUPLING_EXPORT std::string getName() const { return _name; }
+    MEDCOUPLING_EXPORT std::string getInfoOnComponent(int i) const { return _info_on_compo[i]; }
+    MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const char *info) { _info_on_compo[i]=info; }
+    MEDCOUPLING_EXPORT int getNumberOfComponents() const { return _info_on_compo.size(); }
+    MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _nb_of_tuples; }
+    MEDCOUPLING_EXPORT int getNbOfElems() const { return _info_on_compo.size()*_nb_of_tuples; }
   protected:
     DataArray():_nb_of_tuples(-1) { }
   protected:
@@ -100,59 +101,65 @@ namespace ParaMEDMEM
 
 namespace ParaMEDMEM
 {
-  class MEDCOUPLING_EXPORT DataArrayDouble : public DataArray
+  class DataArrayDouble : public DataArray
   {
   public:
-    static DataArrayDouble *New();
-    DataArrayDouble *deepCopy() const;
-    DataArrayDouble *performCpy(bool deepCpy) const;
-    void alloc(int nbOfTuple, int nbOfCompo);
-    bool isEqual(const DataArrayDouble& other, double prec) const;
+    MEDCOUPLING_EXPORT static DataArrayDouble *New();
+    MEDCOUPLING_EXPORT DataArrayDouble *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     //!alloc or useArray should have been called before.
-    void reAlloc(int nbOfTuples);
-    void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
-    void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    double *getPointer() const { return _mem.getPointer(); }
-    static void setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
-    const double *getConstPointer() const { return _mem.getConstPointer(); }
-    void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
-    void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
-    void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    static DataArrayDouble *multiply(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    static DataArrayDouble *divide(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
+    MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
+    MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
+    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
+    MEDCOUPLING_EXPORT double *getPointer() const { return _mem.getPointer(); }
+    MEDCOUPLING_EXPORT static void setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
+    MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
+    MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
+    MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other);
+    MEDCOUPLING_EXPORT static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void substractEqual(const DataArrayDouble *other);
+    MEDCOUPLING_EXPORT static DataArrayDouble *multiply(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayDouble *other);
+    MEDCOUPLING_EXPORT static DataArrayDouble *divide(const DataArrayDouble *a1, const DataArrayDouble *a2);
+    MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
-    void updateTime() { }
+    MEDCOUPLING_EXPORT void updateTime() { }
   private:
     DataArrayDouble() { }
   private:
     MemArray<double> _mem;
   };
 
-  class MEDCOUPLING_EXPORT DataArrayInt : public DataArray
+  class DataArrayInt : public DataArray
   {
   public:
-    static DataArrayInt *New();
-    DataArrayInt *deepCopy() const;
-    DataArrayInt *performCpy(bool deepCpy) const;
-    void alloc(int nbOfTuple, int nbOfCompo);
-    bool isEqual(const DataArrayInt& other) const;
+    MEDCOUPLING_EXPORT static DataArrayInt *New();
+    MEDCOUPLING_EXPORT DataArrayInt *deepCopy() const;
+    MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
     //!alloc or useArray should have been called before.
-    void reAlloc(int nbOfTuples);
-    void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
-    void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    int *getPointer() const { return _mem.getPointer(); }
-    static void setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
-    const int *getConstPointer() const { return _mem.getConstPointer(); }
-    static DataArrayInt *aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
-    void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
-    void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
+    MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
+    MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
+    MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
+    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
+    MEDCOUPLING_EXPORT int *getPointer() const { return _mem.getPointer(); }
+    MEDCOUPLING_EXPORT static void setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
+    MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
+    MEDCOUPLING_EXPORT static DataArrayInt *aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
+    MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
-    void updateTime() { }
+    MEDCOUPLING_EXPORT void updateTime() { }
+  public:
+    MEDCOUPLING_EXPORT static int *checkAndPreparePermutation(const int *start, const int *end);
   private:
     DataArrayInt() { }
   private:

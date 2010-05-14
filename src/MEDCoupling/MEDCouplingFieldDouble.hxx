@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGFIELDDOUBLE_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGFIELDDOUBLE_HXX__
 
@@ -33,6 +34,7 @@ namespace ParaMEDMEM
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     bool areCompatible(const MEDCouplingField *other) const;
+    bool areCompatibleForMul(const MEDCouplingField *other) const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
@@ -49,12 +51,17 @@ namespace ParaMEDMEM
     void setArray(DataArrayDouble *array);
     DataArrayDouble *getArray() const { return _time_discr->getArray(); }
     double accumulate(int compId) const;
+    void accumulate(double *res) const;
     double measureAccumulate(int compId, bool isWAbs) const;
+    void measureAccumulate(bool isWAbs, double *res) const;
+    void getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);
     //! \b temporary
     void applyLin(double a, double b, int compoId);
     void applyFunc(int nbOfComp, FunctionToEvaluate func);
+    void applyFunc(int nbOfComp, const char *func);
+    void applyFunc(const char *func);
     int getNumberOfComponents() const;
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     void updateTime();
@@ -68,12 +75,16 @@ namespace ParaMEDMEM
     bool mergeNodes(double eps);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return addFields(this,&other); }
+    void operator+=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const { return substractFields(this,&other); }
+    void operator-=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const { return multiplyFields(this,&other); }
+    void operator*=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const { return divideFields(this,&other); }
+    void operator/=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);

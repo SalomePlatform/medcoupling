@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,13 +16,14 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 #  File   : Makefile.am
 #  Author : Anthony GEAY (CEA/DEN/DANS/DM2S/SFME/LGLS)
 #  Module : MED
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES = libInterpGeometric2DAlg.la
+noinst_LTLIBRARIES = libInterpGeometric2DAlg.la
 
 dist_libInterpGeometric2DAlg_la_SOURCES = \
 InterpKernelGeo2DAbstractEdge.cxx         \
@@ -53,5 +54,3 @@ InterpKernelGeo2DQuadraticPolygon.hxx  \
 InterpKernelGeo2DEdge.txx
 
 libInterpGeometric2DAlg_la_CPPFLAGS = -I$(srcdir)/../Bases
-
-libInterpGeometric2DAlg_la_LIBADD = ../Bases/libinterpkernelbases.la

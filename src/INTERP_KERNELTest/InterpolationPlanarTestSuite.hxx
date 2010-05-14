@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __TU_INTERPOLATION_PLANAR_TEST_SUITE_HXX__
 #define __TU_INTERPOLATION_PLANAR_TEST_SUITE_HXX__
 
@@ -23,8 +24,6 @@
 #include <deque>
 #include <cmath>
 #include <iostream>
-
-using namespace std;
 
 namespace INTERP_TEST
 {
@@ -89,7 +88,7 @@ namespace INTERP_TEST
         {
           std::cerr << deque1[i] << " ";
         }
-      std::cerr<< endl;
+      std::cerr<< std::endl;
     }
     void vectPrintOut(std::vector< double > vect)
     {
@@ -97,7 +96,7 @@ namespace INTERP_TEST
         {
           std::cerr << vect[i] << " ";
         }
-      std::cerr<< endl;
+      std::cerr<< std::endl;
     }  
     void tabPrintOut( const double * tab,int size)
     {
@@ -105,7 +104,7 @@ namespace INTERP_TEST
         {
           std::cerr << tab[i] << " ";
         }
-      std::cerr<< endl;
+      std::cerr<< std::endl;
     }  
 
     /**

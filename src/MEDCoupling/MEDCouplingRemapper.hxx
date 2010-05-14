@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGREMAPPER_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGREMAPPER_HXX__
 
@@ -36,19 +37,21 @@ namespace ParaMEDMEM
 
 namespace ParaMEDMEM
 {
-  class MEDCOUPLING_EXPORT MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
+  class MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
   {
   public:
-    MEDCouplingRemapper();
-    ~MEDCouplingRemapper();
-    int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method);
-    void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
-    void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
-    MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
-    MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
-    bool setOptionInt(const std::string& key, int value);
-    bool setOptionDouble(const std::string& key, double value);
-    bool setOptionString(const std::string& key, std::string& value);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper();
+    MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper();
+    MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method);
+    MEDCOUPLINGREMAPPER_EXPORT void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionInt(const std::string& key, int value);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionDouble(const std::string& key, double value);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, std::string& value);
+  public:
+    MEDCOUPLINGREMAPPER_EXPORT static void printMatrix(const std::vector<std::map<int,double> >& m);
   private:
     int prepareUU(const char *method);
     int prepareEE(const char *method);
@@ -58,6 +61,10 @@ namespace ParaMEDMEM
     void computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
     void computeProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
     void computeReverseProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
+    void buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<int,double> >& m1D,
+                                                    const std::vector< std::map<int,double> >& m2D,
+                                                    const int *corrCellIdSrc, int nbOf2DCellsSrc, int nbOf1DCellsSrc,
+                                                    const int *corrCellIdTrg);
     static void reverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn,
                               std::vector<std::map<int,double> >& matOut);
     static void computeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,

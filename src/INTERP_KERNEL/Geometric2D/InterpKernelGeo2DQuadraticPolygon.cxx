@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
@@ -29,7 +30,6 @@
 #include <cstring>
 #include <limits>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_KERNEL
@@ -40,8 +40,8 @@ namespace INTERP_KERNEL
 QuadraticPolygon::QuadraticPolygon(const char *file)
 {
   char currentLine[MAX_SIZE_OF_LINE_XFIG_FILE];
-  ifstream stream(file);
-  stream.exceptions(ios_base::eofbit);
+  std::ifstream stream(file);
+  stream.exceptions(std::ios_base::eofbit);
   try
     {
       do
@@ -56,7 +56,7 @@ QuadraticPolygon::QuadraticPolygon(const char *file)
         }
       while(1);
     }
-  catch(ifstream::failure& e)
+  catch(std::ifstream::failure&)
     {
     }
   front()->changeStartNodeWith(back()->getEndNode());
@@ -101,16 +101,16 @@ QuadraticPolygon *QuadraticPolygon::buildArcCirclePolygon(std::vector<Node *>& n
 
 void QuadraticPolygon::buildDbgFile(const std::vector<Node *>& nodes, const char *fileName)
 {
-  ofstream file(fileName);
-  file << setprecision(16);
-  file << "  double coords[]=" << endl << "    { ";
-  for(vector<Node *>::const_iterator iter=nodes.begin();iter!=nodes.end();iter++)
+  std::ofstream file(fileName);
+  file << std::setprecision(16);
+  file << "  double coords[]=" << std::endl << "    { ";
+  for(std::vector<Node *>::const_iterator iter=nodes.begin();iter!=nodes.end();iter++)
     {
       if(iter!=nodes.begin())
-        file << "," << endl << "      ";
+        file << "," << std::endl << "      ";
       file << (*(*iter))[0] << ", " << (*(*iter))[1];
     }
-  file << "};" << endl;
+  file << "};" << std::endl;
 }
 
 void QuadraticPolygon::closeMe() const
@@ -157,7 +157,7 @@ bool QuadraticPolygon::isButterfly() const
 
 void QuadraticPolygon::dumpInXfigFileWithOther(const ComposedEdge& other, const char *fileName) const
 {
-  ofstream file(fileName);
+  std::ofstream file(fileName);
   const int resolution=1200;
   Bounds box;
   box.prepareForAggregation();
@@ -169,7 +169,7 @@ void QuadraticPolygon::dumpInXfigFileWithOther(const ComposedEdge& other, const 
 
 void QuadraticPolygon::dumpInXfigFile(const char *fileName) const
 {
-  ofstream file(fileName);
+  std::ofstream file(fileName);
   const int resolution=1200;
   Bounds box;
   box.prepareForAggregation();
@@ -179,15 +179,15 @@ void QuadraticPolygon::dumpInXfigFile(const char *fileName) const
 
 void QuadraticPolygon::dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const
 {
-  stream << "#FIG 3.2  Produced by xfig version 3.2.5-alpha5" << endl;
-  stream << "Landscape" << endl;
-  stream << "Center" << endl;
-  stream << "Metric" << endl;
-  stream << "Letter" << endl;
-  stream << "100.00" << endl;
-  stream << "Single" << endl;
-  stream << "-2" << endl;
-  stream << resolution << " 2" << endl;
+  stream << "#FIG 3.2  Produced by xfig version 3.2.5-alpha5" << std::endl;
+  stream << "Landscape" << std::endl;
+  stream << "Center" << std::endl;
+  stream << "Metric" << std::endl;
+  stream << "Letter" << std::endl;
+  stream << "100.00" << std::endl;
+  stream << "Single" << std::endl;
+  stream << "-2" << std::endl;
+  stream << resolution << " 2" << std::endl;
   ComposedEdge::dumpInXfigFile(stream,resolution,box);
 }
 
@@ -198,8 +198,8 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
 {
   double ret=0.,xBaryBB,yBaryBB;
   double fact=normalize(&other,xBaryBB,yBaryBB);
-  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
-  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+  std::vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(std::vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
     {
       ret+=fabs((*iter)->getArea());
       delete *iter;
@@ -215,8 +215,8 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other, double* baryc
   double ret=0.,bary[2],area,xBaryBB,yBaryBB;
   barycenter[0] = barycenter[1] = 0.;
   double fact=normalize(&other,xBaryBB,yBaryBB);
-  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
-  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+  std::vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(std::vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
     {
       area=fabs((*iter)->getArea());
       (*iter)->getBarycenter(bary);
@@ -242,8 +242,8 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other, double* baryc
 double QuadraticPolygon::intersectWith(const QuadraticPolygon& other) const
 {
   double ret=0.;
-  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
-  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+  std::vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(std::vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
     {
       ret+=fabs((*iter)->getArea());
       delete *iter;
@@ -260,8 +260,8 @@ double QuadraticPolygon::intersectWith(const QuadraticPolygon& other, double* ba
 {
   double ret=0., bary[2];
   barycenter[0] = barycenter[1] = 0.;
-  vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
-  for(vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
+  std::vector<QuadraticPolygon *> polygs=intersectMySelfWith(other);
+  for(std::vector<QuadraticPolygon *>::iterator iter=polygs.begin();iter!=polygs.end();iter++)
     {
       double area = fabs((*iter)->getArea());
       (*iter)->getBarycenter(bary);
@@ -450,8 +450,8 @@ void QuadraticPolygon::performLocatingOperation(QuadraticPolygon& pol2) const
  */
 std::vector<QuadraticPolygon *> QuadraticPolygon::buildIntersectionPolygons(const QuadraticPolygon& pol1, const QuadraticPolygon& pol2) const
 {
-  vector<QuadraticPolygon *> ret;
-  list<QuadraticPolygon *> pol2Zip=pol2.zipConsecutiveInSegments();
+  std::vector<QuadraticPolygon *> ret;
+  std::list<QuadraticPolygon *> pol2Zip=pol2.zipConsecutiveInSegments();
   if(!pol2Zip.empty())
     closePolygons(pol2Zip,pol1,ret);
   else
@@ -473,7 +473,7 @@ std::vector<QuadraticPolygon *> QuadraticPolygon::buildIntersectionPolygons(cons
  */
 std::list<QuadraticPolygon *> QuadraticPolygon::zipConsecutiveInSegments() const
 {
-  list<QuadraticPolygon *> ret;
+  std::list<QuadraticPolygon *> ret;
   IteratorOnComposedEdge it((ComposedEdge *)this);
   int nbOfTurns=recursiveSize();
   int i=0;
@@ -514,7 +514,7 @@ void QuadraticPolygon::closePolygons(std::list<QuadraticPolygon *>& pol2Zip, con
 {
   bool directionKnownInPol1=false;
   bool directionInPol1;
-  for(list<QuadraticPolygon *>::iterator iter=pol2Zip.begin();iter!=pol2Zip.end();)
+  for(std::list<QuadraticPolygon *>::iterator iter=pol2Zip.begin();iter!=pol2Zip.end();)
     {
       if((*iter)->completed())
         {
@@ -530,8 +530,8 @@ void QuadraticPolygon::closePolygons(std::list<QuadraticPolygon *>& pol2Zip, con
           else
             directionKnownInPol1=true;
         }
-      list<QuadraticPolygon *>::iterator iter2=iter; iter2++;
-      list<QuadraticPolygon *>::iterator iter3=(*iter)->fillAsMuchAsPossibleWith(pol1,iter2,pol2Zip.end(),directionInPol1);
+      std::list<QuadraticPolygon *>::iterator iter2=iter; iter2++;
+      std::list<QuadraticPolygon *>::iterator iter3=(*iter)->fillAsMuchAsPossibleWith(pol1,iter2,pol2Zip.end(),directionInPol1);
       if(iter3!=pol2Zip.end())
         {
           (*iter)->pushBack(*iter3);
@@ -630,7 +630,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
 std::list<QuadraticPolygon *>::iterator QuadraticPolygon::checkInList(Node *n, std::list<QuadraticPolygon *>::iterator iStart,
                                                                       std::list<QuadraticPolygon *>::iterator iEnd)
 {
-  for(list<QuadraticPolygon *>::iterator iter=iStart;iter!=iEnd;iter++)
+  for(std::list<QuadraticPolygon *>::iterator iter=iStart;iter!=iEnd;iter++)
     if((*iter)->isNodeIn(n))
       return iter;
   return iEnd;

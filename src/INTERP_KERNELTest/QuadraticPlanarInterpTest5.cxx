@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "QuadraticPlanarInterpTest.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
@@ -27,7 +28,6 @@
 #include <iostream>
 #include <iterator>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
@@ -214,7 +214,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0006()
     0, 1, 2, 3, 4, 5, 6, 7 };
   QuadraticPolygon *pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   QuadraticPolygon *pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.366519,0.,0.};
   double test2_res[4]={0.,0.,0.,0.366519};
@@ -240,7 +240,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0007()
     0, 1, 2, 3, 4, 5, 6, 7 };
   QuadraticPolygon *pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   QuadraticPolygon *pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.366519,0.,0.};
   double test2_res[4]={0.,0.,0.,0.366519};
@@ -266,7 +266,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0008()
     0, 1, 2, 3, 4, 5, 6, 7 };
   QuadraticPolygon *pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   QuadraticPolygon *pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.18326,0.,0.};
   double test2_res[4]={0.,0.,0.,0.18326};
@@ -347,7 +347,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0011()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,val1,1.e-13);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,val2,1.e-13);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,val3,1.e-13);
-  vector<double> val4,val5;
+  std::vector<double> val4,val5;
   pol1->intersectForPerimeterAdvanced(*pol2,val4,val5);
   double test1_res[4]={0.,0.,0.,0.};
   CPPUNIT_ASSERT(std::equal(val4.begin(),val4.end(),test1_res,DoubleEqual(1e-13)));
@@ -391,7 +391,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar2511()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,val1,1.e-13);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,val2,1.e-13);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,val3,1.e-13);
-  vector<double> val4,val5;
+  std::vector<double> val4,val5;
   pol1->intersectForPerimeterAdvanced(*pol2,val4,val5);
   double test1_res[4]={0.,0.,0.,0.};
   CPPUNIT_ASSERT(std::equal(val4.begin(),val4.end(),test1_res,DoubleEqual(1e-13)));
@@ -429,7 +429,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0012()
     0, 1, 2, 3, 4, 5, 6, 7 };
   QuadraticPolygon *pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   QuadraticPolygon *pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.05,0.};
   double test2_res[4]={0.,0.,0.05,0.};
@@ -437,7 +437,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0012()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -463,7 +463,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0013()
     0, 1, 2, 3, 4, 5, 6, 7 };
   QuadraticPolygon *pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   QuadraticPolygon *pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.1,0.};
   double test2_res[4]={0.,0.,0.1,0.};
@@ -471,7 +471,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0013()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -507,7 +507,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0014()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.15,0.};
   double test2_res[4]={0.05,0.,0.1,0.};
@@ -515,7 +515,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0014()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -551,7 +551,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0015()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.2,0.};
   double test2_res[4]={0.1,0.,0.1,0.};
@@ -559,7 +559,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0015()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -595,7 +595,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0016()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.15,0.};
   double test2_res[4]={0.1,0.,0.05,0.};
@@ -603,7 +603,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0016()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -640,7 +640,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0017()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.1,0.};
   double test2_res[4]={0.1,0.,0.,0.};
@@ -648,7 +648,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0017()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -685,7 +685,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0018()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.05,0.};
   double test2_res[4]={0.05,0.,0.,0.};
@@ -693,7 +693,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0018()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -756,7 +756,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0020()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.,0.};
   double test2_res[4]={0.,0.,0.,0.};
@@ -764,7 +764,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0020()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-6)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -801,7 +801,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0021()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.162251,0.151523,0.,0.};
   double test2_res[4]={0.,0.311383,0.,0.0978193};
@@ -809,7 +809,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0021()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-6)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -945,7 +945,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0025()
   delete pol1;
   delete pol2;
   //
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -980,7 +980,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0026()
   delete pol1;
   delete pol2;
   //
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -1017,7 +1017,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0027()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.222704,0.,0.};
   double test2_res[4]={0.1,0.0465335,0.1,0.092554};
@@ -1025,7 +1025,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0027()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-6)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -1062,7 +1062,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0028()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.,0.};
   double test2_res[4]={0.1,0.628319,0.1,0.314159};
@@ -1070,7 +1070,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0028()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-6)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -1107,7 +1107,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0029()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.,0.};
   double test2_res[4]={0.,0.,0.,0.};
@@ -1115,7 +1115,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0029()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-13)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);
@@ -1152,7 +1152,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0030()
   //
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
-  vector<double> val1,val2;
+  std::vector<double> val1,val2;
   pol1->intersectForPerimeterAdvanced(*pol2,val1,val2);
   double test1_res[4]={0.,0.,0.,0.};
   double test2_res[4]={0.1,0.628319,0.1,0.314159};
@@ -1160,7 +1160,7 @@ void QuadraticPlanarInterpTest::checkNonRegressionOmar0030()
   CPPUNIT_ASSERT(std::equal(val2.begin(),val2.end(),test2_res,DoubleEqual(1e-6)));
   delete pol1;
   delete pol2;
-  vector<int> val3;
+  std::vector<int> val3;
   pol1=buildQuadraticPolygonCoarseInfo(coords,tab8,8);
   pol2=buildQuadraticPolygonCoarseInfo(coords2,tab8,8);
   pol1->intersectForPoint(*pol2,val3);

@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,7 @@ dist_libParaMEDMEMTest_la_SOURCES = \
 	ParaMEDMEMTest_MEDLoader.cxx \
 	ParaMEDMEMTest_ICocoTrio.cxx \
 	ParaMEDMEMTest_Gauthier1.cxx \
+	ParaMEDMEMTest_FabienAPI.cxx \
 	MPIAccessDECTest.cxx \
 	test_AllToAllDEC.cxx \
 	test_AllToAllvDEC.cxx \

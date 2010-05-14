@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PROCESSORGROUP_HXX__
 #define __PROCESSORGROUP_HXX__
 
@@ -39,13 +40,13 @@ namespace ParaMEDMEM
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const = 0;
     virtual void intersect (ProcessorGroup&) = 0;
     bool contains(int rank) const { return _proc_ids.find(rank)!=_proc_ids.end(); }
-    virtual bool containsMyRank() const= 0;
+    virtual bool containsMyRank() const = 0;
     int size() const  { return _proc_ids.size(); }
     const CommInterface& getCommInterface()const { return _comm_interface; }
     virtual int myRank() const = 0;
-    virtual int translateRank(const ProcessorGroup*, int) const =0;
-    virtual ProcessorGroup* createComplementProcGroup() const =0;
-    virtual ProcessorGroup* createProcGroup() const=0;
+    virtual int translateRank(const ProcessorGroup*, int) const = 0;
+    virtual ProcessorGroup* createComplementProcGroup() const = 0;
+    virtual ProcessorGroup* createProcGroup() const = 0;
     virtual const std::set<int>& getProcIDs()const  { return _proc_ids; } 
   protected:
     const CommInterface _comm_interface;

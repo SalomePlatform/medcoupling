@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 %module libMEDCoupling_Swig
 
 #define MEDCOUPLING_EXPORT
@@ -48,6 +49,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingMesh::mergeMyselfWith;
+%newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelf;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getMeasureField;
@@ -187,6 +189,8 @@ namespace ParaMEDMEM
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void updateTime();
     bool mergeNodes(double eps);
+    void applyFunc(int nbOfComp, const char *func);
+    void applyFunc(const char *func);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     %extend {
       void setValues(PyObject *li)

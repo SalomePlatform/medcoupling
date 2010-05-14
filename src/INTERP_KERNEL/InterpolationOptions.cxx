@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "InterpolationOptions.hxx"
 
 const double INTERP_KERNEL::InterpolationOptions::DFT_MEDIAN_PLANE=0.5;
@@ -102,7 +103,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, i
     }
     else if(key==DO_ROTATE_STR) 
       {
-        setDoRotate(value);
+        setDoRotate(value != 0);
         return true;
       }
     else if(key==ORIENTATION_STR) 

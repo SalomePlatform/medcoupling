@@ -32,7 +32,7 @@ As will be seen in section \ref medmem_api, the API consists of very few classes
 - supports and derived classes : \ref support ,
 - mesh generation tool : \ref meshing ,
 - fields : \ref field ,
-- drivers for reading and writing in MED, GIBI and VTK files.
+- \ref medmem_drivers "drivers for reading and writing" in MED, GIBI and VTK files.
 
 All these are detailed in the following sections. The C++ 
 formalism will be used for the description in these sections.
@@ -80,6 +80,17 @@ number and its order number.
 In %MED File a field is only flagged by its name. For instance,
 a temperature at times \a t=0.0 s, \a t=1.0 s, \a t=2.0 s will be considered as  a single field in Med File terminology, while it will be considered as three distinct fields in the Med Memory sense.
 
+\subsection medmem_drivers Drivers for reading and writing
+
+MEDMEM supports data exchange in following formats:
+- \b GIBI - reading and writing the mesh and the fields in ASCII format.
+- \b VTK - writing the mesh and the fields in ASCII and binary formats.
+- \b EnSight - reading and writing the mesh and the fields in ASCII and binary formats.
+- \b PORFLOW - reading the mesh in ASCII format.
+
+Limitation of length of names in GIBI format is overcome by storing names in the specific string pile of GIBI file.
+This pile is used to map actual long names of the data objects to their shortened representation.
+
 \section medmem_api Med Memory API
 
 \subsection medmem_conventions Conventions
@@ -111,7 +122,7 @@ programer.
 \subsection classes Classes
 At a basic usage level, the API consists in few classes which are located in
 the \c MEDMEM C++ namespace (consult figure \ref fig_UML_light which gives
-an UML diagram view of the main Med Memory classes)~:
+an UML diagram view of the main Med Memory classes):
 
 - \b MED the global container;
 - \b MESH the class containing 2D or 3D mesh objects;
@@ -126,7 +137,7 @@ an UML diagram view of the main Med Memory classes)~:
 The API of those classes is quite sufficient for most of the component
 integrations in the Salome platform. The use of the Med Memory libraries may
 make easier the code coupling in the Salome framework. With these classes, it
-is possible to~:
+is possible to:
 
 - read/write meshes and fields from MED-files;
 - create fields containing scalar or vectorial values on list of elements
@@ -136,14 +147,14 @@ of the mesh;
 
 Note that on the figure \ref fig_UML_light as well as on figure
 \ref fig_UML that the
-MED container controls the life cycle of all the objects it contains~: its destructor will destroy all the objects it aggregates. On the other hand, the life cycle of mesh, support and field objects are independent. Destroying a support (resp. a field) will have no effect on the mesh (resp. support) which refers to it. But the user has to maintain the link~: a mesh aggregates a support which aggregates a field. If the user has to delete Med Memory objects, the field has to be deleted first, then the support and finally the mesh.
+MED container controls the life cycle of all the objects it contains: its destructor will destroy all the objects it aggregates. On the other hand, the life cycle of mesh, support and field objects are independent. Destroying a support (resp. a field) will have no effect on the mesh (resp. support) which refers to it. But the user has to maintain the link: a mesh aggregates a support which aggregates a field. If the user has to delete Med Memory objects, the field has to be deleted first, then the support and finally the mesh.
 
 A more advanced usage of the Med Memory is possible through other classes.
 Figure \ref fig_UML gives a complete view of the Med Memory API. It includes :
 
 - \b GROUP a class inherited from the SUPPORT class used to create supports linked to mesh groups. It stores restricted list of elements used to set boundary conditions, initial values.
-- \b FAMILY which is used to manipulate a certain kind of support which does not intersect each other;
-\ b MESHING which builds meshes from scratch, it can be used to transform meshes from a specific format to the MED format or to integrate a mesher within Salome platform (note that class does not add element or node to a mesh);
+- \b FAMILY which is used to manipulate a certain kind of support which does not intersect each other.
+- \b MESHING which builds meshes from scratch, it can be used to transform meshes from a specific format to the MED format or to integrate a mesher within Salome platform (note that class does not add element or node to a mesh).
 - \b GRID which enables the user to manipulate specific functions for structured grid.
 
 \anchor fig_UML
@@ -221,11 +232,11 @@ describe the coupling between two parallel codes.
 The classes that make up the API of the library are :
 - communication interface : \ref comm_interface,
 - definition of processor groups : \ref processor_group,
-- Data Exchange Channel(aka DEC, abstract class) : \ref dec, and its implementations :
- -  \ref intersectiondec for a \ref InterpKerRemapGlobal based on intersecting elems volume computation,
- - NonCoincident DEC for a non-conservative interpolation based on element localization : \ref noncoincidentdec,
- - Explicit Coincident DEC for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies: \ref explicit_coincident_dec,
- - Structured Coincident DEC for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies : \ref structuredcoincidentdec.
+- Data Exchange Channel (aka DEC, abstract class) : \ref dec, and its implementations :
+ - \ref interpkerneldec for a \ref InterpKerRemapGlobal based on intersecting elems volume computation,
+ - \ref noncoincidentdec for a non-conservative interpolation based on element localization,
+ - \ref structuredcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies.
+ - \ref explicitcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies,
 
 */
 

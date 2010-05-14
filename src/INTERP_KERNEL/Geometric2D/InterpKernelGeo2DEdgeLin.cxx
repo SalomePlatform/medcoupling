@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,11 +16,11 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelException.hxx"
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
 namespace INTERP_KERNEL
@@ -209,10 +209,10 @@ void EdgeLin::dumpInXfigFile(std::ostream& stream, bool direction, int resolutio
 {
   stream << "2 1 0 1 ";
   fillXfigStreamForLoc(stream);
-  stream << " 7 50 -1 -1 0.000 0 0 -1 0 0 2" << endl;
+  stream << " 7 50 -1 -1 0.000 0 0 -1 0 0 2" << std::endl;
   direction?_start->dumpInXfigFile(stream,resolution,box):_end->dumpInXfigFile(stream,resolution,box);
   direction?_end->dumpInXfigFile(stream,resolution,box):_start->dumpInXfigFile(stream,resolution,box);
-  stream << endl;
+  stream << std::endl;
 }
 
 void EdgeLin::update(Node *m)

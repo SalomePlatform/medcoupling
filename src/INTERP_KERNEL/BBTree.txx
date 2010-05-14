@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@ private:
   int _level;
   double _max_left;
   double _min_right;
-  double* _bb;
+  const double *_bb;
   typename std::vector<ConnType> _elems;
   bool _terminal;
   ConnType _nbelems;
@@ -64,7 +64,7 @@ public:
     \endcode
   */
 
-  BBTree(double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1E-12):
+  BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1E-12):
     _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems),_epsilon(epsilon)
   {
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)
@@ -125,8 +125,15 @@ public:
       }
     _max_left=max_left+std::abs(_epsilon);
     _min_right=min_right-std::abs(_epsilon);
-    _left=new BBTree(bbs, &(new_elems_left[0]), level+1, new_elems_left.size(),_epsilon);
-    _right=new BBTree(bbs, &(new_elems_right[0]), level+1, new_elems_right.size(),_epsilon);
+    ConnType *tmp;
+    tmp=0;
+    if(!new_elems_left.empty())
+      tmp=&(new_elems_left[0]);
+    _left=new BBTree(bbs, tmp, level+1, new_elems_left.size(),_epsilon);
+    tmp=0;
+    if(!new_elems_right.empty())
+      tmp=&(new_elems_right[0]);
+    _right=new BBTree(bbs, tmp, level+1, new_elems_right.size(),_epsilon);
   
   }
 

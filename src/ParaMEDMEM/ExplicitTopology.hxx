@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,15 +16,16 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __EXPLICITTOPOLOGY_HXX__
 #define __EXPLICITTOPOLOGY_HXX__
 
 #include "ProcessorGroup.hxx"
+#include "InterpKernelHashMap.hxx"
 
 #include <vector>
 #include <utility>
 #include <iostream>
-#include <ext/hash_map>
 
 namespace ParaMEDMEM
 {
@@ -59,7 +60,7 @@ namespace ParaMEDMEM
     //mapping local to global
     int* _loc2glob;
     //mapping global to local
-    __gnu_cxx::hash_map<int,int> _glob2loc;
+    INTERP_KERNEL::HashMap<int,int> _glob2loc;
   };
 
   //!converts a pair <subdomainid,local> to a global number 

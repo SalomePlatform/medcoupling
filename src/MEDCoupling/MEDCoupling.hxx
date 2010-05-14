@@ -1,7 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
-//
-//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -19,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef _MEDCOUPLING_HXX_
 #define _MEDCOUPLING_HXX_
 
@@ -30,6 +28,20 @@
 #  endif
 #else
 #  define MEDCOUPLING_EXPORT
+#endif
+
+#ifdef WNT
+#  if defined medcouplingremapper_EXPORTS
+#    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllexport )
+#  else
+#    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllimport )
+#  endif
+#else
+#  define MEDCOUPLINGREMAPPER_EXPORT
+#endif
+
+#ifdef WNT
+#pragma warning( disable : 4290 )
 #endif
 
 #endif

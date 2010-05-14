@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGPOINTSET_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGPOINTSET_HXX__
 
@@ -23,6 +24,11 @@
 #include "MEDCouplingMesh.hxx"
 
 #include <vector>
+
+namespace INTERP_KERNEL
+{
+  class DirectedBoundingBox;
+}
 
 namespace ParaMEDMEM
 {
@@ -43,6 +49,7 @@ namespace ParaMEDMEM
     void setCoords(DataArrayDouble *coords);
     DataArrayDouble *getCoords() const { return _coords; }
     DataArrayDouble *getCoordinatesAndOwner() const;
+    bool isEqual(const MEDCouplingMesh *other, double prec) const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged) = 0;
     void findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const;
@@ -52,11 +59,17 @@ namespace ParaMEDMEM
     void zipCoords();
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
-    void tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
+    void scale(const double *point, double factor);
+    void changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception);
+    void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
+    void findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
+    static void rotate2DAlg(const double *center, double angle, int nbNodes, double *coords);
+    static void rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords);
     virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
     virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
+    virtual MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
     virtual void findBoundaryNodes(std::vector<int>& nodes) const = 0;
     virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
     virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
@@ -68,10 +81,12 @@ namespace ParaMEDMEM
     virtual void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
                                  const std::vector<std::string>& littleStrings);
     virtual void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) = 0;
+    virtual void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) = 0;
     virtual DataArrayInt *zipCoordsTraducer() = 0;
   protected:
     virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception) = 0;
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
+    static bool intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps);
     void rotate2D(const double *center, double angle);
     void rotate3D(const double *center, const double *vect, double angle);
     void project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const;

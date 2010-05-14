@@ -16,6 +16,8 @@ This user guide contains three different chapters that covers the core %MEDMEM l
 - Chapter \ref medmem covers the %MEDMEM core library, i.e. the implementation of meshes, supports and fields and the associated drivers (for MED-file, VTK, GIBI).
 - Chapter \ref interpkernel describes the interpolation and
 localization library.
+- Chapter \ref medcoupling describes DataStructures used for cross
+process exchange of meshes and fields.
 - Chapter \ref paramedmem describes its MPI implementation, which is called %ParaMEDMEM.
 - Chapter \ref tools describes various tools based on MEDMEM  that can
 be helpful for handling MED files (conversion tools and splitting tools). 

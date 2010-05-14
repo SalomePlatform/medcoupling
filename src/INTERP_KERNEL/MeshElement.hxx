@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __MESHELEMENT_HXX__
 #define __MESHELEMENT_HXX__
 
@@ -68,7 +69,7 @@ namespace INTERP_KERNEL
    * has a smaller YMIN is sorted before one with a larger YMIN.
    *
    */
-  class INTERPKERNEL_EXPORT ElementBBoxOrder
+  class ElementBBoxOrder
   {
   public : 
     

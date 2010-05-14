@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "CommInterface.hxx"
@@ -210,8 +211,16 @@ namespace ParaMEDMEM
       {
         procs.insert(*iter);
       }
-    return new MPIProcessorGroup(_comm_interface,procs, _world_comm);
+    return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
   }
+
+  int MPIProcessorGroup::myRank() const
+  { 
+    int rank;
+    MPI_Comm_rank(_comm,&rank);
+    return rank;
+  }
+  
   /*!
     @}
   */

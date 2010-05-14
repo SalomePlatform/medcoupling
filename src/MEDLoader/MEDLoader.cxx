@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "CellModel.hxx"
@@ -1253,6 +1254,12 @@ void MEDLoaderNS::prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCoupling
 
 void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch)
 {
+  std::string meshName(f->getMesh()->getName());
+  if(meshName.empty())
+    throw INTERP_KERNEL::Exception("Trying to write a mesh (f->getMesh()) with no name ! MED file format needs a not empty mesh name !");
+  std::string fieldName(f->getName());
+  if(fieldName.empty())
+    throw INTERP_KERNEL::Exception("Trying to write a field with no name ! MED file format needs a not empty field name !");
   MEDCouplingUMesh *mesh=dynamic_cast<MEDCouplingUMesh *>((MEDCouplingMesh *)f->getMesh());
   writeUMeshDirectly(fileName,mesh,forceFromScratch);
   appendFieldDirectly(fileName,f);
@@ -1260,6 +1267,9 @@ void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::ME
 
 void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
+  std::string meshName(mesh->getName());
+  if(meshName.empty())
+    throw INTERP_KERNEL::Exception("Trying to write a unstructured mesh with no name ! MED file format needs a not empty mesh name !");
   int status=MEDLoaderBase::getStatusOfFile(fileName);
   if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
     {
@@ -1293,7 +1303,6 @@ void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *m
 
 void MEDLoader::WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
-  f->checkCoherency();
   int status=MEDLoaderBase::getStatusOfFile(fileName);
   if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
     {

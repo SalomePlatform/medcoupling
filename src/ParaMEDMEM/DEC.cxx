@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "CommInterface.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
@@ -78,16 +79,58 @@ namespace ParaMEDMEM
                                                                        _source_group(&source_group),
                                                                        _target_group(&target_group),
                                                                        _owns_field(false),
+                                                                       _owns_groups(false),
                                                                        _icoco_field(0)
   {
     _union_group = source_group.fuse(target_group);  
   }
 
+  DEC::DEC(const int *src_ids_bg, const int *src_ids_end,
+           const int *trg_ids_bg, const int *trg_ids_end,
+           const MPI_Comm& world_comm):_local_field(0), 
+                                       _owns_field(false),
+                                       _owns_groups(true),
+                                       _icoco_field(0)
+  {
+    ParaMEDMEM::CommInterface comm;
+    // Create the list of procs including source and target
+    int nbOfProcsInComm=std::distance(src_ids_bg,src_ids_end)+std::distance(trg_ids_bg,trg_ids_end);
+    int *allRanks=new int[nbOfProcsInComm];
+    std::copy(src_ids_bg,src_ids_end,allRanks);
+    std::copy(trg_ids_bg,trg_ids_end,allRanks+std::distance(src_ids_bg,src_ids_end));
+    // Create a communicator on these procs
+    MPI_Group src_trg_group, world_group;
+    comm.commGroup(world_comm,&world_group);
+    comm.groupIncl(world_group,nbOfProcsInComm,allRanks,&src_trg_group);
+    MPI_Comm src_trg_comm;
+    comm.commCreate(world_comm,src_trg_group,&src_trg_comm);
+    delete [] allRanks;
+    //
+    if(src_trg_comm==MPI_COMM_NULL)
+      {//Current procid is not part of src_trg_comm
+        _source_group=0;
+        _target_group=0;
+        _union_group=0;
+        return;
+      }
+    std::set<int> source_ids(src_ids_bg,src_ids_end);
+    _source_group=new MPIProcessorGroup(comm,source_ids,src_trg_comm);
+    std::set<int> target_ids(trg_ids_bg,trg_ids_end);
+    _target_group=new MPIProcessorGroup(comm,target_ids,src_trg_comm);
+    std::set<int> src_trg_ids(src_ids_bg,src_ids_end);
+    src_trg_ids.insert(trg_ids_bg,trg_ids_end);
+    _union_group=new MPIProcessorGroup(comm,src_trg_ids,src_trg_comm);
+  }
+
   DEC::~DEC()
   {
-    //    delete _union_group;
     if(_owns_field)
       delete _local_field;
+    if(_owns_groups)
+      {
+        delete _source_group;
+        delete _target_group;
+      }
     delete _icoco_field;
     delete _union_group;
   }
@@ -103,9 +146,14 @@ namespace ParaMEDMEM
     will be updated by a recvData() call.
     Reversely, if the processor is on the sending end, the field will be read, possibly transformed, and sent appropriately to the other side.
   */
-  void DEC::attachLocalField(const ParaFIELD* field) 
+  void DEC::attachLocalField(const ParaFIELD* field, bool ownPt) 
   {
+    if(!isInUnion())
+      return ;
+    if(_owns_field)
+      delete _local_field;
     _local_field=field;
+    _owns_field=ownPt;
     _comm_interface=&(field->getTopology()->getProcGroup()->getCommInterface());
     compareFieldAndMethod();
   }
@@ -122,6 +170,8 @@ namespace ParaMEDMEM
 
   void DEC::attachLocalField(MEDCouplingFieldDouble* field) 
   {
+    if(!isInUnion())
+      return ;
     ProcessorGroup* local_group;
     if (_source_group->containsMyRank())
       local_group=_source_group;
@@ -130,12 +180,9 @@ namespace ParaMEDMEM
     else
       throw INTERP_KERNEL::Exception("Invalid procgroup for field attachment to DEC");
     ParaMESH *paramesh=new ParaMESH((MEDCouplingPointSet *)field->getMesh(),*local_group,field->getMesh()->getName());
-    if(_owns_field)
-      delete _local_field; 
-    _local_field = new ParaFIELD(field, paramesh, *local_group);
-    _owns_field=true;
-    _local_field->setOwnSupport(true);
-    attachLocalField(_local_field);
+    ParaFIELD *tmp=new ParaFIELD(field, paramesh, *local_group);
+    tmp->setOwnSupport(true);
+    attachLocalField(tmp,true);
     //_comm_interface=&(local_group->getCommInterface());
   }
 
@@ -152,6 +199,8 @@ namespace ParaMEDMEM
   
   void DEC::attachLocalField(const ICoCo::Field* field)
   {
+    if(!isInUnion())
+      return ;
     const ICoCo::MEDField* medfield=dynamic_cast<const ICoCo::MEDField*> (field);
     if(medfield !=0)
       {
@@ -218,6 +267,27 @@ namespace ParaMEDMEM
   }
   /*! @} */
 
+  bool DEC::isInSourceSide() const
+  {
+    if(!_source_group)
+      return false;
+    return _source_group->containsMyRank();
+  }
+
+  bool DEC::isInTargetSide() const
+  {
+    if(!_target_group)
+      return false;
+    return _target_group->containsMyRank();
+  }
+
+  bool DEC::isInUnion() const
+  {
+    if(!_union_group)
+      return false;
+    return _union_group->containsMyRank();
+  }
+
   void DEC::compareFieldAndMethod() const throw(INTERP_KERNEL::Exception)
   {
     if (_local_field)
@@ -247,6 +317,30 @@ namespace ParaMEDMEM
           {
             throw INTERP_KERNEL::Exception("Unknown interpolation method. Possible methods: P0, P1, P1d");
           }
+      }
+  }
+
+  /*!
+    If way==true, source procs call sendData() and target procs call recvData().
+    if way==false, it's the other way round.
+  */
+  void DEC::sendRecvData(bool way)
+  {
+    if(!isInUnion())
+      return;
+    if(isInSourceSide())
+      {
+        if(way)
+          sendData();
+        else
+          recvData();
+      }
+    else if(isInTargetSide())
+      {
+        if(way)
+          recvData();
+        else
+          sendData();
       }
   }
 }

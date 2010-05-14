@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __INTERPKERNELDEC_HXX__
 #define __INTERPKERNELDEC_HXX__
 
@@ -32,6 +33,9 @@ namespace ParaMEDMEM
   public:  
     InterpKernelDEC();
     InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
+    InterpKernelDEC(const int *src_ids_bg, const int *src_ids_end,
+                    const int *trg_ids_bg, const int *trg_ids_end,
+                    const MPI_Comm& world_comm=MPI_COMM_WORLD);
     virtual ~InterpKernelDEC();
     void synchronize();
     void recvData();

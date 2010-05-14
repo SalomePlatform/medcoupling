@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,18 +16,21 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __INTERPKERNELBASESDEFINES_HXX__
 #define __INTERPKERNELBASESDEFINES_HXX__
 
 //export symbols
-#ifdef WIN32
-# if defined INTERPKERNELBASES_EXPORTS || defined interpkernelbases_EXPORTS
-#  define INTERPKERNELBASES_EXPORT __declspec(dllexport)
-# else
-#  define INTERPKERNELBASES_EXPORT __declspec(dllimport)
-# endif
-#else
-# define INTERPKERNELBASES_EXPORT
-#endif 
+// #ifdef WIN32
+// # if defined INTERPKERNELBASES_EXPORTS || defined interpkernelbases_EXPORTS
+// #  define INTERPKERNELBASES_EXPORT __declspec(dllexport)
+// # else
+// #  define INTERPKERNELBASES_EXPORT __declspec(dllimport)
+// # endif
+// #else
+// # define INTERPKERNELBASES_EXPORT
+// #endif 
+
+#define INTERPKERNELBASES_EXPORT
 
 #endif

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __INTERPKERNELMATRIX_HXX_
 #define __INTERPKERNELMATRIX_HXX__
 
@@ -117,7 +118,7 @@ namespace INTERP_KERNEL
         {
           int size=_ncols_offset[_nb_rows];
           _coeffs = new double[size];
-          _cols = new uint[size];
+          _cols = new unsigned int[size];
           memcpy(_coeffs, m._coeffs, size*sizeof(double));
           memcpy(_cols, m._cols, size*sizeof(int));
         }
@@ -139,7 +140,7 @@ namespace INTERP_KERNEL
         {
           int size=_ncols_offset[_nb_rows];
           _coeffs = new double[size];
-          _cols = new uint[size];
+          _cols = new unsigned int[size];
           memcpy(_coeffs, m._coeffs, size*sizeof(double));
           memcpy(_cols, m._cols, size*sizeof(int));
         }
@@ -161,7 +162,7 @@ namespace INTERP_KERNEL
       if (_auxiliary_matrix.empty())
         _auxiliary_matrix.resize(_nb_rows);
       
-      for (uint i=0; i< _auxiliary_matrix[OTT<int,type>::ind2C(irow)].size(); i++)
+      for (unsigned int i=0; i< _auxiliary_matrix[OTT<int,type>::ind2C(irow)].size(); i++)
         if (_auxiliary_matrix[OTT<int,type>::ind2C(irow)][i].first == icol)
           {
             _auxiliary_matrix[OTT<int,type>::ind2C(irow)][i].second = value;
@@ -379,24 +380,24 @@ namespace INTERP_KERNEL
   {
     if (m._is_configured)
       {
-        out << OTT<uint,type>::indFC(0) <<std::endl;
+        out << OTT<unsigned int,type>::indFC(0) <<std::endl;
         out << m._nb_rows<<std::endl;
-        for (uint i=0; i<m._nb_rows; i++)
+        for (unsigned int i=0; i<m._nb_rows; i++)
           {
             out << m._ncols_offset[i+1]-m._ncols_offset[i];
-            for (uint j=m._ncols_offset[i]; j<m._ncols_offset[i+1]; j++)
-              out <<"\t"<< OTT<uint,type>::indFC(m._cols[j]) <<"\t"<<m._coeffs[j];
+            for (unsigned int j=m._ncols_offset[i]; j<m._ncols_offset[i+1]; j++)
+              out <<"\t"<< OTT<unsigned int,type>::indFC(m._cols[j]) <<"\t"<<m._coeffs[j];
             out<<std::endl;
           }
       }
     else
       {
-        out << OTT<uint,type>::indFC(0) <<"\n";
+        out << OTT<unsigned int,type>::indFC(0) <<"\n";
         out << m._nb_rows <<"\n";
-        for (uint i=0; i<m._nb_rows; i++)
+        for (unsigned int i=0; i<m._nb_rows; i++)
           {
             out<< m._auxiliary_matrix[i].size();
-            for (uint j=0; j<m._auxiliary_matrix[i].size(); j++)
+            for (unsigned int j=0; j<m._auxiliary_matrix[i].size(); j++)
               out << "\t" <<m._auxiliary_matrix[i][j].first <<"\t"
                   <<m._auxiliary_matrix[i][j].second;
             out <<"\n";
@@ -410,21 +411,21 @@ namespace INTERP_KERNEL
   {
     int index_base_test;
     in >> index_base_test;
-    if (index_base_test!=OTT<uint,type>::indFC(0))
+    if (index_base_test!=OTT<unsigned int,type>::indFC(0))
       {
         std::cerr << "file index is "<<index_base_test<<std::endl;
         throw Exception("incompatible indexing reading matrix");
       }
     in >> m._nb_rows;
     m._auxiliary_matrix.resize(m._nb_rows);
-    for (uint i=0; i<m._nb_rows; i++)
+    for (unsigned int i=0; i<m._nb_rows; i++)
       {
-        uint ncols;
+        unsigned int ncols;
         in >> ncols;
         m._auxiliary_matrix[i].resize(ncols);
         double value;
-        uint col;
-        for (uint j=0; j<ncols; j++)
+        unsigned int col;
+        for (unsigned int j=0; j<ncols; j++)
           {
             in>>col;
             in>>value;

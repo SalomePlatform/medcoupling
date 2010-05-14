@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,13 +16,17 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGMESH_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGMESH_HXX__
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
+
+#include <vector>
 
 namespace ParaMEDMEM
 {
@@ -52,10 +56,17 @@ namespace ParaMEDMEM
     virtual int getMeshDimension() const = 0;
     virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
     virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
+    virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
+    virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
+    virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;
     // tools
     virtual void getBoundingBox(double *bbox) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
+    virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
+    virtual int getCellContainingPoint(const double *pos, double eps) const = 0;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const;
+    virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const;
+    virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
     virtual void translate(const double *vector) = 0;
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;

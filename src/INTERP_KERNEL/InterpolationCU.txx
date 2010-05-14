@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2009-2010  OPEN CASCADE
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -138,7 +138,7 @@ namespace INTERP_KERNEL
 
     // loop on unstructured tgt cells
 
-    for(int iT=0; iT<tgtu_nb_cells; iT++)
+    for(unsigned int iT=0; iT<tgtu_nb_cells; iT++)
       {
         result[ iT ].clear();
 
@@ -169,7 +169,7 @@ namespace INTERP_KERNEL
             int min_i = coo_ind->second;
 
             std::vector< std::vector< CConnType > > newStructIndices;
-            for ( int iInd = 0; iInd < structIndices.size(); ++iInd )
+            for ( unsigned int iInd = 0; iInd < structIndices.size(); ++iInd )
               {
                 for ( int i = min_i; i < max_i; ++i )
                   {
@@ -183,7 +183,7 @@ namespace INTERP_KERNEL
 
         // perform intersection
 
-        for ( int iInd = 0; iInd < structIndices.size(); ++iInd )
+        for ( unsigned int iInd = 0; iInd < structIndices.size(); ++iInd )
           intersector->intersectCells( iT, structIndices[iInd], result );
       }
     delete intersector;

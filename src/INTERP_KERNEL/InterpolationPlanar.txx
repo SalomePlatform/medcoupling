@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -170,8 +170,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
@@ -207,8 +207,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
@@ -244,8 +244,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
@@ -281,8 +281,8 @@ namespace INTERP_KERNEL
         intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0Bary>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
         break;
@@ -314,8 +314,8 @@ namespace INTERP_KERNEL
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
                                                                                            InterpolationOptions::getMaxDistance3DSurfIntersect(),
-                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
@@ -347,7 +347,10 @@ namespace INTERP_KERNEL
     std::vector<double> bbox;
     intersector->createBoundingBoxes(myMeshS,bbox); // create the bounding boxes
     performAdjustmentOfBB(intersector,bbox);
-    BBTree<SPACEDIM,ConnType> my_tree(&bbox[0], 0, 0,nbMailleS);//creating the search structure 
+    const double *bboxPtr=0;
+    if(nbMailleS>0)
+      bboxPtr=&bbox[0];
+    BBTree<SPACEDIM,ConnType> my_tree(bboxPtr, 0, 0,nbMailleS);//creating the search structure 
 
     long end_filtering=clock();
 

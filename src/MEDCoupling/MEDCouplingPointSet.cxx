@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingUMeshDesc.hxx"
@@ -24,6 +25,7 @@
 #include "PlanarIntersector.txx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DNode.hxx"
+#include "DirectedBoundingBox.hxx"
 
 #include <cmath>
 #include <limits>
@@ -96,6 +98,18 @@ DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
   return _coords;
 }
 
+bool MEDCouplingPointSet::isEqual(const MEDCouplingMesh *other, double prec) const
+{
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  if(!otherC)
+    return false;
+  if(!MEDCouplingMesh::isEqual(other,prec))
+    return false;
+  if(!areCoordsEqual(*otherC,prec))
+    return false;
+  return true;
+}
+
 bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, double prec) const
 {
   if(_coords==0 && other._coords==0)
@@ -108,6 +122,8 @@ bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, doubl
 }
 
 /*!
+ * This methods searches for each node n1 nodes in _coords that are less far than 'prec' from n1. if any these nodes are stored in params
+ * comm and commIndex.
  * @param comm out parameter (not inout)
  * @param commIndex out parameter (not inout)
  */
@@ -193,6 +209,13 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommNodesFrmt(const Data
   return ret;
 }
 
+/*
+ * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
+ * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
+ * This value is asked because often known by the caller of this method.
+ * @param newNodeNumbers array specifying the new numbering.
+ * @param newNbOfNodes the new number of nodes.
+ */
 void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
   DataArrayDouble *newCoords=DataArrayDouble::New();
@@ -208,6 +231,11 @@ void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNo
   newCoords->decrRef();
 }
 
+/*!
+ * This method fills bbox params like that : bbox[0]=XMin, bbox[1]=XMax, bbox[2]=YMin...
+ * The returned bounding box is arranged along trihedron.
+ * @param bbox out array of size 2*this->getSpaceDimension().
+ */
 void MEDCouplingPointSet::getBoundingBox(double *bbox) const
 {
   int dim=getSpaceDimension();
@@ -234,6 +262,9 @@ void MEDCouplingPointSet::getBoundingBox(double *bbox) const
     }
 }
 
+/*!
+ * This method removes useless nodes in coords.
+ */
 void MEDCouplingPointSet::zipCoords()
 {
   checkFullyDefined();
@@ -241,6 +272,14 @@ void MEDCouplingPointSet::zipCoords()
   traducer->decrRef();
 }
 
+/*!
+ * Non const method that operates a rotation of 'this'.
+ * If spaceDim==2 'vector' parameter is ignored (and could be 0) and the rotation is done around 'center' with angle specified by 'angle'.
+ * If spaceDim==3 the rotation axe is defined by ('center','vector') and the angle is 'angle'.
+ * @param center an array of size getSpaceDimension().
+ * @param vector in array of size getSpaceDimension().
+ * @param angle angle of rotation in radian.
+ */
 void MEDCouplingPointSet::rotate(const double *center, const double *vector, double angle)
 {
   int spaceDim=getSpaceDimension();
@@ -254,6 +293,10 @@ void MEDCouplingPointSet::rotate(const double *center, const double *vector, dou
   updateTime();
 }
 
+/*!
+ * Non const method that operates a translation of 'this'.
+ * @param vector in array of size getSpaceDimension().
+ */
 void MEDCouplingPointSet::translate(const double *vector)
 {
   double *coords=_coords->getPointer();
@@ -266,7 +309,71 @@ void MEDCouplingPointSet::translate(const double *vector)
   updateTime();
 }
 
-void MEDCouplingPointSet::tryToShareSameCoords(MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
+/*!
+ * Non const method that operates a scale on 'this' with 'point' as reference point of scale and with factor 'factor'.
+ * @param point in array of size getSpaceDimension().
+ * @param factor factor of the scaling
+ */
+void MEDCouplingPointSet::scale(const double *point, double factor)
+{
+  double *coords=_coords->getPointer();
+  int nbNodes=getNumberOfNodes();
+  int dim=getSpaceDimension();
+  double *tmp=new double[dim];
+  for(int i=0;i<nbNodes;i++)
+    {
+      std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::minus<double>());
+      std::transform(coords+i*dim,coords+(i+1)*dim,coords+i*dim,std::bind2nd(std::multiplies<double>(),factor));
+      std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::plus<double>());
+    }
+  delete [] tmp;
+  _coords->declareAsNew();
+  updateTime();
+}
+
+/*!
+ * This method is only available for already defined coordinates.
+ * If not an INTERP_KERNEL::Exception is thrown. The 'newSpaceDim' input must be greater or equal to 1.
+ * This method simply convert this to newSpaceDim space :
+ * - by putting a 0. for each \f$ i^{th} \f$ components of each coord of nodes so that i>=getSpaceDim(), if 'newSpaceDim'>getSpaceDimsion()
+ * - by ignoring each \f$ i^{th} \f$ components of each coord of nodes so that i >= 'newSpaceDim', 'newSpaceDim'<getSpaceDimension()
+ * If newSpaceDim==getSpaceDim() nothing is done by this method.
+ */
+void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception)
+{
+  if(getCoords()==0)
+    throw INTERP_KERNEL::Exception("changeSpaceDimension must be called on an MEDCouplingPointSet instance with coordinates set !");
+  if(newSpaceDim<1)
+    throw INTERP_KERNEL::Exception("changeSpaceDimension must be called a newSpaceDim >=1 !");
+  int oldSpaceDim=getSpaceDimension();
+  if(newSpaceDim==oldSpaceDim)
+    return ;
+  DataArrayDouble *newCoords=DataArrayDouble::New();
+  newCoords->alloc(getCoords()->getNumberOfTuples(),newSpaceDim);
+  const double *oldc=getCoords()->getConstPointer();
+  double *nc=newCoords->getPointer();
+  int nbOfNodes=getNumberOfNodes();
+  int dim=std::min(oldSpaceDim,newSpaceDim);
+  for(int i=0;i<nbOfNodes;i++)
+    {
+      int j=0;
+      for(;j<dim;j++)
+        nc[newSpaceDim*i+j]=oldc[i*oldSpaceDim+j];
+      for(;j<newSpaceDim;j++)
+        nc[newSpaceDim*i+j]=0.;
+    }
+  newCoords->setName(getCoords()->getName().c_str());
+  for(int i=0;i<dim;i++)
+    newCoords->setInfoOnComponent(i,getCoords()->getInfoOnComponent(i).c_str());
+  setCoords(newCoords);
+  newCoords->decrRef();
+}
+
+/*!
+ * This method try to substitute this->_coords with other._coords if arrays match.
+ * This method potentially modifies 'this' if it succeeds, otherway an exception is thrown.
+ */
+void MEDCouplingPointSet::tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
 {
   if(_coords==other._coords)
     return ;
@@ -276,8 +383,37 @@ void MEDCouplingPointSet::tryToShareSameCoords(MEDCouplingPointSet& other, doubl
     throw INTERP_KERNEL::Exception("Other instance has no coords whereas current has !");
   if(!_coords->isEqual(*other._coords,epsilon))
     throw INTERP_KERNEL::Exception("Coords are not the same !");
+  setCoords(other._coords);
 }
 
+/*!
+ * This method is expecting to be called for meshes so that getSpaceDimension() returns 3.
+ * This method returns in 'nodes' output all the nodes that are at a distance lower than epsilon from plane
+ * defined by the point 'pt' and the vector 'vec'.
+ * @param pt points to an array of size 3 and represents a point that owns to plane.
+ * @param vec points to an array of size 3 and represents the normal vector of the plane. The norm of the vector is not compulsory equal to 1. But norm must be greater than 10*abs(eps)
+ * @param eps is the maximal distance around the plane where node in this->_coords will be picked.
+ * @param nodes is the output of the method. The vector is not compulsory empty before call. The nodes that fulfills the condition will be added at the end of the nodes.
+ */
+void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception)
+{
+  if(getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid spacedim to be applied on this ! Must be equal to 3 !");
+  int nbOfNodes=getNumberOfNodes();
+  double a=vec[0],b=vec[1],c=vec[2],d=-pt[0]*vec[0]-pt[1]*vec[1]-pt[2]*vec[2];
+  double deno=sqrt(a*a+b*b+c*c);
+  const double *work=_coords->getConstPointer();
+  for(int i=0;i<nbOfNodes;i++)
+    {
+      if(std::abs(a*work[0]+b*work[1]+c*work[2]+d)/deno<eps)
+        nodes.push_back(i);
+      work+=3;
+    }
+}
+
+/*!
+ * merge _coords arrays of m1 and m2 and returns the union. The returned instance is newly created with ref count == 1.
+ */
 DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2)
 {
   int spaceDim=m1->getSpaceDimension();
@@ -286,6 +422,10 @@ DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const MEDCouplingPointSet 
   return DataArrayDouble::aggregate(m1->getCoords(),m2->getCoords());
 }
 
+/*!
+ * Factory to build new instance of instanciable subclasses of MEDCouplingPointSet.
+ * This method is used during unserialization process.
+ */
 MEDCouplingPointSet *MEDCouplingPointSet::buildInstanceFromMeshType(MEDCouplingMeshType type)
 {
   switch(type)
@@ -299,6 +439,9 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildInstanceFromMeshType(MEDCouplingM
     }
 }
 
+/*!
+ * First step of serialization process. Used by ParaMEDMEM and MEDCouplingCorba to transfert data between process.
+ */
 void MEDCouplingPointSet::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   if(_coords)
@@ -324,6 +467,9 @@ void MEDCouplingPointSet::getTinySerializationInformation(std::vector<int>& tiny
     }
 }
 
+/*!
+ * Third and final step of serialization process.
+ */
 void MEDCouplingPointSet::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 {
   if(_coords)
@@ -335,6 +481,10 @@ void MEDCouplingPointSet::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) con
     a2=0;
 }
 
+/*!
+ * Second step of serialization process.
+ * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
+ */
 void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
@@ -348,6 +498,10 @@ void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyI
     }
 }
 
+/*!
+ * Second and final unserialization process.
+ * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
+ */
 void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
@@ -361,9 +515,9 @@ void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, Data
     setName(littleStrings[0].c_str());
 }
 
-// =============================================
-// Intersect Bounding Box given 2 Bounding Boxes
-// =============================================
+/*!
+ * Intersect Bounding Box given 2 Bounding Boxes.
+ */
 bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps)
 {
   double* bbtemp = new double[2*dim];
@@ -398,9 +552,47 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
 }
 
 /*!
+ * Intersect 2 given Bounding Boxes.
+ */
+bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps)
+{
+  double* bbtemp = new double[2*dim];
+  double deltamax=0.0;
+
+  for (int i=0; i< dim; i++)
+    {
+      double delta = bb2[2*i+1]-bb2[2*i];
+      if ( delta > deltamax )
+        {
+          deltamax = delta ;
+        }
+    }
+  for (int i=0; i<dim; i++)
+    {
+      bbtemp[i*2]=bb2[i*2]-deltamax*eps;
+      bbtemp[i*2+1]=bb2[i*2+1]+deltamax*eps;
+    }
+  
+  bool intersects = !bb1.isDisjointWith( bbtemp );
+  delete [] bbtemp;
+  return intersects;
+}
+
+/*!
  * 'This' is expected to be of spaceDim==3. Idem for 'center' and 'vect'
  */
 void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, double angle)
+{
+  double *coords=_coords->getPointer();
+  int nbNodes=getNumberOfNodes();
+  rotate3DAlg(center,vect,angle,nbNodes,coords);
+}
+
+/*!
+ * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in 'coords'
+ * around an axe ('center','vect') and with angle 'angle'.
+ */
+void MEDCouplingPointSet::rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords)
 {
   double sina=sin(angle);
   double cosa=cos(angle);
@@ -422,8 +614,6 @@ void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, dou
   std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind2nd(std::multiplies<double>(),sina));
   std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
   //rotation matrix computed.
-  double *coords=_coords->getPointer();
-  int nbNodes=getNumberOfNodes();
   double tmp[3];
   for(int i=0; i<nbNodes; i++)
     {
@@ -439,12 +629,21 @@ void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, dou
  */
 void MEDCouplingPointSet::rotate2D(const double *center, double angle)
 {
+  double *coords=_coords->getPointer();
+  int nbNodes=getNumberOfNodes();
+  rotate2DAlg(center,angle,nbNodes,coords);
+}
+
+/*!
+ * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in 'coords'
+ * around the center point 'center' and with angle 'angle'.
+ */
+void MEDCouplingPointSet::rotate2DAlg(const double *center, double angle, int nbNodes, double *coords)
+{
   double cosa=cos(angle);
   double sina=sin(angle);
   double matrix[4];
   matrix[0]=cosa; matrix[1]=-sina; matrix[2]=sina; matrix[3]=cosa;
-  double *coords=_coords->getPointer();
-  int nbNodes=getNumberOfNodes();
   double tmp[2];
   for(int i=0; i<nbNodes; i++)
     {
@@ -463,6 +662,12 @@ public:
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 };
 
+/*!
+ * res should be an empty vector before calling this method.
+ * This method returns all the node coordinates included in _coords which ids are in [startConn;endConn) and put it into 'res' vector.
+ * If spaceDim==3 a projection will be done for each nodes on the middle plane containing these all nodes in [startConn;endConn).
+ * And after each projected nodes are moved to Oxy plane in order to consider these nodes as 2D nodes.
+ */
 void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const
 {
   const double *coords=_coords->getConstPointer();
@@ -487,6 +692,9 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
   throw INTERP_KERNEL::Exception("Invalid spacedim for project2DCellOnXY !");
 }
 
+/*!
+ * low level method that checks that the 2D cell is not a butterfly cell.
+ */
 bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad)
 {
   int nbOfNodes=res.size()/2;

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MEDCouplingUMeshDesc.hxx"
 #include "CellModel.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -97,6 +98,23 @@ int MEDCouplingUMeshDesc::getCellMeshLength() const
 int MEDCouplingUMeshDesc::getFaceMeshLength() const
 {
   return _nodal_connec_face->getNbOfElems();
+}
+
+INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshDesc::getTypeOfCell(int cellId) const
+{
+  const int *desc_connec=_desc_connec->getConstPointer();
+  const int *desc_connec_index=_desc_connec_index->getConstPointer();
+  return (INTERP_KERNEL::NormalizedCellType)desc_connec[desc_connec_index[cellId]+1];
+}
+
+void MEDCouplingUMeshDesc::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
+{
+  //not implemented yet.
+}
+
+void MEDCouplingUMeshDesc::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+{
+  //not implemented yet.
 }
 
 void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx)
@@ -220,6 +238,51 @@ void MEDCouplingUMeshDesc::giveElemsInBoundingBox(const double *bbox, double eps
   delete [] elem_bb;
 }
 
+void MEDCouplingUMeshDesc::giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox &bbox, double eps, std::vector<int>& elems)
+{
+  int dim=getSpaceDimension();
+  double* elem_bb=new double[2*dim];
+  const int* conn      = _desc_connec->getConstPointer();
+  const int* conn_index= _desc_connec_index->getConstPointer();
+  const int* face      = _nodal_connec_face->getConstPointer();
+  const int* face_index= _nodal_connec_face_index->getConstPointer();
+  const double* coords = getCoords()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  for ( int ielem=0; ielem<nbOfCells;ielem++ )
+    {
+      for (int i=0; i<dim; i++)
+        {
+          elem_bb[i*2]=std::numeric_limits<double>::max();
+          elem_bb[i*2+1]=-std::numeric_limits<double>::max();
+        }
+
+      for (int jface=conn_index[ielem]+1; jface<conn_index[ielem+1]; jface++)//+1 due to offset of cell type.
+        {
+          int iface=conn[jface];
+          for(int inode=face_index[iface]+1;inode<face_index[iface+1];inode++)
+            {
+              int node=face[inode];
+              for (int idim=0; idim<dim; idim++)
+                {
+                  if ( coords[node*dim+idim] < elem_bb[idim*2] )
+                    {
+                      elem_bb[idim*2] = coords[node*dim+idim] ;
+                    }
+                  if ( coords[node*dim+idim] > elem_bb[idim*2+1] )
+                    {
+                      elem_bb[idim*2+1] = coords[node*dim+idim] ;
+                    }
+                }
+            }
+        }
+      if (intersectsBoundingBox(bbox, elem_bb, dim, eps))
+        {
+          elems.push_back(ielem);
+        }
+    }
+  delete [] elem_bb;
+}
+
 DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged)
 {
   //not implemented yet.
@@ -234,6 +297,12 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf(const int *start, c
 }
 
 MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
+{
+  //not implemented yet
+  return 0;
+}
+
+MEDCouplingPointSet *MEDCouplingUMeshDesc::buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
 {
   //not implemented yet
   return 0;
@@ -259,6 +328,20 @@ void MEDCouplingUMeshDesc::renumberNodes(const int *newNodeNumbers, int newNbOfN
 MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureField(bool isAbs) const
 {
   //not implemented yet.
+  return 0;
+}
+
+MEDCouplingFieldDouble *MEDCouplingUMeshDesc::getMeasureFieldOnNode(bool isAbs) const
+{
+  //not implemented yet.
+  return 0;
+}
+
+MEDCouplingFieldDouble *MEDCouplingUMeshDesc::buildOrthogonalField() const
+{
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("Expected a cmesh with meshDim == 2 !");
+  //not implemented yet !
   return 0;
 }
 
@@ -297,4 +380,10 @@ DataArrayDouble *MEDCouplingUMeshDesc::getBarycenterAndOwner() const
 {
   //not implemented yet.
   return 0;
+}
+
+int MEDCouplingUMeshDesc::getCellContainingPoint(const double *pos, double eps) const
+{
+  //not implemented yet.
+  return -1;
 }

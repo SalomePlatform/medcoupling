@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "ParaMEDMEMTest.hxx"
 #include <cppunit/TestAssert.h>
 
@@ -367,6 +368,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
         value[ielem]=1.0;
       dec.setMethod(srcMeth);
       dec.attachLocalField(mcfield);
+      dec.attachLocalField(mcfield);
     }
   
   //loading the geometry for the target group
@@ -407,6 +409,7 @@ void ParaMEDMEMTest::testInterpKernelDEC2_2D_(const char *srcMeth, const char *t
       for(int ielem=0; ielem<nb_local;ielem++)
         value[ielem]=0.0;
       dec.setMethod(targetMeth);
+      dec.attachLocalField(mcfield);
       dec.attachLocalField(mcfield);
     }
     
@@ -703,6 +706,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
   double targetResults[3][2]={{34.,34.},{38.333333333333336,42.666666666666664},{47.,47.}};
   double targetResults2[3][2]={{0.28333333333333344,0.56666666666666687},{1.8564102564102569,2.0128205128205132},{1.0846153846153845,0.36153846153846159}};
   double targetResults3[3][2]={{3.7777777777777781,7.5555555555555562},{24.511111111111113,26.355555555555558},{14.1,4.7}};
+  double targetResults4[3][2]={{8.5,17},{8.8461538461538431, 9.8461538461538449},{35.25,11.75}};
   //
   int size;
   int rank;
@@ -839,20 +843,16 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
-  //test 4 - Conservative volumic reversed
+  //test 4 - RevIntegral
   ParaMEDMEM::InterpKernelDEC dec4(*source_group,*target_group);
-  parafield->getField()->setNature(ConservativeVolumic);
+  parafield->getField()->setNature(RevIntegral);
   if (source_group->containsMyRank())
     { 
       dec4.setMethod("P0");
       dec4.attachLocalField(parafield);
       dec4.synchronize();
       dec4.setForcedRenormalization(false);
-      dec4.recvData();
-      const double *res=parafield->getField()->getArray()->getConstPointer();
-      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
-      const double expected[]={37.8518518518519,43.5333333333333};
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
+      dec4.sendData();
     }
   else
     {
@@ -860,15 +860,15 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec4.attachLocalField(parafield);
       dec4.synchronize();
       dec4.setForcedRenormalization(false);
-      double *res=parafield->getField()->getArray()->getPointer();
-      const double *toSet=targetResults[rank-nproc_source];
-      res[0]=toSet[0];
-      res[1]=toSet[1];
-      dec4.sendData();
+      dec4.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      const double *expected=targetResults4[rank-nproc_source];
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[0],res[0],1e-13);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[1],res[1],1e-13);
     }
-  //test 5 - Integral reversed
+  //test 5 - Conservative volumic reversed
   ParaMEDMEM::InterpKernelDEC dec5(*source_group,*target_group);
-  parafield->getField()->setNature(Integral);
+  parafield->getField()->setNature(ConservativeVolumic);
   if (source_group->containsMyRank())
     { 
       dec5.setMethod("P0");
@@ -878,7 +878,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec5.recvData();
       const double *res=parafield->getField()->getArray()->getConstPointer();
       CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
-      const double expected[]={0.794600591715977,1.35631163708087};
+      const double expected[]={37.8518518518519,43.5333333333333};
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
     }
   else
@@ -888,14 +888,14 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec5.synchronize();
       dec5.setForcedRenormalization(false);
       double *res=parafield->getField()->getArray()->getPointer();
-      const double *toSet=targetResults2[rank-nproc_source];
+      const double *toSet=targetResults[rank-nproc_source];
       res[0]=toSet[0];
       res[1]=toSet[1];
       dec5.sendData();
     }
-  //test 6 - Integral with global constraint reversed
+  //test 6 - Integral reversed
   ParaMEDMEM::InterpKernelDEC dec6(*source_group,*target_group);
-  parafield->getField()->setNature(IntegralGlobConstraint);
+  parafield->getField()->setNature(Integral);
   if (source_group->containsMyRank())
     { 
       dec6.setMethod("P0");
@@ -905,7 +905,7 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec6.recvData();
       const double *res=parafield->getField()->getArray()->getConstPointer();
       CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
-      const double expected[]={36.4592592592593,44.5407407407407};
+      const double expected[]={0.794600591715977,1.35631163708087};
       CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
     }
   else
@@ -915,10 +915,64 @@ void ParaMEDMEMTest::testInterpKernelDECNonOverlapp_2D_P0P0()
       dec6.synchronize();
       dec6.setForcedRenormalization(false);
       double *res=parafield->getField()->getArray()->getPointer();
-      const double *toSet=targetResults3[rank-nproc_source];
+      const double *toSet=targetResults2[rank-nproc_source];
       res[0]=toSet[0];
       res[1]=toSet[1];
       dec6.sendData();
+    }
+  //test 7 - Integral with global constraint reversed
+  ParaMEDMEM::InterpKernelDEC dec7(*source_group,*target_group);
+  parafield->getField()->setNature(IntegralGlobConstraint);
+  if (source_group->containsMyRank())
+    { 
+      dec7.setMethod("P0");
+      dec7.attachLocalField(parafield);
+      dec7.synchronize();
+      dec7.setForcedRenormalization(false);
+      dec7.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      const double expected[]={36.4592592592593,44.5407407407407};
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
+    }
+  else
+    {
+      dec7.setMethod("P0");
+      dec7.attachLocalField(parafield);
+      dec7.synchronize();
+      dec7.setForcedRenormalization(false);
+      double *res=parafield->getField()->getArray()->getPointer();
+      const double *toSet=targetResults3[rank-nproc_source];
+      res[0]=toSet[0];
+      res[1]=toSet[1];
+      dec7.sendData();
+    }
+  //test 8 - Integral with RevIntegral reversed
+  ParaMEDMEM::InterpKernelDEC dec8(*source_group,*target_group);
+  parafield->getField()->setNature(RevIntegral);
+  if (source_group->containsMyRank())
+    { 
+      dec8.setMethod("P0");
+      dec8.attachLocalField(parafield);
+      dec8.synchronize();
+      dec8.setForcedRenormalization(false);
+      dec8.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_EQUAL(1,parafield->getField()->getNumberOfTuples());
+      const double expected[]={0.81314102564102553,1.3428994082840233};
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[rank],res[0],1e-13);
+    }
+  else
+    {
+      dec8.setMethod("P0");
+      dec8.attachLocalField(parafield);
+      dec8.synchronize();
+      dec8.setForcedRenormalization(false);
+      double *res=parafield->getField()->getArray()->getPointer();
+      const double *toSet=targetResults4[rank-nproc_source];
+      res[0]=toSet[0];
+      res[1]=toSet[1];
+      dec8.sendData();
     }
   //
   delete parafield;
@@ -1332,12 +1386,148 @@ void ParaMEDMEMTest::testInterpKernelDEC2DM1D_P0P0()
       CPPUNIT_ASSERT_DOUBLES_EQUAL(45.,res[0],1e-12);
       dec3.sendData();
     }
+  //
+  ParaMEDMEM::InterpKernelDEC dec4(*source_group,*target_group);
+  dec4.setMethod("P0");
+  parafield->getField()->setNature(RevIntegral);
+  if(source_group->containsMyRank())
+    {
+      double *vals=parafield->getField()->getArray()->getPointer();
+      if(rank==0)
+        { vals[0]=7.; vals[1]=8.; }
+      else
+        { vals[0]=9.; vals[1]=10.; vals[2]=11.; }
+      dec4.attachLocalField(parafield);
+      dec4.synchronize();
+      dec4.sendData();
+      dec4.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+       if(rank==0)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[1],1e-12);
+        }
+      else
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[0],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[1],1e-12);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[2],1e-12);
+        }
+    }
+  else
+    {
+      dec4.attachLocalField(parafield);
+      dec4.synchronize();
+      dec4.recvData();
+      const double *res=parafield->getField()->getArray()->getConstPointer();
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(9.125,res[0],1e-12);
+      dec4.sendData();
+    }
   delete parafield;
   delete paramesh;
   mesh->decrRef();
   delete target_group;
   delete source_group;
   //
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
+void ParaMEDMEMTest::testInterpKernelDECPartialProcs()
+{
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //
+  if(size!=3)
+    return ;
+  set<int> procs_source;
+  set<int> procs_target;
+  //
+  procs_source.insert(0);
+  procs_target.insert(1);
+  //
+  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
+  ParaMEDMEM::ParaMESH *paramesh=0;
+  ParaMEDMEM::ParaFIELD *parafield=0;
+  //
+  ParaMEDMEM::CommInterface interface;
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  double targetCoords[8]={ 0.,0., 1., 0., 0., 1., 1., 1. };
+  CommInterface comm;
+  int grpIds[2]={0,1};
+  MPI_Group grp,group_world;
+  comm.commGroup(MPI_COMM_WORLD,&group_world);
+  comm.groupIncl(group_world,2,grpIds,&grp);
+  MPI_Comm partialComm;
+  comm.commCreate(MPI_COMM_WORLD,grp,&partialComm);
+  //
+  ProcessorGroup* target_group=0;
+  ProcessorGroup* source_group=0;
+  //
+  ParaMEDMEM::InterpKernelDEC *dec=0;
+  if(rank==0 || rank==1)
+    {
+      target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target,partialComm);
+      source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source,partialComm);
+      if(source_group->containsMyRank())
+        {    
+          mesh=MEDCouplingUMesh::New();
+          mesh->setMeshDimension(2);
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(4,2);
+          std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          int targetConn[4]={0,2,3,1};
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+          mesh->finishInsertingCells();
+          ParaMEDMEM::ComponentTopology comptopo;
+          paramesh=new ParaMESH(mesh,*source_group,"source mesh");
+          parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+          double *vals=parafield->getField()->getArray()->getPointer();
+          vals[0]=7.;
+          dec=new ParaMEDMEM::InterpKernelDEC(*source_group,*target_group);
+          dec->attachLocalField(parafield);
+          dec->synchronize();
+          dec->sendData();
+          dec->recvData();
+        }
+      else
+        {
+          mesh=MEDCouplingUMesh::New();
+          mesh->setMeshDimension(2);
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(4,2);
+          std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          int targetConn[6]={0,2,1,2,3,1};
+          mesh->allocateCells(2);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
+          mesh->finishInsertingCells();
+          ParaMEDMEM::ComponentTopology comptopo;
+          paramesh=new ParaMESH(mesh,*target_group,"target mesh");
+          parafield=new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+          parafield->getField()->setNature(ConservativeVolumic);
+          dec=new ParaMEDMEM::InterpKernelDEC(*source_group,*target_group);
+          dec->attachLocalField(parafield);
+          dec->synchronize();
+          dec->recvData();
+          dec->sendData();
+        }
+    }
+  delete parafield;
+  delete paramesh;
+  if(mesh)
+    mesh->decrRef();
+  delete target_group;
+  delete source_group;
+  delete dec;
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
