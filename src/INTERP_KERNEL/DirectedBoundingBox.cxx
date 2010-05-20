@@ -202,7 +202,7 @@ namespace INTERP_KERNEL
    */
   //================================================================================
 
-  DirectedBoundingBox::DirectedBoundingBox():_dim(-1)
+  DirectedBoundingBox::DirectedBoundingBox():_dim(0)
   {
   }
 
@@ -594,6 +594,8 @@ namespace INTERP_KERNEL
 
   bool DirectedBoundingBox::isDisjointWith(const DirectedBoundingBox& box) const
   {
+    if ( _dim < 1 || box._dim < 1 ) return false; // empty box includes all
+
     // boxes are disjoined if their minmaxes in local CS of either of boxes do not intersect
     for ( int isThisCS = 0; isThisCS < 2; ++isThisCS )
       {
@@ -629,6 +631,8 @@ namespace INTERP_KERNEL
 
   bool DirectedBoundingBox::isDisjointWith(const double* box) const
   {
+    if ( _dim < 1 ) return false; // empty box includes all
+
     // boxes are disjoined if their minmaxes in local CS of either of boxes do not intersect
 
     // compare minmaxes in locals CS of this directed box
@@ -673,6 +677,8 @@ namespace INTERP_KERNEL
 
   bool DirectedBoundingBox::isOut(const double* point) const
   {
+    if ( _dim < 1 ) return false; // empty box includes all
+
     double pLoc[3];
     toLocalCS( point, pLoc );
     bool out = isLocalOut( pLoc );
@@ -699,8 +705,11 @@ namespace INTERP_KERNEL
   vector<double> DirectedBoundingBox::getData() const
   {
     vector<double> data(1, _dim);
-    data.insert( data.end(), &_axes[0], &_axes[0] + _axes.size());
-    data.insert( data.end(), &_minmax[0], &_minmax[0] + _minmax.size());
+    if ( _dim > 0 )
+    {
+      data.insert( data.end(), &_axes[0], &_axes[0] + _axes.size());
+      data.insert( data.end(), &_minmax[0], &_minmax[0] + _minmax.size());
+    }
     if ( data.size() < dataSize( _dim ))
       data.resize( dataSize( _dim ), 0 );
     return data;

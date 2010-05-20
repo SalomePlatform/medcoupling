@@ -157,6 +157,7 @@ namespace ParaMEDMEM
                                                _local_cell_mesh->getNumberOfNodes(),
                                                _local_cell_mesh_space_dim);
     std::vector<double> dbbData = dbb.getData();
+    if ( dbbData.size() < bbSize ) dbbData.resize(bbSize,0);
     double * minmax= &dbbData[0];
 #else
     int bbSize = 2*_local_cell_mesh_space_dim;
@@ -185,7 +186,10 @@ namespace ParaMEDMEM
             _distant_proc_ids.push_back(rank);
           }
       }
+#ifdef USE_DIRECTED_BB
+#else
     delete [] minmax;
+#endif
   }
 
 
