@@ -47,7 +47,7 @@ void afficheGauthier1( const TrioField&   field, const double *vals, int lgth)
 void remplit_coordGauthier1(double* coords)
 {
   double angle,epaisseur;
-  angle=0*45*(asin(1)/90);
+  angle=0*45*(asin(1.)/90);
   epaisseur=1e-0;
   coords[0*3+0]=0.;
   coords[0*3+1]=0.;
