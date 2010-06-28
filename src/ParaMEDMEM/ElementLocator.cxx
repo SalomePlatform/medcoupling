@@ -35,7 +35,7 @@
 
 using namespace std;
 
-#define USE_DIRECTED_BB
+//#define USE_DIRECTED_BB
 
 namespace ParaMEDMEM 
 { 

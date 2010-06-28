@@ -47,7 +47,7 @@
 
 using namespace std;
 using namespace ParaMEDMEM;
- 
+
 void ParaMEDMEMTest::testInterpKernelDEC_2D()
 {
   testInterpKernelDEC_2D_("P0","P0");
@@ -67,6 +67,385 @@ void ParaMEDMEMTest::testInterpKernelDEC_2DP0P1()
 {
   //testInterpKernelDEC_2D_("P0","P1");
 }
+
+void ParaMEDMEMTest::testInterpKernelDEC_1D()
+{
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //
+  if(size!=5)
+    return ;
+  int nproc_source = 3;
+  set<int> self_procs;
+  set<int> procs_source;
+  set<int> procs_target;
+  
+  for (int i=0; i<nproc_source; i++)
+    procs_source.insert(i);
+  for (int i=nproc_source; i<size; i++)
+    procs_target.insert(i);
+  self_procs.insert(rank);
+  //
+  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
+  ParaMEDMEM::ParaMESH *paramesh=0;
+  ParaMEDMEM::ParaFIELD *parafieldP0=0;
+  //
+  ParaMEDMEM::CommInterface interface;
+  //
+  ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
+  ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
+  ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(source_group->containsMyRank())
+    {
+      if(rank==0)
+        {
+          double coords[4]={0.3,0.7, 0.9,1.0};
+          int conn[4]={0,1,2,3};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc0",1);
+          mesh->allocateCells(2);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(4,1);
+          std::copy(coords,coords+4,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      if(rank==1)
+        {
+          double coords[2]={0.7,0.9};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc1",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,1);
+          std::copy(coords,coords+2,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      if(rank==2)
+        {
+          double coords[2]={1.,1.12};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc2",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,1);
+          std::copy(coords,coords+2,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      paramesh=new ParaMESH(mesh,*source_group,"source mesh");
+      ParaMEDMEM::ComponentTopology comptopo;
+      parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      double *valueP0=parafieldP0->getField()->getArray()->getPointer();
+      parafieldP0->getField()->setNature(ConservativeVolumic);
+      if(rank==0)
+        {
+          valueP0[0]=7.; valueP0[1]=8.;
+        }
+      if(rank==1)
+        {
+          valueP0[0]=9.;
+        }
+      if(rank==2)
+        {
+          valueP0[0]=10.;
+        }
+    }
+  else
+    {
+      const char targetMeshName[]="target mesh";
+      if(rank==3)
+        {
+          double coords[2]={0.5,0.75};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Target mesh Proc3",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,1);
+          std::copy(coords,coords+2,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
+        }
+      if(rank==4)
+        {
+          double coords[2]={0.75,1.2};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Target mesh Proc4",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,1);
+          std::copy(coords,coords+2,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
+        }
+      ParaMEDMEM::ComponentTopology comptopo;
+      parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      parafieldP0->getField()->setNature(ConservativeVolumic);
+    }
+  // test 1
+  ParaMEDMEM::InterpKernelDEC dec(*source_group,*target_group);
+  if (source_group->containsMyRank())
+    { 
+      dec.setMethod("P0");
+      dec.attachLocalField(parafieldP0);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.sendData();
+      dec.recvData();
+      const double *valueP0=parafieldP0->getField()->getArray()->getPointer();
+      if(rank==0)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(7.4,valueP0[0],1e-7);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540544,valueP0[1],1e-7);
+        }
+      if(rank==1)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(8.64054054054054,valueP0[0],1e-7);
+        }
+      if(rank==2)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540544,valueP0[0],1e-7);
+        }
+    }
+  else
+    {
+      dec.setMethod("P0");
+      dec.attachLocalField(parafieldP0);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.recvData();
+      const double *res=parafieldP0->getField()->getArray()->getConstPointer();
+      if(rank==3)
+        {
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(7.4,res[0],1e-12);
+        }
+      if(rank==4)
+        {
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540526,res[0],1e-12);
+        }
+      dec.sendData();
+    }
+  //
+  delete parafieldP0;
+  mesh->decrRef();
+  delete paramesh;
+  delete self_group;
+  delete target_group;
+  delete source_group;
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
+void ParaMEDMEMTest::testInterpKernelDEC_2DCurve()
+{
+  int size;
+  int rank;
+  MPI_Comm_size(MPI_COMM_WORLD,&size);
+  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+  //
+  if(size!=5)
+    return ;
+  int nproc_source = 3;
+  set<int> self_procs;
+  set<int> procs_source;
+  set<int> procs_target;
+  
+  for (int i=0; i<nproc_source; i++)
+    procs_source.insert(i);
+  for (int i=nproc_source; i<size; i++)
+    procs_target.insert(i);
+  self_procs.insert(rank);
+  //
+  ParaMEDMEM::MEDCouplingUMesh *mesh=0;
+  ParaMEDMEM::ParaMESH *paramesh=0;
+  ParaMEDMEM::ParaFIELD *parafieldP0=0;
+  //
+  ParaMEDMEM::CommInterface interface;
+  //
+  ProcessorGroup* self_group = new ParaMEDMEM::MPIProcessorGroup(interface,self_procs);
+  ProcessorGroup* target_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_target);
+  ProcessorGroup* source_group = new ParaMEDMEM::MPIProcessorGroup(interface,procs_source);
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(source_group->containsMyRank())
+    {
+      if(rank==0)
+        {
+          double coords[8]={0.3,0.3,0.7,0.7, 0.9,0.9,1.0,1.0};
+          int conn[4]={0,1,2,3};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc0",1);
+          mesh->allocateCells(2);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(4,2);
+          std::copy(coords,coords+8,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      if(rank==1)
+        {
+          double coords[4]={0.7,0.7,0.9,0.9};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc1",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,2);
+          std::copy(coords,coords+4,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      if(rank==2)
+        {
+          double coords[4]={1.,1.,1.12,1.12};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Source mesh Proc2",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,2);
+          std::copy(coords,coords+4,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+        }
+      paramesh=new ParaMESH(mesh,*source_group,"source mesh");
+      ParaMEDMEM::ComponentTopology comptopo;
+      parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      double *valueP0=parafieldP0->getField()->getArray()->getPointer();
+      parafieldP0->getField()->setNature(ConservativeVolumic);
+      if(rank==0)
+        {
+          valueP0[0]=7.; valueP0[1]=8.;
+        }
+      if(rank==1)
+        {
+          valueP0[0]=9.;
+        }
+      if(rank==2)
+        {
+          valueP0[0]=10.;
+        }
+    }
+  else
+    {
+      const char targetMeshName[]="target mesh";
+      if(rank==3)
+        {
+          double coords[4]={0.5,0.5,0.75,0.75};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Target mesh Proc3",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,2);
+          std::copy(coords,coords+4,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
+        }
+      if(rank==4)
+        {
+          double coords[4]={0.75,0.75,1.2,1.2};
+          int conn[2]={0,1};
+          mesh=MEDCouplingUMesh::New("Target mesh Proc4",1);
+          mesh->allocateCells(1);
+          mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+          mesh->finishInsertingCells();
+          DataArrayDouble *myCoords=DataArrayDouble::New();
+          myCoords->alloc(2,2);
+          std::copy(coords,coords+4,myCoords->getPointer());
+          mesh->setCoords(myCoords);
+          myCoords->decrRef();
+          paramesh=new ParaMESH(mesh,*target_group,targetMeshName);
+        }
+      ParaMEDMEM::ComponentTopology comptopo;
+      parafieldP0 = new ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo);
+      parafieldP0->getField()->setNature(ConservativeVolumic);
+    }
+  // test 1
+  ParaMEDMEM::InterpKernelDEC dec(*source_group,*target_group);
+  if (source_group->containsMyRank())
+    { 
+      dec.setMethod("P0");
+      dec.attachLocalField(parafieldP0);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.sendData();
+      dec.recvData();
+      const double *valueP0=parafieldP0->getField()->getArray()->getPointer();
+      if(rank==0)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(7.4,valueP0[0],1e-7);
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540544,valueP0[1],1e-7);
+        }
+      if(rank==1)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(8.64054054054054,valueP0[0],1e-7);
+        }
+      if(rank==2)
+        {
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540544,valueP0[0],1e-7);
+        }
+    }
+  else
+    {
+      dec.setMethod("P0");
+      dec.attachLocalField(parafieldP0);
+      dec.synchronize();
+      dec.setForcedRenormalization(false);
+      dec.recvData();
+      const double *res=parafieldP0->getField()->getArray()->getConstPointer();
+      if(rank==3)
+        {
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(7.4,res[0],1e-12);
+        }
+      if(rank==4)
+        {
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfTuples());
+          CPPUNIT_ASSERT_EQUAL(1,parafieldP0->getField()->getNumberOfComponents());
+          CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0540540540540526,res[0],1e-12);
+        }
+      dec.sendData();
+    }
+  //
+  delete parafieldP0;
+  mesh->decrRef();
+  delete paramesh;
+  delete self_group;
+  delete target_group;
+  delete source_group;
+  //
+  MPI_Barrier(MPI_COMM_WORLD);
+}
+
 
 /*
  * Check methods defined in InterpKernelDEC.hxx
