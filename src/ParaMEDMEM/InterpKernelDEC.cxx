@@ -123,9 +123,8 @@ namespace ParaMEDMEM
 
   }
 
-  InterpKernelDEC::InterpKernelDEC(const int *src_ids_bg, const int *src_ids_end,
-                                   const int *trg_ids_bg, const int *trg_ids_end,
-                                   const MPI_Comm& world_comm):DEC(src_ids_bg,src_ids_end,trg_ids_bg,trg_ids_end,world_comm),
+  InterpKernelDEC::InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
+                                   const MPI_Comm& world_comm):DEC(src_ids,trg_ids,world_comm),
                                                                _interpolation_matrix(0)
   {
   }

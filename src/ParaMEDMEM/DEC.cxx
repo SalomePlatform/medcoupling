@@ -85,8 +85,7 @@ namespace ParaMEDMEM
     _union_group = source_group.fuse(target_group);  
   }
 
-  DEC::DEC(const int *src_ids_bg, const int *src_ids_end,
-           const int *trg_ids_bg, const int *trg_ids_end,
+  DEC::DEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
            const MPI_Comm& world_comm):_local_field(0), 
                                        _owns_field(false),
                                        _owns_groups(true),
@@ -94,10 +93,10 @@ namespace ParaMEDMEM
   {
     ParaMEDMEM::CommInterface comm;
     // Create the list of procs including source and target
-    int nbOfProcsInComm=std::distance(src_ids_bg,src_ids_end)+std::distance(trg_ids_bg,trg_ids_end);
+    int nbOfProcsInComm=src_ids.size()+trg_ids.size();
     int *allRanks=new int[nbOfProcsInComm];
-    std::copy(src_ids_bg,src_ids_end,allRanks);
-    std::copy(trg_ids_bg,trg_ids_end,allRanks+std::distance(src_ids_bg,src_ids_end));
+    std::copy(src_ids.begin(),src_ids.end(),allRanks);
+    std::copy(trg_ids.begin(),trg_ids.end(),allRanks+src_ids.size());
     // Create a communicator on these procs
     MPI_Group src_trg_group, world_group;
     comm.commGroup(world_comm,&world_group);
@@ -113,12 +112,10 @@ namespace ParaMEDMEM
         _union_group=0;
         return;
       }
-    std::set<int> source_ids(src_ids_bg,src_ids_end);
-    _source_group=new MPIProcessorGroup(comm,source_ids,src_trg_comm);
-    std::set<int> target_ids(trg_ids_bg,trg_ids_end);
-    _target_group=new MPIProcessorGroup(comm,target_ids,src_trg_comm);
-    std::set<int> src_trg_ids(src_ids_bg,src_ids_end);
-    src_trg_ids.insert(trg_ids_bg,trg_ids_end);
+    _source_group=new MPIProcessorGroup(comm,src_ids,src_trg_comm);
+    _target_group=new MPIProcessorGroup(comm,trg_ids,src_trg_comm);
+    std::set<int> src_trg_ids(src_ids);
+    src_trg_ids.insert(trg_ids.begin(),trg_ids.end());
     _union_group=new MPIProcessorGroup(comm,src_trg_ids,src_trg_comm);
   }
 
