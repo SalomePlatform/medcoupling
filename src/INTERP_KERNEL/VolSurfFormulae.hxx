@@ -31,6 +31,19 @@ namespace INTERP_KERNEL
                                       int spaceDim);
 
 
+  inline double calculateLgthForSeg2(const double *p1, const double *p2, int spaceDim)
+  {
+    if(spaceDim==1)
+      return fabs(*p2-*p1);
+    else
+      {
+        double ret=0;
+        for(int i=0;i<spaceDim;i++)
+          ret+=(p2[i]-p1[i])*(p2[i]-p1[i]);
+        return sqrt(ret);
+      }
+  }
+
   // ===========================
   // Calculate Area for triangle
   // ===========================

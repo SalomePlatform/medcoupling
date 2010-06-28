@@ -30,6 +30,12 @@ namespace INTERP_KERNEL
   {
     switch(type)
       {
+      case INTERP_KERNEL::NORM_SEG2 :
+        {
+          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          return INTERP_KERNEL::calculateLgthForSeg2(coords+(SPACEDIM*N1),coords+(SPACEDIM*N2),SPACEDIM);
+        }
       case INTERP_KERNEL::NORM_TRI3 :
       case INTERP_KERNEL::NORM_TRI6 :
         {
@@ -150,7 +156,7 @@ namespace INTERP_KERNEL
         }
         break;
       default:
-        throw INTERP_KERNEL::Exception("Not recognized cell type to get Area/Volume on it !");
+        throw INTERP_KERNEL::Exception("Not recognized cell type to get Length/Area/Volume on it !");
       }
   }
 
@@ -161,7 +167,9 @@ namespace INTERP_KERNEL
       return computeVolSurfOfCell<ConnType,numPolConn,3>(type,connec,lgth,coords);
     if(spaceDim==2)
       return computeVolSurfOfCell<ConnType,numPolConn,2>(type,connec,lgth,coords);
-    throw INTERP_KERNEL::Exception("Invalid spaceDim specified : must be 2 or 3");
+    if(spaceDim==1)
+      return computeVolSurfOfCell<ConnType,numPolConn,1>(type,connec,lgth,coords);
+    throw INTERP_KERNEL::Exception("Invalid spaceDim specified : must be 1, 2 or 3");
   }
 }
 

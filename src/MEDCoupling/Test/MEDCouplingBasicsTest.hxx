@@ -259,6 +259,10 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *build2DTargetMeshMerged_1();
     static MEDCouplingUMesh *build2DCurveMesh(double dx, double dy);
     static MEDCouplingUMesh *build1DMesh(double dx);
+    static MEDCouplingUMesh *build1DSourceMesh_2();
+    static MEDCouplingUMesh *build1DTargetMesh_2();
+    static MEDCouplingUMesh *build2DCurveSourceMesh_2();
+    static MEDCouplingUMesh *build2DCurveTargetMesh_2();
     static double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }
