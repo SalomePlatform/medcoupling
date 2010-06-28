@@ -80,7 +80,7 @@ namespace INTERP_KERNEL
     double evaluate() const throw(INTERP_KERNEL::Exception);
     DecompositionInUnitBase evaluateUnit() const throw(INTERP_KERNEL::Exception);
     void prepareExprEvaluation(const std::vector<std::string>& vars) const throw(INTERP_KERNEL::Exception);
-    void evaluateExpr(int szOfOutParam, double *outParam, const double *inParam) const throw(INTERP_KERNEL::Exception);
+    void evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const throw(INTERP_KERNEL::Exception);
     void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
     void getSetOfVars(std::set<std::string>& vars) const;
     void getTrueSetOfVars(std::set<std::string>& vars) const;

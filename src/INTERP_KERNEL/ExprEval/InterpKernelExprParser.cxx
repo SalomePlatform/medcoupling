@@ -228,7 +228,7 @@ DecompositionInUnitBase ExprParser::evaluateUnit() const throw(INTERP_KERNEL::Ex
   return ret;
 }
 
-void ExprParser::evaluateExpr(int szOfOutParam, double *outParam, const double *inParam) const throw(INTERP_KERNEL::Exception)
+void ExprParser::evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const throw(INTERP_KERNEL::Exception)
 {
   Value *gen=new ValueDoubleExpr(szOfOutParam,inParam);
   ValueDoubleExpr *res=0;

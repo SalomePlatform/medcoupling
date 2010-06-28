@@ -119,7 +119,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
     {
       try
         {
-          expr.evaluateExpr(nbOfComp,ptToFill,locPtr+nbCompIn*i);
+          expr.evaluateExpr(nbOfComp,locPtr+nbCompIn*i,ptToFill);
         }
       catch(INTERP_KERNEL::Exception& e)
         {

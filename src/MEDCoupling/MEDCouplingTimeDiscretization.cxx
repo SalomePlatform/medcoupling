@@ -277,7 +277,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
     {
       try
         {
-          expr.evaluateExpr(nbOfComp,ptrToFill+i*nbOfComp,ptr+i*oldNbOfComp);
+          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
         }
       catch(INTERP_KERNEL::Exception& e)
         {
@@ -308,7 +308,7 @@ void MEDCouplingTimeDiscretization::applyFunc(const char *func)
     {
       try
         {
-          expr.evaluateExpr(nbOfComp,ptrToFill+i*nbOfComp,ptr+i*nbOfComp);
+          expr.evaluateExpr(nbOfComp,ptr+i*nbOfComp,ptrToFill+i*nbOfComp);
         }
       catch(INTERP_KERNEL::Exception& e)
         {
