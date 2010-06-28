@@ -24,6 +24,8 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "DECOptions.hxx"
 
+#include <set>
+
 namespace ICoCo
 {
   class Field;
