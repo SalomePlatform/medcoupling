@@ -40,8 +40,10 @@ void ParaMEDMEMTest::testFabienAPI1()
   //
   if(size!=3)
     return ;
-  int procs_source[1]={0};
-  int procs_target[1]={1};
+  int procs_source_c[1]={0};
+  std::set<int> procs_source(procs_source_c,procs_source_c+1);
+  int procs_target_c[1]={1};
+  std::set<int> procs_target(procs_target_c,procs_target_c+1);
   //
   ParaMEDMEM::MEDCouplingUMesh *mesh=0;
   ParaMEDMEM::ParaMESH *paramesh=0;
@@ -53,7 +55,7 @@ void ParaMEDMEMTest::testFabienAPI1()
   double targetCoords[8]={ 0.,0., 1., 0., 0., 1., 1., 1. };
   CommInterface comm;
   //
-  ParaMEDMEM::InterpKernelDEC *dec=new ParaMEDMEM::InterpKernelDEC(procs_source,procs_source+1,procs_target,procs_target+1);
+  ParaMEDMEM::InterpKernelDEC *dec=new ParaMEDMEM::InterpKernelDEC(procs_source,procs_target);
   if(dec->isInSourceSide())
     {    
       mesh=MEDCouplingUMesh::New();
