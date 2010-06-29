@@ -178,6 +178,7 @@ namespace ParaMEDMEM
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const;
     void setArray(DataArrayDouble *array);
+    void setEndArray(DataArrayDouble *array);
     void setTime(double val, int dt, int it);
     void setStartTime(double val, int dt, int it);
     void setEndTime(double val, int dt, int it);

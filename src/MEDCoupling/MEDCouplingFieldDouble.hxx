@@ -49,7 +49,9 @@ namespace ParaMEDMEM
     double getEndTime(int& dt, int& it) const { return _time_discr->getEndTime(dt,it); }
     double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
     void setArray(DataArrayDouble *array);
+    void setEndArray(DataArrayDouble *array);
     DataArrayDouble *getArray() const { return _time_discr->getArray(); }
+    DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
     double accumulate(int compId) const;
     void accumulate(double *res) const;
     double measureAccumulate(int compId, bool isWAbs) const;

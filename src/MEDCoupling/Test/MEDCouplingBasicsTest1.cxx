@@ -1525,6 +1525,105 @@ void MEDCouplingBasicsTest::testOperationsOnFields3()
   m->decrRef();
 }
 
+/*!
+ * Check of LINEAR_TIME and CONST_ON_TIME_INTERVAL policies
+ */
+void MEDCouplingBasicsTest::testOperationsOnFields4()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  int nbOfCells=m->getNumberOfCells();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,CONST_ON_TIME_INTERVAL);
+  f1->setMesh(m);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(nbOfCells,3);
+  f1->setArray(array);
+  CPPUNIT_ASSERT_THROW(f1->setEndArray(array),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(f1->getEndArray(),INTERP_KERNEL::Exception);
+  array->decrRef();
+  double *tmp=array->getPointer();
+  const double arr1[15]={0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.};
+  const double arr2[15]={5.,15.,25.,6.,16.,26.,7.,17.,27.,8.,18.,28.,9.,19.,29.};
+  std::copy(arr1,arr1+15,tmp);
+  f1->setStartTime(2.,0,0);
+  f1->setEndTime(3.,0,0);
+  f1->checkCoherency();
+  double res[3];
+  const double pos[2]={0.3,-0.2};
+  f1->getValueOn(pos,res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(arr1[3],res[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(arr1[4],res[1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(arr1[5],res[2],1.e-12);
+  std::fill(res,res+3,0.);
+  f1->getValueOn(pos,2.2,res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(arr1[3],res[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(arr1[4],res[1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(arr1[5],res[2],1.e-12);
+  std::fill(res,res+3,0.);
+  CPPUNIT_ASSERT_THROW(f1->getValueOn(pos,3.2,res),INTERP_KERNEL::Exception);
+  MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::New(ON_CELLS,LINEAR_TIME);
+  f2->setMesh(m);
+  f2->setArray(f1->getArray());
+  f2->setStartTime(2.,3,0);
+  f2->setEndTime(4.,13,0);
+  CPPUNIT_ASSERT_THROW(f2->checkCoherency(),INTERP_KERNEL::Exception);
+  DataArrayDouble *array2=DataArrayDouble::New();
+  array2->alloc(nbOfCells,3);
+  tmp=array2->getPointer();
+  std::copy(arr2,arr2+15,tmp);
+  f2->setEndArray(array2);
+  array2->decrRef();
+  f2->checkCoherency();
+  //
+  std::fill(res,res+3,0.);
+  f2->getValueOn(pos,3.21,res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.025,res[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(14.025,res[1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(24.025,res[2],1.e-12);
+  MEDCouplingFieldDouble *f3=f2->clone(true);
+  CPPUNIT_ASSERT(f2->isEqual(f3,1e-12,1e-12));
+  f3->getEndArray()->getPointer()[0]=5.001;
+  CPPUNIT_ASSERT(!f2->isEqual(f3,1e-12,1e-12));
+  CPPUNIT_ASSERT(f2->isEqual(f3,1e-12,1e-2));
+  f3->setStartTime(2.1,3,0);
+  CPPUNIT_ASSERT(!f2->isEqual(f3,1e-12,1e-2));
+  f3->setStartTime(2.,3,0);
+  CPPUNIT_ASSERT(f2->isEqual(f3,1e-12,1e-2));
+  f3->setStartTime(2.,4,0);
+  CPPUNIT_ASSERT(!f2->isEqual(f3,1e-12,1e-2));
+  f3->setStartTime(2.,3,1);
+  CPPUNIT_ASSERT(!f2->isEqual(f3,1e-12,1e-2));
+  f3->setStartTime(2.,3,0);
+  CPPUNIT_ASSERT(f2->isEqual(f3,1e-12,1e-2));
+  f3->setEndTime(4.1,13,0);
+  CPPUNIT_ASSERT(!f2->isEqual(f3,1e-12,1e-2));
+  f3->setEndTime(4.,13,0);
+  CPPUNIT_ASSERT(f2->isEqual(f3,1e-12,1e-2));
+  f3->setEndTime(4.,14,0);
+  CPPUNIT_ASSERT(!f2->isEqual(f3,1e-12,1e-2));
+  f3->setEndTime(4.,13,1);
+  CPPUNIT_ASSERT(!f2->isEqual(f3,1e-12,1e-2));
+  f3->setEndTime(4.,13,0);
+  CPPUNIT_ASSERT(f2->isEqual(f3,1e-12,1e-2));
+  f3->decrRef();
+  MEDCouplingFieldDouble *f4=(*f2)+(*f2);
+  std::fill(res,res+3,0.);
+  f4->getValueOn(pos,3.21,res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.05,res[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(28.05,res[1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(48.05,res[2],1.e-12);
+  (*f4)+=*f2;
+  std::fill(res,res+3,0.);
+  f4->getValueOn(pos,3.21,res);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(12.075,res[0],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(42.075,res[1],1.e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(72.075,res[2],1.e-12);
+  f4->decrRef();
+  //
+  f2->decrRef();
+  f1->decrRef();
+  m->decrRef();
+}
+
 bool func4(const double *pt, double *res)
 {
   res[0]=pt[0]+pt[1]+pt[2];

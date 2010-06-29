@@ -118,8 +118,7 @@ void MEDCouplingFieldDouble::checkCoherency() const throw(INTERP_KERNEL::Excepti
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Field invalid because no mesh specified !");
-  if(!getArray())
-    throw INTERP_KERNEL::Exception("Field invalid because no values set !");
+  _time_discr->checkCoherency();
   _type->checkCoherencyBetween(_mesh,getArray());
 }
 
@@ -300,6 +299,11 @@ void MEDCouplingFieldDouble::setArray(DataArrayDouble *array)
   _time_discr->setArray(array,this);
 }
 
+void MEDCouplingFieldDouble::setEndArray(DataArrayDouble *array)
+{
+  _time_discr->setEndArray(array,this);
+}
+
 void MEDCouplingFieldDouble::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
 {
   tinyInfo.clear();
@@ -412,6 +416,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingField
   if(!f1->areCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply addFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->add(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
   return ret;
@@ -429,6 +434,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplin
   if(!f1->areCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply substractFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->substract(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
   return ret;
@@ -446,6 +452,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCoupling
   if(!f1->areCompatibleForMul(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply multiplyFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
   return ret;
@@ -463,6 +470,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFi
   if(!f1->areCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply divideFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->divide(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
   ret->setMesh(f1->getMesh());
   return ret;
