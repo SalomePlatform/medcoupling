@@ -141,7 +141,7 @@ namespace MEDLoaderNS
   med_int getIdFromMeshName(med_idt fid, const char *meshName, std::string& trueMeshName) throw(INTERP_KERNEL::Exception);
   void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entite_maillage& whichEntity);
   void readUMeshDataInMedFile(med_idt fid, med_int meshId, double *&coords, int& nCoords, int& spaceDim, std::list<MEDLoader::MEDConnOfOneElemType>& conn);
-  int buildMEDSubConnectivityOfOneType(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
+  int buildMEDSubConnectivityOfOneType(const DataArrayInt *conn, const DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
                                        std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile);
   MEDCouplingUMesh *readUMeshFromFileLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<int>& ids,
                                           const std::vector<INTERP_KERNEL::NormalizedCellType>& typesToKeep, unsigned& meshDimExtract) throw(INTERP_KERNEL::Exception);
@@ -150,10 +150,10 @@ namespace MEDLoaderNS
                                             DataArrayInt* &connIndex,
                                             const std::vector<int>& familiesToKeep);
   ParaMEDMEM::DataArrayDouble *buildArrayFromRawData(const std::list<MEDLoader::MEDFieldDoublePerCellType>& fieldPerType);
-  int buildMEDSubConnectivityOfOneTypesPolyg(DataArrayInt *conn, DataArrayInt *connIndex, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile);
-  int buildMEDSubConnectivityOfOneTypesPolyh(DataArrayInt *conn, DataArrayInt *connIndex, std::vector<int>& conn4MEDFile,
+  int buildMEDSubConnectivityOfOneTypesPolyg(const DataArrayInt *conn, const DataArrayInt *connIndex, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile);
+  int buildMEDSubConnectivityOfOneTypesPolyh(const DataArrayInt *conn, const DataArrayInt *connIndex, std::vector<int>& conn4MEDFile,
                                              std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile);
-  int buildMEDSubConnectivityOfOneTypeStaticTypes(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile);
+  int buildMEDSubConnectivityOfOneTypeStaticTypes(const DataArrayInt *conn, const DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile);
   ParaMEDMEM::MEDCouplingFieldDouble *readFieldDoubleLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order,
                                                           ParaMEDMEM::TypeOfField typeOfOutField);
   void appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
@@ -931,12 +931,12 @@ namespace MEDLoaderNS
  * @param connIndexRk24MEDFile output containing index of rank 2 understandable by MEDFile; only used by polyhedrons.
  * @return nb of elements extracted.
  */
-int MEDLoaderNS::buildMEDSubConnectivityOfOneTypeStaticTypes(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile)
+int MEDLoaderNS::buildMEDSubConnectivityOfOneTypeStaticTypes(const DataArrayInt *conn, const DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile)
 {
   int ret=0;
   int nbOfElem=connIndex->getNbOfElems()-1;
-  const int *connPtr=conn->getPointer();
-  const int *connIdxPtr=connIndex->getPointer();
+  const int *connPtr=conn->getConstPointer();
+  const int *connIdxPtr=connIndex->getConstPointer();
   for(int i=0;i<nbOfElem;i++)
     {
       int delta=connIdxPtr[1]-connIdxPtr[0];
@@ -952,12 +952,12 @@ int MEDLoaderNS::buildMEDSubConnectivityOfOneTypeStaticTypes(DataArrayInt *conn,
   return ret;
 }
 
-int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyg(DataArrayInt *conn, DataArrayInt *connIndex, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile)
+int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyg(const DataArrayInt *conn, const DataArrayInt *connIndex, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile)
 {
   int ret=0;
   int nbOfElem=connIndex->getNbOfElems()-1;
-  const int *connPtr=conn->getPointer();
-  const int *connIdxPtr=connIndex->getPointer();
+  const int *connPtr=conn->getConstPointer();
+  const int *connIdxPtr=connIndex->getConstPointer();
   connIndex4MEDFile.push_back(1);
   for(int i=0;i<nbOfElem;i++)
     {
@@ -975,9 +975,39 @@ int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyg(DataArrayInt *conn, Data
   return ret;
 }
   
-int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyh(DataArrayInt *conn, DataArrayInt *connIndex, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile)
+int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyh(const DataArrayInt *conn, const DataArrayInt *connIndex, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile)
 {
-  return 0;
+  int ret=0;
+  int nbOfElem=connIndex->getNbOfElems()-1;
+  const int *connPtr=conn->getConstPointer();
+  const int *connIdxPtr=connIndex->getConstPointer();
+  connIndexRk24MEDFile.push_back(1);
+  connIndex4MEDFile.push_back(1);
+  for(int i=0;i<nbOfElem;i++)
+    {
+      int delta=connIdxPtr[1]-connIdxPtr[0];
+      if(*connPtr==INTERP_KERNEL::NORM_POLYHED)
+        {
+          int nbOfFacesOfPolyh=std::count(connPtr+1,connPtr+delta,-1)+1;
+          const int *work=connPtr+1;
+          while(work!=connPtr+delta)
+            {
+              const int *end=std::find(work,connPtr+delta,-1);
+              conn4MEDFile.insert(conn4MEDFile.end(),work,end);
+              connIndex4MEDFile.push_back(connIndex4MEDFile.back()+std::distance(work,end));
+              if(end==connPtr+delta)
+                work=connPtr+delta;
+              else
+                work=end+1;
+            }
+          connIndexRk24MEDFile.push_back(connIndexRk24MEDFile.back()+nbOfFacesOfPolyh);
+          ret++;
+        }
+      connIdxPtr++;
+      connPtr+=delta;
+    }
+  std::transform(conn4MEDFile.begin(),conn4MEDFile.end(),conn4MEDFile.begin(),std::bind2nd(std::plus<int>(),1));
+  return ret;
 }
   
 /*!
@@ -990,7 +1020,7 @@ int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyh(DataArrayInt *conn, Data
  * @param connIndexRk24MEDFile output containing index of rank 2 understandable by MEDFile; only used by polyhedrons.
  * @return nb of elements extracted.
  */
-int MEDLoaderNS::buildMEDSubConnectivityOfOneType(DataArrayInt *conn, DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
+int MEDLoaderNS::buildMEDSubConnectivityOfOneType(const DataArrayInt *conn, const DataArrayInt *connIndex, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
                                                   std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile)
 {
     
@@ -1154,6 +1184,11 @@ void MEDLoaderNS::writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCoupli
             {
               if(curMedType==MED_POLYGONE)
                 MEDpolygoneConnEcr(fid,maa,&medConnIndex[0],medConnIndex.size(),&medConn[0],MED_MAILLE,MED_NOD);
+              if(curMedType==MED_POLYEDRE)
+                {
+                  MEDpolyedreConnEcr(fid,maa,&medConnIndex2[0],medConnIndex2.size(),&medConnIndex[0],medConnIndex.size(),
+                                     &medConn[0],MED_NOD);
+                }
             }
         }
     }
