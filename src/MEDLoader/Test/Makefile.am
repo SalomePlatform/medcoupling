@@ -19,33 +19,10 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-MEDLOADER_SUBDIRS =
+bin_PROGRAMS= TestMEDLoader
 
-if !MED_ENABLE_MICROMED
-   MEDLOADER_SUBDIRS += . Swig
-if CPPUNIT_IS_OK
-   MEDLOADER_SUBDIRS += Test
-endif
-endif
+TestMEDLoader_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(srcdir)/../../INTERP_KERNEL/Bases -I$(srcdir)/../../INTERP_KERNELTest -I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Geometric2D -I$(srcdir)/../../MEDCoupling
 
-SUBDIRS = $(MEDLOADER_SUBDIRS)
+TestMEDLoader_LDFLAGS = @CPPUNIT_LIBS@ ../libmedloader.la ../../MEDCoupling/libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la
 
-#DIST_SUBDIRS = Swig
-
-lib_LTLIBRARIES = libmedloader.la
-
-salomeinclude_HEADERS= \
-MEDLoader.hxx MEDLoaderBase.hxx
-
-dist_libmedloader_la_SOURCES= \
-MEDLoader.cxx MEDLoaderBase.cxx
-
-libmedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
-	-I$(srcdir)/../INTERP_KERNEL \
-	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
-	-I$(srcdir)/../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../MEDCoupling
-
-# change motivated by the bug KERNEL4778.
-libmedloader_la_LDFLAGS= ../MEDCoupling/libmedcoupling.la \
-../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED2_LIBS) $(HDF5_LIBS)
+dist_TestMEDLoader_SOURCES = TestMEDLoader.cxx MEDLoaderTest.cxx
