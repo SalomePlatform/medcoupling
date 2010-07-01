@@ -1302,15 +1302,19 @@ void MEDCouplingLinearTime::getValueOnTime(int eltId, double time, double *value
 void MEDCouplingLinearTime::getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception)
 {
   if(dt==_start_dt && it==_start_it)
-    if(_array)
-      _array->getTuple(eltId,value);
-    else
-      throw INTERP_KERNEL::Exception("dt it match with start time but no start array existing.");
+    {
+      if(_array)
+        _array->getTuple(eltId,value);
+      else
+        throw INTERP_KERNEL::Exception("dt it match with start time but no start array existing.");
+    }
   if(dt==_end_dt && it==_end_it)
-    if(_end_array)
-      _end_array->getTuple(eltId,value);
-    else
-      throw INTERP_KERNEL::Exception("dt it match with end time but no end array existing.");
+    {
+      if(_end_array)
+        _end_array->getTuple(eltId,value);
+      else
+        throw INTERP_KERNEL::Exception("dt it match with end time but no end array existing.");
+    }
   else
     throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
