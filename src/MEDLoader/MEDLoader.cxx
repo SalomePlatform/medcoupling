@@ -1161,6 +1161,7 @@ void MEDLoaderNS::writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCoupli
   char maa[MED_TAILLE_NOM+1];
   strcpy(maa,meshName.c_str());
   MEDmaaCr(fid,maa,mesh->getSpaceDimension(),MED_NON_STRUCTURE,maa);
+  MEDdimEspaceCr(fid,maa,mesh->getSpaceDimension());
   std::set<INTERP_KERNEL::NormalizedCellType> allTypes(mesh->getAllTypes());
   DataArrayInt *conn=mesh->getNodalConnectivity();
   DataArrayInt *connIndex=mesh->getNodalConnectivityIndex();
