@@ -101,6 +101,7 @@ namespace ParaMEDMEM
 
 namespace ParaMEDMEM
 {
+  class DataArrayInt;
   class DataArrayDouble : public DataArray
   {
   public:
@@ -111,6 +112,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
+    MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;
     MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
@@ -147,6 +149,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
     //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
+    MEDCOUPLING_EXPORT DataArrayDouble *convertToDblArr() const;
     MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
@@ -154,6 +157,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static void setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT static DataArrayInt *aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
+    MEDCOUPLING_EXPORT static DataArrayInt *makePartition(const std::vector<DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups);
     MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     //! nothing to do here because this class does not aggregate any TimeLabel instance.

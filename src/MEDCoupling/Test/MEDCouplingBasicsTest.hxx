@@ -33,6 +33,7 @@ namespace ParaMEDMEM
   {
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest);
     CPPUNIT_TEST( testArray );
+    CPPUNIT_TEST( testArray2 );
     CPPUNIT_TEST( testMesh );
     CPPUNIT_TEST( testMeshPointsCloud );
     CPPUNIT_TEST( testMeshM1D );
@@ -46,6 +47,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testBuildPartOfMySelf );
     CPPUNIT_TEST( testBuildPartOfMySelfNode );
     CPPUNIT_TEST( testZipCoords );
+    //CPPUNIT_TEST( testZipConnectivity );
     CPPUNIT_TEST( testEqualMesh );
     CPPUNIT_TEST( testEqualFieldDouble );
     CPPUNIT_TEST( testNatureChecking );
@@ -55,6 +57,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFindCommonNodes );
     CPPUNIT_TEST( testCheckButterflyCells );
     CPPUNIT_TEST( testMergeMesh1 );
+    CPPUNIT_TEST( testMergeMeshOnSameCoords1 );
     CPPUNIT_TEST( testMergeField1 );
     CPPUNIT_TEST( testFillFromAnalytic );
     CPPUNIT_TEST( testFillFromAnalytic2 );
@@ -136,6 +139,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST_SUITE_END();
   public:
     void testArray();
+    void testArray2();
     void testMesh();
     void testMeshPointsCloud();
     void testMeshM1D();
@@ -149,6 +153,7 @@ namespace ParaMEDMEM
     void testBuildPartOfMySelf();
     void testBuildPartOfMySelfNode();
     void testZipCoords();
+    void testZipConnectivity();
     void testEqualMesh();
     void testEqualFieldDouble();
     void testNatureChecking();
@@ -158,6 +163,7 @@ namespace ParaMEDMEM
     void testFindCommonNodes();
     void testCheckButterflyCells();
     void testMergeMesh1();
+    void testMergeMeshOnSameCoords1();
     void testMergeField1();
     void testFillFromAnalytic();
     void testFillFromAnalytic2();

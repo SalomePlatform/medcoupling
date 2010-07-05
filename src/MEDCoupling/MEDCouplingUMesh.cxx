@@ -386,6 +386,7 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
       int *newConnPtr=_nodal_connec->getPointer();
       std::copy(connNew.begin(),connNew.end(),newConnPtr);
     }
+  computeTypes();
 }
 
 /*!
@@ -427,6 +428,153 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
     }
   setCoords(newCoords);
   newCoords->decrRef();
+  return ret;
+}
+
+/*!
+ * This method stands if 'cell1' and 'cell2' are equals regarding 'compType' policy.
+ * The semantic of 'compType' is specified in MEDCouplingUMesh::zipConnectivityTraducer method.
+ */
+bool MEDCouplingUMesh::areCellsEquals(int cell1, int cell2, int compType) const
+{
+  switch(compType)
+    {
+    case 0:
+      return areCellsEquals0(cell1,cell2);
+    case 1:
+      return areCellsEquals1(cell1,cell2);
+    case 2:
+      return areCellsEquals2(cell1,cell2);
+    }
+  throw INTERP_KERNEL::Exception("Unknown comparison asked ! Must be in 0,1 or 2.");
+}
+
+bool MEDCouplingUMesh::areCellsEquals0(int cell1, int cell2) const
+{
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connI=getNodalConnectivityIndex()->getConstPointer();
+  return std::equal(conn+connI[cell1],conn+connI[cell1+1],conn+connI[cell2]);
+}
+
+bool MEDCouplingUMesh::areCellsEquals1(int cell1, int cell2) const
+{
+  throw INTERP_KERNEL::Exception("Policy comparison, not implemented yet !");
+}
+
+bool MEDCouplingUMesh::areCellsEquals2(int cell1, int cell2) const
+{
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connI=getNodalConnectivityIndex()->getConstPointer();
+  std::set<int> s1(conn+connI[cell1],conn+connI[cell1+1]); s1.erase(-1);
+  std::set<int> s2(conn+connI[cell2],conn+connI[cell2+1]); s1.erase(-1);
+  return s1==s2;
+}
+
+/*!
+ * This method find in candidate pool defined by ['candBg','candEnd') the cells equal following the polycy 'compType'.
+ * If any true is returned and the results will be put at the end of 'result' output parameter. If not false is returned
+ * and result remains unchanged.
+ * The semantic of 'compType' is specified in MEDCouplingUMesh::zipConnectivityTraducer method.
+ * If in ['candBg','candEnd') pool -1 value is considered as an empty value.
+ * WARNING this method returns only ONE set of result !
+ */
+bool MEDCouplingUMesh::areCellsEqualsInPool(const int *candBg, const int *candEnd, int compType, std::vector<int>& result) const
+{
+  std::set<int> cand(candBg,candEnd);
+  cand.erase(-1);
+  if(cand.size()<=1)
+    return false;
+  std::set<int>::const_iterator end=cand.end(); end--;
+  bool ret=false;
+  for(std::set<int>::const_iterator iter=cand.begin();iter!=end && !ret;iter++)
+    {
+      std::set<int>::const_iterator begin2=iter; begin2++;
+      for(std::set<int>::const_iterator iter2=begin2;iter2!=cand.end();iter2++)
+        {
+          if(areCellsEquals(*iter,*iter2,compType))
+            {
+              if(!ret)
+                {
+                  result.push_back(*iter);
+                  ret=true;
+                }
+              result.push_back(*iter2);
+            }
+        }
+    }
+  return ret;
+}
+
+/*!
+ * This method could potentially modify 'this'. This method merges cells if there are cells equal in 'this'. The comparison is specified by 'compType'.
+ * This method keeps the coordiantes of 'this'.
+ *
+ * @param compType input specifying the technique used to compare cells each other.
+ *                 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without permutation and types same too. This is the strongest policy.
+ *                 1 : permutation. cell1 and cell2 are equal if and the connectivity of cell2 can be deduced by those of cell1 by direct permutation and their type equal.
+ *                 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy.
+ * @return the correspondance array old to new.
+ */
+DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType)
+{
+  //std::vector<double> bbox;
+  int nbOfCells=getNumberOfCells();
+  //getBoundingBoxForBBTree(bbox);
+  //int spaceDim=getSpaceDimension();
+  /*switch(spaceDim)
+    {
+    case 3:
+      BBTree<3,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
+      break;
+    case 2:
+      BBTree<2,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
+      break;
+    case 1:
+      BBTree<1,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("Invalid spaceDimension : must be 1, 2 or 3.");
+      }
+  std::vector<int> candidates;
+  myTree.getIntersectingElems(bb,candidates);
+  std::vector<int> commonCells;
+  std::vector<int> commonCellsI;*/
+  DataArrayInt *revNodal=DataArrayInt::New();
+  DataArrayInt *revNodalIndx=DataArrayInt::New();
+  getReverseNodalConnectivity(revNodal,revNodalIndx);
+  int *revNodalPtr=revNodal->getPointer();
+  int *revNodalIPtr=revNodalIndx->getPointer();
+  std::vector<int> commonCells;
+  std::vector<int> commonCellsI;
+  commonCellsI.push_back(0);
+  int nbOfNodes=getNumberOfNodes();
+  for(const int *pt=revNodalIPtr;pt!=revNodalIPtr+nbOfNodes;pt++)
+    {
+      std::vector<int> common;
+      if(areCellsEqualsInPool(revNodalPtr+pt[0],revNodalPtr+pt[1],compType,common))
+        {
+          commonCells.insert(commonCells.end(),common.begin(),common.end());
+          commonCellsI.push_back(commonCellsI.back()+common.size());
+          for(std::vector<int>::const_iterator iter=common.begin();iter!=common.end();iter++)
+            {
+              for(int *w=revNodalPtr+pt[1];w!=revNodalPtr+revNodalIPtr[nbOfNodes];w++)
+                if(*w==(*iter))
+                  *w=-1;
+            }
+        }
+    }
+  revNodal->decrRef();
+  revNodalIndx->decrRef();
+  std::set<int> vals;
+  for(int i=0;i<nbOfCells;i++)
+    vals.insert(i);
+  std::vector<int>::const_iterator end=commonCellsI.end(); end--;
+  for(std::vector<int>::const_iterator iter=commonCellsI.begin();iter!=end;iter++)
+    for(std::vector<int>::const_iterator iter2=commonCells.begin()+*iter+1;iter2!=commonCells.begin()+*(iter+1);iter2++)
+      vals.erase(*iter2);//commonCells.begin()+*iter+1,commonCells.begin()+*(iter+1));
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(vals.size(),1);
+  std::copy(vals.begin(),vals.end(),ret->getPointer());
   return ret;
 }
 
@@ -1460,6 +1608,7 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
 
 /*!
  * Returns a newly created mesh (with ref count ==1) that contains merge of 'mesh1' and 'other'.
+ * The coords of 'mesh2' are added at the end of coords of 'mesh1'.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2)
 {
@@ -1496,5 +1645,91 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, 
   ret->setConnectivity(nodal,nodalIndex,true);
   nodalIndex->decrRef();
   nodal->decrRef();
+  return ret;
+}
+
+/*!
+ * Idem mergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
+ * 'meshes' must be a non empty vector. 'meshes' have to be with the same mesh dimension.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes)
+{
+  if(meshes.empty())
+    throw INTERP_KERNEL::Exception("meshes input parameter is expected to be non empty.");
+  DataArrayDouble *coords=meshes.front()->getCoords();
+  int meshDim=meshes.front()->getMeshDimension();
+  std::vector<MEDCouplingUMesh *>::const_iterator iter=meshes.begin();
+  int meshLgth=0;
+  int meshIndexLgth=0;
+  for(;iter!=meshes.end();iter++)
+    {
+      if(coords!=(*iter)->getCoords())
+        throw INTERP_KERNEL::Exception("meshes does not share the same coords ! Try using tryToShareSameCoords method !");
+      if(meshDim!=(*iter)->getMeshDimension())
+        throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, fuseUMeshesOnSameCoords impossible !");
+      meshLgth+=(*iter)->getMeshLength();
+      meshIndexLgth+=(*iter)->getNumberOfCells();
+    }
+  DataArrayInt *nodal=DataArrayInt::New();
+  nodal->alloc(meshLgth,1);
+  int *nodalPtr=nodal->getPointer();
+  DataArrayInt *nodalIndex=DataArrayInt::New();
+  nodalIndex->alloc(meshIndexLgth+1,1);
+  int *nodalIndexPtr=nodalIndex->getPointer();
+  int offset=0;
+  for(iter=meshes.begin();iter!=meshes.end();iter++)
+    {
+      const int *nod=(*iter)->getNodalConnectivity()->getConstPointer();
+      const int *index=(*iter)->getNodalConnectivityIndex()->getConstPointer();
+      int nbOfCells=(*iter)->getNumberOfCells();
+      int meshLgth=(*iter)->getMeshLength();
+      nodalPtr=std::copy(nod,nod+meshLgth,nodalPtr);
+      if(iter!=meshes.begin())
+        nodalIndexPtr=std::transform(index+1,index+nbOfCells+1,nodalIndexPtr,std::bind2nd(std::plus<int>(),offset));
+      else
+        nodalIndexPtr=std::copy(index,index+nbOfCells+1,nodalIndexPtr);
+      offset+=meshLgth;
+    }
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
+  ret->setName("merge");
+  ret->setMeshDimension(meshDim);
+  ret->setConnectivity(nodal,nodalIndex,true);
+  ret->setCoords(coords);
+  nodalIndex->decrRef();
+  nodal->decrRef();
+  return ret;
+}
+
+/*!
+ * This method fuses meshes 'meshes' and returned the fused mesh and the correspondances arrays for each mesh in 'meshes' in returned mesh.
+ * If a same cell is detected in several meshes in 'meshes', this cell will appear only once in returned mesh (see ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer for more details)
+ *
+ * @param meshes input non empty vector containing meshes having same coordiantes array and same mesh dimension.
+ * @param compType see MEDCouplingUMesh::zipConnectivityTraducer
+ * @param corr output vector with same size as 'meshes' parameter. corr[i] is the correspondance array of mesh meshes[i] in returned mesh.
+ *             The arrays contained in 'corr' parameter are returned with refcounter set to one.
+ *             To avoid memory leaks the caller have to deal with each instances of DataArrayInt contained in 'corr' parameter.
+ * @return The mesh lying on the same coordinates than those in meshes. All cells in 'meshes' are in returned mesh with 
+ * @exception if meshes is a empty vector or meshes are not lying on same coordinates or meshes not have the same dimension.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::fuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr)
+{
+  //All checks are delegated to mergeUMeshesOnSameCoords
+  MEDCouplingUMesh *ret=mergeUMeshesOnSameCoords(meshes);
+  DataArrayInt *o2n=ret->zipConnectivityTraducer(compType);
+  corr.resize(meshes.size());
+  int nbOfMeshes=meshes.size();
+  int offset=0;
+  const int *o2nPtr=o2n->getConstPointer();
+  for(int i=0;i<nbOfMeshes;i++)
+    {
+      DataArrayInt *tmp=DataArrayInt::New();
+      int curNbOfCells=meshes[i]->getNumberOfCells();
+      tmp->alloc(curNbOfCells,1);
+      std::copy(o2nPtr+offset,o2nPtr+offset+curNbOfCells,tmp->getPointer());
+      offset+=curNbOfCells;
+      corr[i]=tmp;
+    }
+  o2n->decrRef();
   return ret;
 }

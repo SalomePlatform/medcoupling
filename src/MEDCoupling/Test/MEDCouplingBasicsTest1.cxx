@@ -59,6 +59,25 @@ void MEDCouplingBasicsTest::testArray()
   }
 }
 
+void MEDCouplingBasicsTest::testArray2()
+{
+  DataArrayDouble *arr=DataArrayDouble::New();
+  arr->alloc(3,4);
+  double *tmp=arr->getPointer();
+  const double arrRef[12]={12.,11.,10.,9.,8.,7.,6.,5.,4.,3.,2.,1.};
+  std::copy(arrRef,arrRef+12,tmp);
+  arr->setInfoOnComponent(0,"ggg");
+  arr->setInfoOnComponent(1,"hhhh");
+  arr->setInfoOnComponent(2,"jj");
+  arr->setInfoOnComponent(3,"kkkkkk");
+  DataArrayInt *arr2=arr->convertToIntArr();
+  DataArrayDouble *arr3=arr2->convertToDblArr();
+  arr2->decrRef();
+  CPPUNIT_ASSERT(arr->isEqual(*arr3,1e-14));
+  arr3->decrRef();
+  arr->decrRef();
+}
+
 void MEDCouplingBasicsTest::testMesh()
 {
   const int nbOfCells=6;
@@ -653,6 +672,39 @@ void MEDCouplingBasicsTest::testZipCoords()
   mesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::testZipConnectivity()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  MEDCouplingUMesh *m2=build2DTargetMesh_1();
+  int cells1[3]={2,3,4};
+  MEDCouplingPointSet *m3_1=m2->buildPartOfMySelf(cells1,cells1+3,true);
+  MEDCouplingUMesh *m3=dynamic_cast<MEDCouplingUMesh *>(m3_1);
+  CPPUNIT_ASSERT(m3);
+  m2->decrRef();
+  MEDCouplingUMesh *m4=build2DSourceMesh_1();
+  MEDCouplingUMesh *m5=MEDCouplingUMesh::mergeUMeshes(m1,m3);
+  m1->decrRef();
+  m3->decrRef();
+  MEDCouplingUMesh *m6=MEDCouplingUMesh::mergeUMeshes(m5,m4);
+  m4->decrRef();
+  m5->decrRef();
+  //
+  bool areNodesMerged;
+  CPPUNIT_ASSERT_EQUAL(10,m6->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(22,m6->getNumberOfNodes());
+  DataArrayInt *arr=m6->mergeNodes(1e-13,areNodesMerged);
+  arr->decrRef();
+  CPPUNIT_ASSERT(areNodesMerged);
+  CPPUNIT_ASSERT_EQUAL(10,m6->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(9,m6->getNumberOfNodes());
+  //
+  arr=m6->zipConnectivityTraducer(0);
+  CPPUNIT_ASSERT_EQUAL(7,m6->getNumberOfCells());
+  arr->decrRef();
+  //
+  m6->decrRef();
+}
+
 void MEDCouplingBasicsTest::testEqualMesh()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
@@ -1088,6 +1140,43 @@ void MEDCouplingBasicsTest::testMergeMesh1()
   m3->decrRef();
   m1->decrRef();
   m2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testMergeMeshOnSameCoords1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  MEDCouplingUMesh *m2=build2DTargetMesh_1();
+  std::vector<int> cells(5);
+  for(int i=0;i<5;i++)
+    cells[i]=i;
+  m2->convertToPolyTypes(cells);
+  m1->tryToShareSameCoords(*m2,1e-12);
+  MEDCouplingUMesh *m3=build2DTargetMesh_1();
+  m3->tryToShareSameCoords(*m2,1e-12);
+  std::vector<MEDCouplingUMesh *> meshes;
+  meshes.push_back(m1); meshes.push_back(m2); meshes.push_back(m3);
+  MEDCouplingUMesh *m4=MEDCouplingUMesh::mergeUMeshesOnSameCoords(meshes);
+  m4->checkCoherency();
+  CPPUNIT_ASSERT(m4->getCoords()==m1->getCoords());
+  CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
+  const int cells1[5]={0,1,2,3,4};
+  MEDCouplingPointSet *m1_1=m4->buildPartOfMySelf(cells1,cells1+5,true);
+  m1_1->setName(m1->getName());
+  CPPUNIT_ASSERT(m1->isEqual(m1_1,1e-12));
+  const int cells2[5]={5,6,7,8,9};
+  MEDCouplingPointSet *m2_1=m4->buildPartOfMySelf(cells2,cells2+5,true);
+  m2_1->setName(m2->getName());
+  CPPUNIT_ASSERT(m2->isEqual(m2_1,1e-12));
+  const int cells3[5]={10,11,12,13,14};
+  MEDCouplingPointSet *m3_1=m4->buildPartOfMySelf(cells3,cells3+5,true);
+  m3_1->setName(m3->getName());
+  CPPUNIT_ASSERT(m3->isEqual(m3_1,1e-12));
+  m1_1->decrRef(); m2_1->decrRef(); m3_1->decrRef();
+  //
+  m4->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+  m3->decrRef();
 }
 
 void MEDCouplingBasicsTest::testMergeField1()

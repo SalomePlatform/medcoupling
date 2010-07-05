@@ -20,7 +20,7 @@
 #ifndef __ICOCOMEDFIELD_HXX__
 #define __ICOCOMEDFIELD_HXX__
 
-#include "ICoCoField.hxx"
+#include "ICoCoField.h"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 

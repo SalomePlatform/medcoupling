@@ -39,6 +39,8 @@ using namespace INTERP_KERNEL;
 
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayInt::New;
+%newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
+%newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::mergeFields;

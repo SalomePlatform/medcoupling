@@ -28,7 +28,7 @@
 #include "InterpKernelDEC.hxx"
 #include <set>
 #include <time.h>
-#include "ICoCoTrioField.hxx"
+#include "ICoCoTrioField.h"
 #include <iostream>
 #include <assert.h>
 #include <math.h>

@@ -60,8 +60,13 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     MEDCOUPLING_EXPORT void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
     //tools
+    MEDCOUPLING_EXPORT bool areCellsEquals(int cell1, int cell2, int compType) const;
+    MEDCOUPLING_EXPORT bool areCellsEquals0(int cell1, int cell2) const;
+    MEDCOUPLING_EXPORT bool areCellsEquals1(int cell1, int cell2) const;
+    MEDCOUPLING_EXPORT bool areCellsEquals2(int cell1, int cell2) const;
     MEDCOUPLING_EXPORT void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
     MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer();
+    MEDCOUPLING_EXPORT DataArrayInt *zipConnectivityTraducer(int compType);
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged);
@@ -84,10 +89,15 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
     MEDCOUPLING_EXPORT void checkButterflyCells(std::vector<int>& cells) const;
     MEDCOUPLING_EXPORT void getBoundingBoxForBBTree(std::vector<double>& bbox) const;
+    //utilities for MED File RW
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
+    MEDCOUPLING_EXPORT std::vector<MEDCouplingUMesh *> splitByType() const;
+    //
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *fuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr);
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
@@ -95,6 +105,7 @@ namespace ParaMEDMEM
     void computeTypes();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     //tools
+    MEDCOUPLING_EXPORT bool areCellsEqualsInPool(const int *candBg, const int *candEnd, int compType, std::vector<int>& result) const;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *start, const int *end) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,

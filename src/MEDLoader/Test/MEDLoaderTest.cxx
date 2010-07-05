@@ -80,6 +80,116 @@ void MEDLoaderTest::testMesh3DRW()
   mesh->decrRef();
 }
 
+/*!
+ * Most basic test : one and only one MEDCoupling field in a new file.
+ */
+void MEDLoaderTest::testFieldRW1()
+{
+  MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
+  MEDLoader::WriteField("file6.med",f1,true);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell("file6.med",f1->getMesh()->getName(),0,f1->getName(),0,1);
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f1->decrRef();
+  f2->decrRef();
+  //
+  f1=buildVecFieldOnNodes_1();
+  MEDLoader::WriteField("file7.med",f1,true);
+  f2=MEDLoader::ReadFieldDoubleNode("file7.med",f1->getMesh()->getName(),0,f1->getName(),2,3);
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f1->decrRef();
+  f2->decrRef();
+}
+
+/*!
+ * Multi field writing in a same file.
+ */
+void MEDLoaderTest::testFieldRW2()
+{
+  static const double VAL1=12345.67890314;
+  static const double VAL2=-1111111111111.;
+  MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
+  MEDLoader::WriteField("file8.med",f1,true);
+  f1->setTime(10.,8,9);
+  double *tmp=f1->getArray()->getPointer();
+  tmp[0]=VAL1;
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh("file8.med",f1);
+  f1->setTime(10.14,18,19);
+  tmp[0]=VAL2;
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh("file8.med",f1);
+  //retrieving time steps...
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell("file8.med",f1->getMesh()->getName(),0,f1->getName(),8,9);
+  f1->setTime(10.,8,9);
+  tmp[0]=VAL1;
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f2->decrRef();
+  f2=MEDLoader::ReadFieldDoubleCell("file8.med",f1->getMesh()->getName(),0,f1->getName(),0,1);
+  MEDCouplingFieldDouble *f3=buildVecFieldOnCells_1();
+  CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
+  f3->decrRef();
+  f2->decrRef();
+  f2=MEDLoader::ReadFieldDoubleCell("file8.med",f1->getMesh()->getName(),0,f1->getName(),18,19);
+  f1->setTime(10.14,18,19);
+  tmp[0]=VAL2;
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f2->decrRef();
+  f1->decrRef();
+  //ON NODES
+  f1=buildVecFieldOnNodes_1();
+  MEDLoader::WriteField("file9.med",f1,true);
+  f1->setTime(110.,108,109);
+  tmp=f1->getArray()->getPointer();
+  tmp[3]=VAL1;
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh("file9.med",f1);
+  f1->setTime(210.,208,209);
+  tmp[3]=VAL2;
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh("file9.med",f1);
+  f2=MEDLoader::ReadFieldDoubleNode("file9.med",f1->getMesh()->getName(),0,f1->getName(),108,109);
+  f1->setTime(110.,108,109);
+  tmp[3]=VAL1;
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f2->decrRef();
+  f2=MEDLoader::ReadFieldDoubleNode("file9.med",f1->getMesh()->getName(),0,f1->getName(),2,3);
+  f3=buildVecFieldOnNodes_1();
+  CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
+  f3->decrRef();
+  f2->decrRef();
+  f2=MEDLoader::ReadFieldDoubleNode("file9.med",f1->getMesh()->getName(),0,f1->getName(),208,209);
+  f1->setTime(210.,208,209);
+  tmp[3]=VAL2;
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f2->decrRef();
+  f1->decrRef();
+}
+
+void MEDLoaderTest::testMultiMeshRW1()
+{
+  MEDCouplingUMesh *mesh1=build3DMesh_1();
+  const int part1[5]={1,2,4,13,15};
+  MEDCouplingUMesh *mesh2=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part1,part1+5,true);
+  mesh2->setName("mesh2");
+  const int part2[4]={3,4,13,14};
+  MEDCouplingUMesh *mesh3=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part2,part2+4,true);
+  mesh3->setName("mesh3");
+  MEDCouplingUMesh *mesh4=MEDCouplingUMesh::New();
+  mesh4->setName("mesh4");
+  mesh4->setMeshDimension(3);
+  mesh4->allocateCells(1);
+  int conn[4]={0,11,1,3};
+  mesh4->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
+  mesh4->finishInsertingCells();
+  mesh4->setCoords(mesh1->getCoords());
+  std::vector<MEDCouplingUMesh *> meshes;
+  meshes.push_back(mesh1);
+  meshes.push_back(mesh2);
+  meshes.push_back(mesh3);
+  meshes.push_back(mesh4);
+  MEDLoader::WriteUMeshes("file10.med","3DToto",meshes,true);
+  mesh4->decrRef();
+  mesh3->decrRef();
+  mesh2->decrRef();
+  mesh1->decrRef();
+}
+
 MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
 {
   double coords[6]={ 0.0, 0.3, 0.75, 1.0, 1.4, 1.3 };
@@ -135,7 +245,7 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_1()
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+12);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+16);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+20);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POLYGON,4,targetConn+20);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,2);
@@ -158,7 +268,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DSurfMesh_1()
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+12);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+16);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+20);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POLYGON,4,targetConn+20);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,3);
@@ -232,4 +342,47 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
   ret->setCoords(myCoords);
   myCoords->decrRef();
   return ret;
+}
+
+MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnCells_1()
+{
+  MEDCouplingUMesh *mesh=build3DSurfMesh_1();
+  int nbOfCells=mesh->getNumberOfCells();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setName("VectorFieldOnCells");
+  f1->setMesh(mesh);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(nbOfCells,3);
+  f1->setArray(array);
+  array->decrRef();
+  double *tmp=array->getPointer();
+  const double arr1[18]={0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.};
+  std::copy(arr1,arr1+18,tmp);
+  f1->setTime(2.,0,1);
+  f1->checkCoherency();
+  mesh->decrRef();
+  return f1;
+}
+
+MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnNodes_1()
+{
+  MEDCouplingUMesh *mesh=build3DSurfMesh_1();
+  int nbOfNodes=mesh->getNumberOfNodes();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
+  f1->setName("VectorFieldOnNodes");
+  f1->setMesh(mesh);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(nbOfNodes,3);
+  f1->setArray(array);
+  array->decrRef();
+  double *tmp=array->getPointer();
+  const double arr1[36]={
+    0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.,
+    1000.,10010.,10020.,1001.,10011.,10021.,1002.,10012.,10022.,1003.,10013.,10023.,1004.,10014.,10024.,1005.,10015.,10025.,
+  };
+  std::copy(arr1,arr1+36,tmp);
+  f1->setTime(2.12,2,3);
+  f1->checkCoherency();
+  mesh->decrRef();
+  return f1;
 }

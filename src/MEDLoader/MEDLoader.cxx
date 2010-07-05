@@ -159,6 +159,7 @@ namespace MEDLoaderNS
   void appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
   void prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, std::list<MEDLoader::MEDFieldDoublePerCellType>& split);
   void writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool forceFromScratch);
+  void writeUMeshesDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch);
   void writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
 }
 
@@ -517,11 +518,11 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                   char maa_ass[MED_TAILLE_NOM+1]="";
                   med_float dt=0.0;
                   med_booleen local;
-                  med_int nbPdt=MEDnPasdetemps(fid,(char *)fieldName,MED_MAILLE,tabType[typeOfOutField][j]);
+                  med_int nbPdt=MEDnPasdetemps(fid,(char *)fieldName,tabEnt[typeOfOutField],tabType[typeOfOutField][j]);
                   bool found2=false;
                   for(int k=0;k<nbPdt && !found2;k++)
                     {
-                      MEDpasdetempsInfo(fid,(char *)fieldName,MED_MAILLE,tabType[typeOfOutField][j],k+1,&ngauss,
+                      MEDpasdetempsInfo(fid,(char *)fieldName,tabEnt[typeOfOutField],tabType[typeOfOutField][j],k+1,&ngauss,
                                         &numdt,&numo,dt_unit,&dt,maa_ass,&local,&nbrefmaa);
                       found2=(numdt==iteration && numo==order);
                       if(found2)
@@ -1207,6 +1208,19 @@ void MEDLoaderNS::writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCoupli
   MEDfermer(fid);
 }
 
+/*!
+ * In this method meshes are assumed to shared the same coords.
+ */
+void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch)
+{
+  med_idt fid=MEDouvrir((char *)fileName,forceFromScratch?MED_CREATION:MED_LECTURE_ECRITURE);
+  char maa[MED_TAILLE_NOM+1];
+  strcpy(maa,meshName);
+  //MEDmaaCr(fid,maa,mesh->getSpaceDimension(),MED_NON_STRUCTURE,maa);
+  //MEDdimEspaceCr(fid,maa,mesh->getSpaceDimension());
+  MEDfermer(fid);
+}
+
 void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
 {
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE_ECRITURE);
@@ -1254,7 +1268,10 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCoupl
     case ParaMEDMEM::ON_NODES:
       {
         int nbOfTuples=f->getArray()->getNumberOfTuples();
-        MEDchampEcr(fid,(char *)f->getMesh()->getName(),(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,nbOfTuples,(char *)MED_NOGAUSS,
+        char nommaa[MED_TAILLE_NOM+1];
+        std::fill(nommaa,nommaa+MED_TAILLE_NOM,' '); nommaa[MED_TAILLE_NOM]='\0';
+        strcpy(nommaa,f->getMesh()->getName());
+        MEDchampEcr(fid,(char *)nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,nbOfTuples,(char *)MED_NOGAUSS,
                     MED_ALL,(char *)MED_NOPFL,MED_NO_PFLMOD,MED_NOEUD,MED_NONE,numdt,(char *)"",dt,numo);
         break;
       }
@@ -1325,13 +1342,62 @@ void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *m
   else
     {
       std::vector<std::string> meshNames=GetMeshNames(fileName);
-      std::string fileNameCpp(mesh->getName());
-      if(std::find(meshNames.begin(),meshNames.end(),fileNameCpp)==meshNames.end())
+      if(std::find(meshNames.begin(),meshNames.end(),meshName)==meshNames.end())
         MEDLoaderNS::writeUMeshDirectly(fileName,mesh,false);
       else
         {
           std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
-          oss << fileNameCpp << "\" !";
+          oss << meshName << "\" !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+void MEDLoader::WriteUMeshes(const char *fileName, const char *meshNameC, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch)
+{
+  std::string meshName(meshNameC);
+  if(meshName.empty())
+    throw INTERP_KERNEL::Exception("Trying to write a unstructured mesh with no name ! MED file format needs a not empty mesh name : change 2nd parameter !");
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(meshes.empty())
+    throw INTERP_KERNEL::Exception("List of meshes must be not empty !");
+  DataArrayDouble *coords=meshes.front()->getCoords();
+  for(std::vector<ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=meshes.begin();iter!=meshes.end();iter++)
+    if(coords!=(*iter)->getCoords())
+      throw INTERP_KERNEL::Exception("Meshes does not not share the same coordinates : try method MEDCouplingPointSet::tryToShareSameCoords !");
+  std::set<std::string> tmp;
+  for(std::vector<ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=meshes.begin();iter!=meshes.end();iter++)
+    {
+      if(tmp.find((*iter)->getName())==tmp.end())
+        tmp.insert((*iter)->getName());
+      else
+        throw INTERP_KERNEL::Exception("The names of meshes must be different each other !");
+    }
+  tmp.clear();
+  if(writeFromScratch)
+    {
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshNameC,meshes,true);
+      return ;
+    }
+  if(status==MEDLoaderBase::NOT_EXIST)
+    {
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshNameC,meshes,true);
+      return;
+    }
+  else
+    {
+      std::vector<std::string> meshNames=GetMeshNames(fileName);
+      if(std::find(meshNames.begin(),meshNames.end(),meshName)==meshNames.end())
+        MEDLoaderNS::writeUMeshesDirectly(fileName,meshNameC,meshes,false);
+      else
+        {
+          std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
+          oss << meshName << "\" !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }

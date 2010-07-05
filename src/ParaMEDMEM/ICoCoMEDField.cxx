@@ -18,7 +18,7 @@
 //
 
 #include "ICoCoMEDField.hxx"
-#include "ICoCoTrioField.hxx"
+#include "ICoCoTrioField.h"
 #include "ProcessorGroup.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"

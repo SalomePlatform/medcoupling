@@ -19,6 +19,7 @@
 
 #include "MEDCouplingMemArray.txx"
 
+#include <set>
 #include <functional>
 
 using namespace ParaMEDMEM;
@@ -86,6 +87,18 @@ void DataArrayDouble::reAlloc(int nbOfTuples)
   _mem.reAlloc(_info_on_compo.size()*nbOfTuples);
   _nb_of_tuples=nbOfTuples;
   declareAsNew();
+}
+
+DataArrayInt *DataArrayDouble::convertToIntArr() const
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(getNumberOfTuples(),getNumberOfComponents());
+  int nbOfVals=getNbOfElems();
+  const double *src=getConstPointer();
+  int *dest=ret->getPointer();
+  std::copy(src,src+nbOfVals,dest);
+  ret->copyStringInfoFrom(*this);
+  return ret;
 }
 
 void DataArrayDouble::setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
@@ -334,6 +347,18 @@ void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type,
   declareAsNew();
 }
 
+DataArrayDouble *DataArrayInt::convertToDblArr() const
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(getNumberOfTuples(),getNumberOfComponents());
+  int nbOfVals=getNbOfElems();
+  const int *src=getConstPointer();
+  double *dest=ret->getPointer();
+  std::copy(src,src+nbOfVals,dest);
+  ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
 void DataArrayInt::reAlloc(int nbOfTuples)
 {
   _mem.reAlloc(_info_on_compo.size()*nbOfTuples);
@@ -365,6 +390,57 @@ DataArrayInt *DataArrayInt::aggregate(const DataArrayInt *a1, const DataArrayInt
   int *pt=std::copy(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple1*nbOfComp,ret->getPointer());
   std::copy(a2->getConstPointer()+offsetA2*nbOfComp,a2->getConstPointer()+nbOfTuple2*nbOfComp,pt);
   ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+/*!
+ * This method create a minimal partition of groups 'groups' the std::iota array of size 'newNb'.
+ * This method returns an array of size 'newNb' that specifies for each item at which familyId it owns to, and this method returns
+ * for each group the familyId it contains. If an id so that id<newNb and that appears in no groups will appears with 0 in return array.
+ *
+ * @param groups in arrays specifying ids of each groups.
+ * @param newNb specifies size of whole set. Must be at least equal to max eltid in 'groups'.
+ * @return an array of size newNb specifying fid of each item.
+ */
+DataArrayInt *DataArrayInt::makePartition(const std::vector<DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups)
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(newNb,1);
+  int *retPtr=ret->getPointer();
+  std::fill(retPtr,retPtr+newNb,0);
+  int fid=1;
+  for(std::vector<DataArrayInt *>::const_iterator iter=groups.begin();iter!=groups.end();iter++)
+    {
+      const int *ptr=(*iter)->getConstPointer();
+      int nbOfElem=(*iter)->getNbOfElems();
+      int sfid=fid;
+      for(int j=0;j<sfid;j++)
+        {
+          bool found=false;
+          for(int i=0;i<nbOfElem;i++)
+            {
+              if(retPtr[ptr[i]]==j)
+                {
+                  retPtr[ptr[i]]=fid;
+                  found=true;
+                }
+            }
+          if(found)
+            fid++;
+        }
+    }
+  fidsOfGroups.clear();
+  fidsOfGroups.resize(groups.size());
+  int grId=0;
+  for(std::vector<DataArrayInt *>::const_iterator iter=groups.begin();iter!=groups.end();iter++,grId++)
+    {
+      std::set<int> tmp;
+      const int *ptr=(*iter)->getConstPointer();
+      int nbOfElem=(*iter)->getNbOfElems();
+      for(const int *p=ptr;p!=ptr+nbOfElem;p++)
+        tmp.insert(retPtr[*p]);
+      fidsOfGroups[grId].insert(fidsOfGroups[grId].end(),tmp.begin(),tmp.end());
+    }
   return ret;
 }
 

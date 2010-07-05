@@ -24,9 +24,9 @@
 #include "ParaFIELD.hxx"
 #include "ParaMESH.hxx"
 #include "DEC.hxx"
-#include "ICoCoField.hxx"
+#include "ICoCoField.h"
 #include "ICoCoMEDField.hxx"
-#include "ICoCoTrioField.hxx"
+#include "ICoCoTrioField.h"
 #include "MPIProcessorGroup.hxx"
 
 #include <cmath>

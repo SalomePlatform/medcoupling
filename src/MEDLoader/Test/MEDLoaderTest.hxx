@@ -25,6 +25,7 @@
 namespace ParaMEDMEM
 {
   class MEDCouplingUMesh;
+  class MEDCouplingFieldDouble;
 
   class MEDLoaderTest : public CppUnit::TestFixture
   {
@@ -34,6 +35,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testMesh2DRW );
     CPPUNIT_TEST( testMesh3DSurfRW );
     CPPUNIT_TEST( testMesh3DRW );
+    CPPUNIT_TEST( testFieldRW1 );
+    CPPUNIT_TEST( testFieldRW2 );
+    CPPUNIT_TEST( testMultiMeshRW1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testMesh1DRW();
@@ -41,12 +45,17 @@ namespace ParaMEDMEM
     void testMesh2DRW();
     void testMesh3DSurfRW();
     void testMesh3DRW();
+    void testFieldRW1();
+    void testFieldRW2();
+    void testMultiMeshRW1();
   private:
     MEDCouplingUMesh *build1DMesh_1();
     MEDCouplingUMesh *build2DCurveMesh_1();
     MEDCouplingUMesh *build2DMesh_1();
     MEDCouplingUMesh *build3DSurfMesh_1();
     MEDCouplingUMesh *build3DMesh_1();
+    MEDCouplingFieldDouble *buildVecFieldOnCells_1();
+    MEDCouplingFieldDouble *buildVecFieldOnNodes_1();
   };
 }
 
