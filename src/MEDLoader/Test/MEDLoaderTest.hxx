@@ -37,6 +37,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testMesh3DRW );
     CPPUNIT_TEST( testFieldRW1 );
     CPPUNIT_TEST( testFieldRW2 );
+    CPPUNIT_TEST( testFieldRW3 );
     CPPUNIT_TEST( testMultiMeshRW1 );
     CPPUNIT_TEST_SUITE_END();
   public:
@@ -47,6 +48,7 @@ namespace ParaMEDMEM
     void testMesh3DRW();
     void testFieldRW1();
     void testFieldRW2();
+    void testFieldRW3();
     void testMultiMeshRW1();
   private:
     MEDCouplingUMesh *build1DMesh_1();

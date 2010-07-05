@@ -390,8 +390,22 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
   return ret;
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *fileName, const char *fieldName)
+std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, const char *fieldName)
 {
+  switch(type)
+    {
+    case ON_CELLS:
+      return GetCellFieldIterations(fileName,meshName,fieldName);
+    case ON_NODES:
+      return GetNodeFieldIterations(fileName,meshName,fieldName);
+    default:
+      throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES or ON_CELLS !");
+    } 
+}
+
+std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *fileName, const char *meshName, const char *fieldName)
+{
+  std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   med_int nbFields=MEDnChamp(fid,0);
@@ -423,8 +437,12 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
               for(int k=0;k<nbPdt;k++)
                 {
                   MEDpasdetempsInfo(fid,nomcha,MED_MAILLE,typmai[j],k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
-                  found=true;
-                  ret.push_back(std::make_pair(numdt,numo));
+                  std::string maa_ass_cpp(maa_ass);
+                  if(meshNameCpp==maa_ass_cpp)
+                    {
+                      found=true;
+                      ret.push_back(std::make_pair(numdt,numo));
+                    }
                 }
             }
         }
@@ -433,8 +451,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
   return ret;
 }
 
-std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *fileName, const char *fieldName)
+std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *fileName, const char *meshName, const char *fieldName)
 {
+  std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   med_int nbFields=MEDnChamp(fid,0);
@@ -463,7 +482,11 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
           for(int k=0;k<nbPdt;k++)
             {
               MEDpasdetempsInfo(fid,nomcha,MED_NOEUD,MED_NONE,k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
-              ret.push_back(std::make_pair(numdt,numo));
+               std::string maa_ass_cpp(maa_ass);
+               if(meshNameCpp==maa_ass_cpp)
+                 {
+                   ret.push_back(std::make_pair(numdt,numo));
+                 }
             }
         }
     }
@@ -1138,6 +1161,19 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileNam
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
   return MEDLoaderNS::readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
+}
+
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDouble(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
+{
+  switch(type)
+    {
+    case ON_CELLS:
+      return ReadFieldDoubleCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+    case ON_NODES:
+      return ReadFieldDoubleNode(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+    default:
+      throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES or ON_CELLS !");
+    } 
 }
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
