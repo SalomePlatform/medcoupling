@@ -103,11 +103,11 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(2,(int)fieldsName.size());
   CPPUNIT_ASSERT(fieldsName[0]=="fieldcelldoublescalar");
   CPPUNIT_ASSERT(fieldsName[1]=="fieldcelldoublevector");
-  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),fieldsName[0].c_str());
+  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
   CPPUNIT_ASSERT_EQUAL(-1,its0[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0[0].second);
-  std::vector<std::pair<int,int> > its1=MEDLoader::GetCellFieldIterations(fileName.c_str(),fieldsName[1].c_str());
+  std::vector<std::pair<int,int> > its1=MEDLoader::GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[1].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its1.size());
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].second);
@@ -174,7 +174,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(2,(int)fieldsNameNode.size());
   CPPUNIT_ASSERT(fieldsNameNode[0]=="fieldnodedouble");
   CPPUNIT_ASSERT(fieldsNameNode[1]=="fieldnodeint");
-  std::vector<std::pair<int,int> > its0Node=MEDLoader::GetNodeFieldIterations(fileName.c_str(),fieldsNameNode[0].c_str());
+  std::vector<std::pair<int,int> > its0Node=MEDLoader::GetNodeFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsNameNode[0].c_str());
   CPPUNIT_ASSERT_EQUAL(3,(int)its0Node.size());
   CPPUNIT_ASSERT_EQUAL(1,its0Node[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].second);
@@ -286,7 +286,7 @@ void ParaMEDMEMTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT(fieldsName[0]=="bord_:_distorsion");
   CPPUNIT_ASSERT(fieldsName[1]=="bord_:_familles");
   CPPUNIT_ASSERT(fieldsName[2]=="bord_:_non-ortho");
-  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),fieldsName[0].c_str());
+  std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
   MEDCouplingFieldDouble *field=MEDLoader::ReadFieldDoubleCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field->checkCoherency();
