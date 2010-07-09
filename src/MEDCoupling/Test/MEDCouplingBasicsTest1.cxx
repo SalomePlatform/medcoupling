@@ -701,7 +701,13 @@ void MEDCouplingBasicsTest::testZipConnectivity()
   arr=m6->zipConnectivityTraducer(0);
   CPPUNIT_ASSERT_EQUAL(7,m6->getNumberOfCells());
   arr->decrRef();
+  MEDCouplingUMesh *m7=m6->clone(true);
+  arr=m6->zipConnectivityTraducer(0);
+  CPPUNIT_ASSERT(m7->isEqual(m6,1e-12));
+  CPPUNIT_ASSERT_EQUAL(7,m6->getNumberOfCells());
+  arr->decrRef();
   //
+  m7->decrRef();
   m6->decrRef();
 }
 

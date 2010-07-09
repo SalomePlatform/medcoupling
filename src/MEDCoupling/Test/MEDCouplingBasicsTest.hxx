@@ -47,7 +47,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testBuildPartOfMySelf );
     CPPUNIT_TEST( testBuildPartOfMySelfNode );
     CPPUNIT_TEST( testZipCoords );
-    //CPPUNIT_TEST( testZipConnectivity );
+    CPPUNIT_TEST( testZipConnectivity );
     CPPUNIT_TEST( testEqualMesh );
     CPPUNIT_TEST( testEqualFieldDouble );
     CPPUNIT_TEST( testNatureChecking );

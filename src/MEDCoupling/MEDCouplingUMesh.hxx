@@ -105,7 +105,9 @@ namespace ParaMEDMEM
     void computeTypes();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     //tools
-    MEDCOUPLING_EXPORT bool areCellsEqualsInPool(const int *candBg, const int *candEnd, int compType, std::vector<int>& result) const;
+    template<int SPACEDIM>
+    void findCommonCellsBase(int compType, std::vector<int>& res, std::vector<int>& resI) const;
+    MEDCOUPLING_EXPORT bool areCellsEqualsInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *start, const int *end) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,

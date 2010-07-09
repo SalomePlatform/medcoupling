@@ -471,16 +471,16 @@ bool MEDCouplingUMesh::areCellsEquals2(int cell1, int cell2) const
 }
 
 /*!
- * This method find in candidate pool defined by ['candBg','candEnd') the cells equal following the polycy 'compType'.
+ * This method find in candidate pool defined by 'candidates' the cells equal following the polycy 'compType'.
  * If any true is returned and the results will be put at the end of 'result' output parameter. If not false is returned
  * and result remains unchanged.
  * The semantic of 'compType' is specified in MEDCouplingUMesh::zipConnectivityTraducer method.
- * If in ['candBg','candEnd') pool -1 value is considered as an empty value.
+ * If in 'candidates' pool -1 value is considered as an empty value.
  * WARNING this method returns only ONE set of result !
  */
-bool MEDCouplingUMesh::areCellsEqualsInPool(const int *candBg, const int *candEnd, int compType, std::vector<int>& result) const
+bool MEDCouplingUMesh::areCellsEqualsInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const
 {
-  std::set<int> cand(candBg,candEnd);
+  std::set<int> cand(candidates.begin(),candidates.end());
   cand.erase(-1);
   if(cand.size()<=1)
     return false;
@@ -506,6 +506,50 @@ bool MEDCouplingUMesh::areCellsEqualsInPool(const int *candBg, const int *candEn
 }
 
 /*!
+ * 
+ */
+template<int SPACEDIM>
+void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, std::vector<int>& resI) const
+{
+  res.clear(); resI.clear();
+  resI.push_back(0);
+  std::vector<double> bbox;
+  int nbOfCells=getNumberOfCells();
+  getBoundingBoxForBBTree(bbox);
+  double bb[2*SPACEDIM];
+  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connI=getNodalConnectivityIndex()->getConstPointer();
+  const double *coords=getCoords()->getConstPointer();
+  std::vector<bool> isFetched(nbOfCells);
+  for(int k=0;k<nbOfCells;k++)
+    {
+      if(!isFetched[k])
+        {
+          for(int j=0;j<SPACEDIM;j++)
+            { bb[2*j]=std::numeric_limits<double>::max(); bb[2*j+1]=-std::numeric_limits<double>::max(); }
+          for(const int *pt=conn+connI[k]+1;pt!=conn+connI[k+1];pt++)
+            if(*pt>-1)
+              {
+                for(int j=0;j<SPACEDIM;j++)
+                  {
+                    bb[2*j]=std::min(bb[2*j],coords[SPACEDIM*(*pt)+j]);
+                    bb[2*j+1]=std::max(bb[2*j+1],coords[SPACEDIM*(*pt)+j]);
+                  }
+              }
+          std::vector<int> candidates;
+          myTree.getIntersectingElems(bb,candidates);
+          if(areCellsEqualsInPool(candidates,compType,res))
+            {
+              resI.push_back(res.size());
+              for(std::vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+                isFetched[*it]=true;
+            }
+        }
+    }
+}
+
+/*!
  * This method could potentially modify 'this'. This method merges cells if there are cells equal in 'this'. The comparison is specified by 'compType'.
  * This method keeps the coordiantes of 'this'.
  *
@@ -517,64 +561,61 @@ bool MEDCouplingUMesh::areCellsEqualsInPool(const int *candBg, const int *candEn
  */
 DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType)
 {
-  //std::vector<double> bbox;
+  int spaceDim=getSpaceDimension();
   int nbOfCells=getNumberOfCells();
-  //getBoundingBoxForBBTree(bbox);
-  //int spaceDim=getSpaceDimension();
-  /*switch(spaceDim)
-    {
-    case 3:
-      BBTree<3,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
-      break;
-    case 2:
-      BBTree<2,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
-      break;
-    case 1:
-      BBTree<1,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
-      break;
-    default:
-      throw INTERP_KERNEL::Exception("Invalid spaceDimension : must be 1, 2 or 3.");
-      }
-  std::vector<int> candidates;
-  myTree.getIntersectingElems(bb,candidates);
-  std::vector<int> commonCells;
-  std::vector<int> commonCellsI;*/
-  DataArrayInt *revNodal=DataArrayInt::New();
-  DataArrayInt *revNodalIndx=DataArrayInt::New();
-  getReverseNodalConnectivity(revNodal,revNodalIndx);
-  int *revNodalPtr=revNodal->getPointer();
-  int *revNodalIPtr=revNodalIndx->getPointer();
   std::vector<int> commonCells;
   std::vector<int> commonCellsI;
-  commonCellsI.push_back(0);
-  int nbOfNodes=getNumberOfNodes();
-  for(const int *pt=revNodalIPtr;pt!=revNodalIPtr+nbOfNodes;pt++)
+  switch(spaceDim)
     {
-      std::vector<int> common;
-      if(areCellsEqualsInPool(revNodalPtr+pt[0],revNodalPtr+pt[1],compType,common))
-        {
-          commonCells.insert(commonCells.end(),common.begin(),common.end());
-          commonCellsI.push_back(commonCellsI.back()+common.size());
-          for(std::vector<int>::const_iterator iter=common.begin();iter!=common.end();iter++)
-            {
-              for(int *w=revNodalPtr+pt[1];w!=revNodalPtr+revNodalIPtr[nbOfNodes];w++)
-                if(*w==(*iter))
-                  *w=-1;
-            }
-        }
+    case 3:
+      {
+        findCommonCellsBase<3>(compType,commonCells,commonCellsI);
+        break;
+      }
+    case 2:
+      {
+        findCommonCellsBase<2>(compType,commonCells,commonCellsI);
+        break;
+      }
+    case 1:
+      {
+        findCommonCellsBase<1>(compType,commonCells,commonCellsI);
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("Invalid spaceDimension : must be 1, 2 or 3.");
     }
-  revNodal->decrRef();
-  revNodalIndx->decrRef();
-  std::set<int> vals;
-  for(int i=0;i<nbOfCells;i++)
-    vals.insert(i);
-  std::vector<int>::const_iterator end=commonCellsI.end(); end--;
-  for(std::vector<int>::const_iterator iter=commonCellsI.begin();iter!=end;iter++)
-    for(std::vector<int>::const_iterator iter2=commonCells.begin()+*iter+1;iter2!=commonCells.begin()+*(iter+1);iter2++)
-      vals.erase(*iter2);//commonCells.begin()+*iter+1,commonCells.begin()+*(iter+1));
   DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(vals.size(),1);
-  std::copy(vals.begin(),vals.end(),ret->getPointer());
+  ret->alloc(nbOfCells,1);
+  int *retPtr=ret->getPointer();
+  std::fill(retPtr,retPtr+nbOfCells,-1);
+  int id=0;
+  std::vector<int>::const_iterator it1=commonCellsI.begin(),it2=it1+1;
+  std::vector<int> tmpSet;
+  std::vector<int> cellsToKeep;
+  if(it2!=commonCellsI.end())
+    tmpSet.insert(tmpSet.end(),commonCells.begin()+(*it1),commonCells.begin()+(*it2));
+  for(int i=0;i<nbOfCells;i++)
+    if(retPtr[i]==-1)
+      {
+        retPtr[i]=id;
+        cellsToKeep.push_back(i);
+        if(!tmpSet.empty())
+          if(tmpSet.front()==i)
+            {
+              for(std::vector<int>::const_iterator it3=tmpSet.begin();it3!=tmpSet.end();it3++)
+                retPtr[*it3]=id;
+              tmpSet.clear();
+              it1++;
+              it2++;
+              if(it2!=commonCellsI.end())
+                tmpSet.insert(tmpSet.end(),commonCells.begin()+(*it1),commonCells.begin()+(*it2));
+            }
+            id++;
+      }
+  MEDCouplingUMesh *self=(MEDCouplingUMesh *)buildPartOfMySelf(&cellsToKeep[0],&cellsToKeep[cellsToKeep.size()],true);
+  setConnectivity(self->getNodalConnectivity(),self->getNodalConnectivityIndex(),true);
+  self->decrRef();
   return ret;
 }
 
