@@ -24,6 +24,7 @@ class MEDLoaderBase
 {
 public:
   static int getStatusOfFile(const char *fileName);
+  static char *buildEmptyString(int lgth);
 public:
   static const int EXIST_RW=0;
   static const int NOT_EXIST=1;

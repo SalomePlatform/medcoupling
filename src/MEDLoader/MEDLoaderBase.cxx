@@ -59,3 +59,11 @@ int MEDLoaderBase::getStatusOfFile(const char *fileName)
       throw INTERP_KERNEL::Exception("Internal error !");
     }
 }
+
+char *MEDLoaderBase::buildEmptyString(int lgth)
+{
+  char *ret=new char[lgth+1];
+  std::fill(ret,ret+lgth,' ');
+  ret[lgth]='\0';
+  return ret;
+}

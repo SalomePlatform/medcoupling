@@ -316,9 +316,9 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName
   med_booleen local;
   //char pflname[MED_TAILLE_NOM+1]="";
   //char locname[MED_TAILLE_NOM+1]="";
-  char maa_ass[MED_TAILLE_NOM+1]="";
-  char dt_unit[MED_TAILLE_PNOM+1]="";
-  char nomcha[MED_TAILLE_NOM+1]="";
+  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+  char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
   //
   for(int i=0;i<nbFields;i++)
     {
@@ -344,6 +344,9 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName
                 }
             }
         }
+      delete [] maa_ass;
+      delete [] dt_unit;
+      delete [] unit;
     }
   MEDfermer(fid);
   return ret;
@@ -360,9 +363,9 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
   med_int numdt=0,numo=0,nbrefmaa;
   med_float dt=0.0;
   med_booleen local;
-  char maa_ass[MED_TAILLE_NOM+1]="";
-  char dt_unit[MED_TAILLE_PNOM+1]="";
-  char nomcha[MED_TAILLE_NOM+1]="";
+  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+  char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
   //
   for(int i=0;i<nbFields;i++)
     {
@@ -386,6 +389,9 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
             }
         }
     }
+  delete [] maa_ass;
+  delete [] dt_unit;
+  delete [] nomcha;
   MEDfermer(fid);
   return ret;
 }
@@ -415,9 +421,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
   med_int numdt=0,numo=0,nbrefmaa;
   med_float dt=0.0;
   med_booleen local;
-  char maa_ass[MED_TAILLE_NOM+1]="";
-  char dt_unit[MED_TAILLE_PNOM+1]="";
-  char nomcha[MED_TAILLE_NOM+1]="";
+  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+  char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
   //
   for(int i=0;i<nbFields;i++)
     {
@@ -447,6 +453,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
             }
         }
     }
+  delete [] maa_ass;
+  delete [] dt_unit;
+  delete [] nomcha;
   MEDfermer(fid);
   return ret;
 }
@@ -463,9 +472,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
   med_int numdt=0,numo=0,nbrefmaa;
   med_float dt=0.0;
   med_booleen local;
-  char maa_ass[MED_TAILLE_NOM+1]="";
-  char dt_unit[MED_TAILLE_PNOM+1]="";
-  char nomcha[MED_TAILLE_NOM+1]="";
+  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+  char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
   //
   for(int i=0;i<nbFields;i++)
     {
@@ -490,6 +499,9 @@ std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *
             }
         }
     }
+  delete [] maa_ass;
+  delete [] dt_unit;
+  delete [] nomcha;
   MEDfermer(fid);
   return ret;
 }
@@ -537,8 +549,8 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                   //
                   med_int ngauss=0;
                   med_int numdt=0,numo=0,nbrefmaa;
-                  char dt_unit[MED_TAILLE_PNOM+1]="";
-                  char maa_ass[MED_TAILLE_NOM+1]="";
+                  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+                  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
                   med_float dt=0.0;
                   med_booleen local;
                   med_int nbPdt=MEDnPasdetemps(fid,(char *)fieldName,tabEnt[typeOfOutField],tabType[typeOfOutField][j]);
@@ -554,6 +566,8 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                   MEDchampLire(fid,(char *)meshName,(char *)fieldName,(unsigned char*)valr,MED_FULL_INTERLACE,MED_ALL,locname,
                                pflname,MED_COMPACT,tabEnt[typeOfOutField],tabType[typeOfOutField][j],iteration,order);
                   field.push_back(MEDLoader::MEDFieldDoublePerCellType(typmai2[j],valr,ncomp,nval));
+                  delete [] dt_unit;
+                  delete [] maa_ass;
                 }
             }
         }
@@ -1261,12 +1275,8 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCoupl
 {
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE_ECRITURE);
   int nbComp=f->getNumberOfComponents();
-  char *comp=new char[nbComp*MED_TAILLE_PNOM+1];
-  std::fill(comp,comp+nbComp*MED_TAILLE_PNOM,' ');
-  comp[nbComp*MED_TAILLE_PNOM]='\0';
-  char *unit=new char[nbComp*MED_TAILLE_PNOM+1];
-  std::fill(unit,unit+nbComp*MED_TAILLE_PNOM,' ');
-  unit[nbComp*MED_TAILLE_PNOM]='\0';
+  char *comp=MEDLoaderBase::buildEmptyString(nbComp*MED_TAILLE_PNOM);
+  char *unit=MEDLoaderBase::buildEmptyString(nbComp*MED_TAILLE_PNOM);
   MEDchampCr(fid,(char *)f->getName(),MED_FLOAT64,comp,unit,nbComp);
   med_int numdt,numo;
   med_float dt;
@@ -1291,12 +1301,12 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCoupl
         prepareCellFieldDoubleForWriting(f,split);
         for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=split.begin();iter!=split.end();iter++)
           {
-            char nommaa[MED_TAILLE_NOM+1];
-            std::fill(nommaa,nommaa+MED_TAILLE_NOM,' '); nommaa[MED_TAILLE_NOM]='\0';
+            char *nommaa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
             strcpy(nommaa,f->getMesh()->getName());
-            MEDchampEcr(fid,(char *)nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,(*iter).getNbOfTuple(),
+            MEDchampEcr(fid,nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,(*iter).getNbOfTuple(),
                         (char *)MED_NOGAUSS,MED_ALL,(char *)MED_NOPFL,MED_NO_PFLMOD,MED_MAILLE,
                         typmai3[(int)(*iter).getType()],numdt,(char *)"",dt,numo);
+            delete [] nommaa;
             pt+=(*iter).getNbOfTuple()*nbComp;
           }
         break;
@@ -1304,11 +1314,11 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCoupl
     case ParaMEDMEM::ON_NODES:
       {
         int nbOfTuples=f->getArray()->getNumberOfTuples();
-        char nommaa[MED_TAILLE_NOM+1];
-        std::fill(nommaa,nommaa+MED_TAILLE_NOM,' '); nommaa[MED_TAILLE_NOM]='\0';
+        char *nommaa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
         strcpy(nommaa,f->getMesh()->getName());
-        MEDchampEcr(fid,(char *)nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,nbOfTuples,(char *)MED_NOGAUSS,
+        MEDchampEcr(fid,nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,nbOfTuples,(char *)MED_NOGAUSS,
                     MED_ALL,(char *)MED_NOPFL,MED_NO_PFLMOD,MED_NOEUD,MED_NONE,numdt,(char *)"",dt,numo);
+        delete [] nommaa;
         break;
       }
     default:
