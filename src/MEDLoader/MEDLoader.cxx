@@ -344,10 +344,10 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName
                 }
             }
         }
-      delete [] maa_ass;
-      delete [] dt_unit;
-      delete [] unit;
     }
+  delete [] maa_ass;
+  delete [] dt_unit;
+  delete [] nomcha;
   MEDfermer(fid);
   return ret;
 }
