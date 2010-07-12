@@ -506,7 +506,12 @@ bool MEDCouplingUMesh::areCellsEqualsInPool(const std::vector<int>& candidates, 
 }
 
 /*!
- * 
+ * This method common cells base regarding 'compType' comparison policy described in ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer for details.
+ * This method returns 2 values 'res' and 'resI'.
+ * If 'res' and 'resI' are not empty before calling this method they will be cleared before set.
+ * The format of 'res' and 'resI' is as explained here.
+ * resI.size()-1 is the number of set of cells equal.
+ * The nth set is [res.begin()+resI[n];res.begin()+resI[n+1]) with 0<=n<resI.size()-1 
  */
 template<int SPACEDIM>
 void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, std::vector<int>& resI) const
@@ -517,7 +522,9 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
   int nbOfCells=getNumberOfCells();
   getBoundingBoxForBBTree(bbox);
   double bb[2*SPACEDIM];
-  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,1e-12);
+  double eps=getCaracteristicDimension();
+  eps*=1.e-12;
+  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,eps);
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
   const double *coords=getCoords()->getConstPointer();
@@ -539,10 +546,13 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
               }
           std::vector<int> candidates;
           myTree.getIntersectingElems(bb,candidates);
+          std::vector<int>::iterator it=std::find(candidates.begin(),candidates.end(),k);
+          candidates.erase(candidates.begin(),it);
           if(areCellsEqualsInPool(candidates,compType,res))
             {
+              int pos=resI.back();
               resI.push_back(res.size());
-              for(std::vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
+              for(std::vector<int>::const_iterator it=res.begin()+pos;it!=res.end();it++)
                 isFetched[*it]=true;
             }
         }
@@ -1587,6 +1597,10 @@ namespace ParaMEDMEMImpl
   };
 }
 
+/*!
+ * This methods checks that cells are sorted by their types.
+ * This method makes asumption (no check) that connectivity is correctly set before calling.
+ */
 bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
 {
   const int *conn=_nodal_connec->getConstPointer();
@@ -1602,6 +1616,34 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
       i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
     }
   return true;
+}
+
+/*!
+ * This methods split this into as mush as untructured meshes that consecutive set of same type cells.
+ * So this method has typically a sense if MEDCouplingUMesh::checkConsecutiveCellTypes has a sense.
+ * This method makes asumption (no check) that connectivity is correctly set before calling.
+ */
+std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
+{
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  std::vector<MEDCouplingUMesh *> ret;
+  for(const int *i=connI;i!=connI+nbOfCells;)
+    {
+      INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
+      int startCellId=std::distance(connI,i);
+      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+      int endCellId=std::distance(connI,i);
+      int sz=endCellId-startCellId;
+      int *cells=new int[sz];
+      for(int j=0;j<sz;j++)
+        cells[j]=startCellId+j;
+      MEDCouplingUMesh *m=(MEDCouplingUMesh *)buildPartOfMySelf(cells,cells+sz,true);
+      delete [] cells;
+      ret.push_back(m);
+    }
+  return ret;
 }
 
 /*!

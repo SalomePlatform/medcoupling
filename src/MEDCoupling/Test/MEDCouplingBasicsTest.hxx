@@ -69,6 +69,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testOperationsOnFields4 );
     CPPUNIT_TEST( testMergeNodesOnField );
     CPPUNIT_TEST( testCheckConsecutiveCellTypes );
+    CPPUNIT_TEST( testSplitByType );
+    CPPUNIT_TEST( testFuseUMeshesOnSameCoords );
     CPPUNIT_TEST( testBuildOrthogonalField );
     CPPUNIT_TEST( testGetCellsContainingPoint );
     CPPUNIT_TEST( testGetValueOn1 );
@@ -175,6 +177,8 @@ namespace ParaMEDMEM
     void testOperationsOnFields4();
     void testMergeNodesOnField();
     void testCheckConsecutiveCellTypes();
+    void testSplitByType();
+    void testFuseUMeshesOnSameCoords();
     void testBuildOrthogonalField();
     void testGetCellsContainingPoint();
     void testGetValueOn1();

@@ -272,6 +272,25 @@ void MEDCouplingPointSet::zipCoords()
   traducer->decrRef();
 }
 
+struct MEDCouplingCompAbs
+{
+  bool operator()(double x, double y) { return std::abs(x)<std::abs(y);}
+};
+
+/*!
+ * This method expects that _coords attribute is set.
+ * @return the carateristic dimension of point set. This caracteristic dimension is the max of difference 
+ * @exception If _coords attribute not set.
+ */
+double MEDCouplingPointSet::getCaracteristicDimension() const
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getCaracteristicDimension : Coordinates not set !");
+  const double *coords=_coords->getConstPointer();
+  int nbOfValues=_coords->getNbOfElems();
+  return std::abs(*std::max_element(coords,coords+nbOfValues,MEDCouplingCompAbs()));
+}
+
 /*!
  * Non const method that operates a rotation of 'this'.
  * If spaceDim==2 'vector' parameter is ignored (and could be 0) and the rotation is done around 'center' with angle specified by 'angle'.

@@ -57,6 +57,7 @@ namespace ParaMEDMEM
                                                      int& newNbOfNodes) const;
     void getBoundingBox(double *bbox) const;
     void zipCoords();
+    double getCaracteristicDimension() const;
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     void scale(const double *point, double factor);
