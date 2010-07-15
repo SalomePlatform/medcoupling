@@ -62,7 +62,6 @@ dist_libParaMEDMEMTest_la_SOURCES = \
 	test_MPI_Access_Time_0.cxx \
 	test_MPI_Access_ISend_IRecv_BottleNeck.cxx
 
-
 libParaMEDMEMTest_la_CPPFLAGS = \
 	@CPPUNIT_INCLUDES@ \
 	$(MPI_INCLUDES) \
@@ -90,6 +89,21 @@ dist_TestParaMEDMEM_SOURCES = TestParaMEDMEM.cxx
 dist_TestMPIAccessDEC_SOURCES = TestMPIAccessDEC.cxx
 dist_TestMPIAccess_SOURCES = TestMPIAccess.cxx
 dist_test_perf_SOURCES = test_perf.cxx
+
+if MPI2_IS_OK
+bin_PROGRAMS += \
+	ParaMEDMEMTestMPI2_1 \
+	ParaMEDMEMTestMPI2_2
+
+dist_ParaMEDMEMTestMPI2_1_SOURCES += \
+	MPI2Connector.cxx \
+	ParaMEDMEMTestMPI2_1.cxx
+
+dist_ParaMEDMEMTestMPI2_2_SOURCES += \
+	MPI2Connector.cxx \
+	ParaMEDMEMTestMPI2_2.cxx
+
+endif
 
 LDADD = $(MED2_LIBS) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
 	libParaMEDMEMTest.la \
