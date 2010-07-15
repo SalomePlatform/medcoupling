@@ -70,9 +70,6 @@ libmedcouplingremapper_la_LIBADD = libmedcoupling.la
 
 AM_CPPFLAGS += $(libinterpkernel_la_CPPFLAGS)
 LDADD= $(libinterpkernel_la_LDFLAGS)
-if MED_ENABLE_KERNEL
-     LDADD+=-lSALOMEBasics
-endif
 
 EXTRA_DIST += \
 	MEDCouplingFieldDouble.hxx                \
