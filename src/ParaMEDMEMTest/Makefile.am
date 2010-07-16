@@ -95,11 +95,11 @@ bin_PROGRAMS += \
 	ParaMEDMEMTestMPI2_1 \
 	ParaMEDMEMTestMPI2_2
 
-dist_ParaMEDMEMTestMPI2_1_SOURCES += \
+dist_ParaMEDMEMTestMPI2_1_SOURCES = \
 	MPI2Connector.cxx \
 	ParaMEDMEMTestMPI2_1.cxx
 
-dist_ParaMEDMEMTestMPI2_2_SOURCES += \
+dist_ParaMEDMEMTestMPI2_2_SOURCES = \
 	MPI2Connector.cxx \
 	ParaMEDMEMTestMPI2_2.cxx
 
