@@ -91,6 +91,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getBoundingBoxForBBTree(std::vector<double>& bbox) const;
     //utilities for MED File RW
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
+    MEDCOUPLING_EXPORT DataArrayInt *rearrange2ConsecutiveCellTypes();
     MEDCOUPLING_EXPORT std::vector<MEDCouplingUMesh *> splitByType() const;
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;

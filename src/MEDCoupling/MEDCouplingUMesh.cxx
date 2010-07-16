@@ -465,8 +465,8 @@ bool MEDCouplingUMesh::areCellsEquals2(int cell1, int cell2) const
 {
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
-  std::set<int> s1(conn+connI[cell1],conn+connI[cell1+1]); s1.erase(-1);
-  std::set<int> s2(conn+connI[cell2],conn+connI[cell2+1]); s1.erase(-1);
+  std::set<int> s1(conn+connI[cell1],conn+connI[cell1+1]);
+  std::set<int> s2(conn+connI[cell2],conn+connI[cell2+1]);
   return s1==s2;
 }
 
@@ -544,10 +544,12 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
                     bb[2*j+1]=std::max(bb[2*j+1],coords[SPACEDIM*(*pt)+j]);
                   }
               }
+          std::vector<int> candidates1;
+          myTree.getIntersectingElems(bb,candidates1);
           std::vector<int> candidates;
-          myTree.getIntersectingElems(bb,candidates);
-          std::vector<int>::iterator it=std::find(candidates.begin(),candidates.end(),k);
-          candidates.erase(candidates.begin(),it);
+          for(std::vector<int>::const_iterator iter=candidates1.begin();iter!=candidates1.end();iter++)
+            if(!isFetched[*iter])
+              candidates.push_back(*iter);
           if(areCellsEqualsInPool(candidates,compType,res))
             {
               int pos=resI.back();
@@ -555,6 +557,7 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
               for(std::vector<int>::const_iterator it=res.begin()+pos;it!=res.end();it++)
                 isFetched[*it]=true;
             }
+          isFetched[k]=true;
         }
     }
 }
@@ -1603,6 +1606,7 @@ namespace ParaMEDMEMImpl
  */
 bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
 {
+  checkFullyDefined();
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   int nbOfCells=getNumberOfCells();
@@ -1619,12 +1623,49 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
 }
 
 /*!
+ * This method reorganize the cells of 'this' so that the cells with same geometric types are put together.
+ * If checkConsecutiveCellTypes() returns true, this method do not change anything of this.
+ * The number of cells remains unchanged after the call of this method.
+ * @return the array giving the correspondance old to new.
+ */
+DataArrayInt *MEDCouplingUMesh::rearrange2ConsecutiveCellTypes()
+{
+  checkFullyDefined();
+  computeTypes();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  std::vector<INTERP_KERNEL::NormalizedCellType> types;
+  for(const int *i=connI;i!=connI+nbOfCells && (types.size()!=_types.size());)
+    if(std::find(types.begin(),types.end(),(INTERP_KERNEL::NormalizedCellType)conn[*i])==types.end())
+      {
+        INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
+        types.push_back(curType);
+        for(i++;i!=connI+nbOfCells && (INTERP_KERNEL::NormalizedCellType)conn[*i]==curType;i++);
+      }
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  int *retPtr=ret->getPointer();
+  std::fill(retPtr,retPtr+nbOfCells,-1);
+  int newCellId=0;
+  for(std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=types.begin();iter!=types.end();iter++)
+    {
+      for(const int *i=connI;i!=connI+nbOfCells;i++)
+        if((INTERP_KERNEL::NormalizedCellType)conn[*i]==(*iter))
+          retPtr[std::distance(connI,i)]=newCellId++;
+    }
+  renumberCells(retPtr,retPtr+nbOfCells,false);
+  return ret;
+}
+
+/*!
  * This methods split this into as mush as untructured meshes that consecutive set of same type cells.
  * So this method has typically a sense if MEDCouplingUMesh::checkConsecutiveCellTypes has a sense.
  * This method makes asumption (no check) that connectivity is correctly set before calling.
  */
 std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
 {
+  checkFullyDefined();
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   int nbOfCells=getNumberOfCells();
@@ -1733,7 +1774,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, 
 
 /*!
  * Idem mergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
- * 'meshes' must be a non empty vector. 'meshes' have to be with the same mesh dimension.
+ * 'meshes' must be a non empty vector.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes)
 {
@@ -1784,7 +1825,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshesOnSameCoords(const std::vector<M
 }
 
 /*!
- * This method fuses meshes 'meshes' and returned the fused mesh and the correspondances arrays for each mesh in 'meshes' in returned mesh.
+ * This method fuses meshes 'meshes' and returns the fused mesh and the correspondances arrays for each mesh in 'meshes' in returned mesh.
  * If a same cell is detected in several meshes in 'meshes', this cell will appear only once in returned mesh (see ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer for more details)
  *
  * @param meshes input non empty vector containing meshes having same coordiantes array and same mesh dimension.

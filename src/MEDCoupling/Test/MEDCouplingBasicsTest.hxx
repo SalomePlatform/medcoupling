@@ -69,8 +69,10 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testOperationsOnFields4 );
     CPPUNIT_TEST( testMergeNodesOnField );
     CPPUNIT_TEST( testCheckConsecutiveCellTypes );
+    CPPUNIT_TEST( testRearrange2ConsecutiveCellTypes );
     CPPUNIT_TEST( testSplitByType );
     CPPUNIT_TEST( testFuseUMeshesOnSameCoords );
+    CPPUNIT_TEST( testFuseUMeshesOnSameCoords2 );
     CPPUNIT_TEST( testBuildOrthogonalField );
     CPPUNIT_TEST( testGetCellsContainingPoint );
     CPPUNIT_TEST( testGetValueOn1 );
@@ -137,7 +139,6 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test2DCurveInterpP0P1_1 );
     CPPUNIT_TEST( test2DCurveInterpP1P0_1 );
     CPPUNIT_TEST( test2DCurveInterpP1P1_1 );
-
     CPPUNIT_TEST_SUITE_END();
   public:
     void testArray();
@@ -177,8 +178,10 @@ namespace ParaMEDMEM
     void testOperationsOnFields4();
     void testMergeNodesOnField();
     void testCheckConsecutiveCellTypes();
+    void testRearrange2ConsecutiveCellTypes();
     void testSplitByType();
     void testFuseUMeshesOnSameCoords();
+    void testFuseUMeshesOnSameCoords2();
     void testBuildOrthogonalField();
     void testGetCellsContainingPoint();
     void testGetValueOn1();

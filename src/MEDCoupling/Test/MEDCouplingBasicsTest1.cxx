@@ -1761,6 +1761,37 @@ void MEDCouplingBasicsTest::testCheckConsecutiveCellTypes()
   sourceMesh->decrRef();
 }
 
+void MEDCouplingBasicsTest::testRearrange2ConsecutiveCellTypes()
+{
+  MEDCouplingUMesh *m1_1=build2DSourceMesh_1();
+  MEDCouplingUMesh *m2_1=build2DTargetMesh_1();
+  DataArrayInt *arr1=m1_1->rearrange2ConsecutiveCellTypes();
+  MEDCouplingUMesh *m1_2=build2DSourceMesh_1();
+  CPPUNIT_ASSERT(m1_2->isEqual(m1_1,1e-12));
+  const int expected1[2]={0,1};
+  CPPUNIT_ASSERT_EQUAL(2,arr1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr1->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+2,arr1->getConstPointer()));
+  arr1->decrRef();
+  const int expected2[5]={0,3,4,1,2};
+  arr1=m2_1->rearrange2ConsecutiveCellTypes();
+  CPPUNIT_ASSERT_EQUAL(5,arr1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr1->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+5,arr1->getConstPointer()));
+  MEDCouplingUMesh *m2_2=build2DTargetMesh_1();
+  CPPUNIT_ASSERT_EQUAL(5,arr1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr1->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+5,arr1->getConstPointer()));
+  CPPUNIT_ASSERT(!m2_2->isEqual(m2_1,1e-12));
+  m2_2->renumberCells(expected2,expected2+5,false);
+  CPPUNIT_ASSERT(m2_2->isEqual(m2_1,1e-12));
+  arr1->decrRef();
+  m1_1->decrRef();
+  m1_2->decrRef();
+  m2_1->decrRef();
+  m2_2->decrRef();
+}
+
 void MEDCouplingBasicsTest::testSplitByType()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
@@ -1834,6 +1865,46 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
   m3->decrRef();
   m4->decrRef();
   m5->decrRef();
+}
+
+void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords2()
+{
+  MEDCouplingUMesh *m2;
+  MEDCouplingUMesh *m1=build3DExtrudedUMesh_1(m2);
+  m2->decrRef();
+  const int part1[5]={2,3,6,4,10};
+  MEDCouplingUMesh *m3=(MEDCouplingUMesh *)m1->buildPartOfMySelf(part1,part1+5,true);
+  const int part2[4]={5,6,4,7};
+  MEDCouplingUMesh *m4=(MEDCouplingUMesh *)m1->buildPartOfMySelf(part2,part2+4,true);
+  std::vector<MEDCouplingUMesh *> meshes;
+  meshes.push_back(m1);
+  meshes.push_back(m3);
+  meshes.push_back(m3);
+  meshes.push_back(m4);
+  std::vector<DataArrayInt *> corr;
+  MEDCouplingUMesh *m5=MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
+  CPPUNIT_ASSERT_EQUAL(18,m5->getNumberOfCells());
+  std::vector<DataArrayInt *>::iterator it=corr.begin();
+  const int exp1[4]={18,5,5,4};
+  const int exp2[4][18]={
+    {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17},
+    {2,3,6,4,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    {2,3,6,4,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
+    {5,6,4,7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
+  };
+  int i=0;
+  for(;it!=corr.end();it++,i++)
+    {
+      int sz=(*it)->getNumberOfTuples();
+      CPPUNIT_ASSERT_EQUAL(exp1[i],sz);
+      CPPUNIT_ASSERT(std::equal(exp2[i],exp2[i]+sz,(*it)->getConstPointer()));
+    }
+  for(it=corr.begin();it!=corr.end();it++)
+    (*it)->decrRef();
+  m5->decrRef();
+  m4->decrRef();
+  m3->decrRef();
+  m1->decrRef();
 }
 
 void MEDCouplingBasicsTest::testBuildOrthogonalField()
