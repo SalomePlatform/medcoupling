@@ -54,6 +54,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testBuildSubMeshData );
     CPPUNIT_TEST( testExtrudedMesh1 );
     CPPUNIT_TEST( testExtrudedMesh2 );
+    CPPUNIT_TEST( testExtrudedMesh3 );
     CPPUNIT_TEST( testFindCommonNodes );
     CPPUNIT_TEST( testCheckButterflyCells );
     CPPUNIT_TEST( testMergeMesh1 );
@@ -163,6 +164,7 @@ namespace ParaMEDMEM
     void testBuildSubMeshData();
     void testExtrudedMesh1();
     void testExtrudedMesh2();
+    void testExtrudedMesh3();
     void testFindCommonNodes();
     void testCheckButterflyCells();
     void testMergeMesh1();

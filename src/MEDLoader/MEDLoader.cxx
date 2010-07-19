@@ -140,6 +140,7 @@ namespace MEDLoaderNS
   std::vector<int> getIdsFromGroups(const char *fileName, const char *meshName, const std::vector<std::string>& grps);
   med_int getIdFromMeshName(med_idt fid, const char *meshName, std::string& trueMeshName) throw(INTERP_KERNEL::Exception);
   void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entite_maillage& whichEntity);
+  int readUMeshDimFromFile(const char *fileName, const char *meshName, std::vector<int>& possibilities);
   void readUMeshDataInMedFile(med_idt fid, med_int meshId, double *&coords, int& nCoords, int& spaceDim, std::list<MEDLoader::MEDConnOfOneElemType>& conn);
   int buildMEDSubConnectivityOfOneType(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families, INTERP_KERNEL::NormalizedCellType type,
                                        std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile,
@@ -165,6 +166,7 @@ namespace MEDLoaderNS
   void writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch);
   void writeUMeshesDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch);
   void writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
+  void writeFieldTryingToFitExistingMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
 }
 
 const char WHITE_SPACES[]=" \n";
@@ -685,6 +687,51 @@ void MEDLoaderNS::dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfEle
     }
 }
 
+/*!
+ * This method returns a first quick overview of mesh with name 'meshName' into the file 'fileName'.
+ * @param possibilities the relativeToMeshDim authorized to returned maxdim. This vector is systematically cleared at the begin of this method.
+ * @return the maximal mesh dimension of specified mesh. If nothing found -1 is returned.
+ */
+int MEDLoaderNS::readUMeshDimFromFile(const char *fileName, const char *meshName, std::vector<int>& possibilities)
+{
+  possibilities.clear();
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  int ret;
+  std::set<int> poss;
+  char nommaa[MED_TAILLE_NOM+1];
+  char maillage_description[MED_TAILLE_DESC+1];
+  med_maillage type_maillage;
+  med_int Mdim;
+  std::string trueMeshName;
+  med_int meshId=getIdFromMeshName(fid,meshName,trueMeshName);
+  MEDmaaInfo(fid,meshId,nommaa,&Mdim,&type_maillage,maillage_description);
+  for(int i=0;i<MED_NBR_GEOMETRIE_MAILLE;i++)
+    {
+      med_geometrie_element curMedType=typmai[i];
+      int curNbOfElemM=MEDnEntMaa(fid,nommaa,MED_CONN,MED_MAILLE,curMedType,MED_NOD);
+      int curNbOfElemF=MEDnEntMaa(fid,nommaa,MED_CONN,MED_FACE,curMedType,MED_NOD);
+      int curNbOfElem;
+      med_entite_maillage whichEntity;
+      MEDLoaderNS::dispatchElems(curNbOfElemM,curNbOfElemF,curNbOfElem,whichEntity);
+      if(curNbOfElem>0)
+        {
+          INTERP_KERNEL::NormalizedCellType type=typmai2[i];
+          int curDim=(int)INTERP_KERNEL::CellModel::getCellModel(type).getDimension();
+          poss.insert(curDim);
+        }
+    }
+  MEDfermer(fid);
+  if(!poss.empty())
+    {
+      ret=*poss.rbegin();
+      for(std::set<int>::const_reverse_iterator it=poss.rbegin();it!=poss.rend();it++)
+        possibilities.push_back(*it-ret);
+    }
+  else
+    ret=-2;
+  return ret;
+}
+
 void MEDLoaderNS::readUMeshDataInMedFile(med_idt fid, med_int meshId, double *&coords, int& nCoords, int& spaceDim, std::list<MEDLoader::MEDConnOfOneElemType>& conn)
 {
   char nommaa[MED_TAILLE_NOM+1];
@@ -940,7 +987,7 @@ void MEDLoaderNS::tradMEDFileCoreFrmt2MEDCouplingUMesh(const std::list<MEDLoader
               if(!isDyn)
                 tmpConnPtr=std::transform(sourceConn,sourceConn+nbOfNodesIn1Cell,connPtr,std::bind2nd(std::minus<int>(),1));
               else
-                tmpConnPtr=std::transform(sourceConn,sourceConn+sourceIndex[i+1]-sourceIndex[i],connPtr,std::bind2nd(std::minus<int>(),1));
+                tmpConnPtr=std::transform((*iter).getArray()+sourceIndex[i]-1,(*iter).getArray()+sourceIndex[i+1]-1,connPtr,std::bind2nd(std::minus<int>(),1));
               connIdxPtr++;
               nbOfNodesIn1Cell=tmpConnPtr-connPtr;
               connFillId+=nbOfNodesIn1Cell+1;
@@ -1189,12 +1236,21 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName,
   return MEDLoaderNS::readUMeshFromFileLev1(fileName,0,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
 }
 
+int MEDLoader::ReadUMeshDimFromFile(const char *fileName, const char *meshName)
+{
+  std::vector<int> poss;
+  return MEDLoaderNS::readUMeshDimFromFile(fileName,meshName,poss);
+}
+
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams)
 {
   std::vector<int> familiesToKeep=MEDLoaderNS::getIdsFromFamilies(fileName,meshName,fams);
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
-  return MEDLoaderNS::readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
+  ParaMEDMEM::MEDCouplingUMesh *ret=MEDLoaderNS::readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
+  if(fams.size()==1)
+    ret->setName(fams.back().c_str());
+  return ret;
 }
 
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps)
@@ -1202,7 +1258,10 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileNam
   std::vector<int> familiesToKeep=MEDLoaderNS::getIdsFromGroups(fileName,meshName,grps);
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
-  return MEDLoaderNS::readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
+  ParaMEDMEM::MEDCouplingUMesh *ret=MEDLoaderNS::readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
+  if(grps.size()==1)
+    ret->setName(grps.back().c_str());
+  return ret;
 }
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDouble(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order)
@@ -1443,6 +1502,28 @@ void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::ME
   appendFieldDirectly(fileName,f);
 }
 
+/*!
+ * When called this method expectes that file 'fileName' is already existing and has a mesh with name equal to
+ * f->getMesh()->getName(). If not the behaviour of this method is not warranted.
+ * This method reads the corresponding mesh into the file and try to fit it with f->getMesh().
+ * If it appears that f->getMesh() equals exactly mesh into the file 
+ */
+void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+{
+  std::vector<int> poss;
+  int mDimInFile=MEDLoaderNS::readUMeshDimFromFile(fileName,f->getMesh()->getName(),poss);
+  int mdim=f->getMesh()->getMeshDimension();
+  int f2=mdim-mDimInFile;
+  if(std::find(poss.begin(),poss.end(),f2)==poss.end())
+    {
+      std::ostringstream oss; oss << "Trying to fit with the existing \"" << f->getMesh()->getName() << "mesh in file \"" << fileName;
+      oss << "\" but meshdimension does not match !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDCouplingUMesh *m=MEDLoader::ReadUMeshFromFile(fileName,f->getMesh()->getName(),f2);
+  m->decrRef();
+}
+
 void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   std::string meshName(mesh->getName());
@@ -1553,11 +1634,10 @@ void MEDLoader::WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDou
       if(std::find(meshNames.begin(),meshNames.end(),fileNameCpp)==meshNames.end())
         MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,false);
       else
-        {
-          std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
-          oss << fileNameCpp << "\" !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str()); 
-        }
+        MEDLoaderNS::writeFieldTryingToFitExistingMesh(fileName,f);
+      /*std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
+        oss << fileNameCpp << "\" !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());*/
     }
 }
 

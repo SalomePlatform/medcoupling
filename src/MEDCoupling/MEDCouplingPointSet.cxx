@@ -386,6 +386,7 @@ void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim) throw(INTERP_KER
     newCoords->setInfoOnComponent(i,getCoords()->getInfoOnComponent(i).c_str());
   setCoords(newCoords);
   newCoords->decrRef();
+  updateTime();
 }
 
 /*!

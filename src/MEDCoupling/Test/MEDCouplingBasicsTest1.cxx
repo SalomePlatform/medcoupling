@@ -997,6 +997,64 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
   mTF->decrRef();
 }
 
+/*!
+ * This test check MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ */
+void MEDCouplingBasicsTest::testExtrudedMesh3()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  m1->changeSpaceDimension(3);
+  MEDCouplingUMesh *m2=buildCU1DMesh_U();
+  m2->changeSpaceDimension(3);
+  double center[3]={0.,0.,0.};
+  double vector[3]={0,1,0};
+  m2->rotate(center,vector,-M_PI/2.);
+  MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
+  //
+  MEDCouplingExtrudedMesh *m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
+  CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(5,m4->getMesh2D()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,m4->getMesh1D()->getNumberOfCells());
+  const int *m3DIds=m4->getMesh3DIds()->getConstPointer();
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_EQUAL(i,m3DIds[i]);
+  m4->decrRef();
+  //some random in cells to check that extrusion alg find it correctly
+  const int expected1[15]={1,3,2,0,6,5,7,10,11,8,12,9,14,13,4};
+  m3->renumberCells(expected1,expected1+15,false);
+  m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
+  CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(5,m4->getMesh2D()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,m4->getMesh1D()->getNumberOfCells());
+  m3DIds=m4->getMesh3DIds()->getConstPointer();
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],m3DIds[i]);
+  m4->decrRef();
+  m3->decrRef();
+  //play with polygons and polyedrons
+  std::vector<int> cells(2); cells[0]=2; cells[1]=3;
+  m1->convertToPolyTypes(cells);
+  m3=m1->buildExtrudedMeshFromThis(m2,0);
+  CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_HEXA8,(int)m3->getTypeOfCell(0));
+  CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_PENTA6,(int)m3->getTypeOfCell(1));
+  CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_POLYHED,(int)m3->getTypeOfCell(2));
+  CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_POLYHED,(int)m3->getTypeOfCell(3));
+  CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_HEXA8,(int)m3->getTypeOfCell(4));
+  m3->renumberCells(expected1,expected1+15,false);
+  m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
+  CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(5,m4->getMesh2D()->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,m4->getMesh1D()->getNumberOfCells());
+  m3DIds=m4->getMesh3DIds()->getConstPointer();
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],m3DIds[i]);
+  m4->decrRef();
+  m3->decrRef();
+  //
+  m2->decrRef();
+  m1->decrRef();
+}
+
 void MEDCouplingBasicsTest::testFindCommonNodes()
 {
   DataArrayInt *comm,*commI;

@@ -89,6 +89,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
     MEDCOUPLING_EXPORT void checkButterflyCells(std::vector<int>& cells) const;
     MEDCOUPLING_EXPORT void getBoundingBoxForBBTree(std::vector<double>& bbox) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy);
+    MEDCOUPLING_EXPORT bool isFullyQuadratic() const;
+    MEDCOUPLING_EXPORT bool isPresenceOfQuadratic() const;
     //utilities for MED File RW
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
     MEDCOUPLING_EXPORT DataArrayInt *rearrange2ConsecutiveCellTypes();
@@ -106,13 +109,16 @@ namespace ParaMEDMEM
     void computeTypes();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     //tools
+    MEDCouplingUMesh *buildExtrudedMeshFromThisLowLev(int nbOfNodesOf1Lev, bool isQuad) const;
+    DataArrayDouble *fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     template<int SPACEDIM>
     void findCommonCellsBase(int compType, std::vector<int>& res, std::vector<int>& resI) const;
-    MEDCOUPLING_EXPORT bool areCellsEqualsInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const;
+    bool areCellsEqualsInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *start, const int *end) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
+    static void appendExtrudedCell(const int *connBg, const int *connEnd, int nbOfNodesPerLev, bool isQuad, std::vector<int>& ret);
   private:
     //! this iterator stores current position in _nodal_connec array.
     mutable int _iterator;

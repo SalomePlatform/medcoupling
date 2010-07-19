@@ -1554,6 +1554,182 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
 }
 
 /*!
+ * This method is \b NOT const because it can modify 'this'.
+ * 'this' is expected to be an unstructured mesh with meshDim==2 and spaceDim==3. If not an exception will be thrown.
+ * @param mesh1D is an unstructured mesh with MeshDim==1 and spaceDim==3. If not an exception will be thrown.
+ * @param policy specifies the type of extrusion chosen. \b 0 for translation (most simple),
+ * \b 1 for translation and rotation around point of 'mesh1D'.
+ * @return an unstructured mesh with meshDim==3 and spaceDim==3. The returned mesh has the same coords than 'this'.  
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy)
+{
+  checkFullyDefined();
+  mesh1D->checkFullyDefined();
+  if(getMeshDimension()!=2 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid 'this' for buildExtrudedMeshFromThis method : must be meshDim==2 and spaceDim ==3 !");
+  if(mesh1D->getMeshDimension()!=1 || mesh1D->getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid 'mesh1D' for buildExtrudedMeshFromThis method : must be meshDim==1 and spaceDim ==3 !");
+  bool isQuad=false;
+  if(isPresenceOfQuadratic())
+    {
+      if(mesh1D->isFullyQuadratic())
+        isQuad=true;
+      else
+        throw INTERP_KERNEL::Exception("Invalid 2D mesh and 1D mesh because 2D mesh has quadratic cells and 1D is not fully quadratic !");
+    }
+  zipCoords();
+  int oldNbOfNodes=getNumberOfNodes();
+  DataArrayDouble *newCoords=0;
+  switch(policy)
+    {
+    case 0:
+      {
+        newCoords=fillExtCoordsUsingTranslation(mesh1D,isQuad);
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("Not implemented extrusion policy : must be in (0) !");
+    }
+  setCoords(newCoords);
+  newCoords->decrRef();
+  MEDCouplingUMesh *ret=buildExtrudedMeshFromThisLowLev(oldNbOfNodes,isQuad);
+  updateTime();
+  return ret;
+}
+
+/*!
+ * This method incarnates the policy 0 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * @param mesh1D is the input 1D mesh used for translation computation.
+ * @return newCoords new coords filled by this method. 
+ */
+DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const
+{
+  int oldNbOfNodes=getNumberOfNodes();
+  int nbOf1DCells=mesh1D->getNumberOfCells();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  std::vector<bool> isQuads;
+  int nbOfLevsInVec=isQuad?2*nbOf1DCells+1:nbOf1DCells+1;
+  ret->alloc(oldNbOfNodes*nbOfLevsInVec,3);
+  double *retPtr=ret->getPointer();
+  const double *coords=getCoords()->getConstPointer();
+  double *work=std::copy(coords,coords+3*oldNbOfNodes,retPtr);
+  std::vector<int> v;
+  std::vector<double> c;
+  double vec[3];
+  v.reserve(3);
+  c.reserve(6);
+  for(int i=0;i<nbOf1DCells;i++)
+    {
+      v.resize(0);
+      mesh1D->getNodeIdsOfCell(i,v);
+      c.resize(0);
+      mesh1D->getCoordinatesOfNode(v[isQuad?2:1],c);
+      mesh1D->getCoordinatesOfNode(v[0],c);
+      std::transform(c.begin(),c.begin()+3,c.begin()+3,vec,std::minus<double>());
+      for(int j=0;j<oldNbOfNodes;j++)
+        work=std::transform(vec,vec+3,retPtr+3*(i*oldNbOfNodes+j),work,std::plus<double>());
+      if(isQuad)
+        {
+          c.resize(0);
+          mesh1D->getCoordinatesOfNode(v[1],c);
+          mesh1D->getCoordinatesOfNode(v[0],c);
+          std::transform(c.begin(),c.begin()+3,c.begin()+3,vec,std::minus<double>());
+          for(int j=0;j<oldNbOfNodes;j++)
+            work=std::transform(vec,vec+3,retPtr+3*(i*oldNbOfNodes+j),work,std::plus<double>());
+        }
+    }
+  return ret;
+}
+
+/*!
+ * This method is private because not easy to use for end user. This method is const contrary to
+ * MEDCouplingUMesh::buildExtrudedMeshFromThis method because this->_coords are expected to contain
+ * the coords sorted slice by slice.
+ * @param isQuad specifies presence of quadratic cells.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(int nbOfNodesOf1Lev, bool isQuad) const
+{
+  int nbOf1DCells=getNumberOfNodes()/nbOfNodesOf1Lev-1;
+  int nbOf2DCells=getNumberOfCells();
+  int nbOf3DCells=nbOf2DCells*nbOf1DCells;
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New("Extruded",3);
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  DataArrayInt *newConn=DataArrayInt::New();
+  DataArrayInt *newConnI=DataArrayInt::New();
+  newConnI->alloc(nbOf3DCells+1,1);
+  int *newConnIPtr=newConnI->getPointer();
+  *newConnIPtr++=0;
+  std::vector<int> newc;
+  for(int j=0;j<nbOf2DCells;j++)
+    {
+      appendExtrudedCell(conn+connI[j],conn+connI[j+1],nbOfNodesOf1Lev,isQuad,newc);
+      *newConnIPtr++=newc.size();
+    }
+  newConn->alloc(newc.size()*nbOf1DCells,1);
+  int *newConnPtr=newConn->getPointer();
+  int deltaPerLev=isQuad?2*nbOfNodesOf1Lev:nbOfNodesOf1Lev;
+  newConnIPtr=newConnI->getPointer();
+  for(int iz=0;iz<nbOf1DCells;iz++)
+    {
+      if(iz!=0)
+        std::transform(newConnIPtr+1,newConnIPtr+1+nbOf2DCells,newConnIPtr+1+iz*nbOf2DCells,std::bind2nd(std::plus<int>(),newConnIPtr[iz*nbOf2DCells]));
+      for(std::vector<int>::const_iterator iter=newc.begin();iter!=newc.end();iter++,newConnPtr++)
+        {
+          int icell=iter-newc.begin();
+          if(std::find(newConnIPtr,newConnIPtr+nbOf2DCells,icell)==newConnIPtr+nbOf2DCells)
+            {
+              if(*iter!=-1)
+                *newConnPtr=(*iter)+iz*deltaPerLev;
+              else
+                *newConnPtr=-1;
+            }
+          else
+            *newConnPtr=(*iter);
+        }
+    }
+  ret->setConnectivity(newConn,newConnI,true);
+  newConn->decrRef();
+  newConnI->decrRef();
+  ret->setCoords(getCoords());
+  return ret;
+}
+
+/*!
+ *This method returns if 'this' is constituted by only quadratic cells.
+ */
+bool MEDCouplingUMesh::isFullyQuadratic() const
+{
+  checkFullyDefined();
+  bool ret=true;
+  int nbOfCells=getNumberOfCells();
+  for(int i=0;i<nbOfCells && ret;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      ret=cm.isQuadratic();
+    }
+  return ret;
+}
+
+/*!
+ *This method returns if there is at least one quadratic cell.
+ */
+bool MEDCouplingUMesh::isPresenceOfQuadratic() const
+{
+  checkFullyDefined();
+  bool ret=false;
+  int nbOfCells=getNumberOfCells();
+  for(int i=0;i<nbOfCells && !ret;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      ret=cm.isQuadratic();
+    }
+  return ret;
+}
+
+/*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  * @param bbox out parameter of size 2*spacedim*nbOfcells.
  */
@@ -1856,4 +2032,85 @@ MEDCouplingUMesh *MEDCouplingUMesh::fuseUMeshesOnSameCoords(const std::vector<ME
     }
   o2n->decrRef();
   return ret;
+}
+
+/*!
+ * This method takes in input a cell defined by its MEDcouplingUMesh connectivity [connBg,connEnd) and returns its extruded cell by inserting the result at the end of ret.
+ * @param nbOfNodesPerLev in parameter that specifies the number of nodes of one slice of global dataset
+ * @param isQuad specifies the policy of connectivity.
+ * @ret in/out parameter in which the result will be append
+ */
+void MEDCouplingUMesh::appendExtrudedCell(const int *connBg, const int *connEnd, int nbOfNodesPerLev, bool isQuad, std::vector<int>& ret)
+{
+  INTERP_KERNEL::NormalizedCellType flatType=(INTERP_KERNEL::NormalizedCellType)connBg[0];
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(flatType);
+  ret.push_back(cm.getExtrudedType());
+  int deltaz=isQuad?2*nbOfNodesPerLev:nbOfNodesPerLev;
+  switch(flatType)
+    {
+    case INTERP_KERNEL::NORM_POINT0:
+      {
+        ret.push_back(connBg[1]);
+        ret.push_back(connBg[1]+nbOfNodesPerLev);
+        break;
+      }
+    case INTERP_KERNEL::NORM_SEG2:
+      {
+        int conn[4]={connBg[1],connBg[2],connBg[2]+deltaz,connBg[1]+deltaz};
+        ret.insert(ret.end(),conn,conn+4);
+        break;
+      }
+    case INTERP_KERNEL::NORM_SEG3:
+      {
+        int conn[8]={connBg[1],connBg[3],connBg[3]+deltaz,connBg[1]+deltaz,connBg[2],connBg[3]+nbOfNodesPerLev,connBg[2]+deltaz,connBg[1]+nbOfNodesPerLev};
+        ret.insert(ret.end(),conn,conn+8);
+        break;
+      }
+    case INTERP_KERNEL::NORM_QUAD4:
+      {
+        int conn[8]={connBg[1],connBg[2],connBg[3],connBg[4],connBg[1]+deltaz,connBg[2]+deltaz,connBg[3]+deltaz,connBg[4]+deltaz};
+        ret.insert(ret.end(),conn,conn+8);
+        break;
+      }
+    case INTERP_KERNEL::NORM_TRI3:
+      {
+        int conn[6]={connBg[1],connBg[2],connBg[3],connBg[1]+deltaz,connBg[2]+deltaz,connBg[3]+deltaz};
+        ret.insert(ret.end(),conn,conn+6);
+        break;
+      }
+    case INTERP_KERNEL::NORM_TRI6:
+      {
+        int conn[15]={connBg[1],connBg[2],connBg[3],connBg[1]+deltaz,connBg[2]+deltaz,connBg[3]+deltaz,connBg[4],connBg[5],connBg[6],connBg[4]+deltaz,connBg[5]+deltaz,connBg[6]+deltaz,
+                      connBg[1]+nbOfNodesPerLev,connBg[2]+nbOfNodesPerLev,connBg[3]+nbOfNodesPerLev};
+        ret.insert(ret.end(),conn,conn+15);
+        break;
+      }
+    case INTERP_KERNEL::NORM_QUAD8:
+      {
+        int conn[20]={
+          connBg[1],connBg[2],connBg[3],connBg[4],connBg[1]+deltaz,connBg[2]+deltaz,connBg[3]+deltaz,connBg[4]+deltaz,
+          connBg[5],connBg[6],connBg[7],connBg[8],connBg[5]+deltaz,connBg[6]+deltaz,connBg[7]+deltaz,connBg[8]+deltaz,
+          connBg[1]+nbOfNodesPerLev,connBg[2]+nbOfNodesPerLev,connBg[3]+nbOfNodesPerLev,connBg[4]+nbOfNodesPerLev
+        };
+        ret.insert(ret.end(),conn,conn+20);
+        break;
+      }
+    case INTERP_KERNEL::NORM_POLYGON:
+      {
+        std::back_insert_iterator< std::vector<int> > ii(ret);
+        std::copy(connBg+1,connEnd,ii);
+        *ii++=-1;
+        std::transform(connBg+1,connEnd,ii,std::bind2nd(std::plus<int>(),deltaz));
+        int nbOfRadFaces=std::distance(connBg+1,connEnd);
+        for(int i=0;i<nbOfRadFaces;i++)
+          {
+            *ii++=-1;
+            int conn[4]={connBg[i+1],connBg[(i+1)%nbOfRadFaces+1],connBg[(i+1)%nbOfRadFaces+1]+deltaz,connBg[i+1]+deltaz};
+            std::copy(conn,conn+4,ii);
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("A flat type has been detected that has not its extruded representation !");
+    }
 }
