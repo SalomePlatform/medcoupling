@@ -20,6 +20,7 @@
 #ifndef __MEDLOADER_HXX__
 #define __MEDLOADER_HXX__
 
+#include "MEDLoaderDefines.hxx"
 #include "InterpKernelException.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
@@ -34,7 +35,7 @@ namespace ParaMEDMEM
   class MEDCouplingFieldDouble;
 }
 
-class MEDLoader
+class MEDLOADER_EXPORT MEDLoader
 {
 public:
   class MEDConnOfOneElemType

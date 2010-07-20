@@ -35,6 +35,7 @@ SUBDIRS = $(MEDLOADER_SUBDIRS)
 lib_LTLIBRARIES = libmedloader.la
 
 salomeinclude_HEADERS= \
+MEDLoaderDefines.hxx \
 MEDLoader.hxx MEDLoaderBase.hxx
 
 dist_libmedloader_la_SOURCES= \
