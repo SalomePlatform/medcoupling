@@ -505,7 +505,7 @@ void MEDCouplingPointSet::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) con
  * Second step of serialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
+void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
@@ -522,7 +522,7 @@ void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyI
  * Second and final unserialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {

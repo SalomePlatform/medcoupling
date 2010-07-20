@@ -364,3 +364,25 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
     }
   return ret;
 }
+
+void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingCMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingCMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+                                       const std::vector<std::string>& littleStrings)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+

@@ -64,6 +64,12 @@ namespace ParaMEDMEM
     //some useful methods
     void getSplitCellValues(int *res) const;
     void getSplitNodeValues(int *res) const;
+    //serialisation-unserialization
+    void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
+    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+    void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+                         const std::vector<std::string>& littleStrings);
   private:
     MEDCouplingCMesh();
     ~MEDCouplingCMesh();

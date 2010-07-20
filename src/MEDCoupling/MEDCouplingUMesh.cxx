@@ -1121,7 +1121,7 @@ bool MEDCouplingUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
  * Second step of serialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
+void MEDCouplingUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   MEDCouplingPointSet::resizeForUnserialization(tinyInfo,a1,a2,littleStrings);
   if(tinyInfo[5]!=-1)
@@ -1152,7 +1152,7 @@ void MEDCouplingUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
  * Second and final unserialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingUMesh::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingUMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   MEDCouplingPointSet::unserialization(tinyInfo,a1,a2,littleStrings);
   setMeshDimension(tinyInfo[3]);

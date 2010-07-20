@@ -74,13 +74,13 @@ namespace ParaMEDMEM
     virtual void findBoundaryNodes(std::vector<int>& nodes) const = 0;
     virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
     virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
-    //! size of returned tinyInfo must be always the same.
-    virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;
-    virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
-    virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
-    virtual void unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2,
-                                 const std::vector<std::string>& littleStrings);
+    //! size of returned tinyInfo must be always the same.
+    void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
+    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+    void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+                         const std::vector<std::string>& littleStrings);
     virtual void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) = 0;
     virtual void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) = 0;
     virtual DataArrayInt *zipCoordsTraducer() = 0;

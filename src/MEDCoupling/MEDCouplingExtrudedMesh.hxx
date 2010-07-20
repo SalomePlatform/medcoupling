@@ -36,12 +36,15 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingExtrudedMesh *New();
     MEDCouplingMeshType getType() const;
     bool isStructured() const;
     int getNumberOfCells() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     int getMeshDimension() const;
+    MEDCouplingExtrudedMesh *clone(bool recDeepCpy) const;
+    bool isEqual(const MEDCouplingMesh *other, double prec) const;
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
@@ -64,8 +67,16 @@ namespace ParaMEDMEM
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
+    //Serialization unserialisation
+    void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
+    void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
+    void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+    void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+                         const std::vector<std::string>& littleStrings);
   private:
     MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& other, bool deepCpy);
+    MEDCouplingExtrudedMesh();
     void computeExtrusion(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);
     void computeExtrusionAlg(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);
     void build1DExtrusion(int idIn3DDesc, int newId, int nbOf1DLev, MEDCouplingUMesh *subMesh,

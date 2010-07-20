@@ -47,6 +47,15 @@ MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New(const MEDCouplingUMesh *me
   return new MEDCouplingExtrudedMesh(mesh3D,mesh2D,cell2DId);
 }
 
+/*!
+ * This constructor is here only for unserialisation process.
+ * This constructor is normally completely useless for end user.
+ */
+MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New()
+{
+  return new MEDCouplingExtrudedMesh;
+}
+
 MEDCouplingMeshType MEDCouplingExtrudedMesh::getType() const
 {
   return EXTRUDED;
@@ -62,6 +71,32 @@ try:_mesh2D(mesh2D),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(
 catch(INTERP_KERNEL::Exception&)
   {
   }
+
+MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh():_mesh2D(0),_mesh1D(0),_mesh3D_ids(0),_cell_2D_id(-1)
+{
+}
+
+MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& other, bool deepCpy):MEDCouplingMesh(other),_cell_2D_id(other._cell_2D_id)
+{
+  if(deepCpy)
+    {
+      _mesh2D=other._mesh2D->clone(true);
+      _mesh1D=other._mesh1D->clone(true);
+      _mesh3D_ids=other._mesh3D_ids->deepCopy();
+    }
+  else
+    {
+      _mesh2D=other._mesh2D;
+      if(_mesh2D)
+        _mesh2D->incrRef();
+      _mesh1D=other._mesh1D;
+      if(_mesh1D)
+        _mesh1D->incrRef();
+      _mesh3D_ids=other._mesh3D_ids;
+      if(_mesh3D_ids)
+        _mesh3D_ids->incrRef();
+    }
+}
 
 bool MEDCouplingExtrudedMesh::isStructured() const
 {
@@ -86,6 +121,29 @@ int MEDCouplingExtrudedMesh::getSpaceDimension() const
 int MEDCouplingExtrudedMesh::getMeshDimension() const
 {
   return 3;
+}
+
+MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::clone(bool recDeepCpy) const
+{
+  return new MEDCouplingExtrudedMesh(*this,recDeepCpy);
+}
+
+bool MEDCouplingExtrudedMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+{
+  const MEDCouplingExtrudedMesh *otherC=dynamic_cast<const MEDCouplingExtrudedMesh *>(other);
+  if(!otherC)
+    return false;
+  if(!MEDCouplingMesh::isEqual(other,prec))
+    return false;
+  if(!_mesh2D->isEqual(otherC->_mesh2D,prec))
+    return false;
+  if(!_mesh1D->isEqual(otherC->_mesh1D,prec))
+    return false;
+  if(!_mesh3D_ids->isEqual(*otherC->_mesh3D_ids))
+    return false;
+  if(_cell_2D_id!=otherC->_cell_2D_id)
+    return false;
+  return true;
 }
 
 INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cellId) const
@@ -469,4 +527,111 @@ void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D
   descIndx->decrRef();
   revDesc->decrRef();
   revDescIndx->decrRef();
+}
+
+void MEDCouplingExtrudedMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+{
+  std::vector<int> tinyInfo1;
+  std::vector<std::string> ls1;
+  _mesh2D->getTinySerializationInformation(tinyInfo1,ls1);
+  std::vector<int> tinyInfo2;
+  std::vector<std::string> ls2;
+  _mesh1D->getTinySerializationInformation(tinyInfo2,ls2);
+  tinyInfo.clear(); littleStrings.clear();
+  tinyInfo.insert(tinyInfo.end(),tinyInfo1.begin(),tinyInfo1.end());
+  littleStrings.insert(littleStrings.end(),ls1.begin(),ls1.end());
+  tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
+  littleStrings.insert(littleStrings.end(),ls2.begin(),ls2.end());
+  tinyInfo.push_back(_cell_2D_id);
+  tinyInfo.push_back(tinyInfo1.size());
+  tinyInfo.push_back(_mesh3D_ids->getNbOfElems());
+  littleStrings.push_back(getName());
+}
+
+void MEDCouplingExtrudedMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
+{
+  int sz=tinyInfo.size();
+  int sz1=tinyInfo[sz-2];
+  std::vector<int> ti1(tinyInfo.begin(),tinyInfo.begin()+sz1);
+  std::vector<int> ti2(tinyInfo.begin()+sz1,tinyInfo.end()-3);
+  MEDCouplingUMesh *um=MEDCouplingUMesh::New();
+  DataArrayInt *a1tmp=DataArrayInt::New();
+  DataArrayDouble *a2tmp=DataArrayDouble::New();
+  int la1=0,la2=0;
+  std::vector<std::string> ls1,ls2;
+  um->resizeForUnserialization(ti1,a1tmp,a2tmp,ls1);
+  la1+=a1tmp->getNbOfElems(); la2+=a2tmp->getNbOfElems();
+  a1tmp->decrRef(); a2tmp->decrRef();
+  a1tmp=DataArrayInt::New(); a2tmp=DataArrayDouble::New();
+  um->resizeForUnserialization(ti2,a1tmp,a2tmp,ls2);
+  la1+=a1tmp->getNbOfElems(); la2+=a2tmp->getNbOfElems();
+  a1tmp->decrRef(); a2tmp->decrRef();
+  um->decrRef();
+  //
+  a1->alloc(la1+tinyInfo[sz-1],1);
+  a2->alloc(la2,1);
+  littleStrings.resize(ls1.size()+ls2.size()+1);
+}
+
+void MEDCouplingExtrudedMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
+{
+  a1=DataArrayInt::New(); a2=DataArrayDouble::New();
+  DataArrayInt *a1_1=0,*a1_2=0;
+  DataArrayDouble *a2_1=0,*a2_2=0;
+  _mesh2D->serialize(a1_1,a2_1);
+  _mesh1D->serialize(a1_2,a2_2);
+  a1->alloc(a1_1->getNbOfElems()+a1_2->getNbOfElems()+_mesh3D_ids->getNbOfElems(),1);
+  int *ptri=a1->getPointer();
+  ptri=std::copy(a1_1->getConstPointer(),a1_1->getConstPointer()+a1_1->getNbOfElems(),ptri);
+  a1_1->decrRef();
+  ptri=std::copy(a1_2->getConstPointer(),a1_2->getConstPointer()+a1_2->getNbOfElems(),ptri);
+  a1_2->decrRef();
+  std::copy(_mesh3D_ids->getConstPointer(),_mesh3D_ids->getConstPointer()+_mesh3D_ids->getNbOfElems(),ptri);
+  a2->alloc(a2_1->getNbOfElems()+a2_2->getNbOfElems(),1);
+  double *ptrd=a2->getPointer();
+  ptrd=std::copy(a2_1->getConstPointer(),a2_1->getConstPointer()+a2_1->getNbOfElems(),ptrd);
+  a2_1->decrRef();
+  std::copy(a2_2->getConstPointer(),a2_2->getConstPointer()+a2_2->getNbOfElems(),ptrd);
+  a2_2->decrRef();
+}
+
+void MEDCouplingExtrudedMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+{
+  setName(littleStrings.back().c_str());
+  int sz=tinyInfo.size();
+  int sz1=tinyInfo[sz-2];
+  _cell_2D_id=tinyInfo[sz-3];
+  std::vector<int> ti1(tinyInfo.begin(),tinyInfo.begin()+sz1);
+  std::vector<int> ti2(tinyInfo.begin()+sz1,tinyInfo.end()-3);
+  DataArrayInt *a1tmp=DataArrayInt::New();
+  DataArrayDouble *a2tmp=DataArrayDouble::New();
+  const int *a1Ptr=a1->getConstPointer();
+  const double *a2Ptr=a2->getConstPointer();
+  _mesh2D=MEDCouplingUMesh::New();
+  int la1_1=0,la2_1=0,la1_2=0,la2_2=0;
+  std::vector<std::string> ls1,ls2;
+  _mesh2D->resizeForUnserialization(ti1,a1tmp,a2tmp,ls1);
+  std::copy(a2Ptr,a2Ptr+a2tmp->getNbOfElems(),a2tmp->getPointer());
+  std::copy(a1Ptr,a1Ptr+a1tmp->getNbOfElems(),a1tmp->getPointer());
+  a2Ptr+=a2tmp->getNbOfElems();
+  a1Ptr+=a1tmp->getNbOfElems();
+  ls2.insert(ls2.end(),littleStrings.begin(),littleStrings.begin()+ls1.size());
+  _mesh2D->unserialization(ti1,a1tmp,a2tmp,ls2);
+  a1tmp->decrRef(); a2tmp->decrRef();
+  //
+  ls2.clear();
+  ls2.insert(ls2.end(),littleStrings.begin()+ls1.size(),littleStrings.end()-1);
+  _mesh1D=MEDCouplingUMesh::New();
+  a1tmp=DataArrayInt::New(); a2tmp=DataArrayDouble::New();
+  _mesh1D->resizeForUnserialization(ti2,a1tmp,a2tmp,ls1);
+  std::copy(a2Ptr,a2Ptr+a2tmp->getNbOfElems(),a2tmp->getPointer());
+  std::copy(a1Ptr,a1Ptr+a1tmp->getNbOfElems(),a1tmp->getPointer());
+  a1Ptr+=a1tmp->getNbOfElems();
+  _mesh1D->unserialization(ti2,a1tmp,a2tmp,ls2);
+  a1tmp->decrRef(); a2tmp->decrRef();
+  //
+  _mesh3D_ids=DataArrayInt::New();
+  int szIds=std::distance(a1Ptr,a1->getConstPointer()+a1->getNbOfElems());
+  _mesh3D_ids->alloc(szIds,1);
+  std::copy(a1Ptr,a1Ptr+szIds,_mesh3D_ids->getPointer());
 }

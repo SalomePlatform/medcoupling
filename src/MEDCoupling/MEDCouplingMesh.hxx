@@ -38,6 +38,7 @@ namespace ParaMEDMEM
       EXTRUDED = 8
     } MEDCouplingMeshType;
 
+  class DataArrayInt;
   class DataArrayDouble;
   class MEDCouplingFieldDouble;
 
@@ -72,6 +73,12 @@ namespace ParaMEDMEM
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
     virtual bool areCompatible(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
+    //serialisation-unserialization
+    virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const = 0;
+    virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const = 0;
+    virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const = 0;
+    virtual void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+                                 const std::vector<std::string>& littleStrings) = 0;
   protected:
     MEDCouplingMesh() { }
     MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name) { }
