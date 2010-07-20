@@ -626,7 +626,7 @@ DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType)
             }
             id++;
       }
-  MEDCouplingUMesh *self=(MEDCouplingUMesh *)buildPartOfMySelf(&cellsToKeep[0],&cellsToKeep[cellsToKeep.size()],true);
+  MEDCouplingUMesh *self=(MEDCouplingUMesh *)buildPartOfMySelf(&cellsToKeep[0],&cellsToKeep[0]+cellsToKeep.size(),true);
   setConnectivity(self->getNodalConnectivity(),self->getNodalConnectivityIndex(),true);
   self->decrRef();
   return ret;
