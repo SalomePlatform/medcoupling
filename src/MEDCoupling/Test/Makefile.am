@@ -33,3 +33,7 @@ TestMEDCouplingRemapper_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)
 TestMEDCouplingRemapper_LDFLAGS = @CPPUNIT_LIBS@ ../libmedcouplingremapper.la ../../INTERP_KERNEL/libinterpkernel.la
 
 dist_TestMEDCouplingRemapper_SOURCES = TestMEDCouplingRemapper.cxx MEDCouplingRemapperTest.hxx MEDCouplingRemapperTest.cxx MEDCouplingBasicsTest0.cxx
+
+UNIT_TEST_PROG = TestMEDCoupling TestMEDCouplingRemapper
+
+check : tests
