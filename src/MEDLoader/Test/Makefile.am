@@ -26,3 +26,7 @@ TestMEDLoader_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(sr
 TestMEDLoader_LDFLAGS = @CPPUNIT_LIBS@ ../libmedloader.la ../../MEDCoupling/libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la
 
 dist_TestMEDLoader_SOURCES = TestMEDLoader.cxx MEDLoaderTest.cxx
+
+UNIT_TEST_PROG = TestMEDLoader
+
+check : tests
