@@ -22,6 +22,8 @@ static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner)
   PyObject *ret;
   if(dynamic_cast<ParaMEDMEM::MEDCouplingUMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingExtrudedMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingExtrudedMesh,owner);
   return ret;
 }
 
@@ -33,41 +35,13 @@ static PyObject *convertIntArrToPyList(const int *ptr, int size)
   return ret;
 }
 
-static int *convertPyToNewIntArr(PyObject *pyLi, int size)
+static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
 {
   if(PyList_Check(pyLi))
     {
-      int *tmp=new int[size];
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyList_GetItem(pyLi,i);
-          if(PyInt_Check(o))
-            {
-              int val=(int)PyInt_AS_LONG(o);
-              tmp[i]=val;
-            }
-          else
-            {
-              PyErr_SetString(PyExc_TypeError,"list must contain integers only");
-              return NULL;
-            }
-        }
-      return tmp;
-    }
-  else
-    {
-      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
-      return 0;
-    }
-}
-
-static int *convertPyToNewIntArr2(PyObject *pyLi)
-{
-  if(PyList_Check(pyLi))
-    {
-      int size=PyList_Size(pyLi);
-      int *tmp=new int[size];
-      for(int i=0;i<size;i++)
+      *size=PyList_Size(pyLi);
+      int *tmp=new int[*size];
+      for(int i=0;i<*size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
           if(PyInt_Check(o))

@@ -21,6 +21,8 @@
 
 #define MEDCOUPLING_EXPORT
 
+%include std_vector.i
+
 %{
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
@@ -33,7 +35,14 @@ using namespace ParaMEDMEM;
 using namespace INTERP_KERNEL;
 %}
 
+%template(ivec) std::vector<int>;
+
 %typemap(out) ParaMEDMEM::MEDCouplingMesh*
+{
+  $result=convertMesh($1,$owner);
+}
+
+%typemap(out) ParaMEDMEM::MEDCouplingPointSet*
 {
   $result=convertMesh($1,$owner);
 }
@@ -53,9 +62,11 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingMesh::mergeMyselfWith;
 %newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic;
-%newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelf;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
-%newobject ParaMEDMEM::MEDCouplingUMesh::getMeasureField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
+%newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
+%newobject ParaMEDMEM::MEDCouplingPointSet::buildBoundaryMesh;
+%newobject ParaMEDMEM::MEDCouplingMesh::getMeasureField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMeshFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshes;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
@@ -84,7 +95,37 @@ namespace ParaMEDMEM
 {
 
   %extend MEDCouplingPointSet
-    {
+  {
+      PyObject *buildPartOfMySelf(PyObject *li, bool keepCoords) const
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        MEDCouplingPointSet *ret=self->buildPartOfMySelf(tmp,tmp+size,keepCoords);
+        delete [] tmp;
+        return convertMesh(ret, SWIG_POINTER_OWN | 0 );
+      }
+      PyObject *buildPartOfMySelfNode(PyObject *li, bool fullyIn) const
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        MEDCouplingPointSet *ret=self->buildPartOfMySelfNode(tmp,tmp+size,fullyIn);
+        delete [] tmp;
+        return convertMesh(ret, SWIG_POINTER_OWN | 0 );
+      }
+      PyObject *buildFacePartOfMySelfNode(PyObject *li, bool fullyIn) const
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        MEDCouplingPointSet *ret=self->buildFacePartOfMySelfNode(tmp,tmp+size,fullyIn);
+        delete [] tmp;
+        return convertMesh(ret, SWIG_POINTER_OWN | 0 );
+      }
+      PyObject *findBoundaryNodes() const
+      {
+        std::vector<int> nodes;
+        self->findBoundaryNodes(nodes);
+        return convertIntArrToPyList(&nodes[0],nodes.size());
+      }
       void rotate(PyObject *center, PyObject *vector, double alpha)
       {
         double *c=convertPyToNewDblArr2(center);
@@ -96,6 +137,35 @@ namespace ParaMEDMEM
         self->rotate(c,v,alpha);
         delete [] c;
         delete [] v;
+      }
+      void translate(PyObject *vector)
+      {
+        double *v=convertPyToNewDblArr2(vector);
+        self->translate(v);
+        delete [] v;
+      }
+      void scale(PyObject *point, double factor)
+      {
+        double *p=convertPyToNewDblArr2(point);
+        self->scale(p,factor);
+        delete [] p;
+      }
+      void renumberNodes(PyObject *li, int newNbOfNodes)
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        self->renumberNodes(tmp,newNbOfNodes);
+        delete [] tmp;
+      }
+      PyObject *findNodesOnPlane(PyObject *pt, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> nodes;
+        double *p=convertPyToNewDblArr2(pt);
+        double *v=convertPyToNewDblArr2(vec);
+        self->findNodesOnPlane(p,v,eps,nodes);
+        delete [] v;
+        delete [] p;
+        return convertIntArrToPyList(&nodes[0],nodes.size());
       }
     }
 
@@ -118,20 +188,16 @@ namespace ParaMEDMEM
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     int getNumberOfNodesInCell(int cellId) const;
     bool isStructured() const;
-    int getNumberOfCells() const;
-    int getNumberOfNodes() const;
-    int getSpaceDimension() const;
-    int getMeshDimension() const;
     int getMeshLength() const;
     //tools
-    void zipCoords();
-    DataArrayInt *zipCoordsTraducer();
+    DataArrayInt *zipConnectivityTraducer(int compType);
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
-    MEDCouplingUMesh *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
+    MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     %extend {
       void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, PyObject *li)
       {
-        int *tmp=convertPyToNewIntArr(li,size);
+        int sz;
+        int *tmp=convertPyToNewIntArr2(li,&sz);
         self->insertNextCell(type,size,tmp);
         delete [] tmp;
       }
@@ -153,8 +219,15 @@ namespace ParaMEDMEM
         PyList_SetItem(res,1,SWIG_From_bool(ret1));
         return res;
       }
+      void renumberCells(PyObject *li, bool check)
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        self->renumberCells(tmp,tmp+size,check);
+        delete [] tmp;
+      }
     }
-    MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
     MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy);
     static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
   };
@@ -185,7 +258,8 @@ namespace ParaMEDMEM
  {
    void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple)
    {
-     int *tmp=convertPyToNewIntArr2(li);
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
      self->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfElsPerTuple);
    }
 
