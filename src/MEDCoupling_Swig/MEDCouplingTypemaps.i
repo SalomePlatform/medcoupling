@@ -115,6 +115,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi)
           else
             {
               PyErr_SetString(PyExc_TypeError,"list must contain floats only");
+              PyErr_Print();
               return NULL;
             }
         }
@@ -123,6 +124,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi)
   else
     {
       PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
+      PyErr_Print();
       return 0;
     }
 }

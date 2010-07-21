@@ -24,6 +24,7 @@
 %{
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingTypemaps.i"
@@ -55,9 +56,12 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOfMySelf;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getMeasureField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMeshFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshes;
+%newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingUMesh "$this->decrRef();"
+%feature("unref") MEDCouplingExtrudedMesh "$this->decrRef();"
 %feature("unref") DataArrayInt "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
 
@@ -78,6 +82,23 @@ using namespace INTERP_KERNEL;
 
 namespace ParaMEDMEM
 {
+
+  %extend MEDCouplingPointSet
+    {
+      void rotate(PyObject *center, PyObject *vector, double alpha)
+      {
+        double *c=convertPyToNewDblArr2(center);
+        if(!c)
+          return ;
+        double *v=convertPyToNewDblArr2(vector);
+        if(!v)
+          { delete [] c; return ; }
+        self->rotate(c,v,alpha);
+        delete [] c;
+        delete [] v;
+      }
+    }
+
   class MEDCouplingUMesh : public ParaMEDMEM::MEDCouplingPointSet
   {
   public:
@@ -134,7 +155,14 @@ namespace ParaMEDMEM
       }
     }
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
+    MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy);
     static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2);
+  };
+
+  class MEDCouplingExtrudedMesh : public ParaMEDMEM::MEDCouplingMesh
+  {
+  public:
+    static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
   };
 }
 
