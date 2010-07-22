@@ -31,7 +31,7 @@
 #define __MAX(i)      _minmax[i*2+1]
 #define __MYID        (long(this)%10000)
 #define __DMP(msg) \
-   //cout << msg << endl
+  //  cout << msg << endl
 
 using namespace std;
 
@@ -347,6 +347,7 @@ namespace INTERP_KERNEL
             if ( pts[i][0] < _minmax[0] ) _minmax[0] = pts[i][0];
             if ( pts[i][0] > _minmax[1] ) _minmax[1] = pts[i][0];
           }
+        _axes[0] = 1.0;
       }
   }
 
@@ -595,6 +596,8 @@ namespace INTERP_KERNEL
   bool DirectedBoundingBox::isDisjointWith(const DirectedBoundingBox& box) const
   {
     if ( _dim < 1 || box._dim < 1 ) return false; // empty box includes all
+    if ( _dim == 1 )
+      return isMinMaxOut( &box._minmax[0], &this->_minmax[0], _dim );
 
     // boxes are disjoined if their minmaxes in local CS of either of boxes do not intersect
     for ( int isThisCS = 0; isThisCS < 2; ++isThisCS )
@@ -632,6 +635,8 @@ namespace INTERP_KERNEL
   bool DirectedBoundingBox::isDisjointWith(const double* box) const
   {
     if ( _dim < 1 ) return false; // empty box includes all
+    if ( _dim == 1 )
+      return isMinMaxOut( &_minmax[0], box, _dim );
 
     // boxes are disjoined if their minmaxes in local CS of either of boxes do not intersect
 
