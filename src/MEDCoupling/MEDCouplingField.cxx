@@ -98,7 +98,10 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._n
     }
 }
 
-
+/*!
+ * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
+ * @ param di is an array returned that specifies entity ids (nodes, cells ids...) in mesh 'mesh' of entity in returned submesh.
+ */
 MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const
 {
   return _type->buildSubMeshData(start,end,_mesh,di);

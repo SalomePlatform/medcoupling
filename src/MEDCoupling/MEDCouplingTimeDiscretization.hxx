@@ -166,7 +166,6 @@ namespace ParaMEDMEM
     void setEndTime(double time, int dt, int it) throw(INTERP_KERNEL::Exception) { _time=time; _dt=dt; _it=it; }
     double getStartTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_dt; it=_it; return _time; }
     double getEndTime(int& dt, int& it) const throw(INTERP_KERNEL::Exception) { dt=_dt; it=_it; return _time; }
-    DataArrayDouble *getArrayOnTime(double time) const throw(INTERP_KERNEL::Exception);
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
     void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
