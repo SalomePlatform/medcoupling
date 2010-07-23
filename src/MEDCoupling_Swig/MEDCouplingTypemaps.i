@@ -35,6 +35,14 @@ static PyObject *convertIntArrToPyList(const int *ptr, int size)
   return ret;
 }
 
+static PyObject *convertIntArrToPyList2(const std::vector<int>& li)
+{
+  PyObject *ret=PyList_New(li.size());
+  for(int i=0;i<li.size();i++)
+    PyList_SetItem(ret,i,PyInt_FromLong(li[i]));
+  return ret;
+}
+
 static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
 {
   if(PyList_Check(pyLi))
@@ -51,7 +59,9 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
             }
           else
             {
+              delete [] tmp;
               PyErr_SetString(PyExc_TypeError,"list must contain integers only");
+              PyErr_Print();
               return NULL;
             }
         }
@@ -60,6 +70,7 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
   else
     {
       PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
+      PyErr_Print();
       return 0;
     }
 }
