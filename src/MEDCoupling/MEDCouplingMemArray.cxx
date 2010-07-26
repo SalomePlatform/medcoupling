@@ -130,7 +130,7 @@ void DataArrayDouble::checkNoNullValues() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("A value 0.0 have been detected !");
 }
 
-DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=a1->getNumberOfComponents();
   if(nbOfComp!=a2->getNumberOfComponents())
@@ -145,7 +145,7 @@ DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const Dat
   return ret;
 }
 
-DataArrayDouble *DataArrayDouble::add(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *DataArrayDouble::add(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=a1->getNumberOfComponents();
   if(nbOfComp!=a2->getNumberOfComponents())
@@ -160,7 +160,7 @@ DataArrayDouble *DataArrayDouble::add(const DataArrayDouble *a1, const DataArray
   return ret;
 }
 
-void DataArrayDouble::addEqual(const DataArrayDouble *other)
+void DataArrayDouble::addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=getNumberOfComponents();
   if(nbOfComp!=other->getNumberOfComponents())
@@ -172,7 +172,7 @@ void DataArrayDouble::addEqual(const DataArrayDouble *other)
   declareAsNew();
 }
 
-DataArrayDouble *DataArrayDouble::substract(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *DataArrayDouble::substract(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=a1->getNumberOfComponents();
   if(nbOfComp!=a2->getNumberOfComponents())
@@ -187,7 +187,7 @@ DataArrayDouble *DataArrayDouble::substract(const DataArrayDouble *a1, const Dat
   return ret;
 }
 
-void DataArrayDouble::substractEqual(const DataArrayDouble *other)
+void DataArrayDouble::substractEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=getNumberOfComponents();
   if(nbOfComp!=other->getNumberOfComponents())
@@ -199,7 +199,7 @@ void DataArrayDouble::substractEqual(const DataArrayDouble *other)
   declareAsNew();
 }
 
-DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
   int nbOfTuple=a1->getNumberOfTuples();
   int nbOfTuple2=a2->getNumberOfTuples();
@@ -246,7 +246,7 @@ DataArrayDouble *DataArrayDouble::multiply(const DataArrayDouble *a1, const Data
   return ret;
 }
 
-void DataArrayDouble::multiplyEqual(const DataArrayDouble *other)
+void DataArrayDouble::multiplyEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
   int nbOfTuple=getNumberOfTuples();
   int nbOfTuple2=other->getNumberOfTuples();
@@ -276,7 +276,7 @@ void DataArrayDouble::multiplyEqual(const DataArrayDouble *other)
   declareAsNew();
 }
 
-DataArrayDouble *DataArrayDouble::divide(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *DataArrayDouble::divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=a1->getNumberOfComponents();
   if(nbOfComp!=a2->getNumberOfComponents())
@@ -291,7 +291,7 @@ DataArrayDouble *DataArrayDouble::divide(const DataArrayDouble *a1, const DataAr
   return ret;
 }
 
-void DataArrayDouble::divideEqual(const DataArrayDouble *other)
+void DataArrayDouble::divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=getNumberOfComponents();
   if(nbOfComp!=other->getNumberOfComponents())

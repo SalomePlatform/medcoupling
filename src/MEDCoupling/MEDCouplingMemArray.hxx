@@ -122,15 +122,15 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT void substractEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT static DataArrayDouble *multiply(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayDouble *other);
-    MEDCOUPLING_EXPORT static DataArrayDouble *divide(const DataArrayDouble *a1, const DataArrayDouble *a2);
-    MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other);
+    MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void substractEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *multiply(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() { }
   private:

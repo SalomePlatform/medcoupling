@@ -74,7 +74,7 @@ namespace ParaMEDMEM
     void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     void serialize(std::vector<DataArrayDouble *>& arrays) const;
-    bool mergeNodes(double eps);
+    bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return addFields(this,&other); }
     const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other);

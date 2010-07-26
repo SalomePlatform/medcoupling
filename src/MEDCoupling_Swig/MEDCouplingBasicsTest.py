@@ -116,18 +116,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
     def testMeshM1D(self):
         meshM1D=MEDCouplingUMesh.New();
-        ## CPPUNIT_ASSERT_THROW(meshM1D->getMeshDimension(),INTERP_KERNEL::Exception);
-        ## CPPUNIT_ASSERT_THROW(meshM1D->getNumberOfNodes(),INTERP_KERNEL::Exception);
-        ## CPPUNIT_ASSERT_THROW(meshM1D->getNumberOfCells(),INTERP_KERNEL::Exception);
-        ## CPPUNIT_ASSERT_THROW(meshM1D->setMeshDimension(-2),INTERP_KERNEL::Exception);
-        ## CPPUNIT_ASSERT_THROW(meshM1D->setMeshDimension(-10),INTERP_KERNEL::Exception);
-        ## CPPUNIT_ASSERT_THROW(meshM1D->checkCoherency(),INTERP_KERNEL::Exception);
+        self.failUnlessRaises(Exception,meshM1D.getMeshDimension);
+        self.failUnlessRaises(Exception,meshM1D.getNumberOfNodes);
+        self.failUnlessRaises(Exception,meshM1D.getNumberOfCells);
+        self.failUnlessRaises(Exception,meshM1D.setMeshDimension,-2)
+        self.failUnlessRaises(Exception,meshM1D.setMeshDimension,-10)
         meshM1D.setMeshDimension(-1);
         meshM1D.checkCoherency();
         self.failUnlessEqual(meshM1D.getMeshDimension(),-1);
         self.failUnlessEqual(meshM1D.getNumberOfCells(),1);
-        ## CPPUNIT_ASSERT_THROW(meshM1D.getNumberOfNodes(),INTERP_KERNEL::Exception);
-        ## CPPUNIT_ASSERT_THROW(meshM1D.getSpaceDimension(),INTERP_KERNEL::Exception);
+        self.failUnlessRaises(Exception,meshM1D.getNumberOfNodes);
+        self.failUnlessRaises(Exception,meshM1D.getSpaceDimension);
         cpy=meshM1D.clone(True);
         self.failUnless(cpy.isEqual(meshM1D,1e-12));
         fieldOnCells=MEDCouplingFieldDouble.New(ON_CELLS);
@@ -582,8 +581,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         field.setNature(IntegralGlobConstraint);
         field=MEDCouplingFieldDouble.New(ON_NODES,NO_TIME);
         field.setNature(ConservativeVolumic);
-        #self.failUnless_THROW(field.setNature(Integral),INTERP_KERNEL::Exception);
-        #self.failUnless_THROW(field.setNature(IntegralGlobConstraint),INTERP_KERNEL::Exception);
+        self.failUnlessRaises(Exception,field.setNature,Integral);
+        self.failUnlessRaises(Exception,field.setNature,IntegralGlobConstraint);
         pass
 
     def testBuildSubMeshData(self):
@@ -901,7 +900,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.failUnless(abs(0.5-values4[0])<1.e-12);
         self.failUnless(abs(1.-values4[1])<1.e-12);
         #
-        ## self.failUnlessEqual_THROW(f1=m.fillFromAnalytic(ON_NODES,1,func3),Exception);
+        self.failUnlessRaises(Exception,m.fillFromAnalytic,ON_NODES,1,"1./(x-0.2)");
         pass
 
     def testFillFromAnalytic2(self):
@@ -1078,7 +1077,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f4.checkCoherency();
         self.failUnlessEqual(f4.getTypeOfField(),ON_NODES);
         self.failUnlessEqual(f4.getTimeDiscretization(),ONE_TIME);
-        ## self.failUnlessEqual_THROW(f3=f1+f4,Exception);
+        self.failUnlessRaises(Exception,f1.__add__,f4);
         f5=f4.buildNewTimeReprFromThis(NO_TIME,False);
         self.failUnlessEqual(f5.getTypeOfField(),ON_NODES);
         self.failUnlessEqual(f5.getTimeDiscretization(),NO_TIME);
@@ -1094,7 +1093,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f4.checkCoherency();
         self.failUnlessEqual(f4.getTypeOfField(),ON_NODES);
         self.failUnlessEqual(f4.getTimeDiscretization(),ONE_TIME);
-        ## self.failUnlessEqual_THROW(f3=f1+f4,Exception);
+        self.failUnlessRaises(Exception,f1.__add__,f4);
         f5=f4.buildNewTimeReprFromThis(NO_TIME,True);
         self.failUnlessEqual(f5.getTypeOfField(),ON_NODES);
         self.failUnlessEqual(f5.getTimeDiscretization(),NO_TIME);
@@ -1168,7 +1167,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         #
         f1=m.buildOrthogonalField();
-        ## self.failUnlessEqual_THROW(f2*=f1,INTERP_KERNEL::Exception);
+        # to avoid valgrind leaks
+        # self.failUnlessRaises(Exception,f2.__imul__,f1);
         pass
 
     def testOperationsOnFields4(self):
@@ -1178,8 +1178,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f1.setMesh(m);
         array=DataArrayDouble.New();
         f1.setArray(array);
-        ## self.failUnlessEqual_THROW(f1.setEndArray(array),Exception);
-        ## self.failUnlessEqual_THROW(f1.getEndArray(),Exception);
+        self.failUnlessRaises(Exception,f1.setEndArray,array);
+        self.failUnlessRaises(Exception,f1.getEndArray);
         arr1=[0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.]
         arr2=[5.,15.,25.,6.,16.,26.,7.,17.,27.,8.,18.,28.,9.,19.,29.]
         array.setValues(arr1,nbOfCells,3);
@@ -1197,13 +1197,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.failUnless(abs(arr1[4]-res[1])<1.e-12);
         self.failUnless(abs(arr1[5]-res[2])<1.e-12);
         res=None
-        ## self.failUnlessEqual_THROW(f1.getValueOn(pos,3.2,res),Exception);
+        self.failUnlessRaises(Exception,f1.getValueOn,pos,3.2)
         f2=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
         f2.setMesh(m);
         f2.setArray(f1.getArray());
         f2.setStartTime(2.,3,0);
         f2.setEndTime(4.,13,0);
-        ## self.failUnlessEqual_THROW(f2.checkCoherency(),Exception);
+        self.failUnlessRaises(Exception,f2.checkCoherency)
         array2=DataArrayDouble.New();
         array2.setValues(arr2,nbOfCells,3);
         f2.setEndArray(array2);
@@ -1268,7 +1268,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f1=targetMesh.fillFromAnalytic(ON_NODES,1,"x+y+z");
         tmp=f1.getArray()
         tmp.setIJ(1,0,1000.);
-        ## self.failUnlessEqual_THROW(f1.mergeNodes(1e-10),Exception);
+        self.failUnlessRaises(Exception,f1.mergeNodes,1.e-10)
         pass
 
     def testCheckConsecutiveCellTypes(self):
@@ -1468,7 +1468,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     def testGetValueOn1(self):
-        # not implemented yet
         targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         fieldOnCells=MEDCouplingFieldDouble.New(ON_CELLS);
         nbOfCells=targetMesh.getNumberOfCells();
@@ -1517,7 +1516,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     def testCMesh0(self):
-        # not implemented yet
         mesh=MEDCouplingCMesh.New();
         coordsX=DataArrayDouble.New();
         arrX=[ -1., 1., 2., 4. ]
@@ -1568,7 +1566,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m1=MEDCouplingDataForTest.build2DTargetMesh_1();
         m2=MEDCouplingDataForTest.build2DSourceMesh_1();
         #self.failUnlessEqual(m1.getCoords()!=m2.getCoords());
-        ## self.failUnlessEqual_THROW(m1.tryToShareSameCoords(m2,1e-12),Exception);
+        self.failUnlessRaises(Exception,m1.tryToShareSameCoords,m2,1e-12)
         pass
 
     def testFindNodeOnPlane(self):

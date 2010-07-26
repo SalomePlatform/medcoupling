@@ -370,7 +370,7 @@ void MEDCouplingFieldDouble::serialize(std::vector<DataArrayDouble *>& arrays) c
 /*!
  * \b Warning ! This method potentially modifies the underlying mesh ! If the mesh is shared by other fields, these fields could be unavailable.
  */
-bool MEDCouplingFieldDouble::mergeNodes(double eps)
+bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingPointSet *meshC=dynamic_cast<MEDCouplingPointSet *>((MEDCouplingMesh *)(_mesh));
   if(!meshC)

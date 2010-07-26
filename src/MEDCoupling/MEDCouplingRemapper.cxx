@@ -41,7 +41,7 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
   releaseData(false);
 }
 
-int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method)
+int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method) throw(INTERP_KERNEL::Exception)
 {
   releaseData(true);
   _src_mesh=(MEDCouplingMesh *)srcMesh; _target_mesh=(MEDCouplingMesh *)targetMesh;
@@ -58,7 +58,7 @@ int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCoupli
     }
 }
 
-void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue)
+void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
 {
   if(_src_method!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
@@ -86,7 +86,7 @@ void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCo
   computeProduct(inputPointer,srcNbOfCompo,dftValue,resPointer);
 }
 
-void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue)
+void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
 {
   if(_src_method!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
@@ -114,7 +114,7 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
   computeReverseProduct(inputPointer,trgNbOfCompo,dftValue,resPointer);
 }
 
-MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFieldDouble *srcField, double dftValue)
+MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFieldDouble *srcField, double dftValue) throw(INTERP_KERNEL::Exception)
 {
   if(_src_method!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
@@ -125,7 +125,7 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFiel
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue)
+MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
 {
   if(_target_method!=targetField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
@@ -151,7 +151,7 @@ bool MEDCouplingRemapper::setOptionString(const std::string& key, std::string& v
   return INTERP_KERNEL::InterpolationOptions::setOptionString(key,value);
 }
 
-int MEDCouplingRemapper::prepareUU(const char *method)
+int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingUMesh *src_mesh=(MEDCouplingUMesh *)_src_mesh;
   MEDCouplingUMesh *target_mesh=(MEDCouplingUMesh *)_target_mesh;
@@ -301,7 +301,7 @@ int MEDCouplingRemapper::prepareUU(const char *method)
   return 1;
 }
 
-int MEDCouplingRemapper::prepareEE(const char *method)
+int MEDCouplingRemapper::prepareEE(const char *method) throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingExtrudedMesh *src_mesh=(MEDCouplingExtrudedMesh *)_src_mesh;
   MEDCouplingExtrudedMesh *target_mesh=(MEDCouplingExtrudedMesh *)_target_mesh;
@@ -365,7 +365,7 @@ void MEDCouplingRemapper::computeDeno(NatureOfField nat, const MEDCouplingFieldD
     return computeDenoFromScratch(nat,srcField,trgField);
 }
 
-void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField)
+void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField) throw(INTERP_KERNEL::Exception)
 {
   _nature_of_deno=nat;
   _time_deno_update=getTimeOfThis();
