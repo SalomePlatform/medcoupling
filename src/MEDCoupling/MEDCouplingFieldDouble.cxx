@@ -422,11 +422,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingField
   return ret;
 }
 
-void MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply += on them !");
   _time_discr->addEqual(other._time_discr);
+  return *this;
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
@@ -440,11 +441,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplin
   return ret;
 }
 
-void MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply -= on them !");
   _time_discr->substractEqual(other._time_discr);
+  return *this;
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
@@ -458,11 +460,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCoupling
   return ret;
 }
 
-void MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatibleForMul(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply *= on them !");
   _time_discr->multiplyEqual(other._time_discr);
+  return *this;
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
@@ -476,9 +479,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFi
   return ret;
 }
 
-void MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other)
 {
   if(!areCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
   _time_discr->divideEqual(other._time_discr);
+  return *this;
 }

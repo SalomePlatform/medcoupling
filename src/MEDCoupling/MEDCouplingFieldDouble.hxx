@@ -77,16 +77,16 @@ namespace ParaMEDMEM
     bool mergeNodes(double eps);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return addFields(this,&other); }
-    void operator+=(const MEDCouplingFieldDouble& other);
+    const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const { return substractFields(this,&other); }
-    void operator-=(const MEDCouplingFieldDouble& other);
+    const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const { return multiplyFields(this,&other); }
-    void operator*=(const MEDCouplingFieldDouble& other);
+    const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const { return divideFields(this,&other); }
-    void operator/=(const MEDCouplingFieldDouble& other);
+    const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
