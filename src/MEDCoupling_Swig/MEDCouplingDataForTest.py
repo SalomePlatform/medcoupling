@@ -232,6 +232,26 @@ class MEDCouplingDataForTest:
         targetMesh.setCoords(myCoords);
         return targetMesh;
 
+    def build2DTargetMesh_2(cls):
+        targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
+        targetConn=[0,3,4, 0,4,1, 1,4,2, 4,5,2, 3,6,4, 6,7,4, 4,7,5, 7,8,5 ]
+        targetMesh=MEDCouplingUMesh.New();
+        targetMesh.setMeshDimension(2);
+        targetMesh.allocateCells(8);
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[6:9])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[9:12])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[12:15])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[15:18])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[18:21])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[21:24])
+        targetMesh.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(targetCoords,9,2);
+        targetMesh.setCoords(myCoords);
+        return targetMesh;
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
@@ -241,4 +261,5 @@ class MEDCouplingDataForTest:
     build2DTargetMeshMergeNode_1=classmethod(build2DTargetMeshMergeNode_1)
     build3DTargetMeshMergeNode_1=classmethod(build3DTargetMeshMergeNode_1)
     build2DTargetMeshMerged_1=classmethod(build2DTargetMeshMerged_1)
+    build2DTargetMesh_2=classmethod(build2DTargetMesh_2)
     pass

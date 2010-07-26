@@ -35,11 +35,12 @@ static PyObject *convertIntArrToPyList(const int *ptr, int size)
   return ret;
 }
 
-static PyObject *convertIntArrToPyList2(const std::vector<int>& li)
+static PyObject *convertIntArrToPyList2(const std::vector<int>& v)
 {
-  PyObject *ret=PyList_New(li.size());
-  for(int i=0;i<li.size();i++)
-    PyList_SetItem(ret,i,PyInt_FromLong(li[i]));
+  int size=v.size();
+  PyObject *ret=PyList_New(size);
+  for(int i=0;i<size;i++)
+    PyList_SetItem(ret,i,PyInt_FromLong(v[i]));
   return ret;
 }
 
@@ -83,13 +84,13 @@ static PyObject *convertDblArrToPyList(const double *ptr, int size)
   return ret;
 }
 
-static double *convertPyToNewDblArr2(PyObject *pyLi)
+static double *convertPyToNewDblArr2(PyObject *pyLi, int *size)
 {
   if(PyList_Check(pyLi))
     {
-      int size=PyList_Size(pyLi);
-      double *tmp=new double[size];
-      for(int i=0;i<size;i++)
+      *size=PyList_Size(pyLi);
+      double *tmp=new double[*size];
+      for(int i=0;i<*size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
           if(PyFloat_Check(o))
@@ -111,5 +112,61 @@ static double *convertPyToNewDblArr2(PyObject *pyLi)
       PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
       PyErr_Print();
       return 0;
+    }
+}
+
+void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingUMesh *>& v)
+{
+  if(PyList_Check(ms))
+    {
+      int size=PyList_Size(ms);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *obj=PyList_GetItem(ms,i);
+          void *argp;
+          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
+          if(!SWIG_IsOK(status))
+            {
+              PyErr_SetString(PyExc_TypeError,"list must contain only DataArrayInt");
+              PyErr_Print();
+              return;
+            }
+          ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
+          v[i]=arg;
+        }
+    }
+  else
+    {
+      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecUMeshes : not a list");
+      PyErr_Print();
+    }
+}
+
+void convertPyObjToVecDataArrayInt(PyObject *ms, std::vector<ParaMEDMEM::DataArrayInt *>& v)
+{
+  if(PyList_Check(ms))
+    {
+      int size=PyList_Size(ms);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *obj=PyList_GetItem(ms,i);
+          void *argp;
+          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+          if(!SWIG_IsOK(status))
+            {
+              PyErr_SetString(PyExc_TypeError,"list must contain only DataArrayInt");
+              PyErr_Print();
+              return;
+            }
+          ParaMEDMEM::DataArrayInt *arg=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+          v[i]=arg;
+        }
+    }
+  else
+    {
+      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecDataArrayInt : not a list");
+      PyErr_Print();
     }
 }

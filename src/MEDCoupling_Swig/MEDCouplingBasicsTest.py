@@ -574,6 +574,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.failUnless(fieldOnCells1.isEqual(fieldOnCells2,1e-12,1e-15));
         self.failUnless(fieldOnCells2.isEqual(fieldOnCells1,1e-12,1e-15));
         pass
+
+    def testNatureChecking(self):
+        field=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        field.setNature(Integral);
+        field.setNature(ConservativeVolumic);
+        field.setNature(IntegralGlobConstraint);
+        field=MEDCouplingFieldDouble.New(ON_NODES,NO_TIME);
+        field.setNature(ConservativeVolumic);
+        #self.failUnless_THROW(field.setNature(Integral),INTERP_KERNEL::Exception);
+        #self.failUnless_THROW(field.setNature(IntegralGlobConstraint),INTERP_KERNEL::Exception);
+        pass
+
     def testBuildSubMeshData(self):
         targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1()
         #check buildSubMesh on field on cells
@@ -839,6 +851,774 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.failUnlessEqual(len(values),len(tmp))
         for i in xrange(7):
             self.failUnless(abs(values[i]-tmp[i])<1e-12)
+            pass
+        pass
+
+    def testFillFromAnalytic(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();             
+        f1=m.fillFromAnalytic(ON_CELLS,1,"x+y");
+        f1.checkCoherency();                    
+        self.failUnlessEqual(f1.getTypeOfField(),ON_CELLS);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(5,f1.getNumberOfTuples());
+        values1=[-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(values1),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values1[i])<1.e-12)
+            pass
+        #
+        f1=m.fillFromAnalytic(ON_NODES,1,"x+y");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        values2=[-0.6,-0.1,0.4,-0.1,0.4,0.9,0.4,0.9,1.4]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(values2),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values2[i])<1.e-12)
+            pass
+        #
+        f1=m.fillFromAnalytic(ON_NODES,2,"(x+y)*IVec+(2*(x+y))*JVec");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(2,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        values3=[-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(values3),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values3[i])<1.e-12)
+            pass
+        values4=f1.accumulate();
+        self.failUnless(abs(3.6-values4[0])<1.e-12);
+        self.failUnless(abs(7.2-values4[1])<1.e-12);
+        values4=f1.measureAccumulate(True);
+        self.failUnless(abs(0.5-values4[0])<1.e-12);
+        self.failUnless(abs(1.-values4[1])<1.e-12);
+        #
+        ## self.failUnlessEqual_THROW(f1=m.fillFromAnalytic(ON_NODES,1,func3),Exception);
+        pass
+
+    def testFillFromAnalytic2(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f1=m.fillFromAnalytic(ON_CELLS,1,"y+x");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_CELLS);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(5,f1.getNumberOfTuples());
+        values1=[-0.1,0.23333333333333336,0.56666666666666665,0.4,0.9]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(values1),len(tmp))
+        for i in xrange(len(values1)):
+            self.failUnless(abs(values1[i]-tmp[i])<1.e-12);
+            pass
+        #
+        f1=m.fillFromAnalytic(ON_NODES,1,"y+2*x");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        values2=[-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(values2),len(tmp))
+        for i in xrange(len(values2)):
+            self.failUnless(abs(values2[i]-tmp[i])<1.e-12);
+            pass
+        f1=m.fillFromAnalytic(ON_NODES,1,"2.*x+y");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        tmp=f1.getArray().getValues();
+        values2Bis=[-0.9,0.1,1.1,-0.4,0.6,1.6,0.1,1.1,2.1]
+        self.failUnlessEqual(len(values2Bis),len(tmp))
+        for i in xrange(len(values2Bis)):
+            self.failUnless(abs(values2Bis[i]-tmp[i])<1.e-12);
+            pass
+        #
+        f1=m.fillFromAnalytic(ON_NODES,2,"(x+y)*IVec+2*(x+y)*JVec");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(2,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        values3=[-0.6,-1.2,-0.1,-0.2,0.4,0.8,-0.1,-0.2,0.4,0.8,0.9,1.8,0.4,0.8,0.9,1.8,1.4,2.8]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(values3),len(tmp))
+        for i in xrange(len(values3)):
+            self.failUnless(abs(values3[i]-tmp[i])<1.e-12);
+            pass
+        values4=f1.accumulate();
+        self.failUnless(abs(3.6-values4[0])<1.e-12);
+        self.failUnless(abs(7.2-values4[1])<1.e-12);
+        values4=f1.measureAccumulate(True);
+        self.failUnless(abs(0.5-values4[0])<1.e-12);
+        self.failUnless(abs(1.-values4[1])<1.e-12);
+        pass
+
+    def testApplyFunc(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f1=m.fillFromAnalytic(ON_NODES,2,"(x+y)*IVec+(2*(x+y))*JVec");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(2,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        f1.applyFunc(1,"x+y");
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        values1=[-1.8,-0.3,1.2,-0.3,1.2,2.7,1.2,2.7,4.2]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(values1),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values1[i])<1.e-12)
+            pass
+        pass
+
+    def testApplyFunc2(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f1=m.fillFromAnalytic(ON_NODES,2,"(x+y)*IVec+2*(x+y)*JVec");
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(2,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        #
+        f2=f1.clone(True);
+        f2.applyFunc("abs(u)^2.4+2*u");
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(2,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        values2=[-0.9065304805418678, -0.85105859001709905, -0.19601892829446504, -0.37898777756476987,
+                 0.91090317490482353, 2.1853504664669781, -0.19601892829446504, -0.37898777756476987,
+                 0.91090317490482353, 2.1853504664669781, 2.5765725275664879, 7.6987743736515295,
+                 0.91090317490482353, 2.1853504664669781, 2.5765725275664879, 7.6987743736515295,
+                 5.0423700574830965, 17.435300118916864]
+        tmp=f2.getArray().getValues();
+        self.failUnlessEqual(len(tmp),len(values2))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values2[i])<1.e-12)
+            pass
+        #
+        f1.applyFunc(1,"x+y");
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        values1=[-1.8,-0.3,1.2,-0.3,1.2,2.7,1.2,2.7,4.2]
+        tmp=f1.getArray().getValues();
+        self.failUnlessEqual(len(tmp),len(values1))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values1[i])<1.e-12)
+            pass
+        pass
+
+    def testOperationsOnFields(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f1=m.fillFromAnalytic(ON_NODES,1,"x+y");
+        f2=m.fillFromAnalytic(ON_NODES,1,"x+y");
+        f1.checkCoherency();
+        f2.checkCoherency();
+        f3=f1+f2;
+        f3.checkCoherency();
+        self.failUnlessEqual(f3.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f3.getTimeDiscretization(),NO_TIME);
+        values1=[-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8]
+        tmp=f3.getArray().getValues();
+        self.failUnlessEqual(len(values1),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values1[i])<1.e-12)
+            pass
+        #
+        f3=f1*f2;
+        f3.checkCoherency();
+        self.failUnlessEqual(f3.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f3.getTimeDiscretization(),NO_TIME);
+        values2=[0.36,0.01,0.16,0.01,0.16,0.81,0.16,0.81,1.96]
+        tmp=f3.getArray().getValues();
+        self.failUnlessEqual(len(values2),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values2[i])<1.e-12)
+            pass
+        #
+        f3=f1+f2;
+        f4=f1-f3;
+        f4.checkCoherency();
+        self.failUnlessEqual(f4.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f4.getTimeDiscretization(),NO_TIME);
+        values3=[0.6,0.1,-0.4,0.1,-0.4,-0.9,-0.4,-0.9,-1.4]
+        tmp=f4.getArray().getValues();
+        self.failUnlessEqual(len(values3),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values3[i])<1.e-12)
+            pass
+        #
+        f3=f1+f2;
+        f4=f3/f2;
+        f4.checkCoherency();
+        self.failUnlessEqual(f4.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f4.getTimeDiscretization(),NO_TIME);
+        tmp=f4.getArray().getValues();
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-2.)<1.e-12)
+            pass
+        #
+        f4=f2.buildNewTimeReprFromThis(ONE_TIME,False);
+        f4.checkCoherency();
+        self.failUnlessEqual(f4.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f4.getTimeDiscretization(),ONE_TIME);
+        ## self.failUnlessEqual_THROW(f3=f1+f4,Exception);
+        f5=f4.buildNewTimeReprFromThis(NO_TIME,False);
+        self.failUnlessEqual(f5.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f5.getTimeDiscretization(),NO_TIME);
+        f3=f1+f5;
+        tmp=f3.getArray().getValues();
+        values4=[-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8]
+        self.failUnlessEqual(len(values3),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values4[i])<1.e-12)
+            pass
+        #
+        f4=f2.buildNewTimeReprFromThis(ONE_TIME,True);
+        f4.checkCoherency();
+        self.failUnlessEqual(f4.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f4.getTimeDiscretization(),ONE_TIME);
+        ## self.failUnlessEqual_THROW(f3=f1+f4,Exception);
+        f5=f4.buildNewTimeReprFromThis(NO_TIME,True);
+        self.failUnlessEqual(f5.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f5.getTimeDiscretization(),NO_TIME);
+        f3=f1+f5;
+        tmp=f3.getArray().getValues();
+        values5=[-1.2,-0.2,0.8,-0.2,0.8,1.8,0.8,1.8,2.8]
+        self.failUnlessEqual(len(values5),len(tmp))
+        for i in xrange(len(tmp)):
+            self.failUnless(abs(tmp[i]-values5[i])<1.e-12)
+            pass
+        pass
+
+    def testOperationsOnFields2(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        f1=m.fillFromAnalytic(ON_NODES,1,"x+y+z");
+        f2=m.fillFromAnalytic(ON_NODES,1,"a*a+b+c*c");
+        f3=f1/f2;
+        f3.checkCoherency();
+        self.failUnlessEqual(f3.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f3.getTimeDiscretization(),NO_TIME);
+        expected1=[-2.4999999999999991, 1.2162162162162162, 0.77868852459016391,
+                   0.7407407407407407, 1.129032258064516, 0.81632653061224492,
+                   0.86538461538461531, 1.0919540229885056, 0.84302325581395343]
+        self.failUnlessEqual(1,f3.getNumberOfComponents());
+        self.failUnlessEqual(9,f3.getNumberOfTuples());
+        val=f3.getArray().getValues();
+        for i in xrange(9):
+            self.failUnless(abs(expected1[i]-val[i])<1.e-12);
+        #
+        f1=m.buildOrthogonalField();
+        f2=m.fillFromAnalytic(ON_CELLS,1,"x");
+        f3=f1*f2;
+        expected2=[-0.035355339059327376,0.,0.035355339059327376, 0.2592724864350674,0.,-0.2592724864350674, 0.37712361663282529,0.,-0.37712361663282529, -0.035355339059327376,0.,0.035355339059327376, 0.31819805153394637,0.,-0.31819805153394637]
+        val=f3.getArray().getValues();
+        for i in xrange(15):
+            self.failUnless(abs(expected2[i]-val[i])<1.e-12);
+            pass
+        #
+        f3=f2*f1;
+        val=f3.getArray().getValues();
+        for i in xrange(15):
+            self.failUnless(abs(expected2[i]-val[i])<1.e-12);
+            pass
+        pass
+
+    def testOperationsOnFields3(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        f1=m.fillFromAnalytic(ON_NODES,1,"x+y+z");
+        f2=m.fillFromAnalytic(ON_NODES,1,"a*a+b+c*c");
+        f1/=f2
+        f1.checkCoherency();
+        self.failUnlessEqual(f1.getTypeOfField(),ON_NODES);
+        self.failUnlessEqual(f1.getTimeDiscretization(),NO_TIME);
+        expected1=[-2.4999999999999991, 1.2162162162162162, 0.77868852459016391,
+                   0.7407407407407407, 1.129032258064516, 0.81632653061224492,
+                   0.86538461538461531, 1.0919540229885056, 0.84302325581395343]
+        self.failUnlessEqual(1,f1.getNumberOfComponents());
+        self.failUnlessEqual(9,f1.getNumberOfTuples());
+        val=f1.getArray().getValues();
+        for i in xrange(9):
+            self.failUnless(abs(expected1[i]-val[i])<1.e-12);
+            pass
+        #
+        f1=m.buildOrthogonalField();
+        f2=m.fillFromAnalytic(ON_CELLS,1,"x");
+        f1*=f2
+        expected2=[-0.035355339059327376,0.,0.035355339059327376, 0.2592724864350674,0.,-0.2592724864350674, 0.37712361663282529,0.,-0.37712361663282529, -0.035355339059327376,0.,0.035355339059327376, 0.31819805153394637,0.,-0.31819805153394637]
+        val=f1.getArray().getValues();
+        for i in xrange(15):
+            self.failUnless(abs(expected2[i]-val[i])<1.e-12);
+            pass
+        #
+        f1=m.buildOrthogonalField();
+        ## self.failUnlessEqual_THROW(f2*=f1,INTERP_KERNEL::Exception);
+        pass
+
+    def testOperationsOnFields4(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        nbOfCells=m.getNumberOfCells();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,CONST_ON_TIME_INTERVAL);
+        f1.setMesh(m);
+        array=DataArrayDouble.New();
+        f1.setArray(array);
+        ## self.failUnlessEqual_THROW(f1.setEndArray(array),Exception);
+        ## self.failUnlessEqual_THROW(f1.getEndArray(),Exception);
+        arr1=[0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.]
+        arr2=[5.,15.,25.,6.,16.,26.,7.,17.,27.,8.,18.,28.,9.,19.,29.]
+        array.setValues(arr1,nbOfCells,3);
+        f1.setStartTime(2.,0,0);
+        f1.setEndTime(3.,0,0);
+        f1.checkCoherency();
+        pos=[0.3,-0.2]
+        res=f1.getValueOn(pos);
+        self.failUnless(abs(arr1[3]-res[0])<1.e-12);
+        self.failUnless(abs(arr1[4]-res[1])<1.e-12);
+        self.failUnless(abs(arr1[5]-res[2])<1.e-12);
+        res=None
+        res=f1.getValueOn(pos,2.2);
+        self.failUnless(abs(arr1[3]-res[0])<1.e-12);
+        self.failUnless(abs(arr1[4]-res[1])<1.e-12);
+        self.failUnless(abs(arr1[5]-res[2])<1.e-12);
+        res=None
+        ## self.failUnlessEqual_THROW(f1.getValueOn(pos,3.2,res),Exception);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
+        f2.setMesh(m);
+        f2.setArray(f1.getArray());
+        f2.setStartTime(2.,3,0);
+        f2.setEndTime(4.,13,0);
+        ## self.failUnlessEqual_THROW(f2.checkCoherency(),Exception);
+        array2=DataArrayDouble.New();
+        array2.setValues(arr2,nbOfCells,3);
+        f2.setEndArray(array2);
+        f2.checkCoherency();
+        #
+        res=None
+        res=f2.getValueOn(pos,3.21);
+        self.failUnless(abs(4.025-res[0])<1.e-12);
+        self.failUnless(abs(14.025-res[1])<1.e-12);
+        self.failUnless(abs(24.025-res[2])<1.e-12);
+        f3=f2.clone(True);
+        self.failUnless(f2.isEqual(f3,1e-12,1e-12));
+        f3.getEndArray().setIJ(0,0,5.001);
+        self.failUnless(not f2.isEqual(f3,1e-12,1e-12));
+        self.failUnless(f2.isEqual(f3,1e-12,1e-2));
+        f3.setStartTime(2.1,3,0);
+        self.failUnless(not f2.isEqual(f3,1e-12,1e-2));
+        f3.setStartTime(2.,3,0);
+        self.failUnless(f2.isEqual(f3,1e-12,1e-2));
+        f3.setStartTime(2.,4,0);
+        self.failUnless(not f2.isEqual(f3,1e-12,1e-2));
+        f3.setStartTime(2.,3,1);
+        self.failUnless(not f2.isEqual(f3,1e-12,1e-2));
+        f3.setStartTime(2.,3,0);
+        self.failUnless(f2.isEqual(f3,1e-12,1e-2));
+        f3.setEndTime(4.1,13,0);
+        self.failUnless(not f2.isEqual(f3,1e-12,1e-2));
+        f3.setEndTime(4.,13,0);
+        self.failUnless(f2.isEqual(f3,1e-12,1e-2));
+        f3.setEndTime(4.,14,0);
+        self.failUnless(not f2.isEqual(f3,1e-12,1e-2));
+        f3.setEndTime(4.,13,1);
+        self.failUnless(not f2.isEqual(f3,1e-12,1e-2));
+        f3.setEndTime(4.,13,0);
+        self.failUnless(f2.isEqual(f3,1e-12,1e-2));
+        f4=f2+f2
+        res=None
+        res=f4.getValueOn(pos,3.21);
+        self.failUnless(abs(8.05-res[0])<1.e-12);
+        self.failUnless(abs(28.05-res[1])<1.e-12);
+        self.failUnless(abs(48.05-res[2])<1.e-12);
+        f4+=f2;
+        res=None
+        res=f4.getValueOn(pos,3.21);
+        self.failUnless(abs(12.075-res[0])<1.e-12);
+        self.failUnless(abs(42.075-res[1])<1.e-12);
+        self.failUnless(abs(72.075-res[2])<1.e-12);
+        pass
+    
+    def testMergeNodesOnField(self):
+        targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
+        f1=targetMesh.fillFromAnalytic(ON_NODES,1,"x+y+z");
+        f1.mergeNodes(1e-10);
+        #
+        targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
+        f1=targetMesh.fillFromAnalytic(ON_NODES,1,"x+y+z");
+        tmp=f1.getArray()
+        tmp.setIJ(0,0,1000.);
+        f1.mergeNodes(1e-10);
+        #
+        targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
+        f1=targetMesh.fillFromAnalytic(ON_NODES,1,"x+y+z");
+        tmp=f1.getArray()
+        tmp.setIJ(1,0,1000.);
+        ## self.failUnlessEqual_THROW(f1.mergeNodes(1e-10),Exception);
+        pass
+
+    def testCheckConsecutiveCellTypes(self):
+        sourceMesh=MEDCouplingDataForTest.build2DSourceMesh_1();
+        targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        self.failUnless(sourceMesh.checkConsecutiveCellTypes());
+        self.failUnless(not targetMesh.checkConsecutiveCellTypes());
+        pass
+
+    def testRearrange2ConsecutiveCellTypes(self):
+        m1_1=MEDCouplingDataForTest.build2DSourceMesh_1();
+        m2_1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        arr1=m1_1.rearrange2ConsecutiveCellTypes();
+        m1_2=MEDCouplingDataForTest.build2DSourceMesh_1();
+        self.failUnless(m1_2.isEqual(m1_1,1e-12));
+        expected1=[0,1]
+        self.failUnlessEqual(2,arr1.getNumberOfTuples());
+        self.failUnlessEqual(1,arr1.getNumberOfComponents());
+        self.failUnless(expected1,arr1.getValues());
+        expected2=[0,3,4,1,2]
+        arr1=m2_1.rearrange2ConsecutiveCellTypes();
+        self.failUnlessEqual(5,arr1.getNumberOfTuples());
+        self.failUnlessEqual(1,arr1.getNumberOfComponents());
+        self.failUnlessEqual(expected2,arr1.getValues());
+        m2_2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        self.failUnlessEqual(5,arr1.getNumberOfTuples());
+        self.failUnlessEqual(1,arr1.getNumberOfComponents());
+        self.failUnlessEqual(expected2,arr1.getValues());
+        self.failUnless(not m2_2.isEqual(m2_1,1e-12));
+        m2_2.renumberCells(expected2,False);
+        self.failUnless(m2_2.isEqual(m2_1,1e-12));
+        pass
+
+    def testSplitByType(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        v=m1.splitByType();
+        self.failUnlessEqual(3,len(v));
+        m2=MEDCouplingUMesh.mergeUMeshesOnSameCoords(v);
+        m2.setName(m1.getName());
+        self.failUnless(m1.isEqual(m2,1.e-12));
+        pass
+
+    def testFuseUMeshesOnSameCoords(self):
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        cells1=[2,3,4]
+        m3=m2.buildPartOfMySelf(cells1,True);
+        self.failUnless(isinstance(m3,MEDCouplingUMesh))
+        cells2=[1,2,4]
+        m4=m2.buildPartOfMySelf(cells2,True);
+        self.failUnless(isinstance(m4,MEDCouplingUMesh))
+        cells3=[1,2]
+        m5=m2.buildPartOfMySelf(cells3,True);
+        self.failUnless(isinstance(m5,MEDCouplingUMesh))
+        meshes=[m3,m4,m5]
+        #
+        m7,corr=MEDCouplingUMesh.fuseUMeshesOnSameCoords(meshes,0);
+        self.failUnlessEqual(4,m7.getNumberOfCells());
+        self.failUnlessEqual(3,len(corr));
+        expectedVals1=[3,3,2]
+        expectedVals2=[[0,1,2],[3,0,2],[3,0]]
+        for i in xrange(3):
+            arr=corr[i];
+            self.failUnlessEqual(1,arr.getNumberOfComponents());
+            nbOfVals=expectedVals1[i];
+            self.failUnlessEqual(nbOfVals,arr.getNumberOfTuples());
+            vals=arr.getValues();
+            self.failUnlessEqual(expectedVals2[i],vals);
+            pass
+        arr2,fidsOfGroups=DataArrayInt.makePartition(corr,m7.getNumberOfCells());
+        fidExp=[5,1,3,4]
+        fidsGrp=[[1,3,5],[3,4,5],[4,5]]
+        self.failUnlessEqual(3,len(fidsOfGroups));
+        self.failUnlessEqual(1,arr2.getNumberOfComponents());
+        self.failUnlessEqual(4,arr2.getNumberOfTuples());
+        self.failUnlessEqual(fidExp,arr2.getValues());
+        for i in xrange(3):
+            nbOfVals=expectedVals1[i];
+            self.failUnlessEqual(fidsOfGroups[i],fidsGrp[i]);
+            pass
+        pass
+
+    def testFuseUMeshesOnSameCoords2(self):
+        m1,m2=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        part1=[2,3,6,4,10]
+        m3=m1.buildPartOfMySelf(part1,True);
+        part2=[5,6,4,7]
+        m4=m1.buildPartOfMySelf(part2,True);
+        meshes=[m1,m3,m3,m4]
+        m5,corr=MEDCouplingUMesh.fuseUMeshesOnSameCoords(meshes,0);
+        self.failUnlessEqual(18,m5.getNumberOfCells());
+        exp2=[
+            [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],
+            [2,3,6,4,10],
+            [2,3,6,4,10],
+            [5,6,4,7]]
+        i=0;
+        for it in corr:
+            self.failUnlessEqual(exp2[i],it.getValues());
+            i+=1
+            pass
+        pass
+
+    def testBuildOrthogonalField(self):
+        targetMesh=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        field=targetMesh.buildOrthogonalField();
+        expected=[0.70710678118654746,0.,-0.70710678118654746]
+        self.failUnlessEqual(5,field.getNumberOfTuples());
+        self.failUnlessEqual(3,field.getNumberOfComponents());
+        vals=field.getArray().getValues();
+        for i in xrange(15):
+            self.failUnless(abs(expected[i%3]-vals[i])<1e-12);
+        # testing
+        targetCoords=[0.,0.,0.,0.5,0.,0.5,1.,0.,1.,0.,1.,0.]
+        targetConn=[0,1,2,3]
+        targetMesh=MEDCouplingUMesh.New();
+        targetMesh.setMeshDimension(2);
+        targetMesh.allocateCells(1);
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        targetMesh.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(targetCoords,4,3);
+        targetMesh.setCoords(myCoords);
+        field=targetMesh.buildOrthogonalField();
+        self.failUnlessEqual(1,field.getNumberOfTuples());
+        self.failUnlessEqual(3,field.getNumberOfComponents());
+        vals=field.getArray().getValues();
+        self.failUnless(abs(-0.70710678118654746-vals[0])<1e-12);
+        self.failUnless(abs(0.-vals[1])<1e-12);
+        self.failUnless(abs(0.70710678118654746-vals[2])<1e-12);
+        pass
+
+    def testGetCellsContainingPoint(self):
+        targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        pos=[0.,0.,0.4,0.4,0.,0.4,0.1,0.1,0.25,0.,0.65,0.]
+        #2D basic
+        t1,t2=targetMesh.getCellsContainingPoints(pos,6,1e-12);
+        self.failUnlessEqual(6,len(t1));
+        self.failUnlessEqual(7,len(t2));
+        expectedValues1=[0,4,3,0,1,2]
+        expectedValues2=[0,1,2,3,4,5,6]
+        self.failUnlessEqual(t1,expectedValues1);
+        self.failUnlessEqual(t2,expectedValues2);
+        #2D with no help of bounding box.
+        center=[0.2,0.2]
+        MEDCouplingPointSet.rotate2DAlg(center,0.78539816339744830962,6,pos);
+        targetMesh.rotate(center,[],0.78539816339744830962);
+        t1=None
+        t2=None
+        t1,t2=targetMesh.getCellsContainingPoints(pos,6,1e-12);
+        self.failUnlessEqual(6,len(t1));
+        self.failUnlessEqual(7,len(t2));
+        self.failUnlessEqual(t1,expectedValues1);
+        self.failUnlessEqual(t2,expectedValues2);
+        #2D outside
+        pos1bis=[-0.3303300858899107,-0.11819805153394641]
+        self.failUnlessEqual(-1,targetMesh.getCellContainingPoint(pos1bis,1e-12));
+        #test limits 2D
+        targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        pos2=[0.2,-0.05]
+        t1=None
+        t1=targetMesh.getCellsContainingPoint(pos2,1e-12)
+        self.failUnlessEqual(2,len(t1));
+        expectedValues3=[0,1]
+        self.failUnlessEqual(t1,expectedValues3);
+        pos3=[0.2,0.2]
+        t1=None
+        t1=targetMesh.getCellsContainingPoint(pos3,1e-12);
+        self.failUnlessEqual(5,len(t1));
+        expectedValues4=[0,1,2,3,4]
+        self.failUnlessEqual(t1,expectedValues4);
+        self.failUnlessEqual(0,targetMesh.getCellContainingPoint(pos3,1e-12));
+        #3D
+        targetMesh=MEDCouplingDataForTest.build3DTargetMesh_1();
+        pos4=[25.,25.,25.]
+        self.failUnlessEqual(0,targetMesh.getCellContainingPoint(pos4,1e-12));
+        pos5=[50.,50.,50.]
+        t1=None
+        t1=targetMesh.getCellsContainingPoint(pos5,1e-12);
+        self.failUnlessEqual(8,len(t1));
+        expectedValues5=[0,1,2,3,4,5,6,7]
+        self.failUnlessEqual(t1,expectedValues5);
+        pos6=[0., 50., 0.]
+        t1=None
+        t1=targetMesh.getCellsContainingPoint(pos6,1e-12);
+        self.failUnlessEqual(2,len(t1));
+        expectedValues6=[0,2]
+        self.failUnlessEqual(t1,expectedValues6);
+        #3D outside
+        pos7=[-1.0,-1.0,0.]
+        self.failUnlessEqual(-1,targetMesh.getCellContainingPoint(pos7,1e-12));
+        #3D outside 2
+        center2=[0.,0.,0.]
+        vec2=[0.,-1.,0.]
+        targetMesh.rotate(center2,vec2,0.78539816339744830962);
+        pos8=[-25.,25.,12.]
+        self.failUnlessEqual(-1,targetMesh.getCellContainingPoint(pos8,1e-12));
+        pass
+
+    def testGetValueOn1(self):
+        # not implemented yet
+        targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        fieldOnCells=MEDCouplingFieldDouble.New(ON_CELLS);
+        nbOfCells=targetMesh.getNumberOfCells();
+        fieldOnCells.setMesh(targetMesh);
+        array=DataArrayDouble.New();
+        tmp=2*nbOfCells*[None]
+        for i in xrange(nbOfCells):
+            tmp[2*i]=7.+float(i);
+            tmp[2*i+1]=17.+float(i)
+            pass
+        array.setValues(tmp,nbOfCells,2);
+        fieldOnCells.setArray(array);
+        #
+        pos1=[0.25,0.]
+        res=fieldOnCells.getValueOn(pos1);
+        self.failUnlessEqual(2,len(res))
+        self.failUnless(abs(8.-res[0])<1e-12);
+        self.failUnless(abs(18.-res[1])<1e-12);
+        #
+        #
+        targetMesh=MEDCouplingDataForTest.build2DSourceMesh_1();
+        fieldOnNodes=MEDCouplingFieldDouble.New(ON_NODES);
+        nbOfNodes=targetMesh.getNumberOfNodes();
+        fieldOnNodes.setMesh(targetMesh);
+        array=DataArrayDouble.New();
+        tmp=2*nbOfNodes*[None]
+        for i in xrange(nbOfNodes):
+            tmp[2*i]=17.+float(i);
+            tmp[2*i+1]=27.+float(i)
+            pass
+        array.setValues(tmp,nbOfNodes,2);
+        fieldOnNodes.setArray(array);
+        #
+        pos2=[-0.13333333333333333,-0.13333333333333333]
+        res=None
+        res=fieldOnNodes.getValueOn(pos2);
+        self.failUnlessEqual(2,len(res))
+        self.failUnless(abs(17.5-res[0])<1e-12);
+        self.failUnless(abs(27.5-res[1])<1e-12);
+        pos3=[0.033333333333333326,0.36666666666666664]
+        res=None
+        res=fieldOnNodes.getValueOn(pos3);
+        self.failUnlessEqual(2,len(res))
+        self.failUnless(abs(18.666666666666667-res[0])<1e-12);
+        self.failUnless(abs(28.666666666666667-res[1])<1e-12);
+        pass
+
+    def testCMesh0(self):
+        # not implemented yet
+        mesh=MEDCouplingCMesh.New();
+        coordsX=DataArrayDouble.New();
+        arrX=[ -1., 1., 2., 4. ]
+        coordsX.setValues(arrX,4,1);
+        coordsY=DataArrayDouble.New();
+        arrY=[ -2., 2., 4., 8. ]
+        coordsY.setValues(arrY,4,1);
+        coordsZ=DataArrayDouble.New();
+        arrZ=[ -3., 3., 6., 12. ]
+        coordsZ.setValues(arrZ,4,1);
+        mesh.setCoords(coordsX,coordsY,coordsZ);
+        pass
+
+    def testScale(self):
+        mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        pos=[0.2,0.2]
+        mesh.scale(pos,0.5);
+        expected1=[-0.05,-0.05, 0.2,-0.05, 0.45,-0.05, -0.05,0.2, 0.2,0.2, 0.45,0.2,
+                   -0.05,0.45, 0.2,0.45, 0.45,0.45]
+        val=mesh.getCoords().getValues();
+        self.failUnlessEqual(18,len(val))
+        for i in xrange(18):
+            self.failUnless(abs(expected1[i]-val[i])<1e-12);
+            pass
+        pass
+
+    def testTryToShareSameCoords(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        #self.failUnlessEqual(m1.getCoords()!=m2.getCoords());
+        m1.tryToShareSameCoords(m2,1e-12);
+        #self.failUnlessEqual(m1.getCoords()==m2.getCoords());
+        m1.tryToShareSameCoords(m2,1e-12);
+        #self.failUnlessEqual(m1.getCoords()==m2.getCoords());
+        m2.tryToShareSameCoords(m1,1e-12);
+        #self.failUnlessEqual(m1.getCoords()==m2.getCoords());
+        #
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2=MEDCouplingDataForTest.build2DTargetMesh_2();
+        #self.failUnlessEqual(m1.getCoords()!=m2.getCoords());
+        m1.tryToShareSameCoords(m2,1e-12);
+        #self.failUnlessEqual(m1.getCoords()==m2.getCoords());
+        m1.tryToShareSameCoords(m2,1e-12);
+        #self.failUnlessEqual(m1.getCoords()==m2.getCoords());
+        m2.tryToShareSameCoords(m1,1e-12);
+        #self.failUnlessEqual(m1.getCoords()==m2.getCoords());
+        #
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2=MEDCouplingDataForTest.build2DSourceMesh_1();
+        #self.failUnlessEqual(m1.getCoords()!=m2.getCoords());
+        ## self.failUnlessEqual_THROW(m1.tryToShareSameCoords(m2,1e-12),Exception);
+        pass
+
+    def testFindNodeOnPlane(self):
+        mesh=MEDCouplingDataForTest.build3DTargetMesh_1();
+        pt=[300.,300.,0.]
+        v=[0.,0.,2.]
+        n=mesh.findNodesOnPlane(pt,v,1e-12);
+        self.failUnlessEqual(9,len(n));
+        m3dSurf=mesh.buildFacePartOfMySelfNode(n,True);
+        self.failUnless(isinstance(m3dSurf,MEDCouplingUMesh))
+        me=MEDCouplingExtrudedMesh.New(mesh,m3dSurf,0);
+        da=me.getMesh3DIds();
+        self.failUnlessEqual(8,me.getNumberOfCells());
+        expected=[0,1,2,3,4,5,6,7]
+        val=da.getValues();
+        self.failUnlessEqual(expected,val);
+        pass
+
+    def testRenumberCells(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        self.failUnless(m.isEqual(m2,0));
+        arr=[12,3,25,2,26]
+        m.renumberCells(arr,True);
+        self.failUnless(not m.isEqual(m2,0));
+        self.failUnlessEqual(NORM_QUAD4,m.getTypeOfCell(0));
+        self.failUnlessEqual(NORM_TRI3,m.getTypeOfCell(1));
+        self.failUnlessEqual(NORM_QUAD4,m.getTypeOfCell(2));
+        self.failUnlessEqual(NORM_TRI3,m.getTypeOfCell(3));
+        self.failUnlessEqual(NORM_QUAD4,m.getTypeOfCell(4));
+        arr2=[5,-1,-5,4,8]
+        m.renumberCells(arr2,True);
+        self.failUnless(m.isEqual(m2,0));
+        pass
+
+    def testChangeSpaceDimension(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        #
+        self.failUnlessEqual(3,m1.getSpaceDimension());
+        m1.changeSpaceDimension(2);
+        self.failUnlessEqual(2,m1.getSpaceDimension());
+        m1.setName(m2.getName());
+        self.failUnless(m1.isEqual(m2,1e-12));
+        m1.changeSpaceDimension(3);
+        self.failUnlessEqual(3,m1.getSpaceDimension());
+        expected=[-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0.]
+        val=m1.getCoords().getValues();
+        for i in xrange(27):
+            self.failUnless(abs(expected[i]-val[i])<1e-14);
             pass
         pass
 
