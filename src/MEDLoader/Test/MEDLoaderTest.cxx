@@ -331,6 +331,9 @@ void MEDLoaderTest::testFieldProfilRW1()
 {
   const char fileName[]="file12.med";
   MEDCouplingUMesh *mesh1=build3DMesh_1();
+  bool b;
+  DataArrayInt *da=mesh1->mergeNodes(1e-12,b);
+  da->decrRef();
   MEDLoader::WriteUMesh(fileName,mesh1,true);
   const int part1[5]={1,2,4,13,15};
   MEDCouplingUMesh *mesh2=(MEDCouplingUMesh *)mesh1->buildPartOfMySelf(part1,part1+5,true);
@@ -352,6 +355,12 @@ void MEDLoaderTest::testFieldProfilRW1()
   f1->checkCoherency();
   //
   MEDLoader::WriteField(fileName,f1,false);//<- false important for the test
+  //
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell(fileName,f1->getMesh()->getName(),0,f1->getName(),2,7);
+  f2->checkCoherency();
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  //
+  f2->decrRef();
   f1->decrRef();
   mesh1->decrRef();
   mesh2->decrRef();

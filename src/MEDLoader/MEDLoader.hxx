@@ -37,7 +37,7 @@ namespace ParaMEDMEM
 
 class MEDLOADER_EXPORT MEDLoader
 {
-public:
+ public:
   class MEDConnOfOneElemType
   {
   public:
@@ -63,20 +63,24 @@ public:
   class MEDFieldDoublePerCellType
   {
   public:
-    MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple);
+    MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple, const int *cellIdPerType);
     INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
     int getNbComp() const { return _ncomp; }
     int getNbOfTuple() const { return _ntuple; }
     int getNbOfValues() const { return _ncomp*_ntuple; }
     double *getArray() const { return _values; }
+    const std::vector<int>& getCellIdPerType() const { return _cell_id_per_type; }
     void releaseArray();
   private:
     int _ntuple;
     int _ncomp;
     double *_values;
+    std::vector<int> _cell_id_per_type;
     INTERP_KERNEL::NormalizedCellType _type;
   };
   //
+  static void setEpsilonForNodeComp(double val);
+  static void setCompPolicyForCell(int val);
   static std::vector<std::string> GetMeshNames(const char *fileName);
   static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName);
   static std::vector<std::string> GetMeshFamilyNames(const char *fileName, const char *meshName);
@@ -97,8 +101,11 @@ public:
   static void WriteUMeshes(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
   static void WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
   static void WriteFieldUsingAlreadyWrittenMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
-private:
+ private:
   MEDLoader();
+ public:
+  static double _EPS_FOR_NODE_COMP;
+  static int _COMP_FOR_CELL;
 };
 
 #endif

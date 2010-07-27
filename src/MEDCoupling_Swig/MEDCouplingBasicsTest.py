@@ -35,6 +35,48 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr3=arr2.convertToDblArr();
         self.failUnless(arr.isEqual(arr3,1e-14))
         pass
+
+    def testArray3(self):
+        arr1=DataArrayInt.New();
+        arr1Ref=[0,10,1,11,2,12,3,13,4,14,5,15,6,16]
+        arr1.setValues(arr1Ref,7,2);
+        self.failUnlessEqual(7,arr1.getNumberOfTuples());
+        self.failUnlessEqual(2,arr1.getNumberOfComponents());
+        self.failUnlessEqual(arr1Ref,arr1.getValues());
+        arr2=arr1.substr(3);
+        self.failUnlessEqual(4,arr2.getNumberOfTuples());
+        self.failUnlessEqual(2,arr2.getNumberOfComponents());
+        self.failUnlessEqual(arr1Ref[6:],arr2.getValues());
+        arr3=arr1.substr(2,5);
+        self.failUnlessEqual(3,arr3.getNumberOfTuples());
+        self.failUnlessEqual(2,arr3.getNumberOfComponents());
+        self.failUnlessEqual(arr1Ref[4:10],arr3.getValues());
+        #
+        arr4=DataArrayDouble.New();
+        arr4Ref=[0.8,10.8,1.9,11.9,2.1,12.1,3.2,13.2,4.3,14.3,5.4,15.4,6.5,16.5]
+        arr4.setValues(arr4Ref,7,2);
+        self.failUnlessEqual(7,arr4.getNumberOfTuples());
+        self.failUnlessEqual(2,arr4.getNumberOfComponents());
+        tmp=arr4.getValues()
+        for i in xrange(14):
+            self.failUnless(abs(arr4Ref[i]-tmp[i])<1e-14);
+            pass
+        arr5=arr4.substr(3);
+        self.failUnlessEqual(4,arr5.getNumberOfTuples());
+        self.failUnlessEqual(2,arr5.getNumberOfComponents());
+        tmp=arr5.getValues()
+        for i in xrange(8):
+            self.failUnless(abs(arr4Ref[6+i]-tmp[i])<1e-14);
+            pass
+        arr6=arr4.substr(2,5);
+        self.failUnlessEqual(3,arr6.getNumberOfTuples());
+        self.failUnlessEqual(2,arr6.getNumberOfComponents());
+        tmp=arr6.getValues()
+        for i in xrange(6):
+            self.failUnless(abs(arr4Ref[4+i]-tmp[i])<1e-14);
+            pass
+        pass
+
     def testMesh(self):
         tab4=[1, 2, 8, 7, 2, 3, 9, 8, 3,
               4, 10, 9, 4, 5, 11, 10, 5,

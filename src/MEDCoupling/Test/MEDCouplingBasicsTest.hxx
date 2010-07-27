@@ -34,6 +34,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest);
     CPPUNIT_TEST( testArray );
     CPPUNIT_TEST( testArray2 );
+    CPPUNIT_TEST( testArray3 );
     CPPUNIT_TEST( testMesh );
     CPPUNIT_TEST( testMeshPointsCloud );
     CPPUNIT_TEST( testMeshM1D );
@@ -144,6 +145,7 @@ namespace ParaMEDMEM
   public:
     void testArray();
     void testArray2();
+    void testArray3();
     void testMesh();
     void testMeshPointsCloud();
     void testMeshM1D();

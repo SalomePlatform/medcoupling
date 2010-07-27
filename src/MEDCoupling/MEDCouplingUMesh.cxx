@@ -1837,7 +1837,7 @@ DataArrayInt *MEDCouplingUMesh::rearrange2ConsecutiveCellTypes()
 /*!
  * This methods split this into as mush as untructured meshes that consecutive set of same type cells.
  * So this method has typically a sense if MEDCouplingUMesh::checkConsecutiveCellTypes has a sense.
- * This method makes asumption (no check) that connectivity is correctly set before calling.
+ * This method makes asumption that connectivity is correctly set before calling.
  */
 std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
 {
@@ -1861,6 +1861,67 @@ std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
       ret.push_back(m);
     }
   return ret;
+}
+
+/*!
+ * This method makes the assumption that da->getNumberOfTuples()<this->getNumberOfCells(). This method makes the assumption that ids contained in 'da'
+ * are in [0:getNumberOfCells())
+ */
+DataArrayInt *MEDCouplingUMesh::convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  std::set<INTERP_KERNEL::NormalizedCellType> types=getAllTypes();
+  int *tmp=new int[nbOfCells];
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=types.begin();iter!=types.end();iter++)
+    {
+      int j=0;
+      for(const int *i=connI;i!=connI+nbOfCells;i++)
+        if((INTERP_KERNEL::NormalizedCellType)conn[*i]==(*iter))
+          tmp[std::distance(connI,i)]=j++;
+    }
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(da->getNumberOfTuples(),da->getNumberOfComponents());
+  ret->copyStringInfoFrom(*da);
+  int *retPtr=ret->getPointer();
+  const int *daPtr=da->getConstPointer();
+  int nbOfElems=da->getNbOfElems();
+  for(int k=0;k<nbOfElems;k++)
+    retPtr[k]=tmp[daPtr[k]];
+  delete [] tmp;
+  return ret;
+}
+
+/*!
+ * This method reduced number of cells of this by keeping cells whose type is different from 'type' and if type=='type'
+ * cells whose ids is in 'idsPerGeoType' array.
+ * This method conserves coords and name of mesh.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const std::vector<int>& idsPerGeoType)
+{
+  std::vector<int> idsTokeep;
+  int nbOfCells=getNumberOfCells();
+  int j=0;
+  for(int i=0;i<nbOfCells;i++)
+    if(getTypeOfCell(i)!=type)
+      idsTokeep.push_back(i);
+    else
+      {
+        if(std::find(idsPerGeoType.begin(),idsPerGeoType.end(),j)!=idsPerGeoType.end())
+          idsTokeep.push_back(i);
+        j++;
+      }
+  MEDCouplingPointSet *ret=buildPartOfMySelf(&idsTokeep[0],&idsTokeep[0]+idsTokeep.size(),true);
+  MEDCouplingUMesh *ret2=dynamic_cast<MEDCouplingUMesh *>(ret);
+  if(!ret2)
+    {
+      ret->decrRef();
+      return 0;
+    }
+  ret2->setName(getName());
+  return ret2;
 }
 
 /*!

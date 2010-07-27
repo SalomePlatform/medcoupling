@@ -101,6 +101,34 @@ DataArrayInt *DataArrayDouble::convertToIntArr() const
   return ret;
 }
 
+/*!
+ * This methods has a similar behaviour than std::string::substr. This method returns a newly created DataArrayInt that is part of this with same number of components.
+ * The intervall is specified by [tupleIdBg,tupleIdEnd) except if tupleIdEnd ==-1 in this case the [tupleIdBg,this->end()) will be kept.
+ * This method check that interval is valid regarding this, if not an exception will be thrown.
+ */
+DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const throw(INTERP_KERNEL::Exception)
+{
+  int nbt=getNumberOfTuples();
+  if(tupleIdBg<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter must be greater than 0 !");
+  if(tupleIdBg>=nbt)
+    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+  int trueEnd=tupleIdEnd;
+  if(tupleIdEnd!=-1)
+    {
+      if(tupleIdEnd>nbt)
+        throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+    }
+  else
+    trueEnd=nbt;
+  int nbComp=getNumberOfComponents();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(trueEnd-tupleIdBg,nbComp);
+  ret->copyStringInfoFrom(*this);
+  std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
+  return ret;
+}
+
 void DataArrayDouble::setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
 {
   if(newArray!=arrayToSet)
@@ -356,6 +384,34 @@ DataArrayDouble *DataArrayInt::convertToDblArr() const
   double *dest=ret->getPointer();
   std::copy(src,src+nbOfVals,dest);
   ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+/*!
+ * This methods has a similar behaviour than std::string::substr. This method returns a newly created DataArrayInt that is part of this with same number of components.
+ * The intervall is specified by [tupleIdBg,tupleIdEnd) except if tupleIdEnd ==-1 in this case the [tupleIdBg,this->end()) will be kept.
+ * This method check that interval is valid regarding this, if not an exception will be thrown.
+ */
+DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const throw(INTERP_KERNEL::Exception)
+{
+  int nbt=getNumberOfTuples();
+  if(tupleIdBg<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter must be greater than 0 !");
+  if(tupleIdBg>=nbt)
+    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+  int trueEnd=tupleIdEnd;
+  if(tupleIdEnd!=-1)
+    {
+      if(tupleIdEnd>nbt)
+        throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+    }
+  else
+    trueEnd=nbt;
+  int nbComp=getNumberOfComponents();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(trueEnd-tupleIdBg,nbComp);
+  ret->copyStringInfoFrom(*this);
+  std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
   return ret;
 }
 

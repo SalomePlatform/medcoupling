@@ -109,6 +109,10 @@ med_geometrie_element typmai3[32] = { MED_POINT1,//0
                                       MED_POLYEDRE//31
 };
 
+double MEDLoader::_EPS_FOR_NODE_COMP=1.e-12;
+
+int MEDLoader::_COMP_FOR_CELL=0;
+
 using namespace ParaMEDMEM;
 
 namespace MEDLoaderNS
@@ -161,8 +165,11 @@ namespace MEDLoaderNS
                                                   INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile, std::vector<int>& fam4MEDFile);
   ParaMEDMEM::MEDCouplingFieldDouble *readFieldDoubleLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order,
                                                           ParaMEDMEM::TypeOfField typeOfOutField);
+  med_idt appendFieldSimpleAtt(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, med_int& numdt, med_int& numo, med_float& dt);
   void appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
-  void prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, std::list<MEDLoader::MEDFieldDoublePerCellType>& split);
+  void appendNodeProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds);
+  void appendCellProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIds);
+  void prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *cellIds, std::list<MEDLoader::MEDFieldDoublePerCellType>& split);
   void writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch);
   void writeUMeshesDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch);
   void writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
@@ -170,6 +177,22 @@ namespace MEDLoaderNS
 }
 
 const char WHITE_SPACES[]=" \n";
+
+/*!
+ * This method set the epsilon value used for node comparison when trying to buid a profile for a field on node/cell on an already written mesh.
+ */
+void MEDLoader::setEpsilonForNodeComp(double val)
+{
+  _EPS_FOR_NODE_COMP=val;
+}
+
+/*!
+ * This method set the policy comparison when trying to fit the already written mesh on a field. The semantic of the policy is specified in MEDCouplingUMesh::zipConnectivityTraducer.
+ */
+void MEDLoader::setCompPolicyForCell(int val)
+{
+  _COMP_FOR_CELL=val;
+}
 
 /*!
  * @param lgth is the size of fam tab. For classical types conn is size of 'lgth'*number_of_nodes_in_type.
@@ -201,8 +224,10 @@ void MEDLoader::MEDConnOfOneElemType::releaseArray()
   delete [] _global;
 }
 
-MEDLoader::MEDFieldDoublePerCellType::MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple):_ntuple(ntuple),_ncomp(ncomp),_values(values),_type(type)
+MEDLoader::MEDFieldDoublePerCellType::MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple, const int *cellIdPerType):_ntuple(ntuple),_ncomp(ncomp),_values(values),_type(type)
 {
+  if(cellIdPerType)
+    _cell_id_per_type.insert(_cell_id_per_type.end(),cellIdPerType,cellIdPerType+ntuple);
 }
 
 void MEDLoader::MEDFieldDoublePerCellType::releaseArray()
@@ -571,7 +596,14 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                     }
                   MEDchampLire(fid,(char *)meshName,(char *)fieldName,(unsigned char*)valr,MED_FULL_INTERLACE,MED_ALL,locname,
                                pflname,MED_COMPACT,tabEnt[typeOfOutField],tabType[typeOfOutField][j],iteration,order);
-                  field.push_back(MEDLoader::MEDFieldDoublePerCellType(typmai2[j],valr,ncomp,nval));
+                  int *pfl=0;
+                  if(pflname[0]!='\0')
+                    {
+                      pfl=new int[nval];
+                      MEDprofilLire(fid,pfl,pflname);
+                    }
+                  field.push_back(MEDLoader::MEDFieldDoublePerCellType(typmai2[j],valr,ncomp,nval,pfl));
+                  delete [] pfl;
                   delete [] dt_unit;
                   delete [] maa_ass;
                 }
@@ -1208,6 +1240,20 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev1(const char 
   ParaMEDMEM::MEDCouplingUMesh *mesh=readUMeshFromFileLev1(fileName,meshName,meshDimRelToMax,familiesToKeep,typesToKeep,meshDim);
   if(typeOfOutField==ON_CELLS)
     MEDLoaderNS::keepSpecifiedMeshDim<MEDLoader::MEDFieldDoublePerCellType>(fieldPerCellType,meshDim);
+  //for profiles
+  for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=fieldPerCellType.begin();iter!=fieldPerCellType.end();iter++)
+    {
+      const std::vector<int>& cellIds=(*iter).getCellIdPerType();
+      if(!cellIds.empty())
+        {
+          std::vector<int> ci(cellIds.size());
+          std::transform(cellIds.begin(),cellIds.end(),ci.begin(),std::bind2nd(std::plus<int>(),-1));
+          ParaMEDMEM::MEDCouplingUMesh *mesh2=mesh->keepSpecifiedCells((*iter).getType(),ci);
+          mesh->decrRef();
+          mesh=mesh2;
+        }
+    }
+  //
   ParaMEDMEM::MEDCouplingFieldDouble *ret=ParaMEDMEM::MEDCouplingFieldDouble::New(typeOfOutField,ONE_TIME);
   ret->setName(fieldName);
   ret->setTime(time,iteration,order);
@@ -1409,15 +1455,68 @@ void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const char *meshNam
   m->decrRef();
 }
 
-void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+/*!
+ * This method makes the assumption that f->getMesh() nodes are fully included in already written mesh in 'fileName'.
+ * @param thisMeshNodeIds points to a tab of size f->getMesh()->getNumberOfNodes() that says for a node i in f->getMesh() that its id is thisMeshNodeIds[i] is already written mesh.
+ */
+void MEDLoaderNS::appendNodeProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds)
+{
+  //not implemented yet.
+  med_int numdt,numo;
+  med_float dt;
+  int nbComp=f->getNumberOfComponents();
+  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  MEDfermer(fid);
+}
+
+/*!
+ * This method makes the assumption that f->getMesh() cells are fully included in already written mesh in 'fileName'.
+ * @param thisMeshCellIdsPerType points to a tab of size f->getMesh()->getNumberOfCells() that says for a cell i in f->getMesh() that its id is thisMeshCellIds[i] of corresponding type is already written mesh.
+ */
+void MEDLoaderNS::appendCellProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIdsPerType)
+{
+  //not implemented yet.
+  med_int numdt,numo;
+  med_float dt;
+  int nbComp=f->getNumberOfComponents();
+  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  std::list<MEDLoader::MEDFieldDoublePerCellType> split;
+  prepareCellFieldDoubleForWriting(f,thisMeshCellIdsPerType,split);
+  const double *pt=f->getArray()->getConstPointer();
+  int number=0;
+  for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=split.begin();iter!=split.end();iter++)
+    {
+      char *nommaa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+      strcpy(nommaa,f->getMesh()->getName());
+      char *profileName=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+      std::ostringstream oss; oss << "Pfl" << f->getName() << "_" << number++;
+      strcpy(profileName,oss.str().c_str());
+      const std::vector<int>& ids=(*iter).getCellIdPerType();
+      int *profile=new int [ids.size()];
+      std::transform(ids.begin(),ids.end(),profile,std::bind2nd(std::plus<int>(),1));
+      MEDprofilEcr(fid,profile,ids.size(),profileName);
+      delete [] profile;
+      MEDchampEcr(fid,nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,(*iter).getNbOfTuple(),
+                  (char *)MED_NOGAUSS,MED_ALL,profileName,MED_COMPACT,MED_MAILLE,
+                  typmai3[(int)(*iter).getType()],numdt,(char *)"",dt,numo);
+      delete [] profileName;
+      delete [] nommaa;
+      pt+=(*iter).getNbOfTuple()*nbComp;
+    }
+  MEDfermer(fid);
+}
+
+/*!
+ * This method performs the classical job for fields before any values setting.
+ */
+med_idt MEDLoaderNS::appendFieldSimpleAtt(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, med_int& numdt, med_int& numo, med_float& dt)
 {
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE_ECRITURE);
   int nbComp=f->getNumberOfComponents();
   char *comp=MEDLoaderBase::buildEmptyString(nbComp*MED_TAILLE_PNOM);
   char *unit=MEDLoaderBase::buildEmptyString(nbComp*MED_TAILLE_PNOM);
   MEDchampCr(fid,(char *)f->getName(),MED_FLOAT64,comp,unit,nbComp);
-  med_int numdt,numo;
-  med_float dt;
+  
   ParaMEDMEM::TypeOfTimeDiscretization td=f->getTimeDiscretization();
   if(td==ParaMEDMEM::NO_TIME)
     {
@@ -1430,13 +1529,24 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCoupl
       numdt=(med_int)tmp1; numo=(med_int)tmp2;
       dt=(med_float)tmp0;
     }
+  delete [] comp;
+  delete [] unit;
+  return fid;
+}
+
+void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+{
+  med_int numdt,numo;
+  med_float dt;
+  int nbComp=f->getNumberOfComponents();
+  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
   const double *pt=f->getArray()->getConstPointer();
   switch(f->getTypeOfField())
     {
     case ParaMEDMEM::ON_CELLS:
       {
         std::list<MEDLoader::MEDFieldDoublePerCellType> split;
-        prepareCellFieldDoubleForWriting(f,split);
+        prepareCellFieldDoubleForWriting(f,0,split);
         for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=split.begin();iter!=split.end();iter++)
           {
             char *nommaa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
@@ -1462,12 +1572,14 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCoupl
     default:
       throw INTERP_KERNEL::Exception("Not managed this type of FIELD !");
     }
-  delete [] comp;
-  delete [] unit;
   MEDfermer(fid);
 }
 
-void MEDLoaderNS::prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, std::list<MEDLoader::MEDFieldDoublePerCellType>& split)
+/*!
+ * This method splits field 'f' into types to be ready for writing.
+ * @param cellIdsPerType this parameter can be 0 if not in profile mode. If it is != 0 this array is of size f->getMesh()->getNumberOfCells().
+ */
+void MEDLoaderNS::prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *cellIdsPerType, std::list<MEDLoader::MEDFieldDoublePerCellType>& split)
 {
   int nbComp=f->getNumberOfComponents();
   const MEDCouplingMesh *mesh=f->getMesh();
@@ -1480,11 +1592,18 @@ void MEDLoaderNS::prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCoupling
   const int *conn=meshC->getNodalConnectivity()->getConstPointer();
   int nbOfCells=meshC->getNumberOfCells();
   INTERP_KERNEL::NormalizedCellType curType;
+  const int *wCellIdsPT=cellIdsPerType;
   for(const int *pt=connI;pt!=connI+nbOfCells;)
     {
       curType=(INTERP_KERNEL::NormalizedCellType)conn[*pt];
       const int *pt2=std::find_if(pt+1,connI+nbOfCells,ConnReaderML(conn,(int)curType));
-      split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt));
+      if(!cellIdsPerType)
+        split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt,0));
+      else
+        {
+          split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt,wCellIdsPT));
+          wCellIdsPT+=std::distance(pt,pt2);
+        }
       pt=pt2;
     }
 }
@@ -1521,6 +1640,55 @@ void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, ParaME
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   MEDCouplingUMesh *m=MEDLoader::ReadUMeshFromFile(fileName,f->getMesh()->getName(),f2);
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::mergeUMeshes(m,(MEDCouplingUMesh *)f->getMesh());
+  bool areNodesMerged;
+  DataArrayInt *da=m2->mergeNodes(MEDLoader::_EPS_FOR_NODE_COMP,areNodesMerged);
+  if(!areNodesMerged || m2->getNumberOfNodes()!=m->getNumberOfNodes())
+    {
+      da->decrRef();
+      m2->decrRef();
+      m->decrRef();
+      std::ostringstream oss; oss << "Nodes in already written mesh \"" << f->getMesh()->getName() << "\" in file \"" << fileName << "\" does not fit coordinates of unstructured grid f->getMesh() !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  switch(f->getTypeOfField())
+    {
+    case ParaMEDMEM::ON_CELLS:
+      {
+        da->decrRef();
+        DataArrayInt *da2=m2->zipConnectivityTraducer(MEDLoader::_COMP_FOR_CELL);
+        if(m2->getNumberOfCells()!=m->getNumberOfCells())
+          {
+            da2->decrRef();
+            m2->decrRef();
+            m->decrRef();
+            std::ostringstream oss1; oss1 << "Cells in already written mesh \"" << f->getMesh()->getName() << "\" in file \"" << fileName << "\" does not fit connectivity of unstructured grid f->getMesh() !";
+            throw INTERP_KERNEL::Exception(oss1.str().c_str());
+          }
+        da=m2->convertCellArrayPerGeoType(da2);
+        DataArrayInt *da3=da->substr(m2->getNumberOfCells());
+        da2->decrRef();
+        da2=m2->convertCellArrayPerGeoType(da3);
+        da3->decrRef();
+        appendCellProfileField(fileName,f,da2->getConstPointer());
+        da2->decrRef();
+        break;
+      }
+    case ParaMEDMEM::ON_NODES:
+      {
+        appendNodeProfileField(fileName,f,da->getConstPointer()+m->getNumberOfNodes());
+        break;
+      }
+    default:
+      {
+        da->decrRef();
+        m2->decrRef();
+        m->decrRef();
+        throw INTERP_KERNEL::Exception("Not implemented other profile fitting from already written mesh for fields than on NODES and on CELLS.");
+      }
+    }
+  da->decrRef();
+  m2->decrRef();
   m->decrRef();
 }
 

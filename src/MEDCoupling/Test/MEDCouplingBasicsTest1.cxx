@@ -78,6 +78,49 @@ void MEDCouplingBasicsTest::testArray2()
   arr->decrRef();
 }
 
+void MEDCouplingBasicsTest::testArray3()
+{
+  DataArrayInt *arr1=DataArrayInt::New();
+  arr1->alloc(7,2);
+  int *tmp=arr1->getPointer();
+  const int arr1Ref[14]={0,10,1,11,2,12,3,13,4,14,5,15,6,16};
+  std::copy(arr1Ref,arr1Ref+14,tmp);
+  CPPUNIT_ASSERT_EQUAL(7,arr1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,arr1->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(arr1Ref,arr1Ref+14,arr1->getConstPointer()));
+  DataArrayInt *arr2=arr1->substr(3);
+  CPPUNIT_ASSERT_EQUAL(4,arr2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,arr2->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(arr1Ref+6,arr1Ref+14,arr2->getConstPointer()));
+  arr2->decrRef();
+  DataArrayInt *arr3=arr1->substr(2,5);
+  CPPUNIT_ASSERT_EQUAL(3,arr3->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,arr3->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(arr1Ref+4,arr1Ref+10,arr3->getConstPointer()));
+  arr1->decrRef();
+  arr3->decrRef();
+  //
+  DataArrayDouble *arr4=DataArrayDouble::New();
+  arr4->alloc(7,2);
+  double *tmp2=arr4->getPointer();
+  const int arr4Ref[14]={0.8,10.8,1.9,11.9,2.1,12.1,3.2,13.2,4.3,14.3,5.4,15.4,6.5,16.5};
+  std::copy(arr4Ref,arr4Ref+14,tmp2);
+  CPPUNIT_ASSERT_EQUAL(7,arr4->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,arr4->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(arr4Ref,arr4Ref+14,arr4->getConstPointer()));
+  DataArrayDouble *arr5=arr4->substr(3);
+  CPPUNIT_ASSERT_EQUAL(4,arr5->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,arr5->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(arr4Ref+6,arr4Ref+14,arr5->getConstPointer()));
+  arr5->decrRef();
+  DataArrayDouble *arr6=arr4->substr(2,5);
+  CPPUNIT_ASSERT_EQUAL(3,arr6->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,arr6->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(arr4Ref+4,arr4Ref+10,arr6->getConstPointer()));
+  arr4->decrRef();
+  arr6->decrRef();
+}
+
 void MEDCouplingBasicsTest::testMesh()
 {
   const int nbOfCells=6;

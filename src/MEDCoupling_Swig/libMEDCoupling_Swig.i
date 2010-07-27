@@ -65,11 +65,13 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::performCpy;
 %newobject ParaMEDMEM::DataArrayInt::deepCopy;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
+%newobject ParaMEDMEM::DataArrayInt::substr;
 %newobject ParaMEDMEM::DataArrayDouble::aggregate;
 %newobject ParaMEDMEM::DataArrayDouble::add;
 %newobject ParaMEDMEM::DataArrayDouble::substract;
 %newobject ParaMEDMEM::DataArrayDouble::multiply;
 %newobject ParaMEDMEM::DataArrayDouble::divide;
+%newobject ParaMEDMEM::DataArrayDouble::substr;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildOrthogonalField;
@@ -84,6 +86,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
+%newobject ParaMEDMEM::MEDCouplingUMesh::convertCellArrayPerGeoType;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %feature("unref") DataArrayDouble "$this->decrRef();"
@@ -355,6 +358,7 @@ namespace ParaMEDMEM
     //tools
     bool checkConsecutiveCellTypes() const;
     DataArrayInt *rearrange2ConsecutiveCellTypes();
+    DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipConnectivityTraducer(int compType);
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
@@ -414,6 +418,14 @@ namespace ParaMEDMEM
         for(int i=0;i<sz;i++)
           PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(ms[i]),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
         return ret;
+      }
+
+      PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids)
+      {
+        std::vector<int> idsPerGeoType;
+        convertPyToNewIntArr3(ids,idsPerGeoType);
+        MEDCouplingUMesh *ret=self->keepSpecifiedCells(type,idsPerGeoType);
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 );
       }
 
       PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const

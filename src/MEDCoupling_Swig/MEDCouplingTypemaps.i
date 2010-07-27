@@ -76,6 +76,34 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
     }
 }
 
+static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr)
+{
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      arr.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            {
+              int val=(int)PyInt_AS_LONG(o);
+              arr[i]=val;
+            }
+          else
+            {
+              PyErr_SetString(PyExc_TypeError,"list must contain integers only");
+              PyErr_Print();
+            }
+        }
+    }
+  else
+    {
+      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
+      PyErr_Print();
+    }
+}
+
 static PyObject *convertDblArrToPyList(const double *ptr, int size)
 {
   PyObject *ret=PyList_New(size);
