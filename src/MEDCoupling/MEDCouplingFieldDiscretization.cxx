@@ -21,6 +21,7 @@
 #include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "CellModel.hxx"
 
 #include "InterpolationUtils.hxx"
 
@@ -40,6 +41,14 @@ const char MEDCouplingFieldDiscretizationP1::REPR[]="P1";
 
 const TypeOfField MEDCouplingFieldDiscretizationP1::TYPE=ON_NODES;
 
+const char MEDCouplingFieldDiscretizationGauss::REPR[]="GAUSS";
+
+const TypeOfField MEDCouplingFieldDiscretizationGauss::TYPE=ON_GAUSS_PT;
+
+const char MEDCouplingFieldDiscretizationGaussNE::REPR[]="GSSNE";
+
+const TypeOfField MEDCouplingFieldDiscretizationGaussNE::TYPE=ON_GAUSS_NE;
+
 MEDCouplingFieldDiscretization::MEDCouplingFieldDiscretization():_precision(DFLT_PRECISION)
 {
 }
@@ -52,6 +61,10 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
       return new MEDCouplingFieldDiscretizationP0;
     case MEDCouplingFieldDiscretizationP1::TYPE:
       return new MEDCouplingFieldDiscretizationP1;
+    case MEDCouplingFieldDiscretizationGauss::TYPE:
+      return new MEDCouplingFieldDiscretizationGauss;
+    case MEDCouplingFieldDiscretizationGaussNE::TYPE:
+      return new MEDCouplingFieldDiscretizationGaussNE;
     default:
       throw INTERP_KERNEL::Exception("Choosen discretization is not implemented yet.");
     }
@@ -64,7 +77,94 @@ TypeOfField MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(const c
     return MEDCouplingFieldDiscretizationP0::TYPE;
   if(reprCpp==MEDCouplingFieldDiscretizationP1::REPR)
     return MEDCouplingFieldDiscretizationP1::TYPE;
+  if(reprCpp==MEDCouplingFieldDiscretizationGauss::REPR)
+    return MEDCouplingFieldDiscretizationGauss::TYPE;
+  if(reprCpp==MEDCouplingFieldDiscretizationGaussNE::REPR)
+    return MEDCouplingFieldDiscretizationGaussNE::TYPE;
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
+}
+
+void MEDCouplingFieldDiscretization::getSerializationIntArray(DataArrayInt *& arr) const
+{
+  arr=0;
+}
+
+
+/*!
+ * Empty : Not a bug
+ */
+void MEDCouplingFieldDiscretization::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+}
+
+/*!
+ * Empty : Not a bug
+ */
+void MEDCouplingFieldDiscretization::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+{
+}
+
+void MEDCouplingFieldDiscretization::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr)
+{
+  arr=0;
+}
+
+/*!
+ * Empty : Not a bug
+ */
+void MEDCouplingFieldDiscretization::finishUnserialization(const std::vector<double>& tinyInfo)
+{
+}
+
+double MEDCouplingFieldDiscretization::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da,
+                                              int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("getIJK Invalid ! only for GaussPoint and GaussNE discretizations !");
+}
+
+void MEDCouplingFieldDiscretization::setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                                                const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+void MEDCouplingFieldDiscretization::setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
+                                                                 const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+void MEDCouplingFieldDiscretization::clearGaussLocalizations() throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+int MEDCouplingFieldDiscretization::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
+{
+}
+
+MEDCouplingFieldDiscretization::~MEDCouplingFieldDiscretization()
+{
 }
 
 TypeOfField MEDCouplingFieldDiscretizationP0::getEnum() const
@@ -82,7 +182,7 @@ const char *MEDCouplingFieldDiscretizationP0::getStringRepr() const
   return REPR;
 }
 
-bool MEDCouplingFieldDiscretizationP0::isEqual(const MEDCouplingFieldDiscretization *other) const
+bool MEDCouplingFieldDiscretizationP0::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
 {
   const MEDCouplingFieldDiscretizationP0 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP0 *>(other);
   return otherC!=0;
@@ -172,7 +272,7 @@ const char *MEDCouplingFieldDiscretizationP1::getStringRepr() const
   return REPR;
 }
 
-bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretization *other) const
+bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
 {
   const MEDCouplingFieldDiscretizationP1 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP1 *>(other);
   return otherC!=0;
@@ -313,3 +413,447 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const int *s
   diInv->decrRef();
   return ret;
 }
+
+MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell():_discr_per_cell(0)
+{
+}
+
+MEDCouplingFieldDiscretizationPerCell::~MEDCouplingFieldDiscretizationPerCell()
+{
+  if(_discr_per_cell)
+    _discr_per_cell->decrRef();
+}
+
+MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other):_discr_per_cell(0)
+{
+  DataArrayInt *arr=other._discr_per_cell;
+  if(arr)
+    _discr_per_cell=arr->deepCopy();
+}
+
+void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_discr_per_cell)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has no discretization per cell !");
+  int nbOfTuples=_discr_per_cell->getNumberOfTuples();
+  if(nbOfTuples!=mesh->getNumberOfCells())
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has a discretization per cell but it's not matching the underlying mesh !");
+}
+
+bool MEDCouplingFieldDiscretizationPerCell::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+{
+  const MEDCouplingFieldDiscretizationPerCell *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationPerCell *>(other);
+  if(!otherC)
+    return false;
+  if(_discr_per_cell==0)
+    return otherC->_discr_per_cell==0;
+  if(otherC->_discr_per_cell==0)
+    return false;
+  return _discr_per_cell->isEqual(*otherC->_discr_per_cell);
+}
+
+void MEDCouplingFieldDiscretizationPerCell::buildDiscrPerCellIfNecessary(const MEDCouplingMesh *m)
+{
+  if(!_discr_per_cell)
+    {
+      _discr_per_cell=DataArrayInt::New();
+      int nbTuples=m->getNumberOfCells();
+      _discr_per_cell->alloc(nbTuples,1);
+      int *ptr=_discr_per_cell->getPointer();
+      std::fill(ptr,ptr+nbTuples,-1);
+    }
+}
+
+MEDCouplingFieldDiscretizationGauss::MEDCouplingFieldDiscretizationGauss()
+{
+}
+
+MEDCouplingFieldDiscretizationGauss::MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other):MEDCouplingFieldDiscretizationPerCell(other),_loc(other._loc)
+{
+}
+
+TypeOfField MEDCouplingFieldDiscretizationGauss::getEnum() const
+{
+  return TYPE;
+}
+
+bool MEDCouplingFieldDiscretizationGauss::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+{
+  const MEDCouplingFieldDiscretizationGauss *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(other);
+  if(!otherC)
+    return false;
+  if(!MEDCouplingFieldDiscretizationPerCell::isEqual(other,eps))
+    return false;
+  if(_loc.size()!=otherC->_loc.size())
+    return false;
+  int sz=_loc.size();
+  for(int i=0;i<sz;i++)
+    if(!_loc[i].isEqual(otherC->_loc[i],eps))
+      return false;
+  return true;
+}
+
+MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGauss::clone() const
+{
+  return new MEDCouplingFieldDiscretizationGauss(*this);
+}
+
+const char *MEDCouplingFieldDiscretizationGauss::getStringRepr() const
+{
+  return REPR;
+}
+
+int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+{
+  int ret=0;
+  const int *dcPtr=_discr_per_cell->getConstPointer();
+  int nbOfTuples=_discr_per_cell->getNumberOfTuples();
+  for(const int *w=dcPtr;w!=dcPtr+nbOfTuples;w++)
+    ret+=_loc[*w].getNumberOfGaussPt();
+  return ret;
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+/*!
+ * Empty : not a bug
+ */
+void MEDCouplingFieldDiscretizationGauss::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+{
+}
+
+void MEDCouplingFieldDiscretizationGauss::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+  int val=-1;
+  if(_discr_per_cell)
+    val=_discr_per_cell->getNumberOfTuples();
+  tinyInfo.push_back(val);
+  tinyInfo.push_back(_loc.size());
+  if(_loc.empty())
+    tinyInfo.push_back(-1);
+  else
+    tinyInfo.push_back(_loc[0].getDimension());
+  for(std::vector<MEDCouplingGaussLocalization>::const_iterator iter=_loc.begin();iter!=_loc.end();iter++)
+    (*iter).pushTinySerializationIntInfo(tinyInfo);
+}
+
+void MEDCouplingFieldDiscretizationGauss::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
+{
+  for(std::vector<MEDCouplingGaussLocalization>::const_iterator iter=_loc.begin();iter!=_loc.end();iter++)
+    (*iter).pushTinySerializationDblInfo(tinyInfo);
+}
+
+void MEDCouplingFieldDiscretizationGauss::getSerializationIntArray(DataArrayInt *& arr) const
+{
+  arr=0;
+  if(_discr_per_cell)
+    arr=_discr_per_cell;
+}
+
+void MEDCouplingFieldDiscretizationGauss::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *& arr)
+{
+  int val=tinyInfo[0];
+  if(val>=0)
+    {
+      _discr_per_cell=DataArrayInt::New();
+      _discr_per_cell->alloc(val,1);
+    }
+  else
+    _discr_per_cell=0;
+  arr=_discr_per_cell;
+  int nbOfLoc=tinyInfo[1];
+  _loc.clear();
+  int dim=tinyInfo[2];
+  int delta=-1;
+  if(nbOfLoc>0)
+    delta=(tinyInfo.size()-3)/nbOfLoc;
+  for(int i=0;i<nbOfLoc;i++)
+    {
+      std::vector<int> tmp(tinyInfo.begin()+3+i*delta,tinyInfo.begin()+3+(i+1)*delta);
+      MEDCouplingGaussLocalization elt=MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo(dim,tmp);
+      _loc.push_back(elt);
+    }
+}
+
+void MEDCouplingFieldDiscretizationGauss::finishUnserialization(const std::vector<double>& tinyInfo)
+{
+  double *tmp=new double[tinyInfo.size()];
+  std::copy(tinyInfo.begin(),tinyInfo.end(),tmp);
+  const double *work=tmp;
+  for(std::vector<MEDCouplingGaussLocalization>::iterator iter=_loc.begin();iter!=_loc.end();iter++)
+    work=(*iter).fillWithValues(work);
+  delete [] tmp;
+}
+
+double MEDCouplingFieldDiscretizationGauss::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da,
+                                                   int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception)
+{
+  int offset=getOffsetOfCell(cellId);
+  return da->getIJ(offset+nodeIdInCell,compoId);
+}
+
+void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(mesh,da);
+  for(std::vector<MEDCouplingGaussLocalization>::const_iterator iter=_loc.begin();iter!=_loc.end();iter++)
+    (*iter).checkCoherency();
+  int nbOfDesc=_loc.size();
+  int nbOfCells=mesh->getNumberOfCells();
+  const int *dc=_discr_per_cell->getConstPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      if(dc[i]>=nbOfDesc)
+        {
+          std::ostringstream oss; oss << "Cell # " << i << " of mesh \"" << mesh->getName() << "\" has an undefined gauss location ! Should never happend !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(dc[i]<0)
+        {
+          std::ostringstream oss; oss << "Cell # " << i << " of mesh \"" << mesh->getName() << "\" has no gauss location !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(mesh->getTypeOfCell(i)!=_loc[dc[i]].getType())
+        {
+          std::ostringstream oss; oss << "Types of mesh and gauss location mismatch for cell # " << i;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  int nbOfTuples=getNumberOfTuples(mesh);
+  if(nbOfTuples!=da->getNumberOfTuples())
+    {
+      std::ostringstream oss; oss << "Invalid number of tuples in the array : expecting " << nbOfTuples << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGauss::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGauss::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
+{
+  throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
+}
+
+MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGauss::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+{
+  buildDiscrPerCellIfNecessary(m);
+  int id=_loc.size();
+  MEDCouplingGaussLocalization elt(type,refCoo,gsCoo,wg);
+  _loc.push_back(elt);
+  int *ptr=_discr_per_cell->getPointer();
+  int nbCells=m->getNumberOfCells();
+  for(int i=0;i<nbCells;i++)
+    if(m->getTypeOfCell(i)==type)
+      ptr[i]=id;
+}
+
+void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
+                                                                      const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+{
+  buildDiscrPerCellIfNecessary(m);
+  if(std::distance(begin,end)<1)
+    throw INTERP_KERNEL::Exception("Size of [begin,end) must be equal or greater than 1 !");
+  INTERP_KERNEL::NormalizedCellType type=m->getTypeOfCell(*begin);
+  MEDCouplingGaussLocalization elt(type,refCoo,gsCoo,wg);
+  int id=_loc.size();
+  int *ptr=_discr_per_cell->getPointer();
+  for(const int *w=begin+1;w!=end;w++)
+    {
+      if(m->getTypeOfCell(*w)!=type)
+        {
+          std::ostringstream oss; oss << "The cell with id " << *w << " has been detected to be incompatible in the [begin,end) array specified !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  //
+  for(const int *w2=begin;w2!=end;w2++)
+    ptr[*w2]=id;
+  //
+  _loc.push_back(elt);
+}
+
+void MEDCouplingFieldDiscretizationGauss::clearGaussLocalizations() throw(INTERP_KERNEL::Exception)
+{
+  if(_discr_per_cell)
+    {
+      _discr_per_cell->decrRef();
+      _discr_per_cell=0;
+    }
+  _loc.clear();
+}
+
+MEDCouplingGaussLocalization& MEDCouplingFieldDiscretizationGauss::getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception)
+{
+  checkLocalizationId(locId);
+  return _loc[locId];
+}
+
+int MEDCouplingFieldDiscretizationGauss::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception)
+{
+  return _loc.size();
+}
+
+int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_discr_per_cell)
+    throw INTERP_KERNEL::Exception("No Gauss localization still set !");
+  int locId=_discr_per_cell->getConstPointer()[cellId];
+  if(locId<0)
+    throw INTERP_KERNEL::Exception("No Gauss localization set for the specified cell !");
+  return locId;
+}
+
+void MEDCouplingFieldDiscretizationGauss::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
+{
+  if(locId<0 || locId>=_loc.size())
+    throw INTERP_KERNEL::Exception("Invalid locId given : must be in range [0:getNbOfGaussLocalization()) !");
+  int nbOfTuples=_discr_per_cell->getNumberOfTuples();
+  const int *ptr=_discr_per_cell->getConstPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    if(ptr[i]==locId)
+      cellIds.push_back(i);
+}
+
+const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretizationGauss::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
+{
+  checkLocalizationId(locId);
+  return _loc[locId];
+}
+
+void MEDCouplingFieldDiscretizationGauss::checkLocalizationId(int locId) const throw(INTERP_KERNEL::Exception)
+{
+  if(locId<0 || locId>=_loc.size())
+    throw INTERP_KERNEL::Exception("Invalid locId given : must be in range [0:getNbOfGaussLocalization()) !");
+}
+
+int MEDCouplingFieldDiscretizationGauss::getOffsetOfCell(int cellId) const throw(INTERP_KERNEL::Exception)
+{
+  int ret=0;
+  const int *start=_discr_per_cell->getConstPointer();
+  for(const int *w=start;w!=start+cellId;w++)
+    ret+=_loc[*w].getNumberOfGaussPt();
+  return ret;
+}
+
+MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE()
+{
+}
+
+TypeOfField MEDCouplingFieldDiscretizationGaussNE::getEnum() const
+{
+  return TYPE;
+}
+
+MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGaussNE::clone() const
+{
+  return new MEDCouplingFieldDiscretizationGaussNE(*this);
+}
+
+const char *MEDCouplingFieldDiscretizationGaussNE::getStringRepr() const
+{
+  return REPR;
+}
+
+bool MEDCouplingFieldDiscretizationGaussNE::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+{
+  const MEDCouplingFieldDiscretizationGaussNE *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationGaussNE *>(other);
+  return otherC!=0;
+}
+
+int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+{
+  int ret=0;
+  int nbOfCells=mesh->getNumberOfCells();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      if(cm.isDynamic())
+        throw INTERP_KERNEL::Exception("Not implemented yet Gauss node on elements for polygons and polyedrons !");
+      ret+=cm.getNumberOfNodes();
+    }
+  return ret;
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGaussNE::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+{
+}
+
+double MEDCouplingFieldDiscretizationGaussNE::getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da,
+                                                     int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception)
+{
+  int offset=0;
+  for(int i=0;i<cellId;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      offset+=cm.getNumberOfNodes();
+    }
+  return da->getIJ(offset+nodeIdInCell,compoId);
+}
+
+void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfTuples=getNumberOfTuples(mesh);
+  if(nbOfTuples!=da->getNumberOfTuples())
+    {
+      std::ostringstream oss; oss << "Invalid number of tuples in the array : expecting " << nbOfTuples << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGaussNE::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGaussNE::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
+{
+  throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
+}
+
+MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other):MEDCouplingFieldDiscretization(other)
+{
+}
+

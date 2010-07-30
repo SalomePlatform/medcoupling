@@ -23,15 +23,18 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 
 #include <string>
+#include <vector>
 
 namespace ParaMEDMEM
 {
   class DataArrayInt;
   class MEDCouplingMesh;
   class MEDCouplingFieldDiscretization;
+  class MEDCouplingGaussLocalization;
 
   class MEDCOUPLING_EXPORT MEDCouplingField : public RefCountObject, public TimeLabel
   {
@@ -48,6 +51,17 @@ namespace ParaMEDMEM
     TypeOfField getTypeOfField() const;
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
     MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
+    // Gauss point specific methods
+    void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                    const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
+    void setGaussLocalizationOnCells(const int *begin, const int *end, const std::vector<double>& refCoo,
+                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
+    void clearGaussLocalizations();
+    MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
+    int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
+    int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
+    const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
   protected:
     void updateTime();
   protected:

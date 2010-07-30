@@ -31,6 +31,7 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingTypemaps.i"
 
 using namespace ParaMEDMEM;
@@ -38,6 +39,7 @@ using namespace INTERP_KERNEL;
 %}
 
 %template(ivec) std::vector<int>;
+%template(dvec) std::vector<double>;
 
 %typemap(out) ParaMEDMEM::MEDCouplingMesh*
 {
@@ -103,6 +105,10 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::MemArray::operator=;
 %ignore ParaMEDMEM::MemArray::operator[];
 %ignore ParaMEDMEM::MEDCouplingPointSet::getCoords();
+%ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
+%ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationDblInfo;
+%ignore ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues;
+%ignore ParaMEDMEM::MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo;
 %rename (Exception) InterpKernelException;
 %nodefaultctor;
 
@@ -171,6 +177,7 @@ namespace ParaMEDMEM
 %include "NormalizedUnstructuredMesh.hxx"
 %include "MEDCouplingNatureOfField.hxx"
 %include "MEDCouplingTimeDiscretization.hxx"
+%include "MEDCouplingGaussLocalization.hxx"
 
 namespace ParaMEDMEM
 {
@@ -597,6 +604,13 @@ namespace ParaMEDMEM
     const char *getName() const;
     TypeOfField getTypeOfField() const;
     MEDCouplingFieldDiscretization *getDiscretization() const;
+    void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
+                                    const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
+    void clearGaussLocalizations();
+    MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
+    int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
+    int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
     %extend {
       PyObject *getMesh() const
       {
@@ -617,6 +631,28 @@ namespace ParaMEDMEM
         PyList_SetItem(res,1,SWIG_NewPointerObj((void*)ret1,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
         return res;
       }
+      void setGaussLocalizationOnCells(PyObject *li, const std::vector<double>& refCoo,
+                                       const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        try
+          {
+            self->setGaussLocalizationOnCells(tmp,tmp+size,refCoo,gsCoo,wg);
+          }
+        catch(INTERP_KERNEL::Exception& e)
+          {
+            delete [] tmp;
+            throw e;
+          }
+        delete [] tmp;
+      }
+      PyObject *getCellIdsHavingGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> tmp;
+        self->getCellIdsHavingGaussLocalization(locId,tmp);
+        return convertIntArrToPyList2(tmp);
+      }
     }
   };
 
@@ -629,6 +665,7 @@ namespace ParaMEDMEM
     TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const;
+    double getIJK(int cellId, int nodeIdInCell, int compoId) const;
     void setArray(DataArrayDouble *array) throw(INTERP_KERNEL::Exception);
     void setEndArray(DataArrayDouble *array) throw(INTERP_KERNEL::Exception);
     void setTime(double val, int dt, int it) throw(INTERP_KERNEL::Exception);

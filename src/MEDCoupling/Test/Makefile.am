@@ -26,7 +26,7 @@ TestMEDCoupling_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(
 TestMEDCoupling_LDFLAGS = @CPPUNIT_LIBS@ ../libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la
 
 dist_TestMEDCoupling_SOURCES = TestMEDCoupling.cxx MEDCouplingBasicsTest.hxx MEDCouplingBasicsTest0.cxx MEDCouplingBasicsTest1.cxx \
-	MEDCouplingBasicsTestInterp.cxx MEDCouplingBasicsTestData1.hxx
+	MEDCouplingBasicsTest2.cxx MEDCouplingBasicsTestInterp.cxx MEDCouplingBasicsTestData1.hxx
 
 TestMEDCouplingRemapper_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(srcdir)/../../INTERP_KERNEL/Bases -I$(srcdir)/../../INTERP_KERNELTest -I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Geometric2D
 

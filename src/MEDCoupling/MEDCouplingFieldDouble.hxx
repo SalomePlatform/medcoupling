@@ -48,6 +48,7 @@ namespace ParaMEDMEM
     double getStartTime(int& dt, int& it) const { return _time_discr->getStartTime(dt,it); }
     double getEndTime(int& dt, int& it) const { return _time_discr->getEndTime(dt,it); }
     double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
+    double getIJK(int cellId, int nodeIdInCell, int compoId) const;
     void setArray(DataArrayDouble *array);
     void setEndArray(DataArrayDouble *array);
     DataArrayDouble *getArray() const { return _time_discr->getArray(); }
@@ -71,9 +72,9 @@ namespace ParaMEDMEM
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
+    void resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays);
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
-    void serialize(std::vector<DataArrayDouble *>& arrays) const;
+    void serialize(DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays) const;
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return addFields(this,&other); }

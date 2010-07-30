@@ -32,6 +32,7 @@ namespace ParaMEDMEM
   class MEDCouplingBasicsTest : public CppUnit::TestFixture
   {
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest);
+    //MEDCouplingBasicsTest1.cxx
     CPPUNIT_TEST( testArray );
     CPPUNIT_TEST( testArray2 );
     CPPUNIT_TEST( testArray3 );
@@ -84,6 +85,10 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFindNodeOnPlane );
     CPPUNIT_TEST( testRenumberCells );
     CPPUNIT_TEST( testChangeSpaceDimension );
+    //MEDCouplingBasicsTest2.cxx
+    CPPUNIT_TEST( testGaussPointField1 );
+    CPPUNIT_TEST( testGaussPointNEField1 );
+    //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_2 );
@@ -143,6 +148,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( test2DCurveInterpP1P1_1 );
     CPPUNIT_TEST_SUITE_END();
   public:
+    //MEDCouplingBasicsTest1.cxx
     void testArray();
     void testArray2();
     void testArray3();
@@ -195,6 +201,10 @@ namespace ParaMEDMEM
     void testFindNodeOnPlane();
     void testRenumberCells();
     void testChangeSpaceDimension();
+    //MEDCouplingBasicsTest2.cxx
+    void testGaussPointField1();
+    void testGaussPointNEField1();
+    //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
     void test2DInterpP0P0PL_2();
