@@ -63,24 +63,27 @@ class MEDLOADER_EXPORT MEDLoader
   class MEDFieldDoublePerCellType
   {
   public:
-    MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple, const int *cellIdPerType);
+    MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple, const int *cellIdPerType, const char *locName);
     INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
     int getNbComp() const { return _ncomp; }
     int getNbOfTuple() const { return _ntuple; }
     int getNbOfValues() const { return _ncomp*_ntuple; }
     double *getArray() const { return _values; }
+    const std::string& getLocName() const { return _loc_name; }
     const std::vector<int>& getCellIdPerType() const { return _cell_id_per_type; }
     void releaseArray();
   private:
     int _ntuple;
     int _ncomp;
     double *_values;
+    std::string _loc_name;
     std::vector<int> _cell_id_per_type;
     INTERP_KERNEL::NormalizedCellType _type;
   };
   //
   static void setEpsilonForNodeComp(double val);
   static void setCompPolicyForCell(int val);
+  static void setTooLongStrPolicy(int val);
   static std::vector<std::string> GetMeshNames(const char *fileName);
   static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName);
   static std::vector<std::string> GetMeshFamilyNames(const char *fileName, const char *meshName);
@@ -97,6 +100,8 @@ class MEDLOADER_EXPORT MEDLoader
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDouble(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
+  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
+  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static void WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch);
   static void WriteUMeshes(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch);
   static void WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
@@ -106,6 +111,7 @@ class MEDLOADER_EXPORT MEDLoader
  public:
   static double _EPS_FOR_NODE_COMP;
   static int _COMP_FOR_CELL;
+  static int _TOO_LONG_STR;
 };
 
 #endif

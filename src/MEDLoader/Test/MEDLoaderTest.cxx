@@ -19,6 +19,7 @@
 
 #include "MEDLoaderTest.hxx"
 #include "MEDLoader.hxx"
+#include "MEDLoaderBase.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -366,6 +367,35 @@ void MEDLoaderTest::testFieldProfilRW1()
   mesh2->decrRef();
 }
 
+void MEDLoaderTest::testFieldGaussRW1()
+{
+  const char fileName[]="file13.med";
+  MEDCouplingFieldDouble *f1=buildVecFieldOnGauss_1();
+  MEDLoader::WriteField(fileName,f1,true);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDouble(ON_GAUSS_PT,fileName,f1->getMesh()->getName(),0,f1->getName(),1,5);
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f2->decrRef();
+  f1->decrRef();
+}
+
+void MEDLoaderTest::testFieldGaussNERW1()
+{
+  const char fileName[]="file14.med";
+  MEDCouplingFieldDouble *f1=buildVecFieldOnGaussNE_1();
+  MEDLoader::WriteField(fileName,f1,true);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDouble(ON_GAUSS_NE,fileName,f1->getMesh()->getName(),0,f1->getName(),1,5);
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  f2->decrRef();
+  f1->decrRef();
+}
+
+void MEDLoaderTest::testLittleStrings1()
+{
+  std::string s("azeeeerrrtty");
+  MEDLoaderBase::zipEqualConsChar(s,3);
+  CPPUNIT_ASSERT(s=="azertty");
+}
+
 MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
 {
   double coords[6]={ 0.0, 0.3, 0.75, 1.0, 1.4, 1.3 };
@@ -381,6 +411,7 @@ MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
   mesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(6,1);
+  myCoords->setInfoOnComponent(0,"tototototototot (m*m*m*m*m*m*m*m)");
   std::copy(coords,coords+6,myCoords->getPointer());
   mesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -425,6 +456,32 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_1()
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,2);
+  myCoords->setInfoOnComponent(0,"tototototototot (m)");
+  myCoords->setInfoOnComponent(1,"energie (kW)");
+  std::copy(targetCoords,targetCoords+24,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
+MEDCouplingUMesh *MEDLoaderTest::build2DMesh_2()
+{
+  double targetCoords[24]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
+  int targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(5);
+  targetMesh->setName("2DMesh_2");
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+12);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+16);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(12,2);
+  myCoords->setInfoOnComponent(0,"toto (m)");
+  myCoords->setInfoOnComponent(1,"energie (kW)");
   std::copy(targetCoords,targetCoords+24,myCoords->getPointer());
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -448,6 +505,8 @@ MEDCouplingUMesh *MEDLoaderTest::build3DSurfMesh_1()
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,3);
+  myCoords->setInfoOnComponent(0,"toto (m)");
+  myCoords->setInfoOnComponent(2,"ff (km)");//component 1 is not set for test
   std::copy(targetCoords,targetCoords+36,myCoords->getPointer());
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -514,6 +573,9 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
   ret->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(60,3);
+  myCoords->setInfoOnComponent(0,"titi (m)");
+  myCoords->setInfoOnComponent(1,"density power (MW/m^3)");
+  myCoords->setInfoOnComponent(2,"t (kW)");
   std::copy(coords,coords+180,myCoords->getPointer());
   ret->setCoords(myCoords);
   myCoords->decrRef();
@@ -529,6 +591,9 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnCells_1()
   f1->setMesh(mesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(nbOfCells,3);
+  array->setInfoOnComponent(0,"power (MW/m^3)");
+  array->setInfoOnComponent(1,"density (g/cm^3)");
+  array->setInfoOnComponent(2,"temperature (K)");
   f1->setArray(array);
   array->decrRef();
   double *tmp=array->getPointer();
@@ -550,6 +615,9 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnNodes_1()
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(nbOfNodes,3);
   f1->setArray(array);
+  array->setInfoOnComponent(0,"power (MW/m^3)");
+  array->setInfoOnComponent(1,"density (g/cm^3)");
+  array->setInfoOnComponent(2,"temperature (K)");
   array->decrRef();
   double *tmp=array->getPointer();
   const double arr1[36]={
@@ -561,4 +629,66 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnNodes_1()
   f1->checkCoherency();
   mesh->decrRef();
   return f1;
+}
+
+MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGauss_1()
+{
+  const double _a=0.446948490915965;
+  const double _b=0.091576213509771;
+  const double _p1=0.11169079483905;
+  const double _p2=0.0549758718227661;
+  const double refCoo1[6]={ 0.,0., 1.,0., 0.,1. };
+  const double gsCoo1[12]={ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
+                            2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 };
+  const double wg1[6]={ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 };
+  std::vector<double> _refCoo1(refCoo1,refCoo1+6);
+  std::vector<double> _gsCoo1(gsCoo1,gsCoo1+12);
+  std::vector<double> _wg1(wg1,wg1+6);
+  MEDCouplingUMesh *m=build2DMesh_2();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_PT,ONE_TIME);
+  f->setTime(3.14,1,5);
+  f->setMesh(m);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
+  const double refCoo2[12]={-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 };
+  std::vector<double> _refCoo2(refCoo2,refCoo2+12);
+  _gsCoo1.resize(6); _wg1.resize(3);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI6,_refCoo2,_gsCoo1,_wg1);
+  const double refCoo3[8]={ 0.,0., 1.,0., 1.,1., 0.,1. };
+  std::vector<double> _refCoo3(refCoo3,refCoo3+8);
+  _gsCoo1.resize(4); _wg1.resize(2);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,_refCoo3,_gsCoo1,_wg1);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(19,2);
+  double *ptr=array->getPointer();
+  for(int i=0;i<19*2;i++)
+    ptr[i]=(double)(i+7);
+  f->setArray(array);
+  f->setName("MyFirstFieldOnGaussPoint");
+  array->setInfoOnComponent(0,"power (MW/m^3)");
+  array->setInfoOnComponent(1,"density");
+  array->decrRef();
+  f->checkCoherency();
+  m->decrRef();
+  return f;
+}
+
+MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGaussNE_1()
+{
+  MEDCouplingUMesh *m=build2DMesh_2();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
+  f->setTime(3.14,1,5);
+  f->setMesh(m);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(20,2);
+  double *ptr=array->getPointer();
+  for(int i=0;i<20*2;i++)
+    ptr[i]=(double)(i+8);
+  f->setArray(array);
+  array->setInfoOnComponent(0,"power (W)");
+  array->setInfoOnComponent(1,"temperature");
+  f->setName("MyFieldOnGaussNE");
+  array->decrRef();
+  f->checkCoherency();
+  m->decrRef();
+  return f;
 }

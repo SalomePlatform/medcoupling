@@ -40,6 +40,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFieldRW3 );
     CPPUNIT_TEST( testMultiMeshRW1 );
     CPPUNIT_TEST( testFieldProfilRW1 );
+    CPPUNIT_TEST( testFieldGaussRW1 );
+    CPPUNIT_TEST( testFieldGaussNERW1 );
+    CPPUNIT_TEST( testLittleStrings1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testMesh1DRW();
@@ -52,14 +55,20 @@ namespace ParaMEDMEM
     void testFieldRW3();
     void testMultiMeshRW1();
     void testFieldProfilRW1();
+    void testFieldGaussRW1();
+    void testFieldGaussNERW1();
+    void testLittleStrings1();
   private:
     MEDCouplingUMesh *build1DMesh_1();
     MEDCouplingUMesh *build2DCurveMesh_1();
     MEDCouplingUMesh *build2DMesh_1();
+    MEDCouplingUMesh *build2DMesh_2();
     MEDCouplingUMesh *build3DSurfMesh_1();
     MEDCouplingUMesh *build3DMesh_1();
     MEDCouplingFieldDouble *buildVecFieldOnCells_1();
     MEDCouplingFieldDouble *buildVecFieldOnNodes_1();
+    MEDCouplingFieldDouble *buildVecFieldOnGauss_1();
+    MEDCouplingFieldDouble *buildVecFieldOnGaussNE_1();
   };
 }
 
