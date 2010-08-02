@@ -604,7 +604,12 @@ void MEDCouplingBasicsTest::testBuildPartOfMySelf()
   CPPUNIT_ASSERT_EQUAL(4,subMesh->getNodalConnectivityIndex()->getNbOfElems());
   CPPUNIT_ASSERT(std::equal(subConn2,subConn2+14,subMesh->getNodalConnectivity()->getPointer()));
   CPPUNIT_ASSERT(std::equal(subConnIndex2,subConnIndex2+4,subMesh->getNodalConnectivityIndex()->getPointer()));
+  const int tab3[3]={0,1,2};
+  MEDCouplingPointSet *subMeshSimple2=subMeshSimple->buildPartOfMySelf(tab3,tab3+3,true);
   subMesh->decrRef();
+  name=subMeshSimple2->getName();
+  CPPUNIT_ASSERT(name=="PartOf_Toto");
+  subMeshSimple2->decrRef();
   //
   mesh->decrRef();
 }

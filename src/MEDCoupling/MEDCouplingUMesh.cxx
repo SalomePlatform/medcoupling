@@ -28,6 +28,7 @@
 
 #include <sstream>
 #include <numeric>
+#include <cstring>
 #include <limits>
 #include <list>
 
@@ -975,6 +976,21 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
 }
 
 /*!
+ * Returns nb of cells having the geometric type 'type'.
+ */
+int MEDCouplingUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+{
+  const int *ptI=_nodal_connec_index->getConstPointer();
+  const int *pt=_nodal_connec->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  int ret=0;
+  for(int i=0;i<nbOfCells;i++)
+    if((INTERP_KERNEL::NormalizedCellType) pt[ptI[i]]==type)
+      ret++;
+  return ret;
+}
+
+/*!
  * Appends the nodal connectivity in 'conn' of cell with id 'cellId'.
  */
 void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
@@ -1181,8 +1197,17 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *start
 {
   checkFullyDefined();
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
-  std::ostringstream stream; stream << PART_OF_NAME << getName();
-  ret->setName(stream.str().c_str());
+  std::string name(getName());
+  int sz=strlen(PART_OF_NAME);
+  if(name.length()>=sz)
+    name=name.substr(0,sz);
+  if(name!=PART_OF_NAME)
+    {
+      std::ostringstream stream; stream << PART_OF_NAME << getName();
+      ret->setName(stream.str().c_str());
+    }
+  else
+    ret->setName(getName());
   ret->_mesh_dim=_mesh_dim;
   ret->setCoords(_coords);
   int nbOfElemsRet=end-start;

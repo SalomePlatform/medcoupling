@@ -107,6 +107,18 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshDesc::getTypeOfCell(int cellId
   return (INTERP_KERNEL::NormalizedCellType)desc_connec[desc_connec_index[cellId]+1];
 }
 
+int MEDCouplingUMeshDesc::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+{
+  const int *desc_connec=_desc_connec->getConstPointer();
+  const int *desc_connec_index=_desc_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  int ret=0;
+  for(int i=0;i<nbOfCells;i++)
+    if((INTERP_KERNEL::NormalizedCellType) desc_connec[desc_connec_index[i]]==type)
+      ret++;
+  return ret;
+}
+
 void MEDCouplingUMeshDesc::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   //not implemented yet.

@@ -385,6 +385,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,subMesh.getNodalConnectivityIndex().getNbOfElems());
         self.assertEqual(subConn2[0:14],subMesh.getNodalConnectivity().getValues());
         self.assertEqual(subConnIndex2[0:4],subMesh.getNodalConnectivityIndex().getValues());
+        subMesh=subMesh.buildPartOfMySelf(range(3),True);
+        self.assertEqual("PartOf_Toto",subMesh.getName());
         pass
     def testBuildPartOfMySelfNode(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();

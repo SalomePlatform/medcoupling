@@ -204,6 +204,27 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingCMesh::getTypeOfCell(int cellId) co
     }
 }
 
+int MEDCouplingCMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+{
+  int ret=getNumberOfCells();
+  int dim=getMeshDimension();
+  switch(type)
+    {
+    case INTERP_KERNEL::NORM_HEXA8:
+      if(dim==3)
+        return ret;
+    case INTERP_KERNEL::NORM_QUAD4:
+      if(dim==2)
+      return ret;
+    case INTERP_KERNEL::NORM_SEG2:
+      if(dim==1)
+        return ret;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingCMesh::getTypeOfCell !");
+    }
+  return 0;
+}
+
 void MEDCouplingCMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   //not implemented yet

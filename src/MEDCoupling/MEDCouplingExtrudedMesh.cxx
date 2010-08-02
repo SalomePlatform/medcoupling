@@ -154,6 +154,19 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cel
   return INTERP_KERNEL::CellModel::getCellModel(tmp).getExtrudedType();
 }
 
+int MEDCouplingExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+{
+  int ret=0;
+  int nbOfCells2D=_mesh2D->getNumberOfCells();
+  for(int i=0;i<nbOfCells2D;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType t=_mesh2D->getTypeOfCell(i);
+      if(INTERP_KERNEL::CellModel::getCellModel(t).getExtrudedType()==type)
+        ret++;
+    }
+  return ret*_mesh1D->getNumberOfCells();
+}
+
 void MEDCouplingExtrudedMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   int nbOfCells2D=_mesh2D->getNumberOfCells();

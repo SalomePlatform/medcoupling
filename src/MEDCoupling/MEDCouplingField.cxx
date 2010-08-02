@@ -133,6 +133,18 @@ MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int locId) 
 }
 
 /*!
+ * This method returns reference to the Gauss localization object corresponding to 'locId' id.
+ * This method throws an exception if there is no mesh, invalid FieldDescription (different from Gauss) and if several localization ids have been found
+ * for a type.
+ */
+int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalizationIdOfOneType method !");
+  return _type->getGaussLocalizationIdOfOneType(type);
+}
+
+/*!
  * This method returns number of Gauss localization available. Implicitely all ids in [0,getNbOfGaussLocalization()) is a valid Gauss localisation id.
  * This method throws an exception if there is no mesh, invalid FieldDescription (different from Gauss)
  */

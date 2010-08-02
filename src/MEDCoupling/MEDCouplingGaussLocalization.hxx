@@ -44,10 +44,13 @@ namespace ParaMEDMEM
     void pushTinySerializationDblInfo(std::vector<double>& tinyInfo) const;
     const double *fillWithValues(const double *vals);
     //
-    double getRefCoords(int ptIdInCell, int comp) const throw(INTERP_KERNEL::Exception);
+    const std::vector<double>& getRefCoords() const { return _ref_coord; }
+    double getRefCoord(int ptIdInCell, int comp) const throw(INTERP_KERNEL::Exception);
+    const std::vector<double>& getGaussCoords() const { return _gauss_coord; }
     double getGaussCoord(int gaussPtIdInCell, int comp) const throw(INTERP_KERNEL::Exception);
+    const std::vector<double>& getWeights() const { return _weight; }
     double getWeight(int gaussPtIdInCell, double newVal) const throw(INTERP_KERNEL::Exception);
-    void setRefCoords(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
+    void setRefCoord(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
     void setGaussCoord(int gaussPtIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
     void setWeight(int gaussPtIdInCell, double newVal) throw(INTERP_KERNEL::Exception);
     //

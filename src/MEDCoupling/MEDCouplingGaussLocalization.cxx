@@ -88,7 +88,7 @@ bool ParaMEDMEM::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLoc
   return true;
 }
 
-double ParaMEDMEM::MEDCouplingGaussLocalization::getRefCoords(int ptIdInCell, int comp) const throw(INTERP_KERNEL::Exception)
+double ParaMEDMEM::MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, int comp) const throw(INTERP_KERNEL::Exception)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
@@ -158,7 +158,7 @@ const double *ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues(const dou
  * This method sets the comp_th component of ptIdInCell_th point coordinate of reference element of type this->_type.
  * @throw if not 0<=ptIdInCell<nbOfNodePerCell or if not 0<=comp<dim
  */
-void ParaMEDMEM::MEDCouplingGaussLocalization::setRefCoords(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception)
+void ParaMEDMEM::MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();

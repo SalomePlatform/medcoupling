@@ -46,6 +46,7 @@ namespace ParaMEDMEM
     MEDCouplingExtrudedMesh *clone(bool recDeepCpy) const;
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     void checkCoherency() const throw (INTERP_KERNEL::Exception);

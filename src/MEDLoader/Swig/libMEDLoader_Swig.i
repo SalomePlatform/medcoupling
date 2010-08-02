@@ -37,10 +37,15 @@
 %newobject MEDLoader::ReadFieldDouble;
 %newobject MEDLoader::ReadFieldDoubleCell;
 %newobject MEDLoader::ReadFieldDoubleNode;
+%newobject MEDLoader::ReadFieldDoubleGauss;
+%newobject MEDLoader::ReadFieldDoubleGaussNE;
 
 class MEDLoader
 {
 public:
+  static void setEpsilonForNodeComp(double val);
+  static void setCompPolicyForCell(int val);
+  static void setTooLongStrPolicy(int val);
   static std::vector<std::string> GetMeshNames(const char *fileName);
   static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName);
   static std::vector<std::string> GetMeshFamilyNames(const char *fileName, const char *meshName);
@@ -97,6 +102,8 @@ public:
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDouble(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
+  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
+  static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order);
   static void WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch);
   static void WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch);
   static void WriteFieldUsingAlreadyWrittenMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);

@@ -25,6 +25,7 @@
 
 #include "InterpolationUtils.hxx"
 
+#include <set>
 #include <limits>
 #include <algorithm>
 #include  <functional>
@@ -150,6 +151,11 @@ int MEDCouplingFieldDiscretization::getNbOfGaussLocalization() const throw(INTER
 }
 
 int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
+int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
@@ -666,6 +672,7 @@ void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCo
   for(int i=0;i<nbCells;i++)
     if(m->getTypeOfCell(i)==type)
       ptr[i]=id;
+  zipGaussLocalizations();
 }
 
 void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
@@ -691,6 +698,7 @@ void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(const MEDC
     ptr[*w2]=id;
   //
   _loc.push_back(elt);
+  zipGaussLocalizations();
 }
 
 void MEDCouplingFieldDiscretizationGauss::clearGaussLocalizations() throw(INTERP_KERNEL::Exception)
@@ -724,6 +732,22 @@ int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneCell(int cel
   return locId;
 }
 
+int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_discr_per_cell)
+    throw INTERP_KERNEL::Exception("No Gauss localization still set !");
+  std::set<int> ret;
+  int id=0;
+  for(std::vector<MEDCouplingGaussLocalization>::const_iterator iter=_loc.begin();iter!=_loc.end();iter++,id++)
+    if((*iter).getType()==type)
+      ret.insert(id);
+  if(ret.empty())
+    throw INTERP_KERNEL::Exception("No gauss discretization found for the specified type !");
+  if(ret.size()>1)
+    throw INTERP_KERNEL::Exception("Several gauss discretizations have been found for the specified type !");
+  return *ret.begin();
+}
+
 void MEDCouplingFieldDiscretizationGauss::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
 {
   if(locId<0 || locId>=_loc.size())
@@ -754,6 +778,41 @@ int MEDCouplingFieldDiscretizationGauss::getOffsetOfCell(int cellId) const throw
   for(const int *w=start;w!=start+cellId;w++)
     ret+=_loc[*w].getNumberOfGaussPt();
   return ret;
+}
+
+/*!
+ * This method makes the assumption that _discr_per_cell is set.
+ * This method reduces as much as possible number size of _loc.
+ * This method is usefull when several set on same cells has been done and that some Gauss Localization are no more used.
+ */
+void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
+{
+  const int *start=_discr_per_cell->getConstPointer();
+  int nbOfTuples=_discr_per_cell->getNumberOfTuples();
+  int *tmp=new int[_loc.size()];
+  std::fill(tmp,tmp+_loc.size(),-2);
+  for(const int *w=start;w!=start+nbOfTuples;w++)
+    if(*w>=0)
+      tmp[*w]=1;
+  int fid=0;
+  for(int i=0;i<_loc.size();i++)
+    if(tmp[i]!=-2)
+      tmp[i]=fid++;
+  if(fid==_loc.size())
+    {//no zip needed
+      delete [] tmp;
+      return;
+    }
+  // zip needed
+  int *start2=_discr_per_cell->getPointer();
+  for(int *w2=start2;w2!=start2+nbOfTuples;w2++)
+    *w2=tmp[*w2];
+  std::vector<MEDCouplingGaussLocalization> tmpLoc;
+  for(int i=0;i<_loc.size();i++)
+    if(tmp[i]!=-2)
+      tmpLoc.push_back(_loc[tmp[i]]);
+  delete [] tmp;
+  _loc=tmpLoc;
 }
 
 MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE()
