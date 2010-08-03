@@ -20,6 +20,8 @@
 #ifndef __VOLSURFFORMULAE_HXX__
 #define __VOLSURFFORMULAE_HXX__
 
+#include "InterpolationUtils.hxx"
+
 #include <math.h>
 
 namespace INTERP_KERNEL
@@ -411,6 +413,36 @@ namespace INTERP_KERNEL
     return -volume/3.;
   }
 
+  /*!
+   * Calculate Volume for Generic Polyedron, even not convex one, WARNING !!! The polyedron's faces must be correctly ordered.
+   * 2nd API avoiding to create double** arrays.
+   */
+  template<class ConnType, NumberingPolicy numPol>
+  inline double calculateVolumeForPolyh2(const ConnType *connec, int lgth, const double *coords)
+  {
+    int nbOfFaces=std::count(connec,connec+lgth,-1)+1;
+    double volume=0.;
+    const int *work=connec;
+    for(int iFace=0;iFace<nbOfFaces;iFace++)
+      {
+        const int *work2=std::find(work+1,connec+lgth,-1);
+        int nbOfNodesOfCurFace=std::distance(work,work2);
+        double areaVector[3]={0.,0.,0.};
+        for(int ptId=0;ptId<nbOfNodesOfCurFace;ptId++)
+          {
+            const double *pti=coords+3*OTT<ConnType,numPol>::coo2C(work[ptId]);
+            const double *pti1=coords+3*OTT<ConnType,numPol>::coo2C(work[(ptId+1)%nbOfNodesOfCurFace]);
+            areaVector[0]+=pti[1]*pti1[2]-pti[2]*pti1[1];
+            areaVector[1]+=pti[2]*pti1[0]-pti[0]*pti1[2];
+            areaVector[2]+=pti[0]*pti1[1]-pti[1]*pti1[0];
+          }
+        const double *pt=coords+3*work[0];
+        volume+=pt[0]*areaVector[0]+pt[1]*areaVector[1]+pt[2]*areaVector[2];
+        work=work2+1;
+      }
+    return volume/6.;
+  }
+
   // ============================================================================================================================================
   // Calculate Volume for NON Generic Polyedron. Only polydrons with bary included in pts is supported by this method. Result is always positive.
   // ============================================================================================================================================
@@ -515,6 +547,42 @@ namespace INTERP_KERNEL
           }
         bary[i]=temp/nbPts;
       }
+  }
+  
+  template<class ConnType, NumberingPolicy numPol>
+  inline void computePolygonBarycenter2D(const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    double area=0.;
+    res[0]=0.; res[1]=0.;
+    for(int i=0;i<lgth;i++)
+      {
+        double cp=coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]+
+          coords[2*OTT<ConnType,numPol>::coo2C(connec[i])+1]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])];
+        area+=cp;
+        res[0]+=cp*(coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]+coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])]);
+        res[1]+=cp*(coords[2*OTT<ConnType,numPol>::coo2C(connec[i])+1]+coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]);
+      }
+    res[0]/=3.*area;
+    res[1]/=3.*area;
+  }
+
+  template<class ConnType, NumberingPolicy numPolConn>
+  inline void computePolygonBarycenter3D(const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    double area[3]={0.,0.,0.};
+    res[0]=0.; res[1]=0.; res[2]=0.;
+    for(int i=0;i<lgth;i++)
+      {
+        double v[3]={0.,0.,0.};
+        v[0]+=coords[3*connec[i]+1]*coords[3*connec[(i+1)%lgth]+2]-coords[3*connec[i]+2]*coords[3*connec[(i+1)%lgth]+1];
+        v[1]+=coords[3*connec[i]+2]*coords[3*connec[(i+1)%lgth]]-coords[3*connec[i]]*coords[3*connec[(i+1)%lgth]+2];
+        v[2]+=coords[3*connec[i]]*coords[3*connec[(i+1)%lgth]+1]-coords[3*connec[i]+1]*coords[3*connec[(i+1)%lgth]];
+        area[0]+=v[0]; area[1]+=v[1]; area[2]+=v[2];
+        res[0]+=v[0]*(coords[3*connec[i]]+coords[3*connec[(i+1)%lgth]]);
+        res[1]+=v[1]*(coords[3*connec[i]+1]+coords[3*connec[(i+1)%lgth]+1]);
+        res[2]+=v[2]*(coords[3*connec[i]+2]+coords[3*connec[(i+1)%lgth]+2]);
+      }
+    
   }
 }
 

@@ -1273,11 +1273,10 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
         {
           ipt=connec_index[iel];
           type=(INTERP_KERNEL::NormalizedCellType)connec[ipt];
-          area_vol[iel]=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[iel+1]-ipt-1,coords,dim_space,isAbs);
+          area_vol[iel]=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[iel+1]-ipt-1,coords,dim_space);
         }
       if(isAbs)
-        for(int iel=0;iel<nbelem;iel++)
-          area_vol[iel]=fabs(area_vol[iel]);
+        std::transform(area_vol,area_vol+nbelem,area_vol,std::ptr_fun<double,double>(fabs));
     }
   else
     {

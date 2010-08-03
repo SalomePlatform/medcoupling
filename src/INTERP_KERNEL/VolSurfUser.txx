@@ -23,6 +23,8 @@
 #include "VolSurfFormulae.hxx"
 #include "InterpolationUtils.hxx"
 
+#include <algorithm>
+
 namespace INTERP_KERNEL
 {
   template<class ConnType, NumberingPolicy numPol, int SPACEDIM>
@@ -31,6 +33,7 @@ namespace INTERP_KERNEL
     switch(type)
       {
       case INTERP_KERNEL::NORM_SEG2 :
+      case INTERP_KERNEL::NORM_SEG3 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
@@ -152,7 +155,7 @@ namespace INTERP_KERNEL
             
       case INTERP_KERNEL::NORM_POLYHED :
         {
-          throw INTERP_KERNEL::Exception("Polyedra Not yet implemented !");
+          return calculateVolumeForPolyh2<ConnType,numPol>(connec,lgth,coords);
         }
         break;
       default:
@@ -170,6 +173,40 @@ namespace INTERP_KERNEL
     if(spaceDim==1)
       return computeVolSurfOfCell<ConnType,numPolConn,1>(type,connec,lgth,coords);
     throw INTERP_KERNEL::Exception("Invalid spaceDim specified : must be 1, 2 or 3");
+  }
+
+  template<class ConnType, NumberingPolicy numPolConn,int SPACEDIM>
+  void computeBarycenter(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    switch(type)
+      {
+      case NORM_TRI3:
+      case NORM_QUAD4:
+      case NORM_POLYGON:
+        {
+          if(SPACEDIM==2)
+            computePolygonBarycenter2D<ConnType,numPolConn>(connec,lgth,coords,res);
+          else if(SPACEDIM==3)
+            computePolygonBarycenter3D<ConnType,numPolConn>(connec,lgth,coords,res);
+          else
+            throw INTERP_KERNEL::Exception("Impossible spacedim linked to cell 2D Cell !");
+          break;
+        }
+      default:
+        throw INTERP_KERNEL::Exception("Not recognized cell type to get Barycenter on it !");
+      }
+  }
+
+  template<class ConnType, NumberingPolicy numPolConn>
+  void computeBarycenter2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim, double *res)
+  {
+    if(spaceDim==3)
+      return computeBarycenter<ConnType,numPolConn,3>(type,connec,lgth,coords,res);
+    if(spaceDim==2)
+      return computeBarycenter<ConnType,numPolConn,2>(type,connec,lgth,coords,res);
+    //if(spaceDim==1)
+    //  return computeBarycenter<ConnType,numPolConn,1>(type,connec,lgth,coords,res);
+    throw INTERP_KERNEL::Exception("Invalid spaceDim specified for compute barycenter : must be 1, 2 or 3");
   }
 }
 
