@@ -90,6 +90,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convertCellArrayPerGeoType;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
+%newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
@@ -369,6 +370,7 @@ namespace ParaMEDMEM
     DataArrayInt *zipConnectivityTraducer(int compType);
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
+    void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
     %extend {
       int getCellContainingPoint(PyObject *p, double eps) const
       {
@@ -499,6 +501,47 @@ namespace ParaMEDMEM
         PyList_SetItem(ret,1,ret1);
         return ret;
       }
+
+      PyObject *are2DCellsNotCorrectlyOriented(PyObject *vec, bool polyOnly) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> cells;
+        int sz;
+        double *v=convertPyToNewDblArr2(vec,&sz);
+        try
+          {
+            self->are2DCellsNotCorrectlyOriented(v,polyOnly,cells);
+          }
+        catch(INTERP_KERNEL::Exception& e)
+          {
+            delete [] v;
+            throw e;
+          }
+        delete [] v;
+        return convertIntArrToPyList2(cells);
+      }
+
+      void orientCorrectly2DCells(PyObject *vec, bool polyOnly) throw(INTERP_KERNEL::Exception)
+      {
+        int sz;
+        double *v=convertPyToNewDblArr2(vec,&sz);
+        try
+          {
+            self->orientCorrectly2DCells(v,polyOnly);
+          }
+        catch(INTERP_KERNEL::Exception& e)
+          {
+            delete [] v;
+            throw e;
+          }
+        delete [] v;
+      }
+      
+      PyObject *arePolyhedronsNotCorrectlyOriented() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> cells;
+        self->arePolyhedronsNotCorrectlyOriented(cells);
+        return convertIntArrToPyList2(cells);
+      }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
     MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy);
@@ -509,6 +552,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *build3DUnstructuredMesh() const;
     %extend {
       PyObject *getMesh2D() const
       {

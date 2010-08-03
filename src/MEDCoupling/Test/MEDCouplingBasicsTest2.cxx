@@ -142,3 +142,91 @@ void MEDCouplingBasicsTest::testGaussPointNEField1()
   f->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testCellOrientation1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  double vec[3]={0.,0.,1.};
+  std::vector<int> res1;
+  CPPUNIT_ASSERT_THROW(m->are2DCellsNotCorrectlyOriented(vec,false,res1),INTERP_KERNEL::Exception);
+  m->changeSpaceDimension(3);
+  res1.clear();
+  m->are2DCellsNotCorrectlyOriented(vec,false,res1);
+  CPPUNIT_ASSERT(res1.empty());
+  vec[2]=-1;
+  m->are2DCellsNotCorrectlyOriented(vec,false,res1);
+  CPPUNIT_ASSERT_EQUAL(5,(int)res1.size());
+  res1.clear();
+  //
+  vec[2]=1.;
+  // connectivity inversion
+  int *conn=m->getNodalConnectivity()->getPointer();
+  int tmp=conn[11];
+  conn[11]=conn[12];
+  conn[12]=tmp;
+  m->are2DCellsNotCorrectlyOriented(vec,false,res1);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res1.size());
+  CPPUNIT_ASSERT_EQUAL(2,res1[0]);
+  res1.clear();
+  m->orientCorrectly2DCells(vec,false);
+  m->are2DCellsNotCorrectlyOriented(vec,false,res1);
+  CPPUNIT_ASSERT(res1.empty());
+  MEDCouplingUMesh *m2=build2DTargetMesh_1();
+  m2->changeSpaceDimension(3);
+  CPPUNIT_ASSERT(m->isEqual(m2,1e-12));
+  m2->decrRef();
+  //
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testCellOrientation2()
+{
+  MEDCouplingUMesh *m1=0;
+  MEDCouplingUMesh *m2=build3DExtrudedUMesh_1(m1);
+  m1->decrRef();
+  std::vector<int> res1;
+  m2->arePolyhedronsNotCorrectlyOriented(res1);
+  CPPUNIT_ASSERT_EQUAL(6,(int)res1.size());
+  m2->orientCorrectlyPolyhedrons();
+  res1.clear();
+  m2->arePolyhedronsNotCorrectlyOriented(res1);
+  CPPUNIT_ASSERT(res1.empty());
+  m2->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(18,m2->getNumberOfCells());
+  int cellIds[3]={0,6,12};
+  std::vector<int> cellIds2(cellIds,cellIds+3);
+  m2->convertToPolyTypes(cellIds2);
+  m2->orientCorrectlyPolyhedrons();
+  res1.clear();
+  m2->arePolyhedronsNotCorrectlyOriented(res1);
+  CPPUNIT_ASSERT(res1.empty());
+  MEDCouplingFieldDouble *f2=m2->getMeasureField(false);
+  const double *f2Ptr=f2->getArray()->getConstPointer();
+  //Test to check global reverse in MEDCouplingUMesh::tryToCorrectPolyhedronOrientation
+  MEDCouplingUMesh *m3=build2DTargetMesh_1();
+  double vec[3]={0.,0.,-1.};//<- important for the test
+  m3->changeSpaceDimension(3);
+  const int ids1[5]={0,1,2,3,4};
+  std::vector<int> ids2(ids1,ids1+5);
+  m3->convertToPolyTypes(ids2);
+  m3->orientCorrectly2DCells(vec,false);
+  MEDCouplingUMesh *m4=buildCU1DMesh_U();
+  m4->changeSpaceDimension(3);
+  double center[3]={0.,0.,0.};
+  double vector[3]={0.,1.,0.};
+  m4->rotate(center,vector,-M_PI/2.);
+  MEDCouplingUMesh *m5=m3->buildExtrudedMeshFromThis(m4,0);
+  res1.clear();
+  m5->arePolyhedronsNotCorrectlyOriented(res1);
+  CPPUNIT_ASSERT_EQUAL(15,(int)res1.size());
+  m5->orientCorrectlyPolyhedrons();
+  res1.clear();
+  m5->arePolyhedronsNotCorrectlyOriented(res1);
+  CPPUNIT_ASSERT(res1.empty());
+  m5->decrRef();
+  m3->decrRef();
+  m4->decrRef();
+  //
+  f2->decrRef();
+  m2->decrRef();
+}

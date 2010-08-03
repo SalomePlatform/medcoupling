@@ -55,6 +55,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getMesh2D() const { return _mesh2D; }
     MEDCouplingUMesh *getMesh1D() const { return _mesh1D; }
     DataArrayInt *getMesh3DIds() const { return _mesh3D_ids; }
+    MEDCouplingUMesh *build3DUnstructuredMesh() const;
     MEDCouplingFieldDouble *getMeasureField(bool) const;
     MEDCouplingFieldDouble *getMeasureFieldOnNode(bool) const;
     MEDCouplingFieldDouble *buildOrthogonalField() const;
@@ -92,6 +93,7 @@ namespace ParaMEDMEM
   private:
     MEDCouplingUMesh *_mesh2D;
     MEDCouplingUMesh *_mesh1D;
+    //! New to old 3D cell Ids Array
     DataArrayInt *_mesh3D_ids;
     int _cell_2D_id;
   };

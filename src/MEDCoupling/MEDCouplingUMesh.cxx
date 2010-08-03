@@ -36,6 +36,8 @@ using namespace ParaMEDMEM;
 
 const char MEDCouplingUMesh::PART_OF_NAME[]="PartOf_";
 
+double MEDCouplingUMesh::EPS_FOR_POLYH_ORIENTATION=1.e-14;
+
 MEDCouplingUMesh *MEDCouplingUMesh::New()
 {
   return new MEDCouplingUMesh;
@@ -1271,7 +1273,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
         {
           ipt=connec_index[iel];
           type=(INTERP_KERNEL::NormalizedCellType)connec[ipt];
-          area_vol[iel]=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[iel+1]-ipt-1,coords,dim_space);
+          area_vol[iel]=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[iel+1]-ipt-1,coords,dim_space,isAbs);
         }
       if(isAbs)
         for(int iel=0;iel<nbelem;iel++)
@@ -1755,6 +1757,114 @@ bool MEDCouplingUMesh::isPresenceOfQuadratic() const
 }
 
 /*!
+ * This method checks that all or only polygons (depending 'polyOnly' parameter) 2D cells are correctly oriented relative to 'vec' vector.
+ * The 'vec' vector has to have a non nul norm.
+ * If not 'cells' parameter will be appended with cellIds of incorrect cells.
+ * @throw when 'this' is not a mesh with meshdim==2 and spacedim==3
+ */
+void MEDCouplingUMesh::are2DCellsNotCorrectlyOriented(const double *vec, bool polyOnly, std::vector<int>& cells) const throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=2 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid mesh to apply are2DCellsNotCorrectlyOriented on it : must be meshDim==2 and spaceDim==3 !");
+  int nbOfCells=getNumberOfCells();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coordsPtr=_coords->getConstPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
+      if(!polyOnly || type==INTERP_KERNEL::NORM_POLYGON)
+        {
+          if(!isPolygonWellOriented(vec,conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+            cells.push_back(i);
+        }
+    }
+}
+
+/*!
+ * This method orient correctly (if needed) all or only polygons (depending 'polyOnly' parameter)  2D cells are correctly oriented relative to 'vec' vector.
+ * The 'vec' vector has to have a non nul norm.
+ * @throw when 'this' is not a mesh with meshdim==2 and spacedim==3
+ */
+void MEDCouplingUMesh::orientCorrectly2DCells(const double *vec, bool polyOnly) throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=2 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid mesh to apply orientCorrectly2DCells on it : must be meshDim==2 and spaceDim==3 !");
+  int nbOfCells=getNumberOfCells();
+  int *conn=_nodal_connec->getPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coordsPtr=_coords->getConstPointer();
+  bool isModified=false;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
+      if(!polyOnly || type==INTERP_KERNEL::NORM_POLYGON)
+        if(!isPolygonWellOriented(vec,conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+          {
+            isModified=true;
+            std::vector<int> tmp(connI[i+1]-connI[i]-2);
+            std::copy(conn+connI[i]+2,conn+connI[i+1],tmp.rbegin());
+            std::copy(tmp.begin(),tmp.end(),conn+connI[i]+2);
+          }
+    }
+  if(isModified)
+    _nodal_connec->declareAsNew();
+  updateTime();
+}
+
+/*!
+ * This method checks that all polyhedrons cells have correctly oriented faces.
+ * If not, 'cells' parameter will be appended with cellIds of incorrect cells.
+ * @throw when 'this' is not a mesh with meshdim==3 and spacedim==3
+ */
+void MEDCouplingUMesh::arePolyhedronsNotCorrectlyOriented(std::vector<int>& cells) const throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid mesh to apply arePolyhedronsNotCorrectlyOriented on it : must be meshDim==3 and spaceDim==3 !");
+  int nbOfCells=getNumberOfCells();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coordsPtr=_coords->getConstPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
+      if(type==INTERP_KERNEL::NORM_POLYHED)
+        {
+          if(!isPolyhedronWellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+            cells.push_back(i);
+        }
+    }
+}
+
+/*!
+ * This method tries to orient correctly polhedrons cells.
+ * @throw when 'this' is not a mesh with meshdim==3 and spacedim==3. An exception is also thrown when the attempt of reparation fails.
+ */
+void MEDCouplingUMesh::orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid mesh to apply orientCorrectlyPolyhedrons on it : must be meshDim==3 and spaceDim==3 !");
+  int nbOfCells=getNumberOfCells();
+  int *conn=_nodal_connec->getPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coordsPtr=_coords->getConstPointer();
+  bool isModified=false;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
+      if(type==INTERP_KERNEL::NORM_POLYHED)
+        if(!isPolyhedronWellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+          {
+            tryToCorrectPolyhedronOrientation(conn+connI[i]+1,conn+connI[i+1],coordsPtr);
+            isModified=true;
+          }
+    }
+  if(isModified)
+    _nodal_connec->declareAsNew();
+  updateTime();
+}
+
+/*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  * @param bbox out parameter of size 2*spacedim*nbOfcells.
  */
@@ -2186,17 +2296,116 @@ void MEDCouplingUMesh::appendExtrudedCell(const int *connBg, const int *connEnd,
         std::back_insert_iterator< std::vector<int> > ii(ret);
         std::copy(connBg+1,connEnd,ii);
         *ii++=-1;
-        std::transform(connBg+1,connEnd,ii,std::bind2nd(std::plus<int>(),deltaz));
+        std::reverse_iterator<const int *> rConnBg(connEnd);
+        std::reverse_iterator<const int *> rConnEnd(connBg+1);
+        std::transform(rConnBg,rConnEnd,ii,std::bind2nd(std::plus<int>(),deltaz));
         int nbOfRadFaces=std::distance(connBg+1,connEnd);
         for(int i=0;i<nbOfRadFaces;i++)
           {
             *ii++=-1;
-            int conn[4]={connBg[i+1],connBg[(i+1)%nbOfRadFaces+1],connBg[(i+1)%nbOfRadFaces+1]+deltaz,connBg[i+1]+deltaz};
+            int conn[4]={connBg[(i+1)%nbOfRadFaces+1],connBg[i+1],connBg[i+1]+deltaz,connBg[(i+1)%nbOfRadFaces+1]+deltaz};
             std::copy(conn,conn+4,ii);
           }
         break;
       }
     default:
       throw INTERP_KERNEL::Exception("A flat type has been detected that has not its extruded representation !");
+    }
+}
+
+/*!
+ * This static operates only for coords in 3D. The polygon is specfied by its connectivity nodes in [begin,end).
+ */
+bool MEDCouplingUMesh::isPolygonWellOriented(const double *vec, const int *begin, const int *end, const double *coords)
+{
+  double v[3]={0.,0.,0.};
+  int sz=std::distance(begin,end);
+  for(int i=0;i<sz;i++)
+    {
+      v[0]+=coords[3*begin[i]+1]*coords[3*begin[(i+1)%sz]+2]-coords[3*begin[i]+2]*coords[3*begin[(i+1)%sz]+1];
+      v[1]+=coords[3*begin[i]+2]*coords[3*begin[(i+1)%sz]]-coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+2];
+      v[2]+=coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+1]-coords[3*begin[i]+1]*coords[3*begin[(i+1)%sz]];
+    }
+  return vec[0]*v[0]+vec[1]*v[1]+vec[2]*v[2]<0.;
+}
+
+/*!
+ * The polyhedron is specfied by its connectivity nodes in [begin,end).
+ */
+bool MEDCouplingUMesh::isPolyhedronWellOriented(const int *begin, const int *end, const double *coords)
+{
+  std::vector<std::pair<int,int> > edges;
+  int nbOfFaces=std::count(begin,end,-1)+1;
+  const int *bgFace=begin;
+  for(int i=0;i<nbOfFaces;i++)
+    {
+      const int *endFace=std::find(bgFace+1,end,-1);
+      int nbOfEdgesInFace=std::distance(bgFace,endFace);
+      for(int j=0;j<nbOfEdgesInFace;j++)
+        {
+          std::pair<int,int> p1(bgFace[j],bgFace[(j+1)%nbOfEdgesInFace]);
+          if(std::find(edges.begin(),edges.end(),p1)!=edges.end())
+            return false;
+          edges.push_back(p1);
+        }
+      bgFace=endFace+1;
+    }
+  return INTERP_KERNEL::calculateVolumeForPolyh2<int,INTERP_KERNEL::ALL_C_MODE>(begin,std::distance(begin,end),coords)>-EPS_FOR_POLYH_ORIENTATION;
+}
+
+/*!
+ * This method tries to obtain a well oriented polyhedron.
+ * If the algorithm fails, an exception will be thrown.
+ */
+void MEDCouplingUMesh::tryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::pair<int,int> > edges;
+  int nbOfFaces=std::count(begin,end,-1)+1;
+  int *bgFace=begin;
+  std::vector<bool> isPerm(nbOfFaces);
+  for(int i=0;i<nbOfFaces;i++)
+    {
+      int *endFace=std::find(bgFace+1,end,-1);
+      int nbOfEdgesInFace=std::distance(bgFace,endFace);
+      for(int l=0;l<nbOfEdgesInFace;l++)
+        {
+          std::pair<int,int> p1(bgFace[l],bgFace[(l+1)%nbOfEdgesInFace]);
+          edges.push_back(p1);
+        }
+      int *bgFace2=endFace+1;
+      for(int k=i+1;k<nbOfFaces;k++)
+        {
+          int *endFace2=std::find(bgFace2+1,end,-1);
+          int nbOfEdgesInFace2=std::distance(bgFace2,endFace2);
+          for(int j=0;j<nbOfEdgesInFace2;j++)
+            {
+              std::pair<int,int> p2(bgFace2[j],bgFace2[(j+1)%nbOfEdgesInFace2]);
+              if(std::find(edges.begin(),edges.end(),p2)!=edges.end())
+                {
+                  if(isPerm[k])
+                    throw INTERP_KERNEL::Exception("Fail to repare polyhedron ! Polyedron looks bad !");
+                  std::vector<int> tmp(nbOfEdgesInFace2-1);
+                  std::copy(bgFace2+1,endFace2,tmp.rbegin());
+                  std::copy(tmp.begin(),tmp.end(),bgFace2+1);
+                  isPerm[k]=true;
+                  continue;
+                }
+            }
+          bgFace2=endFace2+1;
+        }
+      bgFace=endFace+1;
+    }
+  if(INTERP_KERNEL::calculateVolumeForPolyh2<int,INTERP_KERNEL::ALL_C_MODE>(begin,std::distance(begin,end),coords)<-EPS_FOR_POLYH_ORIENTATION)
+    {//not lucky ! The first face was not correctly oriented : reorient all faces...
+      bgFace=begin;
+      for(int i=0;i<nbOfFaces;i++)
+        {
+          int *endFace=std::find(bgFace+1,end,-1);
+          int nbOfEdgesInFace=std::distance(bgFace,endFace);
+          std::vector<int> tmp(nbOfEdgesInFace-1);
+          std::copy(bgFace+1,endFace,tmp.rbegin());
+          std::copy(tmp.begin(),tmp.end(),bgFace+1);
+          bgFace=endFace+1;
+        }
     }
 }

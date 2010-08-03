@@ -57,6 +57,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testExtrudedMesh1 );
     CPPUNIT_TEST( testExtrudedMesh2 );
     CPPUNIT_TEST( testExtrudedMesh3 );
+    CPPUNIT_TEST( testExtrudedMesh4 );
     CPPUNIT_TEST( testFindCommonNodes );
     CPPUNIT_TEST( testCheckButterflyCells );
     CPPUNIT_TEST( testMergeMesh1 );
@@ -88,6 +89,8 @@ namespace ParaMEDMEM
     //MEDCouplingBasicsTest2.cxx
     CPPUNIT_TEST( testGaussPointField1 );
     CPPUNIT_TEST( testGaussPointNEField1 );
+    CPPUNIT_TEST( testCellOrientation1 );
+    CPPUNIT_TEST( testCellOrientation2 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -173,6 +176,7 @@ namespace ParaMEDMEM
     void testExtrudedMesh1();
     void testExtrudedMesh2();
     void testExtrudedMesh3();
+    void testExtrudedMesh4();
     void testFindCommonNodes();
     void testCheckButterflyCells();
     void testMergeMesh1();
@@ -204,6 +208,8 @@ namespace ParaMEDMEM
     //MEDCouplingBasicsTest2.cxx
     void testGaussPointField1();
     void testGaussPointNEField1();
+    void testCellOrientation1();
+    void testCellOrientation2();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

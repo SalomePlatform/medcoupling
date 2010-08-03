@@ -726,6 +726,46 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected1,m3DIds);
         pass
 
+    def testExtrudedMesh4(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        cells=[2,4];
+        m1.convertToPolyTypes(cells);
+        m1.changeSpaceDimension(3);
+        m2=MEDCouplingDataForTest.buildCU1DMesh_U();
+        m2.changeSpaceDimension(3);
+        center=[0.,0.,0.]
+        vector=[0.,1.,0.]
+        m2.rotate(center,vector,-pi/2.);
+        m3=m1.buildExtrudedMeshFromThis(m2,0);
+        expected1=[1,3,2,0,6,5,7,10,11,8,12,9,14,13,4]
+        rexpected1=[3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12]
+        m3.renumberCells(expected1,False);
+        m4=MEDCouplingExtrudedMesh.New(m3,m1,0);
+        self.assertEqual(NORM_HEXA8,m4.getTypeOfCell(0));
+        self.assertEqual(NORM_HEXA8,m4.getTypeOfCell(1));
+        self.assertEqual(NORM_POLYHED,m4.getTypeOfCell(2));
+        self.assertEqual(NORM_PENTA6,m4.getTypeOfCell(7));
+        f=m4.getMeasureField(True);
+        arr=f.getArray();
+        self.assertEqual(15,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        arrPtr=arr.getValues();
+        expected2=[0.075,0.0375,0.0375,0.075,0.075,
+                   0.1125,0.05625,0.05625,0.1125,0.1125,
+                   0.0625,0.03125,0.03125,0.0625,0.0625]
+        for i in xrange(15):
+            self.assertAlmostEqual(expected2[rexpected1[i]],arrPtr[i],16);
+            pass
+        m5=m4.build3DUnstructuredMesh();
+        self.assertTrue(m5.isEqual(m3,1e-12));
+        f=m5.getMeasureField(True);
+        arr=f.getArray();
+        arrPtr=arr.getValues();
+        for i in xrange(15):
+            self.assertAlmostEqual(expected2[rexpected1[i]],arrPtr[i],1e-16);
+            pass
+        pass
+
     def testFindCommonNodes(self):
         targetMesh=MEDCouplingDataForTest.build3DTargetMesh_1();
         comm,commI=targetMesh.findCommonNodes(1e-10);
@@ -1765,6 +1805,71 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f.isEqual(f2,1e-14,1e-14));
         self.assertAlmostEqual(21.,f.getIJK(2,0,0),14);
         self.assertAlmostEqual(18.,f.getIJK(1,1,1),14);
+        pass
+
+    def testCellOrientation1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        vec=[0.,0.,1.]
+        self.assertRaises(Exception,m.are2DCellsNotCorrectlyOriented,vec,False);
+        m.changeSpaceDimension(3);
+        res1=m.are2DCellsNotCorrectlyOriented(vec,False);
+        self.assertTrue(len(res1)==0);
+        vec[2]=-1.;
+        res1=m.are2DCellsNotCorrectlyOriented(vec,False);
+        self.assertEqual(5,len(res1));
+        #
+        vec[2]=1.;
+        # connectivity inversion
+        conn=m.getNodalConnectivity().getValues();
+        tmp=conn[11];
+        conn[11]=conn[12];
+        conn[12]=tmp;
+        m.getNodalConnectivity().setValues(conn,len(conn),1)
+        res1=m.are2DCellsNotCorrectlyOriented(vec,False);
+        self.assertEqual(1,len(res1));
+        self.assertEqual(2,res1[0]);
+        m.orientCorrectly2DCells(vec,False);
+        res1=m.are2DCellsNotCorrectlyOriented(vec,False);
+        self.assertTrue(len(res1)==0);
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2.changeSpaceDimension(3);
+        self.assertTrue(m.isEqual(m2,1e-12));
+        pass
+
+    def testCellOrientation2(self):
+        m2,m1=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        res1=m2.arePolyhedronsNotCorrectlyOriented();
+        self.assertEqual(6,len(res1));
+        m2.orientCorrectlyPolyhedrons();
+        res1=m2.arePolyhedronsNotCorrectlyOriented();
+        self.assertTrue(len(res1)==0);
+        m2.checkCoherency();
+        self.assertEqual(18,m2.getNumberOfCells());
+        cellIds2=[0,6,12]
+        m2.convertToPolyTypes(cellIds2);
+        m2.orientCorrectlyPolyhedrons();
+        res1=m2.arePolyhedronsNotCorrectlyOriented();
+        self.assertTrue(len(res1)==0);
+        f2=m2.getMeasureField(False);
+        f2Ptr=f2.getArray().getValues();
+        #Test to check global reverse in MEDCouplingUMesh::tryToCorrectPolyhedronOrientation
+        m3=MEDCouplingDataForTest.build2DTargetMesh_1();
+        vec=[0.,0.,-1.]
+        m3.changeSpaceDimension(3);
+        ids2=[0,1,2,3,4]
+        m3.convertToPolyTypes(ids2);
+        m3.orientCorrectly2DCells(vec,False);
+        m4=MEDCouplingDataForTest.buildCU1DMesh_U();
+        m4.changeSpaceDimension(3);
+        center=[0.,0.,0.]
+        vector=[0.,1.,0.]
+        m4.rotate(center,vector,-pi/2.);
+        m5=m3.buildExtrudedMeshFromThis(m4,0);
+        res1=m5.arePolyhedronsNotCorrectlyOriented();
+        self.assertEqual(15,len(res1));
+        m5.orientCorrectlyPolyhedrons();
+        res1=m5.arePolyhedronsNotCorrectlyOriented();
+        self.assertTrue(len(res1)==0);
         pass
 
     def setUp(self):

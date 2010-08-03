@@ -67,9 +67,17 @@ try:_mesh2D(mesh2D),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(
   if(_mesh2D!=0)
     _mesh2D->incrRef();
   computeExtrusion(mesh3D);
+  setName(mesh3D->getName());
 }
-catch(INTERP_KERNEL::Exception&)
+catch(INTERP_KERNEL::Exception& e)
   {
+    if(_mesh2D)
+      _mesh2D->decrRef();
+    if(_mesh1D)
+      _mesh1D->decrRef();
+    if(_mesh3D_ids)
+      _mesh3D_ids->decrRef();
+    throw e;
   }
 
 MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh():_mesh2D(0),_mesh1D(0),_mesh3D_ids(0),_cell_2D_id(-1)
@@ -148,8 +156,13 @@ bool MEDCouplingExtrudedMesh::isEqual(const MEDCouplingMesh *other, double prec)
 
 INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cellId) const
 {
+  const int *ids=_mesh3D_ids->getConstPointer();
+  int nbOf3DCells=_mesh3D_ids->getNumberOfTuples();
+  const int *where=std::find(ids,ids+nbOf3DCells,cellId);
+  if(where==ids+nbOf3DCells)
+    throw INTERP_KERNEL::Exception("Invalid cellId specified >= getNumberOfCells() !");
   int nbOfCells2D=_mesh2D->getNumberOfCells();
-  int locId=cellId%nbOfCells2D;
+  int locId=std::distance(ids,where)%nbOfCells2D;
   INTERP_KERNEL::NormalizedCellType tmp=_mesh2D->getTypeOfCell(locId);
   return INTERP_KERNEL::CellModel::getCellModel(tmp).getExtrudedType();
 }
@@ -236,13 +249,45 @@ void MEDCouplingExtrudedMesh::updateTime()
     }
 }
 
-MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const
+MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const
 {
-  //not implemented yet
-  return 0;
+  MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMeshFromThis(_mesh1D,0);
+  const int *renum=_mesh3D_ids->getConstPointer();
+  int nbOf3DCells=_mesh3D_ids->getNumberOfTuples();
+  ret->renumberCells(renum,renum+nbOf3DCells,false);
+  ret->setName(getName());
+  return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureFieldOnNode(bool) const
+MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const
+{
+  std::string name="MeasureOfMesh_";
+  name+=getName();
+  MEDCouplingFieldDouble *ret2D=_mesh2D->getMeasureField(true);
+  MEDCouplingFieldDouble *ret1D=_mesh1D->getMeasureField(true);
+  const double *ret2DPtr=ret2D->getArray()->getConstPointer();
+  const double *ret1DPtr=ret1D->getArray()->getConstPointer();
+  int nbOf2DCells=_mesh2D->getNumberOfCells();
+  int nbOf1DCells=_mesh1D->getNumberOfCells();
+  int nbOf3DCells=nbOf2DCells*nbOf1DCells;
+  const int *renum=_mesh3D_ids->getConstPointer();
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  ret->setMesh(this);
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(nbOf3DCells,1);
+  double *retPtr=da->getPointer();
+  for(int i=0;i<nbOf1DCells;i++)
+    for(int j=0;j<nbOf2DCells;j++)
+      retPtr[renum[i*nbOf2DCells+j]]=ret2DPtr[j]*ret1DPtr[i];
+  ret->setArray(da);
+  da->decrRef();
+  ret->setName(name.c_str());
+  ret2D->decrRef();
+  ret1D->decrRef();
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureFieldOnNode(bool isAbs) const
 {
   //not implemented yet
   return 0;
@@ -250,8 +295,7 @@ MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureFieldOnNode(bool) con
 
 MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::buildOrthogonalField() const
 {
-  //not implemented yet
-  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::buildOrthogonalField not implemented yet !");
+  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::buildOrthogonalField : This method has no sense for MEDCouplingExtrudedMesh that is 3D !");
 }
 
 int MEDCouplingExtrudedMesh::getCellContainingPoint(const double *pos, double eps) const
