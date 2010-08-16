@@ -170,16 +170,16 @@ namespace MEDLoaderNS
                                                   INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile, std::vector<int>& fam4MEDFile);
   ParaMEDMEM::MEDCouplingFieldDouble *readFieldDoubleLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order,
                                                           ParaMEDMEM::TypeOfField typeOfOutField);
-  med_idt appendFieldSimpleAtt(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, med_int& numdt, med_int& numo, med_float& dt);
-  void appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
-  void appendNodeProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds);
-  void appendCellProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIds);
+  med_idt appendFieldSimpleAtt(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, med_int& numdt, med_int& numo, med_float& dt);
+  void appendFieldDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
+  void appendNodeProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds);
+  void appendCellProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIds);
   void prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *cellIds, std::list<MEDLoader::MEDFieldDoublePerCellType>& split);
   void fillGaussDataOnField(const char *fileName, const std::list<MEDLoader::MEDFieldDoublePerCellType>& data, MEDCouplingFieldDouble *f);
-  void writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch);
+  void writeUMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch);
   void writeUMeshesDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch);
-  void writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
-  void writeFieldTryingToFitExistingMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f);
+  void writeFieldAndMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
+  void writeFieldTryingToFitExistingMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
 }
 
 /*!
@@ -1412,7 +1412,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleGaussNE(const char
   return MEDLoaderNS::readFieldDoubleLev1(fileName,meshName,meshDimRelToMax,fieldName,iteration,order,ON_GAUSS_NE);
 }
 
-void MEDLoaderNS::writeUMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch)
+void MEDLoaderNS::writeUMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch)
 {
   med_idt fid=MEDouvrir((char *)fileName,forceFromScratch?MED_CREATION:MED_LECTURE_ECRITURE);
   std::string meshName(mesh->getName());
@@ -1543,7 +1543,7 @@ void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const char *meshNam
  * This method makes the assumption that f->getMesh() nodes are fully included in already written mesh in 'fileName'.
  * @param thisMeshNodeIds points to a tab of size f->getMesh()->getNumberOfNodes() that says for a node i in f->getMesh() that its id is thisMeshNodeIds[i] is already written mesh.
  */
-void MEDLoaderNS::appendNodeProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds)
+void MEDLoaderNS::appendNodeProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds)
 {
   //not implemented yet.
   med_int numdt,numo;
@@ -1557,7 +1557,7 @@ void MEDLoaderNS::appendNodeProfileField(const char *fileName, ParaMEDMEM::MEDCo
  * This method makes the assumption that f->getMesh() cells are fully included in already written mesh in 'fileName'.
  * @param thisMeshCellIdsPerType points to a tab of size f->getMesh()->getNumberOfCells() that says for a cell i in f->getMesh() that its id is thisMeshCellIds[i] of corresponding type is already written mesh.
  */
-void MEDLoaderNS::appendCellProfileField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIdsPerType)
+void MEDLoaderNS::appendCellProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIdsPerType)
 {
   med_int numdt,numo;
   med_float dt;
@@ -1592,7 +1592,7 @@ void MEDLoaderNS::appendCellProfileField(const char *fileName, ParaMEDMEM::MEDCo
 /*!
  * This method performs the classical job for fields before any values setting.
  */
-med_idt MEDLoaderNS::appendFieldSimpleAtt(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, med_int& numdt, med_int& numo, med_float& dt)
+med_idt MEDLoaderNS::appendFieldSimpleAtt(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, med_int& numdt, med_int& numo, med_float& dt)
 {
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE_ECRITURE);
   int nbComp=f->getNumberOfComponents();
@@ -1624,7 +1624,7 @@ med_idt MEDLoaderNS::appendFieldSimpleAtt(const char *fileName, ParaMEDMEM::MEDC
   return fid;
 }
 
-void MEDLoaderNS::appendFieldDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+void MEDLoaderNS::appendFieldDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f)
 {
   med_int numdt,numo;
   med_float dt;
@@ -1735,7 +1735,7 @@ void MEDLoaderNS::prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCoupling
     }
 }
 
-void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch)
+void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch)
 {
   std::string meshName(f->getMesh()->getName());
   if(meshName.empty())
@@ -1754,7 +1754,7 @@ void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, ParaMEDMEM::ME
  * This method reads the corresponding mesh into the file and try to fit it with f->getMesh().
  * If it appears that f->getMesh() equals exactly mesh into the file 
  */
-void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f)
 {
   std::vector<int> poss;
   int mDimInFile=MEDLoaderNS::readUMeshDimFromFile(fileName,f->getMesh()->getName(),poss);
@@ -1819,7 +1819,7 @@ void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, ParaME
   m->decrRef();
 }
 
-void MEDLoader::WriteUMesh(const char *fileName, ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
+void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch)
 {
   std::string meshName(mesh->getName());
   if(meshName.empty())
@@ -1904,7 +1904,7 @@ void MEDLoader::WriteUMeshes(const char *fileName, const char *meshNameC, const 
     }
 }
 
-void MEDLoader::WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
+void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch)
 {
   int status=MEDLoaderBase::getStatusOfFile(fileName);
   if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
@@ -1936,7 +1936,7 @@ void MEDLoader::WriteField(const char *fileName, ParaMEDMEM::MEDCouplingFieldDou
     }
 }
 
-void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, ParaMEDMEM::MEDCouplingFieldDouble *f)
+void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f)
 {
   f->checkCoherency();
   int status=MEDLoaderBase::getStatusOfFile(fileName);
