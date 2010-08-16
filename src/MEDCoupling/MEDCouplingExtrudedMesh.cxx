@@ -61,6 +61,20 @@ MEDCouplingMeshType MEDCouplingExtrudedMesh::getType() const
   return EXTRUDED;
 }
 
+/*!
+ * This method copyies all tiny strings from other (name and components name).
+ * @throw if other and this have not same mesh type.
+ */
+void MEDCouplingExtrudedMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingExtrudedMesh *otherC=dynamic_cast<const MEDCouplingExtrudedMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::copyTinyStringsFrom : meshes have not same type !");
+  MEDCouplingMesh::copyTinyStringsFrom(other);
+  _mesh2D->copyTinyStringsFrom(otherC->_mesh2D);
+  _mesh1D->copyTinyStringsFrom(otherC->_mesh1D);
+}
+
 MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
 try:_mesh2D(mesh2D),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(cell2DId)
 {
@@ -131,6 +145,11 @@ int MEDCouplingExtrudedMesh::getMeshDimension() const
   return 3;
 }
 
+MEDCouplingMesh *MEDCouplingExtrudedMesh::deepCpy() const
+{
+  return clone(true);
+}
+
 MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::clone(bool recDeepCpy) const
 {
   return new MEDCouplingExtrudedMesh(*this,recDeepCpy);
@@ -152,6 +171,12 @@ bool MEDCouplingExtrudedMesh::isEqual(const MEDCouplingMesh *other, double prec)
   if(_cell_2D_id!=otherC->_cell_2D_id)
     return false;
   return true;
+}
+
+void MEDCouplingExtrudedMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                   DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::checkDeepEquivalWith : not implemented yet !");
 }
 
 INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cellId) const
@@ -247,6 +272,11 @@ void MEDCouplingExtrudedMesh::updateTime()
     {
       updateTimeWith(*_mesh1D);
     }
+}
+
+void MEDCouplingExtrudedMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Functionnality of renumbering cells unavailable for ExtrudedMesh");
 }
 
 MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const

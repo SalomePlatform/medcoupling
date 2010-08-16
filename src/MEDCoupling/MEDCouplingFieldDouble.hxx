@@ -33,8 +33,11 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
-    bool areCompatible(const MEDCouplingField *other) const;
+    bool areCompatibleForMerge(const MEDCouplingField *other) const;
+    bool areStrictlyCompatible(const MEDCouplingField *other) const;
     bool areCompatibleForMul(const MEDCouplingField *other) const;
+    void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception);
+    void renumberNodes(const int *old2NewBg, const int *old2NewEnd) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
@@ -55,8 +58,12 @@ namespace ParaMEDMEM
     DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
     double accumulate(int compId) const;
     void accumulate(double *res) const;
-    double measureAccumulate(int compId, bool isWAbs) const;
-    void measureAccumulate(bool isWAbs, double *res) const;
+    double normL1(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    void normL1(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
+    double normL2(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    void normL2(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
+    double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    void integral(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);

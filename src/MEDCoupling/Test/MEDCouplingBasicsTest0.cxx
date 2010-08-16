@@ -746,6 +746,77 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DCurveTargetMesh_2()
   return ret;
 }
 
+MEDCouplingUMesh *MEDCouplingBasicsTest::build1DTargetMesh_3()
+{
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New("1DMesh_3",1);
+  ret->allocateCells(4);
+  int conn[10]={0,1,2, 3,4, 6,5,7 ,9,8};
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn);
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+3);
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn+5);
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+8);
+  ret->finishInsertingCells();
+  double coords[10]={0.5,1.,0.8,5.,5.21,0.5,1.1,0.7,5.,5.31};
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(10,1);
+  std::copy(coords,coords+10,myCoords->getPointer());
+  ret->setCoords(myCoords);
+  myCoords->decrRef();
+  return ret;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DCurveTargetMesh_3()
+{
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New("2DCurveMesh_3",1);
+  ret->allocateCells(4);
+  int conn[10]={0,1,2, 3,4, 6,5,7 ,9,8};
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn);
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+3);
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn+5);
+  ret->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+8);
+  ret->finishInsertingCells();
+  double coords[20]={0.5,0.5,1.,1.,0.8,0.8,5.,5.,5.21,5.21,0.5,0.5,1.1,1.1,0.7,0.7,5.,5.,5.31,5.31};
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(10,2);
+  std::copy(coords,coords+20,myCoords->getPointer());
+  ret->setCoords(myCoords);
+  myCoords->decrRef();
+  return ret;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_3()
+{
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New("2DMesh_3",2);
+  ret->allocateCells(10);
+  int conn[52]={
+    0,1,2, 0,1,3,4, 0,1,3,5,4, 0,1,2,6,7,8, 0,1,3,4,6,9,2,10,
+    0,2,1, 0,4,3,1, 0,4,5,3,1, 0,2,1,8,7,6, 0,4,3,1,10,2,9,6
+  };
+  ret->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
+  ret->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+3);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYGON,5,conn+7);
+  ret->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,conn+12);
+  ret->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8,conn+18);
+  ret->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+26);
+  ret->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+29);
+  ret->insertNextCell(INTERP_KERNEL::NORM_POLYGON,5,conn+33);
+  ret->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,conn+38);
+  ret->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8,conn+44);
+  ret->finishInsertingCells();
+  double coords[22]={0.,0.,1.,0.,0.5,1.,1.,1.,0.,1.,0.5,2.,0.5,0.,0.75,0.5,0.25,0.5,1.,0.5,0.,0.5};
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(11,2);
+  std::copy(coords,coords+22,myCoords->getPointer());
+  ret->setCoords(myCoords);
+  myCoords->decrRef();
+  ret->checkCoherency();
+  return ret;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_3()
+{
+}
+
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)
 {
   double ret=0.;

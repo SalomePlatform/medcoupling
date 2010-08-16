@@ -47,8 +47,17 @@ namespace ParaMEDMEM
   public:
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
+    virtual MEDCouplingMesh *deepCpy() const = 0;
     virtual MEDCouplingMeshType getType() const = 0;
+    virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
+    // comparison methods
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const { return _name==other->_name; }
+    virtual void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                      DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
+    void checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
+                             DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
+    //
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
     virtual bool isStructured() const = 0;
     virtual int getNumberOfCells() const = 0;
@@ -71,8 +80,9 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
     virtual void translate(const double *vector) = 0;
+    virtual void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
-    virtual bool areCompatible(const MEDCouplingMesh *other) const;
+    virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
     //serialisation-unserialization
     virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const = 0;

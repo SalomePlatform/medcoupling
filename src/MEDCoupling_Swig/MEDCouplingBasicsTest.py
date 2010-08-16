@@ -20,7 +20,7 @@
 
 from libMEDCoupling_Swig import *
 import unittest
-from math import pi
+from math import pi,e,sqrt
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 
 class MEDCouplingBasicsTest(unittest.TestCase):
@@ -762,7 +762,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr=f.getArray();
         arrPtr=arr.getValues();
         for i in xrange(15):
-            self.assertAlmostEqual(expected2[rexpected1[i]],arrPtr[i],1e-16);
+            self.assertAlmostEqual(expected2[rexpected1[i]],arrPtr[i],15);
             pass
         pass
 
@@ -980,7 +980,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         values4=f1.accumulate();
         self.assertTrue(abs(3.6-values4[0])<1.e-12);
         self.assertTrue(abs(7.2-values4[1])<1.e-12);
-        values4=f1.measureAccumulate(True);
+        values4=f1.integral(True);
         self.assertTrue(abs(0.5-values4[0])<1.e-12);
         self.assertTrue(abs(1.-values4[1])<1.e-12);
         #
@@ -1042,7 +1042,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         values4=f1.accumulate();
         self.assertTrue(abs(3.6-values4[0])<1.e-12);
         self.assertTrue(abs(7.2-values4[1])<1.e-12);
-        values4=f1.measureAccumulate(True);
+        values4=f1.integral(True);
         self.assertTrue(abs(0.5-values4[0])<1.e-12);
         self.assertTrue(abs(1.-values4[1])<1.e-12);
         pass
@@ -1870,8 +1870,379 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m5.orientCorrectlyPolyhedrons();
         res1=m5.arePolyhedronsNotCorrectlyOriented();
         self.assertTrue(len(res1)==0);
+        f3=m5.getMeasureField(False);
+        self.assertEqual(15,f3.getArray().getNumberOfTuples());
+        self.assertEqual(1,f3.getNumberOfComponents());
+        f3Ptr=f3.getArray().getValues();
+        expected1=[0.075,0.0375,0.0375,0.075,0.075, 0.1125,0.05625,0.05625,0.1125,0.1125, 0.0625,0.03125,0.03125,0.0625,0.0625];
+        for i in xrange(15):
+            self.assertTrue(abs(expected1[i]-f3Ptr[i])<1e-12);
+            pass
+        f4=m5.getBarycenterAndOwner();
+        self.assertEqual(15,f4.getNumberOfTuples());
+        self.assertEqual(3,f4.getNumberOfComponents());
+        f4Ptr=f4.getValues();
+        expected2=[-0.05,-0.05,0.15, 0.3666666666666667,-0.13333333333333333,0.15, 0.53333333333333333,0.033333333333333333,0.15, -0.05,0.45,0.15, 0.45,0.45,0.15,-0.05,-0.05,0.525, 0.3666666666666667,-0.13333333333333333,0.525, 0.53333333333333333,0.033333333333333333,0.525, -0.05,0.45,0.525, 0.45,0.45,0.525,-0.05,-0.05,0.875, 0.3666666666666667,-0.13333333333333333,0.875, 0.53333333333333333,0.033333333333333333,0.875, -0.05,0.45,0.875, 0.45,0.45,0.875];
+        for i in xrange(45):
+            self.assertTrue(abs(expected2[i]-f4Ptr[i])<1e-12);
+            pass
         pass
 
+    def testPolyhedronBarycenter(self):
+        connN=[0,3,2,1, -1, 4,5,6,7, -1, 0,4,7,3, -1, 3,7,6,2, -1, 2,6,5,1, -1, 1,5,4,0];
+        coords=[0.,0.,0., 1.,0.,0., 1.,1.,0., 0.,1.,0., 0.,0.,1., 1.,0.,1., 1.,1.,1., 0.,1.,1., 0.5, 0.5, 0.5];
+        meshN=MEDCouplingUMesh.New();
+        meshN.setName("ForBary");
+        meshN.setMeshDimension(3);
+        meshN.allocateCells(4);
+        meshN.insertNextCell(NORM_POLYHED,29,connN[0:29])
+        meshN.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(coords,9,3);
+        meshN.setCoords(myCoords);
+        meshN.checkCoherency();
+        #
+        res1=meshN.arePolyhedronsNotCorrectlyOriented();
+        meshN.orientCorrectlyPolyhedrons();
+        self.assertTrue(len(res1)==0);
+        da=meshN.getBarycenterAndOwner();
+        self.assertEqual(1,da.getNumberOfTuples());
+        self.assertEqual(3,da.getNumberOfComponents());
+        daPtr=da.getValues();
+        ref=meshN.getCoords().getValues()[24:];
+        for i in xrange(3):
+            self.assertTrue(abs(ref[i]-daPtr[i])<1e-12);
+            pass
+        #
+        center=[0.,0.,0.]
+        vec=[0.,2.78,0.]
+        da=meshN.getBarycenterAndOwner();
+        daPtr=da.getValues();
+        ref=meshN.getCoords().getValues()[24:];
+        for i in xrange(3):
+            self.assertTrue(abs(ref[i]-daPtr[i])<1e-12);
+            pass
+        #
+        meshN.rotate(center,vec,pi/7.);
+        meshN.translate(vec);
+        da=meshN.getBarycenterAndOwner();
+        daPtr=da.getValues();
+        ref=meshN.getCoords().getValues()[24:];
+        for i in xrange(3):
+            self.assertTrue(abs(ref[i]-daPtr[i])<1e-12);
+            pass
+        #
+        center2=[1.12,3.45,6.78]
+        vec2=[4.5,9.3,2.8]
+        meshN.rotate(center2,vec2,e);
+        meshN.translate(vec2);
+        da=meshN.getBarycenterAndOwner();
+        daPtr=da.getValues();
+        ref=meshN.getCoords().getValues()[24:];
+        for i in xrange(3):
+            self.assertTrue(abs(ref[i]-daPtr[i])<1e-5);
+            pass
+        pass
+
+    def testNormL12Integ1D(self):
+        m1=MEDCouplingDataForTest.build1DTargetMesh_3();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f1.setMesh(m1);
+        array=DataArrayDouble.New();
+        arr=[-5.23,15.45,-25.56,6.67,-16.78,26.89,-7.91,17.23,-27.43,8.21,-18.63,28.72]
+        array.setValues(arr,m1.getNumberOfCells(),3);
+        f1.setArray(array);
+        #
+        f3=m1.getBarycenterAndOwner();
+        self.assertEqual(4,f3.getNumberOfTuples());
+        self.assertEqual(1,f3.getNumberOfComponents());
+        expected9=[0.75,5.105,0.8,5.155]
+        ptr=f3.getValues();
+        for i in xrange(4):
+            self.assertTrue(abs(expected9[i]-ptr[i])<1e-12);
+            pass
+        #
+        f2=m1.getMeasureField(False);
+        self.assertEqual(4,f2.getArray().getNumberOfTuples());
+        self.assertEqual(1,f2.getNumberOfComponents());
+        expected1=[0.5,0.21,-0.6,-0.31]
+        ptr=f2.getArray().getValues();
+        for i in xrange(4):
+            self.assertTrue(abs(expected1[i]-ptr[i])<1e-12);
+            pass
+        expected2=[0.5,0.21,0.6,0.31]
+        f2=m1.getMeasureField(True);
+        ptr=f2.getArray().getValues();
+        for i in xrange(4):
+            self.assertTrue(abs(expected2[i]-ptr[i])<1e-12);
+            pass
+        #integral
+        res=f1.integral(False);
+        expected3=[0.9866,-0.3615,0.4217]
+        for i in xrange(3):
+            self.assertTrue(abs(expected3[i]-res[i])<1e-12);
+            pass
+        self.assertTrue(abs(expected3[0]-f1.integral(0,False))<1e-12);
+        self.assertTrue(abs(expected3[1]-f1.integral(1,False))<1e-12);
+        self.assertTrue(abs(expected3[2]-f1.integral(2,False))<1e-12);
+        res=f1.integral(True);
+        expected4=[-3.4152,8.7639,-14.6879]
+        for i in xrange(3):
+            self.assertTrue(abs(expected4[i]-res[i])<1e-12);
+            pass
+        #normL1
+        res=f1.normL1(False);
+        expected5=[16.377,24.3225,34.6715]
+        for i in xrange(3):
+            self.assertTrue(abs(expected5[i]-res[i])<1e-12);
+            pass
+        self.assertTrue(abs(expected5[0]-f1.normL1(0,False))<1e-12);
+        self.assertTrue(abs(expected5[1]-f1.normL1(1,False))<1e-12);
+        self.assertTrue(abs(expected5[2]-f1.normL1(2,False))<1e-12);
+        res=f1.normL1(True);
+        expected6=[6.97950617284,16.8901851851852,27.0296913580247]
+        for i in xrange(3):
+            self.assertTrue(abs(expected6[i]-res[i])<1e-12);
+            pass
+        #normL2
+        res=f1.normL2(False);
+        expected7=[13.3073310622,23.1556650736,33.8113075021]
+        for i in xrange(3):
+            self.assertTrue(abs(expected7[i]-res[i])<1e-9);
+            pass
+        self.assertTrue(abs(expected7[0]-f1.normL2(0,False))<1e-9);
+        self.assertTrue(abs(expected7[1]-f1.normL2(1,False))<1e-9);
+        self.assertTrue(abs(expected7[2]-f1.normL2(2,False))<1e-9);
+        res=f1.normL2(True);
+        expected8=[7.09091097945239,16.9275542960123,27.0532714641609]
+        for i in xrange(3):
+            self.assertTrue(abs(expected8[i]-res[i])<1e-9);
+            pass
+        #
+        # Testing with 2D Curve
+        m1=MEDCouplingDataForTest.build2DCurveTargetMesh_3();
+        f2=m1.getMeasureField(False);
+        self.assertEqual(4,f2.getArray().getNumberOfTuples());
+        self.assertEqual(1,f2.getNumberOfComponents());
+        ptr=f2.getArray().getValues();
+        for i in xrange(4):
+            self.assertTrue(abs(sqrt(2.)*expected2[i]-ptr[i])<1e-12);
+            pass
+        f2=m1.getMeasureField(True);
+        self.assertEqual(4,f2.getArray().getNumberOfTuples());
+        self.assertEqual(1,f2.getNumberOfComponents());
+        ptr=f2.getArray().getValues();
+        for i in xrange(4):
+            self.assertTrue(abs(expected2[i]*sqrt(2.)-ptr[i])<1e-12);
+            pass
+        #bary
+        f3=m1.getBarycenterAndOwner();
+        self.assertEqual(4,f3.getNumberOfTuples());
+        self.assertEqual(2,f3.getNumberOfComponents());
+        expected10=[0.75,0.75,5.105,5.105,0.8,0.8,5.155,5.155]
+        ptr=f3.getValues();
+        for i in xrange(8):
+            self.assertTrue(abs(expected10[i]-ptr[i])<1e-12);
+            pass
+        #
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f1.setMesh(m1);
+        array=DataArrayDouble.New();
+        array.setValues(arr,m1.getNumberOfCells(),3);
+        f1.setArray(array);
+        res=f1.integral(False);
+        for i in xrange(3):
+            self.assertTrue(abs(sqrt(2.)*expected4[i]-res[i])<1e-12);
+            pass
+        res=f1.integral(True);
+        for i in xrange(3):
+            self.assertTrue(abs(sqrt(2.)*expected4[i]-res[i])<1e-12);
+            pass
+        res=f1.normL1(False);
+        for i in xrange(3):
+            self.assertTrue(abs(expected6[i]-res[i])<1e-12);
+            pass
+        res=f1.normL1(True);
+        for i in xrange(3):
+            self.assertTrue(abs(expected6[i]-res[i])<1e-12);
+            pass
+        res=f1.normL2(False);
+        for i in xrange(3):
+            self.assertTrue(abs(expected8[i]-res[i])<1e-12);
+            pass
+        res=f1.normL2(True);
+        for i in xrange(3):
+            self.assertTrue(abs(expected8[i]-res[i])<1e-12);
+            pass
+        pass
+
+    def testAreaBary2D(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_3();
+        f1=m1.getMeasureField(False);
+        self.assertEqual(10,f1.getArray().getNumberOfTuples());
+        self.assertEqual(1,f1.getNumberOfComponents());
+        expected1=[-0.5,-1,-1.5,-0.5,-1,  0.5,1,1.5,0.5,1]
+        ptr=f1.getArray().getValues();
+        for i in xrange(10):
+            self.assertTrue(abs(expected1[i]-ptr[i])<1e-12);
+            pass
+        f1=m1.getMeasureField(True);
+        ptr=f1.getArray().getValues();
+        for i in xrange(10):
+            self.assertTrue(abs(abs(expected1[i])-ptr[i])<1e-12);
+            pass
+        f2=m1.getBarycenterAndOwner();
+        self.assertEqual(10,f2.getNumberOfTuples());
+        self.assertEqual(2,f2.getNumberOfComponents());
+        expected2=[0.5,0.3333333333333333,0.5,0.5,0.5,0.77777777777777777,0.5,0.3333333333333333,0.5,0.5,0.5,0.3333333333333333,0.5,0.5,0.5,0.77777777777777777,0.5,0.3333333333333333,0.5,0.5]
+        ptr=f2.getValues();
+        for i in xrange(20):
+            self.assertTrue(abs(expected2[i]-ptr[i])<1e-12);
+            pass
+        m1.changeSpaceDimension(3);
+        f1=m1.getMeasureField(False);
+        self.assertEqual(10,f1.getArray().getNumberOfTuples());
+        self.assertEqual(1,f1.getNumberOfComponents());
+        ptr=f1.getArray().getValues();
+        for i in xrange(10):
+            self.assertTrue(abs(abs(expected1[i])-ptr[i])<1e-12);
+            pass
+        f2=m1.getBarycenterAndOwner();
+        self.assertEqual(10,f2.getNumberOfTuples());
+        self.assertEqual(3,f2.getNumberOfComponents());
+        ptr=f2.getValues();
+        expected3=[0.5,0.3333333333333333,0.,0.5,0.5,0.,0.5,0.77777777777777777,0.,0.5,0.3333333333333333,0.,0.5,0.5,0., 0.5,0.3333333333333333,0.,0.5,0.5,0.,0.5,0.77777777777777777,0.,0.5,0.3333333333333333,0.,0.5,0.5,0.]
+        for i in xrange(30):
+            self.assertTrue(abs(expected3[i]-ptr[i])<1e-12);
+            pass
+        pass
+
+    def testRenumberCellsForFields(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f.setMesh(m);
+        arr=DataArrayDouble.New();
+        nbOfCells=m.getNumberOfCells();
+        values1=[7.,107.,10007.,8.,108.,10008.,9.,109.,10009.,10.,110.,10010.,11.,111.,10011.]
+        arr.setValues(values1,nbOfCells,3);
+        f.setArray(arr);
+        renumber1=[3,1,0,4,2]
+        loc=[-0.05,-0.05, 0.55,-0.25, 0.55,0.15, -0.05,0.45, 0.45,0.45]
+        for j in xrange(5):
+            res=f.getValueOn(loc[2*j:2*j+2]);
+            for i in xrange(3):
+                self.assertTrue(abs(values1[i+3*j]-res[i])<1e-12);
+                pass
+            pass
+        f.renumberCells(renumber1,False);
+        ptr=f.getArray().getValues();
+        expected1=[9.,109.,10009.,8.,108.,10008.,11.,111.,10011.,7.,107.,10007.,10.,110.,10010.]
+        for i in xrange(15):
+            self.assertTrue(abs(expected1[i]-ptr[i])<1e-12);
+            pass
+        #check that fields remains the same geometrically
+        for j in xrange(5):
+            res=f.getValueOn(loc[2*j:2*(j+1)]);
+            for i in xrange(3):
+                self.assertTrue(abs(values1[i+3*j]-res[i])<1e-12);
+                pass
+            pass
+        #On gauss
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,NO_TIME);
+        f.setMesh(m);
+        _a=0.446948490915965;
+        _b=0.091576213509771;
+        _p1=0.11169079483905;
+        _p2=0.0549758718227661;
+        refCoo1=[ 0.,0., 1.,0., 0.,1. ]
+        gsCoo1=[ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b, 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ];
+        wg1=[ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 ]
+        _refCoo1=refCoo1[0:6];
+        _gsCoo1=gsCoo1[0:12];
+        _wg1=wg1[0:6];
+        f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
+        refCoo2=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
+        _refCoo2=refCoo2[0:8];
+        _gsCoo1=_gsCoo1[0:4]
+        _wg1=_wg1[0:2]
+        f.setGaussLocalizationOnType(NORM_QUAD4,_refCoo2,_gsCoo1,_wg1);
+        arr=DataArrayDouble.New();
+        values2=[1.,1001.,2.,1002., 11.,1011.,12.,1012.,13.,1013.,14.,1014.,15.,1015.,16.,1016., 21.,1021.,22.,1022.,23.,1023.,24.,1024.,25.,1025.,26.,1026., 31.,1031.,32.,1032., 41.,1041.,42.,1042.]
+        arr.setValues(values2,18,2);
+        f.setArray(arr);
+        f.checkCoherency();
+        fCpy=f.clone(True);
+        self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
+        f.renumberCells(renumber1,False);
+        self.assertTrue(not f.isEqual(fCpy,1e-12,1e-12));
+        expected2=[21.,1021.,22.,1022.,23.,1023.,24.,1024.,25.,1025.,26.,1026., 11.,1011.,12.,1012.,13.,1013.,14.,1014.,15.,1015.,16.,1016., 41.,1041.,42.,1042., 1.,1001.,2.,1002., 31.,1031.,32.,1032.]
+        ptr=f.getArray().getValues();
+        for i in xrange(36):
+            self.assertTrue(abs(expected2[i]-ptr[i])<1e-12);
+            pass
+        renumber2=[2,1,4,0,3]
+        f.renumberCells(renumber2,False);
+        self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
+        #GaussNE
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,NO_TIME);
+        f.setMesh(m);
+        arr=DataArrayDouble.New();
+        values3=[1.,1001.,2.,1002.,3.,1003.,4.,1004., 11.,1011.,12.,1012.,13.,1013., 21.,1021.,22.,1022.,23.,1023., 31.,1031.,32.,1032.,33.,1033.,34.,1034., 41.,1041.,42.,1042.,43.,1043.,44.,1044.]
+        arr.setValues(values3,18,2);
+        f.setArray(arr);
+        f.checkCoherency();
+        fCpy=f.clone(True);
+        self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
+        f.renumberCells(renumber1,False);
+        self.assertTrue(not f.isEqual(fCpy,1e-12,1e-12));
+        expected3=[21.,1021.,22.,1022.,23.,1023.,11.,1011.,12.,1012.,13.,1013.,41.,1041.,42.,1042.,43.,1043.,44.,1044.,1.,1001.,2.,1002.,3.,1003.,4.,1004.,31.,1031.,32.,1032.,33.,1033.,34.,1034.]
+        ptr=f.getArray().getValues();
+        for i in xrange(36):
+            self.assertTrue(abs(expected3[i]-ptr[i])<1e-12);
+            pass
+        f.renumberCells(renumber2,False);#perform reverse operation of renumbering to check that the resulting field is equal.
+        self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
+        #
+        pass
+
+    def testRenumberNodesForFields(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f=MEDCouplingFieldDouble.New(ON_NODES,NO_TIME);
+        f.setMesh(m);
+        arr=DataArrayDouble.New();
+        nbOfNodes=m.getNumberOfNodes();
+        values1=[7.,107.,10007.,8.,108.,10008.,9.,109.,10009.,10.,110.,10010.,11.,111.,10011.,12.,112.,10012.,13.,113.,10013.,14.,114.,10014.,15.,115.,10015.]
+        arr.setValues(values1,nbOfNodes,3);
+        f.setArray(arr);
+        f.checkCoherency();
+        renumber1=[0,4,1,3,5,2,6,7,8]
+        loc=[0.5432,-0.2432, 0.5478,0.1528]
+        expected1=[9.0272, 109.0272, 10009.0272, 11.4124,111.4124,10011.4124]
+        for j in xrange(2):
+            res=f.getValueOn(loc[2*j:2*j+2]);
+            for i in xrange(3):
+                self.assertTrue(abs(expected1[i+3*j]-res[i])<1e-12);
+                pass
+            pass
+        fCpy=f.clone(True);
+        self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
+        f.renumberNodes(renumber1);
+        self.assertTrue(not f.isEqual(fCpy,1e-12,1e-12));
+        for j in xrange(2):
+            res=f.getValueOn(loc[2*j:2*j+2]);
+            for i in xrange(3):
+                self.assertTrue(abs(expected1[i+3*j]-res[i])<1e-12);
+                pass
+            pass
+        expected2=[7.,107.,10007.,9.,109.,10009.,12.,112.,10012.,10.,110.,10010.,8.,108.,10008.,11.,111.,10011.,13.,113.,10013.,14.,114.,10014.,15.,115.,10015.]
+        for i in xrange(27):
+            self.assertTrue(abs(expected2[i]-f.getArray().getValues()[i])<1e-12);
+            pass
+        renumber2=[0,2,5,3,1,4,6,7,8]
+        f.renumberNodes(renumber2);
+        self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
+        pass
+    
     def setUp(self):
         pass
     pass

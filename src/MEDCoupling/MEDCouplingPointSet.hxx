@@ -49,6 +49,7 @@ namespace ParaMEDMEM
     void setCoords(DataArrayDouble *coords);
     DataArrayDouble *getCoords() const { return _coords; }
     DataArrayDouble *getCoordinatesAndOwner() const;
+    void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged) = 0;

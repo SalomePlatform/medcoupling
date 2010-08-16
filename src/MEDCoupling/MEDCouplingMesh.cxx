@@ -29,7 +29,70 @@
 
 using namespace ParaMEDMEM;
 
-bool MEDCouplingMesh::areCompatible(const MEDCouplingMesh *other) const
+/*!
+ * This method checks geo equivalence between two meshes : 'this' and 'other'.
+ * If no exception is throw 'this' and 'other' are geometrically equivalent regarding 'levOfCheck' level.
+ * This method is typically used to change the mesh of a field "safely" depending the 'levOfCheck' level considered.
+ * 
+ * @param levOfCheck input that specifies the level of check specified. The possible values are listed below.
+ * @param prec input that specifies precision for double float data used for comparison in meshes.
+ * @param cellCor output array not always informed (depending 'levOfCheck' param) that gives the corresponding array for cells from 'other' to 'this'.
+ * @param nodeCor output array not always informed (depending 'levOfCheck' param) that gives the corresponding array for nodes from 'other' to 'this'.
+ *
+ * Possible values for levOfCheck :
+ *   - 0 for strict equality. This is the strongest level. 'cellCor' and 'nodeCor' params are never informed.
+ *   - 10,11,12 for less strict equality. Two meshes are compared geometrically. In case of success 'cellCor' and 'nodeCor' are informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
+ *   - 1 for fast 'equality'. This is a lazy level. Just number of cells and number of nodes are considered here and 3 cells (begin,middle,end)
+ */
+void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
+                                          DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+{
+  cellCor=0;
+  nodeCor=0;
+  if(this==other)
+    return ;
+  switch(levOfCheck)
+    {
+    case 0:
+      {
+        if(!isEqual(other,prec))
+          throw INTERP_KERNEL::Exception("checkGeoFitWith : Meshes are not equal !");
+        return ;
+      }
+    case 10:
+    case 11:
+    case 12:
+      {
+        checkDeepEquivalWith(other,levOfCheck-10,prec,cellCor,nodeCor);
+        return ;
+      }
+    case 1:
+      {
+        checkFastEquivalWith(other,prec);
+        return;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("checkGeoFitWith : Invalid levOfCheck specified ! Value must be in 0,1,10,11 or 12.");
+    }
+}
+
+/*!
+ * This method checks fastly that 'this' and 'other' are equal. All common checks are done here.
+ */
+void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=other->getMeshDimension())
+    throw INTERP_KERNEL::Exception("checkFastEquivalWith : Mesh dimensions are not equal !");
+  if(getSpaceDimension()!=other->getSpaceDimension())
+    throw INTERP_KERNEL::Exception("checkFastEquivalWith : Space dimensions are not equal !");
+  if(getNumberOfCells()!=other->getNumberOfCells())
+    throw INTERP_KERNEL::Exception("checkFastEquivalWith : number of cells are not equal !");
+}
+
+/*!
+ * This method is very poor and looks only if 'this' and 'other' are candidate for merge of fields lying repectively on them.
+ */
+bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
 {
   if(getMeshDimension()!=other->getMeshDimension())
     return false;
@@ -78,6 +141,15 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
   ret->setArray(array);
   array->decrRef();
   return ret;
+}
+
+/*!
+ * This method copyies all tiny strings from other (name and components name).
+ * @throw if other and this have not same mesh type.
+ */
+void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+{
+  _name=other->_name;
 }
 
 /*!

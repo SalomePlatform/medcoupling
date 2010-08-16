@@ -85,11 +85,89 @@ TypeOfField MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(const c
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
 
+/*!
+ * Excepted for MEDCouplingFieldDiscretizationPerCell no underlying TimeLabel object : nothing to do in generally.
+ */
+void MEDCouplingFieldDiscretization::updateTime()
+{
+}
+
+/*!
+ * Computes normL1 of DataArrayDouble instance arr.
+ * @param res output parameter expected to be of size arr->getNumberOfComponents();
+ * @throw when the field discretization fails on getWeighting fields (gauss points for example)
+ */
+void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingFieldDouble *vol=getWeightingField(mesh,isWAbs);
+  int nbOfCompo=arr->getNumberOfComponents();
+  int nbOfElems=getNumberOfTuples(mesh);
+  std::fill(res,res+nbOfCompo,0.);
+  double totVol=0.;
+  const double *arrPtr=arr->getConstPointer();
+  const double *volPtr=vol->getArray()->getConstPointer();
+  for(int i=0;i<nbOfElems;i++)
+    {
+      for(int j=0;j<nbOfCompo;j++)
+        res[j]+=fabs(arrPtr[i*nbOfCompo+j])*volPtr[i];
+      totVol+=volPtr[i];
+    }
+  std::transform(res,res+nbOfCompo,res,std::bind2nd(std::multiplies<double>(),1/totVol));
+  vol->decrRef();
+}
+
+/*!
+ * Computes normL2 of DataArrayDouble instance arr.
+ * @param res output parameter expected to be of size arr->getNumberOfComponents();
+ * @throw when the field discretization fails on getWeighting fields (gauss points for example)
+ */
+void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingFieldDouble *vol=getWeightingField(mesh,isWAbs);
+  int nbOfCompo=arr->getNumberOfComponents();
+  int nbOfElems=getNumberOfTuples(mesh);
+  std::fill(res,res+nbOfCompo,0.);
+  double totVol=0.;
+  const double *arrPtr=arr->getConstPointer();
+  const double *volPtr=vol->getArray()->getConstPointer();
+  for(int i=0;i<nbOfElems;i++)
+    {
+      for(int j=0;j<nbOfCompo;j++)
+        res[j]+=arrPtr[i*nbOfCompo+j]*arrPtr[i*nbOfCompo+j]*volPtr[i];
+      totVol+=volPtr[i];
+    }
+  std::transform(res,res+nbOfCompo,res,std::bind2nd(std::multiplies<double>(),1/totVol));
+  std::transform(res,res+nbOfCompo,res,std::ptr_fun<double,double>(std::sqrt));
+  vol->decrRef();
+}
+
+/*!
+ * Computes integral of DataArrayDouble instance arr.
+ * @param res output parameter expected to be of size arr->getNumberOfComponents();
+ * @throw when the field discretization fails on getWeighting fields (gauss points for example)
+ */
+void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingFieldDouble *vol=getWeightingField(mesh,isWAbs);
+  int nbOfCompo=arr->getNumberOfComponents();
+  int nbOfElems=getNumberOfTuples(mesh);
+  std::fill(res,res+nbOfCompo,0.);
+  const double *arrPtr=arr->getConstPointer();
+  const double *volPtr=vol->getArray()->getConstPointer();
+  double *tmp=new double[nbOfCompo];
+  for (int i=0;i<nbOfElems;i++)
+    {
+      std::transform(arrPtr+i*nbOfCompo,arrPtr+(i+1)*nbOfCompo,tmp,std::bind2nd(std::multiplies<double>(),volPtr[i]));
+      std::transform(tmp,tmp+nbOfCompo,res,res,std::plus<double>());
+    }
+  delete [] tmp;
+  vol->decrRef();
+}
+
 void MEDCouplingFieldDiscretization::getSerializationIntArray(DataArrayInt *& arr) const
 {
   arr=0;
 }
-
 
 /*!
  * Empty : Not a bug
@@ -114,6 +192,14 @@ void MEDCouplingFieldDiscretization::resizeForUnserialization(const std::vector<
  * Empty : Not a bug
  */
 void MEDCouplingFieldDiscretization::finishUnserialization(const std::vector<double>& tinyInfo)
+{
+}
+
+/*!
+ * This method is typically the first step of renumbering. The implementation is empty it is not a bug only gauss is impacted
+ * virtualy by this method.
+ */
+void MEDCouplingFieldDiscretization::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
 {
 }
 
@@ -199,6 +285,21 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *m
   return mesh->getNumberOfCells();
 }
 
+void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
+                                                             const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
+  const int *array=old2NewBg;
+  if(check)
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+  for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
+    {
+      if(*it)
+        (*it)->renumberInPlace(array);
+    }
+  if(check)
+    delete [] array;
+}
+
 DataArrayDouble *MEDCouplingFieldDiscretizationP0::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
 {
   return mesh->getBarycenterAndOwner();
@@ -244,7 +345,7 @@ void MEDCouplingFieldDiscretizationP0::getValueOnPos(const DataArrayDouble *arr,
 /*!
  * Nothing to do. It's not a bug.
  */
-void MEDCouplingFieldDiscretizationP0::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+void MEDCouplingFieldDiscretizationP0::renumberValuesOnNodes(const int *, DataArrayDouble *) const
 {
 }
 
@@ -282,6 +383,14 @@ bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretizat
 {
   const MEDCouplingFieldDiscretizationP1 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP1 *>(other);
   return otherC!=0;
+}
+
+/*!
+ * Nothing to do here.
+ */
+void MEDCouplingFieldDiscretizationP1::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
+                                                             const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
 }
 
 int MEDCouplingFieldDiscretizationP1::getNumberOfTuples(const MEDCouplingMesh *mesh) const
@@ -358,10 +467,9 @@ void MEDCouplingFieldDiscretizationP1::getValueOnPos(const DataArrayDouble *arr,
   arr->getTuple(id,res);
 }
 
-void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const int *old2NewPtr, DataArrayDouble *arr) const
 {
-  int oldNbOfElems=old2New->getNbOfElems();
-  const int *old2NewPtr=old2New->getConstPointer();
+  int oldNbOfElems=arr->getNumberOfTuples();
   int nbOfComp=arr->getNumberOfComponents();
   int newNbOfTuples=(*std::max_element(old2NewPtr,old2NewPtr+oldNbOfElems))+1;
   DataArrayDouble *arrCpy=arr->deepCopy();
@@ -437,6 +545,12 @@ MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(con
     _discr_per_cell=arr->deepCopy();
 }
 
+void MEDCouplingFieldDiscretizationPerCell::updateTime()
+{
+  if(_discr_per_cell)
+    updateTimeWith(*_discr_per_cell);
+}
+
 void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
 {
   if(!_discr_per_cell)
@@ -456,6 +570,27 @@ bool MEDCouplingFieldDiscretizationPerCell::isEqual(const MEDCouplingFieldDiscre
   if(otherC->_discr_per_cell==0)
     return false;
   return _discr_per_cell->isEqual(*otherC->_discr_per_cell);
+}
+
+/*!
+ * This method is typically the first step of renumbering. The impact on _discr_per_cell is necessary here.
+ * virtualy by this method.
+ */
+void MEDCouplingFieldDiscretizationPerCell::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
+  int nbCells=_discr_per_cell->getNumberOfTuples();
+  const int *array=old2NewBg;
+  if(std::distance(old2NewBg,old2NewEnd)!=nbCells)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::renumberCells unexpected size of array !");
+  if(check)
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+  //
+  DataArrayInt *dpc=_discr_per_cell->renumber(array);
+  _discr_per_cell->decrRef();
+  _discr_per_cell=dpc;
+  //
+  if(check)
+    delete [] (int *)array;
 }
 
 void MEDCouplingFieldDiscretizationPerCell::buildDiscrPerCellIfNecessary(const MEDCouplingMesh *m)
@@ -509,7 +644,7 @@ const char *MEDCouplingFieldDiscretizationGauss::getStringRepr() const
   return REPR;
 }
 
-int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const
 {
   int ret=0;
   const int *dcPtr=_discr_per_cell->getConstPointer();
@@ -517,6 +652,36 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh
   for(const int *w=dcPtr;w!=dcPtr+nbOfTuples;w++)
     ret+=_loc[*w].getNumberOfGaussPt();
   return ret;
+}
+
+void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
+                                                                const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
+  const int *array=old2NewBg;
+  if(check)
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+  int nbOfCells=_discr_per_cell->getNumberOfTuples();
+  int nbOfTuples=getNumberOfTuples(0);
+  const int *dcPtr=_discr_per_cell->getConstPointer();
+  int *array2=new int[nbOfTuples];//stores the final conversion array old2New to give to arrays in renumberInPlace.
+  int *array3=new int[nbOfCells];//store for each cell in present dcp array (already renumbered) the offset needed by each cell in new numbering.
+  array3[0]=0;
+  for(int i=1;i<nbOfCells;i++)
+    array3[i]=array3[i-1]+_loc[dcPtr[i-1]].getNumberOfGaussPt();
+  int j=0;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      int nbOfGaussPt=_loc[dcPtr[array[i]]].getNumberOfGaussPt();
+      for(int k=0;k<nbOfGaussPt;k++,j++)
+        array2[j]=array3[array[i]]+k;
+    }
+  delete [] array3;
+  for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
+    if(*it)
+      (*it)->renumberInPlace(array2);
+  delete [] array2;
+  if(check)
+    delete [] (int*)array;
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
@@ -655,9 +820,11 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const int
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
-void MEDCouplingFieldDiscretizationGauss::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+/*!
+ * No implementation needed !
+ */
+void MEDCouplingFieldDiscretizationGauss::renumberValuesOnNodes(const int *, DataArrayDouble *) const
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
@@ -855,6 +1022,40 @@ int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMe
   return ret;
 }
 
+void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+                                                                  const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
+  const int *array=old2NewBg;
+  if(check)
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+  int nbOfCells=mesh->getNumberOfCells();
+  int nbOfTuples=getNumberOfTuples(mesh);
+  int *array2=new int[nbOfTuples];//stores the final conversion array old2New to give to arrays in renumberInPlace.
+  int *array3=new int[nbOfCells];//store for each cell in after renumbering the offset needed by each cell in new numbering.
+  array3[0]=0;
+  for(int i=1;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(std::distance(array,std::find(array,array+nbOfCells,i-1)));
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      array3[i]=array3[i-1]+cm.getNumberOfNodes();
+    }
+  int j=0;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      for(int k=0;k<cm.getNumberOfNodes();k++,j++)
+        array2[j]=array3[array[i]]+k;
+    }
+  delete [] array3;
+  for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
+    if(*it)
+      (*it)->renumberInPlace(array2);
+  delete [] array2;
+  if(check)
+    delete [] (int*)array;
+}
+
 DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
@@ -907,9 +1108,11 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const i
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
-void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnNodes(const DataArrayInt *old2New, DataArrayDouble *arr) const
+/*!
+ * No implementation needed !
+ */
+void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnNodes(const int *, DataArrayDouble *) const
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other):MEDCouplingFieldDiscretization(other)

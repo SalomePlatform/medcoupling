@@ -252,6 +252,58 @@ class MEDCouplingDataForTest:
         targetMesh.setCoords(myCoords);
         return targetMesh;
 
+    def build1DTargetMesh_3(cls):
+        ret=MEDCouplingUMesh.New("1DMesh_3",1);
+        ret.allocateCells(4);
+        conn=[0,1,2, 3,4, 6,5,7 ,9,8]
+        ret.insertNextCell(NORM_SEG3,3,conn[0:3])
+        ret.insertNextCell(NORM_SEG2,2,conn[3:5])
+        ret.insertNextCell(NORM_SEG3,3,conn[5:8])
+        ret.insertNextCell(NORM_SEG2,2,conn[8:10])
+        ret.finishInsertingCells();
+        coords=[0.5,1.,0.8,5.,5.21,0.5,1.1,0.7,5.,5.31]
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(coords,10,1);
+        ret.setCoords(myCoords);
+        return ret;
+
+    def build2DCurveTargetMesh_3(cls):
+        ret=MEDCouplingUMesh.New("2DCurveMesh_3",1);
+        ret.allocateCells(4);
+        conn=[0,1,2, 3,4, 6,5,7 ,9,8]
+        ret.insertNextCell(NORM_SEG3,3,conn[0:3])
+        ret.insertNextCell(NORM_SEG2,2,conn[3:5])
+        ret.insertNextCell(NORM_SEG3,3,conn[5:8])
+        ret.insertNextCell(NORM_SEG2,2,conn[8:10])
+        ret.finishInsertingCells();
+        coords=[0.5,0.5,1.,1.,0.8,0.8,5.,5.,5.21,5.21,0.5,0.5,1.1,1.1,0.7,0.7,5.,5.,5.31,5.31]
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(coords,10,2);
+        ret.setCoords(myCoords);
+        return ret;
+
+    def build2DTargetMesh_3(cls):
+        ret=MEDCouplingUMesh.New("2DMesh_3",2);
+        ret.allocateCells(10);
+        conn=[0,1,2, 0,1,3,4, 0,1,3,5,4, 0,1,2,6,7,8, 0,1,3,4,6,9,2,10, 0,2,1, 0,4,3,1, 0,4,5,3,1, 0,2,1,8,7,6, 0,4,3,1,10,2,9,6]
+        ret.insertNextCell(NORM_TRI3,3,conn[0:3])
+        ret.insertNextCell(NORM_QUAD4,4,conn[3:7])
+        ret.insertNextCell(NORM_POLYGON,5,conn[7:12])
+        ret.insertNextCell(NORM_TRI6,6,conn[12:18])
+        ret.insertNextCell(NORM_QUAD8,8,conn[18:26])
+        ret.insertNextCell(NORM_TRI3,3,conn[26:29])
+        ret.insertNextCell(NORM_QUAD4,4,conn[29:33])
+        ret.insertNextCell(NORM_POLYGON,5,conn[33:38])
+        ret.insertNextCell(NORM_TRI6,6,conn[38:44])
+        ret.insertNextCell(NORM_QUAD8,8,conn[44:52])
+        ret.finishInsertingCells();
+        coords=[0.,0.,1.,0.,0.5,1.,1.,1.,0.,1.,0.5,2.,0.5,0.,0.75,0.5,0.25,0.5,1.,0.5,0.,0.5]
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(coords,11,2);
+        ret.setCoords(myCoords);
+        ret.checkCoherency();
+        return ret;
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
@@ -262,4 +314,7 @@ class MEDCouplingDataForTest:
     build3DTargetMeshMergeNode_1=classmethod(build3DTargetMeshMergeNode_1)
     build2DTargetMeshMerged_1=classmethod(build2DTargetMeshMerged_1)
     build2DTargetMesh_2=classmethod(build2DTargetMesh_2)
+    build1DTargetMesh_3=classmethod(build1DTargetMesh_3)
+    build2DCurveTargetMesh_3=classmethod(build2DCurveTargetMesh_3)
+    build2DTargetMesh_3=classmethod(build2DTargetMesh_3)
     pass

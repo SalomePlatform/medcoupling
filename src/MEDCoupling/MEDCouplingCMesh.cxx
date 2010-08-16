@@ -31,6 +31,31 @@ MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)
 {
 }
 
+MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy)
+{
+  if(deepCpy)
+    {
+      if(other._x_array)
+        _x_array=_x_array->deepCopy();
+      if(other._y_array)
+        _y_array=_y_array->deepCopy();
+      if(other._z_array)
+        _z_array=_z_array->deepCopy();
+    }
+  else
+    {
+      _x_array=other._x_array;
+      if(_x_array)
+        _x_array->incrRef();
+      _y_array=other._y_array;
+      if(_y_array)
+        _y_array->incrRef();
+      _z_array=other._z_array;
+      if(_z_array)
+        _z_array->incrRef();
+    }
+}
+
 MEDCouplingCMesh::~MEDCouplingCMesh()
 {
   if(_x_array)
@@ -46,6 +71,16 @@ MEDCouplingCMesh *MEDCouplingCMesh::New()
   return new MEDCouplingCMesh;
 }
 
+MEDCouplingMesh *MEDCouplingCMesh::deepCpy() const
+{
+  return clone(true);
+}
+
+MEDCouplingCMesh *MEDCouplingCMesh::clone(bool recDeepCpy) const
+{
+  return new MEDCouplingCMesh(*this,recDeepCpy);
+}
+
 void MEDCouplingCMesh::updateTime()
 {
   if(_x_array)
@@ -56,12 +91,36 @@ void MEDCouplingCMesh::updateTime()
     updateTimeWith(*_z_array);
 }
 
+/*!
+ * This method copyies all tiny strings from other (name and components name).
+ * @throw if other and this have not same mesh type.
+ */
+void MEDCouplingCMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+{ 
+  const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::copyTinyStringsFrom : meshes have not same type !");
+  MEDCouplingMesh::copyTinyStringsFrom(other);
+  if(_x_array && otherC->_x_array)
+    _x_array->copyStringInfoFrom(*otherC->_x_array);
+  if(_y_array && otherC->_y_array)
+    _y_array->copyStringInfoFrom(*otherC->_y_array);
+  if(_z_array && otherC->_z_array)
+    _z_array->copyStringInfoFrom(*otherC->_z_array);
+}
+
 bool MEDCouplingCMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
   const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
   if(!otherC)
     return false;
   return true;
+}
+
+void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                            DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 void MEDCouplingCMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
@@ -384,6 +443,11 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
         pt[i*spaceDim+j]=tabsPtr[j][tmp2[j]];
     }
   return ret;
+}
+
+void MEDCouplingCMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for CMesh !");
 }
 
 void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const

@@ -38,13 +38,17 @@ namespace ParaMEDMEM
     static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     static MEDCouplingExtrudedMesh *New();
     MEDCouplingMeshType getType() const;
+    void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isStructured() const;
     int getNumberOfCells() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     int getMeshDimension() const;
+    MEDCouplingMesh *deepCpy() const;
     MEDCouplingExtrudedMesh *clone(bool recDeepCpy) const;
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                              DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
@@ -52,6 +56,7 @@ namespace ParaMEDMEM
     void checkCoherency() const throw (INTERP_KERNEL::Exception);
     void getBoundingBox(double *bbox) const;
     void updateTime();
+    void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getMesh2D() const { return _mesh2D; }
     MEDCouplingUMesh *getMesh1D() const { return _mesh1D; }
     DataArrayInt *getMesh3DIds() const { return _mesh3D_ids; }

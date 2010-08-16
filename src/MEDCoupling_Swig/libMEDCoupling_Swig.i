@@ -76,6 +76,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::substr;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
+%newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
+%newobject ParaMEDMEM::MEDCouplingMesh::getBarycenterAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildOrthogonalField;
 %newobject ParaMEDMEM::MEDCouplingMesh::mergeMyselfWith;
 %newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic;
@@ -169,8 +171,18 @@ namespace ParaMEDMEM
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
     virtual void translate(const double *vector) = 0;
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual bool areCompatible(const MEDCouplingMesh *other) const;
+    virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
+    %extend
+       {
+         void renumberCells(PyObject *li, bool check) throw(INTERP_KERNEL::Exception)
+         {
+           int size;
+           int *tmp=convertPyToNewIntArr2(li,&size);
+           self->renumberCells(tmp,tmp+size,check);
+           delete [] tmp;
+         }
+       }
   };
 }
 
@@ -405,13 +417,6 @@ namespace ParaMEDMEM
         PyList_SetItem(res,1,SWIG_From_bool(ret1));
         return res;
       }
-      void renumberCells(PyObject *li, bool check)
-      {
-        int size;
-        int *tmp=convertPyToNewIntArr2(li,&size);
-        self->renumberCells(tmp,tmp+size,check);
-        delete [] tmp;
-      }
       PyObject *checkButterflyCells()
       {
         std::vector<int> cells;
@@ -639,7 +644,7 @@ namespace ParaMEDMEM
   {
   public:
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    virtual bool areCompatible(const MEDCouplingField *other) const;
+    virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
     void setName(const char *name);
@@ -727,7 +732,9 @@ namespace ParaMEDMEM
     void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
     double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
-    double measureAccumulate(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    double normL1(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    double normL2(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
@@ -834,14 +841,63 @@ namespace ParaMEDMEM
         delete [] tmp;
         return ret;
       }
-      PyObject *measureAccumulate(bool isWAbs) const
+      PyObject *integral(bool isWAbs) const
       {
         int sz=self->getNumberOfTuples();
         double *tmp=new double[sz];
-        self->measureAccumulate(isWAbs,tmp);
+        self->integral(isWAbs,tmp);
         PyObject *ret=convertDblArrToPyList(tmp,sz);
         delete [] tmp;
         return ret;
+      }
+      PyObject *normL1(bool isWAbs) const throw(INTERP_KERNEL::Exception)
+      {
+        int sz=self->getNumberOfTuples();
+        double *tmp=new double[sz];
+        self->normL1(isWAbs,tmp);
+        PyObject *ret=convertDblArrToPyList(tmp,sz);
+        delete [] tmp;
+        return ret;
+      }
+      PyObject *normL2(bool isWAbs) const throw(INTERP_KERNEL::Exception)
+      {
+        int sz=self->getNumberOfTuples();
+        double *tmp=new double[sz];
+        self->normL2(isWAbs,tmp);
+        PyObject *ret=convertDblArrToPyList(tmp,sz);
+        delete [] tmp;
+        return ret;
+      }
+
+      void renumberCells(PyObject *li, bool check) throw(INTERP_KERNEL::Exception)
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        try
+          {
+            self->renumberCells(tmp,tmp+size,check);
+          }
+        catch(INTERP_KERNEL::Exception& e)
+          {
+            delete [] tmp;
+            throw e;
+          }
+        delete [] tmp;
+      }
+      void renumberNodes(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        try
+          {
+            self->renumberNodes(tmp,tmp+size);
+          }
+        catch(INTERP_KERNEL::Exception& e)
+          {
+            delete [] tmp;
+            throw e;
+          }
+        delete [] tmp;
       }
     }
   };

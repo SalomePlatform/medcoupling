@@ -22,7 +22,7 @@
 
 #include "InterpolationUtils.hxx"
 
-#include <math.h>
+#include <cmath>
 
 namespace INTERP_KERNEL
 {
@@ -36,7 +36,7 @@ namespace INTERP_KERNEL
   inline double calculateLgthForSeg2(const double *p1, const double *p2, int spaceDim)
   {
     if(spaceDim==1)
-      return fabs(*p2-*p1);
+      return *p2-*p1;
     else
       {
         double ret=0;
@@ -415,7 +415,8 @@ namespace INTERP_KERNEL
 
   /*!
    * Calculate Volume for Generic Polyedron, even not convex one, WARNING !!! The polyedron's faces must be correctly ordered.
-   * 2nd API avoiding to create double** arrays.
+   * 2nd API avoiding to create double** arrays. The returned value could be negative if polyhedrons faces are not oriented with normal outside of the
+   * polyhedron
    */
   template<class ConnType, NumberingPolicy numPol>
   inline double calculateVolumeForPolyh2(const ConnType *connec, int lgth, const double *coords)
@@ -441,6 +442,94 @@ namespace INTERP_KERNEL
         work=work2+1;
       }
     return volume/6.;
+  }
+
+  /*!
+   * This method returns the area oriented vector of a polygon. This method is useful for normal computation without
+   * any troubles if several edges are colinears.
+   * @param res must be of size at least 3 to store the result.
+   */
+  template<class ConnType, NumberingPolicy numPol>
+  inline double areaVectorOfPolygon(const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    res[0]=0.; res[1]=0.; res[2]=0.;
+    for(int ptId=0;ptId<lgth;ptId++)
+      {
+        const double *pti=coords+3*OTT<ConnType,numPol>::coo2C(connec[ptId]);
+        const double *pti1=coords+3*OTT<ConnType,numPol>::coo2C(connec[(ptId+1)%lgth]);
+        res[0]+=pti[1]*pti1[2]-pti[2]*pti1[1];
+        res[1]+=pti[2]*pti1[0]-pti[0]*pti1[2];
+        res[2]+=pti[0]*pti1[1]-pti[1]*pti1[0];
+      }
+  }
+
+  inline double integrationOverA3DLine(double u1, double v1, double u2, double v2, double A, double B, double C, double J, double K)
+  {
+    return (-u2*u2*u2*u2*J*J*J*B*B+12*u1*C*C*K-4*u2*u2*u2*A*A*K+3*u1*u1*u1*u1*J*J*A*B-6*C*C*u2*u2*J-4*C*u2*u2*u2*J*J*B-8*C*u2*u2*u2*J*A-3*u2*u2*u2*u2*J*A*A+8*u1*u1*u1*J*A*K*B-4*u2*K*K*K*B*B-3*u2*u2*u2*u2*J*J*A*B-12*C*u2*u2*J*K*B+6*u1*u1*J*K*K*B*B+6*u1*u1*A*K*K*B+4*u1*u1*u1*A*A*K+u1*u1*u1*u1*J*J*J*B*B-8*u2*u2*u2*J*A*K*B-12*C*C*u2*K+12*u1*u1*C*A*K-4*u2*u2*u2*J*J*K*B*B+6*u1*u1*C*C*J+4*u1*u1*u1*J*J*K*B*B+4*u1*u1*u1*C*J*J*B+8*u1*u1*u1*C*J*A+12*u1*u1*C*J*K*B+12*u1*C*K*K*B+4*u1*K*K*K*B*B-12*C*u2*u2*A*K+3*u1*u1*u1*u1*J*A*A-12*C*u2*K*K*B-6*u2*u2*J*K*K*B*B-6*u2*u2*A*K*K*B)/24.;
+  }
+
+  template<class ConnType, NumberingPolicy numPol>
+  inline void barycenterOfPolyhedron(const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    int nbOfFaces=std::count(connec,connec+lgth,-1)+1;
+    res[0]=0.; res[1]=0.; res[2]=0.;
+    const int *work=connec;
+    for(int i=0;i<nbOfFaces;i++)
+      {
+        const int *work2=std::find(work+1,connec+lgth,-1);
+        int nbOfNodesOfCurFace=std::distance(work,work2);
+        // projection to (u,v) of each faces of polyh to compute integral(x^2/2) on each faces.
+        double normal[3];
+        areaVectorOfPolygon<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,normal);
+        double normOfNormal=sqrt(normal[0]*normal[0]+normal[1]*normal[1]+normal[2]*normal[2]);
+        normal[0]/=normOfNormal; normal[1]/=normOfNormal; normal[2]/=normOfNormal;
+        double u[2]={normal[1],-normal[0]};
+        double s=sqrt(u[0]*u[0]+u[1]*u[1]);
+        double c=normal[2];
+        if(fabs(s)>1e-12)
+          {
+            u[0]/=std::abs(s); u[1]/=std::abs(s);
+          }
+        else
+          { u[0]=1.; u[1]=0.; }
+        //C : high in plane of polyhedron face : always constant
+        double w=normal[0]*coords[3*OTT<ConnType,numPol>::coo2C(work[0])]+
+          normal[1]*coords[3*OTT<ConnType,numPol>::coo2C(work[0])+1]+
+          normal[2]*coords[3*OTT<ConnType,numPol>::coo2C(work[0])+2];
+        // A,B,D,F,G,H,L,M,N coeffs of rotation matrix defined by (u,c,s)
+        double A=u[0]*u[0]*(1-c)+c;
+        double B=u[0]*u[1]*(1-c);
+        double D=u[1]*s;
+        double F=B;
+        double G=u[1]*u[1]*(1-c)+c;
+        double H=-u[0]*s;
+        double L=-u[1]*s;
+        double M=u[0]*s;
+        double N=c;
+        for(int j=0;j<nbOfNodesOfCurFace;j++)
+          {
+            const double *p1=coords+3*OTT<ConnType,numPol>::coo2C(work[j]);
+            const double *p2=coords+3*OTT<ConnType,numPol>::coo2C(work[(j+1)%nbOfNodesOfCurFace]);
+            double u1=A*p1[0]+B*p1[1]+D*p1[2];
+            double u2=A*p2[0]+B*p2[1]+D*p2[2];
+            double v1=F*p1[0]+G*p1[1]+H*p1[2];
+            double v2=F*p2[0]+G*p2[1]+H*p2[2];
+            if(fabs(u2-u1)>1e-12)
+              {
+                double J=(v2-v1)/(u2-u1);
+                double K=(v1*u2-v2*u1)/(u2-u1);
+                double gx=integrationOverA3DLine(u1,v1,u2,v2,A,B,-w*D,J,K);
+                double gy=integrationOverA3DLine(u1,v1,u2,v2,F,G,-w*H,J,K);
+                double gz=integrationOverA3DLine(u1,v1,u2,v2,L,M,-w*N,J,K);
+                res[0]+=gx*normal[0];
+                res[1]+=gy*normal[1];
+                res[2]+=gz*normal[2];
+              }
+          }
+        work=work2+1;
+      }
+    double vol=calculateVolumeForPolyh2<ConnType,numPol>(connec,lgth,coords);
+    res[0]/=vol; res[1]/=vol; res[2]/=vol;
   }
 
   // ============================================================================================================================================
@@ -556,7 +645,7 @@ namespace INTERP_KERNEL
     res[0]=0.; res[1]=0.;
     for(int i=0;i<lgth;i++)
       {
-        double cp=coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]+
+        double cp=coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])+1]-
           coords[2*OTT<ConnType,numPol>::coo2C(connec[i])+1]*coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])];
         area+=cp;
         res[0]+=cp*(coords[2*OTT<ConnType,numPol>::coo2C(connec[i])]+coords[2*OTT<ConnType,numPol>::coo2C(connec[(i+1)%lgth])]);
@@ -566,23 +655,37 @@ namespace INTERP_KERNEL
     res[1]/=3.*area;
   }
 
-  template<class ConnType, NumberingPolicy numPolConn>
+  template<class ConnType, NumberingPolicy numPol>
   inline void computePolygonBarycenter3D(const ConnType *connec, int lgth, const double *coords, double *res)
   {
-    double area[3]={0.,0.,0.};
+    double area[3];
+    areaVectorOfPolygon<ConnType,numPol>(connec,lgth,coords,area);
+    double norm=sqrt(area[0]*area[0]+area[1]*area[1]+area[2]*area[2]);
+    area[0]/=norm; area[1]/=norm; area[2]/=norm;
     res[0]=0.; res[1]=0.; res[2]=0.;
-    for(int i=0;i<lgth;i++)
+    for(int i=1;i<lgth-1;i++)
       {
-        double v[3]={0.,0.,0.};
-        v[0]+=coords[3*connec[i]+1]*coords[3*connec[(i+1)%lgth]+2]-coords[3*connec[i]+2]*coords[3*connec[(i+1)%lgth]+1];
-        v[1]+=coords[3*connec[i]+2]*coords[3*connec[(i+1)%lgth]]-coords[3*connec[i]]*coords[3*connec[(i+1)%lgth]+2];
-        v[2]+=coords[3*connec[i]]*coords[3*connec[(i+1)%lgth]+1]-coords[3*connec[i]+1]*coords[3*connec[(i+1)%lgth]];
-        area[0]+=v[0]; area[1]+=v[1]; area[2]+=v[2];
-        res[0]+=v[0]*(coords[3*connec[i]]+coords[3*connec[(i+1)%lgth]]);
-        res[1]+=v[1]*(coords[3*connec[i]+1]+coords[3*connec[(i+1)%lgth]+1]);
-        res[2]+=v[2]*(coords[3*connec[i]+2]+coords[3*connec[(i+1)%lgth]+2]);
-      }
-    
+        double v[3];
+        double tmpArea[3];
+        v[0]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])]+
+              coords[3*OTT<ConnType,numPol>::coo2C(connec[i])]+
+              coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])])/3.;
+        v[1]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+1]+
+              coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+1]+
+              coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])+1])/3.;
+        v[2]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+2]+
+              coords[3*OTT<ConnType,numPol>::coo2C(connec[i])+2]+
+              coords[3*OTT<ConnType,numPol>::coo2C(connec[i+1])+2])/3.;
+        ConnType tmpConn[3]={connec[0],connec[i],connec[i+1]};
+        areaVectorOfPolygon<ConnType,numPol>(tmpConn,3,coords,tmpArea);
+        double norm2=sqrt(tmpArea[0]*tmpArea[0]+tmpArea[1]*tmpArea[1]+tmpArea[2]*tmpArea[2]);
+        if(norm2>1e-12)
+          {
+            tmpArea[0]/=norm2; tmpArea[1]/=norm2; tmpArea[2]/=norm2;
+            double signOfArea=area[0]*tmpArea[0]+area[1]*tmpArea[1]+area[2]*tmpArea[2];
+            res[0]+=signOfArea*norm2*v[0]/norm; res[1]+=signOfArea*norm2*v[1]/norm; res[2]+=signOfArea*norm2*v[2]/norm;
+          }
+      }   
   }
 }
 

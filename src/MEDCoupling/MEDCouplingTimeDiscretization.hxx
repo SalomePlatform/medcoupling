@@ -17,8 +17,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MEDCOUPLINGTIMEDISCRETIZATION_HXX__
-#define __MEDCOUPLINGTIMEDISCRETIZATION_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGTIMEDISCRETIZATION_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGTIMEDISCRETIZATION_HXX__
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"
@@ -43,7 +43,8 @@ namespace ParaMEDMEM
     virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    virtual bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    virtual bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
+    virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(const MEDCouplingTimeDiscretization *other,
                                                                     TypeOfTimeDiscretization type, bool deepCpy) const;
@@ -116,7 +117,8 @@ namespace ParaMEDMEM
     void divideEqual(const MEDCouplingTimeDiscretization *other);
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception) { }
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
@@ -155,7 +157,8 @@ namespace ParaMEDMEM
     void divideEqual(const MEDCouplingTimeDiscretization *other);
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
@@ -191,7 +194,8 @@ namespace ParaMEDMEM
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
     void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
@@ -233,6 +237,7 @@ namespace ParaMEDMEM
     MEDCouplingTwoTimeSteps();
     ~MEDCouplingTwoTimeSteps();
   public:
+    void updateTime();
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     DataArrayDouble *getEndArray() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -274,7 +279,8 @@ namespace ParaMEDMEM
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
-    bool areCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
     void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);

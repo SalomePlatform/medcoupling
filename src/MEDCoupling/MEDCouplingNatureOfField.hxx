@@ -17,8 +17,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MEDCOUPLINGNATUREOFFIELD_HXX__
-#define __MEDCOUPLINGNATUREOFFIELD_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELD_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELD_HXX__
 
 namespace ParaMEDMEM
 {

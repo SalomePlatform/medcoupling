@@ -17,8 +17,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MEDCOUPLINGGAUSSLOCALIZATION_HXX__
-#define __MEDCOUPLINGGAUSSLOCALIZATION_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGGAUSSLOCALIZATION_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGGAUSSLOCALIZATION_HXX__
 
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"

@@ -31,9 +31,14 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingCMesh *New();
+    MEDCouplingMesh *deepCpy() const;
+    MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void updateTime();
     MEDCouplingMeshType getType() const { return CARTESIAN; }
+    void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                              DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     bool isStructured() const;
     int getNumberOfCells() const;
@@ -62,6 +67,7 @@ namespace ParaMEDMEM
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
+    void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception);
     //some useful methods
     void getSplitCellValues(int *res) const;
     void getSplitNodeValues(int *res) const;
@@ -73,6 +79,7 @@ namespace ParaMEDMEM
                          const std::vector<std::string>& littleStrings);
   private:
     MEDCouplingCMesh();
+    MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy);
     ~MEDCouplingCMesh();
   private:
     DataArrayDouble *_x_array;

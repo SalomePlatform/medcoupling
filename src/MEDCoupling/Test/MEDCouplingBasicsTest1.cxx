@@ -1445,7 +1445,7 @@ void MEDCouplingBasicsTest::testFillFromAnalytic()
   f1->accumulate(values4);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,values4[0],1.e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.2,values4[1],1.e-12);
-  f1->measureAccumulate(true,values4);
+  f1->integral(true,values4);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,values4[0],1.e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,values4[1],1.e-12);
   f1->decrRef();
@@ -1515,7 +1515,7 @@ void MEDCouplingBasicsTest::testFillFromAnalytic2()
   f1->accumulate(values4);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,values4[0],1.e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.2,values4[1],1.e-12);
-  f1->measureAccumulate(true,values4);
+  f1->integral(true,values4);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,values4[0],1.e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,values4[1],1.e-12);
   f1->decrRef();

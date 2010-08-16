@@ -27,6 +27,7 @@
 
 #include <cmath>
 #include <functional>
+#include <iterator>
 
 using namespace ParaMEDMEM;
 
@@ -223,10 +224,451 @@ void MEDCouplingBasicsTest::testCellOrientation2()
   res1.clear();
   m5->arePolyhedronsNotCorrectlyOriented(res1);
   CPPUNIT_ASSERT(res1.empty());
+  MEDCouplingFieldDouble *f3=m5->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(15,f3->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f3->getNumberOfComponents());
+  const double *f3Ptr=f3->getArray()->getConstPointer();
+  const double expected1[15]={
+    0.075,0.0375,0.0375,0.075,0.075,
+    0.1125,0.05625,0.05625,0.1125,0.1125,
+    0.0625,0.03125,0.03125,0.0625,0.0625
+  };
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::abs(expected1[i]),f3Ptr[i],1e-12);
+  f3->decrRef();
+  DataArrayDouble *f4=m5->getBarycenterAndOwner();
+  CPPUNIT_ASSERT_EQUAL(15,f4->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,f4->getNumberOfComponents());
+  const double *f4Ptr=f4->getConstPointer();
+  const double expected2[45]={
+    -0.05,-0.05,0.15, 0.3666666666666667,-0.13333333333333333,0.15, 0.53333333333333333,0.033333333333333333,0.15, -0.05,0.45,0.15, 0.45,0.45,0.15,
+    -0.05,-0.05,0.525, 0.3666666666666667,-0.13333333333333333,0.525, 0.53333333333333333,0.033333333333333333,0.525, -0.05,0.45,0.525, 0.45,0.45,0.525,
+    -0.05,-0.05,0.875, 0.3666666666666667,-0.13333333333333333,0.875, 0.53333333333333333,0.033333333333333333,0.875, -0.05,0.45,0.875, 0.45,0.45,0.875
+  };
+  for(int i=0;i<45;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f4Ptr[i],1e-12);
+  f4->decrRef();
   m5->decrRef();
   m3->decrRef();
   m4->decrRef();
   //
   f2->decrRef();
   m2->decrRef();
+}
+
+/*!
+ * This test check polyhedron true barycenter computation. 
+ */
+void MEDCouplingBasicsTest::testPolyhedronBarycenter()
+{
+  /*double coords [] = { 0.241310763507,0.0504777305619,0.0682283524903, 0.252501053866,-0.0625176732937,0.137272639894, 0.152262663601,0.241816569527,0.133812556197, 0.18047750211,-0.0789949051358,0.339098173401, 0.151741971857,0.238885278571,0.137715037333, 0.242532155481,-0.0928169086456,0.0678043417367, 0.240941965335,-0.015461491464,0.0617186345825, 0.24127650112,0.0499427876717,0.0679634099148, -0.145828917428,0.206291632565,0.0310071927543, 0.0125651775307,0.266262085828,0.105228430543, -0.0994066533286,0.233224271238,0.0572213839567, -0.0951345338317,0.234819509426,0.0592126284538, 0.136580574205,-0.205486212579,0.0572866072014, 0.0637270784978,-0.168886355238,0.446614057077, 0.041337157151,-0.213402568198,0.372407095999, 0.0411601970268,-0.202387875756,0.411334979491, -0.108355701857,0.193636239335,0.204886756738, 0.00639779029829,0.155296981517,0.252585892979, 0.0262473111702,-0.112919732543,0.424286639249, -0.224103052733,-0.139430015438,-0.0122352295701, -0.0312760589481,-0.274272003594,0.0323959636568, -0.166663422532,-0.217754445175,0.00392109070364, -0.30586619777,-0.0475168041091,-0.0144585228182, -0.280881480586,0.135571293538,0.00623923647986, -0.25548538234,0.156819217766,0.0645277879769, -0.131567009284,0.184133752309,0.206021802753, -0.196204010965,0.151602971681,0.212974777736, -0.183713879463,0.0802946639531,0.260115662599, -0.244241178767,-0.0738873389604,0.144590565817, -0.155804057829,-0.164892720025,0.210613950558, -0.170950800428,-0.215099334026,0.00610122860092, -0.30552634869,-0.0490020791904,-0.0132786533145, 0.271831011884,0.15105657296,0.0230534827908, 0.281919192283,0.0898544306288,-0.0625201489143, 0.260240727276,-0.0120688706637,-0.0532316588626, 0.244947737722,0.0197984684293,0.0309341209233, 0.23439631578,0.229825279875,0.0508520585381, 0.160921316875,0.265078502128,0.121716560626, -0.315088694175,0.0747700471918,-0.245836615071, -0.327728781776,0.0857114674649,-0.239431905957, -0.308385460634,0.145142997084,-0.149886828433, 0.0488236045164,0.309462801914,0.0849169148265, -0.0244964803395,0.33145611751,-0.0476415818061, 0.0060567994229,0.32418412014,0.0367779543812, -0.0950221448063,0.236675326003,0.0572594453983, 0.248723023186,0.0886648784791,-0.176629430538, 0.116796984,0.256596599567,-0.292863523603, 0.118024552914,0.229154257843,-0.34233232501, 0.217507892549,-0.0417822335742,-0.176771782888, -0.224429321304,0.0125595300114,-0.362064725588, 0.0937301100955,-0.0500824832657,-0.299713548444, -0.244162220397,0.0383853931293,-0.389856984411, -0.0281989366102,0.097392811563,-0.458244577284, -0.385010847162,0.10122766194,-0.140052859922, -0.377936358012,0.110875172128,-0.176207095463, 0.244483045556,-0.0991073977045,0.0575134372934, 0.262605120167,-0.100243191645,-0.0495620806935, 0.240306880972,-0.136153701579,-0.114745281696, 0.215763176129,-0.0836766059189,-0.183249640616, 0.237870396603,-0.132449578286,-0.121598854639, -0.0637683083097,-0.27921020214,-0.149112321992, -0.0856211014977,-0.2973233473,-0.0446878139589, 0.104675342288,-0.0625908305324,-0.290346256534, 0.0248264249186,-0.247797708548,-0.165830884019, 0.0719302438309,-0.178468260473,-0.211432157345, 0.142871843159,-0.208769948542,0.0454101128246, 0.167803379307,-0.207851396623,-0.088802726124, 0.12868717152,-0.230920439715,0.00760508389036, -0.0372812069535,-0.286740286332,0.00963701291166 };
+
+  int connN [347] = {
+    //polyhedron 0
+    0, 1, 2, 3, 4, -1, 1, 5, 0, 6, 7, -1, 0, 7, 2, 8, 9, 10, 11, -1, 1, 5, 3, 12, 13, 14, 15, -1, 16, 9, 17, 2, 4, -1, 4, 3, 17, 13, 18, -1, 5, 6, 12, 19, 20, 21, -1, 6, 7, 19, 8, 22, 23, -1, 23, 24, 8, 10, -1, 25, 11, 16, 9, -1, 24, 26, 10, 25, 11, -1, 12, 14, 20, -1, 27, 28, 18, 29, 13, 15, -1, 14, 15, 20, 29, 21, 30, -1, 26, 27, 25, 18, 16, 17, -1, 22, 19, 31, 21, 30, -1, 22, 31, 23, 28, 24, 27, 26, -1, 31, 30, 28, 29,
+    //polyhedron 1
+    0, 7, 2, 8, 9, 10, 11, -1, 32, 0, 33, 7, 34, 35, -1, 32, 0, 36, 2, 37, -1, 35, 7, 38, 8, 39, 40, -1, 2, 37, 9, 41, -1, 40, 8, 42, 10, 43, 44, -1, 41, 9, 43, 11, 44, -1, 44, 11, 10, -1, 32, 33, 36, 45, 46, 47, -1, 33, 34, 45, 48, -1, 35, 34, 38, 48, 49, 50, -1, 41, 43, 37, 42, 36, 46, -1, 38, 39, 49, 51, -1, 39, 40, 51, 42, 52, 46, 47, -1, 45, 47, 48, 52, 50, -1, 52, 51, 50, 49,
+    //polyhedron 2
+     6, 7, 19, 8, 22, 23, -1, 6, 35, 7, -1, 6, 35, 19, 38, -1, 35, 7, 38, 8, 39, 40, -1, 53, 22, 54, 19, 39, 38, -1, 23, 53, 8, 54, 40, -1, 53, 22, 23, -1, 39, 54, 40,
+    //polyhedron 3
+    35, 34, 38, 48, 49, 50, -1, 6, 35, 5, 34, 55, 56, -1, 6, 35, 19, 38, -1, 34, 56, 48, 57, 58, 59, -1, 60, 61, 49, 21, 38, 19, -1, 62, 50, 58, 48, -1, 60, 63, 49, 64, 50, 62, -1, 5, 6, 12, 19, 20, 21, -1, 55, 5, 65, 12, -1, 66, 67, 57, 65, 56, 55, -1, 63, 66, 64, 57, 59, -1, 64, 62, 59, 58, -1, 60, 63, 61, 66, 68, 67, -1, 61, 68, 21, 20, -1, 67, 68, 65, 20, 12};
+
+
+  //{ 0,113,212,255,347 };
+  
+  double barys [] = { -0.0165220465527,-0.0190922868195,0.158882733414, 0.0287618656076,0.135874379934,-0.14601588119, -0.147128055553,0.0465995097041,-0.049391174453, -0.00142506732317,-0.0996953090351,-0.115159183132 };*/
+
+
+  int connN[]={0,3,2,1, -1, 4,5,6,7, -1, 0,4,7,3, -1, 3,7,6,2, -1, 2,6,5,1, -1, 1,5,4,0};
+  double coords[]={0.,0.,0., 1.,0.,0., 1.,1.,0., 0.,1.,0., 0.,0.,1., 1.,0.,1., 1.,1.,1., 0.,1.,1., 0.5, 0.5, 0.5};
+  MEDCouplingUMesh *meshN=MEDCouplingUMesh::New();
+  meshN->setName("ForBary");
+  meshN->setMeshDimension(3);
+  meshN->allocateCells(4);
+  meshN->insertNextCell(INTERP_KERNEL::NORM_POLYHED,29,connN);
+  /*meshN->insertNextCell(INTERP_KERNEL::NORM_POLYHED,113,connN);
+  meshN->insertNextCell(INTERP_KERNEL::NORM_POLYHED,99,connN+113);
+  meshN->insertNextCell(INTERP_KERNEL::NORM_POLYHED,43,connN+212);
+  meshN->insertNextCell(INTERP_KERNEL::NORM_POLYHED,92,connN+255);*/
+  meshN->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,3);//9,3
+  std::copy(coords,coords+27,myCoords->getPointer());
+  meshN->setCoords(myCoords);
+  myCoords->decrRef();
+  meshN->checkCoherency();
+  //
+  std::vector<int> res1;
+  meshN->arePolyhedronsNotCorrectlyOriented(res1);
+  meshN->orientCorrectlyPolyhedrons();
+  CPPUNIT_ASSERT(res1.empty());
+  const double *ref,*daPtr;
+  DataArrayDouble *da=meshN->getBarycenterAndOwner();
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da->getNumberOfComponents());
+  daPtr=da->getConstPointer();
+  ref=meshN->getCoords()->getConstPointer()+24;
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(ref[i],daPtr[i],1e-12);
+  da->decrRef();
+  //
+  const double center[]={0.,0.,0.};
+  const double vec[]={0.,2.78,0.};
+  da=meshN->getBarycenterAndOwner();
+  daPtr=da->getConstPointer();
+  ref=meshN->getCoords()->getConstPointer()+24;
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(ref[i],daPtr[i],1e-12);
+  da->decrRef();
+  //
+  meshN->rotate(center,vec,M_PI/7.);
+  meshN->translate(vec);
+  da=meshN->getBarycenterAndOwner();
+  daPtr=da->getConstPointer();
+  ref=meshN->getCoords()->getConstPointer()+24;
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(ref[i],daPtr[i],1e-12);
+  da->decrRef();
+  //
+  const double center2[]={1.12,3.45,6.78};
+  const double vec2[]={4.5,9.3,2.8};
+  meshN->rotate(center2,vec2,M_E);
+  meshN->translate(vec2);
+  da=meshN->getBarycenterAndOwner();
+  daPtr=da->getConstPointer();
+  ref=meshN->getCoords()->getConstPointer()+24;
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(ref[i],daPtr[i],1e-5);
+  da->decrRef();
+  //
+  meshN->decrRef();
+}
+
+void MEDCouplingBasicsTest::testNormL12Integ1D()
+{
+  MEDCouplingUMesh *m1=build1DTargetMesh_3();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  f1->setMesh(m1);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(m1->getNumberOfCells(),3);
+  const double arr[12]={-5.23,15.45,-25.56,6.67,-16.78,26.89,-7.91,17.23,-27.43,8.21,-18.63,28.72};
+  std::copy(arr,arr+12,array->getPointer());
+  f1->setArray(array);
+  array->decrRef();
+  //
+  const double *ptr;
+  DataArrayDouble *f3=m1->getBarycenterAndOwner();
+  CPPUNIT_ASSERT_EQUAL(4,f3->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f3->getNumberOfComponents());
+  double expected9[4]={0.75,5.105,0.8,5.155};
+  ptr=f3->getConstPointer();
+   for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected9[i],ptr[i],1e-12);
+  f3->decrRef();
+  //
+  MEDCouplingFieldDouble *f2=m1->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(4,f2->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f2->getNumberOfComponents());
+  double expected1[4]={0.5,0.21,-0.6,-0.31};
+  ptr=f2->getArray()->getConstPointer();
+  for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],ptr[i],1e-12);
+  f2->decrRef();
+  double expected2[4]={0.5,0.21,0.6,0.31};
+  f2=m1->getMeasureField(true);
+  ptr=f2->getArray()->getConstPointer();
+  for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],ptr[i],1e-12);
+  f2->decrRef();
+  //integral
+  double res[3];
+  f1->integral(false,res);
+  double expected3[3]={0.9866,-0.3615,0.4217};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],res[i],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[0],f1->integral(0,false),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[1],f1->integral(1,false),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[2],f1->integral(2,false),1e-12);
+  f1->integral(true,res);
+  double expected4[3]={-3.4152,8.7639,-14.6879};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected4[i],res[i],1e-12);
+  //normL1
+  f1->normL1(false,res);
+  double expected5[3]={16.377,24.3225,34.6715};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],res[i],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[0],f1->normL1(0,false),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[1],f1->normL1(1,false),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[2],f1->normL1(2,false),1e-12);
+  f1->normL1(true,res);
+  double expected6[3]={6.97950617284,16.8901851851852,27.0296913580247};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected6[i],res[i],1e-12);
+  //normL2
+  f1->normL2(false,res);
+  double expected7[3]={13.3073310622,23.1556650736,33.8113075021};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[i],res[i],1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[0],f1->normL2(0,false),1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[1],f1->normL2(1,false),1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[2],f1->normL2(2,false),1e-9);
+  f1->normL2(true,res);
+  double expected8[3]={7.09091097945239,16.9275542960123,27.0532714641609};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected8[i],res[i],1e-9);
+  //
+  f1->decrRef();
+  m1->decrRef();
+  // Testing with 2D Curve
+  m1=build2DCurveTargetMesh_3();
+  f2=m1->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(4,f2->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f2->getNumberOfComponents());
+  ptr=f2->getArray()->getConstPointer();
+  for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(2.)*expected2[i],ptr[i],1e-12);
+  f2->decrRef();
+  f2=m1->getMeasureField(true);
+  CPPUNIT_ASSERT_EQUAL(4,f2->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f2->getNumberOfComponents());
+  ptr=f2->getArray()->getConstPointer();
+  for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i]*sqrt(2.),ptr[i],1e-12);
+  f2->decrRef();
+  //bary
+  f3=m1->getBarycenterAndOwner();
+  CPPUNIT_ASSERT_EQUAL(4,f3->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,f3->getNumberOfComponents());
+  double expected10[8]={0.75,0.75,5.105,5.105,0.8,0.8,5.155,5.155};
+  ptr=f3->getConstPointer();
+   for(int i=0;i<8;i++)
+     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected10[i],ptr[i],1e-12);
+  f3->decrRef();
+  //
+  f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  f1->setMesh(m1);
+  array=DataArrayDouble::New();
+  array->alloc(m1->getNumberOfCells(),3);
+  std::copy(arr,arr+12,array->getPointer());
+  f1->setArray(array);
+  array->decrRef();
+  f1->integral(false,res);
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(2.)*expected4[i],res[i],1e-12);
+  f1->integral(true,res);
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(2.)*expected4[i],res[i],1e-12);
+  f1->normL1(false,res);
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected6[i],res[i],1e-12);
+  f1->normL1(true,res);
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected6[i],res[i],1e-12);
+  f1->normL2(false,res);
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected8[i],res[i],1e-12);
+  f1->normL2(true,res);
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected8[i],res[i],1e-12);
+  //
+  f1->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testAreaBary2D()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_3();
+  MEDCouplingFieldDouble *f1=m1->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(10,f1->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  double expected1[10]={-0.5,-1,-1.5,-0.5,-1,  0.5,1,1.5,0.5,1};
+  const double *ptr=f1->getArray()->getConstPointer();
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],ptr[i],1e-12);
+  f1->decrRef();
+  f1=m1->getMeasureField(true);
+  ptr=f1->getArray()->getConstPointer();
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::abs(expected1[i]),ptr[i],1e-12);
+  f1->decrRef();
+  DataArrayDouble *f2=m1->getBarycenterAndOwner();
+  CPPUNIT_ASSERT_EQUAL(10,f2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,f2->getNumberOfComponents());
+  double expected2[20]={
+    0.5,0.3333333333333333,0.5,0.5,0.5,0.77777777777777777,0.5,0.3333333333333333,0.5,0.5,
+    0.5,0.3333333333333333,0.5,0.5,0.5,0.77777777777777777,0.5,0.3333333333333333,0.5,0.5,
+  };
+  ptr=f2->getConstPointer();
+  for(int i=0;i<20;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],ptr[i],1e-12);
+  f2->decrRef();
+  m1->changeSpaceDimension(3);
+  f1=m1->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(10,f1->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  ptr=f1->getArray()->getConstPointer();
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::abs(expected1[i]),ptr[i],1e-12);
+  f1->decrRef();
+  f2=m1->getBarycenterAndOwner();
+  CPPUNIT_ASSERT_EQUAL(10,f2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,f2->getNumberOfComponents());
+  ptr=f2->getConstPointer();
+  double expected3[30]={
+    0.5,0.3333333333333333,0.,0.5,0.5,0.,0.5,0.77777777777777777,0.,0.5,0.3333333333333333,0.,0.5,0.5,0.,
+    0.5,0.3333333333333333,0.,0.5,0.5,0.,0.5,0.77777777777777777,0.,0.5,0.3333333333333333,0.,0.5,0.5,0.
+  };
+  for(int i=0;i<30;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],ptr[i],1e-12);
+  f2->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testAreaBary3D()
+{
+}
+
+void MEDCouplingBasicsTest::testRenumberCellsForFields()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  f->setMesh(m);
+  DataArrayDouble *arr=DataArrayDouble::New();
+  int nbOfCells=m->getNumberOfCells();
+  arr->alloc(nbOfCells,3);
+  f->setArray(arr);
+  arr->decrRef();
+  const double values1[15]={7.,107.,10007.,8.,108.,10008.,9.,109.,10009.,10.,110.,10010.,11.,111.,10011.};
+  std::copy(values1,values1+15,arr->getPointer());
+  const int renumber1[5]={3,1,0,4,2};
+  double res[3];
+  const double loc[]={-0.05,-0.05, 0.55,-0.25, 0.55,0.15, -0.05,0.45, 0.45,0.45};
+  for(int j=0;j<5;j++)
+    {
+      f->getValueOn(loc+2*j,res);
+      for(int i=0;i<3;i++)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(values1[i+3*j],res[i],1e-12);
+    }
+  f->renumberCells(renumber1,renumber1+5,false);
+  const double *ptr=f->getArray()->getConstPointer();
+  const double expected1[15]={9.,109.,10009.,8.,108.,10008.,11.,111.,10011.,7.,107.,10007.,10.,110.,10010.};
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],ptr[i],1e-12);
+  //check that fields remains the same geometrically
+  for(int j=0;j<5;j++)
+    {
+      f->getValueOn(loc+2*j,res);
+      for(int i=0;i<3;i++)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(values1[i+3*j],res[i],1e-12);
+    }
+  f->decrRef();
+  //On gauss
+  f=MEDCouplingFieldDouble::New(ON_GAUSS_PT,NO_TIME);
+  f->setMesh(m);
+  const double _a=0.446948490915965;
+  const double _b=0.091576213509771;
+  const double _p1=0.11169079483905;
+  const double _p2=0.0549758718227661;
+  const double refCoo1[6]={ 0.,0., 1.,0., 0.,1. };
+  const double gsCoo1[12]={ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
+                            2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 };
+  const double wg1[6]={ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 };
+  std::vector<double> _refCoo1(refCoo1,refCoo1+6);
+  std::vector<double> _gsCoo1(gsCoo1,gsCoo1+12);
+  std::vector<double> _wg1(wg1,wg1+6);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
+  const double refCoo2[8]={ 0.,0., 1.,0., 1.,1., 0.,1. };
+  std::vector<double> _refCoo2(refCoo2,refCoo2+8);
+  _gsCoo1.resize(4); _wg1.resize(2);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,_refCoo2,_gsCoo1,_wg1);
+  arr=DataArrayDouble::New();
+  arr->alloc(18,2);
+  const double values2[36]={1.,1001.,2.,1002., 11.,1011.,12.,1012.,13.,1013.,14.,1014.,15.,1015.,16.,1016., 21.,1021.,22.,1022.,23.,1023.,24.,1024.,25.,1025.,26.,1026., 31.,1031.,32.,1032., 41.,1041.,42.,1042.};
+  std::copy(values2,values2+36,arr->getPointer());
+  f->setArray(arr);
+  arr->decrRef();
+  f->checkCoherency();
+  MEDCouplingFieldDouble *fCpy=f->clone(true);
+  CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
+  f->renumberCells(renumber1,renumber1+5,false);
+  CPPUNIT_ASSERT(!f->isEqual(fCpy,1e-12,1e-12));
+  double expected2[36]={21.,1021.,22.,1022.,23.,1023.,24.,1024.,25.,1025.,26.,1026., 11.,1011.,12.,1012.,13.,1013.,14.,1014.,15.,1015.,16.,1016., 41.,1041.,42.,1042., 1.,1001.,2.,1002., 31.,1031.,32.,1032.};
+  ptr=f->getArray()->getConstPointer();
+  for(int i=0;i<36;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],ptr[i],1e-12);
+  const int renumber2[5]={2,1,4,0,3};//reverse renumber1
+  f->renumberCells(renumber2,renumber2+5,false);
+  CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
+  fCpy->decrRef();
+  f->decrRef();
+  //GaussNE
+  f=MEDCouplingFieldDouble::New(ON_GAUSS_NE,NO_TIME);
+  f->setMesh(m);
+  arr=DataArrayDouble::New();
+  arr->alloc(18,2);
+  const double values3[36]={1.,1001.,2.,1002.,3.,1003.,4.,1004., 11.,1011.,12.,1012.,13.,1013., 21.,1021.,22.,1022.,23.,1023., 31.,1031.,32.,1032.,33.,1033.,34.,1034., 41.,1041.,42.,1042.,43.,1043.,44.,1044.};
+  std::copy(values3,values3+36,arr->getPointer());
+  f->setArray(arr);
+  arr->decrRef();
+  f->checkCoherency();
+  fCpy=f->clone(true);
+  CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
+  f->renumberCells(renumber1,renumber1+5,false);
+  CPPUNIT_ASSERT(!f->isEqual(fCpy,1e-12,1e-12));
+  double expected3[36]={21.,1021.,22.,1022.,23.,1023.,11.,1011.,12.,1012.,13.,1013.,41.,1041.,42.,1042.,43.,1043.,44.,1044.,1.,1001.,2.,1002.,3.,1003.,4.,1004.,31.,1031.,32.,1032.,33.,1033.,34.,1034.};
+  ptr=f->getArray()->getConstPointer();
+  for(int i=0;i<36;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],ptr[i],1e-12);
+  f->renumberCells(renumber2,renumber2+5,false);//perform reverse operation of renumbering to check that the resulting field is equal.
+  CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
+  fCpy->decrRef();
+  f->decrRef();
+  //
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testRenumberNodesForFields()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
+  f->setMesh(m);
+  DataArrayDouble *arr=DataArrayDouble::New();
+  int nbOfNodes=m->getNumberOfNodes();
+  arr->alloc(nbOfNodes,3);
+  f->setArray(arr);
+  arr->decrRef();
+  const double values1[27]={7.,107.,10007.,8.,108.,10008.,9.,109.,10009.,10.,110.,10010.,11.,111.,10011.,12.,112.,10012.,13.,113.,10013.,14.,114.,10014.,15.,115.,10015.};
+  std::copy(values1,values1+27,arr->getPointer());
+  f->checkCoherency();
+  const int renumber1[9]={0,4,1,3,5,2,6,7,8};
+  double res[3];
+  const double loc[]={0.5432,-0.2432, 0.5478,0.1528};
+  const double expected1[6]={9.0272, 109.0272, 10009.0272, 11.4124,111.4124,10011.4124};
+  for(int j=0;j<2;j++)
+    {
+      f->getValueOn(loc+2*j,res);
+      for(int i=0;i<3;i++)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i+3*j],res[i],1e-12);
+    }
+  MEDCouplingFieldDouble *fCpy=f->clone(true);
+  CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
+  f->renumberNodes(renumber1,renumber1+9);
+  CPPUNIT_ASSERT(!f->isEqual(fCpy,1e-12,1e-12));
+  for(int j=0;j<2;j++)
+    {
+      f->getValueOn(loc+2*j,res);
+      for(int i=0;i<3;i++)
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i+3*j],res[i],1e-12);
+    }
+  const double expected2[27]={7.,107.,10007.,9.,109.,10009.,12.,112.,10012.,10.,110.,10010.,8.,108.,10008.,11.,111.,10011.,13.,113.,10013.,14.,114.,10014.,15.,115.,10015.};
+  for(int i=0;i<27;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f->getArray()->getConstPointer()[i],1e-12);
+  const int renumber2[9]={0,2,5,3,1,4,6,7,8};//reverse of renumber2
+  f->renumberNodes(renumber2,renumber2+9);
+  CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
+  fCpy->decrRef();
+  //
+  m->decrRef();
+  f->decrRef();
 }

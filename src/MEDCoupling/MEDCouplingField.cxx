@@ -40,19 +40,37 @@ bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, d
   return _mesh->isEqual(other->_mesh,meshPrec);
 }
 
-bool MEDCouplingField::areCompatible(const MEDCouplingField *other) const
+/*!
+ * This method states if 'this' and 'other' are compatibles each other before performing any treatment.
+ * This method is good for methods like : mergeFields.
+ * This method is not very demanding compared to areStrictlyCompatible that is better for operation on fields.
+ */
+bool MEDCouplingField::areCompatibleForMerge(const MEDCouplingField *other) const
 {
   if(!_type->isEqual(other->_type,1.))
     return false;
   if(_mesh==other->_mesh)
     return true;
-  return _mesh->areCompatible(other->_mesh);
+  return _mesh->areCompatibleForMerge(other->_mesh);
+}
+
+/*!
+ * This method is more strict than MEDCouplingField::areCompatible method.
+ * This method is used for operation on fields to operate a first check before attempting operation.
+ */
+bool MEDCouplingField::areStrictlyCompatible(const MEDCouplingField *other) const
+{
+  if(!_type->isEqual(other->_type,1.e-12))
+    return false;
+  return _mesh==other->_mesh;
 }
 
 void MEDCouplingField::updateTime()
 {
   if(_mesh)
     updateTimeWith(*_mesh);
+  if(_type)
+    updateTimeWith(*_type);
 }
 
 TypeOfField MEDCouplingField::getTypeOfField() const

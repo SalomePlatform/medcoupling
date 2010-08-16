@@ -55,6 +55,14 @@ MEDCouplingUMeshDesc *MEDCouplingUMeshDesc::New(const char *meshName, int meshDi
   return ret;
 }
 
+/*!
+ * not implemented
+ */
+MEDCouplingMesh *MEDCouplingUMeshDesc::deepCpy() const
+{
+  return 0;
+}
+
 void MEDCouplingUMeshDesc::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
@@ -66,6 +74,12 @@ void MEDCouplingUMeshDesc::checkCoherency() const throw(INTERP_KERNEL::Exception
           throw INTERP_KERNEL::Exception(message.str().c_str());
         }
     }
+}
+
+void MEDCouplingUMeshDesc::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::checkDeepEquivalWith : not implemented yet !");
 }
 
 void MEDCouplingUMeshDesc::setMeshDimension(unsigned meshDim)
@@ -329,6 +343,11 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildBoundaryMesh(bool keepCoords) co
 {
   //not implemented yet
   return 0;
+}
+
+void MEDCouplingUMeshDesc::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Available for UMesh desc but not implemented yet !");
 }
 
 void MEDCouplingUMeshDesc::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)

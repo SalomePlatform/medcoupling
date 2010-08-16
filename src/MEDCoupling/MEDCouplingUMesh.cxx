@@ -25,6 +25,7 @@
 #include "PointLocatorAlgos.txx"
 #include "BBTree.txx"
 #include "DirectedBoundingBox.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <sstream>
 #include <numeric>
@@ -49,6 +50,11 @@ MEDCouplingUMesh *MEDCouplingUMesh::New(const char *meshName, int meshDim)
   ret->setName(meshName);
   ret->setMeshDimension(meshDim);
   return ret;
+}
+
+MEDCouplingMesh *MEDCouplingUMesh::deepCpy() const
+{
+  return clone(true);
 }
 
 MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
@@ -86,6 +92,20 @@ void MEDCouplingUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
           message << "Mesh invalid because dimension is " << _mesh_dim << " and there is presence of cell(s) with type " << (*iter);
           throw INTERP_KERNEL::Exception(message.str().c_str());
         }
+    }
+  if(_nodal_connec)
+    {
+      if(_nodal_connec->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("Nodal connectivity array is expected to be with number of components set to one !");
+      if(_nodal_connec->getInfoOnComponent(0)!="")
+        throw INTERP_KERNEL::Exception("Nodal connectivity array is expected to have no info on its single component !");
+    }
+  if(_nodal_connec_index)
+    {
+      if(_nodal_connec_index->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("Nodal connectivity index array is expected to be with number of components set to one !");
+      if(_nodal_connec_index->getInfoOnComponent(0)!="")
+        throw INTERP_KERNEL::Exception("Nodal connectivity index array is expected to have no info on its single component !");
     }
 }
 
@@ -179,6 +199,70 @@ bool MEDCouplingUMesh::isEqual(const MEDCouplingMesh *other, double prec) const
     if(!_nodal_connec_index->isEqual(*otherC->_nodal_connec_index))
       return false;
   return true;
+}
+
+/*!
+ * This method looks if 'this' and 'other' are geometrically equivalent that is to say if each cell in 'other' correspond to one cell and only one
+ * in 'this' is found regarding 'prec' parameter and 'cellCompPol' parameter.
+ * 
+ * In case of success cellCor and nodeCor are informed both. 
+ * @param cellCompPol values are described in MEDCouplingUMesh::zipConnectivityTraducer method.
+ * @param cellCor output array giving the correspondance of cells from 'other' to 'this'.
+ * @param nodeCor output array giving the correspondance of nodes from 'other' to 'this'.
+ */
+void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                            DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Two meshes are not not unstructured !");
+  checkFastEquivalWith(other,prec);
+  if(_types!=otherC->_types)
+    throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Types are not equal !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=mergeUMeshes(this,otherC);
+  bool areNodesMerged;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->mergeNodes(prec,areNodesMerged);
+  if(!areNodesMerged)
+    throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Nodes are incompatible ! ");
+  int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfNodes());
+  const int *pt=std::find_if(da->getConstPointer()+getNumberOfNodes(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
+  if(pt!=da->getConstPointer()+da->getNbOfElems())
+    throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some nodes in other are not in this !");
+  nodeCor=DataArrayInt::New();
+  nodeCor->alloc(otherC->getNumberOfNodes(),1);
+  std::copy(da->getConstPointer()+getNumberOfNodes(),da->getConstPointer()+da->getNbOfElems(),nodeCor->getPointer());
+  //
+  da=m->zipConnectivityTraducer(cellCompPol);
+  maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
+  pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
+  if(pt!=da->getConstPointer()+da->getNbOfElems())
+    {
+      nodeCor->decrRef(); nodeCor=0;
+      throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
+    }
+  cellCor=DataArrayInt::New();
+  cellCor->alloc(otherC->getNumberOfCells(),1);
+  std::copy(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),cellCor->getPointer());
+}
+
+/*!
+ * This method checks fastly that 'this' and 'other' are equal. 
+ */
+void MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("checkFastEquivalWith : Two meshes are not not unstructured !");
+  MEDCouplingPointSet::checkFastEquivalWith(other,prec);
+  int nbOfCells=getNumberOfCells();
+  if(nbOfCells<1)
+    return ;
+  bool status=true;
+  status&=areCellsFrom2MeshEqual(otherC,0,prec);
+  status&=areCellsFrom2MeshEqual(otherC,nbOfCells/2,prec);
+  status&=areCellsFrom2MeshEqual(otherC,nbOfCells-1,prec);
+  if(!status)
+    throw INTERP_KERNEL::Exception("checkFastEquivalWith : Two meshes are not equal because on 3 test cells some difference have been detected !");
 }
 
 /*!
@@ -438,39 +522,75 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
  * This method stands if 'cell1' and 'cell2' are equals regarding 'compType' policy.
  * The semantic of 'compType' is specified in MEDCouplingUMesh::zipConnectivityTraducer method.
  */
-bool MEDCouplingUMesh::areCellsEquals(int cell1, int cell2, int compType) const
+bool MEDCouplingUMesh::areCellsEqual(int cell1, int cell2, int compType) const
 {
   switch(compType)
     {
     case 0:
-      return areCellsEquals0(cell1,cell2);
+      return areCellsEqual0(cell1,cell2);
     case 1:
-      return areCellsEquals1(cell1,cell2);
+      return areCellsEqual1(cell1,cell2);
     case 2:
-      return areCellsEquals2(cell1,cell2);
+      return areCellsEqual2(cell1,cell2);
     }
   throw INTERP_KERNEL::Exception("Unknown comparison asked ! Must be in 0,1 or 2.");
 }
 
-bool MEDCouplingUMesh::areCellsEquals0(int cell1, int cell2) const
+/*!
+ * This method is the last step of the MEDCouplingUMesh::zipConnectivityTraducer with policy 0.
+ */
+bool MEDCouplingUMesh::areCellsEqual0(int cell1, int cell2) const
 {
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
   return std::equal(conn+connI[cell1],conn+connI[cell1+1],conn+connI[cell2]);
 }
 
-bool MEDCouplingUMesh::areCellsEquals1(int cell1, int cell2) const
+/*!
+ * This method is the last step of the MEDCouplingUMesh::zipConnectivityTraducer with policy 1.
+ */
+bool MEDCouplingUMesh::areCellsEqual1(int cell1, int cell2) const
 {
   throw INTERP_KERNEL::Exception("Policy comparison, not implemented yet !");
 }
 
-bool MEDCouplingUMesh::areCellsEquals2(int cell1, int cell2) const
+/*!
+ * This method is the last step of the MEDCouplingUMesh::zipConnectivityTraducer with policy 2.
+ */
+bool MEDCouplingUMesh::areCellsEqual2(int cell1, int cell2) const
 {
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
   std::set<int> s1(conn+connI[cell1],conn+connI[cell1+1]);
   std::set<int> s2(conn+connI[cell2],conn+connI[cell2+1]);
   return s1==s2;
+}
+
+/*!
+ * This method compares 2 cells coming from two unstructured meshes : 'this' and 'other'.
+ * This method compares 2 cells having the same id 'cellId' in 'this' and 'other'.
+ */
+bool MEDCouplingUMesh::areCellsFrom2MeshEqual(const MEDCouplingUMesh *other, int cellId, double prec) const
+{
+  if(getTypeOfCell(cellId)!=other->getTypeOfCell(cellId))
+    return false;
+  std::vector<int> c1,c2;
+  getNodeIdsOfCell(cellId,c1);
+  other->getNodeIdsOfCell(cellId,c2);
+  int sz=c1.size();
+  if(sz!=c2.size())
+    return false;
+  for(int i=0;i<sz;i++)
+    {
+      std::vector<double> n1,n2;
+      getCoordinatesOfNode(c1[0],n1);
+      other->getCoordinatesOfNode(c2[0],n2);
+      std::transform(n1.begin(),n1.end(),n2.begin(),n1.begin(),std::minus<double>());
+      std::transform(n1.begin(),n1.end(),n1.end(),std::ptr_fun<double,double>(fabs));
+      if(*std::max_element(n1.begin(),n1.end())>prec)
+        return false;
+    }
+  return true;
 }
 
 /*!
@@ -481,7 +601,7 @@ bool MEDCouplingUMesh::areCellsEquals2(int cell1, int cell2) const
  * If in 'candidates' pool -1 value is considered as an empty value.
  * WARNING this method returns only ONE set of result !
  */
-bool MEDCouplingUMesh::areCellsEqualsInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const
+bool MEDCouplingUMesh::areCellsEqualInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const
 {
   std::set<int> cand(candidates.begin(),candidates.end());
   cand.erase(-1);
@@ -494,7 +614,7 @@ bool MEDCouplingUMesh::areCellsEqualsInPool(const std::vector<int>& candidates, 
       std::set<int>::const_iterator begin2=iter; begin2++;
       for(std::set<int>::const_iterator iter2=begin2;iter2!=cand.end();iter2++)
         {
-          if(areCellsEquals(*iter,*iter2,compType))
+          if(areCellsEqual(*iter,*iter2,compType))
             {
               if(!ret)
                 {
@@ -553,7 +673,7 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
           for(std::vector<int>::const_iterator iter=candidates1.begin();iter!=candidates1.end();iter++)
             if(!isFetched[*iter])
               candidates.push_back(*iter);
-          if(areCellsEqualsInPool(candidates,compType,res))
+          if(areCellsEqualInPool(candidates,compType,res))
             {
               int pos=resI.back();
               resI.push_back(res.size());
@@ -790,6 +910,8 @@ void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
  * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
  * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
  * This value is asked because often known by the caller of this method.
+ * This method, contrary to MEDCouplingMesh::renumberCells does NOT conserve the number of nodes before and after.
+ *
  * @param newNodeNumbers array specifying the new numbering.
  * @param newNbOfNodes the new number of nodes.
  */
@@ -816,6 +938,9 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
  * This method renumbers cells of 'this' using the array specified by [old2NewBg;old2NewEnd)
  * If std::distance(old2NewBg,old2NewEnd)!=this->getNumberOfCells() an INTERP_KERNEL::Exception will be thrown.
  *
+ * Contrary to MEDCouplingPointSet::renumberNodes, this method makes a permutation without any fuse of cell.
+ * After the call of this method the number of cells remains the same as before.
+ *
  * If 'check' equals true the method will check that any elements in [old2NewBg;old2NewEnd) is unique ; if not
  * an INTERP_KERNEL::Exception will be thrown. When 'check' equals true [old2NewBg;old2NewEnd) is not expected to
  * be strictly in [0;this->getNumberOfCells()).
@@ -824,7 +949,7 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
  * To avoid any throw of SIGSEGV when 'check' equals false, the elements in [old2NewBg;old2NewEnd) should be unique and
  * should be contained in[0;this->getNumberOfCells()).
  */
-void MEDCouplingUMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check)
+void MEDCouplingUMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
 {
   int nbCells=getNumberOfCells();
   const int *array=old2NewBg;
@@ -994,6 +1119,8 @@ int MEDCouplingUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType
 
 /*!
  * Appends the nodal connectivity in 'conn' of cell with id 'cellId'.
+ * All elements added in conn can be used by MEDCouplingUMesh::getCoordinatesOfNode method.
+ * That is to say -1 separator is omitted in returned conn.
  */
 void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
@@ -1864,6 +1991,24 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Excepti
 }
 
 /*!
+ * This method has a sense for meshes with spaceDim==3 and meshDim==2.
+ * If it is not the case an exception will be thrown.
+ * This method is fast because the first cell of 'this' is used to compute the plane.
+ * @param vec output of size at least 3 used to store the normal vector (with norm equal to Area ) of searched plane.
+ * @param pos output of size at least 3 used to store a point owned of searched plane.
+ */
+void MEDCouplingUMesh::getFastMiddlePlaneOfThis(double *vec, double *pos) const throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=2 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("Invalid mesh to apply getFastMiddlePlaneOfThis on it : must be meshDim==2 and spaceDim==3 !");
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coordsPtr=_coords->getConstPointer();
+  INTERP_KERNEL::areaVectorOfPolygon<int,INTERP_KERNEL::ALL_C_MODE>(conn+1,connI[1]-connI[0]-1,coordsPtr,vec);
+  std::copy(coordsPtr+3*conn[1],coordsPtr+3*conn[1]+3,pos);
+}
+
+/*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  * @param bbox out parameter of size 2*spacedim*nbOfcells.
  */
@@ -2087,15 +2232,9 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
   const double *coor=_coords->getConstPointer();
   for(int i=0;i<nbOfCells;i++)
     {
-      int nbOfPts=0;
-      std::fill(tmp,tmp+spaceDim,0.);
-      for(const int *node=nodal+nodalI[i]+1;node!=nodal+nodalI[i+1];node++)
-        if(*node!=-1)
-          {
-            std::transform(tmp,tmp+spaceDim,coor+(*node)*spaceDim,tmp,std::plus<double>());
-            nbOfPts++;
-          }
-      ptToFill=std::transform(tmp,tmp+spaceDim,ptToFill,std::bind2nd(std::divides<double>(),(double)nbOfPts));
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)nodal[nodalI[i]];
+      INTERP_KERNEL::computeBarycenter2<int,INTERP_KERNEL::ALL_C_MODE>(type,nodal+nodalI[i]+1,nodalI[i+1]-nodalI[i]-1,coor,spaceDim,ptToFill);
+      ptToFill+=spaceDim;
     }
   delete [] tmp;
   return ret;

@@ -33,10 +33,14 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const char *meshName, int meshDim);
+    MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT void updateTime();
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED; }
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    MEDCOUPLING_EXPORT void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                 DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells);
@@ -61,10 +65,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     MEDCOUPLING_EXPORT void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
     //tools
-    MEDCOUPLING_EXPORT bool areCellsEquals(int cell1, int cell2, int compType) const;
-    MEDCOUPLING_EXPORT bool areCellsEquals0(int cell1, int cell2) const;
-    MEDCOUPLING_EXPORT bool areCellsEquals1(int cell1, int cell2) const;
-    MEDCOUPLING_EXPORT bool areCellsEquals2(int cell1, int cell2) const;
+    MEDCOUPLING_EXPORT bool areCellsEqual(int cell1, int cell2, int compType) const;
+    MEDCOUPLING_EXPORT bool areCellsEqual0(int cell1, int cell2) const;
+    MEDCOUPLING_EXPORT bool areCellsEqual1(int cell1, int cell2) const;
+    MEDCOUPLING_EXPORT bool areCellsEqual2(int cell1, int cell2) const;
+    MEDCOUPLING_EXPORT bool areCellsFrom2MeshEqual(const MEDCouplingUMesh *other, int cellId, double prec) const;
     MEDCOUPLING_EXPORT void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
     MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer();
     MEDCOUPLING_EXPORT DataArrayInt *zipConnectivityTraducer(int compType);
@@ -77,7 +82,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void findBoundaryNodes(std::vector<int>& nodes) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
-    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check);
+    MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCOUPLING_EXPORT void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
@@ -97,6 +102,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void orientCorrectly2DCells(const double *vec, bool polyOnly) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void arePolyhedronsNotCorrectlyOriented(std::vector<int>& cells) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getFastMiddlePlaneOfThis(double *vec, double *pos) const throw(INTERP_KERNEL::Exception);
     //utilities for MED File RW
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
     MEDCOUPLING_EXPORT DataArrayInt *rearrange2ConsecutiveCellTypes();
@@ -123,7 +129,7 @@ namespace ParaMEDMEM
     DataArrayDouble *fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     template<int SPACEDIM>
     void findCommonCellsBase(int compType, std::vector<int>& res, std::vector<int>& resI) const;
-    bool areCellsEqualsInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const;
+    bool areCellsEqualInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *start, const int *end) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,

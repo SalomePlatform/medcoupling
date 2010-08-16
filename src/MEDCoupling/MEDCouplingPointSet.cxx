@@ -98,6 +98,20 @@ DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
   return _coords;
 }
 
+/*!
+ * This method copyies all tiny strings from other (name and components name).
+ * @throw if other and this have not same mesh type.
+ */
+void MEDCouplingPointSet::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::copyTinyStringsFrom : meshes have not same type !");
+  MEDCouplingMesh::copyTinyStringsFrom(other);
+  if(_coords && otherC->_coords)
+    _coords->copyStringInfoFrom(*otherC->_coords);
+}
+
 bool MEDCouplingPointSet::isEqual(const MEDCouplingMesh *other, double prec) const
 {
   const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);

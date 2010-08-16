@@ -101,6 +101,33 @@ DataArrayInt *DataArrayDouble::convertToIntArr() const
   return ret;
 }
 
+void DataArrayDouble::renumberInPlace(const int *old2New)
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  double *tmp=new double[nbTuples*nbOfCompo];
+  const double *iptr=getConstPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*old2New[i]);
+  std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
+  delete [] tmp;
+  declareAsNew();
+}
+
+DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbTuples,nbOfCompo);
+  ret->copyStringInfoFrom(*this);
+  const double *iptr=getConstPointer();
+  double *optr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),optr+nbOfCompo*old2New[i]);
+  return ret;
+}
+
 /*!
  * This methods has a similar behaviour than std::string::substr. This method returns a newly created DataArrayInt that is part of this with same number of components.
  * The intervall is specified by [tupleIdBg,tupleIdEnd) except if tupleIdEnd ==-1 in this case the [tupleIdBg,this->end()) will be kept.
@@ -373,6 +400,33 @@ void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type,
   _info_on_compo.resize(nbOfCompo);
   _mem.useArray(array,ownership,type,nbOfTuple*nbOfCompo);
   declareAsNew();
+}
+
+void DataArrayInt::renumberInPlace(const int *old2New)
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  int *tmp=new int[nbTuples*nbOfCompo];
+  const int *iptr=getConstPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),tmp+nbOfCompo*old2New[i]);
+  std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
+  delete [] tmp;
+  declareAsNew();
+}
+
+DataArrayInt *DataArrayInt::renumber(const int *old2New) const
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbTuples,nbOfCompo);
+  ret->copyStringInfoFrom(*this);
+  const int *iptr=getConstPointer();
+  int *optr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),optr+nbOfCompo*old2New[i]);
+  return ret;
 }
 
 DataArrayDouble *DataArrayInt::convertToDblArr() const

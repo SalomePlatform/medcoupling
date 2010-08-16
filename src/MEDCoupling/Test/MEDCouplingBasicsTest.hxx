@@ -91,6 +91,12 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGaussPointNEField1 );
     CPPUNIT_TEST( testCellOrientation1 );
     CPPUNIT_TEST( testCellOrientation2 );
+    CPPUNIT_TEST( testPolyhedronBarycenter );
+    CPPUNIT_TEST( testNormL12Integ1D );
+    CPPUNIT_TEST( testAreaBary2D );
+    CPPUNIT_TEST( testAreaBary3D );
+    CPPUNIT_TEST( testRenumberCellsForFields );
+    CPPUNIT_TEST( testRenumberNodesForFields );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -210,6 +216,12 @@ namespace ParaMEDMEM
     void testGaussPointNEField1();
     void testCellOrientation1();
     void testCellOrientation2();
+    void testPolyhedronBarycenter();
+    void testNormL12Integ1D();
+    void testAreaBary2D();
+    void testAreaBary3D();
+    void testRenumberCellsForFields();
+    void testRenumberNodesForFields();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
@@ -298,6 +310,10 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *build1DTargetMesh_2();
     static MEDCouplingUMesh *build2DCurveSourceMesh_2();
     static MEDCouplingUMesh *build2DCurveTargetMesh_2();
+    static MEDCouplingUMesh *build1DTargetMesh_3();
+    static MEDCouplingUMesh *build2DCurveTargetMesh_3();
+    static MEDCouplingUMesh *build2DTargetMesh_3();
+    static MEDCouplingUMesh *build3DTargetMesh_3();
     static double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }
