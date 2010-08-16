@@ -29,7 +29,7 @@ class MEDLoaderBase
 public:
   static int getStatusOfFile(const char *fileName);
   static char *buildEmptyString(int lgth);
-  static std::string buildUnionUnit(const char *name, const char *unit);
+  static std::string buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth);
   static void splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit);
   static void strip(std::string& s);
   static void safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception);

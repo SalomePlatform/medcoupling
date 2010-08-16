@@ -596,17 +596,15 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
   for(int i=0;i<nbFields;i++)
     {
       med_int ncomp=MEDnChamp(fid,i+1);
-      infos.resize(ncomp);
       char *comp=new char[ncomp*MED_TAILLE_PNOM+1];
       char *unit=new char[ncomp*MED_TAILLE_PNOM+1];
       MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
-      for(int i=0;i<ncomp;i++)
-        infos[i]=MEDLoaderBase::buildUnionUnit(comp+i*MED_TAILLE_PNOM,unit+i*MED_TAILLE_PNOM);
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_TAILLE_NOM+1);
-      delete [] comp;
-      delete [] unit;
       if(curFieldName==fieldName)
         {
+          infos.resize(ncomp);
+          for(int i=0;i<ncomp;i++)
+            infos[i]=MEDLoaderBase::buildUnionUnit(comp+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM,unit+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM);
           bool found=false;
           for(int j=0;j<tabTypeLgth[typeOfOutField] && !found;j++)
             {
@@ -658,6 +656,8 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                 }
             }
         }
+      delete [] comp;
+      delete [] unit;
     }
   MEDfermer(fid);
 }
@@ -832,7 +832,7 @@ void MEDLoaderNS::readUMeshDataInMedFile(med_idt fid, med_int meshId, DataArrayD
   for(int i=0;i<spaceDim;i++)
     {
       std::string n,u;
-      std::string info=MEDLoaderBase::buildUnionUnit(comp+i*MED_TAILLE_PNOM,unit+i*MED_TAILLE_PNOM);
+      std::string info=MEDLoaderBase::buildUnionUnit(comp+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM,unit+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM);
       coords->setInfoOnComponent(i,info.c_str());
     }
   delete [] comp;

@@ -73,13 +73,14 @@ char *MEDLoaderBase::buildEmptyString(int lgth)
   return ret;
 }
 
-std::string MEDLoaderBase::buildUnionUnit(const char *name, const char *unit)
+std::string MEDLoaderBase::buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth)
 {
-  std::string ret(name);
-  if(unit[0]=='\0')
+  std::string ret(buildStringFromFortran(name,nameLgth));
+  std::string unitCpp(buildStringFromFortran(unit,unitLgth));
+  if(unitCpp[0]=='\0')
     return ret;
   ret+=" (";
-  ret+=unit;
+  ret+=unitCpp;
   ret+=")";
   return ret;
 }
