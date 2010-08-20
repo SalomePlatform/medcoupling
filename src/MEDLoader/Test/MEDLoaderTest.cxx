@@ -24,6 +24,8 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 
+#include <cmath>
+
 using namespace ParaMEDMEM;
 
 void MEDLoaderTest::testMesh1DRW()
@@ -284,7 +286,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   //
   MEDCouplingUMesh *mesh5=MEDLoader::ReadUMeshFromFile(fileName,mnane);
   mesh1->setName(mnane);
-  const int part3[18]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+  const int part3[18]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17};
   MEDCouplingUMesh *mesh6=(MEDCouplingUMesh *)mesh5->buildPartOfMySelf(part3,part3+18,true);
   mesh6->setName(mnane);
   mesh5->decrRef();
@@ -396,6 +398,100 @@ void MEDLoaderTest::testLittleStrings1()
   CPPUNIT_ASSERT(s=="azertty");
 }
 
+void MEDLoaderTest::testMesh3DSurfShuffleRW()
+{
+  const char fileName[]="file15.med";
+  MEDCouplingUMesh *mesh=build3DSurfMesh_1();
+  const int renumber1[6]={2,5,1,0,3,4};
+  mesh->renumberCells(renumber1,false);
+  mesh->checkCoherency();
+  MEDLoader::WriteUMesh(fileName,mesh,true);
+  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(fileName,mesh->getName(),0);
+  CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
+  mesh_rw->decrRef();
+  mesh->decrRef();
+}
+
+void MEDLoaderTest::testFieldShuffleRW1()
+{
+  const char fileName[]="file16.med";
+  MEDCouplingUMesh *mesh=build3DSurfMesh_1();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setName("FieldOnCellsShuffle");
+  f1->setMesh(mesh);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(6,2);
+  f1->setArray(array);
+  array->decrRef();
+  double *tmp=array->getPointer();
+  const double arr1[12]={71.,171.,10.,110.,20.,120.,30.,130.,40.,140.,50.,150.};
+  std::copy(arr1,arr1+12,tmp);
+  f1->setTime(3.14,2,7);
+  f1->checkCoherency();
+  //
+  const int renumber1[6]={2,1,5,0,3,4};
+  f1->renumberCells(renumber1,false);
+  MEDLoader::WriteField(fileName,f1,true);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell(fileName,mesh->getName(),0,f1->getName(),2,7);
+  CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
+  f2->decrRef();
+  //
+  mesh->decrRef();
+  f1->decrRef();
+}
+
+void MEDLoaderTest::testMultiFieldShuffleRW1()
+{
+  const char fileName[]="file17.med";
+  MEDCouplingUMesh *m=build3DMesh_2();
+  CPPUNIT_ASSERT_EQUAL(20,m->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(45,m->getNumberOfNodes());
+  const int polys[3]={1,4,6};
+  std::vector<int> poly2(polys,polys+3);
+  m->convertToPolyTypes(poly2);
+  const int renum[20]={1,3,2,8,9,12,13,16,19,0,4,7,5,15,14,17,10,18,6,11};
+  m->renumberCells(renum,false);
+  m->orientCorrectlyPolyhedrons();
+  // Writing
+  MEDLoader::WriteUMesh(fileName,m,true);
+  MEDCouplingFieldDouble *f1Tmp=m->getMeasureField(false);
+  MEDCouplingFieldDouble *f1=f1Tmp->buildNewTimeReprFromThis(ONE_TIME,false);
+  f1Tmp->decrRef();
+  f1->setTime(0.,1,2);
+  MEDCouplingFieldDouble *f_1=f1->cloneWithMesh(true);
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  f1->applyFunc("2*x");
+  f1->setTime(0.01,3,4);
+  MEDCouplingFieldDouble *f_2=f1->cloneWithMesh(true);
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  f1->applyFunc("2*x/3");
+  f1->setTime(0.02,5,6);
+  MEDCouplingFieldDouble *f_3=f1->cloneWithMesh(true);
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  f1->decrRef();
+  // Reading
+  std::vector<std::pair<int,int> > its;
+  its.push_back(std::pair<int,int>(1,2));
+  its.push_back(std::pair<int,int>(3,4));
+  its.push_back(std::pair<int,int>(5,6));
+  std::vector<MEDCouplingFieldDouble *> fs=MEDLoader::ReadFieldsDoubleOnSameMesh(ON_CELLS,fileName,f_1->getMesh()->getName(),0,f_1->getName(),its);
+  CPPUNIT_ASSERT_EQUAL(3,(int)fs.size());
+  const MEDCouplingMesh *mm=fs[0]->getMesh();
+  CPPUNIT_ASSERT(fs[0]->isEqual(f_1,1e-12,1e-12));
+  CPPUNIT_ASSERT(fs[1]->isEqual(f_2,1e-12,1e-12));
+  CPPUNIT_ASSERT(fs[2]->isEqual(f_3,1e-12,1e-12));
+  CPPUNIT_ASSERT(mm==fs[1]->getMesh());// <- important for the test
+  CPPUNIT_ASSERT(mm==fs[2]->getMesh());// <- important for the test
+  for(std::vector<MEDCouplingFieldDouble *>::iterator iter=fs.begin();iter!=fs.end();iter++)
+    (*iter)->decrRef();
+  //
+  f_1->decrRef();
+  f_2->decrRef();
+  f_3->decrRef();
+  //
+  m->decrRef();
+}
+
 MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
 {
   double coords[6]={ 0.0, 0.3, 0.75, 1.0, 1.4, 1.3 };
@@ -466,7 +562,10 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_1()
 
 MEDCouplingUMesh *MEDLoaderTest::build2DMesh_2()
 {
-  double targetCoords[24]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
+  double targetCoords[24]={
+    -0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
+    -0.05,0.95, 0.2,1.2, 0.45,0.95
+  };
   int targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
@@ -490,7 +589,10 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_2()
 
 MEDCouplingUMesh *MEDLoaderTest::build3DSurfMesh_1()
 {
-  double targetCoords[36]={-0.3,-0.3,-0.3, 0.2,-0.3,-0.3, 0.7,-0.3,-0.3, -0.3,0.2,-0.3, 0.2,0.2,-0.3, 0.7,0.2,-0.3, -0.3,0.7,-0.3, 0.2,0.7,-0.3, 0.7,0.7,-0.3 };
+  double targetCoords[36]={
+    -0.3,-0.3,-0.3, 0.2,-0.3,-0.3, 0.7,-0.3,-0.3, -0.3,0.2,-0.3, 0.2,0.2,-0.3, 0.7,0.2,-0.3, -0.3,0.7,-0.3, 0.2,0.7,-0.3, 0.7,0.7,-0.3
+    ,-0.05,0.95,-0.3, 0.2,1.2,-0.3, 0.45,0.95,-0.3
+  };
   int targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
@@ -579,6 +681,26 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
   std::copy(coords,coords+180,myCoords->getPointer());
   ret->setCoords(myCoords);
   myCoords->decrRef();
+  return ret;
+}
+
+MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
+{
+  MEDCouplingUMesh *m3dsurfBase=build3DSurfMesh_1();
+  int numbers[5]={0,1,3,4,5};
+  MEDCouplingUMesh *m3dsurf=(MEDCouplingUMesh *)m3dsurfBase->buildPartOfMySelf(numbers,numbers+5,false);
+  m3dsurfBase->decrRef();
+  MEDCouplingUMesh *m1dBase=build1DMesh_1();
+  int numbers2[4]={0,1,2,3};
+  MEDCouplingUMesh *m1d=(MEDCouplingUMesh *)m1dBase->buildPartOfMySelf(numbers2,numbers2+4,false);
+  m1dBase->decrRef();
+  m1d->changeSpaceDimension(3);
+  const double vec[3]={0.,1.,0.};
+  const double pt[3]={0.,0.,0.};
+  m1d->rotate(pt,vec,-M_PI/2.);
+  MEDCouplingUMesh *ret=m3dsurf->buildExtrudedMeshFromThis(m1d,0);
+  m1d->decrRef();
+  m3dsurf->decrRef();
   return ret;
 }
 
@@ -692,3 +814,4 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGaussNE_1()
   m->decrRef();
   return f;
 }
+
