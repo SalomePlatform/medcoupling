@@ -24,9 +24,9 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 lib_LTLIBRARIES = _libMEDLoader_Swig.la
 
 salomeinclude_HEADERS =  \
-	libMEDLoader_Swig.i
+	libMEDLoader_Swig.i MEDLoaderTypemaps.i
 
-SWIG_DEF = libMEDLoader_Swig.i
+SWIG_DEF = libMEDLoader_Swig.i MEDLoaderTypemaps.i
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/.. -I$(srcdir)/../../MEDCoupling -I$(srcdir)/../../MEDCoupling_Swig \
 	-I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Bases
@@ -35,7 +35,7 @@ dist__libMEDLoader_Swig_la_SOURCES   = $(SWIG_DEF)
 nodist__libMEDLoader_Swig_la_SOURCES = libMEDLoader_Swig_wrap.cxx
 libMEDLoader_Swig.py: libMEDLoader_Swig_wrap.cxx
 
-libMEDLoader_Swig_wrap.cxx: $(SWIG_DEF)
+libMEDLoader_SwigWRAP.cxx: $(SWIG_DEF)
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
 _libMEDLoader_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
@@ -50,5 +50,6 @@ _libMEDLoader_Swig_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS
 
 CLEANFILES = libMEDLoader_Swig_wrap.cxx libMEDLoader_Swig.py
 
-dist_salomescript_DATA= libMEDLoader_Swig.py
+dist_salomescript_DATA= libMEDLoader_Swig.py MEDLoaderDataForTest.py MEDLoaderTest.py
 
+UNIT_TEST_PROG = MEDLoaderTest.py
