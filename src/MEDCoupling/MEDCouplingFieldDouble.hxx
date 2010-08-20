@@ -36,9 +36,11 @@ namespace ParaMEDMEM
     bool areCompatibleForMerge(const MEDCouplingField *other) const;
     bool areStrictlyCompatible(const MEDCouplingField *other) const;
     bool areCompatibleForMul(const MEDCouplingField *other) const;
-    void renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception);
-    void renumberNodes(const int *old2NewBg, const int *old2NewEnd) throw(INTERP_KERNEL::Exception);
+    void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    void renumberCellsWithoutMesh(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    void renumberNodes(const int *old2NewBg) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
+    MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);

@@ -316,7 +316,7 @@ void MEDCouplingBasicsTest::testPolyhedronBarycenter()
   daPtr=da->getConstPointer();
   ref=meshN->getCoords()->getConstPointer()+24;
   for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(ref[i],daPtr[i],1e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(ref[i],daPtr[i],1e-10);
   da->decrRef();
   //
   meshN->decrRef();
@@ -594,7 +594,7 @@ void MEDCouplingBasicsTest::testAreaBary3D()
   CPPUNIT_ASSERT_EQUAL(3,da->getNumberOfComponents());
   const double *daPtr=da->getConstPointer();
   for(int i=0;i<12;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(barys[i],daPtr[i],1e-8);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(barys[i],daPtr[i],1e-12);
   da->decrRef();
   //
   meshN->decrRef();
@@ -621,7 +621,7 @@ void MEDCouplingBasicsTest::testRenumberCellsForFields()
       for(int i=0;i<3;i++)
         CPPUNIT_ASSERT_DOUBLES_EQUAL(values1[i+3*j],res[i],1e-12);
     }
-  f->renumberCells(renumber1,renumber1+5,false);
+  f->renumberCells(renumber1,false);
   const double *ptr=f->getArray()->getConstPointer();
   const double expected1[15]={9.,109.,10009.,8.,108.,10008.,11.,111.,10011.,7.,107.,10007.,10.,110.,10010.};
   for(int i=0;i<15;i++)
@@ -662,14 +662,14 @@ void MEDCouplingBasicsTest::testRenumberCellsForFields()
   f->checkCoherency();
   MEDCouplingFieldDouble *fCpy=f->clone(true);
   CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
-  f->renumberCells(renumber1,renumber1+5,false);
+  f->renumberCells(renumber1,false);
   CPPUNIT_ASSERT(!f->isEqual(fCpy,1e-12,1e-12));
   double expected2[36]={21.,1021.,22.,1022.,23.,1023.,24.,1024.,25.,1025.,26.,1026., 11.,1011.,12.,1012.,13.,1013.,14.,1014.,15.,1015.,16.,1016., 41.,1041.,42.,1042., 1.,1001.,2.,1002., 31.,1031.,32.,1032.};
   ptr=f->getArray()->getConstPointer();
   for(int i=0;i<36;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],ptr[i],1e-12);
   const int renumber2[5]={2,1,4,0,3};//reverse renumber1
-  f->renumberCells(renumber2,renumber2+5,false);
+  f->renumberCells(renumber2,false);
   CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
   fCpy->decrRef();
   f->decrRef();
@@ -685,13 +685,13 @@ void MEDCouplingBasicsTest::testRenumberCellsForFields()
   f->checkCoherency();
   fCpy=f->clone(true);
   CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
-  f->renumberCells(renumber1,renumber1+5,false);
+  f->renumberCells(renumber1,false);
   CPPUNIT_ASSERT(!f->isEqual(fCpy,1e-12,1e-12));
   double expected3[36]={21.,1021.,22.,1022.,23.,1023.,11.,1011.,12.,1012.,13.,1013.,41.,1041.,42.,1042.,43.,1043.,44.,1044.,1.,1001.,2.,1002.,3.,1003.,4.,1004.,31.,1031.,32.,1032.,33.,1033.,34.,1034.};
   ptr=f->getArray()->getConstPointer();
   for(int i=0;i<36;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],ptr[i],1e-12);
-  f->renumberCells(renumber2,renumber2+5,false);//perform reverse operation of renumbering to check that the resulting field is equal.
+  f->renumberCells(renumber2,false);//perform reverse operation of renumbering to check that the resulting field is equal.
   CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
   fCpy->decrRef();
   f->decrRef();
@@ -724,7 +724,7 @@ void MEDCouplingBasicsTest::testRenumberNodesForFields()
     }
   MEDCouplingFieldDouble *fCpy=f->clone(true);
   CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
-  f->renumberNodes(renumber1,renumber1+9);
+  f->renumberNodes(renumber1);
   CPPUNIT_ASSERT(!f->isEqual(fCpy,1e-12,1e-12));
   for(int j=0;j<2;j++)
     {
@@ -736,10 +736,41 @@ void MEDCouplingBasicsTest::testRenumberNodesForFields()
   for(int i=0;i<27;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f->getArray()->getConstPointer()[i],1e-12);
   const int renumber2[9]={0,2,5,3,1,4,6,7,8};//reverse of renumber2
-  f->renumberNodes(renumber2,renumber2+9);
+  f->renumberNodes(renumber2);
   CPPUNIT_ASSERT(f->isEqual(fCpy,1e-12,1e-12));
   fCpy->decrRef();
   //
   m->decrRef();
   f->decrRef();
+}
+
+void MEDCouplingBasicsTest::testConvertQuadraticCellsToLinear()
+{
+  MEDCouplingUMesh *mesh=build2DTargetMesh_3();
+  mesh->checkCoherency();
+  const std::set<INTERP_KERNEL::NormalizedCellType>& types=mesh->getAllTypes();
+  CPPUNIT_ASSERT_EQUAL(5,(int)types.size());
+  INTERP_KERNEL::NormalizedCellType expected1[5]={INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QUAD8};
+  std::set<INTERP_KERNEL::NormalizedCellType> expected1Bis(expected1,expected1+5);
+  CPPUNIT_ASSERT(expected1Bis==types);
+  CPPUNIT_ASSERT(mesh->isPresenceOfQuadratic());
+  CPPUNIT_ASSERT_EQUAL(62,mesh->getMeshLength());
+  MEDCouplingFieldDouble *f1=mesh->getMeasureField(false);
+  //
+  mesh->convertQuadraticCellsToLinear();
+  CPPUNIT_ASSERT(!mesh->isPresenceOfQuadratic());
+  //
+  mesh->checkCoherency();
+  MEDCouplingFieldDouble *f2=mesh->getMeasureField(false);
+  CPPUNIT_ASSERT(f1->getArray()->isEqual(*f2->getArray(),1e-12));
+  CPPUNIT_ASSERT_EQUAL(48,mesh->getMeshLength());
+  const std::set<INTERP_KERNEL::NormalizedCellType>& types2=mesh->getAllTypes();
+  CPPUNIT_ASSERT_EQUAL(3,(int)types.size());
+  INTERP_KERNEL::NormalizedCellType expected2[3]={INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4};
+  std::set<INTERP_KERNEL::NormalizedCellType> expected2Bis(expected2,expected2+3);
+  CPPUNIT_ASSERT(expected2Bis==types2);
+  //
+  f1->decrRef();
+  f2->decrRef();
+  mesh->decrRef();
 }

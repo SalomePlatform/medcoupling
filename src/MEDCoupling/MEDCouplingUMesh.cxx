@@ -935,8 +935,7 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
 }
 
 /*!
- * This method renumbers cells of 'this' using the array specified by [old2NewBg;old2NewEnd)
- * If std::distance(old2NewBg,old2NewEnd)!=this->getNumberOfCells() an INTERP_KERNEL::Exception will be thrown.
+ * This method renumbers cells of 'this' using the array specified by [old2NewBg;old2NewBg+getNumberOfCells())
  *
  * Contrary to MEDCouplingPointSet::renumberNodes, this method makes a permutation without any fuse of cell.
  * After the call of this method the number of cells remains the same as before.
@@ -949,14 +948,12 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
  * To avoid any throw of SIGSEGV when 'check' equals false, the elements in [old2NewBg;old2NewEnd) should be unique and
  * should be contained in[0;this->getNumberOfCells()).
  */
-void MEDCouplingUMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   int nbCells=getNumberOfCells();
   const int *array=old2NewBg;
-  if(std::distance(old2NewBg,old2NewEnd)!=nbCells)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::renumberCells expected to take an array of size getNumberOfCells !");
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+nbCells);
   //
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
@@ -1849,7 +1846,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(int nbOfNode
 }
 
 /*!
- *This method returns if 'this' is constituted by only quadratic cells.
+ * This method returns if 'this' is constituted by only quadratic cells.
  */
 bool MEDCouplingUMesh::isFullyQuadratic() const
 {
@@ -1866,7 +1863,7 @@ bool MEDCouplingUMesh::isFullyQuadratic() const
 }
 
 /*!
- *This method returns if there is at least one quadratic cell.
+ * This method returns if there is at least one quadratic cell.
  */
 bool MEDCouplingUMesh::isPresenceOfQuadratic() const
 {
@@ -1880,6 +1877,62 @@ bool MEDCouplingUMesh::isPresenceOfQuadratic() const
       ret=cm.isQuadratic();
     }
   return ret;
+}
+
+/*!
+ * This method convert quadratic cells to linear cells if any was found.
+ * If no such cells exists 'this' remains unchanged.
+ */
+void MEDCouplingUMesh::convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  int nbOfCells=getNumberOfCells();
+  int delta=0;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      if(cm.isQuadratic())
+        {
+          INTERP_KERNEL::NormalizedCellType typel=cm.getLinearType();
+          const INTERP_KERNEL::CellModel& cml=INTERP_KERNEL::CellModel::getCellModel(typel);
+          delta+=cm.getNumberOfNodes()-cml.getNumberOfNodes();
+        }
+    }
+  if(delta==0)
+    return ;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New();
+  newConn->alloc(getMeshLength()-delta,1);
+  newConnI->alloc(nbOfCells+1,1);
+  const int *icptr=_nodal_connec->getConstPointer();
+  const int *iciptr=_nodal_connec_index->getConstPointer();
+  int *ocptr=newConn->getPointer();
+  int *ociptr=newConnI->getPointer();
+  *ociptr=0;
+  _types.clear();
+  for(int i=0;i<nbOfCells;i++,ociptr++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      if(!cm.isQuadratic())
+        {
+          _types.insert(type);
+          ocptr=std::copy(icptr+iciptr[i],icptr+iciptr[i+1],ocptr);
+          ociptr[1]=ociptr[0]+iciptr[i+1]-iciptr[i];
+        }
+      else
+        {
+          INTERP_KERNEL::NormalizedCellType typel=cm.getLinearType();
+          _types.insert(typel);
+          const INTERP_KERNEL::CellModel& cml=INTERP_KERNEL::CellModel::getCellModel(typel);
+          int newNbOfNodes=cml.getNumberOfNodes();
+          *ocptr++=(int)typel;
+          ocptr=std::copy(icptr+iciptr[i]+1,icptr+iciptr[i]+newNbOfNodes+1,ocptr);
+          ociptr[1]=ociptr[0]+newNbOfNodes+1;
+        }
+    }
+  setConnectivity(newConn,newConnI,false);
 }
 
 /*!
@@ -2078,6 +2131,72 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
 }
 
 /*!
+ * This method performs the same job as checkConsecutiveCellTypes except that the order of types sequence is analyzed to check
+ * that the order is specified in array defined by [orderBg,orderEnd). 
+ */
+bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const
+{
+  checkFullyDefined();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  int lastPos=-1;
+  for(const int *i=connI;i!=connI+nbOfCells;)
+    {
+      INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
+      int pos=std::distance(orderBg,std::find(orderBg,orderEnd,curType));
+      if(pos<=lastPos)
+        return false;
+      lastPos=pos;
+      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+    }
+  return true;
+}
+
+/*!
+ * This method is similar to method MEDCouplingUMesh::rearrange2ConsecutiveCellTypes except that the type order is specfied by [orderBg,orderEnd) (as MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder method) and that this method is \b const and performs \b NO permutation is 'this'.
+ * This method returns an array of size getNumberOfCells() that gives a renumber array old2New that can be used as input of MEDCouplingMesh::renumberCells.
+ * The mesh after this call will pass the test of MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder with the same inputs.
+ * The returned array minimizes the permutations that is to say the order of cells inside same geometric type remains the same.
+ */
+DataArrayInt *MEDCouplingUMesh::getRenumArrForConsctvCellTypesSpe(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const
+{
+  checkFullyDefined();
+  int nbOfCells=getNumberOfCells();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int *tmp=new int[nbOfCells];
+  int minPos=std::numeric_limits<int>::max();
+  for(const int *i=connI;i!=connI+nbOfCells;i++)
+    {
+      int pos=std::distance(orderBg,std::find(orderBg,orderEnd,(INTERP_KERNEL::NormalizedCellType)conn[*i]));
+      tmp[std::distance(connI,i)]=pos;
+      minPos=std::min(minPos,pos);
+    }
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  int *optr=ret->getPointer();
+  int k=0;
+  while(minPos!=std::numeric_limits<int>::max())
+    {    
+      int nextMinPos=std::numeric_limits<int>::max();
+      for(int j=0;j<nbOfCells;j++)
+        {
+          if(tmp[j]==minPos)
+            {
+              optr[j]=k++;
+              tmp[j]=std::numeric_limits<int>::max();
+            }
+          else
+            nextMinPos=std::min(nextMinPos,tmp[j]);
+        }
+      minPos=nextMinPos;
+    }
+  delete [] tmp;
+  return ret;
+}
+
+/*!
  * This method reorganize the cells of 'this' so that the cells with same geometric types are put together.
  * If checkConsecutiveCellTypes() returns true, this method do not change anything of this.
  * The number of cells remains unchanged after the call of this method.
@@ -2109,7 +2228,7 @@ DataArrayInt *MEDCouplingUMesh::rearrange2ConsecutiveCellTypes()
         if((INTERP_KERNEL::NormalizedCellType)conn[*i]==(*iter))
           retPtr[std::distance(connI,i)]=newCellId++;
     }
-  renumberCells(retPtr,retPtr+nbOfCells,false);
+  renumberCells(retPtr,false);
   return ret;
 }
 
@@ -2178,7 +2297,7 @@ DataArrayInt *MEDCouplingUMesh::convertCellArrayPerGeoType(const DataArrayInt *d
  * cells whose ids is in 'idsPerGeoType' array.
  * This method conserves coords and name of mesh.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const std::vector<int>& idsPerGeoType)
+MEDCouplingUMesh *MEDCouplingUMesh::keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const std::vector<int>& idsPerGeoType) const
 {
   std::vector<int> idsTokeep;
   int nbOfCells=getNumberOfCells();

@@ -274,7 +274,7 @@ void MEDCouplingExtrudedMesh::updateTime()
     }
 }
 
-void MEDCouplingExtrudedMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingExtrudedMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cells unavailable for ExtrudedMesh");
 }
@@ -283,8 +283,7 @@ MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const
 {
   MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMeshFromThis(_mesh1D,0);
   const int *renum=_mesh3D_ids->getConstPointer();
-  int nbOf3DCells=_mesh3D_ids->getNumberOfTuples();
-  ret->renumberCells(renum,renum+nbOf3DCells,false);
+  ret->renumberCells(renum,false);
   ret->setName(getName());
   return ret;
 }

@@ -38,6 +38,18 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
   return new MEDCouplingFieldDouble(*this,recDeepCpy);
 }
 
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) const
+{
+  MEDCouplingFieldDouble *ret=clone(recDeepCpy);
+  if(_mesh)
+    {
+      MEDCouplingMesh *mCpy=_mesh->deepCpy();
+      ret->setMesh(mCpy);
+      mCpy->decrRef();
+    }
+  return ret;
+}
+
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const
 {
   MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(_time_discr,td,deepCpy);
@@ -117,19 +129,31 @@ bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) 
  * This method performs a clone of mesh and a renumbering of underlying cells of it. The number of cells remains the same.
  * The values of field are impacted in consequence to have the same geometrical field.
  */
-void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
-  if(!_mesh)
-    throw INTERP_KERNEL::Exception("Expecting a defined mesh to be able to operate a renumbering !");
+  renumberCellsWithoutMesh(old2NewBg,check);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=_mesh->deepCpy();
-  m->renumberCells(old2NewBg,old2NewEnd,check);
+  m->renumberCells(old2NewBg,check);
+  setMesh(m);
+  updateTime();
+}
+
+/*!
+ * \b WARNING : use this method with lot of care !
+ * This method performs half job of MEDCouplingFieldDouble::renumberCells. That is to say no permutation of cells is done on underlying mesh.
+ * That is to say, the field content is changed by this method. The reason of this method is only for multi-field instances lying on the same mesh to
+ * avoid a systematic duplication and renumbering of _mesh attribute.
+ */
+void MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+{
+   if(!_mesh)
+    throw INTERP_KERNEL::Exception("Expecting a defined mesh to be able to operate a renumbering !");
   //
-  _type->renumberCells(old2NewBg,old2NewEnd,check);
+  _type->renumberCells(old2NewBg,check);
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
-  _type->renumberArraysForCell(_mesh,arrays,old2NewBg,old2NewEnd,check);
+  _type->renumberArraysForCell(_mesh,arrays,old2NewBg,check);
   //
-  setMesh(m);
   updateTime();
 }
 
@@ -137,17 +161,18 @@ void MEDCouplingFieldDouble::renumberCells(const int *old2NewBg, const int *old2
  * This method performs a clone of mesh and a renumbering of underlying nodes of it. The number of nodes remains not compulsory the same as renumberCells method.
  * The values of field are impacted in consequence to have the same geometrical field.
  */
-void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg, const int *old2NewEnd) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
     throw INTERP_KERNEL::Exception("Invalid mesh to apply renumberNodes on it !");
+  int nbOfNodes=meshC->getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     _type->renumberValuesOnNodes(old2NewBg,*iter);
-  meshC2->renumberNodes(old2NewBg,*std::max_element(old2NewBg,old2NewEnd)+1);
+  meshC2->renumberNodes(old2NewBg,*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1);
   setMesh(meshC2);
 }
 

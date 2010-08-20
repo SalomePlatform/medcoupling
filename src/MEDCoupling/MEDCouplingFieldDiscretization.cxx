@@ -199,7 +199,7 @@ void MEDCouplingFieldDiscretization::finishUnserialization(const std::vector<dou
  * This method is typically the first step of renumbering. The implementation is empty it is not a bug only gauss is impacted
  * virtualy by this method.
  */
-void MEDCouplingFieldDiscretization::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
 }
 
@@ -285,12 +285,12 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *m
   return mesh->getNumberOfCells();
 }
 
-void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
-                                                             const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+                                                             const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
   for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
     {
       if(*it)
@@ -389,7 +389,7 @@ bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretizat
  * Nothing to do here.
  */
 void MEDCouplingFieldDiscretizationP1::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
-                                                             const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+                                                             const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
 }
 
@@ -576,14 +576,12 @@ bool MEDCouplingFieldDiscretizationPerCell::isEqual(const MEDCouplingFieldDiscre
  * This method is typically the first step of renumbering. The impact on _discr_per_cell is necessary here.
  * virtualy by this method.
  */
-void MEDCouplingFieldDiscretizationPerCell::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationPerCell::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   int nbCells=_discr_per_cell->getNumberOfTuples();
   const int *array=old2NewBg;
-  if(std::distance(old2NewBg,old2NewEnd)!=nbCells)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::renumberCells unexpected size of array !");
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+nbCells);
   //
   DataArrayInt *dpc=_discr_per_cell->renumber(array);
   _discr_per_cell->decrRef();
@@ -654,12 +652,12 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh
   return ret;
 }
 
-void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
-                                                                const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
+                                                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
   int nbOfCells=_discr_per_cell->getNumberOfTuples();
   int nbOfTuples=getNumberOfTuples(0);
   const int *dcPtr=_discr_per_cell->getConstPointer();
@@ -1023,11 +1021,11 @@ int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMe
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
-                                                                  const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+                                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewEnd);
+    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
   int nbOfCells=mesh->getNumberOfCells();
   int nbOfTuples=getNumberOfTuples(mesh);
   int *array2=new int[nbOfTuples];//stores the final conversion array old2New to give to arrays in renumberInPlace.

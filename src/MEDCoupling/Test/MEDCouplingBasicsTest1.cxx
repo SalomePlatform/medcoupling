@@ -1069,7 +1069,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   m4->decrRef();
   //some random in cells to check that extrusion alg find it correctly
   const int expected1[15]={1,3,2,0,6,5,7,10,11,8,12,9,14,13,4};
-  m3->renumberCells(expected1,expected1+15,false);
+  m3->renumberCells(expected1,false);
   m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(5,m4->getMesh2D()->getNumberOfCells());
@@ -1088,7 +1088,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_POLYHED,(int)m3->getTypeOfCell(2));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_POLYHED,(int)m3->getTypeOfCell(3));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_HEXA8,(int)m3->getTypeOfCell(4));
-  m3->renumberCells(expected1,expected1+15,false);
+  m3->renumberCells(expected1,false);
   m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(5,m4->getMesh2D()->getNumberOfCells());
@@ -1121,7 +1121,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh4()
   MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
   const int expected1[15]= {1,3,2,0,6,5,7,10,11,8,12,9,14,13,4};
   const int rexpected1[15]={3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12};
-  m3->renumberCells(expected1,expected1+15,false);
+  m3->renumberCells(expected1,false);
   MEDCouplingExtrudedMesh *m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,m4->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,m4->getTypeOfCell(1));
@@ -1911,7 +1911,28 @@ void MEDCouplingBasicsTest::testCheckConsecutiveCellTypes()
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
   CPPUNIT_ASSERT(sourceMesh->checkConsecutiveCellTypes());
+  const INTERP_KERNEL::NormalizedCellType order1[]={INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4};
+  const INTERP_KERNEL::NormalizedCellType order2[]={INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI3};
   CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypes());
+  CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypesAndOrder(order1,order1+2));
+  CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypesAndOrder(order2,order2+2));
+  DataArrayInt *da=targetMesh->getRenumArrForConsctvCellTypesSpe(order1,order1+2);
+  CPPUNIT_ASSERT_EQUAL(5,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
+  const int expected1[5]={2,0,1,3,4};
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+5,da->getConstPointer()));
+  da->decrRef();
+  da=targetMesh->getRenumArrForConsctvCellTypesSpe(order2,order2+2);
+  CPPUNIT_ASSERT_EQUAL(5,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
+  const int expected2[5]={0,3,4,1,2};
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+5,da->getConstPointer()));
+  da->decrRef();
+  const int renumber1[5]={4,0,1,2,3};
+  targetMesh->renumberCells(renumber1,false);
+  CPPUNIT_ASSERT(targetMesh->checkConsecutiveCellTypes());
+  CPPUNIT_ASSERT(targetMesh->checkConsecutiveCellTypesAndOrder(order1,order1+2));
+  CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypesAndOrder(order2,order2+2));
   targetMesh->decrRef();
   sourceMesh->decrRef();
 }
@@ -1938,7 +1959,7 @@ void MEDCouplingBasicsTest::testRearrange2ConsecutiveCellTypes()
   CPPUNIT_ASSERT_EQUAL(1,arr1->getNumberOfComponents());
   CPPUNIT_ASSERT(std::equal(expected2,expected2+5,arr1->getConstPointer()));
   CPPUNIT_ASSERT(!m2_2->isEqual(m2_1,1e-12));
-  m2_2->renumberCells(expected2,expected2+5,false);
+  m2_2->renumberCells(expected2,false);
   CPPUNIT_ASSERT(m2_2->isEqual(m2_1,1e-12));
   arr1->decrRef();
   m1_1->decrRef();
@@ -2340,7 +2361,7 @@ void MEDCouplingBasicsTest::testRenumberCells()
   MEDCouplingUMesh *m2=build3DSurfTargetMesh_1();
   CPPUNIT_ASSERT(m->isEqual(m2,0));
   const int arr[5]={12,3,25,2,26};
-  m->renumberCells(arr,arr+5,true);
+  m->renumberCells(arr,true);
   CPPUNIT_ASSERT(!m->isEqual(m2,0));
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,m->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,m->getTypeOfCell(1));
@@ -2348,7 +2369,7 @@ void MEDCouplingBasicsTest::testRenumberCells()
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_TRI3,m->getTypeOfCell(3));
   CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_QUAD4,m->getTypeOfCell(4));
   const int arr2[5]={5,-1,-5,4,8};
-  m->renumberCells(arr2,arr2+5,true);
+  m->renumberCells(arr2,true);
   CPPUNIT_ASSERT(m->isEqual(m2,0));
   m->decrRef();
   m2->decrRef();

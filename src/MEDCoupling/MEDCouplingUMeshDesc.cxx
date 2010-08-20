@@ -345,7 +345,7 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildBoundaryMesh(bool keepCoords) co
   return 0;
 }
 
-void MEDCouplingUMeshDesc::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMeshDesc::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Available for UMesh desc but not implemented yet !");
 }

@@ -97,6 +97,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testAreaBary3D );
     CPPUNIT_TEST( testRenumberCellsForFields );
     CPPUNIT_TEST( testRenumberNodesForFields );
+    CPPUNIT_TEST( testConvertQuadraticCellsToLinear );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -222,6 +223,7 @@ namespace ParaMEDMEM
     void testAreaBary3D();
     void testRenumberCellsForFields();
     void testRenumberNodesForFields();
+    void testConvertQuadraticCellsToLinear();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

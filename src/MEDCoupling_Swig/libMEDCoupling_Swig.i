@@ -75,6 +75,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::divide;
 %newobject ParaMEDMEM::DataArrayDouble::substr;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::cloneWithMesh;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::getBarycenterAndOwner;
@@ -91,6 +92,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convertCellArrayPerGeoType;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForConsctvCellTypesSpe;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -179,7 +181,7 @@ namespace ParaMEDMEM
          {
            int size;
            int *tmp=convertPyToNewIntArr2(li,&size);
-           self->renumberCells(tmp,tmp+size,check);
+           self->renumberCells(tmp,check);
            delete [] tmp;
          }
        }
@@ -383,6 +385,8 @@ namespace ParaMEDMEM
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
+    bool isPresenceOfQuadratic() const;
+    void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
     %extend {
       int getCellContainingPoint(PyObject *p, double eps) const
       {
@@ -434,12 +438,30 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids)
+      PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids) const
       {
         std::vector<int> idsPerGeoType;
         convertPyToNewIntArr3(ids,idsPerGeoType);
         MEDCouplingUMesh *ret=self->keepSpecifiedCells(type,idsPerGeoType);
         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 );
+      }
+
+      bool checkConsecutiveCellTypesAndOrder(PyObject *li) const
+      {
+        int sz;
+        INTERP_KERNEL::NormalizedCellType *order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
+        bool ret=self->checkConsecutiveCellTypesAndOrder(order,order+sz);
+        delete [] order;
+        return ret;
+      }
+
+      DataArrayInt *getRenumArrForConsctvCellTypesSpe(PyObject *li) const
+      {
+        int sz;
+        INTERP_KERNEL::NormalizedCellType *order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
+        DataArrayInt *ret=self->getRenumArrForConsctvCellTypesSpe(order,order+sz);
+        delete [] order;
+        return ret;
       }
 
       PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const
@@ -710,6 +732,7 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
+    MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -875,7 +898,7 @@ namespace ParaMEDMEM
         int *tmp=convertPyToNewIntArr2(li,&size);
         try
           {
-            self->renumberCells(tmp,tmp+size,check);
+            self->renumberCells(tmp,check);
           }
         catch(INTERP_KERNEL::Exception& e)
           {
@@ -890,7 +913,7 @@ namespace ParaMEDMEM
         int *tmp=convertPyToNewIntArr2(li,&size);
         try
           {
-            self->renumberNodes(tmp,tmp+size);
+            self->renumberNodes(tmp);
           }
         catch(INTERP_KERNEL::Exception& e)
           {

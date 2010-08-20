@@ -1359,7 +1359,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         sourceMesh=MEDCouplingDataForTest.build2DSourceMesh_1();
         targetMesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         self.assertTrue(sourceMesh.checkConsecutiveCellTypes());
+        order1=[NORM_TRI3,NORM_QUAD4]
+        order2=[NORM_QUAD4,NORM_TRI3]
         self.assertTrue(not targetMesh.checkConsecutiveCellTypes());
+        self.assertTrue(not targetMesh.checkConsecutiveCellTypesAndOrder(order1));
+        self.assertTrue(not targetMesh.checkConsecutiveCellTypesAndOrder(order2));
+        da=targetMesh.getRenumArrForConsctvCellTypesSpe(order1);
+        self.assertEqual(5,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        expected1=[2,0,1,3,4]
+        self.assertTrue(expected1==da.getValues());
+        da=targetMesh.getRenumArrForConsctvCellTypesSpe(order2);
+        self.assertEqual(5,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        expected2=[0,3,4,1,2]
+        self.assertTrue(expected2==da.getValues());
+        renumber1=[4,0,1,2,3]
+        targetMesh.renumberCells(renumber1,False);
+        self.assertTrue(targetMesh.checkConsecutiveCellTypes());
+        self.assertTrue(targetMesh.checkConsecutiveCellTypesAndOrder(order1));
+        self.assertTrue(not targetMesh.checkConsecutiveCellTypesAndOrder(order2));
         pass
 
     def testRearrange2ConsecutiveCellTypes(self):
@@ -1940,7 +1959,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         daPtr=da.getValues();
         ref=meshN.getCoords().getValues()[24:];
         for i in xrange(3):
-            self.assertTrue(abs(ref[i]-daPtr[i])<1e-5);
+            self.assertTrue(abs(ref[i]-daPtr[i])<1e-10);
             pass
         pass
 
@@ -2200,7 +2219,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(3,da.getNumberOfComponents());
         daPtr=da.getValues();
         for i in xrange(12):
-            self.assertTrue(abs(barys[i]-daPtr[i])<1e-8);
+            self.assertTrue(abs(barys[i]-daPtr[i])<1e-12);
             pass
         pass
 
@@ -2328,6 +2347,34 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         renumber2=[0,2,5,3,1,4,6,7,8]
         f.renumberNodes(renumber2);
         self.assertTrue(f.isEqual(fCpy,1e-12,1e-12));
+        pass
+
+    def testConvertQuadraticCellsToLinear(self):
+        mesh=MEDCouplingDataForTest.build2DTargetMesh_3();
+        mesh.checkCoherency();
+        types=mesh.getAllTypes();
+        types.sort()
+        self.assertEqual(5,len(types));
+        expected1=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4, NORM_TRI6, NORM_QUAD8]
+        expected1.sort()
+        self.assertTrue(expected1==types);
+        self.assertTrue(mesh.isPresenceOfQuadratic());
+        self.assertEqual(62,mesh.getMeshLength());
+        f1=mesh.getMeasureField(False);
+        #
+        mesh.convertQuadraticCellsToLinear();
+        self.assertTrue(not mesh.isPresenceOfQuadratic());
+        #
+        mesh.checkCoherency();
+        f2=mesh.getMeasureField(False);
+        self.assertTrue(f1.getArray().isEqual(f2.getArray(),1e-12));
+        self.assertEqual(48,mesh.getMeshLength());
+        types2=mesh.getAllTypes();
+        types2.sort()
+        self.assertEqual(3,len(types2));
+        expected2=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4]
+        expected2.sort()
+        self.assertTrue(expected2==types2);
         pass
     
     def setUp(self):

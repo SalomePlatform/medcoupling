@@ -445,7 +445,7 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   return ret;
 }
 
-void MEDCouplingCMesh::renumberCells(const int *old2NewBg, const int *old2NewEnd, bool check) throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for CMesh !");
 }
