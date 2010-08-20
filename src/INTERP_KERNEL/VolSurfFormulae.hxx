@@ -463,9 +463,10 @@ namespace INTERP_KERNEL
       }
   }
 
-  inline double integrationOverA3DLine(double u1, double v1, double u2, double v2, double A, double B, double C, double J, double K)
+  inline double integrationOverA3DLine(double u1, double v1, double u2, double v2, double A, double B, double C)
   {
-    return (-u2*u2*u2*u2*J*J*J*B*B+12*u1*C*C*K-4*u2*u2*u2*A*A*K+3*u1*u1*u1*u1*J*J*A*B-6*C*C*u2*u2*J-4*C*u2*u2*u2*J*J*B-8*C*u2*u2*u2*J*A-3*u2*u2*u2*u2*J*A*A+8*u1*u1*u1*J*A*K*B-4*u2*K*K*K*B*B-3*u2*u2*u2*u2*J*J*A*B-12*C*u2*u2*J*K*B+6*u1*u1*J*K*K*B*B+6*u1*u1*A*K*K*B+4*u1*u1*u1*A*A*K+u1*u1*u1*u1*J*J*J*B*B-8*u2*u2*u2*J*A*K*B-12*C*C*u2*K+12*u1*u1*C*A*K-4*u2*u2*u2*J*J*K*B*B+6*u1*u1*C*C*J+4*u1*u1*u1*J*J*K*B*B+4*u1*u1*u1*C*J*J*B+8*u1*u1*u1*C*J*A+12*u1*u1*C*J*K*B+12*u1*C*K*K*B+4*u1*K*K*K*B*B-12*C*u2*u2*A*K+3*u1*u1*u1*u1*J*A*A-12*C*u2*K*K*B-6*u2*u2*J*K*K*B*B-6*u2*u2*A*K*K*B)/24.;
+    return (u1-u2)*(6.*C*C*(v1+v2)+B*B*(v1*v1*v1+v1*v1*v2+v1*v2*v2+v2*v2*v2)+A*A*(2.*u1*u2*(v1+v2)+u1*u1*(3.*v1+v2)+u2*u2*(v1+3.*v2))+ 
+                    4.*C*(A*(2*u1*v1+u2*v1+u1*v2+2.*u2*v2)+B*(v1*v1+v1*v2+v2*v2))+A*B*(u1*(3.*v1*v1+2.*v1*v2+v2*v2)+u2*(v1*v1+2.*v1*v2+3.*v2*v2)))/24.;
   }
 
   template<class ConnType, NumberingPolicy numPol>
@@ -506,6 +507,9 @@ namespace INTERP_KERNEL
         double L=-u[1]*s;
         double M=u[0]*s;
         double N=c;
+        double CX=-w*D;
+        double CY=-w*H;
+        double CZ=-w*N;
         for(int j=0;j<nbOfNodesOfCurFace;j++)
           {
             const double *p1=coords+3*OTT<ConnType,numPol>::coo2C(work[j]);
@@ -514,17 +518,13 @@ namespace INTERP_KERNEL
             double u2=A*p2[0]+B*p2[1]+D*p2[2];
             double v1=F*p1[0]+G*p1[1]+H*p1[2];
             double v2=F*p2[0]+G*p2[1]+H*p2[2];
-            if(fabs(u2-u1)>1e-12)
-              {
-                double J=(v2-v1)/(u2-u1);
-                double K=(v1*u2-v2*u1)/(u2-u1);
-                double gx=integrationOverA3DLine(u1,v1,u2,v2,A,B,-w*D,J,K);
-                double gy=integrationOverA3DLine(u1,v1,u2,v2,F,G,-w*H,J,K);
-                double gz=integrationOverA3DLine(u1,v1,u2,v2,L,M,-w*N,J,K);
-                res[0]+=gx*normal[0];
-                res[1]+=gy*normal[1];
-                res[2]+=gz*normal[2];
-              }
+            //
+            double gx=integrationOverA3DLine(u1,v1,u2,v2,A,B,CX);
+            double gy=integrationOverA3DLine(u1,v1,u2,v2,F,G,CY);
+            double gz=integrationOverA3DLine(u1,v1,u2,v2,L,M,CZ);
+            res[0]+=gx*normal[0];
+            res[1]+=gy*normal[1];
+            res[2]+=gz*normal[2];
           }
         work=work2+1;
       }
