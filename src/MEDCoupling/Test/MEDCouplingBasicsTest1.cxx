@@ -738,13 +738,15 @@ void MEDCouplingBasicsTest::testZipConnectivity()
   m5->decrRef();
   //
   bool areNodesMerged;
+  int newNbOfNodes;
   CPPUNIT_ASSERT_EQUAL(10,m6->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(22,m6->getNumberOfNodes());
-  DataArrayInt *arr=m6->mergeNodes(1e-13,areNodesMerged);
+  DataArrayInt *arr=m6->mergeNodes(1e-13,areNodesMerged,newNbOfNodes);
   arr->decrRef();
   CPPUNIT_ASSERT(areNodesMerged);
   CPPUNIT_ASSERT_EQUAL(10,m6->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(9,m6->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(9,newNbOfNodes);
   //
   arr=m6->zipConnectivityTraducer(0);
   CPPUNIT_ASSERT_EQUAL(7,m6->getNumberOfCells());
@@ -993,7 +995,8 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
   build3DExtrudedUMesh_2(mN,mTT,mTF);
   //
   bool b=false;
-  DataArrayInt *da=mTT->mergeNodes(1e-12,b);
+  int newNbOfNodes;
+  DataArrayInt *da=mTT->mergeNodes(1e-12,b,newNbOfNodes);
   CPPUNIT_ASSERT(b);
   da->decrRef();
   std::vector<int> n;
@@ -1009,7 +1012,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
   mTT3dSurf->decrRef();
   //
   b=false;
-  da=mN->mergeNodes(1e-12,b);
+  da=mN->mergeNodes(1e-12,b,newNbOfNodes);
   da->decrRef();
   CPPUNIT_ASSERT(!b);
   n.clear();
@@ -1023,7 +1026,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
   mN3dSurf->decrRef();
   //
   b=false;
-  da=mTF->mergeNodes(1e-12,b);
+  da=mTF->mergeNodes(1e-12,b,newNbOfNodes);
   da->decrRef();
   CPPUNIT_ASSERT(!b);
   n.clear();
@@ -1156,7 +1159,7 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
 {
   DataArrayInt *comm,*commI;
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
-  targetMesh->findCommonNodes(comm,commI,1e-10);
+  targetMesh->findCommonNodes(-1,1e-10,comm,commI);
   CPPUNIT_ASSERT_EQUAL(1,commI->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(0,comm->getNumberOfTuples());
   int newNbOfNodes;
@@ -1176,7 +1179,7 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
   //
   targetMesh=build3DTargetMeshMergeNode_1();
   CPPUNIT_ASSERT_EQUAL(31,targetMesh->getNumberOfNodes());
-  targetMesh->findCommonNodes(comm,commI,1e-10);
+  targetMesh->findCommonNodes(-1,1e-10,comm,commI);
   CPPUNIT_ASSERT_EQUAL(3,commI->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(6,comm->getNumberOfTuples());
   const int commExpected[6]={1,27,28,29,23,30};
@@ -1200,7 +1203,7 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
   targetMesh=build3DTargetMesh_1();
   bool areNodesMerged;
   unsigned int time=targetMesh->getTimeOfThis();
-  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged);
+  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged,newNbOfNodes);
   targetMesh->updateTime();
   CPPUNIT_ASSERT(time==targetMesh->getTimeOfThis());
   CPPUNIT_ASSERT(!areNodesMerged);
@@ -1209,7 +1212,7 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
   //
   targetMesh=build3DTargetMeshMergeNode_1();
   time=targetMesh->getTimeOfThis();
-  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged);
+  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged,newNbOfNodes);
   targetMesh->updateTime();
   CPPUNIT_ASSERT(time!=targetMesh->getTimeOfThis());
   CPPUNIT_ASSERT(areNodesMerged);
@@ -1234,7 +1237,7 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
   targetMesh=build2DTargetMeshMergeNode_1();
   CPPUNIT_ASSERT_EQUAL(18,targetMesh->getNumberOfNodes());
   time=targetMesh->getTimeOfThis();
-  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged);
+  o2n=targetMesh->mergeNodes(1e-10,areNodesMerged,newNbOfNodes);
   CPPUNIT_ASSERT(time!=targetMesh->getTimeOfThis());
   CPPUNIT_ASSERT(areNodesMerged);
   CPPUNIT_ASSERT_EQUAL(9,targetMesh->getNumberOfNodes());
@@ -1294,8 +1297,10 @@ void MEDCouplingBasicsTest::testMergeMesh1()
   CPPUNIT_ASSERT(m3->isEqual(m4,1.e-12));
   m4->decrRef();
   bool isMerged;
-  DataArrayInt *da=m3C->mergeNodes(1.e-12,isMerged);
+  int newNbOfNodes;
+  DataArrayInt *da=m3C->mergeNodes(1.e-12,isMerged,newNbOfNodes);
   CPPUNIT_ASSERT_EQUAL(11,m3C->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(11,newNbOfNodes);
   CPPUNIT_ASSERT(isMerged);
   da->decrRef();
   m3->decrRef();
