@@ -48,6 +48,7 @@ public:
   static void setEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
   static void setCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
   static void setTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
+  static void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshFamilyNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
@@ -105,10 +106,17 @@ public:
          std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> res=MEDLoader::ReadFieldsDoubleOnSameMesh(type,fileName,meshName,meshDimRelToMax,fieldName,its);
          return convertFieldDoubleVecToPy(res);
        }
-       static void WriteUMeshes(const char *fileName, const char *meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+       static void WriteUMeshesPartition(const char *fileName, const char *meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
        {
          std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
-         MEDLoader::WriteUMeshes(fileName,meshName,v,writeFromScratch);
+         MEDLoader::WriteUMeshesPartition(fileName,meshName,v,writeFromScratch);
+       }
+
+       static void WriteUMeshes(const char *fileName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
+         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> v2(v.begin(),v.end());
+         MEDLoader::WriteUMeshes(fileName,v2,writeFromScratch);
        }
      }
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception);

@@ -150,7 +150,7 @@ namespace MEDLoaderNS
   void dispatchElems(int nbOfElemCell, int nbOfElemFace, int& nbOfElem, med_entite_maillage& whichEntity);
   int readUMeshDimFromFile(const char *fileName, const char *meshName, std::vector<int>& possibilities);
   void readUMeshDataInMedFile(med_idt fid, med_int meshId, DataArrayDouble *&coords, std::list<MEDLoader::MEDConnOfOneElemType>& conn);
-  int buildMEDSubConnectivityOfOneType(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families, INTERP_KERNEL::NormalizedCellType type,
+  int buildMEDSubConnectivityOfOneType(const std::vector<const DataArrayInt *>& conn, const std::vector<const DataArrayInt *>& connIndex, const std::vector<const DataArrayInt *>& families, INTERP_KERNEL::NormalizedCellType type,
                                        std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile,
                                        std::vector<int>& fam4MEDFile, std::vector<int>& renumber);
   MEDCouplingUMesh *readUMeshFromFileLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<int>& ids,
@@ -162,12 +162,12 @@ namespace MEDLoaderNS
                                             int *&cellRenum);
   ParaMEDMEM::DataArrayDouble *buildArrayFromRawData(const std::list<MEDLoader::MEDFieldDoublePerCellType>& fieldPerType,
                                                      const std::vector<std::string>& infos);
-  int buildMEDSubConnectivityOfOneTypesPolyg(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families,
+  int buildMEDSubConnectivityOfOneTypesPolyg(const std::vector<const DataArrayInt *>& conn, const std::vector<const DataArrayInt *>& connIndex, const std::vector<const DataArrayInt *>& families,
                                              std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& fam4MEDFile, std::vector<int>& renumber);
-  int buildMEDSubConnectivityOfOneTypesPolyh(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families, std::vector<int>& conn4MEDFile,
-                                             std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile,
+  int buildMEDSubConnectivityOfOneTypesPolyh(const std::vector<const DataArrayInt *>&conn, const std::vector<const DataArrayInt *>& connIndex, const std::vector<const DataArrayInt *>& families,
+                                             std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile,
                                              std::vector<int>& fam4MEDFile, std::vector<int>& renumber);
-  int buildMEDSubConnectivityOfOneTypeStaticTypes(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families,
+  int buildMEDSubConnectivityOfOneTypeStaticTypes(const std::vector<const DataArrayInt *>& conn, const std::vector<const DataArrayInt *>& connIndex, const std::vector<const DataArrayInt *>& families,
                                                   INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile, std::vector<int>& fam4MEDFile, std::vector<int>& renumber);
   ParaMEDMEM::MEDCouplingFieldDouble *readFieldDoubleLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order,
                                                           ParaMEDMEM::TypeOfField typeOfOutField);
@@ -180,8 +180,8 @@ namespace MEDLoaderNS
   void appendCellProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIds);
   void prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *cellIds, std::list<MEDLoader::MEDFieldDoublePerCellType>& split);
   void fillGaussDataOnField(const char *fileName, const std::list<MEDLoader::MEDFieldDoublePerCellType>& data, MEDCouplingFieldDouble *f);
-  void writeUMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch, bool &isRenumbering);
-  void writeUMeshesDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch);
+  void writeUMeshesDirectly(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& mesh, const std::vector<const DataArrayInt *>& families, bool forceFromScratch, bool &isRenumbering);
+  void writeUMeshesPartitionDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch);
   void writeFieldAndMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
   void writeFieldTryingToFitExistingMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
 }
@@ -298,8 +298,50 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
   MEDfermer(fid);
 }
 
+void MEDLoader::CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception)
+{
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  std::ostringstream oss;
+  oss << " File : \"" << fileName << "\"";
+  switch(status)
+    {
+    case MEDLoaderBase::DIR_LOCKED:
+      {
+        oss << " has been detected as unreadable : impossible to read anything !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    case MEDLoaderBase::NOT_EXIST:
+      {
+        oss << " has been detected as NOT EXISTING : impossible to read anything !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    case MEDLoaderBase::EXIST_WRONLY:
+      {
+        oss << " has been detected as WRITE ONLY : impossible to read anything !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    }
+  int fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  if(fid<0)
+    {
+      oss << " has been detected as unreadable by MED file : impossible to read anything !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  oss << " has been detected readable but ";
+  int major,minor,release;
+  MEDversionLire(fid,&major,&minor,&release);
+  if(major<2 || (major==2 && minor<2))
+    {
+      oss << "version of MED file is < 2.2 : impossible to read anything !";
+      MEDfermer(fid);
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDfermer(fid);
+}
+
 std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   std::vector<std::string> ret=MEDLoaderNS::getMeshNamesFid(fid);
   MEDfermer(fid);
@@ -308,6 +350,7 @@ std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INT
 
 std::vector<std::string> MEDLoader::GetMeshFamilyNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   med_int nfam=MEDnFam(fid,(char *)meshName);
   std::vector<std::string> ret(nfam);
@@ -335,6 +378,7 @@ std::vector<std::string> MEDLoader::GetMeshFamilyNames(const char *fileName, con
   
 std::vector<std::string> MEDLoader::GetMeshGroupsNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   med_int nfam=MEDnFam(fid,(char *)meshName);
   std::vector<std::string> ret;
@@ -366,6 +410,7 @@ std::vector<std::string> MEDLoader::GetMeshGroupsNames(const char *fileName, con
 
 std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<std::string> ret;
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   med_int nbFields=MEDnChamp(fid,0);
@@ -416,6 +461,7 @@ std::vector<std::string> MEDLoader::GetCellFieldNamesOnMesh(const char *fileName
 
 std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<std::string> ret;
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   med_int nbFields=MEDnChamp(fid,0);
@@ -460,6 +506,7 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
 
 std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   switch(type)
     {
     case ON_CELLS:
@@ -473,6 +520,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetFieldIterations(ParaMEDMEM::Type
 
 std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
@@ -524,6 +572,7 @@ std::vector< std::pair<int,int> > MEDLoader::GetCellFieldIterations(const char *
 
 std::vector< std::pair<int,int> > MEDLoader::GetNodeFieldIterations(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::string meshNameCpp(meshName);
   std::vector< std::pair<int,int> > ret;
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
@@ -1137,10 +1186,10 @@ namespace MEDLoaderNS
 }
 
 /*!
- * This method builds a sub set of connectivity for a given type 'type'.
- * @param conn input containing connectivity with MEDCoupling format.
- * @param connIndex input containing connectivity index in MEDCoupling format.
- * @param families input that may be equal to 0. This specifies an array specifying cell family foreach cell.
+ * This method builds a sub set of connectivity for a given type 'type'. \b WARNING connV,connVIndex and familiesV must have same size !
+ * @param connV input containing connectivity with MEDCoupling format.
+ * @param connVIndex input containing connectivity index in MEDCoupling format.
+ * @param familiesV input that may be equal to 0. This specifies an array specifying cell family foreach cell.
  * @param type input specifying which cell types will be extracted in conn4MEDFile. 
  * @param conn4MEDFile output containing the connectivity directly understandable by MEDFile; conn4MEDFile has to be empty before this method called.
  * @param connIndex4MEDFile output containing index connectivity understandable by MEDFile; only used by polygons and polyhedrons (it is face nodal connec).
@@ -1148,102 +1197,129 @@ namespace MEDLoaderNS
  * @param fam4MEDFile output containing family number of cells whose type is 'type'. This output is updated only if 'families' is different than 0.
  * @return nb of elements extracted.
  */
-int MEDLoaderNS::buildMEDSubConnectivityOfOneTypeStaticTypes(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families, INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
-                                                             std::vector<int>& fam4MEDFile, std::vector<int>& renumber)
+int MEDLoaderNS::buildMEDSubConnectivityOfOneTypeStaticTypes(const std::vector<const DataArrayInt *>& connV, const std::vector<const DataArrayInt *>& connVIndex, const std::vector<const DataArrayInt *>& familiesV,
+                                                             INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile, std::vector<int>& fam4MEDFile, std::vector<int>& renumber)
 {
   int ret=0;
-  int nbOfElem=connIndex->getNbOfElems()-1;
-  const int *connPtr=conn->getConstPointer();
-  const int *connIdxPtr=connIndex->getConstPointer();
-  const int *famPtr=0;
-  if(families)
-    famPtr=families->getConstPointer();
-  for(int i=0;i<nbOfElem;i++)
+  int nbOfMeshes=connV.size();
+  int renumOffset=0;
+  for(int i=0;i<nbOfMeshes;i++)
     {
-      int delta=connIdxPtr[1]-connIdxPtr[0];
-      if(*connPtr==type)
+      const DataArrayInt *conn=connV[i];
+      const DataArrayInt *connIndex=connVIndex[i];
+      const DataArrayInt *families=familiesV[i];
+      int nbOfElem=connIndex->getNbOfElems()-1;
+      const int *connPtr=conn->getConstPointer();
+      const int *connIdxPtr=connIndex->getConstPointer();
+      const int *famPtr=0;
+      if(families)
+        famPtr=families->getConstPointer();
+      for(int i=0;i<nbOfElem;i++)
         {
-          conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
-          if(families)
-            fam4MEDFile.push_back(famPtr[i]);
-          renumber.push_back(i+1);
-          ret++;
+          int delta=connIdxPtr[1]-connIdxPtr[0];
+          if(*connPtr==type)
+            {
+              conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
+              if(families)
+                fam4MEDFile.push_back(famPtr[i]);
+              renumber.push_back(i+1+renumOffset);
+              ret++;
+            }
+          connIdxPtr++;
+          connPtr+=delta;
         }
-      connIdxPtr++;
-      connPtr+=delta;
+      renumOffset+=nbOfElem;
     }
   std::transform(conn4MEDFile.begin(),conn4MEDFile.end(),conn4MEDFile.begin(),std::bind2nd(std::plus<int>(),1));
   return ret;
 }
 
-int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyg(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families, std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile,
-                                                        std::vector<int>& fam4MEDFile, std::vector<int>& renumber)
+int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyg(const std::vector<const DataArrayInt *>&connV, const std::vector<const DataArrayInt *>& connVIndex, const std::vector<const DataArrayInt *>& familiesV,
+                                                        std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& fam4MEDFile, std::vector<int>& renumber)
 {
   int ret=0;
-  int nbOfElem=connIndex->getNbOfElems()-1;
-  const int *connPtr=conn->getConstPointer();
-  const int *connIdxPtr=connIndex->getConstPointer();
+  int nbOfMeshes=connV.size();
   connIndex4MEDFile.push_back(1);
-  const int *famPtr=0;
-  if(families)
-    famPtr=families->getConstPointer();
-  for(int i=0;i<nbOfElem;i++)
+  int renumOffset=0;
+  for(int i=0;i<nbOfMeshes;i++)
     {
-      int delta=connIdxPtr[1]-connIdxPtr[0];
-      if(*connPtr==INTERP_KERNEL::NORM_POLYGON)
+      const DataArrayInt *conn=connV[i];
+      const DataArrayInt *connIndex=connVIndex[i];
+      const DataArrayInt *families=familiesV[i];
+      int nbOfElem=connIndex->getNbOfElems()-1;
+      const int *connPtr=conn->getConstPointer();
+      const int *connIdxPtr=connIndex->getConstPointer();
+      const int *famPtr=0;
+      if(families)
+        famPtr=families->getConstPointer();
+      for(int i=0;i<nbOfElem;i++)
         {
-          conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
-          connIndex4MEDFile.push_back(connIndex4MEDFile.back()+delta-1);
-          if(families)
-            fam4MEDFile.push_back(famPtr[i]);
-          renumber.push_back(i+1);
-          ret++;
+          int delta=connIdxPtr[1]-connIdxPtr[0];
+          if(*connPtr==INTERP_KERNEL::NORM_POLYGON)
+            {
+              conn4MEDFile.insert(conn4MEDFile.end(),connPtr+1,connPtr+delta);
+              connIndex4MEDFile.push_back(connIndex4MEDFile.back()+delta-1);
+              if(families)
+                fam4MEDFile.push_back(famPtr[i]);
+              renumber.push_back(i+1+renumOffset);
+              ret++;
+            }
+          connIdxPtr++;
+          connPtr+=delta;
         }
-      connIdxPtr++;
-      connPtr+=delta;
+      renumOffset+=nbOfElem;
     }
   std::transform(conn4MEDFile.begin(),conn4MEDFile.end(),conn4MEDFile.begin(),std::bind2nd(std::plus<int>(),1));
   return ret;
 }
   
-int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyh(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families,
+int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyh(const std::vector<const DataArrayInt *>& connV, const std::vector<const DataArrayInt *>& connVIndex, const std::vector<const DataArrayInt *>& familiesV,
                                                         std::vector<int>& conn4MEDFile, std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile,
                                                         std::vector<int>& fam4MEDFile, std::vector<int>& renumber)
 {
   int ret=0;
-  int nbOfElem=connIndex->getNbOfElems()-1;
-  const int *connPtr=conn->getConstPointer();
-  const int *connIdxPtr=connIndex->getConstPointer();
+  int nbOfMeshes=connV.size();
   connIndexRk24MEDFile.push_back(1);
   connIndex4MEDFile.push_back(1);
-  const int *famPtr=0;
-  if(families)
-    famPtr=families->getConstPointer();
-  for(int i=0;i<nbOfElem;i++)
+  int renumOffset=0;
+  for(int i=0;i<nbOfMeshes;i++)
     {
-      int delta=connIdxPtr[1]-connIdxPtr[0];
-      if(*connPtr==INTERP_KERNEL::NORM_POLYHED)
+      const DataArrayInt *conn=connV[i];
+      const DataArrayInt *connIndex=connVIndex[i];
+      const DataArrayInt *families=familiesV[i];
+      int nbOfElem=connIndex->getNbOfElems()-1;
+      const int *connPtr=conn->getConstPointer();
+      const int *connIdxPtr=connIndex->getConstPointer();
+      const int *famPtr=0;
+      if(families)
+        famPtr=families->getConstPointer();
+      for(int i=0;i<nbOfElem;i++)
         {
-          int nbOfFacesOfPolyh=std::count(connPtr+1,connPtr+delta,-1)+1;
-          const int *work=connPtr+1;
-          while(work!=connPtr+delta)
+          int delta=connIdxPtr[1]-connIdxPtr[0];
+          if(*connPtr==INTERP_KERNEL::NORM_POLYHED)
             {
-              const int *end=std::find(work,connPtr+delta,-1);
-              conn4MEDFile.insert(conn4MEDFile.end(),work,end);
-              connIndex4MEDFile.push_back(connIndex4MEDFile.back()+std::distance(work,end));
-              if(end==connPtr+delta)
-                work=connPtr+delta;
-              else
-                work=end+1;
+              int nbOfFacesOfPolyh=std::count(connPtr+1,connPtr+delta,-1)+1;
+              const int *work=connPtr+1;
+              while(work!=connPtr+delta)
+                {
+                  const int *end=std::find(work,connPtr+delta,-1);
+                  conn4MEDFile.insert(conn4MEDFile.end(),work,end);
+                  connIndex4MEDFile.push_back(connIndex4MEDFile.back()+std::distance(work,end));
+                  if(end==connPtr+delta)
+                    work=connPtr+delta;
+                  else
+                    work=end+1;
+                }
+              connIndexRk24MEDFile.push_back(connIndexRk24MEDFile.back()+nbOfFacesOfPolyh);
+              if(families)
+                fam4MEDFile.push_back(famPtr[i]);
+              renumber.push_back(i+1+renumOffset);
+              ret++;
             }
-          connIndexRk24MEDFile.push_back(connIndexRk24MEDFile.back()+nbOfFacesOfPolyh);
-          if(families)
-            fam4MEDFile.push_back(famPtr[i]);
-          renumber.push_back(i+1);
-          ret++;
+          connIdxPtr++;
+          connPtr+=delta;
         }
-      connIdxPtr++;
-      connPtr+=delta;
+      renumOffset+=nbOfElem;
     }
   std::transform(conn4MEDFile.begin(),conn4MEDFile.end(),conn4MEDFile.begin(),std::bind2nd(std::plus<int>(),1));
   return ret;
@@ -1261,7 +1337,7 @@ int MEDLoaderNS::buildMEDSubConnectivityOfOneTypesPolyh(const DataArrayInt *conn
  * @param fam4MEDFile output containing families id of cells whose type is 'type'.
  * @return nb of elements extracted.
  */
-int MEDLoaderNS::buildMEDSubConnectivityOfOneType(const DataArrayInt *conn, const DataArrayInt *connIndex, const DataArrayInt *families,
+int MEDLoaderNS::buildMEDSubConnectivityOfOneType(const std::vector<const DataArrayInt *>& conn, const std::vector<const DataArrayInt *>& connIndex, const std::vector<const DataArrayInt *>& families,
                                                   INTERP_KERNEL::NormalizedCellType type, std::vector<int>& conn4MEDFile,
                                                   std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile, std::vector<int>& fam4MEDFile, std::vector<int>& renumber)
 {
@@ -1395,6 +1471,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev1(const char 
 
 MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<int> familiesToKeep;
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
@@ -1410,6 +1487,7 @@ MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char 
 
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<int> familiesToKeep;
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
@@ -1425,12 +1503,14 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName,
 
 int MEDLoader::ReadUMeshDimFromFile(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<int> poss;
   return MEDLoaderNS::readUMeshDimFromFile(fileName,meshName,poss);
 }
 
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<int> familiesToKeep=MEDLoaderNS::getIdsFromFamilies(fileName,meshName,fams);
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
@@ -1448,6 +1528,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromFamilies(const char *fileN
 
 ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<int> familiesToKeep=MEDLoaderNS::getIdsFromGroups(fileName,meshName,grps);
   std::vector<INTERP_KERNEL::NormalizedCellType> typesToKeep;
   unsigned meshDim;
@@ -1465,6 +1546,7 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileNam
 
 ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDouble(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   switch(type)
     {
     case ON_CELLS:
@@ -1483,6 +1565,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDouble(ParaMEDMEM::TypeO
 std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleOnSameMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
                                                                                         const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
 {
+  CheckFileForRead(fileName);
   std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ret(its.size());
   if(its.empty())
     return ret;
@@ -1572,62 +1655,75 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleGaussNE(const char
  * @param families input parameter that specifies the field on int on each cells of 'mesh'.
  * @param isRenumbering output parameter that specifies if a renumbering of mesh has been needed.
  */
-void MEDLoaderNS::writeUMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, const DataArrayInt *families, bool forceFromScratch, bool &isRenumbering)
+void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& mesh, const std::vector<const DataArrayInt *>& families, bool forceFromScratch, bool &isRenumbering)
 {
   med_idt fid=MEDouvrir((char *)fileName,forceFromScratch?MED_CREATION:MED_LECTURE_ECRITURE);
-  std::string meshName(mesh->getName());
+  std::string meshName(mesh[0]->getName());
   if(meshName=="")
     {
       MEDfermer(fid);
       throw INTERP_KERNEL::Exception("MEDCouplingMesh must have a not null name !");
     }
-  isRenumbering=!mesh->checkConsecutiveCellTypesAndOrder(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
+  isRenumbering=false;
+  bool isFamilies=true;
+  std::vector<const DataArrayInt *> conn;
+  std::vector<const DataArrayInt *> connIndex;
+  std::set<INTERP_KERNEL::NormalizedCellType> allTypes;
+  for(std::vector<const ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=mesh.begin();iter!=mesh.end();iter++)
+    {
+      isRenumbering|=!(*iter)->checkConsecutiveCellTypesAndOrder(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
+      isFamilies&=(families[std::distance(mesh.begin(),iter)]!=0);
+      conn.push_back((*iter)->getNodalConnectivity());
+      connIndex.push_back((*iter)->getNodalConnectivityIndex());
+      const std::set<INTERP_KERNEL::NormalizedCellType>& curTypes=(*iter)->getAllTypes();
+      allTypes.insert(curTypes.begin(),curTypes.end());
+    }
   char *maa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
   char *desc=MEDLoaderBase::buildEmptyString(MED_TAILLE_DESC);
   MEDLoaderBase::safeStrCpy(meshName.c_str(),MED_TAILLE_NOM,maa,MEDLoader::_TOO_LONG_STR);
   MEDLoaderBase::safeStrCpy(meshName.c_str(),MED_TAILLE_DESC,desc,MEDLoader::_TOO_LONG_STR);
-  const int spaceDim=mesh->getSpaceDimension();
+  const int spaceDim=mesh[0]->getSpaceDimension();
   MEDmaaCr(fid,maa,spaceDim,MED_NON_STRUCTURE,desc);
   MEDdimEspaceCr(fid,maa,spaceDim);
-  std::set<INTERP_KERNEL::NormalizedCellType> allTypes(mesh->getAllTypes());
-  const DataArrayInt *conn=mesh->getNodalConnectivity();
-  const DataArrayInt *connIndex=mesh->getNodalConnectivityIndex();
+  for(std::vector<const ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=mesh.begin();iter!=mesh.end();iter++)
+    {
+      for(int i=0;i<MED_NBR_GEOMETRIE_MAILLE+2;i++)
+        {
+          med_geometrie_element curMedType=typmai[i];
+          INTERP_KERNEL::NormalizedCellType curType=typmai2[i];
+          if(allTypes.find(curType)!=allTypes.end())
+            {
+              std::vector<int> medConn;
+              std::vector<int> medConnIndex;
+              std::vector<int> medConnIndex2;
+              std::vector<int> fam;
+              std::vector<int> renumber;
+              int nbOfElt=MEDLoaderNS::buildMEDSubConnectivityOfOneType(conn,connIndex,families,curType,medConn,medConnIndex,medConnIndex2,fam,renumber);
+              if(curMedType!=MED_POLYGONE && curMedType!=MED_POLYEDRE)
+                MEDconnEcr(fid,maa,(*iter)->getMeshDimension(),&medConn[0],MED_FULL_INTERLACE,nbOfElt,MED_MAILLE,curMedType,MED_NOD);
+              else
+                {
+                  if(curMedType==MED_POLYGONE)
+                    MEDpolygoneConnEcr(fid,maa,&medConnIndex[0],medConnIndex.size(),&medConn[0],MED_MAILLE,MED_NOD);
+                  if(curMedType==MED_POLYEDRE)
+                    {
+                      MEDpolyedreConnEcr(fid,maa,&medConnIndex2[0],medConnIndex2.size(),&medConnIndex[0],medConnIndex.size(),
+                                         &medConn[0],MED_NOD);
+                    }
+                }
+              if(isFamilies)
+                MEDfamEcr(fid,maa,&fam[0],nbOfElt,MED_MAILLE,curMedType);
+              if(isRenumbering)
+                MEDnumEcr(fid,maa,&renumber[0],nbOfElt,MED_MAILLE,curMedType);
+            }
+        }
+    }
   char familyName[MED_TAILLE_NOM+1];
   std::fill(familyName,familyName+MED_TAILLE_NOM+1,'\0');
   const char DftFamilyName[]="DftFamily";
   std::copy(DftFamilyName,DftFamilyName+sizeof(DftFamilyName),familyName);
-  for(int i=0;i<MED_NBR_GEOMETRIE_MAILLE+2;i++)
-    {
-      med_geometrie_element curMedType=typmai[i];
-      INTERP_KERNEL::NormalizedCellType curType=typmai2[i];
-      if(allTypes.find(curType)!=allTypes.end())
-        {
-          std::vector<int> medConn;
-          std::vector<int> medConnIndex;
-          std::vector<int> medConnIndex2;
-          std::vector<int> fam;
-          std::vector<int> renumber;
-          int nbOfElt=MEDLoaderNS::buildMEDSubConnectivityOfOneType(conn,connIndex,families,curType,medConn,medConnIndex,medConnIndex2,fam,renumber);
-          if(curMedType!=MED_POLYGONE && curMedType!=MED_POLYEDRE)
-            MEDconnEcr(fid,maa,mesh->getMeshDimension(),&medConn[0],MED_FULL_INTERLACE,nbOfElt,MED_MAILLE,curMedType,MED_NOD);
-          else
-            {
-              if(curMedType==MED_POLYGONE)
-                MEDpolygoneConnEcr(fid,maa,&medConnIndex[0],medConnIndex.size(),&medConn[0],MED_MAILLE,MED_NOD);
-              if(curMedType==MED_POLYEDRE)
-                {
-                  MEDpolyedreConnEcr(fid,maa,&medConnIndex2[0],medConnIndex2.size(),&medConnIndex[0],medConnIndex.size(),
-                                     &medConn[0],MED_NOD);
-                }
-            }
-          if(families)
-            MEDfamEcr(fid,maa,&fam[0],nbOfElt,MED_MAILLE,curMedType);
-          if(isRenumbering)
-            MEDnumEcr(fid,maa,&renumber[0],nbOfElt,MED_MAILLE,curMedType);
-        }
-    }
   MEDfamCr(fid,maa,familyName,0,0,0,0,0,0,0);
-  DataArrayDouble *arr=mesh->getCoords();
+  DataArrayDouble *arr=mesh[0]->getCoords();
   char *comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
   char *unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
   for(int i=0;i<spaceDim;i++)
@@ -1638,7 +1734,7 @@ void MEDLoaderNS::writeUMeshDirectly(const char *fileName, const ParaMEDMEM::MED
       MEDLoaderBase::safeStrCpy(c.c_str(),MED_TAILLE_PNOM-1,comp+i*MED_TAILLE_PNOM,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy(u.c_str(),MED_TAILLE_PNOM-1,unit+i*MED_TAILLE_PNOM,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDcoordEcr(fid,maa,mesh->getSpaceDimension(),arr->getPointer(),MED_FULL_INTERLACE,mesh->getNumberOfNodes(),MED_CART,comp,unit);
+  MEDcoordEcr(fid,maa,spaceDim,arr->getPointer(),MED_FULL_INTERLACE,mesh[0]->getNumberOfNodes(),MED_CART,comp,unit);
   delete [] comp;
   delete [] unit;
   delete [] maa;
@@ -1650,14 +1746,13 @@ void MEDLoaderNS::writeUMeshDirectly(const char *fileName, const ParaMEDMEM::MED
  * In this method meshes are assumed to shared the same coords.
  * This method makes the assumption that 'meshes' is not empty, no check on that is done (responsability of the caller)
  */
-void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch)
+void MEDLoaderNS::writeUMeshesPartitionDirectly(const char *fileName, const char *meshName, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool forceFromScratch)
 {
   std::string meshNameCpp(meshName);
   char *maa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
   MEDLoaderBase::safeStrCpy(meshName,MED_TAILLE_NOM,maa,MEDLoader::_TOO_LONG_STR);
   if(meshName=="")
-    throw INTERP_KERNEL::Exception("writeUMeshesDirectly : Invalid meshName : Must be different from \"\" !");
-  //MEDnumEcr(fid,maa,num,nele,_type_ent,typ_geo);
+    throw INTERP_KERNEL::Exception("writeUMeshesPartitionDirectly : Invalid meshName : Must be different from \"\" !");
   std::vector< DataArrayInt * > corr;
   MEDCouplingUMesh *m=ParaMEDMEM::MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
   m->setName(meshName);
@@ -1666,7 +1761,9 @@ void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const char *meshNam
   for(std::vector< DataArrayInt * >::iterator it=corr.begin();it!=corr.end();it++)
     (*it)->decrRef();
   bool isRenumbering;
-  writeUMeshDirectly(fileName,m,arr2,forceFromScratch,isRenumbering);
+  std::vector<const MEDCouplingUMesh *> mv(1); mv[0]=m;
+  std::vector<const DataArrayInt *> famv(1); famv[0]=arr2;
+  writeUMeshesDirectly(fileName,mv,famv,forceFromScratch,isRenumbering);
   // families creation
   std::set<int> familyIds;
   for(std::vector< std::vector<int> >::const_iterator it1=fidsOfGroups.begin();it1!=fidsOfGroups.end();it1++)
@@ -1931,7 +2028,9 @@ void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, const ParaMEDM
   if(mesh)
     {
       bool isRenumbering;
-      writeUMeshDirectly(fileName,mesh,0,forceFromScratch,isRenumbering);
+      std::vector<const MEDCouplingUMesh *> meshV(1); meshV[0]=mesh;
+      std::vector<const DataArrayInt *> famV(1); famV[0]=0;
+      writeUMeshesDirectly(fileName,meshV,famV,forceFromScratch,isRenumbering);
       if(isRenumbering)
         {
           ParaMEDMEM::MEDCouplingFieldDouble *f2=f->clone(true);
@@ -1969,8 +2068,9 @@ void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, const 
   MEDCouplingUMesh *m=MEDLoader::ReadUMeshFromFile(fileName,f->getMesh()->getName(),f2);
   MEDCouplingUMesh *m2=MEDCouplingUMesh::mergeUMeshes(m,(MEDCouplingUMesh *)f->getMesh());
   bool areNodesMerged;
-  DataArrayInt *da=m2->mergeNodes(MEDLoader::_EPS_FOR_NODE_COMP,areNodesMerged);
-  if(!areNodesMerged || m2->getNumberOfNodes()!=m->getNumberOfNodes())
+  int newNbOfNodes;
+  DataArrayInt *da=m2->mergeNodes(MEDLoader::_EPS_FOR_NODE_COMP,areNodesMerged,newNbOfNodes);
+  if(!areNodesMerged || newNbOfNodes!=m->getNumberOfNodes())
     {
       da->decrRef();
       m2->decrRef();
@@ -2031,21 +2131,23 @@ void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUM
       std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+  std::vector<const ParaMEDMEM::MEDCouplingUMesh *> meshV(1); meshV[0]=mesh;
+  std::vector<const ParaMEDMEM::DataArrayInt *> famV(1); famV[0]=0;
   if(writeFromScratch)
     {
-      MEDLoaderNS::writeUMeshDirectly(fileName,mesh,0,true,isRenumbering);
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshV,famV,true,isRenumbering);
       return ;
     }
   if(status==MEDLoaderBase::NOT_EXIST)
     {
-      MEDLoaderNS::writeUMeshDirectly(fileName,mesh,0,true,isRenumbering);
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshV,famV,true,isRenumbering);
       return;
     }
   else
     {
       std::vector<std::string> meshNames=GetMeshNames(fileName);
       if(std::find(meshNames.begin(),meshNames.end(),meshName)==meshNames.end())
-        MEDLoaderNS::writeUMeshDirectly(fileName,mesh,0,false,isRenumbering);
+        MEDLoaderNS::writeUMeshesDirectly(fileName,meshV,famV,false,isRenumbering);
       else
         {
           std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
@@ -2055,7 +2157,7 @@ void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUM
     }
 }
 
-void MEDLoader::WriteUMeshes(const char *fileName, const char *meshNameC, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+void MEDLoader::WriteUMeshesPartition(const char *fileName, const char *meshNameC, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
 {
   std::string meshName(meshNameC);
   if(meshName.empty())
@@ -2083,25 +2185,67 @@ void MEDLoader::WriteUMeshes(const char *fileName, const char *meshNameC, const 
   tmp.clear();
   if(writeFromScratch)
     {
-      MEDLoaderNS::writeUMeshesDirectly(fileName,meshNameC,meshes,true);
+      MEDLoaderNS::writeUMeshesPartitionDirectly(fileName,meshNameC,meshes,true);
       return ;
     }
   if(status==MEDLoaderBase::NOT_EXIST)
     {
-      MEDLoaderNS::writeUMeshesDirectly(fileName,meshNameC,meshes,true);
+      MEDLoaderNS::writeUMeshesPartitionDirectly(fileName,meshNameC,meshes,true);
       return;
     }
   else
     {
       std::vector<std::string> meshNames=GetMeshNames(fileName);
       if(std::find(meshNames.begin(),meshNames.end(),meshName)==meshNames.end())
-        MEDLoaderNS::writeUMeshesDirectly(fileName,meshNameC,meshes,false);
+        MEDLoaderNS::writeUMeshesPartitionDirectly(fileName,meshNameC,meshes,false);
       else
         {
           std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
           oss << meshName << "\" !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
+    }
+}
+
+void MEDLoader::WriteUMeshes(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+{
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(meshes.empty())
+    throw INTERP_KERNEL::Exception("List of meshes must be not empty !");
+  DataArrayDouble *coords=meshes.front()->getCoords();
+  for(std::vector<const ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=meshes.begin();iter!=meshes.end();iter++)
+    if(coords!=(*iter)->getCoords())
+      throw INTERP_KERNEL::Exception("Meshes does not not share the same coordinates : try method MEDCouplingPointSet::tryToShareSameCoords !");
+  std::set<int> tmp;
+  for(std::vector<const ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=meshes.begin();iter!=meshes.end();iter++)
+    {
+      if(tmp.find((*iter)->getMeshDimension())==tmp.end())
+        tmp.insert((*iter)->getMeshDimension());
+      else
+        throw INTERP_KERNEL::Exception("The mesh dimension of meshes must be different each other !");
+    }
+  tmp.clear();
+  bool isRenumbering;
+  std::vector<const DataArrayInt *> families(meshes.size());
+  if(writeFromScratch)
+    {
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshes,families,true,isRenumbering);
+      return ;
+    }
+  if(status==MEDLoaderBase::NOT_EXIST)
+    {
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshes,families,true,isRenumbering);
+      return;
+    }
+  else
+    {
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshes,families,false,isRenumbering);
+      return;
     }
 }
 
@@ -2131,9 +2275,6 @@ void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFi
         MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,false);
       else
         MEDLoaderNS::writeFieldTryingToFitExistingMesh(fileName,f);
-      /*std::ostringstream oss; oss << "File \'" << fileName << "\' already exists and has already a mesh called \"";
-        oss << fileNameCpp << "\" !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());*/
     }
 }
 

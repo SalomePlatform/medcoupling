@@ -224,7 +224,7 @@ class MEDLoaderTest(unittest.TestCase):
         mesh4.setCoords(mesh1.getCoords());
         meshes=[mesh1,mesh2,mesh3,mesh4]
         mnane="3DToto";
-        MEDLoader.WriteUMeshes(fileName,mnane,meshes,True);
+        MEDLoader.WriteUMeshesPartition(fileName,mnane,meshes,True);
         #
         mesh5=MEDLoader.ReadUMeshFromFile(fileName,mnane);
         mesh1.setName(mnane);
@@ -262,7 +262,7 @@ class MEDLoaderTest(unittest.TestCase):
     def testFieldProfilRW1(self):
         fileName="Pyfile12.med";
         mesh1=MEDLoaderDataForTest.build3DMesh_1();
-        da,b=mesh1.mergeNodes(1e-12);
+        da,b,newNbOfNodes=mesh1.mergeNodes(1e-12);
         MEDLoader.WriteUMesh(fileName,mesh1,True);
         part1=[1,2,4,13,15]
         mesh2=mesh1.buildPartOfMySelf(part1,True);
@@ -348,6 +348,40 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(fs[0].isEqual(f_1,1e-12,1e-12));
         self.assertTrue(fs[1].isEqual(f_2,1e-12,1e-12));
         self.assertTrue(fs[2].isEqual(f_3,1e-12,1e-12));
+        pass
+
+    def testWriteUMeshesRW1(self):
+        fileName="Pyfile18.med";
+        m3d=MEDLoaderDataForTest.build3DMesh_2();
+        pt=[0.,0.,-0.3]
+        vec=[0.,0.,1.]
+        nodes=m3d.findNodesOnPlane(pt,vec,1e-12);
+        m2d=m3d.buildFacePartOfMySelfNode(nodes,True);
+        m2d.setName("ExampleOfMultiDimW");
+        meshes=[m2d,m3d]
+        MEDLoader.WriteUMeshes(fileName,meshes,True);
+        m3d_bis=MEDLoader.ReadUMeshFromFile(fileName,m2d.getName(),0);
+        self.assertTrue(not m3d_bis.isEqual(m3d,1e-12));
+        m3d_bis.setName(m3d.getName());
+        self.assertTrue(m3d_bis.isEqual(m3d,1e-12));
+        m2d_bis=MEDLoader.ReadUMeshFromFile(fileName,m2d.getName(),-1);#-1 for faces
+        self.assertTrue(m2d_bis.isEqual(m2d,1e-12));
+        # Creation of a field on faces.
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setName("FieldOnFacesShuffle");
+        f1.setMesh(m2d);
+        array=DataArrayDouble.New();
+        arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
+        array.setValues(arr1,m2d.getNumberOfCells(),2);
+        array.setInfoOnComponent(0,"plkj (mm)");
+        array.setInfoOnComponent(1,"pqqqss (mm)");
+        f1.setArray(array);
+        tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
+        f1.setTime(3.14,2,7);
+        f1.checkCoherency();
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+        f2=MEDLoader.ReadFieldDoubleCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
+        self.assertTrue(f2.isEqual(f1,1e-12,1e-12));
         pass
     pass
 

@@ -282,7 +282,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   meshes.push_back(mesh3);
   meshes.push_back(mesh4);
   const char mnane[]="3DToto";
-  MEDLoader::WriteUMeshes(fileName,mnane,meshes,true);
+  MEDLoader::WriteUMeshesPartition(fileName,mnane,meshes,true);
   //
   MEDCouplingUMesh *mesh5=MEDLoader::ReadUMeshFromFile(fileName,mnane);
   mesh1->setName(mnane);
@@ -335,7 +335,8 @@ void MEDLoaderTest::testFieldProfilRW1()
   const char fileName[]="file12.med";
   MEDCouplingUMesh *mesh1=build3DMesh_1();
   bool b;
-  DataArrayInt *da=mesh1->mergeNodes(1e-12,b);
+  int newNbOfNodes;
+  DataArrayInt *da=mesh1->mergeNodes(1e-12,b,newNbOfNodes);
   da->decrRef();
   MEDLoader::WriteUMesh(fileName,mesh1,true);
   const int part1[5]={1,2,4,13,15};
@@ -490,6 +491,53 @@ void MEDLoaderTest::testMultiFieldShuffleRW1()
   f_3->decrRef();
   //
   m->decrRef();
+}
+
+void MEDLoaderTest::testWriteUMeshesRW1()
+{
+  const char fileName[]="file18.med";
+  MEDCouplingUMesh *m3d=build3DMesh_2();
+  const double pt[3]={0.,0.,-0.3};
+  const double vec[3]={0.,0.,1.};
+  std::vector<int> nodes;
+  m3d->findNodesOnPlane(pt,vec,1e-12,nodes);
+  MEDCouplingUMesh *m2d=(MEDCouplingUMesh *)m3d->buildFacePartOfMySelfNode(&nodes[0],&nodes[0]+nodes.size(),true);
+  m2d->setName("ExampleOfMultiDimW");
+  std::vector<const MEDCouplingUMesh *> meshes;
+  meshes.push_back(m2d);
+  meshes.push_back(m3d);
+  MEDLoader::WriteUMeshes(fileName,meshes,true);
+  MEDCouplingUMesh *m3d_bis=MEDLoader::ReadUMeshFromFile(fileName,m2d->getName(),0);
+  CPPUNIT_ASSERT(!m3d_bis->isEqual(m3d,1e-12));
+  m3d_bis->setName(m3d->getName());
+  CPPUNIT_ASSERT(m3d_bis->isEqual(m3d,1e-12));
+  MEDCouplingUMesh *m2d_bis=MEDLoader::ReadUMeshFromFile(fileName,m2d->getName(),-1);//-1 for faces
+  CPPUNIT_ASSERT(m2d_bis->isEqual(m2d,1e-12));
+  // Creation of a field on faces.
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setName("FieldOnFacesShuffle");
+  f1->setMesh(m2d);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(m2d->getNumberOfCells(),2);
+  array->setInfoOnComponent(0,"plkj (mm)");
+  array->setInfoOnComponent(1,"pqqqss (mm)");
+  f1->setArray(array);
+  array->decrRef();
+  double *tmp=array->getPointer();
+  const double arr1[10]={71.,171.,10.,110.,20.,120.,30.,130.,40.,140.};
+  std::copy(arr1,arr1+10,tmp);
+  f1->setTime(3.14,2,7);
+  f1->checkCoherency();
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell(fileName,f1->getMesh()->getName(),-1,f1->getName(),2,7);
+  CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
+  f1->decrRef();
+  f2->decrRef();
+  //
+  m2d_bis->decrRef();
+  m3d_bis->decrRef();
+  m2d->decrRef();
+  m3d->decrRef();
 }
 
 MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
