@@ -774,3 +774,252 @@ void MEDCouplingBasicsTest::testConvertQuadraticCellsToLinear()
   f2->decrRef();
   mesh->decrRef();
 }
+
+void MEDCouplingBasicsTest::testCheckGeoEquivalWith()
+{
+  MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
+  MEDCouplingUMesh *mesh2=build2DTargetMesh_3();
+  DataArrayInt *cellCor,*nodeCor;
+  //First test mesh1
+  mesh1->checkGeoEquivalWith(mesh1,0,1e-12,cellCor,nodeCor);//deepEqual
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh1,1,1e-12,cellCor,nodeCor);//fastEqual
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh1,10,1e-12,cellCor,nodeCor);//deepEqual with geo permutations
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  //Second test mesh1 and mesh2 are 2 different meshes instance
+  mesh1->checkGeoEquivalWith(mesh2,0,1e-12,cellCor,nodeCor);//deepEqual
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh2,1,1e-12,cellCor,nodeCor);//fastEqual
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh2,10,1e-12,cellCor,nodeCor);//deepEqual with geo permutations
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  //Third test : cell permutation by keeping the first the middle and the last as it is.
+  const int renum[]={0,2,1,3,4,5,6,8,7,9};
+  mesh2->renumberCells(renum,false);
+  CPPUNIT_ASSERT_THROW(mesh1->checkGeoEquivalWith(mesh2,0,1e-12,cellCor,nodeCor),INTERP_KERNEL::Exception);//deepEqual fails
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh2,1,1e-12,cellCor,nodeCor);//fastEqual do not see anything
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh2,10,1e-12,cellCor,nodeCor);//deepEqual with geo permutations
+  CPPUNIT_ASSERT(cellCor);
+  CPPUNIT_ASSERT_EQUAL(10,cellCor->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,cellCor->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(renum,renum+10,cellCor->getConstPointer()));
+  CPPUNIT_ASSERT(nodeCor==0);
+  cellCor->decrRef();
+  cellCor=0;
+  CPPUNIT_ASSERT(nodeCor==0);
+  //4th test : cell and node permutation by keeping the first the middle and the last as it is.
+  mesh2->decrRef();
+  mesh2=build2DTargetMesh_3();
+  const int renum2[]={0,2,1,3,4,5,6,8,7,9,10};
+  mesh2->renumberCells(renum,false);
+  mesh2->renumberNodes(renum2,11);
+  CPPUNIT_ASSERT_THROW(mesh1->checkGeoEquivalWith(mesh2,0,1e-12,cellCor,nodeCor),INTERP_KERNEL::Exception);//deepEqual fails
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh2,1,1e-12,cellCor,nodeCor);//fastEqual do not see anything
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh1->checkGeoEquivalWith(mesh2,10,1e-12,cellCor,nodeCor);//deepEqual with geo permutations
+  CPPUNIT_ASSERT(cellCor);
+  CPPUNIT_ASSERT_EQUAL(10,cellCor->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,cellCor->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(renum,renum+10,cellCor->getConstPointer()));
+  CPPUNIT_ASSERT(nodeCor);
+  CPPUNIT_ASSERT_EQUAL(11,nodeCor->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,nodeCor->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(renum2,renum2+11,nodeCor->getConstPointer()));
+  cellCor->decrRef();
+  cellCor=0;
+  nodeCor->decrRef();
+  nodeCor=0;
+  //5th test : modification of the last cell to check fastCheck detection.
+  mesh2->decrRef();
+  mesh2=build2DTargetMesh_3();
+  const int renum3[]={0,2,1,3,4,5,6,8,9,7};
+  mesh2->renumberCells(renum3,false);
+  mesh2->renumberNodes(renum2,11);
+  bool isExcep=false;
+  try { mesh1->checkGeoEquivalWith(mesh2,0,1e-12,cellCor,nodeCor);//deepEqual fails
+  }
+  catch(INTERP_KERNEL::Exception& e) { isExcep=true; }
+  CPPUNIT_ASSERT(isExcep); isExcep=false;
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  try { mesh1->checkGeoEquivalWith(mesh2,1,1e-12,cellCor,nodeCor);//fastEqual has detected something
+  }
+  catch(INTERP_KERNEL::Exception& e) { isExcep=true; }
+  CPPUNIT_ASSERT(isExcep); isExcep=false;
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  mesh2->checkGeoEquivalWith(mesh1,10,1e-12,cellCor,nodeCor);//deepEqual with geo permutations
+  CPPUNIT_ASSERT(cellCor);
+  CPPUNIT_ASSERT_EQUAL(10,cellCor->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,cellCor->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(renum3,renum3+10,cellCor->getConstPointer()));
+  CPPUNIT_ASSERT(nodeCor);
+  CPPUNIT_ASSERT_EQUAL(11,nodeCor->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,nodeCor->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(renum2,renum2+11,nodeCor->getConstPointer()));
+  cellCor->decrRef();
+  cellCor=0;
+  nodeCor->decrRef();
+  nodeCor=0;
+  //
+  mesh1->decrRef();
+  mesh2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testCheckGeoEquivalWith2()
+{
+  MEDCouplingUMesh *mesh1=build2DTargetMesh_4();
+  MEDCouplingUMesh *mesh2=build2DTargetMesh_1();
+  DataArrayInt *cellCor,*nodeCor;
+  mesh1->checkGeoEquivalWith(mesh2,10,1e-12,cellCor,nodeCor);
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor!=0);
+  const int expected1[9]={0, 1, 3, 4, 5, 6, 7, 8, 9};
+  for(int i=0;i<9;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],nodeCor->getIJ(i,0));
+  nodeCor->decrRef();
+  //
+  mesh1->decrRef();
+  mesh2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testCopyTinyStringsFromOnFields()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  int nbOfCells=m->getNumberOfCells();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,LINEAR_TIME);
+  f->setMesh(m);
+  f->setName("a");
+  f->setDescription("b");
+  DataArrayDouble *a1=DataArrayDouble::New();
+  a1->alloc(nbOfCells,2);
+  a1->fillWithZero();
+  a1->setInfoOnComponent(0,"c");
+  a1->setInfoOnComponent(1,"d");
+  DataArrayDouble *a2=a1->deepCopy();
+  a2->setInfoOnComponent(0,"e");
+  a2->setInfoOnComponent(1,"f");
+  f->setArray(a1);
+  f->setEndArray(a2);
+  f->setEndTime(3.,3,4);
+  a2->decrRef();
+  a1->decrRef();
+  m->setName("g");
+  m->getCoords()->setInfoOnComponent(0,"h");
+  m->getCoords()->setInfoOnComponent(1,"i");
+  m->getCoords()->setInfoOnComponent(2,"j");
+  //
+  f->checkCoherency();
+  MEDCouplingFieldDouble *f2=f->clone(true);
+  CPPUNIT_ASSERT(f2->isEqual(f,1e-12,1e-12));
+  f2->setName("smth");
+  CPPUNIT_ASSERT(!f2->isEqual(f,1e-12,1e-12));
+  f2->copyTinyStringsFrom(f);
+  CPPUNIT_ASSERT(f2->isEqual(f,1e-12,1e-12));
+  f2->setDescription("GGG");
+  CPPUNIT_ASSERT(!f2->isEqual(f,1e-12,1e-12));
+  f2->copyTinyStringsFrom(f);
+  CPPUNIT_ASSERT(f2->isEqual(f,1e-12,1e-12));
+  f2->getArray()->setInfoOnComponent(0,"mmmm");
+  CPPUNIT_ASSERT(!f2->isEqual(f,1e-12,1e-12));
+  f2->copyTinyStringsFrom(f);
+  CPPUNIT_ASSERT(f2->isEqual(f,1e-12,1e-12));
+  f2->getEndArray()->setInfoOnComponent(1,"mmmm");
+  CPPUNIT_ASSERT(!f2->isEqual(f,1e-12,1e-12));
+  f2->copyTinyStringsFrom(f);
+  CPPUNIT_ASSERT(f2->isEqual(f,1e-12,1e-12));
+  f2->decrRef();
+  MEDCouplingUMesh *m2=m->clone(true);
+  CPPUNIT_ASSERT(m2->isEqual(m,1e-12));
+  m2->setName("123");
+  CPPUNIT_ASSERT(!m2->isEqual(m,1e-12));
+  m2->copyTinyStringsFrom(m);
+  CPPUNIT_ASSERT(m2->isEqual(m,1e-12));
+  m2->getCoords()->setInfoOnComponent(1,"eee");
+  CPPUNIT_ASSERT(!m2->isEqual(m,1e-12));
+  m2->copyTinyStringsFrom(m);
+  CPPUNIT_ASSERT(m2->isEqual(m,1e-12));
+  m2->decrRef();
+  //
+  f->decrRef();
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testTryToShareSameCoordsPermute()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=build3DSurfTargetMesh_1();
+  CPPUNIT_ASSERT(m->getCoords()!=m2->getCoords());
+  m->tryToShareSameCoordsPermute(*m2,1e-12);
+  CPPUNIT_ASSERT(m->getCoords()==m2->getCoords());
+  CPPUNIT_ASSERT(m2->isEqual(m,1e-12));
+  const int renum1[9]={1,2,0,5,8,7,4,3,6};
+  m->renumberNodes(renum1,9);
+  CPPUNIT_ASSERT(m->getCoords()!=m2->getCoords());
+  CPPUNIT_ASSERT(!m2->isEqual(m,1e-12));
+  m->tryToShareSameCoordsPermute(*m2,1e-12);
+  CPPUNIT_ASSERT(m->getCoords()==m2->getCoords());
+  CPPUNIT_ASSERT(m2->isEqual(m,1e-12));
+  m2->decrRef();
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testTryToShareSameCoordsPermute2()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_4();
+  double targetCoords[8]={-0.3,-0.3, 0.2,-0.3, -0.3,0.2, 0.2,0.2 };
+  int targetConn[4]={0,2,3,1};
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::New();
+  m2->setMeshDimension(2);
+  m2->allocateCells(1);
+  m2->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+  m2->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(4,2);
+  std::copy(targetCoords,targetCoords+8,myCoords->getPointer());
+  m2->setCoords(myCoords);
+  myCoords->decrRef();
+  m2->checkCoherency();
+  m1->checkCoherency();
+  //
+  const double expected1[5]={0.25,0.125,0.125,0.25,0.25};
+  MEDCouplingFieldDouble *f1=m1->getMeasureField(false);
+  MEDCouplingFieldDouble *f2=m2->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(5,f1->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f2->getArray()->getNumberOfTuples());
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getIJ(i,0),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[0],f2->getIJ(0,0),1e-12);
+  f2->decrRef();
+  f1->decrRef();
+  CPPUNIT_ASSERT_THROW(m1->tryToShareSameCoordsPermute(*m2,1e-12),INTERP_KERNEL::Exception);// <- here in this order the sharing is impossible.
+  // Let's go for deeper test of tryToShareSameCoordsPermute
+  m2->tryToShareSameCoordsPermute(*m1,1e-12);
+  f1=m1->getMeasureField(false);
+  f2=m2->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(5,f1->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f2->getArray()->getNumberOfTuples());
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getIJ(i,0),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[0],f2->getIJ(0,0),1e-12);
+  //
+  f2->decrRef();
+  f1->decrRef();
+  //
+  m1->decrRef();
+  m2->decrRef();
+}

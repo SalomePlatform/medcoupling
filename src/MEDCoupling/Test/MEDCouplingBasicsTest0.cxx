@@ -813,6 +813,30 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_3()
   return ret;
 }
 
+/*!
+ * Same as build2DTargetMesh_1 but with more nodes than needed. To check tryToShareSameCoordsPermute method.
+ */
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_4()
+{
+  double targetCoords[20]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
+  int targetConn[18]={0,4,5,1, 1,5,3, 5,6,2, 7,8,5,4, 8,9,6,5};
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->setMeshDimension(2);
+  targetMesh->allocateCells(5);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+14);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(10,2);
+  std::copy(targetCoords,targetCoords+20,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  return targetMesh;
+}
+
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_3()
 {
 }

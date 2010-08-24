@@ -98,6 +98,11 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testRenumberCellsForFields );
     CPPUNIT_TEST( testRenumberNodesForFields );
     CPPUNIT_TEST( testConvertQuadraticCellsToLinear );
+    CPPUNIT_TEST( testCheckGeoEquivalWith );
+    CPPUNIT_TEST( testCheckGeoEquivalWith2 );
+    CPPUNIT_TEST( testCopyTinyStringsFromOnFields );
+    CPPUNIT_TEST( testTryToShareSameCoordsPermute );
+    CPPUNIT_TEST( testTryToShareSameCoordsPermute2 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -224,6 +229,11 @@ namespace ParaMEDMEM
     void testRenumberCellsForFields();
     void testRenumberNodesForFields();
     void testConvertQuadraticCellsToLinear();
+    void testCheckGeoEquivalWith();
+    void testCheckGeoEquivalWith2();
+    void testCopyTinyStringsFromOnFields();
+    void testTryToShareSameCoordsPermute();
+    void testTryToShareSameCoordsPermute2();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
@@ -316,6 +326,7 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *build2DCurveTargetMesh_3();
     static MEDCouplingUMesh *build2DTargetMesh_3();
     static MEDCouplingUMesh *build3DTargetMesh_3();
+    static MEDCouplingUMesh *build2DTargetMesh_4();
     static double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }
