@@ -35,7 +35,7 @@ dist__libMEDLoader_Swig_la_SOURCES   = $(SWIG_DEF)
 nodist__libMEDLoader_Swig_la_SOURCES = libMEDLoader_Swig_wrap.cxx
 libMEDLoader_Swig.py: libMEDLoader_Swig_wrap.cxx
 
-libMEDLoader_SwigWRAP.cxx: $(SWIG_DEF)
+libMEDLoader_Swig_wrap.cxx: $(SWIG_DEF)
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
 _libMEDLoader_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
