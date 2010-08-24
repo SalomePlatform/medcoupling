@@ -822,7 +822,8 @@ void MEDCouplingRemapperTest::testExtruded2()
   MEDCouplingUMesh *meshN2D=(MEDCouplingUMesh *)meshN->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
   n.clear();
   bool b=false;
-  DataArrayInt *da=meshTT->mergeNodes(1e-12,b);
+  int newNbOfNodes;
+  DataArrayInt *da=meshTT->mergeNodes(1e-12,b,newNbOfNodes);
   CPPUNIT_ASSERT(b);
   da->decrRef();
   meshTT->findNodesOnPlane(pt,v,1e-12,n);
