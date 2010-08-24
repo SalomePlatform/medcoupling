@@ -121,7 +121,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, i
       return false;
 }
 
-bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key, std::string& value)
+bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key, const std::string& value)
 {
   if(key==INTERSEC_TYPE_STR) 
     {

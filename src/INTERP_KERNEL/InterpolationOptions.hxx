@@ -121,7 +121,7 @@ namespace INTERP_KERNEL
     void copyOptions(InterpolationOptions & other) { *this = other; }
     bool setOptionDouble(const std::string& key, double value);
     bool setOptionInt(const std::string& key, int value);
-    bool setOptionString(const std::string& key, std::string& value);
+    bool setOptionString(const std::string& key, const std::string& value);
   private:
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;
