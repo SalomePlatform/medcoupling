@@ -304,6 +304,23 @@ class MEDCouplingDataForTest:
         ret.checkCoherency();
         return ret;
 
+    def build2DTargetMesh_4(cls):
+        targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
+        targetConn=[0,4,5,1, 1,5,3, 5,6,2, 7,8,5,4, 8,9,6,5]
+        targetMesh=MEDCouplingUMesh.New();
+        targetMesh.setMeshDimension(2);
+        targetMesh.allocateCells(5);
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+        targetMesh.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(targetCoords,10,2);
+        targetMesh.setCoords(myCoords);
+        return targetMesh;
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
@@ -317,4 +334,5 @@ class MEDCouplingDataForTest:
     build1DTargetMesh_3=classmethod(build1DTargetMesh_3)
     build2DCurveTargetMesh_3=classmethod(build2DCurveTargetMesh_3)
     build2DTargetMesh_3=classmethod(build2DTargetMesh_3)
+    build2DTargetMesh_4=classmethod(build2DTargetMesh_4)
     pass

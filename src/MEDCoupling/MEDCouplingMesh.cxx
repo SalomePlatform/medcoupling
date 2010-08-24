@@ -30,6 +30,19 @@
 using namespace ParaMEDMEM;
 
 /*!
+ * This method is only for ParaMEDMEM in ParaFIELD constructor.
+ */
+bool MEDCouplingMesh::isStructured() const
+{
+  return getType()==CARTESIAN;
+}
+
+bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+{
+  return _name==other->_name;
+}
+
+/*!
  * This method checks geo equivalence between two meshes : 'this' and 'other'.
  * If no exception is throw 'this' and 'other' are geometrically equivalent regarding 'levOfCheck' level.
  * This method is typically used to change the mesh of a field "safely" depending the 'levOfCheck' level considered.

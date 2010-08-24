@@ -146,7 +146,7 @@ bool MEDCouplingRemapper::setOptionDouble(const std::string& key, double value)
   return INTERP_KERNEL::InterpolationOptions::setOptionDouble(key,value);
 }
 
-bool MEDCouplingRemapper::setOptionString(const std::string& key, std::string& value)
+bool MEDCouplingRemapper::setOptionString(const std::string& key, const std::string& value)
 {
   return INTERP_KERNEL::InterpolationOptions::setOptionString(key,value);
 }

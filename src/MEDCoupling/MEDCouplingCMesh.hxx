@@ -40,7 +40,6 @@ namespace ParaMEDMEM
     void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                               DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    bool isStructured() const;
     int getNumberOfCells() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;

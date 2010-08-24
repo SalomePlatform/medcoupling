@@ -75,6 +75,11 @@ void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
   declareAsNew();
 }
 
+void DataArrayDouble::fillWithZero()
+{
+  _mem.fillWithValue(0.);
+}
+
 bool DataArrayDouble::isEqual(const DataArrayDouble& other, double prec) const
 {
   if(!areInfoEquals(other))
@@ -387,6 +392,21 @@ void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
   declareAsNew();
 }
 
+void DataArrayInt::fillWithZero()
+{
+  _mem.fillWithValue(0);
+}
+
+void DataArrayInt::transformWithIndArr(const int *indArr)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component !");
+  int nbOfTuples=getNumberOfTuples();
+  int *pt=getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    pt[i]=indArr[pt[i]];
+}
+
 bool DataArrayInt::isEqual(const DataArrayInt& other) const
 {
   if(!areInfoEquals(other))
@@ -427,6 +447,23 @@ DataArrayInt *DataArrayInt::renumber(const int *old2New) const
   for(int i=0;i<nbTuples;i++)
     std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),optr+nbOfCompo*old2New[i]);
   return ret;
+}
+
+/*!
+ * This method checks that 'this' is with numberofcomponents == 1 and that it is equal to
+ * stdext::iota() of size getNumberOfTuples. This method is particalary usefull for DataArrayInt instances
+ * that represents a renumbering array to check the real need in renumbering. 
+ */
+bool DataArrayInt::isIdentity() const
+{
+  if(getNumberOfComponents()!=1)
+    return false;
+  int nbOfTuples=getNumberOfTuples();
+  const int *pt=getConstPointer();
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    if(*pt!=i)
+      return false;
+  return true;
 }
 
 DataArrayDouble *DataArrayInt::convertToDblArr() const

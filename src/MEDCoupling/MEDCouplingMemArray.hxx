@@ -60,6 +60,7 @@ namespace ParaMEDMEM
     T operator[](int id) const { return _pointer.getConstPointer()[id]; }
     T& operator[](int id) { return _pointer.getPointer()[id]; }
     bool isEqual(const MemArray<T>& other, T prec) const;
+    void fillWithValue(const T& val);
     void alloc(int nbOfElements);
     void reAlloc(int newNbOfElements);
     void useArray(const T *array, bool ownership, DeallocType type, int nbOfElem);
@@ -109,6 +110,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void fillWithZero();
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
@@ -150,11 +152,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
+    MEDCOUPLING_EXPORT void fillWithZero();
+    MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArr);
     //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
     MEDCOUPLING_EXPORT DataArrayDouble *convertToDblArr() const;
     MEDCOUPLING_EXPORT void renumberInPlace(const int *old2New);
     MEDCOUPLING_EXPORT DataArrayInt *renumber(const int *old2New) const;
+    MEDCOUPLING_EXPORT bool isIdentity() const;
     MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }

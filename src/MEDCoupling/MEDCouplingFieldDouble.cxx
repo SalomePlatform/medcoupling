@@ -60,6 +60,19 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
   return ret;
 }
 
+/*!
+ * Copy tiny info (component names, name, description) but warning the underlying mesh is not renamed (for safety reason).
+ */
+void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
+{
+  if(other)
+    {
+      setName(other->_name.c_str());
+      setDescription(other->_desc.c_str());
+      _time_discr->copyTinyStringsFrom(*other->_time_discr);
+    }
+}
+
 bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
 {
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
@@ -577,7 +590,8 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Excepti
     throw INTERP_KERNEL::Exception("Invalid mesh to apply mergeNodes on it !");
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
   bool ret;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->mergeNodes(eps,ret);
+  int ret2;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->mergeNodes(eps,ret,ret2);
   if(!ret)//no nodes have been merged.
     return ret;
   std::vector<DataArrayDouble *> arrays;

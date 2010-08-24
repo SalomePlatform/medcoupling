@@ -41,6 +41,7 @@ namespace ParaMEDMEM
     void updateTime();
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
+    virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     virtual bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
@@ -239,6 +240,7 @@ namespace ParaMEDMEM
   public:
     void updateTime();
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
+    void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     DataArrayDouble *getEndArray() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;

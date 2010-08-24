@@ -92,6 +92,13 @@ namespace ParaMEDMEM
         return false;
     return true;
   }
+  
+  template<class T>
+  void MemArray<T>::fillWithValue(const T& val)
+  {
+    T *pt=_pointer.getPointer();
+    std::fill(pt,pt+_nb_of_elem,val);
+  }
 
   template<class T>
   void MemArray<T>::alloc(int nbOfElements)

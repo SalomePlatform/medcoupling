@@ -43,7 +43,6 @@ namespace ParaMEDMEM
     ~MEDCouplingPointSet();
   public:
     void updateTime();
-    bool isStructured() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     void setCoords(DataArrayDouble *coords);
@@ -52,8 +51,9 @@ namespace ParaMEDMEM
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
-    virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged) = 0;
-    void findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const;
+    virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
+    DataArrayInt *buildPermArrayForMergeNode(int limitNodeId, double precision, bool& areNodesMerged, int& newNbOfNodes) const;
+    void findCommonNodes(int limitNodeId, double prec, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
     DataArrayInt *buildNewNumberingFromCommNodesFrmt(const DataArrayInt *comm, const DataArrayInt *commIndex,
                                                      int& newNbOfNodes) const;
     void getBoundingBox(double *bbox) const;
@@ -64,6 +64,7 @@ namespace ParaMEDMEM
     void scale(const double *point, double factor);
     void changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception);
     void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
+    virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
     void findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception);
     static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
@@ -95,7 +96,7 @@ namespace ParaMEDMEM
     static bool isButterfly2DCell(const std::vector<double>& res, bool isQuad);
     template<int SPACEDIM>
     void findCommonNodesAlg(std::vector<double>& bbox,
-                            int nbNodes, double prec, std::vector<int>& c, std::vector<int>& cI) const;
+                            int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const;
   protected:
     DataArrayDouble *_coords;
   };

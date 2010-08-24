@@ -147,11 +147,6 @@ void MEDCouplingCMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
       }
 }
 
-bool MEDCouplingCMesh::isStructured() const
-{
-  return true;
-}
-
 int MEDCouplingCMesh::getNumberOfCells() const
 {
   int ret=1;

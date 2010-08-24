@@ -216,24 +216,32 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
   const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Two meshes are not not unstructured !");
-  checkFastEquivalWith(other,prec);
+  MEDCouplingMesh::checkFastEquivalWith(other,prec);
   if(_types!=otherC->_types)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Types are not equal !");
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=mergeUMeshes(this,otherC);
   bool areNodesMerged;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->mergeNodes(prec,areNodesMerged);
+  int newNbOfNodes;
+  int oldNbOfNodes=getNumberOfNodes();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->buildPermArrayForMergeNode(oldNbOfNodes,prec,areNodesMerged,newNbOfNodes);
+  //mergeNodes
   if(!areNodesMerged)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Nodes are incompatible ! ");
-  int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfNodes());
-  const int *pt=std::find_if(da->getConstPointer()+getNumberOfNodes(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
+  const int *pt=std::find_if(da->getConstPointer()+oldNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),oldNbOfNodes-1));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some nodes in other are not in this !");
-  nodeCor=DataArrayInt::New();
-  nodeCor->alloc(otherC->getNumberOfNodes(),1);
-  std::copy(da->getConstPointer()+getNumberOfNodes(),da->getConstPointer()+da->getNbOfElems(),nodeCor->getPointer());
+  m->renumberNodes(da->getConstPointer(),newNbOfNodes);
+  //
+  nodeCor=da->substr(oldNbOfNodes);
+  da=m->mergeNodes(prec,areNodesMerged,newNbOfNodes);
+  if(nodeCor->isIdentity())
+    {
+      nodeCor->decrRef();
+      nodeCor=0;
+    }
   //
   da=m->zipConnectivityTraducer(cellCompPol);
-  maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
+  int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
   pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     {
@@ -243,6 +251,11 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
   cellCor=DataArrayInt::New();
   cellCor->alloc(otherC->getNumberOfCells(),1);
   std::copy(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),cellCor->getPointer());
+  if(cellCor->isIdentity())
+    {
+      cellCor->decrRef();
+      cellCor=0;
+    }
 }
 
 /*!
@@ -513,6 +526,7 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
       newCoordsPtr=std::copy(oldCoordsPtr+spaceDim*(work-traducer),oldCoordsPtr+spaceDim*(work-traducer+1),newCoordsPtr);
       work++;
     }
+  newCoords->copyStringInfoFrom(*_coords);
   setCoords(newCoords);
   newCoords->decrRef();
   return ret;
@@ -586,7 +600,7 @@ bool MEDCouplingUMesh::areCellsFrom2MeshEqual(const MEDCouplingUMesh *other, int
       getCoordinatesOfNode(c1[0],n1);
       other->getCoordinatesOfNode(c2[0],n2);
       std::transform(n1.begin(),n1.end(),n2.begin(),n1.begin(),std::minus<double>());
-      std::transform(n1.begin(),n1.end(),n1.end(),std::ptr_fun<double,double>(fabs));
+      std::transform(n1.begin(),n1.end(),n1.begin(),std::ptr_fun<double,double>(fabs));
       if(*std::max_element(n1.begin(),n1.end())>prec)
         return false;
     }
@@ -759,19 +773,49 @@ DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType)
  * @param areNodesMerged if at least two nodes have been merged.
  * @return old to new node correspondance.
  */
-DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerged)
+DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
-  DataArrayInt *comm,*commI;
-  findCommonNodes(comm,commI,precision);
-  int newNbOfNodes;
-  int oldNbOfNodes=getNumberOfNodes();
-  DataArrayInt *ret=buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
-  areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
-  comm->decrRef();
-  commI->decrRef();
+  DataArrayInt *ret=buildPermArrayForMergeNode(-1,precision,areNodesMerged,newNbOfNodes);
   if(areNodesMerged)
     renumberNodes(ret->getConstPointer(),newNbOfNodes);
   return ret;
+}
+
+/*!
+ * This method tries to use 'other' coords and use it for 'this'. If no exception was thrown after the call of this method :
+ * this->_coords==other->_coords. If not a exception is thrown this remains unchanged.
+ */
+void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
+{
+  DataArrayDouble *coords=other.getCoords();
+  if(!coords)
+    throw INTERP_KERNEL::Exception("tryToShareSameCoordsPermute : No coords specified in other !");
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("tryToShareSameCoordsPermute : No coords specified in this whereas there is any in other !");
+  int thisNbOfNodes=getNumberOfNodes();
+  int otherNbOfNodes=other.getNumberOfNodes();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=mergeNodesArray(&other,this);
+  _coords->incrRef();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> oldCoords=_coords;
+  setCoords(newCoords);
+  bool areNodesMerged;
+  int newNbOfNodes;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=buildPermArrayForMergeNode(otherNbOfNodes,epsilon,areNodesMerged,newNbOfNodes);
+  if(!areNodesMerged)
+    {
+      setCoords(oldCoords);
+      throw INTERP_KERNEL::Exception("tryToShareSameCoordsPermute fails : no nodes are mergeable with specified given epsilon !");
+    }
+  int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+otherNbOfNodes);
+  const int *pt=std::find_if(da->getConstPointer()+otherNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
+  if(pt!=da->getConstPointer()+da->getNbOfElems())
+    {
+      setCoords(oldCoords);
+      throw INTERP_KERNEL::Exception("tryToShareSameCoordsPermute fails : some nodes in this are not in other !");
+    }
+  setCoords(oldCoords);
+  renumberNodesInConn(da->getConstPointer()+otherNbOfNodes);
+  setCoords(coords);
 }
 
 /*!
@@ -918,6 +962,15 @@ void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
 void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
   MEDCouplingPointSet::renumberNodes(newNodeNumbers,newNbOfNodes);
+  renumberNodesInConn(newNodeNumbers);
+}
+
+/*!
+ * This method renumbers nodes in connectivity only without any reference with coords.
+ * Use it with care !
+ */
+void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbers)
+{
   int *conn=getNodalConnectivity()->getPointer();
   const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
   int nbOfCells=getNumberOfCells();
@@ -1788,6 +1841,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslation(const MEDCoupli
             work=std::transform(vec,vec+3,retPtr+3*(i*oldNbOfNodes+j),work,std::plus<double>());
         }
     }
+  ret->copyStringInfoFrom(*getCoords());
   return ret;
 }
 

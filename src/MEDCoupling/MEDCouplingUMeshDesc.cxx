@@ -309,11 +309,16 @@ void MEDCouplingUMeshDesc::giveElemsInBoundingBox(const INTERP_KERNEL::DirectedB
   delete [] elem_bb;
 }
 
-DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged)
+DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
   //not implemented yet.
   areNodesMerged=false;
   return 0;
+}
+
+void MEDCouplingUMeshDesc::tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const

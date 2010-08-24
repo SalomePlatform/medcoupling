@@ -151,9 +151,10 @@ namespace ParaMEDMEM
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
     virtual MEDCouplingMeshType getType() const = 0;
-    virtual bool isEqual(const MEDCouplingMesh *other, double prec) const { return _name==other->_name; }
+    bool isStructured() const;
+    virtual bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual bool isStructured() const = 0;
     virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception) = 0;
@@ -184,6 +185,16 @@ namespace ParaMEDMEM
            self->renumberCells(tmp,check);
            delete [] tmp;
          }
+
+         PyObject *checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec) const throw(INTERP_KERNEL::Exception)
+         {
+           DataArrayInt *cellCor, *nodeCor;
+           self->checkGeoEquivalWith(other,levOfCheck,prec,cellCor,nodeCor);
+           PyObject *res = PyList_New(2);
+           PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(cellCor),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, cellCor?SWIG_POINTER_OWN | 0:0 ));
+           PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(nodeCor),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, nodeCor?SWIG_POINTER_OWN | 0:0 ));
+           return res;
+         }
        }
   };
 }
@@ -200,12 +211,10 @@ namespace ParaMEDMEM
     {
     public:
       void updateTime();
-      bool isStructured() const;
       void setCoords(DataArrayDouble *coords);
       DataArrayDouble *getCoordinatesAndOwner() const;
       bool isEqual(const MEDCouplingMesh *other, double prec) const;
       bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
-      virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged) = 0;
       void getBoundingBox(double *bbox) const;
       void zipCoords();
       double getCaracteristicDimension() const;
@@ -213,6 +222,7 @@ namespace ParaMEDMEM
       void scale(const double *point, double factor);
       void changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
+      virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
       static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
       static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
       virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
@@ -242,10 +252,10 @@ namespace ParaMEDMEM
              return res;
            }
            
-           PyObject *findCommonNodes(double prec) const
+           PyObject *findCommonNodes(int limitNodeId, double prec) const
            {
              DataArrayInt *comm, *commIndex;
-             self->findCommonNodes(comm,commIndex,prec);
+             self->findCommonNodes(limitNodeId,prec,comm,commIndex);
              PyObject *res = PyList_New(2);
              PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(comm),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
              PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(commIndex),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -375,8 +385,8 @@ namespace ParaMEDMEM
     DataArrayInt *getNodalConnectivityIndex() const;
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     int getNumberOfNodesInCell(int cellId) const;
-    bool isStructured() const;
     int getMeshLength() const;
+    void computeTypes();
     //tools
     bool checkConsecutiveCellTypes() const;
     DataArrayInt *rearrange2ConsecutiveCellTypes();
@@ -415,10 +425,12 @@ namespace ParaMEDMEM
       PyObject *mergeNodes(double precision)
       {
         bool ret1;
-        DataArrayInt *ret0=self->mergeNodes(precision,ret1);
-        PyObject *res = PyList_New(2);
+        int ret2;
+        DataArrayInt *ret0=self->mergeNodes(precision,ret1,ret2);
+        PyObject *res = PyList_New(3);
         PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyList_SetItem(res,1,SWIG_From_bool(ret1));
+        PyList_SetItem(res,2,SWIG_From_int(ret2));
         return res;
       }
       PyObject *checkButterflyCells()
@@ -731,6 +743,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
+    void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;

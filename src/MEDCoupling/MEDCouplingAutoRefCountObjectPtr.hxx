@@ -32,6 +32,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr(T *ptr):_ptr(ptr) { }
     ~MEDCouplingAutoRefCountObjectPtr() { destroyPtr(); }
     MEDCouplingAutoRefCountObjectPtr &operator=(const MEDCouplingAutoRefCountObjectPtr& other) { destroyPtr(); referPtr(other._ptr); return *this; }
+    MEDCouplingAutoRefCountObjectPtr &operator=(T *ptr) { destroyPtr(); _ptr=ptr; return *this; }
     T *operator->() { return _ptr ; }
     const T *operator->() const { return _ptr; }
     T& operator*() { return *_ptr; }

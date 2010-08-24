@@ -49,9 +49,10 @@ namespace ParaMEDMEM
     const char *getName() const { return _name.c_str(); }
     virtual MEDCouplingMesh *deepCpy() const = 0;
     virtual MEDCouplingMeshType getType() const = 0;
+    bool isStructured() const;
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     // comparison methods
-    virtual bool isEqual(const MEDCouplingMesh *other, double prec) const { return _name==other->_name; }
+    virtual bool isEqual(const MEDCouplingMesh *other, double prec) const;
     virtual void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                       DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
@@ -59,7 +60,6 @@ namespace ParaMEDMEM
                              DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     //
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual bool isStructured() const = 0;
     virtual int getNumberOfCells() const = 0;
     virtual int getNumberOfNodes() const = 0;
     virtual int getSpaceDimension() const = 0;

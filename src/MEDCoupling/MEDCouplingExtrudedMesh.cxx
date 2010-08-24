@@ -120,11 +120,6 @@ MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& 
     }
 }
 
-bool MEDCouplingExtrudedMesh::isStructured() const
-{
-  return false;
-}
-
 int MEDCouplingExtrudedMesh::getNumberOfCells() const
 {
   return _mesh2D->getNumberOfCells()*_mesh1D->getNumberOfCells();

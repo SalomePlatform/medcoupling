@@ -480,7 +480,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         self.assertEqual(10,m6.getNumberOfCells());
         self.assertEqual(22,m6.getNumberOfNodes());
-        (arr,areNodesMerged)=m6.mergeNodes(1e-13);
+        (arr,areNodesMerged,newNbOfNodes)=m6.mergeNodes(1e-13);
         self.assertTrue(areNodesMerged);
         self.assertEqual(10,m6.getNumberOfCells());
         self.assertEqual(9,m6.getNumberOfNodes());
@@ -768,7 +768,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
     def testFindCommonNodes(self):
         targetMesh=MEDCouplingDataForTest.build3DTargetMesh_1();
-        comm,commI=targetMesh.findCommonNodes(1e-10);
+        comm,commI=targetMesh.findCommonNodes(-1,1e-10);
         self.assertEqual(1,commI.getNumberOfTuples());
         self.assertEqual(0,comm.getNumberOfTuples());
         o2n,newNbOfNodes=targetMesh.buildNewNumberingFromCommNodesFrmt(comm,commI);
@@ -779,7 +779,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
         self.assertEqual(31,targetMesh.getNumberOfNodes());
-        comm,commI=targetMesh.findCommonNodes(1e-10);
+        comm,commI=targetMesh.findCommonNodes(-1,1e-10);
         self.assertEqual(3,commI.getNumberOfTuples());
         self.assertEqual(6,comm.getNumberOfTuples());
         commExpected=[1,27,28,29,23,30]
@@ -795,14 +795,14 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         targetMesh=MEDCouplingDataForTest.build3DTargetMesh_1();
         time=targetMesh.getTimeOfThis();
-        o2n,areNodesMerged=targetMesh.mergeNodes(1e-10);
+        o2n,areNodesMerged,newNbOfNodes=targetMesh.mergeNodes(1e-10);
         targetMesh.updateTime();
         self.assertEqual(time,targetMesh.getTimeOfThis());
         self.assertTrue(not areNodesMerged);
         #
         targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
         time=targetMesh.getTimeOfThis();
-        o2n,areNodesMerged=targetMesh.mergeNodes(1e-10);
+        o2n,areNodesMerged,newNbOfNodes=targetMesh.mergeNodes(1e-10);
         targetMesh.updateTime();
         self.assertTrue(time!=targetMesh.getTimeOfThis());
         self.assertTrue(areNodesMerged);
@@ -825,7 +825,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         targetMesh=MEDCouplingDataForTest.build2DTargetMeshMergeNode_1();
         self.assertEqual(18,targetMesh.getNumberOfNodes());
         time=targetMesh.getTimeOfThis();
-        o2n,areNodesMerged=targetMesh.mergeNodes(1e-10);
+        o2n,areNodesMerged,newNbOfNodes=targetMesh.mergeNodes(1e-10);
         self.assertTrue(time!=targetMesh.getTimeOfThis());
         self.assertTrue(areNodesMerged);
         self.assertEqual(9,targetMesh.getNumberOfNodes());
@@ -881,7 +881,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m3.checkCoherency();
         m4=MEDCouplingDataForTest.build2DTargetMeshMerged_1();
         self.assertTrue(m3.isEqual(m4,1.e-12));
-        da,isMerged=m3.mergeNodes(1.e-12);
+        da,isMerged,newNbOfNodes=m3.mergeNodes(1.e-12);
         self.assertEqual(11,m3.getNumberOfNodes());
         self.assertTrue(isMerged);
         pass
@@ -2375,6 +2375,213 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected2=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4]
         expected2.sort()
         self.assertTrue(expected2==types2);
+        pass
+
+    def testCheckGeoEquivalWith(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_3();
+        mesh2=MEDCouplingDataForTest.build2DTargetMesh_3();
+        #First test mesh1
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh1,0,1e-12);#deepEqual
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh1,1,1e-12);#fastEqual
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh1,10,1e-12);#deepEqual with geo permutations
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        #Second test mesh1 and mesh2 are 2 different meshes instance
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,0,1e-12);#deepEqual
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,1,1e-12);#fastEqual
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,10,1e-12);#deepEqual with geo permutations
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        #Third test : cell permutation by keeping the first the middle and the last as it is.
+        renum=[0,2,1,3,4,5,6,8,7,9]
+        mesh2.renumberCells(renum,False);
+        self.assertRaises(Exception,mesh1.checkGeoEquivalWith,mesh2,0,1e-12);#deepEqual fails
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,1,1e-12);#fastEqual do not see anything
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,10,1e-12);#deepEqual with geo permutations
+        self.assertTrue(cellCor);
+        self.assertEqual(10,cellCor.getNumberOfTuples());
+        self.assertEqual(1,cellCor.getNumberOfComponents());
+        self.assertEqual(renum,cellCor.getValues())
+        self.assertTrue(nodeCor==None);
+        cellCor=0;
+        self.assertTrue(nodeCor==None);
+        #4th test : cell and node permutation by keeping the first the middle and the last as it is.
+        mesh2=MEDCouplingDataForTest.build2DTargetMesh_3();
+        renum2=[0,2,1,3,4,5,6,8,7,9,10]
+        mesh2.renumberCells(renum,False);
+        mesh2.renumberNodes(renum2,11);
+        cellCor=None
+        nodeCor=None
+        self.assertRaises(Exception,mesh1.checkGeoEquivalWith,mesh2,0,1e-12);#deepEqual fails
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,1,1e-12);#fastEqual do not see anything
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,10,1e-12);#deepEqual with geo permutations
+        self.assertTrue(cellCor);
+        self.assertEqual(10,cellCor.getNumberOfTuples());
+        self.assertEqual(1,cellCor.getNumberOfComponents());
+        self.assertEqual(renum,cellCor.getValues())
+        self.assertTrue(nodeCor);
+        self.assertEqual(11,nodeCor.getNumberOfTuples());
+        self.assertEqual(1,nodeCor.getNumberOfComponents());
+        self.assertEqual(renum2,nodeCor.getValues())
+        cellCor=0;
+        nodeCor=0;
+        #5th test : modification of the last cell to check fastCheck detection.
+        mesh2=MEDCouplingDataForTest.build2DTargetMesh_3();
+        renum3=[0,2,1,3,4,5,6,8,9,7]
+        mesh2.renumberCells(renum3,False);
+        mesh2.renumberNodes(renum2,11);
+        cellCor=None
+        nodeCor=None
+        self.assertRaises(Exception,mesh1.checkGeoEquivalWith,mesh2,0,1e-12)
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        self.assertRaises(Exception,mesh1.checkGeoEquivalWith,mesh2,1,1e-12)
+        self.assertTrue(cellCor==None);
+        self.assertTrue(nodeCor==None);
+        cellCor,nodeCor=mesh2.checkGeoEquivalWith(mesh1,10,1e-12);#deepEqual with geo permutations
+        self.assertTrue(cellCor!=None);
+        self.assertEqual(10,cellCor.getNumberOfTuples());
+        self.assertEqual(1,cellCor.getNumberOfComponents());
+        self.assertEqual(renum3,cellCor.getValues())
+        self.assertTrue(nodeCor!=None);
+        self.assertEqual(11,nodeCor.getNumberOfTuples());
+        self.assertEqual(1,nodeCor.getNumberOfComponents());
+        self.assertEqual(renum2,nodeCor.getValues());
+        pass
+
+    def testCheckGeoEquivalWith2(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_4();
+        mesh2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        cellCor,nodeCor=mesh1.checkGeoEquivalWith(mesh2,10,1e-12);
+        self.assertEqual(None,cellCor);
+        self.assertNotEqual(None,nodeCor);
+        expected1=[0, 1, 3, 4, 5, 6, 7, 8, 9]
+        for i in xrange(9):
+            self.assertEqual(expected1[i],nodeCor.getIJ(i,0));
+            pass
+        pass
+
+    def testCopyTinyStringsFromOnFields(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        nbOfCells=m.getNumberOfCells();
+        f=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
+        f.setMesh(m);
+        f.setName("a");
+        f.setDescription("b");
+        a1=DataArrayDouble.New();
+        a1.alloc(nbOfCells,2);
+        a1.fillWithZero();
+        a1.setInfoOnComponent(0,"c");
+        a1.setInfoOnComponent(1,"d");
+        a2=a1.deepCopy();
+        a2.setInfoOnComponent(0,"e");
+        a2.setInfoOnComponent(1,"f");
+        f.setArray(a1);
+        f.setEndArray(a2);
+        f.setEndTime(3.,3,4);
+        m.setName("g");
+        m.getCoords().setInfoOnComponent(0,"h");
+        m.getCoords().setInfoOnComponent(1,"i");
+        m.getCoords().setInfoOnComponent(2,"j");
+        #
+        f.checkCoherency();
+        f2=f.clone(True);
+        self.assertTrue(f2.isEqual(f,1e-12,1e-12));
+        f2.setName("smth");
+        self.assertTrue(not f2.isEqual(f,1e-12,1e-12));
+        f2.copyTinyStringsFrom(f);
+        self.assertTrue(f2.isEqual(f,1e-12,1e-12));
+        f2.setDescription("GGG");
+        self.assertTrue(not f2.isEqual(f,1e-12,1e-12));
+        f2.copyTinyStringsFrom(f);
+        self.assertTrue(f2.isEqual(f,1e-12,1e-12));
+        f2.getArray().setInfoOnComponent(0,"mmmm");
+        self.assertTrue(not f2.isEqual(f,1e-12,1e-12));
+        f2.copyTinyStringsFrom(f);
+        self.assertTrue(f2.isEqual(f,1e-12,1e-12));
+        f2.getEndArray().setInfoOnComponent(1,"mmmm");
+        self.assertTrue(not f2.isEqual(f,1e-12,1e-12));
+        f2.copyTinyStringsFrom(f);
+        self.assertTrue(f2.isEqual(f,1e-12,1e-12));
+        m2=m.clone(True);
+        self.assertTrue(m2.isEqual(m,1e-12));
+        m2.setName("123");
+        self.assertTrue(not m2.isEqual(m,1e-12));
+        m2.copyTinyStringsFrom(m);
+        self.assertTrue(m2.isEqual(m,1e-12));
+        m2.getCoords().setInfoOnComponent(1,"eee");
+        self.assertTrue(not m2.isEqual(m,1e-12));
+        m2.copyTinyStringsFrom(m);
+        self.assertTrue(m2.isEqual(m,1e-12));
+        pass
+
+    def testTryToShareSameCoordsPermute(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        #self.assertTrue(m.getCoords()!=m2.getCoords());
+        m.tryToShareSameCoordsPermute(m2,1e-12);
+        #self.assertTrue(m.getCoords()==m2.getCoords());
+        self.assertTrue(m2.isEqual(m,1e-12));
+        renum1=[1,2,0,5,8,7,4,3,6]
+        m.renumberNodes(renum1,9);
+        #self.assertTrue(m.getCoords()!=m2.getCoords());
+        self.assertTrue(not m2.isEqual(m,1e-12));
+        m.tryToShareSameCoordsPermute(m2,1e-12);
+        #self.assertTrue(m.getCoords()==m2.getCoords());
+        self.assertTrue(m2.isEqual(m,1e-12));
+        pass
+
+    def testTryToShareSameCoordsPermute2(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_4();
+        targetCoords=[-0.3,-0.3, 0.2,-0.3, -0.3,0.2, 0.2,0.2 ]
+        targetConn=[0,2,3,1]
+        m2=MEDCouplingUMesh.New();
+        m2.setMeshDimension(2);
+        m2.allocateCells(1);
+        m2.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        m2.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(targetCoords,4,2);
+        m2.setCoords(myCoords);
+        m2.checkCoherency();
+        m1.checkCoherency();
+        #
+        expected1=[0.25,0.125,0.125,0.25,0.25]
+        f1=m1.getMeasureField(False);
+        f2=m2.getMeasureField(False);
+        self.assertEqual(5,f1.getArray().getNumberOfTuples());
+        self.assertEqual(1,f2.getArray().getNumberOfTuples());
+        for i in xrange(5):
+            self.assertAlmostEqual(expected1[i],f1.getIJ(i,0),12);
+            pass
+        self.assertAlmostEqual(expected1[0],f2.getIJ(0,0),12);
+        self.assertRaises(Exception,m1.tryToShareSameCoordsPermute,m2,1e-12);# <- here in this order the sharing is impossible.
+        # Let's go for deeper test of tryToShareSameCoordsPermute
+        m2.tryToShareSameCoordsPermute(m1,1e-12);
+        f1=m1.getMeasureField(False);
+        f2=m2.getMeasureField(False);
+        self.assertEqual(5,f1.getArray().getNumberOfTuples());
+        self.assertEqual(1,f2.getArray().getNumberOfTuples());
+        for i in xrange(5):
+            self.assertAlmostEqual(expected1[i],f1.getIJ(i,0),12);
+            pass
+        self.assertAlmostEqual(expected1[0],f2.getIJ(0,0),12);
         pass
     
     def setUp(self):

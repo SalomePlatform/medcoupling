@@ -50,7 +50,7 @@ namespace ParaMEDMEM
     MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionInt(const std::string& key, int value);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionDouble(const std::string& key, double value);
-    MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, std::string& value);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, const std::string& value);
   public:
     MEDCOUPLINGREMAPPER_EXPORT static void printMatrix(const std::vector<std::map<int,double> >& m);
   private:

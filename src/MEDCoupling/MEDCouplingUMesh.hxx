@@ -58,6 +58,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
     MEDCOUPLING_EXPORT int getMeshLength() const;
+    MEDCOUPLING_EXPORT void computeTypes();
     //! size of returned tinyInfo must be always the same.
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT bool isEmptyMesh(const std::vector<int>& tinyInfo) const;
@@ -75,7 +76,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *zipConnectivityTraducer(int compType);
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
-    MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged);
+    MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
+    MEDCOUPLING_EXPORT void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
@@ -125,9 +127,9 @@ namespace ParaMEDMEM
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
     ~MEDCouplingUMesh();
-    void computeTypes();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     //tools
+    void renumberNodesInConn(const int *newNodeNumbers);
     MEDCouplingUMesh *buildExtrudedMeshFromThisLowLev(int nbOfNodesOf1Lev, bool isQuad) const;
     DataArrayDouble *fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     template<int SPACEDIM>

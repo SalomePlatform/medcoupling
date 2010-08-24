@@ -59,6 +59,12 @@ void MEDCouplingTimeDiscretization::copyTinyAttrFrom(const MEDCouplingTimeDiscre
   _time_tolerance=other._time_tolerance;
 }
 
+void MEDCouplingTimeDiscretization::copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other)
+{
+  if(_array && other._array)
+    _array->copyStringInfoFrom(*other._array);
+}
+
 void MEDCouplingTimeDiscretization::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   if(!_array)
@@ -1089,6 +1095,16 @@ void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretizati
   _end_dt=otherC._end_dt;
   _start_it=otherC._start_it;
   _end_it=otherC._end_it;
+}
+
+void MEDCouplingTwoTimeSteps::copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other)
+{
+  MEDCouplingTimeDiscretization::copyTinyStringsFrom(other);
+  const MEDCouplingTwoTimeSteps* otherC=dynamic_cast<const MEDCouplingTwoTimeSteps* >(&other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("Trying to operate copyTinyStringsFrom on different field type (two times//one time) !");
+  if(_end_array && otherC->_end_array)
+    _end_array->copyStringInfoFrom(*otherC->_end_array);
 }
 
 DataArrayDouble *MEDCouplingTwoTimeSteps::getEndArray() const

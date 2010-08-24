@@ -29,7 +29,7 @@ namespace ParaMEDMEM
 {
   template<int SPACEDIM>
   void MEDCouplingPointSet::findCommonNodesAlg(std::vector<double>& bbox,
-                                               int nbNodes, double prec,
+                                               int nbNodes, int limitNodeId, double prec,
                                                std::vector<int>& c, std::vector<int>& cI) const
   {
     const double *coordsPtr=_coords->getConstPointer();
@@ -52,8 +52,9 @@ namespace ParaMEDMEM
             std::vector<int> commonNodes;
             for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
               if(*it!=i)
-                if(INTERP_KERNEL::distance2<SPACEDIM>(coordsPtr+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<prec2)
-                  commonNodes.push_back(*it);
+                if(*it>=limitNodeId)
+                  if(INTERP_KERNEL::distance2<SPACEDIM>(coordsPtr+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<prec2)
+                    commonNodes.push_back(*it);
             if(!commonNodes.empty())
               {
                 cI.push_back(cI.back()+commonNodes.size()+1);

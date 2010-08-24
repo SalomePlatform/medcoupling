@@ -39,7 +39,6 @@ namespace ParaMEDMEM
     static MEDCouplingExtrudedMesh *New();
     MEDCouplingMeshType getType() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
-    bool isStructured() const;
     int getNumberOfCells() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;

@@ -32,6 +32,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
+    void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     bool areCompatibleForMerge(const MEDCouplingField *other) const;
     bool areStrictlyCompatible(const MEDCouplingField *other) const;

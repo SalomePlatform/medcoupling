@@ -73,11 +73,6 @@ void MEDCouplingPointSet::updateTime()
     }
 }
 
-bool MEDCouplingPointSet::isStructured() const
-{
-  return false;
-}
-
 void MEDCouplingPointSet::setCoords(DataArrayDouble *coords)
 {
   if( coords != _coords )
@@ -136,12 +131,33 @@ bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, doubl
 }
 
 /*!
+ * This method is typically the base method used for implementation of mergeNodes. This method computes this permutation array using as input,
+ * This method is const ! So this method simply computes the array, no permutation of nodes is done.
+ * a precision 'precision' and a 'limitNodeId' that is the node id so that every nodes which id is strictly lower than 'limitNodeId' will not be merged.
+ * To desactivate this advanced feature put -1 to this argument.
+ * @param areNodesMerged output parameter that states if some nodes have been "merged" in returned array
+ * @param newNbOfNodes output parameter too this is the maximal id in returned array to avoid to recompute it.
+ */
+DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(int limitNodeId, double precision, bool& areNodesMerged, int& newNbOfNodes) const
+{
+  DataArrayInt *comm,*commI;
+  findCommonNodes(limitNodeId,precision,comm,commI);
+  int oldNbOfNodes=getNumberOfNodes();
+  DataArrayInt *ret=buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
+  areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
+  comm->decrRef();
+  commI->decrRef();
+  return ret;
+}
+
+/*!
  * This methods searches for each node n1 nodes in _coords that are less far than 'prec' from n1. if any these nodes are stored in params
  * comm and commIndex.
+ * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged.
  * @param comm out parameter (not inout)
  * @param commIndex out parameter (not inout)
  */
-void MEDCouplingPointSet::findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const
+void MEDCouplingPointSet::findCommonNodes(int limitNodeId, double prec, DataArrayInt *&comm, DataArrayInt *&commIndex) const
 {
   comm=DataArrayInt::New();
   commIndex=DataArrayInt::New();
@@ -163,13 +179,13 @@ void MEDCouplingPointSet::findCommonNodes(DataArrayInt *&comm, DataArrayInt *&co
   switch(spaceDim)
     {
     case 3:
-      findCommonNodesAlg<3>(bbox,nbNodesOld,prec,c,cI);
+      findCommonNodesAlg<3>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
       break;
     case 2:
-      findCommonNodesAlg<2>(bbox,nbNodesOld,prec,c,cI);
+      findCommonNodesAlg<2>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
       break;
     case 1:
-      findCommonNodesAlg<1>(bbox,nbNodesOld,prec,c,cI);
+      findCommonNodesAlg<1>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
       break;
     default:
       throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1,2 or 3.");
