@@ -502,6 +502,8 @@ void MEDLoaderTest::testWriteUMeshesRW1()
   std::vector<int> nodes;
   m3d->findNodesOnPlane(pt,vec,1e-12,nodes);
   MEDCouplingUMesh *m2d=(MEDCouplingUMesh *)m3d->buildFacePartOfMySelfNode(&nodes[0],&nodes[0]+nodes.size(),true);
+  const int renumber[5]={1,2,0,4,3};
+  m2d->renumberCells(renumber,false);
   m2d->setName("ExampleOfMultiDimW");
   std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(m2d);

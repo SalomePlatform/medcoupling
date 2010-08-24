@@ -357,6 +357,8 @@ class MEDLoaderTest(unittest.TestCase):
         vec=[0.,0.,1.]
         nodes=m3d.findNodesOnPlane(pt,vec,1e-12);
         m2d=m3d.buildFacePartOfMySelfNode(nodes,True);
+        renumber=[1,2,0,4,3]
+        m2d.renumberCells(renumber,False);
         m2d.setName("ExampleOfMultiDimW");
         meshes=[m2d,m3d]
         MEDLoader.WriteUMeshes(fileName,meshes,True);
