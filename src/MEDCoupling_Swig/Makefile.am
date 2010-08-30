@@ -60,6 +60,8 @@ CLEANFILES = libMEDCoupling_SwigWRAP.cxx libMEDCoupling_Swig.py libMEDCouplingRe
 
 dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py libMEDCoupling_Swig.py libMEDCouplingRemapper_Swig.py MEDCouplingDataForTest.py
 
-UNIT_TEST_PROG = MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py
+#UNIT_TEST_PROG = MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py
+TESTS = MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py
+TESTS_ENVIRONMENT = $(PYTHON)
 
-check : tests
+#check : tests
