@@ -177,12 +177,13 @@ VolSurfUser.txx
 # Libraries targets
 
 dist_libinterpkernel_la_SOURCES = \
-	TransformedTriangle.cxx\
-	TransformedTriangleIntersect.cxx\
-	TransformedTriangleMath.cxx\
+	TransformedTriangle.cxx \
+	TransformedTriangleIntersect.cxx \
+	TransformedTriangleMath.cxx \
 	BoundingBox.cxx \
-	TetraAffineTransform.cxx\
-	CellModel.cxx\
+	TranslationRotationMatrix.cxx \
+	TetraAffineTransform.cxx \
+	CellModel.cxx \
 	UnitTetraIntersectionBary.cxx \
 	InterpolationOptions.cxx \
 	DirectedBoundingBox.cxx

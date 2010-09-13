@@ -125,7 +125,6 @@ namespace INTERP_KERNEL
     double _rotation_coeffs[ROT_SIZE];
     double _translation_coeffs[TRANSL_SIZE];
   };
-  const double TranslationRotationMatrix::EPS=1e-12;
 }
 
 #endif
