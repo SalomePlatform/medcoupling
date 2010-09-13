@@ -159,10 +159,8 @@ namespace ParaMEDMEM
       {
         //locate the distant meshes
         ElementLocator locator(*_local_field, *_target_group, *_source_group);
-
-        //transfering option from InterpKernelDEC to ElementLocator                 
-        locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
-
+        //transfering option from InterpKernelDEC to ElementLocator   
+        locator.copyOptions(*this);
         MEDCouplingPointSet* distant_mesh=0; 
         int* distant_ids=0;
         std::string distantMeth;

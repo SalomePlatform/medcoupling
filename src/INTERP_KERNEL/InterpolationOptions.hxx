@@ -118,7 +118,7 @@ namespace INTERP_KERNEL
                                  bool measure_abs,
                                  std::string splitting_policy,
                                  bool P1P0_bary_method );
-    void copyOptions(InterpolationOptions & other) { *this = other; }
+    void copyOptions(const InterpolationOptions & other) { *this = other; }
     bool setOptionDouble(const std::string& key, double value);
     bool setOptionInt(const std::string& key, int value);
     bool setOptionString(const std::string& key, const std::string& value);
