@@ -193,8 +193,7 @@ namespace ParaMEDMEM
       {
         ElementLocator locator(*_local_field, *_source_group, *_target_group);
         //transfering option from InterpKernelDEC to ElementLocator
-        locator.setBoundingBoxAdjustment(getBoundingBoxAdjustment());
-
+        locator.copyOptions(*this);
         MEDCouplingPointSet* distant_mesh=0;
         int* distant_ids=0;
         for (int i=0; i<_source_group->size(); i++)
