@@ -41,9 +41,9 @@ InterpKernelDEC.hxx\
 ExplicitCoincidentDEC.hxx\
 ElementLocator.hxx\
 ExplicitMapping.hxx\
-ICoCoField.h \
+ICoCoField.hxx \
 ICoCoMEDField.hxx \
-ICoCoTrioField.h \
+ICoCoTrioField.hxx \
 MPIAccess.hxx \
 MPIAccessDEC.hxx \
 TimeInterpolator.hxx \

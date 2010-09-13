@@ -20,7 +20,7 @@
 // ICoCoTrioField.cpp
 // version 1.2 10/05/2010
 
-#include <ICoCoTrioField.h>
+#include <ICoCoTrioField.hxx>
 #include <string.h>
 #include <iostream>
 #include <iomanip>

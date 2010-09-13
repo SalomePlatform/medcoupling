@@ -23,7 +23,7 @@
 #ifndef _ICoCoTrioField_included_
 #define _ICoCoTrioField_included_
 
-#include <ICoCoField.h>
+#include <ICoCoField.hxx>
 namespace ICoCo {
 
   //////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@
 // ICoCoField.cpp
 // version 1.2 10/05/2010
 
-#include <ICoCoField.h>
+#include <ICoCoField.hxx>
 #include <string>
 
 using namespace ICoCo;
