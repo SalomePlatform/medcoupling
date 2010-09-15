@@ -190,6 +190,17 @@ void DataArrayDouble::checkNoNullValues() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("A value 0.0 have been detected !");
 }
 
+double DataArrayDouble::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component !");
+  int nbOfTuples=getNumberOfTuples();
+  const double *vals=getConstPointer();
+  const double *loc=std::max_element(vals,vals+nbOfTuples);
+  tupleId=std::distance(vals,loc);
+  return *loc;
+}
+
 DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
   int nbOfComp=a1->getNumberOfComponents();

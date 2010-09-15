@@ -24,6 +24,7 @@
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <sstream>
+#include <limits>
 #include <functional>
 
 using namespace ParaMEDMEM;
@@ -181,12 +182,22 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg) throw(INTERP_KE
     throw INTERP_KERNEL::Exception("Invalid mesh to apply renumberNodes on it !");
   int nbOfNodes=meshC->getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
+  renumberNodesWithoutMesh(old2NewBg);
+  meshC2->renumberNodes(old2NewBg,*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1);
+  setMesh(meshC2);
+}
+
+/*!
+ * \b WARNING : use this method with lot of care !
+ * This method performs half job of MEDCouplingFieldDouble::renumberNodes. That is to say no permutation of cells is done on underlying mesh.
+ * That is to say, the field content is changed by this method.
+ */
+void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg) throw(INTERP_KERNEL::Exception)
+{
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     _type->renumberValuesOnNodes(old2NewBg,*iter);
-  meshC2->renumberNodes(old2NewBg,*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1);
-  setMesh(meshC2);
 }
 
 TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
@@ -235,6 +246,31 @@ double MEDCouplingFieldDouble::accumulate(int compId) const
   double ret=0.;
   for(int i=0;i<nbTuple;i++)
     ret+=ptr[i*nbComps+compId];
+  return ret;
+}
+
+/*!
+ * This method returns the max value in 'this'. 'This' is expected to be a field with exactly one component. If not an exception will be thrown.x
+ * To getMaxValue on vector field applyFunc is needed before. This method looks only on arrays stored in 'this->_time_discr'.
+ * If no arrays exists, an exception will be thrown.
+ */
+double MEDCouplingFieldDouble::getMaxValue() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  double ret=-std::numeric_limits<double>::max();
+  bool isExistingArr=false;
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+    {
+      if(*iter)
+        {
+          isExistingArr=true;
+          int loc;
+          ret=std::max(ret,(*iter)->getMaxValue(loc));
+        }
+    }
+  if(!isExistingArr)
+    throw INTERP_KERNEL::Exception("getMaxValue : No arrays defined !");
   return ret;
 }
 
@@ -578,6 +614,46 @@ void MEDCouplingFieldDouble::serialize(DataArrayInt *&dataInt, std::vector<DataA
 {
   _time_discr->getArrays(arrays);
   _type->getSerializationIntArray(dataInt);
+}
+
+/*!
+ * This method tries to to change the mesh support of 'this' following the parameter 'levOfCheck' and 'prec'.
+ * Semantic of 'levOfCheck' is explained in MEDCouplingMesh::checkGeoEquivalWith method. This method is used to perform the job.
+ * If this->_mesh is not defined or other an exeption will be throw.
+ */
+void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh==0 || other==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::changeUnderlyingMesh : is expected to operate on not null meshes !");
+  DataArrayInt *cellCor,*nodeCor;
+  _mesh->checkGeoEquivalWith(other,levOfCheck,prec,cellCor,nodeCor);
+  if(cellCor)
+    {
+      renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
+      cellCor->decrRef();
+    }
+  if(nodeCor)
+    {
+      renumberNodesWithoutMesh(nodeCor->getConstPointer());
+      nodeCor->decrRef();
+    }
+  setMesh((MEDCouplingMesh *)other);
+}
+
+/*!
+ * This method is an extension of MEDCouplingFieldDouble::operator-=. It allows a user to operate a difference of 2 fields ('this' and 'f') even if they do not share same meshes.
+ * No interpolation will be done here only an analyze of two underlying mesh will be done to see if the meshes are geometrically equivalent. If yes, the eventual renumbering will be done and operator-= applyed after.
+ * This method requires that 'f' and 'this' are coherent (check coherency) and that 'f' and 'this' would be coherent for a merge.
+ * Semantic of 'levOfCheck' is explained in MEDCouplingMesh::checkGeoEquivalWith method.
+ */
+void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  f->checkCoherency();
+  if(!areCompatibleForMerge(f))
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::diffWith : Fields are not compatible ; unable to apply mergeFields on them !");
+  changeUnderlyingMesh(f->getMesh(),levOfCheck,prec);
+  operator-=(*f);
 }
 
 /*!

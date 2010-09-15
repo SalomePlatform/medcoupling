@@ -358,7 +358,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const int *s
 {
   MEDCouplingPointSet* ret=((const MEDCouplingPointSet *) mesh)->buildPartOfMySelf(start,end,false);
   di=DataArrayInt::New();
-  di->alloc(end-start,1);
+  di->alloc(std::distance(start,end),1);
   int *pt=di->getPointer();
   std::copy(start,end,pt);
   return ret;

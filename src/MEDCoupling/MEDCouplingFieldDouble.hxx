@@ -40,6 +40,7 @@ namespace ParaMEDMEM
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     void renumberCellsWithoutMesh(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     void renumberNodes(const int *old2NewBg) throw(INTERP_KERNEL::Exception);
+    void renumberNodesWithoutMesh(const int *old2NewBg) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
@@ -61,6 +62,7 @@ namespace ParaMEDMEM
     DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
     double accumulate(int compId) const;
     void accumulate(double *res) const;
+    double getMaxValue() const throw(INTERP_KERNEL::Exception);
     double normL1(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     void normL1(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
     double normL2(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
@@ -85,6 +87,9 @@ namespace ParaMEDMEM
     void resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays);
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
     void serialize(DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays) const;
+    //
+    void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
+    void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return addFields(this,&other); }

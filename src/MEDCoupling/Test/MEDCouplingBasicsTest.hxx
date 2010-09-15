@@ -103,6 +103,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testCopyTinyStringsFromOnFields );
     CPPUNIT_TEST( testTryToShareSameCoordsPermute );
     CPPUNIT_TEST( testTryToShareSameCoordsPermute2 );
+    CPPUNIT_TEST( testChangeUnderlyingMesh1 );
+    CPPUNIT_TEST( testGetMaxValue1 );
+    CPPUNIT_TEST( testSubstractInPlaceDM1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -234,6 +237,9 @@ namespace ParaMEDMEM
     void testCopyTinyStringsFromOnFields();
     void testTryToShareSameCoordsPermute();
     void testTryToShareSameCoordsPermute2();
+    void testChangeUnderlyingMesh1();
+    void testGetMaxValue1();
+    void testSubstractInPlaceDM1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
