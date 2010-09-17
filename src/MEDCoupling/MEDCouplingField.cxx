@@ -78,6 +78,17 @@ TypeOfField MEDCouplingField::getTypeOfField() const
   return _type->getEnum();
 }
 
+/*!
+ * This method retrieves the weighting field of 'this'. If no '_mesh' is defined an exception will be thrown.
+ * Warning the retrieved field life cycle is the responsability of caller.
+ */
+MEDCouplingFieldDouble *MEDCouplingField::buildWeightingField(bool isAbs) const throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getWeightingField : no mesh defined !!!");
+  return _type->getWeightingField(_mesh,isAbs);
+}
+
 void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
 {
   if(mesh!=_mesh)

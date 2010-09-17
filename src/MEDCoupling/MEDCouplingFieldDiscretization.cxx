@@ -97,22 +97,19 @@ void MEDCouplingFieldDiscretization::updateTime()
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
  * @throw when the field discretization fails on getWeighting fields (gauss points for example)
  */
-void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingFieldDouble *vol=getWeightingField(mesh,isWAbs);
+  MEDCouplingFieldDouble *vol=getWeightingField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   std::fill(res,res+nbOfCompo,0.);
-  double totVol=0.;
   const double *arrPtr=arr->getConstPointer();
   const double *volPtr=vol->getArray()->getConstPointer();
   for(int i=0;i<nbOfElems;i++)
     {
       for(int j=0;j<nbOfCompo;j++)
         res[j]+=fabs(arrPtr[i*nbOfCompo+j])*volPtr[i];
-      totVol+=volPtr[i];
     }
-  std::transform(res,res+nbOfCompo,res,std::bind2nd(std::multiplies<double>(),1/totVol));
   vol->decrRef();
 }
 
@@ -121,22 +118,19 @@ void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const D
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
  * @throw when the field discretization fails on getWeighting fields (gauss points for example)
  */
-void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingFieldDouble *vol=getWeightingField(mesh,isWAbs);
+  MEDCouplingFieldDouble *vol=getWeightingField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   std::fill(res,res+nbOfCompo,0.);
-  double totVol=0.;
   const double *arrPtr=arr->getConstPointer();
   const double *volPtr=vol->getArray()->getConstPointer();
   for(int i=0;i<nbOfElems;i++)
     {
       for(int j=0;j<nbOfCompo;j++)
-        res[j]+=arrPtr[i*nbOfCompo+j]*arrPtr[i*nbOfCompo+j]*volPtr[i];
-      totVol+=volPtr[i];
+        res[j]+=arrPtr[i*nbOfCompo+j]*arrPtr[i*nbOfCompo+j]*fabs(volPtr[i]);
     }
-  std::transform(res,res+nbOfCompo,res,std::bind2nd(std::multiplies<double>(),1/totVol));
   std::transform(res,res+nbOfCompo,res,std::ptr_fun<double,double>(std::sqrt));
   vol->decrRef();
 }

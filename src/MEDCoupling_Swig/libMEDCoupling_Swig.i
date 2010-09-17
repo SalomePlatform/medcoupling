@@ -56,6 +56,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
+%newobject ParaMEDMEM::MEDCouplingField::buildWeightingField;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::mergeFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator+;
@@ -686,6 +687,7 @@ namespace ParaMEDMEM
     void setDescription(const char *desc);
     const char *getName() const;
     TypeOfField getTypeOfField() const;
+    MEDCouplingFieldDouble *buildWeightingField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDiscretization *getDiscretization() const;
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
@@ -772,8 +774,8 @@ namespace ParaMEDMEM
     double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
     double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
-    double normL1(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
-    double normL2(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
+    double normL1(int compId) const throw(INTERP_KERNEL::Exception);
+    double normL2(int compId) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
@@ -889,20 +891,20 @@ namespace ParaMEDMEM
         delete [] tmp;
         return ret;
       }
-      PyObject *normL1(bool isWAbs) const throw(INTERP_KERNEL::Exception)
+      PyObject *normL1() const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfTuples();
         double *tmp=new double[sz];
-        self->normL1(isWAbs,tmp);
+        self->normL1(tmp);
         PyObject *ret=convertDblArrToPyList(tmp,sz);
         delete [] tmp;
         return ret;
       }
-      PyObject *normL2(bool isWAbs) const throw(INTERP_KERNEL::Exception)
+      PyObject *normL2() const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfTuples();
         double *tmp=new double[sz];
-        self->normL2(isWAbs,tmp);
+        self->normL2(tmp);
         PyObject *ret=convertDblArrToPyList(tmp,sz);
         delete [] tmp;
         return ret;

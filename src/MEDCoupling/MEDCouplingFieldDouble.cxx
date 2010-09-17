@@ -295,7 +295,7 @@ void MEDCouplingFieldDouble::accumulate(double *res) const
  * \f]
  * If compId>=nbOfComponent an exception is thrown.
  */
-double MEDCouplingFieldDouble::normL1(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::normL1(int compId) const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL1");
@@ -305,7 +305,7 @@ double MEDCouplingFieldDouble::normL1(int compId, bool isWAbs) const throw(INTER
   double *res=new double[nbComps];
   try
     {
-      _type->normL1(_mesh,getArray(),isWAbs,res);
+      _type->normL1(_mesh,getArray(),res);
     }
   catch(INTERP_KERNEL::Exception& e)
     {
@@ -324,11 +324,11 @@ double MEDCouplingFieldDouble::normL1(int compId, bool isWAbs) const throw(INTER
  * \f]
  * The res is expected to be of size getNumberOfComponents().
  */
-void MEDCouplingFieldDouble::normL1(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::normL1(double *res) const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL1");
-  _type->normL1(_mesh,getArray(),isWAbs,res);
+  _type->normL1(_mesh,getArray(),res);
 }
 
 /*!
@@ -338,17 +338,17 @@ void MEDCouplingFieldDouble::normL1(bool isWAbs, double *res) const throw(INTERP
  * \f]
  * If compId>=nbOfComponent an exception is thrown.
  */
-double MEDCouplingFieldDouble::normL2(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception)
+double MEDCouplingFieldDouble::normL2(int compId) const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
-    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL1");
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL2");
   int nbComps=getArray()->getNumberOfComponents();
   if(compId>=nbComps)
     throw INTERP_KERNEL::Exception("Invalid compId specified : No such nb of components !");
   double *res=new double[nbComps];
   try
     {
-      _type->normL2(_mesh,getArray(),isWAbs,res);
+      _type->normL2(_mesh,getArray(),res);
     }
   catch(INTERP_KERNEL::Exception& e)
     {
@@ -367,11 +367,11 @@ double MEDCouplingFieldDouble::normL2(int compId, bool isWAbs) const throw(INTER
  * \f]
  * The res is expected to be of size getNumberOfComponents().
  */
-void MEDCouplingFieldDouble::normL2(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::normL2(double *res) const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
-    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL1");
-  _type->normL2(_mesh,getArray(),isWAbs,res);
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform normL2");
+  _type->normL2(_mesh,getArray(),res);
 }
 
 /*!

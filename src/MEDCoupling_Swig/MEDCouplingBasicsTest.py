@@ -2010,34 +2010,28 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertTrue(abs(expected4[i]-res[i])<1e-12);
             pass
         #normL1
-        res=f1.normL1(False);
-        expected5=[16.377,24.3225,34.6715]
+        res=f1.normL1();
+        expected5=[11.3068,27.3621,43.7881]
         for i in xrange(3):
             self.assertTrue(abs(expected5[i]-res[i])<1e-12);
             pass
-        self.assertTrue(abs(expected5[0]-f1.normL1(0,False))<1e-12);
-        self.assertTrue(abs(expected5[1]-f1.normL1(1,False))<1e-12);
-        self.assertTrue(abs(expected5[2]-f1.normL1(2,False))<1e-12);
-        res=f1.normL1(True);
-        expected6=[6.97950617284,16.8901851851852,27.0296913580247]
-        for i in xrange(3):
-            self.assertTrue(abs(expected6[i]-res[i])<1e-12);
-            pass
+        self.assertTrue(abs(expected5[0]-f1.normL1(0))<1e-12);
+        self.assertTrue(abs(expected5[1]-f1.normL1(1))<1e-12);
+        self.assertTrue(abs(expected5[2]-f1.normL1(2))<1e-12);
         #normL2
-        res=f1.normL2(False);
-        expected7=[13.3073310622,23.1556650736,33.8113075021]
+        res=f1.normL2();
+        expected7=[9.0252562290496776, 21.545259176904789, 34.433193070059595]
         for i in xrange(3):
             self.assertTrue(abs(expected7[i]-res[i])<1e-9);
             pass
-        self.assertTrue(abs(expected7[0]-f1.normL2(0,False))<1e-9);
-        self.assertTrue(abs(expected7[1]-f1.normL2(1,False))<1e-9);
-        self.assertTrue(abs(expected7[2]-f1.normL2(2,False))<1e-9);
-        res=f1.normL2(True);
-        expected8=[7.09091097945239,16.9275542960123,27.0532714641609]
-        for i in xrange(3):
-            self.assertTrue(abs(expected8[i]-res[i])<1e-9);
-            pass
-        #
+        self.assertTrue(abs(expected7[0]-f1.normL2(0))<1e-9);
+        self.assertTrue(abs(expected7[1]-f1.normL2(1))<1e-9);
+        self.assertTrue(abs(expected7[2]-f1.normL2(2))<1e-9);
+        #buildWeightingField
+        f4=f1.buildWeightingField(False);
+        self.assertTrue(abs(-0.2-f4.accumulate(0))<1e-12);
+        f4=f1.buildWeightingField(True);
+        self.assertTrue(abs(1.62-f4.accumulate(0))<1e-12);
         # Testing with 2D Curve
         m1=MEDCouplingDataForTest.build2DCurveTargetMesh_3();
         f2=m1.getMeasureField(False);
@@ -2077,21 +2071,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(3):
             self.assertTrue(abs(sqrt(2.)*expected4[i]-res[i])<1e-12);
             pass
-        res=f1.normL1(False);
+        res=f1.normL1();
         for i in xrange(3):
-            self.assertTrue(abs(expected6[i]-res[i])<1e-12);
+            self.assertTrue(abs(sqrt(2.)*expected5[i]-res[i])<1e-12);
             pass
-        res=f1.normL1(True);
+        res=f1.normL2();
         for i in xrange(3):
-            self.assertTrue(abs(expected6[i]-res[i])<1e-12);
-            pass
-        res=f1.normL2(False);
-        for i in xrange(3):
-            self.assertTrue(abs(expected8[i]-res[i])<1e-12);
-            pass
-        res=f1.normL2(True);
-        for i in xrange(3):
-            self.assertTrue(abs(expected8[i]-res[i])<1e-12);
+            self.assertTrue(abs(sqrt(sqrt(2.))*expected7[i]-res[i])<1e-12);
             pass
         pass
 
@@ -2645,7 +2631,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(9.5,f.getMaxValue(),14);
         pass
 
-    def test(self):
+    def testSubstractInPlaceDM1(self):
         mesh1=MEDCouplingDataForTest.build2DTargetMesh_3();
         mesh2=MEDCouplingDataForTest.build2DTargetMesh_3();
         f1=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);

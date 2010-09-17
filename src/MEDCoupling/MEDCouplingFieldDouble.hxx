@@ -63,10 +63,10 @@ namespace ParaMEDMEM
     double accumulate(int compId) const;
     void accumulate(double *res) const;
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
-    double normL1(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
-    void normL1(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
-    double normL2(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
-    void normL2(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
+    double normL1(int compId) const throw(INTERP_KERNEL::Exception);
+    void normL1(double *res) const throw(INTERP_KERNEL::Exception);
+    double normL2(int compId) const throw(INTERP_KERNEL::Exception);
+    void normL2(double *res) const throw(INTERP_KERNEL::Exception);
     double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     void integral(bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception);

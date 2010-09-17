@@ -372,29 +372,28 @@ void MEDCouplingBasicsTest::testNormL12Integ1D()
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected4[i],res[i],1e-12);
   //normL1
-  f1->normL1(false,res);
-  double expected5[3]={16.377,24.3225,34.6715};
+  f1->normL1(res);
+  double expected5[3]={11.3068,27.3621,43.7881};
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],res[i],1e-12);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[0],f1->normL1(0,false),1e-12);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[1],f1->normL1(1,false),1e-12);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[2],f1->normL1(2,false),1e-12);
-  f1->normL1(true,res);
-  double expected6[3]={6.97950617284,16.8901851851852,27.0296913580247};
-  for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected6[i],res[i],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[0],f1->normL1(0),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[1],f1->normL1(1),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[2],f1->normL1(2),1e-12);
   //normL2
-  f1->normL2(false,res);
-  double expected7[3]={13.3073310622,23.1556650736,33.8113075021};
+  f1->normL2(res);
+  double expected7[3]={9.0252562290496776, 21.545259176904789, 34.433193070059595};
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[i],res[i],1e-9);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[0],f1->normL2(0,false),1e-9);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[1],f1->normL2(1,false),1e-9);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[2],f1->normL2(2,false),1e-9);
-  f1->normL2(true,res);
-  double expected8[3]={7.09091097945239,16.9275542960123,27.0532714641609};
-  for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected8[i],res[i],1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[0],f1->normL2(0),1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[1],f1->normL2(1),1e-9);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[2],f1->normL2(2),1e-9);
+  //buildWeightingField
+  MEDCouplingFieldDouble *f4=f1->buildWeightingField(false);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.2,f4->accumulate(0),1e-12);
+  f4->decrRef();
+  f4=f1->buildWeightingField(true);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.62,f4->accumulate(0),1e-12);
+  f4->decrRef();
   //
   f1->decrRef();
   m1->decrRef();
@@ -437,18 +436,12 @@ void MEDCouplingBasicsTest::testNormL12Integ1D()
   f1->integral(true,res);
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(2.)*expected4[i],res[i],1e-12);
-  f1->normL1(false,res);
+  f1->normL1(res);
   for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected6[i],res[i],1e-12);
-  f1->normL1(true,res);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(2.)*expected5[i],res[i],1e-12);
+  f1->normL2(res);
   for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected6[i],res[i],1e-12);
-  f1->normL2(false,res);
-  for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected8[i],res[i],1e-12);
-  f1->normL2(true,res);
-  for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected8[i],res[i],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(sqrt(2.))*expected7[i],res[i],1e-12);
   //
   f1->decrRef();
   m1->decrRef();

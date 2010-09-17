@@ -33,6 +33,7 @@ namespace ParaMEDMEM
 {
   class DataArrayInt;
   class MEDCouplingMesh;
+  class MEDCouplingFieldDouble;
   class MEDCouplingFieldDiscretization;
   class MEDCouplingGaussLocalization;
 
@@ -50,6 +51,7 @@ namespace ParaMEDMEM
     void setDescription(const char *desc) { _desc=desc; }
     const char *getName() const { return _name.c_str(); }
     TypeOfField getTypeOfField() const;
+    MEDCouplingFieldDouble *buildWeightingField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
     MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
     // Gauss point specific methods
