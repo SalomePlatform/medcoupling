@@ -622,6 +622,7 @@ namespace ParaMEDMEM
     void setCoords(DataArrayDouble *coordsX,
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);
+    void setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
   };
 }
 
