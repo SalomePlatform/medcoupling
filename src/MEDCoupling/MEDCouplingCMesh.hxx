@@ -52,6 +52,7 @@ namespace ParaMEDMEM
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     DataArrayDouble *getCoordsAt(int i) const throw(INTERP_KERNEL::Exception);
+    void setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coordsX,
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);

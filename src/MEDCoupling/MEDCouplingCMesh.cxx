@@ -31,7 +31,7 @@ MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)
 {
 }
 
-MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy)
+MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):MEDCouplingMesh(other)
 {
   if(deepCpy)
     {
@@ -114,6 +114,18 @@ bool MEDCouplingCMesh::isEqual(const MEDCouplingMesh *other, double prec) const
   const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
   if(!otherC)
     return false;
+  if(!MEDCouplingMesh::isEqual(other,prec))
+    return false;
+  const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
+  const DataArrayDouble *otherArr[3]={otherC->_x_array,otherC->_y_array,otherC->_z_array};
+  for(int i=0;i<3;i++)
+    {
+      if((thisArr[i]!=0 && otherArr[i]==0) || (thisArr[i]==0 && otherArr[i]!=0))
+        return false;
+      if(thisArr[i])
+        if(!thisArr[i]->isEqual(*otherArr[i],prec))
+          return false;
+    }
   return true;
 }
 
@@ -127,24 +139,47 @@ void MEDCouplingCMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   const char msg0[]="Invalid ";
   const char msg1[]=" array ! Must contain more than 1 element.";
+  const char msg2[]=" array ! Must be with only one component.";
   if(_x_array)
-    if(_x_array->getNbOfElems()<2)
-      {
-        std::ostringstream os; os << msg0 << 'X' << msg1;
-        throw INTERP_KERNEL::Exception(os.str().c_str());
-      }
+    {
+      if(_x_array->getNbOfElems()<2)
+        {
+          std::ostringstream os; os << msg0 << 'X' << msg1;
+          throw INTERP_KERNEL::Exception(os.str().c_str());
+        }
+      if(_x_array->getNumberOfComponents()!=1)
+        {
+          std::ostringstream os; os << msg0 << 'X' << msg2;
+          throw INTERP_KERNEL::Exception(os.str().c_str());
+        }
+    }
   if(_y_array)
-    if(_y_array->getNbOfElems()<2)
-      {
-        std::ostringstream os; os << msg0 << 'Y' << msg1;
-        throw INTERP_KERNEL::Exception(os.str().c_str());
-      }
+    {
+      if(_y_array->getNbOfElems()<2)
+        {
+          std::ostringstream os; os << msg0 << 'Y' << msg1;
+          throw INTERP_KERNEL::Exception(os.str().c_str());
+        }
+      if(_y_array->getNumberOfComponents()!=1)
+        {
+          std::ostringstream os; os << msg0 << 'Y' << msg2;
+          throw INTERP_KERNEL::Exception(os.str().c_str());
+        }
+      
+    }
   if(_z_array)
-    if(_z_array->getNbOfElems()<2)
-      {
-        std::ostringstream os; os << msg0 << 'Z' << msg1;
-        throw INTERP_KERNEL::Exception(os.str().c_str());
-      }
+    {
+      if(_z_array->getNbOfElems()<2)
+        {
+          std::ostringstream os; os << msg0 << 'Z' << msg1;
+          throw INTERP_KERNEL::Exception(os.str().c_str());
+        }
+      if(_z_array->getNumberOfComponents()!=1)
+        {
+          std::ostringstream os; os << msg0 << 'Z' << msg2;
+          throw INTERP_KERNEL::Exception(os.str().c_str());
+        }
+    }
 }
 
 int MEDCouplingCMesh::getNumberOfCells() const
@@ -304,6 +339,22 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL:
     }
 }
 
+void MEDCouplingCMesh::setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
+{
+  DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
+  if(i<0 || i>2)
+    throw INTERP_KERNEL::Exception("Invalid rank specified must be 0 or 1 or 2.");
+  if(arr!=*(thisArr[i]))
+    {
+      if(*(thisArr[i]))
+        (*(thisArr[i]))->decrRef();
+      (*(thisArr[i]))=arr;
+      if(*(thisArr[i]))
+        (*(thisArr[i]))->incrRef();
+      declareAsNew();
+    }
+}
+
 void MEDCouplingCMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coordsY, DataArrayDouble *coordsZ)
 {
   if(_x_array)
@@ -447,22 +498,69 @@ void MEDCouplingCMesh::renumberCells(const int *old2NewBg, bool check) throw(INT
 
 void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  tinyInfo.clear();
+  littleStrings.clear();
+  littleStrings.push_back(getName());
+  const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
+  for(int i=0;i<3;i++)
+    {
+      int val=-1;
+      std::string st;
+      if(thisArr[i])
+        {
+          val=thisArr[i]->getNumberOfTuples();
+          st=thisArr[i]->getInfoOnComponent(0);
+        }
+      tinyInfo.push_back(val);
+      littleStrings.push_back(st);
+    }
 }
 
 void MEDCouplingCMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  a1->alloc(0,1);
+  int sum=0;
+  for(int i=0;i<3;i++)
+    if(tinyInfo[i]!=-1)
+      sum+=tinyInfo[i];
+  a2->alloc(sum,1);
 }
 
 void MEDCouplingCMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  a1=DataArrayInt::New();
+  a1->alloc(0,1);
+  const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
+  int sz=0;
+  for(int i=0;i<3;i++)
+    {
+      if(thisArr[i])
+        sz+=thisArr[i]->getNumberOfTuples();
+    }
+  a2=DataArrayDouble::New();
+  a2->alloc(sz,1);
+  double *a2Ptr=a2->getPointer();
+  for(int i=0;i<3;i++)
+    if(thisArr[i])
+      a2Ptr=std::copy(thisArr[i]->getConstPointer(),thisArr[i]->getConstPointer()+thisArr[i]->getNumberOfTuples(),a2Ptr);
 }
 
 void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                        const std::vector<std::string>& littleStrings)
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  setName(littleStrings[0].c_str());
+  DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
+  const double *data=a2->getConstPointer();
+  for(int i=0;i<3;i++)
+    {
+      if(tinyInfo[i]!=-1)
+        {
+          (*(thisArr[i]))=DataArrayDouble::New();
+          (*(thisArr[i]))->alloc(tinyInfo[i],1);
+          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+1].c_str());
+          std::copy(data,data+tinyInfo[i],(*(thisArr[i]))->getPointer());
+          data+=tinyInfo[i];
+        }
+    }
 }
 
