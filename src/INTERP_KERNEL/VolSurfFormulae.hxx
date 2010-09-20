@@ -450,7 +450,7 @@ namespace INTERP_KERNEL
    * @param res must be of size at least 3 to store the result.
    */
   template<class ConnType, NumberingPolicy numPol>
-  inline double areaVectorOfPolygon(const ConnType *connec, int lgth, const double *coords, double *res)
+  inline void areaVectorOfPolygon(const ConnType *connec, int lgth, const double *coords, double *res)
   {
     res[0]=0.; res[1]=0.; res[2]=0.;
     for(int ptId=0;ptId<lgth;ptId++)

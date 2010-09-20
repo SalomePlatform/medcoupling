@@ -221,13 +221,13 @@ namespace INTERP_KERNEL
     // make upper triangular matrix (forward elimination)
 
     int iR[nbRow];// = { 0, 1, 2 };
-    for ( int i = 0; i < nbRow; ++i ) iR[i] = i;
+    for ( int i = 0; i < (int) nbRow; ++i ) iR[i] = i;
 
-    for ( int i = 0; i < nbRow-1; ++i ) // nullify nbRow-1 rows
+    for ( int i = 0; i < (int)(nbRow-1); ++i ) // nullify nbRow-1 rows
       {
         // swap rows to have max value of i-th column in i-th row
         double max = std::fabs( M[ iR[i] ][i] );
-        for ( int r = i+1; r < nbRow; ++r ) {
+        for ( int r = i+1; r < (int)nbRow; ++r ) {
           double m = std::fabs( M[ iR[r] ][i] );
           if ( m > max ) {
             max = m;
@@ -240,7 +240,7 @@ namespace INTERP_KERNEL
         }
         // make 0 below M[i][i] (actually we do not modify i-th column)
         double* tUpRow = M[ iR[i] ];
-        for ( int r = i+1; r < nbRow; ++r ) {
+        for ( int r = i+1; r < (int)nbRow; ++r ) {
           double* mRow = M[ iR[r] ];
           double coef = mRow[ i ] / tUpRow[ i ];
           for ( int c = i+1; c < nbCol; ++c )
