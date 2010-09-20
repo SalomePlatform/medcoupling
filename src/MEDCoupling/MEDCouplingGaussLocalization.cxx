@@ -47,7 +47,7 @@ void ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherency() const throw(INTE
   int dim=cm.getDimension();
   if(!cm.isDynamic())
     {
-      if(_ref_coord.size()!=nbNodes*dim)
+      if((int)_ref_coord.size()!=nbNodes*dim)
         {
           std::ostringstream oss; oss << "Invalid size of refCoo : expecting to be : " << nbNodes << " (nbNodePerCell) * " << dim << " (dim) !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -206,7 +206,7 @@ int ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussP
 bool ParaMEDMEM::MEDCouplingGaussLocalization::areAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
 {
   int sz=v1.size();
-  if(sz!=v2.size())
+  if(sz!=(int)v2.size())
     return false;
   std::vector<double> tmp(sz);
   std::transform(v1.begin(),v1.end(),v2.begin(),tmp.begin(),std::minus<double>());

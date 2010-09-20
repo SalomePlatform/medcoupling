@@ -592,7 +592,7 @@ bool MEDCouplingUMesh::areCellsFrom2MeshEqual(const MEDCouplingUMesh *other, int
   getNodeIdsOfCell(cellId,c1);
   other->getNodeIdsOfCell(cellId,c2);
   int sz=c1.size();
-  if(sz!=c2.size())
+  if(sz!=(int)c2.size())
     return false;
   for(int i=0;i<sz;i++)
     {
@@ -792,7 +792,6 @@ void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& ot
     throw INTERP_KERNEL::Exception("tryToShareSameCoordsPermute : No coords specified in other !");
   if(!_coords)
     throw INTERP_KERNEL::Exception("tryToShareSameCoordsPermute : No coords specified in this whereas there is any in other !");
-  int thisNbOfNodes=getNumberOfNodes();
   int otherNbOfNodes=other.getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=mergeNodesArray(&other,this);
   _coords->incrRef();
@@ -1447,7 +1446,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *start
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
   std::string name(getName());
   int sz=strlen(PART_OF_NAME);
-  if(name.length()>=sz)
+  if((int)name.length()>=sz)
     name=name.substr(0,sz);
   if(name!=PART_OF_NAME)
     {

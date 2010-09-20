@@ -225,6 +225,11 @@ MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalizati
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
+const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
 int MEDCouplingFieldDiscretization::getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
@@ -243,10 +248,6 @@ int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneType(INTERP_KERNE
 void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
-}
-
-const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretization::getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
-{
 }
 
 MEDCouplingFieldDiscretization::~MEDCouplingFieldDiscretization()
@@ -909,7 +910,7 @@ int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneType(INTERP_
 
 void MEDCouplingFieldDiscretizationGauss::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
 {
-  if(locId<0 || locId>=_loc.size())
+  if(locId<0 || locId>=(int)_loc.size())
     throw INTERP_KERNEL::Exception("Invalid locId given : must be in range [0:getNbOfGaussLocalization()) !");
   int nbOfTuples=_discr_per_cell->getNumberOfTuples();
   const int *ptr=_discr_per_cell->getConstPointer();
@@ -926,7 +927,7 @@ const MEDCouplingGaussLocalization& MEDCouplingFieldDiscretizationGauss::getGaus
 
 void MEDCouplingFieldDiscretizationGauss::checkLocalizationId(int locId) const throw(INTERP_KERNEL::Exception)
 {
-  if(locId<0 || locId>=_loc.size())
+  if(locId<0 || locId>=(int)_loc.size())
     throw INTERP_KERNEL::Exception("Invalid locId given : must be in range [0:getNbOfGaussLocalization()) !");
 }
 
@@ -954,10 +955,10 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
     if(*w>=0)
       tmp[*w]=1;
   int fid=0;
-  for(int i=0;i<_loc.size();i++)
+  for(int i=0;i<(int)_loc.size();i++)
     if(tmp[i]!=-2)
       tmp[i]=fid++;
-  if(fid==_loc.size())
+  if(fid==(int)_loc.size())
     {//no zip needed
       delete [] tmp;
       return;
@@ -967,7 +968,7 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
   for(int *w2=start2;w2!=start2+nbOfTuples;w2++)
     *w2=tmp[*w2];
   std::vector<MEDCouplingGaussLocalization> tmpLoc;
-  for(int i=0;i<_loc.size();i++)
+  for(int i=0;i<(int)_loc.size();i++)
     if(tmp[i]!=-2)
       tmpLoc.push_back(_loc[tmp[i]]);
   delete [] tmp;
@@ -1036,7 +1037,7 @@ void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCoupl
     {
       INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(i);
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
-      for(int k=0;k<cm.getNumberOfNodes();k++,j++)
+      for(int k=0;k<(int)cm.getNumberOfNodes();k++,j++)
         array2[j]=array3[array[i]]+k;
     }
   delete [] array3;

@@ -253,7 +253,6 @@ std::string MEDCouplingExtrudedMesh::advancedRepr() const
   ret << _mesh1D->advancedRepr();
   ret << "\n\n\n2D Mesh info : _____________________\n\n\n" << _mesh2D->advancedRepr() << "\n\n\n";
   ret << "3D cell ids per level :\n";
-  _mesh3D_ids;
   return ret.str();
 }
 
@@ -715,7 +714,6 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<int>& tinyInfo, 
   const int *a1Ptr=a1->getConstPointer();
   const double *a2Ptr=a2->getConstPointer();
   _mesh2D=MEDCouplingUMesh::New();
-  int la1_1=0,la2_1=0,la1_2=0,la2_2=0;
   std::vector<std::string> ls1,ls2;
   _mesh2D->resizeForUnserialization(ti1,a1tmp,a2tmp,ls1);
   std::copy(a2Ptr,a2Ptr+a2tmp->getNbOfElems(),a2tmp->getPointer());

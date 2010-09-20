@@ -69,7 +69,7 @@ namespace INTERP_KERNEL
           int iS = *iter;
           BASE_INTERSECTOR::getDualSegments( OTT<ConnType,numPol>::ind2C(iS),
                                              BASE_INTERSECTOR::_meshS, segmentsS);
-          for ( int s = 0; s < segmentsS.size(); ++s )
+          for ( int s = 0; s < (int)segmentsS.size(); ++s )
             {
               double surf = BASE_INTERSECTOR::intersectSegments(&segmentsS[s]._coords[0],
                                                                 &coordsT[0] + t*SPACEDIM);
