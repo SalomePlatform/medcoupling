@@ -236,7 +236,7 @@ void ParaMEDMEMTest::testICocoTrio1()
         if (cas=="emetteur") 
           if (non_unif)
             champ_emetteur._field[0]=40;
-        bool ok=false; // Is the time interval successfully solved ?
+        //bool ok=false; // Is the time interval successfully solved ?
     
         // Loop on the time interval tries
         if(1)

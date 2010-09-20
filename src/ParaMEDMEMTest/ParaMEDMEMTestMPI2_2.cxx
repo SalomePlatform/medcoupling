@@ -47,13 +47,11 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
 {
   int lsize, lrank, gsize, grank;
   MPI_Comm gcom;
-  MPI_Status status; 
   std::string service = "SERVICE";
   std::ostringstream meshfilename, meshname;
   ParaMEDMEM::ParaMESH *paramesh=0;
   ParaMEDMEM::MEDCouplingUMesh* mesh;
   ParaMEDMEM::ParaFIELD *parafield=0;
-  ParaMEDMEM::MEDCouplingFieldDouble* field;
   ParaMEDMEM::CommInterface* interface;
   ParaMEDMEM::MPIProcessorGroup* source, *target;
   
