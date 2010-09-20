@@ -202,7 +202,6 @@ void MEDCouplingBasicsTest::testCellOrientation2()
   m2->arePolyhedronsNotCorrectlyOriented(res1);
   CPPUNIT_ASSERT(res1.empty());
   MEDCouplingFieldDouble *f2=m2->getMeasureField(false);
-  const double *f2Ptr=f2->getArray()->getConstPointer();
   //Test to check global reverse in MEDCouplingUMesh::tryToCorrectPolyhedronOrientation
   MEDCouplingUMesh *m3=build2DTargetMesh_1();
   double vec[3]={0.,0.,-1.};//<- important for the test

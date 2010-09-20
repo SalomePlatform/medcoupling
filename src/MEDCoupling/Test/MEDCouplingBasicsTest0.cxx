@@ -839,6 +839,7 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::build2DTargetMesh_4()
 
 MEDCouplingUMesh *MEDCouplingBasicsTest::build3DTargetMesh_3()
 {
+  return 0;
 }
 
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)
