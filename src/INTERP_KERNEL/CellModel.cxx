@@ -27,6 +27,16 @@
 
 namespace INTERP_KERNEL
 {
+  const char *CellModel::CELL_TYPES_REPR[]={"NORM_POINT0", "NORM_SEG2", "NORM_SEG3", "NORM_TRI3", "NORM_QUAD4",// 0->4
+                                            "NORM_POLYGON", "NORM_TRI6", "" , "NORM_QUAD8", "",//5->9
+                                            "", "", "", "", "NORM_TETRA4",//10->14
+                                            "NORM_PYRA5", "NORM_PENTA6", "", "NORM_HEXA8", "",//15->19
+                                            "NORM_TETRA10", "", "", "NORM_PYRA13", "",//20->24
+                                            "NORM_PENTA15", "", "", "", "",//25->29
+                                            "NORM_HEXA20", "NORM_POLYHED", "", "", "",//30->34
+                                            "", "", "", "", "",//35->39
+                                            "NORM_ERROR"};
+
   std::map<NormalizedCellType,CellModel> CellModel::_map_of_unique_instance;
 
   const CellModel& CellModel::getCellModel(NormalizedCellType type)
@@ -40,6 +50,11 @@ namespace INTERP_KERNEL
         throw Exception(stream.str().c_str());
       }
     return (*iter).second;
+  }
+
+  const char *CellModel::getRepr() const
+  {
+    return CELL_TYPES_REPR[(int)_type];
   }
 
   /*!

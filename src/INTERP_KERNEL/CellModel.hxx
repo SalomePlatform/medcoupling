@@ -41,6 +41,7 @@ namespace INTERP_KERNEL
     static void buildUniqueInstance();
   public:
     INTERPKERNEL_EXPORT static const CellModel& getCellModel(NormalizedCellType type);
+    INTERPKERNEL_EXPORT const char *getRepr() const;
     INTERPKERNEL_EXPORT bool isDynamic() const { return _dyn; }
     INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }
     INTERPKERNEL_EXPORT unsigned getDimension() const { return _dim; }
@@ -73,6 +74,7 @@ namespace INTERP_KERNEL
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];
     NormalizedCellType _sons_type[MAX_NB_OF_SONS];
     static std::map<NormalizedCellType,CellModel> _map_of_unique_instance;
+    static const char *CELL_TYPES_REPR[];
   };
 }
 
