@@ -218,8 +218,8 @@ void MEDLoader::setTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception)
  */
 MEDLoader::MEDConnOfOneElemType::MEDConnOfOneElemType(INTERP_KERNEL::NormalizedCellType type, int *conn, int *index, int *fam, int lgth, int connLgth):_lgth(lgth),_fam(fam),
                                                                                                                                                        _conn(conn),_index(index),
-                                                                                                                                                       _global(0),_type(type),
-                                                                                                                                                       _conn_lgth(connLgth)
+                                                                                                                                                       _global(0),_conn_lgth(connLgth),
+                                                                                                                                                       _type(type)
 {
 }
 
@@ -1368,8 +1368,6 @@ MEDCouplingUMesh *MEDLoaderNS::readUMeshFromFileLev1(const char *fileName, const
   std::string trueMeshName;
   med_int mid=getIdFromMeshName(fid,meshName,trueMeshName);
   DataArrayDouble *coords=0;
-  int nCoords;
-  int spaceDim;
   std::list<MEDLoader::MEDConnOfOneElemType> conn;
   readUMeshDataInMedFile(fid,mid,coords,conn);
   meshDimExtract=MEDLoaderNS::calculateHighestMeshDim<MEDLoader::MEDConnOfOneElemType>(conn);
@@ -1587,7 +1585,7 @@ std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleOnS
     m1->renumberCells(cellRenum,true);
   MEDLoaderNS::releaseMEDFileCoreFrmt<MEDLoader::MEDFieldDoublePerCellType>(fieldPerCellType);
   //
-  for(int itId=1;itId<its.size();itId++)
+  for(int itId=1;itId<(int)its.size();itId++)
     {
       std::list<MEDLoader::MEDFieldDoublePerCellType> fieldPerCellType;
       double time;
@@ -1751,7 +1749,7 @@ void MEDLoaderNS::writeUMeshesPartitionDirectly(const char *fileName, const char
   std::string meshNameCpp(meshName);
   char *maa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
   MEDLoaderBase::safeStrCpy(meshName,MED_TAILLE_NOM,maa,MEDLoader::_TOO_LONG_STR);
-  if(meshName=="")
+  if(meshNameCpp=="")
     throw INTERP_KERNEL::Exception("writeUMeshesPartitionDirectly : Invalid meshName : Must be different from \"\" !");
   std::vector< DataArrayInt * > corr;
   MEDCouplingUMesh *m=ParaMEDMEM::MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
@@ -1810,7 +1808,7 @@ void MEDLoaderNS::appendNodeProfileField(const char *fileName, const ParaMEDMEM:
   //not implemented yet.
   med_int numdt,numo;
   med_float dt;
-  int nbComp=f->getNumberOfComponents();
+  //int nbComp=f->getNumberOfComponents();
   med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
   MEDfermer(fid);
 }
@@ -1961,7 +1959,6 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, const ParaMEDMEM::ME
       {
         std::list<MEDLoader::MEDFieldDoublePerCellType> split;
         prepareCellFieldDoubleForWriting(f,0,split);
-        int idGp=0;
         for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=split.begin();iter!=split.end();iter++)
           {
             int nbPtPerCell=(int)INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getNumberOfNodes();
