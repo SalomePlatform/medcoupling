@@ -40,6 +40,7 @@ using namespace INTERP_KERNEL;
 
 %template(ivec) std::vector<int>;
 %template(dvec) std::vector<double>;
+%template(svec) std::vector<std::string>;
 
 %typemap(out) ParaMEDMEM::MEDCouplingMesh*
 {
@@ -59,6 +60,14 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingField::buildWeightingField;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::mergeFields;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::dotFields;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::dot;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::crossProductFields;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::crossProduct;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::maxFields;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::max;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::minFields;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::min;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator+;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator-;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator*;
@@ -70,6 +79,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
 %newobject ParaMEDMEM::DataArrayInt::substr;
 %newobject ParaMEDMEM::DataArrayDouble::aggregate;
+%newobject ParaMEDMEM::DataArrayDouble::dot;
+%newobject ParaMEDMEM::DataArrayDouble::crossProduct;
 %newobject ParaMEDMEM::DataArrayDouble::add;
 %newobject ParaMEDMEM::DataArrayDouble::substract;
 %newobject ParaMEDMEM::DataArrayDouble::multiply;
@@ -163,6 +174,8 @@ namespace ParaMEDMEM
     virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
     virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
+    virtual std::string simpleRepr() const = 0;
+    virtual std::string advancedRepr() const = 0;
     virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
     virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;
     // tools
@@ -388,6 +401,7 @@ namespace ParaMEDMEM
     int getNumberOfNodesInCell(int cellId) const;
     int getMeshLength() const;
     void computeTypes();
+    std::string reprConnectivityOfThis() const;
     //tools
     bool checkConsecutiveCellTypes() const;
     DataArrayInt *rearrange2ConsecutiveCellTypes();
@@ -747,6 +761,8 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    std::string advancedRepr() const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
@@ -774,10 +790,21 @@ namespace ParaMEDMEM
     void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
     double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
+    double getMinValue() const throw(INTERP_KERNEL::Exception);
+    double getAverageValue() const throw(INTERP_KERNEL::Exception);
+    double getWeightedAverageValue() const throw(INTERP_KERNEL::Exception);
     double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
     double normL2(int compId) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const;
+    static MEDCouplingFieldDouble *crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const;
+    static MEDCouplingFieldDouble *maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const;
+    static MEDCouplingFieldDouble *minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const;
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);

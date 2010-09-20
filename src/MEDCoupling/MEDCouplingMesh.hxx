@@ -70,6 +70,8 @@ namespace ParaMEDMEM
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
     virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
     virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;
+    virtual std::string simpleRepr() const = 0;
+    virtual std::string advancedRepr() const = 0;
     // tools
     virtual void getBoundingBox(double *bbox) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;

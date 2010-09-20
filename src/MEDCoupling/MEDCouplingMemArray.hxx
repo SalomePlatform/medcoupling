@@ -27,6 +27,7 @@
 
 #include <string>
 #include <vector>
+#include <iterator>
 
 namespace ParaMEDMEM
 {
@@ -60,6 +61,8 @@ namespace ParaMEDMEM
     T operator[](int id) const { return _pointer.getConstPointer()[id]; }
     T& operator[](int id) { return _pointer.getPointer()[id]; }
     bool isEqual(const MemArray<T>& other, T prec) const;
+    void repr(int sl, std::ostream& stream) const;
+    void reprZip(int sl, std::ostream& stream) const;
     void fillWithValue(const T& val);
     void alloc(int nbOfElements);
     void reAlloc(int newNbOfElements);
@@ -73,7 +76,6 @@ namespace ParaMEDMEM
     int _nb_of_elem;
     bool _ownership;
     MEDCouplingPointer<T> _pointer;
-    //T *_pointer;
     DeallocType _dealloc;
   };
 
@@ -83,7 +85,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setName(const char *name);
     MEDCOUPLING_EXPORT void copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool areInfoEquals(const DataArray& other) const;
+    MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
+    MEDCOUPLING_EXPORT const std::vector<std::string> &getInfoOnComponent() const { return _info_on_compo; }
     MEDCOUPLING_EXPORT std::string getInfoOnComponent(int i) const { return _info_on_compo[i]; }
     MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const char *info) { _info_on_compo[i]=info; }
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return _info_on_compo.size(); }
@@ -111,6 +115,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void fillWithZero();
+    MEDCOUPLING_EXPORT std::string repr() const;
+    MEDCOUPLING_EXPORT std::string reprZip() const;
+    MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
@@ -128,7 +138,15 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getAverageValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void accumulate(double *res) const;
+    MEDCOUPLING_EXPORT double accumulate(int compId) const;
     MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *crossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *max(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *min(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
@@ -154,6 +172,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT void fillWithZero();
+    MEDCOUPLING_EXPORT std::string repr() const;
+    MEDCOUPLING_EXPORT std::string reprZip() const;
+    MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArr);
     //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);

@@ -55,7 +55,7 @@ bool MEDCouplingField::areCompatibleForMerge(const MEDCouplingField *other) cons
 }
 
 /*!
- * This method is more strict than MEDCouplingField::areCompatible method.
+ * This method is more strict than MEDCouplingField::areCompatibleForMerge method.
  * This method is used for operation on fields to operate a first check before attempting operation.
  */
 bool MEDCouplingField::areStrictlyCompatible(const MEDCouplingField *other) const

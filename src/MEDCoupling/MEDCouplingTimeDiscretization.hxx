@@ -49,8 +49,13 @@ namespace ParaMEDMEM
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(const MEDCouplingTimeDiscretization *other,
                                                                     TypeOfTimeDiscretization type, bool deepCpy) const;
+    virtual std::string getStringRepr() const = 0;
     virtual TypeOfTimeDiscretization getEnum() const = 0;
     virtual MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const = 0;
+    virtual MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const = 0;
     virtual MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const = 0;
     virtual void addEqual(const MEDCouplingTimeDiscretization *other) = 0;
     virtual MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const = 0;
@@ -106,8 +111,13 @@ namespace ParaMEDMEM
   public:
     MEDCouplingNoTimeLabel();
     MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCpy);
+    std::string getStringRepr() const;
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
     void addEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
@@ -135,6 +145,7 @@ namespace ParaMEDMEM
     void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=NO_TIME;
+    static const char REPR[];
   private:
     static const char EXCEPTION_MSG[];
   };
@@ -145,9 +156,14 @@ namespace ParaMEDMEM
     MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCpy);
   public:
     MEDCouplingWithTimeStep();
+    std::string getStringRepr() const;
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
     void addEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
@@ -176,6 +192,7 @@ namespace ParaMEDMEM
     void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
+    static const char REPR[];
   private:
     static const char EXCEPTION_MSG[];
   protected:
@@ -190,6 +207,7 @@ namespace ParaMEDMEM
     MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCpy);
   public:
     MEDCouplingConstOnTimeInterval();
+    void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
@@ -203,7 +221,12 @@ namespace ParaMEDMEM
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    std::string getStringRepr() const;
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
     void addEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
@@ -220,6 +243,7 @@ namespace ParaMEDMEM
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=CONST_ON_TIME_INTERVAL;
+    static const char REPR[];
   private:
     static const char EXCEPTION_MSG[];
   protected:
@@ -277,6 +301,7 @@ namespace ParaMEDMEM
     MEDCouplingLinearTime(const MEDCouplingLinearTime& other, bool deepCpy);
   public:
     MEDCouplingLinearTime();
+    std::string getStringRepr() const;
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
@@ -287,6 +312,10 @@ namespace ParaMEDMEM
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int dt, int it, double *value) const throw(INTERP_KERNEL::Exception);
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
     void addEqual(const MEDCouplingTimeDiscretization *other);
     MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
@@ -297,6 +326,7 @@ namespace ParaMEDMEM
     void divideEqual(const MEDCouplingTimeDiscretization *other);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=LINEAR_TIME;
+    static const char REPR[];
   };
 }
 

@@ -1191,6 +1191,75 @@ void MEDCouplingUMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo
   coo.insert(coo.end(),cooPtr+spaceDim*nodeId,cooPtr+spaceDim*(nodeId+1));
 }
 
+std::string MEDCouplingUMesh::simpleRepr() const
+{
+  static const char msg0[]="No coordinates specified !";
+  std::ostringstream ret;
+  ret << "Unstructured mesh with name : \"" << getName() << "\"\n";
+  ret << "Mesh dimension : " << _mesh_dim << "\nSpace dimension : ";
+  if(_coords!=0)
+    ret << getSpaceDimension() << "\n";
+  else
+    ret << msg0 << "\n";
+  ret << "Number of nodes : ";
+  if(_coords!=0)
+    ret << getNumberOfNodes() << "\n";
+  else
+    ret << msg0 << "\n";
+  ret << "Number of cells : ";
+  if(_nodal_connec!=0 && _nodal_connec_index!=0)
+    ret << getNumberOfCells() << "\n";
+  else
+    ret << "No connectivity specified !" << "\n";
+  ret << "Cell types present : ";
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(*iter);
+      ret << cm.getRepr() << " ";
+    }
+  ret << "\n";
+  return ret.str();
+}
+
+std::string MEDCouplingUMesh::advancedRepr() const
+{
+  std::ostringstream ret;
+  ret << simpleRepr();
+  ret << "\nCoordinates array : \n___________________\n\n";
+  if(_coords)
+    _coords->reprWithoutNameStream(ret);
+  else
+    ret << "No array set !\n";
+  ret << "\n\nConnectivity arrays : \n_____________________\n\n";
+  reprConnectivityOfThisLL(ret);
+  return ret.str();
+}
+std::string MEDCouplingUMesh::reprConnectivityOfThis() const
+{
+  std::ostringstream ret;
+  reprConnectivityOfThisLL(ret);
+  return ret.str();
+}
+
+void MEDCouplingUMesh::reprConnectivityOfThisLL(std::ostringstream& stream) const
+{
+  if(_nodal_connec!=0 && _nodal_connec_index!=0)
+    {
+      int nbOfCells=getNumberOfCells();
+      const int *c=_nodal_connec->getConstPointer();
+      const int *ci=_nodal_connec_index->getConstPointer();
+      for(int i=0;i<nbOfCells;i++)
+        {
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)c[ci[i]]);
+          stream << "Cell #" << i << " " << cm.getRepr() << " : ";
+          std::copy(c+ci[i]+1,c+ci[i+1],std::ostream_iterator<int>(stream," "));
+          stream << "\n";
+        }
+    }
+  else
+    stream << "Connectivity not defined !\n";
+}
+
 int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
 {
   const int *ptI=_nodal_connec_index->getConstPointer();

@@ -2627,8 +2627,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f.checkCoherency();
         #
         self.assertAlmostEqual(8.,f.getMaxValue(),14);
+        self.assertAlmostEqual(0.,f.getMinValue(),14);
+        self.assertAlmostEqual(5.,f.getAverageValue(),14);
+        self.assertAlmostEqual(5.125,f.getWeightedAverageValue(),14);
         a1.setIJ(0,2,9.5);
         self.assertAlmostEqual(9.5,f.getMaxValue(),14);
+        self.assertAlmostEqual(0.,f.getMinValue(),14);
+        a2.setIJ(0,0,9.);
+        self.assertAlmostEqual(9.5,f.getMaxValue(),14);
+        self.assertAlmostEqual(1.,f.getMinValue(),14);
         pass
 
     def testSubstractInPlaceDM1(self):
@@ -2654,6 +2661,67 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f1.substractInPlaceDM(f2,10,1e-12);
         f1.applyFunc(1,"abs(x+y+0.2)");
         self.assertAlmostEqual(0.,f1.getMaxValue(),13);
+        pass
+
+    def testDotCrossProduct1(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_3();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setTime(2.3,5,6);
+        f1.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr1=[7.,107.,207.,8.,108.,208.,9.,109.,209.,10.,110.,210.,11.,111.,211.,12.,112.,212.,13.,113.,213.,14.,114.,214.,15.,115.,215.,16.,116.,216.]
+        array.setValues(arr1,mesh1.getNumberOfCells(),3);
+        f1.setArray(array);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f2.setTime(7.8,4,5);
+        f2.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr2=[1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.]
+        array.setValues(arr2,mesh1.getNumberOfCells(),3);
+        f2.setArray(array);
+        #
+        f3=f1.dot(f2);
+        expected1=[842.,1820.,2816.,3830.,4862.,5912.,6980.,8066.,9170.,10292.]
+        for i in xrange(10):
+            self.assertAlmostEqual(expected1[i],f3.getIJ(i,0),9);
+            pass
+        #
+        f4=f1.crossProduct(f2);
+        expected2=[-93., 186., -93., -392., 784., -392., -691., 1382., -691., -990., 1980., -990., -1289., 2578., -1289., -1588., 3176., -1588., -1887., 3774., -1887., -2186., 4372., -2186., -2485., 4970., -2485., -2784., 5568., -2784.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected2[i],f4.getIJ(0,i),9);
+            pass
+        pass
+
+    def testMinMaxFields1(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_3();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setTime(2.3,5,6);
+        f1.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr1=[7.,107.,207.,8.,108.,208.,9.,109.,209.,10.,110.,210.,11.,111.,211.,12.,112.,212.,13.,113.,213.,14.,114.,214.,15.,115.,215.,16.,116.,216.]
+        array.setValues(arr1,mesh1.getNumberOfCells(),3);
+        f1.setArray(array);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f2.setTime(7.8,4,5);
+        f2.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr2=[6.,108.,206.,9.,107.,209.,8.,110.,208.,11.,109.,211.,10.,112.,210.,13.,111.,213.,12.,114.,212.,15.,113.,215.,14.,116.,214.,17.,115.,217.]
+        array.setValues(arr2,mesh1.getNumberOfCells(),3);
+        f2.setArray(array);
+        #
+        f3=f1.max(f2);
+        expected1=[7.,108.,207.,9.,108.,209.,9.,110.,209.,11.,110.,211.,11.,112.,211.,13.,112.,213.,13.,114.,213.,15.,114.,215.,15.,116.,215.,17.,116.,217.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected1[i],f3.getIJ(0,i),9);
+            pass
+        #
+        f4=f1.min(f2);
+        expected2=[6.,107.,206.,8.,107.,208.,8.,109.,208.,10.,109.,210.,10.,111.,210.,12.,111.,212.,12.,113.,212.,14.,113.,214.,14.,115.,214.,16.,115.,216.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected2[i],f4.getIJ(0,i),9);
+            pass
+        #
         pass
     
     def setUp(self):

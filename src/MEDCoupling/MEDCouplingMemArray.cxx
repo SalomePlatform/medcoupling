@@ -20,6 +20,7 @@
 #include "MEDCouplingMemArray.txx"
 
 #include <set>
+#include <numeric>
 #include <functional>
 
 using namespace ParaMEDMEM;
@@ -44,6 +45,15 @@ bool DataArray::areInfoEquals(const DataArray& other) const
   if(_name!=other._name)
     return false;
   return _info_on_compo==other._info_on_compo;
+}
+
+void DataArray::reprWithoutNameStream(std::ostream& stream) const
+{
+  stream << "Nb of components : "<< getNumberOfComponents() << "\n";
+  stream << "Info of these components : ";
+  for(std::vector<std::string>::const_iterator iter=_info_on_compo.begin();iter!=_info_on_compo.end();iter++)
+    stream << "\"" << *iter << "\"   ";
+  stream << "\n";
 }
 
 DataArrayDouble *DataArrayDouble::New()
@@ -78,6 +88,46 @@ void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
 void DataArrayDouble::fillWithZero()
 {
   _mem.fillWithValue(0.);
+}
+
+std::string DataArrayDouble::repr() const
+{
+  std::ostringstream ret;
+  reprStream(ret);
+  return ret.str();
+}
+
+std::string DataArrayDouble::reprZip() const
+{
+  std::ostringstream ret;
+  reprZipStream(ret);
+  return ret.str();
+}
+
+void DataArrayDouble::reprStream(std::ostream& stream) const
+{
+  stream << "Name of double array : \"" << _name << "\"\n";
+  reprWithoutNameStream(stream);
+}
+
+void DataArrayDouble::reprZipStream(std::ostream& stream) const
+{
+  stream << "Name of double array : \"" << _name << "\"\n";
+  reprZipWithoutNameStream(stream);
+}
+
+void DataArrayDouble::reprWithoutNameStream(std::ostream& stream) const
+{
+  DataArray::reprWithoutNameStream(stream);
+  stream.precision(15);
+  _mem.repr(getNumberOfComponents(),stream);
+}
+
+void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
+{
+  DataArray::reprWithoutNameStream(stream);
+  stream.precision(15);
+  _mem.reprZip(getNumberOfComponents(),stream);
 }
 
 bool DataArrayDouble::isEqual(const DataArrayDouble& other, double prec) const
@@ -195,10 +245,60 @@ double DataArrayDouble::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exc
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component !");
   int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
   const double *vals=getConstPointer();
   const double *loc=std::max_element(vals,vals+nbOfTuples);
   tupleId=std::distance(vals,loc);
   return *loc;
+}
+
+double DataArrayDouble::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : must be applied on DataArrayDouble with only one component !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : array exists but number of tuples must be > 0 !");
+  const double *vals=getConstPointer();
+  const double *loc=std::min_element(vals,vals+nbOfTuples);
+  tupleId=std::distance(vals,loc);
+  return *loc;
+}
+
+double DataArrayDouble::getAverageValue() const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getAverageValue : must be applied on DataArrayDouble with only one component !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getAverageValue : array exists but number of tuples must be > 0 !");
+  const double *vals=getConstPointer();
+  double ret=std::accumulate(vals,vals+nbOfTuples,0.);
+  return ret/nbOfTuples;
+}
+
+void DataArrayDouble::accumulate(double *res) const
+{
+  const double *ptr=getConstPointer();
+  int nbTuple=getNumberOfTuples();
+  int nbComps=getNumberOfComponents();
+  std::fill(res,res+nbComps,0.);
+  for(int i=0;i<nbTuple;i++)
+    std::transform(ptr+i*nbComps,ptr+(i+1)*nbComps,res,res,std::plus<double>());
+}
+
+double DataArrayDouble::accumulate(int compId) const
+{
+  const double *ptr=getConstPointer();
+  int nbTuple=getNumberOfTuples();
+  int nbComps=getNumberOfComponents();
+  if(compId>=nbComps)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::accumulate : Invalid compId specified : No such nb of components !");
+  double ret=0.;
+  for(int i=0;i<nbTuple;i++)
+    ret+=ptr[i*nbComps+compId];
+  return ret;
 }
 
 DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
@@ -212,6 +312,96 @@ DataArrayDouble *DataArrayDouble::aggregate(const DataArrayDouble *a1, const Dat
   ret->alloc(nbOfTuple1+nbOfTuple2,nbOfComp);
   double *pt=std::copy(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple1*nbOfComp,ret->getPointer());
   std::copy(a2->getConstPointer(),a2->getConstPointer()+nbOfTuple2*nbOfComp,pt);
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array dot !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array dot !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,1);
+  double *retPtr=ret->getPointer();
+  const double *a1Ptr=a1->getConstPointer();
+  const double *a2Ptr=a2->getConstPointer();
+  for(int i=0;i<nbOfTuple;i++)
+    {
+      double sum=0.;
+      for(int j=0;j<nbOfComp;j++)
+        sum+=a1Ptr[i*nbOfComp+j]*a2Ptr[i*nbOfComp+j];
+      retPtr[i]=sum;
+    }
+  ret->setInfoOnComponent(0,a1->getInfoOnComponent(0).c_str());
+  ret->setName(a1->getName().c_str());
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::crossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array crossProduct !");
+  if(nbOfComp!=3)
+    throw INTERP_KERNEL::Exception("Nb of components must be equal to 3 for array crossProduct !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array crossProduct !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,3);
+  double *retPtr=ret->getPointer();
+  const double *a1Ptr=a1->getConstPointer();
+  const double *a2Ptr=a2->getConstPointer();
+  for(int i=0;i<nbOfTuple;i++)
+    {
+      retPtr[3*i]=a1Ptr[3*i+1]*a2Ptr[3*i+2]-a1Ptr[3*i+2]*a2Ptr[3*i+1];
+      retPtr[3*i+1]=a1Ptr[3*i+2]*a2Ptr[3*i]-a1Ptr[3*i]*a2Ptr[3*i+2];
+      retPtr[3*i+2]=a1Ptr[3*i]*a2Ptr[3*i+1]-a1Ptr[3*i+1]*a2Ptr[3*i];
+    }
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::max(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array max !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array max !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,nbOfComp);
+  double *retPtr=ret->getPointer();
+  const double *a1Ptr=a1->getConstPointer();
+  const double *a2Ptr=a2->getConstPointer();
+  int nbElem=nbOfTuple*nbOfComp;
+  for(int i=0;i<nbElem;i++)
+    retPtr[i]=std::max(a1Ptr[i],a2Ptr[i]);
+  ret->copyStringInfoFrom(*a1);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::min(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=a1->getNumberOfComponents();
+  if(nbOfComp!=a2->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Nb of components mismatch for array min !");
+  int nbOfTuple=a1->getNumberOfTuples();
+  if(nbOfTuple!=a2->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array min !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuple,nbOfComp);
+  double *retPtr=ret->getPointer();
+  const double *a1Ptr=a1->getConstPointer();
+  const double *a2Ptr=a2->getConstPointer();
+  int nbElem=nbOfTuple*nbOfComp;
+  for(int i=0;i<nbElem;i++)
+    retPtr[i]=std::min(a1Ptr[i],a2Ptr[i]);
   ret->copyStringInfoFrom(*a1);
   return ret;
 }
@@ -325,11 +515,8 @@ void DataArrayDouble::multiplyEqual(const DataArrayDouble *other) throw(INTERP_K
   int nbOfComp2=other->getNumberOfComponents();
   if(nbOfTuple!=nbOfTuple2)
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiplyEqual !");
-  DataArrayDouble *ret=0;
   if(nbOfComp==nbOfComp2)
     {
-      ret=DataArrayDouble::New();
-      ret->alloc(nbOfTuple,nbOfComp);
       std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::multiplies<double>());
     }
   else
@@ -406,6 +593,44 @@ void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
 void DataArrayInt::fillWithZero()
 {
   _mem.fillWithValue(0);
+}
+
+std::string DataArrayInt::repr() const
+{
+  std::ostringstream ret;
+  reprStream(ret);
+  return ret.str();
+}
+
+std::string DataArrayInt::reprZip() const
+{
+  std::ostringstream ret;
+  reprZipStream(ret);
+  return ret.str();
+}
+
+void DataArrayInt::reprStream(std::ostream& stream) const
+{
+  stream << "Name of int array : \"" << _name << "\"\n";
+  reprWithoutNameStream(stream);
+}
+
+void DataArrayInt::reprZipStream(std::ostream& stream) const
+{
+  stream << "Name of int array : \"" << _name << "\"\n";
+  reprZipWithoutNameStream(stream);
+}
+
+void DataArrayInt::reprWithoutNameStream(std::ostream& stream) const
+{
+  DataArray::reprWithoutNameStream(stream);
+  _mem.repr(getNumberOfComponents(),stream);
+}
+
+void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
+{
+  DataArray::reprWithoutNameStream(stream);
+  _mem.reprZip(getNumberOfComponents(),stream);
 }
 
 void DataArrayInt::transformWithIndArr(const int *indArr)

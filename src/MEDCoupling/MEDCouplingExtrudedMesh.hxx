@@ -52,6 +52,8 @@ namespace ParaMEDMEM
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
+    std::string simpleRepr() const;
+    std::string advancedRepr() const;
     void checkCoherency() const throw (INTERP_KERNEL::Exception);
     void getBoundingBox(double *bbox) const;
     void updateTime();

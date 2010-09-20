@@ -106,6 +106,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testChangeUnderlyingMesh1 );
     CPPUNIT_TEST( testGetMaxValue1 );
     CPPUNIT_TEST( testSubstractInPlaceDM1 );
+    CPPUNIT_TEST( testDotCrossProduct1 );
+    CPPUNIT_TEST( testMinMaxFields1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -240,6 +242,8 @@ namespace ParaMEDMEM
     void testChangeUnderlyingMesh1();
     void testGetMaxValue1();
     void testSubstractInPlaceDM1();
+    void testDotCrossProduct1();
+    void testMinMaxFields1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

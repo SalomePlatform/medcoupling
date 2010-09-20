@@ -74,6 +74,50 @@ void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingFieldDouble *o
     }
 }
 
+std::string MEDCouplingFieldDouble::simpleRepr() const
+{
+  std::ostringstream ret;
+  ret << "FieldDouble with name : \"" << getName() << "\"\n";
+  ret << "Description of field is : \"" << getDescription() << "\"\n";
+  ret << "FieldDouble space discretization is : " << _type->getStringRepr() << "\n";
+  ret << "FieldDouble time discretization is : " << _time_discr->getStringRepr() << "\n";
+  if(getArray())
+    ret << "FieldDouble default array has " << getArray()->getNumberOfComponents() << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
+  if(_mesh)
+    ret << "Mesh support information :\n__________________________\n" << _mesh->simpleRepr();
+  else
+    ret << "Mesh support information : No mesh set !\n";
+  return ret.str();
+}
+
+std::string MEDCouplingFieldDouble::advancedRepr() const
+{
+  std::ostringstream ret;
+  ret << "FieldDouble with name : \"" << getName() << "\"\n";
+  ret << "Description of field is : \"" << getDescription() << "\"\n";
+  ret << "FieldDouble space discretization is : " << _type->getStringRepr() << "\n";
+  ret << "FieldDouble time discretization is : " << _time_discr->getStringRepr() << "\n";
+  if(getArray())
+    ret << "FieldDouble default array has " << getArray()->getNumberOfComponents() << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
+  if(_mesh)
+    ret << "Mesh support information :\n__________________________\n" << _mesh->simpleRepr();
+  else
+    ret << "Mesh support information : No mesh set !\n";
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  int arrayId=0;
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++,arrayId++)
+    {
+      ret << "Array #" << arrayId << " :\n__________\n";
+      if(*iter)
+        (*iter)->reprWithoutNameStream(ret);
+      else
+        ret << "Array empty !";
+      ret << "\n";
+    }
+  return ret.str();
+}
+
 bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
 {
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
@@ -108,7 +152,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMerge(const MEDCouplingField *other
 }
 
 /*!
- * This method is more strict than MEDCouplingField::areCompatible method.
+ * This method is more strict than MEDCouplingField::areCompatibleForMerge method.
  * This method is used for operation on fields to operate a first check before attempting operation.
  */
 bool MEDCouplingFieldDouble::areStrictlyCompatible(const MEDCouplingField *other) const
@@ -125,6 +169,10 @@ bool MEDCouplingFieldDouble::areStrictlyCompatible(const MEDCouplingField *other
   return true;
 }
 
+/*!
+ * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatible method except that
+ * number of components between 'this' and 'other' can be different here (for operator*).
+ */
 bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) const
 {
   if(!MEDCouplingField::areStrictlyCompatible(other))
@@ -234,24 +282,29 @@ void MEDCouplingFieldDouble::checkCoherency() const throw(INTERP_KERNEL::Excepti
 }
 
 /*!
- * Returns the accumulation (the sum) of comId_th component of each tuples of default array.
+ * Returns the accumulation (the sum) of comId_th component of each tuples of \b default and \b only \b default array.
  */
 double MEDCouplingFieldDouble::accumulate(int compId) const
 {
-  const double *ptr=getArray()->getConstPointer();
-  int nbTuple=getArray()->getNumberOfTuples();
-  int nbComps=getArray()->getNumberOfComponents();
-  if(compId>=nbComps)
-    throw INTERP_KERNEL::Exception("Invalid compId specified : No such nb of components !");
-  double ret=0.;
-  for(int i=0;i<nbTuple;i++)
-    ret+=ptr[i*nbComps+compId];
-  return ret;
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::accumulate : no default array defined !");
+  return getArray()->accumulate(compId);
 }
 
 /*!
- * This method returns the max value in 'this'. 'This' is expected to be a field with exactly one component. If not an exception will be thrown.x
- * To getMaxValue on vector field applyFunc is needed before. This method looks only on arrays stored in 'this->_time_discr'.
+ * Returns the accumulation (the sum) of all tuples of \b default and \b only default array.
+ * The res is expected to be of size getNumberOfComponents().
+ */
+void MEDCouplingFieldDouble::accumulate(double *res) const
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::accumulate : no default array defined !");
+  getArray()->accumulate(res);
+}
+
+/*!
+ * This method returns the max value in 'this'. 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * To getMaxValue on vector field applyFunc is needed before. This method looks only on all arrays stored in 'this->_time_discr'.
  * If no arrays exists, an exception will be thrown.
  */
 double MEDCouplingFieldDouble::getMaxValue() const throw(INTERP_KERNEL::Exception)
@@ -275,17 +328,58 @@ double MEDCouplingFieldDouble::getMaxValue() const throw(INTERP_KERNEL::Exceptio
 }
 
 /*!
- * Returns the accumulation (the sum) of all tuples of default array.
- * The res is expected to be of size getNumberOfComponents().
+ * This method returns the min value in 'this'. 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * To getMinValue on vector field applyFunc is needed before. This method looks only on all arrays stored in 'this->_time_discr'.
+ * If no arrays exists, an exception will be thrown.
  */
-void MEDCouplingFieldDouble::accumulate(double *res) const
+double MEDCouplingFieldDouble::getMinValue() const throw(INTERP_KERNEL::Exception)
 {
-  const double *ptr=getArray()->getConstPointer();
-  int nbTuple=getArray()->getNumberOfTuples();
-  int nbComps=getArray()->getNumberOfComponents();
-  std::fill(res,res+nbComps,0.);
-  for(int i=0;i<nbTuple;i++)
-    std::transform(ptr+i*nbComps,ptr+(i+1)*nbComps,res,res,std::plus<double>());
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  double ret=std::numeric_limits<double>::max();
+  bool isExistingArr=false;
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+    {
+      if(*iter)
+        {
+          isExistingArr=true;
+          int loc;
+          ret=std::min(ret,(*iter)->getMinValue(loc));
+        }
+    }
+  if(!isExistingArr)
+    throw INTERP_KERNEL::Exception("getMinValue : No arrays defined !");
+  return ret;
+}
+
+/*!
+ * This method returns the average value in 'this'. 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * To getAverageValue on vector field applyFunc is needed before. This method looks only \b default array \b and \b only \b default.
+ * If default array does not exist, an exception will be thrown.
+ */
+double MEDCouplingFieldDouble::getAverageValue() const throw(INTERP_KERNEL::Exception)
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getAverageValue : no default array defined !");
+  return getArray()->getAverageValue();
+}
+
+/*!
+ * This method returns the average value in 'this' weighted by ParaMEDMEM::MEDCouplingField::buildWeightingField.
+ * 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * To getAverageValue on vector field applyFunc is needed before. This method looks only \b default array \b and \b only \b default.
+ * If default array does not exist, an exception will be thrown.
+ */
+double MEDCouplingFieldDouble::getWeightedAverageValue() const throw(INTERP_KERNEL::Exception)
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getWeightedAverageValue : no default array defined !");
+  MEDCouplingFieldDouble *w=buildWeightingField(true);
+  double deno=w->getArray()->accumulate(0);
+  w->getArray()->multiplyEqual(getArray());
+  double res=w->getArray()->accumulate(0);
+  w->decrRef();
+  return res/deno;
 }
 
 /*!
@@ -691,6 +785,50 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFie
   m->decrRef();
   ret->setName(f1->getName());
   ret->setDescription(f1->getDescription());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areStrictlyCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply dotFields on them !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->dot(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areStrictlyCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply crossProductFields on them !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->crossProduct(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areStrictlyCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply maxFields on them !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->max(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+{
+  if(!f1->areStrictlyCompatible(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply minFields on them !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->min(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->getTypeOfField());
+  ret->setMesh(f1->getMesh());
   return ret;
 }
 

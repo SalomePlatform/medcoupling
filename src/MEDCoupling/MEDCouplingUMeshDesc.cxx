@@ -143,6 +143,22 @@ void MEDCouplingUMeshDesc::getCoordinatesOfNode(int nodeId, std::vector<double>&
   //not implemented yet.
 }
 
+std::string MEDCouplingUMeshDesc::simpleRepr() const
+{
+  std::string ret("Unstructured mesh with descending connectivity : ");
+  ret+=getName();
+  ret+="\n";
+  return ret;
+}
+
+std::string MEDCouplingUMeshDesc::advancedRepr() const
+{
+  std::string ret("Unstructured mesh with descending connectivity : ");
+  ret+=getName();
+  ret+="\n";
+  return ret;
+}
+
 void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx)
 {
   DataArrayInt::setArrayIn(descConn,_desc_connec);

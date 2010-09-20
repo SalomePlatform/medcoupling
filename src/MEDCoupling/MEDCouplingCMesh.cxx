@@ -324,6 +324,34 @@ void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo
   //not implemented yet
 }
 
+std::string MEDCouplingCMesh::simpleRepr() const
+{
+  std::ostringstream ret;
+  ret << "Cartesian mesh with name : \"" << getName() << "\"\n";
+  ret << "Mesh and SpaceDimension dimension : " << getSpaceDimension() << "\n\nArrays :\n________\n\n";
+  if(_x_array)
+    {
+      ret << "X Array :\n";
+      _x_array->reprZipWithoutNameStream(ret);
+    }
+  if(_y_array)
+    {
+      ret << "Y Array :\n";
+      _y_array->reprZipWithoutNameStream(ret);
+    }
+  if(_z_array)
+    {
+      ret << "Z Array :\n";
+      _z_array->reprZipWithoutNameStream(ret);
+    }
+  return ret.str();
+}
+
+std::string MEDCouplingCMesh::advancedRepr() const
+{
+  return simpleRepr();
+}
+
 DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
 {
   switch(i)

@@ -33,6 +33,8 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    std::string advancedRepr() const;
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     bool areCompatibleForMerge(const MEDCouplingField *other) const;
     bool areStrictlyCompatible(const MEDCouplingField *other) const;
@@ -63,6 +65,9 @@ namespace ParaMEDMEM
     double accumulate(int compId) const;
     void accumulate(double *res) const;
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
+    double getMinValue() const throw(INTERP_KERNEL::Exception);
+    double getAverageValue() const throw(INTERP_KERNEL::Exception);
+    double getWeightedAverageValue() const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
     void normL1(double *res) const throw(INTERP_KERNEL::Exception);
     double normL2(int compId) const throw(INTERP_KERNEL::Exception);
@@ -92,6 +97,14 @@ namespace ParaMEDMEM
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const { return dotFields(this,&other); }
+    static MEDCouplingFieldDouble *crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const { return crossProductFields(this,&other); }
+    static MEDCouplingFieldDouble *maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const { return maxFields(this,&other); }
+    static MEDCouplingFieldDouble *minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const { return minFields(this,&other); }
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return addFields(this,&other); }
     const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other);
     static MEDCouplingFieldDouble *addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);

@@ -1085,8 +1085,15 @@ void MEDCouplingBasicsTest::testGetMaxValue1()
   f->checkCoherency();
   //
   CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,f->getMaxValue(),1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,f->getMinValue(),1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.,f->getAverageValue(),1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.125,f->getWeightedAverageValue(),1e-14);
   a1->setIJ(0,2,9.5);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(9.5,f->getMaxValue(),1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,f->getMinValue(),1e-14);
+  a2->setIJ(0,0,9.);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(9.5,f->getMaxValue(),1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,f->getMinValue(),1e-14);
   //
   a2->decrRef();
   a1->decrRef();
@@ -1127,4 +1134,82 @@ void MEDCouplingBasicsTest::testSubstractInPlaceDM1()
   f2->decrRef();
   mesh1->decrRef();
   mesh2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDotCrossProduct1()
+{
+  MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setTime(2.3,5,6);
+  f1->setMesh(mesh1);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(mesh1->getNumberOfCells(),3);
+  const double arr1[30]={7.,107.,207.,8.,108.,208.,9.,109.,209.,10.,110.,210.,11.,111.,211.,12.,112.,212.,13.,113.,213.,14.,114.,214.,15.,115.,215.,16.,116.,216.};
+  std::copy(arr1,arr1+30,array->getPointer());
+  f1->setArray(array);
+  array->decrRef();
+  MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f2->setTime(7.8,4,5);
+  f2->setMesh(mesh1);
+  array=DataArrayDouble::New();
+  array->alloc(mesh1->getNumberOfCells(),3);
+  const double arr2[30]={1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,17.,18.,19.,20.,21.,22.,23.,24.,25.,26.,27.,28.,29.,30.};
+  std::copy(arr2,arr2+30,array->getPointer());
+  f2->setArray(array);
+  array->decrRef();
+  //
+  MEDCouplingFieldDouble *f3=f1->dot(*f2);
+  const double expected1[10]={842.,1820.,2816.,3830.,4862.,5912.,6980.,8066.,9170.,10292.};
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f3->getIJ(i,0),1e-9);
+  f3->decrRef();
+  //
+  MEDCouplingFieldDouble *f4=f1->crossProduct(*f2);
+  const double expected2[30]={-93., 186., -93., -392., 784., -392., -691., 1382., -691., -990., 1980., -990., -1289., 2578., -1289., -1588., 3176., -1588., -1887., 3774., -1887., -2186., 4372., -2186., -2485., 4970., -2485., -2784., 5568., -2784.};
+  for(int i=0;i<30;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f4->getIJ(0,i),1e-9);
+  f4->decrRef();
+  //
+  f2->decrRef();
+  f1->decrRef();
+  mesh1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testMinMaxFields1()
+{
+  MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setTime(2.3,5,6);
+  f1->setMesh(mesh1);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(mesh1->getNumberOfCells(),3);
+  const double arr1[30]={7.,107.,207.,8.,108.,208.,9.,109.,209.,10.,110.,210.,11.,111.,211.,12.,112.,212.,13.,113.,213.,14.,114.,214.,15.,115.,215.,16.,116.,216.};
+  std::copy(arr1,arr1+30,array->getPointer());
+  f1->setArray(array);
+  array->decrRef();
+  MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f2->setTime(7.8,4,5);
+  f2->setMesh(mesh1);
+  array=DataArrayDouble::New();
+  array->alloc(mesh1->getNumberOfCells(),3);
+  const double arr2[30]={6.,108.,206.,9.,107.,209.,8.,110.,208.,11.,109.,211.,10.,112.,210.,13.,111.,213.,12.,114.,212.,15.,113.,215.,14.,116.,214.,17.,115.,217.};
+  std::copy(arr2,arr2+30,array->getPointer());
+  f2->setArray(array);
+  array->decrRef();
+  //
+  MEDCouplingFieldDouble *f3=f1->max(*f2);
+  const double expected1[30]={7.,108.,207.,9.,108.,209.,9.,110.,209.,11.,110.,211.,11.,112.,211.,13.,112.,213.,13.,114.,213.,15.,114.,215.,15.,116.,215.,17.,116.,217.};
+  for(int i=0;i<30;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f3->getIJ(0,i),1e-9);
+  f3->decrRef();
+  //
+  MEDCouplingFieldDouble *f4=f1->min(*f2);
+  const double expected2[30]={6.,107.,206.,8.,107.,208.,8.,109.,208.,10.,109.,210.,10.,111.,210.,12.,111.,212.,12.,113.,212.,14.,113.,214.,14.,115.,214.,16.,115.,216.};
+  for(int i=0;i<30;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f4->getIJ(0,i),1e-9);
+  f4->decrRef();
+  //
+  f2->decrRef();
+  f1->decrRef();
+  mesh1->decrRef();
 }
