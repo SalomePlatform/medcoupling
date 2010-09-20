@@ -20,11 +20,12 @@
 #ifndef __MEDLOADERBASE_HXX__
 #define __MEDLOADERBASE_HXX__
 
+#include "MEDLoaderDefines.hxx"
 #include "InterpKernelException.hxx"
 
 #include <string>
 
-class MEDLoaderBase
+class MEDLOADER_EXPORT MEDLoaderBase
 {
 public:
   static int getStatusOfFile(const char *fileName);

@@ -20,6 +20,7 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGGAUSSLOCALIZATION_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGGAUSSLOCALIZATION_HXX__
 
+#include "MEDCoupling.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 
@@ -29,7 +30,7 @@ namespace ParaMEDMEM
 {
   class MEDCouplingMesh;
 
-  class MEDCouplingGaussLocalization
+  class MEDCOUPLING_EXPORT MEDCouplingGaussLocalization
   {
   public:
     MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
