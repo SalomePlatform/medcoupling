@@ -31,6 +31,9 @@
 #ifdef _POSIX_MAPPED_FILES
 #include <sys/mman.h>
 #else
+#ifdef WNT
+#include <windows.h>
+#endif
 #endif
 
 using namespace INTERP_KERNEL;
@@ -721,9 +724,14 @@ char *ExprParser::compileX86() const
   char *ret=0;
 #ifdef _POSIX_MAPPED_FILES
   ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
-  std::copy(lm,lm+lgth,ret);
 #else
+#ifdef WNT
+  HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
+  ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
 #endif
+#endif
+  if(ret)
+    std::copy(lm,lm+lgth,ret);
   delete [] lm;
   return ret;
 }
@@ -754,9 +762,14 @@ char *ExprParser::compileX86_64() const
   char *ret=0;
 #ifdef _POSIX_MAPPED_FILES
   ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
-  std::copy(lm,lm+lgth,ret);
 #else
+#ifdef WNT
+  HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
+  ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
 #endif
+#endif
+  if(ret)
+    std::copy(lm,lm+lgth,ret);
   delete [] lm;
   return ret;
 }
