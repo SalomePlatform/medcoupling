@@ -39,6 +39,8 @@ namespace INTERP_KERNEL
   public:
     virtual ~LeafExpr();
     virtual void fillValue(Value *val) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void compileX86(std::vector<std::string>& ass) const = 0;
+    virtual void compileX86_64(std::vector<std::string>& ass) const = 0;
     static LeafExpr *buildInstanceFrom(const std::string& expr) throw(INTERP_KERNEL::Exception);
   };
 
@@ -47,6 +49,8 @@ namespace INTERP_KERNEL
   public:
     LeafExprVal(double value);
     ~LeafExprVal();
+    void compileX86(std::vector<std::string>& ass) const;
+    void compileX86_64(std::vector<std::string>& ass) const;
     void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
   private:
     double _value;
@@ -57,6 +61,8 @@ namespace INTERP_KERNEL
   public:
     LeafExprVar(const std::string& var);
     ~LeafExprVar();
+    void compileX86(std::vector<std::string>& ass) const;
+    void compileX86_64(std::vector<std::string>& ass) const;
     void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
     std::string getVar() const { return _var_name; }
     void prepareExprEvaluation(const std::vector<std::string>& vars) const throw(INTERP_KERNEL::Exception);
@@ -72,8 +78,8 @@ namespace INTERP_KERNEL
   class INTERPKERNELEXPREVAL_EXPORT ExprParser
   {
   public:
-    ExprParser(const char *expr);
-    ExprParser(const char *expr, int lgth);
+    ExprParser(const char *expr, ExprParser *father=0);
+    ExprParser(const char *expr, int lgth, ExprParser *father=0);
     ~ExprParser();
     void parse() throw(INTERP_KERNEL::Exception);
     bool isParsingSuccessfull() const { return _is_parsing_ok; }
@@ -84,6 +90,13 @@ namespace INTERP_KERNEL
     void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
     void getSetOfVars(std::set<std::string>& vars) const;
     void getTrueSetOfVars(std::set<std::string>& vars) const;
+    //
+    char *compileX86() const;
+    char *compileX86_64() const;
+    void compileX86LowLev(std::vector<std::string>& ass) const;
+    void compileX86_64LowLev(std::vector<std::string>& ass) const;
+    int getStackSizeToPlayX86(const ExprParser *asker) const;
+    //
     static std::string buildStringFromFortran(const char *expr, int lgth);
     static std::string deleteWhiteSpaces(const std::string& expr);
   private:
@@ -102,6 +115,7 @@ namespace INTERP_KERNEL
     static std::size_t findCorrespondingOpenBracket(const std::string& expr, std::size_t posOfCloseBracket);
     static void locateError(std::ostream& stringToDisp, const std::string& srcOfErr, int posOfErr);
   private:
+    ExprParser *_father;
     bool _is_parsed;
     LeafExpr *_leaf;
     bool _is_parsing_ok;
@@ -109,6 +123,7 @@ namespace INTERP_KERNEL
     std::list<ExprParser> _sub_expr;
     std::list<Function *> _func_btw_sub_expr;
   private:
+    static const int MAX_X86_FP_ST=8;
     static const char WHITE_SPACES[];
     static const char EXPR_PARSE_ERR_MSG[];
   };

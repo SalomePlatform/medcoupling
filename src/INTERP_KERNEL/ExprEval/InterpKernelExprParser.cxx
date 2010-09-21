@@ -19,12 +19,19 @@
 
 #include "InterpKernelExprParser.hxx"
 #include "InterpKernelValue.hxx"
+#include "InterpKernelAsmX86.hxx"
 
 #include <cctype>
 #include <sstream>
 #include <vector>
 #include <iterator>
+#include <iostream>
 #include <algorithm>
+
+#ifdef _POSIX_MAPPED_FILES
+#include <sys/mman.h>
+#else
+#endif
 
 using namespace INTERP_KERNEL;
 
@@ -120,12 +127,12 @@ LeafExprVar::~LeafExprVar()
 {
 }
 
-ExprParser::ExprParser(const char *expr):_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
+ExprParser::ExprParser(const char *expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
 {
 }
 
 //! For \b NOT null terminated strings coming from FORTRAN.
-ExprParser::ExprParser(const char *expr, int lgth):_is_parsed(false),_leaf(0),_is_parsing_ok(false)
+ExprParser::ExprParser(const char *expr, int lgth, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false)
 {
   _expr=buildStringFromFortran(expr,lgth);
 }
@@ -404,7 +411,7 @@ void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
       if(pos5!=std::string::npos)
         len=pos5-pos6;
       std::string newExp3=newExp2.substr(pos6,len);
-      _sub_expr.push_back(ExprParser(newExp3.c_str()));
+      _sub_expr.push_back(ExprParser(newExp3.c_str(),this));
       pos6=pos5+1;
     }
   _is_parsing_ok=true;
@@ -456,7 +463,7 @@ void ExprParser::parseForAddMin() throw(INTERP_KERNEL::Exception)
                   if(*accessor!='*' && *accessor!='/' && *accessor!='^')
                     {
                       isParsingSucceed=true;
-                      _sub_expr.push_back(ExprParser(curPart.c_str()));
+                      _sub_expr.push_back(ExprParser(curPart.c_str(),this));
                       curPart.clear();
                       _func_btw_sub_expr.push_back(FunctionsFactory::buildBinaryFuncFromString(*iter));
                     }
@@ -483,7 +490,7 @@ void ExprParser::parseForAddMin() throw(INTERP_KERNEL::Exception)
     {
       if(!curPart.empty())
         {
-          _sub_expr.push_back(ExprParser(curPart.c_str()));
+          _sub_expr.push_back(ExprParser(curPart.c_str(),this));
           _is_parsing_ok=true;
         }
       else
@@ -515,7 +522,7 @@ void ExprParser::parseForMulDiv() throw(INTERP_KERNEL::Exception)
               isParsingSucceed=true;
               if(!curPart.empty())
                 {
-                  _sub_expr.push_back(ExprParser(curPart.c_str()));
+                  _sub_expr.push_back(ExprParser(curPart.c_str(),this));
                   curPart.clear();
                   _func_btw_sub_expr.push_back(FunctionsFactory::buildBinaryFuncFromString(*iter));
                 }
@@ -546,7 +553,7 @@ void ExprParser::parseForMulDiv() throw(INTERP_KERNEL::Exception)
     {
       if(!curPart.empty())
         {
-          _sub_expr.push_back(ExprParser(curPart.c_str()));
+          _sub_expr.push_back(ExprParser(curPart.c_str(),this));
           _is_parsing_ok=true;
         }
       else
@@ -576,7 +583,7 @@ void ExprParser::parseForPow() throw(INTERP_KERNEL::Exception)
             if(!curPart.empty())
               {
                 isParsingSucceed=true;
-                _sub_expr.push_back(ExprParser(curPart.c_str()));
+                _sub_expr.push_back(ExprParser(curPart.c_str(),this));
                 curPart.clear();
                 _func_btw_sub_expr.push_back(FunctionsFactory::buildBinaryFuncFromString(*iter));
               }
@@ -606,7 +613,7 @@ void ExprParser::parseForPow() throw(INTERP_KERNEL::Exception)
     {
       if(!curPart.empty())
         {
-          _sub_expr.push_back(ExprParser(curPart.c_str()));
+          _sub_expr.push_back(ExprParser(curPart.c_str(),this));
           _is_parsing_ok=true;
         }
       else
@@ -690,4 +697,160 @@ void ExprParser::checkBracketsParity() const throw(INTERP_KERNEL::Exception)
 void ExprParser::locateError(std::ostream& stringToDisp, const std::string& srcOfErr, int posOfErr)
 {
   stringToDisp << "Position is " << posOfErr << " of string : \"" <<  srcOfErr << "\"" << std::endl;
+}
+
+char *ExprParser::compileX86() const
+{
+  std::vector<std::string> ass;
+  //need in stack
+  ass.push_back("push ebp");
+  ass.push_back("mov ebp,esp");
+  compileX86LowLev(ass);
+  ass.push_back("pop ebp");
+  ass.push_back("ret");
+  std::cout << std::endl;
+  for(std::vector<std::string>::const_iterator iter=ass.begin();iter!=ass.end();iter++)
+    std::cout << "        " << *iter << std::endl;
+  AsmX86 asmb;
+  std::vector<char> output=asmb.convertIntoMachineLangage(ass);
+  for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
+    std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
+  std::cout << std::endl;
+  int lgth;
+  char *lm=asmb.convertMachineLangageInBasic(output,lgth);
+  char *ret=0;
+#ifdef _POSIX_MAPPED_FILES
+  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
+  std::copy(lm,lm+lgth,ret);
+#else
+#endif
+  delete [] lm;
+  return ret;
+}
+
+char *ExprParser::compileX86_64() const
+{
+  std::vector<std::string> ass;
+  //need in stack
+  ass.push_back("push rbp");
+  ass.push_back("mov rbp,rsp");
+  compileX86_64LowLev(ass);
+  ass.push_back("sub rsp,8");
+  ass.push_back("fst qword [rsp]");
+  ass.push_back("movsd xmm0,[rsp]");
+  ass.push_back("add rsp,8");
+  ass.push_back("leave");
+  ass.push_back("ret");
+  std::cout << std::endl;
+  for(std::vector<std::string>::const_iterator iter=ass.begin();iter!=ass.end();iter++)
+    std::cout << "        " << *iter << std::endl;
+  AsmX86 asmb;
+  std::vector<char> output=asmb.convertIntoMachineLangage(ass);
+  for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
+    std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
+  std::cout << std::endl;
+  int lgth;
+  char *lm=asmb.convertMachineLangageInBasic(output,lgth);
+  char *ret=0;
+#ifdef _POSIX_MAPPED_FILES
+  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
+  std::copy(lm,lm+lgth,ret);
+#else
+#endif
+  delete [] lm;
+  return ret;
+}
+
+void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
+{
+  if(_leaf)
+    _leaf->compileX86(ass);
+  else
+    {
+      for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+        (*iter).compileX86LowLev(ass);
+      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+        (*iter2)->operateX86(ass);
+    }
+}
+
+void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
+{
+  if(_leaf)
+    _leaf->compileX86_64(ass);
+  else
+    {
+      for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+        (*iter).compileX86_64LowLev(ass);
+      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+        (*iter2)->operateX86(ass);
+    }
+}
+
+void LeafExprVal::compileX86(std::vector<std::string>& ass) const
+{
+  ass.push_back("sub esp,8");
+  int *b=(int *)&_value,*c=(int *)&_value;
+  c++;
+  std::ostringstream oss;
+  oss << std::hex;
+  oss << "mov dword [esp+4],0x" << *c;
+  ass.push_back(oss.str());
+  oss.str("");
+  oss << "mov dword [esp],0x" << *b;
+  ass.push_back(oss.str());
+  ass.push_back("fld qword [esp]");
+  ass.push_back("add esp,8");
+}
+
+void LeafExprVal::compileX86_64(std::vector<std::string>& ass) const
+{
+  ass.push_back("sub rsp,8");
+  int *b=(int *)&_value,*c=(int *)&_value;
+  c++;
+  std::ostringstream oss;
+  oss << std::hex;
+  oss << "mov dword [rsp+4],0x" << *c;
+  ass.push_back(oss.str());
+  oss.str("");
+  oss << "mov dword [rsp],0x" << *b;
+  ass.push_back(oss.str());
+  ass.push_back("fld qword [rsp]");
+  ass.push_back("add rsp,8");
+}
+
+void LeafExprVar::compileX86(std::vector<std::string>& ass) const
+{
+  ass.push_back("fld qword [ebp+8]");
+}
+
+void LeafExprVar::compileX86_64(std::vector<std::string>& ass) const
+{
+  ass.push_back("sub rsp,8");
+  ass.push_back("movsd [rsp],xmm0");
+  ass.push_back("fld qword [rsp]");
+  ass.push_back("add rsp,8");
+}
+
+int ExprParser::getStackSizeToPlayX86(const ExprParser *asker) const
+{
+  if(asker)
+    {
+      int sz=_father->getStackSizeToPlayX86(this);
+      int i=0;
+      for(std::list<ExprParser>::const_reverse_iterator iter=_sub_expr.rbegin();iter!=_sub_expr.rend();iter++,i++)
+        {
+          const ExprParser& obj=(*iter);
+          const ExprParser *pt=&obj;
+          if(pt==asker)
+            return sz-i;
+        }
+      throw INTERP_KERNEL::Exception("error getStackSizeToPlayX86 an object ExprParser called as father, whereas it is not one !");
+    }
+  else
+    {
+      if(!_father)
+        return MAX_X86_FP_ST;
+      return _father->getStackSizeToPlayX86(this);
+    }
 }
