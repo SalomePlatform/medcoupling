@@ -788,6 +788,8 @@ namespace ParaMEDMEM
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
     double getMinValue() const throw(INTERP_KERNEL::Exception);

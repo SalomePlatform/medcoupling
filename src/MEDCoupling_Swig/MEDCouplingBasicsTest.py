@@ -2723,6 +2723,39 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         #
         pass
+
+    def testApplyLin1(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_3();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
+        f1.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr=[7.,107.,8.,108.,9.,109.,10.,110.,11.,111.,12.,112.,13.,113.,14.,114.,15.,115.,16.,116.]
+        array.setValues(arr,mesh1.getNumberOfCells(),2);
+        f1.setArray(array);
+        #
+        f1.applyLin(2.,3.,0);
+        expected1=[17.,107.,19.,108.,21.,109.,23.,110.,25.,111.,27.,112.,29.,113.,31.,114.,33.,115.,35.,116.]
+        for i in xrange(20):
+            self.assertAlmostEqual(expected1[i],f1.getIJ(0,i),9);
+            pass
+        #
+        arr2=[2.,102.,3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.]
+        array=DataArrayDouble.New();
+        array.setValues(arr2,mesh1.getNumberOfCells(),2);
+        f1.setEndArray(array);
+        #
+        f1.applyLin(4.,5.,1);
+        #
+        expected2=[17.,433.,19.,437.,21.,441.,23.,445.,25.,449.,27.,453.,29.,457.,31.,461.,33.,465.,35.,469.]
+        for i in xrange(20):
+            self.assertAlmostEqual(expected2[i],f1.getIJ(0,i),9);
+            pass
+        expected3=[2.,413.,3.,417.,4.,421.,5.,425.,6.,429.,7.,433.,8.,437.,9.,441.,10.,445.,11.,449.]
+        for i in xrange(20):
+            self.assertAlmostEqual(expected3[i],f1.getEndArray().getIJ(0,i),9);
+            pass
+        #
+        pass
     
     def setUp(self):
         pass

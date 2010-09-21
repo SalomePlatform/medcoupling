@@ -25,6 +25,8 @@
 #include <cmath>
 #include <iterator>
 
+typedef double (*MYFUNCPTR)(double);
+
 using namespace ParaMEDMEM;
 
 const double MEDCouplingTimeDiscretization::TIME_TOLERANCE_DFT=1.e-12;
@@ -277,34 +279,57 @@ bool MEDCouplingTimeDiscretization::isStrictlyBefore(const MEDCouplingTimeDiscre
 
 void MEDCouplingTimeDiscretization::applyLin(double a, double b, int compoId)
 {
-  double *ptr=_array->getPointer()+compoId;
-  int nbOfComp=_array->getNumberOfComponents();
-  int nbOfTuple=_array->getNumberOfTuples();
-  for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
-    *ptr=a*(*ptr)+b;
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  for(int j=0;j<(int)arrays.size();j++)
+    {
+      if(arrays[j])
+        {
+          double *ptr=arrays[j]->getPointer()+compoId;
+          int nbOfComp=arrays[j]->getNumberOfComponents();
+          int nbOfTuple=arrays[j]->getNumberOfTuples();
+          for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
+            *ptr=a*(*ptr)+b;
+          arrays[j]->declareAsNew();
+        }
+    }
 }
 
 void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate func)
 {
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  int nbOfTuples=_array->getNumberOfTuples();
-  int oldNbOfComp=_array->getNumberOfComponents();
-  newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=_array->getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(int i=0;i<nbOfTuples;i++)
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector<DataArrayDouble *> arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
     {
-      if(!func(ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp))
+      if(arrays[j])
         {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed !";
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          DataArrayDouble *newArr=DataArrayDouble::New();
+          int nbOfTuples=arrays[j]->getNumberOfTuples();
+          int oldNbOfComp=arrays[j]->getNumberOfComponents();
+          newArr->alloc(nbOfTuples,nbOfComp);
+          const double *ptr=arrays[j]->getConstPointer();
+          double *ptrToFill=newArr->getPointer();
+          for(int i=0;i<nbOfTuples;i++)
+            {
+              if(!func(ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp))
+                {
+                  std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+                  std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+                  oss << ") : Evaluation of function failed !";
+                  newArr->decrRef();
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+          arrays2[j]=newArr;
         }
+      else
+        arrays2[j]=0;
     }
-  _array->decrRef();
-  _array=newArr;
+  setArrays(arrays2,0);
+  for(int j=0;j<(int)arrays.size();j++)
+    if(arrays2[j])
+      arrays2[j]->decrRef();
 }
 
 void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
@@ -313,39 +338,54 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
   expr.parse();
   std::set<std::string> vars;
   expr.getTrueSetOfVars(vars);
-  int oldNbOfComp=_array->getNumberOfComponents();
-  if((int)vars.size()>oldNbOfComp)
-    {
-      std::ostringstream oss; oss << "The field has a " << oldNbOfComp << " components and there are ";
-      oss << vars.size() << " variables : ";
-      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  std::vector<std::string> varsV(vars.begin(),vars.end());
-  expr.prepareExprEvaluation(varsV);
   //
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  int nbOfTuples=_array->getNumberOfTuples();
-  newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=_array->getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(int i=0;i<nbOfTuples;i++)
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector<DataArrayDouble *> arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
     {
-      try
+      if(arrays[j])
         {
-          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
+          int oldNbOfComp=arrays[j]->getNumberOfComponents();
+          if((int)vars.size()>oldNbOfComp)
+            {
+              std::ostringstream oss; oss << "The field has a " << oldNbOfComp << " components and there are ";
+              oss << vars.size() << " variables : ";
+              std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          std::vector<std::string> varsV(vars.begin(),vars.end());
+          expr.prepareExprEvaluation(varsV);
+          //
+          DataArrayDouble *newArr=DataArrayDouble::New();
+          int nbOfTuples=arrays[j]->getNumberOfTuples();
+          newArr->alloc(nbOfTuples,nbOfComp);
+          const double *ptr=arrays[j]->getConstPointer();
+          double *ptrToFill=newArr->getPointer();
+          for(int i=0;i<nbOfTuples;i++)
+            {
+              try
+                {
+                  expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
+                }
+              catch(INTERP_KERNEL::Exception& e)
+                {
+                  std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+                  std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+                  oss << ") : Evaluation of function failed !" << e.what();
+                  newArr->decrRef();
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+          arrays2[j]=newArr;
         }
-      catch(INTERP_KERNEL::Exception& e)
-        {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed !" << e.what();
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+      else
+        arrays2[j]=0;
     }
-  _array->decrRef();
-  _array=newArr;
+  setArrays(arrays2,0);
+  for(int j=0;j<(int)arrays.size();j++)
+    if(arrays2[j])
+      arrays2[j]->decrRef();
 }
 
 void MEDCouplingTimeDiscretization::applyFunc(const char *func)
@@ -354,29 +394,89 @@ void MEDCouplingTimeDiscretization::applyFunc(const char *func)
   expr.parse();
   expr.prepareExprEvaluationVec();
   //
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  int nbOfTuples=_array->getNumberOfTuples();
-  int nbOfComp=_array->getNumberOfComponents();
-  newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=_array->getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(int i=0;i<nbOfTuples;i++)
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector<DataArrayDouble *> arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
     {
-      try
+      if(arrays[j])
         {
-          expr.evaluateExpr(nbOfComp,ptr+i*nbOfComp,ptrToFill+i*nbOfComp);
+          DataArrayDouble *newArr=DataArrayDouble::New();
+          int nbOfTuples=arrays[j]->getNumberOfTuples();
+          int nbOfComp=arrays[j]->getNumberOfComponents();
+          newArr->alloc(nbOfTuples,nbOfComp);
+          const double *ptr=arrays[j]->getConstPointer();
+          double *ptrToFill=newArr->getPointer();
+          for(int i=0;i<nbOfTuples;i++)
+            {
+              try
+                {
+                  expr.evaluateExpr(nbOfComp,ptr+i*nbOfComp,ptrToFill+i*nbOfComp);
+                }
+              catch(INTERP_KERNEL::Exception& e)
+                {
+                  std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+                  std::copy(ptr+nbOfComp*i,ptr+nbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+                  oss << ") : Evaluation of function failed ! " << e.what();
+                  newArr->decrRef();
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+          arrays2[j]=newArr;
         }
-      catch(INTERP_KERNEL::Exception& e)
+      else
+        arrays2[j]=0;
+    }
+  setArrays(arrays2,0);
+  for(int j=0;j<(int)arrays.size();j++)
+    if(arrays2[j])
+      arrays2[j]->decrRef();
+}
+
+void MEDCouplingTimeDiscretization::applyFuncFast32(const char *func)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  char *funcStr=expr.compileX86();
+  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  for(int j=0;j<(int)arrays.size();j++)
+    {
+      if(arrays[j])
         {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+nbOfComp*i,ptr+nbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed ! " << e.what();
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+          double *ptr=arrays[j]->getPointer();
+          int nbOfComp=arrays[j]->getNumberOfComponents();
+          int nbOfTuples=arrays[j]->getNumberOfTuples();
+          int nbOfElems=nbOfTuples*nbOfComp;
+          for(int i=0;i<nbOfElems;i++,ptr++)
+            *ptr=funcPtr(*ptr);
+          arrays[j]->declareAsNew();
         }
     }
-  _array->decrRef();
-  _array=newArr;
+}
+
+void MEDCouplingTimeDiscretization::applyFuncFast64(const char *func)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  char *funcStr=expr.compileX86_64();
+  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  for(int j=0;j<(int)arrays.size();j++)
+    {
+      if(arrays[j])
+        {
+          double *ptr=arrays[j]->getPointer();
+          int nbOfComp=arrays[j]->getNumberOfComponents();
+          int nbOfTuples=arrays[j]->getNumberOfTuples();
+          int nbOfElems=nbOfTuples*nbOfComp;
+          for(int i=0;i<nbOfElems;i++,ptr++)
+            *ptr=funcPtr(*ptr);
+          arrays[j]->declareAsNew();
+        }
+    }
 }
 
 MEDCouplingNoTimeLabel::MEDCouplingNoTimeLabel()

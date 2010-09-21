@@ -97,6 +97,8 @@ namespace ParaMEDMEM
     virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
     virtual void applyFunc(int nbOfComp, const char *func);
     virtual void applyFunc(const char *func);
+    virtual void applyFuncFast32(const char *func);
+    virtual void applyFuncFast64(const char *func);
     //
     virtual ~MEDCouplingTimeDiscretization();
   protected:

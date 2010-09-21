@@ -583,6 +583,21 @@ void MEDCouplingFieldDouble::applyFunc(const char *func)
   _time_discr->applyFunc(func);
 }
 
+/*!
+ * Applyies the function specified by the string repr 'func' on each tuples on all arrays contained in _time_discr.
+ * The field will contain exactly the same number of components after the call.
+ * Use is not warranted and can cause SIGSEGV !
+ */
+void MEDCouplingFieldDouble::applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->applyFuncFast32(func);
+}
+
+void MEDCouplingFieldDouble::applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->applyFuncFast64(func);
+}
+
 int MEDCouplingFieldDouble::getNumberOfComponents() const
 {
   return getArray()->getNumberOfComponents();

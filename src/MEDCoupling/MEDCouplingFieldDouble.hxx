@@ -82,6 +82,8 @@ namespace ParaMEDMEM
     void applyFunc(int nbOfComp, FunctionToEvaluate func);
     void applyFunc(int nbOfComp, const char *func);
     void applyFunc(const char *func);
+    void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const;
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     void updateTime();
