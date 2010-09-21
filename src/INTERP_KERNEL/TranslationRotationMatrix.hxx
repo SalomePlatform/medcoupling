@@ -20,11 +20,13 @@
 #ifndef __TRANSLATIONROTATIONMATRIX_HXX__
 #define __TRANSLATIONROTATIONMATRIX_HXX__
 
+#include "INTERPKERNELDefines.hxx"
+
 #include <cmath>
 
 namespace INTERP_KERNEL
 {
-  class TranslationRotationMatrix
+  class INTERPKERNEL_EXPORT TranslationRotationMatrix
   {
 
   public:
