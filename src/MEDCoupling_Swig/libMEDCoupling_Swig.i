@@ -778,8 +778,9 @@ namespace ParaMEDMEM
     DataArrayDouble *getArray() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception);
     void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
-    int getNumberOfComponents() const;
+    int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
     NatureOfField getNature() const { return _nature; }
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void updateTime();

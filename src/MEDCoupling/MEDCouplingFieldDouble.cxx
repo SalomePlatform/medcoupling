@@ -598,16 +598,42 @@ void MEDCouplingFieldDouble::applyFuncFast64(const char *func) throw(INTERP_KERN
   _time_discr->applyFuncFast64(func);
 }
 
-int MEDCouplingFieldDouble::getNumberOfComponents() const
+/*!
+ * This method makes the assumption that the default array has been set before.
+ * If not an exception will be sent.
+ * If default array set, the number of components will be sent.
+ */
+int MEDCouplingFieldDouble::getNumberOfComponents() const throw(INTERP_KERNEL::Exception)
 {
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfComponents : No array specified !");
   return getArray()->getNumberOfComponents();
 }
 
+/*!
+ * This method makes the assumption that _mesh has be set before the call of this method and description of gauss
+ * localizations in case of Gauss field. If not an exception will sent.
+ * \b Contrary to MEDCouplingFieldDouble::getNumberOfComponents and MEDCouplingFieldDouble::getNumberOfValues is
+ * \b not aware of the presence of the default array.
+ * \b WARNING \b no coherency check is done here. MEDCouplingFieldDouble::checkCoherency method should be called to check that !
+ */
 int MEDCouplingFieldDouble::getNumberOfTuples() const throw(INTERP_KERNEL::Exception)
 {
   if(!_mesh)
     throw INTERP_KERNEL::Exception("Impossible to retrieve number of tuples because no mesh specified !");
   return _type->getNumberOfTuples(_mesh);
+}
+
+/*!
+ * This method makes the assumption that the default array has been set before.
+ * If not an exception will be sent.
+ * If default array set, the number of values present in the default array will be sent.
+ */
+int MEDCouplingFieldDouble::getNumberOfValues() const throw(INTERP_KERNEL::Exception)
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getNumberOfValues : No array specified !");
+  return getArray()->getNbOfElems();
 }
 
 void MEDCouplingFieldDouble::updateTime()

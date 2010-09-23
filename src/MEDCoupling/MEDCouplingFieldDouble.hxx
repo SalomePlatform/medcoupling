@@ -84,8 +84,9 @@ namespace ParaMEDMEM
     void applyFunc(const char *func);
     void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
-    int getNumberOfComponents() const;
+    int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
     void updateTime();
     //
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
