@@ -47,7 +47,8 @@ dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                              \
 	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx                    \
 	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx                                    \
-	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx
+	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx    \
+	MEDCouplingNatureOfField.cxx
 
 libmedcoupling_la_LDFLAGS= 
 

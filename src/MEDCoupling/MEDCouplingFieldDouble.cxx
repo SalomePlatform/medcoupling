@@ -22,6 +22,7 @@
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MEDCouplingNatureOfField.hxx"
 
 #include <sstream>
 #include <limits>
@@ -81,6 +82,7 @@ std::string MEDCouplingFieldDouble::simpleRepr() const
   ret << "Description of field is : \"" << getDescription() << "\"\n";
   ret << "FieldDouble space discretization is : " << _type->getStringRepr() << "\n";
   ret << "FieldDouble time discretization is : " << _time_discr->getStringRepr() << "\n";
+  ret << "FieldDouble nature of field is : " << MEDCouplingNatureOfField::getRepr(_nature) << "\n";
   if(getArray())
     ret << "FieldDouble default array has " << getArray()->getNumberOfComponents() << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
   if(_mesh)

@@ -17,31 +17,28 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELD_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELD_HXX__
+#include "MEDCouplingNatureOfField.hxx"
 
-#include "InterpKernelException.hxx"
+#include <algorithm>
 
 namespace ParaMEDMEM
 {
-  typedef enum
-    {
-      NoNature               = 17,
-      ConservativeVolumic    = 26,
-      Integral               = 32,
-      IntegralGlobConstraint = 35,
-      RevIntegral            = 37
-    } NatureOfField;
+  const char *MEDCouplingNatureOfField::REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES]=
+    { "NoNature",
+      "ConservativeVolumic",
+      "Integral",
+      "IntegralGlobConstraint",
+      "RevIntegral"};
+  
+  const int MEDCouplingNatureOfField::POS_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES]={17,26,32,35,37};
 
-  class MEDCouplingNatureOfField
+  const char *MEDCouplingNatureOfField::getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception)
   {
-  public:
-    static const char *getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
-  private:
-    static const int NB_OF_POSSIBILITIES=5;
-    static const char *REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];
-    static const int POS_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];
-  };
+    const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
+    if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
+      throw INTERP_KERNEL::Exception("MEDCouplingNatureOfField::getRepr : Unrecognized nature of field !");
+    int pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
+    return REPR_OF_NATUREOFFIELD[pos2];
+  }
 }
-
-#endif
+ 
