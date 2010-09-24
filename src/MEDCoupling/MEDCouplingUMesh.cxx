@@ -738,31 +738,39 @@ DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType)
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(nbOfCells,1);
   int *retPtr=ret->getPointer();
-  std::fill(retPtr,retPtr+nbOfCells,-1);
-  int id=0;
-  std::vector<int>::const_iterator it1=commonCellsI.begin(),it2=it1+1;
-  std::vector<int> tmpSet;
+  std::fill(retPtr,retPtr+nbOfCells,0);
+  const int nbOfTupleSmCells=commonCellsI.size()-1;
+  int id=-1;
   std::vector<int> cellsToKeep;
-  if(it2!=commonCellsI.end())
-    tmpSet.insert(tmpSet.end(),commonCells.begin()+(*it1),commonCells.begin()+(*it2));
+  for(int i=0;i<nbOfTupleSmCells;i++)
+    {
+      for(std::vector<int>::const_iterator it=commonCells.begin()+commonCellsI[i];it!=commonCells.begin()+commonCellsI[i+1];it++)
+        retPtr[*it]=id;
+      id--;
+    }
+  id=0;
+  std::map<int,int> m;
   for(int i=0;i<nbOfCells;i++)
-    if(retPtr[i]==-1)
-      {
-        retPtr[i]=id;
-        cellsToKeep.push_back(i);
-        if(!tmpSet.empty())
-          if(tmpSet.front()==i)
+    {
+      int val=retPtr[i];
+      if(val==0)
+        {
+          retPtr[i]=id++;
+          cellsToKeep.push_back(i);
+        }
+      else
+        {
+          std::map<int,int>::const_iterator iter=m.find(val);
+          if(iter==m.end())
             {
-              for(std::vector<int>::const_iterator it3=tmpSet.begin();it3!=tmpSet.end();it3++)
-                retPtr[*it3]=id;
-              tmpSet.clear();
-              it1++;
-              it2++;
-              if(it2!=commonCellsI.end())
-                tmpSet.insert(tmpSet.end(),commonCells.begin()+(*it1),commonCells.begin()+(*it2));
+              m[val]=id;
+              retPtr[i]=id++;
+              cellsToKeep.push_back(i);
             }
-            id++;
-      }
+          else
+            retPtr[i]=(*iter).second;
+        }
+    }
   MEDCouplingUMesh *self=(MEDCouplingUMesh *)buildPartOfMySelf(&cellsToKeep[0],&cellsToKeep[0]+cellsToKeep.size(),true);
   setConnectivity(self->getNodalConnectivity(),self->getNodalConnectivityIndex(),true);
   self->decrRef();
