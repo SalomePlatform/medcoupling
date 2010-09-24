@@ -661,7 +661,7 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
   double bb[2*SPACEDIM];
   double eps=getCaracteristicDimension();
   eps*=1.e-12;
-  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,eps);
+  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,-eps);
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
   const double *coords=getCoords()->getConstPointer();
