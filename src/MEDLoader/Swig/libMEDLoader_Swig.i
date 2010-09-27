@@ -51,7 +51,7 @@ public:
   static void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
-  static std::vector<std::string> GetMeshFamilyNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
+  static std::vector<std::string> GetMeshFamiliesNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetCellFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   %extend
@@ -111,7 +111,11 @@ public:
          std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
          MEDLoader::WriteUMeshesPartition(fileName,meshName,v,writeFromScratch);
        }
-
+       static void WriteUMeshesPartitionDep(const char *fileName, const char *meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
+         MEDLoader::WriteUMeshesPartitionDep(fileName,meshName,v,writeFromScratch);
+       }
        static void WriteUMeshes(const char *fileName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
        {
          std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
@@ -129,6 +133,8 @@ public:
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadFieldDoubleGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   static void WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
+  static void WriteUMeshDep(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   static void WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
+  static void WriteFieldDep(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   static void WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
 };

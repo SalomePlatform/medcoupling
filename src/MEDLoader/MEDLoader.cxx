@@ -348,7 +348,7 @@ std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INT
   return ret;
 }
 
-std::vector<std::string> MEDLoader::GetMeshFamilyNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
@@ -873,15 +873,16 @@ void MEDLoaderNS::readUMeshDataInMedFile(med_idt fid, med_int meshId, DataArrayD
   med_maillage type_maillage;
   med_int Mdim;
   MEDmaaInfo(fid,meshId,nommaa,&Mdim,&type_maillage,maillage_description);
-  int spaceDim=(int)Mdim;
+  med_int edim=MEDdimEspaceLire(fid,nommaa);
+  int spaceDim=std::max((int)Mdim,(int)edim);
   int nCoords=MEDnEntMaa(fid,nommaa,MED_COOR,MED_NOEUD,(med_geometrie_element)0,(med_connectivite)0);
   coords=DataArrayDouble::New();
   coords->alloc(nCoords,spaceDim);
   double *coordsPtr=coords->getPointer();
   med_repere repere;
-  char *comp=MEDLoaderBase::buildEmptyString(Mdim*MED_TAILLE_PNOM);
-  char *unit=MEDLoaderBase::buildEmptyString(Mdim*MED_TAILLE_PNOM);
-  MEDcoordLire(fid,nommaa,Mdim,coordsPtr,MED_FULL_INTERLACE,MED_ALL,NULL,0,&repere,comp,unit);
+  char *comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
+  char *unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
+  MEDcoordLire(fid,nommaa,spaceDim,coordsPtr,MED_FULL_INTERLACE,MED_ALL,NULL,0,&repere,comp,unit);
   for(int i=0;i<spaceDim;i++)
     {
       std::string n,u;
@@ -2154,6 +2155,34 @@ void MEDLoader::WriteUMesh(const char *fileName, const ParaMEDMEM::MEDCouplingUM
     }
 }
 
+void MEDLoader::WriteUMeshDep(const char *fileName, const ParaMEDMEM::MEDCouplingUMesh *mesh, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+{
+  std::string meshName(mesh->getName());
+  if(meshName.empty())
+    throw INTERP_KERNEL::Exception("Trying to write a unstructured mesh with no name ! MED file format needs a not empty mesh name !");
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  bool isRenumbering;
+  if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector<const ParaMEDMEM::MEDCouplingUMesh *> meshV(1); meshV[0]=mesh;
+  std::vector<const ParaMEDMEM::DataArrayInt *> famV(1); famV[0]=0;
+  if(writeFromScratch)
+    {
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshV,famV,true,isRenumbering);
+      return ;
+    }
+  if(status==MEDLoaderBase::NOT_EXIST)
+    {
+      MEDLoaderNS::writeUMeshesDirectly(fileName,meshV,famV,true,isRenumbering);
+      return;
+    }
+  else
+    MEDLoaderNS::writeUMeshesDirectly(fileName,meshV,famV,false,isRenumbering);
+}
+
 void MEDLoader::WriteUMeshesPartition(const char *fileName, const char *meshNameC, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
 {
   std::string meshName(meshNameC);
@@ -2201,6 +2230,48 @@ void MEDLoader::WriteUMeshesPartition(const char *fileName, const char *meshName
           oss << meshName << "\" !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
+    }
+}
+
+void MEDLoader::WriteUMeshesPartitionDep(const char *fileName, const char *meshNameC, const std::vector<ParaMEDMEM::MEDCouplingUMesh *>& meshes, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+{
+  std::string meshName(meshNameC);
+  if(meshName.empty())
+    throw INTERP_KERNEL::Exception("Trying to write a unstructured mesh with no name ! MED file format needs a not empty mesh name : change 2nd parameter !");
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(meshes.empty())
+    throw INTERP_KERNEL::Exception("List of meshes must be not empty !");
+  DataArrayDouble *coords=meshes.front()->getCoords();
+  for(std::vector<ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=meshes.begin();iter!=meshes.end();iter++)
+    if(coords!=(*iter)->getCoords())
+      throw INTERP_KERNEL::Exception("Meshes does not not share the same coordinates : try method MEDCouplingPointSet::tryToShareSameCoords !");
+  std::set<std::string> tmp;
+  for(std::vector<ParaMEDMEM::MEDCouplingUMesh *>::const_iterator iter=meshes.begin();iter!=meshes.end();iter++)
+    {
+      if(tmp.find((*iter)->getName())==tmp.end())
+        tmp.insert((*iter)->getName());
+      else
+        throw INTERP_KERNEL::Exception("The names of meshes must be different each other !");
+    }
+  tmp.clear();
+  if(writeFromScratch)
+    {
+      MEDLoaderNS::writeUMeshesPartitionDirectly(fileName,meshNameC,meshes,true);
+      return ;
+    }
+  if(status==MEDLoaderBase::NOT_EXIST)
+    {
+      MEDLoaderNS::writeUMeshesPartitionDirectly(fileName,meshNameC,meshes,true);
+      return;
+    }
+  else
+    {
+      MEDLoaderNS::writeUMeshesPartitionDirectly(fileName,meshNameC,meshes,false);
     }
 }
 
@@ -2273,6 +2344,28 @@ void MEDLoader::WriteField(const char *fileName, const ParaMEDMEM::MEDCouplingFi
       else
         MEDLoaderNS::writeFieldTryingToFitExistingMesh(fileName,f);
     }
+}
+
+void MEDLoader::WriteFieldDep(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
+{
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
+  if(status!=MEDLoaderBase::EXIST_RW && status!=MEDLoaderBase::NOT_EXIST)
+    {
+      std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(writeFromScratch)
+    {
+      MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,true);
+     return ;
+    }
+  if(status==MEDLoaderBase::NOT_EXIST)
+    {
+     MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,true);
+     return ;
+    }
+  else
+    MEDLoaderNS::writeFieldAndMeshDirectly(fileName,f,false);
 }
 
 void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception)

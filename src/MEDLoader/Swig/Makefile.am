@@ -50,6 +50,6 @@ _libMEDLoader_Swig_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS
 
 CLEANFILES = libMEDLoader_Swig_wrap.cxx libMEDLoader_Swig.py
 
-dist_salomescript_DATA= libMEDLoader_Swig.py MEDLoaderDataForTest.py MEDLoaderTest.py
+dist_salomescript_DATA= libMEDLoader_Swig.py MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py
 
-UNIT_TEST_PROG = MEDLoaderTest.py
+UNIT_TEST_PROG = MEDLoaderTest.py MEDLoaderTest2.py
