@@ -55,7 +55,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+57,0),1e-12);
   mesh->decrRef();
   //
-  vector<string> families=MEDLoader::GetMeshFamilyNames(fileName.c_str(),meshNames[0].c_str());
+  vector<string> families=MEDLoader::GetMeshFamiliesNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(8,(int)families.size());
   CPPUNIT_ASSERT(families[2]=="FAMILLE_ELEMENT_3");
   //
@@ -367,7 +367,7 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(619,std::accumulate(mesh->getNodalConnectivity()->getPointer(),mesh->getNodalConnectivity()->getPointer()+83,0));
   mesh->decrRef();
   //
-  vector<string> families=MEDLoader::GetMeshFamilyNames(fileName.c_str(),meshNames[0].c_str());
+  vector<string> families=MEDLoader::GetMeshFamiliesNames(fileName.c_str(),meshNames[0].c_str());
   CPPUNIT_ASSERT_EQUAL(4,(int)families.size());
   CPPUNIT_ASSERT(families[0]=="FAMILLE_FACE_POLYGONS3");
   CPPUNIT_ASSERT(families[1]=="FAMILLE_FACE_QUAD41");
