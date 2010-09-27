@@ -540,6 +540,18 @@ void MEDCouplingExtrudedMesh::translate(const double *vector)
   _mesh1D->translate(vector);
 }
 
+MEDCouplingMesh *MEDCouplingExtrudedMesh::buildPart(const int *start, const int *end) const
+{
+  // not implemented yet !
+  return 0;
+}
+
+MEDCouplingMesh *MEDCouplingExtrudedMesh::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
+{
+  // not implemented yet !
+  return 0;
+}
+
 MEDCouplingMesh *MEDCouplingExtrudedMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
 {
   // not implemented yet !

@@ -68,6 +68,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::max;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::minFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::min;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::getIdsInRange;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator+;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator-;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator*;
@@ -78,6 +80,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::deepCopy;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
 %newobject ParaMEDMEM::DataArrayInt::substr;
+%newobject ParaMEDMEM::DataArrayInt::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayDouble::aggregate;
 %newobject ParaMEDMEM::DataArrayDouble::dot;
 %newobject ParaMEDMEM::DataArrayDouble::crossProduct;
@@ -86,12 +89,15 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::multiply;
 %newobject ParaMEDMEM::DataArrayDouble::divide;
 %newobject ParaMEDMEM::DataArrayDouble::substr;
+%newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
+%newobject ParaMEDMEM::DataArrayDouble::selectByTupleId;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::cloneWithMesh;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::getBarycenterAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildOrthogonalField;
+%newobject ParaMEDMEM::MEDCouplingMesh::buildPart;
 %newobject ParaMEDMEM::MEDCouplingMesh::mergeMyselfWith;
 %newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
@@ -187,6 +193,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
     virtual void translate(const double *vector) = 0;
+    virtual MEDCouplingMesh *buildPart(const int *start, const int *end) const = 0;
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception) = 0;
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
@@ -799,6 +806,8 @@ namespace ParaMEDMEM
     double integral(int compId, bool isWAbs) const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
     double normL2(int compId) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const;
@@ -970,6 +979,24 @@ namespace ParaMEDMEM
             throw e;
           }
         delete [] tmp;
+      }
+
+      MEDCouplingFieldDouble *buildSubPart(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        int size;
+        int *tmp=convertPyToNewIntArr2(li,&size);
+        MEDCouplingFieldDouble *ret=0;
+        try
+          {
+            ret=self->buildSubPart(tmp,tmp+size);
+          }
+        catch(INTERP_KERNEL::Exception& e)
+          {
+            delete [] tmp;
+            throw e;
+          }
+        delete [] tmp;
+        return ret;
       }
     }
   };

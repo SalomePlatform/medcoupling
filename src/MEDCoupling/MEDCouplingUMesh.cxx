@@ -490,19 +490,17 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
 }
 
 /*!
- * Array returned is the correspondance old to new.
+ * Array returned is the correspondance new to old.
  * The maximum value stored in returned array is the number of nodes of 'this' minus 1 after call of this method.
  * The size of returned array is the number of nodes of the old (previous to the call of this method) number of nodes.
  * -1 values in returned array means that the corresponding old node is no more used.
  */
 DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
 {
-  DataArrayInt *ret=DataArrayInt::New();
   int nbOfNodes=getNumberOfNodes();
   int spaceDim=getSpaceDimension();
   int *traducer=new int[nbOfNodes];
   std::fill(traducer,traducer+nbOfNodes,-1);
-  ret->useArray(traducer,true,CPP_DEALLOC,nbOfNodes,1);
   int nbOfCells=getNumberOfCells();
   const int *connIndex=_nodal_connec_index->getConstPointer();
   int *conn=_nodal_connec->getPointer();
@@ -516,17 +514,14 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
     for(int j=connIndex[i]+1;j<connIndex[i+1];j++)
       if(conn[j]>=0)
         conn[j]=traducer[conn[j]];
-  DataArrayDouble *newCoords=DataArrayDouble::New();
-  double *newCoordsPtr=new double[newNbOfNodes*spaceDim];
-  const double *oldCoordsPtr=_coords->getConstPointer();
-  newCoords->useArray(newCoordsPtr,true,CPP_DEALLOC,newNbOfNodes,spaceDim);
-  int *work=std::find_if(traducer,traducer+nbOfNodes,std::bind2nd(std::not_equal_to<int>(),-1));
-  for(;work!=traducer+nbOfNodes;work=std::find_if(work,traducer+nbOfNodes,std::bind2nd(std::not_equal_to<int>(),-1)))
-    {
-      newCoordsPtr=std::copy(oldCoordsPtr+spaceDim*(work-traducer),oldCoordsPtr+spaceDim*(work-traducer+1),newCoordsPtr);
-      work++;
-    }
-  newCoords->copyStringInfoFrom(*_coords);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(newNbOfNodes,1);
+  int *retPtr=ret->getPointer();
+  for(int i=0;i<nbOfNodes;i++)
+    if(traducer[i]!=-1)
+      retPtr[traducer[i]]=i;
+  delete [] traducer;
+  DataArrayDouble *newCoords=_coords->selectByTupleId(retPtr,retPtr+newNbOfNodes);
   setCoords(newCoords);
   newCoords->decrRef();
   return ret;

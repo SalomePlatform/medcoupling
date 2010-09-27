@@ -84,6 +84,8 @@ namespace ParaMEDMEM
     virtual void translate(const double *vector) = 0;
     virtual void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
+    virtual MEDCouplingMesh *buildPart(const int *start, const int *end) const = 0;
+    virtual MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const = 0;
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
     //serialisation-unserialization

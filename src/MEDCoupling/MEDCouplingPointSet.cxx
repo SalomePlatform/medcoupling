@@ -675,6 +675,33 @@ void MEDCouplingPointSet::rotate3DAlg(const double *center, const double *vect, 
 }
 
 /*!
+ * This method implements pure virtual method MEDCouplingMesh::buildPart.
+ * This method build a part of 'this' by simply keeping cells whose ids are in ['start','end').
+ * The coords are kept unchanged contrary to pure virtual method MEDCouplingMesh::buildPartAndReduceNodes.
+ * The returned mesh has to be managed by the caller.
+ */
+MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end) const
+{
+  return buildPartOfMySelf(start,end,false);
+}
+
+/*!
+ * This method implements pure virtual method MEDCouplingMesh::buildPartAndReduceNodes.
+ * This method build a part of 'this' by simply keeping cells whose ids are in ['start','end') \b and potentially reduces the nodes set
+ * behind returned mesh. This cause an overhead but it is more little in memory.
+ * This method returns an array too. This array allows to the caller to know the mapping between nodeids in 'this' and nodeids in 
+ * returned mesh. This is quite usefull for MEDCouplingFieldDouble on nodes for example...
+ * The returned mesh has to be managed by the caller.
+ */
+MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
+{
+  MEDCouplingPointSet *ret=buildPartOfMySelf(start,end,true);
+  arr=ret->zipCoordsTraducer();
+  return ret;
+}
+
+
+/*!
  * 'This' is expected to be of spaceDim==2. Idem for 'center' and 'vect'
  */
 void MEDCouplingPointSet::rotate2D(const double *center, double angle)

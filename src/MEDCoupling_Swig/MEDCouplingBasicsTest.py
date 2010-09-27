@@ -446,7 +446,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         subMesh=mesh.buildPartOfMySelf(tab1,True);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
         traducer=subMesh.zipCoordsTraducer();
-        expectedTraducer=[0,1,-1,2,3,4,-1,5,6]
+        expectedTraducer=[0,1,3,4,5,7,8]
         self.assertEqual(expectedTraducer,traducer.getValues());
         self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[0]);
         self.assertEqual(2,subMesh.getNumberOfCells());
@@ -2648,6 +2648,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         array.setValues(arr,mesh1.getNumberOfCells(),2);
         f1.setArray(array);
         #
+        self.assertEqual(10,f1.getNumberOfTuples());
+        self.assertEqual(2,f1.getNumberOfComponents());
+        self.assertEqual(20,f1.getNumberOfValues());
+        #
         renum=[0,2,1,3,4,5,6,8,7,9]
         mesh2.renumberCells(renum,False);
         #
@@ -2755,6 +2759,134 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected3[i],f1.getEndArray().getIJ(0,i),9);
             pass
         #
+        pass
+
+    def testGetIdsInRange1(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_3();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setTime(2.3,5,6);
+        f1.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr1=[2.,8.,6.,5.,11.,7.,9.,3.,10.,4.]
+        array.setValues(arr1,mesh1.getNumberOfCells(),1);
+        f1.setArray(array);
+        #
+        f1.checkCoherency();
+        da=f1.getIdsInRange(2.9,7.1);
+        self.failUnlessEqual(5,da.getNbOfElems());
+        expected1=[2,3,5,7,9]
+        self.failUnlessEqual(expected1,da.getValues());
+        da=f1.getIdsInRange(8.,12.);
+        self.failUnlessEqual(4,da.getNbOfElems());
+        expected2=[1,4,6,8]
+        self.failUnlessEqual(expected2,da.getValues());
+        #
+        pass
+
+    def testBuildSubPart1(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setTime(2.3,5,6);
+        f1.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr1=[3.,103.,4.,104.,5.,105.,6.,106.,7.,107.]
+        array.setValues(arr1,mesh1.getNumberOfCells(),2);
+        f1.setArray(array);
+        #
+        part1=[2,1,4]
+        f2=f1.buildSubPart(part1);
+        self.failUnlessEqual(3,f2.getNumberOfTuples());
+        self.failUnlessEqual(2,f2.getNumberOfComponents());
+        expected1=[5.,105.,4.,104.,7.,107.]
+        for i in xrange(6):
+            self.assertAlmostEqual(f2.getIJ(0,i),expected1[i],12);
+            pass
+        self.failUnlessEqual(3,f2.getMesh().getNumberOfCells());
+        self.failUnlessEqual(6,f2.getMesh().getNumberOfNodes());
+        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension());
+        self.failUnlessEqual(2,f2.getMesh().getMeshDimension());
+        m2C=f2.getMesh();
+        self.failUnlessEqual(13,m2C.getMeshLength());
+        expected2=[0.2, -0.3, 0.7, -0.3, 0.2, 0.2, 0.7, 0.2, 0.2, 0.7, 0.7, 0.7]
+        for i in xrange(12):
+            self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12);
+            pass
+        expected3=[3,2,3,1,3,0,2,1,4,4,5,3,2]
+        self.failUnlessEqual(expected3,m2C.getNodalConnectivity().getValues());
+        expected4=[0,4,8,13]
+        self.failUnlessEqual(expected4,m2C.getNodalConnectivityIndex().getValues());
+        # Test with field on nodes.
+        f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME);
+        f1.setTime(2.3,5,6);
+        f1.setMesh(mesh1);
+        array=DataArrayDouble.New();
+        arr2=[3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.]
+        array.setValues(arr2,mesh1.getNumberOfNodes(),2);
+        f1.setArray(array);
+        part2=[1,4,2,5]
+        f2=f1.buildSubPart(part2);
+        self.failUnlessEqual(4,f2.getNumberOfTuples());
+        self.failUnlessEqual(2,f2.getNumberOfComponents());
+        expected5=[4.,104.,5.,105.,7.,107.,8.,108.]
+        for i in xrange(8):
+            self.assertAlmostEqual(f2.getIJ(0,i),expected5[i],12);
+            pass
+        self.failUnlessEqual(2,f2.getMesh().getNumberOfCells());
+        self.failUnlessEqual(4,f2.getMesh().getNumberOfNodes());
+        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension());
+        self.failUnlessEqual(2,f2.getMesh().getMeshDimension());
+        m2C=f2.getMesh();
+        self.failUnlessEqual(8,m2C.getMeshLength());
+        for i in xrange(8):#8 is not an error
+            self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12);
+            pass
+        self.failUnlessEqual(expected3[:4],m2C.getNodalConnectivity().getValues()[4:]);
+        self.failUnlessEqual(expected3[4:8],m2C.getNodalConnectivity().getValues()[:4]);
+        self.failUnlessEqual(expected4[:3],m2C.getNodalConnectivityIndex().getValues());
+        #idem previous because nodes of cell#4 are not fully present in part3
+        part3=[1,4,2,5,7]
+        arrr=DataArrayInt.New();
+        arrr.setValues(part3,5,1);
+        f2=f1.buildSubPart(arrr);
+        self.failUnlessEqual(4,f2.getNumberOfTuples());
+        self.failUnlessEqual(2,f2.getNumberOfComponents());
+        for i in xrange(8):
+            self.assertAlmostEqual(f2.getIJ(0,i),expected5[i],12);
+            pass
+        self.failUnlessEqual(2,f2.getMesh().getNumberOfCells());
+        self.failUnlessEqual(4,f2.getMesh().getNumberOfNodes());
+        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension());
+        self.failUnlessEqual(2,f2.getMesh().getMeshDimension());
+        m2C=f2.getMesh();
+        self.failUnlessEqual(8,m2C.getMeshLength());
+        for i in xrange(8):#8 is not an error
+            self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12);
+            pass
+        self.failUnlessEqual(expected3[:4],m2C.getNodalConnectivity().getValues()[4:8]);
+        self.failUnlessEqual(expected3[4:8],m2C.getNodalConnectivity().getValues()[:4]);
+        self.failUnlessEqual(expected4[:3],m2C.getNodalConnectivityIndex().getValues());
+        #
+        part4=[1,4,2,5,7,8]
+        f2=f1.buildSubPart(part4);
+        self.failUnlessEqual(6,f2.getNumberOfTuples());
+        self.failUnlessEqual(2,f2.getNumberOfComponents());
+        expected6=[4.,104.,5.,105.,7.,107.,8.,108.,10.,110.,11.,111.]
+        for i in xrange(12):
+            self.assertAlmostEqual(f2.getIJ(0,i),expected6[i],12);
+            pass
+        self.failUnlessEqual(3,f2.getMesh().getNumberOfCells());
+        self.failUnlessEqual(6,f2.getMesh().getNumberOfNodes());
+        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension());
+        self.failUnlessEqual(2,f2.getMesh().getMeshDimension());
+        m2C=f2.getMesh();
+        self.failUnlessEqual(13,m2C.getMeshLength());
+        for i in xrange(12):
+            self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12);
+            pass
+        self.failUnlessEqual(expected3[0:4],m2C.getNodalConnectivity().getValues()[4:8]);
+        self.failUnlessEqual(expected3[4:8],m2C.getNodalConnectivity().getValues()[0:4]);
+        self.failUnlessEqual(expected3[8:13],m2C.getNodalConnectivity().getValues()[8:13]);
+        self.failUnlessEqual(expected4,m2C.getNodalConnectivityIndex().getValues());
         pass
     
     def setUp(self):

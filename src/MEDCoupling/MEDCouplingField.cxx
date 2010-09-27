@@ -251,5 +251,5 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._n
  */
 MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const
 {
-  return _type->buildSubMeshData(start,end,_mesh,di);
+  return _type->buildSubMeshData(_mesh,start,end,di);
 }

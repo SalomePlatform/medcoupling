@@ -403,6 +403,18 @@ void MEDCouplingCMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coor
   declareAsNew();
 }
 
+MEDCouplingMesh *MEDCouplingCMesh::buildPart(const int *start, const int *end) const
+{
+  //not implemented yet !
+  return 0;
+}
+
+MEDCouplingMesh *MEDCouplingCMesh::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
+{
+  //not implemented yet !
+  return 0;
+}
+
 void MEDCouplingCMesh::getBoundingBox(double *bbox) const
 {
   //not implemented yet !

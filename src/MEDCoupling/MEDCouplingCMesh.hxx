@@ -59,6 +59,8 @@ namespace ParaMEDMEM
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);
     // tools
+    MEDCouplingMesh *buildPart(const int *start, const int *end) const;
+    MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     void getBoundingBox(double *bbox) const;
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;

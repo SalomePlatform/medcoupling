@@ -72,6 +72,8 @@ namespace ParaMEDMEM
                                 MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v) throw(INTERP_KERNEL::Exception);
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
+    MEDCouplingMesh *buildPart(const int *start, const int *end) const;
+    MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;

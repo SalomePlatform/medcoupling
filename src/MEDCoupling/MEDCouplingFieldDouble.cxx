@@ -250,6 +250,69 @@ void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg) thro
     _type->renumberValuesOnNodes(old2NewBg,*iter);
 }
 
+/*!
+ * This method makes the assumption that the default array is set. If not an exception will be thrown.
+ * This method is usable only if the default array has exactly one component. If not an exception will be thrown too.
+ * This method returns all tuples ids that fit the range [vmin,vmax].
+ * The caller has the responsability of the returned DataArrayInt.
+ */
+DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception)
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getIdsInRange : no default array set !");
+  return getArray()->getIdsInRange(vmin,vmax);
+}
+
+/*!
+ * Builds a newly created field, that the caller will have the responsability.
+ * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
+ * This method returns a restriction of 'this' so that only tuples id specified in 'part' will be contained in returned field. 
+ */
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception)
+{
+  if(part==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : not empty array must be passed to this method !");
+  const int *start=part->getConstPointer();
+  const int *end=start+part->getNbOfElems();
+  return buildSubPart(start,end);
+}
+
+/*!
+ * Builds a newly created field, that the caller will have the responsability.
+ * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
+ * This method returns a restriction of 'this' so that only tuples id specified in ['partBg';'partEnd') will be contained in returned field. 
+ */
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *cellRest;
+  _type->computeMeshRestrictionFromTupleIds(_mesh,partBg,partEnd,cellRest);
+  DataArrayInt *arrSelect;
+  MEDCouplingMesh *m=_type->buildSubMeshData(_mesh,cellRest->getConstPointer(),cellRest->getConstPointer()+cellRest->getNbOfElems(),arrSelect);
+  if(cellRest)
+    cellRest->decrRef();
+  MEDCouplingFieldDouble *ret=clone(false);//quick shallow copy.
+  ret->setMesh(m);
+  m->decrRef();
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  std::vector<DataArrayDouble *> arrs;
+  const int *arrSelBg=arrSelect->getConstPointer();
+  const int *arrSelEnd=arrSelBg+arrSelect->getNbOfElems();
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+    {
+      DataArrayDouble *arr=0;
+      if(*iter)
+        arr=(*iter)->selectByTupleId(arrSelBg,arrSelEnd);
+      arrs.push_back(arr);
+    }
+  ret->_time_discr->setArrays(arrs,0);
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrs.begin();iter!=arrs.end();iter++)
+    if(*iter)
+      (*iter)->decrRef();
+  arrSelect->decrRef();
+  return ret;
+}
+
 TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
 {
   return _time_discr->getEnum();

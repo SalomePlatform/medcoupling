@@ -156,6 +156,10 @@ DataArrayInt *DataArrayDouble::convertToIntArr() const
   return ret;
 }
 
+/*!
+ * This method does \b not change the number of tuples after this call.
+ * Only a permutation is done. If a permutation reduction is needed substr, or selectByTupleId should be used.
+ */
 void DataArrayDouble::renumberInPlace(const int *old2New)
 {
   int nbTuples=getNumberOfTuples();
@@ -169,6 +173,10 @@ void DataArrayDouble::renumberInPlace(const int *old2New)
   declareAsNew();
 }
 
+/*!
+ * This method does \b not change the number of tuples after this call.
+ * Only a permutation is done. If a permutation reduction is needed substr, or selectByTupleId should be used.
+ */
 DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
 {
   int nbTuples=getNumberOfTuples();
@@ -208,6 +216,23 @@ DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const th
   ret->alloc(trueEnd-tupleIdBg,nbComp);
   ret->copyStringInfoFrom(*this);
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
+  return ret;
+}
+
+/*!
+ * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.
+ */
+DataArrayDouble *DataArrayDouble::selectByTupleId(const int *start, const int *end) const
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbComp=getNumberOfComponents();
+  ret->alloc(std::distance(start,end),nbComp);
+  ret->copyStringInfoFrom(*this);
+  double *pt=ret->getPointer();
+  const double *srcPt=getConstPointer();
+  int i=0;
+  for(const int *w=start;w!=end;w++,i++)
+    std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
   return ret;
 }
 
@@ -298,6 +323,22 @@ double DataArrayDouble::accumulate(int compId) const
   double ret=0.;
   for(int i=0;i<nbTuple;i++)
     ret+=ptr[i*nbComps+compId];
+  return ret;
+}
+
+DataArrayInt *DataArrayDouble::getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getIdsInRange : the default array must have only one component !");
+  const double *cptr=getConstPointer();
+  std::vector<int> res;
+  int nbOfTuples=getNumberOfTuples();
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    if(*cptr>=vmin && *cptr<=vmax)
+      res.push_back(i);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(res.size(),1);
+  std::copy(res.begin(),res.end(),ret->getPointer());
   return ret;
 }
 
@@ -643,6 +684,22 @@ void DataArrayInt::transformWithIndArr(const int *indArr)
     pt[i]=indArr[pt[i]];
 }
 
+/*!
+ * This method invert array 'di' that is a conversion map from Old to New node numbering to New to Old node numbering.
+ */
+DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(newNbOfElem,1);
+  int nbOfOldNodes=getNumberOfTuples();
+  const int *old2New=getConstPointer();
+  int *pt=ret->getPointer();
+  for(int i=0;i!=nbOfOldNodes;i++)
+    if(old2New[i]!=-1)
+      pt[old2New[i]]=i;
+  return ret;
+}
+
 bool DataArrayInt::isEqual(const DataArrayInt& other) const
 {
   if(!areInfoEquals(other))
@@ -739,6 +796,23 @@ DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const throw(IN
   ret->alloc(trueEnd-tupleIdBg,nbComp);
   ret->copyStringInfoFrom(*this);
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
+  return ret;
+}
+
+/*!
+ * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.
+ */
+DataArrayInt *DataArrayInt::selectByTupleId(const int *start, const int *end) const
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  int nbComp=getNumberOfComponents();
+  ret->alloc(std::distance(start,end),nbComp);
+  ret->copyStringInfoFrom(*this);
+  int *pt=ret->getPointer();
+  const int *srcPt=getConstPointer();
+  int i=0;
+  for(const int *w=start;w!=end;w++,i++)
+    std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
   return ret;
 }
 

@@ -18,7 +18,6 @@
 //
 
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "CellModel.hxx"
@@ -28,7 +27,7 @@
 #include <set>
 #include <limits>
 #include <algorithm>
-#include  <functional>
+#include <functional>
 
 using namespace ParaMEDMEM;
 
@@ -300,6 +299,14 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP0::getLocalizationOfDiscValues(c
   return mesh->getBarycenterAndOwner();
 }
 
+void MEDCouplingFieldDiscretizationP0::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
+                                                                          DataArrayInt *&cellRest)
+{
+  cellRest=DataArrayInt::New();
+  cellRest->alloc(std::distance(partBg,partEnd),1);
+  std::copy(partBg,partEnd,cellRest->getPointer());
+}
+
 void MEDCouplingFieldDiscretizationP0::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
 {
 }
@@ -349,9 +356,9 @@ void MEDCouplingFieldDiscretizationP0::renumberValuesOnNodes(const int *, DataAr
  * @ param di is an array returned that specifies entity ids (here cells ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first cell id of returned mesh has the (*di)[0] id in 'mesh'
  */
-MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const
+MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
-  MEDCouplingPointSet* ret=((const MEDCouplingPointSet *) mesh)->buildPartOfMySelf(start,end,false);
+  MEDCouplingMesh *ret=mesh->buildPart(start,end);
   di=DataArrayInt::New();
   di->alloc(std::distance(start,end),1);
   int *pt=di->getPointer();
@@ -396,6 +403,29 @@ int MEDCouplingFieldDiscretizationP1::getNumberOfTuples(const MEDCouplingMesh *m
 DataArrayDouble *MEDCouplingFieldDiscretizationP1::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
 {
   return mesh->getCoordinatesAndOwner();
+}
+
+void MEDCouplingFieldDiscretizationP1::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
+                                                                          DataArrayInt *&cellRest)
+{
+  std::vector<int> crest;
+  std::vector<int> conn;
+  std::set<int> p(partBg,partEnd);
+  int nbOfCells=mesh->getNumberOfCells();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      std::vector<int> conn;
+      mesh->getNodeIdsOfCell(i,conn);
+      bool cont=true;
+      for(std::vector<int>::const_iterator iter=conn.begin();iter!=conn.end() && cont;iter++)
+        if(p.find(*iter)==p.end())
+          cont=false;
+      if(cont)
+        crest.push_back(i);
+    }
+  cellRest=DataArrayInt::New();
+  cellRest->alloc(crest.size(),1);
+  std::copy(crest.begin(),crest.end(),cellRest->getPointer());
 }
 
 void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
@@ -494,32 +524,13 @@ void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const int *old2NewP
 }
 
 /*!
- * This method invert array 'di' that is a conversion map from Old to New node numbering to New to Old node numbering.
- */
-DataArrayInt *MEDCouplingFieldDiscretizationP1::invertArrayO2N2N2O(const MEDCouplingMesh *mesh, const DataArrayInt *di)
-{
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(mesh->getNumberOfNodes(),1);
-  int nbOfOldNodes=di->getNumberOfTuples();
-  const int *old2New=di->getConstPointer();
-  int *pt=ret->getPointer();
-  for(int i=0;i!=nbOfOldNodes;i++)
-    if(old2New[i]!=-1)
-      pt[old2New[i]]=i;
-  return ret;
-}
-
-/*!
  * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
 * @ param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first node id of returned mesh has the (*di)[0] id in 'mesh'
  */
-MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const
+MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
-  MEDCouplingPointSet* ret=((const MEDCouplingPointSet *) mesh)->buildPartOfMySelf(start,end,true);
-  DataArrayInt *diInv=ret->zipCoordsTraducer();
-  di=invertArrayO2N2N2O(ret,diInv);
-  diInv->decrRef();
+  MEDCouplingMesh *ret=mesh->buildPartAndReduceNodes(start,end,di);
   return ret;
 }
 
@@ -682,6 +693,12 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValue
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+void MEDCouplingFieldDiscretizationGauss::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
+                                                                             DataArrayInt *&cellRest)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 /*!
  * Empty : not a bug
  */
@@ -808,7 +825,7 @@ void MEDCouplingFieldDiscretizationGauss::getValueOnPos(const DataArrayDouble *a
   throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
 }
 
-MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const
+MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
@@ -1054,6 +1071,12 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getLocalizationOfDiscVal
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+void MEDCouplingFieldDiscretizationGaussNE::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
+                                                                               DataArrayInt *&cellRest)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 void MEDCouplingFieldDiscretizationGaussNE::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
 {
 }
@@ -1096,7 +1119,7 @@ void MEDCouplingFieldDiscretizationGaussNE::getValueOnPos(const DataArrayDouble 
   throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
 }
 
-MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const int *start, const int *end, const MEDCouplingMesh *mesh, DataArrayInt *&di) const
+MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
