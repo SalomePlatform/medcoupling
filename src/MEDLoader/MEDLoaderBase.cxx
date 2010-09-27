@@ -119,7 +119,7 @@ void MEDLoaderBase::strip(std::string& s)
  */
 void MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception)
 {
-  if(strlen(src)>maxLgth)
+  if((int)strlen(src)>maxLgth)
     {
       if(behaviour==0 || behaviour>1)
         {
@@ -160,15 +160,15 @@ std::string MEDLoaderBase::zipString(const char *src, int sizeToRespect)
 {
   std::string s(src);
   strip(s);
-  if(s.length()<=sizeToRespect)
+  if((int)s.length()<=sizeToRespect)
     return s;
   s=src;
   zipEqualConsChar(s,3);
-  if(s.length()<=sizeToRespect)
+  if((int)s.length()<=sizeToRespect)
     return s;
   s=src;
   zipEqualConsChar(s,2);
-  if(s.length()<=sizeToRespect)
+  if((int)s.length()<=sizeToRespect)
     return s;
   s=src;
   return s.substr(0,sizeToRespect);
