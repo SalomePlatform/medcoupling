@@ -19,9 +19,13 @@
 
 #include "MEDCouplingMemArray.txx"
 
+#include "InterpKernelExprParser.hxx"
+
 #include <set>
 #include <numeric>
 #include <functional>
+
+typedef double (*MYFUNCPTR)(double);
 
 using namespace ParaMEDMEM;
 
@@ -324,6 +328,140 @@ double DataArrayDouble::accumulate(int compId) const
   for(int i=0;i<nbTuple;i++)
     ret+=ptr[i*nbComps+compId];
   return ret;
+}
+
+void DataArrayDouble::applyLin(double a, double b, int compoId)
+{
+  double *ptr=getPointer()+compoId;
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuple=getNumberOfTuples();
+  for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
+    *ptr=a*(*ptr)+b;
+  declareAsNew();
+}
+
+DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception)
+{
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=getNumberOfTuples();
+  int oldNbOfComp=getNumberOfComponents();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      if(!func(ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp))
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed !";
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return newArr;
+}
+
+DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  std::set<std::string> vars;
+  expr.getTrueSetOfVars(vars);
+  int oldNbOfComp=getNumberOfComponents();
+  if((int)vars.size()>oldNbOfComp)
+    {
+      std::ostringstream oss; oss << "The field has a " << oldNbOfComp << " components and there are ";
+      oss << vars.size() << " variables : ";
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector<std::string> varsV(vars.begin(),vars.end());
+  expr.prepareExprEvaluation(varsV);
+  //
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=getNumberOfTuples();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      try
+        {
+          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed !" << e.what();
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return newArr;
+}
+
+DataArrayDouble *DataArrayDouble::applyFunc(const char *func) const throw(INTERP_KERNEL::Exception)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  expr.prepareExprEvaluationVec();
+  //
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      try
+        {
+          expr.evaluateExpr(nbOfComp,ptr+i*nbOfComp,ptrToFill+i*nbOfComp);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+nbOfComp*i,ptr+nbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed ! " << e.what();
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return newArr;
+}
+
+void DataArrayDouble::applyFuncFast32(const char *func)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  char *funcStr=expr.compileX86();
+  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  //
+  double *ptr=getPointer();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfElems=nbOfTuples*nbOfComp;
+  for(int i=0;i<nbOfElems;i++,ptr++)
+    *ptr=funcPtr(*ptr);
+  declareAsNew();
+}
+
+void DataArrayDouble::applyFuncFast64(const char *func)
+{
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  char *funcStr=expr.compileX86_64();
+  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  //
+  double *ptr=getPointer();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfElems=nbOfTuples*nbOfComp;
+  for(int i=0;i<nbOfElems;i++,ptr++)
+    *ptr=funcPtr(*ptr);
+  declareAsNew();
 }
 
 DataArrayInt *DataArrayDouble::getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception)

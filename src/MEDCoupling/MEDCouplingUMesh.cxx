@@ -498,7 +498,6 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
 DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
 {
   int nbOfNodes=getNumberOfNodes();
-  int spaceDim=getSpaceDimension();
   int *traducer=new int[nbOfNodes];
   std::fill(traducer,traducer+nbOfNodes,-1);
   int nbOfCells=getNumberOfCells();

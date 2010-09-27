@@ -143,6 +143,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getAverageValue() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void accumulate(double *res) const;
     MEDCOUPLING_EXPORT double accumulate(int compId) const;
+    MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const char *func) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyFuncFast32(const char *func);
+    MEDCOUPLING_EXPORT void applyFuncFast64(const char *func);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayDouble *dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
