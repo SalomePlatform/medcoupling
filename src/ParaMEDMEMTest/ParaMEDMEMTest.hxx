@@ -71,6 +71,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testGauthier1);
   CPPUNIT_TEST(testGauthier2);
   CPPUNIT_TEST(testFabienAPI1);
+  CPPUNIT_TEST(testFabienAPI2);
   CPPUNIT_TEST(testMEDLoaderRead1);
   CPPUNIT_TEST(testMEDLoaderPolygonRead);
   CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
@@ -124,6 +125,7 @@ public:
   void testGauthier1();
   void testGauthier2();
   void testFabienAPI1();
+  void testFabienAPI2();
   //
   void testMEDLoaderRead1();
   void testMEDLoaderPolygonRead();
