@@ -90,14 +90,14 @@ void MEDLoaderTest::testFieldRW1()
 {
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
   MEDLoader::WriteField("file6.med",f1,true);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell("file6.med",f1->getMesh()->getName(),0,f1->getName(),0,1);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell("file6.med",f1->getMesh()->getName(),0,f1->getName(),0,1);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f1->decrRef();
   f2->decrRef();
   //
   f1=buildVecFieldOnNodes_1();
   MEDLoader::WriteField("file7.med",f1,true);
-  f2=MEDLoader::ReadFieldDoubleNode("file7.med",f1->getMesh()->getName(),0,f1->getName(),2,3);
+  f2=MEDLoader::ReadFieldNode("file7.med",f1->getMesh()->getName(),0,f1->getName(),2,3);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f1->decrRef();
   f2->decrRef();
@@ -121,20 +121,22 @@ void MEDLoaderTest::testFieldRW2()
   tmp[0]=VAL2;
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   //retrieving time steps...
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell(fileName,f1->getMesh()->getName(),0,f1->getName(),8,9);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName(),0,f1->getName(),8,9);
   f1->setTime(10.,8,9);
   tmp[0]=VAL1;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
-  f2=MEDLoader::ReadFieldDoubleCell(fileName,f1->getMesh()->getName(),0,f1->getName(),0,1);
+  f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName(),0,f1->getName(),0,1);
   MEDCouplingFieldDouble *f3=buildVecFieldOnCells_1();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   f2->decrRef();
-  f2=MEDLoader::ReadFieldDoubleCell(fileName,f1->getMesh()->getName(),0,f1->getName(),18,19);
+  f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName(),0,f1->getName(),18,19);
   f1->setTime(10.14,18,19);
   tmp[0]=VAL2;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  //test of throw on invalid (dt,it)
+  CPPUNIT_ASSERT_THROW(MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName(),0,f1->getName(),28,19),INTERP_KERNEL::Exception);
   f2->decrRef();
   f1->decrRef();
   //ON NODES
@@ -148,17 +150,17 @@ void MEDLoaderTest::testFieldRW2()
   f1->setTime(210.,208,209);
   tmp[3]=VAL2;
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName2,f1);
-  f2=MEDLoader::ReadFieldDoubleNode(fileName2,f1->getMesh()->getName(),0,f1->getName(),108,109);
+  f2=MEDLoader::ReadFieldNode(fileName2,f1->getMesh()->getName(),0,f1->getName(),108,109);
   f1->setTime(110.,108,109);
   tmp[3]=VAL1;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
-  f2=MEDLoader::ReadFieldDoubleNode(fileName2,f1->getMesh()->getName(),0,f1->getName(),2,3);
+  f2=MEDLoader::ReadFieldNode(fileName2,f1->getMesh()->getName(),0,f1->getName(),2,3);
   f3=buildVecFieldOnNodes_1();
   CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
   f3->decrRef();
   f2->decrRef();
-  f2=MEDLoader::ReadFieldDoubleNode(fileName2,f1->getMesh()->getName(),0,f1->getName(),208,209);
+  f2=MEDLoader::ReadFieldNode(fileName2,f1->getMesh()->getName(),0,f1->getName(),208,209);
   f1->setTime(210.,208,209);
   tmp[3]=VAL2;
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
@@ -231,29 +233,29 @@ void MEDLoaderTest::testFieldRW3()
   //
   f1->decrRef();
   //
-  f1=MEDLoader::ReadFieldDoubleCell(fileName,name3,0,name1,8,9);
+  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,8,9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL1,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldDoubleCell(fileName,name3,0,name1,18,19);
+  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,18,19);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldDoubleCell(fileName,name2,0,name1,28,29);
+  f1=MEDLoader::ReadFieldCell(fileName,name2,0,name1,28,29);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL1,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldDoubleCell(fileName,name2,0,name1,38,39);
+  f1=MEDLoader::ReadFieldCell(fileName,name2,0,name1,38,39);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldDoubleCell(fileName,name2,0,name1,48,49);
+  f1=MEDLoader::ReadFieldCell(fileName,name2,0,name1,48,49);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(4*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
   //
-  f1=MEDLoader::ReadFieldDoubleNode(fileName,name2,0,name1,8,9);
+  f1=MEDLoader::ReadFieldNode(fileName,name2,0,name1,8,9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(71.,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldDoubleNode(fileName,name2,0,name1,108,109);
+  f1=MEDLoader::ReadFieldNode(fileName,name2,0,name1,108,109);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL1,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldDoubleNode(fileName,name2,0,name1,208,209);
+  f1=MEDLoader::ReadFieldNode(fileName,name2,0,name1,208,209);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
 }
@@ -360,7 +362,7 @@ void MEDLoaderTest::testFieldProfilRW1()
   //
   MEDLoader::WriteField(fileName,f1,false);//<- false important for the test
   //
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell(fileName,f1->getMesh()->getName(),0,f1->getName(),2,7);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName(),0,f1->getName(),2,7);
   f2->checkCoherency();
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   //
@@ -375,7 +377,7 @@ void MEDLoaderTest::testFieldGaussRW1()
   const char fileName[]="file13.med";
   MEDCouplingFieldDouble *f1=buildVecFieldOnGauss_1();
   MEDLoader::WriteField(fileName,f1,true);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDouble(ON_GAUSS_PT,fileName,f1->getMesh()->getName(),0,f1->getName(),1,5);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadField(ON_GAUSS_PT,fileName,f1->getMesh()->getName(),0,f1->getName(),1,5);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
   f1->decrRef();
@@ -386,7 +388,7 @@ void MEDLoaderTest::testFieldGaussNERW1()
   const char fileName[]="file14.med";
   MEDCouplingFieldDouble *f1=buildVecFieldOnGaussNE_1();
   MEDLoader::WriteField(fileName,f1,true);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDouble(ON_GAUSS_NE,fileName,f1->getMesh()->getName(),0,f1->getName(),1,5);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadField(ON_GAUSS_NE,fileName,f1->getMesh()->getName(),0,f1->getName(),1,5);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   f2->decrRef();
   f1->decrRef();
@@ -433,7 +435,7 @@ void MEDLoaderTest::testFieldShuffleRW1()
   const int renumber1[6]={2,1,5,0,3,4};
   f1->renumberCells(renumber1,false);
   MEDLoader::WriteField(fileName,f1,true);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell(fileName,mesh->getName(),0,f1->getName(),2,7);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,mesh->getName(),0,f1->getName(),2,7);
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   f2->decrRef();
   //
@@ -475,7 +477,7 @@ void MEDLoaderTest::testMultiFieldShuffleRW1()
   its.push_back(std::pair<int,int>(1,2));
   its.push_back(std::pair<int,int>(3,4));
   its.push_back(std::pair<int,int>(5,6));
-  std::vector<MEDCouplingFieldDouble *> fs=MEDLoader::ReadFieldsDoubleOnSameMesh(ON_CELLS,fileName,f_1->getMesh()->getName(),0,f_1->getName(),its);
+  std::vector<MEDCouplingFieldDouble *> fs=MEDLoader::ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1->getMesh()->getName(),0,f_1->getName(),its);
   CPPUNIT_ASSERT_EQUAL(3,(int)fs.size());
   const MEDCouplingMesh *mm=fs[0]->getMesh();
   CPPUNIT_ASSERT(fs[0]->isEqual(f_1,1e-12,1e-12));
@@ -531,7 +533,7 @@ void MEDLoaderTest::testWriteUMeshesRW1()
   f1->setTime(3.14,2,7);
   f1->checkCoherency();
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldDoubleCell(fileName,f1->getMesh()->getName(),-1,f1->getName(),2,7);
+  MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName(),-1,f1->getName(),2,7);
   CPPUNIT_ASSERT(f2->isEqual(f1,1e-12,1e-12));
   f1->decrRef();
   f2->decrRef();

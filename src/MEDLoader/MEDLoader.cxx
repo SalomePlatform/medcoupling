@@ -683,6 +683,18 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                       if(found2)
                         time=dt;
                     }
+                  if(!found2)
+                    {
+                      std::ostringstream oss; oss << "FieldDouble in file \""<< fileName<< "\" with name \"" << fieldName << "\" on mesh \"" <<  meshName;
+                      oss << "\" does not have such time step : iteration=" << iteration << " order=" << order << std::endl;
+                      delete [] valr;
+                      delete [] comp;
+                      delete [] unit;
+                      delete [] dt_unit;
+                      delete [] maa_ass;
+                      MEDfermer(fid);
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
                   MEDchampLire(fid,(char *)meshName,(char *)fieldName,(unsigned char*)valr,MED_FULL_INTERLACE,MED_ALL,locname,
                                pflname,MED_COMPACT,tabEnt[typeOfOutField],tabType[typeOfOutField][j],iteration,order);
                   std::string tmp(locname);
@@ -1543,26 +1555,26 @@ ParaMEDMEM::MEDCouplingUMesh *MEDLoader::ReadUMeshFromGroups(const char *fileNam
   return ret;
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDouble(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
   switch(type)
     {
     case ON_CELLS:
-      return ReadFieldDoubleCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return ReadFieldCell(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     case ON_NODES:
-      return ReadFieldDoubleNode(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return ReadFieldNode(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     case ON_GAUSS_PT:
-      return ReadFieldDoubleGauss(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return ReadFieldGauss(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     case ON_GAUSS_NE:
-      return ReadFieldDoubleGaussNE(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
+      return ReadFieldGaussNE(fileName,meshName,meshDimRelToMax,fieldName,iteration,order);
     default:
       throw INTERP_KERNEL::Exception("Type of field specified not managed ! manages are ON_NODES, ON_CELLS, ON_GAUSS_PT or ON_GAUSS_NE !");
     } 
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleOnSameMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
-                                                                                        const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
+                                                                                  const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
   std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ret(its.size());
@@ -1606,46 +1618,46 @@ std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleOnS
   return ret;
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleCellOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
+std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsCellOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
                                                                                             const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
 {
-  return ReadFieldsDoubleOnSameMesh(ON_CELLS,fileName,meshName,meshDimRelToMax,fieldName,its);
+  return ReadFieldsOnSameMesh(ON_CELLS,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleNodeOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
-                                                                                            const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsNodeOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
+                                                                                      const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
 {
-  return ReadFieldsDoubleOnSameMesh(ON_NODES,fileName,meshName,meshDimRelToMax,fieldName,its);
+  return ReadFieldsOnSameMesh(ON_NODES,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleGaussOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
-                                                                                             const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
+                                                                                       const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
 {
-  return ReadFieldsDoubleOnSameMesh(ON_GAUSS_PT,fileName,meshName,meshDimRelToMax,fieldName,its);
+  return ReadFieldsOnSameMesh(ON_GAUSS_PT,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsDoubleGaussNEOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
-                                                                                               const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
+std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsGaussNEOnSameMesh(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
+                                                                                         const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
 {
-  return ReadFieldsDoubleOnSameMesh(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,its);
+  return ReadFieldsOnSameMesh(ON_GAUSS_NE,fileName,meshName,meshDimRelToMax,fieldName,its);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldCell(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
   return MEDLoaderNS::readFieldDoubleLev1(fileName,meshName,meshDimRelToMax,fieldName,iteration,order,ON_CELLS);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldNode(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
   return MEDLoaderNS::readFieldDoubleLev1(fileName,meshName,meshDimRelToMax,fieldName,iteration,order,ON_NODES);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGauss(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
   return MEDLoaderNS::readFieldDoubleLev1(fileName,meshName,meshDimRelToMax,fieldName,iteration,order,ON_GAUSS_PT);
 }
 
-ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldDoubleGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadFieldGaussNE(const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
   return MEDLoaderNS::readFieldDoubleLev1(fileName,meshName,meshDimRelToMax,fieldName,iteration,order,ON_GAUSS_NE);
 }

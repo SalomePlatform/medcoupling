@@ -67,12 +67,12 @@ class MEDLoaderTest(unittest.TestCase):
     def testFieldRW1(self):
         f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
         MEDLoader.WriteFieldDep("Pyfile6.med",f1,False);
-        f2=MEDLoader.ReadFieldDoubleCell("Pyfile6.med",f1.getMesh().getName(),0,f1.getName(),0,1);
+        f2=MEDLoader.ReadFieldCell("Pyfile6.med",f1.getMesh().getName(),0,f1.getName(),0,1);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
         #
         f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
         MEDLoader.WriteFieldDep("Pyfile7.med",f1,False);
-        f2=MEDLoader.ReadFieldDoubleNode("Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3);
+        f2=MEDLoader.ReadFieldNode("Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
         pass
 
@@ -89,14 +89,14 @@ class MEDLoaderTest(unittest.TestCase):
         f1.getArray().setIJ(0,0,VAL2);
         MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
         #retrieving time steps...
-        f2=MEDLoader.ReadFieldDoubleCell(fileName,f1.getMesh().getName(),0,f1.getName(),8,9);
+        f2=MEDLoader.ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),8,9);
         f1.setTime(10.,8,9);
         f1.getArray().setIJ(0,0,VAL1);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
-        f2=MEDLoader.ReadFieldDoubleCell(fileName,f1.getMesh().getName(),0,f1.getName(),0,1);
+        f2=MEDLoader.ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),0,1);
         f3=MEDLoaderDataForTest.buildVecFieldOnCells_1();
         self.assertTrue(f3.isEqual(f2,1e-12,1e-12));
-        f2=MEDLoader.ReadFieldDoubleCell(fileName,f1.getMesh().getName(),0,f1.getName(),18,19);
+        f2=MEDLoader.ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),18,19);
         f1.setTime(10.14,18,19);
         f1.getArray().setIJ(0,0,VAL2);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
@@ -111,14 +111,14 @@ class MEDLoaderTest(unittest.TestCase):
         f1.setTime(210.,208,209);
         f1.getArray().setIJ(0,3,VAL2);
         MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName2,f1);
-        f2=MEDLoader.ReadFieldDoubleNode(fileName2,f1.getMesh().getName(),0,f1.getName(),108,109);
+        f2=MEDLoader.ReadFieldNode(fileName2,f1.getMesh().getName(),0,f1.getName(),108,109);
         f1.setTime(110.,108,109);
         f1.getArray().setIJ(0,3,VAL1);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
-        f2=MEDLoader.ReadFieldDoubleNode(fileName2,f1.getMesh().getName(),0,f1.getName(),2,3);
+        f2=MEDLoader.ReadFieldNode(fileName2,f1.getMesh().getName(),0,f1.getName(),2,3);
         f3=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
         self.assertTrue(f3.isEqual(f2,1e-12,1e-12));
-        f2=MEDLoader.ReadFieldDoubleNode(fileName2,f1.getMesh().getName(),0,f1.getName(),208,209);
+        f2=MEDLoader.ReadFieldNode(fileName2,f1.getMesh().getName(),0,f1.getName(),208,209);
         f1.setTime(210.,208,209);
         f1.getArray().setIJ(0,3,VAL2);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
@@ -186,22 +186,22 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(len(it4)==0);
         #
         #
-        f1=MEDLoader.ReadFieldDoubleCell(fileName,name3,0,name1,8,9);
+        f1=MEDLoader.ReadFieldCell(fileName,name3,0,name1,8,9);
         self.assertAlmostEqual(VAL1,f1.getArray().getIJ(0,0),13);
-        f1=MEDLoader.ReadFieldDoubleCell(fileName,name3,0,name1,18,19);
+        f1=MEDLoader.ReadFieldCell(fileName,name3,0,name1,18,19);
         self.assertAlmostEqual(VAL2,f1.getArray().getIJ(0,0),13);
-        f1=MEDLoader.ReadFieldDoubleCell(fileName,name2,0,name1,28,29);
+        f1=MEDLoader.ReadFieldCell(fileName,name2,0,name1,28,29);
         self.assertAlmostEqual(3*VAL1,f1.getArray().getIJ(0,0),13);
-        f1=MEDLoader.ReadFieldDoubleCell(fileName,name2,0,name1,38,39);
+        f1=MEDLoader.ReadFieldCell(fileName,name2,0,name1,38,39);
         self.assertAlmostEqual(3*VAL2,f1.getArray().getIJ(0,0),13);
-        f1=MEDLoader.ReadFieldDoubleCell(fileName,name2,0,name1,48,49);
+        f1=MEDLoader.ReadFieldCell(fileName,name2,0,name1,48,49);
         self.assertAlmostEqual(4*VAL2,f1.getArray().getIJ(0,0),13);
         #
-        f1=MEDLoader.ReadFieldDoubleNode(fileName,name2,0,name1,8,9);
+        f1=MEDLoader.ReadFieldNode(fileName,name2,0,name1,8,9);
         self.assertAlmostEqual(71.,f1.getArray().getIJ(0,3),13);
-        f1=MEDLoader.ReadFieldDoubleNode(fileName,name2,0,name1,108,109);
+        f1=MEDLoader.ReadFieldNode(fileName,name2,0,name1,108,109);
         self.assertAlmostEqual(VAL1,f1.getArray().getIJ(0,3),13);
-        f1=MEDLoader.ReadFieldDoubleNode(fileName,name2,0,name1,208,209);
+        f1=MEDLoader.ReadFieldNode(fileName,name2,0,name1,208,209);
         self.assertAlmostEqual(VAL2,f1.getArray().getIJ(0,3),13);
         pass
 
@@ -297,7 +297,7 @@ class MEDLoaderTest(unittest.TestCase):
         MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
         # Reading
         its=[(1,2),(3,4),(5,6)];
-        fs=MEDLoader.ReadFieldsDoubleOnSameMesh(ON_CELLS,fileName,f_1.getMesh().getName(),0,f_1.getName(),its);
+        fs=MEDLoader.ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1.getMesh().getName(),0,f_1.getName(),its);
         self.assertEqual(3,len(fs));
         self.assertTrue(fs[0].isEqual(f_1,1e-12,1e-12));
         self.assertTrue(fs[1].isEqual(f_2,1e-12,1e-12));
@@ -336,7 +336,7 @@ class MEDLoaderTest(unittest.TestCase):
         f1.setTime(3.14,2,7);
         f1.checkCoherency();
         MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-        f2=MEDLoader.ReadFieldDoubleCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
+        f2=MEDLoader.ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
         self.assertTrue(f2.isEqual(f1,1e-12,1e-12));
         pass
     pass
