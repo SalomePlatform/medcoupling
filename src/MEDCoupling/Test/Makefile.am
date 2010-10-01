@@ -37,3 +37,7 @@ dist_TestMEDCouplingRemapper_SOURCES = TestMEDCouplingRemapper.cxx MEDCouplingRe
 UNIT_TEST_PROG = TestMEDCoupling TestMEDCouplingRemapper
 
 check : tests
+
+CLEANFILES = \
+        UnitTestsResult
+	

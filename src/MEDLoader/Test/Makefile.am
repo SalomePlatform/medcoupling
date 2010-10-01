@@ -30,3 +30,10 @@ dist_TestMEDLoader_SOURCES = TestMEDLoader.cxx MEDLoaderTest.cxx MEDLoaderTest.h
 UNIT_TEST_PROG = TestMEDLoader
 
 check : tests
+
+CLEANFILES = \
+        UnitTestsResult
+	
+clean-local:
+	rm -rf *.med
+	
