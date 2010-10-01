@@ -112,7 +112,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its1[0].second);
   //
-  MEDCouplingFieldDouble *field0=MEDLoader::ReadFieldDoubleCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field0=MEDLoader::ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field0->checkCoherency();
   CPPUNIT_ASSERT(field0->getName()==fieldsName[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0->getNumberOfComponents());
@@ -141,7 +141,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
   field0->decrRef();
   //
-  MEDCouplingFieldDouble *field1=MEDLoader::ReadFieldDoubleCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
+  MEDCouplingFieldDouble *field1=MEDLoader::ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
   field1->checkCoherency();
   CPPUNIT_ASSERT(field1->getName()==fieldsName[1]);
   CPPUNIT_ASSERT_EQUAL(3,field1->getNumberOfComponents());
@@ -182,7 +182,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[1].second);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].first);//strange but like that
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].second);
-  MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -196,7 +196,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[1].first,its0Node[1].second);
+  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[1].first,its0Node[1].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -224,7 +224,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldDoubleNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
+  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -288,7 +288,7 @@ void ParaMEDMEMTest::testMEDLoaderPolygonRead()
   CPPUNIT_ASSERT(fieldsName[2]=="bord_:_non-ortho");
   std::vector<std::pair<int,int> > its0=MEDLoader::GetCellFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsName[0].c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)its0.size());
-  MEDCouplingFieldDouble *field=MEDLoader::ReadFieldDoubleCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
+  MEDCouplingFieldDouble *field=MEDLoader::ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[0].c_str(),its0[0].first,its0[0].second);
   field->checkCoherency();
   CPPUNIT_ASSERT(field->getName()==fieldsName[0]);
   CPPUNIT_ASSERT_EQUAL(1,field->getNumberOfComponents());
