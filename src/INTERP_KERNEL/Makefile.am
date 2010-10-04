@@ -141,6 +141,7 @@ VTKNormalizedUnstructuredMesh.hxx	\
 VTKNormalizedUnstructuredMesh.txx	\
 VectorUtils.hxx                         \
 VolSurfFormulae.hxx                     \
+GenMathFormulae.hxx                     \
 VolSurfUser.hxx                         \
 VolSurfUser.txx                         \
 CurveIntersector.hxx                    \
