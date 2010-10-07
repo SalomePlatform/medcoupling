@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <iterator>
+#include <functional>
 
 using namespace ParaMEDMEM;
 
