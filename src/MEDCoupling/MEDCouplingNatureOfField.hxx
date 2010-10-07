@@ -20,6 +20,7 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELD_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGNATUREOFFIELD_HXX__
 
+#include "MEDCoupling.hxx"
 #include "InterpKernelException.hxx"
 
 namespace ParaMEDMEM
@@ -36,7 +37,7 @@ namespace ParaMEDMEM
   class MEDCouplingNatureOfField
   {
   public:
-    static const char *getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static const char *getRepr(NatureOfField nat) throw(INTERP_KERNEL::Exception);
   private:
     static const int NB_OF_POSSIBILITIES=5;
     static const char *REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];
