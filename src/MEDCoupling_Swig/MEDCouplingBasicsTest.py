@@ -3363,6 +3363,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f1.isEqualWithoutConsideringStr(f2,1e-12,1e-12));
         #
         pass
+    def testGetNodeIdsOfCell1(self):
+        mesh1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        li=mesh1.getNodeIdsOfCell(1)
+        expected1=[1, 4, 2]
+        self.assertEqual(expected1,list(li))
+        li=mesh1.getCoordinatesOfNode(4)
+        self.assertEqual(2,len(li))
+        self.assertAlmostEqual(0.2,li[0],13);
+        self.assertAlmostEqual(0.2,li[1],13);
+        li=mesh1.getCoords().getValuesAsTuple()
+        self.assertEqual(9,len(li))
+        li2=mesh1.getNodalConnectivityIndex().getValuesAsTuple()
+        self.assertEqual(6,len(li2))
+        pass
     
     def setUp(self):
         pass

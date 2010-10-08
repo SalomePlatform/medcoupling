@@ -62,6 +62,19 @@ static PyObject *convertIntArrToPyList2(const std::vector<int>& v)
 #endif
 }
 
+static PyObject *convertIntArrToPyListOfTuple(const int *vals, int nbOfComp, int nbOfTuples)
+{
+  PyObject *ret=PyList_New(nbOfTuples);
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      PyObject *t=PyTuple_New(nbOfComp);
+      for(int j=0;j<nbOfComp;j++)
+        PyTuple_SetItem(t,j,PyInt_FromLong(vals[i*nbOfComp+j]));
+      PyList_SetItem(ret,i,t);
+    }
+  return ret;
+}
+
 static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
 {
   if(PyList_Check(pyLi))
@@ -170,6 +183,19 @@ static PyObject *convertDblArrToPyList2(const std::vector<double>& v)
   PyObject *ret=PyList_New(size);
   for(int i=0;i<size;i++)
     PyList_SetItem(ret,i,PyFloat_FromDouble(v[i]));
+  return ret;
+}
+
+static PyObject *convertDblArrToPyListOfTuple(const double *vals, int nbOfComp, int nbOfTuples)
+{
+  PyObject *ret=PyList_New(nbOfTuples);
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      PyObject *t=PyTuple_New(nbOfComp);
+      for(int j=0;j<nbOfComp;j++)
+        PyTuple_SetItem(t,j,PyFloat_FromDouble(vals[i*nbOfComp+j]));
+      PyList_SetItem(ret,i,t);
+    }
   return ret;
 }
 

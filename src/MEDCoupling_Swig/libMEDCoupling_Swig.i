@@ -739,6 +739,14 @@ namespace ParaMEDMEM
      const double *vals=self->getPointer();
      return convertDblArrToPyList(vals,self->getNbOfElems());
    }
+
+   PyObject *getValuesAsTuple()
+   {
+     const double *vals=self->getPointer();
+     int nbOfComp=self->getNumberOfComponents();
+     int nbOfTuples=self->getNumberOfTuples();
+     return convertDblArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
+   }
  };
 
 %extend ParaMEDMEM::DataArrayInt
@@ -759,6 +767,14 @@ namespace ParaMEDMEM
    {
      const int *vals=self->getPointer();
      return convertIntArrToPyList(vals,self->getNbOfElems());
+   }
+
+   PyObject *getValuesAsTuple()
+   {
+     const int *vals=self->getPointer();
+     int nbOfComp=self->getNumberOfComponents();
+     int nbOfTuples=self->getNumberOfTuples();
+     return convertIntArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
    }
 
    static PyObject *makePartition(PyObject *gps, int newNb)
