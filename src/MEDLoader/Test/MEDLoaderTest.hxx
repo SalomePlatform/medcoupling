@@ -40,6 +40,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFieldRW3 );
     CPPUNIT_TEST( testMultiMeshRW1 );
     CPPUNIT_TEST( testFieldProfilRW1 );
+    CPPUNIT_TEST( testFieldNodeProfilRW1 );
     CPPUNIT_TEST( testFieldGaussRW1 );
     CPPUNIT_TEST( testFieldGaussNERW1 );
     CPPUNIT_TEST( testLittleStrings1 );
@@ -59,6 +60,7 @@ namespace ParaMEDMEM
     void testFieldRW3();
     void testMultiMeshRW1();
     void testFieldProfilRW1();
+    void testFieldNodeProfilRW1();
     void testFieldGaussRW1();
     void testFieldGaussNERW1();
     void testLittleStrings1();

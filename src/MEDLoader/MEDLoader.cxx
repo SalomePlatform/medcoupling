@@ -1416,6 +1416,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
     MEDLoaderNS::keepSpecifiedMeshDim<MEDLoader::MEDFieldDoublePerCellType>(fieldPerCellType,meshDim);
   //for profiles
   ParaMEDMEM::MEDCouplingUMesh *newMesh=0;
+  std::string mName(mesh->getName());
   for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=fieldPerCellType.begin();iter!=fieldPerCellType.end();iter++)
     {
       const std::vector<int>& cellIds=(*iter).getCellIdPerType();
@@ -1424,10 +1425,31 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
           std::vector<int> ci(cellIds.size());
           std::transform(cellIds.begin(),cellIds.end(),ci.begin(),std::bind2nd(std::plus<int>(),-1));
           ParaMEDMEM::MEDCouplingUMesh *mesh2;
-          if(newMesh)
-            mesh2=newMesh->keepSpecifiedCells((*iter).getType(),ci);
-          else
-            mesh2=mesh->keepSpecifiedCells((*iter).getType(),ci);
+          if(typeOfOutField==ON_CELLS)
+            {
+              if(newMesh)
+                mesh2=newMesh->keepSpecifiedCells((*iter).getType(),ci);
+              else
+                mesh2=mesh->keepSpecifiedCells((*iter).getType(),ci);
+            }
+          else if(typeOfOutField==ON_NODES)
+            {
+              DataArrayInt *da=0,*da2=0;
+              if(newMesh)
+                {
+                  da=newMesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
+                  mesh2=dynamic_cast<MEDCouplingUMesh *>(newMesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                }
+              else
+                {
+                  da=mesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
+                  mesh2=dynamic_cast<MEDCouplingUMesh *>(mesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                }
+              if(da)
+                da->decrRef();
+              if(da2)
+                da2->decrRef();
+            }
           if(newMesh)
             newMesh->decrRef();
           newMesh=mesh2;
@@ -1439,6 +1461,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
   ret->setTime(time,iteration,order);
   if(newMesh)
     {
+      newMesh->setName(mName.c_str());//retrieving mesh name to avoid renaming due to mesh restriction in case of profile.
       ret->setMesh(newMesh);
       newMesh->decrRef();
     }
@@ -1818,11 +1841,25 @@ void MEDLoaderNS::writeUMeshesPartitionDirectly(const char *fileName, const char
  */
 void MEDLoaderNS::appendNodeProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds)
 {
-  //not implemented yet.
   med_int numdt,numo;
   med_float dt;
-  //int nbComp=f->getNumberOfComponents();
+  char *nommaa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  MEDLoaderBase::safeStrCpy(f->getMesh()->getName(),MED_TAILLE_NOM,nommaa,MEDLoader::_TOO_LONG_STR);
   med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  int nbOfNodes=f->getMesh()->getNumberOfNodes();
+  const double *pt=f->getArray()->getConstPointer();
+  int *profile=new int[nbOfNodes];
+  std::ostringstream oss; oss << "Pfln" << f->getName();
+  char *profileName=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  MEDLoaderBase::safeStrCpy(oss.str().c_str(),MED_TAILLE_NOM,profileName,MEDLoader::_TOO_LONG_STR);
+  std::transform(thisMeshNodeIds,thisMeshNodeIds+nbOfNodes,profile,std::bind2nd(std::plus<int>(),1));
+  MEDprofilEcr(fid,profile,nbOfNodes,profileName);
+  delete [] profile;
+  MEDchampEcr(fid,nommaa,(char *)f->getName(),(unsigned char*)pt,MED_FULL_INTERLACE,nbOfNodes,
+              (char *)MED_NOGAUSS,MED_ALL,profileName,MED_COMPACT,MED_NOEUD,
+              MED_NONE,numdt,(char *)"",dt,numo);
+  delete [] profileName;
+  delete [] nommaa;
   MEDfermer(fid);
 }
 

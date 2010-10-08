@@ -372,6 +372,50 @@ void MEDLoaderTest::testFieldProfilRW1()
   mesh2->decrRef();
 }
 
+void MEDLoaderTest::testFieldNodeProfilRW1()
+{
+  const char fileName[]="file19.med";
+  const char fileName2[]="file20.med";
+  MEDCouplingUMesh *m=build2DMesh_1();
+  int nbOfNodes=m->getNumberOfNodes();
+  MEDLoader::WriteUMesh(fileName,m,true);
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
+  f1->setName("VFieldOnNodes");
+  f1->setMesh(m);
+  DataArrayDouble *array=DataArrayDouble::New();
+  const double arr1[24]={1.,101.,2.,102.,3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.,12.,112.};
+  array->alloc(nbOfNodes,2);
+  std::copy(arr1,arr1+24,array->getPointer());
+  f1->setArray(array);
+  array->setInfoOnComponent(0,"tyty (mm)");
+  array->setInfoOnComponent(1,"uiop (MW)");
+  array->decrRef();
+  f1->setTime(3.14,2,7);
+  f1->checkCoherency();
+  const int arr2[6]={2,4,5,3,6,7};
+  MEDCouplingFieldDouble *f2=f1->buildSubPart(arr2,arr2+6);
+  ((MEDCouplingMesh *)f2->getMesh())->setName(f1->getMesh()->getName());
+  MEDLoader::WriteField(fileName,f2,false);//<- false important for the test
+  //
+  MEDCouplingFieldDouble *f3=MEDLoader::ReadFieldNode(fileName,f2->getMesh()->getName(),0,f2->getName(),2,7);
+  f3->checkCoherency();
+  CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));
+  f3->decrRef();
+  //
+  const int arr3[6]={1,3,0,5,2,4};
+  f2->renumberNodes(arr3);
+  MEDLoader::WriteUMesh(fileName2,m,true);
+  MEDLoader::WriteField(fileName2,f2,false);//<- false important for the test
+  f3=MEDLoader::ReadFieldNode(fileName,f2->getMesh()->getName(),0,f2->getName(),2,7);
+  f3->checkCoherency();
+  //CPPUNIT_ASSERT(f3->isEqual(f2,1e-12,1e-12));//<- bug
+  f3->decrRef();
+  f2->decrRef();
+  //
+  f1->decrRef();
+  m->decrRef();
+}
+
 void MEDLoaderTest::testFieldGaussRW1()
 {
   const char fileName[]="file13.med";
@@ -589,7 +633,7 @@ MEDCouplingUMesh *MEDLoaderTest::build2DCurveMesh_1()
 
 MEDCouplingUMesh *MEDLoaderTest::build2DMesh_1()
 {
-  double targetCoords[24]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
+  double targetCoords[24]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7, -0.05,0.95, 0.2,1.2, 0.45,0.95 };
   int targetConn[24]={1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(2);
