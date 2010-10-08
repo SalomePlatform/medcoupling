@@ -36,7 +36,7 @@ int main (int argc, char ** argv) {
   string Name = myMesh.getName() ;
   if (Name != MeshName) {
     cout << "Error when reading mesh name : We ask for mesh #"
-	 << MeshName <<"# and we get mesh #"<< Name <<"#"<< endl << endl ;
+         << MeshName <<"# and we get mesh #"<< Name <<"#"<< endl << endl ;
     return -1;
   }
 
