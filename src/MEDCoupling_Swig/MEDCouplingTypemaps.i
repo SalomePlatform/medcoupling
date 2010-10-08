@@ -17,6 +17,10 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#ifdef WITH_NUMPY2
+#include <numpy/arrayobject.h>
+#endif
+
 static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner)
 {
   PyObject *ret;
@@ -29,19 +33,33 @@ static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner)
 
 static PyObject *convertIntArrToPyList(const int *ptr, int size)
 {
+#ifndef WITH_NUMPY2
   PyObject *ret=PyList_New(size);
   for(int i=0;i<size;i++)
     PyList_SetItem(ret,i,PyInt_FromLong(ptr[i]));
   return ret;
+#else
+  npy_intp dim = (npy_intp) size;
+  int *tmp=new int[size];
+  std::copy(ptr,ptr+size,tmp);
+  return PyArray_SimpleNewFromData(1,&dim,NPY_INT,const_cast<int *>(tmp));
+#endif
 }
 
 static PyObject *convertIntArrToPyList2(const std::vector<int>& v)
 {
+#ifndef WITH_NUMPY2
   int size=v.size();
   PyObject *ret=PyList_New(size);
   for(int i=0;i<size;i++)
     PyList_SetItem(ret,i,PyInt_FromLong(v[i]));
   return ret;
+#else
+  npy_intp dim = (npy_intp) v.size();
+  int *tmp=new int[v.size()];
+  std::copy(v.begin(),v.end(),tmp);
+  return PyArray_SimpleNewFromData(1,&dim,NPY_INT,tmp);
+#endif
 }
 
 static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
@@ -70,9 +88,25 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
+#ifndef WITH_NUMPY2
+      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr2 : not a list");
       PyErr_Print();
       return 0;
+#else
+      if(PyArray_Check(pyLi))
+        {
+          npy_intp mySize = PyArray_SIZE(pyLi);
+          int *ret=(int *)PyArray_BYTES(pyLi);
+          *size=mySize;
+          return ret;
+        }
+      else
+        {
+          PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr2 : not a list nor PyArray");
+          PyErr_Print();
+          return 0;
+        }
+#endif
     }
 }
 
@@ -99,8 +133,26 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr)
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
+#ifndef WITH_NUMPY2
+      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr3 : not a list");
       PyErr_Print();
+      return ;
+#else
+      if(PyArray_Check(pyLi))
+        {
+          npy_intp mySize = PyArray_SIZE(pyLi);
+          int *ret=(int *)PyArray_BYTES(pyLi);
+          arr.resize(mySize);
+          std::copy(ret,ret+mySize,arr.begin());
+          return ;
+        }
+      else
+        {
+          PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr3 : not a list nor PyArray");
+          PyErr_Print();
+          return ;
+        }
+#endif
     }
 }
 
@@ -128,7 +180,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size)
             }
           else
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain floats only");
+              PyErr_SetString(PyExc_TypeError,"convertPyToNewDblArr2 : list must contain floats only");
               PyErr_Print();
               return NULL;
             }
