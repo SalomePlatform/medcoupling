@@ -19,6 +19,8 @@ localization library.
 - Chapter \ref medcoupling describes DataStructures used for cross
 process exchange of meshes and fields.
 - Chapter \ref paramedmem describes its MPI implementation, which is called %ParaMEDMEM.
+- Chapter \ref medloader describes API for I/O from or to a MED file
+coming from a \ref medcoupling data structure.
 - Chapter \ref tools describes various tools based on MEDMEM  that can
 be helpful for handling MED files (conversion tools and splitting tools). 
 

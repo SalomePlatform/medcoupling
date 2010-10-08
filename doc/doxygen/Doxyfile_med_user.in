@@ -73,6 +73,7 @@ INPUT                  = @srcdir@ \
                          @srcdir@/../../src/INTERP_KERNEL \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
                          @srcdir@/../../src/MEDCoupling \
+			 @srcdir@/../../src/MEDLoader \
                          @srcdir@/../../src/MEDMEM
 
 FILE_PATTERNS          = MEDMEM_Mesh.* \
@@ -113,6 +114,7 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
 			 MEDCouplingFieldDouble.* \
 			 MEDCouplingFieldDiscretization.* \
 			 MEDCouplingTimeDiscretization.* \
+			 MEDLoader.* \
                          *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS

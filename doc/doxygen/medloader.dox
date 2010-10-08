@@ -1,0 +1,18 @@
+/*!
+\page medloader MEDLoader
+
+\section MEDLoaderIntro Introduction
+
+MEDLoader is a package in charge of loading a file or write to a file
+in MED format a \ref medcoupling data structure. The fact that these
+functionalities are not merged in \ref medcoupling is explained by the
+fact of reducing as much as possible the dependancies of \ref
+medcoupling libraries.
+
+The main aim of this package is to propose as much as possible a
+complete API in order to fetch data from a MED file. As a MED file can
+combine several \ref medcoupling aspects in one (for exemple
+unstructured meshes) the API of MEDLoader is much more rich than
+simply read and write.
+
+*/
