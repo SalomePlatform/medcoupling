@@ -61,7 +61,7 @@ namespace INTERP_KERNEL
    */
   void computeEigenVectorForEigenValue6(const double *matrix, double eigenVal, double eps, double *eigenVector) throw(INTERP_KERNEL::Exception)
   {
-    if(fabs(eigenVal)>eps)
+    //if(fabs(eigenVal)>eps)
       {
         const double m9[9]={matrix[0]-eigenVal,matrix[3],matrix[5],matrix[3],matrix[1]-eigenVal,matrix[4],matrix[5],matrix[4],matrix[2]-eigenVal};
         for(int i=0;i<3;i++)
@@ -81,14 +81,14 @@ namespace INTERP_KERNEL
               }
           }
       }
-    else
+      //else
       {
         eigenVector[0]=0.;
         eigenVector[1]=0.;
         eigenVector[2]=0.;
         return;
       }
-    throw INTERP_KERNEL::Exception("computeEigenVector : Do not succed in finding eigen vector !");
+      //throw INTERP_KERNEL::Exception("computeEigenVector : Do not succed in finding eigen vector !");
   }
 }
 
