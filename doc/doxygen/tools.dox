@@ -12,9 +12,23 @@ number of subdomains.
 \section medsplitter MEDSPLITTERtool
 
 The purpose of  MEDSPLITTER is to split MED files into
-a series of other MED files forming a partition of the original MED files. It can either work with serial meshes (1 to n) or distributed meshes (p to n). For serial meshes, it accepts MED files from the 2.1 version onwards. For distributed MED files, it accepts MED files from the 2.3 version onwards. 
+a series of other MED files forming a partition of the original MED
+files. It can either work with serial meshes (1 to n) or distributed
+meshes (p to n). For serial meshes, it accepts MED files from the 2.1
+version onwards. For distributed MED files, it accepts MED files from
+the 2.3 version onwards. 
 
-It can be used either as an executable, \a medsplitter or as a library. The partitioning is made thanks to one of the following library : 
+There exists a parallel version of MEDSPLITTER, which accepts
+distributed MED files only. In contrast to the ordinary MEDSPLITTER
+the parallel one distributes several usual MED files composing the
+whole model among available processors. After the
+partitioning, each processor writes only it's own part of the
+distributed MED file. The parallel MEDSPLITTER processes meshes only,
+not fields.
+
+It can be used either as an executable, \a medsplitter (or \a
+medsplitter_para) or as a library. The partitioning is made thanks to
+one of the following library : 
 - METIS (http://glaros.dtc.umn.edu/gkhome/views/metis/index.html)
 - SCOTCH (http://www.labri.fr/perso/pelegrin/scotch/scotch_fr.html)
 
@@ -22,8 +36,13 @@ The arguments to the medsplitter tool can be retrieved by calling :
 \code
 medsplitter --help
 \endcode
+or
+\code
+medsplitter_para --help
+\endcode
 
-For Salome V4.1.0, one gets the following arguments :
+For Salome V4.1.0, one gets the following arguments (some of them are
+unavailable in parallel version):
 
 \code
 Available options:
@@ -36,7 +55,7 @@ Available options:
         --ndomains=<number>    : number of subdomains in the output file, default is 1
         --plain-master         : creates a plain masterfile instead of an XML file
         --creates-boundary-faces: creates the necessary faces so that faces joints are created in the output files
-        --family-splitting       : preserves the family names instead of focusing on the groups
+        --family-splitting     : preserves the family names instead of focusing on the groups
 \endcode
 
 \section renumber RENUMBER tool
