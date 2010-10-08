@@ -50,7 +50,9 @@ namespace ParaMEDMEM
     DataArrayDouble *getCoordinatesAndOwner() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
+    bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
     DataArrayInt *buildPermArrayForMergeNode(int limitNodeId, double precision, bool& areNodesMerged, int& newNbOfNodes) const;
     void findCommonNodes(int limitNodeId, double prec, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
@@ -62,7 +64,7 @@ namespace ParaMEDMEM
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     void scale(const double *point, double factor);
-    void changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception);
+    void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
     void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
     void findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception);

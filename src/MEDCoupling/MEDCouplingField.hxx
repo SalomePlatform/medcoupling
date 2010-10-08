@@ -44,6 +44,7 @@ namespace ParaMEDMEM
     virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
     virtual bool areStrictlyCompatible(const MEDCouplingField *other) const;
     virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
     const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
     void setName(const char *name) { _name=name; }
@@ -71,6 +72,7 @@ namespace ParaMEDMEM
   protected:
     MEDCouplingField(TypeOfField type);
     MEDCouplingField(const MEDCouplingField& other);
+    MEDCouplingField(MEDCouplingFieldDiscretization *type);
     virtual ~MEDCouplingField();
   protected:
     std::string _name;

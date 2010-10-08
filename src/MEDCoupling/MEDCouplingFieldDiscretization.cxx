@@ -84,6 +84,11 @@ TypeOfField MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(const c
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
 
+bool MEDCouplingFieldDiscretization::isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const
+{
+  return isEqual(other,eps);
+}
+
 /*!
  * Excepted for MEDCouplingFieldDiscretizationPerCell no underlying TimeLabel object : nothing to do in generally.
  */
@@ -408,24 +413,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP1::getLocalizationOfDiscValues(c
 void MEDCouplingFieldDiscretizationP1::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
                                                                           DataArrayInt *&cellRest)
 {
-  std::vector<int> crest;
-  std::vector<int> conn;
-  std::set<int> p(partBg,partEnd);
-  int nbOfCells=mesh->getNumberOfCells();
-  for(int i=0;i<nbOfCells;i++)
-    {
-      std::vector<int> conn;
-      mesh->getNodeIdsOfCell(i,conn);
-      bool cont=true;
-      for(std::vector<int>::const_iterator iter=conn.begin();iter!=conn.end() && cont;iter++)
-        if(p.find(*iter)==p.end())
-          cont=false;
-      if(cont)
-        crest.push_back(i);
-    }
-  cellRest=DataArrayInt::New();
-  cellRest->alloc(crest.size(),1);
-  std::copy(crest.begin(),crest.end(),cellRest->getPointer());
+  cellRest=mesh->getCellIdsFullyIncludedInNodeIds(partBg,partEnd);
 }
 
 void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
@@ -440,7 +428,7 @@ void MEDCouplingFieldDiscretizationP1::checkCoherencyBetween(const MEDCouplingMe
     {
       std::ostringstream message;
       message << "Field on nodes invalid because there are " << mesh->getNumberOfNodes();
-      message << " cells in mesh and " << da->getNumberOfTuples() << " tuples in field !";
+      message << " nodes in mesh and " << da->getNumberOfTuples() << " tuples in field !";
       throw INTERP_KERNEL::Exception(message.str().c_str());
     }
 }
@@ -578,6 +566,18 @@ bool MEDCouplingFieldDiscretizationPerCell::isEqual(const MEDCouplingFieldDiscre
   return _discr_per_cell->isEqual(*otherC->_discr_per_cell);
 }
 
+bool MEDCouplingFieldDiscretizationPerCell::isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const
+{
+  const MEDCouplingFieldDiscretizationPerCell *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationPerCell *>(other);
+  if(!otherC)
+    return false;
+  if(_discr_per_cell==0)
+    return otherC->_discr_per_cell==0;
+  if(otherC->_discr_per_cell==0)
+    return false;
+  return _discr_per_cell->isEqualWithoutConsideringStr(*otherC->_discr_per_cell);
+}
+
 /*!
  * This method is typically the first step of renumbering. The impact on _discr_per_cell is necessary here.
  * virtualy by this method.
@@ -628,6 +628,22 @@ bool MEDCouplingFieldDiscretizationGauss::isEqual(const MEDCouplingFieldDiscreti
   if(!otherC)
     return false;
   if(!MEDCouplingFieldDiscretizationPerCell::isEqual(other,eps))
+    return false;
+  if(_loc.size()!=otherC->_loc.size())
+    return false;
+  int sz=_loc.size();
+  for(int i=0;i<sz;i++)
+    if(!_loc[i].isEqual(otherC->_loc[i],eps))
+      return false;
+  return true;
+}
+
+bool MEDCouplingFieldDiscretizationGauss::isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const
+{
+  const MEDCouplingFieldDiscretizationGauss *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(other);
+  if(!otherC)
+    return false;
+  if(!MEDCouplingFieldDiscretizationPerCell::isEqualWithoutConsideringStr(other,eps))
     return false;
   if(_loc.size()!=otherC->_loc.size())
     return false;

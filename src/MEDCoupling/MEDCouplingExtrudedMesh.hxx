@@ -46,8 +46,11 @@ namespace ParaMEDMEM
     MEDCouplingMesh *deepCpy() const;
     MEDCouplingExtrudedMesh *clone(bool recDeepCpy) const;
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                               DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
+    void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                         DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;

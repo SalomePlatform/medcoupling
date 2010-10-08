@@ -87,6 +87,8 @@ namespace ParaMEDMEM
       return true;
     if(pt1==0 || pt2==0)
       return false;
+    if(pt1==pt2)
+      return true;
     for(int i=0;i<_nb_of_elem;i++)
       if(pt1[i]-pt2[i]<-prec || (pt1[i]-pt2[i])>prec)
         return false;

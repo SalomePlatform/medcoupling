@@ -19,9 +19,11 @@
 
 #include "MEDCouplingMemArray.txx"
 
+#include "GenMathFormulae.hxx"
 #include "InterpKernelExprParser.hxx"
 
 #include <set>
+#include <cmath>
 #include <numeric>
 #include <functional>
 
@@ -141,6 +143,11 @@ bool DataArrayDouble::isEqual(const DataArrayDouble& other, double prec) const
   return _mem.isEqual(other._mem,prec);
 }
 
+bool DataArrayDouble::isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const
+{
+  return _mem.isEqual(other._mem,prec);
+}
+
 void DataArrayDouble::reAlloc(int nbOfTuples)
 {
   _mem.reAlloc(_info_on_compo.size()*nbOfTuples);
@@ -220,6 +227,35 @@ DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const th
   ret->alloc(trueEnd-tupleIdBg,nbComp);
   ret->copyStringInfoFrom(*this);
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
+  return ret;
+}
+
+/*!
+ * This method builds a new instance of DataArrayDouble (to deal with) that is reduction or an extension of 'this'.
+ * if 'newNbOfComp' < this->getNumberOfComponents() a reduction is done and for each tuple 'newNbOfComp' first components are kept.
+ * If 'newNbOfComp' > this->getNumberOfComponents() an extension is done, and for each components i such that i > getNumberOfComponents() 'dftValue' parameter is taken.
+ */
+DataArrayDouble *DataArrayDouble::changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception)
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(getNumberOfTuples(),newNbOfComp);
+  const double *oldc=getConstPointer();
+  double *nc=ret->getPointer();
+  int nbOfTuples=getNumberOfTuples();
+  int oldNbOfComp=getNumberOfComponents();
+  int dim=std::min(oldNbOfComp,newNbOfComp);
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      int j=0;
+      for(;j<dim;j++)
+        nc[newNbOfComp*i+j]=oldc[i*oldNbOfComp+j];
+      for(;j<newNbOfComp;j++)
+        nc[newNbOfComp*i+j]=dftValue;
+    }
+  ret->setName(getName().c_str());
+  for(int i=0;i<dim;i++)
+    ret->setInfoOnComponent(i,getInfoOnComponent(i).c_str());
+  ret->setName(getName().c_str());
   return ret;
 }
 
@@ -328,6 +364,220 @@ double DataArrayDouble::accumulate(int compId) const
   for(int i=0;i<nbTuple;i++)
     ret+=ptr[i*nbComps+compId];
   return ret;
+}
+
+DataArrayDouble *DataArrayDouble::doublyContractedProduct() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=6)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::doublyContractedProduct : must be an array with exactly 6 components !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,1);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  for(int i=0;i<nbOfTuple;i++,dest++,src+=6)
+    *dest=src[0]*src[0]+src[1]*src[1]+src[2]*src[2]+2.*src[3]*src[3]+2.*src[4]*src[4]+2.*src[5]*src[5];
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::determinant() const throw(INTERP_KERNEL::Exception)
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,1);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  switch(getNumberOfComponents())
+    {
+    case 6:
+      for(int i=0;i<nbOfTuple;i++,dest++,src+=6)
+        *dest=src[0]*src[1]*src[2]+2.*src[4]*src[5]*src[3]-src[0]*src[4]*src[4]-src[2]*src[3]*src[3]-src[1]*src[5]*src[5];
+        return ret;
+    case 4:
+      for(int i=0;i<nbOfTuple;i++,dest++,src+=4)
+        *dest=src[0]*src[3]-src[1]*src[2];
+      return ret;
+    case 9:
+      for(int i=0;i<nbOfTuple;i++,dest++,src+=9)
+        *dest=src[0]*src[4]*src[8]+src[1]*src[5]*src[6]+src[2]*src[3]*src[7]-src[0]*src[5]*src[7]-src[1]*src[3]*src[8]-src[2]*src[4]*src[6];
+      return ret;
+    default:
+      ret->decrRef();
+      throw INTERP_KERNEL::Exception("DataArrayDouble::determinant : Invalid number of components ! must be in 4,6,9 !");
+    }
+}
+
+DataArrayDouble *DataArrayDouble::eigenValues() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=6)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::eigenValues : must be an array with exactly 6 components !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,3);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  for(int i=0;i<nbOfTuple;i++,dest+=3,src+=6)
+    INTERP_KERNEL::computeEigenValues6(src,dest);
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::eigenVectors() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=6)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::eigenVectors : must be an array with exactly 6 components !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,9);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  for(int i=0;i<nbOfTuple;i++,src+=6)
+    {
+      double tmp[3];
+      INTERP_KERNEL::computeEigenValues6(src,tmp);
+      for(int j=0;j<3;j++,dest+=3)
+        INTERP_KERNEL::computeEigenVectorForEigenValue6(src,tmp[j],1e-12,dest);
+    }
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::inverse() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=6 && nbOfComp!=9 && nbOfComp!=4)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::inversion : must be an array with 4,6 or 9 components !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,nbOfComp);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+if(nbOfComp==6)
+    for(int i=0;i<nbOfTuple;i++,dest+=6,src+=6)
+      {
+        double det=src[0]*src[1]*src[2]+2.*src[4]*src[5]*src[3]-src[0]*src[4]*src[4]-src[2]*src[3]*src[3]-src[1]*src[5]*src[5];
+        dest[0]=(src[1]*src[2]-src[4]*src[4])/det;
+        dest[1]=(src[0]*src[2]-src[5]*src[5])/det;
+        dest[2]=(src[0]*src[1]-src[3]*src[3])/det;
+        dest[3]=(src[5]*src[4]-src[3]*src[2])/det;
+        dest[4]=(src[5]*src[3]-src[0]*src[4])/det;
+        dest[5]=(src[3]*src[4]-src[1]*src[5])/det;
+      }
+  else if(nbOfComp==4)
+    for(int i=0;i<nbOfTuple;i++,dest+=4,src+=4)
+      {
+        double det=src[0]*src[3]-src[1]*src[2];
+        dest[0]=src[3]/det;
+        dest[1]=-src[1]/det;
+        dest[2]=-src[2]/det;
+        dest[3]=src[0]/det;
+      }
+  else
+    for(int i=0;i<nbOfTuple;i++,dest+=9,src+=9)
+      {
+        double det=src[0]*src[4]*src[8]+src[1]*src[5]*src[6]+src[2]*src[3]*src[7]-src[0]*src[5]*src[7]-src[1]*src[3]*src[8]-src[2]*src[4]*src[6];
+        dest[0]=(src[4]*src[8]-src[7]*src[5])/det;
+        dest[1]=(src[7]*src[2]-src[1]*src[8])/det;
+        dest[2]=(src[1]*src[5]-src[4]*src[2])/det;
+        dest[3]=(src[6]*src[5]-src[3]*src[8])/det;
+        dest[4]=(src[0]*src[8]-src[6]*src[2])/det;
+        dest[5]=(src[2]*src[3]-src[0]*src[5])/det;
+        dest[6]=(src[3]*src[7]-src[6]*src[4])/det;
+        dest[7]=(src[6]*src[1]-src[0]*src[7])/det;
+        dest[8]=(src[0]*src[4]-src[1]*src[3])/det;
+      }
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::trace() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=6 && nbOfComp!=9 && nbOfComp!=4)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::trace : must be an array with 4,6 or 9 components !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,1);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  if(nbOfComp==6)
+    for(int i=0;i<nbOfTuple;i++,dest++,src+=6)
+      *dest=src[0]+src[1]+src[2];
+  else if(nbOfComp==4)
+    for(int i=0;i<nbOfTuple;i++,dest++,src+=4)
+      *dest=src[0]+src[3];
+  else
+    for(int i=0;i<nbOfTuple;i++,dest++,src+=9)
+      *dest=src[0]+src[4]+src[8];
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::deviator() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=6)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::deviator : must be an array with exactly 6 components !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,6);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  for(int i=0;i<nbOfTuple;i++,dest+=6,src+=6)
+    {
+      double tr=(src[0]+src[1]+src[2])/3.;
+      dest[0]=src[0]-tr;
+      dest[1]=src[1]-tr;
+      dest[2]=src[2]-tr;
+      dest[3]=src[3];
+      dest[4]=src[4];
+      dest[5]=src[5];
+    }
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::magnitude() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,1);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  for(int i=0;i<nbOfTuple;i++,dest++)
+    {
+      double sum=0.;
+      for(int j=0;j<nbOfComp;j++,src++)
+        sum+=(*src)*(*src);
+      *dest=sqrt(sum);
+    }
+  return ret;
+}
+
+DataArrayDouble *DataArrayDouble::maxPerTuple() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfComp=getNumberOfComponents();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfTuple=getNumberOfTuples();
+  ret->alloc(nbOfTuple,1);
+  const double *src=getConstPointer();
+  double *dest=ret->getPointer();
+  for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
+    *dest=*std::max_element(src,src+nbOfComp);
+  return ret;
+}
+
+void DataArrayDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception)
+{
+  double *pt=getPointer();
+  int nbOfTuple=getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  if(asc)
+    for(int i=0;i<nbOfTuple;i++,pt+=nbOfComp)
+      std::sort(pt,pt+nbOfComp);
+  else
+    for(int i=0;i<nbOfTuple;i++,pt+=nbOfComp)
+      std::sort(pt,pt+nbOfComp,std::greater<double>());
+  declareAsNew();
 }
 
 void DataArrayDouble::applyLin(double a, double b, int compoId)
@@ -845,6 +1095,11 @@ bool DataArrayInt::isEqual(const DataArrayInt& other) const
   return _mem.isEqual(other._mem,0);
 }
 
+bool DataArrayInt::isEqualWithoutConsideringStr(const DataArrayInt& other) const
+{
+  return _mem.isEqual(other._mem,0);
+}
+
 void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
@@ -936,6 +1191,36 @@ DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const throw(IN
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
   return ret;
 }
+
+/*!
+ * This method builds a new instance of DataArrayInt (to deal with) that is reduction or an extension of 'this'.
+ * if 'newNbOfComp' < this->getNumberOfComponents() a reduction is done and for each tuple 'newNbOfComp' first components are kept.
+ * If 'newNbOfComp' > this->getNumberOfComponents() an extension is done, and for each components i such that i > getNumberOfComponents() 'dftValue' parameter is taken.
+ */
+DataArrayInt *DataArrayInt::changeNbOfComponents(int newNbOfComp, int dftValue) const throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(getNumberOfTuples(),newNbOfComp);
+  const int *oldc=getConstPointer();
+  int *nc=ret->getPointer();
+  int nbOfTuples=getNumberOfTuples();
+  int oldNbOfComp=getNumberOfComponents();
+  int dim=std::min(oldNbOfComp,newNbOfComp);
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      int j=0;
+      for(;j<dim;j++)
+        nc[newNbOfComp*i+j]=oldc[i*oldNbOfComp+j];
+      for(;j<newNbOfComp;j++)
+        nc[newNbOfComp*i+j]=dftValue;
+    }
+  ret->setName(getName().c_str());
+  for(int i=0;i<dim;i++)
+    ret->setInfoOnComponent(i,getInfoOnComponent(i).c_str());
+  ret->setName(getName().c_str());
+  return ret;
+}
+
 
 /*!
  * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.

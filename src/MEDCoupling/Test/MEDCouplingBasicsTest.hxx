@@ -111,6 +111,18 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testApplyLin1 );
     CPPUNIT_TEST( testGetIdsInRange1 );
     CPPUNIT_TEST( testBuildSubPart1 );
+    CPPUNIT_TEST( testDoublyContractedProduct1 );
+    CPPUNIT_TEST( testDeterminant1 );
+    CPPUNIT_TEST( testEigenValues1 );
+    CPPUNIT_TEST( testEigenVectors1 );
+    CPPUNIT_TEST( testInverse1 );
+    CPPUNIT_TEST( testTrace1 );
+    CPPUNIT_TEST( testDeviator1 );
+    CPPUNIT_TEST( testMagnitude1 );
+    CPPUNIT_TEST( testMaxPerTuple1 );
+    CPPUNIT_TEST( testChangeNbOfComponents );
+    CPPUNIT_TEST( testSortPerTuple1 );
+    CPPUNIT_TEST( testIsEqualWithoutConsideringStr1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -250,6 +262,18 @@ namespace ParaMEDMEM
     void testApplyLin1();
     void testGetIdsInRange1();
     void testBuildSubPart1();
+    void testDoublyContractedProduct1();
+    void testDeterminant1();
+    void testEigenValues1();
+    void testEigenVectors1();
+    void testInverse1();
+    void testTrace1();
+    void testDeviator1();
+    void testMagnitude1();
+    void testMaxPerTuple1();
+    void testChangeNbOfComponents();
+    void testSortPerTuple1();
+    void testIsEqualWithoutConsideringStr1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

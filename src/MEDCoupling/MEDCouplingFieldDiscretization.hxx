@@ -46,6 +46,7 @@ namespace ParaMEDMEM
     static TypeOfField getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const = 0;
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
     virtual const char *getStringRepr() const = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
@@ -153,6 +154,7 @@ namespace ParaMEDMEM
     void updateTime();
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
   protected:
     void buildDiscrPerCellIfNecessary(const MEDCouplingMesh *m);
@@ -166,6 +168,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretizationGauss();
     TypeOfField getEnum() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCouplingFieldDiscretization *clone() const;
     const char *getStringRepr() const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;

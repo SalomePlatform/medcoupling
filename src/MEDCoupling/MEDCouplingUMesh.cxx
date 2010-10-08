@@ -201,6 +201,32 @@ bool MEDCouplingUMesh::isEqual(const MEDCouplingMesh *other, double prec) const
   return true;
 }
 
+bool MEDCouplingUMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
+{
+  const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
+  if(!otherC)
+    return false;
+  if(!MEDCouplingPointSet::isEqualWithoutConsideringStr(other,prec))
+    return false;
+  if(_mesh_dim!=otherC->_mesh_dim)
+    return false;
+  if(_types!=otherC->_types)
+    return false;
+  if(_nodal_connec!=0 || otherC->_nodal_connec!=0)
+    if(_nodal_connec==0 || otherC->_nodal_connec==0)
+      return false;
+  if(_nodal_connec!=otherC->_nodal_connec)
+    if(!_nodal_connec->isEqualWithoutConsideringStr(*otherC->_nodal_connec))
+      return false;
+  if(_nodal_connec_index!=0 || otherC->_nodal_connec_index!=0)
+    if(_nodal_connec_index==0 || otherC->_nodal_connec_index==0)
+      return false;
+  if(_nodal_connec_index!=otherC->_nodal_connec_index)
+    if(!_nodal_connec_index->isEqualWithoutConsideringStr(*otherC->_nodal_connec_index))
+      return false;
+  return true;
+}
+
 /*!
  * This method looks if 'this' and 'other' are geometrically equivalent that is to say if each cell in 'other' correspond to one cell and only one
  * in 'this' is found regarding 'prec' parameter and 'cellCompPol' parameter.
@@ -247,6 +273,47 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
     {
       nodeCor->decrRef(); nodeCor=0;
       throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
+    }
+  cellCor=DataArrayInt::New();
+  cellCor->alloc(otherC->getNumberOfCells(),1);
+  std::copy(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),cellCor->getPointer());
+  if(cellCor->isIdentity())
+    {
+      cellCor->decrRef();
+      cellCor=0;
+    }
+}
+
+/*!
+ * This method looks if 'this' and 'other' are geometrically equivalent that is to say if each cell in 'other' correspond to one cell and only one
+ * in 'this' is found regarding 'prec' parameter and 'cellCompPol' parameter. The difference with MEDCouplingUMesh::checkDeepEquivalWith method is that
+ * coordinates of 'this' and 'other' are expected to be the same. If not an exception will be thrown.
+ * 
+ * In case of success cellCor are informed both. 
+ * @param cellCompPol values are described in MEDCouplingUMesh::zipConnectivityTraducer method.
+ * @param cellCor output array giving the correspondance of cells from 'other' to 'this'.
+ */
+void MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                       DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : Two meshes are not not unstructured !");
+  MEDCouplingMesh::checkFastEquivalWith(other,prec);
+  if(_types!=otherC->_types)
+    throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : Types are not equal !");
+  if(_coords!=otherC->_coords)
+    throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : meshes do not share the same coordinates ! Use tryToShareSameCoordinates or call checkDeepEquivalWith !");
+  std::vector<MEDCouplingUMesh *> ms(2);
+  ms[0]=const_cast<MEDCouplingUMesh *>(this);
+  ms[1]=const_cast<MEDCouplingUMesh *>(otherC);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=mergeUMeshesOnSameCoords(ms);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->zipConnectivityTraducer(cellCompPol);
+  int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
+  const int *pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
+  if(pt!=da->getConstPointer()+da->getNbOfElems())
+    {
+      throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : some cells in other are not in this !");
     }
   cellCor=DataArrayInt::New();
   cellCor->alloc(otherC->getNumberOfCells(),1);

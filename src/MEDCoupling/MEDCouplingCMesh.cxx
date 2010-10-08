@@ -129,8 +129,32 @@ bool MEDCouplingCMesh::isEqual(const MEDCouplingMesh *other, double prec) const
   return true;
 }
 
+bool MEDCouplingCMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
+{
+  const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
+  if(!otherC)
+    return false;
+  const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
+  const DataArrayDouble *otherArr[3]={otherC->_x_array,otherC->_y_array,otherC->_z_array};
+  for(int i=0;i<3;i++)
+    {
+      if((thisArr[i]!=0 && otherArr[i]==0) || (thisArr[i]==0 && otherArr[i]!=0))
+        return false;
+      if(thisArr[i])
+        if(!thisArr[i]->isEqualWithoutConsideringStr(*otherArr[i],prec))
+          return false;
+    }
+  return true;
+}
+
 void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                             DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                       DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }

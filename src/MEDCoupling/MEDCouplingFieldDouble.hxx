@@ -36,6 +36,7 @@ namespace ParaMEDMEM
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     bool areCompatibleForMerge(const MEDCouplingField *other) const;
     bool areStrictlyCompatible(const MEDCouplingField *other) const;
     bool areCompatibleForMul(const MEDCouplingField *other) const;
@@ -53,12 +54,12 @@ namespace ParaMEDMEM
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     NatureOfField getNature() const { return _nature; }
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
-    void setTime(double val, int dt, int it) { _time_discr->setTime(val,dt,it); }
-    void setStartTime(double val, int dt, int it) { _time_discr->setStartTime(val,dt,it); }
-    void setEndTime(double val, int dt, int it) { _time_discr->setEndTime(val,dt,it); }
-    double getTime(int& dt, int& it) const { return _time_discr->getTime(dt,it); }
-    double getStartTime(int& dt, int& it) const { return _time_discr->getStartTime(dt,it); }
-    double getEndTime(int& dt, int& it) const { return _time_discr->getEndTime(dt,it); }
+    void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
+    void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
+    void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
+    double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
+    double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
+    double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
     double getIJ(int tupleId, int compoId) const { return getArray()->getIJ(tupleId,compoId); }
     double getIJK(int cellId, int nodeIdInCell, int compoId) const;
     void setArray(DataArrayDouble *array);
@@ -102,6 +103,17 @@ namespace ParaMEDMEM
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *eigenValues() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *eigenVectors() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *inverse() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *trace() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *deviator() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *magnitude() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
+    void changeNbOfComponents(int newNbOfComp, double dftValue=0.) throw(INTERP_KERNEL::Exception);
+    void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const { return dotFields(this,&other); }
@@ -126,7 +138,7 @@ namespace ParaMEDMEM
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
-    MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, TypeOfField type);
+    MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
     ~MEDCouplingFieldDouble();
   private:
     NatureOfField _nature;

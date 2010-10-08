@@ -53,8 +53,11 @@ namespace ParaMEDMEM
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     // comparison methods
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const = 0;
     virtual void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                       DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                 DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     void checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
                              DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
@@ -69,6 +72,7 @@ namespace ParaMEDMEM
     virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
     virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
+    virtual DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
     virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;
     virtual std::string simpleRepr() const = 0;
     virtual std::string advancedRepr() const = 0;

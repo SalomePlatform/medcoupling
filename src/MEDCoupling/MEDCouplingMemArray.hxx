@@ -122,12 +122,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
     //!alloc or useArray should have been called before.
     MEDCOUPLING_EXPORT void reAlloc(int nbOfTuples);
     MEDCOUPLING_EXPORT DataArrayInt *convertToIntArr() const;
     MEDCOUPLING_EXPORT void renumberInPlace(const int *old2New);
     MEDCOUPLING_EXPORT DataArrayDouble *renumber(const int *old2New) const;
     MEDCOUPLING_EXPORT DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *start, const int *end) const;
     MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
@@ -143,6 +145,16 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getAverageValue() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void accumulate(double *res) const;
     MEDCOUPLING_EXPORT double accumulate(int compId) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *determinant() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *eigenValues() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *eigenVectors() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *inverse() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *trace() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *deviator() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *magnitude() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId);
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
@@ -179,6 +191,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT void fillWithZero();
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
@@ -195,6 +208,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *renumber(const int *old2New) const;
     MEDCOUPLING_EXPORT bool isIdentity() const;
     MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *changeNbOfComponents(int newNbOfComp, int dftValue) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *start, const int *end) const;
     MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
     MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }

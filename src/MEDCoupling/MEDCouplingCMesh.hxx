@@ -37,8 +37,11 @@ namespace ParaMEDMEM
     MEDCouplingMeshType getType() const { return CARTESIAN; }
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                               DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
+    void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                         DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception);
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     int getNumberOfCells() const;
     int getNumberOfNodes() const;

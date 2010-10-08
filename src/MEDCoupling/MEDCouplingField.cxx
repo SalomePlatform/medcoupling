@@ -40,6 +40,19 @@ bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, d
   return _mesh->isEqual(other->_mesh,meshPrec);
 }
 
+bool MEDCouplingField::isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+{
+  if(!_type->isEqualWithoutConsideringStr(other->_type,valsPrec))
+    return false;
+  if(_mesh==0 && other->_mesh==0)
+    return true;
+  if(_mesh==0 || other->_mesh==0)
+    return false;
+  if(_mesh==other->_mesh)
+    return true;
+  return _mesh->isEqualWithoutConsideringStr(other->_mesh,meshPrec);
+}
+
 /*!
  * This method states if 'this' and 'other' are compatibles each other before performing any treatment.
  * This method is good for methods like : mergeFields.
@@ -229,6 +242,10 @@ MEDCouplingField::~MEDCouplingField()
   if(_mesh)
     ((MEDCouplingMesh *)_mesh)->decrRef();
   delete _type;
+}
+
+MEDCouplingField::MEDCouplingField(MEDCouplingFieldDiscretization *type):_mesh(0),_type(type)
+{
 }
 
 MEDCouplingField::MEDCouplingField(TypeOfField type):_mesh(0),_type(MEDCouplingFieldDiscretization::New(type))

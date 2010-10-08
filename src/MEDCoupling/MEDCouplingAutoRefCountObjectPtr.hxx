@@ -29,10 +29,10 @@ namespace ParaMEDMEM
   {
   public:
     MEDCouplingAutoRefCountObjectPtr(const MEDCouplingAutoRefCountObjectPtr& other):_ptr(0) { referPtr(other._ptr); }
-    MEDCouplingAutoRefCountObjectPtr(T *ptr):_ptr(ptr) { }
+    MEDCouplingAutoRefCountObjectPtr(T *ptr=0):_ptr(ptr) { }
     ~MEDCouplingAutoRefCountObjectPtr() { destroyPtr(); }
-    MEDCouplingAutoRefCountObjectPtr &operator=(const MEDCouplingAutoRefCountObjectPtr& other) { destroyPtr(); referPtr(other._ptr); return *this; }
-    MEDCouplingAutoRefCountObjectPtr &operator=(T *ptr) { destroyPtr(); _ptr=ptr; return *this; }
+    MEDCouplingAutoRefCountObjectPtr &operator=(const MEDCouplingAutoRefCountObjectPtr& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
+    MEDCouplingAutoRefCountObjectPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
     T *operator->() { return _ptr ; }
     const T *operator->() const { return _ptr; }
     T& operator*() { return *_ptr; }

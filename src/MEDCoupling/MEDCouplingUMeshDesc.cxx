@@ -82,6 +82,12 @@ void MEDCouplingUMeshDesc::checkDeepEquivalWith(const MEDCouplingMesh *other, in
   throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::checkDeepEquivalWith : not implemented yet !");
 }
 
+void MEDCouplingUMeshDesc::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                           DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::checkDeepEquivalOnSameNodesWith : not implemented yet !");
+}
+
 void MEDCouplingUMeshDesc::setMeshDimension(unsigned meshDim)
 {
   _mesh_dim=meshDim;

@@ -37,6 +37,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                  DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                            DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setMeshDimension(unsigned meshDim);
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getNumberOfFaces() const;

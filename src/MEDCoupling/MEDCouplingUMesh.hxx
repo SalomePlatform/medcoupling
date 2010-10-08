@@ -38,8 +38,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void updateTime();
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED; }
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                  DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                            DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setMeshDimension(int meshDim);
