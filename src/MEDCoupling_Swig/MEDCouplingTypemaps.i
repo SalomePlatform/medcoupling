@@ -164,6 +164,15 @@ static PyObject *convertDblArrToPyList(const double *ptr, int size)
   return ret;
 }
 
+static PyObject *convertDblArrToPyList2(const std::vector<double>& v)
+{
+  int size=v.size();
+  PyObject *ret=PyList_New(size);
+  for(int i=0;i<size;i++)
+    PyList_SetItem(ret,i,PyFloat_FromDouble(v[i]));
+  return ret;
+}
+
 static double *convertPyToNewDblArr2(PyObject *pyLi, int *size)
 {
   if(PyList_Check(pyLi))
