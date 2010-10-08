@@ -123,6 +123,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testChangeNbOfComponents );
     CPPUNIT_TEST( testSortPerTuple1 );
     CPPUNIT_TEST( testIsEqualWithoutConsideringStr1 );
+    CPPUNIT_TEST( testGetNodeIdsOfCell1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -274,6 +275,7 @@ namespace ParaMEDMEM
     void testChangeNbOfComponents();
     void testSortPerTuple1();
     void testIsEqualWithoutConsideringStr1();
+    void testGetNodeIdsOfCell1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

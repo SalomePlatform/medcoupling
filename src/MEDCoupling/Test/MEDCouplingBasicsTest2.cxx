@@ -1960,3 +1960,20 @@ void MEDCouplingBasicsTest::testIsEqualWithoutConsideringStr1()
   mesh1->decrRef();
   mesh2->decrRef();
 }
+
+void MEDCouplingBasicsTest::testGetNodeIdsOfCell1()
+{
+  MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
+  std::vector<int> nodeIds;
+  mesh1->getNodeIdsOfCell(1,nodeIds);
+  CPPUNIT_ASSERT_EQUAL(3,(int)nodeIds.size());
+  CPPUNIT_ASSERT_EQUAL(1,nodeIds[0]);
+  CPPUNIT_ASSERT_EQUAL(4,nodeIds[1]);
+  CPPUNIT_ASSERT_EQUAL(2,nodeIds[2]);
+  std::vector<double> coords;
+  mesh1->getCoordinatesOfNode(4,coords);
+  CPPUNIT_ASSERT_EQUAL(2,(int)coords.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2,coords[0],1e-13);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2,coords[1],1e-13);
+  mesh1->decrRef();
+}
