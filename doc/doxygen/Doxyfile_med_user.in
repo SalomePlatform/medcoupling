@@ -96,6 +96,7 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          PlanarIntersector.* \
                          TargetIntersector.* \
                          Interpolation.* \
+			 InterpolationOptions.* \
                          InterpKernelGeo2DAbstractEdge.* \
                          InterpKernelGeo2DEdge.* \
                          InterpKernelGeo2DEdgeArcCircle.* \
@@ -114,6 +115,8 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
 			 MEDCouplingFieldDouble.* \
 			 MEDCouplingFieldDiscretization.* \
 			 MEDCouplingTimeDiscretization.* \
+			 MEDCouplingMemArray.* \
+			 MEDCouplingRemapper.* \
 			 MEDLoader.* \
                          *.dox
 RECURSIVE              = NO
