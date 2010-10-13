@@ -28,7 +28,12 @@ guidoc_DATA = images/head.png
 
 install-data-local : html-local
 	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED
-	cp -rp doc_ref_user/html/*.* $(DESTDIR)$(docdir)/gui/MED
+	@if test -d doc_ref_user/html ; then				\
+	  for filen in `find doc_ref_user/html -maxdepth 1 -type f` ; do\
+	    echo "Installing $${filen}" ; 				\
+	    cp -rp $${filen} $(DESTDIR)$(docdir)/gui/MED ;		\
+	  done ;							\
+	fi ;
 
 uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/gui/MED
