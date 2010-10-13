@@ -48,6 +48,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFieldShuffleRW1 );
     CPPUNIT_TEST( testMultiFieldShuffleRW1 );
     CPPUNIT_TEST( testWriteUMeshesRW1 );
+    CPPUNIT_TEST( testMixCellAndNodesFieldRW1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testMesh1DRW();
@@ -68,6 +69,7 @@ namespace ParaMEDMEM
     void testFieldShuffleRW1();
     void testMultiFieldShuffleRW1();
     void testWriteUMeshesRW1();
+    void testMixCellAndNodesFieldRW1();
   private:
     MEDCouplingUMesh *build1DMesh_1();
     MEDCouplingUMesh *build2DCurveMesh_1();

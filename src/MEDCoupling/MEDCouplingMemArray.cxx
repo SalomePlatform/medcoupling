@@ -62,6 +62,28 @@ void DataArray::reprWithoutNameStream(std::ostream& stream) const
   stream << "\n";
 }
 
+std::string DataArray::getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exception)
+{
+  if(i<(int)_info_on_compo.size())
+    return _info_on_compo[i];
+  else
+    {
+      std::ostringstream oss; oss << "getInfoOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void DataArray::setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception)
+{
+  if(i<(int)_info_on_compo.size())
+    _info_on_compo[i]=info;
+  else
+    {
+      std::ostringstream oss; oss << "setInfoOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
 DataArrayDouble *DataArrayDouble::New()
 {
   return new DataArrayDouble;
