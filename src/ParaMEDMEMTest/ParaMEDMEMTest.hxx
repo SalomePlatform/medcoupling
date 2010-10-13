@@ -138,11 +138,13 @@ public:
   std::string makeTmpFile( const std::string&, const std::string& = "" );
 
 private:
+#ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC(const std::string& filename1, 
                             const std::string& meshname1, 
                             const std::string& filename2, 
                             const std::string& meshname2,
                             int nbprocsource, double epsilon);
+#endif
   void testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA, 
                                           double dtB, double tmaxB,
                                           bool WithPointToPoint, bool Asynchronous, bool WithInterp, const char *srcMeth, const char *targetMeth);

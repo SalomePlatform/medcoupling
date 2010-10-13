@@ -25,9 +25,8 @@ salomeinclude_HEADERS = \
 	MPIMainTest.hxx \
 	MPIAccessDECTest.hxx \
 	MPIAccessTest.hxx \
-	ParaMEDMEMTest.hxx
-
-EXTRA_DIST += MPIMainTest.hxx ParaMEDMEMTest_NonCoincidentDEC.cxx
+	ParaMEDMEMTest.hxx \
+	MPI2Connector.hxx	
 
 dist_libParaMEDMEMTest_la_SOURCES = \
 	ParaMEDMEMTest.cxx \
@@ -39,6 +38,7 @@ dist_libParaMEDMEMTest_la_SOURCES = \
 	ParaMEDMEMTest_ICocoTrio.cxx \
 	ParaMEDMEMTest_Gauthier1.cxx \
 	ParaMEDMEMTest_FabienAPI.cxx \
+	ParaMEDMEMTest_NonCoincidentDEC.cxx \
 	MPIAccessDECTest.cxx \
 	test_AllToAllDEC.cxx \
 	test_AllToAllvDEC.cxx \
@@ -111,7 +111,6 @@ LDADD = $(MED2_LIBS) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
 
 if MED_ENABLE_FVM
 	LDADD += $(FVM_LIBS)
-	dist_libParaMEDMEMTest_la_SOURCES += ParaMEDMEMTest_NonCoincidentDEC.cxx
 	libParaMEDMEMTest_la_CPPFLAGS += -DMED_ENABLE_FVM $(FVM_INCLUDES)
 	libParaMEDMEMTest_la_LDFLAGS += $(FVM_LIBS)
 endif
