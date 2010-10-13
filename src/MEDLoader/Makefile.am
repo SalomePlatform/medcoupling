@@ -41,12 +41,11 @@ MEDLoader.hxx MEDLoaderBase.hxx
 dist_libmedloader_la_SOURCES= \
 MEDLoader.cxx MEDLoaderBase.cxx
 
-libmedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+libmedloader_la_CPPFLAGS= $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
 	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
 	-I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../MEDCoupling
 
-# change motivated by the bug KERNEL4778.
 libmedloader_la_LDFLAGS= ../MEDCoupling/libmedcoupling.la \
-../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED2_LIBS) $(HDF5_LIBS)
+../INTERP_KERNEL/libinterpkernel.la $(MED2_LIBS) $(HDF5_LIBS)
