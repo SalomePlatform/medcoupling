@@ -893,44 +893,58 @@ void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& ot
 }
 
 /*!
- * build a sub part of 'this'. This sub part is defined by the cell ids contained in the array in [start,end).
- * @param start start of array containing the cell ids to keep.
+ * build a sub part of 'this'. This sub part is defined by the cell ids contained in the array in [begin,end).
+ * @param begin begin of array containing the cell ids to keep.
  * @param end end of array of cell ids to keep. \b WARNING end param is \b not included ! Idem STL standard definitions.
  * @param keepCoords that specifies if you want or not to keep coords as this or zip it (see zipCoords)
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
+MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
 {
   if(getMeshDimension()!=-1)
     {
-      MEDCouplingUMesh *ret=buildPartOfMySelfKeepCoords(start,end);
+      MEDCouplingUMesh *ret=buildPartOfMySelfKeepCoords(begin,end);
       if(!keepCoords)
         ret->zipCoords();
       return ret;
     }
   else
     {
-      if(end-start!=1)
+      if(end-begin!=1)
         throw INTERP_KERNEL::Exception("-1D mesh has only one cell !");
-      if(start[0]!=0)
+      if(begin[0]!=0)
         throw INTERP_KERNEL::Exception("-1D mesh has only one cell : 0 !");
       incrRef();
       return (MEDCouplingUMesh *)this;
     }
 }
 
-/*!
- * Keeps from 'this' only cells which constituing point id are in the ids specified by ['start','end').
- * The return newly allocated mesh will share the same coordinates as 'this'.
- * Parameter 'fullyIn' specifies if a cell that has part of its nodes in ids array is kept or not.
- * If 'fullyIn' is true only cells whose ids are \b fully contained in ['start','end') tab will be kept.
- */
-MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
+DataArrayInt *MEDCouplingUMesh::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
 {
-  std::set<int> fastFinder(start,end);
+  std::vector<int> cellIdsKept;
+  fillCellIdsToKeepFromNodeIds(partBg,partEnd,true,cellIdsKept);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(cellIdsKept.size(),1);
+  std::copy(cellIdsKept.begin(),cellIdsKept.end(),ret->getPointer());
+  return ret;
+}
+
+/*!
+ * Keeps from 'this' only cells which constituing point id are in the ids specified by ['begin','end').
+ * The resulting cell ids are stored at the end of the 'cellIdsKept' parameter.
+ * Parameter 'fullyIn' specifies if a cell that has part of its nodes in ids array is kept or not.
+ * If 'fullyIn' is true only cells whose ids are \b fully contained in ['begin','end') tab will be kept.
+ *
+ * @param begin input start of array of node ids.
+ * @param end input end of array of node ids.
+ * @param fullyIn input that specifies if all node ids must be in ['begin','end') array to consider cell to be in.
+ * @param cellIdsKept in/out array where all candidate cell ids are put at the end.
+ */
+void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, std::vector<int>& cellIdsKept) const
+{
+  std::set<int> fastFinder(begin,end);
+  int nbOfCells=getNumberOfCells();
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
-  int nbOfCells=getNumberOfCells();
-  std::vector<int> cellIdsKept;
   for(int i=0;i<nbOfCells;i++)
     {
       std::set<int> connOfCell(conn+connIndex[i]+1,conn+connIndex[i+1]);
@@ -942,22 +956,34 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *start, c
       if(((int)locMerge.size()==refLgth && fullyIn) || (locMerge.size()!=0 && !fullyIn))
         cellIdsKept.push_back(i);
     }
+}
+
+/*!
+ * Keeps from 'this' only cells which constituing point id are in the ids specified by ['begin','end').
+ * The return newly allocated mesh will share the same coordinates as 'this'.
+ * Parameter 'fullyIn' specifies if a cell that has part of its nodes in ids array is kept or not.
+ * If 'fullyIn' is true only cells whose ids are \b fully contained in ['begin','end') tab will be kept.
+ */
+MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
+{
+  std::vector<int> cellIdsKept;
+  fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
   return buildPartOfMySelf(&cellIdsKept[0],&cellIdsKept[0]+cellIdsKept.size(),true);
 }
 
 /*!
- * Contrary to MEDCouplingUMesh::buildPartOfMySelfNode method this method a mesh with a meshDimension equal to
+ * Contrary to MEDCouplingUMesh::buildPartOfMySelfNode method this method builds a mesh with a meshDimension equal to
  * this->getMeshDimension()-1. The return newly allocated mesh will share the same coordinates as 'this'.
  * Parameter 'fullyIn' specifies if a face that has part of its nodes in ids array is kept or not.
- * If 'fullyIn' is true only faces whose ids are \b fully contained in ['start','end') tab will be kept.
+ * If 'fullyIn' is true only faces whose ids are \b fully contained in ['begin','end') tab will be kept.
  */
-MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const
+MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
 {
   DataArrayInt *desc,*descIndx,*revDesc,*revDescIndx;
   desc=DataArrayInt::New(); descIndx=DataArrayInt::New(); revDesc=DataArrayInt::New(); revDescIndx=DataArrayInt::New();
   MEDCouplingUMesh *subMesh=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
   desc->decrRef(); descIndx->decrRef(); revDesc->decrRef(); revDescIndx->decrRef();
-  MEDCouplingUMesh *ret=(MEDCouplingUMesh *)subMesh->buildPartOfMySelfNode(start,end,fullyIn);
+  MEDCouplingUMesh *ret=(MEDCouplingUMesh *)subMesh->buildPartOfMySelfNode(begin,end,fullyIn);
   subMesh->decrRef();
   return ret;
 }
@@ -1512,10 +1538,10 @@ void MEDCouplingUMesh::unserialization(const std::vector<int>& tinyInfo, const D
 
 /*!
  * This is the low algorithm of buildPartOfMySelf. 
- * Keeps from 'this' only cells which constituing point id are in the ids specified by ['start','end').
+ * Keeps from 'this' only cells which constituing point id are in the ids specified by ['begin','end').
  * The return newly allocated mesh will share the same coordinates as 'this'.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *start, const int *end) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
 {
   checkFullyDefined();
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
@@ -1532,18 +1558,18 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *start
     ret->setName(getName());
   ret->_mesh_dim=_mesh_dim;
   ret->setCoords(_coords);
-  int nbOfElemsRet=end-start;
+  int nbOfElemsRet=end-begin;
   int *connIndexRet=new int[nbOfElemsRet+1];
   connIndexRet[0]=0;
   const int *conn=_nodal_connec->getConstPointer();
   const int *connIndex=_nodal_connec_index->getConstPointer();
   int newNbring=0;
-  for(const int *work=start;work!=end;work++,newNbring++)
+  for(const int *work=begin;work!=end;work++,newNbring++)
     connIndexRet[newNbring+1]=connIndexRet[newNbring]+connIndex[*work+1]-connIndex[*work];
   int *connRet=new int[connIndexRet[nbOfElemsRet]];
   int *connRetWork=connRet;
   std::set<INTERP_KERNEL::NormalizedCellType> types;
-  for(const int *work=start;work!=end;work++)
+  for(const int *work=begin;work!=end;work++)
     {
       types.insert((INTERP_KERNEL::NormalizedCellType)conn[connIndex[*work]]);
       connRetWork=std::copy(conn+connIndex[*work],conn+connIndex[*work+1],connRetWork);
@@ -2446,13 +2472,13 @@ std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
   for(const int *i=connI;i!=connI+nbOfCells;)
     {
       INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
-      int startCellId=std::distance(connI,i);
+      int beginCellId=std::distance(connI,i);
       i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
       int endCellId=std::distance(connI,i);
-      int sz=endCellId-startCellId;
+      int sz=endCellId-beginCellId;
       int *cells=new int[sz];
       for(int j=0;j<sz;j++)
-        cells[j]=startCellId+j;
+        cells[j]=beginCellId+j;
       MEDCouplingUMesh *m=(MEDCouplingUMesh *)buildPartOfMySelf(cells,cells+sz,true);
       delete [] cells;
       ret.push_back(m);

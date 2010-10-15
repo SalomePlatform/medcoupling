@@ -56,6 +56,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     MEDCOUPLING_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     MEDCOUPLING_EXPORT void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
     MEDCOUPLING_EXPORT void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
@@ -84,9 +85,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
     MEDCOUPLING_EXPORT void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
-    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildPartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const;
+    MEDCOUPLING_EXPORT MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const;
     MEDCOUPLING_EXPORT void findBoundaryNodes(std::vector<int>& nodes) const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
@@ -137,12 +138,13 @@ namespace ParaMEDMEM
     void reprConnectivityOfThisLL(std::ostringstream& stream) const;
     //tools
     void renumberNodesInConn(const int *newNodeNumbers);
+    void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, std::vector<int>& cellIdsKept) const;
     MEDCouplingUMesh *buildExtrudedMeshFromThisLowLev(int nbOfNodesOf1Lev, bool isQuad) const;
     DataArrayDouble *fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
     template<int SPACEDIM>
     void findCommonCellsBase(int compType, std::vector<int>& res, std::vector<int>& resI) const;
     bool areCellsEqualInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const;
-    MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *start, const int *end) const;
+    MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;

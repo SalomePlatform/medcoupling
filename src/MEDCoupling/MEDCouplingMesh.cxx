@@ -105,8 +105,8 @@ void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levO
 }
 
 /*!
- * Given a nodeIds range ['partBg','partEnd'), this method returns the set of cell ids in ascendant order that are \b fully whose connectivity of
- * these cells are fully included in the range. As a consequence the returned set of cell ids does not \b always fit the nodes in ['partBg','partEnd')
+ * Given a nodeIds range ['partBg','partEnd'), this method returns the set of cell ids in ascendant order whose connectivity of
+ * these cells are fully included in the range. As a consequence the returned set of cell ids does \b not \b always fit the nodes in ['partBg','partEnd')
  * This method returns the corresponding cells in a newly created array that the caller has the responsability.
  */
 DataArrayInt *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
