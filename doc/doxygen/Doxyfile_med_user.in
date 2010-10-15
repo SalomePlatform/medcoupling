@@ -113,8 +113,11 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
 			 MEDCouplingCMesh.* \
 			 MEDCouplingExtrudedMesh.* \
 			 MEDCouplingFieldDouble.* \
+			 MEDCouplingField.* \
 			 MEDCouplingFieldDiscretization.* \
 			 MEDCouplingTimeDiscretization.* \
+			 MEDCouplingTimeLabel.* \
+			 MEDCouplingRefCountObject.* \
 			 MEDCouplingMemArray.* \
 			 MEDCouplingRemapper.* \
 			 MEDLoader.* \
