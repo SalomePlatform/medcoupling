@@ -497,6 +497,12 @@ void MEDCouplingCMesh::translate(const double *vector)
                    _z_array->getPointer(),std::bind2nd(std::plus<double>(),vector[2]));
 }
 
+void MEDCouplingCMesh::scale(const double *point, double factor)
+{
+  //not implemented yet !
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
 {
   //not implemented yet !

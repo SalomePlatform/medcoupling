@@ -64,7 +64,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
-%newobject ParaMEDMEM::MEDCouplingField::buildWeightingField;
+%newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::mergeFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::doublyContractedProduct;
@@ -139,7 +139,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convertCellArrayPerGeoType;
-%newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForConsctvCellTypesSpe;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec;
+%newobject ParaMEDMEM::MEDCouplingUMesh::buildDirectionVectorField;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -270,6 +271,14 @@ namespace ParaMEDMEM
            self->getCoordinatesOfNode(nodeId,coo);
            return convertDblArrToPyList2(coo);
          }
+
+         void scale(PyObject *point, double factor)
+         {
+           int sz;
+           double *p=convertPyToNewDblArr2(point,&sz);
+           self->scale(p,factor);
+           delete [] p;
+         }
        }
   };
 }
@@ -293,7 +302,6 @@ namespace ParaMEDMEM
       void zipCoords();
       double getCaracteristicDimension() const;
       void translate(const double *vector);
-      void scale(const double *point, double factor);
       void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
@@ -321,10 +329,10 @@ namespace ParaMEDMEM
              return self->simpleRepr();
            }
            
-           PyObject *buildNewNumberingFromCommNodesFrmt(const DataArrayInt *comm, const DataArrayInt *commIndex) const
+           PyObject *buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex) const
            {
              int newNbOfNodes;
-             DataArrayInt *ret0=self->buildNewNumberingFromCommNodesFrmt(comm,commIndex,newNbOfNodes);
+             DataArrayInt *ret0=self->buildNewNumberingFromCommonNodesFormat(comm,commIndex,newNbOfNodes);
              PyObject *res = PyList_New(2);
              PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
              PyList_SetItem(res,1,SWIG_From_int(newNbOfNodes));
@@ -396,13 +404,6 @@ namespace ParaMEDMEM
              double *v=convertPyToNewDblArr2(vector,&sz);
              self->translate(v);
              delete [] v;
-           }
-           void scale(PyObject *point, double factor)
-           {
-             int sz;
-             double *p=convertPyToNewDblArr2(point,&sz);
-             self->scale(p,factor);
-             delete [] p;
            }
            void renumberNodes(PyObject *li, int newNbOfNodes)
            {
@@ -476,6 +477,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
     bool isPresenceOfQuadratic() const;
+    MEDCouplingFieldDouble *buildDirectionVectorField() const;
     void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
@@ -552,11 +554,11 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      DataArrayInt *getRenumArrForConsctvCellTypesSpe(PyObject *li) const
+      DataArrayInt *getRenumArrForConsecutiveCellTypesSpec(PyObject *li) const
       {
         int sz;
         INTERP_KERNEL::NormalizedCellType *order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
-        DataArrayInt *ret=self->getRenumArrForConsctvCellTypesSpe(order,order+sz);
+        DataArrayInt *ret=self->getRenumArrForConsecutiveCellTypesSpec(order,order+sz);
         delete [] order;
         return ret;
       }
@@ -665,6 +667,17 @@ namespace ParaMEDMEM
         std::vector<int> cells;
         self->arePolyhedronsNotCorrectlyOriented(cells);
         return convertIntArrToPyList2(cells);
+      }
+
+      PyObject *getFastAveragePlaneOfThis() const throw(INTERP_KERNEL::Exception)
+      {
+        double vec[3];
+        double pos[3];
+        self->getFastAveragePlaneOfThis(vec,pos);
+        double vals[6];
+        std::copy(vec,vec+3,vals);
+        std::copy(pos,pos+3,vals+3);
+        return convertDblArrToPyListOfTuple(vals,3,2);
       }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
@@ -809,7 +822,7 @@ namespace ParaMEDMEM
     void setDescription(const char *desc);
     const char *getName() const;
     TypeOfField getTypeOfField() const;
-    MEDCouplingFieldDouble *buildWeightingField(bool isAbs) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDiscretization *getDiscretization() const;
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);

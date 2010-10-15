@@ -562,6 +562,12 @@ void MEDCouplingExtrudedMesh::translate(const double *vector)
   _mesh1D->translate(vector);
 }
 
+void MEDCouplingExtrudedMesh::scale(const double *point, double factor)
+{
+  _mesh2D->scale(point,factor);
+  _mesh1D->scale(point,factor);
+}
+
 MEDCouplingMesh *MEDCouplingExtrudedMesh::buildPart(const int *start, const int *end) const
 {
   // not implemented yet !

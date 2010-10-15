@@ -386,11 +386,11 @@ void MEDCouplingBasicsTest::testNormL12Integ1D()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[0],f1->normL2(0),1e-9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[1],f1->normL2(1),1e-9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[2],f1->normL2(2),1e-9);
-  //buildWeightingField
-  MEDCouplingFieldDouble *f4=f1->buildWeightingField(false);
+  //buildMeasureField
+  MEDCouplingFieldDouble *f4=f1->buildMeasureField(false);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.2,f4->accumulate(0),1e-12);
   f4->decrRef();
-  f4=f1->buildWeightingField(true);
+  f4=f1->buildMeasureField(true);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.62,f4->accumulate(0),1e-12);
   f4->decrRef();
   //

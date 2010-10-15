@@ -444,7 +444,7 @@ double MEDCouplingFieldDouble::getAverageValue() const throw(INTERP_KERNEL::Exce
 }
 
 /*!
- * This method returns the average value in 'this' weighted by ParaMEDMEM::MEDCouplingField::buildWeightingField.
+ * This method returns the average value in 'this' weighted by ParaMEDMEM::MEDCouplingField::buildMeasureField.
  * 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
  * To getAverageValue on vector field applyFunc is needed before. This method looks only \b default array \b and \b only \b default.
  * If default array does not exist, an exception will be thrown.
@@ -453,7 +453,7 @@ double MEDCouplingFieldDouble::getWeightedAverageValue() const throw(INTERP_KERN
 {
   if(getArray()==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::getWeightedAverageValue : no default array defined !");
-  MEDCouplingFieldDouble *w=buildWeightingField(true);
+  MEDCouplingFieldDouble *w=buildMeasureField(true);
   double deno=w->getArray()->accumulate(0);
   w->getArray()->multiplyEqual(getArray());
   double res=w->getArray()->accumulate(0);

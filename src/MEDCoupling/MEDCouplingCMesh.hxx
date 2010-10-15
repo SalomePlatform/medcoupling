@@ -71,6 +71,7 @@ namespace ParaMEDMEM
     int getCellContainingPoint(const double *pos, double eps) const;
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
+    void scale(const double *point, double factor);
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;

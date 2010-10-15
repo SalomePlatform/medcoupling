@@ -80,6 +80,12 @@ MEDCouplingUMesh::MEDCouplingUMesh():_iterator(-1),_mesh_dim(-2),
 {
 }
 
+/*!
+ * This method checks that this is correctly designed. For example le coordinates are set, nodal connectivity.
+ * When this method returns without throwing any exception, 'this' is expected to be writable, exchangeable and to be 
+ * available for most of algorithm. When a mesh has been constructed from scratch it is a good habits to call this method to check
+ * that all is in order in 'this'.
+ */
 void MEDCouplingUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   if(_mesh_dim<-1)
@@ -1674,15 +1680,15 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
 }
 
 /*!
- * This methods returns a vector newly created field on cells that represents the director vector of each 1D cell of this.
+ * This methods returns a vector newly created field on cells that represents the direction vector of each 1D cell of this.
  * This method is only callable on mesh with meshdim == 1 containing only SEG2.
  */
-MEDCouplingFieldDouble *MEDCouplingUMesh::buildLinearField() const
+MEDCouplingFieldDouble *MEDCouplingUMesh::buildDirectionVectorField() const
 {
    if(getMeshDimension()!=1)
-    throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 1 for buildLinearField !");
+    throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 1 for buildDirectionVectorField !");
    if(_types.size()!=1 || *(_types.begin())!=INTERP_KERNEL::NORM_SEG2)
-     throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for buildLinearField !");
+     throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for buildDirectionVectorField !");
    MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
    DataArrayDouble *array=DataArrayDouble::New();
    int nbOfCells=getNumberOfCells();
@@ -1720,7 +1726,7 @@ void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, 
      throw INTERP_KERNEL::Exception("Expected a umesh with only NORM_SEG2 type of elements for project1D !");
    if(getSpaceDimension()!=3)
      throw INTERP_KERNEL::Exception("Expected a umesh with spaceDim==3 for project1D !");
-   MEDCouplingFieldDouble *f=buildLinearField();
+   MEDCouplingFieldDouble *f=buildDirectionVectorField();
    const double *fPtr=f->getArray()->getConstPointer();
    double tmp[3];
    for(int i=0;i<getNumberOfCells();i++)
@@ -1866,6 +1872,8 @@ void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoint
 /*!
  * This method is only available for a mesh with meshDim==2 and spaceDim==2||spaceDim==3.
  * This method returns a vector 'cells' where all detected butterfly cells have been added to cells.
+ * A 2D cell is considered to be butterfly if it exists at least one pair of distinct edges of it that intersect each other
+ * anywhere excepted their extremities. An INTERP_KERNEL::NORM_NORI3 could \b not be butterfly.
  */
 void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
 {
@@ -2241,10 +2249,10 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Excepti
  * @param vec output of size at least 3 used to store the normal vector (with norm equal to Area ) of searched plane.
  * @param pos output of size at least 3 used to store a point owned of searched plane.
  */
-void MEDCouplingUMesh::getFastMiddlePlaneOfThis(double *vec, double *pos) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::getFastAveragePlaneOfThis(double *vec, double *pos) const throw(INTERP_KERNEL::Exception)
 {
   if(getMeshDimension()!=2 || getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("Invalid mesh to apply getFastMiddlePlaneOfThis on it : must be meshDim==2 and spaceDim==3 !");
+    throw INTERP_KERNEL::Exception("Invalid mesh to apply getFastAveragePlaneOfThis on it : must be meshDim==2 and spaceDim==3 !");
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   const double *coordsPtr=_coords->getConstPointer();
@@ -2350,7 +2358,7 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::No
  * The mesh after this call will pass the test of MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder with the same inputs.
  * The returned array minimizes the permutations that is to say the order of cells inside same geometric type remains the same.
  */
-DataArrayInt *MEDCouplingUMesh::getRenumArrForConsctvCellTypesSpe(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const
+DataArrayInt *MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const
 {
   checkFullyDefined();
   int nbOfCells=getNumberOfCells();

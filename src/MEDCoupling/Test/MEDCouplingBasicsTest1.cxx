@@ -1163,7 +1163,7 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
   CPPUNIT_ASSERT_EQUAL(1,commI->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(0,comm->getNumberOfTuples());
   int newNbOfNodes;
-  DataArrayInt *o2n=targetMesh->buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
+  DataArrayInt *o2n=targetMesh->buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
   CPPUNIT_ASSERT_EQUAL(27,newNbOfNodes);
   CPPUNIT_ASSERT_EQUAL(27,o2n->getNumberOfTuples());
   const int o2nExp1[27]=
@@ -1186,7 +1186,7 @@ void MEDCouplingBasicsTest::testFindCommonNodes()
   const int commIExpected[3]={0,4,6};
   CPPUNIT_ASSERT(std::equal(commExpected,commExpected+6,comm->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(commIExpected,commIExpected+3,commI->getConstPointer()));
-  o2n=targetMesh->buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
+  o2n=targetMesh->buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
   CPPUNIT_ASSERT_EQUAL(31,o2n->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(27,newNbOfNodes);
   const int o2nExp2[31]=
@@ -1921,13 +1921,13 @@ void MEDCouplingBasicsTest::testCheckConsecutiveCellTypes()
   CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypes());
   CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypesAndOrder(order1,order1+2));
   CPPUNIT_ASSERT(!targetMesh->checkConsecutiveCellTypesAndOrder(order2,order2+2));
-  DataArrayInt *da=targetMesh->getRenumArrForConsctvCellTypesSpe(order1,order1+2);
+  DataArrayInt *da=targetMesh->getRenumArrForConsecutiveCellTypesSpec(order1,order1+2);
   CPPUNIT_ASSERT_EQUAL(5,da->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
   const int expected1[5]={2,0,1,3,4};
   CPPUNIT_ASSERT(std::equal(expected1,expected1+5,da->getConstPointer()));
   da->decrRef();
-  da=targetMesh->getRenumArrForConsctvCellTypesSpe(order2,order2+2);
+  da=targetMesh->getRenumArrForConsecutiveCellTypesSpec(order2,order2+2);
   CPPUNIT_ASSERT_EQUAL(5,da->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
   const int expected2[5]={0,3,4,1,2};

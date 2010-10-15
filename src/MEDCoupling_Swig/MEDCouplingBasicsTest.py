@@ -771,7 +771,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         comm,commI=targetMesh.findCommonNodes(-1,1e-10);
         self.assertEqual(1,commI.getNumberOfTuples());
         self.assertEqual(0,comm.getNumberOfTuples());
-        o2n,newNbOfNodes=targetMesh.buildNewNumberingFromCommNodesFrmt(comm,commI);
+        o2n,newNbOfNodes=targetMesh.buildNewNumberingFromCommonNodesFormat(comm,commI);
         self.assertEqual(27,newNbOfNodes);
         self.assertEqual(27,o2n.getNumberOfTuples());
         o2nExp1=range(27)
@@ -786,7 +786,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         commIExpected=[0,4,6]
         self.assertEqual(commExpected,list(comm.getValues()));
         self.assertEqual(commIExpected,list(commI.getValues()));
-        o2n,newNbOfNodes=targetMesh.buildNewNumberingFromCommNodesFrmt(comm,commI);
+        o2n,newNbOfNodes=targetMesh.buildNewNumberingFromCommonNodesFormat(comm,commI);
         self.assertEqual(31,o2n.getNumberOfTuples());
         self.assertEqual(27,newNbOfNodes);
         o2nExp2=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
@@ -1364,12 +1364,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(not targetMesh.checkConsecutiveCellTypes());
         self.assertTrue(not targetMesh.checkConsecutiveCellTypesAndOrder(order1));
         self.assertTrue(not targetMesh.checkConsecutiveCellTypesAndOrder(order2));
-        da=targetMesh.getRenumArrForConsctvCellTypesSpe(order1);
+        da=targetMesh.getRenumArrForConsecutiveCellTypesSpec(order1);
         self.assertEqual(5,da.getNumberOfTuples());
         self.assertEqual(1,da.getNumberOfComponents());
         expected1=[2,0,1,3,4]
         self.assertTrue(expected1==list(da.getValues()));
-        da=targetMesh.getRenumArrForConsctvCellTypesSpe(order2);
+        da=targetMesh.getRenumArrForConsecutiveCellTypesSpec(order2);
         self.assertEqual(5,da.getNumberOfTuples());
         self.assertEqual(1,da.getNumberOfComponents());
         expected2=[0,3,4,1,2]
@@ -2027,10 +2027,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(abs(expected7[0]-f1.normL2(0))<1e-9);
         self.assertTrue(abs(expected7[1]-f1.normL2(1))<1e-9);
         self.assertTrue(abs(expected7[2]-f1.normL2(2))<1e-9);
-        #buildWeightingField
-        f4=f1.buildWeightingField(False);
+        #buildMeasureField
+        f4=f1.buildMeasureField(False);
         self.assertTrue(abs(-0.2-f4.accumulate(0))<1e-12);
-        f4=f1.buildWeightingField(True);
+        f4=f1.buildMeasureField(True);
         self.assertTrue(abs(1.62-f4.accumulate(0))<1e-12);
         # Testing with 2D Curve
         m1=MEDCouplingDataForTest.build2DCurveTargetMesh_3();

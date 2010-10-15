@@ -96,7 +96,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildLinearField() const;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildDirectionVectorField() const;
     MEDCOUPLING_EXPORT void project1D(const double *pt, const double *v, double eps, double *res) const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
     MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
@@ -111,11 +111,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void orientCorrectly2DCells(const double *vec, bool polyOnly) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void arePolyhedronsNotCorrectlyOriented(std::vector<int>& cells) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void getFastMiddlePlaneOfThis(double *vec, double *pos) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void getFastAveragePlaneOfThis(double *vec, double *pos) const throw(INTERP_KERNEL::Exception);
     //utilities for MED File RW
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const;
-    MEDCOUPLING_EXPORT DataArrayInt *getRenumArrForConsctvCellTypesSpe(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const;
+    MEDCOUPLING_EXPORT DataArrayInt *getRenumArrForConsecutiveCellTypesSpec(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *rearrange2ConsecutiveCellTypes();
     MEDCOUPLING_EXPORT std::vector<MEDCouplingUMesh *> splitByType() const;
     MEDCOUPLING_EXPORT DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);

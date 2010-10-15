@@ -86,6 +86,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
     virtual void translate(const double *vector) = 0;
+    virtual void scale(const double *point, double factor) = 0;
     virtual void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const = 0;
     virtual MEDCouplingMesh *buildPart(const int *start, const int *end) const = 0;

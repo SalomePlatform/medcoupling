@@ -92,14 +92,14 @@ TypeOfField MEDCouplingField::getTypeOfField() const
 }
 
 /*!
- * This method retrieves the weighting field of 'this'. If no '_mesh' is defined an exception will be thrown.
+ * This method retrieves the measure field of 'this'. If no '_mesh' is defined an exception will be thrown.
  * Warning the retrieved field life cycle is the responsability of caller.
  */
-MEDCouplingFieldDouble *MEDCouplingField::buildWeightingField(bool isAbs) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDCouplingField::buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception)
 {
   if(_mesh==0)
-    throw INTERP_KERNEL::Exception("MEDCouplingField::getWeightingField : no mesh defined !!!");
-  return _type->getWeightingField(_mesh,isAbs);
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getMeasureField : no mesh defined !!!");
+  return _type->getMeasureField(_mesh,isAbs);
 }
 
 void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
@@ -264,7 +264,7 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._n
 
 /*!
  * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
- * @ param di is an array returned that specifies entity ids (nodes, cells ids...) in mesh 'mesh' of entity in returned submesh.
+ * @param di is an array returned that specifies entity ids (nodes, cells ids...) in mesh 'mesh' of entity in returned submesh.
  */
 MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const
 {

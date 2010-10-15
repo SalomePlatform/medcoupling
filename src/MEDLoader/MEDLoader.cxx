@@ -2102,7 +2102,7 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, const ParaMEDMEM::ME
   if(renum)
     {
       ParaMEDMEM::MEDCouplingFieldDouble *f3=f2->clone(true);
-      DataArrayInt *da=meshC->getRenumArrForConsctvCellTypesSpe(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
+      DataArrayInt *da=meshC->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
       f3->renumberCells(da->getConstPointer(),false);
       da->decrRef();
       f=f3;
@@ -2235,7 +2235,7 @@ void MEDLoaderNS::writeFieldAndMeshDirectly(const char *fileName, const ParaMEDM
       if(isRenumbering)
         {
           ParaMEDMEM::MEDCouplingFieldDouble *f2=f->clone(true);
-          DataArrayInt *da=mesh->getRenumArrForConsctvCellTypesSpe(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
+          DataArrayInt *da=mesh->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
           f2->renumberCells(da->getConstPointer(),false);
           da->decrRef();
           appendFieldDirectly(fileName,f2);

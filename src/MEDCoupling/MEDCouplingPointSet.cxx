@@ -164,7 +164,7 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(int limitNodeId, d
   DataArrayInt *comm,*commI;
   findCommonNodes(limitNodeId,precision,comm,commI);
   int oldNbOfNodes=getNumberOfNodes();
-  DataArrayInt *ret=buildNewNumberingFromCommNodesFrmt(comm,commI,newNbOfNodes);
+  DataArrayInt *ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
   areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
   comm->decrRef();
   commI->decrRef();
@@ -222,8 +222,8 @@ void MEDCouplingPointSet::findCommonNodes(int limitNodeId, double prec, DataArra
  * @param commI in param in the same format than one returned by findCommonNodes method.
  * @return the old to new correspondance array.
  */
-DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommNodesFrmt(const DataArrayInt *comm, const DataArrayInt *commIndex,
-                                                                      int& newNbOfNodes) const
+DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
+                                                                          int& newNbOfNodes) const
 {
   DataArrayInt *ret=DataArrayInt::New();
   int nbNodesOld=getNumberOfNodes();

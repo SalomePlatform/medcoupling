@@ -56,8 +56,8 @@ namespace ParaMEDMEM
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
     DataArrayInt *buildPermArrayForMergeNode(int limitNodeId, double precision, bool& areNodesMerged, int& newNbOfNodes) const;
     void findCommonNodes(int limitNodeId, double prec, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
-    DataArrayInt *buildNewNumberingFromCommNodesFrmt(const DataArrayInt *comm, const DataArrayInt *commIndex,
-                                                     int& newNbOfNodes) const;
+    DataArrayInt *buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
+                                                         int& newNbOfNodes) const;
     void getBoundingBox(double *bbox) const;
     void zipCoords();
     double getCaracteristicDimension() const;

@@ -99,11 +99,11 @@ void MEDCouplingFieldDiscretization::updateTime()
 /*!
  * Computes normL1 of DataArrayDouble instance arr.
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
- * @throw when the field discretization fails on getWeighting fields (gauss points for example)
+ * @throw when the field discretization fails on getMeasure fields (gauss points for example)
  */
 void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingFieldDouble *vol=getWeightingField(mesh,true);
+  MEDCouplingFieldDouble *vol=getMeasureField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   std::fill(res,res+nbOfCompo,0.);
@@ -120,11 +120,11 @@ void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const D
 /*!
  * Computes normL2 of DataArrayDouble instance arr.
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
- * @throw when the field discretization fails on getWeighting fields (gauss points for example)
+ * @throw when the field discretization fails on getMeasure fields (gauss points for example)
  */
 void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingFieldDouble *vol=getWeightingField(mesh,true);
+  MEDCouplingFieldDouble *vol=getMeasureField(mesh,true);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   std::fill(res,res+nbOfCompo,0.);
@@ -142,11 +142,11 @@ void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const D
 /*!
  * Computes integral of DataArrayDouble instance arr.
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
- * @throw when the field discretization fails on getWeighting fields (gauss points for example)
+ * @throw when the field discretization fails on getMeasure fields (gauss points for example)
  */
 void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingFieldDouble *vol=getWeightingField(mesh,isWAbs);
+  MEDCouplingFieldDouble *vol=getMeasureField(mesh,isWAbs);
   int nbOfCompo=arr->getNumberOfComponents();
   int nbOfElems=getNumberOfTuples(mesh);
   std::fill(res,res+nbOfCompo,0.);
@@ -327,7 +327,7 @@ void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMe
     }
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
   return mesh->getMeasureField(isAbs);
 }
@@ -358,7 +358,7 @@ void MEDCouplingFieldDiscretizationP0::renumberValuesOnNodes(const int *, DataAr
 
 /*!
  * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
- * @ param di is an array returned that specifies entity ids (here cells ids) in mesh 'mesh' of entity in returned submesh.
+ * @param di is an array returned that specifies entity ids (here cells ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first cell id of returned mesh has the (*di)[0] id in 'mesh'
  */
 MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
@@ -433,7 +433,7 @@ void MEDCouplingFieldDiscretizationP1::checkCoherencyBetween(const MEDCouplingMe
     }
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
   return mesh->getMeasureFieldOnNode(isAbs);
 }
@@ -513,7 +513,7 @@ void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const int *old2NewP
 
 /*!
  * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
-* @ param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
+* @param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first node id of returned mesh has the (*di)[0] id in 'mesh'
  */
 MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
@@ -826,7 +826,7 @@ void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplin
     }
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
@@ -1120,7 +1120,7 @@ void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCoupl
     }
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getWeightingField(const MEDCouplingMesh *mesh, bool isAbs) const
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }

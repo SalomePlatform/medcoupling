@@ -378,8 +378,8 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
       }
     case Integral:
       {
-        MEDCouplingFieldDouble *deno=srcField->getDiscretization()->getWeightingField(srcField->getMesh(),true);
-        MEDCouplingFieldDouble *denoR=trgField->getDiscretization()->getWeightingField(trgField->getMesh(),true);
+        MEDCouplingFieldDouble *deno=srcField->getDiscretization()->getMeasureField(srcField->getMesh(),true);
+        MEDCouplingFieldDouble *denoR=trgField->getDiscretization()->getMeasureField(trgField->getMesh(),true);
         const double *denoPtr=deno->getArray()->getConstPointer();
         const double *denoRPtr=denoR->getArray()->getConstPointer();
         if(trgField->getMesh()->getMeshDimension()==-1)
@@ -410,8 +410,8 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
       }
     case RevIntegral:
       {
-        MEDCouplingFieldDouble *deno=trgField->getDiscretization()->getWeightingField(trgField->getMesh(),true);
-        MEDCouplingFieldDouble *denoR=srcField->getDiscretization()->getWeightingField(srcField->getMesh(),true);
+        MEDCouplingFieldDouble *deno=trgField->getDiscretization()->getMeasureField(trgField->getMesh(),true);
+        MEDCouplingFieldDouble *denoR=srcField->getDiscretization()->getMeasureField(srcField->getMesh(),true);
         const double *denoPtr=deno->getArray()->getConstPointer();
         const double *denoRPtr=denoR->getArray()->getConstPointer();
         if(trgField->getMesh()->getMeshDimension()==-1)
