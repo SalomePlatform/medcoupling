@@ -178,8 +178,8 @@ double INTERP_KERNEL::tetraAspectRatio(const double *coo)
   double ac[3]={coo[6]-coo[0],coo[7]-coo[1],coo[8]-coo[2]};
   double ad[3]={coo[9]-coo[0],coo[10]-coo[1],coo[11]-coo[2]};
   double detTet=(ab[0]*(ac[1]*ad[2]-ac[2]*ad[1]))+(ab[1]*(ac[2]*ad[0]-ac[0]*ad[2]))+(ab[2]*(ac[0]*ad[1]-ac[1]*ad[2]));
-  if(detTet<1.e-15)
-    return std::numeric_limits<double>::max();
+  //if(detTet<1.e-15)
+  //  return std::numeric_limits<double>::max();
   double bc[3]={coo[6]-coo[3],coo[7]-coo[4],coo[8]-coo[5]};
   double bd[3]={coo[9]-coo[3],coo[10]-coo[4],coo[11]-coo[5]};
   double cd[3]={coo[9]-coo[6],coo[10]-coo[7],coo[11]-coo[8]};
