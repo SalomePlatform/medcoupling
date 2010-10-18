@@ -141,6 +141,10 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convertCellArrayPerGeoType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDirectionVectorField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getEdgeRatioField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getAspectRatioField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getWarpField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getSkewField;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -479,6 +483,10 @@ namespace ParaMEDMEM
     bool isPresenceOfQuadratic() const;
     MEDCouplingFieldDouble *buildDirectionVectorField() const;
     void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getEdgeRatioField() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getAspectRatioField() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getWarpField() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getSkewField() const throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
       {

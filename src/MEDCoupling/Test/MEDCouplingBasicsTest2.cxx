@@ -1977,3 +1977,28 @@ void MEDCouplingBasicsTest::testGetNodeIdsOfCell1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2,coords[1],1e-13);
   mesh1->decrRef();
 }
+
+void MEDCouplingBasicsTest::testGetEdgeRatioField1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f1=m1->getEdgeRatioField();
+  CPPUNIT_ASSERT_EQUAL(m1->getNumberOfCells(),f1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  const double expected1[5]={1.,1.4142135623730951, 1.4142135623730951,1.,1.};
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getIJ(i,0),1e-14);
+  f1->decrRef();
+  m1->decrRef();
+  //
+  m1=build3DSurfTargetMesh_1();
+  f1=m1->getEdgeRatioField();
+  CPPUNIT_ASSERT_EQUAL(m1->getNumberOfCells(),f1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  const double expected2[5]={1.4142135623730951, 1.7320508075688772, 1.7320508075688772, 1.4142135623730951, 1.4142135623730951};
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f1->getIJ(i,0),1e-14);
+  f1->decrRef();
+  m1->decrRef();
+}

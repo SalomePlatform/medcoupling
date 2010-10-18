@@ -3377,6 +3377,28 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         li2=mesh1.getNodalConnectivityIndex().getValuesAsTuple()
         self.assertEqual(6,len(li2))
         pass
+
+    def testGetEdgeRatioField1(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f1=m1.getEdgeRatioField();
+        self.assertEqual(m1.getNumberOfCells(),f1.getNumberOfTuples());
+        self.assertEqual(5,f1.getNumberOfTuples());
+        self.assertEqual(1,f1.getNumberOfComponents());
+        expected1=[1.,1.4142135623730951, 1.4142135623730951,1.,1.]
+        for i in xrange(5):
+            self.assertAlmostEqual(expected1[i],f1.getIJ(i,0),14);
+            pass
+        #
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        f1=m1.getEdgeRatioField();
+        self.assertEqual(m1.getNumberOfCells(),f1.getNumberOfTuples());
+        self.assertEqual(5,f1.getNumberOfTuples());
+        self.assertEqual(1,f1.getNumberOfComponents());
+        expected2=[1.4142135623730951, 1.7320508075688772, 1.7320508075688772, 1.4142135623730951, 1.4142135623730951]
+        for i in xrange(5):
+            self.assertAlmostEqual(expected2[i],f1.getIJ(i,0),14);
+            pass
+        pass
     
     def setUp(self):
         pass
