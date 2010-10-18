@@ -87,7 +87,7 @@ double INTERP_KERNEL::quadAspectRatio(const double *coo)
     return std::numeric_limits<double>::max();
 }
 
-double quadWarp(const double *coo)
+double INTERP_KERNEL::quadWarp(const double *coo)
 {
   double e0[3]={coo[3]-coo[0],coo[4]-coo[1],coo[5]-coo[2]};
   double e1[3]={coo[6]-coo[3],coo[7]-coo[4],coo[8]-coo[5]};
