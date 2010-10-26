@@ -31,38 +31,17 @@ int MEDLoaderBase::getStatusOfFile(const char *fileName)
 {
   std::ifstream ifs;
   ifs.open(fileName);
-  unsigned int res=0;
   if((ifs.rdstate() & std::ifstream::failbit)!=0)
     {
-      res+=1;
       ifs.close();
+      return NOT_EXIST;
     }
   std::ofstream ofs(fileName,std::ios_base::app);
   if((ofs.rdstate() & std::ofstream::failbit)!=0)
     {
-      ofs.close();
-      res+=2;
-    }
-  switch(res)
-    {
-    case 0:
-      return EXIST_RW;
-    case 1:
-      {
-        std::ifstream ifs2;
-        ifs2.open(fileName);
-        if((ifs2.rdstate() & std::ifstream::failbit)!=0)
-          return EXIST_WRONLY;
-        else
-          return NOT_EXIST;
-      }
-    case 2:
       return EXIST_RDONLY;
-    case 3:
-      return DIR_LOCKED;
-    default:
-      throw INTERP_KERNEL::Exception("Internal error !");
     }
+  return EXIST_RW;
 }
 
 char *MEDLoaderBase::buildEmptyString(int lgth)
