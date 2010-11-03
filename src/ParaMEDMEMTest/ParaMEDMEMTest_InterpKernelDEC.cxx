@@ -1948,11 +1948,11 @@ void ParaMEDMEMTest::testInterpKernelDEC3DSurfEmptyBBox()
   if(source_group->containsMyRank())
     {
       double coords[15]={1.,0.,0., 2.,0.,0., 2.,2.,0., 0.,2.,0., 0.5,0.5,1.};
-      int conn[4]={0,1,2,3};
+      int conn[7]={0,1,2,3,0,3,4};
       mesh=MEDCouplingUMesh::New("Source mesh Proc0",2);
       mesh->allocateCells(2);
       mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
-      mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,2,conn+4);
+      mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+4);
       mesh->finishInsertingCells();
       DataArrayDouble *myCoords=DataArrayDouble::New();
       myCoords->alloc(5,3);
