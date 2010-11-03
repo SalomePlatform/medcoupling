@@ -21,9 +21,9 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
-#include "InterpKernelExprParser.hxx"
-
+#include <set>
 #include <sstream>
 #include <iterator>
 
@@ -169,32 +169,10 @@ bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const
 {
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(t);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
   ret->setMesh(this);
-  DataArrayDouble *loc=ret->getDiscretization()->getLocalizationOfDiscValues(this);
-  DataArrayDouble *array=DataArrayDouble::New();
-  int nbOfTuple=loc->getNumberOfTuples();
-  int nbCompIn=loc->getNumberOfComponents();
-  const double *locPtr=loc->getConstPointer();
-  array->alloc(nbOfTuple,nbOfComp);
-  double *ptToFill=array->getPointer();
-  for(int i=0;i<nbOfTuple;i++)
-    {
-      if(!func(locPtr+nbCompIn*i,ptToFill))
-        {
-          std::ostringstream oss; oss << "For tuple # " << i << " localized on (";
-          std::copy(locPtr+nbCompIn*i,locPtr+nbCompIn*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed !";
-          loc->decrRef();
-          array->decrRef();
-          ret->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      ptToFill+=nbOfComp;
-    }
-  loc->decrRef();
-  ret->setArray(array);
-  array->decrRef();
+  ret->fillFromAnalytic(nbOfComp,func);
+  ret->incrRef();
   return ret;
 }
 
@@ -219,50 +197,10 @@ void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(IN
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const
 {
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  std::set<std::string> vars;
-  expr.getTrueSetOfVars(vars);
-  if((int)vars.size()>getSpaceDimension())
-    {
-      std::ostringstream oss; oss << "The mesh has a spaceDim==" << getSpaceDimension() << " and there are ";
-      oss << vars.size() << " variables : ";
-      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  std::vector<std::string> varsV(vars.begin(),vars.end());
-  expr.prepareExprEvaluation(varsV);
-  //
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(t);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
   ret->setMesh(this);
-  DataArrayDouble *loc=ret->getDiscretization()->getLocalizationOfDiscValues(this);
-  DataArrayDouble *array=DataArrayDouble::New();
-  int nbOfTuple=loc->getNumberOfTuples();
-  int nbCompIn=loc->getNumberOfComponents();
-  const double *locPtr=loc->getConstPointer();
-  array->alloc(nbOfTuple,nbOfComp);
-  double *ptToFill=array->getPointer();
-  for(int i=0;i<nbOfTuple;i++)
-    {
-      try
-        {
-          expr.evaluateExpr(nbOfComp,locPtr+nbCompIn*i,ptToFill);
-        }
-      catch(INTERP_KERNEL::Exception& e)
-        {
-          std::ostringstream oss; oss << "For tuple # " << i << " localized on (";
-          std::copy(locPtr+nbCompIn*i,locPtr+nbCompIn*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed ! " << e.what();
-          loc->decrRef();
-          array->decrRef();
-          ret->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      ptToFill+=nbOfComp;
-    }
-  loc->decrRef();
-  ret->setArray(array);
-  array->decrRef();
+  ret->fillFromAnalytic(nbOfComp,func);
+  ret->incrRef();
   return ret;
 }
 

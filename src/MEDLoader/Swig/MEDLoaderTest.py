@@ -388,6 +388,69 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f2.isEqual(f1,1e-12,1e-12));
         pass
 
+    def testFieldNodeProfilRW1(self):
+        fileName="Pyfile19.med";
+        fileName2="Pyfile20.med";
+        m=MEDLoaderDataForTest.build2DMesh_1();
+        nbOfNodes=m.getNumberOfNodes();
+        MEDLoader.WriteUMesh(fileName,m,True);
+        f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME);
+        f1.setName("VFieldOnNodes");
+        f1.setMesh(m);
+        array=DataArrayDouble.New();
+        arr1=[1.,101.,2.,102.,3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.,12.,112.]
+        array.setValues(arr1,nbOfNodes,2);
+        f1.setArray(array);
+        array.setInfoOnComponent(0,"tyty (mm)");
+        array.setInfoOnComponent(1,"uiop (MW)");
+        f1.setTime(3.14,2,7);
+        f1.checkCoherency();
+        arr2=[2,4,5,3,6,7]
+        f2=f1.buildSubPart(arr2);
+        f2.getMesh().setName(f1.getMesh().getName());
+        MEDLoader.WriteField(fileName,f2,False);#<- False important for the test
+        #
+        f3=MEDLoader.ReadFieldNode(fileName,f2.getMesh().getName(),0,f2.getName(),2,7);
+        f3.checkCoherency();
+        self.assertTrue(f3.isEqual(f2,1e-12,1e-12));
+        #
+        arr3=[1,3,0,5,2,4]
+        f2.renumberNodes(arr3);
+        MEDLoader.WriteUMesh(fileName2,m,True);
+        MEDLoader.WriteField(fileName2,f2,False);#<- False important for the test
+        f3=MEDLoader.ReadFieldNode(fileName2,f2.getMesh().getName(),0,f2.getName(),2,7);
+        f3.checkCoherency();
+        self.assertTrue(f3.isEqual(f2,1e-12,1e-12));
+        #
+        pass
+
+    def testFieldNodeProfilRW2(self):
+        fileName="Pyfile23.med";
+        mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
+        MEDLoader.WriteUMesh(fileName,mesh,True);
+        #
+        f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME);
+        f1.setName("FieldMix");
+        f1.setMesh(mesh);
+        arr2=[1071.,1171.,1010.,1110.,1020.,1120.,1030.,1130.,1040.,1140.,1050.,1150.,
+              1060.,1160.,1070.,1170.,1080.,1180.,1090.,1190.,1091.,1191.,1092.,1192.];
+        array=DataArrayDouble.New();
+        array.setValues(arr2,12,2);
+        f1.setArray(array);
+        array.setInfoOnComponent(0,"plkj (mm)");
+        array.setInfoOnComponent(1,"pqqqss (mm)");
+        tmp=array.getPointer();
+        f1.setTime(3.17,2,7);
+        #
+        renumArr=[3,7,2,1,5,11,10,0,9,6,8,4]
+        f1.renumberNodes(renumArr);
+        f1.checkCoherency();
+        MEDLoader.WriteField(fileName,f1,False);#<- False important for the test
+        f2=MEDLoader.ReadFieldNode(fileName,f1.getMesh().getName(),0,f1.getName(),2,7);
+        self.assertTrue(f2.isEqual(f1,1e-12,1e-12));
+        #
+        pass
+
     def testMixCellAndNodesFieldRW1(self):
         fileName="Pyfile21.med";
         mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
@@ -438,6 +501,37 @@ class MEDLoaderTest(unittest.TestCase):
         f3=MEDLoader.ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),2,7);
         self.assertTrue(f3.isEqual(f1,1e-12,1e-12));
         #
+        pass
+
+    def testGetAllFieldNamesRW1(self):
+        fileName="Pyfile22.med";
+        mesh=MEDLoaderDataForTest.build2DMesh_2();
+        f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME);
+        f1.setName("Field1");
+        f1.setTime(3.44,5,6);
+        f1.setMesh(mesh);
+        f1.fillFromAnalytic(2,"x+y");
+        MEDLoader.WriteField(fileName,f1,True);
+        f1.setTime(1002.3,7,8);
+        f1.fillFromAnalytic(2,"x+77.*y");
+        MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+        f1.setName("Field2");
+        MEDLoader.WriteField(fileName,f1,False);
+        f1.setName("Field3");
+        mesh.setName("2DMesh_2Bis");
+        MEDLoader.WriteField(fileName,f1,False);
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setName("Field8");
+        f1.setTime(8.99,7,9);
+        f1.setMesh(mesh);
+        f1.fillFromAnalytic(3,"3*x+y");
+        MEDLoader.WriteField(fileName,f1,False);
+        fs=MEDLoader.GetAllFieldNames(fileName);
+        self.assertEqual(4,len(fs));
+        self.assertTrue(fs[0]=="Field1");
+        self.assertTrue(fs[1]=="Field2");
+        self.assertTrue(fs[2]=="Field3");
+        self.assertTrue(fs[3]=="Field8");
         pass
     pass
 

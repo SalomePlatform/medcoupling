@@ -18,6 +18,7 @@
 //
 
 #include "MEDCouplingCMesh.hxx"
+#include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
@@ -236,7 +237,7 @@ void MEDCouplingCMesh::getSplitCellValues(int *res) const
   for(int l=0;l<spaceDim;l++)
     {
       int val=1;
-      for(int p=l;p<spaceDim-1;p++)
+      for(int p=0;p<spaceDim-l-1;p++)
         val*=getCoordsAt(p)->getNbOfElems()-1;
       res[spaceDim-l-1]=val;
     }
@@ -248,7 +249,7 @@ void MEDCouplingCMesh::getSplitNodeValues(int *res) const
   for(int l=0;l<spaceDim;l++)
     {
       int val=1;
-      for(int p=l;p<spaceDim-1;p++)
+      for(int p=0;p<spaceDim-l-1;p++)
         val*=getCoordsAt(p)->getNbOfElems();
       res[spaceDim-l-1]=val;
     }
@@ -345,7 +346,15 @@ void MEDCouplingCMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) cons
 
 void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
-  //not implemented yet
+  int tmp[3];
+  int spaceDim=getSpaceDimension();
+  getSplitNodeValues(tmp);
+  const DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
+  int tmp2[3];
+  getPosFromId(nodeId,spaceDim,tmp,tmp2);
+  for(int j=0;j<spaceDim;j++)
+    if(tabs[j])
+      coo.push_back(tabs[j]->getConstPointer()[tmp2[j]]);
 }
 
 std::string MEDCouplingCMesh::simpleRepr() const
@@ -427,27 +436,94 @@ void MEDCouplingCMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coor
   declareAsNew();
 }
 
+MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const
+{
+  int spaceDim=getSpaceDimension();
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New(getName(),spaceDim);
+  DataArrayDouble *coords=getCoordinatesAndOwner();
+  ret->setCoords(coords);
+  coords->decrRef();
+  switch(spaceDim)
+    {
+    case 1:
+      fill1DUnstructuredMesh(ret);
+      break;
+    case 2:
+      fill2DUnstructuredMesh(ret);
+      break;
+    case 3:
+      fill3DUnstructuredMesh(ret);
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingCMesh::buildUnstructured : big problem spacedim must be in 1,2 or 3 !");
+    };
+  return ret;
+}
+
 MEDCouplingMesh *MEDCouplingCMesh::buildPart(const int *start, const int *end) const
 {
-  //not implemented yet !
-  return 0;
+  MEDCouplingUMesh *um=buildUnstructured();
+  MEDCouplingMesh *ret=um->buildPart(start,end);
+  um->decrRef();
+  return ret;
 }
 
 MEDCouplingMesh *MEDCouplingCMesh::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
 {
-  //not implemented yet !
-  return 0;
+  MEDCouplingUMesh *um=buildUnstructured();
+  MEDCouplingMesh *ret=um->buildPartAndReduceNodes(start,end,arr);
+  um->decrRef();
+  return ret;
 }
 
 void MEDCouplingCMesh::getBoundingBox(double *bbox) const
 {
-  //not implemented yet !
+  int dim=getSpaceDimension();
+  int j=0;
+  for (int idim=0; idim<dim; idim++)
+    {
+      DataArrayDouble *c=getCoordsAt(idim);
+      if(c)
+        {
+          const double *coords=c->getConstPointer();
+          int nb=c->getNbOfElems();
+          bbox[2*j]=coords[0];
+          bbox[2*j+1]=coords[nb-1];
+          j++;
+        }
+    }
 }
 
 MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
 {
-  //not implemented yet !
-  return 0;
+  std::string name="MeasureOfMesh_";
+  name+=getName();
+  int nbelem=getNumberOfCells();
+  MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS);
+  field->setName(name.c_str());
+  DataArrayDouble* array=DataArrayDouble::New();
+  array->alloc(nbelem,1);
+  double *area_vol=array->getPointer();
+  field->setArray(array) ;
+  array->decrRef();
+  field->setMesh(const_cast<MEDCouplingCMesh *>(this));
+  int tmp[3];
+  getSplitCellValues(tmp);
+  int dim=getSpaceDimension();
+  const double **thisArr=new const double *[dim];
+  const DataArrayDouble *thisArr2[3]={_x_array,_y_array,_z_array};
+  for(int i=0;i<dim;i++)
+    thisArr[i]=thisArr2[i]->getConstPointer();
+  for(int icell=0;icell<nbelem;icell++)
+    {
+      int tmp2[3];
+      getPosFromId(icell,dim,tmp,tmp2);
+      area_vol[icell]=1.;
+      for(int i=0;i<dim;i++)
+        area_vol[icell]*=thisArr[i][tmp2[i]+1]-thisArr[i][tmp2[i]];
+    }
+  delete [] thisArr;
+  return field;
 }
 
 MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureFieldOnNode(bool isAbs) const
@@ -475,8 +551,25 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::buildOrthogonalField() const
 
 int MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps) const
 {
-  //not implemented yet !
-  return -1;
+  int dim=getSpaceDimension();
+  int ret=0;
+  int coeff=1;
+  for(int i=0;i<dim;i++)
+    {
+      const double *d=getCoordsAt(i)->getConstPointer();
+      int nbOfNodes=getCoordsAt(i)->getNbOfElems();
+      double ref=pos[i];
+      const double *w=std::find_if(d,d+nbOfNodes,std::bind2nd(std::greater<double>(),ref));
+      int w2=std::distance(d,w);
+      if(w2<nbOfNodes && w2!=0)
+        {
+          ret+=coeff*(w2-1);
+          coeff*=nbOfNodes-1;
+        }
+      else
+        return -1;
+    }
+  return ret;
 }
 
 void MEDCouplingCMesh::rotate(const double *center, const double *vector, double angle)
@@ -499,8 +592,20 @@ void MEDCouplingCMesh::translate(const double *vector)
 
 void MEDCouplingCMesh::scale(const double *point, double factor)
 {
-  //not implemented yet !
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  for(int i=0;i<3;i++)
+    {
+      DataArrayDouble *c=getCoordsAt(i);
+      if(c)
+        {
+          double *coords=c->getPointer();
+          int lgth=c->getNbOfElems();
+          std::transform(coords,coords+lgth,coords,std::bind2nd(std::minus<double>(),point[i]));
+          std::transform(coords,coords+lgth,coords,std::bind2nd(std::multiplies<double>(),factor));
+          std::transform(coords,coords+lgth,coords,std::bind2nd(std::plus<double>(),point[i]));
+          c->declareAsNew();
+        }
+    }
+  updateTime();
 }
 
 MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
@@ -564,6 +669,95 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
 void MEDCouplingCMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Functionnality of renumbering cell not available for CMesh !");
+}
+
+void MEDCouplingCMesh::fill1DUnstructuredMesh(MEDCouplingUMesh *m) const
+{
+  const DataArrayDouble *c=getCoordsAt(0);
+  int nbOfCells=c->getNbOfElems()-1;
+  DataArrayInt *connI=DataArrayInt::New();
+  connI->alloc(nbOfCells+1,1);
+  int *ci=connI->getPointer();
+  DataArrayInt *conn=DataArrayInt::New();
+  conn->alloc(3*nbOfCells,1);
+  ci[0]=0;
+  int *cp=conn->getPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      cp[3*i]=(int)INTERP_KERNEL::NORM_SEG2;
+      cp[3*i+1]=i;
+      cp[3*i+2]=i+1;
+      ci[i+1]=3*(i+1);
+    }
+  m->setConnectivity(conn,connI,true);
+  conn->decrRef();
+  connI->decrRef();
+}
+
+void MEDCouplingCMesh::fill2DUnstructuredMesh(MEDCouplingUMesh *m) const
+{
+  const DataArrayDouble *c1=getCoordsAt(0);
+  const DataArrayDouble *c2=getCoordsAt(1);
+  int n1=c1->getNbOfElems()-1;
+  int n2=c2->getNbOfElems()-1;
+  DataArrayInt *connI=DataArrayInt::New();
+  connI->alloc(n1*n2+1,1);
+  int *ci=connI->getPointer();
+  DataArrayInt *conn=DataArrayInt::New();
+  conn->alloc(5*n1*n2,1);
+  ci[0]=0;
+  int *cp=conn->getPointer();
+  int pos=0;
+  for(int j=0;j<n2;j++)
+    for(int i=0;i<n1;i++,pos++)
+      {
+        cp[5*pos]=(int)INTERP_KERNEL::NORM_QUAD4;
+        cp[5*pos+1]=i+1+j*(n1+1);
+        cp[5*pos+2]=i+j*(n1+1);
+        cp[5*pos+3]=i+(j+1)*(n1+1);
+        cp[5*pos+4]=i+1+(j+1)*(n1+1);
+        ci[pos+1]=5*(pos+1);
+    }
+  m->setConnectivity(conn,connI,true);
+  conn->decrRef();
+  connI->decrRef();
+}
+
+void MEDCouplingCMesh::fill3DUnstructuredMesh(MEDCouplingUMesh *m) const
+{
+  const DataArrayDouble *c1=getCoordsAt(0);
+  const DataArrayDouble *c2=getCoordsAt(1);
+  const DataArrayDouble *c3=getCoordsAt(2);
+  int n1=c1->getNbOfElems()-1;
+  int n2=c2->getNbOfElems()-1;
+  int n3=c3->getNbOfElems()-1;
+  DataArrayInt *connI=DataArrayInt::New();
+  connI->alloc(n1*n2*n3+1,1);
+  int *ci=connI->getPointer();
+  DataArrayInt *conn=DataArrayInt::New();
+  conn->alloc(9*n1*n2*n3,1);
+  ci[0]=0;
+  int *cp=conn->getPointer();
+  int pos=0;
+  for(int k=0;k<n3;k++)
+    for(int j=0;j<n2;j++)
+      for(int i=0;i<n1;i++,pos++)
+        {
+          cp[9*pos]=(int)INTERP_KERNEL::NORM_HEXA8;
+          double tmp=(n1+1)*(n2+1);
+          cp[9*pos+1]=i+1+j*(n1+1)+k*tmp;
+          cp[9*pos+2]=i+j*(n1+1)+k*tmp;
+          cp[9*pos+3]=i+(j+1)*(n1+1)+k*tmp;
+          cp[9*pos+4]=i+1+(j+1)*(n1+1)+k*tmp;
+          cp[9*pos+5]=i+1+j*(n1+1)+(k+1)*tmp;
+          cp[9*pos+6]=i+j*(n1+1)+(k+1)*tmp;
+          cp[9*pos+7]=i+(j+1)*(n1+1)+(k+1)*tmp;
+          cp[9*pos+8]=i+1+(j+1)*(n1+1)+(k+1)*tmp;
+          ci[pos+1]=9*(pos+1);
+        }
+  m->setConnectivity(conn,connI,true);
+  conn->decrRef();
+  connI->decrRef();
 }
 
 void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const

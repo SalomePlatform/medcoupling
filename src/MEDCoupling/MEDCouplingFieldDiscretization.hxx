@@ -67,6 +67,7 @@ namespace ParaMEDMEM
     virtual void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const = 0;
     virtual MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const = 0;
     virtual void renumberValuesOnNodes(const int *old2New, DataArrayDouble *arr) const = 0;
+    virtual void renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const = 0;
     virtual void getSerializationIntArray(DataArrayInt *& arr) const;
     virtual void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
@@ -86,6 +87,7 @@ namespace ParaMEDMEM
     virtual ~MEDCouplingFieldDiscretization();
   protected:
     MEDCouplingFieldDiscretization();
+    static void renumberEntitiesFromO2NArr(const int *old2NewPtr, DataArrayDouble *arr, const char *msg);
   protected:
     double _precision;
     static const double DFLT_PRECISION;
@@ -110,6 +112,7 @@ namespace ParaMEDMEM
     void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
     void renumberValuesOnNodes(const int *old2New, DataArrayDouble *arr) const;
+    void renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const;
     MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
   public:
     static const char REPR[];
@@ -136,6 +139,7 @@ namespace ParaMEDMEM
     void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
     MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
     void renumberValuesOnNodes(const int *old2New, DataArrayDouble *arr) const;
+    void renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const;
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
@@ -190,6 +194,7 @@ namespace ParaMEDMEM
     void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
     MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
     void renumberValuesOnNodes(const int *old2New, DataArrayDouble *arr) const;
+    void renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const;
     void setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
     void setGaussLocalizationOnCells(const MEDCouplingMesh *m, const int *begin, const int *end, const std::vector<double>& refCoo,
@@ -238,6 +243,7 @@ namespace ParaMEDMEM
     void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
     MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
     void renumberValuesOnNodes(const int *old2New, DataArrayDouble *arr) const;
+    void renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const;
   protected:
     MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other);
   public:

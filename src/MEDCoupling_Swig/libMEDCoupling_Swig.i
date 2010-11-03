@@ -98,6 +98,11 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::substr;
 %newobject ParaMEDMEM::DataArrayInt::changeNbOfComponents;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId;
+%newobject ParaMEDMEM::DataArrayInt::renumber;
+%newobject ParaMEDMEM::DataArrayInt::renumberR;
+%newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
+%newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2O;
+%newobject ParaMEDMEM::DataArrayInt::invertArrayN2O2O2N;
 %newobject ParaMEDMEM::DataArrayDouble::aggregate;
 %newobject ParaMEDMEM::DataArrayDouble::dot;
 %newobject ParaMEDMEM::DataArrayDouble::crossProduct;
@@ -119,6 +124,9 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::deviator;
 %newobject ParaMEDMEM::DataArrayDouble::magnitude;
 %newobject ParaMEDMEM::DataArrayDouble::maxPerTuple;
+%newobject ParaMEDMEM::DataArrayDouble::renumber;
+%newobject ParaMEDMEM::DataArrayDouble::renumberR;
+%newobject ParaMEDMEM::DataArrayDouble::renumberAndReduce;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::cloneWithMesh;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
@@ -148,6 +156,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
+%newobject ParaMEDMEM::MEDCouplingCMesh::buildUnstructured;
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -158,7 +167,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingField "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
 
-%ignore ParaMEDMEM::TimeLabel::operator=;
+%rename(assign) *::operator=;
 %ignore ParaMEDMEM::MemArray::operator=;
 %ignore ParaMEDMEM::MemArray::operator[];
 %ignore ParaMEDMEM::MEDCouplingPointSet::getCoords();
@@ -166,6 +175,7 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationDblInfo;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo;
+
 %rename (Exception) InterpKernelException;
 %nodefaultctor;
 
@@ -221,7 +231,6 @@ namespace ParaMEDMEM
     virtual void getBoundingBox(double *bbox) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
-    virtual int getCellContainingPoint(const double *pos, double eps) const = 0;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
     virtual void rotate(const double *center, const double *vector, double angle) = 0;
@@ -237,6 +246,15 @@ namespace ParaMEDMEM
            return self->simpleRepr();
          }
 
+         int getCellContainingPoint(PyObject *p, double eps) const
+         {
+           int sz;
+           double *pos=convertPyToNewDblArr2(p,&sz);
+           int ret=self->getCellContainingPoint(pos,eps);
+           delete [] pos;
+           return ret;
+         }
+         
          void renumberCells(PyObject *li, bool check) throw(INTERP_KERNEL::Exception)
          {
            int size;
@@ -492,15 +510,6 @@ namespace ParaMEDMEM
       {
         return self->simpleRepr();
       }
-
-      int getCellContainingPoint(PyObject *p, double eps) const
-      {
-        int sz;
-        double *pos=convertPyToNewDblArr2(p,&sz);
-        int ret=self->getCellContainingPoint(pos,eps);
-        delete [] pos;
-        return ret;
-      }
       void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, PyObject *li)
       {
         int sz;
@@ -732,6 +741,7 @@ namespace ParaMEDMEM
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);
     void setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *buildUnstructured() const;
     %extend {
       std::string __str__() const
       {
@@ -767,6 +777,123 @@ namespace ParaMEDMEM
      int nbOfComp=self->getNumberOfComponents();
      int nbOfTuples=self->getNumberOfTuples();
      return convertDblArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
+   }
+
+   DataArrayDouble *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+            delete [] tmp;
+       }
+     DataArrayDouble *ret=self->renumber(tmp);
+     delete [] tmp;
+     return ret;
+   }
+
+   DataArrayDouble *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+            delete [] tmp;
+       }
+     DataArrayDouble *ret=self->renumberR(tmp);
+     delete [] tmp;
+     return ret;
+   }
+
+   DataArrayDouble *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+            delete [] tmp;
+       }
+     DataArrayDouble *ret=self->renumberAndReduce(tmp,newNbOfTuple);
+     delete [] tmp;
+     return ret;
+   }
+
+   void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+            delete [] tmp;
+       }
+     self->renumberInPlace(tmp);
+     delete [] tmp;
+   }
+
+   void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+            delete [] tmp;
+       }
+     self->renumberInPlaceR(tmp);
+     delete [] tmp;
+   }
+
+   DataArrayDouble *selectByTupleId(PyObject *li) const
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     DataArrayDouble *ret=self->selectByTupleId(tmp,tmp+size);
+     delete [] tmp;
+     return ret;
+   }
+
+   PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
+   {
+     int tmp;
+     double r1=self->getMaxValue(tmp);
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
+     PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
+     return ret;
+   }
+
+   PyObject *getMaxValue2() const throw(INTERP_KERNEL::Exception)
+   {
+     DataArrayInt *tmp;
+     double r1=self->getMaxValue2(tmp);
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
+     PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     return ret;
+   }
+
+   PyObject *getMinValue() const throw(INTERP_KERNEL::Exception)
+   {
+     int tmp;
+     double r1=self->getMinValue(tmp);
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
+     PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
+     return ret;
+   }
+
+   PyObject *getMinValue2() const throw(INTERP_KERNEL::Exception)
+   {
+     DataArrayInt *tmp;
+     double r1=self->getMinValue2(tmp);
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
+     PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     return ret;
    }
  };
 
@@ -811,6 +938,83 @@ namespace ParaMEDMEM
      for(int i=0;i<sz;i++)
        PyList_SetItem(ret1,i,convertIntArrToPyList2(fidsOfGroups[i]));
      PyList_SetItem(ret,1,ret1);
+     return ret;
+   }
+
+   void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+         delete [] tmp;
+       }
+     self->renumberInPlace(tmp);
+     delete [] tmp;
+   }
+
+   void renumberInPlaceR(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+            delete [] tmp;
+       }
+     self->renumberInPlaceR(tmp);
+     delete [] tmp;
+   }
+
+   DataArrayInt *renumberAndReduce(PyObject *li, int newNbOfTuple) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+            delete [] tmp;
+       }
+     DataArrayInt *ret=self->renumberAndReduce(tmp,newNbOfTuple);
+     delete [] tmp;
+     return ret;
+   }
+
+   DataArrayInt *renumber(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+         delete [] tmp;
+       }
+     DataArrayInt *ret=self->renumber(tmp);
+     delete [] tmp;
+     return ret;
+   }
+
+   DataArrayInt *renumberR(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     if(size!=self->getNumberOfTuples())
+       {
+         throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
+         delete [] tmp;
+       }
+     DataArrayInt *ret=self->renumberR(tmp);
+     delete [] tmp;
+     return ret;
+   }
+
+   DataArrayInt *selectByTupleId(PyObject *li) const
+   {
+     int size;
+     int *tmp=convertPyToNewIntArr2(li,&size);
+     DataArrayInt *ret=self->selectByTupleId(tmp,tmp+size);
+     delete [] tmp;
      return ret;
    }
  };
@@ -915,6 +1119,8 @@ namespace ParaMEDMEM
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
+    bool zipCoords() throw(INTERP_KERNEL::Exception);
+    bool zipConnectivity(int compType) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *eigenValues() const throw(INTERP_KERNEL::Exception);
@@ -926,6 +1132,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
     void changeNbOfComponents(int newNbOfComp, double dftValue=0.) throw(INTERP_KERNEL::Exception);
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
@@ -1051,7 +1259,7 @@ namespace ParaMEDMEM
       }
       PyObject *accumulate() const
       {
-        int sz=self->getNumberOfTuples();
+        int sz=self->getNumberOfComponents();
         double *tmp=new double[sz];
         self->accumulate(tmp);
         PyObject *ret=convertDblArrToPyList(tmp,sz);
@@ -1060,7 +1268,7 @@ namespace ParaMEDMEM
       }
       PyObject *integral(bool isWAbs) const
       {
-        int sz=self->getNumberOfTuples();
+        int sz=self->getNumberOfComponents();
         double *tmp=new double[sz];
         self->integral(isWAbs,tmp);
         PyObject *ret=convertDblArrToPyList(tmp,sz);
@@ -1069,7 +1277,7 @@ namespace ParaMEDMEM
       }
       PyObject *normL1() const throw(INTERP_KERNEL::Exception)
       {
-        int sz=self->getNumberOfTuples();
+        int sz=self->getNumberOfComponents();
         double *tmp=new double[sz];
         self->normL1(tmp);
         PyObject *ret=convertDblArrToPyList(tmp,sz);
@@ -1078,7 +1286,7 @@ namespace ParaMEDMEM
       }
       PyObject *normL2() const throw(INTERP_KERNEL::Exception)
       {
-        int sz=self->getNumberOfTuples();
+        int sz=self->getNumberOfComponents();
         double *tmp=new double[sz];
         self->normL2(tmp);
         PyObject *ret=convertDblArrToPyList(tmp,sz);
@@ -1132,6 +1340,26 @@ namespace ParaMEDMEM
             throw e;
           }
         delete [] tmp;
+        return ret;
+      }
+
+      PyObject *getMaxValue2() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *tmp;
+        double r1=self->getMaxValue2(tmp);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+      
+      PyObject *getMinValue2() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *tmp;
+        double r1=self->getMinValue2(tmp);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
     }

@@ -254,6 +254,40 @@ void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
+void MEDCouplingFieldDiscretization::renumberEntitiesFromO2NArr(const int *old2NewPtr, DataArrayDouble *arr, const char *msg)
+{
+  int oldNbOfElems=arr->getNumberOfTuples();
+  int nbOfComp=arr->getNumberOfComponents();
+  int newNbOfTuples=(*std::max_element(old2NewPtr,old2NewPtr+oldNbOfElems))+1;
+  DataArrayDouble *arrCpy=arr->deepCopy();
+  const double *ptSrc=arrCpy->getConstPointer();
+  arr->reAlloc(newNbOfTuples);
+  double *ptToFill=arr->getPointer();
+  std::fill(ptToFill,ptToFill+nbOfComp*newNbOfTuples,std::numeric_limits<double>::max());
+  for(int i=0;i<oldNbOfElems;i++)
+    {
+      int newNb=old2NewPtr[i];
+      if(newNb>=0)//if newNb<0 the node is considered as out.
+        {
+          if(std::find_if(ptToFill+newNb*nbOfComp,ptToFill+(newNb+1)*nbOfComp,std::bind2nd(std::not_equal_to<double>(),std::numeric_limits<double>::max()))
+             ==ptToFill+(newNb+1)*nbOfComp)
+            std::copy(ptSrc+i*nbOfComp,ptSrc+(i+1)*nbOfComp,ptToFill+newNb*nbOfComp);
+          else
+            {
+              if(!std::equal(ptSrc+i*nbOfComp,ptSrc+(i+1)*nbOfComp,ptToFill+newNb*nbOfComp))
+                {
+                  arrCpy->decrRef();
+                  std::ostringstream oss;
+                  oss << msg << " " << i << " and " << std::find(old2NewPtr,old2NewPtr+i,newNb)-old2NewPtr
+                      << " have been merged and " << msg << " field on them are different !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+        }
+    }
+  arrCpy->decrRef();
+}
+
 MEDCouplingFieldDiscretization::~MEDCouplingFieldDiscretization()
 {
 }
@@ -354,6 +388,11 @@ void MEDCouplingFieldDiscretizationP0::getValueOnPos(const DataArrayDouble *arr,
  */
 void MEDCouplingFieldDiscretizationP0::renumberValuesOnNodes(const int *, DataArrayDouble *) const
 {
+}
+
+void MEDCouplingFieldDiscretizationP0::renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
+{
+  renumberEntitiesFromO2NArr(old2New,arr,"Cell");
 }
 
 /*!
@@ -482,33 +521,14 @@ void MEDCouplingFieldDiscretizationP1::getValueOnPos(const DataArrayDouble *arr,
 
 void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const int *old2NewPtr, DataArrayDouble *arr) const
 {
-  int oldNbOfElems=arr->getNumberOfTuples();
-  int nbOfComp=arr->getNumberOfComponents();
-  int newNbOfTuples=(*std::max_element(old2NewPtr,old2NewPtr+oldNbOfElems))+1;
-  DataArrayDouble *arrCpy=arr->deepCopy();
-  const double *ptSrc=arrCpy->getConstPointer();
-  arr->reAlloc(newNbOfTuples);
-  double *ptToFill=arr->getPointer();
-  std::fill(ptToFill,ptToFill+nbOfComp*newNbOfTuples,std::numeric_limits<double>::max());
-  for(int i=0;i<oldNbOfElems;i++)
-    {
-      int newNb=old2NewPtr[i];
-      if(std::find_if(ptToFill+newNb*nbOfComp,ptToFill+(newNb+1)*nbOfComp,std::bind2nd(std::not_equal_to<double>(),std::numeric_limits<double>::max()))
-         ==ptToFill+(newNb+1)*nbOfComp)
-        std::copy(ptSrc+i*nbOfComp,ptSrc+(i+1)*nbOfComp,ptToFill+newNb*nbOfComp);
-      else
-        {
-          if(!std::equal(ptSrc+i*nbOfComp,ptSrc+(i+1)*nbOfComp,ptToFill+newNb*nbOfComp))
-            {
-              arrCpy->decrRef();
-              std::ostringstream oss;
-              oss << "Node " << i << " and " << std::find(old2NewPtr,old2NewPtr+i,newNb)-old2NewPtr
-                  << " have been merged and nodal field on them are different !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-    }
-  arrCpy->decrRef();
+  renumberEntitiesFromO2NArr(old2NewPtr,arr,"Node");
+}
+
+/*!
+ * Nothing to do it's not a bug.
+ */
+void MEDCouplingFieldDiscretizationP1::renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
+{
 }
 
 /*!
@@ -519,6 +539,9 @@ void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const int *old2NewP
 MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
   MEDCouplingMesh *ret=mesh->buildPartAndReduceNodes(start,end,di);
+  DataArrayInt *di2=di->invertArrayO2N2N2O(ret->getNumberOfNodes());
+  di->decrRef();
+  di=di2;
   return ret;
 }
 
@@ -853,6 +876,11 @@ void MEDCouplingFieldDiscretizationGauss::renumberValuesOnNodes(const int *, Dat
 {
 }
 
+void MEDCouplingFieldDiscretizationGauss::renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                                      const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
 {
@@ -1145,6 +1173,11 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const M
  */
 void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnNodes(const int *, DataArrayDouble *) const
 {
+}
+
+void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other):MEDCouplingFieldDiscretization(other)

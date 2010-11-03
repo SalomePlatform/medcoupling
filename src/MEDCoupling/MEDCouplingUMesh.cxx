@@ -572,7 +572,9 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
 DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
 {
   int nbOfNodes=getNumberOfNodes();
-  int *traducer=new int[nbOfNodes];
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfNodes,1);
+  int *traducer=ret->getPointer();
   std::fill(traducer,traducer+nbOfNodes,-1);
   int nbOfCells=getNumberOfCells();
   const int *connIndex=_nodal_connec_index->getConstPointer();
@@ -587,14 +589,7 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
     for(int j=connIndex[i]+1;j<connIndex[i+1];j++)
       if(conn[j]>=0)
         conn[j]=traducer[conn[j]];
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(newNbOfNodes,1);
-  int *retPtr=ret->getPointer();
-  for(int i=0;i<nbOfNodes;i++)
-    if(traducer[i]!=-1)
-      retPtr[traducer[i]]=i;
-  delete [] traducer;
-  DataArrayDouble *newCoords=_coords->selectByTupleId(retPtr,retPtr+newNbOfNodes);
+  DataArrayDouble *newCoords=_coords->renumberAndReduce(traducer,newNbOfNodes);
   setCoords(newCoords);
   newCoords->decrRef();
   return ret;

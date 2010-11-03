@@ -69,7 +69,9 @@ namespace ParaMEDMEM
     double accumulate(int compId) const;
     void accumulate(double *res) const;
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
+    double getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
     double getMinValue() const throw(INTERP_KERNEL::Exception);
+    double getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
     double getAverageValue() const throw(INTERP_KERNEL::Exception);
     double getWeightedAverageValue() const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
@@ -83,6 +85,9 @@ namespace ParaMEDMEM
     void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);
     //! \b temporary
     void applyLin(double a, double b, int compoId);
+    MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, FunctionToEvaluate func);
     void applyFunc(int nbOfComp, const char *func);
     void applyFunc(const char *func);
@@ -103,6 +108,8 @@ namespace ParaMEDMEM
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
+    bool zipCoords() throw(INTERP_KERNEL::Exception);
+    bool zipConnectivity(int compType) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *eigenValues() const throw(INTERP_KERNEL::Exception);

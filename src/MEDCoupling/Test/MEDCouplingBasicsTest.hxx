@@ -125,6 +125,22 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testIsEqualWithoutConsideringStr1 );
     CPPUNIT_TEST( testGetNodeIdsOfCell1 );
     CPPUNIT_TEST( testGetEdgeRatioField1 );
+    CPPUNIT_TEST( testFillFromAnalytic3 );
+    CPPUNIT_TEST( testFieldDoubleOpEqual1 );
+    CPPUNIT_TEST( testAreaBary3D2 );
+    CPPUNIT_TEST( testGetMeasureFieldCMesh1 );
+    CPPUNIT_TEST( testFieldDoubleZipCoords1 );
+    CPPUNIT_TEST( testFieldDoubleZipConnectivity1 );
+    CPPUNIT_TEST( testDaDoubleRenumber1 );
+    CPPUNIT_TEST( testDaDoubleRenumberAndReduce1 );
+    CPPUNIT_TEST( testDaDoubleRenumberInPlace1 );
+    CPPUNIT_TEST( testDaDoubleSelectByTupleId1 );
+    CPPUNIT_TEST( testDaDoubleRenumberR1 );
+    CPPUNIT_TEST( testDaDoubleRenumberInPlaceR1 );
+    CPPUNIT_TEST( testDaDoubleGetMinMaxValues1 );
+    CPPUNIT_TEST( testFieldDoubleGetMinMaxValues2 );
+    CPPUNIT_TEST( testBuildUnstructuredCMesh1 );
+    CPPUNIT_TEST( testDataArrayIntInvertO2NNO21 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -278,6 +294,22 @@ namespace ParaMEDMEM
     void testIsEqualWithoutConsideringStr1();
     void testGetNodeIdsOfCell1();
     void testGetEdgeRatioField1();
+    void testFillFromAnalytic3();
+    void testFieldDoubleOpEqual1();
+    void testAreaBary3D2();
+    void testGetMeasureFieldCMesh1();
+    void testFieldDoubleZipCoords1();
+    void testFieldDoubleZipConnectivity1();
+    void testDaDoubleRenumber1();
+    void testDaDoubleRenumberAndReduce1();
+    void testDaDoubleRenumberInPlace1();
+    void testDaDoubleSelectByTupleId1();
+    void testDaDoubleRenumberR1();
+    void testDaDoubleRenumberInPlaceR1();
+    void testDaDoubleGetMinMaxValues1();
+    void testFieldDoubleGetMinMaxValues2();
+    void testBuildUnstructuredCMesh1();
+    void testDataArrayIntInvertO2NNO21();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

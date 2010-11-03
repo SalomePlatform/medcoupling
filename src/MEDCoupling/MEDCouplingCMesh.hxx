@@ -26,6 +26,7 @@
 namespace ParaMEDMEM
 {
   class DataArrayDouble;
+  class MEDCouplingUMesh;
 
   class MEDCOUPLING_EXPORT MEDCouplingCMesh : public MEDCouplingMesh
   {
@@ -62,6 +63,7 @@ namespace ParaMEDMEM
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);
     // tools
+    MEDCouplingUMesh *buildUnstructured() const;
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     void getBoundingBox(double *bbox) const;
@@ -76,6 +78,9 @@ namespace ParaMEDMEM
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    void fill1DUnstructuredMesh(MEDCouplingUMesh *m) const;
+    void fill2DUnstructuredMesh(MEDCouplingUMesh *m) const;
+    void fill3DUnstructuredMesh(MEDCouplingUMesh *m) const;
     //some useful methods
     void getSplitCellValues(int *res) const;
     void getSplitNodeValues(int *res) const;

@@ -493,6 +493,33 @@ void MEDCouplingTimeDiscretization::sortPerTuple(bool asc) throw(INTERP_KERNEL::
     }
 }
 
+void MEDCouplingTimeDiscretization::setUniformValue(int nbOfTuple, double value)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    {
+      if(arrays[j])
+        {
+          arrays[j]->incrRef();
+          arrays[j]->fillWithValue(value);
+          arrays2[j]=arrays[j];
+        }
+      else
+        {
+          DataArrayDouble *tmp=DataArrayDouble::New();
+          tmp->alloc(nbOfTuple,1);
+          tmp->fillWithValue(value);
+          arrays2[j]=tmp;
+        }
+    }
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
+}
+
 void MEDCouplingTimeDiscretization::applyLin(double a, double b, int compoId)
 {
   std::vector<DataArrayDouble *> arrays;
@@ -578,6 +605,32 @@ void MEDCouplingTimeDiscretization::applyFuncFast64(const char *func)
       if(arrays[j])
         arrays[j]->applyFuncFast64(func);
     }
+}
+
+void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays2[j]=loc->applyFunc(nbOfComp,func);
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
+}
+
+void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays2[j]=loc->applyFunc(nbOfComp,func);
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
 }
 
 MEDCouplingNoTimeLabel::MEDCouplingNoTimeLabel()

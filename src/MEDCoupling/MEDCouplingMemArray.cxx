@@ -116,6 +116,13 @@ void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
 void DataArrayDouble::fillWithZero()
 {
   _mem.fillWithValue(0.);
+  declareAsNew();
+}
+
+void DataArrayDouble::fillWithValue(double val)
+{
+  _mem.fillWithValue(val);
+  declareAsNew();
 }
 
 std::string DataArrayDouble::repr() const
@@ -208,6 +215,23 @@ void DataArrayDouble::renumberInPlace(const int *old2New)
 
 /*!
  * This method does \b not change the number of tuples after this call.
+ * Only a permutation is done.
+ */
+void DataArrayDouble::renumberInPlaceR(const int *new2Old)
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  double *tmp=new double[nbTuples*nbOfCompo];
+  const double *iptr=getConstPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),tmp+nbOfCompo*i);
+  std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
+  delete [] tmp;
+  declareAsNew();
+}
+
+/*!
+ * This method does \b not change the number of tuples after this call.
  * Only a permutation is done. If a permutation reduction is needed substr, or selectByTupleId should be used.
  */
 DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
@@ -221,6 +245,69 @@ DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
   double *optr=ret->getPointer();
   for(int i=0;i<nbTuples;i++)
     std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),optr+nbOfCompo*old2New[i]);
+  ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+/*!
+ * This method does \b not change the number of tuples after this call.
+ * Only a permutation is done.
+ */
+DataArrayDouble *DataArrayDouble::renumberR(const int *new2Old) const
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(nbTuples,nbOfCompo);
+  ret->copyStringInfoFrom(*this);
+  const double *iptr=getConstPointer();
+  double *optr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),optr+i*nbOfCompo);
+  ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+/*!
+ * Idem DataArrayDouble::renumber method except that the number of tuples is reduced.
+ * That is to say that it is expected that newNbOfTuple<this->getNumberOfTuples().
+ * ['old2New','old2New'+getNumberOfTuples()) defines a range containing old to new array. For every negative value in ['old2NewBg','old2New'+getNumberOfTuples()) the corresponding tuple is
+ * omitted.
+ */
+DataArrayDouble *DataArrayDouble::renumberAndReduce(const int *old2New, int newNbOfTuple) const
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  DataArrayDouble *ret=DataArrayDouble::New();
+  ret->alloc(newNbOfTuple,nbOfCompo);
+  const double *iptr=getConstPointer();
+  double *optr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++)
+    {
+      int w=old2New[i];
+      if(w>=0)
+        std::copy(iptr+i*nbOfCompo,iptr+(i+1)*nbOfCompo,optr+w*nbOfCompo);
+    }
+  ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+/*!
+ * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.
+ * This method is equavalent to DataArrayDouble::renumberAndReduce except that convention in input is new2old and \b not old2new.
+ */
+DataArrayDouble *DataArrayDouble::selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbComp=getNumberOfComponents();
+  ret->alloc(std::distance(new2OldBg,new2OldEnd),nbComp);
+  ret->copyStringInfoFrom(*this);
+  double *pt=ret->getPointer();
+  const double *srcPt=getConstPointer();
+  int i=0;
+  for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
+    std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
+  ret->copyStringInfoFrom(*this);
   return ret;
 }
 
@@ -281,23 +368,6 @@ DataArrayDouble *DataArrayDouble::changeNbOfComponents(int newNbOfComp, double d
   return ret;
 }
 
-/*!
- * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.
- */
-DataArrayDouble *DataArrayDouble::selectByTupleId(const int *start, const int *end) const
-{
-  DataArrayDouble *ret=DataArrayDouble::New();
-  int nbComp=getNumberOfComponents();
-  ret->alloc(std::distance(start,end),nbComp);
-  ret->copyStringInfoFrom(*this);
-  double *pt=ret->getPointer();
-  const double *srcPt=getConstPointer();
-  int i=0;
-  for(const int *w=start;w!=end;w++,i++)
-    std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
-  return ret;
-}
-
 void DataArrayDouble::setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
 {
   if(newArray!=arrayToSet)
@@ -340,6 +410,15 @@ double DataArrayDouble::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exc
   return *loc;
 }
 
+double DataArrayDouble::getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception)
+{
+  int tmp;
+  tupleIds=0;
+  double ret=getMaxValue(tmp);
+  tupleIds=getIdsInRange(ret,ret);
+  return ret;
+}
+
 double DataArrayDouble::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -351,6 +430,15 @@ double DataArrayDouble::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exc
   const double *loc=std::min_element(vals,vals+nbOfTuples);
   tupleId=std::distance(vals,loc);
   return *loc;
+}
+
+double DataArrayDouble::getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception)
+{
+  int tmp;
+  tupleIds=0;
+  double ret=getMinValue(tmp);
+  tupleIds=getIdsInRange(ret,ret);
+  return ret;
 }
 
 double DataArrayDouble::getAverageValue() const throw(INTERP_KERNEL::Exception)
@@ -1044,6 +1132,13 @@ void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
 void DataArrayInt::fillWithZero()
 {
   _mem.fillWithValue(0);
+  declareAsNew();
+}
+
+void DataArrayInt::fillWithValue(int val)
+{
+  _mem.fillWithValue(val);
+  declareAsNew();
 }
 
 std::string DataArrayInt::repr() const
@@ -1095,7 +1190,7 @@ void DataArrayInt::transformWithIndArr(const int *indArr)
 }
 
 /*!
- * This method invert array 'di' that is a conversion map from Old to New node numbering to New to Old node numbering.
+ * This method invert array 'di' that is a conversion map from Old to New numbering to New to Old numbering.
  */
 DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
 {
@@ -1107,6 +1202,22 @@ DataArrayInt *DataArrayInt::invertArrayO2N2N2O(int newNbOfElem) const
   for(int i=0;i!=nbOfOldNodes;i++)
     if(old2New[i]!=-1)
       pt[old2New[i]]=i;
+  return ret;
+}
+
+/*!
+ * This method invert array 'di' that is a conversion map from New to old numbering to Old to New numbering.
+ */
+DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(oldNbOfElem,1);
+  const int *new2Old=getConstPointer();
+  int *pt=ret->getPointer();
+  std::fill(pt,pt+oldNbOfElem,-1);
+  int nbOfNewElems=getNumberOfTuples();
+  for(int i=0;i<nbOfNewElems;i++)
+    pt[new2Old[i]]=i;
   return ret;
 }
 
@@ -1143,6 +1254,19 @@ void DataArrayInt::renumberInPlace(const int *old2New)
   declareAsNew();
 }
 
+void DataArrayInt::renumberInPlaceR(const int *new2Old)
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  int *tmp=new int[nbTuples*nbOfCompo];
+  const int *iptr=getConstPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),tmp+nbOfCompo*i);
+  std::copy(tmp,tmp+nbTuples*nbOfCompo,getPointer());
+  delete [] tmp;
+  declareAsNew();
+}
+
 DataArrayInt *DataArrayInt::renumber(const int *old2New) const
 {
   int nbTuples=getNumberOfTuples();
@@ -1154,6 +1278,65 @@ DataArrayInt *DataArrayInt::renumber(const int *old2New) const
   int *optr=ret->getPointer();
   for(int i=0;i<nbTuples;i++)
     std::copy(iptr+nbOfCompo*i,iptr+nbOfCompo*(i+1),optr+nbOfCompo*old2New[i]);
+  ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+DataArrayInt *DataArrayInt::renumberR(const int *new2Old) const
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbTuples,nbOfCompo);
+  ret->copyStringInfoFrom(*this);
+  const int *iptr=getConstPointer();
+  int *optr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++)
+    std::copy(iptr+nbOfCompo*new2Old[i],iptr+nbOfCompo*(new2Old[i]+1),optr+nbOfCompo*i);
+  ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+/*!
+ * Idem DataArrayDouble::renumber method except that the number of tuples is reduced.
+ * That is to say that it is expected that newNbOfTuple<this->getNumberOfTuples().
+ * ['old2New','old2New'+getNumberOfTuples()) defines a range containing old to new array. For every negative value in ['old2NewBg','old2New'getNumberOfTuples()) the corresponding tuple is
+ * omitted.
+ */
+DataArrayInt *DataArrayInt::renumberAndReduce(const int *old2New, int newNbOfTuple) const
+{
+  int nbTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(newNbOfTuple,nbOfCompo);
+  const int *iptr=getConstPointer();
+  int *optr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++)
+    {
+      int w=old2New[i];
+      if(w>=0)
+        std::copy(iptr+i*nbOfCompo,iptr+(i+1)*nbOfCompo,optr+w*nbOfCompo);
+    }
+  ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+/*!
+ * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.
+ * This method is equavalent to DataArrayInt::renumberAndReduce except that convention in input is new2old and \b not old2new.
+ */
+DataArrayInt *DataArrayInt::selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  int nbComp=getNumberOfComponents();
+  ret->alloc(std::distance(new2OldBg,new2OldEnd),nbComp);
+  ret->copyStringInfoFrom(*this);
+  int *pt=ret->getPointer();
+  const int *srcPt=getConstPointer();
+  int i=0;
+  for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
+    std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
+  ret->copyStringInfoFrom(*this);
   return ret;
 }
 
@@ -1240,24 +1423,6 @@ DataArrayInt *DataArrayInt::changeNbOfComponents(int newNbOfComp, int dftValue) 
   for(int i=0;i<dim;i++)
     ret->setInfoOnComponent(i,getInfoOnComponent(i).c_str());
   ret->setName(getName().c_str());
-  return ret;
-}
-
-
-/*!
- * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.
- */
-DataArrayInt *DataArrayInt::selectByTupleId(const int *start, const int *end) const
-{
-  DataArrayInt *ret=DataArrayInt::New();
-  int nbComp=getNumberOfComponents();
-  ret->alloc(std::distance(start,end),nbComp);
-  ret->copyStringInfoFrom(*this);
-  int *pt=ret->getPointer();
-  const int *srcPt=getConstPointer();
-  int i=0;
-  for(const int *w=start;w!=end;w++,i++)
-    std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
   return ret;
 }
 
