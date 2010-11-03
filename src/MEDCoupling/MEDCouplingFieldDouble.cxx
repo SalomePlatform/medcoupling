@@ -84,7 +84,14 @@ std::string MEDCouplingFieldDouble::simpleRepr() const
   ret << "FieldDouble time discretization is : " << _time_discr->getStringRepr() << "\n";
   ret << "FieldDouble nature of field is : " << MEDCouplingNatureOfField::getRepr(_nature) << "\n";
   if(getArray())
-    ret << "FieldDouble default array has " << getArray()->getNumberOfComponents() << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
+    {
+      int nbOfCompo=getArray()->getNumberOfComponents();
+      ret << "FieldDouble default array has " << nbOfCompo << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
+      ret << "FieldDouble default array has following info on components : ";
+      for(int i=0;i<nbOfCompo;i++)
+        ret << "\"" << getArray()->getInfoOnComponent(i) << "\" ";
+      ret << "\n";
+    }
   if(_mesh)
     ret << "Mesh support information :\n__________________________\n" << _mesh->simpleRepr();
   else
