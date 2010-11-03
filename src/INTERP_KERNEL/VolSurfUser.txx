@@ -240,10 +240,35 @@ namespace INTERP_KERNEL
       case NORM_PYRA5:
         {
           double tmp[3];
-          computePolygonBarycenter3D<ConnType,numPol>(connec,lgth,coords,tmp);
+          computePolygonBarycenter3D<ConnType,numPol>(connec,lgth-1,coords,tmp);
           res[0]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[4])]+3.*tmp[0])/4.;
           res[1]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[4])+1]+3.*tmp[1])/4.;
-          res[1]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[4])+2]+3.*tmp[2])/4.;
+          res[2]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[4])+2]+3.*tmp[2])/4.;
+          break;
+        }
+      case NORM_HEXA8:
+        {
+          const int conn[29]={
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[7]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[6]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[1]),
+            };
+          barycenterOfPolyhedron<ConnType,numPol>(conn,29,coords,res);
+          break;
+        }
+      case NORM_PENTA6:
+        {
+          const int conn[22]={
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[4])
+          };
+          barycenterOfPolyhedron<ConnType,numPol>(conn,22,coords,res);
           break;
         }
       case NORM_POLYHED:
