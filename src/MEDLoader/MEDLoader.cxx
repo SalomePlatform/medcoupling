@@ -348,6 +348,57 @@ std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INT
   return ret;
 }
 
+std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  std::vector<std::string> ret;
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nbFields=MEDnChamp(fid,0);
+  //
+  med_type_champ typcha;
+  //med_int nbpdtnor=0,pflsize,*pflval,lnsize;
+  med_int ngauss=0;
+  med_int numdt=0,numo=0,nbrefmaa;
+  med_float dt=0.0;
+  med_booleen local;
+  //char pflname[MED_TAILLE_NOM+1]="";
+  //char locname[MED_TAILLE_NOM+1]="";
+  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+  char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  //
+  for(int i=0;i<nbFields;i++)
+    {
+      med_int ncomp=MEDnChamp(fid,i+1);
+      char *comp=new char[ncomp*MED_TAILLE_PNOM+1];
+      char *unit=new char[ncomp*MED_TAILLE_PNOM+1];
+      MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
+      std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_TAILLE_NOM+1);
+      delete [] comp;
+      delete [] unit;
+      if(curFieldName==fieldName)
+        {
+          bool found=false;
+          for(int j=0;j<MED_NBR_GEOMETRIE_MAILLE+2 && !found;j++)
+            {
+              med_int nbPdt=MEDnPasdetemps(fid,nomcha,MED_MAILLE,typmai[j]);
+              for(int k=0;k<nbPdt;k++)
+                {
+                  MEDpasdetempsInfo(fid,nomcha,MED_MAILLE,typmai[j],k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
+                  std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_TAILLE_NOM+1);
+                  if(std::find(ret.begin(),ret.end(),curMeshName)==ret.end())
+                    ret.push_back(curMeshName);
+                }
+            }
+        }
+    }
+  delete [] maa_ass;
+  delete [] dt_unit;
+  delete [] nomcha;
+  MEDfermer(fid);
+  return ret;
+}
+
 std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);

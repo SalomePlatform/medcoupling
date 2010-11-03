@@ -50,6 +50,7 @@ public:
   static void setTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);
   static void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception);
+  static std::vector<std::string> GetMeshNamesOnField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshFamiliesNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetAllFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);

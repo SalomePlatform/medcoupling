@@ -193,6 +193,10 @@ void MEDLoaderTest::testFieldRW3()
   f1->setTime(10.55,28,29);
   tmp[0]=3*VAL1;
   MEDLoader::WriteField(fileName,f1,false);
+  std::vector<std::string> vec=MEDLoader::GetMeshNamesOnField(fileName,name1);
+  CPPUNIT_ASSERT_EQUAL(2,(int)vec.size());
+  CPPUNIT_ASSERT(vec[0]==name3);
+  CPPUNIT_ASSERT(vec[1]==name2);
   f1->setTime(10.66,38,39);
   tmp[0]=3*VAL2;
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);

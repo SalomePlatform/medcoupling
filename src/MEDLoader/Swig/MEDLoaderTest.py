@@ -150,6 +150,10 @@ class MEDLoaderTest(unittest.TestCase):
         f1.setTime(10.55,28,29);
         f1.getArray().setIJ(0,0,3*VAL1);
         MEDLoader.WriteField(fileName,f1,False);
+        vec=MEDLoader.GetMeshNamesOnField(fileName,name1);
+        self.assertEqual(2,len(vec));
+        self.assertTrue(vec[0]==name3);
+        self.assertTrue(vec[1]==name2);
         f1.setTime(10.66,38,39);
         f1.getArray().setIJ(0,0,3*VAL2);
         MEDLoader.WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
