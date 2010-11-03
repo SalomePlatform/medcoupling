@@ -476,6 +476,29 @@ std::vector<ParaMEDMEM::TypeOfField> MEDLoader::GetTypesOfField(const char *file
   return ret;
 }
 
+std::vector<std::string> MEDLoader::GetAllFieldNames(const char *fileName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  std::vector<std::string> ret;
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nbFields=MEDnChamp(fid,0);
+  med_type_champ typcha;
+  for(int i=0;i<nbFields;i++)
+    {
+      med_int ncomp=MEDnChamp(fid,i+1);
+      char *comp=new char[ncomp*MED_TAILLE_PNOM+1];
+      char *unit=new char[ncomp*MED_TAILLE_PNOM+1];
+      char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+      MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
+      ret.push_back(std::string(nomcha));
+      delete [] nomcha;
+      delete [] comp;
+      delete [] unit;
+    }
+  MEDfermer(fid);
+  return ret;
+}
+
 std::vector<std::string> MEDLoader::GetAllFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
@@ -1591,13 +1614,42 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
               DataArrayInt *da=0,*da2=0;
               if(newMesh)
                 {
-                  da=newMesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
-                  mesh2=dynamic_cast<MEDCouplingUMesh *>(newMesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                  if((int)ci.size()!=newMesh->getNumberOfNodes())
+                    {
+                      da=newMesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
+                      mesh2=dynamic_cast<MEDCouplingUMesh *>(newMesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                    }
                 }
               else
                 {
-                  da=mesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
-                  mesh2=dynamic_cast<MEDCouplingUMesh *>(mesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                  if((int)ci.size()!=mesh->getNumberOfNodes())
+                    {
+                      da=mesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
+                      mesh2=dynamic_cast<MEDCouplingUMesh *>(mesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                      //
+                      int nnodes=mesh2->getNumberOfNodes();
+                      DataArrayInt *da3=DataArrayInt::New();
+                      const int *da2Ptr=da2->getConstPointer();
+                      da3->alloc(nnodes,1);
+                      int *da3Ptr=da3->getPointer();
+                      for(int i=0;i<(int)ci.size();i++)
+                        {
+                          int val=da2Ptr[ci[i]];
+                          if(val!=-1)
+                            da3Ptr[val]=i;
+                        }
+                      mesh2->renumberNodes(da3->getConstPointer(),nnodes);
+                      da3->decrRef();
+                    }
+                  else
+                    {
+                      mesh2=mesh->clone(true);
+                      da=DataArrayInt::New();
+                      da->alloc((int)ci.size(),1);
+                      std::copy(ci.begin(),ci.end(),da->getPointer());
+                      da2=da->invertArrayO2N2N2O(ci.size());
+                      mesh2->renumberNodes(da2->getConstPointer(),(int)ci.size());
+                    }
                 }
               if(da)
                 da->decrRef();
