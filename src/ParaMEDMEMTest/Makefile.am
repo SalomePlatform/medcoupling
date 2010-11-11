@@ -93,6 +93,10 @@ dist_test_perf_SOURCES = test_perf.cxx
 
 LDADD = $(MED2_LIBS) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
 	libParaMEDMEMTest.la \
+	../INTERP_KERNEL/libinterpkernel.la $(CPPUNIT_LIBS) \
+	../ParaMEDMEM/libparamedmem.la \
+	../MEDCoupling/libmedcoupling.la \
+	../MEDLoader/libmedloader.la
 	../INTERP_KERNEL/libinterpkernel.la 
 
 if MED_ENABLE_FVM
