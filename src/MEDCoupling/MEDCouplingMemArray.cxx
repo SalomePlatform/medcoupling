@@ -18,6 +18,7 @@
 //
 
 #include "MEDCouplingMemArray.txx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include "GenMathFormulae.hxx"
 #include "InterpKernelExprParser.hxx"
@@ -42,6 +43,36 @@ void DataArray::copyStringInfoFrom(const DataArray& other) throw(INTERP_KERNEL::
     throw INTERP_KERNEL::Exception("Size of arrays mismatches on copyStringInfoFrom !");
   _name=other._name;
   _info_on_compo=other._info_on_compo;
+}
+
+void DataArray::copyPartOfStringInfoFrom(const DataArray& other, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCompoOth=other.getNumberOfComponents();
+  int newNbOfCompo=compoIds.size();
+  for(int i=0;i<newNbOfCompo;i++)
+    if(compoIds[i]>=nbOfCompoOth)
+      {
+        std::ostringstream oss; oss << "Specified component ids is to high (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompoOth << ")";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  for(int i=0;i<newNbOfCompo;i++)
+    setInfoOnComponent(i,other.getInfoOnComponent(compoIds[i]).c_str());
+}
+
+void DataArray::copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, const DataArray& other) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCompo=getNumberOfComponents();
+  int partOfCompoToSet=compoIds.size();
+  if(partOfCompoToSet!=other.getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("Given compoIds has not the same size as number of components of given array !");
+  for(int i=0;i<partOfCompoToSet;i++)
+    if(compoIds[i]>=nbOfCompo)
+      {
+        std::ostringstream oss; oss << "Specified component ids is to high (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompo << ")";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  for(int i=0;i<partOfCompoToSet;i++)
+    setInfoOnComponent(compoIds[i],other.getInfoOnComponent(i).c_str());
 }
 
 bool DataArray::areInfoEquals(const DataArray& other) const
@@ -366,6 +397,36 @@ DataArrayDouble *DataArrayDouble::changeNbOfComponents(int newNbOfComp, double d
     ret->setInfoOnComponent(i,getInfoOnComponent(i).c_str());
   ret->setName(getName().c_str());
   return ret;
+}
+
+DataArrayDouble *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
+  int newNbOfCompo=compoIds.size();
+  int oldNbOfCompo=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  ret->alloc(nbOfTuples,newNbOfCompo);
+  ret->copyPartOfStringInfoFrom(*this,compoIds);
+  const double *oldc=getConstPointer();
+  double *nc=ret->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    for(int j=0;j<newNbOfCompo;j++,nc++)
+      *nc=oldc[i*oldNbOfCompo+compoIds[j]];
+  ret->incrRef();
+  return ret;
+}
+
+void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception)
+{
+  copyPartOfStringInfoFrom2(compoIds,*a);
+  int partOfCompoSz=compoIds.size();
+  int nbOfCompo=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  const double *ac=a->getConstPointer();
+  double *nc=getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    for(int j=0;j<partOfCompoSz;j++,ac++)
+      nc[nbOfCompo*i+compoIds[j]]=*ac;
 }
 
 void DataArrayDouble::setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
@@ -1431,6 +1492,36 @@ void DataArrayInt::reAlloc(int nbOfTuples)
   _mem.reAlloc(_info_on_compo.size()*nbOfTuples);
   _nb_of_tuples=nbOfTuples;
   declareAsNew();
+}
+
+DataArrayInt *DataArrayInt::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  int newNbOfCompo=compoIds.size();
+  int oldNbOfCompo=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  ret->alloc(nbOfTuples,newNbOfCompo);
+  ret->copyPartOfStringInfoFrom(*this,compoIds);
+  const int *oldc=getConstPointer();
+  int *nc=ret->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    for(int j=0;j<newNbOfCompo;j++,nc++)
+      *nc=oldc[i*oldNbOfCompo+compoIds[j]];
+  ret->incrRef();
+  return ret;
+}
+
+void DataArrayInt::setSelectedComponents(const DataArrayInt *a, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception)
+{
+  copyPartOfStringInfoFrom2(compoIds,*a);
+  int partOfCompoSz=compoIds.size();
+  int nbOfCompo=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  const int *ac=a->getConstPointer();
+  int *nc=getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    for(int j=0;j<partOfCompoSz;j++,ac++)
+      nc[nbOfCompo*i+compoIds[j]]=*ac;
 }
 
 void DataArrayInt::setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)

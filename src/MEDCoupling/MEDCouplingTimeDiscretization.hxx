@@ -103,9 +103,11 @@ namespace ParaMEDMEM
     virtual MEDCouplingTimeDiscretization *deviator() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *magnitude() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingTimeDiscretization *maxPerTuple() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingTimeDiscretization *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
+    virtual void setSelectedComponents(const MEDCouplingTimeDiscretization *other, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
     virtual void changeNbOfComponents(int newNbOfComp, double dftValue) throw(INTERP_KERNEL::Exception);
     virtual void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
-    virtual void setUniformValue(int nbOfTuple, double value);
+    virtual void setUniformValue(int nbOfTuple, int nbOfCompo, double value);
     virtual void applyLin(double a, double b, int compoId);
     virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
     virtual void applyFunc(int nbOfComp, const char *func);

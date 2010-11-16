@@ -89,6 +89,7 @@ namespace ParaMEDMEM
     void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
     void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, FunctionToEvaluate func);
+    void applyFunc(int nbOfComp, double val);
     void applyFunc(int nbOfComp, const char *func);
     void applyFunc(const char *func);
     void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
@@ -120,6 +121,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *magnitude() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
     void changeNbOfComponents(int newNbOfComp, double dftValue=0.) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
+    void setSelectedComponents(const MEDCouplingFieldDouble *f, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);

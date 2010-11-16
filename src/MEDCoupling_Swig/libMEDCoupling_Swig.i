@@ -76,6 +76,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::deviator;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::magnitude;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::maxPerTuple;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::keepSelectedComponents;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::dotFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::dot;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::crossProductFields;
@@ -97,6 +98,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
 %newobject ParaMEDMEM::DataArrayInt::substr;
 %newobject ParaMEDMEM::DataArrayInt::changeNbOfComponents;
+%newobject ParaMEDMEM::DataArrayInt::keepSelectedComponents;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayInt::renumber;
 %newobject ParaMEDMEM::DataArrayInt::renumberR;
@@ -112,6 +114,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::divide;
 %newobject ParaMEDMEM::DataArrayDouble::substr;
 %newobject ParaMEDMEM::DataArrayDouble::changeNbOfComponents;
+%newobject ParaMEDMEM::DataArrayDouble::keepSelectedComponents;
 %newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
@@ -751,6 +754,23 @@ namespace ParaMEDMEM
   };
 }
 
+%extend ParaMEDMEM::DataArray
+{
+  void copyPartOfStringInfoFrom(const DataArray& other, PyObject *li) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<int> tmp;
+    convertPyToNewIntArr3(li,tmp);
+    self->copyPartOfStringInfoFrom(other,tmp);
+  }
+
+  void copyPartOfStringInfoFrom2(PyObject *li, const DataArray& other) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<int> tmp;
+    convertPyToNewIntArr3(li,tmp);
+    self->copyPartOfStringInfoFrom2(tmp,other);
+  }
+}
+
 %extend ParaMEDMEM::DataArrayDouble
  {
    std::string __str__() const
@@ -895,6 +915,20 @@ namespace ParaMEDMEM
      PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
      return ret;
    }
+   
+   DataArrayDouble *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<int> tmp;
+     convertPyToNewIntArr3(li,tmp);
+     return self->keepSelectedComponents(tmp);
+   }
+
+   void setSelectedComponents(const DataArrayDouble *a, PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<int> tmp;
+     convertPyToNewIntArr3(li,tmp);
+     self->setSelectedComponents(a,tmp);
+   }
  };
 
 %extend ParaMEDMEM::DataArrayInt
@@ -1017,6 +1051,20 @@ namespace ParaMEDMEM
      delete [] tmp;
      return ret;
    }
+
+   DataArrayInt *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<int> tmp;
+     convertPyToNewIntArr3(li,tmp);
+     return self->keepSelectedComponents(tmp);
+   }
+
+   void setSelectedComponents(const DataArrayInt *a, PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<int> tmp;
+     convertPyToNewIntArr3(li,tmp);
+     self->setSelectedComponents(a,tmp);
+   }
  };
 
 namespace ParaMEDMEM
@@ -1135,6 +1183,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
     void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFunc(int nbOfComp, double val) throw(INTERP_KERNEL::Exception);
     void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
@@ -1361,6 +1410,20 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
+      }
+      
+      MEDCouplingFieldDouble *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> tmp;
+        convertPyToNewIntArr3(li,tmp);
+        return self->keepSelectedComponents(tmp);
+      }
+
+      void setSelectedComponents(const MEDCouplingFieldDouble *f, PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> tmp;
+        convertPyToNewIntArr3(li,tmp);
+        self->setSelectedComponents(f,tmp);
       }
     }
   };

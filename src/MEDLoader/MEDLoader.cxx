@@ -390,6 +390,14 @@ std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, co
                     ret.push_back(curMeshName);
                 }
             }
+          med_int nbPdt=MEDnPasdetemps(fid,nomcha,MED_NOEUD,MED_NONE);
+          for(int k=0;k<nbPdt;k++)
+            {
+              MEDpasdetempsInfo(fid,nomcha,MED_NOEUD,MED_NONE,k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
+              std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_TAILLE_NOM+1);
+              if(std::find(ret.begin(),ret.end(),curMeshName)==ret.end())
+                ret.push_back(curMeshName);
+            }
         }
     }
   delete [] maa_ass;
@@ -724,6 +732,137 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
   delete [] dt_unit;
   delete [] nomcha;
   MEDfermer(fid);
+  return ret;
+}
+
+std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIterations(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  std::string meshNameCpp(meshName);
+  std::vector< std::pair< std::pair<int,int>, double> > ret;
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nbFields=MEDnChamp(fid,0);
+  //
+  med_type_champ typcha;
+  med_int ngauss=0;
+  med_int numdt=0,numo=0,nbrefmaa;
+  med_float dt=0.0;
+  med_booleen local;
+  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+  char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  //
+  for(int i=0;i<nbFields;i++)
+    {
+      med_int ncomp=MEDnChamp(fid,i+1);
+      char *comp=new char[ncomp*MED_TAILLE_PNOM+1];
+      char *unit=new char[ncomp*MED_TAILLE_PNOM+1];
+      MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
+      std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_TAILLE_NOM+1);
+      delete [] comp;
+      delete [] unit;
+      if(curFieldName==fieldName)
+        {
+          bool found=false;
+          for(int j=0;j<MED_NBR_GEOMETRIE_MAILLE+2 && !found;j++)
+            {
+              med_int nbPdt=MEDnPasdetemps(fid,nomcha,MED_MAILLE,typmai[j]);
+              for(int k=0;k<nbPdt;k++)
+                {
+                  MEDpasdetempsInfo(fid,nomcha,MED_MAILLE,typmai[j],k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
+                  std::string maa_ass_cpp(maa_ass);
+                  if(meshNameCpp==maa_ass_cpp)
+                    {
+                      found=true;
+                      ret.push_back(std::make_pair(std::make_pair(numdt,numo),dt));
+                    }
+                }
+            }
+          med_int nbPdt=MEDnPasdetemps(fid,nomcha,MED_NOEUD,MED_NONE);
+          for(int k=0;k<nbPdt;k++)
+            {
+              MEDpasdetempsInfo(fid,nomcha,MED_NOEUD,MED_NONE,k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
+              std::string maa_ass_cpp(maa_ass);
+              if(meshNameCpp==maa_ass_cpp)
+                ret.push_back(std::make_pair(std::make_pair(numdt,numo),dt));
+            }
+        }
+    }
+  delete [] maa_ass;
+  delete [] dt_unit;
+  delete [] nomcha;
+  MEDfermer(fid);
+  return ret;
+}
+
+double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nbFields=MEDnChamp(fid,0);
+  //
+  med_type_champ typcha;
+  med_int ngauss=0;
+  med_int numdt=0,numo=0,nbrefmaa;
+  med_float dt=0.0;
+  med_booleen local;
+  char *maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  char *dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
+  char *nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  //
+  bool found=false;
+  bool found2=false;
+  double ret;
+  for(int i=0;i<nbFields && !found;i++)
+    {
+      med_int ncomp=MEDnChamp(fid,i+1);
+      char *comp=new char[ncomp*MED_TAILLE_PNOM+1];
+      char *unit=new char[ncomp*MED_TAILLE_PNOM+1];
+      MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
+      std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_TAILLE_NOM+1);
+      delete [] comp;
+      delete [] unit;
+      if(curFieldName==fieldName)
+        {
+          found=true;
+          for(int j=0;j<MED_NBR_GEOMETRIE_MAILLE+2 && !found2;j++)
+            {
+              med_int nbPdt=MEDnPasdetemps(fid,nomcha,MED_MAILLE,typmai[j]);
+              for(int k=0;k<nbPdt;k++)
+                {
+                  MEDpasdetempsInfo(fid,nomcha,MED_MAILLE,typmai[j],k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
+                  if(numdt==iteration && numo==order)
+                    {
+                      found2=true;
+                      ret=dt;
+                    }
+                }
+            }
+          if(!found2)
+            {
+              med_int nbPdt=MEDnPasdetemps(fid,nomcha,MED_NOEUD,MED_NONE);
+              for(int k=0;k<nbPdt && !found2;k++)
+                {
+                  MEDpasdetempsInfo(fid,nomcha,MED_NOEUD,MED_NONE,k+1, &ngauss, &numdt, &numo, dt_unit,&dt, maa_ass, &local, &nbrefmaa);
+                  if(numdt==iteration && numo==order)
+                    {
+                      found2=true;
+                      ret=dt;
+                    }
+                }
+            }
+        }
+    }
+  delete [] maa_ass;
+  delete [] dt_unit;
+  delete [] nomcha;
+  MEDfermer(fid);
+  if(!found || !found2)
+    {
+      std::ostringstream oss;
+      oss << "No such field with name \"" << fieldName << "\" and iteration,order=(" << iteration << "," << order << ") exists in file \"" << fileName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   return ret;
 }
 
@@ -1856,6 +1995,8 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoader::ReadField(ParaMEDMEM::TypeOfField
 std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> MEDLoader::ReadFieldsOnSameMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName,
                                                                                   const std::vector<std::pair<int,int> >& its) throw(INTERP_KERNEL::Exception)
 {
+  if(its.empty())
+    return std::vector<ParaMEDMEM::MEDCouplingFieldDouble *>();
   CheckFileForRead(fileName);
   std::vector<ParaMEDMEM::MEDCouplingFieldDouble *> ret(its.size());
   if(its.empty())
@@ -2686,5 +2827,8 @@ void MEDLoader::WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const Pa
       std::ostringstream oss; oss << "File with name \'" << fileName << "\' has not valid permissions or not exists !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+  std::string fieldName(f->getName());
+  if(fieldName.empty())
+    throw INTERP_KERNEL::Exception("Trying to write a field with no name ! MED file format needs a not empty field name !");
   MEDLoaderNS::appendFieldDirectly(fileName,f);
 }

@@ -58,6 +58,7 @@ public:
   static std::vector<std::string> GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetCellFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetNodeFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
+  static double GetTimeAttachedOnFieldIteration(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   %extend
      {
        static PyObject *GetFieldIterations(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
@@ -70,6 +71,22 @@ public:
              PyObject *elt=PyTuple_New(2);
              PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
              PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+             PyList_SetItem(ret,rk,elt);
+           }
+         return ret;
+       }
+
+       static PyObject *GetAllFieldIterations(const char *fileName, const char *meshName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair< std::pair<int,int>, double> > res=MEDLoader::GetAllFieldIterations(fileName,meshName,fieldName);
+         PyObject *ret=PyList_New(res.size());
+         int rk=0;
+         for(std::vector< std::pair< std::pair<int,int>, double> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+           {
+             PyObject *elt=PyTuple_New(3);
+             PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first.first));
+             PyTuple_SetItem(elt,1,SWIG_From_int((*iter).first.second));
+             PyTuple_SetItem(elt,2,SWIG_From_double((*iter).second));
              PyList_SetItem(ret,rk,elt);
            }
          return ret;

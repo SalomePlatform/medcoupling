@@ -141,6 +141,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFieldDoubleGetMinMaxValues2 );
     CPPUNIT_TEST( testBuildUnstructuredCMesh1 );
     CPPUNIT_TEST( testDataArrayIntInvertO2NNO21 );
+    CPPUNIT_TEST( testKeepSetSelectedComponent1 );
+    CPPUNIT_TEST( testKeepSetSelectedComponent2 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -310,6 +312,8 @@ namespace ParaMEDMEM
     void testFieldDoubleGetMinMaxValues2();
     void testBuildUnstructuredCMesh1();
     void testDataArrayIntInvertO2NNO21();
+    void testKeepSetSelectedComponent1();
+    void testKeepSetSelectedComponent2();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

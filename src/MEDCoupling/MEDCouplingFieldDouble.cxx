@@ -715,7 +715,7 @@ MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator=(double value) throw(IN
   if(!_mesh)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::operator= : no mesh defined !");
   int nbOfTuple=_type->getNumberOfTuples(_mesh);
-  _time_discr->setUniformValue(nbOfTuple,value);
+  _time_discr->setUniformValue(nbOfTuple,1,value);
   return *this;
 }
 
@@ -752,6 +752,18 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) th
 void MEDCouplingFieldDouble::applyFunc(int nbOfComp, FunctionToEvaluate func)
 {
   _time_discr->applyFunc(nbOfComp,func);
+}
+
+/*!
+ * This method is a specialization of other overloaded methods. When 'nbOfComp' equals 1 this method is equivalent to
+ * ParaMEDMEM::MEDCouplingFieldDouble::operator=.
+ */
+void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::applyFunc : no mesh defined !");
+  int nbOfTuple=_type->getNumberOfTuples(_mesh);
+  _time_discr->setUniformValue(nbOfTuple,nbOfComp,val);
 }
 
 /*!
@@ -1155,6 +1167,21 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxPerTuple() const throw(INTERP
 void MEDCouplingFieldDouble::changeNbOfComponents(int newNbOfComp, double dftValue) throw(INTERP_KERNEL::Exception)
 {
   _time_discr->changeNbOfComponents(newNbOfComp,dftValue);
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingTimeDiscretization *td=_time_discr->keepSelectedComponents(compoIds);
+  td->copyTinyAttrFrom(*_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(getNature(),td,_type->clone());
+  ret->setName(getName());
+  ret->setMesh(getMesh());
+  return ret;
+}
+
+void MEDCouplingFieldDouble::setSelectedComponents(const MEDCouplingFieldDouble *f, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->setSelectedComponents(f->_time_discr,compoIds);
 }
 
 void MEDCouplingFieldDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception)

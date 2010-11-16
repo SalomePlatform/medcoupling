@@ -759,6 +759,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m5=m4.build3DUnstructuredMesh();
         self.assertTrue(m5.isEqual(m3,1e-12));
         f=m5.getMeasureField(True);
+        f.setMesh(m4)
+        self.assertTrue(isinstance(f.getMesh(),MEDCouplingExtrudedMesh))
         arr=f.getArray();
         arrPtr=arr.getValues();
         for i in xrange(15):
@@ -4043,6 +4045,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m2.checkCoherency();
         f1=m.getMeasureField(False);
         f2=m2.getMeasureField(False);
+        self.assertTrue(isinstance(f1.getMesh(),MEDCouplingCMesh))
         self.assertEqual(f1.getNumberOfTuples(),3);
         self.assertEqual(f2.getNumberOfTuples(),3);
         self.assertEqual(1,m2.getMeshDimension());
@@ -4121,6 +4124,152 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(10):
             self.assertEqual(arr2[i],da3.getIJ(i,0));
             pass
+        pass
+
+    def testKeepSetSelectedComponent1(self):
+        arr1=[1.,2.,3.,4., 11.,12.,13.,14., 21.,22.,23.,24., 31.,32.,33.,34., 41.,42.,43.,44.]
+        a1=DataArrayDouble.New();
+        a1.setValues(arr1,5,4);
+        a1.setInfoOnComponent(0,"aaaa");
+        a1.setInfoOnComponent(1,"bbbb");
+        a1.setInfoOnComponent(2,"cccc");
+        a1.setInfoOnComponent(3,"dddd");
+        arr2V=[1,2,1,2,0,0]
+        a2=a1.keepSelectedComponents(arr2V);
+        self.assertEqual(6,a2.getNumberOfComponents());
+        self.assertEqual(5,a2.getNumberOfTuples());
+        self.assertTrue(a2.getInfoOnComponent(0)=="bbbb");
+        self.assertTrue(a2.getInfoOnComponent(1)=="cccc");
+        self.assertTrue(a2.getInfoOnComponent(2)=="bbbb");
+        self.assertTrue(a2.getInfoOnComponent(3)=="cccc");
+        self.assertTrue(a2.getInfoOnComponent(4)=="aaaa");
+        self.assertTrue(a2.getInfoOnComponent(5)=="aaaa");
+        expected1=[2.,3.,2.,3.,1.,1., 12.,13.,12.,13.,11.,11., 22.,23.,22.,23.,21.,21., 32.,33.,32.,33.,31.,31., 42.,43.,42.,43.,41.,41.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected1[i],a2.getIJ(0,i),14);
+            pass
+        a3=a1.convertToIntArr();
+        a4=a3.keepSelectedComponents(arr2V);
+        self.assertEqual(6,a4.getNumberOfComponents());
+        self.assertEqual(5,a4.getNumberOfTuples());
+        self.assertTrue(a4.getInfoOnComponent(0)=="bbbb");
+        self.assertTrue(a4.getInfoOnComponent(1)=="cccc");
+        self.assertTrue(a4.getInfoOnComponent(2)=="bbbb");
+        self.assertTrue(a4.getInfoOnComponent(3)=="cccc");
+        self.assertTrue(a4.getInfoOnComponent(4)=="aaaa");
+        self.assertTrue(a4.getInfoOnComponent(5)=="aaaa");
+        for i in xrange(30):
+            self.assertEqual(int(expected1[i]),a4.getIJ(0,i));
+            pass
+        # setSelectedComponents
+        arr3V=[3,2]
+        a5=a1.keepSelectedComponents(arr3V);
+        a5.setInfoOnComponent(0,"eeee");
+        a5.setInfoOnComponent(1,"ffff");
+        arr4V=[1,2]
+        a2.setSelectedComponents(a5,arr4V);
+        self.assertEqual(6,a2.getNumberOfComponents());
+        self.assertEqual(5,a2.getNumberOfTuples());
+        self.assertTrue(a2.getInfoOnComponent(0)=="bbbb");
+        self.assertTrue(a2.getInfoOnComponent(1)=="eeee");
+        self.assertTrue(a2.getInfoOnComponent(2)=="ffff");
+        self.assertTrue(a2.getInfoOnComponent(3)=="cccc");
+        self.assertTrue(a2.getInfoOnComponent(4)=="aaaa");
+        self.assertTrue(a2.getInfoOnComponent(5)=="aaaa");
+        expected2=[2.,4.,3.,3.,1.,1., 12.,14.,13.,13.,11.,11., 22.,24.,23.,23.,21.,21., 32.,34.,33.,33.,31.,31., 42.,44.,43.,43.,41.,41.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected2[i],a2.getIJ(0,i),14);
+            pass
+        a6=a5.convertToIntArr();
+        a6.setInfoOnComponent(0,"eeee");
+        a6.setInfoOnComponent(1,"ffff");
+        a4.setSelectedComponents(a6,arr4V);
+        self.assertEqual(6,a4.getNumberOfComponents());
+        self.assertEqual(5,a4.getNumberOfTuples());
+        self.assertTrue(a4.getInfoOnComponent(0)=="bbbb");
+        self.assertTrue(a4.getInfoOnComponent(1)=="eeee");
+        self.assertTrue(a4.getInfoOnComponent(2)=="ffff");
+        self.assertTrue(a4.getInfoOnComponent(3)=="cccc");
+        self.assertTrue(a4.getInfoOnComponent(4)=="aaaa");
+        self.assertTrue(a4.getInfoOnComponent(5)=="aaaa");
+        for i in xrange(30):
+            self.assertEqual(int(expected2[i]),a4.getIJ(0,i));
+            pass
+        # test of throw
+        arr5V=[2,3,6]
+        arr6V=[2,7,5]
+        arr7V=[2,1,4,6]
+        self.assertRaises(Exception,a2.keepSelectedComponents,arr5V);
+        self.assertRaises(Exception,a2.keepSelectedComponents,arr6V);
+        self.assertRaises(Exception,a2.setSelectedComponents,a1,arr7V);
+        arr7V=arr7V[0:3]
+        self.assertRaises(Exception,a2.setSelectedComponents,a1,arr7V);
+        #
+        pass
+
+    def testKeepSetSelectedComponent2(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        arr1=[1.,2.,3.,4., 11.,12.,13.,14., 21.,22.,23.,24., 31.,32.,33.,34., 41.,42.,43.,44.]
+        a1=DataArrayDouble.New();
+        a1.setValues(arr1,5,4);
+        a1.setInfoOnComponent(0,"aaaa");
+        a1.setInfoOnComponent(1,"bbbb");
+        a1.setInfoOnComponent(2,"cccc");
+        a1.setInfoOnComponent(3,"dddd");
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setTime(2.3,4,5);
+        f1.setMesh(m1);
+        f1.setName("f1");
+        f1.setArray(a1);
+        f1.checkCoherency();
+        #
+        arr2V=[1,2,1,2,0,0]
+        f2=f1.keepSelectedComponents(arr2V);
+        self.assertTrue(f2.getTimeDiscretization()==ONE_TIME);
+        t,dt,it=f2.getTime()
+        self.assertAlmostEqual(2.3,t,13);
+        self.assertEqual(4,dt);
+        self.assertEqual(5,it);
+        f2.checkCoherency();
+        self.assertEqual(6,f2.getNumberOfComponents());
+        self.assertEqual(5,f2.getNumberOfTuples());
+        self.assertTrue(f2.getArray().getInfoOnComponent(0)=="bbbb");
+        self.assertTrue(f2.getArray().getInfoOnComponent(1)=="cccc");
+        self.assertTrue(f2.getArray().getInfoOnComponent(2)=="bbbb");
+        self.assertTrue(f2.getArray().getInfoOnComponent(3)=="cccc");
+        self.assertTrue(f2.getArray().getInfoOnComponent(4)=="aaaa");
+        self.assertTrue(f2.getArray().getInfoOnComponent(5)=="aaaa");
+        expected1=[2.,3.,2.,3.,1.,1., 12.,13.,12.,13.,11.,11., 22.,23.,22.,23.,21.,21., 32.,33.,32.,33.,31.,31., 42.,43.,42.,43.,41.,41.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected1[i],f2.getIJ(0,i),14);
+            pass
+        #setSelectedComponents
+        arr3V=[3,2]
+        f5=f1.keepSelectedComponents(arr3V);
+        f5.setTime(6.7,8,9);
+        f5.getArray().setInfoOnComponent(0,"eeee");
+        f5.getArray().setInfoOnComponent(1,"ffff");
+        f5.checkCoherency();
+        arr4V=[1,2]
+        f2.setSelectedComponents(f5,arr4V);
+        self.assertEqual(6,f2.getNumberOfComponents());
+        self.assertEqual(5,f2.getNumberOfTuples());
+        f2.checkCoherency();
+        t,dt,it=f2.getTime()
+        self.assertAlmostEqual(2.3,t,13);
+        self.assertEqual(4,dt);
+        self.assertEqual(5,it);
+        self.assertTrue(f2.getArray().getInfoOnComponent(0)=="bbbb");
+        self.assertTrue(f2.getArray().getInfoOnComponent(1)=="eeee");
+        self.assertTrue(f2.getArray().getInfoOnComponent(2)=="ffff");
+        self.assertTrue(f2.getArray().getInfoOnComponent(3)=="cccc");
+        self.assertTrue(f2.getArray().getInfoOnComponent(4)=="aaaa");
+        self.assertTrue(f2.getArray().getInfoOnComponent(5)=="aaaa");
+        expected2=[2.,4.,3.,3.,1.,1., 12.,14.,13.,13.,11.,11., 22.,24.,23.,23.,21.,21., 32.,34.,33.,33.,31.,31., 42.,44.,43.,43.,41.,41.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected2[i],f2.getIJ(0,i),14);
+            pass
+        #
         pass
     
     def setUp(self):
