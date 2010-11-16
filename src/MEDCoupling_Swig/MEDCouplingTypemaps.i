@@ -23,11 +23,18 @@
 
 static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner)
 {
-  PyObject *ret;
+  PyObject *ret=0;
   if(dynamic_cast<ParaMEDMEM::MEDCouplingUMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCouplingExtrudedMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingExtrudedMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingCMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingCMesh,owner);
+  if(!ret)
+    {
+      PyErr_SetString(PyExc_TypeError,"Not recognized type of mesh on downcast !");
+      PyErr_Print();
+    }
   return ret;
 }
 
