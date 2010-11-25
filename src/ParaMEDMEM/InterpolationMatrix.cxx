@@ -24,6 +24,8 @@
 #include "InterpolationMatrix.hxx"
 #include "TranslationRotationMatrix.hxx"
 #include "Interpolation.hxx"
+#include "Interpolation1D.txx"
+#include "Interpolation2DCurve.txx"
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.txx"
 #include "Interpolation3D.txx"
@@ -159,6 +161,28 @@ namespace ParaMEDMEM
     else if (distant_support.getMeshDimension() != _source_support->getMeshDimension())
       {
         throw INTERP_KERNEL::Exception("local and distant meshes do not have the same space and mesh dimensions");
+      }
+    else if( distant_support.getMeshDimension() == 1
+             && distant_support.getSpaceDimension() == 1 )
+      {
+        MEDCouplingNormalizedUnstructuredMesh<1,1> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<1,1> source_wrapper(source_supportC);
+
+        INTERP_KERNEL::Interpolation1D interpolation(*this);
+        colSize=interpolation.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
+      }
+    else if( distant_support.getMeshDimension() == 1
+             && distant_support.getSpaceDimension() == 2 )
+      {
+        MEDCouplingNormalizedUnstructuredMesh<2,1> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<2,1> source_wrapper(source_supportC);
+
+        INTERP_KERNEL::Interpolation2DCurve interpolation(*this);
+        colSize=interpolation.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
       }
     else if ( distant_support.getMeshDimension() == 2
               && distant_support.getSpaceDimension() == 3 )

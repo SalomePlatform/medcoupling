@@ -288,7 +288,7 @@ namespace ParaMEDMEM
           }
         int* recvcounts=new int[world_size];
         int* recvdispls=new int[world_size];
-        int *dummyrecv;
+        int *dummyrecv=0;
         for (int i=0; i <world_size; i++)
           {
             recvcounts[i]=0;
@@ -328,7 +328,7 @@ namespace ParaMEDMEM
               recvdispls[i]=recvdispls[i-1]+recvcounts[i-1];
           }
 
-        int *dummysend;
+        int *dummysend=0;
         for (int i=0; i <world_size; i++)
           {
             sendcounts[i]=0;

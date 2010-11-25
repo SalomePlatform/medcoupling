@@ -23,6 +23,8 @@
 #include "VolSurfFormulae.hxx"
 #include "InterpolationUtils.hxx"
 
+#include <algorithm>
+
 namespace INTERP_KERNEL
 {
   template<class ConnType, NumberingPolicy numPol, int SPACEDIM>
@@ -30,6 +32,13 @@ namespace INTERP_KERNEL
   {
     switch(type)
       {
+      case INTERP_KERNEL::NORM_SEG2 :
+      case INTERP_KERNEL::NORM_SEG3 :
+        {
+          int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
+          int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
+          return INTERP_KERNEL::calculateLgthForSeg2(coords+(SPACEDIM*N1),coords+(SPACEDIM*N2),SPACEDIM);
+        }
       case INTERP_KERNEL::NORM_TRI3 :
       case INTERP_KERNEL::NORM_TRI6 :
         {
@@ -64,7 +73,7 @@ namespace INTERP_KERNEL
         {          
           const double **pts=new const double *[lgth];
           for(int inod=0;inod<lgth;inod++)
-            pts[inod] = coords+3*OTT<ConnType,numPol>::coo2C(connec[inod]);
+            pts[inod] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[inod]);
           double val=INTERP_KERNEL::calculateAreaForPolyg(pts,lgth,SPACEDIM);
           delete [] pts;
           return val;
@@ -146,11 +155,11 @@ namespace INTERP_KERNEL
             
       case INTERP_KERNEL::NORM_POLYHED :
         {
-          throw INTERP_KERNEL::Exception("Polyedra Not yet implemented !");
+          return calculateVolumeForPolyh2<ConnType,numPol>(connec,lgth,coords);
         }
         break;
       default:
-        throw INTERP_KERNEL::Exception("Not recognized cell type to get Area/Volume on it !");
+        throw INTERP_KERNEL::Exception("Not recognized cell type to get Length/Area/Volume on it !");
       }
   }
 
@@ -161,7 +170,127 @@ namespace INTERP_KERNEL
       return computeVolSurfOfCell<ConnType,numPolConn,3>(type,connec,lgth,coords);
     if(spaceDim==2)
       return computeVolSurfOfCell<ConnType,numPolConn,2>(type,connec,lgth,coords);
-    throw INTERP_KERNEL::Exception("Invalid spaceDim specified : must be 2 or 3");
+    if(spaceDim==1)
+      return computeVolSurfOfCell<ConnType,numPolConn,1>(type,connec,lgth,coords);
+    throw INTERP_KERNEL::Exception("Invalid spaceDim specified : must be 1, 2 or 3");
+  }
+
+  template<class ConnType, NumberingPolicy numPol,int SPACEDIM>
+  void computeBarycenter(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, double *res)
+  {
+    switch(type)
+      {
+      case NORM_SEG3:
+      case NORM_SEG2:
+        {
+          std::copy(coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]),
+                    coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]+1),res);
+          std::transform(res,res+SPACEDIM,coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[1]),res,std::plus<double>());
+          std::transform(res,res+SPACEDIM,res,std::bind2nd(std::multiplies<double>(),0.5));
+          break;
+        }
+      case NORM_TRI3:
+      case NORM_TRI6:
+        {
+          std::copy(coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]),
+                    coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]+1),res);
+          std::transform(res,res+SPACEDIM,coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[1]),res,std::plus<double>());
+          std::transform(res,res+SPACEDIM,coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[2]),res,std::plus<double>());
+          std::transform(res,res+SPACEDIM,res,std::bind2nd(std::multiplies<double>(),1./3.));
+          break;
+        }
+      case NORM_QUAD4:
+      case NORM_POLYGON:
+        {
+          if(SPACEDIM==2)
+            computePolygonBarycenter2D<ConnType,numPol>(connec,lgth,coords,res);
+          else if(SPACEDIM==3)
+            computePolygonBarycenter3D<ConnType,numPol>(connec,lgth,coords,res);
+          else
+            throw INTERP_KERNEL::Exception("Impossible spacedim linked to cell 2D Cell !");
+          break;
+        }
+      case NORM_QUAD8:
+        {
+          if(SPACEDIM==2)
+            computePolygonBarycenter2D<ConnType,numPol>(connec,lgth/2,coords,res);
+          else if(SPACEDIM==3)
+            computePolygonBarycenter3D<ConnType,numPol>(connec,lgth/2,coords,res);
+          else
+            throw INTERP_KERNEL::Exception("Impossible spacedim linked to cell 2D Cell !");
+          break;
+        }
+      case NORM_TETRA4:
+        {
+          res[0]=coords[3*OTT<ConnType,numPol>::coo2C(connec[0])]; 
+          res[1]=coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+1];
+          res[2]=coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+2];
+          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[1])]; 
+          res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[1])+1];
+          res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[1])+2];
+          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[2])]; 
+          res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[2])+1];
+          res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[2])+2];
+          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])]; 
+          res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])+1];
+          res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])+2];
+          res[0]/=4.; res[1]/=4.; res[2]/=4.;
+          break;
+        }
+      case NORM_PYRA5:
+        {
+          double tmp[3];
+          computePolygonBarycenter3D<ConnType,numPol>(connec,lgth-1,coords,tmp);
+          res[0]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[4])]+3.*tmp[0])/4.;
+          res[1]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[4])+1]+3.*tmp[1])/4.;
+          res[2]=(coords[3*OTT<ConnType,numPol>::coo2C(connec[4])+2]+3.*tmp[2])/4.;
+          break;
+        }
+      case NORM_HEXA8:
+        {
+          const int conn[29]={
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[7]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[6]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[1]),
+            };
+          barycenterOfPolyhedron<ConnType,numPol>(conn,29,coords,res);
+          break;
+        }
+      case NORM_PENTA6:
+        {
+          const int conn[22]={
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[4])
+          };
+          barycenterOfPolyhedron<ConnType,numPol>(conn,22,coords,res);
+          break;
+        }
+      case NORM_POLYHED:
+        {
+          barycenterOfPolyhedron<ConnType,numPol>(connec,lgth,coords,res);
+          break;
+        }
+      default:
+        throw INTERP_KERNEL::Exception("Not recognized cell type to get Barycenter on it !");
+      }
+  }
+
+  template<class ConnType, NumberingPolicy numPolConn>
+  void computeBarycenter2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim, double *res)
+  {
+    if(spaceDim==3)
+      return computeBarycenter<ConnType,numPolConn,3>(type,connec,lgth,coords,res);
+    if(spaceDim==2)
+      return computeBarycenter<ConnType,numPolConn,2>(type,connec,lgth,coords,res);
+    if(spaceDim==1)
+      return computeBarycenter<ConnType,numPolConn,1>(type,connec,lgth,coords,res);
+    throw INTERP_KERNEL::Exception("Invalid spaceDim specified for compute barycenter : must be 1, 2 or 3");
   }
 }
 

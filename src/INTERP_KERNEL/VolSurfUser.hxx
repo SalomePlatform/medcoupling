@@ -29,6 +29,12 @@ namespace INTERP_KERNEL
 
   template<class ConnType, NumberingPolicy numPolConn>
   double computeVolSurfOfCell2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim);
+
+  template<class ConnType, NumberingPolicy numPolConn, int SPACEDIM>
+  void computeBarycenter(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, double *res);
+
+  template<class ConnType, NumberingPolicy numPolConn>
+  void computeBarycenter2(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, int spaceDim, double *res);
 }
 
 #endif

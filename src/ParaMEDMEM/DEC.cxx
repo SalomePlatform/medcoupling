@@ -84,42 +84,60 @@ namespace ParaMEDMEM
   {
     _union_group = source_group.fuse(target_group);  
   }
-
-  DEC::DEC(const int *src_ids_bg, const int *src_ids_end,
-           const int *trg_ids_bg, const int *trg_ids_end,
-           const MPI_Comm& world_comm):_local_field(0), 
-                                       _owns_field(false),
-                                       _owns_groups(true),
-                                       _icoco_field(0)
+  DEC::DEC(const std::set<int>& source_ids, const std::set<int>& target_ids, const MPI_Comm& world_comm):_local_field(0), 
+                                                                                                         _owns_field(false),
+                                                                                                         _owns_groups(true),
+                                                                                                         _icoco_field(0)
   {
     ParaMEDMEM::CommInterface comm;
     // Create the list of procs including source and target
-    int nbOfProcsInComm=std::distance(src_ids_bg,src_ids_end)+std::distance(trg_ids_bg,trg_ids_end);
-    int *allRanks=new int[nbOfProcsInComm];
-    std::copy(src_ids_bg,src_ids_end,allRanks);
-    std::copy(trg_ids_bg,trg_ids_end,allRanks+std::distance(src_ids_bg,src_ids_end));
+    std::set<int> union_ids; // source and target ids in world_comm
+    union_ids.insert(source_ids.begin(),source_ids.end());
+    union_ids.insert(target_ids.begin(),target_ids.end());
+    int* union_ranks_world=new int[union_ids.size()]; // ranks of sources and targets in world_comm
+    std::copy<std::set<int>::const_iterator,int*> (union_ids.begin(), union_ids.end(), union_ranks_world);
+
     // Create a communicator on these procs
-    MPI_Group src_trg_group, world_group;
+    MPI_Group union_group,world_group;
     comm.commGroup(world_comm,&world_group);
-    comm.groupIncl(world_group,nbOfProcsInComm,allRanks,&src_trg_group);
-    MPI_Comm src_trg_comm;
-    comm.commCreate(world_comm,src_trg_group,&src_trg_comm);
-    delete [] allRanks;
-    //
-    if(src_trg_comm==MPI_COMM_NULL)
-      {//Current procid is not part of src_trg_comm
+    comm.groupIncl(world_group,union_ids.size(),union_ranks_world,&union_group);
+    MPI_Comm union_comm;
+    comm.commCreate(world_comm,union_group,&union_comm);
+    delete[] union_ranks_world;
+
+    if (union_comm==MPI_COMM_NULL)
+      { // This process is not in union
         _source_group=0;
         _target_group=0;
         _union_group=0;
         return;
       }
-    std::set<int> source_ids(src_ids_bg,src_ids_end);
-    _source_group=new MPIProcessorGroup(comm,source_ids,src_trg_comm);
-    std::set<int> target_ids(trg_ids_bg,trg_ids_end);
-    _target_group=new MPIProcessorGroup(comm,target_ids,src_trg_comm);
-    std::set<int> src_trg_ids(src_ids_bg,src_ids_end);
-    src_trg_ids.insert(trg_ids_bg,trg_ids_end);
-    _union_group=new MPIProcessorGroup(comm,src_trg_ids,src_trg_comm);
+
+    // Translate source_ids and target_ids from world_comm to union_comm
+    int* source_ranks_world=new int[source_ids.size()]; // ranks of sources in world_comm
+    std::copy<std::set<int>::const_iterator,int*> (source_ids.begin(), source_ids.end(),source_ranks_world);
+    int* source_ranks_union=new int[source_ids.size()]; // ranks of sources in union_comm
+    int* target_ranks_world=new int[target_ids.size()]; // ranks of targets in world_comm
+    std::copy<std::set<int>::const_iterator,int*> (target_ids.begin(), target_ids.end(),target_ranks_world);
+    int* target_ranks_union=new int[target_ids.size()]; // ranks of targets in union_comm
+    MPI_Group_translate_ranks(world_group,source_ids.size(),source_ranks_world,union_group,source_ranks_union);
+    MPI_Group_translate_ranks(world_group,target_ids.size(),target_ranks_world,union_group,target_ranks_union);
+    std::set<int> source_ids_union;
+    for (int i=0;i<(int)source_ids.size();i++)
+      source_ids_union.insert(source_ranks_union[i]);
+    std::set<int> target_ids_union;
+    for (int i=0;i<(int)target_ids.size();i++)
+      target_ids_union.insert(target_ranks_union[i]);
+    delete [] source_ranks_world;
+    delete [] source_ranks_union;
+    delete [] target_ranks_world;
+    delete [] target_ranks_union;
+
+    // Create the MPIProcessorGroups
+    _source_group= new MPIProcessorGroup(comm,source_ids_union,union_comm);
+    _target_group = new MPIProcessorGroup(comm,target_ids_union,union_comm);
+    _union_group = _source_group->fuse(*_target_group);
+
   }
 
   DEC::~DEC()

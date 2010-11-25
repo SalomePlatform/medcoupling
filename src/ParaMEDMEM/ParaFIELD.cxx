@@ -213,7 +213,7 @@ namespace ParaMEDMEM
   double ParaFIELD::getVolumeIntegral(int icomp, bool isWAbs) const
   {
     CommInterface comm_interface = _topology->getProcGroup()->getCommInterface();
-    double integral=_field->measureAccumulate(icomp,isWAbs);
+    double integral=_field->integral(icomp,isWAbs);
     double total=0.;
     const MPI_Comm* comm = (dynamic_cast<const MPIProcessorGroup*>(_topology->getProcGroup()))->getComm();
     comm_interface.allReduce(&integral, &total, 1, MPI_DOUBLE, MPI_SUM, *comm);

@@ -24,6 +24,8 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "DECOptions.hxx"
 
+#include <set>
+
 namespace ICoCo
 {
   class Field;
@@ -39,8 +41,7 @@ namespace ParaMEDMEM
   public:
     DEC():_local_field(0) { }
     DEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
-    DEC(const int *src_ids_bg, const int *src_ids_end,
-        const int *trg_ids_bg, const int *trg_ids_end,
+    DEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
         const MPI_Comm& world_comm=MPI_COMM_WORLD);
     void setNature(NatureOfField nature);
     void attachLocalField( MEDCouplingFieldDouble* field);

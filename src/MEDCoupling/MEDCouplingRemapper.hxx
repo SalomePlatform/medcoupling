@@ -24,6 +24,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "InterpolationOptions.hxx"
 #include "MEDCouplingNatureOfField.hxx"
+#include "InterpKernelException.hxx"
 
 #include <map>
 #include <vector>
@@ -42,23 +43,23 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper();
     MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper();
-    MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method);
-    MEDCOUPLINGREMAPPER_EXPORT void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
-    MEDCOUPLINGREMAPPER_EXPORT void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
-    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
-    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLINGREMAPPER_EXPORT void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLINGREMAPPER_EXPORT void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionInt(const std::string& key, int value);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionDouble(const std::string& key, double value);
-    MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, std::string& value);
+    MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, const std::string& value);
   public:
     MEDCOUPLINGREMAPPER_EXPORT static void printMatrix(const std::vector<std::map<int,double> >& m);
   private:
-    int prepareUU(const char *method);
-    int prepareEE(const char *method);
+    int prepareUU(const char *method) throw(INTERP_KERNEL::Exception);
+    int prepareEE(const char *method) throw(INTERP_KERNEL::Exception);
     void updateTime();
     void releaseData(bool matrixSuppression);
     void computeDeno(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
-    void computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
+    void computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField) throw(INTERP_KERNEL::Exception);
     void computeProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
     void computeReverseProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
     void buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<int,double> >& m1D,

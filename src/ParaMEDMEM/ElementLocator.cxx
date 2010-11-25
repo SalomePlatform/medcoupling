@@ -35,7 +35,7 @@
 
 using namespace std;
 
-#define USE_DIRECTED_BB
+//#define USE_DIRECTED_BB
 
 namespace ParaMEDMEM 
 { 
@@ -299,14 +299,11 @@ namespace ParaMEDMEM
                             ptDist2, nbDistElem, MPI_DOUBLE,
                             iprocdistant_in_union, 1112, 
                             *comm, &status);
-    if(!distant_mesh_tmp->isEmptyMesh(tinyInfoDistant))
-      {
-        distant_mesh=distant_mesh_tmp;
-        //finish unserialization
-        distant_mesh->unserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
-      }
-    else
-      distant_mesh_tmp->decrRef();
+    //
+    distant_mesh=distant_mesh_tmp;
+    //finish unserialization
+    distant_mesh->unserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
+    //
     distant_ids_recv=new int[tinyInfoDistant.back()];
     comm_interface.sendRecv((void *)distant_ids_send->getConstPointer(),tinyInfoLocal.back(), MPI_INT,
                             iprocdistant_in_union, 1113,

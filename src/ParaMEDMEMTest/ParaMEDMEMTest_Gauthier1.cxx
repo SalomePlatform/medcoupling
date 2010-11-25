@@ -252,7 +252,7 @@ void ParaMEDMEMTest::testGauthier1()
   
         MPI_Barrier(MPI_COMM_WORLD);
 
-        clock_t clock0= clock ();
+        //clock_t clock0= clock ();
         int compti=0;
 
         bool init=true; // first time step ??
@@ -261,7 +261,7 @@ void ParaMEDMEMTest::testGauthier1()
         while (!stop) {
   
           compti++;
-          clock_t clocki= clock ();
+          //clock_t clocki= clock ();
           //cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl; 
           for (int non_unif=0;non_unif<2;non_unif++)
             {
@@ -278,7 +278,7 @@ void ParaMEDMEMTest::testGauthier1()
                     if(rank!=3)
                       champ_emetteur._field[0]=40;
                 }
-              bool ok=false; // Is the time interval successfully solved ?
+              //bool ok=false; // Is the time interval successfully solved ?
     
               // Loop on the time interval tries
               if(1) {

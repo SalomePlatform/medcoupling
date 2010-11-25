@@ -54,7 +54,7 @@ namespace INTERP_KERNEL
   {
     std::vector<typename BASE_INTERSECTOR::TDualSegment> segmentsT, segmentsS;
     BASE_INTERSECTOR::getDualSegments( icellT, BASE_INTERSECTOR::_meshT, segmentsT);
-    for ( int t = 0; t < segmentsT.size(); ++t )
+    for ( int t = 0; t < (int)segmentsT.size(); ++t )
       {
         typename MyMatrix::value_type& resRow = res[ OTT<ConnType,numPol>::ind2C( segmentsT[t]._nodeId )];
         for(typename std::vector<ConnType>::const_iterator
@@ -63,7 +63,7 @@ namespace INTERP_KERNEL
             int iS = *iter;
             BASE_INTERSECTOR::getDualSegments( OTT<ConnType,numPol>::ind2C(iS),
                                                BASE_INTERSECTOR::_meshS, segmentsS);
-            for ( int s = 0; s < segmentsS.size(); ++s )
+            for ( int s = 0; s < (int)segmentsS.size(); ++s )
               {
                 double surf = BASE_INTERSECTOR::intersectSegments(&segmentsT[t]._coords[0],
                                                                   &segmentsS[s]._coords[0]);

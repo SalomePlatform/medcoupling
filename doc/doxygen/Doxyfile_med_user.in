@@ -73,6 +73,7 @@ INPUT                  = @srcdir@ \
                          @srcdir@/../../src/INTERP_KERNEL \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
                          @srcdir@/../../src/MEDCoupling \
+			 @srcdir@/../../src/MEDLoader \
                          @srcdir@/../../src/MEDMEM
 
 FILE_PATTERNS          = MEDMEM_Mesh.* \
@@ -95,6 +96,7 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          PlanarIntersector.* \
                          TargetIntersector.* \
                          Interpolation.* \
+			 InterpolationOptions.* \
                          InterpKernelGeo2DAbstractEdge.* \
                          InterpKernelGeo2DEdge.* \
                          InterpKernelGeo2DEdgeArcCircle.* \
@@ -111,8 +113,14 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
 			 MEDCouplingCMesh.* \
 			 MEDCouplingExtrudedMesh.* \
 			 MEDCouplingFieldDouble.* \
+			 MEDCouplingField.* \
 			 MEDCouplingFieldDiscretization.* \
 			 MEDCouplingTimeDiscretization.* \
+			 MEDCouplingTimeLabel.* \
+			 MEDCouplingRefCountObject.* \
+			 MEDCouplingMemArray.* \
+			 MEDCouplingRemapper.* \
+			 MEDLoader.* \
                          *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS

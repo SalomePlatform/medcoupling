@@ -17,8 +17,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MEDCouplingNormalizedCartesianMesh_HXX__
-#define __MEDCouplingNormalizedCartesianMesh_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGNORMALIZEDCARTESIANMESH_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGNORMALIZEDCARTESIANMESH_HXX__
 
 #include "NormalizedUnstructuredMesh.hxx"
 

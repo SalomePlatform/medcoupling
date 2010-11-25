@@ -16,46 +16,42 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// ICoCo file common to several codes
+// ICoCoTrioField.h
+// version 1.2 10/05/2010
 
-//////////////////////////////////////////////////////////////////////////////
-// File:        ICoCoTrioField.h
-// Directory:   $TRIO_U_ROOT/Kernel/Framework
-// Version:     
-//////////////////////////////////////////////////////////////////////////////
-
-#ifndef _ICOCOTRIOFIELD_HXX_
-#define _ICOCOTRIOFIELD_HXX_
+#ifndef _ICoCoTrioField_included_
+#define _ICoCoTrioField_included_
 
 #include <ICoCoField.hxx>
-namespace ICoCo
-{
-        /*!
-                \brief structure for coupling Trio codes via the ICoCo interface
+namespace ICoCo {
 
-                This structure contains all the necessary information 
-                for constructing a ParaMEDMEM::ParaFIELD (with the addition of the MPI
-                communicator). The ICoCo API specifies two kinds of calls for
-                the ICoCo::Field : either with the mesh only or with the entire information (mesh and field).
-                This structure can therefore be left without _time, _nb_field_components, _field
-                information, which are related to the field values.
-
-                _coords and _connectivity tables are always owned by the TrioField.
-
-         */
-  class TrioField:public Field
-  {
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // .DESCRIPTION 
+  //     class TrioField, used for coupling Trio codes via the ICoCo interface
+  //     This structure contains all the necessary information 
+  //     for constructing a ParaMEDMEM::ParaFIELD (with the addition of the MPI
+  //     communicator).
+  //     This structure can either own or not _field values (_has_field_ownership)
+  //     For _coords, _connectivity and _field, a null pointer means no data allocated.
+  //     _coords and _connectivity tables, when allocated, are always owned by the TrioField.
+  //
+  //////////////////////////////////////////////////////////////////////////////
+  class TrioField:public Field {
   public:
     
     TrioField();
+    TrioField(const TrioField& OtherField);
     ~TrioField();
     void clear();
-    void print();
     void set_standalone();
     void dummy_geom();
     TrioField& operator=(const TrioField& NewField);
     void save(std::ostream& os) const;
     void restore(std::istream& in);
     int nb_values() const ;
+
   public:
     int _type ; // 0 elem 1 nodes
     int _mesh_dim;

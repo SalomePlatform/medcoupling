@@ -20,16 +20,30 @@
 #ifndef __MEDLOADERBASE_HXX__
 #define __MEDLOADERBASE_HXX__
 
-class MEDLoaderBase
+#include "MEDLoaderDefines.hxx"
+#include "InterpKernelException.hxx"
+
+#include <string>
+
+class MEDLOADER_EXPORT MEDLoaderBase
 {
 public:
   static int getStatusOfFile(const char *fileName);
+  static char *buildEmptyString(int lgth);
+  static std::string buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth);
+  static void splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit);
+  static void strip(std::string& s);
+  static void safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception);
+  static std::string buildStringFromFortran(const char *expr, int lgth);
+  static void zipEqualConsChar(std::string& s, int minConsSmChar);
+  static std::string zipString(const char *src, int sizeToRespect);
 public:
   static const int EXIST_RW=0;
   static const int NOT_EXIST=1;
   static const int EXIST_RDONLY=2;
   static const int EXIST_WRONLY=3;
   static const int DIR_LOCKED=4;
+  static const char WHITE_SPACES[];
 };
 
 #endif

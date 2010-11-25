@@ -55,6 +55,14 @@ MEDCouplingUMeshDesc *MEDCouplingUMeshDesc::New(const char *meshName, int meshDi
   return ret;
 }
 
+/*!
+ * not implemented
+ */
+MEDCouplingMesh *MEDCouplingUMeshDesc::deepCpy() const
+{
+  return 0;
+}
+
 void MEDCouplingUMeshDesc::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
@@ -66,6 +74,18 @@ void MEDCouplingUMeshDesc::checkCoherency() const throw(INTERP_KERNEL::Exception
           throw INTERP_KERNEL::Exception(message.str().c_str());
         }
     }
+}
+
+void MEDCouplingUMeshDesc::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::checkDeepEquivalWith : not implemented yet !");
+}
+
+void MEDCouplingUMeshDesc::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                           DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::checkDeepEquivalOnSameNodesWith : not implemented yet !");
 }
 
 void MEDCouplingUMeshDesc::setMeshDimension(unsigned meshDim)
@@ -107,6 +127,18 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshDesc::getTypeOfCell(int cellId
   return (INTERP_KERNEL::NormalizedCellType)desc_connec[desc_connec_index[cellId]+1];
 }
 
+int MEDCouplingUMeshDesc::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
+{
+  const int *desc_connec=_desc_connec->getConstPointer();
+  const int *desc_connec_index=_desc_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  int ret=0;
+  for(int i=0;i<nbOfCells;i++)
+    if((INTERP_KERNEL::NormalizedCellType) desc_connec[desc_connec_index[i]]==type)
+      ret++;
+  return ret;
+}
+
 void MEDCouplingUMeshDesc::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
   //not implemented yet.
@@ -115,6 +147,22 @@ void MEDCouplingUMeshDesc::getNodeIdsOfCell(int cellId, std::vector<int>& conn) 
 void MEDCouplingUMeshDesc::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
 {
   //not implemented yet.
+}
+
+std::string MEDCouplingUMeshDesc::simpleRepr() const
+{
+  std::string ret("Unstructured mesh with descending connectivity : ");
+  ret+=getName();
+  ret+="\n";
+  return ret;
+}
+
+std::string MEDCouplingUMeshDesc::advancedRepr() const
+{
+  std::string ret("Unstructured mesh with descending connectivity : ");
+  ret+=getName();
+  ret+="\n";
+  return ret;
 }
 
 void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx)
@@ -283,11 +331,16 @@ void MEDCouplingUMeshDesc::giveElemsInBoundingBox(const INTERP_KERNEL::DirectedB
   delete [] elem_bb;
 }
 
-DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged)
+DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
   //not implemented yet.
   areNodesMerged=false;
   return 0;
+}
+
+void MEDCouplingUMeshDesc::tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
@@ -317,6 +370,11 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildBoundaryMesh(bool keepCoords) co
 {
   //not implemented yet
   return 0;
+}
+
+void MEDCouplingUMeshDesc::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Available for UMesh desc but not implemented yet !");
 }
 
 void MEDCouplingUMeshDesc::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)

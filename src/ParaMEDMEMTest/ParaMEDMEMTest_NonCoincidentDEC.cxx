@@ -17,6 +17,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#ifdef MED_ENABLE_FVM
+
 #include "ParaMEDMEMTest.hxx"
 #include <cppunit/TestAssert.h>
 
@@ -251,3 +253,4 @@ void ParaMEDMEMTest::testNonCoincidentDEC(const string& filename1,
   MPI_Barrier(MPI_COMM_WORLD);
   
 }
+#endif

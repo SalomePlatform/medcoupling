@@ -34,6 +34,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST_SUITE(MEDCouplingRemapperTest);
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0R_1 );
+    CPPUNIT_TEST( test1DInterp_1 );
     CPPUNIT_TEST( test2DInterpMultiMethods );
     CPPUNIT_TEST( testMultiDimCombi );
     CPPUNIT_TEST( testNatureOfField );
@@ -43,6 +44,7 @@ namespace ParaMEDMEM
   public:
     void test2DInterpP0P0_1();
     void test2DInterpP0P0R_1();
+    void test1DInterp_1();
     void test2DInterpMultiMethods();
     void testMultiDimCombi();
     void testNatureOfField();

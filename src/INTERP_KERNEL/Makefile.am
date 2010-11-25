@@ -43,6 +43,7 @@ PointLocator2DIntersector.hxx           \
 PointLocator2DIntersector.txx           \
 INTERPKERNELDefines.hxx			\
 InterpKernelMatrix.hxx			\
+InterpKernelMeshQuality.hxx             \
 Interpolation.hxx			\
 Interpolation.txx                       \
 Interpolation2D.hxx			\
@@ -141,6 +142,7 @@ VTKNormalizedUnstructuredMesh.hxx	\
 VTKNormalizedUnstructuredMesh.txx	\
 VectorUtils.hxx                         \
 VolSurfFormulae.hxx                     \
+GenMathFormulae.hxx                     \
 VolSurfUser.hxx                         \
 VolSurfUser.txx                         \
 CurveIntersector.hxx                    \
@@ -177,15 +179,17 @@ VolSurfUser.txx
 # Libraries targets
 
 dist_libinterpkernel_la_SOURCES = \
-	TransformedTriangle.cxx\
-	TransformedTriangleIntersect.cxx\
-	TransformedTriangleMath.cxx\
+	TransformedTriangle.cxx \
+	TransformedTriangleIntersect.cxx \
+	TransformedTriangleMath.cxx \
 	BoundingBox.cxx \
-	TetraAffineTransform.cxx\
-	CellModel.cxx\
+	TranslationRotationMatrix.cxx \
+	TetraAffineTransform.cxx \
+	CellModel.cxx \
 	UnitTetraIntersectionBary.cxx \
 	InterpolationOptions.cxx \
-	DirectedBoundingBox.cxx
+	DirectedBoundingBox.cxx \
+	InterpKernelMeshQuality.cxx
 
 libinterpkernel_la_CPPFLAGS=-I$(srcdir)/Geometric2D -I$(srcdir)/Bases
 

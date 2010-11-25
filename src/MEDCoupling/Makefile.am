@@ -36,17 +36,19 @@ MEDCouplingCMesh.hxx MEDCouplingTimeDiscretization.hxx                          
 MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx MEDCouplingPointSet.txx                \
 MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx                                             \
 MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx                     \
-MEDCouplingRemapper.hxx MEDCouplingExtrudedMesh.hxx
+MEDCouplingRemapper.hxx MEDCouplingExtrudedMesh.hxx MEDCouplingGaussLocalization.hxx              \
+MEDCouplingAutoRefCountObjectPtr.hxx
 
 # Libraries targets
 
 dist_libmedcoupling_la_SOURCES = \
-	MEDCouplingField.cxx  MEDCouplingFieldDouble.cxx                          \
-	MEDCouplingUMesh.cxx  MEDCouplingMemArray.cxx  MEDCouplingTimeLabel.cxx   \
-	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                    \
-	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx          \
-	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx                          \
-	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx
+	MEDCouplingField.cxx  MEDCouplingFieldDouble.cxx                                    \
+	MEDCouplingUMesh.cxx  MEDCouplingMemArray.cxx  MEDCouplingTimeLabel.cxx             \
+	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                              \
+	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx                    \
+	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx                                    \
+	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx    \
+	MEDCouplingNatureOfField.cxx
 
 libmedcoupling_la_LDFLAGS= 
 
@@ -70,9 +72,6 @@ libmedcouplingremapper_la_LIBADD = libmedcoupling.la
 
 AM_CPPFLAGS += $(libinterpkernel_la_CPPFLAGS)
 LDADD= $(libinterpkernel_la_LDFLAGS)
-if MED_ENABLE_KERNEL
-     LDADD+=-lSALOMEBasics
-endif
 
 EXTRA_DIST += \
 	MEDCouplingFieldDouble.hxx                \
@@ -92,4 +91,6 @@ EXTRA_DIST += \
 	MEDCouplingPointSet.txx                   \
 	MEDCouplingUMeshDesc.hxx                  \
 	MEDCouplingNatureOfField.hxx              \
-	MEDCouplingRemapper.hxx
+	MEDCouplingRemapper.hxx                   \
+	MEDCouplingExtrudedMesh.hxx               \
+	MEDCouplingGaussLocalization.hxx 

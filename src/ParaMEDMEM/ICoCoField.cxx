@@ -16,16 +16,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-
-//////////////////////////////////////////////////////////////////////////////
-// File:        ICoCoField.cpp
-// Directory:   $TRIO_U_ROOT/Kernel/ICoCo
-// Version:     /main/1
-//////////////////////////////////////////////////////////////////////////////
+// ICoCo file common to several codes
+// ICoCoField.cpp
+// version 1.2 10/05/2010
 
 #include <ICoCoField.hxx>
 #include <string>
-#include <stdlib.h>
 
 using namespace ICoCo;
 using std::string;

@@ -87,10 +87,98 @@ namespace ParaMEDMEM
       return true;
     if(pt1==0 || pt2==0)
       return false;
+    if(pt1==pt2)
+      return true;
     for(int i=0;i<_nb_of_elem;i++)
       if(pt1[i]-pt2[i]<-prec || (pt1[i]-pt2[i])>prec)
         return false;
     return true;
+  }
+  
+  /*!
+   * @param sl is typically the number of components [in parameter]
+   */
+  template<class T>
+  void MemArray<T>::repr(int sl, std::ostream& stream) const
+  {
+    stream << "Number of tuples : ";
+    if(!_pointer.isNull())
+      {
+        if(sl!=0)
+          stream << _nb_of_elem/sl;
+        else
+          stream << "Empty Data";
+      }
+    else
+      stream << "No data";
+    stream << "\n";
+    stream << "Data content :\n";
+    const T *data=getConstPointer();
+    if(!_pointer.isNull())
+      {
+        if(_nb_of_elem!=0 && sl!=0)
+          {
+            int nbOfTuples=_nb_of_elem/sl;
+            for(int i=0;i<nbOfTuples;i++)
+              {
+                stream << "Tuple #" << i << " : ";
+                std::copy(data,data+sl,std::ostream_iterator<T>(stream," "));
+                stream << "\n";
+                data+=sl;
+              }
+          }
+        else
+          stream << "Empty Data\n";
+      }
+    else
+      stream << "No data !\n";
+  }
+  
+  /*!
+   * @param sl is typically the number of components [in parameter]
+   */
+  template<class T>
+  void MemArray<T>::reprZip(int sl, std::ostream& stream) const
+  {
+    stream << "Number of tuples : ";
+    if(!_pointer.isNull())
+      {
+        if(sl!=0)
+          stream << _nb_of_elem/sl;
+        else
+          stream << "Empty Data";
+      }
+    else
+      stream << "No data";
+    stream << "\n";
+    stream << "Data content : ";
+    const T *data=getConstPointer();
+    if(!_pointer.isNull())
+      {
+        if(_nb_of_elem!=0 && sl!=0)
+          {
+            int nbOfTuples=_nb_of_elem/sl;
+            for(int i=0;i<nbOfTuples;i++)
+              {
+                stream << "|";
+                std::copy(data,data+sl,std::ostream_iterator<T>(stream," "));
+                stream << "| ";
+                data+=sl;
+              }
+            stream << "\n";
+          }
+        else
+          stream << "Empty Data\n";
+      }
+    else
+      stream << "No data !\n";
+  }
+  
+  template<class T>
+  void MemArray<T>::fillWithValue(const T& val)
+  {
+    T *pt=_pointer.getPointer();
+    std::fill(pt,pt+_nb_of_elem,val);
   }
 
   template<class T>

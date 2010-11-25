@@ -16,8 +16,9 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __DirectedBoundingBox_HXX__
-#define __DirectedBoundingBox_HXX__
+
+#ifndef __DIRECTEDBOUNDINGBOX_HXX__
+#define __DIRECTEDBOUNDINGBOX_HXX__
 
 #include "INTERPKERNELDefines.hxx"
 
@@ -92,7 +93,7 @@ namespace INTERP_KERNEL
 
   inline bool DirectedBoundingBox::isLocalOut(const double* pLoc) const
     {
-      for ( int i = 0; i < _dim; ++i )
+      for ( int i = 0; i < (int)_dim; ++i )
         if ( pLoc[i] < _minmax[i*2] || pLoc[i] > _minmax[i*2+1] )
           return true;
       return false;
@@ -106,10 +107,10 @@ namespace INTERP_KERNEL
 
   inline void DirectedBoundingBox::addPointToBox(const double* coord)
   {
-    for ( int i = 0; i < _dim; ++i )
+    for ( int i = 0; i < (int)_dim; ++i )
       {
         double c = 0;
-        for ( int j = 0; j < _dim; ++j ) c += coord[j]*_axes[i*_dim+j];
+        for ( int j = 0; j < (int)_dim; ++j ) c += coord[j]*_axes[i*_dim+j];
         if ( c < _minmax[i*2] )   _minmax[i*2] = c;
         if ( c > _minmax[i*2+1] ) _minmax[i*2+1] = c;
       }

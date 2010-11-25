@@ -30,8 +30,8 @@ INTERPKERNELEXPREVALDefines.hxx         \
 InterpKernelExprParser.hxx              \
 InterpKernelFunction.hxx                \
 InterpKernelUnit.hxx                    \
-InterpKernelValue.hxx
-
+InterpKernelValue.hxx                   \
+InterpKernelAsmX86.hxx
 
 EXTRA_DIST +=		        	\
 INTERPKERNELEXPREVALDefines.hxx         \
@@ -44,7 +44,8 @@ dist_libinterpkernelexpreval_la_SOURCES = \
 	InterpKernelExprParser.cxx        \
 	InterpKernelFunction.cxx          \
 	InterpKernelUnit.cxx              \
-	InterpKernelValue.cxx
+	InterpKernelValue.cxx             \
+	InterpKernelAsmX86.cxx
 
 libinterpkernelexpreval_la_CPPFLAGS=-I$(srcdir)/../Bases
 

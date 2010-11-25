@@ -73,11 +73,6 @@ void MEDCouplingPointSet::updateTime()
     }
 }
 
-bool MEDCouplingPointSet::isStructured() const
-{
-  return false;
-}
-
 void MEDCouplingPointSet::setCoords(DataArrayDouble *coords)
 {
   if( coords != _coords )
@@ -98,6 +93,20 @@ DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
   return _coords;
 }
 
+/*!
+ * This method copyies all tiny strings from other (name and components name).
+ * @throw if other and this have not same mesh type.
+ */
+void MEDCouplingPointSet::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::copyTinyStringsFrom : meshes have not same type !");
+  MEDCouplingMesh::copyTinyStringsFrom(other);
+  if(_coords && otherC->_coords)
+    _coords->copyStringInfoFrom(*otherC->_coords);
+}
+
 bool MEDCouplingPointSet::isEqual(const MEDCouplingMesh *other, double prec) const
 {
   const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
@@ -106,6 +115,16 @@ bool MEDCouplingPointSet::isEqual(const MEDCouplingMesh *other, double prec) con
   if(!MEDCouplingMesh::isEqual(other,prec))
     return false;
   if(!areCoordsEqual(*otherC,prec))
+    return false;
+  return true;
+}
+
+bool MEDCouplingPointSet::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
+{
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  if(!otherC)
+    return false;
+  if(!areCoordsEqualWithoutConsideringStr(*otherC,prec))
     return false;
   return true;
 }
@@ -121,13 +140,45 @@ bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, doubl
   return _coords->isEqual(*other._coords,prec);
 }
 
+bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const
+{
+  if(_coords==0 && other._coords==0)
+    return true;
+  if(_coords==0 || other._coords==0)
+    return false;
+  if(_coords==other._coords)
+    return true;
+  return _coords->isEqualWithoutConsideringStr(*other._coords,prec);
+}
+
+/*!
+ * This method is typically the base method used for implementation of mergeNodes. This method computes this permutation array using as input,
+ * This method is const ! So this method simply computes the array, no permutation of nodes is done.
+ * a precision 'precision' and a 'limitNodeId' that is the node id so that every nodes which id is strictly lower than 'limitNodeId' will not be merged.
+ * To desactivate this advanced feature put -1 to this argument.
+ * @param areNodesMerged output parameter that states if some nodes have been "merged" in returned array
+ * @param newNbOfNodes output parameter too this is the maximal id in returned array to avoid to recompute it.
+ */
+DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(int limitNodeId, double precision, bool& areNodesMerged, int& newNbOfNodes) const
+{
+  DataArrayInt *comm,*commI;
+  findCommonNodes(limitNodeId,precision,comm,commI);
+  int oldNbOfNodes=getNumberOfNodes();
+  DataArrayInt *ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
+  areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
+  comm->decrRef();
+  commI->decrRef();
+  return ret;
+}
+
 /*!
  * This methods searches for each node n1 nodes in _coords that are less far than 'prec' from n1. if any these nodes are stored in params
  * comm and commIndex.
+ * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged.
  * @param comm out parameter (not inout)
  * @param commIndex out parameter (not inout)
  */
-void MEDCouplingPointSet::findCommonNodes(DataArrayInt *&comm, DataArrayInt *&commIndex, double prec) const
+void MEDCouplingPointSet::findCommonNodes(int limitNodeId, double prec, DataArrayInt *&comm, DataArrayInt *&commIndex) const
 {
   comm=DataArrayInt::New();
   commIndex=DataArrayInt::New();
@@ -149,13 +200,13 @@ void MEDCouplingPointSet::findCommonNodes(DataArrayInt *&comm, DataArrayInt *&co
   switch(spaceDim)
     {
     case 3:
-      findCommonNodesAlg<3>(bbox,nbNodesOld,prec,c,cI);
+      findCommonNodesAlg<3>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
       break;
     case 2:
-      findCommonNodesAlg<2>(bbox,nbNodesOld,prec,c,cI);
+      findCommonNodesAlg<2>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
       break;
     case 1:
-      findCommonNodesAlg<1>(bbox,nbNodesOld,prec,c,cI);
+      findCommonNodesAlg<1>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
       break;
     default:
       throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1,2 or 3.");
@@ -171,8 +222,8 @@ void MEDCouplingPointSet::findCommonNodes(DataArrayInt *&comm, DataArrayInt *&co
  * @param commI in param in the same format than one returned by findCommonNodes method.
  * @return the old to new correspondance array.
  */
-DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommNodesFrmt(const DataArrayInt *comm, const DataArrayInt *commIndex,
-                                                                      int& newNbOfNodes) const
+DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
+                                                                          int& newNbOfNodes) const
 {
   DataArrayInt *ret=DataArrayInt::New();
   int nbNodesOld=getNumberOfNodes();
@@ -272,6 +323,25 @@ void MEDCouplingPointSet::zipCoords()
   traducer->decrRef();
 }
 
+struct MEDCouplingCompAbs
+{
+  bool operator()(double x, double y) { return std::abs(x)<std::abs(y);}
+};
+
+/*!
+ * This method expects that _coords attribute is set.
+ * @return the carateristic dimension of point set. This caracteristic dimension is the max of difference 
+ * @exception If _coords attribute not set.
+ */
+double MEDCouplingPointSet::getCaracteristicDimension() const
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getCaracteristicDimension : Coordinates not set !");
+  const double *coords=_coords->getConstPointer();
+  int nbOfValues=_coords->getNbOfElems();
+  return std::abs(*std::max_element(coords,coords+nbOfValues,MEDCouplingCompAbs()));
+}
+
 /*!
  * Non const method that operates a rotation of 'this'.
  * If spaceDim==2 'vector' parameter is ignored (and could be 0) and the rotation is done around 'center' with angle specified by 'angle'.
@@ -339,7 +409,7 @@ void MEDCouplingPointSet::scale(const double *point, double factor)
  * - by ignoring each \f$ i^{th} \f$ components of each coord of nodes so that i >= 'newSpaceDim', 'newSpaceDim'<getSpaceDimension()
  * If newSpaceDim==getSpaceDim() nothing is done by this method.
  */
-void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim) throw(INTERP_KERNEL::Exception)
+void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim, double dftValue) throw(INTERP_KERNEL::Exception)
 {
   if(getCoords()==0)
     throw INTERP_KERNEL::Exception("changeSpaceDimension must be called on an MEDCouplingPointSet instance with coordinates set !");
@@ -348,25 +418,10 @@ void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim) throw(INTERP_KER
   int oldSpaceDim=getSpaceDimension();
   if(newSpaceDim==oldSpaceDim)
     return ;
-  DataArrayDouble *newCoords=DataArrayDouble::New();
-  newCoords->alloc(getCoords()->getNumberOfTuples(),newSpaceDim);
-  const double *oldc=getCoords()->getConstPointer();
-  double *nc=newCoords->getPointer();
-  int nbOfNodes=getNumberOfNodes();
-  int dim=std::min(oldSpaceDim,newSpaceDim);
-  for(int i=0;i<nbOfNodes;i++)
-    {
-      int j=0;
-      for(;j<dim;j++)
-        nc[newSpaceDim*i+j]=oldc[i*oldSpaceDim+j];
-      for(;j<newSpaceDim;j++)
-        nc[newSpaceDim*i+j]=0.;
-    }
-  newCoords->setName(getCoords()->getName().c_str());
-  for(int i=0;i<dim;i++)
-    newCoords->setInfoOnComponent(i,getCoords()->getInfoOnComponent(i).c_str());
+  DataArrayDouble *newCoords=getCoords()->changeNbOfComponents(newSpaceDim,dftValue);
   setCoords(newCoords);
   newCoords->decrRef();
+  updateTime();
 }
 
 /*!
@@ -381,7 +436,7 @@ void MEDCouplingPointSet::tryToShareSameCoords(const MEDCouplingPointSet& other,
     throw INTERP_KERNEL::Exception("Current instance has no coords whereas other has !");
   if(!other._coords)
     throw INTERP_KERNEL::Exception("Other instance has no coords whereas current has !");
-  if(!_coords->isEqual(*other._coords,epsilon))
+  if(!_coords->isEqualWithoutConsideringStr(*other._coords,epsilon))
     throw INTERP_KERNEL::Exception("Coords are not the same !");
   setCoords(other._coords);
 }
@@ -485,7 +540,7 @@ void MEDCouplingPointSet::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) con
  * Second step of serialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
+void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
@@ -502,7 +557,7 @@ void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyI
  * Second and final unserialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
@@ -623,6 +678,33 @@ void MEDCouplingPointSet::rotate3DAlg(const double *center, const double *vect, 
       coords[i*3+2]=matrix[6]*tmp[0]+matrix[7]*tmp[1]+matrix[8]*tmp[2]+center[2];
     }
 }
+
+/*!
+ * This method implements pure virtual method MEDCouplingMesh::buildPart.
+ * This method build a part of 'this' by simply keeping cells whose ids are in ['start','end').
+ * The coords are kept unchanged contrary to pure virtual method MEDCouplingMesh::buildPartAndReduceNodes.
+ * The returned mesh has to be managed by the caller.
+ */
+MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end) const
+{
+  return buildPartOfMySelf(start,end,false);
+}
+
+/*!
+ * This method implements pure virtual method MEDCouplingMesh::buildPartAndReduceNodes.
+ * This method build a part of 'this' by simply keeping cells whose ids are in ['start','end') \b and potentially reduces the nodes set
+ * behind returned mesh. This cause an overhead but it is lesser in memory.
+ * This method returns an array too. This array allows to the caller to know the mapping between nodeids in 'this' and nodeids in 
+ * returned mesh. This is quite usefull for MEDCouplingFieldDouble on nodes for example...
+ * The returned mesh has to be managed by the caller.
+ */
+MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const
+{
+  MEDCouplingPointSet *ret=buildPartOfMySelf(start,end,true);
+  arr=ret->zipCoordsTraducer();
+  return ret;
+}
+
 
 /*!
  * 'This' is expected to be of spaceDim==2. Idem for 'center' and 'vect'

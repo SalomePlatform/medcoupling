@@ -36,6 +36,8 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testMPIProcessorGroup_rank);
   CPPUNIT_TEST(testBlockTopology_constructor);
   CPPUNIT_TEST(testBlockTopology_serialize);
+  CPPUNIT_TEST(testInterpKernelDEC_1D);
+  CPPUNIT_TEST(testInterpKernelDEC_2DCurve);
   CPPUNIT_TEST(testInterpKernelDEC_2D);
   CPPUNIT_TEST(testInterpKernelDEC2_2D);
   CPPUNIT_TEST(testInterpKernelDEC_2DP0P1);
@@ -44,6 +46,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testInterpKernelDECNonOverlapp_2D_P0P1P1P0);
   CPPUNIT_TEST(testInterpKernelDEC2DM1D_P0P0);
   CPPUNIT_TEST(testInterpKernelDECPartialProcs);
+  CPPUNIT_TEST(testInterpKernelDEC3DSurfEmptyBBox);
 
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpNativeDEC_2D);
   CPPUNIT_TEST(testSynchronousEqualInterpKernelWithoutInterpDEC_2D);
@@ -68,6 +71,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testGauthier1);
   CPPUNIT_TEST(testGauthier2);
   CPPUNIT_TEST(testFabienAPI1);
+  CPPUNIT_TEST(testFabienAPI2);
   CPPUNIT_TEST(testMEDLoaderRead1);
   CPPUNIT_TEST(testMEDLoaderPolygonRead);
   CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
@@ -87,6 +91,8 @@ public:
   void testMPIProcessorGroup_rank();
   void testBlockTopology_constructor();
   void testBlockTopology_serialize();
+  void testInterpKernelDEC_1D();
+  void testInterpKernelDEC_2DCurve();
   void testInterpKernelDEC_2D();
   void testInterpKernelDEC2_2D();
   void testInterpKernelDEC_2DP0P1();
@@ -95,6 +101,7 @@ public:
   void testInterpKernelDECNonOverlapp_2D_P0P1P1P0();
   void testInterpKernelDEC2DM1D_P0P0();
   void testInterpKernelDECPartialProcs();
+  void testInterpKernelDEC3DSurfEmptyBBox();
 #ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC_2D();
   void testNonCoincidentDEC_3D();
@@ -118,6 +125,7 @@ public:
   void testGauthier1();
   void testGauthier2();
   void testFabienAPI1();
+  void testFabienAPI2();
   //
   void testMEDLoaderRead1();
   void testMEDLoaderPolygonRead();
@@ -130,11 +138,13 @@ public:
   std::string makeTmpFile( const std::string&, const std::string& = "" );
 
 private:
+#ifdef MED_ENABLE_FVM
   void testNonCoincidentDEC(const std::string& filename1, 
                             const std::string& meshname1, 
                             const std::string& filename2, 
                             const std::string& meshname2,
                             int nbprocsource, double epsilon);
+#endif
   void testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA, 
                                           double dtB, double tmaxB,
                                           bool WithPointToPoint, bool Asynchronous, bool WithInterp, const char *srcMeth, const char *targetMeth);

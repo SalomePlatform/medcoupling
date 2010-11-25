@@ -20,7 +20,6 @@
 // Created   : Mon Apr 12 14:41:22 2010
 // Author    : Edward AGAPOV (eap)
 
-
 #include "DirectedBoundingBox.hxx"
 
 #include "InterpolationUtils.hxx"
@@ -31,7 +30,7 @@
 #define __MAX(i)      _minmax[i*2+1]
 #define __MYID        (long(this)%10000)
 #define __DMP(msg) \
-   //cout << msg << endl
+  //  cout << msg << endl
 
 using namespace std;
 
@@ -237,9 +236,9 @@ namespace INTERP_KERNEL
     if ( dim > 1 )
       {
         for ( coord = pts; coord < coordEnd; )
-          for ( int i = 0; i < dim; ++i )
+          for ( int i = 0; i < (int)dim; ++i )
             gc[i] += *coord++;
-        for ( int j = 0; j < dim; ++j )
+        for ( int j = 0; j < (int)dim; ++j )
           gc[j] /= numPts;
 
       }
@@ -309,9 +308,9 @@ namespace INTERP_KERNEL
     if ( dim > 1 )
       {
         for ( unsigned i = 0; i < numPts; ++i )
-          for ( int j = 0; j < dim; ++j )
+          for ( int j = 0; j < (int)dim; ++j )
             gc[j] += pts[i][j];
-        for ( int j = 0; j < dim; ++j )
+        for ( int j = 0; j < (int)dim; ++j )
           gc[j] /= numPts;
       }
 
@@ -347,6 +346,7 @@ namespace INTERP_KERNEL
             if ( pts[i][0] < _minmax[0] ) _minmax[0] = pts[i][0];
             if ( pts[i][0] > _minmax[1] ) _minmax[1] = pts[i][0];
           }
+        _axes[0] = 1.0;
       }
   }
 
@@ -568,7 +568,7 @@ namespace INTERP_KERNEL
                                        const double*        minmax) const
   {
     int iC, nbCorners = 1;
-    for ( int i=0;i<_dim;++i ) nbCorners *= 2;
+    for ( int i=0;i<(int)_dim;++i ) nbCorners *= 2;
     corners.resize( nbCorners * _dim );
     // each coordinate is filled with either min or max, nbSwap is number of corners
     // after which min and max swap
@@ -595,6 +595,8 @@ namespace INTERP_KERNEL
   bool DirectedBoundingBox::isDisjointWith(const DirectedBoundingBox& box) const
   {
     if ( _dim < 1 || box._dim < 1 ) return false; // empty box includes all
+    if ( _dim == 1 )
+      return isMinMaxOut( &box._minmax[0], &this->_minmax[0], _dim );
 
     // boxes are disjoined if their minmaxes in local CS of either of boxes do not intersect
     for ( int isThisCS = 0; isThisCS < 2; ++isThisCS )
@@ -632,6 +634,8 @@ namespace INTERP_KERNEL
   bool DirectedBoundingBox::isDisjointWith(const double* box) const
   {
     if ( _dim < 1 ) return false; // empty box includes all
+    if ( _dim == 1 )
+      return isMinMaxOut( &_minmax[0], box, _dim );
 
     // boxes are disjoined if their minmaxes in local CS of either of boxes do not intersect
 
@@ -657,7 +661,7 @@ namespace INTERP_KERNEL
       for ( int iC = 0, nC = cornersThis.size()/_dim; iC < nC; ++iC)
         {
           fromLocalCS( &cornersThis[iC*_dim], globCorner );
-          for ( int i = 0; i < _dim; ++i )
+          for ( int i = 0; i < (int)_dim; ++i )
             {
               if ( globCorner[i] < mmBox._minmax[i*2] )   mmBox._minmax[i*2] = globCorner[i];
               if ( globCorner[i] > mmBox._minmax[i*2+1] ) mmBox._minmax[i*2+1] = globCorner[i];
@@ -710,7 +714,7 @@ namespace INTERP_KERNEL
       data.insert( data.end(), &_axes[0], &_axes[0] + _axes.size());
       data.insert( data.end(), &_minmax[0], &_minmax[0] + _minmax.size());
     }
-    if ( data.size() < dataSize( _dim ))
+    if ( data.size() < (unsigned)dataSize( _dim ))
       data.resize( dataSize( _dim ), 0 );
     return data;
   }
