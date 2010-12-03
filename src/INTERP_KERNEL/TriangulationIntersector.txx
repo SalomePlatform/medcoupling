@@ -191,8 +191,7 @@ namespace INTERP_KERNEL
 
     //Compute the intersection area
     double inter_area[SPACEDIM], total_area = 0.;
-    double total_barycenter[SPACEDIM];
-    total_barycenter[0]=total_barycenter[1] = 0.;
+    double total_barycenter[SPACEDIM]={0.,0.};
 
     const ConnType nbNodesT=targetCell.size()/SPACEDIM;
     for(ConnType iT = 1; iT<nbNodesT-1; iT++)

@@ -26,6 +26,8 @@
 #include "BBTree.txx"
 #include "DirectedBoundingBox.hxx"
 #include "InterpKernelMeshQuality.hxx"
+#include "InterpKernelCellSimplify.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <sstream>
@@ -560,6 +562,59 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
       int *newConnPtr=_nodal_connec->getPointer();
       std::copy(connNew.begin(),connNew.end(),newConnPtr);
     }
+  computeTypes();
+}
+
+/*!
+ * This method is the opposite of ParaMEDMEM::MEDCouplingUMesh::convertToPolyTypes method.
+ * The aim is to take all polygons or polyhedrons cell and to try to traduce them into classical cells.
+ * 
+ */
+void MEDCouplingUMesh::unPolyze()
+{
+  checkFullyDefined();
+  if(getMeshDimension()<=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::unPolyze works on umeshes with meshdim equals to 2 or 3 !");
+  int nbOfCells=getNumberOfCells();
+  if(nbOfCells<1)
+    return ;
+  int initMeshLgth=getMeshLength();
+  int *conn=_nodal_connec->getPointer();
+  int *index=_nodal_connec_index->getPointer();
+  int posOfCurCell=0;
+  int newPos=0;
+  int lgthOfCurCell;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      lgthOfCurCell=index[i+1]-posOfCurCell;
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[posOfCurCell];
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      INTERP_KERNEL::NormalizedCellType newType=INTERP_KERNEL::NORM_ERROR;
+      int newLgth;
+      if(cm.isDynamic())
+        {
+          if(cm.getDimension()==2)
+            {
+              int *tmp=new int[lgthOfCurCell-1];
+              std::copy(conn+posOfCurCell+1,conn+posOfCurCell+lgthOfCurCell,tmp);
+              newType=INTERP_KERNEL::CellSimplify::tryToUnPoly2D(tmp,lgthOfCurCell-1,conn+newPos+1,newLgth);
+              delete [] tmp;
+            }
+          if(cm.getDimension()==3)
+            {
+              int nbOfFaces,lgthOfPolyhConn;
+              int *zipFullReprOfPolyh=INTERP_KERNEL::CellSimplify::getFullPolyh3DCell(type,conn+posOfCurCell+1,lgthOfCurCell-1,nbOfFaces,lgthOfPolyhConn);
+              newType=INTERP_KERNEL::CellSimplify::tryToUnPoly3D(zipFullReprOfPolyh,nbOfFaces,lgthOfPolyhConn,conn+newPos+1,newLgth);
+              delete [] zipFullReprOfPolyh;
+            }
+          conn[newPos]=newType;
+          newPos+=newLgth+1;
+          posOfCurCell=index[i+1];
+          index[i+1]=newPos;
+        }
+    }
+  if(newPos!=initMeshLgth)
+    _nodal_connec->reAlloc(newPos);
   computeTypes();
 }
 
@@ -1294,7 +1349,13 @@ std::string MEDCouplingUMesh::simpleRepr() const
   ret << "Unstructured mesh with name : \"" << getName() << "\"\n";
   ret << "Mesh dimension : " << _mesh_dim << "\nSpace dimension : ";
   if(_coords!=0)
-    ret << getSpaceDimension() << "\n";
+    {
+      const int spaceDim=getSpaceDimension();
+      ret << spaceDim << "\nInfo attached on space dimension : ";
+      for(int i=0;i<spaceDim;i++)
+        ret << "\"" << _coords->getInfoOnComponent(i) << "\" ";
+      ret << "\n";
+    }
   else
     ret << msg0 << "\n";
   ret << "Number of nodes : ";
@@ -1733,6 +1794,32 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildDirectionVectorField() const
 }
 
 /*!
+ * This method checks that 'this' is a contiguous mesh. The user is expected to call this method on a mesh with meshdim==1.
+ * If not an exception will thrown. If this is an empty mesh with no cell an exception will be thrown too.
+ * No consideration of coordinate is done by this method.
+ * A 1D mesh is said contiguous if : a cell i with nodal connectivity (k,p) the cell i+1 the nodal connectivity should be (p,m)
+ * If not false is returned. In case that false is returned a call to ParaMEDMEM::MEDCouplingUMesh::mergeNodes could be usefull.
+ */
+bool MEDCouplingUMesh::isContiguous1D() const throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::isContiguous1D : this method has a sense only for 1D mesh !");
+  int nbCells=getNumberOfCells();
+  if(nbCells<1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::isContiguous1D : this method has a sense for non empty mesh !");
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const int *conn=_nodal_connec->getConstPointer();
+  int ref=conn[connI[0]+2];
+  for(int i=1;i<nbCells;i++)
+    {
+      if(conn[connI[i]+1]!=ref)
+        return false;
+      ref=conn[connI[i]+2];
+    }
+  return true;
+}
+
+/*!
  * This method is only callable on mesh with meshdim == 1 containing only SEG2 and spaceDim==3.
  * This method projects this on the 3D line defined by (pt,v). This methods first checks that all SEG2 are along v vector.
  * @param pt reference point of the line
@@ -1886,9 +1973,6 @@ void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoint
       else
         throw INTERP_KERNEL::Exception("For spaceDim==2 only meshDim==2 implemented for getelementscontainingpoints !");
     }
-
-
-  
 }
 
 /*!
@@ -1935,10 +2019,14 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThis(const MEDCouplingU
 {
   checkFullyDefined();
   mesh1D->checkFullyDefined();
-  if(getMeshDimension()!=2 || getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("Invalid 'this' for buildExtrudedMeshFromThis method : must be meshDim==2 and spaceDim ==3 !");
-  if(mesh1D->getMeshDimension()!=1 || mesh1D->getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("Invalid 'mesh1D' for buildExtrudedMeshFromThis method : must be meshDim==1 and spaceDim ==3 !");
+  if(!mesh1D->isContiguous1D())
+    throw INTERP_KERNEL::Exception("buildExtrudedMeshFromThis : 1D mesh passed in parameter is not contiguous !");
+  if(getSpaceDimension()!=mesh1D->getSpaceDimension())
+    throw INTERP_KERNEL::Exception("Invalid call to buildExtrudedMeshFromThis this and mesh1D must have same dimension !");
+  if((getMeshDimension()!=2 || getSpaceDimension()!=3) && (getMeshDimension()!=1 || getSpaceDimension()!=2))
+    throw INTERP_KERNEL::Exception("Invalid 'this' for buildExtrudedMeshFromThis method : must be (meshDim==2 and spaceDim==3) or (meshDim==1 and spaceDim==2) !");
+  if(mesh1D->getMeshDimension()!=1)
+    throw INTERP_KERNEL::Exception("Invalid 'mesh1D' for buildExtrudedMeshFromThis method : must be meshDim==1 !");
   bool isQuad=false;
   if(isPresenceOfQuadratic())
     {
@@ -1955,6 +2043,11 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThis(const MEDCouplingU
     case 0:
       {
         newCoords=fillExtCoordsUsingTranslation(mesh1D,isQuad);
+        break;
+      }
+    case 1:
+      {
+        newCoords=fillExtCoordsUsingTranslAndAutoRotation(mesh1D,isQuad);
         break;
       }
     default:
@@ -1976,13 +2069,14 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslation(const MEDCoupli
 {
   int oldNbOfNodes=getNumberOfNodes();
   int nbOf1DCells=mesh1D->getNumberOfCells();
+  int spaceDim=getSpaceDimension();
   DataArrayDouble *ret=DataArrayDouble::New();
   std::vector<bool> isQuads;
   int nbOfLevsInVec=isQuad?2*nbOf1DCells+1:nbOf1DCells+1;
-  ret->alloc(oldNbOfNodes*nbOfLevsInVec,3);
+  ret->alloc(oldNbOfNodes*nbOfLevsInVec,spaceDim);
   double *retPtr=ret->getPointer();
   const double *coords=getCoords()->getConstPointer();
-  double *work=std::copy(coords,coords+3*oldNbOfNodes,retPtr);
+  double *work=std::copy(coords,coords+spaceDim*oldNbOfNodes,retPtr);
   std::vector<int> v;
   std::vector<double> c;
   double vec[3];
@@ -1995,20 +2089,149 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslation(const MEDCoupli
       c.resize(0);
       mesh1D->getCoordinatesOfNode(v[isQuad?2:1],c);
       mesh1D->getCoordinatesOfNode(v[0],c);
-      std::transform(c.begin(),c.begin()+3,c.begin()+3,vec,std::minus<double>());
+      std::transform(c.begin(),c.begin()+spaceDim,c.begin()+spaceDim,vec,std::minus<double>());
       for(int j=0;j<oldNbOfNodes;j++)
-        work=std::transform(vec,vec+3,retPtr+3*(i*oldNbOfNodes+j),work,std::plus<double>());
+        work=std::transform(vec,vec+spaceDim,retPtr+spaceDim*(i*oldNbOfNodes+j),work,std::plus<double>());
       if(isQuad)
         {
           c.resize(0);
           mesh1D->getCoordinatesOfNode(v[1],c);
           mesh1D->getCoordinatesOfNode(v[0],c);
-          std::transform(c.begin(),c.begin()+3,c.begin()+3,vec,std::minus<double>());
+          std::transform(c.begin(),c.begin()+spaceDim,c.begin()+spaceDim,vec,std::minus<double>());
           for(int j=0;j<oldNbOfNodes;j++)
-            work=std::transform(vec,vec+3,retPtr+3*(i*oldNbOfNodes+j),work,std::plus<double>());
+            work=std::transform(vec,vec+spaceDim,retPtr+spaceDim*(i*oldNbOfNodes+j),work,std::plus<double>());
         }
     }
   ret->copyStringInfoFrom(*getCoords());
+  return ret;
+}
+
+/*!
+ * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * @param mesh1D is the input 1D mesh used for translation and automatic rotation computation.
+ * @return newCoords new coords filled by this method. 
+ */
+DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation(const MEDCouplingUMesh *mesh1D, bool isQuad) const throw(INTERP_KERNEL::Exception)
+{
+  if(mesh1D->getSpaceDimension()==2)
+    return fillExtCoordsUsingTranslAndAutoRotation2D(mesh1D,isQuad);
+  if(mesh1D->getSpaceDimension()==3)
+    return fillExtCoordsUsingTranslAndAutoRotation3D(mesh1D,isQuad);
+  throw INTERP_KERNEL::Exception("Not implemented rotation and translation alg. for spacedim other than 2 and 3 !");
+}
+
+/*!
+ * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * @param mesh1D is the input 1D mesh used for translation and automatic rotation computation.
+ * @return newCoords new coords filled by this method. 
+ */
+DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D(const MEDCouplingUMesh *mesh1D, bool isQuad) const throw(INTERP_KERNEL::Exception)
+{
+  if(isQuad)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D : not implemented for quadratic cells !");
+  int oldNbOfNodes=getNumberOfNodes();
+  int nbOf1DCells=mesh1D->getNumberOfCells();
+  if(nbOf1DCells<2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D : impossible to detect any angle of rotation ! Change extrusion policy 1->0 !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfLevsInVec=nbOf1DCells+1;
+  ret->alloc(oldNbOfNodes*nbOfLevsInVec,2);
+  double *retPtr=ret->getPointer();
+  retPtr=std::copy(getCoords()->getConstPointer(),getCoords()->getConstPointer()+getCoords()->getNbOfElems(),retPtr);
+  MEDCouplingUMesh *tmp=MEDCouplingUMesh::New();
+  DataArrayDouble *tmp2=getCoords()->deepCopy();
+  tmp->setCoords(tmp2);
+  tmp2->decrRef();
+  const double *coo1D=mesh1D->getCoords()->getConstPointer();
+  const int *conn1D=mesh1D->getNodalConnectivity()->getConstPointer();
+  const int *connI1D=mesh1D->getNodalConnectivityIndex()->getConstPointer();
+  for(int i=1;i<nbOfLevsInVec;i++)
+    {
+      const double *begin=coo1D+2*conn1D[connI1D[i-1]+1];
+      const double *end=coo1D+2*conn1D[connI1D[i-1]+2];
+      const double *third=i+1<nbOfLevsInVec?coo1D+2*conn1D[connI1D[i]+2]:coo1D+2*conn1D[connI1D[i-2]+1];
+      const double vec[2]={end[0]-begin[0],end[1]-begin[1]};
+      tmp->translate(vec);
+      double tmp3[2],radius,alpha,alpha0;
+      const double *p0=i+1<nbOfLevsInVec?begin:third;
+      const double *p1=i+1<nbOfLevsInVec?end:begin;
+      const double *p2=i+1<nbOfLevsInVec?third:end;
+      INTERP_KERNEL::EdgeArcCircle::getArcOfCirclePassingThru(p0,p1,p2,tmp3,radius,alpha,alpha0);
+      double cosangle=i+1<nbOfLevsInVec?(p0[0]-tmp3[0])*(p1[0]-tmp3[0])+(p0[1]-tmp3[1])*(p1[1]-tmp3[1]):(p2[0]-tmp3[0])*(p1[0]-tmp3[0])+(p2[1]-tmp3[1])*(p1[1]-tmp3[1]);
+      double angle=acos(cosangle/(radius*radius));
+      tmp->rotate(end,0,angle);
+      retPtr=std::copy(tmp2->getConstPointer(),tmp2->getConstPointer()+tmp2->getNbOfElems(),retPtr);
+    }
+  tmp->decrRef();
+  return ret;
+}
+
+/*!
+ * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * @param mesh1D is the input 1D mesh used for translation and automatic rotation computation.
+ * @return newCoords new coords filled by this method. 
+ */
+DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(const MEDCouplingUMesh *mesh1D, bool isQuad) const throw(INTERP_KERNEL::Exception)
+{
+  if(isQuad)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D : not implemented for quadratic cells !");
+  int oldNbOfNodes=getNumberOfNodes();
+  int nbOf1DCells=mesh1D->getNumberOfCells();
+  if(nbOf1DCells<2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D : impossible to detect any angle of rotation ! Change extrusion policy 1->0 !");
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int nbOfLevsInVec=nbOf1DCells+1;
+  ret->alloc(oldNbOfNodes*nbOfLevsInVec,3);
+  double *retPtr=ret->getPointer();
+  retPtr=std::copy(getCoords()->getConstPointer(),getCoords()->getConstPointer()+getCoords()->getNbOfElems(),retPtr);
+  MEDCouplingUMesh *tmp=MEDCouplingUMesh::New();
+  DataArrayDouble *tmp2=getCoords()->deepCopy();
+  tmp->setCoords(tmp2);
+  tmp2->decrRef();
+  const double *coo1D=mesh1D->getCoords()->getConstPointer();
+  const int *conn1D=mesh1D->getNodalConnectivity()->getConstPointer();
+  const int *connI1D=mesh1D->getNodalConnectivityIndex()->getConstPointer();
+  for(int i=1;i<nbOfLevsInVec;i++)
+    {
+      const double *begin=coo1D+3*conn1D[connI1D[i-1]+1];
+      const double *end=coo1D+3*conn1D[connI1D[i-1]+2];
+      const double *third=i+1<nbOfLevsInVec?coo1D+3*conn1D[connI1D[i]+2]:coo1D+3*conn1D[connI1D[i-2]+1];
+      const double vec[3]={end[0]-begin[0],end[1]-begin[1],end[2]-begin[2]};
+      tmp->translate(vec);
+      double tmp3[2],radius,alpha,alpha0;
+      const double *p0=i+1<nbOfLevsInVec?begin:third;
+      const double *p1=i+1<nbOfLevsInVec?end:begin;
+      const double *p2=i+1<nbOfLevsInVec?third:end;
+      double vecPlane[3]={
+        (p1[1]-p0[1])*(p2[2]-p1[2])-(p1[2]-p0[2])*(p2[1]-p1[1]),
+        (p1[2]-p0[2])*(p2[0]-p1[0])-(p1[0]-p0[0])*(p2[2]-p1[2]),
+        (p1[0]-p0[0])*(p2[1]-p1[1])-(p1[1]-p0[1])*(p2[0]-p1[0]),
+      };
+      double norm=sqrt(vecPlane[0]*vecPlane[0]+vecPlane[1]*vecPlane[1]+vecPlane[2]*vecPlane[2]);
+      if(norm>1.e-7)
+        {
+          vecPlane[0]/=norm; vecPlane[1]/=norm; vecPlane[2]/=norm;
+          double norm2=sqrt(vecPlane[0]*vecPlane[0]+vecPlane[1]*vecPlane[1]);
+          double vec2[2]={vecPlane[1]/norm2,-vecPlane[0]/norm2};
+          double s2=norm2;
+          double c2=cos(asin(s2));
+          double m[3][3]={
+            {vec2[0]*vec2[0]*(1-c2)+c2, vec2[0]*vec2[1]*(1-c2), vec2[1]*s2},
+            {vec2[0]*vec2[1]*(1-c2), vec2[1]*vec2[1]*(1-c2)+c2, -vec2[0]*s2},
+            {-vec2[1]*s2, vec2[0]*s2, c2}
+          };
+          double p0r[3]={m[0][0]*p0[0]+m[0][1]*p0[1]+m[0][2]*p0[2], m[1][0]*p0[0]+m[1][1]*p0[1]+m[1][2]*p0[2], m[2][0]*p0[0]+m[2][1]*p0[1]+m[2][2]*p0[2]};
+          double p1r[3]={m[0][0]*p1[0]+m[0][1]*p1[1]+m[0][2]*p1[2], m[1][0]*p1[0]+m[1][1]*p1[1]+m[1][2]*p1[2], m[2][0]*p1[0]+m[2][1]*p1[1]+m[2][2]*p1[2]};
+          double p2r[3]={m[0][0]*p2[0]+m[0][1]*p2[1]+m[0][2]*p2[2], m[1][0]*p2[0]+m[1][1]*p2[1]+m[1][2]*p2[2], m[2][0]*p2[0]+m[2][1]*p2[1]+m[2][2]*p2[2]};
+          INTERP_KERNEL::EdgeArcCircle::getArcOfCirclePassingThru(p0r,p1r,p2r,tmp3,radius,alpha,alpha0);
+          double cosangle=i+1<nbOfLevsInVec?(p0r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p0r[1]-tmp3[1])*(p1r[1]-tmp3[1]):(p2r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p2r[1]-tmp3[1])*(p1r[1]-tmp3[1]);
+          double angle=acos(cosangle/(radius*radius));
+          tmp->rotate(end,vecPlane,angle);
+          
+        }
+      retPtr=std::copy(tmp2->getConstPointer(),tmp2->getConstPointer()+tmp2->getNbOfElems(),retPtr);
+    }
+  tmp->decrRef();
   return ret;
 }
 
@@ -2023,7 +2246,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(int nbOfNode
   int nbOf1DCells=getNumberOfNodes()/nbOfNodesOf1Lev-1;
   int nbOf2DCells=getNumberOfCells();
   int nbOf3DCells=nbOf2DCells*nbOf1DCells;
-  MEDCouplingUMesh *ret=MEDCouplingUMesh::New("Extruded",3);
+  MEDCouplingUMesh *ret=MEDCouplingUMesh::New("Extruded",getMeshDimension()+1);
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   DataArrayInt *newConn=DataArrayInt::New();
@@ -2154,6 +2377,198 @@ void MEDCouplingUMesh::convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exce
         }
     }
   setConnectivity(newConn,newConnI,false);
+}
+
+/*!
+ * This methods modify this by converting each cells into simplex cell, that is too say triangle for meshdim==2 or tetra for meshdim==3.
+ * This cut into simplex is performed following the parameter 'policy'. This method so typically increases the number of cells of this.
+ * This method returns new2old array that specifies a each cell of 'this' after the call what was its id it comes.
+ * 
+ * The semantic of 'policy' parameter :
+ * - 1 only QUAD4. For QUAD4 the cut is done along 0-2 diagonal for QUAD4
+ * - 2 only QUAD4. For QUAD4 the cut is done along 1-3 diagonal for QUAD4
+ */
+DataArrayInt *MEDCouplingUMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  switch(policy)
+    {
+    case 0:
+      return simplexizePol0();
+    case 1:
+      return simplexizePol1();
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexize : unrecognized policy ! Must be 0 or 1 !");
+    }
+}
+
+bool MEDCouplingUMesh::areOnlySimplexCells() const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()<1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::areOnlySimplexCells : only available with meshes having a meshdim >= 1 !");
+  int nbCells=getNumberOfCells();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  for(int i=0;i<nbCells;i++)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
+      if(!cm.isSimplex())
+        return false;
+    }
+  return true;
+}
+
+/*!
+ * This method implements policy 0 of virtual method ParaMEDMEM::MEDCouplingUMesh::simplexize.
+ */
+DataArrayInt *MEDCouplingUMesh::simplexizePol0() throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexizePol0 : this policy is only available for mesh with meshdim == 2 !");
+  int nbOfCells=getNumberOfCells();
+  DataArrayInt *ret=DataArrayInt::New();
+  int nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4);
+  ret->alloc(nbOfCells+nbOfCutCells,1);
+  if(nbOfCutCells==0)
+    {
+      ret->iota(0);
+      return ret;
+    }
+  int *retPt=ret->getPointer();
+  DataArrayInt *newConn=DataArrayInt::New();
+  DataArrayInt *newConnI=DataArrayInt::New();
+  newConnI->alloc(nbOfCells+nbOfCutCells+1,1);
+  newConn->alloc(getMeshLength()+3*nbOfCutCells,1);
+  int *pt=newConn->getPointer();
+  int *ptI=newConnI->getPointer();
+  ptI[0]=0;
+  const int *oldc=_nodal_connec->getConstPointer();
+  const int *ci=_nodal_connec_index->getConstPointer();
+  for(int i=0;i<nbOfCells;i++,ci++)
+    {
+      if((INTERP_KERNEL::NormalizedCellType)oldc[ci[0]]==INTERP_KERNEL::NORM_QUAD4)
+        {
+          const int tmp[8]={(int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+1],oldc[ci[0]+2],oldc[ci[0]+3],
+                            (int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+1],oldc[ci[0]+3],oldc[ci[0]+4]};
+          pt=std::copy(tmp,tmp+8,pt);
+          ptI[1]=ptI[0]+4;
+          ptI[2]=ptI[0]+8;
+          *retPt++=i;
+          *retPt++=i;
+          ptI+=2;
+        }
+      else
+        {
+          pt=std::copy(oldc+ci[0],oldc+ci[1],pt);
+          ptI[1]=ptI[0]+ci[1]-ci[0];
+          ptI++;
+          *retPt++=i;
+        }
+    }
+  _nodal_connec->decrRef();
+  _nodal_connec=newConn;
+  _nodal_connec_index->decrRef();
+  _nodal_connec_index=newConnI;
+  computeTypes();
+  updateTime();
+  return ret;
+}
+
+/*!
+ * This method implements policy 1 of virtual method ParaMEDMEM::MEDCouplingUMesh::simplexize.
+ */
+DataArrayInt *MEDCouplingUMesh::simplexizePol1() throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexizePol0 : this policy is only available for mesh with meshdim == 2 !");
+  int nbOfCells=getNumberOfCells();
+  DataArrayInt *ret=DataArrayInt::New();
+  int nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4);
+  ret->alloc(nbOfCells+nbOfCutCells,1);
+  if(nbOfCutCells==0)
+    {
+      ret->iota(0);
+      return ret;
+    }
+  int *retPt=ret->getPointer();
+  DataArrayInt *newConn=DataArrayInt::New();
+  DataArrayInt *newConnI=DataArrayInt::New();
+  newConnI->alloc(nbOfCells+nbOfCutCells+1,1);
+  newConn->alloc(getMeshLength()+3*nbOfCutCells,1);
+  int *pt=newConn->getPointer();
+  int *ptI=newConnI->getPointer();
+  ptI[0]=0;
+  const int *oldc=_nodal_connec->getConstPointer();
+  const int *ci=_nodal_connec_index->getConstPointer();
+  for(int i=0;i<nbOfCells;i++,ci++)
+    {
+      if((INTERP_KERNEL::NormalizedCellType)oldc[ci[0]]==INTERP_KERNEL::NORM_QUAD4)
+        {
+          const int tmp[8]={(int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+1],oldc[ci[0]+2],oldc[ci[0]+4],
+                            (int)INTERP_KERNEL::NORM_TRI3,oldc[ci[0]+2],oldc[ci[0]+3],oldc[ci[0]+4]};
+          pt=std::copy(tmp,tmp+8,pt);
+          ptI[1]=ptI[0]+4;
+          ptI[2]=ptI[0]+8;
+          *retPt++=i;
+          *retPt++=i;
+          ptI+=2;
+        }
+      else
+        {
+          pt=std::copy(oldc+ci[0],oldc+ci[1],pt);
+          ptI[1]=ptI[0]+ci[1]-ci[0];
+          ptI++;
+          *retPt++=i;
+        }
+    }
+  _nodal_connec->decrRef();
+  _nodal_connec=newConn;
+  _nodal_connec_index->decrRef();
+  _nodal_connec_index=newConnI;
+  computeTypes();
+  updateTime();
+  return ret;
+}
+
+
+/*!
+ * This method converts all degenerated cells to simpler cells. For example a NORM_QUAD4 cell consituted from 2 same node id in its
+ * nodal connectivity will be transform to a NORM_TRI3 cell.
+ * This method works \b only \b on \b linear cells.
+ * This method works on nodes ids, that is to say a call to ParaMEDMEM::MEDCouplingUMesh::mergeNodes
+ * method could be usefull before calling this method in case of presence of several pair of nodes located on same position.
+ * This method throws an exception if 'this' is not fully defined (connectivity).
+ * This method throws an exception too if a "too" degenerated cell is detected. For example a NORM_TRI3 with 3 times the same node id.
+ */
+void MEDCouplingUMesh::convertDegeneratedCells() throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()<=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertDegeneratedCells works on umeshes with meshdim equals to 2 or 3 !");
+  int nbOfCells=getNumberOfCells();
+  if(nbOfCells<1)
+    return ;
+  int initMeshLgth=getMeshLength();
+  int *conn=_nodal_connec->getPointer();
+  int *index=_nodal_connec_index->getPointer();
+  int posOfCurCell=0;
+  int newPos=0;
+  int lgthOfCurCell;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      lgthOfCurCell=index[i+1]-posOfCurCell;
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[posOfCurCell];
+      int newLgth;
+      INTERP_KERNEL::NormalizedCellType newType=INTERP_KERNEL::CellSimplify::simplifyDegeneratedCell(type,conn+posOfCurCell+1,lgthOfCurCell-1,
+                                                                                                     conn+newPos+1,newLgth);
+      conn[newPos]=newType;
+      newPos+=newLgth+1;
+      posOfCurCell=index[i+1];
+      index[i+1]=newPos;
+    }
+  if(newPos!=initMeshLgth)
+    _nodal_connec->reAlloc(newPos);
+  computeTypes();
 }
 
 /*!

@@ -209,12 +209,61 @@ void MEDCouplingPointSet::findCommonNodes(int limitNodeId, double prec, DataArra
       findCommonNodesAlg<1>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
       break;
     default:
-      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1,2 or 3.");
+      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1, 2 or 3.");
     }
   commIndex->alloc(cI.size(),1);
   std::copy(cI.begin(),cI.end(),commIndex->getPointer());
   comm->alloc(cI.back(),1);
   std::copy(c.begin(),c.end(),comm->getPointer());
+}
+
+std::vector<int> MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> c,cI;
+  getNodeIdsNearPoints(pos,1,eps,c,cI);
+  return c;
+}
+
+/*!
+ * Given a point given by its position 'pos' this method finds the set of node ids that are a a distance lower than eps.
+ * Position 'pos' is expected to be of size getSpaceDimension(). If not the behabiour is not warranted.
+ * This method throws an exception if no coordiantes are set.
+ */
+void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : no coordiantes set !");
+  const double *coordsPtr=_coords->getConstPointer();
+  if(!coordsPtr)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : coordiante array set but no data inside it !");
+  int spaceDim=getSpaceDimension();
+  int nbNodes=getNumberOfNodes();
+  std::vector<double> bbox(2*nbNodes*spaceDim);
+  for(int i=0;i<nbNodes;i++)
+    {
+      for(int j=0;j<spaceDim;j++)
+        {
+          bbox[2*spaceDim*i+2*j]=coordsPtr[spaceDim*i+j];
+          bbox[2*spaceDim*i+2*j+1]=coordsPtr[spaceDim*i+j];
+        }
+    }
+  std::vector<int> ret;
+  c.clear();
+  cI.resize(1); cI[0]=0;
+  switch(spaceDim)
+    {
+    case 3:
+      findNodeIdsNearPointAlg<3>(bbox,pos,nbOfNodes,eps,c,cI);
+      break;
+    case 2:
+      findNodeIdsNearPointAlg<2>(bbox,pos,nbOfNodes,eps,c,cI);
+      break;
+    case 1:
+      findNodeIdsNearPointAlg<1>(bbox,pos,nbOfNodes,eps,c,cI);
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for getNodeIdsNearPoint. Must be 1, 2 or 3.");
+    }
 }
 
 /*!
@@ -228,33 +277,28 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
   DataArrayInt *ret=DataArrayInt::New();
   int nbNodesOld=getNumberOfNodes();
   ret->alloc(nbNodesOld,1);
-  std::fill(ret->getPointer(),ret->getPointer()+nbNodesOld,-1);
-  int *retPtr=ret->getPointer();
-  std::vector<int> commRemain(comm->getConstPointer(),comm->getConstPointer()+comm->getNumberOfTuples());
-  std::vector<int> commIRemain(commIndex->getConstPointer(),commIndex->getConstPointer()+commIndex->getNumberOfTuples());
+  int *pt=ret->getPointer();
+  std::fill(pt,pt+nbNodesOld,-1);
+  int nbOfGrps=commIndex->getNumberOfTuples()-1;
+  const int *cIPtr=commIndex->getPointer();
+  const int *cPtr=comm->getPointer();
+  for(int i=0;i<nbOfGrps;i++)
+    pt[cPtr[cIPtr[i]]]=-(i+2);
   int newNb=0;
   for(int iNode=0;iNode<nbNodesOld;iNode++)
     {
-      if(retPtr[iNode]!=-1)
-        continue;
-      if(commRemain.empty())
+      if(pt[iNode]<0)
         {
-          retPtr[iNode]=newNb++;
-          continue;
+          if(pt[iNode]==-1)
+            pt[iNode]=newNb++;
+          else
+            {
+              int grpId=-(pt[iNode]+2);
+              for(int j=cIPtr[grpId];j<cIPtr[grpId+1];j++)
+                pt[cPtr[j]]=newNb;
+              newNb++;
+            }
         }
-      if(commRemain[0]!=iNode)
-        retPtr[iNode]=newNb;
-      else
-        {
-          for(std::vector<int>::const_iterator iNode2=commRemain.begin();
-              iNode2!=commRemain.begin()+commIRemain[1];iNode2++)
-            retPtr[*iNode2]=newNb;
-          int delta=commIRemain[1];
-          commRemain.erase(commRemain.begin(),commRemain.begin()+commIRemain[1]);
-          commIRemain.erase(commIRemain.begin());
-          std::transform(commIRemain.begin(),commIRemain.end(),commIRemain.begin(),std::bind2nd(std::minus<int>(),delta));
-        }
-      newNb++;
     }
   newNbOfNodes=newNb;
   return ret;

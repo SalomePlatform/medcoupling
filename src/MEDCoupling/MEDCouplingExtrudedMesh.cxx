@@ -580,6 +580,11 @@ MEDCouplingMesh *MEDCouplingExtrudedMesh::buildPartAndReduceNodes(const int *sta
   return 0;
 }
 
+DataArrayInt *MEDCouplingExtrudedMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::simplexize : unavailable for such a type of mesh : Extruded !");
+}
+
 MEDCouplingMesh *MEDCouplingExtrudedMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
 {
   // not implemented yet !

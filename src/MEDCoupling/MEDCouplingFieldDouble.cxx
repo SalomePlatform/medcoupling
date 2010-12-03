@@ -75,6 +75,17 @@ void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingFieldDouble *o
     }
 }
 
+/*!
+ * Copy only times, order, iteration from other. The underlying mesh is not impacted by this method.
+ */
+void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
+{
+  if(other)
+    {
+      _time_discr->copyTinyAttrFrom(*other->_time_discr);
+    }
+}
+
 std::string MEDCouplingFieldDouble::simpleRepr() const
 {
   std::ostringstream ret;
@@ -1070,6 +1081,27 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType) throw(INTERP_KERNEL::
       return true;
     }
   return false;
+}
+
+/*!
+ * This method applyies ParaMEDMEM::MEDCouplingUMesh::simplexize on 'this->_mesh'.
+ * The semantic of 'policy' is given in ParaMEDMEM::MEDCouplingUMesh::simplexize method.
+ */
+bool MEDCouplingFieldDouble::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  int oldNbOfCells=_mesh->getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> meshC2(_mesh->deepCpy());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->simplexize(policy);
+  int newNbOfCells=meshC2->getNumberOfCells();
+  if(oldNbOfCells==newNbOfCells)
+    return false;
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+    if(*iter)
+      _type->renumberValuesOnCellsR(_mesh,arr->getConstPointer(),arr->getNbOfElems(),*iter);
+  setMesh(meshC2);
+  return true;
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::doublyContractedProduct() const throw(INTERP_KERNEL::Exception)

@@ -526,7 +526,7 @@ namespace ParaMEDMEM
       for(vector<pair<int,double> >::const_iterator iter3=(*iter).begin();iter3!=(*iter).end();iter3++)
         res[(*iter3).first]+=(*iter3).second;
     set<int> procsSet;
-    int id;
+    int id=-1;
     const vector<std::pair<int,int> >& mapping=_mapping.getSendingIds();
     for(vector<std::pair<int,int> >::const_iterator iter2=mapping.begin();iter2!=mapping.end();iter2++)
       {

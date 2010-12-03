@@ -180,6 +180,32 @@ namespace ParaMEDMEM
     T *pt=_pointer.getPointer();
     std::fill(pt,pt+_nb_of_elem,val);
   }
+  
+  template<class T>
+  T *MemArray<T>::fromNoInterlace(int nbOfComp) const
+  {
+    const T *pt=_pointer.getConstPointer();
+    int nbOfTuples=_nb_of_elem/nbOfComp;
+    T *ret=new T[_nb_of_elem];
+    T *w=ret;
+    for(int i=0;i<nbOfTuples;i++)
+      for(int j=0;j<nbOfComp;j++,w++)
+        *w=pt[j*nbOfTuples+i];
+    return ret;
+  }
+  
+  template<class T>
+  T *MemArray<T>::toNoInterlace(int nbOfComp) const
+  {
+    const T *pt=_pointer.getConstPointer();
+    int nbOfTuples=_nb_of_elem/nbOfComp;
+    T *ret=new T[_nb_of_elem];
+    T *w=ret;
+    for(int i=0;i<nbOfComp;i++)
+      for(int j=0;j<nbOfTuples;j++,w++)
+        *w=pt[j*nbOfComp+i];
+    return ret;
+  }
 
   template<class T>
   void MemArray<T>::alloc(int nbOfElements)

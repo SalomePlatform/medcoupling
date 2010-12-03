@@ -354,6 +354,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         tab1=[0,4]
         tab2=[0,2,3]
         #
+        subMesh=mesh.buildPart(tab1)
+        self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
         subMesh=mesh.buildPartOfMySelf(tab1,True);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
         name=subMesh.getName();
@@ -4087,6 +4089,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pos1=[5.,30.,2.]
         self.assertEqual(16,m.getCellContainingPoint(pos1,1e-12));
         #
+        elems=m2.giveElemsInBoundingBox([3.5,6.,12.2,25.,0.,1.5],1e-7)
+        self.assertEqual([1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17],elems)
+        #
         pt=[2.4,12.7,-3.4]
         m.scale(pt,3.7);
         m3=m.buildUnstructured();
@@ -4274,15 +4279,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                    -0.4012053603397987, 0.8423032781211455, -0.3599436712889738#eigenvect 2
                    ]
         for i in xrange(5):
-            self.assertAlmostEqual(expected1[0],f2.getIJ(i,0),1e-13);
-            self.assertAlmostEqual(expected1[1],f2.getIJ(i,1),1e-13);
-            self.assertAlmostEqual(expected1[2],f2.getIJ(i,2),1e-13);
-            self.assertAlmostEqual(expected1[3],f2.getIJ(i,3),1e-13);
-            self.assertAlmostEqual(expected1[4],f2.getIJ(i,4),1e-13);
-            self.assertAlmostEqual(expected1[5],f2.getIJ(i,5),1e-13);
-            self.assertAlmostEqual(expected1[6],f2.getIJ(i,6),1e-13);
-            self.assertAlmostEqual(expected1[7],f2.getIJ(i,7),1e-13);
-            self.assertAlmostEqual(expected1[8],f2.getIJ(i,8),1e-13);
+            self.assertAlmostEqual(expected1[0],f2.getIJ(i,0),13);
+            self.assertAlmostEqual(expected1[1],f2.getIJ(i,1),13);
+            self.assertAlmostEqual(expected1[2],f2.getIJ(i,2),13);
+            self.assertAlmostEqual(expected1[3],f2.getIJ(i,3),13);
+            self.assertAlmostEqual(expected1[4],f2.getIJ(i,4),13);
+            self.assertAlmostEqual(expected1[5],f2.getIJ(i,5),13);
+            self.assertAlmostEqual(expected1[6],f2.getIJ(i,6),13);
+            self.assertAlmostEqual(expected1[7],f2.getIJ(i,7),13);
+            self.assertAlmostEqual(expected1[8],f2.getIJ(i,8),13);
             pass
         #
         pass
@@ -4675,6 +4680,488 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected2=[2.,4.,3.,3.,1.,1., 12.,14.,13.,13.,11.,11., 22.,24.,23.,23.,21.,21., 32.,34.,33.,33.,31.,31., 42.,44.,43.,43.,41.,41.]
         for i in xrange(30):
             self.assertAlmostEqual(expected2[i],f2.getIJ(0,i),14);
+            pass
+        #
+        pass
+
+    def testDAIGetIdsEqual1(self):
+        tab1=[5,-2,-4,-2,3,2,-2];
+        da=DataArrayInt.New();
+        da.setValues(tab1,7,1);
+        da2=da.getIdsEqual(-2);
+        self.assertEqual(3,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        expected1=[1,3,6];
+        self.assertEqual(expected1,da2.getValues());
+        pass
+
+    def testDAIGetIdsEqualList1(self):
+        tab1=[5,-2,-4,-2,3,2,-2];
+        da=DataArrayInt.New();
+        da.setValues(tab1,7,1);
+        da2=da.getIdsEqualList([3,-2,0]);
+        self.assertEqual(4,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        expected1=[1,3,4,6];
+        self.assertEqual(expected1,da2.getValues());
+        pass
+
+    def testDAFromNoInterlace1(self):
+        tab1=[1,11,21,31,41,2,12,22,32,42,3,13,23,33,43]
+        da=DataArrayInt.New();
+        da.setValues(tab1,5,3);
+        da2=da.fromNoInterlace();
+        expected1=[1,2,3,11,12,13,21,22,23,31,32,33,41,42,43]
+        self.assertEqual(5,da2.getNumberOfTuples());
+        self.assertEqual(3,da2.getNumberOfComponents());# it's not a bug. Avoid to have 1 million components !
+        self.assertEqual(expected1,da2.getValues());
+        da3=da.convertToDblArr();
+        da4=da3.fromNoInterlace();
+        self.assertEqual(5,da4.getNumberOfTuples());
+        self.assertEqual(3,da4.getNumberOfComponents());# it's not a bug. Avoid to have 1 million components !
+        for i in xrange(15):
+            self.assertAlmostEqual(expected1[i],da4.getIJ(0,i),14);
+            pass
+        pass
+    
+    def testDAToNoInterlace1(self):
+        tab1=[1,2,3,11,12,13,21,22,23,31,32,33,41,42,43]
+        da=DataArrayInt.New();
+        da.setValues(tab1,5,3);
+        da2=da.toNoInterlace();
+        expected1=[1,11,21,31,41,2,12,22,32,42,3,13,23,33,43]
+        self.assertEqual(5,da2.getNumberOfTuples());
+        self.assertEqual(3,da2.getNumberOfComponents());# it's not a bug. Avoid to have 1 million components !
+        self.assertEqual(expected1,da2.getValues());
+        da3=da.convertToDblArr();
+        da4=da3.toNoInterlace();
+        self.assertEqual(5,da4.getNumberOfTuples());
+        self.assertEqual(3,da4.getNumberOfComponents());# it's not a bug. Avoid to have 1 million components !
+        for i in xrange(15):
+            self.assertAlmostEqual(expected1[i],da4.getIJ(0,i),14);
+            pass
+        pass
+    
+    def testDAIsUniform1(self):
+        tab1=[1,1,1,1,1]
+        da=DataArrayInt.New();
+        da.setValues(tab1,5,1);
+        self.assertTrue(da.isUniform(1));
+        da.setIJ(2,0,2);
+        self.assertTrue(not da.isUniform(1));
+        da.setIJ(2,0,1);
+        self.assertTrue(da.isUniform(1));
+        da2=da.convertToDblArr();
+        self.assertTrue(da2.isUniform(1.,1.e-12));
+        da2.setIJ(1,0,1.+1.e-13);
+        self.assertTrue(da2.isUniform(1.,1.e-12));
+        da2.setIJ(1,0,1.+1.e-11);
+        self.assertTrue(not da2.isUniform(1.,1.e-12));
+        pass
+    
+    def testDADFromPolarToCart1(self):
+        tab1=[2.,0.2,2.5,0.7]
+        da=DataArrayDouble.New();
+        da.setValues(tab1,2,2);
+        da2=da.fromPolarToCart();
+        expected1=[1.9601331556824833,0.39733866159012243, 1.9121054682112213,1.6105442180942275]
+        for i in xrange(4):
+            self.assertAlmostEqual(expected1[i],da2.getIJ(0,i),13);
+            pass
+        pass
+    
+    def testDADFromCylToCart1(self):
+        tab1=[2.,0.2,4.,2.5,0.7,9.]
+        da=DataArrayDouble.New();
+        da.setValues(tab1,2,3);
+        da2=da.fromCylToCart();
+        expected1=[1.9601331556824833,0.39733866159012243,4., 1.9121054682112213,1.6105442180942275,9.]
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],da2.getIJ(0,i),13);
+            pass
+        pass
+    
+    def testDADFromSpherToCart1(self):
+        tab1=[2.,0.2,0.3,2.5,0.7,0.8]
+        da=DataArrayDouble.New();
+        da.setValues(tab1,2,3);
+        da2=da.fromSpherToCart();
+        expected1=[0.37959212195737485,0.11742160338765303,1.9601331556824833, 1.1220769624465328,1.1553337045129035,1.9121054682112213]
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],da2.getIJ(0,i),13);
+            pass
+        pass
+
+    def testUnPolyze1(self):
+        elts=[0,1,2,3,4,5,6,7]
+        eltsV=elts;
+        mesh=MEDCouplingDataForTest.build3DTargetMesh_1();
+        mesh.convertToPolyTypes(eltsV);
+        mesh.unPolyze();
+        mesh2=MEDCouplingDataForTest.build3DTargetMesh_1();
+        mesh.checkCoherency();
+        self.assertTrue(mesh.isEqual(mesh2,1e-12));
+        mesh.convertToPolyTypes(eltsV);
+        self.assertTrue(not mesh.isEqual(mesh2,1e-12));
+        mesh.getNodalConnectivity().setIJ(0,6,10);
+        mesh.getNodalConnectivity().setIJ(0,7,9);
+        mesh.getNodalConnectivity().setIJ(0,8,12);
+        mesh.getNodalConnectivity().setIJ(0,9,13);
+        mesh.unPolyze();
+        self.assertTrue(mesh.isEqual(mesh2,1e-12));
+        mesh.convertToPolyTypes(eltsV);
+        mesh.getNodalConnectivity().setIJ(0,6,12);
+        mesh.getNodalConnectivity().setIJ(0,7,13);
+        mesh.getNodalConnectivity().setIJ(0,8,10);
+        mesh.getNodalConnectivity().setIJ(0,9,9);
+        mesh.unPolyze();
+        self.assertTrue(mesh.isEqual(mesh2,1e-12));
+        mesh.convertToPolyTypes(eltsV);
+        mesh.getNodalConnectivity().setIJ(0,6,12);
+        mesh.getNodalConnectivity().setIJ(0,7,10);
+        mesh.getNodalConnectivity().setIJ(0,8,13);
+        mesh.getNodalConnectivity().setIJ(0,9,9);
+        mesh.unPolyze();
+        self.assertTrue(not mesh.isEqual(mesh2,1e-12));
+        # Test for 2D mesh
+        mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        mesh2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        eltsV=eltsV[:5];
+        mesh.convertToPolyTypes(eltsV);
+        self.assertTrue(not mesh.isEqual(mesh2,1e-12));
+        mesh.unPolyze();
+        self.assertTrue(mesh.isEqual(mesh2,1e-12));
+        pass
+
+    def testConvertDegeneratedCells1(self):
+        mesh=MEDCouplingDataForTest.build3DTargetMesh_1();
+        conn=[0,1,3,3,9,10,12,12, 0,1,3,4,9,9,9,9, 1,1,1,1,10,12,9,10, 10,11,12,9,1,1,1,1]
+        mesh.allocateCells(4);
+        mesh.insertNextCell(NORM_HEXA8,8,conn[0:8])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[8:16])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[16:24])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[24:32])
+        mesh.finishInsertingCells();
+        mesh.checkCoherency();
+        self.assertEqual(4,mesh.getNumberOfCells());
+        self.assertEqual(NORM_HEXA8,mesh.getTypeOfCell(0));
+        self.assertEqual(NORM_HEXA8,mesh.getTypeOfCell(1));
+        self.assertEqual(NORM_HEXA8,mesh.getTypeOfCell(2));
+        self.assertEqual(NORM_HEXA8,mesh.getTypeOfCell(3));
+        f1=mesh.getMeasureField(True);
+        mesh.convertDegeneratedCells();
+        mesh.checkCoherency();
+        f2=mesh.getMeasureField(True);
+        self.assertEqual(4,mesh.getNumberOfCells());
+        self.assertEqual(NORM_PENTA6,mesh.getTypeOfCell(0));
+        self.assertEqual(NORM_PYRA5,mesh.getTypeOfCell(1));
+        self.assertEqual(NORM_TETRA4,mesh.getTypeOfCell(2));
+        self.assertEqual(NORM_PYRA5,mesh.getTypeOfCell(3));
+        for i in xrange(4):
+            self.assertAlmostEqual(f1.getArray().getIJ(0,i),f2.getArray().getIJ(0,i),5);
+            pass
+        pass
+
+    def testGetNodeIdsNearPoints1(self):
+        mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        coords=mesh.getCoords();
+        tmp=DataArrayDouble.New();
+        vals=[0.2,0.2,0.1,0.2,0.2,0.2]
+        tmp.setValues(vals,3,2);
+        tmp2=DataArrayDouble.aggregate(coords,tmp);
+        mesh.setCoords(tmp2);
+        pts=[0.2,0.2,0.1,0.3,-0.3,0.7]
+        c=mesh.getNodeIdsNearPoint(pts,1e-7);
+        self.assertEqual([4,9,11],c);
+        c,cI=mesh.getNodeIdsNearPoints(pts,3,1e-7);
+        self.assertEqual([0,3,3,4],cI);
+        self.assertEqual([4,9,11,6],c);
+        pass
+
+    def testFieldCopyTinyAttrFrom1(self):
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setName("f1");
+        f1.setTimeTolerance(1.e-5);
+        f1.setDescription("f1Desc");
+        f1.setTime(1.23,4,5);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f2.setName("f2");
+        f2.setDescription("f2Desc");
+        f2.setTime(6.78,9,10);
+        f2.setTimeTolerance(4.556e-12);
+        #
+        f1.copyTinyAttrFrom(f2);
+        self.assertAlmostEqual(4.556e-12,f1.getTimeTolerance(),24);
+        t,dt,it=f1.getTime()
+        self.assertAlmostEqual(6.78,t,12);
+        self.assertEqual(9,dt);
+        self.assertEqual(10,it);
+        self.assertTrue(f1.getName()=="f1");#name unchanged
+        self.assertTrue(f1.getDescription()=="f1Desc");#description unchanged
+        #
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f1.setName("f1");
+        f1.setTimeTolerance(1.e-5);
+        f1.setDescription("f1Desc");
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f2.setName("f2");
+        f2.setDescription("f2Desc");
+        f2.setTimeTolerance(4.556e-12);
+        #
+        f1.copyTinyAttrFrom(f2);
+        self.assertAlmostEqual(4.556e-12,f1.getTimeTolerance(),24);
+        self.assertTrue(f1.getName()=="f1");#name unchanged
+        self.assertTrue(f1.getDescription()=="f1Desc");#description unchanged
+        #
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,CONST_ON_TIME_INTERVAL);
+        f1.setName("f1");
+        f1.setTimeTolerance(1.e-5);
+        f1.setDescription("f1Desc");
+        f1.setTime(1.23,4,5);
+        f1.setEndTime(5.43,2,1);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,CONST_ON_TIME_INTERVAL);
+        f2.setName("f2");
+        f2.setDescription("f2Desc");
+        f2.setTimeTolerance(4.556e-12);
+        f2.setTime(6.78,9,10);
+        f2.setEndTime(10.98,7,6);
+        #
+        f1.copyTinyAttrFrom(f2);
+        self.assertAlmostEqual(4.556e-12,f1.getTimeTolerance(),24);
+        self.assertTrue(f1.getName()=="f1");#name unchanged
+        self.assertTrue(f1.getDescription()=="f1Desc");#description unchanged
+        t,dt,it=f1.getTime()
+        self.assertAlmostEqual(6.78,t,12);
+        self.assertEqual(9,dt);
+        self.assertEqual(10,it);
+        t,dt,it=f1.getEndTime()
+        self.assertAlmostEqual(10.98,t,12);
+        self.assertEqual(7,dt);
+        self.assertEqual(6,it);
+        #
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
+        f1.setName("f1");
+        f1.setTimeTolerance(1.e-5);
+        f1.setDescription("f1Desc");
+        f1.setTime(1.23,4,5);
+        f1.setEndTime(5.43,2,1);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
+        f2.setName("f2");
+        f2.setDescription("f2Desc");
+        f2.setTimeTolerance(4.556e-12);
+        f2.setTime(6.78,9,10);
+        f2.setEndTime(10.98,7,6);
+        #
+        f1.copyTinyAttrFrom(f2);
+        self.assertAlmostEqual(4.556e-12,f1.getTimeTolerance(),24);
+        self.assertTrue(f1.getName()=="f1");#name unchanged
+        self.assertTrue(f1.getDescription()=="f1Desc");#description unchanged
+        t,dt,it=f1.getTime()
+        self.assertAlmostEqual(6.78,t,12);
+        self.assertEqual(9,dt);
+        self.assertEqual(10,it);
+        t,dt,it=f1.getEndTime()
+        self.assertAlmostEqual(10.98,t,12);
+        self.assertEqual(7,dt);
+        self.assertEqual(6,it);
+        pass
+
+    def testExtrudedMesh5(self):
+        coo1=[0.,1.,2.,3.5]
+        a=DataArrayDouble.New();
+        a.setValues(coo1,4,1);
+        b=MEDCouplingCMesh.New();
+        b.setCoordsAt(0,a);
+        c=b.buildUnstructured();
+        self.assertEqual(1,c.getSpaceDimension());
+        c.changeSpaceDimension(2);
+        #
+        d=DataArrayDouble.New();
+        d.alloc(13,1);
+        d.iota();
+        e=MEDCouplingCMesh.New();
+        e.setCoordsAt(0,d);
+        f=e.buildUnstructured();
+        g=f.getCoords().applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
+        h=g.fromPolarToCart();
+        f.setCoords(h);
+        i=c.buildExtrudedMeshFromThis(f,1);
+        self.assertEqual(52,i.getNumberOfNodes());
+        tmp,tmp2,tmp3=i.mergeNodes(1e-9);
+        self.assertTrue(tmp2);
+        self.assertEqual(37,tmp3);
+        i.convertDegeneratedCells();
+        i.checkCoherency();
+        self.assertEqual(36,i.getNumberOfCells());
+        self.assertEqual(37,i.getNumberOfNodes());
+        self.assertEqual(12,i.getNumberOfCellsWithType(NORM_TRI3));
+        self.assertEqual(24,i.getNumberOfCellsWithType(NORM_QUAD4));
+        expected1=[0.25,0.75,2.0625]
+        j=i.getMeasureField(True);
+        for ii in xrange(12):
+            for k in xrange(3):
+                self.assertAlmostEqual(expected1[k],j.getIJ(0,ii*3+k),10);
+                pass
+            pass
+        expected2=[0.62200846792814113, 0.16666666666681595, 1.4513530918323276, 0.38888888888923495, 2.6293994326053212, 0.7045454545460802, 0.45534180126145435, 0.45534180126150181, 1.0624642029433926, 1.0624642029435025, 1.9248539780597826, 1.9248539780599816, 0.16666666666661334, 0.62200846792815856, 0.38888888888876294, 1.4513530918323678, 0.70454545454522521, 2.629399432605394, -0.16666666666674007, 0.62200846792812436, -0.38888888888906142, 1.4513530918322881, -0.70454545454576778, 2.6293994326052488, -0.45534180126154766, 0.45534180126140844, -1.0624642029436118, 1.0624642029432834, -1.9248539780601803, 1.9248539780595841, -0.62200846792817499, 0.1666666666665495, -1.451353091832408, 0.388888888888613, -2.6293994326054668, 0.70454545454495332, -0.62200846792810593, -0.16666666666680507, -1.451353091832247, -0.38888888888921297, -2.6293994326051746, -0.70454545454604123, -0.45534180126135926, -0.45534180126159562, -1.0624642029431723, -1.0624642029437235, -1.9248539780593836, -1.9248539780603811, -0.1666666666664828, -0.62200846792819242, -0.38888888888846079, -1.4513530918324489, -0.70454545454467987, -2.6293994326055397, 0.16666666666687083, -0.62200846792808862, 0.38888888888936374, -1.4513530918322073, 0.70454545454631357, -2.6293994326051022, 0.45534180126164348, -0.45534180126131207, 1.0624642029438327, -1.0624642029430627, 1.9248539780605791, -1.9248539780591853, 0.62200846792821063, -0.16666666666641802, 1.4513530918324888, -0.38888888888831086, 2.6293994326056125, -0.70454545454440853]
+        m=i.getBarycenterAndOwner();
+        for i in xrange(72):
+            self.assertAlmostEqual(expected2[i],m.getIJ(0,i),10);
+            pass
+        #
+        pass
+
+    def testExtrudedMesh6(self):
+        coo1=[0.,1.,2.,3.5]
+        a=DataArrayDouble.New();
+        a.setValues(coo1,4,1);
+        b=MEDCouplingCMesh.New();
+        b.setCoordsAt(0,a);
+        c=b.buildUnstructured();
+        self.assertEqual(1,c.getSpaceDimension());
+        c.changeSpaceDimension(2);
+        #
+        d=DataArrayDouble.New();
+        d.alloc(5,1);
+        d.iota();
+        e=MEDCouplingCMesh.New();
+        e.setCoordsAt(0,d);
+        f=e.buildUnstructured();
+        d2=f.getCoords().applyFunc("x*x/2");
+        f.setCoords(d2);
+        f.changeSpaceDimension(2);
+        #
+        center=[0.,0.]
+        f.rotate(center,[],pi/3);
+        g=c.buildExtrudedMeshFromThis(f,0);
+        g.checkCoherency();
+        expected1=[ 0.4330127018922193, 0.4330127018922193, 0.649519052838329, 1.2990381056766578, 1.299038105676658, 1.948557158514987, 2.1650635094610955, 2.1650635094610964, 3.2475952641916446, 3.031088913245533, 3.0310889132455352, 4.546633369868303 ]
+        f1=g.getMeasureField(True);
+        for i in xrange(12):
+            self.assertAlmostEqual(expected1[i],f1.getIJ(0,i),12);
+            pass
+        expected2=[0.625, 0.21650635094610962, 1.625, 0.21650635094610959, 2.8750000000000004, 0.21650635094610965, 1.1250000000000002, 1.0825317547305482, 2.125, 1.0825317547305482, 3.3750000000000004, 1.0825317547305484, 2.125, 2.8145825622994254, 3.125, 2.8145825622994254, 4.375, 2.8145825622994254, 3.6250000000000009, 5.4126587736527414, 4.625, 5.4126587736527414, 5.875, 5.4126587736527414]
+        f2=g.getBarycenterAndOwner();
+        for i in xrange(24):
+            self.assertAlmostEqual(expected2[i],f2.getIJ(0,i),12);
+            pass
+        pass
+
+    def testExtrudedMesh7(self):
+        coo1=[0.,1.,2.,3.5]
+        a=DataArrayDouble.New();
+        a.setValues(coo1,4,1);
+        b=MEDCouplingCMesh.New();
+        b.setCoordsAt(0,a);
+        c=b.buildUnstructured();
+        self.assertEqual(1,c.getSpaceDimension());
+        c.changeSpaceDimension(2);
+        #
+        d=DataArrayDouble.New();
+        d.alloc(13,1);
+        d.iota();
+        e=MEDCouplingCMesh.New();
+        e.setCoordsAt(0,d);
+        f=e.buildUnstructured();
+        g=f.getCoords().applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
+        h=g.fromPolarToCart();
+        f.setCoords(h);
+        i=c.buildExtrudedMeshFromThis(f,1);
+        self.assertEqual(52,i.getNumberOfNodes());
+        tmp,tmp2,tmp3=i.mergeNodes(1e-9);
+        self.assertTrue(tmp2);
+        self.assertEqual(37,tmp3);
+        i.convertDegeneratedCells();
+        vec1=[10.,0.,0.]
+        i.translate(vec1);
+        g2=h.applyFunc(3,"13.5/3.5*x*IVec+0*JVec+13.5/3.5*y*KVec");
+        f.setCoords(g2);
+        i.changeSpaceDimension(3);
+        i3=i.buildExtrudedMeshFromThis(f,1);
+        f2=i3.getMeasureField(True);
+        tmp,tmp2,tmp3=i.mergeNodes(1e-9);
+        self.assertTrue(tmp2);
+        self.assertEqual(444,tmp3);
+        expected1=[1.327751058489274, 4.2942574094314701, 13.024068164857139, 1.3069177251569044, 4.1484240761012954, 12.297505664866796, 1.270833333332571, 3.8958333333309674, 11.039062499993179, 1.2291666666659207, 3.6041666666644425, 9.585937499993932, 1.1930822748415895, 3.3515759238941376, 8.3274943351204556, 1.1722489415082769, 3.2057425905609289, 7.6009318351210622, 1.1722489415082862, 3.2057425905609884, 7.6009318351213713, 1.1930822748416161, 3.3515759238943001, 8.3274943351212727, 1.2291666666659564, 3.6041666666646734, 9.5859374999950777, 1.2708333333326081, 3.8958333333311868, 11.039062499994293, 1.3069177251569224, 4.1484240761014384, 12.297505664867627, 1.3277510584902354, 4.2942574094346071, 13.024068164866796]
+        for ii in xrange(12):
+            for jj in xrange(36):
+                self.assertAlmostEqual(expected1[jj],f2.getIJ(0,ii*36+jj),9);
+                pass
+        #
+        pass
+
+    def testSimplexize1(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m.convertToPolyTypes([3]);
+        da=m.simplexize(0);
+        self.assertEqual(7,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        expected2=[0,0,1,2,3,4,4]
+        for i in xrange(7):
+            self.assertEqual(expected2[i],da.getIJ(i,0));
+            pass
+        m.checkCoherency();
+        self.assertEqual(7,m.getNumberOfCells());
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(0));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(1));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(2));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(3));
+        self.assertEqual(NORM_POLYGON,m.getTypeOfCell(4));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(5));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(6));
+        expected1=[0.125,0.125,0.125,0.125,0.25,0.125,0.125]
+        f=m.getMeasureField(False);
+        for i in xrange(7):
+            self.assertAlmostEqual(expected1[i]*sqrt(2.),f.getIJ(i,0),10);
+            pass
+        types=m.getAllTypes();
+        self.assertEqual([NORM_TRI3,NORM_POLYGON],types);
+        #
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m.convertToPolyTypes([3]);
+        da=m.simplexize(1);
+        self.assertEqual(7,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        for i in xrange(7):
+            self.assertEqual(expected2[i],da.getIJ(i,0));
+            pass
+        m.checkCoherency();
+        types=m.getAllTypes();
+        self.assertEqual([NORM_TRI3,NORM_POLYGON],types);
+        self.assertEqual(7,m.getNumberOfCells());
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(0));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(1));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(2));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(3));
+        self.assertEqual(NORM_POLYGON,m.getTypeOfCell(4));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(5));
+        self.assertEqual(NORM_TRI3,m.getTypeOfCell(6));
+        f=m.getMeasureField(False);
+        for i in xrange(7):
+            self.assertAlmostEqual(expected1[i]*sqrt(2.),f.getIJ(i,0),10);
+            pass
+        pass
+
+    def testSimplexize2(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m.convertToPolyTypes([3]);
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setMesh(m);
+        arr=DataArrayDouble.New();
+        arr1=[10.,110.,20.,120.,30.,130.,40.,140.,50.,150.]
+        arr.setValues(arr1,5,2);
+        f1.setArray(arr);
+        #
+        f1.checkCoherency();
+        self.assertTrue(f1.simplexize(0));
+        f1.checkCoherency();
+        expected1=[10.,110.,10.,110.,20.,120.,30.,130.,40.,140.,50.,150.,50.,150.]
+        for i in xrange(14):
+            self.assertAlmostEqual(expected1[i],f1.getIJ(0,i),10);
+            pass
+        self.assertTrue(not f1.simplexize(0));
+        for i in xrange(14):
+            self.assertAlmostEqual(expected1[i],f1.getIJ(0,i),10);
             pass
         #
         pass

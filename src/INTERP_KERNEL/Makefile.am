@@ -44,6 +44,7 @@ PointLocator2DIntersector.txx           \
 INTERPKERNELDefines.hxx			\
 InterpKernelMatrix.hxx			\
 InterpKernelMeshQuality.hxx             \
+InterpKernelCellSimplify.hxx            \
 Interpolation.hxx			\
 Interpolation.txx                       \
 Interpolation2D.hxx			\
@@ -189,7 +190,8 @@ dist_libinterpkernel_la_SOURCES = \
 	UnitTetraIntersectionBary.cxx \
 	InterpolationOptions.cxx \
 	DirectedBoundingBox.cxx \
-	InterpKernelMeshQuality.cxx
+	InterpKernelMeshQuality.cxx \
+	InterpKernelCellSimplify.cxx
 
 libinterpkernel_la_CPPFLAGS=-I$(srcdir)/Geometric2D -I$(srcdir)/Bases
 

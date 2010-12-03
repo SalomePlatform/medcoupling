@@ -33,6 +33,7 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
     void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
@@ -54,6 +55,8 @@ namespace ParaMEDMEM
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     NatureOfField getNature() const { return _nature; }
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
+    double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
     void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
     void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
     void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
@@ -111,6 +114,7 @@ namespace ParaMEDMEM
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
     bool zipCoords() throw(INTERP_KERNEL::Exception);
     bool zipConnectivity(int compType) throw(INTERP_KERNEL::Exception);
+    bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *eigenValues() const throw(INTERP_KERNEL::Exception);

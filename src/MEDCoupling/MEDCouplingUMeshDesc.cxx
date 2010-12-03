@@ -361,6 +361,11 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildFacePartOfMySelfNode(const int *
   return 0;
 }
 
+DataArrayInt *MEDCouplingUMeshDesc::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::simplexize : Not implemented yet !");
+}
+
 void MEDCouplingUMeshDesc::findBoundaryNodes(std::vector<int>& nodes) const
 {
   //not implemented yet

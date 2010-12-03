@@ -476,6 +476,11 @@ MEDCouplingMesh *MEDCouplingCMesh::buildPartAndReduceNodes(const int *start, con
   return ret;
 }
 
+DataArrayInt *MEDCouplingCMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingCMesh::simplexize : not available for Cartesian mesh !");
+}
+
 void MEDCouplingCMesh::getBoundingBox(double *bbox) const
 {
   int dim=getSpaceDimension();

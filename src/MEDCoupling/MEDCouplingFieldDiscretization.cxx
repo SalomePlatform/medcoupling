@@ -288,6 +288,21 @@ void MEDCouplingFieldDiscretization::renumberEntitiesFromO2NArr(const int *old2N
   arrCpy->decrRef();
 }
 
+void MEDCouplingFieldDiscretization::renumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const char *msg)
+{
+  int nbOfComp=arr->getNumberOfComponents();
+  DataArrayDouble *arrCpy=arr->deepCopy();
+  const double *ptSrc=arrCpy->getConstPointer();
+  arr->reAlloc(new2OldSz);
+  double *ptToFill=arr->getPointer();
+  for(int i=0;i<new2OldSz;i++)
+    {
+      int oldNb=new2OldPtr[i];
+      std::copy(ptSrc+oldNb*nbOfComp,ptSrc+(oldNb+1)*nbOfComp,ptToFill+i*nbOfComp);
+    }
+  arrCpy->decrRef();
+}
+
 MEDCouplingFieldDiscretization::~MEDCouplingFieldDiscretization()
 {
 }
@@ -393,6 +408,11 @@ void MEDCouplingFieldDiscretizationP0::renumberValuesOnNodes(const int *, DataAr
 void MEDCouplingFieldDiscretizationP0::renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
 {
   renumberEntitiesFromO2NArr(old2New,arr,"Cell");
+}
+
+void MEDCouplingFieldDiscretizationP0::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
+{
+  renumberEntitiesFromN2OArr(new2old,newSz,arr,"Cell");
 }
 
 /*!
@@ -528,6 +548,13 @@ void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(const int *old2NewP
  * Nothing to do it's not a bug.
  */
 void MEDCouplingFieldDiscretizationP1::renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
+{
+}
+
+/*!
+ * Nothing to do it's not a bug.
+ */
+void MEDCouplingFieldDiscretizationP1::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
 {
 }
 
@@ -881,6 +908,11 @@ void MEDCouplingFieldDiscretizationGauss::renumberValuesOnCells(const MEDCouplin
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+void MEDCouplingFieldDiscretizationGauss::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
+{
+  throw INTERP_KERNEL::Exception("Number of cells has changed and becomes higher with some cells that have been split ! Unable to conserve the Gauss field !");
+}
+
 void MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(const MEDCouplingMesh *m, INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                                      const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
 {
@@ -1176,6 +1208,11 @@ void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnNodes(const int *, D
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnCells(const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
+void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }

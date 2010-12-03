@@ -143,6 +143,23 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDataArrayIntInvertO2NNO21 );
     CPPUNIT_TEST( testKeepSetSelectedComponent1 );
     CPPUNIT_TEST( testKeepSetSelectedComponent2 );
+    CPPUNIT_TEST( testDAIGetIdsEqual1 );
+    CPPUNIT_TEST( testDAIGetIdsEqualList1 );
+    CPPUNIT_TEST( testDAFromNoInterlace1 );
+    CPPUNIT_TEST( testDAToNoInterlace1 );
+    CPPUNIT_TEST( testDAIsUniform1 );
+    CPPUNIT_TEST( testDADFromPolarToCart1 );
+    CPPUNIT_TEST( testDADFromCylToCart1 );
+    CPPUNIT_TEST( testDADFromSpherToCart1 );
+    CPPUNIT_TEST( testUnPolyze1 );
+    CPPUNIT_TEST( testConvertDegeneratedCells1 );
+    CPPUNIT_TEST( testGetNodeIdsNearPoints1 );
+    CPPUNIT_TEST( testFieldCopyTinyAttrFrom1 );
+    CPPUNIT_TEST( testExtrudedMesh5 );
+    CPPUNIT_TEST( testExtrudedMesh6 );
+    CPPUNIT_TEST( testExtrudedMesh7 );
+    CPPUNIT_TEST( testSimplexize1 );
+    CPPUNIT_TEST( testSimplexize2 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -314,6 +331,23 @@ namespace ParaMEDMEM
     void testDataArrayIntInvertO2NNO21();
     void testKeepSetSelectedComponent1();
     void testKeepSetSelectedComponent2();
+    void testDAIGetIdsEqual1();
+    void testDAIGetIdsEqualList1();
+    void testDAFromNoInterlace1();
+    void testDAToNoInterlace1();
+    void testDAIsUniform1();
+    void testDADFromPolarToCart1();
+    void testDADFromCylToCart1();
+    void testDADFromSpherToCart1();
+    void testUnPolyze1();
+    void testConvertDegeneratedCells1();
+    void testGetNodeIdsNearPoints1();
+    void testFieldCopyTinyAttrFrom1();
+    void testExtrudedMesh5();
+    void testExtrudedMesh6();
+    void testExtrudedMesh7();
+    void testSimplexize1();
+    void testSimplexize2();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

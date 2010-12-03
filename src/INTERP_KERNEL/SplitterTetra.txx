@@ -242,7 +242,7 @@ namespace INTERP_KERNEL
           {
             // get sons connectivity
             NormalizedCellType faceType;
-            int *faceNodes, nbFaceNodes;
+            int *faceNodes, nbFaceNodes=-1;
             if ( cellModelCell.isDynamic() )
               {
                 faceNodes=new int[nbOfNodes4Type];

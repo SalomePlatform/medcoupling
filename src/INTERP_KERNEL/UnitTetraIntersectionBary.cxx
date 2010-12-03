@@ -461,7 +461,7 @@ namespace INTERP_KERNEL
       int ind1 = (i+1)%3, ind2 = (i+2)%3; // indices of coords on i-th tetra side
 
       int nbCutOnSide = 0;
-      bool isSegmentOnEdge;
+      bool isSegmentOnEdge=false;
       for ( int ip = 0; ip < nbPoints; ++ip )
       {
         int isSegmentEnd = ( ip % 2 );

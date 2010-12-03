@@ -46,6 +46,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }
     INTERPKERNEL_EXPORT unsigned getDimension() const { return _dim; }
     INTERPKERNEL_EXPORT bool isCompatibleWith(NormalizedCellType type) const;
+    INTERPKERNEL_EXPORT bool isSimplex() const { return _is_simplex; }
     //! sonId is in C format.
     INTERPKERNEL_EXPORT const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
     INTERPKERNEL_EXPORT unsigned getNumberOfNodes() const { return _nb_of_pts; }
@@ -63,6 +64,7 @@ namespace INTERP_KERNEL
   private:
     bool _dyn;
     bool _quadratic;
+    bool _is_simplex;
     unsigned _dim;
     unsigned _nb_of_pts;
     unsigned _nb_of_sons;

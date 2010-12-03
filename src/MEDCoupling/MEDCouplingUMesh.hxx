@@ -79,6 +79,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool areCellsEqual2(int cell1, int cell2) const;
     MEDCOUPLING_EXPORT bool areCellsFrom2MeshEqual(const MEDCouplingUMesh *other, int cellId, double prec) const;
     MEDCOUPLING_EXPORT void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
+    MEDCOUPLING_EXPORT void unPolyze();
     MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer();
     MEDCOUPLING_EXPORT DataArrayInt *zipConnectivityTraducer(int compType);
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
@@ -98,6 +99,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildDirectionVectorField() const;
+    MEDCOUPLING_EXPORT bool isContiguous1D() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void project1D(const double *pt, const double *v, double eps, double *res) const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;
     MEDCOUPLING_EXPORT void getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const;
@@ -108,6 +110,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isFullyQuadratic() const;
     MEDCOUPLING_EXPORT bool isPresenceOfQuadratic() const;
     MEDCOUPLING_EXPORT void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool areOnlySimplexCells() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void are2DCellsNotCorrectlyOriented(const double *vec, bool polyOnly, std::vector<int>& cells) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void orientCorrectly2DCells(const double *vec, bool polyOnly) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void arePolyhedronsNotCorrectlyOriented(std::vector<int>& cells) const throw(INTERP_KERNEL::Exception);
@@ -142,10 +147,15 @@ namespace ParaMEDMEM
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     void reprConnectivityOfThisLL(std::ostringstream& stream) const;
     //tools
+    DataArrayInt *simplexizePol0() throw(INTERP_KERNEL::Exception);
+    DataArrayInt *simplexizePol1() throw(INTERP_KERNEL::Exception);
     void renumberNodesInConn(const int *newNodeNumbers);
     void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, std::vector<int>& cellIdsKept) const;
     MEDCouplingUMesh *buildExtrudedMeshFromThisLowLev(int nbOfNodesOf1Lev, bool isQuad) const;
     DataArrayDouble *fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const;
+    DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation(const MEDCouplingUMesh *mesh1D, bool isQuad) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation2D(const MEDCouplingUMesh *mesh1D, bool isQuad) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *fillExtCoordsUsingTranslAndAutoRotation3D(const MEDCouplingUMesh *mesh1D, bool isQuad) const throw(INTERP_KERNEL::Exception);
     template<int SPACEDIM>
     void findCommonCellsBase(int compType, std::vector<int>& res, std::vector<int>& resI) const;
     bool areCellsEqualInPool(const std::vector<int>& candidates, int compType, std::vector<int>& result) const;

@@ -66,6 +66,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *buildUnstructured() const;
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
+    DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
     void getBoundingBox(double *bbox) const;
     MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const;

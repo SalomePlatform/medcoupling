@@ -78,6 +78,7 @@ namespace ParaMEDMEM
     void scale(const double *point, double factor);
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
+    DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
