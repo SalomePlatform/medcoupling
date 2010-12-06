@@ -3618,3 +3618,207 @@ void MEDCouplingBasicsTest::testSimplexize2()
   f1->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAMeld1()
+{
+  DataArrayDouble *da1=DataArrayDouble::New();
+  da1->alloc(7,2);
+  DataArrayDouble *da2=DataArrayDouble::New();
+  da2->alloc(7,1);
+  //
+  da1->fillWithValue(7.);
+  da2->iota(0.);
+  DataArrayDouble *da3=da2->applyFunc(3,"10*x*IVec+100*x*JVec+1000*x*KVec");
+  //
+  da1->setInfoOnComponent(0,"c0da1");
+  da1->setInfoOnComponent(1,"c1da1");
+  da3->setInfoOnComponent(0,"c0da3");
+  da3->setInfoOnComponent(1,"c1da3");
+  da3->setInfoOnComponent(2,"c2da3");
+  //
+  DataArrayDouble *da1C=da1->deepCpy();
+  da1->meldWith(da3);
+  CPPUNIT_ASSERT_EQUAL(5,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(7,da1->getNumberOfTuples());
+  CPPUNIT_ASSERT(da1->getInfoOnComponent(0)=="c0da1");
+  CPPUNIT_ASSERT(da1->getInfoOnComponent(1)=="c1da1");
+  CPPUNIT_ASSERT(da1->getInfoOnComponent(2)=="c0da3");
+  CPPUNIT_ASSERT(da1->getInfoOnComponent(3)=="c1da3");
+  CPPUNIT_ASSERT(da1->getInfoOnComponent(4)=="c2da3");
+  //
+  const double expected1[35]={7.,7.,0.,0.,0., 7.,7.,10.,100.,1000., 7.,7.,20.,200.,2000., 7.,7.,30.,300.,3000., 7.,7.,40.,400.,4000.,7.,7.,50.,500.,5000.,7.,7.,60.,600.,6000.};
+  for(int i=0;i<35;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da1->getIJ(0,i),1e-10);
+  //
+  DataArrayInt *dai1=da1C->convertToIntArr();
+  DataArrayInt *dai3=da3->convertToIntArr();
+  dai1->meldWith(dai3);
+  CPPUNIT_ASSERT_EQUAL(5,dai1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(7,dai1->getNumberOfTuples());
+  CPPUNIT_ASSERT(dai1->getInfoOnComponent(0)=="c0da1");
+  CPPUNIT_ASSERT(dai1->getInfoOnComponent(1)=="c1da1");
+  CPPUNIT_ASSERT(dai1->getInfoOnComponent(2)=="c0da3");
+  CPPUNIT_ASSERT(dai1->getInfoOnComponent(3)=="c1da3");
+  CPPUNIT_ASSERT(dai1->getInfoOnComponent(4)=="c2da3");
+  for(int i=0;i<35;i++)
+    CPPUNIT_ASSERT_EQUAL((int)expected1[i],dai1->getIJ(0,i));
+  // test of static method DataArrayDouble::meld
+  DataArrayDouble *da4=DataArrayDouble::meld(da1C,da3);
+  CPPUNIT_ASSERT_EQUAL(5,da4->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(7,da4->getNumberOfTuples());
+  CPPUNIT_ASSERT(da4->getInfoOnComponent(0)=="c0da1");
+  CPPUNIT_ASSERT(da4->getInfoOnComponent(1)=="c1da1");
+  CPPUNIT_ASSERT(da4->getInfoOnComponent(2)=="c0da3");
+  CPPUNIT_ASSERT(da4->getInfoOnComponent(3)=="c1da3");
+  CPPUNIT_ASSERT(da4->getInfoOnComponent(4)=="c2da3");
+  for(int i=0;i<35;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da4->getIJ(0,i),1e-10);
+  // test of static method DataArrayInt::meld
+  dai1->decrRef();
+  dai1=da1C->convertToIntArr();
+  DataArrayInt *dai4=DataArrayInt::meld(dai1,dai3);
+  CPPUNIT_ASSERT_EQUAL(5,dai4->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(7,dai4->getNumberOfTuples());
+  CPPUNIT_ASSERT(dai4->getInfoOnComponent(0)=="c0da1");
+  CPPUNIT_ASSERT(dai4->getInfoOnComponent(1)=="c1da1");
+  CPPUNIT_ASSERT(dai4->getInfoOnComponent(2)=="c0da3");
+  CPPUNIT_ASSERT(dai4->getInfoOnComponent(3)=="c1da3");
+  CPPUNIT_ASSERT(dai4->getInfoOnComponent(4)=="c2da3");
+  for(int i=0;i<35;i++)
+    CPPUNIT_ASSERT_EQUAL((int)expected1[i],dai4->getIJ(0,i));
+  //
+  dai4->decrRef();
+  da4->decrRef();
+  dai3->decrRef();
+  dai1->decrRef();
+  da1C->decrRef();
+  da1->decrRef();
+  da2->decrRef();
+  da3->decrRef();
+}
+
+void MEDCouplingBasicsTest::testFieldMeld1()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setMesh(m);
+  DataArrayDouble *da1=DataArrayDouble::New();
+  const double arr1[5]={12.,23.,34.,45.,56.};
+  da1->alloc(5,1);
+  std::copy(arr1,arr1+5,da1->getPointer());
+  da1->setInfoOnComponent(0,"aaa");
+  f1->setArray(da1);
+  f1->setTime(3.4,2,1);
+  f1->checkCoherency();
+  //
+  MEDCouplingFieldDouble *f2=f1->deepCpy();
+  f2->setMesh(f1->getMesh());
+  f2->checkCoherency();
+  f2->changeNbOfComponents(2,5.);
+  (*f2)=5.;
+  f2->getArray()->setInfoOnComponent(0,"bbb");
+  f2->getArray()->setInfoOnComponent(1,"ccc");
+  f2->checkCoherency();
+  //
+  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::meldFields(f2,f1);
+  f3->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(5,f3->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,f3->getNumberOfComponents());
+  CPPUNIT_ASSERT(f3->getArray()->getInfoOnComponent(0)=="bbb");
+  CPPUNIT_ASSERT(f3->getArray()->getInfoOnComponent(1)=="ccc");
+  CPPUNIT_ASSERT(f3->getArray()->getInfoOnComponent(2)=="aaa");
+  const double expected1[15]={5.,5.,12.,5.,5.,23.,5.,5.,34.,5.,5.,45.,5.,5.,56.};
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f3->getIJ(0,i),1e-12);
+  int dt,it;
+  double time=f3->getTime(dt,it);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.4,time,1e-14);
+  CPPUNIT_ASSERT_EQUAL(2,dt);
+  CPPUNIT_ASSERT_EQUAL(1,it);
+  //
+  MEDCouplingFieldDouble *f4=f2->buildNewTimeReprFromThis(NO_TIME,false);
+  MEDCouplingFieldDouble *f5=f1->buildNewTimeReprFromThis(NO_TIME,false);
+  MEDCouplingFieldDouble *f6=MEDCouplingFieldDouble::meldFields(f4,f5);
+  f6->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(5,f6->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,f6->getNumberOfComponents());
+  CPPUNIT_ASSERT(f6->getArray()->getInfoOnComponent(0)=="bbb");
+  CPPUNIT_ASSERT(f6->getArray()->getInfoOnComponent(1)=="ccc");
+  CPPUNIT_ASSERT(f6->getArray()->getInfoOnComponent(2)=="aaa");
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f6->getIJ(0,i),1e-12);
+  //
+  f6->decrRef();
+  f4->decrRef();
+  f5->decrRef();
+  f3->decrRef();
+  da1->decrRef();
+  f2->decrRef();
+  f1->decrRef();
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testMergeNodes2()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  MEDCouplingUMesh *m2=build2DTargetMesh_1();
+  const double vec[2]={0.002,0.};
+  m2->translate(vec);
+  //
+  std::vector<const MEDCouplingUMesh *> tmp(2);
+  tmp[0]=m1;
+  tmp[1]=m2;
+  MEDCouplingUMesh *m3=MEDCouplingUMesh::mergeUMeshes(tmp);
+  bool b;
+  int newNbOfNodes;
+  DataArrayInt *da=m3->mergeNodes2(0.01,b,newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(9,m3->getNumberOfNodes());
+  const double expected1[18]={-0.299,-0.3, 0.201,-0.3, 0.701,-0.3, -0.299,0.2, 0.201,0.2, 0.701,0.2, -0.299,0.7, 0.201,0.7, 0.701,0.7};
+  for(int i=0;i<18;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],m3->getCoords()->getIJ(0,i),1e-13);
+  //
+  da->decrRef();
+  m3->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testMergeField2()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setMesh(m);
+  DataArrayDouble *arr=DataArrayDouble::New();
+  arr->alloc(5,2);
+  arr->fillWithValue(2.);
+  f1->setArray(arr);
+  arr->decrRef();
+  MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f2->setMesh(m);
+  arr=DataArrayDouble::New();
+  arr->alloc(5,2);
+  arr->fillWithValue(5.);
+  f2->setArray(arr);
+  arr->decrRef();
+  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f3->setMesh(m);
+  arr=DataArrayDouble::New();
+  arr->alloc(5,2);
+  arr->fillWithValue(7.);
+  f3->setArray(arr);
+  arr->decrRef();
+  //
+  std::vector<const MEDCouplingFieldDouble *> tmp(3);
+  tmp[0]=f1; tmp[1]=f2; tmp[2]=f3;
+  MEDCouplingFieldDouble *f4=MEDCouplingFieldDouble::mergeFields(tmp);
+  CPPUNIT_ASSERT_EQUAL(15,f4->getMesh()->getNumberOfCells());
+  const double expected1[30]={2.,2.,2.,2.,2.,2.,2.,2.,2.,2., 5.,5.,5.,5.,5.,5.,5.,5.,5.,5., 7.,7.,7.,7.,7.,7.,7.,7.,7.,7.};
+  for(int i=0;i<30;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f4->getIJ(0,i),1.e-13);
+  //
+  f4->decrRef();
+  f1->decrRef();
+  f2->decrRef();
+  f3->decrRef();
+  m->decrRef();
+}

@@ -52,6 +52,11 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) c
   return ret;
 }
 
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
+{
+  return cloneWithMesh(true);
+}
+
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const
 {
   MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(_time_discr,td,deepCpy);
@@ -217,6 +222,21 @@ bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) 
   if(_nature!=otherC->_nature)
     return false;
   if(!_time_discr->areStrictlyCompatibleForMul(otherC->_time_discr))
+    return false;
+  return true;
+}
+
+/*!
+ * This method is invocated before any attempt of melding. This method is very close to areStrictlyCompatible,
+ * except that 'this' and other can have different number of components.
+ */
+bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *other) const
+{
+  if(!MEDCouplingField::areStrictlyCompatible(other))
+    return false;
+  if(_nature!=other->_nature)
+    return false;
+  if(!_time_discr->areCompatibleForMeld(other->_time_discr))
     return false;
   return true;
 }
@@ -1034,6 +1054,29 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Excepti
 }
 
 /*!
+ * Merge nodes with (barycenter computation) of underlying mesh. In case of some node will be merged the underlying mesh instance will change.
+ */
+bool MEDCouplingFieldDouble::mergeNodes2(double eps) throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
+  if(!meshC)
+    throw INTERP_KERNEL::Exception("Invalid support mesh to apply mergeNodes on it : must be a MEDCouplingPointSet one !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
+  bool ret;
+  int ret2;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->mergeNodes2(eps,ret,ret2);
+  if(!ret)//no nodes have been merged.
+    return ret;
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+    if(*iter)
+      _type->renumberValuesOnNodes(arr->getConstPointer(),*iter);
+  setMesh(meshC2);
+  return true;
+}
+
+/*!
  * This method applyies ParaMEDMEM::MEDCouplingPointSet::zipCoords method on 'this->_mesh' that should be set and of type ParaMEDMEM::MEDCouplingPointSet.
  * If some nodes have disappeared true is returned.
  */
@@ -1221,7 +1264,7 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Excepti
   _time_discr->sortPerTuple(asc);
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areCompatibleForMerge(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply mergeFields on them !");
@@ -1229,6 +1272,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFie
   const MEDCouplingMesh *m2=f2->getMesh();
   MEDCouplingMesh *m=m1->mergeMyselfWith(m2);
   MEDCouplingTimeDiscretization *td=f1->_time_discr->aggregate(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(m);
   m->decrRef();
@@ -1237,7 +1281,48 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFie
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const std::vector<const MEDCouplingFieldDouble *>& a) throw(INTERP_KERNEL::Exception)
+{
+  if(a.size()<=1)
+    throw INTERP_KERNEL::Exception("FieldDouble::mergeFields : size of array must be > 1 !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms(a.size());
+  std::vector< const MEDCouplingUMesh *> ms2(a.size());
+  std::vector< const MEDCouplingTimeDiscretization *> tds(a.size());
+  std::vector<const MEDCouplingFieldDouble *>::const_iterator it=a.begin();
+  const MEDCouplingFieldDouble *ref=(*it++);
+  for(;it!=a.end();it++)
+    if(!ref->areCompatibleForMerge(*it))
+      throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply mergeFields on them !");
+  for(int i=0;i<(int)a.size();i++)
+    {
+      if(!a[i]->getMesh())
+        throw INTERP_KERNEL::Exception("mergeFields : A field as no underlying mesh !");
+      ms[i]=a[i]->getMesh()->buildUnstructured();
+      ms2[i]=ms[i];
+      tds[i]=a[i]->_time_discr;
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::mergeUMeshes(ms2);
+  MEDCouplingTimeDiscretization *td=tds[0]->aggregate(tds);
+  td->copyTinyAttrFrom(*(a[0]->_time_discr));
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());
+  ret->setMesh(m);
+  ret->setName(a[0]->getName());
+  ret->setDescription(a[0]->getDescription());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::meldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+{
+  if(!f1->areCompatibleForMeld(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply meldFields on them !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->meld(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply dotFields on them !");
@@ -1248,7 +1333,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::dotFields(const MEDCouplingField
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply crossProductFields on them !");
@@ -1259,7 +1344,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::crossProductFields(const MEDCoup
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply maxFields on them !");
@@ -1270,7 +1355,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxFields(const MEDCouplingField
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply minFields on them !");
@@ -1281,7 +1366,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::minFields(const MEDCouplingField
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply addFields on them !");
@@ -1292,7 +1377,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingField
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
   if(!areStrictlyCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply += on them !");
@@ -1300,7 +1385,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCoupli
   return *this;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply substractFields on them !");
@@ -1311,7 +1396,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplin
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
   if(!areStrictlyCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply -= on them !");
@@ -1319,7 +1404,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCoupli
   return *this;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areCompatibleForMul(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply multiplyFields on them !");
@@ -1330,7 +1415,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCoupling
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
   if(!areCompatibleForMul(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply *= on them !");
@@ -1338,7 +1423,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCoupli
   return *this;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply divideFields on them !");
@@ -1349,7 +1434,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFi
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
   if(!areStrictlyCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");

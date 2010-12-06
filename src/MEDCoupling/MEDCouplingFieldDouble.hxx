@@ -41,6 +41,7 @@ namespace ParaMEDMEM
     bool areCompatibleForMerge(const MEDCouplingField *other) const;
     bool areStrictlyCompatible(const MEDCouplingField *other) const;
     bool areCompatibleForMul(const MEDCouplingField *other) const;
+    bool areCompatibleForMeld(const MEDCouplingFieldDouble *other) const;
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     void renumberCellsWithoutMesh(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     void renumberNodes(const int *old2NewBg) throw(INTERP_KERNEL::Exception);
@@ -48,6 +49,7 @@ namespace ParaMEDMEM
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *deepCpy() const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
@@ -112,6 +114,7 @@ namespace ParaMEDMEM
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
+    bool mergeNodes2(double eps) throw(INTERP_KERNEL::Exception);
     bool zipCoords() throw(INTERP_KERNEL::Exception);
     bool zipConnectivity(int compType) throw(INTERP_KERNEL::Exception);
     bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
@@ -128,27 +131,29 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
     void setSelectedComponents(const MEDCouplingFieldDouble *f, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception);
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const { return dotFields(this,&other); }
-    static MEDCouplingFieldDouble *crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const { return crossProductFields(this,&other); }
-    static MEDCouplingFieldDouble *maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const { return maxFields(this,&other); }
-    static MEDCouplingFieldDouble *minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const { return minFields(this,&other); }
-    MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return addFields(this,&other); }
-    const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other);
-    static MEDCouplingFieldDouble *addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const { return substractFields(this,&other); }
-    const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other);
-    static MEDCouplingFieldDouble *substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const { return multiplyFields(this,&other); }
-    const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other);
-    static MEDCouplingFieldDouble *multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const { return divideFields(this,&other); }
-    const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other);
-    static MEDCouplingFieldDouble *divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
+    static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *mergeFields(const std::vector<const MEDCouplingFieldDouble *>& a) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *meldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return dotFields(this,&other); }
+    static MEDCouplingFieldDouble *crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return crossProductFields(this,&other); }
+    static MEDCouplingFieldDouble *maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return maxFields(this,&other); }
+    static MEDCouplingFieldDouble *minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return minFields(this,&other); }
+    MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return addFields(this,&other); }
+    const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return substractFields(this,&other); }
+    const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return multiplyFields(this,&other); }
+    const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return divideFields(this,&other); }
+    const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);

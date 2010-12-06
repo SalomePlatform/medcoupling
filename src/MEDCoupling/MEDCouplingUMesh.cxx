@@ -908,6 +908,17 @@ DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerge
 }
 
 /*!
+ * Idem ParaMEDMEM::MEDCouplingUMesh::mergeNodes method except that the merged nodes are meld into the barycenter of them.
+ */
+DataArrayInt *MEDCouplingUMesh::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
+{
+  DataArrayInt *ret=buildPermArrayForMergeNode(-1,precision,areNodesMerged,newNbOfNodes);
+  if(areNodesMerged)
+    renumberNodes2(ret->getConstPointer(),newNbOfNodes);
+  return ret;
+}
+
+/*!
  * This method tries to use 'other' coords and use it for 'this'. If no exception was thrown after the call of this method :
  * this->_coords==other->_coords. If not a exception is thrown this remains unchanged.
  */
@@ -1101,6 +1112,12 @@ void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
   meshDM1->decrRef();
 }
 
+MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+{
+  incrRef();
+  return const_cast<MEDCouplingUMesh *>(this);
+}
+
 /*
  * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
  * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
@@ -1113,6 +1130,22 @@ void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
 void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
   MEDCouplingPointSet::renumberNodes(newNodeNumbers,newNbOfNodes);
+  renumberNodesInConn(newNodeNumbers);
+}
+
+/*
+ * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
+ * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
+ * This value is asked because often known by the caller of this method.
+ * This method, contrary to MEDCouplingMesh::renumberCells does NOT conserve the number of nodes before and after.
+ * The difference with ParaMEDMEM::MEDCouplingUMesh::renumberNodes method is in the fact that the barycenter of merged nodes is computed here.
+ *
+ * @param newNodeNumbers array specifying the new numbering.
+ * @param newNbOfNodes the new number of nodes.
+ */
+void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNodes)
+{
+  MEDCouplingPointSet::renumberNodes2(newNodeNumbers,newNbOfNodes);
   renumberNodesInConn(newNodeNumbers);
 }
 
@@ -3215,41 +3248,69 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
  * Returns a newly created mesh (with ref count ==1) that contains merge of 'mesh1' and 'other'.
  * The coords of 'mesh2' are added at the end of coords of 'mesh1'.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2)
+MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
-  ret->setName("merge");
-  DataArrayDouble *pts=mergeNodesArray(mesh1,mesh2);
+  std::vector<const MEDCouplingUMesh *> tmp(2);
+  tmp[0]=mesh1; tmp[1]=mesh2;
+  return mergeUMeshes(tmp);
+}
+
+MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception)
+{
+  if(a.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::mergeUMeshes : input array must be NON EMPTY !");
+  std::vector<const MEDCouplingUMesh *>::const_iterator it=a.begin();
+  int meshDim=(*it)->getMeshDimension();
+  int nbOfCells=(*it)->getNumberOfCells();
+  int meshLgth=(*it++)->getMeshLength();
+  for(;it!=a.end();it++)
+    {
+      if(meshDim!=(*it)->getMeshDimension())
+        throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, mergeMeshes impossible !");
+      nbOfCells+=(*it)->getNumberOfCells();
+      meshLgth+=(*it)->getMeshLength();
+    }
+  std::vector<const MEDCouplingPointSet *> aps(a.size());
+  std::copy(a.begin(),a.end(),aps.begin());
+  DataArrayDouble *pts=mergeNodesArray(aps);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New("merge",meshDim);
   ret->setCoords(pts);
   pts->decrRef();
-  int meshDim=mesh1->getMeshDimension();
-  if(meshDim!=mesh2->getMeshDimension())
-    throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, mergeMeshes impossible !");
-  ret->setMeshDimension(meshDim);
-  int delta=mesh1->getMeshLength();
-  int pos=mesh1->getNumberOfCells();
-  int nbOfCells2=mesh2->getNumberOfCells();
-  int end=mesh1->getNumberOfCells()+nbOfCells2+1;
-  DataArrayInt *nodalIndex=DataArrayInt::aggregate(mesh1->getNodalConnectivityIndex(),
-                                                   mesh2->getNodalConnectivityIndex(),1);
-  std::transform(nodalIndex->getConstPointer()+pos+1,nodalIndex->getConstPointer()+end,
-                 nodalIndex->getPointer()+pos+1,std::bind2nd(std::plus<int>(),delta));
-  DataArrayInt *newNodal2=mesh2->getNodalConnectivity()->deepCopy();
-  delta=mesh1->getNumberOfNodes();
-  const int *nI2=mesh2->getNodalConnectivityIndex()->getConstPointer();
-  int *pt=newNodal2->getPointer();
-  for(int i=0;i<nbOfCells2;i++)
+  DataArrayInt *c=DataArrayInt::New();
+  c->alloc(meshLgth,1);
+  int *cPtr=c->getPointer();
+  DataArrayInt *cI=DataArrayInt::New();
+  cI->alloc(nbOfCells+1,1);
+  int *cIPtr=cI->getPointer();
+  *cIPtr++=0;
+  int offset=0;
+  int offset2=0;
+  for(it=a.begin();it!=a.end();it++)
     {
-      pt++;
-      for(int j=0;j<nI2[i+1]-nI2[i]-1;j++,pt++)
-        if(*pt!=-1)
-          *pt+=delta;
+      int curNbOfCell=(*it)->getNumberOfCells();
+      const int *curCI=(*it)->_nodal_connec_index->getConstPointer();
+      const int *curC=(*it)->_nodal_connec->getConstPointer();
+      cIPtr=std::transform(curCI+1,curCI+curNbOfCell+1,cIPtr,std::bind2nd(std::plus<int>(),offset));
+      for(int j=0;j<curNbOfCell;j++)
+        {
+          const int *src=curC+curCI[j];
+          *cPtr++=*src++;
+          for(;src!=curC+curCI[j+1];src++,cPtr++)
+            {
+              if(*src!=-1)
+                *cPtr=*src+offset2;
+              else
+                *cPtr=-1;
+            }
+        }
+      offset=curCI[curNbOfCell];
+      offset2+=(*it)->getNumberOfNodes();
     }
-  DataArrayInt *nodal=DataArrayInt::aggregate(mesh1->getNodalConnectivity(),newNodal2,0);
-  newNodal2->decrRef();
-  ret->setConnectivity(nodal,nodalIndex,true);
-  nodalIndex->decrRef();
-  nodal->decrRef();
+  //
+  ret->setConnectivity(c,cI,true);
+  c->decrRef();
+  cI->decrRef();
+  ret->incrRef();
   return ret;
 }
 

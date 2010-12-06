@@ -436,7 +436,7 @@ void MEDCouplingCMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coor
   declareAsNew();
 }
 
-MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const
+MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=getSpaceDimension();
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New(getName(),spaceDim);

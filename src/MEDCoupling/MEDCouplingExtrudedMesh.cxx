@@ -330,6 +330,11 @@ MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const
   return ret;
 }
 
+MEDCouplingUMesh *MEDCouplingExtrudedMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+{
+  return build3DUnstructuredMesh();
+}
+
 MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const
 {
   std::string name="MeasureOfMesh_";

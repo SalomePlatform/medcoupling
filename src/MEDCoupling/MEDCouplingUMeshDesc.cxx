@@ -338,6 +338,13 @@ DataArrayInt *MEDCouplingUMeshDesc::mergeNodes(double precision, bool& areNodesM
   return 0;
 }
 
+DataArrayInt *MEDCouplingUMeshDesc::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
+{
+  //not implemented yet.
+  areNodesMerged=false;
+  return 0;
+}
+
 void MEDCouplingUMeshDesc::tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
@@ -375,6 +382,11 @@ MEDCouplingPointSet *MEDCouplingUMeshDesc::buildBoundaryMesh(bool keepCoords) co
 {
   //not implemented yet
   return 0;
+}
+
+MEDCouplingUMesh *MEDCouplingUMeshDesc::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::buildUnstructured : not implemented yet !");
 }
 
 void MEDCouplingUMeshDesc::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
