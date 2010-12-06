@@ -19,6 +19,21 @@
 
 #include <vector>
 
+static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner)
+{
+  PyObject *ret=0;
+  if(dynamic_cast<ParaMEDMEM::MEDFileUMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileUMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDFileCMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileCMesh,owner);
+  if(!ret)
+    {
+      PyErr_SetString(PyExc_TypeError,"Not recognized type of MEDFileMesh on downcast !");
+      PyErr_Print();
+    }
+  return ret;
+}
+
 static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
 {
   std::vector<std::pair<int,int> > ret;

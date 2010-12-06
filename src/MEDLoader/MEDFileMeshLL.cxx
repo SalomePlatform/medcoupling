@@ -22,6 +22,8 @@
 
 #include "MEDCouplingUMesh.hxx"
 
+#include "InterpKernelAutoPtr.hxx"
+
 #include <set>
 
 extern med_geometrie_element typmai[MED_NBR_GEOMETRIE_MAILLE+2];
@@ -169,7 +171,18 @@ void MEDFileUMeshL2::writeCoords(med_idt fid, const char *mname, const DataArray
 {
   if(!coords)
     return ;
-  MEDcoordEcr(fid,maa,spaceDim,arr->getPointer(),MED_FULL_INTERLACE,mesh[0]->getNumberOfNodes(),MED_CART,comp,unit);
+  int spaceDim=coords->getNumberOfComponents();
+  INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
+  INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
+  for(int i=0;i<spaceDim;i++)
+    {
+      std::string info=coords->getInfoOnComponent(i);
+      std::string c,u;
+      MEDLoaderBase::splitIntoNameAndUnit(info,c,u);
+      MEDLoaderBase::safeStrCpy(c.c_str(),MED_TAILLE_PNOM-1,comp+i*MED_TAILLE_PNOM,0);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy(u.c_str(),MED_TAILLE_PNOM-1,unit+i*MED_TAILLE_PNOM,0);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+    }
+  MEDcoordEcr(fid,(char *)mname,spaceDim,coords->getPointer(),MED_FULL_INTERLACE,coords->getNumberOfTuples(),MED_CART,comp,unit);
 }
 
 bool MEDFileUMeshL2::isFamDefinedOnLev(int levId) const

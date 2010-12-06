@@ -26,12 +26,20 @@
 
 %{
 #include "MEDLoader.hxx"
+#include "MEDFileMesh.hxx"
 #include "MEDLoaderTypemaps.i"
+
+using namespace ParaMEDMEM;
 %}
 
 #if SWIG_VERSION >= 0x010329
 %template()  std::vector<std::string>;
 #endif
+
+%typemap(out) ParaMEDMEM::MEDFileMesh*
+{
+  $result=convertMEDFileMesh($1,$owner);
+}
 
 %newobject MEDLoader::ReadUMeshFromFamilies;
 %newobject MEDLoader::ReadUMeshFromGroups;
@@ -41,6 +49,17 @@
 %newobject MEDLoader::ReadFieldNode;
 %newobject MEDLoader::ReadFieldGauss;
 %newobject MEDLoader::ReadFieldGaussNE;
+%newobject ParaMEDMEM::MEDFileUMesh::New;
+%newobject ParaMEDMEM::MEDFileUMesh::getCoords;
+%newobject ParaMEDMEM::MEDFileUMesh::getGroup;
+%newobject ParaMEDMEM::MEDFileUMesh::getGroups;
+%newobject ParaMEDMEM::MEDFileUMesh::getFamily;
+%newobject ParaMEDMEM::MEDFileUMesh::getFamilies;
+%newobject ParaMEDMEM::MEDFileUMesh::getMeshAtRank;
+%newobject ParaMEDMEM::MEDFileUMesh::getRank0Mesh;
+%newobject ParaMEDMEM::MEDFileUMesh::getRankM1Mesh;
+%newobject ParaMEDMEM::MEDFileUMesh::getRankM2Mesh;
+%newobject ParaMEDMEM::MEDFileUMesh::getRankM3Mesh;
 
 class MEDLoader
 {
@@ -168,3 +187,6 @@ public:
   static void WriteFieldDep(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   static void WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
 };
+
+%include "MEDFileMesh.hxx"
+
