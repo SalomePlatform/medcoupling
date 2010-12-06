@@ -32,7 +32,8 @@ NormalizedUnstructuredMesh.hxx  \
 InterpKernelStlExt.hxx          \
 InterpKernelHashMap.hxx         \
 InterpKernelHashTable.hxx       \
-InterpKernelHashFun.hxx
+InterpKernelHashFun.hxx         \
+InterpKernelAutoPtr.hxx
 
 # Libraries targets
 

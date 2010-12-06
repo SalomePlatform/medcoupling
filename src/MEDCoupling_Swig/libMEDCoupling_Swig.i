@@ -62,6 +62,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::mergeFields;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::meldFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::doublyContractedProduct;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::determinant;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::eigenValues;
@@ -88,10 +89,12 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::operator/;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::clone;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::cloneWithMesh;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
 %newobject ParaMEDMEM::DataArrayInt::New;
 %newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
 %newobject ParaMEDMEM::DataArrayInt::deepCopy;
+%newobject ParaMEDMEM::DataArrayInt::deepCpy;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
 %newobject ParaMEDMEM::DataArrayInt::substr;
 %newobject ParaMEDMEM::DataArrayInt::changeNbOfComponents;
@@ -105,13 +108,16 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqual;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
 %newobject ParaMEDMEM::DataArrayInt::aggregate;
+%newobject ParaMEDMEM::DataArrayInt::meld;
 %newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
 %newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayDouble::deepCopy;
+%newobject ParaMEDMEM::DataArrayDouble::deepCpy;
 %newobject ParaMEDMEM::DataArrayDouble::performCpy;
 %newobject ParaMEDMEM::DataArrayDouble::aggregate;
+%newobject ParaMEDMEM::DataArrayDouble::meld;
 %newobject ParaMEDMEM::DataArrayDouble::dot;
 %newobject ParaMEDMEM::DataArrayDouble::crossProduct;
 %newobject ParaMEDMEM::DataArrayDouble::add;
@@ -149,8 +155,11 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic;
 %newobject ParaMEDMEM::MEDCouplingMesh::getMeasureField;
 %newobject ParaMEDMEM::MEDCouplingMesh::simplexize;
+%newobject ParaMEDMEM::MEDCouplingMesh::buildUnstructured;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
 %newobject ParaMEDMEM::MEDCouplingPointSet::buildBoundaryMesh;
+%newobject ParaMEDMEM::MEDCouplingPointSet::mergeNodesArray;
+%newobject ParaMEDMEM::MEDCouplingPointSet::buildInstanceFromMeshType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
@@ -169,7 +178,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
-%newobject ParaMEDMEM::MEDCouplingCMesh::buildUnstructured;
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -218,6 +226,7 @@ namespace ParaMEDMEM
 
   class DataArrayInt;
   class DataArrayDouble;
+  class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
 
   class MEDCouplingMesh : public RefCountObject, public TimeLabel
@@ -246,6 +255,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
+    virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception) = 0;
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
@@ -391,7 +401,7 @@ namespace ParaMEDMEM
       void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
-      static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
+      static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
       static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
       virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
       virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;
@@ -471,6 +481,13 @@ namespace ParaMEDMEM
              int size;
              int *tmp=convertPyToNewIntArr2(li,&size);
              self->renumberNodes(tmp,newNbOfNodes);
+             delete [] tmp;
+           }
+           void renumberNodes2(PyObject *li, int newNbOfNodes)
+           {
+             int size;
+             int *tmp=convertPyToNewIntArr2(li,&size);
+             self->renumberNodes2(tmp,newNbOfNodes);
              delete [] tmp;
            }
            PyObject *findNodesOnPlane(PyObject *pt, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
@@ -606,6 +623,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getAspectRatioField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWarpField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getSkewField() const throw(INTERP_KERNEL::Exception);
+    static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
       {
@@ -632,6 +650,17 @@ namespace ParaMEDMEM
         bool ret1;
         int ret2;
         DataArrayInt *ret0=self->mergeNodes(precision,ret1,ret2);
+        PyObject *res = PyList_New(3);
+        PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(res,1,SWIG_From_bool(ret1));
+        PyList_SetItem(res,2,SWIG_From_int(ret2));
+        return res;
+      }
+      PyObject *mergeNodes2(double precision)
+      {
+        bool ret1;
+        int ret2;
+        DataArrayInt *ret0=self->mergeNodes2(precision,ret1,ret2);
         PyObject *res = PyList_New(3);
         PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyList_SetItem(res,1,SWIG_From_bool(ret1));
@@ -797,11 +826,17 @@ namespace ParaMEDMEM
         std::copy(pos,pos+3,vals+3);
         return convertDblArrToPyListOfTuple(vals,3,2);
       }
+      
+      static MEDCouplingUMesh *mergeUMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const ParaMEDMEM::MEDCouplingUMesh *> tmp;
+        convertPyObjToVecUMeshesCst(li,tmp);
+        return MEDCouplingUMesh::mergeUMeshes(tmp);
+      }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
     void unPolyze();
     MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy);
-    static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDCouplingExtrudedMesh : public ParaMEDMEM::MEDCouplingMesh
@@ -843,7 +878,6 @@ namespace ParaMEDMEM
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);
     void setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *buildUnstructured() const;
     %extend {
       std::string __str__() const
       {
@@ -1046,6 +1080,20 @@ namespace ParaMEDMEM
      convertPyToNewIntArr3(li,tmp);
      self->setSelectedComponents(a,tmp);
    }
+
+   static DataArrayDouble *aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<const DataArrayDouble *> tmp;
+     convertPyObjToVecDataArrayDblCst(li,tmp);
+     return DataArrayDouble::aggregate(tmp);
+   }
+
+   static DataArrayDouble *meld(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<const DataArrayDouble *> tmp;
+     convertPyObjToVecDataArrayDblCst(li,tmp);
+     return DataArrayDouble::meld(tmp);
+   }
  };
 
 %extend ParaMEDMEM::DataArrayInt
@@ -1182,6 +1230,13 @@ namespace ParaMEDMEM
      convertPyToNewIntArr3(li,tmp);
      self->setSelectedComponents(a,tmp);
    }
+
+   static DataArrayInt *meld(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<const DataArrayInt *> tmp;
+     convertPyObjToVecDataArrayIntCst(li,tmp);
+     return DataArrayInt::meld(tmp);
+   }
  };
 
 namespace ParaMEDMEM
@@ -1263,6 +1318,7 @@ namespace ParaMEDMEM
     std::string advancedRepr() const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
+    MEDCouplingFieldDouble *deepCpy() const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -1287,6 +1343,7 @@ namespace ParaMEDMEM
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
+    bool mergeNodes2(double eps) throw(INTERP_KERNEL::Exception);
     bool zipCoords() throw(INTERP_KERNEL::Exception);
     bool zipConnectivity(int compType) throw(INTERP_KERNEL::Exception);
     bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
@@ -1319,14 +1376,15 @@ namespace ParaMEDMEM
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const;
-    static MEDCouplingFieldDouble *crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const;
-    static MEDCouplingFieldDouble *maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const;
-    static MEDCouplingFieldDouble *minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const;
+    static MEDCouplingFieldDouble *meldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldDouble *minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
@@ -1545,6 +1603,13 @@ namespace ParaMEDMEM
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
         self->setSelectedComponents(f,tmp);
+      }
+
+      static MEDCouplingFieldDouble *mergeFields(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const MEDCouplingFieldDouble *> tmp;
+        convertPyObjToVecFieldDblCst(li,tmp);
+        return MEDCouplingFieldDouble::mergeFields(tmp);
       }
     }
   };

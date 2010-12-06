@@ -160,6 +160,10 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testExtrudedMesh7 );
     CPPUNIT_TEST( testSimplexize1 );
     CPPUNIT_TEST( testSimplexize2 );
+    CPPUNIT_TEST( testDAMeld1 );
+    CPPUNIT_TEST( testFieldMeld1 );
+    CPPUNIT_TEST( testMergeNodes2 );
+    CPPUNIT_TEST( testMergeField2 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -348,6 +352,10 @@ namespace ParaMEDMEM
     void testExtrudedMesh7();
     void testSimplexize1();
     void testSimplexize2();
+    void testDAMeld1();
+    void testFieldMeld1();
+    void testMergeNodes2();
+    void testMergeField2();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

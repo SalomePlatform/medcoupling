@@ -5165,6 +5165,179 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         #
         pass
+
+    def testDAMeld1(self):
+        da1=DataArrayDouble.New();
+        da1.alloc(7,2);
+        da2=DataArrayDouble.New();
+        da2.alloc(7,1);
+        #
+        da1.fillWithValue(7.);
+        da2.iota(0.);
+        da3=da2.applyFunc(3,"10*x*IVec+100*x*JVec+1000*x*KVec");
+        #
+        da1.setInfoOnComponent(0,"c0da1");
+        da1.setInfoOnComponent(1,"c1da1");
+        da3.setInfoOnComponent(0,"c0da3");
+        da3.setInfoOnComponent(1,"c1da3");
+        da3.setInfoOnComponent(2,"c2da3");
+        #
+        da1C=da1.deepCpy();
+        da1.meldWith(da3);
+        self.assertEqual(5,da1.getNumberOfComponents());
+        self.assertEqual(7,da1.getNumberOfTuples());
+        self.assertTrue(da1.getInfoOnComponent(0)=="c0da1");
+        self.assertTrue(da1.getInfoOnComponent(1)=="c1da1");
+        self.assertTrue(da1.getInfoOnComponent(2)=="c0da3");
+        self.assertTrue(da1.getInfoOnComponent(3)=="c1da3");
+        self.assertTrue(da1.getInfoOnComponent(4)=="c2da3");
+        #
+        expected1=[7.,7.,0.,0.,0., 7.,7.,10.,100.,1000., 7.,7.,20.,200.,2000., 7.,7.,30.,300.,3000., 7.,7.,40.,400.,4000.,7.,7.,50.,500.,5000.,7.,7.,60.,600.,6000.]
+        for i in xrange(35):
+            self.assertAlmostEqual(expected1[i],da1.getIJ(0,i),10);
+            pass
+        #
+        dai1=da1C.convertToIntArr();
+        dai3=da3.convertToIntArr();
+        dai1.meldWith(dai3);
+        self.assertEqual(5,dai1.getNumberOfComponents());
+        self.assertEqual(7,dai1.getNumberOfTuples());
+        self.assertTrue(dai1.getInfoOnComponent(0)=="c0da1");
+        self.assertTrue(dai1.getInfoOnComponent(1)=="c1da1");
+        self.assertTrue(dai1.getInfoOnComponent(2)=="c0da3");
+        self.assertTrue(dai1.getInfoOnComponent(3)=="c1da3");
+        self.assertTrue(dai1.getInfoOnComponent(4)=="c2da3");
+        for i in xrange(35):
+            self.assertEqual(int(expected1[i]),dai1.getIJ(0,i));
+            pass
+        # test of static method DataArrayDouble::meld
+        da4=DataArrayDouble.meld(da1C,da3);
+        tmp=DataArrayDouble.meld([da1C,da3]);
+        self.assertTrue(da4.isEqual(tmp,1e-10))
+        self.assertEqual(5,da4.getNumberOfComponents());
+        self.assertEqual(7,da4.getNumberOfTuples());
+        self.assertTrue(da4.getInfoOnComponent(0)=="c0da1");
+        self.assertTrue(da4.getInfoOnComponent(1)=="c1da1");
+        self.assertTrue(da4.getInfoOnComponent(2)=="c0da3");
+        self.assertTrue(da4.getInfoOnComponent(3)=="c1da3");
+        self.assertTrue(da4.getInfoOnComponent(4)=="c2da3");
+        for i in xrange(35):
+            self.assertAlmostEqual(expected1[i],da4.getIJ(0,i),10);
+            pass
+        # test of static method DataArrayInt::meld
+        dai1=da1C.convertToIntArr();
+        dai4=DataArrayInt.meld(dai1,dai3);
+        tmp=DataArrayInt.meld([dai1,dai3]);
+        self.assertTrue(dai4.isEqual(tmp))
+        self.assertEqual(5,dai4.getNumberOfComponents());
+        self.assertEqual(7,dai4.getNumberOfTuples());
+        self.assertTrue(dai4.getInfoOnComponent(0)=="c0da1");
+        self.assertTrue(dai4.getInfoOnComponent(1)=="c1da1");
+        self.assertTrue(dai4.getInfoOnComponent(2)=="c0da3");
+        self.assertTrue(dai4.getInfoOnComponent(3)=="c1da3");
+        self.assertTrue(dai4.getInfoOnComponent(4)=="c2da3");
+        for i in xrange(35):
+            self.assertEqual(int(expected1[i]),dai4.getIJ(0,i));
+            pass
+        pass
+
+    def testFieldMeld1(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setMesh(m);
+        da1=DataArrayDouble.New();
+        arr1=[12.,23.,34.,45.,56.]
+        da1.setValues(arr1,5,1);
+        da1.setInfoOnComponent(0,"aaa");
+        f1.setArray(da1);
+        f1.setTime(3.4,2,1);
+        f1.checkCoherency();
+        #
+        f2=f1.deepCpy();
+        f2.setMesh(f1.getMesh());
+        f2.checkCoherency();
+        f2.changeNbOfComponents(2,5.);
+        f2.assign(5.);
+        f2.getArray().setInfoOnComponent(0,"bbb");
+        f2.getArray().setInfoOnComponent(1,"ccc");
+        f2.checkCoherency();
+        #
+        f3=MEDCouplingFieldDouble.meldFields(f2,f1);
+        f3.checkCoherency();
+        self.assertEqual(5,f3.getNumberOfTuples());
+        self.assertEqual(3,f3.getNumberOfComponents());
+        self.assertTrue(f3.getArray().getInfoOnComponent(0)=="bbb");
+        self.assertTrue(f3.getArray().getInfoOnComponent(1)=="ccc");
+        self.assertTrue(f3.getArray().getInfoOnComponent(2)=="aaa");
+        expected1=[5.,5.,12.,5.,5.,23.,5.,5.,34.,5.,5.,45.,5.,5.,56.]
+        for i in xrange(15):
+            self.assertAlmostEqual(expected1[i],f3.getIJ(0,i),12);
+            pass
+        time,dt,it=f3.getTime();
+        self.assertAlmostEqual(3.4,time,14);
+        self.assertEqual(2,dt);
+        self.assertEqual(1,it);
+        #
+        f4=f2.buildNewTimeReprFromThis(NO_TIME,False);
+        f5=f1.buildNewTimeReprFromThis(NO_TIME,False);
+        f6=MEDCouplingFieldDouble.meldFields(f4,f5);
+        f6.checkCoherency();
+        self.assertEqual(5,f6.getNumberOfTuples());
+        self.assertEqual(3,f6.getNumberOfComponents());
+        self.assertTrue(f6.getArray().getInfoOnComponent(0)=="bbb");
+        self.assertTrue(f6.getArray().getInfoOnComponent(1)=="ccc");
+        self.assertTrue(f6.getArray().getInfoOnComponent(2)=="aaa");
+        for i in xrange(15):
+            self.assertAlmostEqual(expected1[i],f6.getIJ(0,i),12);
+            pass
+        #
+        pass
+
+    def testMergeNodes2(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        vec=[0.002,0.]
+        m2.translate(vec);
+        #
+        m3=MEDCouplingUMesh.mergeUMeshes([m1,m2]);
+        da,b,newNbOfNodes=m3.mergeNodes2(0.01);
+        self.assertEqual(9,m3.getNumberOfNodes());
+        expected1=[-0.299,-0.3, 0.201,-0.3, 0.701,-0.3, -0.299,0.2, 0.201,0.2, 0.701,0.2, -0.299,0.7, 0.201,0.7, 0.701,0.7]
+        for i in xrange(18):
+            self.assertAlmostEqual(expected1[i],m3.getCoords().getIJ(0,i),13);
+            pass
+        #
+        pass
+
+    def testMergeField2(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setMesh(m);
+        arr=DataArrayDouble.New();
+        arr.alloc(5,2);
+        arr.fillWithValue(2.);
+        f1.setArray(arr);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f2.setMesh(m);
+        arr=DataArrayDouble.New();
+        arr.alloc(5,2);
+        arr.fillWithValue(5.);
+        f2.setArray(arr);
+        f3=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f3.setMesh(m);
+        arr=DataArrayDouble.New();
+        arr.alloc(5,2);
+        arr.fillWithValue(7.);
+        f3.setArray(arr);
+        #
+        f4=MEDCouplingFieldDouble.mergeFields([f1,f2,f3]);
+        self.assertEqual(15,f4.getMesh().getNumberOfCells());
+        expected1=[2.,2.,2.,2.,2.,2.,2.,2.,2.,2., 5.,5.,5.,5.,5.,5.,5.,5.,5.,5., 7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
+        for i in xrange(30):
+            self.assertAlmostEqual(expected1[i],f4.getIJ(0,i),13);
+            pass
+        #
+        pass
     
     def setUp(self):
         pass
