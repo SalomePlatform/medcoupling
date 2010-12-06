@@ -19,6 +19,7 @@
 
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDFileUtilities.hxx"
 #include "CellModel.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -37,6 +38,7 @@ extern "C"
 #include <iterator>
 #include <algorithm>
 #include <numeric>
+#include <limits>
 
 med_geometrie_element typmai[MED_NBR_GEOMETRIE_MAILLE+2] = { MED_POINT1,
                                                              MED_SEG2,
@@ -300,43 +302,7 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
 
 void MEDLoader::CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception)
 {
-  int status=MEDLoaderBase::getStatusOfFile(fileName);
-  std::ostringstream oss;
-  oss << " File : \"" << fileName << "\"";
-  switch(status)
-    {
-    case MEDLoaderBase::DIR_LOCKED:
-      {
-        oss << " has been detected as unreadable : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    case MEDLoaderBase::NOT_EXIST:
-      {
-        oss << " has been detected as NOT EXISTING : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    case MEDLoaderBase::EXIST_WRONLY:
-      {
-        oss << " has been detected as WRITE ONLY : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    }
-  int fid=MEDouvrir((char *)fileName,MED_LECTURE);
-  if(fid<0)
-    {
-      oss << " has been detected as unreadable by MED file : impossible to read anything !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  oss << " has been detected readable but ";
-  int major,minor,release;
-  MEDversionLire(fid,&major,&minor,&release);
-  if(major<2 || (major==2 && minor<2))
-    {
-      oss << "version of MED file is < 2.2 : impossible to read anything !";
-      MEDfermer(fid);
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  MEDfermer(fid);
+  MEDFileUtilities::CheckFileForRead(fileName);
 }
 
 std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception)
@@ -812,7 +778,7 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const ch
   //
   bool found=false;
   bool found2=false;
-  double ret;
+  double ret=std::numeric_limits<double>::max();
   for(int i=0;i<nbFields && !found;i++)
     {
       med_int ncomp=MEDnChamp(fid,i+1);
@@ -1791,7 +1757,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
         {
           std::vector<int> ci(cellIds.size());
           std::transform(cellIds.begin(),cellIds.end(),ci.begin(),std::bind2nd(std::plus<int>(),-1));
-          ParaMEDMEM::MEDCouplingUMesh *mesh2;
+          ParaMEDMEM::MEDCouplingUMesh *mesh2=0;
           if(typeOfOutField==ON_CELLS)
             {
               if(newMesh)
