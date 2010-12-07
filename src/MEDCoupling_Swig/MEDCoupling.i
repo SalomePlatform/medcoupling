@@ -17,7 +17,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module libMEDCoupling_Swig
+%module MEDCoupling
 
 #define MEDCOUPLING_EXPORT
 

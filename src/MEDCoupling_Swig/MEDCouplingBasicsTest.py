@@ -18,7 +18,7 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from libMEDCoupling_Swig import *
+from MEDCoupling import *
 import unittest
 from math import pi,e,sqrt
 from MEDCouplingDataForTest import MEDCouplingDataForTest

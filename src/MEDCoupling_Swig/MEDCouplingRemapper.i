@@ -17,7 +17,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module libMEDCouplingRemapper_Swig
+%module MEDCouplingRemapper
 
 #define MEDCOUPLING_EXPORT
 #define INTERPKERNEL_EXPORT
@@ -37,6 +37,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingRemapper::transferField;
 %newobject ParaMEDMEM::MEDCouplingRemapper::reverseTransferField;
 
-%include "libMEDCoupling_Swig.i"
+%include "MEDCoupling.i"
 %include "InterpolationOptions.hxx"
 %include "MEDCouplingRemapper.hxx"
