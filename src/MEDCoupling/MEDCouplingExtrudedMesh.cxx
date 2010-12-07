@@ -104,7 +104,7 @@ MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& 
     {
       _mesh2D=other._mesh2D->clone(true);
       _mesh1D=other._mesh1D->clone(true);
-      _mesh3D_ids=other._mesh3D_ids->deepCopy();
+      _mesh3D_ids=other._mesh3D_ids->deepCpy();
     }
   else
     {

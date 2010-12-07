@@ -325,7 +325,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
   std::fill(array->getPointer(),array->getPointer()+5*3,7.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,array->getIJ(3,2),1e-14);
   double *tmp1=array->getPointer();
-  DataArrayDouble *array2=array->deepCopy();
+  DataArrayDouble *array2=array->deepCpy();
   double *tmp2=array2->getPointer();
   CPPUNIT_ASSERT(tmp1!=tmp2);
   array->decrRef();
@@ -337,7 +337,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
   std::fill(array3->getPointer(),array3->getPointer()+5*3,17);
   CPPUNIT_ASSERT_EQUAL(17,array3->getIJ(3,2));
   int *tmp3=array3->getPointer();
-  DataArrayInt *array4=array3->deepCopy();
+  DataArrayInt *array4=array3->deepCpy();
   int *tmp4=array4->getPointer();
   CPPUNIT_ASSERT(tmp3!=tmp4);
   array3->decrRef();
@@ -873,7 +873,7 @@ void MEDCouplingBasicsTest::testEqualFieldDouble()
   CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
   CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
   //
-  DataArrayDouble *arr2=arr->deepCopy();
+  DataArrayDouble *arr2=arr->deepCpy();
   fieldOnCells2->setArray(arr2);
   arr2->decrRef();
   CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));

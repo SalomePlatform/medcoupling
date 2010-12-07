@@ -2172,7 +2172,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D(con
   double *retPtr=ret->getPointer();
   retPtr=std::copy(getCoords()->getConstPointer(),getCoords()->getConstPointer()+getCoords()->getNbOfElems(),retPtr);
   MEDCouplingUMesh *tmp=MEDCouplingUMesh::New();
-  DataArrayDouble *tmp2=getCoords()->deepCopy();
+  DataArrayDouble *tmp2=getCoords()->deepCpy();
   tmp->setCoords(tmp2);
   tmp2->decrRef();
   const double *coo1D=mesh1D->getCoords()->getConstPointer();
@@ -2218,7 +2218,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
   double *retPtr=ret->getPointer();
   retPtr=std::copy(getCoords()->getConstPointer(),getCoords()->getConstPointer()+getCoords()->getNbOfElems(),retPtr);
   MEDCouplingUMesh *tmp=MEDCouplingUMesh::New();
-  DataArrayDouble *tmp2=getCoords()->deepCopy();
+  DataArrayDouble *tmp2=getCoords()->deepCpy();
   tmp->setCoords(tmp2);
   tmp2->decrRef();
   const double *coo1D=mesh1D->getCoords()->getConstPointer();

@@ -182,13 +182,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         array=DataArrayDouble.New();
         array.setValues(5*3*[7.],5,3);
         self.assertEqual(array.getIJ(3,2),7.);
-        array2=array.deepCopy();
+        array2=array.deepCpy();
         self.assertEqual(array2.getIJ(3,2),7.)
         #
         array3=DataArrayInt.New();
         array3.setValues(5*3*[17],5,3);
         self.assertEqual(array3.getIJ(3,2),17);
-        array4=array3.deepCopy();
+        array4=array3.deepCpy();
         self.assertEqual(array4.getIJ(3,2),17);
         pass
     def testRevNodal(self):
@@ -594,7 +594,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(fieldOnCells1.isEqual(fieldOnCells2,1e-12,1e-15));
         self.assertTrue(fieldOnCells2.isEqual(fieldOnCells1,1e-12,1e-15));
         #
-        arr2=arr.deepCopy();
+        arr2=arr.deepCpy();
         fieldOnCells2.setArray(arr2);
         self.assertTrue(fieldOnCells1.isEqual(fieldOnCells2,1e-12,1e-15));
         self.assertTrue(fieldOnCells2.isEqual(fieldOnCells1,1e-12,1e-15));
@@ -2485,7 +2485,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         a1.fillWithZero();
         a1.setInfoOnComponent(0,"c");
         a1.setInfoOnComponent(1,"d");
-        a2=a1.deepCopy();
+        a2=a1.deepCpy();
         a2.setInfoOnComponent(0,"e");
         a2.setInfoOnComponent(1,"f");
         f.setArray(a1);

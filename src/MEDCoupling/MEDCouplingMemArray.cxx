@@ -131,20 +131,15 @@ void DataArrayDouble::checkAllocated() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("DataArrayDouble::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
 }
 
-DataArrayDouble *DataArrayDouble::deepCopy() const
-{
-  return new DataArrayDouble(*this);
-}
-
 DataArrayDouble *DataArrayDouble::deepCpy() const
 {
   return new DataArrayDouble(*this);
 }
 
-DataArrayDouble *DataArrayDouble::performCpy(bool deepCpy) const
+DataArrayDouble *DataArrayDouble::performCpy(bool dCpy) const
 {
-  if(deepCpy)
-    return deepCopy();
+  if(dCpy)
+    return deepCpy();
   else
     {
       incrRef();
@@ -1405,20 +1400,15 @@ void DataArrayInt::checkAllocated() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("DataArrayInt::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
 }
 
-DataArrayInt *DataArrayInt::deepCopy() const
-{
-  return new DataArrayInt(*this);
-}
-
 DataArrayInt *DataArrayInt::deepCpy() const
 {
   return new DataArrayInt(*this);
 }
 
-DataArrayInt *DataArrayInt::performCpy(bool deepCpy) const
+DataArrayInt *DataArrayInt::performCpy(bool dCpy) const
 {
-  if(deepCpy)
-    return deepCopy();
+  if(dCpy)
+    return deepCpy();
   else
     {
       incrRef();

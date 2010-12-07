@@ -902,7 +902,7 @@ void MEDCouplingBasicsTest::testCopyTinyStringsFromOnFields()
   a1->fillWithZero();
   a1->setInfoOnComponent(0,"c");
   a1->setInfoOnComponent(1,"d");
-  DataArrayDouble *a2=a1->deepCopy();
+  DataArrayDouble *a2=a1->deepCpy();
   a2->setInfoOnComponent(0,"e");
   a2->setInfoOnComponent(1,"f");
   f->setArray(a1);
