@@ -2052,8 +2052,6 @@ DataArrayInt *DataArrayInt::buildUnion(const DataArrayInt *other) const throw(IN
   if(other->getNumberOfComponents()!=1)
      throw INTERP_KERNEL::Exception("DataArrayInt::buildUnion : only single component allowed for other type !");
   int tmp1;
-  int valM=getMaxValue(tmp1);
-  valM=std::max(other->getMaxValue(tmp1),valM);
   int valm=getMinValue(tmp1);
   valm=std::min(other->getMinValue(tmp1),valm);
   if(valm<0)
@@ -2077,6 +2075,28 @@ DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const t
 {
   checkAllocated();
   other->checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildIntersection : only single component allowed !");
+  if(other->getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildIntersection : only single component allowed for other type !");
+  int tmp1;
+  int valm=getMinValue(tmp1);
+  valm=std::min(other->getMinValue(tmp1),valm);
+  if(valm<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildIntersection : a negative value has been detected !");
+  //
+  const int *pt=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  std::set<int> s1(pt,pt+nbOfTuples);
+  pt=other->getConstPointer();
+  nbOfTuples=other->getNumberOfTuples();
+  std::set<int> s2(pt,pt+nbOfTuples);
+  std::vector<int> r;
+  std::set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(),std::back_insert_iterator< std::vector<int> >(r));
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(r.size(),1);
+  std::copy(r.begin(),r.end(),ret->getPointer());
+  return ret;
 }
 
 int *DataArrayInt::checkAndPreparePermutation(const int *start, const int *end)
