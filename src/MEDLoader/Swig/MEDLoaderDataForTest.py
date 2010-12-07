@@ -18,7 +18,7 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from libMEDLoader_Swig import *
+from MEDLoader import *
 from math import pi,e,sqrt
 
 class MEDLoaderDataForTest:

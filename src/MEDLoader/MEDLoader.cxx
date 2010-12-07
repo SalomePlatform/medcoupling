@@ -1709,6 +1709,8 @@ int MEDLoaderNS::buildMEDSubConnectivityOfOneType(const std::vector<const DataAr
 MEDCouplingUMesh *MEDLoaderNS::readUMeshFromFileLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<int>& ids,
                                                      const std::vector<INTERP_KERNEL::NormalizedCellType>& typesToKeep, unsigned& meshDimExtract, int *&cellRenum) throw(INTERP_KERNEL::Exception)
 {
+  if(meshDimRelToMax>0)
+    throw INTERP_KERNEL::Exception("meshDimRelToMax must be <=0 !");
   //Extraction data from MED file.
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   std::string trueMeshName;
