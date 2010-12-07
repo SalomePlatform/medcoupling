@@ -110,6 +110,9 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::meld;
 %newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
 %newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
+%newobject ParaMEDMEM::DataArrayInt::buildComplement;
+%newobject ParaMEDMEM::DataArrayInt::buildUnion;
+%newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayDouble::deepCpy;
@@ -607,9 +610,9 @@ namespace ParaMEDMEM
     bool checkConsecutiveCellTypes() const;
     DataArrayInt *rearrange2ConsecutiveCellTypes();
     DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *zipConnectivityTraducer(int compType);
-    void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const;
-    MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const;
+    DataArrayInt *zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception);
+    void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
     bool isPresenceOfQuadratic() const;
     MEDCouplingFieldDouble *buildDirectionVectorField() const;
@@ -1234,6 +1237,26 @@ namespace ParaMEDMEM
      std::vector<const DataArrayInt *> tmp;
      convertPyObjToVecDataArrayIntCst(li,tmp);
      return DataArrayInt::meld(tmp);
+   }
+
+   PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
+   {
+     int tmp;
+     int r1=self->getMaxValue(tmp);
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,PyInt_FromLong(r1));
+     PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
+     return ret;
+   }
+
+   PyObject *getMinValue() const throw(INTERP_KERNEL::Exception)
+   {
+     int tmp;
+     int r1=self->getMinValue(tmp);
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,PyInt_FromLong(r1));
+     PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
+     return ret;
    }
  };
 

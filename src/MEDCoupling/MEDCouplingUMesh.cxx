@@ -358,7 +358,7 @@ void MEDCouplingUMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done.
  */
-void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const
+void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception)
 {
   checkFullyDefined();
   int nbOfNodes=getNumberOfNodes();
@@ -398,7 +398,7 @@ void MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayInt *revNodal, DataA
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const
+MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception)
 {
   checkFullyDefined();
   int nbOfCells=getNumberOfCells();
@@ -624,7 +624,7 @@ void MEDCouplingUMesh::unPolyze()
  * The size of returned array is the number of nodes of the old (previous to the call of this method) number of nodes.
  * -1 values in returned array means that the corresponding old node is no more used.
  */
-DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer()
+DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer() throw(INTERP_KERNEL::Exception)
 {
   int nbOfNodes=getNumberOfNodes();
   DataArrayInt *ret=DataArrayInt::New();
@@ -827,7 +827,7 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
  *                 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy.
  * @return the correspondance array old to new.
  */
-DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType)
+DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=getSpaceDimension();
   int nbOfCells=getNumberOfCells();

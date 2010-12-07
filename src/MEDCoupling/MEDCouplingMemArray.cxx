@@ -1898,6 +1898,32 @@ DataArrayInt *DataArrayInt::aggregate(const DataArrayInt *a1, const DataArrayInt
   return ret;
 }
 
+int DataArrayInt::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
+  const int *vals=getConstPointer();
+  const int *loc=std::max_element(vals,vals+nbOfTuples);
+  tupleId=std::distance(vals,loc);
+  return *loc;
+}
+
+int DataArrayInt::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
+  const int *vals=getConstPointer();
+  const int *loc=std::min_element(vals,vals+nbOfTuples);
+  tupleId=std::distance(vals,loc);
+  return *loc;
+}
+
 DataArrayInt *DataArrayInt::meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception)
 {
   std::vector<const DataArrayInt *> arr(2);
@@ -1991,6 +2017,66 @@ DataArrayInt *DataArrayInt::makePartition(const std::vector<DataArrayInt *>& gro
       fidsOfGroups[grId].insert(fidsOfGroups[grId].end(),tmp.begin(),tmp.end());
     }
   return ret;
+}
+
+DataArrayInt *DataArrayInt::buildComplement(int nbOfElement) const throw(INTERP_KERNEL::Exception)
+{
+   checkAllocated();
+   if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildComplement : only single component allowed !");
+   std::vector<bool> tmp(nbOfElement);
+   const int *pt=getConstPointer();
+   int nbOfTuples=getNumberOfTuples();
+   for(const int *w=pt;w!=pt+nbOfTuples;w++)
+     if(*w>=0 && *w<nbOfElement)
+       tmp[*w]=true;
+     else
+       throw INTERP_KERNEL::Exception("DataArrayInt::buildComplement : an element is not in valid range : [0,nbOfElement) !");
+   int nbOfRetVal=std::count(tmp.begin(),tmp.end(),false);
+   DataArrayInt *ret=DataArrayInt::New();
+   ret->alloc(nbOfRetVal,1);
+   int j=0;
+   int *retPtr=ret->getPointer();
+   for(int i=0;i<nbOfElement;i++)
+     if(!tmp[i])
+       retPtr[j++]=i;
+   return ret;
+}
+
+DataArrayInt *DataArrayInt::buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  other->checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnion : only single component allowed !");
+  if(other->getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnion : only single component allowed for other type !");
+  int tmp1;
+  int valM=getMaxValue(tmp1);
+  valM=std::max(other->getMaxValue(tmp1),valM);
+  int valm=getMinValue(tmp1);
+  valm=std::min(other->getMinValue(tmp1),valm);
+  if(valm<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildUnion : a negative value has been detected !");
+  //
+  const int *pt=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  std::set<int> s1(pt,pt+nbOfTuples);
+  pt=other->getConstPointer();
+  nbOfTuples=other->getNumberOfTuples();
+  std::set<int> s2(pt,pt+nbOfTuples);
+  std::vector<int> r;
+  std::set_union(s1.begin(),s1.end(),s2.begin(),s2.end(),std::back_insert_iterator< std::vector<int> >(r));
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(r.size(),1);
+  std::copy(r.begin(),r.end(),ret->getPointer());
+  return ret;
+}
+
+DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  other->checkAllocated();
 }
 
 int *DataArrayInt::checkAndPreparePermutation(const int *start, const int *end)
