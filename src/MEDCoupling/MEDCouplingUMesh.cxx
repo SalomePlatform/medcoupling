@@ -958,7 +958,7 @@ void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& ot
  * build a sub part of 'this'. This sub part is defined by the cell ids contained in the array in [begin,end).
  * @param begin begin of array containing the cell ids to keep.
  * @param end end of array of cell ids to keep. \b WARNING end param is \b not included ! Idem STL standard definitions.
- * @param keepCoords that specifies if you want or not to keep coords as this or zip it (see zipCoords)
+ * @param keepCoords that specifies if you want or not to keep coords as this or zip it (see ParaMEDMEM::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
 {
@@ -1053,7 +1053,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begi
 /*!
  * This method returns a mesh with meshDim=this->getMeshDimension()-1.
  * This returned mesh contains cells that are linked with one and only one cell of this.
- * @param keepCoords specifies if zipCoords is called on returned mesh before being returned.
+ * @param keepCoords specifies if ParaMEDMEM::MEDCouplingUMesh::zipCoords is called on returned mesh before being returned. If true zipCoords is \b NOT called, if false, zipCoords is called.
  * @return mesh with ref counter equal to 1.
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
