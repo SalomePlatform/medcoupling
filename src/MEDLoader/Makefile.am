@@ -36,7 +36,8 @@ lib_LTLIBRARIES = libmedloader.la
 
 salomeinclude_HEADERS= \
 MEDLoaderDefines.hxx \
-MEDLoader.hxx MEDLoaderBase.hxx MEDFileUtilities.hxx MEDFileMesh.hxx MEDFileMeshLL.hxx
+MEDLoader.hxx MEDLoaderBase.hxx MEDFileUtilities.hxx MEDFileMesh.hxx MEDFileMeshLL.hxx \
+MEDFileMeshElt.hxx MEDFileBasis.hxx
 
 dist_libmedloader_la_SOURCES= \
 MEDLoader.cxx MEDLoaderBase.cxx MEDFileUtilities.cxx      \

@@ -43,10 +43,18 @@ clean-local:
 
 EXTRA_DIST += figures \
 	      main.dox \
+	      Geometric2D.dox \
 	      MED_class.dox \
 	      biblio.dox \
+	      barycoords.dox \
+	      dualmesh.dox \
+	      extractor.dox \
 	      field.dox \
 	      grid.dox \
+	      interpkernel.dox \
+	      medcoupling.dox \
+	      medloader.dox \
+	      medmem.dox \
 	      medsplitter.dox \
 	      mesh.dox \
 	      meshing.dox \
