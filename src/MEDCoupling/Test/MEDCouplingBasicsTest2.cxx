@@ -3822,3 +3822,78 @@ void MEDCouplingBasicsTest::testMergeField2()
   f3->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAIBuildComplement1()
+{
+  DataArrayInt *a=DataArrayInt::New();
+  const int tab[4]={3,1,7,8};
+  a->alloc(4,1);
+  std::copy(tab,tab+4,a->getPointer());
+  DataArrayInt *b=a->buildComplement(12);
+  CPPUNIT_ASSERT_EQUAL(8,b->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,b->getNumberOfComponents());
+  const int expected1[8]={0,2,4,5,6,9,10,11};
+  for(int i=0;i<8;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],b->getIJ(0,i));
+  b->decrRef();
+  a->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAIBuildUnion1()
+{
+  DataArrayInt *a=DataArrayInt::New();
+  const int tab1[4]={3,1,7,8};
+  a->alloc(4,1);
+  std::copy(tab1,tab1+4,a->getPointer());
+  DataArrayInt *c=DataArrayInt::New();
+  const int tab2[5]={5,3,0,18,8};
+  c->alloc(5,1);
+  std::copy(tab2,tab2+5,c->getPointer());
+  DataArrayInt *b=a->buildUnion(c);
+  CPPUNIT_ASSERT_EQUAL(7,b->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,b->getNumberOfComponents());
+  const int expected1[7]={0,1,3,5,7,8,18};
+  for(int i=0;i<7;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],b->getIJ(0,i));
+  c->decrRef();
+  b->decrRef();
+  a->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAIBuildIntersection1()
+{
+  DataArrayInt *a=DataArrayInt::New();
+  const int tab1[4]={3,1,7,8};
+  a->alloc(4,1);
+  std::copy(tab1,tab1+4,a->getPointer());
+  DataArrayInt *c=DataArrayInt::New();
+  const int tab2[5]={5,3,0,18,8};
+  c->alloc(5,1);
+  std::copy(tab2,tab2+5,c->getPointer());
+  DataArrayInt *b=a->buildIntersection(c);
+  CPPUNIT_ASSERT_EQUAL(2,b->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,b->getNumberOfComponents());
+  const int expected1[2]={3,8};
+  for(int i=0;i<2;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],b->getIJ(0,i));
+  c->decrRef();
+  b->decrRef();
+  a->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAIDeltaShiftIndex1()
+{
+  DataArrayInt *a=DataArrayInt::New();
+  const int tab[7]={1,3,6,7,7,9,15};
+  a->alloc(7,1);
+  std::copy(tab,tab+7,a->getPointer());
+  DataArrayInt *b=a->deltaShiftIndex();
+  CPPUNIT_ASSERT_EQUAL(6,b->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,b->getNumberOfComponents());
+  const int expected1[6]={2,3,1,0,2,6};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],b->getIJ(0,i));
+  b->decrRef();
+  a->decrRef();
+}
+

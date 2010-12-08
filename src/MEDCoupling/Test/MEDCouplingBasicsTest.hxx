@@ -164,6 +164,10 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFieldMeld1 );
     CPPUNIT_TEST( testMergeNodes2 );
     CPPUNIT_TEST( testMergeField2 );
+    CPPUNIT_TEST( testDAIBuildComplement1 );
+    CPPUNIT_TEST( testDAIBuildUnion1 );
+    CPPUNIT_TEST( testDAIBuildIntersection1 );
+    CPPUNIT_TEST( testDAIDeltaShiftIndex1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -356,6 +360,10 @@ namespace ParaMEDMEM
     void testFieldMeld1();
     void testMergeNodes2();
     void testMergeField2();
+    void testDAIBuildComplement1();
+    void testDAIBuildUnion1();
+    void testDAIBuildIntersection1();
+    void testDAIDeltaShiftIndex1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

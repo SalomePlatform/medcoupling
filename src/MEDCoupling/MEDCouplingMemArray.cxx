@@ -2099,6 +2099,30 @@ DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const t
   return ret;
 }
 
+/*!
+ * This method could be usefull for returned DataArrayInt marked as index. Some methods that generate such DataArrayInt instances:
+ * - ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity
+ * - ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex
+ * This method makes the assumption that 'this' is allocated and has exactly one component and 2 or more tuples. If not an exception is thrown.
+ * This method retrives a newly created DataArrayInt instance with 1 component and this->getNumberOfTuples()-1 tuples.
+ * If this contains [1,3,6,7,7,9,15] -> returned array will contain [2,3,1,0,2,6].
+ */
+DataArrayInt *DataArrayInt::deltaShiftIndex() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : only single component allowed !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : 1 tuple at least must be present in 'this' !");
+  const int *ptr=getPointer();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples-1,1);
+  int *out=ret->getPointer();
+  std::transform(ptr+1,ptr+nbOfTuples,ptr,out,std::minus<int>());
+  return ret;
+}
+
 int *DataArrayInt::checkAndPreparePermutation(const int *start, const int *end)
 {
   int sz=std::distance(start,end);

@@ -5338,6 +5338,64 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         #
         pass
+
+    def testDAIBuildComplement1(self):
+        a=DataArrayInt.New();
+        tab=[3,1,7,8]
+        a.setValues(tab,4,1);
+        b=a.buildComplement(12);
+        self.assertEqual(8,b.getNumberOfTuples());
+        self.assertEqual(1,b.getNumberOfComponents());
+        expected1=[0,2,4,5,6,9,10,11]
+        for i in xrange(8):
+            self.assertEqual(expected1[i],b.getIJ(0,i));
+            pass
+        pass
+
+    def testDAIBuildUnion1(self):
+        a=DataArrayInt.New();
+        tab1=[3,1,7,8]
+        a.setValues(tab1,4,1);
+        c=DataArrayInt.New();
+        tab2=[5,3,0,18,8]
+        c.setValues(tab2,5,1);
+        b=a.buildUnion(c);
+        self.assertEqual(7,b.getNumberOfTuples());
+        self.assertEqual(1,b.getNumberOfComponents());
+        expected1=[0,1,3,5,7,8,18]
+        for i in xrange(7):
+            self.assertEqual(expected1[i],b.getIJ(0,i));
+            pass
+        pass
+
+    def testDAIBuildIntersection1(self):
+        a=DataArrayInt.New();
+        tab1=[3,1,7,8]
+        a.setValues(tab1,4,1);
+        c=DataArrayInt.New();
+        tab2=[5,3,0,18,8]
+        c.setValues(tab2,5,1);
+        b=a.buildIntersection(c);
+        self.assertEqual(2,b.getNumberOfTuples());
+        self.assertEqual(1,b.getNumberOfComponents());
+        expected1=[3,8]
+        for i in xrange(2):
+            self.assertEqual(expected1[i],b.getIJ(0,i));
+            pass
+        pass
+
+    def testDAIDeltaShiftIndex1(self):
+        a=DataArrayInt.New();
+        tab=[1,3,6,7,7,9,15]
+        a.setValues(tab,7,1);
+        b=a.deltaShiftIndex();
+        self.assertEqual(6,b.getNumberOfTuples());
+        self.assertEqual(1,b.getNumberOfComponents());
+        expected1=[2,3,1,0,2,6]
+        for i in xrange(6):
+            self.assertEqual(expected1[i],b.getIJ(0,i));
+            pass
+        pass
     
     def setUp(self):
         pass

@@ -113,6 +113,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildComplement;
 %newobject ParaMEDMEM::DataArrayInt::buildUnion;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
+%newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayDouble::deepCpy;
