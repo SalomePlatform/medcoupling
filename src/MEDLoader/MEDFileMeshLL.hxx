@@ -60,15 +60,19 @@ namespace ParaMEDMEM
     bool isFamDefinedOnLev(int levId) const;
     bool isNumDefinedOnLev(int levId) const;
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> getCoords() const { return _coords; }
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> getCoordsFamily() const { return _fam_coords; }
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> getCoordsNum() const { return _num_coords; }
     static int getMeshIdFromName(med_idt fid, const char *mname) throw(INTERP_KERNEL::Exception);
     static void readFamiliesAndGrps(med_idt fid, const char *mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps);
     static void writeFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps);
-    static void writeCoords(med_idt fid, const char *mname, const DataArrayDouble *coords);
+    static void writeCoords(med_idt fid, const char *mname, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords);
   private:
     void sortTypes();
   private:
     std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> > > _per_type_mesh;
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_coords;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
   };
 
   class MEDFileUMeshL2CMesh : public MEDFileMeshL2
@@ -83,6 +87,7 @@ namespace ParaMEDMEM
     bool empty() const;
     int getMeshDimension() const;
     MEDCouplingUMesh *getFamilyPart(const std::vector<int>& ids) const;
+    DataArrayInt *getFamilyPartArr(const std::vector<int>& ids) const;
     MEDCouplingUMesh *getWholeMesh() const;
     void setGroupsFromScratch(const std::vector<MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception);
@@ -92,6 +97,7 @@ namespace ParaMEDMEM
                                     std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams);
   private:
     MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const;
+    DataArrayInt *renumIfNeededArr(DataArrayInt *da) const;
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m_by_types;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;

@@ -78,6 +78,13 @@ void MEDFileUMeshL2::loadCoords(med_idt fid, int mId, int mdim, const char *mNam
   char *comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
   char *unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_TAILLE_PNOM);
   MEDcoordLire(fid,(char *)mName,spaceDim,coordsPtr,MED_FULL_INTERLACE,MED_ALL,NULL,0,&repere,comp,unit);
+  _fam_coords=DataArrayInt::New();
+  _fam_coords->alloc(nCoords,1);
+  _num_coords=DataArrayInt::New();
+  _num_coords->alloc(nCoords,1);
+  MEDfamLire(fid,(char *)mName,_fam_coords->getPointer(),nCoords,MED_NOEUD,MED_NONE);
+  if(MEDnumLire(fid,(char *)mName,_num_coords->getPointer(),nCoords,MED_NOEUD,MED_NONE)!=0)
+    _num_coords=0;
   for(int i=0;i<spaceDim;i++)
     {
       std::string n,u;
@@ -132,7 +139,7 @@ int MEDFileUMeshL2::getMeshIdFromName(med_idt fid, const char *mname) throw(INTE
   if(!found)
     {
       std::ostringstream oss;
-      oss << "No such meshname in file ! Must be in :";
+      oss << "No such meshname (" << mname <<  ") in file ! Must be in :";
       std::copy(ms.begin(),ms.end(),std::ostream_iterator<std::string>(oss,", "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
@@ -188,7 +195,7 @@ void MEDFileUMeshL2::writeFamiliesAndGrps(med_idt fid, const char *mname, const 
     }
 }
 
-void MEDFileUMeshL2::writeCoords(med_idt fid, const char *mname, const DataArrayDouble *coords)
+void MEDFileUMeshL2::writeCoords(med_idt fid, const char *mname, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords)
 {
   if(!coords)
     return ;
@@ -204,6 +211,9 @@ void MEDFileUMeshL2::writeCoords(med_idt fid, const char *mname, const DataArray
       MEDLoaderBase::safeStrCpy(u.c_str(),MED_TAILLE_PNOM-1,unit+i*MED_TAILLE_PNOM,0);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDcoordEcr(fid,(char *)mname,spaceDim,coords->getPointer(),MED_FULL_INTERLACE,coords->getNumberOfTuples(),MED_CART,comp,unit);
+  MEDfamEcr(fid,(char *)mname,famCoords->getPointer(),famCoords->getNumberOfTuples(),MED_NOEUD,MED_NONE);
+  if(numCoords)
+    MEDnumEcr(fid,(char *)mname,numCoords->getPointer(),numCoords->getNumberOfTuples(),MED_NOEUD,MED_NONE);
 }
 
 bool MEDFileUMeshL2::isFamDefinedOnLev(int levId) const
@@ -295,6 +305,12 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const std::vector<int>& ids
   return renumIfNeeded(m,eltsToKeep->getConstPointer());
 }
 
+DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const std::vector<int>& ids) const
+{
+  DataArrayInt *da=_fam->getIdsEqualList(ids);
+  return renumIfNeededArr(da);
+}
+
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh() const
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=_m;
@@ -359,6 +375,16 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const 
       m->renumberCells(locnum->getConstPointer(),true);
     }
   return m;
+}
+
+DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(DataArrayInt *da) const
+{
+  if((const DataArrayInt *)_num==0)
+    return da;
+  da->decrRef();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> locnum=_num->selectByTupleId(da->getConstPointer(),da->getConstPointer()+da->getNumberOfTuples());
+  locnum->incrRef();
+  return locnum;
 }
 
 std::vector<int> MEDFileUMeshSplitL1::getNewFamiliesNumber(int nb, const std::map<std::string,int>& families)

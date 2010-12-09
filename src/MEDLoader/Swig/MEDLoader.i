@@ -60,6 +60,11 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::getRankM1Mesh;
 %newobject ParaMEDMEM::MEDFileUMesh::getRankM2Mesh;
 %newobject ParaMEDMEM::MEDFileUMesh::getRankM3Mesh;
+%newobject ParaMEDMEM::MEDFileUMesh::getFamiliesArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeGroupArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeGroupsArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeFamilyArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeFamiliesArr;
 
 class MEDLoader
 {

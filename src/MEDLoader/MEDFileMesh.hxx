@@ -46,6 +46,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileUMesh *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
+    static MEDFileUMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New();
     ~MEDFileUMesh();
     //
@@ -65,9 +66,17 @@ namespace ParaMEDMEM
     std::vector<int> getNonEmptyLevels() const;
     DataArrayDouble *getCoords() const;
     MEDCouplingUMesh *getGroup(int meshDimRelToMax, const char *grp) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getGroupArr(int meshDimRelToMax, const char *grp) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getGroups(int meshDimRelToMax, const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getGroupsArr(int meshDimRelToMax, const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamily(int meshDimRelToMax, const char *fam) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getFamilyArr(int meshDimRelToMax, const char *fam) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamilies(int meshDimRelToMax, const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getFamiliesArr(int meshDimRelToMax, const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getNodeGroupArr(const char *grp) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getNodeFamilyArr(const char *fam) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getMeshAtRank(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getRank0Mesh() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getRankM1Mesh() const throw(INTERP_KERNEL::Exception);
@@ -88,6 +97,8 @@ namespace ParaMEDMEM
     std::map<std::string,int> _families;
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_coords;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
     int _too_long_str;
   };
 
