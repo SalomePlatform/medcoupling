@@ -167,6 +167,27 @@ void MEDFileUMeshL2::readFamiliesAndGrps(med_idt fid, const char *meshName, std:
     }
 }
 
+void MEDFileUMeshL2::writeFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps)
+{
+  for(std::map<std::string,int>::const_iterator it=fams.begin();it!=fams.end();it++)
+    {
+      std::vector<std::string> grpsOfFam;
+      for(std::map<std::string, std::vector<std::string> >::const_iterator it1=grps.begin();it1!=grps.end();it1++)
+        {
+          if(std::find((*it1).second.begin(),(*it1).second.end(),(*it).first)!=(*it1).second.end())
+            grpsOfFam.push_back((*it1).first);
+        }
+      int ngro=grpsOfFam.size();
+      INTERP_KERNEL::AutoPtr<char> groName=MEDLoaderBase::buildEmptyString(MED_TAILLE_LNOM*ngro);
+      int i=0;
+      for(std::vector<std::string>::const_iterator it2=grpsOfFam.begin();it2!=grpsOfFam.end();it2++,i++)
+        MEDLoaderBase::safeStrCpy((*it2).c_str(),MED_TAILLE_LNOM-1,groName+i*MED_TAILLE_LNOM,0);//tony too long
+      INTERP_KERNEL::AutoPtr<char> famName=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+      MEDLoaderBase::safeStrCpy((*it).first.c_str(),MED_TAILLE_NOM,famName,0);//tony too long
+      MEDfamCr(fid,(char *)mname,famName,(*it).second,0,0,0,0,groName,ngro);
+    }
+}
+
 void MEDFileUMeshL2::writeCoords(med_idt fid, const char *mname, const DataArrayDouble *coords)
 {
   if(!coords)
@@ -301,6 +322,29 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<MEDCouplingUMes
   int *w=_fam->getPointer();
   for(int i=0;i<nbOfCells;i++,w++)
     *w=famIdTrad[*w];
+}
+
+void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
+{
+  std::vector<MEDCouplingUMesh *> ms=_m_by_types->splitByType();
+  int start=0;
+  for(std::vector<MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
+    {
+      int nbCells=(*it)->getNumberOfCells();
+      int end=start+nbCells;
+      DataArrayInt *fam=0,*num=0;
+      if((const DataArrayInt *)_fam)
+        fam=_fam->substr(start,end);
+      if((const DataArrayInt *)_num)
+        num=_num->substr(start,end);
+      MEDFileUMeshPerType::write(fid,mName,mdim,(*it),fam,num);
+      if(fam)
+        fam->decrRef();
+      if(num)
+        num->decrRef();
+      (*it)->decrRef();
+      start=end;
+    }
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const

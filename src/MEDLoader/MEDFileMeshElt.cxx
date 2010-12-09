@@ -19,7 +19,12 @@
 
 #include "MEDFileMeshElt.hxx"
 
+#include "MEDCouplingUMesh.hxx"
+
+#include "InterpKernelAutoPtr.hxx"
 #include "CellModel.hxx"
+
+extern med_geometrie_element typmai3[32];
 
 using namespace ParaMEDMEM;
 
@@ -51,10 +56,6 @@ int MEDFileUMeshPerType::getDim() const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
   return cm.getDimension();
-}
-
-void MEDFileUMeshPerType::write(med_idt fid) const
-{
 }
 
 MEDFileUMeshPerType::MEDFileUMeshPerType(med_idt fid, const char *mName, int mdim, med_geometrie_element geoElt, INTERP_KERNEL::NormalizedCellType type,
@@ -178,4 +179,75 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int mdim, in
   _num->alloc(curNbOfElem,1);
   if(MEDnumLire(fid,(char *)mName,_num->getPointer(),curNbOfElem,MED_MAILLE,MED_POLYEDRE)!=0)
     _num=0;
+}
+
+void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const MEDCouplingUMesh *m, const DataArrayInt *fam, const DataArrayInt *num)
+{
+  int nbOfCells=m->getNumberOfCells();
+  if(nbOfCells<1)
+    return ;
+  INTERP_KERNEL::NormalizedCellType ikt=m->getTypeOfCell(0);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(ikt);
+  med_geometrie_element curMedType=typmai3[(int)ikt];
+  const int *conn=m->getNodalConnectivity()->getConstPointer();
+  const int *connI=m->getNodalConnectivityIndex()->getConstPointer();
+  if(ikt!=INTERP_KERNEL::NORM_POLYGON && ikt!=INTERP_KERNEL::NORM_POLYHED)
+    {
+      int nbNodesPerCell=cm.getNumberOfNodes();
+      INTERP_KERNEL::AutoPtr<int> tab=new int[nbNodesPerCell*nbOfCells];
+      int *w=tab;
+      for(int i=0;i<nbOfCells;i++)
+        w=std::transform(conn+connI[i]+1,conn+connI[i+1],w,std::bind2nd(std::plus<int>(),1));
+      MEDconnEcr(fid,(char *)mname,mdim,tab,MED_FULL_INTERLACE,nbOfCells,MED_MAILLE,curMedType,MED_NOD);
+    }
+  else
+    {
+      if(ikt==INTERP_KERNEL::NORM_POLYGON)
+        {
+          INTERP_KERNEL::AutoPtr<int> tab1=new int[nbOfCells+1];
+          INTERP_KERNEL::AutoPtr<int> tab2=new int[m->getMeshLength()];
+          int *wI=tab1; *wI=1;
+          int *w=tab2;
+          for(int i=0;i<nbOfCells;i++,wI++)
+            {
+              wI[1]=wI[0]+connI[i+1]-connI[i]-1;
+              w=std::transform(conn+connI[i]+1,conn+connI[i+1],w,std::bind2nd(std::plus<int>(),1));
+            }
+          MEDpolygoneConnEcr(fid,(char *)mname,tab1,nbOfCells,tab2,MED_MAILLE,MED_NOD);
+        }
+      else
+        {
+          int meshLgth=m->getMeshLength();
+          int nbOfFaces=std::count(conn,conn+meshLgth,-1)+nbOfCells;
+          INTERP_KERNEL::AutoPtr<int> tab1=new int[nbOfCells+1];
+          int *w1=tab1; *w1=1;
+          INTERP_KERNEL::AutoPtr<int> tab2=new int[nbOfFaces+1];
+          int *w2=tab2; *w2=1;
+          INTERP_KERNEL::AutoPtr<int> bigtab=new int[meshLgth-nbOfCells];
+          int *bt=bigtab;
+          for(int i=0;i<nbOfCells;i++,w1++)
+            {
+              int nbOfFaces=0;
+              for(const int *w=conn+connI[i]+1;w!=conn+connI[i+1];w2++)
+                {
+                  const int *wend=std::find(w,conn+connI[i+1],-1);
+                  bt=std::transform(w,wend,bt,std::bind2nd(std::plus<int>(),1));
+                  int nbOfNode=std::distance(w,wend);
+                  w2[1]=w2[0]+nbOfNode;
+                  if(wend!=conn+connI[i+1])
+                    w=wend+1;
+                  else
+                    w=wend;
+                  nbOfFaces++;
+                }
+              w1[1]=w1[0]+nbOfFaces;
+            }
+          MEDpolyedreConnEcr(fid,(char *)mname,tab1,nbOfCells+1,tab2,nbOfFaces+1,
+                             bigtab,MED_NOD);
+        }
+    }
+  if(fam)
+    MEDfamEcr(fid,(char *)mname,(int *)fam->getConstPointer(),nbOfCells,MED_MAILLE,curMedType);
+  if(num)
+    MEDnumEcr(fid,(char *)mname,(int *)num->getConstPointer(),nbOfCells,MED_MAILLE,curMedType);
 }

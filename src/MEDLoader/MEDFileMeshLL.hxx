@@ -62,6 +62,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> getCoords() const { return _coords; }
     static int getMeshIdFromName(med_idt fid, const char *mname) throw(INTERP_KERNEL::Exception);
     static void readFamiliesAndGrps(med_idt fid, const char *mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps);
+    static void writeFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps);
     static void writeCoords(med_idt fid, const char *mname, const DataArrayDouble *coords);
   private:
     void sortTypes();
@@ -85,6 +86,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getWholeMesh() const;
     void setGroupsFromScratch(const std::vector<MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception);
+    void write(med_idt fid, const char *mName, int mdim) const;
     static std::vector<int> getNewFamiliesNumber(int nb, const std::map<std::string,int>& families);
     static void traduceFamilyNumber(const std::vector< std::vector<int> >& fidsGrps, std::map<std::string,int>& familyIds,
                                     std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams);

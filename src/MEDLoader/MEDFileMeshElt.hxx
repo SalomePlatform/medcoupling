@@ -32,17 +32,19 @@ extern "C"
 
 namespace ParaMEDMEM
 {
+  class MEDCouplingUMesh;
+
   class MEDFileUMeshPerType : public RefCountObject
   {
   public:
     static MEDFileUMeshPerType *New(med_idt fid, const char *mName, int mdim, med_geometrie_element geoElt, INTERP_KERNEL::NormalizedCellType geoElt2);
     static bool isExisting(med_idt fid, const char *mName, med_geometrie_element geoElt, med_entite_maillage& whichEntity);
     int getDim() const;
-    void write(med_idt fid) const;
     const DataArrayInt *getNodal() const { return _conn; }
     const DataArrayInt *getNodalIndex() const { return _conn_index; }
     const DataArrayInt *getFam() const { return _fam; }
     const DataArrayInt *getNum() const { return _num; }
+    static void write(med_idt fid, const char *mname, int mdim, const MEDCouplingUMesh *m, const DataArrayInt *fam, const DataArrayInt *num);
   private:
     MEDFileUMeshPerType(med_idt fid, const char *mName, int mdim, med_geometrie_element geoElt, INTERP_KERNEL::NormalizedCellType type,
                         med_entite_maillage entity);

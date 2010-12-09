@@ -95,6 +95,11 @@ void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
   MEDmaaCr(fid,maa,spaceDim,MED_NON_STRUCTURE,desc);
   MEDdimEspaceCr(fid,maa,spaceDim);
   MEDFileUMeshL2::writeCoords(fid,maa,_coords);
+  int mdim=getMeshDimension();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
+    if((const MEDFileUMeshSplitL1 *)(*it)!=0)
+      (*it)->write(fid,maa,mdim);
+  MEDFileUMeshL2::writeFamiliesAndGrps(fid,maa,_families,_groups);
   MEDfermer(fid);
 }
 
@@ -131,6 +136,15 @@ int MEDFileUMesh::getFamilyId(const char *name) const throw(INTERP_KERNEL::Excep
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return (*it).second;
+}
+
+int MEDFileUMesh::getMeshDimension() const
+{
+  int lev=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++,lev++)
+    if((const MEDFileUMeshSplitL1 *)(*it)!=0)
+      return (*it)->getMeshDimension()+lev;
+  throw INTERP_KERNEL::Exception("MEDFileUMesh::getMeshDimension : impossible to find a mesh dimension !");
 }
 
 std::vector<std::string> MEDFileUMesh::getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception)

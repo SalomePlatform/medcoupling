@@ -3118,7 +3118,7 @@ DataArrayInt *MEDCouplingUMesh::rearrange2ConsecutiveCellTypes()
 }
 
 /*!
- * This methods split this into as mush as untructured meshes that consecutive set of same type cells.
+ * This method splits 'this' into as mush as untructured meshes that consecutive set of same type cells.
  * So this method has typically a sense if MEDCouplingUMesh::checkConsecutiveCellTypes has a sense.
  * This method makes asumption that connectivity is correctly set before calling.
  */
