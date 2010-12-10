@@ -85,6 +85,9 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getRankM2Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getRankM3Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
     //
+    void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
+    void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+    void addNodeGroup(const std::vector<int>& ids) throw(INTERP_KERNEL::Exception);
     void setMeshAtRank(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     void setGroupsFromScratch(int meshDimRelToMax, const std::vector<MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
     void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);

@@ -483,6 +483,34 @@ void MEDFileUMesh::checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const
     }
 }
 
+void MEDFileUMesh::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
+{
+  coords->checkAllocated();
+  int nbOfTuples=coords->getNumberOfTuples();
+  _coords=coords;
+  coords->incrRef();
+  _fam_coords=DataArrayInt::New();
+  _fam_coords->alloc(nbOfTuples,1);
+  _fam_coords->fillWithZero();
+}
+
+void MEDFileUMesh::addNodeGroup(const std::vector<int>& ids) throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *coords=_coords;
+  if(!coords)
+    throw INTERP_KERNEL::Exception("addNodeGroup : no coords set !");
+  DataArrayInt *sub=_fam_coords->selectByTupleIdSafe(&ids[0],&ids[0]+ids.size());
+  std::set<int> ssub(sub->getConstPointer(),sub->getConstPointer()+sub->getNumberOfTuples());
+  
+}
+
+void MEDFileUMesh::setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception)
+{
+  std::string oldName=getFamilyNameGivenId(id);
+  _families.erase(oldName);
+  _families[newFamName]=id;
+}
+
 void MEDFileUMesh::setMeshAtRank(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> levSet=getNonEmptyLevels();

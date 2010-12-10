@@ -77,6 +77,15 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual([0,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3","mesh4"],False).getValues());
         self.assertEqual(range(60),medmesh.getNodeFamilyArr(famn,False).getValues());
         pass
+    def testMEDMesh3(self):
+        mm=MEDFileUMesh.New()
+        mm.setName("MyFirstMEDCouplingMEDmesh")
+        mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
+        c=DataArrayDouble.New()
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        c.setValues(coords,9,2)
+        mm.setCoords(c)
+        pass
     pass
 
 unittest.main()
