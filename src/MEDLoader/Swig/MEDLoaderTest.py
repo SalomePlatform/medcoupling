@@ -245,7 +245,7 @@ class MEDLoaderTest(unittest.TestCase):
         grps.index("mesh4");
         grps.index("3DMesh_1");
         #
-        vec=["mesh2"];
+        vec=("mesh2",);
         mesh2_2=MEDLoader.MEDLoader.ReadUMeshFromGroups(fileName,mnane,0,vec);
         self.assertTrue(mesh2_2.isEqual(mesh2,1e-12));
         vec=["mesh3"];
@@ -254,7 +254,7 @@ class MEDLoaderTest(unittest.TestCase):
         vec=["mesh4"];
         mesh4_2=MEDLoader.MEDLoader.ReadUMeshFromGroups(fileName,mnane,0,vec);
         self.assertTrue(mesh4_2.isEqual(mesh4,1e-12));
-        vec=["3DMesh_1"];
+        vec="3DMesh_1";
         mesh1_2=MEDLoader.MEDLoader.ReadUMeshFromGroups(fileName,mnane,0,vec);
         mesh1.setName("3DMesh_1");
         self.assertTrue(mesh1_2.isEqual(mesh1,1e-12));

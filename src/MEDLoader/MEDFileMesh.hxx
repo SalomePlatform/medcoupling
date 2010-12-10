@@ -59,6 +59,8 @@ namespace ParaMEDMEM
     int getNumberOfLevels() const { return _ms.size(); }
     int getNumberOfNonEmptyLevels() const;
     int getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
+    std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
     int getMeshDimension() const;
     std::vector<std::string> getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsNames() const;

@@ -377,14 +377,19 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const 
   return m;
 }
 
-DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(DataArrayInt *da) const
+DataArrayInt *MEDFileUMeshSplitL1::renumber(const DataArrayInt *renum, DataArrayInt *da)
 {
-  if((const DataArrayInt *)_num==0)
+  if((const DataArrayInt *)renum==0)
     return da;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> locnum=_num->selectByTupleId(da->getConstPointer(),da->getConstPointer()+da->getNumberOfTuples());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> locnum=renum->selectByTupleId(da->getConstPointer(),da->getConstPointer()+da->getNumberOfTuples());
   da->decrRef();
   locnum->incrRef();
   return locnum;
+}
+
+DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(DataArrayInt *da) const
+{
+  return renumber(_num,da);
 }
 
 std::vector<int> MEDFileUMeshSplitL1::getNewFamiliesNumber(int nb, const std::map<std::string,int>& families)

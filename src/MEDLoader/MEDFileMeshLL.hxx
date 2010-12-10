@@ -95,6 +95,7 @@ namespace ParaMEDMEM
     static std::vector<int> getNewFamiliesNumber(int nb, const std::map<std::string,int>& families);
     static void traduceFamilyNumber(const std::vector< std::vector<int> >& fidsGrps, std::map<std::string,int>& familyIds,
                                     std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams);
+    static DataArrayInt *renumber(const DataArrayInt *renum, DataArrayInt *da);
   private:
     MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const;
     DataArrayInt *renumIfNeededArr(DataArrayInt *da) const;

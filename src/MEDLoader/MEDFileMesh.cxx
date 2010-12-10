@@ -152,6 +152,31 @@ int MEDFileUMesh::getFamilyId(const char *name) const throw(INTERP_KERNEL::Excep
   return (*it).second;
 }
 
+std::vector<int> MEDFileUMesh::getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> famIds;
+  for(std::vector<std::string>::const_iterator it=famNames.begin();it!=famNames.end();it++)
+    {
+      std::map<std::string,int>::const_iterator it2=_families.find(*it);
+      if(it2==_families.end())
+        {
+          std::ostringstream oss; oss << "No such family in mesh \"" << _name << "\" : " << *it; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      famIds.push_back((*it2).second);
+    }
+  return famIds;
+}
+
+std::string MEDFileUMesh::getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception)
+{
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    if((*it).second==id)
+      return (*it).first;
+  std::ostringstream oss; oss << "MEDFileUMesh::getFamilyNameGivenId : no such family id : " << id;
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
 int MEDFileUMesh::getMeshDimension() const
 {
   int lev=0;
@@ -350,34 +375,14 @@ DataArrayInt *MEDFileUMesh::getFamilyArr(int meshDimRelToMax, const char *fam) c
 
 MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMax, const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
 {
-  std::vector<int> famIds;
-  for(std::vector<std::string>::const_iterator it=fams.begin();it!=fams.end();it++)
-    {
-      std::map<std::string,int>::const_iterator it2=_families.find(*it);
-      if(it2==_families.end())
-        {
-          std::ostringstream oss; oss << "No such family in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      famIds.push_back((*it2).second);
-    }
+  std::vector<int> famIds=getFamiliesIds(fams);
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMax);
   return l1->getFamilyPart(famIds);
 }
 
 DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMax, const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
 {
-  std::vector<int> famIds;
-  for(std::vector<std::string>::const_iterator it=fams.begin();it!=fams.end();it++)
-    {
-      std::map<std::string,int>::const_iterator it2=_families.find(*it);
-      if(it2==_families.end())
-        {
-          std::ostringstream oss; oss << "No such family in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      famIds.push_back((*it2).second);
-    }
+  std::vector<int> famIds=getFamiliesIds(fams);
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMax);
   return l1->getFamilyPartArr(famIds);
 }
@@ -419,7 +424,9 @@ DataArrayInt *MEDFileUMesh::getNodeFamilyArr(const char *fam) const throw(INTERP
 
 DataArrayInt *MEDFileUMesh::getNodeFamiliesArr(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
 {
-  return 0;
+  std::vector<int> famIds=getFamiliesIds(fams);
+  DataArrayInt *da=_fam_coords->getIdsEqualList(famIds);
+  return MEDFileUMeshSplitL1::renumber(_num_coords,da);
 }
 
 MEDCouplingUMesh *MEDFileUMesh::getMeshAtRank(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)

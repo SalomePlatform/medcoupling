@@ -68,6 +68,10 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_2").getValues());
         self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_4","Family_2"]).getValues());
         self.assertEqual([2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3"]).getValues());
+        famn=medmesh.getFamilyNameGivenId(0)
+        self.assertEqual(range(60),medmesh.getNodeFamilyArr(famn).getValues());
+        # without renum
+        
         pass
     pass
 
