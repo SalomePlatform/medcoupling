@@ -298,22 +298,30 @@ int MEDFileUMeshSplitL1::getMeshDimension() const
   return _m_by_types->getMeshDimension();
 }
 
-MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const std::vector<int>& ids) const
+MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const std::vector<int>& ids, bool renum) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsToKeep=_fam->getIdsEqualList(ids);
   MEDCouplingUMesh *m=(MEDCouplingUMesh *)_m_by_types->buildPartOfMySelf(eltsToKeep->getConstPointer(),eltsToKeep->getConstPointer()+eltsToKeep->getNumberOfTuples(),true);
-  return renumIfNeeded(m,eltsToKeep->getConstPointer());
+  if(renum)
+    return renumIfNeeded(m,eltsToKeep->getConstPointer());
+  return m;
 }
 
-DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const std::vector<int>& ids) const
+DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const std::vector<int>& ids, bool renum) const
 {
   DataArrayInt *da=_fam->getIdsEqualList(ids);
-  return renumIfNeededArr(da);
+  if(renum)
+    return renumIfNeededArr(da);
+  return da;
 }
 
-MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh() const
+MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=_m;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp;
+  if(renum)
+    tmp=_m;
+  else
+    tmp=_m_by_types;
   tmp->incrRef();
   return tmp;
 }

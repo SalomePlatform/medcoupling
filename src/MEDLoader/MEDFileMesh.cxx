@@ -303,25 +303,25 @@ DataArrayDouble *MEDFileUMesh::getCoords() const
   return 0;
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMax, const char *grp) const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMax, const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> tmp(1);
   tmp[0]=grp;
-  MEDCouplingUMesh *ret=getGroups(meshDimRelToMax,tmp);
+  MEDCouplingUMesh *ret=getGroups(meshDimRelToMax,tmp,renum);
   ret->setName(grp);
   return ret;
 }
 
-DataArrayInt *MEDFileUMesh::getGroupArr(int meshDimRelToMax, const char *grp) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getGroupArr(int meshDimRelToMax, const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> tmp(1);
   tmp[0]=grp;
-  DataArrayInt *ret=getGroupsArr(meshDimRelToMax,tmp);
+  DataArrayInt *ret=getGroupsArr(meshDimRelToMax,tmp,renum);
   ret->setName(grp);
   return ret;
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMax, const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMax, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::set<std::string> fams;
   for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
@@ -335,10 +335,10 @@ MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMax, const std::vector
       fams.insert((*it2).second.begin(),(*it2).second.end());
     }
   std::vector<std::string> fams2(fams.begin(),fams.end());
-  return getFamilies(meshDimRelToMax,fams2);
+  return getFamilies(meshDimRelToMax,fams2,renum);
 }
 
-DataArrayInt *MEDFileUMesh::getGroupsArr(int meshDimRelToMax, const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getGroupsArr(int meshDimRelToMax, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::set<std::string> fams;
   for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
@@ -352,51 +352,51 @@ DataArrayInt *MEDFileUMesh::getGroupsArr(int meshDimRelToMax, const std::vector<
       fams.insert((*it2).second.begin(),(*it2).second.end());
     }
   std::vector<std::string> fams2(fams.begin(),fams.end());
-  return getFamiliesArr(meshDimRelToMax,fams2);
+  return getFamiliesArr(meshDimRelToMax,fams2,renum);
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getFamily(int meshDimRelToMax, const char *fam) const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getFamily(int meshDimRelToMax, const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> tmp(1);
   tmp[0]=fam;
-  MEDCouplingUMesh *ret=getFamilies(meshDimRelToMax,tmp);
+  MEDCouplingUMesh *ret=getFamilies(meshDimRelToMax,tmp,renum);
   ret->setName(fam);
   return ret;
 }
 
-DataArrayInt *MEDFileUMesh::getFamilyArr(int meshDimRelToMax, const char *fam) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getFamilyArr(int meshDimRelToMax, const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> tmp(1);
   tmp[0]=fam;
-  DataArrayInt *ret=getFamiliesArr(meshDimRelToMax,tmp);
+  DataArrayInt *ret=getFamiliesArr(meshDimRelToMax,tmp,renum);
   ret->setName(fam);
   return ret;
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMax, const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMax, const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> famIds=getFamiliesIds(fams);
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMax);
-  return l1->getFamilyPart(famIds);
+  return l1->getFamilyPart(famIds,renum);
 }
 
-DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMax, const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMax, const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> famIds=getFamiliesIds(fams);
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMax);
-  return l1->getFamilyPartArr(famIds);
+  return l1->getFamilyPartArr(famIds,renum);
 }
 
-DataArrayInt *MEDFileUMesh::getNodeGroupArr(const char *grp) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getNodeGroupArr(const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> tmp(1);
   tmp[0]=grp;
-  DataArrayInt *ret=getNodeGroupsArr(tmp);
+  DataArrayInt *ret=getNodeGroupsArr(tmp,renum);
   ret->setName(grp);
   return ret;
 }
 
-DataArrayInt *MEDFileUMesh::getNodeGroupsArr(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getNodeGroupsArr(const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::set<std::string> fams;
   for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
@@ -410,49 +410,51 @@ DataArrayInt *MEDFileUMesh::getNodeGroupsArr(const std::vector<std::string>& grp
       fams.insert((*it2).second.begin(),(*it2).second.end());
     }
   std::vector<std::string> fams2(fams.begin(),fams.end());
-  return getNodeFamiliesArr(fams2);
+  return getNodeFamiliesArr(fams2,renum);
 }
 
-DataArrayInt *MEDFileUMesh::getNodeFamilyArr(const char *fam) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getNodeFamilyArr(const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> tmp(1);
   tmp[0]=fam;
-  DataArrayInt *ret=getNodeFamiliesArr(tmp);
+  DataArrayInt *ret=getNodeFamiliesArr(tmp,renum);
   ret->setName(fam);
   return ret;
 }
 
-DataArrayInt *MEDFileUMesh::getNodeFamiliesArr(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileUMesh::getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> famIds=getFamiliesIds(fams);
   DataArrayInt *da=_fam_coords->getIdsEqualList(famIds);
-  return MEDFileUMeshSplitL1::renumber(_num_coords,da);
+  if(renum)
+    return MEDFileUMeshSplitL1::renumber(_num_coords,da);
+  return da;
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getMeshAtRank(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getMeshAtRank(int meshDimRelToMax, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMax);
-  return l1->getWholeMesh();
+  return l1->getWholeMesh(renum);
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getRank0Mesh() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getRank0Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  return getMeshAtRank(0);
+  return getMeshAtRank(0,renum);
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getRankM1Mesh() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getRankM1Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  return getMeshAtRank(-1);
+  return getMeshAtRank(-1,renum);
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getRankM2Mesh() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getRankM2Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  return getMeshAtRank(-2);
+  return getMeshAtRank(-2,renum);
 }
 
-MEDCouplingUMesh *MEDFileUMesh::getRankM3Mesh() const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDFileUMesh::getRankM3Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  return getMeshAtRank(-3);
+  return getMeshAtRank(-3,renum);
 }
 
 const MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
