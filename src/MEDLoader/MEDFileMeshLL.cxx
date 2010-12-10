@@ -381,8 +381,8 @@ DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(DataArrayInt *da) const
 {
   if((const DataArrayInt *)_num==0)
     return da;
-  da->decrRef();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> locnum=_num->selectByTupleId(da->getConstPointer(),da->getConstPointer()+da->getNumberOfTuples());
+  da->decrRef();
   locnum->incrRef();
   return locnum;
 }

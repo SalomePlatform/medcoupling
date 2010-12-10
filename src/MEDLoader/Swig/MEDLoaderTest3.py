@@ -39,6 +39,7 @@ class MEDLoaderTest(unittest.TestCase):
     def testMEDMesh2(self):
         fileName="Pyfile10.med"
         mname="3DToto"
+        outFileName="MEDFileMesh1.med"
         medmesh=MEDFileUMesh.New(fileName,mname)
         self.assertEqual((0,),medmesh.getNonEmptyLevels())
         m1_0=medmesh.getRank0Mesh()
@@ -61,15 +62,12 @@ class MEDLoaderTest(unittest.TestCase):
         g1_1=MEDLoader.ReadUMeshFromFamilies(fileName,mname,0,["Family_2","Family_4"]);
         g1_1.setName(g1_0.getName())
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
-        ## st=g1_0.advancedRepr()
-        ## f=file("out1","w")
-        ## f.write(st)
-        ## f.close()
-        ## st=g1_1.advancedRepr()
-        ## f=file("out2","w")
-        ## f.write(st)
-        ## f.close()
         self.assertTrue(g1_0.isEqual(g1_1,1e-12));
+        medmesh.write(outFileName,2);
+        self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2").getValues());
+        self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_2").getValues());
+        self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_4","Family_2"]).getValues());
+        self.assertEqual([2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3"]).getValues());
         pass
     pass
 
