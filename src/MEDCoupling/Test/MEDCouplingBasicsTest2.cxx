@@ -3897,3 +3897,47 @@ void MEDCouplingBasicsTest::testDAIDeltaShiftIndex1()
   a->decrRef();
 }
 
+void MEDCouplingBasicsTest::testDaDoubleSelectByTupleIdSafe1()
+{
+  DataArrayDouble *a=DataArrayDouble::New();
+  a->alloc(7,2);
+  a->setInfoOnComponent(0,"toto");
+  a->setInfoOnComponent(1,"tata");
+  const double arr1[14]={1.1,11.1,2.1,12.1,3.1,13.1,4.1,14.1,5.1,15.1,6.1,16.1,7.1,17.1};
+  std::copy(arr1,arr1+14,a->getPointer());
+  //
+  const int arr2[7]={4,2,0,6,5};
+  DataArrayDouble *b=a->selectByTupleIdSafe(arr2,arr2+5);
+  CPPUNIT_ASSERT_EQUAL(5,b->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,b->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::string(b->getInfoOnComponent(0))=="toto");
+  CPPUNIT_ASSERT(std::string(b->getInfoOnComponent(1))=="tata");
+  const double expected1[10]={5.1,15.1,3.1,13.1,1.1,11.1,7.1,17.1,6.1,16.1};
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],b->getIJ(0,i),1e-14);
+  const int arr4[5]={4,-1,0,6,5};
+  CPPUNIT_ASSERT_THROW(a->selectByTupleIdSafe(arr4,arr4+5),INTERP_KERNEL::Exception);
+  const int arr5[5]={4,2,0,6,7};
+  CPPUNIT_ASSERT_THROW(a->selectByTupleIdSafe(arr5,arr5+5),INTERP_KERNEL::Exception);
+  b->decrRef();
+  a->decrRef();
+  //
+  DataArrayInt *c=DataArrayInt::New();
+  c->alloc(7,2);
+  c->setInfoOnComponent(0,"toto");
+  c->setInfoOnComponent(1,"tata");
+  const int arr3[14]={1,11,2,12,3,13,4,14,5,15,6,16,7,17};
+  std::copy(arr3,arr3+14,c->getPointer());
+  DataArrayInt *d=c->selectByTupleIdSafe(arr2,arr2+5);
+  CPPUNIT_ASSERT_EQUAL(5,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,d->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::string(d->getInfoOnComponent(0))=="toto");
+  CPPUNIT_ASSERT(std::string(d->getInfoOnComponent(1))=="tata");
+  const int expected2[10]={5,15,3,13,1,11,7,17,6,16};
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_EQUAL(expected2[i],d->getIJ(0,i));
+  CPPUNIT_ASSERT_THROW(c->selectByTupleIdSafe(arr4,arr4+5),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(c->selectByTupleIdSafe(arr5,arr5+5),INTERP_KERNEL::Exception);
+  c->decrRef();
+  d->decrRef();
+}

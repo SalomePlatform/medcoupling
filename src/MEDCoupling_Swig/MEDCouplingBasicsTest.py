@@ -4542,6 +4542,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr1=[1.,2.,3.,4., 11.,12.,13.,14., 21.,22.,23.,24., 31.,32.,33.,34., 41.,42.,43.,44.]
         a1=DataArrayDouble.New();
         a1.setValues(arr1,5,4);
+        expp=[21.,22.,23.,24.]
+        self.assertEqual(4,len(a1.getTuple(2)));
+        for i in xrange(4):
+            self.assertAlmostEqual(expp[i],a1.getTuple(2)[i],12)
+            pass
         a1.setInfoOnComponent(0,"aaaa");
         a1.setInfoOnComponent(1,"bbbb");
         a1.setInfoOnComponent(2,"cccc");
@@ -4561,6 +4566,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected1[i],a2.getIJ(0,i),14);
             pass
         a3=a1.convertToIntArr();
+        self.assertEqual([21,22,23,24],a3.getTuple(2))
         a4=a3.keepSelectedComponents(arr2V);
         self.assertEqual(6,a4.getNumberOfComponents());
         self.assertEqual(5,a4.getNumberOfTuples());
@@ -5395,6 +5401,46 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(6):
             self.assertEqual(expected1[i],b.getIJ(0,i));
             pass
+        pass
+
+    def testDaDoubleSelectByTupleIdSafe1(self):
+        a=DataArrayDouble.New();
+        arr1=[1.1,11.1,2.1,12.1,3.1,13.1,4.1,14.1,5.1,15.1,6.1,16.1,7.1,17.1]
+        a.setValues(arr1,7,2);
+        a.setInfoOnComponent(0,"toto");
+        a.setInfoOnComponent(1,"tata");
+        #
+        arr2=[4,2,0,6,5]
+        b=a.selectByTupleIdSafe(arr2);
+        self.assertEqual(5,b.getNumberOfTuples());
+        self.assertEqual(2,b.getNumberOfComponents());
+        self.assertTrue(b.getInfoOnComponent(0)=="toto");
+        self.assertTrue(b.getInfoOnComponent(1)=="tata");
+        expected1=[5.1,15.1,3.1,13.1,1.1,11.1,7.1,17.1,6.1,16.1]
+        for i in xrange(10):
+            self.assertAlmostEqual(expected1[i],b.getIJ(0,i),14);
+            pass
+        arr4=[4,-1,0,6,5]
+        self.assertRaises(Exception,a.selectByTupleIdSafe,arr4);
+        arr5=[4,2,0,6,7]
+        self.assertRaises(Exception,a.selectByTupleIdSafe,arr5);
+        #
+        c=DataArrayInt.New();
+        arr3=[1,11,2,12,3,13,4,14,5,15,6,16,7,17]
+        c.setValues(arr3,7,2);
+        c.setInfoOnComponent(0,"toto");
+        c.setInfoOnComponent(1,"tata");
+        d=c.selectByTupleIdSafe(arr2);
+        self.assertEqual(5,d.getNumberOfTuples());
+        self.assertEqual(2,d.getNumberOfComponents());
+        self.assertTrue(d.getInfoOnComponent(0)=="toto");
+        self.assertTrue(d.getInfoOnComponent(1)=="tata");
+        expected2=[5,15,3,13,1,11,7,17,6,16]
+        for i in xrange(10):
+            self.assertEqual(expected2[i],d.getIJ(0,i));
+            pass
+        self.assertRaises(Exception,c.selectByTupleIdSafe,arr4);
+        self.assertRaises(Exception,c.selectByTupleIdSafe,arr5);
         pass
     
     def setUp(self):

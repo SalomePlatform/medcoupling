@@ -168,6 +168,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDAIBuildUnion1 );
     CPPUNIT_TEST( testDAIBuildIntersection1 );
     CPPUNIT_TEST( testDAIDeltaShiftIndex1 );
+    CPPUNIT_TEST( testDaDoubleSelectByTupleIdSafe1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -364,6 +365,7 @@ namespace ParaMEDMEM
     void testDAIBuildUnion1();
     void testDAIBuildIntersection1();
     void testDAIDeltaShiftIndex1();
+    void testDaDoubleSelectByTupleIdSafe1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

@@ -144,6 +144,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *renumberR(const int *new2Old) const;
     MEDCOUPLING_EXPORT DataArrayDouble *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception);
@@ -243,6 +244,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *renumberR(const int *new2Old) const;
     MEDCOUPLING_EXPORT DataArrayInt *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
+    MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isIdentity() const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);

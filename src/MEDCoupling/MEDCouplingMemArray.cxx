@@ -404,6 +404,29 @@ DataArrayDouble *DataArrayDouble::selectByTupleId(const int *new2OldBg, const in
 }
 
 /*!
+ * This method is equivalent to DataArrayInt::selectByTupleId except that an analyze to the content of input range to check that it will not lead to memory corruption !
+ */
+DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  int nbComp=getNumberOfComponents();
+  int oldNbOfTuples=getNumberOfTuples();
+  ret->alloc(std::distance(new2OldBg,new2OldEnd),nbComp);
+  ret->copyStringInfoFrom(*this);
+  double *pt=ret->getPointer();
+  const double *srcPt=getConstPointer();
+  int i=0;
+  for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
+    if(*w>=0 && *w<oldNbOfTuples)
+      std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
+    else
+      throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleIdSafe : some ids has been detected to be out of [0,this->getNumberOfTuples) !");
+  ret->copyStringInfoFrom(*this);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This methods has a similar behaviour than std::string::substr. This method returns a newly created DataArrayInt that is part of this with same number of components.
  * The intervall is specified by [tupleIdBg,tupleIdEnd) except if tupleIdEnd ==-1 in this case the [tupleIdBg,this->end()) will be kept.
  * This method check that interval is valid regarding this, if not an exception will be thrown.
@@ -1665,6 +1688,29 @@ DataArrayInt *DataArrayInt::selectByTupleId(const int *new2OldBg, const int *new
   for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
     std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
   ret->copyStringInfoFrom(*this);
+  return ret;
+}
+
+/*!
+ * This method is equivalent to DataArrayInt::selectByTupleId except that an analyze to the content of input range to check that it will not lead to memory corruption !
+ */
+DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  int nbComp=getNumberOfComponents();
+  int oldNbOfTuples=getNumberOfTuples();
+  ret->alloc(std::distance(new2OldBg,new2OldEnd),nbComp);
+  ret->copyStringInfoFrom(*this);
+  int *pt=ret->getPointer();
+  const int *srcPt=getConstPointer();
+  int i=0;
+  for(const int *w=new2OldBg;w!=new2OldEnd;w++,i++)
+    if(*w>=0 && *w<oldNbOfTuples)
+      std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
+    else
+      throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleIdSafe : some ids has been detected to be out of [0,this->getNumberOfTuples) !");
+  ret->copyStringInfoFrom(*this);
+  ret->incrRef();
   return ret;
 }
 

@@ -34,6 +34,8 @@
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingTypemaps.i"
 
+#include "InterpKernelAutoPtr.hxx"
+
 using namespace ParaMEDMEM;
 using namespace INTERP_KERNEL;
 %}
@@ -99,6 +101,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::changeNbOfComponents;
 %newobject ParaMEDMEM::DataArrayInt::keepSelectedComponents;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId;
+%newobject ParaMEDMEM::DataArrayInt::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayInt::renumber;
 %newobject ParaMEDMEM::DataArrayInt::renumberR;
 %newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
@@ -131,6 +134,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::keepSelectedComponents;
 %newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleId;
+%newobject ParaMEDMEM::DataArrayDouble::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
 %newobject ParaMEDMEM::DataArrayDouble::doublyContractedProduct;
 %newobject ParaMEDMEM::DataArrayDouble::determinant;
@@ -1011,6 +1015,14 @@ namespace ParaMEDMEM
      return ret;
    }
 
+   DataArrayDouble *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+     DataArrayDouble *ret=self->selectByTupleIdSafe(tmp,tmp+size);
+     return ret;
+   }
+
    PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)
    {
      int tmp;
@@ -1081,6 +1093,14 @@ namespace ParaMEDMEM
      std::vector<int> tmp;
      convertPyToNewIntArr3(li,tmp);
      self->setSelectedComponents(a,tmp);
+   }
+   
+   PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)
+   {
+     int sz=self->getNumberOfComponents();
+     INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
+     self->getTuple(tupleId,tmp);
+     return convertDblArrToPyList(tmp,sz);
    }
 
    static DataArrayDouble *aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
@@ -1219,6 +1239,14 @@ namespace ParaMEDMEM
      return ret;
    }
 
+   DataArrayInt *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)
+   {
+     int size;
+     INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+     DataArrayInt *ret=self->selectByTupleIdSafe(tmp,tmp+size);
+     return ret;
+   }
+
    DataArrayInt *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
    {
      std::vector<int> tmp;
@@ -1231,6 +1259,14 @@ namespace ParaMEDMEM
      std::vector<int> tmp;
      convertPyToNewIntArr3(li,tmp);
      self->setSelectedComponents(a,tmp);
+   }
+
+   PyObject *getTuple(int tupleId) throw(INTERP_KERNEL::Exception)
+   {
+     int sz=self->getNumberOfComponents();
+     INTERP_KERNEL::AutoPtr<int> tmp=new int[sz];
+     self->getTuple(tupleId,tmp);
+     return convertIntArrToPyList(tmp,sz);
    }
 
    static DataArrayInt *meld(PyObject *li) throw(INTERP_KERNEL::Exception)
