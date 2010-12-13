@@ -5463,9 +5463,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m.rotate([0.,0.,0.],[0.3,6,1.2],0.37)
         self.assertRaises(Exception,m.rotate,[0.,"0.",0.],[0.3,0.6,1.2],0.37)
         self.assertRaises(Exception,m.rotate,[0.,0.,0.],[0.3,'0.6',1.2],0.37)
-        m.buildPartOfMySelf([2,5],True)
+        m2=m.buildPartOfMySelf([2,5],True)
+        m3=m.buildPartOfMySelf((2,5),True)
+        self.assertTrue(m2.isEqual(m3,1e-12))
         self.assertRaises(Exception,m.buildPartOfMySelf,[2,5.],True)
-        m.getCoords().keepSelectedComponents([1])
+        da1=m.getCoords().keepSelectedComponents([1])
+        da2=m.getCoords().keepSelectedComponents((1,))
+        self.assertTrue(da1.isEqual(da2,1e-12))
         self.assertRaises(Exception,m.getCoords().keepSelectedComponents,["1"])
         pass
     

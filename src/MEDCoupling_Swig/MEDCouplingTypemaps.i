@@ -32,8 +32,9 @@ static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner) throw
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingCMesh,owner);
   if(!ret)
     {
-      PyErr_SetString(PyExc_TypeError,"Not recognized type of mesh on downcast !");
-      PyErr_Print();
+      const char msg[]="Not recognized type of mesh on downcast !";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
   return ret;
 }
@@ -106,12 +107,34 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size) throw(INTERP_KERNEL
         }
       return tmp;
     }
+  else if(PyTuple_Check(pyLi))
+    {
+      *size=PyTuple_Size(pyLi);
+      int *tmp=new int[*size];
+      for(int i=0;i<*size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            {
+              int val=(int)PyInt_AS_LONG(o);
+              tmp[i]=val;
+            }
+          else
+            {
+              delete [] tmp;
+              const char msg[]="tuple must contain integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+        }
+      return tmp;
+    }
   else
     {
 #ifndef WITH_NUMPY2
-      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr2 : not a list");
-      PyErr_Print();
-      return 0;
+      const char msg[]="convertPyToNewIntArr2 : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
 #else
       if(PyArray_Check(pyLi))
         {
@@ -122,9 +145,9 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size) throw(INTERP_KERNEL
         }
       else
         {
-          PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr2 : not a list nor PyArray");
-          PyErr_Print();
-          return 0;
+          const char msg[]="convertPyToNewIntArr2 : not a list nor PyArray";
+          PyErr_SetString(PyExc_TypeError,msg);
+          throw INTERP_KERNEL::Exception(msg);
         }
 #endif
     }
@@ -152,12 +175,32 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
             }
         }
     }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      arr.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            {
+              int val=(int)PyInt_AS_LONG(o);
+              arr[i]=val;
+            }
+          else
+            {
+              const char msg[]="tuple must contain integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+        }
+    }
   else
     {
 #ifndef WITH_NUMPY2
-      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr3 : not a list");
-      PyErr_Print();
-      return ;
+      const char msg[]="convertPyToNewIntArr3 : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
 #else
       if(PyArray_Check(pyLi))
         {
@@ -169,9 +212,9 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
         }
       else
         {
-          PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr3 : not a list nor PyArray");
-          PyErr_Print();
-          return ;
+          const char msg[]="convertPyToNewIntArr3 : not a list nor PyArray";
+          PyErr_SetString(PyExc_TypeError,msg);
+          throw INTERP_KERNEL::Exception(msg);
         }
 #endif
     }
