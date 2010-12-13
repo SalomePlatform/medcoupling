@@ -21,7 +21,7 @@
 #include <numpy/arrayobject.h>
 #endif
 
-static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner)
+static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(dynamic_cast<ParaMEDMEM::MEDCouplingUMesh *>(mesh))
@@ -38,7 +38,7 @@ static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner)
   return ret;
 }
 
-static PyObject *convertIntArrToPyList(const int *ptr, int size)
+static PyObject *convertIntArrToPyList(const int *ptr, int size) throw(INTERP_KERNEL::Exception)
 {
 #ifndef WITH_NUMPY2
   PyObject *ret=PyList_New(size);
@@ -53,7 +53,7 @@ static PyObject *convertIntArrToPyList(const int *ptr, int size)
 #endif
 }
 
-static PyObject *convertIntArrToPyList2(const std::vector<int>& v)
+static PyObject *convertIntArrToPyList2(const std::vector<int>& v) throw(INTERP_KERNEL::Exception)
 {
 #ifndef WITH_NUMPY2
   int size=v.size();
@@ -69,7 +69,7 @@ static PyObject *convertIntArrToPyList2(const std::vector<int>& v)
 #endif
 }
 
-static PyObject *convertIntArrToPyListOfTuple(const int *vals, int nbOfComp, int nbOfTuples)
+static PyObject *convertIntArrToPyListOfTuple(const int *vals, int nbOfComp, int nbOfTuples) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=PyList_New(nbOfTuples);
   for(int i=0;i<nbOfTuples;i++)
@@ -82,7 +82,7 @@ static PyObject *convertIntArrToPyListOfTuple(const int *vals, int nbOfComp, int
   return ret;
 }
 
-static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
+static int *convertPyToNewIntArr2(PyObject *pyLi, int *size) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
     {
@@ -99,9 +99,9 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
           else
             {
               delete [] tmp;
-              PyErr_SetString(PyExc_TypeError,"list must contain integers only");
-              PyErr_Print();
-              return NULL;
+              const char msg[]="list must contain integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
         }
       return tmp;
@@ -130,7 +130,7 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size)
     }
 }
 
-static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr)
+static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
     {
@@ -146,8 +146,9 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr)
             }
           else
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain integers only");
-              PyErr_Print();
+              const char msg[]="list must contain integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
         }
     }
@@ -176,7 +177,7 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr)
     }
 }
 
-static PyObject *convertDblArrToPyList(const double *ptr, int size)
+static PyObject *convertDblArrToPyList(const double *ptr, int size) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=PyList_New(size);
   for(int i=0;i<size;i++)
@@ -184,7 +185,7 @@ static PyObject *convertDblArrToPyList(const double *ptr, int size)
   return ret;
 }
 
-static PyObject *convertDblArrToPyList2(const std::vector<double>& v)
+static PyObject *convertDblArrToPyList2(const std::vector<double>& v) throw(INTERP_KERNEL::Exception)
 {
   int size=v.size();
   PyObject *ret=PyList_New(size);
@@ -193,7 +194,7 @@ static PyObject *convertDblArrToPyList2(const std::vector<double>& v)
   return ret;
 }
 
-static PyObject *convertDblArrToPyListOfTuple(const double *vals, int nbOfComp, int nbOfTuples)
+static PyObject *convertDblArrToPyListOfTuple(const double *vals, int nbOfComp, int nbOfTuples) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=PyList_New(nbOfTuples);
   for(int i=0;i<nbOfTuples;i++)
@@ -206,7 +207,7 @@ static PyObject *convertDblArrToPyListOfTuple(const double *vals, int nbOfComp, 
   return ret;
 }
 
-static double *convertPyToNewDblArr2(PyObject *pyLi, int *size)
+static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
     {
@@ -222,9 +223,10 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size)
             }
           else
             {
-              PyErr_SetString(PyExc_TypeError,"convertPyToNewDblArr2 : list must contain floats only");
-              PyErr_Print();
-              return NULL;
+              delete [] tmp;
+              const char msg[]="convertPyToNewDblArr2 : list must contain floats only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
         }
       return tmp;
@@ -237,7 +239,7 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size)
     }
 }
 
-void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingUMesh *>& v)
+void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingUMesh *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))
     {
@@ -250,9 +252,9 @@ void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingU
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
           if(!SWIG_IsOK(status))
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain only MEDCouplingUMesh");
-              PyErr_Print();
-              return;
+              const char msg[]="list must contain only MEDCouplingUMesh";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
           ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
           v[i]=arg;
@@ -260,12 +262,13 @@ void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingU
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecUMeshes : not a list");
-      PyErr_Print();
+      const char msg[]="convertPyObjToVecUMeshes : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
 }
 
-void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& v)
+void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))
     {
@@ -278,9 +281,9 @@ void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MED
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
           if(!SWIG_IsOK(status))
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain only MEDCouplingUMesh");
-              PyErr_Print();
-              return;
+              const char msg[]="list must contain only MEDCouplingUMesh";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
           const ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingUMesh * >(argp);
           v[i]=arg;
@@ -288,12 +291,13 @@ void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MED
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecUMeshesCst : not a list");
-      PyErr_Print();
+      const char msg[]="convertPyObjToVecUMeshesCst : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
 }
 
-void convertPyObjToVecDataArrayDblCst(PyObject *ms, std::vector<const ParaMEDMEM::DataArrayDouble *>& v)
+void convertPyObjToVecDataArrayDblCst(PyObject *ms, std::vector<const ParaMEDMEM::DataArrayDouble *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))
     {
@@ -306,9 +310,9 @@ void convertPyObjToVecDataArrayDblCst(PyObject *ms, std::vector<const ParaMEDMEM
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
           if(!SWIG_IsOK(status))
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain only DataArrayDouble");
-              PyErr_Print();
-              return;
+              const char msg[]="list must contain only DataArrayDouble";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
           const ParaMEDMEM::DataArrayDouble *arg=reinterpret_cast< const ParaMEDMEM::DataArrayDouble * >(argp);
           v[i]=arg;
@@ -316,12 +320,13 @@ void convertPyObjToVecDataArrayDblCst(PyObject *ms, std::vector<const ParaMEDMEM
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecDataArrayDblCst : not a list");
-      PyErr_Print();
+      const char msg[]="convertPyObjToVecDataArrayDblCst : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
 }
 
-void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *>& v)
+void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))
     {
@@ -334,9 +339,9 @@ void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::ME
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0);
           if(!SWIG_IsOK(status))
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain only MEDCouplingFieldDouble");
-              PyErr_Print();
-              return;
+              const char msg[]="list must contain only MEDCouplingFieldDouble";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
           const ParaMEDMEM::MEDCouplingFieldDouble *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingFieldDouble * >(argp);
           v[i]=arg;
@@ -344,12 +349,13 @@ void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::ME
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecFieldDblCst : not a list");
-      PyErr_Print();
+      const char msg[]="convertPyObjToVecFieldDblCst : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
 }
 
-void convertPyObjToVecDataArrayInt(PyObject *ms, std::vector<ParaMEDMEM::DataArrayInt *>& v)
+void convertPyObjToVecDataArrayInt(PyObject *ms, std::vector<ParaMEDMEM::DataArrayInt *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))
     {
@@ -362,9 +368,9 @@ void convertPyObjToVecDataArrayInt(PyObject *ms, std::vector<ParaMEDMEM::DataArr
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
           if(!SWIG_IsOK(status))
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain only DataArrayInt");
-              PyErr_Print();
-              return;
+              const char msg[]="list must contain only DataArrayInt";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
           ParaMEDMEM::DataArrayInt *arg=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
           v[i]=arg;
@@ -372,12 +378,13 @@ void convertPyObjToVecDataArrayInt(PyObject *ms, std::vector<ParaMEDMEM::DataArr
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecDataArrayInt : not a list");
-      PyErr_Print();
+      const char msg[]="convertPyObjToVecDataArrayInt : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
 }
 
-void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM::DataArrayInt *>& v)
+void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM::DataArrayInt *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))
     {
@@ -390,9 +397,9 @@ void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
           if(!SWIG_IsOK(status))
             {
-              PyErr_SetString(PyExc_TypeError,"list must contain only DataArrayInt");
-              PyErr_Print();
-              return;
+              const char msg[]="list must contain only DataArrayInt";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
             }
           ParaMEDMEM::DataArrayInt *arg=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
           v[i]=arg;
@@ -400,7 +407,8 @@ void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyObjToVecDataArrayInt : not a list");
-      PyErr_Print();
+      const char msg[]="convertPyObjToVecDataArrayInt : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
 }

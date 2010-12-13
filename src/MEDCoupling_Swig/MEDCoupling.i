@@ -241,32 +241,32 @@ namespace ParaMEDMEM
   public:
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
-    virtual MEDCouplingMeshType getType() const = 0;
-    bool isStructured() const;
-    virtual bool isEqual(const MEDCouplingMesh *other, double prec) const;
-    virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const = 0;
+    virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception) = 0;
+    bool isStructured() const throw(INTERP_KERNEL::Exception);
+    virtual bool isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual DataArrayDouble *getCoordinatesAndOwner() const = 0;
-    virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
-    virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
-    virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
+    virtual DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual DataArrayDouble *getBarycenterAndOwner() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception) = 0;
     virtual std::string simpleRepr() const = 0;
     virtual std::string advancedRepr() const = 0;
     // tools
-    virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
-    virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;
+    virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *buildOrthogonalField() const = 0;
+    virtual MEDCouplingFieldDouble *buildOrthogonalField() const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
+    virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
+    static MEDCouplingMesh *mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const
@@ -274,7 +274,7 @@ namespace ParaMEDMEM
            return self->simpleRepr();
          }
 
-         int getCellContainingPoint(PyObject *p, double eps) const
+         int getCellContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
          {
            int sz;
            double *pos=convertPyToNewDblArr2(p,&sz);
@@ -300,7 +300,7 @@ namespace ParaMEDMEM
            PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(nodeCor),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, nodeCor?SWIG_POINTER_OWN | 0:0 ));
            return res;
          }
-         DataArrayInt *getCellIdsFullyIncludedInNodeIds(PyObject *li) const
+         DataArrayInt *getCellIdsFullyIncludedInNodeIds(PyObject *li) const throw(INTERP_KERNEL::Exception)
          {
            int size;
            int *tmp=convertPyToNewIntArr2(li,&size);
@@ -308,21 +308,21 @@ namespace ParaMEDMEM
            delete [] tmp;
            return ret;
          }
-         PyObject *getNodeIdsOfCell(int cellId) const
+         PyObject *getNodeIdsOfCell(int cellId) const throw(INTERP_KERNEL::Exception)
          {
            std::vector<int> conn;
            self->getNodeIdsOfCell(cellId,conn);
            return convertIntArrToPyList2(conn);
          }
 
-         PyObject *getCoordinatesOfNode(int nodeId) const
+         PyObject *getCoordinatesOfNode(int nodeId) const throw(INTERP_KERNEL::Exception)
          {
            std::vector<double> coo;
            self->getCoordinatesOfNode(nodeId,coo);
            return convertDblArrToPyList2(coo);
          }
 
-         void scale(PyObject *point, double factor)
+         void scale(PyObject *point, double factor) throw(INTERP_KERNEL::Exception)
          {
            int sz;
            double *p=convertPyToNewDblArr2(point,&sz);
@@ -340,7 +340,7 @@ namespace ParaMEDMEM
            return ret;
          }
 
-        PyObject *buildPart(PyObject *li) const
+        PyObject *buildPart(PyObject *li) const throw(INTERP_KERNEL::Exception)
          {
            int size;
            int *tmp=convertPyToNewIntArr2(li,&size);
@@ -349,7 +349,7 @@ namespace ParaMEDMEM
            return convertMesh(ret, SWIG_POINTER_OWN | 0 );
          }
 
-        PyObject *buildPartAndReduceNodes(PyObject *li) const
+        PyObject *buildPartAndReduceNodes(PyObject *li) const throw(INTERP_KERNEL::Exception)
         {
           int size;
           int *tmp=convertPyToNewIntArr2(li,&size);
@@ -363,7 +363,7 @@ namespace ParaMEDMEM
           return res;
         }
 
-         void translate(PyObject *vector)
+         void translate(PyObject *vector) throw(INTERP_KERNEL::Exception)
          {
            int sz;
            double *v=convertPyToNewDblArr2(vector,&sz);
@@ -371,7 +371,7 @@ namespace ParaMEDMEM
            delete [] v;
          }
 
-         void rotate(PyObject *center, PyObject *vector, double alpha)
+         void rotate(PyObject *center, PyObject *vector, double alpha) throw(INTERP_KERNEL::Exception)
          {
            int sz;
            double *c=convertPyToNewDblArr2(center,&sz);
@@ -400,26 +400,26 @@ namespace ParaMEDMEM
     {
     public:
       void updateTime();
-      void setCoords(DataArrayDouble *coords);
-      DataArrayDouble *getCoordinatesAndOwner() const;
-      bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
-      void zipCoords();
-      double getCaracteristicDimension() const;
+      void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+      DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception);
+      bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const throw(INTERP_KERNEL::Exception);
+      void zipCoords() throw(INTERP_KERNEL::Exception);
+      double getCaracteristicDimension() const throw(INTERP_KERNEL::Exception);
       void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
       static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
-      static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
-      virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
-      virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;
+      static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type) throw(INTERP_KERNEL::Exception);
+      virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const throw(INTERP_KERNEL::Exception) = 0;
+      virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception) = 0;
       //! size of returned tinyInfo must be always the same.
-      void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
-      void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
-      void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
+      void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const throw(INTERP_KERNEL::Exception);
+      void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const throw(INTERP_KERNEL::Exception);
+      void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const throw(INTERP_KERNEL::Exception);
       void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
-                           const std::vector<std::string>& littleStrings);
-      virtual void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) = 0;
-      virtual DataArrayInt *zipCoordsTraducer() = 0;
+                           const std::vector<std::string>& littleStrings) throw(INTERP_KERNEL::Exception);
+      virtual void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
+      virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception) = 0;
       %extend 
          {
            std::string __str__() const
@@ -427,7 +427,7 @@ namespace ParaMEDMEM
              return self->simpleRepr();
            }
            
-           PyObject *buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex) const
+           PyObject *buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex) const throw(INTERP_KERNEL::Exception)
            {
              int newNbOfNodes;
              DataArrayInt *ret0=self->buildNewNumberingFromCommonNodesFormat(comm,commIndex,newNbOfNodes);
@@ -437,7 +437,7 @@ namespace ParaMEDMEM
              return res;
            }
            
-           PyObject *findCommonNodes(int limitNodeId, double prec) const
+           PyObject *findCommonNodes(int limitNodeId, double prec) const throw(INTERP_KERNEL::Exception)
            {
              DataArrayInt *comm, *commIndex;
              self->findCommonNodes(limitNodeId,prec,comm,commIndex);
@@ -447,13 +447,13 @@ namespace ParaMEDMEM
              return res;
            }
            
-           PyObject *getCoords() const
+           PyObject *getCoords() const throw(INTERP_KERNEL::Exception)
            {
              DataArrayDouble *ret1=self->getCoords();
              ret1->incrRef();
              return SWIG_NewPointerObj((void*)ret1,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,SWIG_POINTER_OWN | 0);
            }
-           PyObject *buildPartOfMySelf(PyObject *li, bool keepCoords) const
+           PyObject *buildPartOfMySelf(PyObject *li, bool keepCoords) const throw(INTERP_KERNEL::Exception)
            {
              int size;
              int *tmp=convertPyToNewIntArr2(li,&size);
@@ -461,7 +461,7 @@ namespace ParaMEDMEM
              delete [] tmp;
              return convertMesh(ret, SWIG_POINTER_OWN | 0 );
            }
-           PyObject *buildPartOfMySelfNode(PyObject *li, bool fullyIn) const
+           PyObject *buildPartOfMySelfNode(PyObject *li, bool fullyIn) const throw(INTERP_KERNEL::Exception)
            {
              int size;
              int *tmp=convertPyToNewIntArr2(li,&size);
@@ -469,7 +469,7 @@ namespace ParaMEDMEM
              delete [] tmp;
              return convertMesh(ret, SWIG_POINTER_OWN | 0 );
            }
-           PyObject *buildFacePartOfMySelfNode(PyObject *li, bool fullyIn) const
+           PyObject *buildFacePartOfMySelfNode(PyObject *li, bool fullyIn) const throw(INTERP_KERNEL::Exception)
            {
              int size;
              int *tmp=convertPyToNewIntArr2(li,&size);
@@ -477,20 +477,20 @@ namespace ParaMEDMEM
              delete [] tmp;
              return convertMesh(ret, SWIG_POINTER_OWN | 0 );
            }
-           PyObject *findBoundaryNodes() const
+           PyObject *findBoundaryNodes() const throw(INTERP_KERNEL::Exception)
            {
              std::vector<int> nodes;
              self->findBoundaryNodes(nodes);
              return convertIntArrToPyList2(nodes);
            }
-           void renumberNodes(PyObject *li, int newNbOfNodes)
+           void renumberNodes(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
            {
              int size;
              int *tmp=convertPyToNewIntArr2(li,&size);
              self->renumberNodes(tmp,newNbOfNodes);
              delete [] tmp;
            }
-           void renumberNodes2(PyObject *li, int newNbOfNodes)
+           void renumberNodes2(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
            {
              int size;
              int *tmp=convertPyToNewIntArr2(li,&size);
@@ -557,7 +557,7 @@ namespace ParaMEDMEM
              return ret;
            }
 
-           PyObject *giveElemsInBoundingBox(PyObject *bbox, double eps)
+           PyObject *giveElemsInBoundingBox(PyObject *bbox, double eps) throw(INTERP_KERNEL::Exception)
            {
              std::vector<int> elems;
              int size;
@@ -567,7 +567,7 @@ namespace ParaMEDMEM
              return convertIntArrToPyList2(elems);
            }
 
-           static void rotate2DAlg(PyObject *center, double angle, int nbNodes, PyObject *coords)
+           static void rotate2DAlg(PyObject *center, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
            {
              int sz;
              double *c=convertPyToNewDblArr2(center,&sz);
@@ -578,7 +578,7 @@ namespace ParaMEDMEM
              delete [] coo;
              delete [] c;
            }
-           static void rotate3DAlg(PyObject *center, PyObject *vect, double angle, int nbNodes, PyObject *coords)
+           static void rotate3DAlg(PyObject *center, PyObject *vect, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
            {
              int sz,sz2;
              double *c=convertPyToNewDblArr2(center,&sz);
@@ -602,26 +602,26 @@ namespace ParaMEDMEM
     void updateTime();
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void setMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
-    void allocateCells(int nbOfCells);
-    void finishInsertingCells();
-    void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true);
-    DataArrayInt *getNodalConnectivity() const;
-    DataArrayInt *getNodalConnectivityIndex() const;
-    INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
-    int getNumberOfNodesInCell(int cellId) const;
-    int getMeshLength() const;
-    void computeTypes();
-    std::string reprConnectivityOfThis() const;
+    void allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exception);
+    void finishInsertingCells() throw(INTERP_KERNEL::Exception);
+    void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception);
+    INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    int getMeshLength() const throw(INTERP_KERNEL::Exception);
+    void computeTypes() throw(INTERP_KERNEL::Exception);
+    std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
     //tools
-    bool checkConsecutiveCellTypes() const;
-    DataArrayInt *rearrange2ConsecutiveCellTypes();
+    bool checkConsecutiveCellTypes() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *rearrange2ConsecutiveCellTypes() throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception);
     void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
-    bool isPresenceOfQuadratic() const;
-    MEDCouplingFieldDouble *buildDirectionVectorField() const;
+    bool isPresenceOfQuadratic() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *buildDirectionVectorField() const throw(INTERP_KERNEL::Exception);
     bool isContiguous1D() const throw(INTERP_KERNEL::Exception);
     void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
     void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);
@@ -637,14 +637,14 @@ namespace ParaMEDMEM
       {
         return self->simpleRepr();
       }
-      void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, PyObject *li)
+      void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         int sz;
         int *tmp=convertPyToNewIntArr2(li,&sz);
         self->insertNextCell(type,size,tmp);
         delete [] tmp;
       }
-      PyObject *getAllTypes() const
+      PyObject *getAllTypes() const throw(INTERP_KERNEL::Exception)
       {
         std::set<INTERP_KERNEL::NormalizedCellType> result=self->getAllTypes();
         std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
@@ -653,7 +653,7 @@ namespace ParaMEDMEM
           PyList_SetItem(res,i,PyInt_FromLong(*iL));
         return res;
       }
-      PyObject *mergeNodes(double precision)
+      PyObject *mergeNodes(double precision) throw(INTERP_KERNEL::Exception)
       {
         bool ret1;
         int ret2;
@@ -664,7 +664,7 @@ namespace ParaMEDMEM
         PyList_SetItem(res,2,SWIG_From_int(ret2));
         return res;
       }
-      PyObject *mergeNodes2(double precision)
+      PyObject *mergeNodes2(double precision) throw(INTERP_KERNEL::Exception)
       {
         bool ret1;
         int ret2;
@@ -675,14 +675,14 @@ namespace ParaMEDMEM
         PyList_SetItem(res,2,SWIG_From_int(ret2));
         return res;
       }
-      PyObject *checkButterflyCells()
+      PyObject *checkButterflyCells() throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> cells;
         self->checkButterflyCells(cells);
         return convertIntArrToPyList2(cells);
       }
 
-      PyObject *splitByType() const
+      PyObject *splitByType() const throw(INTERP_KERNEL::Exception)
       {
         std::vector<MEDCouplingUMesh *> ms=self->splitByType();
         int sz=ms.size();
@@ -692,7 +692,7 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids) const
+      PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> idsPerGeoType;
         convertPyToNewIntArr3(ids,idsPerGeoType);
@@ -700,7 +700,7 @@ namespace ParaMEDMEM
         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 );
       }
 
-      bool checkConsecutiveCellTypesAndOrder(PyObject *li) const
+      bool checkConsecutiveCellTypesAndOrder(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         int sz;
         INTERP_KERNEL::NormalizedCellType *order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
@@ -709,7 +709,7 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      DataArrayInt *getRenumArrForConsecutiveCellTypesSpec(PyObject *li) const
+      DataArrayInt *getRenumArrForConsecutiveCellTypesSpec(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         int sz;
         INTERP_KERNEL::NormalizedCellType *order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
@@ -718,7 +718,7 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const
+      PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const throw(INTERP_KERNEL::Exception)
       {
         int sz;
         double *pos=convertPyToNewDblArr2(p,&sz);
@@ -731,7 +731,7 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *getCellsContainingPoint(PyObject *p, double eps) const
+      PyObject *getCellsContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
       {
         int sz;
         double *pos=convertPyToNewDblArr2(p,&sz);
@@ -766,7 +766,7 @@ namespace ParaMEDMEM
         return convertMesh(ret, SWIG_POINTER_OWN | 0 );
       }
 
-      static PyObject *fuseUMeshesOnSameCoords(PyObject *ms, int compType)
+      static PyObject *fuseUMeshesOnSameCoords(PyObject *ms, int compType) throw(INTERP_KERNEL::Exception)
       {
         int sz;
         std::vector<MEDCouplingUMesh *> meshes;
@@ -854,34 +854,34 @@ namespace ParaMEDMEM
         return ret;
       }
     }
-    void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
-    void unPolyze();
-    MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy);
+    void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);
+    void unPolyze() throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDCouplingExtrudedMesh : public ParaMEDMEM::MEDCouplingMesh
   {
   public:
     static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *build3DUnstructuredMesh() const;
+    MEDCouplingUMesh *build3DUnstructuredMesh() const throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
       {
         return self->simpleRepr();
       }
-      PyObject *getMesh2D() const
+      PyObject *getMesh2D() const throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingUMesh *ret=self->getMesh2D();
         ret->incrRef();
         return convertMesh(ret, SWIG_POINTER_OWN | 0 );
       }
-      PyObject *getMesh1D() const
+      PyObject *getMesh1D() const throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingUMesh *ret=self->getMesh1D();
         ret->incrRef();
         return convertMesh(ret, SWIG_POINTER_OWN | 0 );
       }
-      PyObject *getMesh3DIds() const
+      PyObject *getMesh3DIds() const throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *ret=self->getMesh3DIds();
         ret->incrRef();
@@ -896,7 +896,7 @@ namespace ParaMEDMEM
     static MEDCouplingCMesh *New();
     void setCoords(DataArrayDouble *coordsX,
                    DataArrayDouble *coordsY=0,
-                   DataArrayDouble *coordsZ=0);
+                   DataArrayDouble *coordsZ=0) throw(INTERP_KERNEL::Exception);
     void setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
@@ -931,20 +931,20 @@ namespace ParaMEDMEM
      return self->repr();
    }
 
-   void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple)
+   void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple) throw(INTERP_KERNEL::Exception)
    {
      int sz;
      double *tmp=convertPyToNewDblArr2(li,&sz);
      self->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfElsPerTuple);
    }
 
-   PyObject *getValues()
+   PyObject *getValues() throw(INTERP_KERNEL::Exception)
    {
      const double *vals=self->getPointer();
      return convertDblArrToPyList(vals,self->getNbOfElems());
    }
 
-   PyObject *getValuesAsTuple()
+   PyObject *getValuesAsTuple() throw(INTERP_KERNEL::Exception)
    {
      const double *vals=self->getPointer();
      int nbOfComp=self->getNumberOfComponents();
@@ -1020,7 +1020,7 @@ namespace ParaMEDMEM
      delete [] tmp;
    }
 
-   DataArrayDouble *selectByTupleId(PyObject *li) const
+   DataArrayDouble *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
    {
      int size;
      int *tmp=convertPyToNewIntArr2(li,&size);
@@ -1139,20 +1139,20 @@ namespace ParaMEDMEM
      return self->repr();
    }
 
-   void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple)
+   void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple) throw(INTERP_KERNEL::Exception)
    {
      int size;
      int *tmp=convertPyToNewIntArr2(li,&size);
      self->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfElsPerTuple);
    }
 
-   PyObject *getValues()
+   PyObject *getValues() throw(INTERP_KERNEL::Exception)
    {
      const int *vals=self->getPointer();
      return convertIntArrToPyList(vals,self->getNbOfElems());
    }
 
-   PyObject *getValuesAsTuple()
+   PyObject *getValuesAsTuple() throw(INTERP_KERNEL::Exception)
    {
      const int *vals=self->getPointer();
      int nbOfComp=self->getNumberOfComponents();
@@ -1160,7 +1160,7 @@ namespace ParaMEDMEM
      return convertIntArrToPyListOfTuple(vals,nbOfComp,nbOfTuples);
    }
 
-   static PyObject *makePartition(PyObject *gps, int newNb)
+   static PyObject *makePartition(PyObject *gps, int newNb) throw(INTERP_KERNEL::Exception)
    {
      std::vector<DataArrayInt *> groups;
      std::vector< std::vector<int> > fidsOfGroups;
@@ -1244,7 +1244,7 @@ namespace ParaMEDMEM
      return ret;
    }
 
-   DataArrayInt *selectByTupleId(PyObject *li) const
+   DataArrayInt *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
    {
      int size;
      int *tmp=convertPyToNewIntArr2(li,&size);
@@ -1317,33 +1317,33 @@ namespace ParaMEDMEM
   {
   public:
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    virtual bool areCompatibleForMerge(const MEDCouplingField *other) const;
-    virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
-    virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
-    void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
-    void setName(const char *name);
-    const char *getDescription() const;
-    void setDescription(const char *desc);
-    const char *getName() const;
-    TypeOfField getTypeOfField() const;
+    virtual bool areCompatibleForMerge(const MEDCouplingField *other) const throw(INTERP_KERNEL::Exception);
+    virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
+    void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
+    void setName(const char *name) throw(INTERP_KERNEL::Exception);
+    const char *getDescription() const throw(INTERP_KERNEL::Exception);
+    void setDescription(const char *desc) throw(INTERP_KERNEL::Exception);
+    const char *getName() const throw(INTERP_KERNEL::Exception);
+    TypeOfField getTypeOfField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDiscretization *getDiscretization() const;
+    MEDCouplingFieldDiscretization *getDiscretization() const throw(INTERP_KERNEL::Exception);
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
-    void clearGaussLocalizations();
+    void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
     MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
     int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
     int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
     %extend {
-      PyObject *getMesh() const
+      PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingMesh *ret1=(MEDCouplingMesh *)self->getMesh();
         ret1->incrRef();
         return convertMesh(ret1, SWIG_POINTER_OWN | 0 );
       }
 
-      PyObject *buildSubMeshData(PyObject *li) const
+      PyObject *buildSubMeshData(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         int size;
         int *tmp=convertPyToNewIntArr2(li,&size);
@@ -1391,11 +1391,11 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
     MEDCouplingFieldDouble *deepCpy() const;
-    MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
-    TypeOfTimeDiscretization getTimeDiscretization() const;
+    MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const throw(INTERP_KERNEL::Exception);
+    TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    double getIJ(int tupleId, int compoId) const;
-    double getIJK(int cellId, int nodeIdInCell, int compoId) const;
+    double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
+    double getIJK(int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
     void setArray(DataArrayDouble *array) throw(INTERP_KERNEL::Exception);
     void setEndArray(DataArrayDouble *array) throw(INTERP_KERNEL::Exception);
     void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -1407,11 +1407,11 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
-    NatureOfField getNature() const { return _nature; }
+    NatureOfField getNature() const throw(INTERP_KERNEL::Exception);
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
-    void setTimeTolerance(double val);
-    double getTimeTolerance() const;
-    void updateTime();
+    void setTimeTolerance(double val) throw(INTERP_KERNEL::Exception);
+    double getTimeTolerance() const throw(INTERP_KERNEL::Exception);
+    void updateTime() throw(INTERP_KERNEL::Exception);
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
@@ -1512,7 +1512,7 @@ namespace ParaMEDMEM
         delete [] res;
         return ret;
       }
-      void setValues(PyObject *li)
+      void setValues(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         if(self->getArray()!=0)
           {
@@ -1525,7 +1525,7 @@ namespace ParaMEDMEM
         else
           PyErr_SetString(PyExc_TypeError,"setValuesCpy : field must contain an array behind");
       }
-      PyObject *getTime()
+      PyObject *getTime() throw(INTERP_KERNEL::Exception)
       {
         int tmp1,tmp2;
         double tmp0=self->getTime(tmp1,tmp2);
@@ -1536,7 +1536,7 @@ namespace ParaMEDMEM
         return res;
       }
 
-      PyObject *getStartTime()
+      PyObject *getStartTime() throw(INTERP_KERNEL::Exception)
       {
         int tmp1,tmp2;
         double tmp0=self->getStartTime(tmp1,tmp2);
@@ -1547,7 +1547,7 @@ namespace ParaMEDMEM
         return res;
       }
 
-      PyObject *getEndTime()
+      PyObject *getEndTime() throw(INTERP_KERNEL::Exception)
       {
         int tmp1,tmp2;
         double tmp0=self->getEndTime(tmp1,tmp2);
@@ -1557,7 +1557,7 @@ namespace ParaMEDMEM
         PyList_SetItem(res,2,SWIG_From_int(tmp2));
         return res;
       }
-      PyObject *accumulate() const
+      PyObject *accumulate() const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         double *tmp=new double[sz];
@@ -1566,7 +1566,7 @@ namespace ParaMEDMEM
         delete [] tmp;
         return ret;
       }
-      PyObject *integral(bool isWAbs) const
+      PyObject *integral(bool isWAbs) const throw(INTERP_KERNEL::Exception)
       {
         int sz=self->getNumberOfComponents();
         double *tmp=new double[sz];
