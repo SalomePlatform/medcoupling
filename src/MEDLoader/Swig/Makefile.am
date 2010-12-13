@@ -48,8 +48,9 @@ _MEDLoader_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) \
 	../../MEDCoupling/libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la \
 	../libmedloader.la
 
-CLEANFILES = libMEDLoader_Swig_wrap.cxx libMEDLoader_Swig.py
+CLEANFILES = MEDLoader_wrap.cxx MEDLoader.py
 
-dist_salomescript_DATA= MEDLoader.py MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py libMEDLoader_Swig.py
+dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py libMEDLoader_Swig.py
+nodist_salomescript_DATA = MEDLoader.py
 
 UNIT_TEST_PROG = MEDLoaderTest.py MEDLoaderTest2.py
