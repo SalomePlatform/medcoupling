@@ -2089,6 +2089,28 @@ DataArrayInt *DataArrayInt::buildComplement(int nbOfElement) const throw(INTERP_
    return ret;
 }
 
+DataArrayInt *DataArrayInt::substract(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  other->checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::substract : only single component allowed !");
+  if(other->getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::substract : only single component allowed for other type !");
+  const int *pt=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  std::set<int> s1(pt,pt+nbOfTuples);
+  pt=other->getConstPointer();
+  nbOfTuples=other->getNumberOfTuples();
+  std::set<int> s2(pt,pt+nbOfTuples);
+  std::vector<int> r;
+  std::set_difference(s1.begin(),s1.end(),s2.begin(),s2.end(),std::back_insert_iterator< std::vector<int> >(r));
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(r.size(),1);
+  std::copy(r.begin(),r.end(),ret->getPointer());
+  return ret;
+}
+
 DataArrayInt *DataArrayInt::buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();

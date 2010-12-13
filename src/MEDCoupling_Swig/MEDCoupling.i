@@ -115,6 +115,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
 %newobject ParaMEDMEM::DataArrayInt::buildComplement;
 %newobject ParaMEDMEM::DataArrayInt::buildUnion;
+%newobject ParaMEDMEM::DataArrayInt::substract;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayDouble::New;
