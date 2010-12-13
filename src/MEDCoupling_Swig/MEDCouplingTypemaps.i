@@ -280,6 +280,34 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
         }
       return tmp;
     }
+  else if(PyTuple_Check(pyLi))
+    {
+      *size=PyTuple_Size(pyLi);
+      double *tmp=new double[*size];
+      for(int i=0;i<*size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyFloat_Check(o))
+            {
+              double val=PyFloat_AS_DOUBLE(o);
+              tmp[i]=val;
+            }
+          else if(PyInt_Check(o))
+            {
+              long val0=PyInt_AS_LONG(o);
+              double val=val0;
+              tmp[i]=val;
+            }
+          else
+            {
+              delete [] tmp;
+              const char msg[]="convertPyToNewDblArr2 : tuple must contain floats/integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+        }
+      return tmp;
+    }
   else
     {
       const char msg[]="convertPyToNewIntArr : not a list";
