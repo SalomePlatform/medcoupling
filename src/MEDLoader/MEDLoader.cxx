@@ -26,6 +26,8 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 
+#include "InterpKernelAutoPtr.hxx"
+
 extern "C"
 {
 #include "med.h"
@@ -398,6 +400,72 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, c
       delete [] attval;
     }
   MEDfermer(fid);
+  return ret;
+}
+
+std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const char *fileName, const char *meshName, const char *grpName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nfam=MEDnFam(fid,(char *)meshName);
+  std::vector<std::string> ret;
+  char nomfam[MED_TAILLE_NOM+1];
+  med_int numfam;
+  for(int i=0;i<nfam;i++)
+    {
+      int ngro=MEDnGroupe(fid,(char *)meshName,i+1);
+      med_int natt=MEDnAttribut(fid,(char *)meshName,i+1);
+      INTERP_KERNEL::AutoPtr<med_int> attide=new int[natt];
+      INTERP_KERNEL::AutoPtr<med_int> attval=new int[natt];
+      INTERP_KERNEL::AutoPtr<char> attdes=new char[MED_TAILLE_DESC*natt+1];
+      INTERP_KERNEL::AutoPtr<char> gro=new char[MED_TAILLE_LNOM*ngro+1];
+      MEDfamInfo(fid,(char *)meshName,i+1,nomfam,&numfam,attide,attval,attdes,&natt,gro,&ngro);
+      std::string cur=MEDLoaderBase::buildStringFromFortran(nomfam,sizeof(nomfam));
+      for(int j=0;j<ngro;j++)
+        {
+          std::string cur2=MEDLoaderBase::buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
+          if(cur2==grpName)
+            ret.push_back(cur);
+        }
+    }
+  MEDfermer(fid);
+  return ret;
+}
+
+std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileName, const char *meshName, const char *famName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nfam=MEDnFam(fid,(char *)meshName);
+  std::vector<std::string> ret;
+  char nomfam[MED_TAILLE_NOM+1];
+  med_int numfam;
+  bool found=false;
+  for(int i=0;i<nfam && !found;i++)
+    {
+      int ngro=MEDnGroupe(fid,(char *)meshName,i+1);
+      med_int natt=MEDnAttribut(fid,(char *)meshName,i+1);
+      INTERP_KERNEL::AutoPtr<med_int> attide=new int[natt];
+      INTERP_KERNEL::AutoPtr<med_int> attval=new int[natt];
+      INTERP_KERNEL::AutoPtr<char> attdes=new char[MED_TAILLE_DESC*natt+1];
+      INTERP_KERNEL::AutoPtr<char> gro=new char[MED_TAILLE_LNOM*ngro+1];
+      MEDfamInfo(fid,(char *)meshName,i+1,nomfam,&numfam,attide,attval,attdes,&natt,gro,&ngro);
+      std::string cur=MEDLoaderBase::buildStringFromFortran(nomfam,sizeof(nomfam));
+      found=(cur==famName);
+      if(found)
+        for(int j=0;j<ngro;j++)
+          {
+            std::string cur=MEDLoaderBase::buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
+            ret.push_back(cur);
+          }
+    }
+  MEDfermer(fid);
+  if(!found)
+    {
+      std::ostringstream oss;
+      oss << "MEDLoader::GetMeshGroupsNamesOnFamily : no such family \"" << famName << "\" in file \"" << fileName << "\" in mesh \"" << meshName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   return ret;
 }
   
