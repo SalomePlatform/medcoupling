@@ -366,23 +366,20 @@ namespace ParaMEDMEM
          void translate(PyObject *vector) throw(INTERP_KERNEL::Exception)
          {
            int sz;
-           double *v=convertPyToNewDblArr2(vector,&sz);
+           INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vector,&sz);
            self->translate(v);
-           delete [] v;
          }
 
          void rotate(PyObject *center, PyObject *vector, double alpha) throw(INTERP_KERNEL::Exception)
          {
            int sz;
-           double *c=convertPyToNewDblArr2(center,&sz);
+           INTERP_KERNEL::AutoPtr<double> c=convertPyToNewDblArr2(center,&sz);
            if(!c)
              return ;
-           double *v=convertPyToNewDblArr2(vector,&sz);
+           INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vector,&sz);
            if(!v)
-             { delete [] c; return ; }
+             { return ; }
            self->rotate(c,v,alpha);
-           delete [] c;
-           delete [] v;
          }
        }
   };

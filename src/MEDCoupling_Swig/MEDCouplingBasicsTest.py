@@ -5456,6 +5456,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ret,tmp=m2.areCellsIncludedIn(m,0)
         self.assertTrue(not ret);
         pass
+
+    def testSwigErrorProtection1(self):
+        m=MEDCouplingDataForTest.build3DTargetMesh_1();
+        m.rotate([0.,0.,0.],[0.3,0.6,1.2],0.37)
+        m.rotate([0.,0.,0.],[0.3,6,1.2],0.37)
+        self.assertRaises(Exception,m.rotate,[0.,"0.",0.],[0.3,0.6,1.2],0.37)
+        self.assertRaises(Exception,m.rotate,[0.,0.,0.],[0.3,'0.6',1.2],0.37)
+        m.buildPartOfMySelf([2,5],True)
+        self.assertRaises(Exception,m.buildPartOfMySelf,[2,5.],True)
+        m.getCoords().keepSelectedComponents([1])
+        self.assertRaises(Exception,m.getCoords().keepSelectedComponents,["1"])
+        pass
     
     def setUp(self):
         pass

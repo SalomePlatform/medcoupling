@@ -221,10 +221,16 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
               double val=PyFloat_AS_DOUBLE(o);
               tmp[i]=val;
             }
+          else if(PyInt_Check(o))
+            {
+              long val0=PyInt_AS_LONG(o);
+              double val=val0;
+              tmp[i]=val;
+            }
           else
             {
               delete [] tmp;
-              const char msg[]="convertPyToNewDblArr2 : list must contain floats only";
+              const char msg[]="convertPyToNewDblArr2 : list must contain floats/integers only";
               PyErr_SetString(PyExc_TypeError,msg);
               throw INTERP_KERNEL::Exception(msg);
             }
@@ -233,9 +239,9 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
     }
   else
     {
-      PyErr_SetString(PyExc_TypeError,"convertPyToNewIntArr : not a list");
-      PyErr_Print();
-      return 0;
+      const char msg[]="convertPyToNewIntArr : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
     }
 }
 
