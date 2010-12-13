@@ -3959,3 +3959,25 @@ void MEDCouplingBasicsTest::testAreCellsIncludedIn1()
   m2->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAIBuildSubstraction1()
+{
+  DataArrayInt *a=DataArrayInt::New();
+  const int aa[]={2,3,6,8,9};
+  a->alloc(5,1);
+  std::copy(aa,aa+5,a->getPointer());
+  DataArrayInt *b=DataArrayInt::New();
+  const int bb[]={1,3,5,9,11};
+  b->alloc(5,1);
+  std::copy(bb,bb+5,b->getPointer());
+  //
+  DataArrayInt *c=a->buildSubstraction(b);
+  CPPUNIT_ASSERT_EQUAL(3,c->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,c->getNumberOfComponents());
+  const int expected1[3]={2,6,8};
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,c->getConstPointer()));
+  //
+  c->decrRef();
+  b->decrRef();
+  a->decrRef();
+}

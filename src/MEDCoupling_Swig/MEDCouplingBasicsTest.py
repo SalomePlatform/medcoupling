@@ -5473,6 +5473,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(da1.isEqual(da2,1e-12))
         self.assertRaises(Exception,m.getCoords().keepSelectedComponents,["1"])
         pass
+
+    def testDAIBuildSubstraction1(self):
+        a=DataArrayInt.New()
+        aa=[2,3,6,8,9]
+        a.setValues(aa,5,1)
+        b=DataArrayInt.New()
+        bb=[1,3,5,9,11]
+        b.setValues(bb,5,1)
+        self.assertEqual([2,6,8],a.buildSubstraction(b).getValues())
+        pass
     
     def setUp(self):
         pass

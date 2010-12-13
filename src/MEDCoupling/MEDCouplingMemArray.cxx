@@ -2089,14 +2089,14 @@ DataArrayInt *DataArrayInt::buildComplement(int nbOfElement) const throw(INTERP_
    return ret;
 }
 
-DataArrayInt *DataArrayInt::substract(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *DataArrayInt::buildSubstraction(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   other->checkAllocated();
   if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::substract : only single component allowed !");
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildSubstraction : only single component allowed !");
   if(other->getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::substract : only single component allowed for other type !");
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildSubstraction : only single component allowed for other type !");
   const int *pt=getConstPointer();
   int nbOfTuples=getNumberOfTuples();
   std::set<int> s1(pt,pt+nbOfTuples);
