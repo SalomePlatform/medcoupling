@@ -896,6 +896,25 @@ DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType) throw(INTE
 }
 
 /*!
+ * This method makes the assumption that 'this' and 'other' share the same coords. If not an exception will be thrown !
+ * This method tries to determine if 'other' is fully included in 'this'. To compute that, this method works with connectivity as MEDCouplingUMesh::zipConnectivityTraducer method does. 
+ * This method has two outputs :
+ *
+ * @param compType is the comparison type. The possible values of this parameter are described in ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer method
+ * @param arr is an output parameter that returns a \b newly created instance. This array is of size 'other->getNumberOfCells()'.
+ * @return If 'other' is fully included in 'this 'true is returned. If not false is returned.
+ */
+bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int compType, DataArrayInt *& arr) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=mergeUMeshesOnSameCoords(this,other);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=mesh->zipConnectivityTraducer(compType);
+  int nbOfCells=getNumberOfCells();
+  arr=o2n->substr(nbOfCells);
+  int tmp;
+  return arr->getMaxValue(tmp)<nbOfCells;
+}
+
+/*!
  * @param areNodesMerged if at least two nodes have been merged.
  * @return old to new node correspondance.
  */
@@ -3251,7 +3270,7 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
 MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
 {
   std::vector<const MEDCouplingUMesh *> tmp(2);
-  tmp[0]=mesh1; tmp[1]=mesh2;
+  tmp[0]=const_cast<MEDCouplingUMesh *>(mesh1); tmp[1]=const_cast<MEDCouplingUMesh *>(mesh2);
   return mergeUMeshes(tmp);
 }
 
@@ -3312,6 +3331,17 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(std::vector<const MEDCouplingUM
   cI->decrRef();
   ret->incrRef();
   return ret;
+}
+
+/*!
+ * Idem mergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
+ * 'meshes' must be a non empty vector.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<MEDCouplingUMesh *> tmp(2);
+  tmp[0]=const_cast<MEDCouplingUMesh *>(mesh1); tmp[1]=const_cast<MEDCouplingUMesh *>(mesh2);
+  return mergeUMeshesOnSameCoords(tmp);
 }
 
 /*!

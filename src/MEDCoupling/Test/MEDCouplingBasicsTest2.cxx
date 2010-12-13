@@ -3941,3 +3941,21 @@ void MEDCouplingBasicsTest::testDaDoubleSelectByTupleIdSafe1()
   c->decrRef();
   d->decrRef();
 }
+
+void MEDCouplingBasicsTest::testAreCellsIncludedIn1()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  const int pt[2]={1,3};
+  MEDCouplingUMesh *m2=(MEDCouplingUMesh *)m->buildPartOfMySelf(pt,pt+2,true);
+  DataArrayInt *tmp;
+  CPPUNIT_ASSERT(m->areCellsIncludedIn(m2,0,tmp));
+  CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,tmp->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(pt[0],tmp->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(pt[1],tmp->getIJ(0,1));
+  tmp->decrRef();
+  CPPUNIT_ASSERT(!m2->areCellsIncludedIn(m,0,tmp));
+  tmp->decrRef();
+  m2->decrRef();
+  m->decrRef();
+}

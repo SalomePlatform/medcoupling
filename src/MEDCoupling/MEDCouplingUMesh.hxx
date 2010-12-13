@@ -82,6 +82,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unPolyze();
     MEDCOUPLING_EXPORT DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool areCellsIncludedIn(const MEDCouplingUMesh *other, int compType, DataArrayInt *& arr) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
@@ -139,6 +140,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshes(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *fuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr);
     MEDCOUPLING_EXPORT static bool isPolygonWellOriented(const double *vec, const int *begin, const int *end, const double *coords);

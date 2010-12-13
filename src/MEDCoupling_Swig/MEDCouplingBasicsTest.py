@@ -5442,6 +5442,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(Exception,c.selectByTupleIdSafe,arr4);
         self.assertRaises(Exception,c.selectByTupleIdSafe,arr5);
         pass
+
+    def testAreCellsIncludedIn1(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        pt=[1,3]
+        m2=m.buildPartOfMySelf(pt,True);
+        ret,tmp=m.areCellsIncludedIn(m2,0)
+        self.assertTrue(ret);
+        self.assertEqual(2,tmp.getNumberOfTuples());
+        self.assertEqual(1,tmp.getNumberOfComponents());
+        self.assertEqual(pt[0],tmp.getIJ(0,0));
+        self.assertEqual(pt[1],tmp.getIJ(0,1));
+        ret,tmp=m2.areCellsIncludedIn(m,0)
+        self.assertTrue(not ret);
+        pass
     
     def setUp(self):
         pass

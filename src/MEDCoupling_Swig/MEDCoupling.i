@@ -172,6 +172,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMeshFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshes;
+%newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convertCellArrayPerGeoType;
@@ -630,6 +631,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getWarpField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getSkewField() const throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingUMesh *mergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
       {
@@ -838,6 +840,18 @@ namespace ParaMEDMEM
         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> tmp;
         convertPyObjToVecUMeshesCst(li,tmp);
         return MEDCouplingUMesh::mergeUMeshes(tmp);
+      }
+
+      PyObject *areCellsIncludedIn(const MEDCouplingUMesh *other, int compType) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret1;
+        bool ret0=self->areCellsIncludedIn(other,compType,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
       }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
