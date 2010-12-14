@@ -170,6 +170,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingPointSet::mergeNodesArray;
 %newobject ParaMEDMEM::MEDCouplingPointSet::buildInstanceFromMeshType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
@@ -597,8 +599,6 @@ namespace ParaMEDMEM
     void allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exception);
     void finishInsertingCells() throw(INTERP_KERNEL::Exception);
     void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getMeshLength() const throw(INTERP_KERNEL::Exception);
@@ -634,6 +634,20 @@ namespace ParaMEDMEM
         int sz;
         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&sz);
         self->insertNextCell(type,size,tmp);
+      }
+      DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret=self->getNodalConnectivity();
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+      DataArrayInt *getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *ret=self->getNodalConnectivityIndex();
+        if(ret)
+          ret->incrRef();
+        return ret;
       }
       PyObject *getAllTypes() const throw(INTERP_KERNEL::Exception)
       {
