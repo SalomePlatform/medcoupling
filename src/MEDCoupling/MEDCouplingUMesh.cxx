@@ -1780,35 +1780,50 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) cons
  */
 MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
 {
-  if(getMeshDimension()!=2)
-    throw INTERP_KERNEL::Exception("Expected a umesh with meshDim == 2 !");
+  if((getMeshDimension()!=2) && (getMeshDimension()!=1 || getSpaceDimension()!=2))
+    throw INTERP_KERNEL::Exception("Expected a umesh with ( meshDim == 2 spaceDim ==3 ) or ( meshDim == 1 spaceDim ==2 ) !");
   MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
   DataArrayDouble *array=DataArrayDouble::New();
   int nbOfCells=getNumberOfCells();
-  array->alloc(nbOfCells,3);
+  int nbComp=getMeshDimension()+1;
+  array->alloc(nbOfCells,nbComp);
   double *vals=array->getPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   const int *conn=_nodal_connec->getConstPointer();
   const double *coords=_coords->getConstPointer();
-  DataArrayDouble *loc=getBarycenterAndOwner();
-  const double *locPtr=loc->getConstPointer();
-  if(getSpaceDimension()==3)
+  if(getMeshDimension()==2)
     {
-      for(int i=0;i<nbOfCells;i++,vals+=3)
+      if(getSpaceDimension()==3)
         {
-          int offset=connI[i];
-          INTERP_KERNEL::crossprod<3>(locPtr+3*i,coords+3*conn[offset+1],coords+3*conn[offset+2],vals);
-          double n=INTERP_KERNEL::norm<3>(vals);
-          std::transform(vals,vals+3,vals,std::bind2nd(std::multiplies<double>(),1./n));
+          DataArrayDouble *loc=getBarycenterAndOwner();
+          const double *locPtr=loc->getConstPointer();
+          for(int i=0;i<nbOfCells;i++,vals+=3)
+            {
+              int offset=connI[i];
+              INTERP_KERNEL::crossprod<3>(locPtr+3*i,coords+3*conn[offset+1],coords+3*conn[offset+2],vals);
+              double n=INTERP_KERNEL::norm<3>(vals);
+              std::transform(vals,vals+3,vals,std::bind2nd(std::multiplies<double>(),1./n));
+            }
+          loc->decrRef();
+        }
+      else
+        {
+          for(int i=0;i<nbOfCells;i++)
+            { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
         }
     }
-  else
+  else//meshdimension==1
     {
+      double tmp[2];
       for(int i=0;i<nbOfCells;i++)
-        { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
+        {
+          int offset=connI[i];
+          std::transform(coords+2*conn[offset+2],coords+2*conn[offset+2]+2,coords+2*conn[offset+1],tmp,std::minus<double>());
+          *vals++=-tmp[1];
+          *vals++=tmp[0];
+        }
     }
   ret->setArray(array);
-  loc->decrRef();
   array->decrRef();
   ret->setMesh(this);
   return ret;
