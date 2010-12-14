@@ -63,6 +63,8 @@ using namespace INTERP_KERNEL;
 
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::getArray;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::getEndArray;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::mergeFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::meldFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::doublyContractedProduct;
@@ -1363,8 +1365,6 @@ namespace ParaMEDMEM
     void setTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void setStartTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void setEndTime(double val, int iteration, int order) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getArray() const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception);
     void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
@@ -1432,6 +1432,23 @@ namespace ParaMEDMEM
       {
         return self->simpleRepr();
       }
+
+      DataArrayDouble *getArray() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayDouble *ret=self->getArray();
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
+      DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayDouble *ret=self->getEndArray();
+        if(ret)
+          ret->incrRef();
+        return ret;
+      }
+
       PyObject *getValueOn(PyObject *sl) const throw(INTERP_KERNEL::Exception)
       {
         int sz;
