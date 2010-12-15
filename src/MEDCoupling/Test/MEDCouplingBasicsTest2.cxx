@@ -3981,3 +3981,30 @@ void MEDCouplingBasicsTest::testDAIBuildSubstraction1()
   b->decrRef();
   a->decrRef();
 }
+
+void MEDCouplingBasicsTest::testBuildOrthogonalField2()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  DataArrayInt *d1=DataArrayInt::New();
+  DataArrayInt *d2=DataArrayInt::New();
+  DataArrayInt *d3=DataArrayInt::New();
+  DataArrayInt *d4=DataArrayInt::New();
+  MEDCouplingUMesh *m1=m->buildDescendingConnectivity(d1,d2,d3,d4);
+  //
+  MEDCouplingFieldDouble *f1=m1->buildOrthogonalField();
+  DataArrayDouble *da1=f1->getArray();
+  CPPUNIT_ASSERT_EQUAL(2,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(13,da1->getNumberOfTuples());
+  //
+  const double expected1[26]={-1.,0.,0.,1.,1.,0.,0.,-1.,0.707106781186548,0.707106781186548,0.,-1.,0.,1.,1.,0.,0.,1.,1.,0.,-1.,0.,0.,1.,1.,0.};
+  for(int i=0;i<26;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da1->getIJ(0,i),1e-14);
+  //
+  f1->decrRef();
+  m1->decrRef();
+  d1->decrRef();
+  d2->decrRef();
+  d3->decrRef();
+  d4->decrRef();
+  m->decrRef();
+}

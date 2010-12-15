@@ -171,6 +171,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDaDoubleSelectByTupleIdSafe1 );
     CPPUNIT_TEST( testAreCellsIncludedIn1 );
     CPPUNIT_TEST( testDAIBuildSubstraction1 );
+    CPPUNIT_TEST( testBuildOrthogonalField2 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -370,6 +371,7 @@ namespace ParaMEDMEM
     void testDaDoubleSelectByTupleIdSafe1();
     void testAreCellsIncludedIn1();
     void testDAIBuildSubstraction1();
+    void testBuildOrthogonalField2();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
