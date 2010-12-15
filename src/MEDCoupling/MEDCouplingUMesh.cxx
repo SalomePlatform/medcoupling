@@ -1781,7 +1781,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureFieldOnNode(bool isAbs) cons
 MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
 {
   if((getMeshDimension()!=2) && (getMeshDimension()!=1 || getSpaceDimension()!=2))
-    throw INTERP_KERNEL::Exception("Expected a umesh with ( meshDim == 2 spaceDim ==3 ) or ( meshDim == 1 spaceDim ==2 ) !");
+    throw INTERP_KERNEL::Exception("Expected a umesh with ( meshDim == 2 spaceDim == 2 or 3 ) or ( meshDim == 1 spaceDim == 2 ) !");
   MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
   DataArrayDouble *array=DataArrayDouble::New();
   int nbOfCells=getNumberOfCells();
@@ -1819,6 +1819,8 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
         {
           int offset=connI[i];
           std::transform(coords+2*conn[offset+2],coords+2*conn[offset+2]+2,coords+2*conn[offset+1],tmp,std::minus<double>());
+          double n=INTERP_KERNEL::norm<2>(tmp);
+          std::transform(tmp,tmp+2,tmp,std::bind2nd(std::multiplies<double>(),1./n));
           *vals++=-tmp[1];
           *vals++=tmp[0];
         }
