@@ -946,7 +946,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
   const double vec[3]={0.,1.,0.};
   const double pt[3]={0.,0.,0.};
   m1d->rotate(pt,vec,-M_PI/2.);
-  MEDCouplingUMesh *ret=m3dsurf->buildExtrudedMeshFromThis(m1d,0);
+  MEDCouplingUMesh *ret=m3dsurf->buildExtrudedMesh(m1d,0);
   m1d->decrRef();
   m3dsurf->decrRef();
   return ret;

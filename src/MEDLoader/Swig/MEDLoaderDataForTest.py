@@ -195,7 +195,7 @@ class MEDLoaderDataForTest:
         vec=[0.,1.,0.]
         pt=[0.,0.,0.]
         m1d.rotate(pt,vec,-pi/2.);
-        ret=m3dsurf.buildExtrudedMeshFromThis(m1d,0);
+        ret=m3dsurf.buildExtrudedMesh(m1d,0);
         return ret;
 
     def buildVecFieldOnCells_1(cls):

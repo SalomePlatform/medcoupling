@@ -85,6 +85,7 @@ class MEDLoaderTest(unittest.TestCase):
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         c.setValues(coords,9,2)
         mm.setCoords(c)
+        mm.addNodeGroup
         pass
     pass
 
