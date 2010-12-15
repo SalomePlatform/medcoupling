@@ -1049,7 +1049,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
 }
 
 /*!
- * This test check MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * This test check MEDCouplingUMesh::buildExtrudedMesh method.
  */
 void MEDCouplingBasicsTest::testExtrudedMesh3()
 {
