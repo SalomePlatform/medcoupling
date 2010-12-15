@@ -497,6 +497,7 @@ void DataArrayDouble::rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception
   int nbOfElems=getNbOfElems();
   if(nbOfElems%newNbOfCompo!=0)
     throw INTERP_KERNEL::Exception("DataArrayDouble::rearrange : nbOfElems%newNbOfCompo!=0 !");
+  _nb_of_tuples=nbOfElems/newNbOfCompo;
   _info_on_compo.clear();
   _info_on_compo.resize(newNbOfCompo);
   declareAsNew();
@@ -1850,6 +1851,7 @@ void DataArrayInt::rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
   int nbOfElems=getNbOfElems();
   if(nbOfElems%newNbOfCompo!=0)
     throw INTERP_KERNEL::Exception("DataArrayInt::rearrange : nbOfElems%newNbOfCompo!=0 !");
+  _nb_of_tuples=nbOfElems/newNbOfCompo;
   _info_on_compo.clear();
   _info_on_compo.resize(newNbOfCompo);
   declareAsNew();
