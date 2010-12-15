@@ -491,12 +491,12 @@ DataArrayDouble *DataArrayDouble::changeNbOfComponents(int newNbOfComp, double d
  * This method checks that getNbOfElems()%newNbOfCompo==0. If not an exception will be throw !
  * This method erases all components info set before call !
  */
-void DataArrayDouble::morphToNewNbOfComponents(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
+void DataArrayDouble::rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   int nbOfElems=getNbOfElems();
   if(nbOfElems%newNbOfCompo!=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::morphToNewNbOfComponents : nbOfElems%newNbOfCompo!=0 !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::rearrange : nbOfElems%newNbOfCompo!=0 !");
   _info_on_compo.clear();
   _info_on_compo.resize(newNbOfCompo);
   declareAsNew();
@@ -1844,12 +1844,12 @@ DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const throw(IN
  * This method checks that getNbOfElems()%newNbOfCompo==0. If not an exception will be throw !
  * This method erases all components info set before call !
  */
-void DataArrayInt::morphToNewNbOfComponents(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
+void DataArrayInt::rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   int nbOfElems=getNbOfElems();
   if(nbOfElems%newNbOfCompo!=0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::morphToNewNbOfComponents : nbOfElems%newNbOfCompo!=0 !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::rearrange : nbOfElems%newNbOfCompo!=0 !");
   _info_on_compo.clear();
   _info_on_compo.resize(newNbOfCompo);
   declareAsNew();
