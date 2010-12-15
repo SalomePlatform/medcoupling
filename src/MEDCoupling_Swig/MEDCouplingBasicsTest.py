@@ -5525,6 +5525,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         xx=m.getCoordsAt(0)
         del m
         self.assertEqual(3,xx.getNumberOfTuples());
+        #
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f=m.getMeasureField(True)
+        m2=f.getMesh()
+        del m
+        del f
+        self.assertEqual(5,m2.getNumberOfCells());
         pass
 
     def testUMInsertNextCell1(self):
@@ -5547,6 +5554,31 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         myCoords.setValues(targetCoords,9,2);
         targetMesh.setCoords(myCoords);
         targetMesh.checkCoherency();
+        pass
+
+    def testFieldOperatorDivDiffComp1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m1,d0,d1,d2,d3=m.buildDescendingConnectivity();
+        #
+        f1=m1.buildOrthogonalField();
+        arr1=[2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.]
+        arr=DataArrayDouble.New();
+        arr.setValues(arr1,13,1);
+        f2=MEDCouplingFieldDouble.New(ON_CELLS);
+        f2.setArray(arr);
+        f2.setMesh(m1);
+        f2.checkCoherency();
+        #
+        f3=f1/f2;
+        self.assertRaises(Exception,f2.__div__,f1)
+        f3.checkCoherency();
+        f1/=f2;
+        self.assertRaises(Exception,f2.__idiv__,f1)
+        self.assertTrue(f1.isEqual(f3,1e-10,1e-10));
+        expected1=[-0.5, 0.0, 0.0, 0.33333333333333331, 0.25, 0.0, 0.0, -0.20000000000000001, 0.117851130197758, 0.117851130197758, 0.0, -0.14285714285714285, 0.0, 0.125, 0.1111111111111111, 0.0, 0.0, 0.10000000000000001, 0.090909090909090912, 0.0, -0.083333333333333329, 0.0, 0.0, 0.076923076923076927, 0.071428571428571425, 0.0]
+        for i in xrange(26):
+            self.assertAlmostEqual(expected1[i],f3.getIJ(0,i),10);
+            pass
         pass
     
     def setUp(self):

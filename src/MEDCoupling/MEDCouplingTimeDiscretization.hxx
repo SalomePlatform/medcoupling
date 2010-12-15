@@ -46,6 +46,7 @@ namespace ParaMEDMEM
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     virtual bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
     virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    virtual bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
     virtual bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
@@ -155,6 +156,7 @@ namespace ParaMEDMEM
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
     bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception) { }
@@ -205,6 +207,7 @@ namespace ParaMEDMEM
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
     bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
@@ -245,6 +248,7 @@ namespace ParaMEDMEM
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
     bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
@@ -343,6 +347,7 @@ namespace ParaMEDMEM
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const;
+    bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const;
     bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
     void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);

@@ -32,6 +32,7 @@
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "MEDCouplingTypemaps.i"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -857,6 +858,26 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
+
+      PyObject *buildDescendingConnectivity() const throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d2=DataArrayInt::New();
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d3=DataArrayInt::New();
+        MEDCouplingUMesh *m=self->buildDescendingConnectivity(d0,d1,d2,d3);
+        PyObject *ret=PyTuple_New(5);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(d3),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        d0->incrRef();
+        d1->incrRef();
+        d2->incrRef();
+        d3->incrRef();
+        return ret;
+      }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);
     void unPolyze() throw(INTERP_KERNEL::Exception);
@@ -1328,7 +1349,8 @@ namespace ParaMEDMEM
       PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
       {
         MEDCouplingMesh *ret1=(MEDCouplingMesh *)self->getMesh();
-        ret1->incrRef();
+        if(ret1)
+          ret1->incrRef();
         return convertMesh(ret1, SWIG_POINTER_OWN | 0 );
       }
 

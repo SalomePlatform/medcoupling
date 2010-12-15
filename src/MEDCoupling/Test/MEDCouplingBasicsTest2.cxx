@@ -4034,3 +4034,44 @@ void MEDCouplingBasicsTest::testUMInsertNextCell1()
   targetMesh->checkCoherency();
   targetMesh->decrRef();
 }
+
+void MEDCouplingBasicsTest::testFieldOperatorDivDiffComp1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  DataArrayInt *d1=DataArrayInt::New();
+  DataArrayInt *d2=DataArrayInt::New();
+  DataArrayInt *d3=DataArrayInt::New();
+  DataArrayInt *d4=DataArrayInt::New();
+  MEDCouplingUMesh *m1=m->buildDescendingConnectivity(d1,d2,d3,d4);
+  //
+  MEDCouplingFieldDouble *f1=m1->buildOrthogonalField();
+  const double arr1[13]={2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.,13.,14.};
+  DataArrayDouble *arr=DataArrayDouble::New();
+  arr->alloc(13,1);
+  std::copy(arr1,arr1+13,arr->getPointer());
+  MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::New(ON_CELLS);
+  f2->setArray(arr);
+  f2->setMesh(m1);
+  f2->checkCoherency();
+  //
+  MEDCouplingFieldDouble *f3=(*f1)/(*f2);
+  CPPUNIT_ASSERT_THROW((*f2)/(*f1),INTERP_KERNEL::Exception);
+  f3->checkCoherency();
+  (*f1)/=(*f2);
+  CPPUNIT_ASSERT(f1->isEqual(f3,1e-10,1e-10));
+  CPPUNIT_ASSERT_THROW((*f2)/=(*f1),INTERP_KERNEL::Exception);
+  const double expected1[26]={-0.5, 0.0, 0.0, 0.33333333333333331, 0.25, 0.0, 0.0, -0.20000000000000001, 0.117851130197758, 0.117851130197758, 0.0, -0.14285714285714285, 0.0, 0.125, 0.1111111111111111, 0.0, 0.0, 0.10000000000000001, 0.090909090909090912, 0.0, -0.083333333333333329, 0.0, 0.0, 0.076923076923076927, 0.071428571428571425, 0.0};
+  for(int i=0;i<26;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f3->getIJ(0,i),1e-10);
+  //
+  f3->decrRef();
+  f2->decrRef();
+  arr->decrRef();
+  f1->decrRef();
+  m1->decrRef();
+  d1->decrRef();
+  d2->decrRef();
+  d3->decrRef();
+  d4->decrRef();
+  m->decrRef();
+}

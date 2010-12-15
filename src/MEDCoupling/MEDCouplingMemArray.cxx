@@ -1382,28 +1382,63 @@ void DataArrayDouble::multiplyEqual(const DataArrayDouble *other) throw(INTERP_K
 
 DataArrayDouble *DataArrayDouble::divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfComp=a1->getNumberOfComponents();
-  if(nbOfComp!=a2->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Nb of components mismatch for array divide !");
   int nbOfTuple=a1->getNumberOfTuples();
-  if(nbOfTuple!=a2->getNumberOfTuples())
+  int nbOfTuple2=a2->getNumberOfTuples();
+  int nbOfComp=a1->getNumberOfComponents();
+  int nbOfComp2=a2->getNumberOfComponents();
+  if(nbOfTuple!=nbOfTuple2)
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divide !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::divides<double>());
-  ret->copyStringInfoFrom(*a1);
+  DataArrayDouble *ret=0;
+  if(nbOfComp==nbOfComp2)
+    {
+      ret=DataArrayDouble::New();
+      ret->alloc(nbOfTuple,nbOfComp);
+      std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::divides<double>());
+      ret->copyStringInfoFrom(*a1);
+    }
+  else
+    {
+      if(nbOfComp2==1)
+        {
+          ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple,nbOfComp);
+          const double *a2Ptr=a2->getConstPointer();
+          const double *a1Ptr=a1->getConstPointer();
+          double *res=ret->getPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            res=std::transform(a1Ptr+i*nbOfComp,a1Ptr+(i+1)*nbOfComp,res,std::bind2nd(std::divides<double>(),a2Ptr[i]));
+          ret->copyStringInfoFrom(*a1);
+        }
+      else
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array divide !");
+    }
   return ret;
 }
 
 void DataArrayDouble::divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfComp=getNumberOfComponents();
-  if(nbOfComp!=other->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Nb of components mismatch for array divideEqual !");
   int nbOfTuple=getNumberOfTuples();
-  if(nbOfTuple!=other->getNumberOfTuples())
+  int nbOfTuple2=other->getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfComp2=other->getNumberOfComponents();
+  if(nbOfTuple!=nbOfTuple2)
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divideEqual !");
-  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::divides<double>());
+  if(nbOfComp==nbOfComp2)
+    {
+      std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::divides<double>());
+    }
+  else
+    {
+      if(nbOfComp2==1)
+        {
+          const double *ptr=other->getConstPointer();
+          double *myPtr=getPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            myPtr=std::transform(myPtr,myPtr+nbOfComp,myPtr,std::bind2nd(std::divides<double>(),ptr[i]));
+        }
+      else
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array divideEqual !");
+    }
   declareAsNew();
 }
 

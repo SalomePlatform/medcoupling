@@ -144,6 +144,21 @@ bool MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(const MEDCouplin
   return true;
 }
 
+bool MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+{
+  if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
+    return false;
+  if(_array==0 && other->_array==0)
+    return true;
+  if(_array==0 || other->_array==0)
+    return false;
+  int nbC1=_array->getNumberOfComponents();
+  int nbC2=other->_array->getNumberOfComponents();
+  if(nbC1!=nbC2 && nbC2!=1)
+    return false;
+  return true;
+}
+
 bool MEDCouplingTimeDiscretization::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
 {
   if(!areStrictlyCompatible(other))
@@ -721,6 +736,14 @@ bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForMul(const MEDCouplingTimeDi
   return otherC!=0;
 }
 
+bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
+    return false;
+  const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
+  return otherC!=0;
+}
+
 bool MEDCouplingNoTimeLabel::areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatibleForMeld(other))
@@ -1032,6 +1055,14 @@ bool MEDCouplingWithTimeStep::areStrictlyCompatible(const MEDCouplingTimeDiscret
 bool MEDCouplingWithTimeStep::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
 {
   if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(other))
+    return false;
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  return otherC!=0;
+}
+
+bool MEDCouplingWithTimeStep::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
     return false;
   const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
   return otherC!=0;
@@ -1420,7 +1451,15 @@ bool MEDCouplingConstOnTimeInterval::areStrictlyCompatible(const MEDCouplingTime
 
 bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
 {
-  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other))
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForMul(other))
+    return false;
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  return otherC!=0;
+}
+
+bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
     return false;
   const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
   return otherC!=0;
@@ -1977,7 +2016,15 @@ bool MEDCouplingLinearTime::areCompatible(const MEDCouplingTimeDiscretization *o
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
     return false;
   const MEDCouplingLinearTime *otherC=dynamic_cast<const MEDCouplingLinearTime *>(other);
-  return otherC!=0;
+  if(otherC==0)
+    return false;
+  if(_end_array==0 && otherC->_end_array==0)
+    return true;
+  if(_end_array==0 || otherC->_end_array==0)
+    return false;
+  if(_end_array->getNumberOfComponents()!=otherC->_end_array->getNumberOfComponents())
+    return false;
+  return true;
 }
 
 bool MEDCouplingLinearTime::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const
@@ -1994,6 +2041,24 @@ bool MEDCouplingLinearTime::areStrictlyCompatibleForMul(const MEDCouplingTimeDis
     return false;
   const MEDCouplingLinearTime *otherC=dynamic_cast<const MEDCouplingLinearTime *>(other);
   return otherC!=0;
+}
+
+bool MEDCouplingLinearTime::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretization *other) const
+{
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(other))
+    return false;
+  const MEDCouplingLinearTime *otherC=dynamic_cast<const MEDCouplingLinearTime *>(other);
+  if(otherC==0)
+    return false;
+  if(_end_array==0 && otherC->_end_array==0)
+    return true;
+  if(_end_array==0 || otherC->_end_array==0)
+    return false;
+  int nbC1=_end_array->getNumberOfComponents();
+  int nbC2=otherC->_end_array->getNumberOfComponents();
+  if(nbC1!=nbC2 && nbC2!=1)
+    return false;
+  return true;
 }
 
 bool MEDCouplingLinearTime::areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const

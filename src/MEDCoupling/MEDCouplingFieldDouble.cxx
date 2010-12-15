@@ -227,6 +227,24 @@ bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) 
 }
 
 /*!
+ * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatible method except that
+ * number of components between 'this' and 'other' can be different here (for operator/).
+ */
+bool MEDCouplingFieldDouble::areCompatibleForDiv(const MEDCouplingField *other) const
+{
+  if(!MEDCouplingField::areStrictlyCompatible(other))
+    return false;
+  const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
+  if(!otherC)
+    return false;
+  if(_nature!=otherC->_nature)
+    return false;
+  if(!_time_discr->areStrictlyCompatibleForDiv(otherC->_time_discr))
+    return false;
+  return true;
+}
+
+/*!
  * This method is invocated before any attempt of melding. This method is very close to areStrictlyCompatible,
  * except that 'this' and other can have different number of components.
  */
@@ -1425,7 +1443,7 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCoupli
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
-  if(!f1->areStrictlyCompatible(f2))
+  if(!f1->areCompatibleForDiv(f2))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply divideFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->divide(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
@@ -1436,7 +1454,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFi
 
 const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
-  if(!areStrictlyCompatible(&other))
+  if(!areCompatibleForDiv(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
   _time_discr->divideEqual(other._time_discr);
   return *this;
