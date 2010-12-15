@@ -693,7 +693,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         center=[0.,0.,0.]
         vector=[0.,1.,0.]
         m2.rotate(center,vector,-pi/2.);
-        m3=m1.buildExtrudedMeshFromThis(m2,0);
+        m3=m1.buildExtrudedMesh(m2,0);
         #
         m4=MEDCouplingExtrudedMesh.New(m3,m1,0);
         self.assertEqual(15,m4.getNumberOfCells());
@@ -713,7 +713,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #play with polygons and polyedrons
         cells=[2,3]
         m1.convertToPolyTypes(cells);
-        m3=m1.buildExtrudedMeshFromThis(m2,0);
+        m3=m1.buildExtrudedMesh(m2,0);
         self.assertEqual(NORM_HEXA8,m3.getTypeOfCell(0));
         self.assertEqual(NORM_PENTA6,m3.getTypeOfCell(1));
         self.assertEqual(NORM_POLYHED,m3.getTypeOfCell(2));
@@ -738,7 +738,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         center=[0.,0.,0.]
         vector=[0.,1.,0.]
         m2.rotate(center,vector,-pi/2.);
-        m3=m1.buildExtrudedMeshFromThis(m2,0);
+        m3=m1.buildExtrudedMesh(m2,0);
         expected1=[1,3,2,0,6,5,7,10,11,8,12,9,14,13,4]
         rexpected1=[3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12]
         m3.renumberCells(expected1,False);
@@ -1889,7 +1889,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         center=[0.,0.,0.]
         vector=[0.,1.,0.]
         m4.rotate(center,vector,-pi/2.);
-        m5=m3.buildExtrudedMeshFromThis(m4,0);
+        m5=m3.buildExtrudedMesh(m4,0);
         res1=m5.arePolyhedronsNotCorrectlyOriented();
         self.assertEqual(15,len(res1));
         m5.orientCorrectlyPolyhedrons();
@@ -4991,7 +4991,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         g=f.getCoords().applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
         h=g.fromPolarToCart();
         f.setCoords(h);
-        i=c.buildExtrudedMeshFromThis(f,1);
+        i=c.buildExtrudedMesh(f,1);
         self.assertEqual(52,i.getNumberOfNodes());
         tmp,tmp2,tmp3=i.mergeNodes(1e-9);
         self.assertTrue(tmp2);
@@ -5039,7 +5039,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         center=[0.,0.]
         f.rotate(center,[],pi/3);
-        g=c.buildExtrudedMeshFromThis(f,0);
+        g=c.buildExtrudedMesh(f,0);
         g.checkCoherency();
         expected1=[ 0.4330127018922193, 0.4330127018922193, 0.649519052838329, 1.2990381056766578, 1.299038105676658, 1.948557158514987, 2.1650635094610955, 2.1650635094610964, 3.2475952641916446, 3.031088913245533, 3.0310889132455352, 4.546633369868303 ]
         f1=g.getMeasureField(True);
@@ -5072,7 +5072,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         g=f.getCoords().applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
         h=g.fromPolarToCart();
         f.setCoords(h);
-        i=c.buildExtrudedMeshFromThis(f,1);
+        i=c.buildExtrudedMesh(f,1);
         self.assertEqual(52,i.getNumberOfNodes());
         tmp,tmp2,tmp3=i.mergeNodes(1e-9);
         self.assertTrue(tmp2);
@@ -5083,7 +5083,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         g2=h.applyFunc(3,"13.5/3.5*x*IVec+0*JVec+13.5/3.5*y*KVec");
         f.setCoords(g2);
         i.changeSpaceDimension(3);
-        i3=i.buildExtrudedMeshFromThis(f,1);
+        i3=i.buildExtrudedMesh(f,1);
         f2=i3.getMeasureField(True);
         tmp,tmp2,tmp3=i.mergeNodes(1e-9);
         self.assertTrue(tmp2);

@@ -323,7 +323,7 @@ void MEDCouplingExtrudedMesh::renumberCells(const int *old2NewBg, bool check) th
 
 MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const
 {
-  MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMeshFromThis(_mesh1D,0);
+  MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMesh(_mesh1D,0);
   const int *renum=_mesh3D_ids->getConstPointer();
   ret->renumberCells(renum,false);
   ret->setName(getName());

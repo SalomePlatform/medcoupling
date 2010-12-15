@@ -176,7 +176,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
-%newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMeshFromThis;
+%newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::mergeUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
@@ -881,7 +881,7 @@ namespace ParaMEDMEM
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);
     void unPolyze() throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy) throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDCouplingExtrudedMesh : public ParaMEDMEM::MEDCouplingMesh

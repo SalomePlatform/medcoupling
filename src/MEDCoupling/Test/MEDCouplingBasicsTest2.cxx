@@ -215,7 +215,7 @@ void MEDCouplingBasicsTest::testCellOrientation2()
   double center[3]={0.,0.,0.};
   double vector[3]={0.,1.,0.};
   m4->rotate(center,vector,-M_PI/2.);
-  MEDCouplingUMesh *m5=m3->buildExtrudedMeshFromThis(m4,0);
+  MEDCouplingUMesh *m5=m3->buildExtrudedMesh(m4,0);
   res1.clear();
   m5->arePolyhedronsNotCorrectlyOriented(res1);
   CPPUNIT_ASSERT_EQUAL(15,(int)res1.size());
@@ -3376,7 +3376,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh5()
   DataArrayDouble *g=f->getCoords()->applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
   DataArrayDouble *h=g->fromPolarToCart();
   f->setCoords(h);
-  MEDCouplingUMesh *i=c->buildExtrudedMeshFromThis(f,1);
+  MEDCouplingUMesh *i=c->buildExtrudedMesh(f,1);
   CPPUNIT_ASSERT_EQUAL(52,i->getNumberOfNodes());
   bool tmp2;
   int tmp3;
@@ -3440,7 +3440,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh6()
   //
   const double center[2]={0.,0.};
   f->rotate(center,0,M_PI/3);
-  MEDCouplingUMesh *g=c->buildExtrudedMeshFromThis(f,0);
+  MEDCouplingUMesh *g=c->buildExtrudedMesh(f,0);
   g->checkCoherency();
   const double expected1[]={ 0.4330127018922193, 0.4330127018922193, 0.649519052838329, 1.2990381056766578, 1.299038105676658, 1.948557158514987, 2.1650635094610955, 2.1650635094610964, 3.2475952641916446, 3.031088913245533, 3.0310889132455352, 4.546633369868303 };
   MEDCouplingFieldDouble *f1=g->getMeasureField(true);
@@ -3488,7 +3488,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh7()
   DataArrayDouble *g=f->getCoords()->applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
   DataArrayDouble *h=g->fromPolarToCart();
   f->setCoords(h);
-  MEDCouplingUMesh *i=c->buildExtrudedMeshFromThis(f,1);
+  MEDCouplingUMesh *i=c->buildExtrudedMesh(f,1);
   CPPUNIT_ASSERT_EQUAL(52,i->getNumberOfNodes());
   bool tmp2;
   int tmp3;
@@ -3502,7 +3502,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh7()
   DataArrayDouble *g2=h->applyFunc(3,"13.5/3.5*x*IVec+0*JVec+13.5/3.5*y*KVec");
   f->setCoords(g2);
   i->changeSpaceDimension(3);
-  MEDCouplingUMesh *i3=i->buildExtrudedMeshFromThis(f,1);
+  MEDCouplingUMesh *i3=i->buildExtrudedMesh(f,1);
   MEDCouplingFieldDouble *f2=i3->getMeasureField(true);
   tmp=i->mergeNodes(1e-9,tmp2,tmp3);
   CPPUNIT_ASSERT(tmp2);

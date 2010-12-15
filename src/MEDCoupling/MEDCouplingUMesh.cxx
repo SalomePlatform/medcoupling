@@ -2095,18 +2095,18 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
  * \b 1 for translation and rotation around point of 'mesh1D'.
  * @return an unstructured mesh with meshDim==3 and spaceDim==3. The returned mesh has the same coords than 'this'.  
  */
-MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThis(const MEDCouplingUMesh *mesh1D, int policy)
+MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy)
 {
   checkFullyDefined();
   mesh1D->checkFullyDefined();
   if(!mesh1D->isContiguous1D())
-    throw INTERP_KERNEL::Exception("buildExtrudedMeshFromThis : 1D mesh passed in parameter is not contiguous !");
+    throw INTERP_KERNEL::Exception("buildExtrudedMesh : 1D mesh passed in parameter is not contiguous !");
   if(getSpaceDimension()!=mesh1D->getSpaceDimension())
-    throw INTERP_KERNEL::Exception("Invalid call to buildExtrudedMeshFromThis this and mesh1D must have same dimension !");
+    throw INTERP_KERNEL::Exception("Invalid call to buildExtrudedMesh this and mesh1D must have same dimension !");
   if((getMeshDimension()!=2 || getSpaceDimension()!=3) && (getMeshDimension()!=1 || getSpaceDimension()!=2))
-    throw INTERP_KERNEL::Exception("Invalid 'this' for buildExtrudedMeshFromThis method : must be (meshDim==2 and spaceDim==3) or (meshDim==1 and spaceDim==2) !");
+    throw INTERP_KERNEL::Exception("Invalid 'this' for buildExtrudedMesh method : must be (meshDim==2 and spaceDim==3) or (meshDim==1 and spaceDim==2) !");
   if(mesh1D->getMeshDimension()!=1)
-    throw INTERP_KERNEL::Exception("Invalid 'mesh1D' for buildExtrudedMeshFromThis method : must be meshDim==1 !");
+    throw INTERP_KERNEL::Exception("Invalid 'mesh1D' for buildExtrudedMesh method : must be meshDim==1 !");
   bool isQuad=false;
   if(isPresenceOfQuadratic())
     {
@@ -2141,7 +2141,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThis(const MEDCouplingU
 }
 
 /*!
- * This method incarnates the policy 0 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * This method incarnates the policy 0 for MEDCouplingUMesh::buildExtrudedMesh method.
  * @param mesh1D is the input 1D mesh used for translation computation.
  * @return newCoords new coords filled by this method. 
  */
@@ -2187,7 +2187,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslation(const MEDCoupli
 }
 
 /*!
- * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMesh method.
  * @param mesh1D is the input 1D mesh used for translation and automatic rotation computation.
  * @return newCoords new coords filled by this method. 
  */
@@ -2201,7 +2201,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation(const
 }
 
 /*!
- * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMesh method.
  * @param mesh1D is the input 1D mesh used for translation and automatic rotation computation.
  * @return newCoords new coords filled by this method. 
  */
@@ -2247,7 +2247,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D(con
 }
 
 /*!
- * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * This method incarnates the policy 1 for MEDCouplingUMesh::buildExtrudedMesh method.
  * @param mesh1D is the input 1D mesh used for translation and automatic rotation computation.
  * @return newCoords new coords filled by this method. 
  */
@@ -2317,7 +2317,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
 
 /*!
  * This method is private because not easy to use for end user. This method is const contrary to
- * MEDCouplingUMesh::buildExtrudedMeshFromThis method because this->_coords are expected to contain
+ * MEDCouplingUMesh::buildExtrudedMesh method because this->_coords are expected to contain
  * the coords sorted slice by slice.
  * @param isQuad specifies presence of quadratic cells.
  */

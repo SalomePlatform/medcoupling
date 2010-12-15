@@ -1060,7 +1060,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   double center[3]={0.,0.,0.};
   double vector[3]={0,1,0};
   m2->rotate(center,vector,-M_PI/2.);
-  MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
+  MEDCouplingUMesh *m3=m1->buildExtrudedMesh(m2,0);
   //
   MEDCouplingExtrudedMesh *m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
@@ -1085,7 +1085,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   //play with polygons and polyedrons
   std::vector<int> cells(2); cells[0]=2; cells[1]=3;
   m1->convertToPolyTypes(cells);
-  m3=m1->buildExtrudedMeshFromThis(m2,0);
+  m3=m1->buildExtrudedMesh(m2,0);
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_HEXA8,(int)m3->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_PENTA6,(int)m3->getTypeOfCell(1));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_POLYHED,(int)m3->getTypeOfCell(2));
@@ -1107,7 +1107,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
 }
 
 /*!
- * This test check MEDCouplingUMesh::buildExtrudedMeshFromThis method, but also, MEDCouplingExtrudedMesh following methods :
+ * This test check MEDCouplingUMesh::buildExtrudedMesh method, but also, MEDCouplingExtrudedMesh following methods :
  * getCellContainingPoint getMeasureField getNodeIdsOfCell getCoordinateOfNode getTypeOfCell build3DUnstructuredMesh.
  */
 void MEDCouplingBasicsTest::testExtrudedMesh4()
@@ -1121,7 +1121,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh4()
   double center[3]={0.,0.,0.};
   double vector[3]={0.,1.,0.};
   m2->rotate(center,vector,-M_PI/2.);
-  MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
+  MEDCouplingUMesh *m3=m1->buildExtrudedMesh(m2,0);
   const int expected1[15]= {1,3,2,0,6,5,7,10,11,8,12,9,14,13,4};
   const int rexpected1[15]={3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12};
   m3->renumberCells(expected1,false);
