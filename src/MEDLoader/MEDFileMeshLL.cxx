@@ -326,6 +326,16 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
   return tmp;
 }
 
+const DataArrayInt *MEDFileUMeshSplitL1::getFamilyField() const
+{
+  return _fam;
+}
+
+void MEDFileUMeshSplitL1::eraseFamilyField()
+{
+  _fam->fillWithZero();
+}
+
 /*!
  * This method ignores _m and _m_by_types.
  */

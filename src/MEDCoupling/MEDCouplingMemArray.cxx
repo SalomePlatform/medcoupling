@@ -2264,6 +2264,17 @@ DataArrayInt *DataArrayInt::deltaShiftIndex() const throw(INTERP_KERNEL::Excepti
   return ret;
 }
 
+/*!
+ * This method returns all different values found in 'this'.
+ */
+std::set<int> DataArrayInt::getDifferentValues() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  std::set<int> ret;
+  ret.insert(getConstPointer(),getConstPointer()+getNbOfElems());
+  return ret;
+}
+
 int *DataArrayInt::checkAndPreparePermutation(const int *start, const int *end)
 {
   int sz=std::distance(start,end);

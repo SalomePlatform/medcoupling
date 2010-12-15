@@ -1160,6 +1160,12 @@ namespace ParaMEDMEM
      return self->repr();
    }
 
+   PyObject *getDifferentValues(bool val) const throw(INTERP_KERNEL::Exception)
+   {
+     std::set<int> ret=self->getDifferentValues();
+     return convertIntArrToPyList3(ret);
+   }
+
    void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple) throw(INTERP_KERNEL::Exception)
    {
      int size;

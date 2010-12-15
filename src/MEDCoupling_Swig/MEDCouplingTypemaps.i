@@ -70,6 +70,16 @@ static PyObject *convertIntArrToPyList2(const std::vector<int>& v) throw(INTERP_
 #endif
 }
 
+static PyObject *convertIntArrToPyList3(const std::set<int>& v) throw(INTERP_KERNEL::Exception)
+{
+  int size=v.size();
+  PyObject *ret=PyList_New(size);
+  std::set<int>::const_iterator it=v.begin();
+  for(int i=0;i<size;i++,it++)
+    PyList_SetItem(ret,i,PyInt_FromLong(*it));
+  return ret;
+}
+
 static PyObject *convertIntArrToPyListOfTuple(const int *vals, int nbOfComp, int nbOfTuples) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=PyList_New(nbOfTuples);

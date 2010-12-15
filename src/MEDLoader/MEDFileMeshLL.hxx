@@ -89,6 +89,8 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getFamilyPart(const std::vector<int>& ids, bool renum) const;
     DataArrayInt *getFamilyPartArr(const std::vector<int>& ids, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
+    const DataArrayInt *getFamilyField() const;
+    void eraseFamilyField();
     void setGroupsFromScratch(const std::vector<MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception);
     void write(med_idt fid, const char *mName, int mdim) const;
