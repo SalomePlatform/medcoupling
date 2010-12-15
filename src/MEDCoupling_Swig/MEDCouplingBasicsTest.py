@@ -5483,6 +5483,49 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         b.setValues(bb,5,1)
         self.assertEqual([2,6,8],a.buildSubstraction(b).getValues())
         pass
+
+    def testBuildOrthogonalField2(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        d1=DataArrayInt.New();
+        d2=DataArrayInt.New();
+        d3=DataArrayInt.New();
+        d4=DataArrayInt.New();
+        m1=m.buildDescendingConnectivity(d1,d2,d3,d4);
+        #
+        f1=m1.buildOrthogonalField();
+        da1=f1.getArray();
+        self.assertEqual(2,da1.getNumberOfComponents());
+        self.assertEqual(13,da1.getNumberOfTuples());
+        #
+        expected1=[-1.,0.,0.,1.,1.,0.,0.,-1.,0.707106781186548,0.707106781186548,0.,-1.,0.,1.,1.,0.,0.,1.,1.,0.,-1.,0.,0.,1.,1.,0.];
+        for i in xrange(26):
+            self.assertAlmostEqual(expected1[i],da1.getIJ(0,i),14);
+            pass
+        pass
+
+    def testSwigErrorProtection2(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        coo=m.getCoords()
+        c=m.getNodalConnectivity()
+        ci=m.getNodalConnectivityIndex()
+        del m
+        self.assertEqual(2,coo.getNumberOfComponents());
+        self.assertEqual(6,ci.getNumberOfTuples());
+        self.assertEqual(23,c.getNumberOfTuples());
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f=m.getMeasureField(True)
+        c=f.getArray()
+        del f
+        self.assertEqual(1,c.getNumberOfComponents());
+        m=MEDCouplingCMesh.New()
+        x=DataArrayDouble.New()
+        x.setValues([1.,2.,4.],3,1)
+        m.setCoordsAt(0,x)
+        del x
+        xx=m.getCoordsAt(0)
+        del m
+        self.assertEqual(3,xx.getNumberOfTuples());
+        pass
     
     def setUp(self):
         pass

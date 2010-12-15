@@ -190,6 +190,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
+%newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -905,6 +906,13 @@ namespace ParaMEDMEM
       std::string __str__() const
       {
         return self->simpleRepr();
+      }
+      DataArrayDouble *getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayDouble *ret=self->getCoordsAt(i);
+        if(ret)
+          ret->incrRef();
+        return ret;
       }
     }
   };
