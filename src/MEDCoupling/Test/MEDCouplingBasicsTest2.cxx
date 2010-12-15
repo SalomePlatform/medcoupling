@@ -4008,3 +4008,29 @@ void MEDCouplingBasicsTest::testBuildOrthogonalField2()
   d4->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testUMInsertNextCell1()
+{
+  double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
+  int targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
+  MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
+  targetMesh->allocateCells(5);
+  CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn),INTERP_KERNEL::Exception);
+  targetMesh->setMeshDimension(2);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
+  CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,targetConn),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,targetConn),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,1,targetConn),INTERP_KERNEL::Exception);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+14);
+  targetMesh->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,2);
+  std::copy(targetCoords,targetCoords+18,myCoords->getPointer());
+  targetMesh->setCoords(myCoords);
+  myCoords->decrRef();
+  targetMesh->checkCoherency();
+  targetMesh->decrRef();
+}

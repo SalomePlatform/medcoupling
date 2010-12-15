@@ -154,14 +154,25 @@ void MEDCouplingUMesh::allocateCells(int nbOfCells)
  * @param size number of nodes constituting this cell.
  * @param nodalConnOfCell the connectivity of the cell to add.
  */
-void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell)
+void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell) throw(INTERP_KERNEL::Exception)
 {
-  int *pt=_nodal_connec_index->getPointer();
-  int idx=pt[_iterator];
-
-  _nodal_connec->writeOnPlace(idx,type,nodalConnOfCell,size);
-  _types.insert(type);
-  pt[++_iterator]=idx+size+1;
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+  if((int)cm.getDimension()==_mesh_dim)
+    {
+      int *pt=_nodal_connec_index->getPointer();
+      int idx=pt[_iterator];
+      
+      _nodal_connec->writeOnPlace(idx,type,nodalConnOfCell,size);
+      _types.insert(type);
+      pt[++_iterator]=idx+size+1;
+    }
+  else
+    {
+      std::ostringstream oss; oss << "MEDCouplingUMesh::insertNextCell : cell type " << cm.getRepr() << " has a dimension " << cm.getDimension();
+      oss << " whereas Mesh Dimension of current UMesh instance is set to " << _mesh_dim << " ! Please invoke \"setMeshDimension\" method before or invoke ";
+      oss << "\"MEDCouplingUMesh::New\" static method with 2 parameters name and meshDimension !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
 /*!
