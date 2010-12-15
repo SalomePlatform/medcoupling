@@ -484,6 +484,24 @@ DataArrayDouble *DataArrayDouble::changeNbOfComponents(int newNbOfComp, double d
   return ret;
 }
 
+/*!
+ * Contrary to DataArrayDouble::changeNbOfComponents method this method is \b not const. The content 
+ * This method \b do \b not change the content of data but changes the splitting of this data seen by the caller.
+ * This method makes the assumption that 'this' is already allocated. If not an exception will be thrown.
+ * This method checks that getNbOfElems()%newNbOfCompo==0. If not an exception will be throw !
+ * This method erases all components info set before call !
+ */
+void DataArrayDouble::morphToNewNbOfComponents(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfElems=getNbOfElems();
+  if(nbOfElems%newNbOfCompo!=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::morphToNewNbOfComponents : nbOfElems%newNbOfCompo!=0 !");
+  _info_on_compo.clear();
+  _info_on_compo.resize(newNbOfCompo);
+  declareAsNew();
+}
+
 DataArrayDouble *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
@@ -1817,6 +1835,24 @@ DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const throw(IN
   ret->copyStringInfoFrom(*this);
   std::copy(getConstPointer()+tupleIdBg*nbComp,getConstPointer()+trueEnd*nbComp,ret->getPointer());
   return ret;
+}
+
+/*!
+ * Contrary to DataArrayInt::changeNbOfComponents method this method is \b not const. The content 
+ * This method \b do \b not change the content of data but changes the splitting of this data seen by the caller.
+ * This method makes the assumption that 'this' is already allocated. If not an exception will be thrown.
+ * This method checks that getNbOfElems()%newNbOfCompo==0. If not an exception will be throw !
+ * This method erases all components info set before call !
+ */
+void DataArrayInt::morphToNewNbOfComponents(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfElems=getNbOfElems();
+  if(nbOfElems%newNbOfCompo!=0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::morphToNewNbOfComponents : nbOfElems%newNbOfCompo!=0 !");
+  _info_on_compo.clear();
+  _info_on_compo.resize(newNbOfCompo);
+  declareAsNew();
 }
 
 /*!
