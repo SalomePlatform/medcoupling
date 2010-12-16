@@ -965,8 +965,16 @@ namespace ParaMEDMEM
 
    void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple) throw(INTERP_KERNEL::Exception)
    {
-     int sz;
-     double *tmp=convertPyToNewDblArr2(li,&sz);
+     double *tmp=new double[nbOfTuples*nbOfElsPerTuple];
+     try
+       {
+         fillArrayWithPyListDbl(li,tmp,nbOfTuples*nbOfElsPerTuple,0.);
+       }
+     catch(INTERP_KERNEL::Exception& e)
+       {
+         delete [] tmp;
+         throw e;
+       }
      self->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfElsPerTuple);
    }
 
@@ -1168,8 +1176,16 @@ namespace ParaMEDMEM
 
    void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple) throw(INTERP_KERNEL::Exception)
    {
-     int size;
-     int *tmp=convertPyToNewIntArr2(li,&size);
+     int *tmp=new int[nbOfTuples*nbOfElsPerTuple];
+     try
+       {
+         fillArrayWithPyListInt(li,tmp,nbOfTuples*nbOfElsPerTuple,0.);
+       }
+     catch(INTERP_KERNEL::Exception& e)
+       {
+         delete [] tmp;
+         throw e;
+       }
      self->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfElsPerTuple);
    }
 

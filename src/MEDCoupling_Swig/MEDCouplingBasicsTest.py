@@ -5580,6 +5580,122 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected1[i],f3.getIJ(0,i),10);
             pass
         pass
+
+    def testDARearrange1(self):
+        da1=DataArrayInt.New();
+        da1.alloc(12,1);
+        da1.iota(0);
+        #
+        self.assertEqual(12,da1.getNbOfElems());
+        self.assertEqual(1,da1.getNumberOfComponents());
+        self.assertEqual(12,da1.getNumberOfTuples());
+        da1.rearrange(4);
+        self.assertEqual(12,da1.getNbOfElems());
+        self.assertEqual(4,da1.getNumberOfComponents());
+        self.assertEqual(3,da1.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertEqual(i,da1.getIJ(0,i));
+        #
+        da1.rearrange(6);
+        self.assertEqual(12,da1.getNbOfElems());
+        self.assertEqual(6,da1.getNumberOfComponents());
+        self.assertEqual(2,da1.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertEqual(i,da1.getIJ(0,i));
+        #
+        self.assertRaises(da1.rearrange(7),Exception);
+        #
+        da1.rearrange(12);
+        self.assertEqual(12,da1.getNbOfElems());
+        self.assertEqual(12,da1.getNumberOfComponents());
+        self.assertEqual(1,da1.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertEqual(i,da1.getIJ(0,i));
+        #
+        da1.rearrange(3);
+        self.assertEqual(12,da1.getNbOfElems());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        self.assertEqual(4,da1.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertEqual(i,da1.getIJ(0,i));
+        #double
+        da2=da1.convertToDblArr();
+        #
+        self.assertEqual(12,da2.getNbOfElems());
+        self.assertEqual(3,da2.getNumberOfComponents());
+        self.assertEqual(4,da2.getNumberOfTuples());
+        da2.rearrange(4);
+        self.assertEqual(12,da2.getNbOfElems());
+        self.assertEqual(4,da2.getNumberOfComponents());
+        self.assertEqual(3,da2.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertAlmostEqual(float(i),da2.getIJ(0,i),14);
+        #
+        da2.rearrange(6);
+        self.assertEqual(12,da2.getNbOfElems());
+        self.assertEqual(6,da2.getNumberOfComponents());
+        self.assertEqual(2,da2.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertAlmostEqual(float(i),da2.getIJ(0,i),14);
+        #
+        self.assertRaises(da2.rearrange(7),Exception);
+        #
+        da2.rearrange(1);
+        self.assertTrue(ptr2==da2.getConstPointer());
+        self.assertEqual(12,da2.getNbOfElems());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        self.assertEqual(12,da2.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertAlmostEqual(float(i),da2.getIJ(0,i),14);
+        #
+        da2.rearrange(3);
+        self.assertEqual(12,da2.getNbOfElems());
+        self.assertEqual(3,da2.getNumberOfComponents());
+        self.assertEqual(4,da2.getNumberOfTuples());
+        for i in xrange(12):
+            self.assertAlmostEqual(float(i),da2.getIJ(0,i),14);
+        pass
+
+    def testDARearrange1(self):
+        da1=DataArrayInt.New();
+        arr=[1,2,3,2,2,3,5,1,5,5,2,2]
+        da1.setValues(arr,4,3);
+        s=da1.getDifferentValues(True);# API different from C++ because SWIG complains...
+        expected1=[1,2,3,5]
+        self.assertEqual(expected1,s);
+        pass
+
+    def testSwigErrorProtection3(self):
+        da=DataArrayInt.New()
+        da.setValues([1,2,3,4],4,3)
+        self.assertEqual([1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0],da.getValues())
+        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples());
+        da=DataArrayInt.New()
+        da.setValues((1,2,3,4,4,3),4,3)
+        self.assertEqual([1, 2, 3, 4, 4, 3, 0, 0, 0, 0, 0, 0],da.getValues())
+        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples());
+        da.setValues(10*[1]+290*[2],4,3)
+        self.assertEqual(10*[1]+[2,2],da.getValues())
+        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples());
+        #
+        da=DataArrayDouble.New()
+        da.setValues([1,2,3.,4],4,3)
+        self.assertEqual([1., 2., 3., 4., 0., 0., 0., 0., 0., 0., 0., 0.],da.getValues())
+        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples());
+        da=DataArrayDouble.New()
+        da.setValues((1,2,3,4.,4,3),4,3)
+        self.assertEqual([1., 2., 3., 4., 4., 3., 0., 0., 0., 0., 0., 0.],da.getValues())
+        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples());
+        da.setValues(10*[1]+290*[2],4,3)
+        self.assertEqual(10*[1.]+[2.,2.],da.getValues())
+        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples());
+        pass
     
     def setUp(self):
         pass

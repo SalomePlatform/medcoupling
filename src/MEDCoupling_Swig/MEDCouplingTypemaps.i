@@ -230,6 +230,63 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
     }
 }
 
+static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            {
+              int val=(int)PyInt_AS_LONG(o);
+              if(i<sizeOfArray)
+                arrToFill[i]=val;
+            }
+          else
+            {
+              const char msg[]="list must contain integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+        }
+      for(int i=size;i<sizeOfArray;i++)
+        arrToFill[i]=dftVal;
+      return;
+      
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            {
+              int val=(int)PyInt_AS_LONG(o);
+              if(i<sizeOfArray)
+                arrToFill[i]=val;
+            }
+          else
+            {
+              const char msg[]="tuple must contain integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+        }
+      for(int i=size;i<sizeOfArray;i++)
+        arrToFill[i]=dftVal;
+      return;
+    }
+  else
+    {
+      const char msg[]="fillArrayWithPyListInt : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
 static PyObject *convertDblArrToPyList(const double *ptr, int size) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=PyList_New(size);
@@ -317,6 +374,74 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
             }
         }
       return tmp;
+    }
+  else
+    {
+      const char msg[]="convertPyToNewDblArr2 : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOfArray, double dftVal) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyFloat_Check(o))
+            {
+              double val=PyFloat_AS_DOUBLE(o);
+              if(i<sizeOfArray)
+                arrToFill[i]=val;
+            }
+          else if(PyInt_Check(o))
+            {
+              long val0=PyInt_AS_LONG(o);
+              double val=val0;
+              if(i<sizeOfArray)
+                arrToFill[i]=val;
+            }
+          else
+            {
+              const char msg[]="fillArrayWithPyListDbl : list must contain floats/integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+        }
+      for(int i=size;i<sizeOfArray;i++)
+        arrToFill[i]=dftVal;
+      return;
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyFloat_Check(o))
+            {
+              double val=PyFloat_AS_DOUBLE(o);
+              arrToFill[i]=val;
+            }
+          else if(PyInt_Check(o))
+            {
+              long val0=PyInt_AS_LONG(o);
+              double val=val0;
+              arrToFill[i]=val;
+            }
+          else
+            {
+              const char msg[]="fillArrayWithPyListDbl : tuple must contain floats/integers only";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+        }
+      for(int i=size;i<sizeOfArray;i++)
+        arrToFill[i]=dftVal;
+      return ;
     }
   else
     {

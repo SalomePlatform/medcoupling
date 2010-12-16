@@ -4075,3 +4075,104 @@ void MEDCouplingBasicsTest::testFieldOperatorDivDiffComp1()
   d4->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDARearrange1()
+{
+  DataArrayInt *da1=DataArrayInt::New();
+  da1->alloc(12,1);
+  da1->iota(0);
+  const int *ptr=da1->getConstPointer();
+  //
+  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(1,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(12,da1->getNumberOfTuples());
+  da1->rearrange(4);
+  CPPUNIT_ASSERT(ptr==da1->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(4,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,da1->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(i,da1->getIJ(0,i));
+  //
+  da1->rearrange(6);
+  CPPUNIT_ASSERT(ptr==da1->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(6,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(2,da1->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(i,da1->getIJ(0,i));
+  //
+  CPPUNIT_ASSERT_THROW(da1->rearrange(7),INTERP_KERNEL::Exception);
+  //
+  da1->rearrange(12);
+  CPPUNIT_ASSERT(ptr==da1->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(12,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(1,da1->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(i,da1->getIJ(0,i));
+  //
+  da1->rearrange(3);
+  CPPUNIT_ASSERT(ptr==da1->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(3,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(4,da1->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(i,da1->getIJ(0,i));
+  //double
+  DataArrayDouble *da2=da1->convertToDblArr();
+  da1->decrRef();
+  const double *ptr2=da2->getConstPointer();
+  //
+  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
+  da2->rearrange(4);
+  CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL((double)i,da2->getIJ(0,i),1e-14);
+  //
+  da2->rearrange(6);
+  CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(6,da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(2,da2->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL((double)i,da2->getIJ(0,i),1e-14);
+  //
+  CPPUNIT_ASSERT_THROW(da2->rearrange(7),INTERP_KERNEL::Exception);
+  //
+  da2->rearrange(1);
+  CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(12,da2->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL((double)i,da2->getIJ(0,i),1e-14);
+  //
+  da2->rearrange(3);
+  CPPUNIT_ASSERT(ptr2==da2->getConstPointer());
+  CPPUNIT_ASSERT_EQUAL(12,da2->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL((double)i,da2->getIJ(0,i),1e-14);
+  da2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testGetDifferentValues1()
+{
+  DataArrayInt *da1=DataArrayInt::New();
+  const int arr[12]={1,2,3,2,2,3,5,1,5,5,2,2};
+  da1->alloc(4,3);
+  std::copy(arr,arr+12,da1->getPointer());
+  std::set<int> s=da1->getDifferentValues();
+  const int expected1[4]={1,2,3,5};
+  CPPUNIT_ASSERT_EQUAL(4,(int)s.size());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+4,s.begin()));
+  da1->decrRef();
+}
+
