@@ -782,9 +782,9 @@ void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
     {
       for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86LowLev(ass);
-      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
-        (*iter2)->operateX86(ass);
     }
+  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
@@ -795,9 +795,9 @@ void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
     {
       for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86_64LowLev(ass);
-      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
-        (*iter2)->operateX86(ass);
     }
+  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 void LeafExprVal::compileX86(std::vector<std::string>& ass) const
