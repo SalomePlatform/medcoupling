@@ -259,7 +259,7 @@ void MEDCouplingFieldDiscretization::renumberEntitiesFromO2NArr(const int *old2N
   int oldNbOfElems=arr->getNumberOfTuples();
   int nbOfComp=arr->getNumberOfComponents();
   int newNbOfTuples=(*std::max_element(old2NewPtr,old2NewPtr+oldNbOfElems))+1;
-  DataArrayDouble *arrCpy=arr->deepCopy();
+  DataArrayDouble *arrCpy=arr->deepCpy();
   const double *ptSrc=arrCpy->getConstPointer();
   arr->reAlloc(newNbOfTuples);
   double *ptToFill=arr->getPointer();
@@ -291,7 +291,7 @@ void MEDCouplingFieldDiscretization::renumberEntitiesFromO2NArr(const int *old2N
 void MEDCouplingFieldDiscretization::renumberEntitiesFromN2OArr(const int *new2OldPtr, int new2OldSz, DataArrayDouble *arr, const char *msg)
 {
   int nbOfComp=arr->getNumberOfComponents();
-  DataArrayDouble *arrCpy=arr->deepCopy();
+  DataArrayDouble *arrCpy=arr->deepCpy();
   const double *ptSrc=arrCpy->getConstPointer();
   arr->reAlloc(new2OldSz);
   double *ptToFill=arr->getPointer();
@@ -586,7 +586,7 @@ MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(con
 {
   DataArrayInt *arr=other._discr_per_cell;
   if(arr)
-    _discr_per_cell=arr->deepCopy();
+    _discr_per_cell=arr->deepCpy();
 }
 
 void MEDCouplingFieldDiscretizationPerCell::updateTime()

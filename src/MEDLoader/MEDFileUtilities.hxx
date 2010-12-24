@@ -17,26 +17,21 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module libMEDCouplingRemapper_Swig
+#ifndef __MEDFILEUTILITIES_HXX__
+#define __MEDFILEUTILITIES_HXX__
 
-#define MEDCOUPLING_EXPORT
-#define INTERPKERNEL_EXPORT
-#define MEDCOUPLINGREMAPPER_EXPORT
+#include "InterpKernelException.hxx"
 
-%{
-#include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingField.hxx"
-#include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingRemapper.hxx"
+extern "C"
+{
+#include "med.h"
+}
 
-using namespace ParaMEDMEM;
-using namespace INTERP_KERNEL;
-%}
-
-%newobject ParaMEDMEM::MEDCouplingRemapper::transferField;
-%newobject ParaMEDMEM::MEDCouplingRemapper::reverseTransferField;
-
-%include "libMEDCoupling_Swig.i"
-%include "InterpolationOptions.hxx"
-%include "MEDCouplingRemapper.hxx"
+namespace MEDFileUtilities
+{
+  med_mode_acces TraduceWriteMode(int medloaderwritemode) throw(INTERP_KERNEL::Exception);
+  void CheckMEDCode(int code, med_idt fid, const char *msg) throw(INTERP_KERNEL::Exception);
+  void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
+}
+  
+#endif

@@ -326,6 +326,38 @@ void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNo
   newCoords->decrRef();
 }
 
+/*
+ * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
+ * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
+ * This value is asked because often known by the caller of this method.
+ * Contrary to ParaMEDMEM::MEDCouplingPointSet::renumberNodes method for merged nodes the barycenter of them is computed here.
+ *
+ * @param newNodeNumbers array specifying the new numbering.
+ * @param newNbOfNodes the new number of nodes.
+ */
+void MEDCouplingPointSet::renumberNodes2(const int *newNodeNumbers, int newNbOfNodes)
+{
+  DataArrayDouble *newCoords=DataArrayDouble::New();
+  std::vector<int> div(newNbOfNodes);
+  int spaceDim=getSpaceDimension();
+  newCoords->alloc(newNbOfNodes,spaceDim);
+  newCoords->copyStringInfoFrom(*_coords);
+  newCoords->fillWithZero();
+  int oldNbOfNodes=getNumberOfNodes();
+  double *ptToFill=newCoords->getPointer();
+  const double *oldCoordsPtr=_coords->getConstPointer();
+  for(int i=0;i<oldNbOfNodes;i++)
+    {
+      std::transform(oldCoordsPtr+i*spaceDim,oldCoordsPtr+(i+1)*spaceDim,ptToFill+newNodeNumbers[i]*spaceDim,
+                     ptToFill+newNodeNumbers[i]*spaceDim,std::plus<double>());
+      div[newNodeNumbers[i]]++;
+    }
+  for(int i=0;i<newNbOfNodes;i++)
+    ptToFill=std::transform(ptToFill,ptToFill+spaceDim,ptToFill,std::bind2nd(std::multiplies<double>(),1./(double)div[i]));
+  setCoords(newCoords);
+  newCoords->decrRef();
+}
+
 /*!
  * This method fills bbox params like that : bbox[0]=XMin, bbox[1]=XMax, bbox[2]=YMin...
  * The returned bounding box is arranged along trihedron.
@@ -513,12 +545,36 @@ void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, 
 /*!
  * merge _coords arrays of m1 and m2 and returns the union. The returned instance is newly created with ref count == 1.
  */
-DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2)
+DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=m1->getSpaceDimension();
   if(spaceDim!=m2->getSpaceDimension())
     throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of mergeNodesArray !");
   return DataArrayDouble::aggregate(m1->getCoords(),m2->getCoords());
+}
+
+DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const std::vector<const MEDCouplingPointSet *>& ms) throw(INTERP_KERNEL::Exception)
+{
+  if(ms.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::mergeNodesArray : input array must be NON EMPTY !");
+  std::vector<const MEDCouplingPointSet *>::const_iterator it=ms.begin();
+  std::vector<const DataArrayDouble *> coo(ms.size());
+  int spaceDim=(*it)->getSpaceDimension();
+  coo[0]=(*it++)->getCoords();
+  for(int i=1;it!=ms.end();it++,i++)
+    {
+      const DataArrayDouble *tmp=(*it)->getCoords();
+      if(tmp)
+        {
+          if((*it)->getSpaceDimension()==spaceDim)
+            coo[i]=tmp;
+          else
+            throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of mergeNodesArray !");
+        }
+      else
+        throw INTERP_KERNEL::Exception("Empty coords detected during call of mergeNodesArray !");
+    }
+  return DataArrayDouble::aggregate(coo);
 }
 
 /*!

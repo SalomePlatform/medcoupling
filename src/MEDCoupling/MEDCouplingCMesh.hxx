@@ -63,7 +63,7 @@ namespace ParaMEDMEM
                    DataArrayDouble *coordsY=0,
                    DataArrayDouble *coordsZ=0);
     // tools
-    MEDCouplingUMesh *buildUnstructured() const;
+    MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);

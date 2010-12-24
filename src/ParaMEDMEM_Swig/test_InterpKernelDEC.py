@@ -19,7 +19,7 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from libParaMEDMEM_Swig import *
+from ParaMEDMEM import *
 import sys, os
 import unittest
 import math

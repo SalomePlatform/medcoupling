@@ -104,7 +104,7 @@ MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& 
     {
       _mesh2D=other._mesh2D->clone(true);
       _mesh1D=other._mesh1D->clone(true);
-      _mesh3D_ids=other._mesh3D_ids->deepCopy();
+      _mesh3D_ids=other._mesh3D_ids->deepCpy();
     }
   else
     {
@@ -323,11 +323,16 @@ void MEDCouplingExtrudedMesh::renumberCells(const int *old2NewBg, bool check) th
 
 MEDCouplingUMesh *MEDCouplingExtrudedMesh::build3DUnstructuredMesh() const
 {
-  MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMeshFromThis(_mesh1D,0);
+  MEDCouplingUMesh *ret=_mesh2D->buildExtrudedMesh(_mesh1D,0);
   const int *renum=_mesh3D_ids->getConstPointer();
   ret->renumberCells(renum,false);
   ret->setName(getName());
   return ret;
+}
+
+MEDCouplingUMesh *MEDCouplingExtrudedMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
+{
+  return build3DUnstructuredMesh();
 }
 
 MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const

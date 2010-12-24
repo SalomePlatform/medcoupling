@@ -54,6 +54,7 @@ namespace ParaMEDMEM
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
+    virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
     DataArrayInt *buildPermArrayForMergeNode(int limitNodeId, double precision, bool& areNodesMerged, int& newNbOfNodes) const;
     std::vector<int> getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception);
     void getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception);
@@ -70,7 +71,8 @@ namespace ParaMEDMEM
     void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
     void findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2);
+    static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
+    static DataArrayDouble *mergeNodesArray(const std::vector<const MEDCouplingPointSet *>& ms) throw(INTERP_KERNEL::Exception);
     static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
     static void rotate2DAlg(const double *center, double angle, int nbNodes, double *coords);
     static void rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords);
@@ -82,6 +84,7 @@ namespace ParaMEDMEM
     virtual void findBoundaryNodes(std::vector<int>& nodes) const = 0;
     virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const = 0;
     virtual void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
+    virtual void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
     virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const = 0;
     //! size of returned tinyInfo must be always the same.
     void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;

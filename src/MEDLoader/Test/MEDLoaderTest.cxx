@@ -330,6 +330,18 @@ void MEDLoaderTest::testMultiMeshRW1()
   CPPUNIT_ASSERT(mesh2_2->isEqual(mesh2,1e-12));
   mesh2_2->decrRef();
   //
+  std::vector<std::string> ret=MEDLoader::GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
+  CPPUNIT_ASSERT_EQUAL(4,(int)ret.size());
+  CPPUNIT_ASSERT(ret[0]=="Family_1");
+  CPPUNIT_ASSERT(ret[1]=="Family_2");
+  CPPUNIT_ASSERT(ret[2]=="Family_3");
+  CPPUNIT_ASSERT(ret[3]=="Family_4");
+  //
+  std::vector<std::string> ret1=MEDLoader::GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_2");
+  CPPUNIT_ASSERT_EQUAL(2,(int)ret1.size());
+  CPPUNIT_ASSERT(ret1[0]=="3DMesh_1");
+  CPPUNIT_ASSERT(ret1[1]=="mesh2");
+  //
   mesh4->decrRef();
   mesh3->decrRef();
   mesh2->decrRef();
@@ -934,7 +946,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
   const double vec[3]={0.,1.,0.};
   const double pt[3]={0.,0.,0.};
   m1d->rotate(pt,vec,-M_PI/2.);
-  MEDCouplingUMesh *ret=m3dsurf->buildExtrudedMeshFromThis(m1d,0);
+  MEDCouplingUMesh *ret=m3dsurf->buildExtrudedMesh(m1d,0);
   m1d->decrRef();
   m3dsurf->decrRef();
   return ret;

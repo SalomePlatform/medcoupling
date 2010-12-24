@@ -21,42 +21,42 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES = _libParaMEDMEM_Swig.la
+lib_LTLIBRARIES = _ParaMEDMEM.la
 
 salomeinclude_HEADERS =  \
-	libParaMEDMEM_Swig.i
+	ParaMEDMEM.i
 
-SWIG_DEF = libParaMEDMEM_Swig.i libParaMEDMEM_Swig.typemap
+SWIG_DEF = ParaMEDMEM.i ParaMEDMEM.typemap
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) $(MPI_INCLUDES)  -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling -I$(srcdir)/../MEDCoupling_Swig \
 	-I$(srcdir)/../MEDLoader/Swig -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../ParaMEDLoader        \
 	-I$(srcdir)/../MEDLoader
 
-dist__libParaMEDMEM_Swig_la_SOURCES   = $(SWIG_DEF)
-nodist__libParaMEDMEM_Swig_la_SOURCES = libParaMEDMEM_Swig_wrap.cxx
-libParaMEDMEM_Swig.py: libParaMEDMEM_Swig_wrap.cxx
+dist__ParaMEDMEM_la_SOURCES   = $(SWIG_DEF)
+nodist__ParaMEDMEM_la_SOURCES = ParaMEDMEM_wrap.cxx
+ParaMEDMEM.py : ParaMEDMEM_wrap.cxx
 
-libParaMEDMEM_Swig_wrap.cxx: $(SWIG_DEF)
+ParaMEDMEM_wrap.cxx: $(SWIG_DEF)
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
-_libParaMEDMEM_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
+_ParaMEDMEM_la_CPPFLAGS = $(PYTHON_INCLUDES) \
 	$(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
 	$(MPI_INCLUDES) -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling_Swig -I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../MEDCoupling -I$(srcdir)/../ParaMEDLoader -I$(srcdir)/../MEDLoader -I$(srcdir)/../MEDLoader/Swig
 
-_libParaMEDMEM_Swig_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
+_ParaMEDMEM_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
 	../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la \
 	../ParaMEDMEM/libparamedmem.la ../ParaMEDLoader/libparamedloader.la
 
 if MED_ENABLE_KERNEL
-  _libParaMEDMEM_Swig_la_CPPFLAGS += ${KERNEL_CXXFLAGS}
-  _libParaMEDMEM_Swig_la_LDFLAGS  += ${KERNEL_LDFLAGS} -lSALOMELocalTrace
+  _ParaMEDMEM_la_CPPFLAGS += ${KERNEL_CXXFLAGS}
+  _ParaMEDMEM_la_LDFLAGS  += ${KERNEL_LDFLAGS} -lSALOMELocalTrace
 endif
 
-CLEANFILES = libParaMEDMEM_Swig_wrap.cxx libParaMEDMEM_Swig.py
+CLEANFILES = ParaMEDMEM_wrap.cxx ParaMEDMEM.py
 
 dist_salomescript_DATA= test_InterpKernelDEC.py \
 			test_NonCoincidentDEC.py \
-			test_StructuredCoincodentDEC.py \
-			ParaMEDMEM.py libParaMEDMEM_Swig.py
+			test_StructuredCoincidentDEC.py \
+			ParaMEDMEM.py

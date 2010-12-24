@@ -21,44 +21,44 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES = _libMEDCoupling_Swig.la _libMEDCouplingRemapper_Swig.la
+lib_LTLIBRARIES = _MEDCoupling.la _MEDCouplingRemapper.la
 
 salomeinclude_HEADERS =  \
-	libMEDCoupling_Swig.i libMEDCouplingRemapper_Swig.i MEDCouplingTypemaps.i
+	MEDCoupling.i MEDCouplingRemapper.i MEDCouplingTypemaps.i
 
-BUILT_SOURCES = libMEDCoupling_SwigWRAP.cxx libMEDCouplingRemapper_SwigWRAP.cxx
+BUILT_SOURCES = MEDCouplingWRAP.cxx MEDCouplingRemapperWRAP.cxx
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL
 
-dist__libMEDCoupling_Swig_la_SOURCES   = libMEDCoupling_Swig.i MEDCouplingTypemaps.i
-nodist__libMEDCoupling_Swig_la_SOURCES = libMEDCoupling_SwigWRAP.cxx
-libMEDCoupling_Swig.py: libMEDCoupling_SwigWRAP.cxx
+dist__MEDCoupling_la_SOURCES   = MEDCoupling.i MEDCouplingTypemaps.i
+nodist__MEDCoupling_la_SOURCES = MEDCouplingWRAP.cxx
+MEDCoupling.py: MEDCouplingWRAP.cxx
 
-libMEDCoupling_SwigWRAP.cxx: libMEDCoupling_Swig.i MEDCouplingTypemaps.i
+MEDCouplingWRAP.cxx: MEDCoupling.i MEDCouplingTypemaps.i
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
-_libMEDCoupling_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
+_MEDCoupling_la_CPPFLAGS = $(PYTHON_INCLUDES) \
 	@CXXTMPDPTHFLAGS@ -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases
 
-_libMEDCoupling_Swig_la_LDFLAGS  = -module $(PYTHON_LIBS) \
+_MEDCoupling_la_LDFLAGS  = -module $(PYTHON_LIBS) \
 	../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la
 
-dist__libMEDCouplingRemapper_Swig_la_SOURCES   = libMEDCouplingRemapper_Swig.i
-nodist__libMEDCouplingRemapper_Swig_la_SOURCES = libMEDCouplingRemapper_SwigWRAP.cxx
-libMEDCouplingRemapper_Swig.py: libMEDCouplingRemapper_SwigWRAP.cxx
+dist__MEDCouplingRemapper_la_SOURCES = MEDCouplingRemapper.i
+nodist__MEDCouplingRemapper_la_SOURCES = MEDCouplingRemapperWRAP.cxx
+MEDCouplingRemapper.py: MEDCouplingRemapperWRAP.cxx
 
-libMEDCouplingRemapper_SwigWRAP.cxx: libMEDCouplingRemapper_Swig.i MEDCouplingTypemaps.i
+MEDCouplingRemapperWRAP.cxx: MEDCouplingRemapper.i MEDCouplingTypemaps.i
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
-_libMEDCouplingRemapper_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
+_MEDCouplingRemapper_la_CPPFLAGS = $(PYTHON_INCLUDES) \
 	@CXXTMPDPTHFLAGS@ -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases
 
-_libMEDCouplingRemapper_Swig_la_LDFLAGS  = -module $(PYTHON_LIBS) \
+_MEDCouplingRemapper_la_LDFLAGS  = -module $(PYTHON_LIBS) \
 	../MEDCoupling/libmedcouplingremapper.la ../INTERP_KERNEL/libinterpkernel.la
 
-CLEANFILES = libMEDCoupling_SwigWRAP.cxx libMEDCoupling_Swig.py libMEDCouplingRemapper_SwigWRAP.cxx libMEDCouplingRemapper_Swig.py
+CLEANFILES = MEDCouplingWRAP.cxx MEDCoupling.py MEDCouplingRemapperWRAP.cxx MEDCouplingRemapper.py
 
-dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py libMEDCoupling_Swig.py libMEDCouplingRemapper_Swig.py MEDCouplingDataForTest.py
+dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDCoupling.py MEDCouplingRemapper.py MEDCouplingDataForTest.py libMEDCoupling_Swig.py
 
 UNIT_TEST_PROG = MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py
 

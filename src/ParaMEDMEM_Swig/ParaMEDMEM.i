@@ -17,11 +17,11 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module libParaMEDMEM_Swig
+%module ParaMEDMEM
 
-%include "libParaMEDMEM_Swig.typemap"
-%include "libMEDCoupling_Swig.i"
-%include "libMEDLoader_Swig.i"
+%include "ParaMEDMEM.typemap"
+%include "MEDCoupling.i"
+%include "MEDLoader.i"
 
 %{
 #include "CommInterface.hxx"

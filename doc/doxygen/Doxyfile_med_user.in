@@ -71,6 +71,7 @@ WARN_LOGFILE           = log_user
 INPUT                  = @srcdir@ \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
+			 @srcdir@/../../src/INTERP_KERNEL/Bases \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
                          @srcdir@/../../src/MEDCoupling \
 			 @srcdir@/../../src/MEDLoader \
@@ -89,6 +90,7 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          ExplicitCoincidentDEC.* \
                          NonCoincidentDEC.* \
                          CommInterface.* \
+			 NormalizedUnstructuredMesh.* \
                          Interpolation2D.* \
                          Interpolation3D.* \
                          Interpolation3DSurf.* \

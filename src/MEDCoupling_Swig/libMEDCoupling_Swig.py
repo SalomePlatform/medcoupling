@@ -18,4 +18,11 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from libParaMEDMEM_Swig import *
+print """
+***********************************************************************
+***********************************************************************
+libMEDCoupling_Swig module DEPRECATED !
+Please use instead \"import MEDCoupling\" or \"from MEDCoupling import *\"
+***********************************************************************
+***********************************************************************
+"""

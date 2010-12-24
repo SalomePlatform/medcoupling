@@ -17,21 +17,29 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module libMEDLoader_Swig
+%module MEDLoader
 
 #define MEDCOUPLING_EXPORT
 #define MEDLOADER_EXPORT
 
-%include "libMEDCoupling_Swig.i"
+%include "MEDCoupling.i"
 
 %{
 #include "MEDLoader.hxx"
+#include "MEDFileMesh.hxx"
 #include "MEDLoaderTypemaps.i"
+
+using namespace ParaMEDMEM;
 %}
 
 #if SWIG_VERSION >= 0x010329
 %template()  std::vector<std::string>;
 #endif
+
+%typemap(out) ParaMEDMEM::MEDFileMesh*
+{
+  $result=convertMEDFileMesh($1,$owner);
+}
 
 %newobject MEDLoader::ReadUMeshFromFamilies;
 %newobject MEDLoader::ReadUMeshFromGroups;
@@ -41,6 +49,25 @@
 %newobject MEDLoader::ReadFieldNode;
 %newobject MEDLoader::ReadFieldGauss;
 %newobject MEDLoader::ReadFieldGaussNE;
+%newobject ParaMEDMEM::MEDFileUMesh::New;
+%newobject ParaMEDMEM::MEDFileUMesh::getCoords;
+%newobject ParaMEDMEM::MEDFileUMesh::getGroup;
+%newobject ParaMEDMEM::MEDFileUMesh::getGroups;
+%newobject ParaMEDMEM::MEDFileUMesh::getFamily;
+%newobject ParaMEDMEM::MEDFileUMesh::getFamilies;
+%newobject ParaMEDMEM::MEDFileUMesh::getGroupArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getGroupsArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getFamilyArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getFamiliesArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeGroupArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeGroupsArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeFamilyArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getNodeFamiliesArr;
+%newobject ParaMEDMEM::MEDFileUMesh::getMeshAtRank;
+%newobject ParaMEDMEM::MEDFileUMesh::getRank0Mesh;
+%newobject ParaMEDMEM::MEDFileUMesh::getRankM1Mesh;
+%newobject ParaMEDMEM::MEDFileUMesh::getRankM2Mesh;
+%newobject ParaMEDMEM::MEDFileUMesh::getRankM3Mesh;
 
 class MEDLoader
 {
@@ -53,6 +80,8 @@ public:
   static std::vector<std::string> GetMeshNamesOnField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshGroupsNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetMeshFamiliesNames(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
+  static std::vector<std::string> GetMeshFamiliesNamesOnGroup(const char *fileName, const char *meshName, const char *grpName) throw(INTERP_KERNEL::Exception);
+  static std::vector<std::string> GetMeshGroupsNamesOnFamily(const char *fileName, const char *meshName, const char *famName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetAllFieldNamesOnMesh(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetAllFieldNames(const char *fileName) throw(INTERP_KERNEL::Exception);
   static std::vector<std::string> GetFieldNamesOnMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception);
@@ -152,9 +181,19 @@ public:
            PyList_SetItem(ret,i,PyInt_FromLong((int)v[i]));
          return ret;
        }
+       static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector<std::string> grps;
+         converPyListToVecString(li,grps);
+         return MEDLoader::ReadUMeshFromGroups(fileName,meshName,meshDimRelToMax,grps);
+       }
+       static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector<std::string> fams;
+         converPyListToVecString(li,fams);
+         return MEDLoader::ReadUMeshFromFamilies(fileName,meshName,meshDimRelToMax,fams);
+       }
      }
-  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFamilies(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception);
-  static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromGroups(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingUMesh *ReadUMeshFromFile(const char *fileName, int meshDimRelToMax=0) throw(INTERP_KERNEL::Exception);
   static ParaMEDMEM::MEDCouplingFieldDouble *ReadField(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -168,3 +207,6 @@ public:
   static void WriteFieldDep(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool writeFromScratch) throw(INTERP_KERNEL::Exception);
   static void WriteFieldUsingAlreadyWrittenMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
 };
+
+%include "MEDFileMesh.hxx"
+

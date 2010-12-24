@@ -37,11 +37,11 @@ MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):
   if(deepCpy)
     {
       if(other._x_array)
-        _x_array=_x_array->deepCopy();
+        _x_array=_x_array->deepCpy();
       if(other._y_array)
-        _y_array=_y_array->deepCopy();
+        _y_array=_y_array->deepCpy();
       if(other._z_array)
-        _z_array=_z_array->deepCopy();
+        _z_array=_z_array->deepCpy();
     }
   else
     {
@@ -436,7 +436,7 @@ void MEDCouplingCMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coor
   declareAsNew();
 }
 
-MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const
+MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=getSpaceDimension();
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New(getName(),spaceDim);

@@ -325,7 +325,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
   std::fill(array->getPointer(),array->getPointer()+5*3,7.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,array->getIJ(3,2),1e-14);
   double *tmp1=array->getPointer();
-  DataArrayDouble *array2=array->deepCopy();
+  DataArrayDouble *array2=array->deepCpy();
   double *tmp2=array2->getPointer();
   CPPUNIT_ASSERT(tmp1!=tmp2);
   array->decrRef();
@@ -337,7 +337,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
   std::fill(array3->getPointer(),array3->getPointer()+5*3,17);
   CPPUNIT_ASSERT_EQUAL(17,array3->getIJ(3,2));
   int *tmp3=array3->getPointer();
-  DataArrayInt *array4=array3->deepCopy();
+  DataArrayInt *array4=array3->deepCpy();
   int *tmp4=array4->getPointer();
   CPPUNIT_ASSERT(tmp3!=tmp4);
   array3->decrRef();
@@ -873,7 +873,7 @@ void MEDCouplingBasicsTest::testEqualFieldDouble()
   CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
   CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
   //
-  DataArrayDouble *arr2=arr->deepCopy();
+  DataArrayDouble *arr2=arr->deepCpy();
   fieldOnCells2->setArray(arr2);
   arr2->decrRef();
   CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
@@ -1049,7 +1049,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
 }
 
 /*!
- * This test check MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * This test check MEDCouplingUMesh::buildExtrudedMesh method.
  */
 void MEDCouplingBasicsTest::testExtrudedMesh3()
 {
@@ -1060,7 +1060,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   double center[3]={0.,0.,0.};
   double vector[3]={0,1,0};
   m2->rotate(center,vector,-M_PI/2.);
-  MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
+  MEDCouplingUMesh *m3=m1->buildExtrudedMesh(m2,0);
   //
   MEDCouplingExtrudedMesh *m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
@@ -1085,7 +1085,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   //play with polygons and polyedrons
   std::vector<int> cells(2); cells[0]=2; cells[1]=3;
   m1->convertToPolyTypes(cells);
-  m3=m1->buildExtrudedMeshFromThis(m2,0);
+  m3=m1->buildExtrudedMesh(m2,0);
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_HEXA8,(int)m3->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_PENTA6,(int)m3->getTypeOfCell(1));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_POLYHED,(int)m3->getTypeOfCell(2));
@@ -1107,7 +1107,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
 }
 
 /*!
- * This test check MEDCouplingUMesh::buildExtrudedMeshFromThis method, but also, MEDCouplingExtrudedMesh following methods :
+ * This test check MEDCouplingUMesh::buildExtrudedMesh method, but also, MEDCouplingExtrudedMesh following methods :
  * getCellContainingPoint getMeasureField getNodeIdsOfCell getCoordinateOfNode getTypeOfCell build3DUnstructuredMesh.
  */
 void MEDCouplingBasicsTest::testExtrudedMesh4()
@@ -1121,7 +1121,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh4()
   double center[3]={0.,0.,0.};
   double vector[3]={0.,1.,0.};
   m2->rotate(center,vector,-M_PI/2.);
-  MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
+  MEDCouplingUMesh *m3=m1->buildExtrudedMesh(m2,0);
   const int expected1[15]= {1,3,2,0,6,5,7,10,11,8,12,9,14,13,4};
   const int rexpected1[15]={3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12};
   m3->renumberCells(expected1,false);

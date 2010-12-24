@@ -88,6 +88,7 @@ namespace ICoCo
     //creating a connectivity table that complies to MED (1 indexing)
     //and passing it to _mesh
     int* conn=new int[triofield._nodes_per_elem];
+    _mesh->setMeshDimension(triofield._mesh_dim);
     for (int i=0; i<triofield._nb_elems;i++)
       {
         for(int j=0;j<triofield._nodes_per_elem;j++)
@@ -98,7 +99,6 @@ namespace ICoCo
       }
     delete[] conn;
     
-    _mesh->setMeshDimension(triofield._mesh_dim);
     _mesh->finishInsertingCells();
     
     //field on the sending end

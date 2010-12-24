@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
   {
   public:
     std::vector<char> convertIntoMachineLangage(const std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
-    char *convertMachineLangageInBasic(const std::vector<char>& ml, int& lgth) const;
+    char *copyToExecMemZone(const std::vector<char>& ml, unsigned& offset) const;
   private:
     void convertOneInstructionInML(const std::string& inst, std::vector<char>& ml) const throw(INTERP_KERNEL::Exception);
   private:

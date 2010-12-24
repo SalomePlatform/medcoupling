@@ -1,3 +1,4 @@
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 #
 #  This library is free software; you can redistribute it and/or
@@ -17,25 +18,11 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-#  File   : Makefile.am
-#  Author : Vincent BERGEAUD (CEA/DEN/DANS/DM2S/SFME/LGLS)
-#  Module : MED
-#
-include $(top_srcdir)/adm_local/unix/make_common_starter.am
-
-noinst_LTLIBRARIES = libinterpkernelbases.la
-
-salomeinclude_HEADERS =         \
-INTERPKERNELBASESDefines.hxx    \
-InterpKernelException.hxx       \
-NormalizedUnstructuredMesh.hxx  \
-InterpKernelStlExt.hxx          \
-InterpKernelHashMap.hxx         \
-InterpKernelHashTable.hxx       \
-InterpKernelHashFun.hxx         \
-InterpKernelAutoPtr.hxx
-
-# Libraries targets
-
-dist_libinterpkernelbases_la_SOURCES = \
-InterpKernelException.cxx
+print """
+**********************************************************************
+**********************************************************************
+libMEDLoader_Swig module DEPRECATED !
+Please use instead \"import MEDLoader\" or \"from MEDLoader import *\"
+**********************************************************************
+**********************************************************************
+"""

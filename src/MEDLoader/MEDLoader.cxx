@@ -19,11 +19,14 @@
 
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDFileUtilities.hxx"
 #include "CellModel.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
+
+#include "InterpKernelAutoPtr.hxx"
 
 extern "C"
 {
@@ -37,6 +40,7 @@ extern "C"
 #include <iterator>
 #include <algorithm>
 #include <numeric>
+#include <limits>
 
 med_geometrie_element typmai[MED_NBR_GEOMETRIE_MAILLE+2] = { MED_POINT1,
                                                              MED_SEG2,
@@ -300,43 +304,7 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
 
 void MEDLoader::CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception)
 {
-  int status=MEDLoaderBase::getStatusOfFile(fileName);
-  std::ostringstream oss;
-  oss << " File : \"" << fileName << "\"";
-  switch(status)
-    {
-    case MEDLoaderBase::DIR_LOCKED:
-      {
-        oss << " has been detected as unreadable : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    case MEDLoaderBase::NOT_EXIST:
-      {
-        oss << " has been detected as NOT EXISTING : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    case MEDLoaderBase::EXIST_WRONLY:
-      {
-        oss << " has been detected as WRITE ONLY : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    }
-  int fid=MEDouvrir((char *)fileName,MED_LECTURE);
-  if(fid<0)
-    {
-      oss << " has been detected as unreadable by MED file : impossible to read anything !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  oss << " has been detected readable but ";
-  int major,minor,release;
-  MEDversionLire(fid,&major,&minor,&release);
-  if(major<2 || (major==2 && minor<2))
-    {
-      oss << "version of MED file is < 2.2 : impossible to read anything !";
-      MEDfermer(fid);
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  MEDfermer(fid);
+  MEDFileUtilities::CheckFileForRead(fileName);
 }
 
 std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INTERP_KERNEL::Exception)
@@ -432,6 +400,72 @@ std::vector<std::string> MEDLoader::GetMeshFamiliesNames(const char *fileName, c
       delete [] attval;
     }
   MEDfermer(fid);
+  return ret;
+}
+
+std::vector<std::string> MEDLoader::GetMeshFamiliesNamesOnGroup(const char *fileName, const char *meshName, const char *grpName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nfam=MEDnFam(fid,(char *)meshName);
+  std::vector<std::string> ret;
+  char nomfam[MED_TAILLE_NOM+1];
+  med_int numfam;
+  for(int i=0;i<nfam;i++)
+    {
+      int ngro=MEDnGroupe(fid,(char *)meshName,i+1);
+      med_int natt=MEDnAttribut(fid,(char *)meshName,i+1);
+      INTERP_KERNEL::AutoPtr<med_int> attide=new int[natt];
+      INTERP_KERNEL::AutoPtr<med_int> attval=new int[natt];
+      INTERP_KERNEL::AutoPtr<char> attdes=new char[MED_TAILLE_DESC*natt+1];
+      INTERP_KERNEL::AutoPtr<char> gro=new char[MED_TAILLE_LNOM*ngro+1];
+      MEDfamInfo(fid,(char *)meshName,i+1,nomfam,&numfam,attide,attval,attdes,&natt,gro,&ngro);
+      std::string cur=MEDLoaderBase::buildStringFromFortran(nomfam,sizeof(nomfam));
+      for(int j=0;j<ngro;j++)
+        {
+          std::string cur2=MEDLoaderBase::buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
+          if(cur2==grpName)
+            ret.push_back(cur);
+        }
+    }
+  MEDfermer(fid);
+  return ret;
+}
+
+std::vector<std::string> MEDLoader::GetMeshGroupsNamesOnFamily(const char *fileName, const char *meshName, const char *famName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
+  med_int nfam=MEDnFam(fid,(char *)meshName);
+  std::vector<std::string> ret;
+  char nomfam[MED_TAILLE_NOM+1];
+  med_int numfam;
+  bool found=false;
+  for(int i=0;i<nfam && !found;i++)
+    {
+      int ngro=MEDnGroupe(fid,(char *)meshName,i+1);
+      med_int natt=MEDnAttribut(fid,(char *)meshName,i+1);
+      INTERP_KERNEL::AutoPtr<med_int> attide=new int[natt];
+      INTERP_KERNEL::AutoPtr<med_int> attval=new int[natt];
+      INTERP_KERNEL::AutoPtr<char> attdes=new char[MED_TAILLE_DESC*natt+1];
+      INTERP_KERNEL::AutoPtr<char> gro=new char[MED_TAILLE_LNOM*ngro+1];
+      MEDfamInfo(fid,(char *)meshName,i+1,nomfam,&numfam,attide,attval,attdes,&natt,gro,&ngro);
+      std::string cur=MEDLoaderBase::buildStringFromFortran(nomfam,sizeof(nomfam));
+      found=(cur==famName);
+      if(found)
+        for(int j=0;j<ngro;j++)
+          {
+            std::string cur=MEDLoaderBase::buildStringFromFortran(gro+j*MED_TAILLE_LNOM,MED_TAILLE_LNOM);
+            ret.push_back(cur);
+          }
+    }
+  MEDfermer(fid);
+  if(!found)
+    {
+      std::ostringstream oss;
+      oss << "MEDLoader::GetMeshGroupsNamesOnFamily : no such family \"" << famName << "\" in file \"" << fileName << "\" in mesh \"" << meshName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   return ret;
 }
   
@@ -812,7 +846,7 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const ch
   //
   bool found=false;
   bool found2=false;
-  double ret;
+  double ret=std::numeric_limits<double>::max();
   for(int i=0;i<nbFields && !found;i++)
     {
       med_int ncomp=MEDnChamp(fid,i+1);
@@ -1743,6 +1777,8 @@ int MEDLoaderNS::buildMEDSubConnectivityOfOneType(const std::vector<const DataAr
 MEDCouplingUMesh *MEDLoaderNS::readUMeshFromFileLev1(const char *fileName, const char *meshName, int meshDimRelToMax, const std::vector<int>& ids,
                                                      const std::vector<INTERP_KERNEL::NormalizedCellType>& typesToKeep, unsigned& meshDimExtract, int *&cellRenum) throw(INTERP_KERNEL::Exception)
 {
+  if(meshDimRelToMax>0)
+    throw INTERP_KERNEL::Exception("meshDimRelToMax must be <=0 !");
   //Extraction data from MED file.
   med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
   std::string trueMeshName;
@@ -1791,7 +1827,7 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
         {
           std::vector<int> ci(cellIds.size());
           std::transform(cellIds.begin(),cellIds.end(),ci.begin(),std::bind2nd(std::plus<int>(),-1));
-          ParaMEDMEM::MEDCouplingUMesh *mesh2;
+          ParaMEDMEM::MEDCouplingUMesh *mesh2=0;
           if(typeOfOutField==ON_CELLS)
             {
               if(newMesh)

@@ -18,7 +18,7 @@
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from libMEDCouplingRemapper_Swig import *
+from MEDCouplingRemapper import *
 from math import *
 import unittest
 

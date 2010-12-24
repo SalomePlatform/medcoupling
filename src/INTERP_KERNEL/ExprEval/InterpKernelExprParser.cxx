@@ -28,14 +28,6 @@
 #include <iostream>
 #include <algorithm>
 
-#ifdef _POSIX_MAPPED_FILES
-#include <sys/mman.h>
-#else
-#ifdef WNT
-#include <windows.h>
-#endif
-#endif
-
 using namespace INTERP_KERNEL;
 
 const char LeafExprVar::END_OF_RECOGNIZED_VAR[]="Vec";
@@ -719,21 +711,8 @@ char *ExprParser::compileX86() const
   for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
     std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
   std::cout << std::endl;
-  int lgth;
-  char *lm=asmb.convertMachineLangageInBasic(output,lgth);
-  char *ret=0;
-#ifdef _POSIX_MAPPED_FILES
-  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
-#else
-#ifdef WNT
-  HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
-  ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
-#endif
-#endif
-  if(ret)
-    std::copy(lm,lm+lgth,ret);
-  delete [] lm;
-  return ret;
+  unsigned offset;
+  return asmb.copyToExecMemZone(output,offset);
 }
 
 char *ExprParser::compileX86_64() const
@@ -757,21 +736,8 @@ char *ExprParser::compileX86_64() const
   for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
     std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
   std::cout << std::endl;
-  int lgth;
-  char *lm=asmb.convertMachineLangageInBasic(output,lgth);
-  char *ret=0;
-#ifdef _POSIX_MAPPED_FILES
-  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
-#else
-#ifdef WNT
-  HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
-  ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
-#endif
-#endif
-  if(ret)
-    std::copy(lm,lm+lgth,ret);
-  delete [] lm;
-  return ret;
+  unsigned offset;
+  return asmb.copyToExecMemZone(output,offset);
 }
 
 void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
@@ -782,9 +748,9 @@ void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
     {
       for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86LowLev(ass);
-      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
-        (*iter2)->operateX86(ass);
     }
+  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
@@ -795,9 +761,9 @@ void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
     {
       for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86_64LowLev(ass);
-      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
-        (*iter2)->operateX86(ass);
     }
+  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 void LeafExprVal::compileX86(std::vector<std::string>& ass) const

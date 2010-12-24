@@ -160,6 +160,22 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testExtrudedMesh7 );
     CPPUNIT_TEST( testSimplexize1 );
     CPPUNIT_TEST( testSimplexize2 );
+    CPPUNIT_TEST( testDAMeld1 );
+    CPPUNIT_TEST( testFieldMeld1 );
+    CPPUNIT_TEST( testMergeNodes2 );
+    CPPUNIT_TEST( testMergeField2 );
+    CPPUNIT_TEST( testDAIBuildComplement1 );
+    CPPUNIT_TEST( testDAIBuildUnion1 );
+    CPPUNIT_TEST( testDAIBuildIntersection1 );
+    CPPUNIT_TEST( testDAIDeltaShiftIndex1 );
+    CPPUNIT_TEST( testDaDoubleSelectByTupleIdSafe1 );
+    CPPUNIT_TEST( testAreCellsIncludedIn1 );
+    CPPUNIT_TEST( testDAIBuildSubstraction1 );
+    CPPUNIT_TEST( testBuildOrthogonalField2 );
+    CPPUNIT_TEST( testUMInsertNextCell1 );
+    CPPUNIT_TEST( testFieldOperatorDivDiffComp1 );
+    CPPUNIT_TEST( testDARearrange1 );
+    CPPUNIT_TEST( testGetDifferentValues1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -348,6 +364,22 @@ namespace ParaMEDMEM
     void testExtrudedMesh7();
     void testSimplexize1();
     void testSimplexize2();
+    void testDAMeld1();
+    void testFieldMeld1();
+    void testMergeNodes2();
+    void testMergeField2();
+    void testDAIBuildComplement1();
+    void testDAIBuildUnion1();
+    void testDAIBuildIntersection1();
+    void testDAIDeltaShiftIndex1();
+    void testDaDoubleSelectByTupleIdSafe1();
+    void testAreCellsIncludedIn1();
+    void testDAIBuildSubstraction1();
+    void testBuildOrthogonalField2();
+    void testUMInsertNextCell1();
+    void testFieldOperatorDivDiffComp1();
+    void testDARearrange1();
+    void testGetDifferentValues1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

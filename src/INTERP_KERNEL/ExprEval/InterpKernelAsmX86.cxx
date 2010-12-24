@@ -23,6 +23,14 @@
 #include <sstream>
 #include <algorithm>
 
+#ifdef _POSIX_MAPPED_FILES
+#include <sys/mman.h>
+#else
+#ifdef WNT
+#include <windows.h>
+#endif
+#endif
+
 const char *INTERP_KERNEL::AsmX86::OPS[NB_OF_OPS]={"mov","push","pop","fld","faddp","fsubp","fmulp","fdivp","fcos","fsin","fabs","fchs","fsqrt","sub","add","ret","leave","movsd","fst"};
 
 std::vector<char> INTERP_KERNEL::AsmX86::convertIntoMachineLangage(const std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
@@ -33,11 +41,20 @@ std::vector<char> INTERP_KERNEL::AsmX86::convertIntoMachineLangage(const std::ve
   return ret;
 }
 
-char *INTERP_KERNEL::AsmX86::convertMachineLangageInBasic(const std::vector<char>& ml, int& lgth) const
+char *INTERP_KERNEL::AsmX86::copyToExecMemZone(const std::vector<char>& ml, unsigned& offset) const
 {
-  lgth=ml.size();
-  char *ret=new char[lgth];
-  std::copy(ml.begin(),ml.end(),ret);
+  char *ret=0;
+  int lgth=ml.size();
+#ifdef _POSIX_MAPPED_FILES
+  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
+#else
+#ifdef WNT
+  HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
+  ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
+#endif
+#endif
+  if(ret)
+    std::copy(ml.begin(),ml.end(),ret);
   return ret;
 }
 

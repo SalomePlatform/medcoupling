@@ -65,6 +65,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getMesh1D() const { return _mesh1D; }
     DataArrayInt *getMesh3DIds() const { return _mesh3D_ids; }
     MEDCouplingUMesh *build3DUnstructuredMesh() const;
+    MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getMeasureField(bool) const;
     MEDCouplingFieldDouble *getMeasureFieldOnNode(bool) const;
     MEDCouplingFieldDouble *buildOrthogonalField() const;
