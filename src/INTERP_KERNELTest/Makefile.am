@@ -67,6 +67,7 @@ libInterpKernelTest_la_CPPFLAGS =                \
 	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
 	-I$(srcdir)/../INTERP_KERNEL/Bases       \
 	-I$(srcdir)/../INTERP_KERNEL/ExprEval    \
+	-I$(srcdir)/../INTERP_KERNEL/GaussPoints \
 	-DOPTIMIZE -DLOG_LEVEL=0
 
 libInterpKernelTest_la_LDFLAGS  =                \

@@ -24,9 +24,9 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-SUBDIRS = Bases Geometric2D ExprEval .
+SUBDIRS = Bases Geometric2D ExprEval GaussPoints .
 
-DIST_SUBDIRS = Bases Geometric2D ExprEval
+DIST_SUBDIRS = Bases Geometric2D ExprEval GaussPoints
 
 lib_LTLIBRARIES = libinterpkernel.la
 
@@ -198,7 +198,8 @@ libinterpkernel_la_CPPFLAGS=-I$(srcdir)/Geometric2D -I$(srcdir)/Bases
 libinterpkernel_la_LDFLAGS=
 
 # the geom2D library is included in the interpkernel one
-libinterpkernel_la_LIBADD= ./Geometric2D/libInterpGeometric2DAlg.la Bases/libinterpkernelbases.la ExprEval/libinterpkernelexpreval.la
+libinterpkernel_la_LIBADD= ./Geometric2D/libInterpGeometric2DAlg.la Bases/libinterpkernelbases.la ExprEval/libinterpkernelexpreval.la \
+	GaussPoints/libinterpkernelgauss.la
 
 AM_CPPFLAGS += $(libinterpkernel_la_CPPFLAGS)
 LDADD= $(libinterpkernel_la_LDFLAGS)
