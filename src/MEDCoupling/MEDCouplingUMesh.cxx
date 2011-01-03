@@ -157,8 +157,13 @@ void MEDCouplingUMesh::allocateCells(int nbOfCells)
 void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell) throw(INTERP_KERNEL::Exception)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+  if(_nodal_connec_index==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::insertNextCell : nodal connectivity not set ! invoke allocateCells before calling insertNextCell !");
   if((int)cm.getDimension()==_mesh_dim)
     {
+      int nbOfElems=_nodal_connec_index->getNbOfElems()-1;
+      if(_iterator>=nbOfElems)
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::insertNextCell : allocation of cells was wide enough ! Call insertNextCell with higher value or call finishInsertingCells !");
       int *pt=_nodal_connec_index->getPointer();
       int idx=pt[_iterator];
       
