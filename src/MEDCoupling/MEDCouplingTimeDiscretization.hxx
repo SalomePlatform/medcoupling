@@ -93,6 +93,15 @@ namespace ParaMEDMEM
     virtual double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) = 0;
     virtual double getEndTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) = 0;
     void setTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { setStartTime(time,iteration,order); }
+    void setIteration(int it) throw(INTERP_KERNEL::Exception) { setStartIteration(it); }
+    void setOrder(int order) throw(INTERP_KERNEL::Exception) { setStartOrder(order); }
+    void setTimeValue(double val) throw(INTERP_KERNEL::Exception) { setStartTimeValue(val); }
+    virtual void setStartIteration(int it) throw(INTERP_KERNEL::Exception) = 0;
+    virtual void setEndIteration(int it) throw(INTERP_KERNEL::Exception) = 0;
+    virtual void setStartOrder(int order) throw(INTERP_KERNEL::Exception) = 0;
+    virtual void setEndOrder(int order) throw(INTERP_KERNEL::Exception) = 0;
+    virtual void setStartTimeValue(double time) throw(INTERP_KERNEL::Exception) = 0;
+    virtual void setEndTimeValue(double time) throw(INTERP_KERNEL::Exception) = 0;
     virtual void setStartTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) = 0;
     virtual void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) = 0;
     virtual void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception) = 0;
@@ -167,6 +176,12 @@ namespace ParaMEDMEM
     bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const throw(INTERP_KERNEL::Exception);
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception);
     double getEndTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception);
+    void setStartIteration(int it) throw(INTERP_KERNEL::Exception);
+    void setEndIteration(int it) throw(INTERP_KERNEL::Exception);
+    void setStartOrder(int order) throw(INTERP_KERNEL::Exception);
+    void setEndOrder(int order) throw(INTERP_KERNEL::Exception);
+    void setStartTimeValue(double time) throw(INTERP_KERNEL::Exception);
+    void setEndTimeValue(double time) throw(INTERP_KERNEL::Exception);
     void setStartTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
@@ -219,6 +234,12 @@ namespace ParaMEDMEM
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _time=time; _iteration=iteration; _order=order; }
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_iteration; order=_order; return _time; }
     double getEndTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_iteration; order=_order; return _time; }
+    void setStartIteration(int it) throw(INTERP_KERNEL::Exception) { _iteration=it; }
+    void setEndIteration(int it) throw(INTERP_KERNEL::Exception) { _iteration=it; }
+    void setStartOrder(int order) throw(INTERP_KERNEL::Exception) { _order=order; }
+    void setEndOrder(int order) throw(INTERP_KERNEL::Exception) { _order=order; }
+    void setStartTimeValue(double time) throw(INTERP_KERNEL::Exception) { _time=time; }
+    void setEndTimeValue(double time) throw(INTERP_KERNEL::Exception) { _time=time; }
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
     void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
@@ -277,6 +298,12 @@ namespace ParaMEDMEM
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_iteration=iteration; _end_order=order; }
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_start_iteration; order=_start_order; return _start_time; }
     double getEndTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_end_iteration; order=_end_order; return _end_time; }
+    void setStartIteration(int it) throw(INTERP_KERNEL::Exception) { _start_iteration=it; }
+    void setEndIteration(int it) throw(INTERP_KERNEL::Exception) { _end_iteration=it; }
+    void setStartOrder(int order) throw(INTERP_KERNEL::Exception) { _start_order=order; }
+    void setEndOrder(int order) throw(INTERP_KERNEL::Exception) { _end_order=order; }
+    void setStartTimeValue(double time) throw(INTERP_KERNEL::Exception) { _start_time=time; }
+    void setEndTimeValue(double time) throw(INTERP_KERNEL::Exception) { _end_time=time; }
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception);
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
   public:
@@ -315,6 +342,12 @@ namespace ParaMEDMEM
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception) { _end_time=time; _end_iteration=iteration; _end_order=order; }
     double getStartTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_start_iteration; order=_start_order; return _start_time; }
     double getEndTime(int& iteration, int& order) const throw(INTERP_KERNEL::Exception) { iteration=_end_iteration; order=_end_order; return _end_time; }
+    void setStartIteration(int it) throw(INTERP_KERNEL::Exception) { _start_iteration=it; }
+    void setEndIteration(int it) throw(INTERP_KERNEL::Exception) { _end_iteration=it; }
+    void setStartOrder(int order) throw(INTERP_KERNEL::Exception) { _start_order=order; }
+    void setEndOrder(int order) throw(INTERP_KERNEL::Exception) { _end_order=order; }
+    void setStartTimeValue(double time) throw(INTERP_KERNEL::Exception) { _start_time=time; }
+    void setEndTimeValue(double time) throw(INTERP_KERNEL::Exception) { _end_time=time; }
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;

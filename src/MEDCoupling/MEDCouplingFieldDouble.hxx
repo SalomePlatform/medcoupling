@@ -60,6 +60,12 @@ namespace ParaMEDMEM
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
     double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
+    void setIteration(int it) throw(INTERP_KERNEL::Exception) { _time_discr->setIteration(it); }
+    void setEndIteration(int it) throw(INTERP_KERNEL::Exception) { _time_discr->setEndIteration(it); }
+    void setOrder(int order) throw(INTERP_KERNEL::Exception) { _time_discr->setOrder(order); }
+    void setEndOrder(int order) throw(INTERP_KERNEL::Exception) { _time_discr->setEndOrder(order); }
+    void setTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setTimeValue(val); }
+    void setEndTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setEndTimeValue(val); }
     void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
     void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
     void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }

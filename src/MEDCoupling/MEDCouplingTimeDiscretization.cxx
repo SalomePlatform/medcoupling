@@ -979,6 +979,36 @@ double MEDCouplingNoTimeLabel::getEndTime(int& iteration, int& order) const thro
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
 
+void MEDCouplingNoTimeLabel::setStartIteration(int it) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingNoTimeLabel::setEndIteration(int it) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingNoTimeLabel::setStartOrder(int order) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingNoTimeLabel::setEndOrder(int order) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingNoTimeLabel::setStartTimeValue(double time) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
+void MEDCouplingNoTimeLabel::setEndTimeValue(double time) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
+}
+
 void MEDCouplingNoTimeLabel::setStartTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);

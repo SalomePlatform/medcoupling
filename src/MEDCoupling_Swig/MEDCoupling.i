@@ -1427,6 +1427,12 @@ namespace ParaMEDMEM
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void setTimeTolerance(double val) throw(INTERP_KERNEL::Exception);
     double getTimeTolerance() const throw(INTERP_KERNEL::Exception);
+    void setIteration(int it) throw(INTERP_KERNEL::Exception);
+    void setEndIteration(int it) throw(INTERP_KERNEL::Exception);
+    void setOrder(int order) throw(INTERP_KERNEL::Exception);
+    void setEndOrder(int order) throw(INTERP_KERNEL::Exception);
+    void setTimeValue(double val) throw(INTERP_KERNEL::Exception);
+    void setEndTimeValue(double val) throw(INTERP_KERNEL::Exception);
     void updateTime() throw(INTERP_KERNEL::Exception);
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
