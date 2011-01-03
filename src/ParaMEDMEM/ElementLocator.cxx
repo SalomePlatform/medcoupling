@@ -258,7 +258,7 @@ namespace ParaMEDMEM
     //serialization of local mesh to send data to distant proc.
     local_mesh->serialize(v1Local,v2Local);
     //Building the right instance of copy of distant mesh.
-    MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::buildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
+    MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::BuildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
     std::vector<std::string> unusedTinyDistantSts;
     distant_mesh_tmp->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     int nbLocalElems=0;

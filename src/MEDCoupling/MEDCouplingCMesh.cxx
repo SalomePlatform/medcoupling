@@ -275,7 +275,7 @@ int MEDCouplingCMesh::getNodeIdFromPos(int i, int j, int k) const
   return std::accumulate(tmp,tmp+spaceDim,0);
 }
 
-void MEDCouplingCMesh::getPosFromId(int nodeId, int spaceDim, const int *split, int *res)
+void MEDCouplingCMesh::GetPosFromId(int nodeId, int spaceDim, const int *split, int *res)
 {
   int work=nodeId;
   for(int i=spaceDim-1;i>=0;i--)
@@ -351,7 +351,7 @@ void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo
   getSplitNodeValues(tmp);
   const DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
   int tmp2[3];
-  getPosFromId(nodeId,spaceDim,tmp,tmp2);
+  GetPosFromId(nodeId,spaceDim,tmp,tmp2);
   for(int j=0;j<spaceDim;j++)
     if(tabs[j])
       coo.push_back(tabs[j]->getConstPointer()[tmp2[j]]);
@@ -522,7 +522,7 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
   for(int icell=0;icell<nbelem;icell++)
     {
       int tmp2[3];
-      getPosFromId(icell,dim,tmp,tmp2);
+      GetPosFromId(icell,dim,tmp,tmp2);
       area_vol[icell]=1.;
       for(int i=0;i<dim;i++)
         area_vol[icell]*=thisArr[i][tmp2[i]+1]-thisArr[i][tmp2[i]];
@@ -635,7 +635,7 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
   int tmp2[3];
   for(int i=0;i<nbNodes;i++)
     {
-      getPosFromId(i,spaceDim,tmp,tmp2);
+      GetPosFromId(i,spaceDim,tmp,tmp2);
       for(int j=0;j<spaceDim;j++)
         pt[i*spaceDim+j]=tabsPtr[j][tmp2[j]];
     }
@@ -664,7 +664,7 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   int tmp2[3];
   for(int i=0;i<nbCells;i++)
     {
-      getPosFromId(i,spaceDim,tmp,tmp2);
+      GetPosFromId(i,spaceDim,tmp,tmp2);
       for(int j=0;j<spaceDim;j++)
         pt[i*spaceDim+j]=tabsPtr[j][tmp2[j]];
     }

@@ -730,10 +730,10 @@ void MEDCouplingBasicsTest::testZipConnectivity()
   CPPUNIT_ASSERT(m3);
   m2->decrRef();
   MEDCouplingUMesh *m4=build2DSourceMesh_1();
-  MEDCouplingUMesh *m5=MEDCouplingUMesh::mergeUMeshes(m1,m3);
+  MEDCouplingUMesh *m5=MEDCouplingUMesh::MergeUMeshes(m1,m3);
   m1->decrRef();
   m3->decrRef();
-  MEDCouplingUMesh *m6=MEDCouplingUMesh::mergeUMeshes(m5,m4);
+  MEDCouplingUMesh *m6=MEDCouplingUMesh::MergeUMeshes(m5,m4);
   m4->decrRef();
   m5->decrRef();
   //
@@ -1321,7 +1321,7 @@ void MEDCouplingBasicsTest::testMergeMeshOnSameCoords1()
   m3->tryToShareSameCoords(*m2,1e-12);
   std::vector<MEDCouplingUMesh *> meshes;
   meshes.push_back(m1); meshes.push_back(m2); meshes.push_back(m3);
-  MEDCouplingUMesh *m4=MEDCouplingUMesh::mergeUMeshesOnSameCoords(meshes);
+  MEDCouplingUMesh *m4=MEDCouplingUMesh::MergeUMeshesOnSameCoords(meshes);
   m4->checkCoherency();
   CPPUNIT_ASSERT(m4->getCoords()==m1->getCoords());
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
@@ -1353,7 +1353,7 @@ void MEDCouplingBasicsTest::testMergeField1()
   m2->translate(vec);
   MEDCouplingFieldDouble *f1=m1->getMeasureField(true);
   MEDCouplingFieldDouble *f2=m2->getMeasureField(true);
-  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::mergeFields(f1,f2);
+  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::MergeFields(f1,f2);
   f3->checkCoherency();
   MEDCouplingUMesh *m4=build2DTargetMeshMerged_1();
   CPPUNIT_ASSERT(f3->getMesh()->isEqual(m4,1.e-12));
@@ -1978,7 +1978,7 @@ void MEDCouplingBasicsTest::testSplitByType()
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   std::vector<MEDCouplingUMesh *> v=m1->splitByType();
   CPPUNIT_ASSERT_EQUAL(3,(int)v.size());
-  MEDCouplingUMesh *m2=MEDCouplingUMesh::mergeUMeshesOnSameCoords(v);
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(v);
   m2->setName(m1->getName());
   CPPUNIT_ASSERT(m1->isEqual(m2,1.e-12));
   for(std::vector<MEDCouplingUMesh *>::const_iterator iter=v.begin();iter!=v.end();iter++)
@@ -2009,7 +2009,7 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
   m2->decrRef();
   //
   std::vector<DataArrayInt *> corr;
-  MEDCouplingUMesh *m7=MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
+  MEDCouplingUMesh *m7=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(4,m7->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(3,(int)corr.size());
   const int expectedVals1[3]={3,3,2};
@@ -2025,7 +2025,7 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
         CPPUNIT_ASSERT_EQUAL(expectedVals2[i][j],vals[j]);
     }
   std::vector< std::vector<int> > fidsOfGroups;
-  DataArrayInt *arr2=DataArrayInt::makePartition(corr,m7->getNumberOfCells(),fidsOfGroups);
+  DataArrayInt *arr2=DataArrayInt::MakePartition(corr,m7->getNumberOfCells(),fidsOfGroups);
   const int fidExp[4]={5,1,3,4};
   const int fidsGrp[3][3]={{1,3,5},{3,4,5},{4,5,23344}};
   CPPUNIT_ASSERT_EQUAL(3,(int)fidsOfGroups.size());
@@ -2063,7 +2063,7 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords2()
   meshes.push_back(m3);
   meshes.push_back(m4);
   std::vector<DataArrayInt *> corr;
-  MEDCouplingUMesh *m5=MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
+  MEDCouplingUMesh *m5=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(18,m5->getNumberOfCells());
   std::vector<DataArrayInt *>::iterator it=corr.begin();
   const int exp1[4]={18,5,5,4};
@@ -2139,7 +2139,7 @@ void MEDCouplingBasicsTest::testGetCellsContainingPoint()
   CPPUNIT_ASSERT(std::equal(t2.begin(),t2.end(),expectedValues2));
   //2D with no help of bounding box.
   double center[2]={0.2,0.2};
-  MEDCouplingPointSet::rotate2DAlg(center,0.78539816339744830962,6,pos);
+  MEDCouplingPointSet::Rotate2DAlg(center,0.78539816339744830962,6,pos);
   targetMesh->rotate(center,0,0.78539816339744830962);
   t1.clear(); t2.clear();
   targetMesh->getCellsContainingPoints(pos,6,1e-12,t1,t2);

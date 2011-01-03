@@ -50,7 +50,7 @@ namespace ParaMEDMEM
     int getMeshDimension() const;
     int getCellIdFromPos(int i, int j, int k) const;
     int getNodeIdFromPos(int i, int j, int k) const;
-    static void getPosFromId(int nodeId, int spaceDim, const int *split, int *res);
+    static void GetPosFromId(int nodeId, int spaceDim, const int *split, int *res);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;

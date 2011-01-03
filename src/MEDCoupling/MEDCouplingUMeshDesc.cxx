@@ -167,10 +167,10 @@ std::string MEDCouplingUMeshDesc::advancedRepr() const
 
 void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx)
 {
-  DataArrayInt::setArrayIn(descConn,_desc_connec);
-  DataArrayInt::setArrayIn(descConnIndex,_desc_connec_index);
-  DataArrayInt::setArrayIn(nodalFaceConn,_nodal_connec_face);
-  DataArrayInt::setArrayIn(nodalFaceConnIndx,_nodal_connec_face_index);
+  DataArrayInt::SetArrayIn(descConn,_desc_connec);
+  DataArrayInt::SetArrayIn(descConnIndex,_desc_connec_index);
+  DataArrayInt::SetArrayIn(nodalFaceConn,_nodal_connec_face);
+  DataArrayInt::SetArrayIn(nodalFaceConnIndx,_nodal_connec_face_index);
   computeTypes();
 }
 

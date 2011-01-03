@@ -157,7 +157,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
     MEDCOUPLING_EXPORT double *getPointer() const { return _mem.getPointer(); }
-    MEDCOUPLING_EXPORT static void setArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
+    MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
     MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
@@ -189,21 +189,21 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *aggregate(const std::vector<const DataArrayDouble *>& a) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *meld(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *meld(const std::vector<const DataArrayDouble *>& a) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *crossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *max(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *min(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *add(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Aggregate(const std::vector<const DataArrayDouble *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Meld(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Meld(const std::vector<const DataArrayDouble *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Dot(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Max(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Min(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Add(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *substract(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Substract(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void substractEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *multiply(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Multiply(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayDouble *divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayDouble *Divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() { }
@@ -261,16 +261,16 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
     MEDCOUPLING_EXPORT int *getPointer() const { return _mem.getPointer(); }
-    MEDCOUPLING_EXPORT static void setArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
+    MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayInt *aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
-    MEDCOUPLING_EXPORT static DataArrayInt *meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayInt *meld(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static DataArrayInt *makePartition(const std::vector<DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups);
+    MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
+    MEDCOUPLING_EXPORT static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayInt *Meld(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayInt *MakePartition(const std::vector<DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups);
     MEDCOUPLING_EXPORT DataArrayInt *buildComplement(int nbOfElement) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *buildSubstraction(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);

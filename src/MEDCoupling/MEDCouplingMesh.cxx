@@ -208,7 +208,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  * retruns a newly created mesh with counter=1 
  * that is the union of mesh1 and mesh2 if possible. The cells of mesh2 will appear after cells of 'mesh1'. Idem for nodes.
  */
-MEDCouplingMesh *MEDCouplingMesh::mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
+MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
 {
   return mesh1->mergeMyselfWith(mesh2);
 }

@@ -499,7 +499,7 @@ void MEDCouplingExtrudedMesh::computeBaryCenterOfFace(const std::vector<int>& no
   std::transform(zoneToUpdate,zoneToUpdate+3,zoneToUpdate,std::bind2nd(std::multiplies<double>(),(double)(1./nodalConnec.size())));
 }
 
-int MEDCouplingExtrudedMesh::findCorrespCellByNodalConn(const std::vector<int>& nodalConnec, const int *revNodalPtr, const int *revNodalIndxPtr) throw(INTERP_KERNEL::Exception)
+int MEDCouplingExtrudedMesh::FindCorrespCellByNodalConn(const std::vector<int>& nodalConnec, const int *revNodalPtr, const int *revNodalIndxPtr) throw(INTERP_KERNEL::Exception)
 {
   std::vector<int>::const_iterator iter=nodalConnec.begin();
   std::set<int> s1(revNodalPtr+revNodalIndxPtr[*iter],revNodalPtr+revNodalIndxPtr[*iter+1]);
@@ -533,11 +533,11 @@ int MEDCouplingExtrudedMesh::findCorrespCellByNodalConn(const std::vector<int>& 
  * @param v is the output normalized vector of the common direction of 'm1' and 'm2'  
  * @throw in case that m1 and m2 are not compatible each other.
  */
-void MEDCouplingExtrudedMesh::project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
+void MEDCouplingExtrudedMesh::Project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
                                               MEDCouplingUMesh *&m1r, MEDCouplingUMesh *&m2r, double *v) throw(INTERP_KERNEL::Exception)
 {
   if(m1->getSpaceDimension()!=3 || m1->getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("Input meshes are expected to have a spaceDim==3 for projec1D !");
+    throw INTERP_KERNEL::Exception("Input meshes are expected to have a spaceDim==3 for Projec1D !");
   m1r=m1->clone(true);
   m2r=m2->clone(true);
   m1r->changeSpaceDimension(1);
@@ -665,7 +665,7 @@ void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D
        std::vector<int> nodalConnec(nodal2D+nodal2DIndx[i]+1,nodal2D+nodal2DIndx[i+1]);
        try
         {
-          idInSubMesh=findCorrespCellByNodalConn(nodalConnec,revNodal2DPtr,revNodalIndx2DPtr);
+          idInSubMesh=FindCorrespCellByNodalConn(nodalConnec,revNodal2DPtr,revNodalIndx2DPtr);
         }
        catch(INTERP_KERNEL::Exception& e)
          {

@@ -265,7 +265,7 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
   MEDCouplingMesh::checkFastEquivalWith(other,prec);
   if(_types!=otherC->_types)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Types are not equal !");
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=mergeUMeshes(this,otherC);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MergeUMeshes(this,otherC);
   bool areNodesMerged;
   int newNbOfNodes;
   int oldNbOfNodes=getNumberOfNodes();
@@ -327,7 +327,7 @@ void MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *ot
   std::vector<MEDCouplingUMesh *> ms(2);
   ms[0]=const_cast<MEDCouplingUMesh *>(this);
   ms[1]=const_cast<MEDCouplingUMesh *>(otherC);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=mergeUMeshesOnSameCoords(ms);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MergeUMeshesOnSameCoords(ms);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->zipConnectivityTraducer(cellCompPol);
   int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
   const int *pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
@@ -917,7 +917,7 @@ DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType) throw(INTE
  */
 bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int compType, DataArrayInt *& arr) const throw(INTERP_KERNEL::Exception)
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=mergeUMeshesOnSameCoords(this,other);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh=MergeUMeshesOnSameCoords(this,other);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=mesh->zipConnectivityTraducer(compType);
   int nbOfCells=getNumberOfCells();
   arr=o2n->substr(nbOfCells);
@@ -950,7 +950,9 @@ DataArrayInt *MEDCouplingUMesh::mergeNodes2(double precision, bool& areNodesMerg
 
 /*!
  * This method tries to use 'other' coords and use it for 'this'. If no exception was thrown after the call of this method :
- * this->_coords==other->_coords. If not a exception is thrown this remains unchanged.
+ * this->_coords==other->_coords. If an exception is thrown 'this' remains unchanged.
+ * Contrary to MEDCouplingUMesh::tryToShareSameCoords method this method makes a deeper analyze of coordinates (and so more expensive) than simple equality.
+ * Two nodes one in 'this' and other in 'other' are considered equal if the distance between the two is lower than epsilon.
  */
 void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception)
 {
@@ -960,7 +962,7 @@ void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& ot
   if(!_coords)
     throw INTERP_KERNEL::Exception("tryToShareSameCoordsPermute : No coords specified in this whereas there is any in other !");
   int otherNbOfNodes=other.getNumberOfNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=mergeNodesArray(&other,this);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=MergeNodesArray(&other,this);
   _coords->incrRef();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> oldCoords=_coords;
   setCoords(newCoords);
@@ -1496,8 +1498,8 @@ int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
  */
 void MEDCouplingUMesh::setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes)
 {
-  DataArrayInt::setArrayIn(conn,_nodal_connec);
-  DataArrayInt::setArrayIn(connIndex,_nodal_connec_index);
+  DataArrayInt::SetArrayIn(conn,_nodal_connec);
+  DataArrayInt::SetArrayIn(connIndex,_nodal_connec_index);
   if(isComputingTypes)
     computeTypes();
   declareAsNew();
@@ -2670,7 +2672,7 @@ void MEDCouplingUMesh::are2DCellsNotCorrectlyOriented(const double *vec, bool po
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
       if(!polyOnly || type==INTERP_KERNEL::NORM_POLYGON)
         {
-          if(!isPolygonWellOriented(vec,conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+          if(!IsPolygonWellOriented(vec,conn+connI[i]+1,conn+connI[i+1],coordsPtr))
             cells.push_back(i);
         }
     }
@@ -2694,7 +2696,7 @@ void MEDCouplingUMesh::orientCorrectly2DCells(const double *vec, bool polyOnly) 
     {
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
       if(!polyOnly || type==INTERP_KERNEL::NORM_POLYGON)
-        if(!isPolygonWellOriented(vec,conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+        if(!IsPolygonWellOriented(vec,conn+connI[i]+1,conn+connI[i+1],coordsPtr))
           {
             isModified=true;
             std::vector<int> tmp(connI[i+1]-connI[i]-2);
@@ -2725,7 +2727,7 @@ void MEDCouplingUMesh::arePolyhedronsNotCorrectlyOriented(std::vector<int>& cell
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
       if(type==INTERP_KERNEL::NORM_POLYHED)
         {
-          if(!isPolyhedronWellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+          if(!IsPolyhedronWellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
             cells.push_back(i);
         }
     }
@@ -2748,9 +2750,9 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Excepti
     {
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[connI[i]];
       if(type==INTERP_KERNEL::NORM_POLYHED)
-        if(!isPolyhedronWellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
+        if(!IsPolyhedronWellOriented(conn+connI[i]+1,conn+connI[i+1],coordsPtr))
           {
-            tryToCorrectPolyhedronOrientation(conn+connI[i]+1,conn+connI[i+1],coordsPtr);
+            TryToCorrectPolyhedronOrientation(conn+connI[i]+1,conn+connI[i+1],coordsPtr);
             isModified=true;
           }
     }
@@ -3262,7 +3264,7 @@ MEDCouplingMesh *MEDCouplingUMesh::mergeMyselfWith(const MEDCouplingMesh *other)
   if(other->getType()!=UNSTRUCTURED)
     throw INTERP_KERNEL::Exception("Merge of umesh only available with umesh each other !");
   const MEDCouplingUMesh *otherC=static_cast<const MEDCouplingUMesh *>(other);
-  return mergeUMeshes(this,otherC);
+  return MergeUMeshes(this,otherC);
 }
 
 /*!
@@ -3295,17 +3297,17 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
  * Returns a newly created mesh (with ref count ==1) that contains merge of 'mesh1' and 'other'.
  * The coords of 'mesh2' are added at the end of coords of 'mesh1'.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
 {
   std::vector<const MEDCouplingUMesh *> tmp(2);
   tmp[0]=const_cast<MEDCouplingUMesh *>(mesh1); tmp[1]=const_cast<MEDCouplingUMesh *>(mesh2);
-  return mergeUMeshes(tmp);
+  return MergeUMeshes(tmp);
 }
 
-MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception)
 {
   if(a.empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::mergeUMeshes : input array must be NON EMPTY !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::MergeUMeshes : input array must be NON EMPTY !");
   std::vector<const MEDCouplingUMesh *>::const_iterator it=a.begin();
   int meshDim=(*it)->getMeshDimension();
   int nbOfCells=(*it)->getNumberOfCells();
@@ -3313,13 +3315,13 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(std::vector<const MEDCouplingUM
   for(;it!=a.end();it++)
     {
       if(meshDim!=(*it)->getMeshDimension())
-        throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, mergeMeshes impossible !");
+        throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, MergeUMeshes impossible !");
       nbOfCells+=(*it)->getNumberOfCells();
       meshLgth+=(*it)->getMeshLength();
     }
   std::vector<const MEDCouplingPointSet *> aps(a.size());
   std::copy(a.begin(),a.end(),aps.begin());
-  DataArrayDouble *pts=mergeNodesArray(aps);
+  DataArrayDouble *pts=MergeNodesArray(aps);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New("merge",meshDim);
   ret->setCoords(pts);
   pts->decrRef();
@@ -3362,21 +3364,21 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshes(std::vector<const MEDCouplingUM
 }
 
 /*!
- * Idem mergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
+ * Idem MergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
  * 'meshes' must be a non empty vector.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
 {
   std::vector<MEDCouplingUMesh *> tmp(2);
   tmp[0]=const_cast<MEDCouplingUMesh *>(mesh1); tmp[1]=const_cast<MEDCouplingUMesh *>(mesh2);
-  return mergeUMeshesOnSameCoords(tmp);
+  return MergeUMeshesOnSameCoords(tmp);
 }
 
 /*!
- * Idem mergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
+ * Idem MergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
  * 'meshes' must be a non empty vector.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes)
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes)
 {
   if(meshes.empty())
     throw INTERP_KERNEL::Exception("meshes input parameter is expected to be non empty.");
@@ -3436,10 +3438,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::mergeUMeshesOnSameCoords(const std::vector<M
  * @return The mesh lying on the same coordinates than those in meshes. All cells in 'meshes' are in returned mesh with 
  * @exception if meshes is a empty vector or meshes are not lying on same coordinates or meshes not have the same dimension.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::fuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr)
+MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr)
 {
-  //All checks are delegated to mergeUMeshesOnSameCoords
-  MEDCouplingUMesh *ret=mergeUMeshesOnSameCoords(meshes);
+  //All checks are delegated to MergeUMeshesOnSameCoords
+  MEDCouplingUMesh *ret=MergeUMeshesOnSameCoords(meshes);
   DataArrayInt *o2n=ret->zipConnectivityTraducer(compType);
   corr.resize(meshes.size());
   int nbOfMeshes=meshes.size();
@@ -3544,7 +3546,7 @@ void MEDCouplingUMesh::appendExtrudedCell(const int *connBg, const int *connEnd,
 /*!
  * This static operates only for coords in 3D. The polygon is specfied by its connectivity nodes in [begin,end).
  */
-bool MEDCouplingUMesh::isPolygonWellOriented(const double *vec, const int *begin, const int *end, const double *coords)
+bool MEDCouplingUMesh::IsPolygonWellOriented(const double *vec, const int *begin, const int *end, const double *coords)
 {
   double v[3]={0.,0.,0.};
   int sz=std::distance(begin,end);
@@ -3560,7 +3562,7 @@ bool MEDCouplingUMesh::isPolygonWellOriented(const double *vec, const int *begin
 /*!
  * The polyhedron is specfied by its connectivity nodes in [begin,end).
  */
-bool MEDCouplingUMesh::isPolyhedronWellOriented(const int *begin, const int *end, const double *coords)
+bool MEDCouplingUMesh::IsPolyhedronWellOriented(const int *begin, const int *end, const double *coords)
 {
   std::vector<std::pair<int,int> > edges;
   int nbOfFaces=std::count(begin,end,-1)+1;
@@ -3585,7 +3587,7 @@ bool MEDCouplingUMesh::isPolyhedronWellOriented(const int *begin, const int *end
  * This method tries to obtain a well oriented polyhedron.
  * If the algorithm fails, an exception will be thrown.
  */
-void MEDCouplingUMesh::tryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords) throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::TryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::pair<int,int> > edges;
   int nbOfFaces=std::count(begin,end,-1)+1;

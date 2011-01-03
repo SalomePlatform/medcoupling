@@ -546,17 +546,23 @@ void MEDFileUMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<Da
   if(grps.empty())
     return ;
   std::set<std::string> grpsName;
-  for(std::vector<DataArrayInt *>::const_iterator it=grps.begin();it!=grps.end();it++)
-    grpsName.insert((*it)->getName());
+  std::vector<std::string> grpsName2(grps.size());
+  int i=0;
+  for(std::vector<DataArrayInt *>::const_iterator it=grps.begin();it!=grps.end();it++,i++)
+    {
+      grpsName.insert((*it)->getName());
+      grpsName2[i]=(*it)->getName();
+    }
   if(grpsName.size()!=grps.size())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsAtLevel : groups name must be different each other !");
   if(grpsName.find(std::string(""))!=grpsName.end())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsAtLevel : groups name must be different empty string !");
-  /*  int sz=getSizeAtLevel(meshDimRelToMaxExt);
+  int sz=getSizeAtLevel(meshDimRelToMaxExt);
   if(!renum)
     {
-      
-    }*/
+      std::vector< std::vector<int> > fidsOfGroups;
+      DataArrayInt *fam=DataArrayInt::MakePartition(grps,sz,fidsOfGroups);
+    }
 }
 
 void MEDFileUMesh::eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception)
@@ -584,6 +590,30 @@ void MEDFileUMesh::optimizeFamilies() throw(INTERP_KERNEL::Exception)
       std::set_union(ids.begin(),ids.end(),allFamsIds.begin(),allFamsIds.end(),std::inserter(res,res.begin()));
       allFamsIds=res;
     }
+  std::set<std::string> famNamesToKill;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    {
+      if(allFamsIds.find((*it).second)!=allFamsIds.end())
+        famNamesToKill.insert((*it).first);
+    }
+  for(std::set<std::string>::const_iterator it=famNamesToKill.begin();it!=famNamesToKill.end();it++)
+    _families.erase(*it);
+  std::vector<std::string> grpNamesToKill;
+  for(std::map<std::string, std::vector<std::string> >::iterator it=_groups.begin();it!=_groups.end();it++)
+    {
+      std::vector<std::string> tmp;
+      for(std::vector<std::string>::const_iterator it2=(*it).second.begin();it2!=(*it).second.end();it2++)
+        {
+          if(famNamesToKill.find(*it2)==famNamesToKill.end())
+            tmp.push_back(*it2);
+        }
+      if(!tmp.empty())
+        (*it).second=tmp;
+      else
+        tmp.push_back((*it).first);
+    }
+  for(std::vector<std::string>::const_iterator it=grpNamesToKill.begin();it!=grpNamesToKill.end();it++)
+    _groups.erase(*it);
 }
 
 void MEDFileUMesh::setFamilyField(DataArrayInt *arr, const std::vector< std::vector< int > > &userfids, const std::vector<std::string>& grpNames) throw(INTERP_KERNEL::Exception)

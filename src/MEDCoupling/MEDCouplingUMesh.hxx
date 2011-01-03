@@ -138,14 +138,14 @@ namespace ParaMEDMEM
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;
-    MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshes(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT static MEDCouplingUMesh *mergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes);
-    MEDCOUPLING_EXPORT static MEDCouplingUMesh *fuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr);
-    MEDCOUPLING_EXPORT static bool isPolygonWellOriented(const double *vec, const int *begin, const int *end, const double *coords);
-    MEDCOUPLING_EXPORT static bool isPolyhedronWellOriented(const int *begin, const int *end, const double *coords);
-    MEDCOUPLING_EXPORT static void tryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshes(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes);
+    MEDCOUPLING_EXPORT static MEDCouplingUMesh *FuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr);
+    MEDCOUPLING_EXPORT static bool IsPolygonWellOriented(const double *vec, const int *begin, const int *end, const double *coords);
+    MEDCOUPLING_EXPORT static bool IsPolyhedronWellOriented(const int *begin, const int *end, const double *coords);
+    MEDCOUPLING_EXPORT static void TryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords) throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);

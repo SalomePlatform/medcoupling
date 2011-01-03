@@ -2222,10 +2222,10 @@ void MEDLoaderNS::writeUMeshesPartitionDirectly(const char *fileName, const char
   if(meshNameCpp=="")
     throw INTERP_KERNEL::Exception("writeUMeshesPartitionDirectly : Invalid meshName : Must be different from \"\" !");
   std::vector< DataArrayInt * > corr;
-  MEDCouplingUMesh *m=ParaMEDMEM::MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
+  MEDCouplingUMesh *m=ParaMEDMEM::MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   m->setName(meshName);
   std::vector< std::vector<int> > fidsOfGroups;
-  DataArrayInt *arr2=DataArrayInt::makePartition(corr,m->getNumberOfCells(),fidsOfGroups);
+  DataArrayInt *arr2=DataArrayInt::MakePartition(corr,m->getNumberOfCells(),fidsOfGroups);
   for(std::vector< DataArrayInt * >::iterator it=corr.begin();it!=corr.end();it++)
     (*it)->decrRef();
   bool isRenumbering;
@@ -2547,7 +2547,7 @@ void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, const 
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   MEDCouplingUMesh *m=MEDLoader::ReadUMeshFromFile(fileName,f->getMesh()->getName(),f2);
-  MEDCouplingUMesh *m2=MEDCouplingUMesh::mergeUMeshes(m,(MEDCouplingUMesh *)f->getMesh());
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshes(m,(MEDCouplingUMesh *)f->getMesh());
   bool areNodesMerged;
   int newNbOfNodes;
   DataArrayInt *da=m2->mergeNodes(MEDLoader::_EPS_FOR_NODE_COMP,areNodesMerged,newNbOfNodes);

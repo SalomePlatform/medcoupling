@@ -545,18 +545,18 @@ void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, 
 /*!
  * merge _coords arrays of m1 and m2 and returns the union. The returned instance is newly created with ref count == 1.
  */
-DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingPointSet::MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=m1->getSpaceDimension();
   if(spaceDim!=m2->getSpaceDimension())
-    throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of mergeNodesArray !");
-  return DataArrayDouble::aggregate(m1->getCoords(),m2->getCoords());
+    throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of MergeNodesArray !");
+  return DataArrayDouble::Aggregate(m1->getCoords(),m2->getCoords());
 }
 
-DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const std::vector<const MEDCouplingPointSet *>& ms) throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingPointSet::MergeNodesArray(const std::vector<const MEDCouplingPointSet *>& ms) throw(INTERP_KERNEL::Exception)
 {
   if(ms.empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::mergeNodesArray : input array must be NON EMPTY !");
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::MergeNodesArray : input array must be NON EMPTY !");
   std::vector<const MEDCouplingPointSet *>::const_iterator it=ms.begin();
   std::vector<const DataArrayDouble *> coo(ms.size());
   int spaceDim=(*it)->getSpaceDimension();
@@ -569,19 +569,19 @@ DataArrayDouble *MEDCouplingPointSet::mergeNodesArray(const std::vector<const ME
           if((*it)->getSpaceDimension()==spaceDim)
             coo[i]=tmp;
           else
-            throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of mergeNodesArray !");
+            throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of MergeNodesArray !");
         }
       else
-        throw INTERP_KERNEL::Exception("Empty coords detected during call of mergeNodesArray !");
+        throw INTERP_KERNEL::Exception("Empty coords detected during call of MergeNodesArray !");
     }
-  return DataArrayDouble::aggregate(coo);
+  return DataArrayDouble::Aggregate(coo);
 }
 
 /*!
  * Factory to build new instance of instanciable subclasses of MEDCouplingPointSet.
  * This method is used during unserialization process.
  */
-MEDCouplingPointSet *MEDCouplingPointSet::buildInstanceFromMeshType(MEDCouplingMeshType type)
+MEDCouplingPointSet *MEDCouplingPointSet::BuildInstanceFromMeshType(MEDCouplingMeshType type)
 {
   switch(type)
     {
@@ -740,14 +740,14 @@ void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, dou
 {
   double *coords=_coords->getPointer();
   int nbNodes=getNumberOfNodes();
-  rotate3DAlg(center,vect,angle,nbNodes,coords);
+  Rotate3DAlg(center,vect,angle,nbNodes,coords);
 }
 
 /*!
  * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in 'coords'
  * around an axe ('center','vect') and with angle 'angle'.
  */
-void MEDCouplingPointSet::rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords)
+void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords)
 {
   double sina=sin(angle);
   double cosa=cos(angle);
@@ -813,14 +813,14 @@ void MEDCouplingPointSet::rotate2D(const double *center, double angle)
 {
   double *coords=_coords->getPointer();
   int nbNodes=getNumberOfNodes();
-  rotate2DAlg(center,angle,nbNodes,coords);
+  Rotate2DAlg(center,angle,nbNodes,coords);
 }
 
 /*!
  * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in 'coords'
  * around the center point 'center' and with angle 'angle'.
  */
-void MEDCouplingPointSet::rotate2DAlg(const double *center, double angle, int nbNodes, double *coords)
+void MEDCouplingPointSet::Rotate2DAlg(const double *center, double angle, int nbNodes, double *coords)
 {
   double cosa=cos(angle);
   double sina=sin(angle);

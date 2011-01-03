@@ -477,8 +477,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m3=m2.buildPartOfMySelf(cells1,True);
         self.assertTrue(isinstance(m3,MEDCouplingUMesh))
         m4=MEDCouplingDataForTest.build2DSourceMesh_1();
-        m5=MEDCouplingUMesh.mergeUMeshes(m1,m3);
-        m6=MEDCouplingUMesh.mergeUMeshes(m5,m4);
+        m5=MEDCouplingUMesh.MergeUMeshes(m1,m3);
+        m6=MEDCouplingUMesh.MergeUMeshes(m5,m4);
         #
         self.assertEqual(10,m6.getNumberOfCells());
         self.assertEqual(22,m6.getNumberOfNodes());
@@ -899,7 +899,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m3=MEDCouplingDataForTest.build2DTargetMesh_1();
         m3.tryToShareSameCoords(m2,1e-12);
         meshes=[m1,m2,m3]
-        m4=MEDCouplingUMesh.mergeUMeshesOnSameCoords(meshes);
+        m4=MEDCouplingUMesh.MergeUMeshesOnSameCoords(meshes);
         m4.checkCoherency();
         self.assertEqual(15,m4.getNumberOfCells());
         cells1=[0,1,2,3,4]
@@ -923,7 +923,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m2.translate(vec);
         f1=m1.getMeasureField(True);
         f2=m2.getMeasureField(True);
-        f3=MEDCouplingFieldDouble.mergeFields(f1,f2);
+        f3=MEDCouplingFieldDouble.MergeFields(f1,f2);
         f3.checkCoherency();
         m4=MEDCouplingDataForTest.build2DTargetMeshMerged_1();
         self.assertTrue(f3.getMesh().isEqual(m4,1.e-12));
@@ -1415,7 +1415,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
         v=m1.splitByType();
         self.assertEqual(3,len(v));
-        m2=MEDCouplingUMesh.mergeUMeshesOnSameCoords(v);
+        m2=MEDCouplingUMesh.MergeUMeshesOnSameCoords(v);
         m2.setName(m1.getName());
         self.assertTrue(m1.isEqual(m2,1.e-12));
         pass
@@ -1433,7 +1433,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(isinstance(m5,MEDCouplingUMesh))
         meshes=[m3,m4,m5]
         #
-        m7,corr=MEDCouplingUMesh.fuseUMeshesOnSameCoords(meshes,0);
+        m7,corr=MEDCouplingUMesh.FuseUMeshesOnSameCoords(meshes,0);
         self.assertEqual(4,m7.getNumberOfCells());
         self.assertEqual(3,len(corr));
         expectedVals1=[3,3,2]
@@ -1446,7 +1446,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             vals=arr.getValues();
             self.assertEqual(expectedVals2[i],list(vals));
             pass
-        arr2,fidsOfGroups=DataArrayInt.makePartition(corr,m7.getNumberOfCells());
+        arr2,fidsOfGroups=DataArrayInt.MakePartition(corr,m7.getNumberOfCells());
         fidExp=[5,1,3,4]
         fidsGrp=[[1,3,5],[3,4,5],[4,5]]
         self.assertEqual(3,len(fidsOfGroups));
@@ -1466,7 +1466,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         part2=[5,6,4,7]
         m4=m1.buildPartOfMySelf(part2,True);
         meshes=[m1,m3,m3,m4]
-        m5,corr=MEDCouplingUMesh.fuseUMeshesOnSameCoords(meshes,0);
+        m5,corr=MEDCouplingUMesh.FuseUMeshesOnSameCoords(meshes,0);
         self.assertEqual(18,m5.getNumberOfCells());
         exp2=[
             [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17],
@@ -1522,7 +1522,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(list(t2),expectedValues2);
         #2D with no help of bounding box.
         center=[0.2,0.2]
-        MEDCouplingPointSet.rotate2DAlg(center,0.78539816339744830962,6,pos);
+        MEDCouplingPointSet.Rotate2DAlg(center,0.78539816339744830962,6,pos);
         targetMesh.rotate(center,[],0.78539816339744830962);
         t1=None
         t2=None
@@ -3727,8 +3727,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m3_1=m2.buildPartOfMySelf(cells1,True);
         m3=m3_1;
         m4=MEDCouplingDataForTest.build2DSourceMesh_1();
-        m5=MEDCouplingUMesh.mergeUMeshes(m1,m3);
-        m6=MEDCouplingUMesh.mergeUMeshes(m5,m4);
+        m5=MEDCouplingUMesh.MergeUMeshes(m1,m3);
+        m6=MEDCouplingUMesh.MergeUMeshes(m5,m4);
         #
         self.assertEqual(10,m6.getNumberOfCells());
         self.assertEqual(22,m6.getNumberOfNodes());
@@ -4874,7 +4874,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         tmp=DataArrayDouble.New();
         vals=[0.2,0.2,0.1,0.2,0.2,0.2]
         tmp.setValues(vals,3,2);
-        tmp2=DataArrayDouble.aggregate(coords,tmp);
+        tmp2=DataArrayDouble.Aggregate(coords,tmp);
         mesh.setCoords(tmp2);
         pts=[0.2,0.2,0.1,0.3,-0.3,0.7]
         c=mesh.getNodeIdsNearPoint(pts,1e-7);
@@ -5217,8 +5217,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(int(expected1[i]),dai1.getIJ(0,i));
             pass
         # test of static method DataArrayDouble::meld
-        da4=DataArrayDouble.meld(da1C,da3);
-        tmp=DataArrayDouble.meld([da1C,da3]);
+        da4=DataArrayDouble.Meld(da1C,da3);
+        tmp=DataArrayDouble.Meld([da1C,da3]);
         self.assertTrue(da4.isEqual(tmp,1e-10))
         self.assertEqual(5,da4.getNumberOfComponents());
         self.assertEqual(7,da4.getNumberOfTuples());
@@ -5232,8 +5232,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         # test of static method DataArrayInt::meld
         dai1=da1C.convertToIntArr();
-        dai4=DataArrayInt.meld(dai1,dai3);
-        tmp=DataArrayInt.meld([dai1,dai3]);
+        dai4=DataArrayInt.Meld(dai1,dai3);
+        tmp=DataArrayInt.Meld([dai1,dai3]);
         self.assertTrue(dai4.isEqual(tmp))
         self.assertEqual(5,dai4.getNumberOfComponents());
         self.assertEqual(7,dai4.getNumberOfTuples());
@@ -5268,7 +5268,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f2.getArray().setInfoOnComponent(1,"ccc");
         f2.checkCoherency();
         #
-        f3=MEDCouplingFieldDouble.meldFields(f2,f1);
+        f3=MEDCouplingFieldDouble.MeldFields(f2,f1);
         f3.checkCoherency();
         self.assertEqual(5,f3.getNumberOfTuples());
         self.assertEqual(3,f3.getNumberOfComponents());
@@ -5286,7 +5286,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         f4=f2.buildNewTimeReprFromThis(NO_TIME,False);
         f5=f1.buildNewTimeReprFromThis(NO_TIME,False);
-        f6=MEDCouplingFieldDouble.meldFields(f4,f5);
+        f6=MEDCouplingFieldDouble.MeldFields(f4,f5);
         f6.checkCoherency();
         self.assertEqual(5,f6.getNumberOfTuples());
         self.assertEqual(3,f6.getNumberOfComponents());
@@ -5305,7 +5305,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         vec=[0.002,0.]
         m2.translate(vec);
         #
-        m3=MEDCouplingUMesh.mergeUMeshes([m1,m2]);
+        m3=MEDCouplingUMesh.MergeUMeshes([m1,m2]);
         da,b,newNbOfNodes=m3.mergeNodes2(0.01);
         self.assertEqual(9,m3.getNumberOfNodes());
         expected1=[-0.299,-0.3, 0.201,-0.3, 0.701,-0.3, -0.299,0.2, 0.201,0.2, 0.701,0.2, -0.299,0.7, 0.201,0.7, 0.701,0.7]
@@ -5336,7 +5336,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr.fillWithValue(7.);
         f3.setArray(arr);
         #
-        f4=MEDCouplingFieldDouble.mergeFields([f1,f2,f3]);
+        f4=MEDCouplingFieldDouble.MergeFields([f1,f2,f3]);
         self.assertEqual(15,f4.getMesh().getNumberOfCells());
         expected1=[2.,2.,2.,2.,2.,2.,2.,2.,2.,2., 5.,5.,5.,5.,5.,5.,5.,5.,5.,5., 7.,7.,7.,7.,7.,7.,7.,7.,7.,7.]
         for i in xrange(30):

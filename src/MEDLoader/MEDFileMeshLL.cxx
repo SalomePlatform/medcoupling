@@ -247,7 +247,7 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
       tmp->setConnectivity(const_cast<DataArrayInt *>(v[i]->getNodal()),const_cast<DataArrayInt *>(v[i]->getNodalIndex()));
       ms[i]=tmp;
     }
-  _m_by_types=MEDCouplingUMesh::mergeUMeshesOnSameCoords(ms);
+  _m_by_types=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms);
   _m_by_types->setName(mName);
   if(l2.isFamDefinedOnLev(id))
     {
@@ -344,9 +344,9 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<MEDCouplingUMes
 {
   int sz=ms.size();
   std::vector< DataArrayInt * > corr;
-  _m=MEDCouplingUMesh::fuseUMeshesOnSameCoords(ms,0,corr);
+  _m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,0,corr);
   std::vector< std::vector<int> > fidsOfGroups;
-  _fam=DataArrayInt::makePartition(corr,_m->getNumberOfCells(),fidsOfGroups);
+  _fam=DataArrayInt::MakePartition(corr,_m->getNumberOfCells(),fidsOfGroups);
   int nbOfCells=_m->getNumberOfCells();
   std::map<int,std::string> newfams;
   std::map<int,int> famIdTrad;

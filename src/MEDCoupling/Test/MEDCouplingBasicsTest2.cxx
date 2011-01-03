@@ -2367,10 +2367,10 @@ void MEDCouplingBasicsTest::testFieldDoubleZipConnectivity1()
   CPPUNIT_ASSERT(m3);
   m2->decrRef();
   MEDCouplingUMesh *m4=build2DSourceMesh_1();
-  MEDCouplingUMesh *m5=MEDCouplingUMesh::mergeUMeshes(m1,m3);
+  MEDCouplingUMesh *m5=MEDCouplingUMesh::MergeUMeshes(m1,m3);
   m1->decrRef();
   m3->decrRef();
-  MEDCouplingUMesh *m6=MEDCouplingUMesh::mergeUMeshes(m5,m4);
+  MEDCouplingUMesh *m6=MEDCouplingUMesh::MergeUMeshes(m5,m4);
   m4->decrRef();
   m5->decrRef();
   //
@@ -3233,7 +3233,7 @@ void MEDCouplingBasicsTest::testGetNodeIdsNearPoints1()
   tmp->alloc(3,2);
   const double vals[6]={0.2,0.2,0.1,0.2,0.2,0.2};
   std::copy(vals,vals+6,tmp->getPointer());
-  DataArrayDouble *tmp2=DataArrayDouble::aggregate(coords,tmp);
+  DataArrayDouble *tmp2=DataArrayDouble::Aggregate(coords,tmp);
   tmp->decrRef();
   mesh->setCoords(tmp2);
   tmp2->decrRef();
@@ -3663,7 +3663,7 @@ void MEDCouplingBasicsTest::testDAMeld1()
   for(int i=0;i<35;i++)
     CPPUNIT_ASSERT_EQUAL((int)expected1[i],dai1->getIJ(0,i));
   // test of static method DataArrayDouble::meld
-  DataArrayDouble *da4=DataArrayDouble::meld(da1C,da3);
+  DataArrayDouble *da4=DataArrayDouble::Meld(da1C,da3);
   CPPUNIT_ASSERT_EQUAL(5,da4->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(7,da4->getNumberOfTuples());
   CPPUNIT_ASSERT(da4->getInfoOnComponent(0)=="c0da1");
@@ -3676,7 +3676,7 @@ void MEDCouplingBasicsTest::testDAMeld1()
   // test of static method DataArrayInt::meld
   dai1->decrRef();
   dai1=da1C->convertToIntArr();
-  DataArrayInt *dai4=DataArrayInt::meld(dai1,dai3);
+  DataArrayInt *dai4=DataArrayInt::Meld(dai1,dai3);
   CPPUNIT_ASSERT_EQUAL(5,dai4->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(7,dai4->getNumberOfTuples());
   CPPUNIT_ASSERT(dai4->getInfoOnComponent(0)=="c0da1");
@@ -3720,7 +3720,7 @@ void MEDCouplingBasicsTest::testFieldMeld1()
   f2->getArray()->setInfoOnComponent(1,"ccc");
   f2->checkCoherency();
   //
-  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::meldFields(f2,f1);
+  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::MeldFields(f2,f1);
   f3->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(5,f3->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(3,f3->getNumberOfComponents());
@@ -3738,7 +3738,7 @@ void MEDCouplingBasicsTest::testFieldMeld1()
   //
   MEDCouplingFieldDouble *f4=f2->buildNewTimeReprFromThis(NO_TIME,false);
   MEDCouplingFieldDouble *f5=f1->buildNewTimeReprFromThis(NO_TIME,false);
-  MEDCouplingFieldDouble *f6=MEDCouplingFieldDouble::meldFields(f4,f5);
+  MEDCouplingFieldDouble *f6=MEDCouplingFieldDouble::MeldFields(f4,f5);
   f6->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(5,f6->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(3,f6->getNumberOfComponents());
@@ -3768,7 +3768,7 @@ void MEDCouplingBasicsTest::testMergeNodes2()
   std::vector<const MEDCouplingUMesh *> tmp(2);
   tmp[0]=m1;
   tmp[1]=m2;
-  MEDCouplingUMesh *m3=MEDCouplingUMesh::mergeUMeshes(tmp);
+  MEDCouplingUMesh *m3=MEDCouplingUMesh::MergeUMeshes(tmp);
   bool b;
   int newNbOfNodes;
   DataArrayInt *da=m3->mergeNodes2(0.01,b,newNbOfNodes);
@@ -3810,7 +3810,7 @@ void MEDCouplingBasicsTest::testMergeField2()
   //
   std::vector<const MEDCouplingFieldDouble *> tmp(3);
   tmp[0]=f1; tmp[1]=f2; tmp[2]=f3;
-  MEDCouplingFieldDouble *f4=MEDCouplingFieldDouble::mergeFields(tmp);
+  MEDCouplingFieldDouble *f4=MEDCouplingFieldDouble::MergeFields(tmp);
   CPPUNIT_ASSERT_EQUAL(15,f4->getMesh()->getNumberOfCells());
   const double expected1[30]={2.,2.,2.,2.,2.,2.,2.,2.,2.,2., 5.,5.,5.,5.,5.,5.,5.,5.,5.,5., 7.,7.,7.,7.,7.,7.,7.,7.,7.,7.};
   for(int i=0;i<30;i++)

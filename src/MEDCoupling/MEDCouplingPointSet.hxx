@@ -71,11 +71,11 @@ namespace ParaMEDMEM
     void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
     virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
     void findNodesOnPlane(const double *pt, const double *vec, double eps, std::vector<int>& nodes) const throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *mergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
-    static DataArrayDouble *mergeNodesArray(const std::vector<const MEDCouplingPointSet *>& ms) throw(INTERP_KERNEL::Exception);
-    static MEDCouplingPointSet *buildInstanceFromMeshType(MEDCouplingMeshType type);
-    static void rotate2DAlg(const double *center, double angle, int nbNodes, double *coords);
-    static void rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords);
+    static DataArrayDouble *MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
+    static DataArrayDouble *MergeNodesArray(const std::vector<const MEDCouplingPointSet *>& ms) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingPointSet *BuildInstanceFromMeshType(MEDCouplingMeshType type);
+    static void Rotate2DAlg(const double *center, double angle, int nbNodes, double *coords);
+    static void Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords);
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
