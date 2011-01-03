@@ -5372,6 +5372,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(7):
             self.assertEqual(expected1[i],b.getIJ(0,i));
             pass
+        b=DataArrayInt.BuildUnion([a,c]);
+        self.assertEqual(7,b.getNumberOfTuples());
+        self.assertEqual(1,b.getNumberOfComponents());
+        expected1=[0,1,3,5,7,8,18]
+        for i in xrange(7):
+            self.assertEqual(expected1[i],b.getIJ(0,i));
+            pass
         pass
 
     def testDAIBuildIntersection1(self):
@@ -5382,6 +5389,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         tab2=[5,3,0,18,8]
         c.setValues(tab2,5,1);
         b=a.buildIntersection(c);
+        self.assertEqual(2,b.getNumberOfTuples());
+        self.assertEqual(1,b.getNumberOfComponents());
+        expected1=[3,8]
+        for i in xrange(2):
+            self.assertEqual(expected1[i],b.getIJ(0,i));
+            pass
+        b=DataArrayInt.BuildIntersection([a,c]);
         self.assertEqual(2,b.getNumberOfTuples());
         self.assertEqual(1,b.getNumberOfComponents());
         expected1=[3,8]

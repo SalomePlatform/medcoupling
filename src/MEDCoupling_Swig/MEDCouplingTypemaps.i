@@ -538,35 +538,6 @@ void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::ME
     }
 }
 
-void convertPyObjToVecDataArrayInt(PyObject *ms, std::vector<ParaMEDMEM::DataArrayInt *>& v) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(ms))
-    {
-      int size=PyList_Size(ms);
-      v.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *obj=PyList_GetItem(ms,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
-          if(!SWIG_IsOK(status))
-            {
-              const char msg[]="list must contain only DataArrayInt";
-              PyErr_SetString(PyExc_TypeError,msg);
-              throw INTERP_KERNEL::Exception(msg);
-            }
-          ParaMEDMEM::DataArrayInt *arg=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
-          v[i]=arg;
-        }
-    }
-  else
-    {
-      const char msg[]="convertPyObjToVecDataArrayInt : not a list";
-      PyErr_SetString(PyExc_TypeError,msg);
-      throw INTERP_KERNEL::Exception(msg);
-    }
-}
-
 void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM::DataArrayInt *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))

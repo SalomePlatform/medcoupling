@@ -2026,7 +2026,8 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
         CPPUNIT_ASSERT_EQUAL(expectedVals2[i][j],vals[j]);
     }
   std::vector< std::vector<int> > fidsOfGroups;
-  DataArrayInt *arr2=DataArrayInt::MakePartition(corr,m7->getNumberOfCells(),fidsOfGroups);
+  std::vector<const DataArrayInt *> corr2(corr.begin(),corr.end());
+  DataArrayInt *arr2=DataArrayInt::MakePartition(corr2,m7->getNumberOfCells(),fidsOfGroups);
   const int fidExp[4]={5,1,3,4};
   const int fidsGrp[3][3]={{1,3,5},{3,4,5},{4,5,23344}};
   CPPUNIT_ASSERT_EQUAL(3,(int)fidsOfGroups.size());

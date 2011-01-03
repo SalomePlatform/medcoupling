@@ -541,14 +541,14 @@ void MEDFileUMesh::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Excep
   _fam_coords->fillWithZero();
 }
 
-void MEDFileUMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<DataArrayInt *>& grps, bool renum) throw(INTERP_KERNEL::Exception)
+void MEDFileUMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum) throw(INTERP_KERNEL::Exception)
 {
   if(grps.empty())
     return ;
   std::set<std::string> grpsName;
   std::vector<std::string> grpsName2(grps.size());
   int i=0;
-  for(std::vector<DataArrayInt *>::const_iterator it=grps.begin();it!=grps.end();it++,i++)
+  for(std::vector<const DataArrayInt *>::const_iterator it=grps.begin();it!=grps.end();it++,i++)
     {
       grpsName.insert((*it)->getName());
       grpsName2[i]=(*it)->getName();

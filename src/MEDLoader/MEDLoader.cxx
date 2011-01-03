@@ -2225,7 +2225,8 @@ void MEDLoaderNS::writeUMeshesPartitionDirectly(const char *fileName, const char
   MEDCouplingUMesh *m=ParaMEDMEM::MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   m->setName(meshName);
   std::vector< std::vector<int> > fidsOfGroups;
-  DataArrayInt *arr2=DataArrayInt::MakePartition(corr,m->getNumberOfCells(),fidsOfGroups);
+  std::vector< const DataArrayInt * > corr2(corr.begin(),corr.end());
+  DataArrayInt *arr2=DataArrayInt::MakePartition(corr2,m->getNumberOfCells(),fidsOfGroups);
   for(std::vector< DataArrayInt * >::iterator it=corr.begin();it!=corr.end();it++)
     (*it)->decrRef();
   bool isRenumbering;

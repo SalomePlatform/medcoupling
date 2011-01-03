@@ -346,7 +346,8 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
   std::vector< DataArrayInt * > corr;
   _m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,0,corr);
   std::vector< std::vector<int> > fidsOfGroups;
-  _fam=DataArrayInt::MakePartition(corr,_m->getNumberOfCells(),fidsOfGroups);
+  std::vector< const DataArrayInt * > corr2(corr.begin(),corr.end());
+  _fam=DataArrayInt::MakePartition(corr2,_m->getNumberOfCells(),fidsOfGroups);
   int nbOfCells=_m->getNumberOfCells();
   std::map<int,std::string> newfams;
   std::map<int,int> famIdTrad;

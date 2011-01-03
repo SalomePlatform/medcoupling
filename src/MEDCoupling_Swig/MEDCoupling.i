@@ -118,6 +118,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
+%newobject ParaMEDMEM::DataArrayInt::BuildUnion;
+%newobject ParaMEDMEM::DataArrayInt::BuildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
 %newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
 %newobject ParaMEDMEM::DataArrayInt::buildComplement;
@@ -1193,9 +1195,9 @@ namespace ParaMEDMEM
 
    static PyObject *MakePartition(PyObject *gps, int newNb) throw(INTERP_KERNEL::Exception)
    {
-     std::vector<DataArrayInt *> groups;
+     std::vector<const DataArrayInt *> groups;
      std::vector< std::vector<int> > fidsOfGroups;
-     convertPyObjToVecDataArrayInt(gps,groups);
+     convertPyObjToVecDataArrayIntCst(gps,groups);
      ParaMEDMEM::DataArrayInt *ret0=ParaMEDMEM::DataArrayInt::MakePartition(groups,newNb,fidsOfGroups);
      PyObject *ret = PyList_New(2);
      PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -1308,6 +1310,20 @@ namespace ParaMEDMEM
      std::vector<const DataArrayInt *> tmp;
      convertPyObjToVecDataArrayIntCst(li,tmp);
      return DataArrayInt::Meld(tmp);
+   }
+
+   static DataArrayInt *BuildUnion(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<const DataArrayInt *> tmp;
+     convertPyObjToVecDataArrayIntCst(li,tmp);
+     return DataArrayInt::BuildUnion(tmp);
+   }
+
+   static DataArrayInt *BuildIntersection(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<const DataArrayInt *> tmp;
+     convertPyObjToVecDataArrayIntCst(li,tmp);
+     return DataArrayInt::BuildIntersection(tmp);
    }
 
    PyObject *getMaxValue() const throw(INTERP_KERNEL::Exception)

@@ -25,6 +25,7 @@
 
 #include <set>
 #include <cmath>
+#include <limits>
 #include <numeric>
 #include <functional>
 
@@ -2096,14 +2097,14 @@ DataArrayInt *DataArrayInt::Meld(const std::vector<const DataArrayInt *>& a) thr
  * @param newNb specifies size of whole set. Must be at least equal to max eltid in 'groups'.
  * @return an array of size newNb specifying fid of each item.
  */
-DataArrayInt *DataArrayInt::MakePartition(const std::vector<DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups)
+DataArrayInt *DataArrayInt::MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups)
 {
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(newNb,1);
   int *retPtr=ret->getPointer();
   std::fill(retPtr,retPtr+newNb,0);
   int fid=1;
-  for(std::vector<DataArrayInt *>::const_iterator iter=groups.begin();iter!=groups.end();iter++)
+  for(std::vector<const DataArrayInt *>::const_iterator iter=groups.begin();iter!=groups.end();iter++)
     {
       const int *ptr=(*iter)->getConstPointer();
       int nbOfElem=(*iter)->getNbOfElems();
@@ -2126,7 +2127,7 @@ DataArrayInt *DataArrayInt::MakePartition(const std::vector<DataArrayInt *>& gro
   fidsOfGroups.clear();
   fidsOfGroups.resize(groups.size());
   int grId=0;
-  for(std::vector<DataArrayInt *>::const_iterator iter=groups.begin();iter!=groups.end();iter++,grId++)
+  for(std::vector<const DataArrayInt *>::const_iterator iter=groups.begin();iter!=groups.end();iter++,grId++)
     {
       std::set<int> tmp;
       const int *ptr=(*iter)->getConstPointer();
@@ -2135,6 +2136,68 @@ DataArrayInt *DataArrayInt::MakePartition(const std::vector<DataArrayInt *>& gro
         tmp.insert(retPtr[*p]);
       fidsOfGroups[grId].insert(fidsOfGroups[grId].end(),tmp.begin(),tmp.end());
     }
+  return ret;
+}
+
+DataArrayInt *DataArrayInt::BuildUnion(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception)
+{
+  int valm=std::numeric_limits<int>::max();
+  for(std::vector<const DataArrayInt *>::const_iterator it=a.begin();it!=a.end();it++)
+    {
+      (*it)->checkAllocated();
+      if((*it)->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("DataArrayInt::BuildUnion : only single component allowed !");
+      int tmp1;
+      valm=std::min((*it)->getMinValue(tmp1),valm);
+    }
+  if(valm<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::BuildUnion : a negative value has been detected !");
+  //
+  std::set<int> r;
+  for(std::vector<const DataArrayInt *>::const_iterator it=a.begin();it!=a.end();it++)
+    {
+      const int *pt=(*it)->getConstPointer();
+      int nbOfTuples=(*it)->getNumberOfTuples();
+      r.insert(pt,pt+nbOfTuples);
+    }
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(r.size(),1);
+  std::copy(r.begin(),r.end(),ret->getPointer());
+  return ret;
+}
+
+DataArrayInt *DataArrayInt::BuildIntersection(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception)
+{
+  int valm=std::numeric_limits<int>::max();
+  for(std::vector<const DataArrayInt *>::const_iterator it=a.begin();it!=a.end();it++)
+    {
+      (*it)->checkAllocated();
+      if((*it)->getNumberOfComponents()!=1)
+        throw INTERP_KERNEL::Exception("DataArrayInt::BuildUnion : only single component allowed !");
+      int tmp1;
+      valm=std::min((*it)->getMinValue(tmp1),valm);
+    }
+  if(valm<0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::BuildUnion : a negative value has been detected !");
+  //
+  std::set<int> r;
+  for(std::vector<const DataArrayInt *>::const_iterator it=a.begin();it!=a.end();it++)
+    {
+      const int *pt=(*it)->getConstPointer();
+      int nbOfTuples=(*it)->getNumberOfTuples();
+      std::set<int> s1(pt,pt+nbOfTuples);
+      if(it!=a.begin())
+        {
+          std::set<int> r2;
+          std::set_intersection(r.begin(),r.end(),s1.begin(),s1.end(),inserter(r2,r2.end()));
+          r=r2;
+        }
+      else
+        r=s1;
+    }
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(r.size(),1);
+  std::copy(r.begin(),r.end(),ret->getPointer());
   return ret;
 }
 
@@ -2186,58 +2249,16 @@ DataArrayInt *DataArrayInt::buildSubstraction(const DataArrayInt *other) const t
 
 DataArrayInt *DataArrayInt::buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
 {
-  checkAllocated();
-  other->checkAllocated();
-  if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnion : only single component allowed !");
-  if(other->getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnion : only single component allowed for other type !");
-  int tmp1;
-  int valm=getMinValue(tmp1);
-  valm=std::min(other->getMinValue(tmp1),valm);
-  if(valm<0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::buildUnion : a negative value has been detected !");
-  //
-  const int *pt=getConstPointer();
-  int nbOfTuples=getNumberOfTuples();
-  std::set<int> s1(pt,pt+nbOfTuples);
-  pt=other->getConstPointer();
-  nbOfTuples=other->getNumberOfTuples();
-  std::set<int> s2(pt,pt+nbOfTuples);
-  std::vector<int> r;
-  std::set_union(s1.begin(),s1.end(),s2.begin(),s2.end(),std::back_insert_iterator< std::vector<int> >(r));
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(r.size(),1);
-  std::copy(r.begin(),r.end(),ret->getPointer());
-  return ret;
+  std::vector<const DataArrayInt *>arrs(2);
+  arrs[0]=this; arrs[1]=other;
+  return BuildUnion(arrs);
 }
 
 DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception)
 {
-  checkAllocated();
-  other->checkAllocated();
-  if(getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildIntersection : only single component allowed !");
-  if(other->getNumberOfComponents()!=1)
-     throw INTERP_KERNEL::Exception("DataArrayInt::buildIntersection : only single component allowed for other type !");
-  int tmp1;
-  int valm=getMinValue(tmp1);
-  valm=std::min(other->getMinValue(tmp1),valm);
-  if(valm<0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::buildIntersection : a negative value has been detected !");
-  //
-  const int *pt=getConstPointer();
-  int nbOfTuples=getNumberOfTuples();
-  std::set<int> s1(pt,pt+nbOfTuples);
-  pt=other->getConstPointer();
-  nbOfTuples=other->getNumberOfTuples();
-  std::set<int> s2(pt,pt+nbOfTuples);
-  std::vector<int> r;
-  std::set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(),std::back_insert_iterator< std::vector<int> >(r));
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(r.size(),1);
-  std::copy(r.begin(),r.end(),ret->getPointer());
-  return ret;
+  std::vector<const DataArrayInt *>arrs(2);
+  arrs[0]=this; arrs[1]=other;
+  return BuildIntersection(arrs);
 }
 
 /*!
