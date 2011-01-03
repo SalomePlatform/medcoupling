@@ -753,25 +753,8 @@ namespace ParaMEDMEM
 
       static PyObject *MergeUMeshesOnSameCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
       {
-        std::vector<ParaMEDMEM::MEDCouplingUMesh *> meshes;
-        if(PyList_Check(ms))
-          {
-            int sz=PyList_Size(ms);
-            meshes.resize(sz);
-            for(int i=0;i<sz;i++)
-              {
-                PyObject *o=PyList_GetItem(ms,i);
-                void *arg;
-                SWIG_ConvertPtr(o,&arg,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, 0 |  0 );
-                meshes[i]=reinterpret_cast<ParaMEDMEM::MEDCouplingUMesh *>(arg);
-              }
-          }
-        else
-          {
-            PyErr_SetString(PyExc_TypeError,"MergeUMeshesOnSameCoords : not a list as first parameter");
-            PyErr_Print();
-            return 0;
-          }
+        std::vector<const ParaMEDMEM::MEDCouplingUMesh *> meshes;
+        convertPyObjToVecUMeshesCst(ms,meshes);
         MEDCouplingUMesh *ret=MEDCouplingUMesh::MergeUMeshesOnSameCoords(meshes);
         return convertMesh(ret, SWIG_POINTER_OWN | 0 );
       }
@@ -779,8 +762,8 @@ namespace ParaMEDMEM
       static PyObject *FuseUMeshesOnSameCoords(PyObject *ms, int compType) throw(INTERP_KERNEL::Exception)
       {
         int sz;
-        std::vector<MEDCouplingUMesh *> meshes;
-        convertPyObjToVecUMeshes(ms,meshes);
+        std::vector<const MEDCouplingUMesh *> meshes;
+        convertPyObjToVecUMeshesCst(ms,meshes);
         std::vector<DataArrayInt *> corr;
         MEDCouplingUMesh *um=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,compType,corr);
         sz=corr.size();

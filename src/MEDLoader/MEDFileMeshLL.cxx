@@ -238,7 +238,7 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
   if(v.empty())
     return;
   int sz=v.size();
-  std::vector<MEDCouplingUMesh *> ms(sz);
+  std::vector<const MEDCouplingUMesh *> ms(sz);
   for(int i=0;i<sz;i++)
     {
       MEDCouplingUMesh *tmp=MEDCouplingUMesh::New("",v[i]->getDim());
@@ -272,7 +272,7 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
   else
     _m=_m_by_types;
   for(int i=0;i<sz;i++)
-    ms[i]->decrRef();
+    (const_cast<MEDCouplingUMesh *>(ms[i]))->decrRef();//const cast under control to avoid a copy of array
 }
 
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m)
@@ -339,7 +339,7 @@ void MEDFileUMeshSplitL1::eraseFamilyField()
 /*!
  * This method ignores _m and _m_by_types.
  */
-void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
+void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                                                std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception)
 {
   int sz=ms.size();

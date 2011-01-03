@@ -95,7 +95,7 @@ namespace ParaMEDMEM
     void setFamilyField(DataArrayInt *arr, const std::vector< std::vector< int > > &userfids, const std::vector<std::string>& grpNames) throw(INTERP_KERNEL::Exception);
     void addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception);
     void setMeshAtRank(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
-    void setGroupsFromScratch(int meshDimRelToMax, const std::vector<MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
+    void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
     void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
   private:
@@ -104,7 +104,7 @@ namespace ParaMEDMEM
     const MEDFileUMeshSplitL1 *getMeshAtLevSafe(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
     MEDFileUMeshSplitL1 *getMeshAtLevSafe(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     void checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *checkMultiMesh(const std::vector<MEDCouplingUMesh *>& ms) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *checkMultiMesh(const std::vector<const MEDCouplingUMesh *>& ms) const throw(INTERP_KERNEL::Exception);
   private:
     std::map<std::string, std::vector<std::string> > _groups;
     std::map<std::string,int> _families;

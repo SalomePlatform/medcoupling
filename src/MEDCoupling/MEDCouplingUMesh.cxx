@@ -324,9 +324,9 @@ void MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *ot
     throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : Types are not equal !");
   if(_coords!=otherC->_coords)
     throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : meshes do not share the same coordinates ! Use tryToShareSameCoordinates or call checkDeepEquivalWith !");
-  std::vector<MEDCouplingUMesh *> ms(2);
-  ms[0]=const_cast<MEDCouplingUMesh *>(this);
-  ms[1]=const_cast<MEDCouplingUMesh *>(otherC);
+  std::vector<const MEDCouplingUMesh *> ms(2);
+  ms[0]=this;
+  ms[1]=otherC;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MergeUMeshesOnSameCoords(ms);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->zipConnectivityTraducer(cellCompPol);
   int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
@@ -3369,8 +3369,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUM
  */
 MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception)
 {
-  std::vector<MEDCouplingUMesh *> tmp(2);
-  tmp[0]=const_cast<MEDCouplingUMesh *>(mesh1); tmp[1]=const_cast<MEDCouplingUMesh *>(mesh2);
+  std::vector<const MEDCouplingUMesh *> tmp(2);
+  tmp[0]=mesh1; tmp[1]=mesh2;
   return MergeUMeshesOnSameCoords(tmp);
 }
 
@@ -3378,13 +3378,13 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const MEDCouplingUM
  * Idem MergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.
  * 'meshes' must be a non empty vector.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes)
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<const MEDCouplingUMesh *>& meshes)
 {
   if(meshes.empty())
     throw INTERP_KERNEL::Exception("meshes input parameter is expected to be non empty.");
   DataArrayDouble *coords=meshes.front()->getCoords();
   int meshDim=meshes.front()->getMeshDimension();
-  std::vector<MEDCouplingUMesh *>::const_iterator iter=meshes.begin();
+  std::vector<const MEDCouplingUMesh *>::const_iterator iter=meshes.begin();
   int meshLgth=0;
   int meshIndexLgth=0;
   for(;iter!=meshes.end();iter++)
@@ -3392,7 +3392,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<M
       if(coords!=(*iter)->getCoords())
         throw INTERP_KERNEL::Exception("meshes does not share the same coords ! Try using tryToShareSameCoords method !");
       if(meshDim!=(*iter)->getMeshDimension())
-        throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, fuseUMeshesOnSameCoords impossible !");
+        throw INTERP_KERNEL::Exception("Mesh dimensions mismatches, FuseUMeshesOnSameCoords impossible !");
       meshLgth+=(*iter)->getMeshLength();
       meshIndexLgth+=(*iter)->getNumberOfCells();
     }
@@ -3438,7 +3438,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<M
  * @return The mesh lying on the same coordinates than those in meshes. All cells in 'meshes' are in returned mesh with 
  * @exception if meshes is a empty vector or meshes are not lying on same coordinates or meshes not have the same dimension.
  */
-MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr)
+MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<const MEDCouplingUMesh *>& meshes, int compType, std::vector<DataArrayInt *>& corr)
 {
   //All checks are delegated to MergeUMeshesOnSameCoords
   MEDCouplingUMesh *ret=MergeUMeshesOnSameCoords(meshes);

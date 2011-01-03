@@ -282,7 +282,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   mesh4->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   mesh4->finishInsertingCells();
   mesh4->setCoords(mesh1->getCoords());
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(mesh1);
   meshes.push_back(mesh2);
   meshes.push_back(mesh3);

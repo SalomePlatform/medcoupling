@@ -1319,7 +1319,7 @@ void MEDCouplingBasicsTest::testMergeMeshOnSameCoords1()
   m1->tryToShareSameCoords(*m2,1e-12);
   MEDCouplingUMesh *m3=build2DTargetMesh_1();
   m3->tryToShareSameCoords(*m2,1e-12);
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(m1); meshes.push_back(m2); meshes.push_back(m3);
   MEDCouplingUMesh *m4=MEDCouplingUMesh::MergeUMeshesOnSameCoords(meshes);
   m4->checkCoherency();
@@ -1978,7 +1978,8 @@ void MEDCouplingBasicsTest::testSplitByType()
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   std::vector<MEDCouplingUMesh *> v=m1->splitByType();
   CPPUNIT_ASSERT_EQUAL(3,(int)v.size());
-  MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(v);
+  std::vector<const MEDCouplingUMesh *> v2(v.begin(),v.end());
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(v2);
   m2->setName(m1->getName());
   CPPUNIT_ASSERT(m1->isEqual(m2,1.e-12));
   for(std::vector<MEDCouplingUMesh *>::const_iterator iter=v.begin();iter!=v.end();iter++)
@@ -1989,7 +1990,7 @@ void MEDCouplingBasicsTest::testSplitByType()
 
 void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
 {
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   MEDCouplingUMesh *m2=build2DTargetMesh_1();
   int cells1[3]={2,3,4};
   MEDCouplingPointSet *m3_1=m2->buildPartOfMySelf(cells1,cells1+3,true);
@@ -2057,7 +2058,7 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords2()
   MEDCouplingUMesh *m3=(MEDCouplingUMesh *)m1->buildPartOfMySelf(part1,part1+5,true);
   const int part2[4]={5,6,4,7};
   MEDCouplingUMesh *m4=(MEDCouplingUMesh *)m1->buildPartOfMySelf(part2,part2+4,true);
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(m1);
   meshes.push_back(m3);
   meshes.push_back(m3);

@@ -158,19 +158,18 @@ public:
        }
        static void WriteUMeshesPartition(const char *fileName, const char *meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
        {
-         std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
+         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> v=convertUMeshVecFromPy(li);
          MEDLoader::WriteUMeshesPartition(fileName,meshName,v,writeFromScratch);
        }
        static void WriteUMeshesPartitionDep(const char *fileName, const char *meshName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
        {
-         std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
+         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> v=convertUMeshVecFromPy(li);
          MEDLoader::WriteUMeshesPartitionDep(fileName,meshName,v,writeFromScratch);
        }
        static void WriteUMeshes(const char *fileName, PyObject *li, bool writeFromScratch) throw(INTERP_KERNEL::Exception)
        {
-         std::vector<ParaMEDMEM::MEDCouplingUMesh *> v=convertFieldDoubleVecFromPy(li);
-         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> v2(v.begin(),v.end());
-         MEDLoader::WriteUMeshes(fileName,v2,writeFromScratch);
+         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> v=convertUMeshVecFromPy(li);
+         MEDLoader::WriteUMeshes(fileName,v,writeFromScratch);
        }
        static PyObject *GetTypesOfField(const char *fileName, const char *fieldName, const char *meshName) throw(INTERP_KERNEL::Exception)
        {

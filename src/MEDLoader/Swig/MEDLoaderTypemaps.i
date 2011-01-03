@@ -153,9 +153,9 @@ static PyObject *convertFieldDoubleVecToPy(const std::vector<ParaMEDMEM::MEDCoup
   return ret;
 }
 
-static std::vector<ParaMEDMEM::MEDCouplingUMesh *> convertFieldDoubleVecFromPy(PyObject *pyLi)
+static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(PyObject *pyLi)
 {
-  std::vector<ParaMEDMEM::MEDCouplingUMesh *> ret;
+  std::vector<const ParaMEDMEM::MEDCouplingUMesh *> ret;
   if(PyList_Check(pyLi))
     {
       int size=PyList_Size(pyLi);
