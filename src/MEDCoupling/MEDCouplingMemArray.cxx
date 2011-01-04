@@ -2044,6 +2044,17 @@ int DataArrayInt::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception
   return *loc;
 }
 
+void DataArrayInt::applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int *ptr=getPointer()+compoId;
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuple=getNumberOfTuples();
+  for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
+    *ptr=a*(*ptr)+b;
+  declareAsNew();
+}
+
 DataArrayInt *DataArrayInt::Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception)
 {
   std::vector<const DataArrayInt *> arr(2);
@@ -2296,7 +2307,7 @@ std::set<int> DataArrayInt::getDifferentValues() const throw(INTERP_KERNEL::Exce
   return ret;
 }
 
-int *DataArrayInt::checkAndPreparePermutation(const int *start, const int *end)
+int *DataArrayInt::CheckAndPreparePermutation(const int *start, const int *end)
 {
   int sz=std::distance(start,end);
   int *ret=new int[sz];

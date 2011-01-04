@@ -267,6 +267,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Meld(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception);
@@ -284,7 +285,7 @@ namespace ParaMEDMEM
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() { }
   public:
-    MEDCOUPLING_EXPORT static int *checkAndPreparePermutation(const int *start, const int *end);
+    MEDCOUPLING_EXPORT static int *CheckAndPreparePermutation(const int *start, const int *end);
   private:
     DataArrayInt() { }
   private:

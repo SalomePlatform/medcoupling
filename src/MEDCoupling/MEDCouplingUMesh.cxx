@@ -1227,7 +1227,7 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INT
   int nbCells=getNumberOfCells();
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+nbCells);
+    array=DataArrayInt::CheckAndPreparePermutation(old2NewBg,old2NewBg+nbCells);
   //
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();

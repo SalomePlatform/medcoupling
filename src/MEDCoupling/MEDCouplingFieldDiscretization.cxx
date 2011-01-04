@@ -338,7 +338,7 @@ void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMe
 {
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
+    array=DataArrayInt::CheckAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
   for(std::vector<DataArrayDouble *>::const_iterator it=arrays.begin();it!=arrays.end();it++)
     {
       if(*it)
@@ -637,7 +637,7 @@ void MEDCouplingFieldDiscretizationPerCell::renumberCells(const int *old2NewBg, 
   int nbCells=_discr_per_cell->getNumberOfTuples();
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+nbCells);
+    array=DataArrayInt::CheckAndPreparePermutation(old2NewBg,old2NewBg+nbCells);
   //
   DataArrayInt *dpc=_discr_per_cell->renumber(array);
   _discr_per_cell->decrRef();
@@ -729,7 +729,7 @@ void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplin
 {
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
+    array=DataArrayInt::CheckAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
   int nbOfCells=_discr_per_cell->getNumberOfTuples();
   int nbOfTuples=getNumberOfTuples(0);
   const int *dcPtr=_discr_per_cell->getConstPointer();
@@ -1113,7 +1113,7 @@ void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCoupl
 {
   const int *array=old2NewBg;
   if(check)
-    array=DataArrayInt::checkAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
+    array=DataArrayInt::CheckAndPreparePermutation(old2NewBg,old2NewBg+mesh->getNumberOfCells());
   int nbOfCells=mesh->getNumberOfCells();
   int nbOfTuples=getNumberOfTuples(mesh);
   int *array2=new int[nbOfTuples];//stores the final conversion array old2New to give to arrays in renumberInPlace.
