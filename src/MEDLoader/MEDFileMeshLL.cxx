@@ -277,15 +277,35 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
 
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m)
 {
-  m->incrRef();
-  _m=m;
-  _m_by_types=(MEDCouplingUMesh *)_m->deepCpy();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
-  _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
+  assignMesh(m,true);
+}
+
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld)
+{
+  assignMesh(m,newOrOld);
+}
+
+void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
+{
+  if(newOrOld)
+    {
+      m->incrRef();
+      _m=m;
+      _m_by_types=(MEDCouplingUMesh *)_m->deepCpy();
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
+      _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
+      _m_by_types->renumberCells(da->getConstPointer(),false);
+    }
+  else
+    {
+      if(!m->checkConsecutiveCellTypesAndOrder(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2))
+        throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::assignMesh : the mode of mesh setting expects to follow the MED file numbering convention ! it is not the case !");
+      m->incrRef();
+      _m_by_types=m;
+    }
   _fam=DataArrayInt::New();
   _fam->alloc(m->getNumberOfCells(),1);
   _fam->fillWithValue(0);
-  _m_by_types->renumberCells(da->getConstPointer(),false);
 }
 
 bool MEDFileUMeshSplitL1::empty() const
@@ -382,21 +402,38 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
     }
 }
 
-MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const
+void MEDFileUMeshSplitL1::setFamilyArr(DataArrayInt *famArr)
 {
-  if((const DataArrayInt *)_num==0)
+  famArr->incrRef();
+  _fam=famArr;
+}
+
+void MEDFileUMeshSplitL1::setRenumArr(DataArrayInt *renumArr)
+{
+  renumArr->incrRef();
+  _num=renumArr;
+}
+
+MEDCouplingUMesh *MEDFileUMeshSplitL1::Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds)
+{
+  if(renum==0)
     return m;
   if(cellIds==0)
-    m->renumberCells(_num->getConstPointer(),true);
+    m->renumberCells(renum->getConstPointer(),true);
   else
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> locnum=_num->selectByTupleId(cellIds,cellIds+m->getNumberOfCells());
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> locnum=renum->selectByTupleId(cellIds,cellIds+m->getNumberOfCells());
       m->renumberCells(locnum->getConstPointer(),true);
     }
   return m;
 }
 
-DataArrayInt *MEDFileUMeshSplitL1::renumber(const DataArrayInt *renum, DataArrayInt *da)
+MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const
+{
+  return Renumber2(_num,m,cellIds);
+}
+
+DataArrayInt *MEDFileUMeshSplitL1::Renumber(const DataArrayInt *renum, DataArrayInt *da)
 {
   if((const DataArrayInt *)renum==0)
     return da;
@@ -408,7 +445,7 @@ DataArrayInt *MEDFileUMeshSplitL1::renumber(const DataArrayInt *renum, DataArray
 
 DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(DataArrayInt *da) const
 {
-  return renumber(_num,da);
+  return Renumber(_num,da);
 }
 
 std::vector<int> MEDFileUMeshSplitL1::getNewFamiliesNumber(int nb, const std::map<std::string,int>& families)

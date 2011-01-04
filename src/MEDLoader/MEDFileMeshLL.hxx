@@ -84,6 +84,8 @@ namespace ParaMEDMEM
   public:
     MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
+    MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
+    void assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
     bool empty() const;
     int getMeshDimension() const;
     MEDCouplingUMesh *getFamilyPart(const std::vector<int>& ids, bool renum) const;
@@ -94,10 +96,15 @@ namespace ParaMEDMEM
     void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception);
     void write(med_idt fid, const char *mName, int mdim) const;
+    //
+    void setFamilyArr(DataArrayInt *famArr);
+    void setRenumArr(DataArrayInt *renumArr);
+    //
     static std::vector<int> getNewFamiliesNumber(int nb, const std::map<std::string,int>& families);
     static void traduceFamilyNumber(const std::vector< std::vector<int> >& fidsGrps, std::map<std::string,int>& familyIds,
                                     std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams);
-    static DataArrayInt *renumber(const DataArrayInt *renum, DataArrayInt *da);
+    static DataArrayInt *Renumber(const DataArrayInt *renum, DataArrayInt *da);
+    static MEDCouplingUMesh *Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds);
   private:
     MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const;
     DataArrayInt *renumIfNeededArr(DataArrayInt *da) const;

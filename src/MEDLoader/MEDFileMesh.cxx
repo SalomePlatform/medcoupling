@@ -490,7 +490,8 @@ MEDCouplingUMesh *MEDFileUMesh::getMeshAtRank(int meshDimRelToMaxExt, bool renum
       if(!renum)
         {
           MEDCouplingUMesh *umesh=MEDCouplingUMesh::New();
-          umesh->setCoords(_coords->deepCpy());
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> cc=_coords->deepCpy();
+          umesh->setCoords(cc);
           return umesh;
         }
     }

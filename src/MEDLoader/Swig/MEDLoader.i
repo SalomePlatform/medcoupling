@@ -209,3 +209,12 @@ public:
 
 %include "MEDFileMesh.hxx"
 
+%extend ParaMEDMEM::MEDFileUMesh
+{
+  void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=true) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<const DataArrayInt *> grps;
+    convertPyObjToVecDataArrayIntCst(li,grps);
+    self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
+  }
+}
