@@ -3459,6 +3459,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
       tmp->alloc(curNbOfCells,1);
       std::copy(o2nPtr+offset,o2nPtr+offset+curNbOfCells,tmp->getPointer());
       offset+=curNbOfCells;
+      tmp->setName(meshes[i]->getName());
       corr[i]=tmp;
     }
   o2n->decrRef();
