@@ -108,7 +108,7 @@ namespace INTERP_KERNEL
       {
       case NORM_POINT0:
         {
-          _nb_of_pts=0; _nb_of_sons=0; _dim=0; _extruded_type=NORM_SEG2; _is_simplex=true;
+          _nb_of_pts=1; _nb_of_sons=0; _dim=0; _extruded_type=NORM_SEG2; _is_simplex=true;
         }
         break;
       case NORM_SEG2:
