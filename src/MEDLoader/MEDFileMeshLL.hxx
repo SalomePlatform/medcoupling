@@ -64,7 +64,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> getCoordsNum() const { return _num_coords; }
     static int getMeshIdFromName(med_idt fid, const char *mname) throw(INTERP_KERNEL::Exception);
     static void readFamiliesAndGrps(med_idt fid, const char *mname, std::map<std::string,int>& fams, std::map<std::string, std::vector<std::string> >& grps);
-    static void writeFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps);
+    static void writeFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol);
     static void writeCoords(med_idt fid, const char *mname, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords);
   private:
     void sortTypes();
@@ -88,6 +88,7 @@ namespace ParaMEDMEM
     void assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
     bool empty() const;
     int getMeshDimension() const;
+    int getSize() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamilyPart(const std::vector<int>& ids, bool renum) const;
     DataArrayInt *getFamilyPartArr(const std::vector<int>& ids, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;

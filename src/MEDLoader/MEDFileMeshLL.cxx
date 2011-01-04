@@ -174,7 +174,7 @@ void MEDFileUMeshL2::readFamiliesAndGrps(med_idt fid, const char *meshName, std:
     }
 }
 
-void MEDFileUMeshL2::writeFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps)
+void MEDFileUMeshL2::writeFamiliesAndGrps(med_idt fid, const char *mname, const std::map<std::string,int>& fams, const std::map<std::string, std::vector<std::string> >& grps, int tooLongStrPol)
 {
   for(std::map<std::string,int>::const_iterator it=fams.begin();it!=fams.end();it++)
     {
@@ -188,9 +188,9 @@ void MEDFileUMeshL2::writeFamiliesAndGrps(med_idt fid, const char *mname, const 
       INTERP_KERNEL::AutoPtr<char> groName=MEDLoaderBase::buildEmptyString(MED_TAILLE_LNOM*ngro);
       int i=0;
       for(std::vector<std::string>::const_iterator it2=grpsOfFam.begin();it2!=grpsOfFam.end();it2++,i++)
-        MEDLoaderBase::safeStrCpy((*it2).c_str(),MED_TAILLE_LNOM-1,groName+i*MED_TAILLE_LNOM,0);//tony too long
+        MEDLoaderBase::safeStrCpy((*it2).c_str(),MED_TAILLE_LNOM-1,groName+i*MED_TAILLE_LNOM,tooLongStrPol);
       INTERP_KERNEL::AutoPtr<char> famName=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
-      MEDLoaderBase::safeStrCpy((*it).first.c_str(),MED_TAILLE_NOM,famName,0);//tony too long
+      MEDLoaderBase::safeStrCpy((*it).first.c_str(),MED_TAILLE_NOM,famName,tooLongStrPol);
       MEDfamCr(fid,(char *)mname,famName,(*it).second,0,0,0,0,groName,ngro);
     }
 }
@@ -316,6 +316,13 @@ bool MEDFileUMeshSplitL1::empty() const
 int MEDFileUMeshSplitL1::getMeshDimension() const
 {
   return _m_by_types->getMeshDimension();
+}
+
+int MEDFileUMeshSplitL1::getSize() const throw(INTERP_KERNEL::Exception)
+{
+  if((const MEDCouplingUMesh *)_m_by_types==0)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::getSize : no mesh specified at level !");
+  return _m_by_types->getNumberOfCells();
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const std::vector<int>& ids, bool renum) const

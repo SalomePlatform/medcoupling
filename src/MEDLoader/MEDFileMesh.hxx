@@ -66,6 +66,7 @@ namespace ParaMEDMEM
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getGroupsOnFamily(const char *name) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsNames() const;
     std::vector<std::string> getFamiliesNames() const;
     std::vector<int> getNonEmptyLevels() const;
@@ -83,11 +84,11 @@ namespace ParaMEDMEM
     DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=true) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getNodeFamilyArr(const char *fam, bool renum=true) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=true) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getMeshAtRank(int meshDimRelToMaxExt, bool renum=true) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getRank0Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getRankM1Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getRankM2Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getRankM3Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *getMeshAtLevel(int meshDimRelToMaxExt, bool renum=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *getLevel0Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *getLevelM1Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *getLevelM2Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *getLevelM3Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
     bool existsFamily(int famId) const;
     bool existsFamily(const char *familyName) const;
     //
@@ -99,11 +100,11 @@ namespace ParaMEDMEM
     void setFamilyArr(int meshDimRelToMaxExt, DataArrayInt *famArr);
     void setRenumArr(int meshDimRelToMaxExt, DataArrayInt *renumArr);
     void addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception);
-    void setMeshAtRank(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
-    void setMeshAtRankOld(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
-    void setMeshAtRankGen(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
+    void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
+    void setMeshAtLevelOld(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
+    void setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
     void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
-    void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
+    void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
     void addFamily(int famId, const char *familyName) throw(INTERP_KERNEL::Exception);
   private:
@@ -123,6 +124,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_coords;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
     int _too_long_str;
+    int _zipconn_pol;
   };
 
 
