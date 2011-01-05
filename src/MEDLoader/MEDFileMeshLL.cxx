@@ -266,6 +266,7 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
       int *w=_num->getPointer();
       for(int i=0;i<sz;i++)
         w=std::copy(v[i]->getNum()->getConstPointer(),v[i]->getNum()->getConstPointer()+v[i]->getNum()->getNumberOfTuples(),w);
+      computeRevNum();
       _m=(MEDCouplingUMesh *)_m_by_types->deepCpy();
       _m->renumberCells(_num->getConstPointer(),true);
     }
@@ -293,8 +294,12 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(I
       _m=m;
       _m_by_types=(MEDCouplingUMesh *)_m->deepCpy();
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
-      _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
-      _m_by_types->renumberCells(da->getConstPointer(),false);
+      if(!da->isIdentity())
+        {
+          _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
+          computeRevNum();
+          _m_by_types->renumberCells(da->getConstPointer(),false);
+        }
     }
   else
     {
@@ -336,9 +341,10 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const std::vector<int>& ids
 
 DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const std::vector<int>& ids, bool renum) const
 {
-  DataArrayInt *da=_fam->getIdsEqualList(ids);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam->getIdsEqualList(ids);
   if(renum)
     return renumIfNeededArr(da);
+  da->incrRef();
   return da;
 }
 
@@ -356,6 +362,16 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
 const DataArrayInt *MEDFileUMeshSplitL1::getFamilyField() const
 {
   return _fam;
+}
+
+const DataArrayInt *MEDFileUMeshSplitL1::getNumberField() const
+{
+  return _num;
+}
+
+const DataArrayInt *MEDFileUMeshSplitL1::getRevNumberField() const
+{
+  return _rev_num;
 }
 
 void MEDFileUMeshSplitL1::eraseFamilyField()
@@ -419,6 +435,7 @@ void MEDFileUMeshSplitL1::setRenumArr(DataArrayInt *renumArr)
 {
   renumArr->incrRef();
   _num=renumArr;
+  computeRevNum();
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds)
@@ -440,17 +457,17 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::renumIfNeeded(MEDCouplingUMesh *m, const 
   return Renumber2(_num,m,cellIds);
 }
 
-DataArrayInt *MEDFileUMeshSplitL1::Renumber(const DataArrayInt *renum, DataArrayInt *da)
+DataArrayInt *MEDFileUMeshSplitL1::Renumber(const DataArrayInt *renum, const DataArrayInt *da)
 {
   if((const DataArrayInt *)renum==0)
-    return da;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> locnum=renum->selectByTupleId(da->getConstPointer(),da->getConstPointer()+da->getNumberOfTuples());
-  da->decrRef();
-  locnum->incrRef();
-  return locnum;
+    {
+      da->incrRef();
+      return const_cast<DataArrayInt *>(da);
+    }
+  return renum->selectByTupleId(da->getConstPointer(),da->getConstPointer()+da->getNumberOfTuples());
 }
 
-DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(DataArrayInt *da) const
+DataArrayInt *MEDFileUMeshSplitL1::renumIfNeededArr(const DataArrayInt *da) const
 {
   return Renumber(_num,da);
 }
@@ -473,4 +490,11 @@ void MEDFileUMeshSplitL1::traduceFamilyNumber(const std::vector< std::vector<int
 {
   std::set<int> allfids;
   
+}
+
+void MEDFileUMeshSplitL1::computeRevNum() const
+{
+  int pos;
+  int maxValue=_num->getMaxValue(pos);
+  _rev_num=_num->invertArrayN2O2O2N(maxValue+1);
 }

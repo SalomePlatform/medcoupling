@@ -93,6 +93,8 @@ namespace ParaMEDMEM
     DataArrayInt *getFamilyPartArr(const std::vector<int>& ids, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
     const DataArrayInt *getFamilyField() const;
+    const DataArrayInt *getNumberField() const;
+    const DataArrayInt *getRevNumberField() const;
     void eraseFamilyField();
     void setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                               std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception);
@@ -104,15 +106,17 @@ namespace ParaMEDMEM
     static std::vector<int> getNewFamiliesNumber(int nb, const std::map<std::string,int>& families);
     static void traduceFamilyNumber(const std::vector< std::vector<int> >& fidsGrps, std::map<std::string,int>& familyIds,
                                     std::map<int,int>& famIdTrad, std::map<int,std::string>& newfams);
-    static DataArrayInt *Renumber(const DataArrayInt *renum, DataArrayInt *da);
+    static DataArrayInt *Renumber(const DataArrayInt *renum, const DataArrayInt *da);
     static MEDCouplingUMesh *Renumber2(const DataArrayInt *renum, MEDCouplingUMesh *m, const int *cellIds);
   private:
     MEDCouplingUMesh *renumIfNeeded(MEDCouplingUMesh *m, const int *cellIds) const;
-    DataArrayInt *renumIfNeededArr(DataArrayInt *da) const;
+    DataArrayInt *renumIfNeededArr(const DataArrayInt *da) const;
+    void computeRevNum() const;
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m_by_types;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
+    mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num;
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
   };
 }

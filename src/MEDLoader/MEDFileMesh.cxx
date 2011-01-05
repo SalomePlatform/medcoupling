@@ -238,6 +238,31 @@ const DataArrayInt *MEDFileUMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) 
   return l1->getFamilyField();
 }
 
+const DataArrayInt *MEDFileUMesh::getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt==1)
+    {
+      if(!((const DataArrayInt *)_num_coords))
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::getNumberFieldAtLevel : no coordinates specified !");
+      return _num_coords;
+    }
+  const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
+  return l1->getNumberField();
+}
+
+const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt==1)
+    {
+      //if(!((const DataArrayInt *)_num_coords))
+      throw INTERP_KERNEL::Exception("MEDFileUMesh::getRevNumberFieldAtLevel : not implemented yet for nodes !");
+      //throw INTERP_KERNEL::Exception("MEDFileUMesh::getRevNumberFieldAtLevel : no coordinates specified !");
+      //return _num_coords;
+    }
+  const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
+  return l1->getRevNumberField();
+}
+
 std::vector<std::string> MEDFileUMesh::getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception)
 {
   std::string oname(name);
@@ -461,9 +486,8 @@ DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
   std::vector<int> famIds=getFamiliesIds(fams);
   if(meshDimRelToMaxExt==1)
     {
-      DataArrayInt *da=_fam_coords->getIdsEqualList(famIds);
-      MEDFileUMeshSplitL1::Renumber(_num_coords,da);
-      return da;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_coords->getIdsEqualList(famIds);
+      return MEDFileUMeshSplitL1::Renumber(_num_coords,da);
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getFamilyPartArr(famIds,renum);
@@ -620,18 +644,30 @@ void MEDFileUMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<co
   if(grpsName.find(std::string(""))!=grpsName.end())
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsAtLevel : groups name must be different empty string !");
   int sz=getSizeAtLevel(meshDimRelToMaxExt);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam;
+  std::vector< std::vector<int> > fidsOfGroups;
   if(!renum)
     {
-      std::vector< std::vector<int> > fidsOfGroups;
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam=DataArrayInt::MakePartition(grps,sz,fidsOfGroups);
-      int offset=1;
-      if(!_families.empty())
-        offset=getMaxFamilyId()+1;
-      TranslateFamilyIds(offset,fam,fidsOfGroups);
-      std::set<int> ids=fam->getDifferentValues();
-      appendFamilyEntries(ids,fidsOfGroups,grpsName2);
-      setFamilyArr(meshDimRelToMaxExt,fam);
+      fam=DataArrayInt::MakePartition(grps,sz,fidsOfGroups);
     }
+  else
+    {
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > grps2(grps.size());
+      for(unsigned int i=0;i<grps.size();i++)
+        {
+          grps2[i]=MEDFileUMeshSplitL1::Renumber(getRevNumberFieldAtLevel(meshDimRelToMaxExt),grps[i]);
+          grps2[i]->setName(grps[i]->getName().c_str());
+        }
+      std::vector<const DataArrayInt *> grps3(grps2.begin(),grps2.end());
+      fam=DataArrayInt::MakePartition(grps3,sz,fidsOfGroups);
+    }
+  int offset=1;
+  if(!_families.empty())
+    offset=getMaxFamilyId()+1;
+  TranslateFamilyIds(offset,fam,fidsOfGroups);
+  std::set<int> ids=fam->getDifferentValues();
+  appendFamilyEntries(ids,fidsOfGroups,grpsName2);
+  setFamilyArr(meshDimRelToMaxExt,fam);
 }
 
 void MEDFileUMesh::eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception)
