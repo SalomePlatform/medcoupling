@@ -4176,3 +4176,45 @@ void MEDCouplingBasicsTest::testGetDifferentValues1()
   da1->decrRef();
 }
 
+void MEDCouplingBasicsTest::testDAIBuildPermutationArr1()
+{
+  DataArrayInt *a=DataArrayInt::New();
+  const int vala[5]={4,5,6,7,8};
+  a->alloc(5,1);
+  std::copy(vala,vala+5,a->getPointer());
+  DataArrayInt *b=DataArrayInt::New();
+  const int valb[5]={5,4,8,6,7};
+  b->alloc(5,1);
+  std::copy(valb,valb+5,b->getPointer());
+  DataArrayInt *c=a->buildPermutationArr(*b);
+  const int expect1[5]={1,0,4,2,3};
+  CPPUNIT_ASSERT_EQUAL(5,c->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,c->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expect1,expect1+5,c->getConstPointer()));
+  CPPUNIT_ASSERT(a->isEqualWithoutConsideringStrAndOrder(*b));
+  b->setIJ(0,0,9);
+  CPPUNIT_ASSERT(!a->isEqualWithoutConsideringStrAndOrder(*b));
+  CPPUNIT_ASSERT_THROW(a->buildPermutationArr(*b),INTERP_KERNEL::Exception);
+  a->setIJ(3,0,4);
+  b->setIJ(0,0,5);
+  b->setIJ(4,0,4);//;a==[4,5,6,4,8] and b==[5,4,8,6,4]
+  CPPUNIT_ASSERT(a->isEqualWithoutConsideringStrAndOrder(*b));
+  c->decrRef();
+  c=a->buildPermutationArr(*b);
+  const int expect2[5]={1,3,4,2,3};
+  CPPUNIT_ASSERT(std::equal(expect2,expect2+5,c->getConstPointer()));
+  DataArrayDouble *d=b->convertToDblArr();
+  b->sort();
+  const int expect3[5]={4,4,5,6,8};
+  CPPUNIT_ASSERT(std::equal(expect3,expect3+5,b->getConstPointer()));
+  d->sort();
+  CPPUNIT_ASSERT_EQUAL(5,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(double(expect3[i]),d->getIJ(i,0),1e-14);
+  //
+  d->decrRef();
+  c->decrRef();
+  a->decrRef();
+  b->decrRef();
+}

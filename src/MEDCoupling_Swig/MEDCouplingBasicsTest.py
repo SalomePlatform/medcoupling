@@ -5710,6 +5710,35 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(3,da.getNumberOfComponents());
         self.assertEqual(4,da.getNumberOfTuples());
         pass
+
+    def testDAIBuildPermutationArr1(self):
+        a=DataArrayInt.New()
+        a.setValues([4,5,6,7,8],5,1)
+        b=DataArrayInt.New()
+        b.setValues([5,4,8,6,7],5,1)
+        c=a.buildPermutationArr(b)
+        self.assertEqual([1,0,4,2,3],c.getValues())
+        self.assertTrue(a.isEqualWithoutConsideringStrAndOrder(b))
+        b.setIJ(0,0,9)
+        self.assertTrue(not a.isEqualWithoutConsideringStrAndOrder(b))
+        self.assertRaises(Exception,a.buildPermutationArr,b)
+        a.setIJ(3,0,4)
+        b.setIJ(0,0,5)
+        b.setIJ(4,0,4)#a==[4,5,6,4,8] and b==[5,4,8,6,4]
+        self.assertTrue(a.isEqualWithoutConsideringStrAndOrder(b))
+        c=a.buildPermutationArr(b)
+        self.assertEqual([1,3,4,2,3],c.getValues())
+        d=b.convertToDblArr()
+        expect3=[4,4,5,6,8]
+        b.sort()
+        self.assertEqual(expect3,b.getValues())
+        d.sort()
+        self.assertEqual(5,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        for i in xrange(5):
+            self.assertAlmostEqual(float(expect3[i]),d.getIJ(i,0),14);
+            pass
+        pass
     
     def setUp(self):
         pass

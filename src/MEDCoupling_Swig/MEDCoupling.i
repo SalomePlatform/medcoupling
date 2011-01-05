@@ -127,6 +127,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildSubstraction;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
+%newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayDouble::deepCpy;

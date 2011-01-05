@@ -208,6 +208,13 @@ namespace ParaMEDMEM
   }
 
   template<class T>
+  void MemArray<T>::sort()
+  {
+    T *pt=_pointer.getPointer();
+    std::sort(pt,pt+_nb_of_elem);
+  }
+
+  template<class T>
   void MemArray<T>::alloc(int nbOfElements)
   {
     destroy();

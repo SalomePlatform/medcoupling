@@ -197,6 +197,14 @@ bool DataArrayDouble::isUniform(double val, double eps) const
   return true;
 }
 
+void DataArrayDouble::sort() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::sort : only supported with 'this' array with ONE component !");
+  _mem.sort();
+}
+
 std::string DataArrayDouble::repr() const
 {
   std::ostringstream ret;
@@ -1617,6 +1625,60 @@ bool DataArrayInt::isEqual(const DataArrayInt& other) const
 bool DataArrayInt::isEqualWithoutConsideringStr(const DataArrayInt& other) const
 {
   return _mem.isEqual(other._mem,0);
+}
+
+bool DataArrayInt::isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> a=deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> b=other.deepCpy();
+  a->sort();
+  b->sort();
+  return a->isEqualWithoutConsideringStr(*b);
+}
+
+void DataArrayInt::sort() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::sort : only supported with 'this' array with ONE component !");
+  _mem.sort();
+}
+
+/*!
+ * This method expects that 'this' and 'other' have the same number of tuples and exactly one component both. If not an exception will be thrown.
+ * This method retrieves a newly created array with same number of tuples than 'this' and 'other' with one component.
+ * The returned array 'ret' contains the correspondance from 'this' to 'other' that is to say for every i so that 0<=i<getNumberOfTuples()
+ * other.getIJ(i,0)==this->getIJ(ret->getIJ(i),0)
+ * If such permutation is not possible because it exists some elements in 'other' not in 'this', an exception will be thrown.
+ */
+DataArrayInt *DataArrayInt::buildPermutationArr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1 || other.getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' have to have exactly ONE component !");
+  int nbTuple=getNumberOfTuples();
+  if(nbTuple!=other.getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("DataArrayInt::buildPermutationArr : 'this' and 'other' must have the same number of tuple !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbTuple,1);
+  ret->fillWithValue(-1);
+  const int *pt=getConstPointer();
+  std::map<int,int> mm;
+  for(int i=0;i<nbTuple;i++)
+    mm[pt[i]]=i;
+  pt=other.getConstPointer();
+  int *retToFill=ret->getPointer();
+  for(int i=0;i<nbTuple;i++)
+    {
+      std::map<int,int>::const_iterator it=mm.find(pt[i]);
+      if(it==mm.end())
+        {
+          std::ostringstream oss; oss << "DataArrayInt::buildPermutationArr : Arrays mismatch : element (" << pt[i] << ") in 'other' not findable in 'this' !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      retToFill[i]=(*it).second;
+    }
+  ret->incrRef();
+  return ret;
 }
 
 void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)

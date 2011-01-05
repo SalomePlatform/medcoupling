@@ -68,6 +68,7 @@ namespace ParaMEDMEM
     void fillWithValue(const T& val);
     T *fromNoInterlace(int nbOfComp) const;
     T *toNoInterlace(int nbOfComp) const;
+    void sort();
     void alloc(int nbOfElements);
     void reAlloc(int newNbOfElements);
     void useArray(const T *array, bool ownership, DeallocType type, int nbOfElem);
@@ -126,6 +127,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void fillWithValue(double val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void iota(double init=0.) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isUniform(double val, double eps) const;
+    MEDCOUPLING_EXPORT void sort() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
@@ -224,6 +226,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *buildPermutationArr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void sort() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void fillWithZero();
     MEDCOUPLING_EXPORT void fillWithValue(int val);
     MEDCOUPLING_EXPORT void iota(int init=0) throw(INTERP_KERNEL::Exception);
