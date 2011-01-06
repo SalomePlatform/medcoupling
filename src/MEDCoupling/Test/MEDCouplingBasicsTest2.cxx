@@ -4020,7 +4020,7 @@ void MEDCouplingBasicsTest::testUMInsertNextCell1()
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
   CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,targetConn),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,targetConn),INTERP_KERNEL::Exception);
-  CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,1,targetConn),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn),INTERP_KERNEL::Exception);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);

@@ -27,7 +27,7 @@
 
 namespace INTERP_KERNEL
 {
-  const char *CellModel::CELL_TYPES_REPR[]={"NORM_POINT0", "NORM_SEG2", "NORM_SEG3", "NORM_TRI3", "NORM_QUAD4",// 0->4
+  const char *CellModel::CELL_TYPES_REPR[]={"NORM_POINT1", "NORM_SEG2", "NORM_SEG3", "NORM_TRI3", "NORM_QUAD4",// 0->4
                                             "NORM_POLYGON", "NORM_TRI6", "" , "NORM_QUAD8", "",//5->9
                                             "", "", "", "", "NORM_TETRA4",//10->14
                                             "NORM_PYRA5", "NORM_PENTA6", "", "NORM_HEXA8", "",//15->19
@@ -78,7 +78,7 @@ namespace INTERP_KERNEL
 
   void CellModel::buildUniqueInstance()
   {
-    _map_of_unique_instance.insert(std::make_pair(NORM_POINT0,CellModel(NORM_POINT0)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_POINT1,CellModel(NORM_POINT1)));
     _map_of_unique_instance.insert(std::make_pair(NORM_SEG2,CellModel(NORM_SEG2)));
     _map_of_unique_instance.insert(std::make_pair(NORM_SEG3,CellModel(NORM_SEG3)));
     _map_of_unique_instance.insert(std::make_pair(NORM_TRI3,CellModel(NORM_TRI3)));
@@ -106,7 +106,7 @@ namespace INTERP_KERNEL
     _quadratic_type=NORM_ERROR;
     switch(type)
       {
-      case NORM_POINT0:
+      case NORM_POINT1:
         {
           _nb_of_pts=1; _nb_of_sons=0; _dim=0; _extruded_type=NORM_SEG2; _is_simplex=true;
         }

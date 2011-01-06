@@ -3480,7 +3480,7 @@ void MEDCouplingUMesh::appendExtrudedCell(const int *connBg, const int *connEnd,
   int deltaz=isQuad?2*nbOfNodesPerLev:nbOfNodesPerLev;
   switch(flatType)
     {
-    case INTERP_KERNEL::NORM_POINT0:
+    case INTERP_KERNEL::NORM_POINT1:
       {
         ret.push_back(connBg[1]);
         ret.push_back(connBg[1]+nbOfNodesPerLev);

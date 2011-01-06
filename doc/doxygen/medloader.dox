@@ -72,7 +72,7 @@ number the mesh you are interested in.
 
 In MED file meshes could combine in one unstructured mesh cells that
 have different dimension. For example it is possible to mix
-MED_TETRA4, MED_TRIA6, MED_SEG2, MED_POINT0, MED_POLYGON,
+MED_TETRA4, MED_TRIA6, MED_SEG2, MED_POINT1, MED_POLYGON,
 MED_POLYHEDRA in a same mesh. In MEDCouplingUMesh such a mix is not
 allowed as described \ref MEDCouplingUMeshes "here". So to \b read such mesh it
 is important to know which meshdimension you are interested to. In API
@@ -102,7 +102,7 @@ help you to have this mesh dimension.
 \anchor MEDLoaderExample2
 - Consider an another mesh called "Example2" in file "file2.med"
 containing MED_POLYHEDRA, MED_TETRA4, MED_QUAD8, MED_TRI6, MED_SEG2
-and MED_POINT0. In this case you will have :
+and MED_POINT1. In this case you will have :
 
 \code
 assert(3==MEDLoader::ReadUMeshDimFromFile("file2.med","Example2"));
@@ -125,7 +125,7 @@ To get 1D cells (MED_SEG2) you should type :
 MEDCouplingUMesh *m1D=MEDLoader::ReadUMeshFromFile("file2.med","Example2",-2);
 \endcode
 
-And finally for 0D cells (MED_POINT0) you will write :
+And finally for 0D cells (MED_POINT1) you will write :
 
 \code
 MEDCouplingUMesh *m0D=MEDLoader::ReadUMeshFromFile("file2.med","Example2",-3);

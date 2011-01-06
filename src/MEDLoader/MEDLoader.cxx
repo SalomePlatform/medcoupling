@@ -62,7 +62,7 @@ med_geometrie_element typmai[MED_NBR_GEOMETRIE_MAILLE+2] = { MED_POINT1,
 
 med_geometrie_element typmainoeud[1] = { MED_NONE };
 
-INTERP_KERNEL::NormalizedCellType typmai2[MED_NBR_GEOMETRIE_MAILLE+2] = { INTERP_KERNEL::NORM_POINT0,
+INTERP_KERNEL::NormalizedCellType typmai2[MED_NBR_GEOMETRIE_MAILLE+2] = { INTERP_KERNEL::NORM_POINT1,
                                                                           INTERP_KERNEL::NORM_SEG2,
                                                                           INTERP_KERNEL::NORM_SEG3,
                                                                           INTERP_KERNEL::NORM_TRI3,

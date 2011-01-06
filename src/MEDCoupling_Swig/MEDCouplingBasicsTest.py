@@ -139,14 +139,14 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         targetMesh=MEDCouplingUMesh.New();
         targetMesh.setMeshDimension(0);
         targetMesh.allocateCells(8);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
-        targetMesh.insertNextCell(NORM_POINT0,0,[]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[0]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[1]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[2]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[3]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[4]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[5]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[7]);
+        targetMesh.insertNextCell(NORM_POINT1,1,[6]);
         targetMesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(targetCoords,9,3);
@@ -5558,7 +5558,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
         self.assertRaises(Exception,targetMesh.insertNextCell,NORM_TETRA4,4,targetConn[0:4])
         self.assertRaises(Exception,targetMesh.insertNextCell,NORM_SEG2,2,targetConn[0:2])
-        self.assertRaises(Exception,targetMesh.insertNextCell,NORM_POINT0,1,targetConn[0:1])
+        self.assertRaises(Exception,targetMesh.insertNextCell,NORM_POINT1,1,targetConn[0:1])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14])

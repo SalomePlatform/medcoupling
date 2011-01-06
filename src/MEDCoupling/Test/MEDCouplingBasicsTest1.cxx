@@ -258,18 +258,18 @@ void MEDCouplingBasicsTest::testMesh()
 void MEDCouplingBasicsTest::testMeshPointsCloud()
 {
   double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
-  int *targetConn=0;
+  const int targetConn[]={0,1,2,3,4,5,7,6};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(0);
   targetMesh->allocateCells(8);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+1);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+2);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+3);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+5);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+6);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+7);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(9,3);

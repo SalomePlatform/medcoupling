@@ -108,10 +108,10 @@ class MEDLoaderTest(unittest.TestCase):
         m2=MEDCouplingUMesh.New();
         m2.setMeshDimension(0);
         m2.allocateCells(4);
-        m2.insertNextCell(NORM_POINT0,1,[1])
-        m2.insertNextCell(NORM_POINT0,1,[3])
-        m2.insertNextCell(NORM_POINT0,1,[2])
-        m2.insertNextCell(NORM_POINT0,1,[6])
+        m2.insertNextCell(NORM_POINT1,1,[1])
+        m2.insertNextCell(NORM_POINT1,1,[3])
+        m2.insertNextCell(NORM_POINT1,1,[2])
+        m2.insertNextCell(NORM_POINT1,1,[6])
         m2.finishInsertingCells();
         m2.setCoords(c)
         m2.checkCoherency()
@@ -192,10 +192,10 @@ class MEDLoaderTest(unittest.TestCase):
         m2=MEDCouplingUMesh.New();
         m2.setMeshDimension(0);
         m2.allocateCells(4);
-        m2.insertNextCell(NORM_POINT0,1,[1])
-        m2.insertNextCell(NORM_POINT0,1,[3])
-        m2.insertNextCell(NORM_POINT0,1,[2])
-        m2.insertNextCell(NORM_POINT0,1,[6])
+        m2.insertNextCell(NORM_POINT1,1,[1])
+        m2.insertNextCell(NORM_POINT1,1,[3])
+        m2.insertNextCell(NORM_POINT1,1,[2])
+        m2.insertNextCell(NORM_POINT1,1,[6])
         m2.finishInsertingCells();
         m2.setCoords(c)
         m2.checkCoherency()
