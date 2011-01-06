@@ -926,7 +926,10 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=mesh->zipConnectivityTraducer(compType);
   int nbOfCells=getNumberOfCells();
   arr=o2n->substr(nbOfCells);
+  arr->setName(other->getName());
   int tmp;
+  if(other->getNumberOfCells()==0)
+    return true;
   return arr->getMaxValue(tmp)<nbOfCells;
 }
 

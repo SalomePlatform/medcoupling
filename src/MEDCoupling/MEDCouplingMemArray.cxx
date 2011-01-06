@@ -445,8 +445,8 @@ DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const th
   int nbt=getNumberOfTuples();
   if(tupleIdBg<0)
     throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter must be greater than 0 !");
-  if(tupleIdBg>=nbt)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+  if(tupleIdBg>nbt)
+    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater than number of tuples !");
   int trueEnd=tupleIdEnd;
   if(tupleIdEnd!=-1)
     {
@@ -1883,8 +1883,8 @@ DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const throw(IN
   int nbt=getNumberOfTuples();
   if(tupleIdBg<0)
     throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter must be greater than 0 !");
-  if(tupleIdBg>=nbt)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+  if(tupleIdBg>nbt)
+    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater than number of tuples !");
   int trueEnd=tupleIdEnd;
   if(tupleIdEnd!=-1)
     {
