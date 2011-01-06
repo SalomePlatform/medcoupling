@@ -84,6 +84,7 @@ MEDFileUMesh::MEDFileUMesh(const char *fileName, const char *mName) throw(INTERP
     _coords=loaderl2.getCoords();
     _fam_coords=loaderl2.getCoordsFamily();
     _num_coords=loaderl2.getCoordsNum();
+    computeRevNum();
   }
 catch(INTERP_KERNEL::Exception& e)
   {
@@ -243,7 +244,7 @@ const DataArrayInt *MEDFileUMesh::getNumberFieldAtLevel(int meshDimRelToMaxExt) 
   if(meshDimRelToMaxExt==1)
     {
       if(!((const DataArrayInt *)_num_coords))
-        throw INTERP_KERNEL::Exception("MEDFileUMesh::getNumberFieldAtLevel : no coordinates specified !");
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::getNumberFieldAtLevel : no coordinates renum specified !");
       return _num_coords;
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
@@ -254,10 +255,9 @@ const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
 {
   if(meshDimRelToMaxExt==1)
     {
-      //if(!((const DataArrayInt *)_num_coords))
-      throw INTERP_KERNEL::Exception("MEDFileUMesh::getRevNumberFieldAtLevel : not implemented yet for nodes !");
-      //throw INTERP_KERNEL::Exception("MEDFileUMesh::getRevNumberFieldAtLevel : no coordinates specified !");
-      //return _num_coords;
+      if(!((const DataArrayInt *)_num_coords))
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::getRevNumberFieldAtLevel : no coordinates renum specified !");
+      return _rev_num_coords;
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getRevNumberField();
@@ -875,7 +875,11 @@ void MEDFileUMesh::setRenumArr(int meshDimRelToMaxExt, DataArrayInt *renumArr)
 {
   if(meshDimRelToMaxExt==1)
     {
+      if(renumArr)
+        renumArr->incrRef();
       _num_coords=renumArr;
+      computeRevNum();
+      return ;
     }
   if(meshDimRelToMaxExt>1)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumArr : Dimension request is invalid (>1) !");
@@ -946,5 +950,15 @@ void MEDFileUMesh::addFamily(int famId, const char *familyName) throw(INTERP_KER
           oss << "MEDFileUMesh::addFamily : Family \"" << fname << "\" already exists but has id set to " << (*it).second << " different from asked famId " << famId << " !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
+    }
+}
+
+void MEDFileUMesh::computeRevNum() const
+{
+  if((const DataArrayInt *)_num_coords)
+    {
+      int pos;
+      int maxValue=_num_coords->getMaxValue(pos);
+      _rev_num_coords=_num_coords->invertArrayN2O2O2N(maxValue+1);
     }
 }

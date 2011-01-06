@@ -204,6 +204,9 @@ class MEDLoaderTest(unittest.TestCase):
         mm.setName("My2ndMEDCouplingMEDmesh")
         mm.setDescription("ThisIsImpossibleToDoWithMEDMEM")
         mm.setCoords(c)
+        renumNode=DataArrayInt.New()
+        renumNode.setValues([10,11,12,13,14,15,16,17,18],9,1)
+        mm.setRenumArr(1,renumNode)
         mm.setMeshAtLevel(-1,m1);
         mm.setMeshAtLevel(0,m);
         mm.setMeshAtLevel(-2,m2);
@@ -223,12 +226,12 @@ class MEDLoaderTest(unittest.TestCase):
         g2_1.setName("G2")
         mm.setGroupsAtLevel(-1,[g1_1,g2_1],True)
         g1_N=DataArrayInt.New()
-        g1_N.setValues(range(8),8,1)
+        g1_N.setValues([10,11,12,13,14,15,16,17],8,1)
         g1_N.setName("G1")
         g2_N=DataArrayInt.New()
-        g2_N.setValues(range(9),9,1)
+        g2_N.setValues([10,11,12,13,14,15,16,17,18],9,1)
         g2_N.setName("G2")
-        mm.setGroupsAtLevel(1,[g1_N,g2_N],False)
+        mm.setGroupsAtLevel(1,[g1_N,g2_N],True)
         # check content of mm
         t=mm.getGroupArr(0,"G1",True)
         self.assertTrue(g1_2.isEqual(t));

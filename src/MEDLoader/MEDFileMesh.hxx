@@ -117,6 +117,7 @@ namespace ParaMEDMEM
     void checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *checkMultiMesh(const std::vector<const MEDCouplingUMesh *>& ms) const throw(INTERP_KERNEL::Exception);
     void appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
+    void computeRevNum() const;
     static void TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
   private:
     std::map<std::string, std::vector<std::string> > _groups;
@@ -125,6 +126,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_coords;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
+    mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_coords;
     int _too_long_str;
     int _zipconn_pol;
   };
