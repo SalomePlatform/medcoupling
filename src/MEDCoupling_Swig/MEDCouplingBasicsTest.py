@@ -5739,6 +5739,64 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(float(expect3[i]),d.getIJ(i,0),14);
             pass
         pass
+
+    def testAreCellsIncludedIn2(self):
+        myName="Vitoo";
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=m.buildPartOfMySelf([],True);
+        self.assertEqual(0,m2.getNumberOfCells());
+        self.assertEqual(3,m2.getSpaceDimension());
+        self.assertEqual(2,m2.getMeshDimension());
+        m2.setName(myName);
+        test,tmp=m.areCellsIncludedIn(m2,0)
+        self.assertTrue(test);
+        self.assertEqual(myName,tmp.getName());
+        self.assertEqual(0,tmp.getNumberOfTuples())
+        self.assertEqual(1,tmp.getNumberOfComponents())
+        pass
+
+    def testUMeshGetPartBarycenterAndOwner1(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        part1=[1,0,4];
+        part=DataArrayInt.New();
+        part.setValues(part1,3,1);
+        b=m1.getPartBarycenterAndOwner(part);
+        self.assertEqual(2,b.getNumberOfComponents());
+        self.assertEqual(3,b.getNumberOfTuples());
+        expected1=[0.36666666666666665,-0.13333333333333333,-0.05,-0.05,0.45,0.45];
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],b.getIJ(0,i),14);
+            pass
+        pass
+
+    def testUMeshGetPartMeasureField1(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        part1=[1,0,4];
+        part=DataArrayInt.New();
+        part.setValues(part1,3,1);
+        b=m1.getPartMeasureField(True,part);
+        self.assertEqual(1,b.getArray().getNumberOfComponents());
+        self.assertEqual(3,b.getArray().getNumberOfTuples());
+        expected1=[0.125,0.25,0.25];
+        for i in xrange(3):
+            self.assertAlmostEqual(expected1[i],b.getArray().getIJ(0,i),14);
+            pass
+        pass
+
+    def testUMeshBuildPartOrthogonalField1(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m1.changeSpaceDimension(3);
+        part1=[1,0,4];
+        part=DataArrayInt.New();
+        part.setValues(part1,3,1);
+        b=m1.buildPartOrthogonalField(part);
+        self.assertEqual(3,b.getArray().getNumberOfComponents());
+        self.assertEqual(3,b.getArray().getNumberOfTuples());
+        expected1=[0.,0.,-1.,0.,0.,-1.,0.,0.,-1.];
+        for i in xrange(9):
+            self.assertAlmostEqual(expected1[i],b.getArray().getIJ(0,i),14);
+            pass
+        pass
     
     def setUp(self):
         pass

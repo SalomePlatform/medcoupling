@@ -196,6 +196,9 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getAspectRatioField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getWarpField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getSkewField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getPartBarycenterAndOwner;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getPartMeasureField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOrthogonalField;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -868,6 +871,21 @@ namespace ParaMEDMEM
         d2->incrRef();
         d3->incrRef();
         return ret;
+      }
+
+      DataArrayDouble *getPartBarycenterAndOwner(DataArrayInt *da) const
+      {
+        return self->getPartBarycenterAndOwner(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
+      }
+
+      MEDCouplingFieldDouble *getPartMeasureField(bool isAbs, DataArrayInt *da) const
+      {
+        return self->getPartMeasureField(isAbs,da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
+      }
+
+      MEDCouplingFieldDouble *buildPartOrthogonalField(DataArrayInt *da) const
+      {
+        return self->buildPartOrthogonalField(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
       }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);

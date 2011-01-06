@@ -4218,3 +4218,65 @@ void MEDCouplingBasicsTest::testDAIBuildPermutationArr1()
   a->decrRef();
   b->decrRef();
 }
+
+void MEDCouplingBasicsTest::testAreCellsIncludedIn2()
+{
+  const char myName[]="Vitoo";
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=(MEDCouplingUMesh *)m->buildPartOfMySelf(0,0,true);
+  CPPUNIT_ASSERT_EQUAL(0,m2->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,m2->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(2,m2->getMeshDimension());
+  m2->setName(myName);
+  DataArrayInt *tmp;
+  CPPUNIT_ASSERT(m->areCellsIncludedIn(m2,0,tmp));
+  CPPUNIT_ASSERT(std::string(myName)==tmp->getName());
+  CPPUNIT_ASSERT_EQUAL(0,tmp->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,tmp->getNumberOfComponents());
+  m->decrRef();
+  m2->decrRef();
+  tmp->decrRef();
+}
+
+void MEDCouplingBasicsTest::testUMeshGetPartBarycenterAndOwner1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  const int part[3]={1,0,4};
+  DataArrayDouble *b=m1->getPartBarycenterAndOwner(part,part+3);
+  CPPUNIT_ASSERT_EQUAL(2,b->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,b->getNumberOfTuples());
+  const double expected1[6]={0.36666666666666665,-0.13333333333333333,-0.05,-0.05,0.45,0.45};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],b->getIJ(0,i),1e-14);
+  b->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testUMeshGetPartMeasureField1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  const int part[3]={1,0,4};
+  MEDCouplingFieldDouble *b=m1->getPartMeasureField(true,part,part+3);
+  CPPUNIT_ASSERT_EQUAL(1,b->getArray()->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,b->getArray()->getNumberOfTuples());
+  const double expected1[3]={0.125,0.25,0.25};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],b->getArray()->getIJ(0,i),1e-14);
+  b->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testUMeshBuildPartOrthogonalField1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  m1->changeSpaceDimension(3);
+  const int part[3]={1,0,4};
+  MEDCouplingFieldDouble *b=m1->buildPartOrthogonalField(part,part+3);
+  CPPUNIT_ASSERT_EQUAL(3,b->getArray()->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,b->getArray()->getNumberOfTuples());
+  const double expected1[9]={0.,0.,-1.,0.,0.,-1.,0.,0.,-1.};
+  for(int i=0;i<9;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],b->getArray()->getIJ(0,i),1e-14);
+  b->decrRef();
+  m1->decrRef();
+}

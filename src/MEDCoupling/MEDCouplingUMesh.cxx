@@ -1762,6 +1762,47 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
 }
 
 /*!
+ * This method is equivalent to MEDCouplingUMesh::getMeasureField except that only part defined by [begin,end) is returned !
+ * This method avoids to build explicitely part of this to perform the work.
+ */
+MEDCouplingFieldDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const int *begin, const int *end) const
+{
+  std::string name="PartMeasureOfMesh_";
+  name+=getName();
+  int nbelem=std::distance(begin,end);
+  MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS);
+  field->setName(name.c_str());
+  DataArrayDouble* array=DataArrayDouble::New();
+  array->alloc(nbelem,1);
+  double *area_vol=array->getPointer();
+  field->setArray(array) ;
+  array->decrRef();
+  field->setMesh(const_cast<MEDCouplingUMesh *>(this));
+  if(getMeshDimension()!=-1)
+    {
+      int ipt;
+      INTERP_KERNEL::NormalizedCellType type;
+      int dim_space=getSpaceDimension();
+      const double *coords=getCoords()->getConstPointer();
+      const int *connec=getNodalConnectivity()->getConstPointer();
+      const int *connec_index=getNodalConnectivityIndex()->getConstPointer();
+      for(const int *iel=begin;iel!=end;iel++)
+        {
+          ipt=connec_index[*iel];
+          type=(INTERP_KERNEL::NormalizedCellType)connec[ipt];
+          *area_vol++=INTERP_KERNEL::computeVolSurfOfCell2<int,INTERP_KERNEL::ALL_C_MODE>(type,connec+ipt+1,connec_index[*iel+1]-ipt-1,coords,dim_space);
+        }
+      if(isAbs)
+        std::transform(array->getPointer(),area_vol,array->getPointer(),std::ptr_fun<double,double>(fabs));
+    }
+  else
+    {
+      area_vol[0]=std::numeric_limits<double>::max();
+    }
+  return field;
+}
+
+/*!
  * This methods returns a field on nodes and no time. This method is usefull to check "P1*" conservative interpolators.
  * This field returns the getMeasureField of the dualMesh in P1 sens of 'this'.
  */
@@ -1839,6 +1880,63 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildOrthogonalField() const
       for(int i=0;i<nbOfCells;i++)
         {
           int offset=connI[i];
+          std::transform(coords+2*conn[offset+2],coords+2*conn[offset+2]+2,coords+2*conn[offset+1],tmp,std::minus<double>());
+          double n=INTERP_KERNEL::norm<2>(tmp);
+          std::transform(tmp,tmp+2,tmp,std::bind2nd(std::multiplies<double>(),1./n));
+          *vals++=-tmp[1];
+          *vals++=tmp[0];
+        }
+    }
+  ret->setArray(array);
+  array->decrRef();
+  ret->setMesh(this);
+  return ret;
+}
+
+/*!
+ * This method is equivalent to MEDCouplingUMesh::buildOrthogonalField except that only part defined by [begin,end) is returned !
+ * This method avoids to build explicitely part of this to perform the work.
+ */
+MEDCouplingFieldDouble *MEDCouplingUMesh::buildPartOrthogonalField(const int *begin, const int *end) const
+{
+  if((getMeshDimension()!=2) && (getMeshDimension()!=1 || getSpaceDimension()!=2))
+    throw INTERP_KERNEL::Exception("Expected a umesh with ( meshDim == 2 spaceDim == 2 or 3 ) or ( meshDim == 1 spaceDim == 2 ) !");
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  DataArrayDouble *array=DataArrayDouble::New();
+  int nbelems=std::distance(begin,end);
+  int nbComp=getMeshDimension()+1;
+  array->alloc(nbelems,nbComp);
+  double *vals=array->getPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const int *conn=_nodal_connec->getConstPointer();
+  const double *coords=_coords->getConstPointer();
+  if(getMeshDimension()==2)
+    {
+      if(getSpaceDimension()==3)
+        {
+          DataArrayDouble *loc=getPartBarycenterAndOwner(begin,end);
+          const double *locPtr=loc->getConstPointer();
+          for(const int *i=begin;i!=end;i++,vals+=3,locPtr+=3)
+            {
+              int offset=connI[*i];
+              INTERP_KERNEL::crossprod<3>(locPtr,coords+3*conn[offset+1],coords+3*conn[offset+2],vals);
+              double n=INTERP_KERNEL::norm<3>(vals);
+              std::transform(vals,vals+3,vals,std::bind2nd(std::multiplies<double>(),1./n));
+            }
+          loc->decrRef();
+        }
+      else
+        {
+          for(int i=0;i<nbelems;i++)
+            { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
+        }
+    }
+  else//meshdimension==1
+    {
+      double tmp[2];
+      for(const int *i=begin;i!=end;i++)
+        {
+          int offset=connI[*i];
           std::transform(coords+2*conn[offset+2],coords+2*conn[offset+2]+2,coords+2*conn[offset+1],tmp,std::minus<double>());
           double n=INTERP_KERNEL::norm<2>(tmp);
           std::transform(tmp,tmp+2,tmp,std::bind2nd(std::multiplies<double>(),1./n));
@@ -3295,6 +3393,32 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
     {
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)nodal[nodalI[i]];
       INTERP_KERNEL::computeBarycenter2<int,INTERP_KERNEL::ALL_C_MODE>(type,nodal+nodalI[i]+1,nodalI[i+1]-nodalI[i]-1,coor,spaceDim,ptToFill);
+      ptToFill+=spaceDim;
+    }
+  delete [] tmp;
+  return ret;
+}
+
+/*!
+ * This method is similar to MEDCouplingUMesh::getBarycenterAndOwner except that it works on subPart of 'this' without
+ * building explicitely it. The input part is defined by an array [begin,end). All ids contained in this array should be less than this->getNumberOfCells().
+ * No check of that will be done !
+ */
+DataArrayDouble *MEDCouplingUMesh::getPartBarycenterAndOwner(const int *begin, const int *end) const
+{
+  DataArrayDouble *ret=DataArrayDouble::New();
+  int spaceDim=getSpaceDimension();
+  int nbOfTuple=std::distance(begin,end);
+  ret->alloc(nbOfTuple,spaceDim);
+  double *ptToFill=ret->getPointer();
+  double *tmp=new double[spaceDim];
+  const int *nodal=_nodal_connec->getConstPointer();
+  const int *nodalI=_nodal_connec_index->getConstPointer();
+  const double *coor=_coords->getConstPointer();
+  for(const int *w=begin;w!=end;w++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)nodal[nodalI[*w]];
+      INTERP_KERNEL::computeBarycenter2<int,INTERP_KERNEL::ALL_C_MODE>(type,nodal+nodalI[*w]+1,nodalI[*w+1]-nodalI[*w]-1,coor,spaceDim,ptToFill);
       ptToFill+=spaceDim;
     }
   delete [] tmp;
