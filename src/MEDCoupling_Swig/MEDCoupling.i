@@ -1321,10 +1321,22 @@ namespace ParaMEDMEM
 
    DataArrayInt *selectByTupleId(PyObject *li) const throw(INTERP_KERNEL::Exception)
    {
-     int size;
-     INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-     DataArrayInt *ret=self->selectByTupleId(tmp,tmp+size);
-     return ret;
+     void *da=0;
+     int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+     if (!SWIG_IsOK(res1))
+       {
+         int size;
+         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+         return self->selectByTupleId(tmp,tmp+size);
+       }
+     else
+       {
+         DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+         if(!da2)
+          throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+         da2->checkAllocated();
+         return self->selectByTupleId(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+       }
    }
 
    DataArrayInt *selectByTupleIdSafe(PyObject *li) const throw(INTERP_KERNEL::Exception)

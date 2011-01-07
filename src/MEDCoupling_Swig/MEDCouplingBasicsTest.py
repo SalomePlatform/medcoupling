@@ -5848,6 +5848,33 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,a.getIJ(2,0));
         pass
     
+    def testSwigErrorDaIntSelectByTupleId1(self):
+        a=DataArrayInt.New();
+        arr1=[1,11,2,12,3,13,4,14,5,15,6,16,7,17]
+        a.setValues(arr1,7,2);
+        a.setInfoOnComponent(0,"toto");
+        a.setInfoOnComponent(1,"tata");
+        #
+        arr2=[4,2,0,6,5]
+        b=a.selectByTupleId(arr2);
+        self.assertEqual(5,b.getNumberOfTuples());
+        self.assertEqual(2,b.getNumberOfComponents());
+        self.assertTrue(b.getInfoOnComponent(0)=="toto");
+        self.assertTrue(b.getInfoOnComponent(1)=="tata");
+        expected1=[5,15,3,13,1,11,7,17,6,16]
+        self.assertEqual(expected1,b.getValues())
+        #
+        a2=DataArrayInt.New()
+        a2.setValues(arr2,5,1)
+        b=a.selectByTupleId(a2);
+        self.assertEqual(5,b.getNumberOfTuples());
+        self.assertEqual(2,b.getNumberOfComponents());
+        self.assertTrue(b.getInfoOnComponent(0)=="toto");
+        self.assertTrue(b.getInfoOnComponent(1)=="tata");
+        expected1=[5,15,3,13,1,11,7,17,6,16]
+        self.assertEqual(expected1,b.getValues())
+        pass
+    
     def setUp(self):
         pass
     pass
