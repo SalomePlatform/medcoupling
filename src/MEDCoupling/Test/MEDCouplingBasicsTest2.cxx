@@ -4280,3 +4280,23 @@ void MEDCouplingBasicsTest::testUMeshBuildPartOrthogonalField1()
   b->decrRef();
   m1->decrRef();
 }
+
+void MEDCouplingBasicsTest::testUMeshGetTypesOfPart1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  const int part1[]={0,3,4};
+  std::set<INTERP_KERNEL::NormalizedCellType> s;
+  s=m1->getTypesOfPart(part1,part1+3);
+  CPPUNIT_ASSERT(s.size()==1);
+  CPPUNIT_ASSERT(*s.begin()==INTERP_KERNEL::NORM_QUAD4);
+  const int part2[]={2,2,2,1};
+  s=m1->getTypesOfPart(part2,part2+4);
+  CPPUNIT_ASSERT(s.size()==1);
+  CPPUNIT_ASSERT(*s.begin()==INTERP_KERNEL::NORM_TRI3);
+  const int part3[]={3,2,1};
+  s=m1->getTypesOfPart(part3,part3+3);
+  CPPUNIT_ASSERT(s.size()==2);
+  CPPUNIT_ASSERT(*s.begin()==INTERP_KERNEL::NORM_TRI3);
+  CPPUNIT_ASSERT(*(++s.begin())==INTERP_KERNEL::NORM_QUAD4);
+  m1->decrRef();
+}

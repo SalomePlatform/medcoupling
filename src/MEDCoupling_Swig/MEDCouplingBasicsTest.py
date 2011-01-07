@@ -5797,6 +5797,25 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected1[i],b.getArray().getIJ(0,i),14);
             pass
         pass
+
+    def testUMeshGetTypesOfPart1(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        part1=[0,3,4];
+        p1=DataArrayInt.New()
+        p1.setValues(part1,3,1)
+        s=m1.getTypesOfPart(p1);
+        self.assertEqual([NORM_QUAD4],s);
+        part2=[2,2,2,1];
+        p2=DataArrayInt.New()
+        p2.setValues(part2,4,1)
+        s=m1.getTypesOfPart(p2);
+        self.assertEqual([NORM_TRI3],s);
+        part3=[3,2,1];
+        p3=DataArrayInt.New()
+        p3.setValues(part3,3,1)
+        s=m1.getTypesOfPart(p3);
+        self.assertEqual(s,[NORM_TRI3,NORM_QUAD4]);
+        pass
     
     def setUp(self):
         pass

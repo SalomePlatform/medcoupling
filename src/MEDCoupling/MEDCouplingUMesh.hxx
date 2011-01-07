@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void finishInsertingCells();
     MEDCOUPLING_EXPORT const std::set<INTERP_KERNEL::NormalizedCellType>& getAllTypes() const { return _types; }
+    MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const int *begin, const int *end) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true);
     MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivity() const { return _nodal_connec; }
     MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivityIndex() const { return _nodal_connec_index; }

@@ -1501,6 +1501,21 @@ int MEDCouplingUMesh::getNumberOfNodesInCell(int cellId) const
 }
 
 /*!
+ * This method is equivalent to MEDCouplingUMesh::getAllTypes excecpt that it returns only types of submesh which cell ids are in [begin,end).
+ * This method avoids to compute explicitely submesh to get its types.
+ */
+std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getTypesOfPart(const int *begin, const int *end) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  std::set<INTERP_KERNEL::NormalizedCellType> ret;
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connIndex=_nodal_connec_index->getConstPointer();
+  for(const int *w=begin;w!=end;w++)
+    ret.insert((INTERP_KERNEL::NormalizedCellType)conn[connIndex[*w]]);
+  return ret;
+}
+
+/*!
  * Method reserved for advanced users having prepared their connectivity before.
  * Arrays 'conn' and 'connIndex' will be aggregated without any copy and their counter will be incremented.
  */

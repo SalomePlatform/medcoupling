@@ -873,19 +873,41 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      DataArrayDouble *getPartBarycenterAndOwner(DataArrayInt *da) const
+      DataArrayDouble *getPartBarycenterAndOwner(DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
       {
+        if(!da)
+          throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+        da->checkAllocated();
         return self->getPartBarycenterAndOwner(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
       }
 
-      MEDCouplingFieldDouble *getPartMeasureField(bool isAbs, DataArrayInt *da) const
+      MEDCouplingFieldDouble *getPartMeasureField(bool isAbs, DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
       {
+        if(!da)
+          throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+        da->checkAllocated();
         return self->getPartMeasureField(isAbs,da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
       }
 
-      MEDCouplingFieldDouble *buildPartOrthogonalField(DataArrayInt *da) const
+      MEDCouplingFieldDouble *buildPartOrthogonalField(DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
       {
+        if(!da)
+          throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+        da->checkAllocated();
         return self->buildPartOrthogonalField(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
+      }
+
+      PyObject *getTypesOfPart(DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
+      {
+        if(!da)
+          throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+        da->checkAllocated();
+        std::set<INTERP_KERNEL::NormalizedCellType> result=self->getTypesOfPart(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
+        std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
+        PyObject *res = PyList_New(result.size());
+        for (int i=0;iL!=result.end(); i++, iL++)
+          PyList_SetItem(res,i,PyInt_FromLong(*iL));
+        return res;
       }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);
