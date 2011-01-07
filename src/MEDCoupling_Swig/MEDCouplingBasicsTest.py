@@ -5816,6 +5816,37 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         s=m1.getTypesOfPart(p3);
         self.assertEqual(s,[NORM_TRI3,NORM_QUAD4]);
         pass
+
+    def testUMeshKeepCellIdsByType1(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        part1=[0,3,4]
+        p1=DataArrayInt.New()
+        p1.setValues(part1,3,1)
+        p1.setName("p1")
+        a=m1.keepCellIdsByType(NORM_TRI3,p1);
+        self.assertEqual("p1",a.getName())
+        self.assertEqual(1,a.getNumberOfComponents());
+        self.assertEqual(0,a.getNumberOfTuples());
+        #
+        part2=[3,2,0,2,4]
+        p2=DataArrayInt.New()
+        p2.setValues(part2,5,1)
+        p2.setName("p2")
+        a=m1.keepCellIdsByType(NORM_TRI3,p2);
+        self.assertEqual("p2",a.getName())
+        self.assertEqual(1,a.getNumberOfComponents());
+        self.assertEqual(2,a.getNumberOfTuples());
+        self.assertEqual(2,a.getIJ(0,0));
+        self.assertEqual(2,a.getIJ(1,0));
+        #
+        a=m1.keepCellIdsByType(NORM_QUAD4,p2);
+        self.assertEqual("p2",a.getName())
+        self.assertEqual(1,a.getNumberOfComponents());
+        self.assertEqual(3,a.getNumberOfTuples());
+        self.assertEqual(3,a.getIJ(0,0));
+        self.assertEqual(0,a.getIJ(1,0));
+        self.assertEqual(4,a.getIJ(2,0));
+        pass
     
     def setUp(self):
         pass

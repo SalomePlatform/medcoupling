@@ -3317,6 +3317,25 @@ std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
 }
 
 /*!
+ * This method returns a newly created DataArrayInt instance.
+ * This method retrieves cell ids in [begin,end) that have the type 'type'.
+ */
+DataArrayInt *MEDCouplingUMesh::keepCellIdsByType(INTERP_KERNEL::NormalizedCellType type, const int *begin, const int *end) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  std::vector<int> r;
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connIndex=_nodal_connec_index->getConstPointer();
+  for(const int *w=begin;w!=end;w++)
+    if((INTERP_KERNEL::NormalizedCellType)conn[connIndex[*w]]==type)
+      r.push_back(*w);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(r.size(),1);
+  std::copy(r.begin(),r.end(),ret->getPointer());
+  return ret;
+}
+
+/*!
  * This method makes the assumption that da->getNumberOfTuples()<this->getNumberOfCells(). This method makes the assumption that ids contained in 'da'
  * are in [0:getNumberOfCells())
  */

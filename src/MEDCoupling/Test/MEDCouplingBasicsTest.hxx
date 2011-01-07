@@ -182,6 +182,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testUMeshGetPartMeasureField1 );
     CPPUNIT_TEST( testUMeshBuildPartOrthogonalField1 );
     CPPUNIT_TEST( testUMeshGetTypesOfPart1 );
+    CPPUNIT_TEST( testUMeshKeepCellIdsByType1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -392,6 +393,7 @@ namespace ParaMEDMEM
     void testUMeshGetPartMeasureField1();
     void testUMeshBuildPartOrthogonalField1();
     void testUMeshGetTypesOfPart1();
+    void testUMeshKeepCellIdsByType1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

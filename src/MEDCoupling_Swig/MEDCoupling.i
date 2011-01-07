@@ -199,6 +199,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getPartBarycenterAndOwner;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getPartMeasureField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOrthogonalField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::keepCellIdsByType;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -908,6 +909,16 @@ namespace ParaMEDMEM
         for (int i=0;iL!=result.end(); i++, iL++)
           PyList_SetItem(res,i,PyInt_FromLong(*iL));
         return res;
+      }
+
+      DataArrayInt *keepCellIdsByType(INTERP_KERNEL::NormalizedCellType type, DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
+      {
+        if(!da)
+          throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+        da->checkAllocated();
+        DataArrayInt *ret=self->keepCellIdsByType(type,da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
+        ret->setName(da->getName().c_str());
+        return ret;
       }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);

@@ -4300,3 +4300,31 @@ void MEDCouplingBasicsTest::testUMeshGetTypesOfPart1()
   CPPUNIT_ASSERT(*(++s.begin())==INTERP_KERNEL::NORM_QUAD4);
   m1->decrRef();
 }
+
+void MEDCouplingBasicsTest::testUMeshKeepCellIdsByType1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  const int part1[3]={0,3,4};
+  DataArrayInt *a=m1->keepCellIdsByType(INTERP_KERNEL::NORM_TRI3,part1,part1+3);
+  CPPUNIT_ASSERT_EQUAL(1,a->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(0,a->getNumberOfTuples());
+  a->decrRef();
+  //
+  const int part2[5]={3,2,0,2,4};
+  a=m1->keepCellIdsByType(INTERP_KERNEL::NORM_TRI3,part2,part2+5);
+  CPPUNIT_ASSERT_EQUAL(1,a->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(2,a->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,a->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,a->getIJ(1,0));
+  a->decrRef();
+  //
+  a=m1->keepCellIdsByType(INTERP_KERNEL::NORM_QUAD4,part2,part2+5);
+  CPPUNIT_ASSERT_EQUAL(1,a->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,a->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,a->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(0,a->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(4,a->getIJ(2,0));
+  //
+  a->decrRef();
+  m1->decrRef();
+}

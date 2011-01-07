@@ -136,6 +136,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getRenumArrForConsecutiveCellTypesSpec(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *rearrange2ConsecutiveCellTypes();
     MEDCOUPLING_EXPORT std::vector<MEDCouplingUMesh *> splitByType() const;
+    MEDCOUPLING_EXPORT DataArrayInt *keepCellIdsByType(INTERP_KERNEL::NormalizedCellType type, const int *begin, const int *end) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const std::vector<int>& idsPerGeoType) const;
     //
