@@ -4328,3 +4328,31 @@ void MEDCouplingBasicsTest::testUMeshKeepCellIdsByType1()
   a->decrRef();
   m1->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAIAggregateMulti1()
+{
+  DataArrayInt *a=DataArrayInt::New();
+  a->setName("aa");
+  a->alloc(4,1);
+  a->iota(0);
+  a->rearrange(2);
+  DataArrayInt *b=DataArrayInt::New();
+  b->setName("bb");
+  b->alloc(6,1);
+  b->iota(0);
+  b->rearrange(2);
+  //
+  std::vector<const DataArrayInt *> v(2);
+  v[0]=a; v[1]=b;
+  DataArrayInt *c=DataArrayInt::Aggregate(v);
+  CPPUNIT_ASSERT_EQUAL(5,c->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,c->getNumberOfComponents());
+  CPPUNIT_ASSERT(c->getName()=="aa");
+  const int expect1[10]={0,1,2,3,0,1,2,3,4,5};
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_EQUAL(expect1[i],c->getIJ(0,i));
+  //
+  c->decrRef();
+  a->decrRef();
+  b->decrRef();
+}
