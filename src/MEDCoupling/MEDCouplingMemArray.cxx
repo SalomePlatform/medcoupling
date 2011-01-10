@@ -2080,6 +2080,28 @@ DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt
   return ret;
 }
 
+DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception)
+{
+  if(a.empty())
+    throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : input list must be NON EMPTY !");
+  std::vector<const DataArrayInt *>::const_iterator it=a.begin();
+  int nbOfComp=(*it)->getNumberOfComponents();
+  int nbt=(*it++)->getNumberOfTuples();
+  for(int i=1;it!=a.end();it++,i++)
+    {
+      if((*it)->getNumberOfComponents()!=nbOfComp)
+        throw INTERP_KERNEL::Exception("DataArrayInt::Aggregate : Nb of components mismatch for array aggregation !");
+      nbt+=(*it)->getNumberOfTuples();
+    }
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbt,nbOfComp);
+  int *pt=ret->getPointer();
+  for(it=a.begin();it!=a.end();it++)
+    pt=std::copy((*it)->getConstPointer(),(*it)->getConstPointer()+(*it)->getNbOfElems(),pt);
+  ret->copyStringInfoFrom(*(a[0]));
+  return ret;
+}
+
 int DataArrayInt::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)

@@ -5895,6 +5895,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected1=[5,15,3,13,1,11,7,17,6,16]
         self.assertEqual(expected1,b.getValues())
         pass
+
+    def testDAIAggregateMulti1(self):
+        a=DataArrayInt.New()
+        a.setValues(range(4),2,2)
+        a.setName("aa")
+        b=DataArrayInt.New()
+        b.setValues(range(6),3,2)
+        c=DataArrayInt.Aggregate([a,b])
+        self.assertEqual(range(4)+range(6),c.getValues())
+        self.assertEqual("aa",c.getName())
+        self.assertEqual(5,c.getNumberOfTuples())
+        self.assertEqual(2,c.getNumberOfComponents())
+        pass
     
     def setUp(self):
         pass

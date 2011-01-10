@@ -1672,6 +1672,13 @@ namespace ParaMEDMEM
      return DataArrayInt::Meld(tmp);
    }
 
+   static DataArrayInt *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<const DataArrayInt *> tmp;
+     convertPyObjToVecDataArrayIntCst(li,tmp);
+     return DataArrayInt::Aggregate(tmp);
+   }
+
    static DataArrayInt *BuildUnion(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayInt *> tmp;

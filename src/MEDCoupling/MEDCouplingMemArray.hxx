@@ -274,6 +274,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
+    MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Meld(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups);
