@@ -94,6 +94,7 @@ namespace ParaMEDMEM
     bool existsFamily(int famId) const;
     bool existsFamily(const char *familyName) const;
     //
+    void copyFamGrpMapsFrom(const MEDFileUMesh& other);
     void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     void setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum=true) throw(INTERP_KERNEL::Exception);

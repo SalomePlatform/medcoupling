@@ -736,6 +736,12 @@ void MEDFileUMesh::addNodeGroup(const std::string& name, const std::vector<int>&
   
 }
 
+void MEDFileUMesh::copyFamGrpMapsFrom(const MEDFileUMesh& other)
+{
+  _groups=other._groups;
+  _families=other._families;
+}
+
 void MEDFileUMesh::setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception)
 {
   std::string oldName=getFamilyNameGivenId(id);
