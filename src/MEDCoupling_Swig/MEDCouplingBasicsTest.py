@@ -387,8 +387,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,subMesh.getNodalConnectivityIndex().getNbOfElems());
         self.assertEqual(subConn2[0:14],list(subMesh.getNodalConnectivity().getValues()));
         self.assertEqual(subConnIndex2[0:4],list(subMesh.getNodalConnectivityIndex().getValues()));
-        subMesh=subMesh.buildPartOfMySelf(range(3),True);
-        self.assertEqual("PartOf_Toto",subMesh.getName());
+        dd=DataArrayInt.New()
+        dd.alloc(3,1)
+        dd.iota(0)
+        dd.setName("coucou")
+        subMesh=subMesh.buildPartOfMySelf(dd,True);
+        self.assertEqual("coucou",subMesh.getName());
         pass
     def testBuildPartOfMySelfNode(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
@@ -405,7 +409,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(subConn[0:5],list(subMesh.getNodalConnectivity().getValues()));
         self.assertEqual(subConnIndex[0:2],list(subMesh.getNodalConnectivityIndex().getValues()));
         #
-        subMesh=mesh.buildPartOfMySelfNode(tab1[0:2],False);
+        ddd=DataArrayInt.New()
+        ddd.setValues(tab1[0:2],2,1)
+        ddd.setName("ddd")
+        subMesh=mesh.buildPartOfMySelfNode(ddd,False);
+        self.assertEqual("ddd",subMesh.getName())
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
         self.assertEqual(2,len(subMesh.getAllTypes()));
         self.assertEqual(NORM_TRI3,subMesh.getAllTypes()[0]);
@@ -1692,6 +1700,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected=[0,1,2,3,4,5,6,7]
         val=da.getValues();
         self.assertEqual(expected,list(val));
+        #
+        ddd=DataArrayInt.New()
+        ddd.setValues(n,len(n),1)
+        m3dSurf=mesh.buildFacePartOfMySelfNode(ddd,True);
+        self.assertTrue(isinstance(m3dSurf,MEDCouplingUMesh))
+        me=MEDCouplingExtrudedMesh.New(mesh,m3dSurf,0);
+        da=me.getMesh3DIds();
+        self.assertEqual(8,me.getNumberOfCells());
+        expected=[0,1,2,3,4,5,6,7]
+        val=da.getValues();
+        self.assertEqual(expected,list(val));
         pass
 
     def testRenumberCells(self):
@@ -2535,7 +2554,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #self.assertTrue(m.getCoords()==m2.getCoords());
         self.assertTrue(m2.isEqual(m,1e-12));
         renum1=[1,2,0,5,8,7,4,3,6]
-        m.renumberNodes(renum1,9);
+        r1=DataArrayInt.New()
+        r1.setValues(renum1,len(renum1),1)
+        m.renumberNodes(r1,9);
         #self.assertTrue(m.getCoords()!=m2.getCoords());
         self.assertTrue(not m2.isEqual(m,1e-12));
         m.tryToShareSameCoordsPermute(m2,1e-12);
