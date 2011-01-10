@@ -91,10 +91,14 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getLevelM1Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevelM2Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getLevelM3Mesh(bool renum=true) const throw(INTERP_KERNEL::Exception);
+    const std::map<std::string,int>& getFamilyInfo() const { return _families; }
+    const std::map<std::string, std::vector<std::string> >& getGroupInfo() const { return _groups; }
     bool existsFamily(int famId) const;
     bool existsFamily(const char *familyName) const;
     //
     void copyFamGrpMapsFrom(const MEDFileUMesh& other);
+    void setFamilyInfo(const std::map<std::string,int>& info);
+    void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
     void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     void setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum=true) throw(INTERP_KERNEL::Exception);
