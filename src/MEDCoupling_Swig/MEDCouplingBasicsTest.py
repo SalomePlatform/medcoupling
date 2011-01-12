@@ -5908,6 +5908,43 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(5,c.getNumberOfTuples())
         self.assertEqual(2,c.getNumberOfComponents())
         pass
+
+    def testMergeUMeshes2(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m3=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        #
+        vec1=[0,2,3]
+        m2_2=m2.buildPartOfMySelf(vec1,False);
+        vec2=[1,1]
+        m3_2=m3.buildPartOfMySelf(vec2,False);
+        #
+        ms=[m1,m2_2,m3_2];
+        #
+        m4=MEDCouplingUMesh.MergeUMeshes(ms);
+        m4.checkCoherency();
+        self.assertEqual(10,m4.getNumberOfCells());
+        self.assertEqual(20,m4.getNumberOfNodes());
+        self.assertEqual(45,m4.getMeshLength());
+        #
+        vec3=[0,1,2,3,4]
+        m4_1=m4.buildPartOfMySelf(vec3,False);
+        m4_1.setName(m1.getName());
+        self.assertTrue(m4_1.isEqual(m1,1e-12));
+        #
+        vec4=[5,6,7]
+        m4_2=m4.buildPartOfMySelf(vec4,False);
+        cellCor,nodeCor=m4_2.checkGeoEquivalWith(m2_2,10,1e-12);
+        #
+        vec5=[8,9]
+        m4_3=m4.buildPartOfMySelf(vec5,False);
+        self.assertEqual(2,m4_3.getNumberOfCells());
+        self.assertEqual(3,m4_3.getNumberOfNodes());
+        m3_2.zipCoords();
+        m4_3.setName(m3_2.getName());
+        self.assertTrue(m4_3.isEqual(m3_2,1e-12));
+        #
+        pass
     
     def setUp(self):
         pass

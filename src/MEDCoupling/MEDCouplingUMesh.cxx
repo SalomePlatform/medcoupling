@@ -3518,7 +3518,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUM
                 *cPtr=-1;
             }
         }
-      offset=curCI[curNbOfCell];
+      offset+=curCI[curNbOfCell];
       offset2+=(*it)->getNumberOfNodes();
     }
   //

@@ -4356,3 +4356,55 @@ void MEDCouplingBasicsTest::testDAIAggregateMulti1()
   a->decrRef();
   b->decrRef();
 }
+
+void MEDCouplingBasicsTest::testMergeUMeshes2()
+{
+  MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m3=build3DSurfTargetMesh_1();
+  //
+  const int vec1[3]={0,2,3};
+  MEDCouplingUMesh *m2_2=(MEDCouplingUMesh *)m2->buildPartOfMySelf(vec1,vec1+3,false);
+  const int vec2[2]={1,1};
+  MEDCouplingUMesh *m3_2=(MEDCouplingUMesh *)m3->buildPartOfMySelf(vec2,vec2+2,false);
+  //
+  std::vector<const MEDCouplingUMesh *> ms(3);
+  ms[0]=m1; ms[1]=m2_2; ms[2]=m3_2;
+  //
+  MEDCouplingUMesh *m4=MEDCouplingUMesh::MergeUMeshes(ms);
+  m4->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(10,m4->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(20,m4->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(45,m4->getMeshLength());
+  //
+  const int vec3[5]={0,1,2,3,4};
+  MEDCouplingUMesh *m4_1=(MEDCouplingUMesh *)m4->buildPartOfMySelf(vec3,vec3+5,false);
+  m4_1->setName(m1->getName());
+  CPPUNIT_ASSERT(m4_1->isEqual(m1,1e-12));
+  m4_1->decrRef();
+  //
+  const int vec4[3]={5,6,7};
+  MEDCouplingUMesh *m4_2=(MEDCouplingUMesh *)m4->buildPartOfMySelf(vec4,vec4+3,false);
+  DataArrayInt *cellCor=0;
+  DataArrayInt *nodeCor=0;
+  m4_2->checkGeoEquivalWith(m2_2,10,1e-12,cellCor,nodeCor);
+  CPPUNIT_ASSERT(cellCor==0);
+  CPPUNIT_ASSERT(nodeCor==0);
+  m4_2->decrRef();
+  //
+  const int vec5[2]={8,9};
+  MEDCouplingUMesh *m4_3=(MEDCouplingUMesh *)m4->buildPartOfMySelf(vec5,vec5+2,false);
+  CPPUNIT_ASSERT_EQUAL(2,m4_3->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,m4_3->getNumberOfNodes());
+  m3_2->zipCoords();
+  m4_3->setName(m3_2->getName());
+  CPPUNIT_ASSERT(m4_3->isEqual(m3_2,1e-12));
+  m4_3->decrRef();
+  //
+  m4->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+  m2_2->decrRef();
+  m3->decrRef();
+  m3_2->decrRef();
+}
