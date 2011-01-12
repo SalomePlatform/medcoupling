@@ -3463,6 +3463,36 @@ DataArrayDouble *MEDCouplingUMesh::getPartBarycenterAndOwner(const int *begin, c
 }
 
 /*!
+ * This method expects as input a DataArrayDouble non nul instance 'da' that should be allocated. If not an exception is thrown.
+ * 
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception)
+{
+  if(!da)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Build0DMeshFromCoords : instance of DataArrayDouble must be not null !");
+  da->checkAllocated();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(da->getName().c_str(),0);
+  ret->setCoords(da);
+  int nbOfTuples=da->getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cI=DataArrayInt::New();
+  c->alloc(2*nbOfTuples,1);
+  cI->alloc(nbOfTuples+1,1);
+  int *cp=c->getPointer();
+  int *cip=cI->getPointer();
+  *cip++=0;
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      *cp++=INTERP_KERNEL::NORM_POINT1;
+      *cp++=i;
+      *cip++=2*(i+1);
+    }
+  ret->setConnectivity(c,cI,true);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * Returns a newly created mesh (with ref count ==1) that contains merge of 'mesh1' and 'other'.
  * The coords of 'mesh2' are added at the end of coords of 'mesh1'.
  */

@@ -185,6 +185,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testUMeshKeepCellIdsByType1 );
     CPPUNIT_TEST( testDAIAggregateMulti1 );
     CPPUNIT_TEST( testMergeUMeshes2 );
+    CPPUNIT_TEST( testBuild0DMeshFromCoords1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -398,6 +399,7 @@ namespace ParaMEDMEM
     void testUMeshKeepCellIdsByType1();
     void testDAIAggregateMulti1();
     void testMergeUMeshes2();
+    void testBuild0DMeshFromCoords1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

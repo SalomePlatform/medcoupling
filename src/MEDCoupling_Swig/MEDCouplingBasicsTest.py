@@ -5945,6 +5945,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m4_3.isEqual(m3_2,1e-12));
         #
         pass
+
+    def testBuild0DMeshFromCoords1(self):
+        sourceCoords=[-0.3,-0.3,0., 0.7,-0.3,0., -0.3,0.7,0., 0.7,0.7,0.]
+        coo=DataArrayDouble.New();
+        coo.setValues(sourceCoords,4,3);
+        coo.setName("My0D");
+        m=MEDCouplingUMesh.Build0DMeshFromCoords(coo);
+        m.checkCoherency();
+        self.assertEqual(4,m.getNumberOfNodes());
+        self.assertEqual(4,m.getNumberOfCells());
+        self.assertEqual(3,m.getSpaceDimension());
+        self.assertEqual(0,m.getMeshDimension());
+        types1=m.getAllTypes();
+        self.assertEqual([NORM_POINT1],types1);
+        for i in xrange(4):
+            conn=m.getNodeIdsOfCell(i);
+            self.assertEqual([i],conn);
+            self.assertTrue(NORM_POINT1==m.getTypeOfCell(i));
+            pass
+        self.assertEqual(m.getName(),"My0D");
+        pass
     
     def setUp(self):
         pass

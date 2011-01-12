@@ -4408,3 +4408,33 @@ void MEDCouplingBasicsTest::testMergeUMeshes2()
   m3->decrRef();
   m3_2->decrRef();
 }
+
+void MEDCouplingBasicsTest::testBuild0DMeshFromCoords1()
+{
+  const double sourceCoords[12]={-0.3,-0.3,0., 0.7,-0.3,0., -0.3,0.7,0., 0.7,0.7,0.};
+  DataArrayDouble *coo=DataArrayDouble::New();
+  coo->alloc(4,3);
+  coo->setName("My0D");
+  std::copy(sourceCoords,sourceCoords+12,coo->getPointer());
+  MEDCouplingUMesh *m=MEDCouplingUMesh::Build0DMeshFromCoords(coo);
+  m->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(4,m->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(4,m->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(3,m->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(0,m->getMeshDimension());
+  const std::set<INTERP_KERNEL::NormalizedCellType>& types=m->getAllTypes();
+  CPPUNIT_ASSERT_EQUAL(1,(int)types.size());
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_POINT1,*types.begin());
+  for(int i=0;i<4;i++)
+    {
+      std::vector<int> conn;
+      m->getNodeIdsOfCell(i,conn);
+      CPPUNIT_ASSERT_EQUAL(1,(int)conn.size());
+      CPPUNIT_ASSERT_EQUAL(i,conn[0]);
+      CPPUNIT_ASSERT(INTERP_KERNEL::NORM_POINT1==m->getTypeOfCell(i));
+    }
+  CPPUNIT_ASSERT(std::string(m->getName())=="My0D");
+  m->decrRef();
+  coo->decrRef();
+}
+
