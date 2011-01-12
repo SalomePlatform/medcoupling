@@ -313,6 +313,7 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
  * This method looks if 'this' and 'other' are geometrically equivalent that is to say if each cell in 'other' correspond to one cell and only one
  * in 'this' is found regarding 'prec' parameter and 'cellCompPol' parameter. The difference with MEDCouplingUMesh::checkDeepEquivalWith method is that
  * coordinates of 'this' and 'other' are expected to be the same. If not an exception will be thrown.
+ * This method is close to MEDCouplingUMesh::areCellsIncludedIn except that this method throws exception !
  * 
  * In case of success cellCor are informed both. 
  * @param cellCompPol values are described in MEDCouplingUMesh::zipConnectivityTraducer method.
@@ -914,6 +915,8 @@ DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType) throw(INTE
 /*!
  * This method makes the assumption that 'this' and 'other' share the same coords. If not an exception will be thrown !
  * This method tries to determine if 'other' is fully included in 'this'. To compute that, this method works with connectivity as MEDCouplingUMesh::zipConnectivityTraducer method does. 
+ * This method is close to MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith or MEDCouplingMesh::checkGeoEquivalWith with policy 20,21,or 22.
+ * The main difference is that this method is not expected to throw exception.
  * This method has two outputs :
  *
  * @param compType is the comparison type. The possible values of this parameter are described in ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer method
