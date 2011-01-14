@@ -122,16 +122,6 @@ void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
   MEDfermer(fid);
 }
 
-int MEDFileUMesh::getNumberOfNonEmptyLevels() const
-{
-  int ret=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
-    if((const MEDFileUMeshSplitL1 *)(*it)!=0)
-      if(!(*it)->empty())
-        ret++;
-  return ret;
-}
-
 std::vector<int> MEDFileUMesh::getNonEmptyLevels() const
 {
   std::vector<int> ret;

@@ -56,8 +56,6 @@ namespace ParaMEDMEM
     void changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
     //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    int getNumberOfLevels() const { return _ms.size(); }
-    int getNumberOfNonEmptyLevels() const;
     int getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception);
     int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
