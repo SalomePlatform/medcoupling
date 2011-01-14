@@ -5796,11 +5796,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         part=DataArrayInt.New();
         part.setValues(part1,3,1);
         b=m1.getPartMeasureField(True,part);
-        self.assertEqual(1,b.getArray().getNumberOfComponents());
-        self.assertEqual(3,b.getArray().getNumberOfTuples());
+        self.assertEqual(1,b.getNumberOfComponents());
+        self.assertEqual(3,b.getNumberOfTuples());
         expected1=[0.125,0.25,0.25];
         for i in xrange(3):
-            self.assertAlmostEqual(expected1[i],b.getArray().getIJ(0,i),14);
+            self.assertAlmostEqual(expected1[i],b.getIJ(0,i),14);
             pass
         pass
 

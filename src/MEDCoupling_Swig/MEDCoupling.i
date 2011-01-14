@@ -970,7 +970,7 @@ namespace ParaMEDMEM
         return self->getPartBarycenterAndOwner(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
       }
 
-      MEDCouplingFieldDouble *getPartMeasureField(bool isAbs, DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *getPartMeasureField(bool isAbs, DataArrayInt *da) const throw(INTERP_KERNEL::Exception)
       {
         if(!da)
           throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");

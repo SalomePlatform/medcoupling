@@ -4256,12 +4256,12 @@ void MEDCouplingBasicsTest::testUMeshGetPartMeasureField1()
 {
   MEDCouplingUMesh *m1=build2DTargetMesh_1();
   const int part[3]={1,0,4};
-  MEDCouplingFieldDouble *b=m1->getPartMeasureField(true,part,part+3);
-  CPPUNIT_ASSERT_EQUAL(1,b->getArray()->getNumberOfComponents());
-  CPPUNIT_ASSERT_EQUAL(3,b->getArray()->getNumberOfTuples());
+  DataArrayDouble *b=m1->getPartMeasureField(true,part,part+3);
+  CPPUNIT_ASSERT_EQUAL(1,b->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,b->getNumberOfTuples());
   const double expected1[3]={0.125,0.25,0.25};
   for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],b->getArray()->getIJ(0,i),1e-14);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],b->getIJ(0,i),1e-14);
   b->decrRef();
   m1->decrRef();
 }

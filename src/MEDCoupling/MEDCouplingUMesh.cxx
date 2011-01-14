@@ -1783,19 +1783,15 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getMeasureField(bool isAbs) const
  * This method is equivalent to MEDCouplingUMesh::getMeasureField except that only part defined by [begin,end) is returned !
  * This method avoids to build explicitely part of this to perform the work.
  */
-MEDCouplingFieldDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const int *begin, const int *end) const
+DataArrayDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const int *begin, const int *end) const
 {
   std::string name="PartMeasureOfMesh_";
   name+=getName();
   int nbelem=std::distance(begin,end);
-  MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS);
-  field->setName(name.c_str());
   DataArrayDouble* array=DataArrayDouble::New();
+  array->setName(name.c_str());
   array->alloc(nbelem,1);
   double *area_vol=array->getPointer();
-  field->setArray(array) ;
-  array->decrRef();
-  field->setMesh(const_cast<MEDCouplingUMesh *>(this));
   if(getMeshDimension()!=-1)
     {
       int ipt;
@@ -1817,7 +1813,7 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::getPartMeasureField(bool isAbs, const 
     {
       area_vol[0]=std::numeric_limits<double>::max();
     }
-  return field;
+  return array;
 }
 
 /*!
