@@ -226,8 +226,9 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo;
 
-%rename (Exception) InterpKernelException;
 %nodefaultctor;
+
+%rename (InterpKernelException) INTERP_KERNEL::Exception;
 
 namespace INTERP_KERNEL
 {
