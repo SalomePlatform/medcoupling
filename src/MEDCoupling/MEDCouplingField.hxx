@@ -22,6 +22,7 @@
 
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"
+#include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
@@ -52,6 +53,8 @@ namespace ParaMEDMEM
     void setDescription(const char *desc) { _desc=desc; }
     const char *getName() const { return _name.c_str(); }
     TypeOfField getTypeOfField() const;
+    NatureOfField getNature() const { return _nature; }
+    virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
     MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
@@ -72,11 +75,12 @@ namespace ParaMEDMEM
   protected:
     MEDCouplingField(TypeOfField type);
     MEDCouplingField(const MEDCouplingField& other);
-    MEDCouplingField(MEDCouplingFieldDiscretization *type);
+    MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature=NoNature);
     virtual ~MEDCouplingField();
   protected:
     std::string _name;
     std::string _desc;
+    NatureOfField _nature;
     const MEDCouplingMesh *_mesh;
     MEDCouplingFieldDiscretization *_type;
   };

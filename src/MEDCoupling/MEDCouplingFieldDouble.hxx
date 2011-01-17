@@ -23,7 +23,6 @@
 #include "MEDCoupling.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
-#include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingMemArray.hxx"
 
 namespace ParaMEDMEM
@@ -56,7 +55,6 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
-    NatureOfField getNature() const { return _nature; }
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
     double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
@@ -167,7 +165,6 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
     ~MEDCouplingFieldDouble();
   private:
-    NatureOfField _nature;
     MEDCouplingTimeDiscretization *_time_discr;
   };
 }

@@ -148,8 +148,6 @@ bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshP
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(_nature!=otherC->_nature)
-    return false;
   if(!MEDCouplingField::isEqual(other,meshPrec,valsPrec))
     return false;
   if(!_time_discr->isEqual(otherC->_time_discr,valsPrec))
@@ -161,8 +159,6 @@ bool MEDCouplingFieldDouble::isEqualWithoutConsideringStr(const MEDCouplingField
 {
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
-    return false;
-  if(_nature!=otherC->_nature)
     return false;
   if(!MEDCouplingField::isEqualWithoutConsideringStr(other,meshPrec,valsPrec))
     return false;
@@ -183,8 +179,6 @@ bool MEDCouplingFieldDouble::areCompatibleForMerge(const MEDCouplingField *other
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(_nature!=otherC->_nature)
-    return false;
   if(!_time_discr->areCompatible(otherC->_time_discr))
     return false;
   return true;
@@ -200,8 +194,6 @@ bool MEDCouplingFieldDouble::areStrictlyCompatible(const MEDCouplingField *other
     return false;
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
-    return false;
-  if(_nature!=otherC->_nature)
     return false;
   if(!_time_discr->areStrictlyCompatible(otherC->_time_discr))
     return false;
@@ -219,8 +211,6 @@ bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) 
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(_nature!=otherC->_nature)
-    return false;
   if(!_time_discr->areStrictlyCompatibleForMul(otherC->_time_discr))
     return false;
   return true;
@@ -237,8 +227,6 @@ bool MEDCouplingFieldDouble::areCompatibleForDiv(const MEDCouplingField *other) 
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(_nature!=otherC->_nature)
-    return false;
   if(!_time_discr->areStrictlyCompatibleForDiv(otherC->_time_discr))
     return false;
   return true;
@@ -251,8 +239,6 @@ bool MEDCouplingFieldDouble::areCompatibleForDiv(const MEDCouplingField *other) 
 bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *other) const
 {
   if(!MEDCouplingField::areStrictlyCompatible(other))
-    return false;
-  if(_nature!=other->_nature)
     return false;
   if(!_time_discr->areCompatibleForMeld(other->_time_discr))
     return false;
@@ -389,18 +375,17 @@ TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
   return _time_discr->getEnum();
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),_nature(NoNature),
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),
                                                                                               _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),_nature(other._nature),
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),
                                                                                                   _time_discr(other._time_discr->performCpy(deepCpy))
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type):MEDCouplingField(type),
-                                                                                                                                         _nature(n),_time_discr(td)
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type):MEDCouplingField(type,n),_time_discr(td)
 {
 }
 
@@ -901,8 +886,8 @@ void MEDCouplingFieldDouble::updateTime()
 
 void MEDCouplingFieldDouble::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
 {
+  MEDCouplingField::setNature(nat);
   _type->checkCompatibilityWithNature(nat);
-  _nature=nat;
 }
 
 double MEDCouplingFieldDouble::getIJK(int cellId, int nodeIdInCell, int compoId) const

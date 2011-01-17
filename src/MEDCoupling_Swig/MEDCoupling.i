@@ -31,6 +31,7 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "MEDCouplingTypemaps.i"
@@ -100,6 +101,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::cloneWithMesh;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
+%newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
 %newobject ParaMEDMEM::DataArrayInt::New;
 %newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
 %newobject ParaMEDMEM::DataArrayInt::deepCpy;
@@ -1731,6 +1733,8 @@ namespace ParaMEDMEM
     void setDescription(const char *desc) throw(INTERP_KERNEL::Exception);
     const char *getName() const throw(INTERP_KERNEL::Exception);
     TypeOfField getTypeOfField() const throw(INTERP_KERNEL::Exception);
+    NatureOfField getNature() const throw(INTERP_KERNEL::Exception);
+    virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDiscretization *getDiscretization() const throw(INTERP_KERNEL::Exception);
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
@@ -1789,7 +1793,6 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *deepCpy() const;
     MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getTimeDiscretization() const throw(INTERP_KERNEL::Exception);
-    void checkCoherency() const throw(INTERP_KERNEL::Exception);
     double getIJ(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception);
     double getIJK(int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);
     void setArray(DataArrayDouble *array) throw(INTERP_KERNEL::Exception);
@@ -1801,8 +1804,6 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
-    NatureOfField getNature() const throw(INTERP_KERNEL::Exception);
-    void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     void setTimeTolerance(double val) throw(INTERP_KERNEL::Exception);
     double getTimeTolerance() const throw(INTERP_KERNEL::Exception);
     void setIteration(int it) throw(INTERP_KERNEL::Exception);
@@ -2086,5 +2087,11 @@ namespace ParaMEDMEM
         return MEDCouplingFieldDouble::MergeFields(tmp);
       }
     }
+  };
+
+  class MEDCouplingFieldTemplate : public ParaMEDMEM::MEDCouplingField
+  {
+  public:
+    static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
   };
 }

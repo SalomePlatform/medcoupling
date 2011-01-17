@@ -29,6 +29,8 @@ bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, d
     return false;
   if(_desc!=other->_desc)
     return false;
+  if(_nature!=other->_nature)
+    return false;
   if(!_type->isEqual(other->_type,valsPrec))
     return false;
   if(_mesh==0 && other->_mesh==0)
@@ -43,6 +45,8 @@ bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, d
 bool MEDCouplingField::isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const
 {
   if(!_type->isEqualWithoutConsideringStr(other->_type,valsPrec))
+    return false;
+  if(_nature!=other->_nature)
     return false;
   if(_mesh==0 && other->_mesh==0)
     return true;
@@ -62,6 +66,8 @@ bool MEDCouplingField::areCompatibleForMerge(const MEDCouplingField *other) cons
 {
   if(!_type->isEqual(other->_type,1.))
     return false;
+  if(_nature!=other->_nature)
+    return false;
   if(_mesh==other->_mesh)
     return true;
   return _mesh->areCompatibleForMerge(other->_mesh);
@@ -74,6 +80,8 @@ bool MEDCouplingField::areCompatibleForMerge(const MEDCouplingField *other) cons
 bool MEDCouplingField::areStrictlyCompatible(const MEDCouplingField *other) const
 {
   if(!_type->isEqual(other->_type,1.e-12))
+    return false;
+  if(_nature!=other->_nature)
     return false;
   return _mesh==other->_mesh;
 }
@@ -89,6 +97,11 @@ void MEDCouplingField::updateTime()
 TypeOfField MEDCouplingField::getTypeOfField() const
 {
   return _type->getEnum();
+}
+
+void MEDCouplingField::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
+{
+  _nature=nat;
 }
 
 /*!
@@ -244,15 +257,15 @@ MEDCouplingField::~MEDCouplingField()
   delete _type;
 }
 
-MEDCouplingField::MEDCouplingField(MEDCouplingFieldDiscretization *type):_mesh(0),_type(type)
+MEDCouplingField::MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature):_nature(nature),_mesh(0),_type(type)
 {
 }
 
-MEDCouplingField::MEDCouplingField(TypeOfField type):_mesh(0),_type(MEDCouplingFieldDiscretization::New(type))
+MEDCouplingField::MEDCouplingField(TypeOfField type):_nature(NoNature),_mesh(0),_type(MEDCouplingFieldDiscretization::New(type))
 {
 }
 
-MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._name),_desc(other._desc),
+MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._name),_desc(other._desc),_nature(other._nature),
                                                                   _mesh(0),_type(other._type->clone())
 {
   if(other._mesh)
