@@ -17,8 +17,8 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MEDCOUPLINGFIELDTEMPLATE_HXX__
-#define __MEDCOUPLINGFIELDTEMPLATE_HXX__
+#ifndef __PARAMEDMEM_MEDCOUPLINGFIELDTEMPLATE_HXX__
+#define __PARAMEDMEM_MEDCOUPLINGFIELDTEMPLATE_HXX__
 
 #include "MEDCouplingField.hxx"
 
