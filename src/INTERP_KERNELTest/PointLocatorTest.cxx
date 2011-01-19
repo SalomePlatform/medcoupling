@@ -99,5 +99,117 @@ namespace INTERP_TEST
 
   }
 
+  /**
+   * Test that the results are correct in three
+   * cases :
+   * a non matching search
+   * a standard case
+   * a bbox overlapping the bboxes of the tree
+   */
+  void PointLocatorTest::test_PointLocatorInSimplex()
+  {
+    MEDMEM::MESH* mesh2D= MEDMeshMaker(2,2,MED_EN::MED_QUAD4);
+    // mesh is a quadrangle (0.0-1.0 x 0.0-1.0 )
+    // 3 -- 6 -- 9
+    // |    |    |
+    // 2 -- 5 -- 8
+    // |    |    |
+    // 1 -- 4 -- 7
+    MEDMEM::PointLocatorInSimplex pl(*mesh2D) ;
+    std::list<int> elems;
+    std::list<int>::iterator elem;
+    {
+      double x[2]={0.0,0.25};
+      elems = pl.locate(x);
+      elem = elems.begin();
+      CPPUNIT_ASSERT_EQUAL(3,(int)elems.size());
+      CPPUNIT_ASSERT_EQUAL(1,*elem++);
+      CPPUNIT_ASSERT_EQUAL(2,*elem++);
+      CPPUNIT_ASSERT_EQUAL(5,*elem++);
+    }
+    {
+      double x[2]={0.25,0.0};
+      elems = pl.locate(x);
+      elem = elems.begin();
+      CPPUNIT_ASSERT_EQUAL(3,(int)elems.size());
+      CPPUNIT_ASSERT_EQUAL(1,*elem++);
+      CPPUNIT_ASSERT_EQUAL(2,*elem++);
+      CPPUNIT_ASSERT_EQUAL(4,*elem++);
+    }
+    {
+      double x[2]={0.25,1.0};
+      elems = pl.locate(x);
+      elem = elems.begin();
+      CPPUNIT_ASSERT_EQUAL(3,(int)elems.size());
+      CPPUNIT_ASSERT_EQUAL(2,*elem++);
+      CPPUNIT_ASSERT_EQUAL(3,*elem++);
+      CPPUNIT_ASSERT_EQUAL(6,*elem++);
+    }
+    {
+      double x[2]={0.4,0.75};
+      elems = pl.locate(x);
+      elem = elems.begin();
+      CPPUNIT_ASSERT_EQUAL(3,(int)elems.size());
+      CPPUNIT_ASSERT_EQUAL(3,*elem++);
+      CPPUNIT_ASSERT_EQUAL(6,*elem++);
+      CPPUNIT_ASSERT_EQUAL(5,*elem++);
+    }
+    {
+      double x[2]={-1.0,0.0};
+      elems = pl.locate(x);
+      CPPUNIT_ASSERT_EQUAL(0,(int)elems.size());
+      delete mesh2D;
+    }
+    MEDMEM::MESH* mesh3D= MEDMeshMaker(3,2,MED_EN::MED_HEXA8);
+    // ^Z
+    // |
+    // 3 -- 6 -- 9
+    // |    |    |
+    // 2 -- 5 -- 8     12 --15 --18
+    // |    |    |     |    |    | 
+    // 1 -- 4 -- 7->Y  11 --14 --17    21 --24 --27
+    //  \              |    |    |     |    |    | 
+    //   \ X           10 --13 --16    20 --23 --26
+    //    v                            |    |    | 
+    //                                 19 --22 --25
+    
+    MEDMEM::PointLocatorInSimplex pl3(*mesh3D);
+    {
+      double x[3]={0.0,0.0,0.0};
+      elems = pl3.locate(x);
+      elem = elems.begin();
+      CPPUNIT_ASSERT_EQUAL(4,(int)elems.size());
+      CPPUNIT_ASSERT_EQUAL(1,*elem++);
+      CPPUNIT_ASSERT_EQUAL(10,*elem++);
+      CPPUNIT_ASSERT_EQUAL(13,*elem++);
+      CPPUNIT_ASSERT_EQUAL(2,*elem++);
+    }
+    {
+      double x[3]={0.0,0.4,0.3};
+      elems = pl3.locate(x);
+      elem = elems.begin();
+      CPPUNIT_ASSERT_EQUAL(4,(int)elems.size());
+      CPPUNIT_ASSERT_EQUAL(1,*elem++);
+      CPPUNIT_ASSERT_EQUAL(10,*elem++);
+      CPPUNIT_ASSERT_EQUAL(4,*elem++);
+      CPPUNIT_ASSERT_EQUAL(5,*elem++);
+    }
+    {
+      double x[3]={0.5,0.5,0.5};
+      elems = pl3.locate(x);
+      elem = elems.begin();
+      CPPUNIT_ASSERT_EQUAL(4,(int)elems.size());
+      CPPUNIT_ASSERT_EQUAL(1,*elem++);
+      CPPUNIT_ASSERT_EQUAL(10,*elem++);
+      CPPUNIT_ASSERT_EQUAL(13,*elem++);
+      CPPUNIT_ASSERT_EQUAL(14,*elem++);
+    }
+    {
+      double x[3]={-1.0,0.0,0.0};
+      elems = pl3.locate(x);
+      CPPUNIT_ASSERT_EQUAL(0,(int)elems.size());
+    }
+    delete mesh3D;
+  }
 
 }

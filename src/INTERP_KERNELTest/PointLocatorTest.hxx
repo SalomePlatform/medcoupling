@@ -37,6 +37,7 @@ namespace INTERP_TEST
 
     CPPUNIT_TEST_SUITE( PointLocatorTest );
     CPPUNIT_TEST( test_PointLocator );
+    CPPUNIT_TEST( test_PointLocatorInSimplex );
     CPPUNIT_TEST_SUITE_END();
 
    
@@ -47,6 +48,7 @@ namespace INTERP_TEST
 
     // tests
     void test_PointLocator();
+    void test_PointLocatorInSimplex();
 
   };
 
