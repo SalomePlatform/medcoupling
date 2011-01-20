@@ -51,10 +51,10 @@ namespace INTERP_KERNEL
       int _val;
     };
 
-    class Row : public std::vector< typename std::pair<int,T> >
+    class Row : public std::vector< std::pair<int,T> >
     {
     public:
-      Row():std::vector< typename std::pair<int,T> >(){};
+      Row():std::vector< std::pair<int,T> >(){};
       Row (const Row& row)
       {
         this->resize(row.size());
@@ -70,12 +70,12 @@ namespace INTERP_KERNEL
       }
       typename std::vector< std::pair<int,T> >::const_iterator find(int elem) const
       {
-        return std::find_if(std::vector< typename std::pair<int,T> >::begin(),std::vector< typename std::pair<int,T> >::end(),KeyComparator(elem));
+        return std::find_if(std::vector< std::pair<int,T> >::begin(),std::vector< std::pair<int,T> >::end(),KeyComparator(elem));
       }
 
-      void erase(int elem) { std::vector< typename std::pair<int,T> >::erase(std::find_if(std::vector< typename std::pair<int,T> >::begin(),std::vector< typename std::pair<int,T> >::end(),KeyComparator(elem))); }
+      void erase(int elem) { std::vector< std::pair<int,T> >::erase(std::find_if(std::vector< std::pair<int,T> >::begin(),std::vector< std::pair<int,T> >::end(),KeyComparator(elem))); }
 
-      void insert(const std::pair<int,T>& myPair) { push_back(myPair); }
+      void insert(const std::pair<int,T>& myPair) { vector<std::pair<int,T> >::push_back(myPair); }
     };
     
   private:
