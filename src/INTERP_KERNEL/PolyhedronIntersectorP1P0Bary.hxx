@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
 
-    PolyhedronIntersectorP1P0Bary(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy policy = GENERAL_24);
+    PolyhedronIntersectorP1P0Bary(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy policy = PLANAR_FACE_5);
 
     ~PolyhedronIntersectorP1P0Bary();
 
