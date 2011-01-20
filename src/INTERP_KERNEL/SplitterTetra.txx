@@ -709,7 +709,7 @@ namespace INTERP_KERNEL
         nodes[1] = getCoordsOfSubNode2(faceCenterNode,conn[1]);
         for(int j = 0; j < 4; ++j)
           {
-            const int row = 4*(faceCenterNode - 9) + j;
+            const int row = 4*(faceCenterNode - 8) + j;
             nodes[2] = getCoordsOfSubNode2(TETRA_EDGES[2*row],conn[2]);
             nodes[3] = getCoordsOfSubNode2(TETRA_EDGES[2*row + 1],conn[3]);
            
@@ -883,7 +883,7 @@ namespace INTERP_KERNEL
                   1,2,5,6,// sub-node 12 (face)
                   4,5,6,7,// sub-node 13 (face)
                   2,3,6,7,// sub-node 14 (face)
-                  9,10,11,12// sub-node 15 (cell)
+                  8,9,10,11// sub-node 15 (cell)
                 };
 
               for(int i = 0; i < 7; ++i)
