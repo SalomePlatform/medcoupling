@@ -244,68 +244,68 @@ namespace INTERP_KERNEL
       std::list<int> candidates = PointLocatorAlgos<MyMeshType>::locates(x,eps);
       std::list<int>::iterator eIt = candidates.begin();
       for ( ; eIt != candidates.end(); ++eIt )
-      {
-        const int i = OTT<ConnType,numPol>::ind2C( *eIt );
-        const double* coords= _mesh.getCoordinatesPtr();
-        const ConnType* conn=_mesh.getConnectivityPtr();
-        const ConnType* conn_index= _mesh.getConnectivityIndexPtr();
-        const ConnType* conn_elem=conn+OTT<ConnType,numPol>::ind2C(conn_index[i]);
-        int conn_elem_sz=conn_index[i+1]-conn_index[i];
-        NormalizedCellType type=_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
-        CellModel cell = CellModel::getCellModel(type);
-
-        if ( cell.isQuadratic() )
-          throw Exception("P2 not implemented yet");
-
-        if ( cell.isSimplex())
         {
-          for ( int n = 0; n < conn_elem_sz; ++n )
-            simplexNodes.push_back( conn_elem[ n ]);
-        }
-        else
-        {
-          NormalizedCellType simlexType = cell.getDimension()==3 ? NORM_TETRA4 : NORM_TRI3;
-          std::vector<int> sonNodes;
-          NormalizedCellType sonType;
-          const unsigned nbSons = cell.getNumberOfSons2( conn_elem, conn_elem_sz );
-          for ( unsigned s = 0; s < nbSons; ++s )
-          {
-            sonNodes.resize( cell.getNumberOfNodesConstituentTheSon2( s, conn_elem, conn_elem_sz ));
-            cell.fillSonCellNodalConnectivity2( s, conn_elem, conn_elem_sz, &sonNodes[0], sonType );
-            std::set<int> sonNodesSet( sonNodes.begin(), sonNodes.end() );
+          const int i = OTT<ConnType,numPol>::ind2C( *eIt );
+          const double* coords= _mesh.getCoordinatesPtr();
+          const ConnType* conn=_mesh.getConnectivityPtr();
+          const ConnType* conn_index= _mesh.getConnectivityIndexPtr();
+          const ConnType* conn_elem=conn+OTT<ConnType,numPol>::ind2C(conn_index[i]);
+          int conn_elem_sz=conn_index[i+1]-conn_index[i];
+          NormalizedCellType type=_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
+          CellModel cell = CellModel::getCellModel(type);
 
-            std::set< std::set< ConnType > > checkedSonSimplex;
-            for ( unsigned sn = 0; sn < sonNodes.size(); ++sn )
+          if ( cell.isQuadratic() )
+            throw Exception("P2 not implemented yet");
+
+          if ( cell.isSimplex())
             {
-              std::vector< ConnType > simplexConn( cell.getDimension() + 1 );
-              unsigned n;
-              for ( n = 0; n < cell.getDimension()-1; ++n )
-                simplexConn[n] = sonNodes[ (sn+n) % sonNodes.size() ];
-
-              for ( unsigned n2 = 0; n2 < sonNodes.size()-cell.getDimension()+1; ++n2 )
-              {
-                simplexConn[n] = sonNodes[ (sn+n+n2) % sonNodes.size() ];
-                std::set< ConnType > sonSimplex( simplexConn.begin(), --simplexConn.end());
-                if ( checkedSonSimplex.insert( sonSimplex ).second )
+              for ( int n = 0; n < conn_elem_sz; ++n )
+                simplexNodes.push_back( conn_elem[ n ]);
+            }
+          else
+            {
+              NormalizedCellType simlexType = cell.getDimension()==3 ? NORM_TETRA4 : NORM_TRI3;
+              std::vector<int> sonNodes;
+              NormalizedCellType sonType;
+              const unsigned nbSons = cell.getNumberOfSons2( conn_elem, conn_elem_sz );
+              for ( unsigned s = 0; s < nbSons; ++s )
                 {
-                  for ( unsigned cn = 0; cn < conn_elem_sz; ++cn )
-                    if ( !sonNodesSet.count( conn_elem[cn] ))
+                  sonNodes.resize( cell.getNumberOfNodesConstituentTheSon2( s, conn_elem, conn_elem_sz ));
+                  cell.fillSonCellNodalConnectivity2( s, conn_elem, conn_elem_sz, &sonNodes[0], sonType );
+                  std::set<int> sonNodesSet( sonNodes.begin(), sonNodes.end() );
+
+                  std::set< std::set< ConnType > > checkedSonSimplex;
+                  for ( unsigned sn = 0; sn < sonNodes.size(); ++sn )
                     {
-                      simplexConn.back() = conn_elem[cn];
-                      if ( isElementContainsPoint( x, simlexType, coords,
-                                                   &simplexConn[0], simplexConn.size(), eps ))
-                      {
-                        simplexNodes.insert( simplexNodes.end(),
-                                             simplexConn.begin(), simplexConn.end());
-                        return simplexNodes;
-                      }
+                      std::vector< ConnType > simplexConn( cell.getDimension() + 1 );
+                      unsigned n;
+                      for ( n = 0; n < cell.getDimension()-1; ++n )
+                        simplexConn[n] = sonNodes[ (sn+n) % sonNodes.size() ];
+
+                      for ( unsigned n2 = 0; n2 < sonNodes.size()-cell.getDimension()+1; ++n2 )
+                        {
+                          simplexConn[n] = sonNodes[ (sn+n+n2) % sonNodes.size() ];
+                          std::set< ConnType > sonSimplex( simplexConn.begin(), --simplexConn.end());
+                          if ( checkedSonSimplex.insert( sonSimplex ).second )
+                            {
+                              for ( unsigned cn = 0; cn < conn_elem_sz; ++cn )
+                                if ( !sonNodesSet.count( conn_elem[cn] ))
+                                  {
+                                    simplexConn.back() = conn_elem[cn];
+                                    if ( isElementContainsPoint( x, simlexType, coords,
+                                                                 &simplexConn[0], simplexConn.size(), eps ))
+                                      {
+                                        simplexNodes.insert( simplexNodes.end(),
+                                                             simplexConn.begin(), simplexConn.end());
+                                        return simplexNodes;
+                                      }
+                                  }
+                            }
+                        }
                     }
                 }
-              }
             }
-          }
         }
-      }
       return simplexNodes;
     }
 
