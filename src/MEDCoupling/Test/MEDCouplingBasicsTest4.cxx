@@ -91,8 +91,142 @@ void MEDCouplingBasicsTest::testFieldOverTime1()
   MEDCouplingFieldOverTime *fot=MEDCouplingFieldOverTime::New(fs);
   MEDCouplingDefinitionTime dt=fot->getDefinitionTimeZone();
   dt.appendRepr(std::cout);
+  std::vector<double> hs=dt.getHotSpotsTime();
+  CPPUNIT_ASSERT_EQUAL(6,(int)hs.size());
+  const double expected1[]={0.2,0.7,1.2,1.35,1.7,2.7};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],hs[i],1e-12);
+  int meshId,arrId,arrIdInField,fieldId;
+  dt.getIdsOnTimeRight(0.2,meshId,arrId,arrIdInField,fieldId);
+  CPPUNIT_ASSERT_EQUAL(0,meshId);
+  CPPUNIT_ASSERT_EQUAL(0,arrId);
+  CPPUNIT_ASSERT_EQUAL(0,arrIdInField);
+  CPPUNIT_ASSERT_EQUAL(0,fieldId);
   //
+  dt.getIdsOnTimeRight(0.7,meshId,arrId,arrIdInField,fieldId);
+  CPPUNIT_ASSERT_EQUAL(0,meshId);
+  CPPUNIT_ASSERT_EQUAL(1,arrId);
+  CPPUNIT_ASSERT_EQUAL(0,arrIdInField);
+  CPPUNIT_ASSERT_EQUAL(1,fieldId);
+  //
+  dt.getIdsOnTimeLeft(1.2,meshId,arrId,arrIdInField,fieldId);//**** WARNING left here
+  CPPUNIT_ASSERT_EQUAL(0,meshId);
+  CPPUNIT_ASSERT_EQUAL(2,arrId);
+  CPPUNIT_ASSERT_EQUAL(1,arrIdInField);
+  CPPUNIT_ASSERT_EQUAL(1,fieldId);
+  //
+  dt.getIdsOnTimeRight(1.2,meshId,arrId,arrIdInField,fieldId);//**** WARNING right again here
+  CPPUNIT_ASSERT_EQUAL(1,meshId);
+  CPPUNIT_ASSERT_EQUAL(3,arrId);
+  CPPUNIT_ASSERT_EQUAL(0,arrIdInField);
+  CPPUNIT_ASSERT_EQUAL(2,fieldId);
+  //
+  dt.getIdsOnTimeRight(1.35,meshId,arrId,arrIdInField,fieldId);
+  CPPUNIT_ASSERT_EQUAL(1,meshId);
+  CPPUNIT_ASSERT_EQUAL(3,arrId);
+  CPPUNIT_ASSERT_EQUAL(0,arrIdInField);
+  CPPUNIT_ASSERT_EQUAL(2,fieldId);
+  //
+  dt.getIdsOnTimeRight(1.7,meshId,arrId,arrIdInField,fieldId);
+  CPPUNIT_ASSERT_EQUAL(0,meshId);
+  CPPUNIT_ASSERT_EQUAL(3,arrId);
+  CPPUNIT_ASSERT_EQUAL(0,arrIdInField);
+  CPPUNIT_ASSERT_EQUAL(3,fieldId);
+  //
+  dt.getIdsOnTimeRight(2.7,meshId,arrId,arrIdInField,fieldId);
+  CPPUNIT_ASSERT_EQUAL(1,meshId);
+  CPPUNIT_ASSERT_EQUAL(4,arrId);
+  CPPUNIT_ASSERT_EQUAL(0,arrIdInField);
+  CPPUNIT_ASSERT_EQUAL(4,fieldId);
   for(std::vector<MEDCouplingFieldDouble *>::iterator it=fs.begin();it!=fs.end();it++)
     (*it)->decrRef();
   fot->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAICheckAndPreparePermutation1()
+{
+  const int vals1[]={9,10,0,6,4,11,3,7};
+  const int expect1[]={5,6,0,3,2,7,1,4};
+  const int vals2[]={9,10,0,6,10,11,3,7};
+  DataArrayInt *da=DataArrayInt::New();
+  da->alloc(8,1);
+  std::copy(vals1,vals1+8,da->getPointer());
+  DataArrayInt *da2=da->checkAndPreparePermutation();
+  CPPUNIT_ASSERT_EQUAL(8,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  for(int i=0;i<8;i++)
+    CPPUNIT_ASSERT_EQUAL(expect1[i],da2->getIJ(i,0));
+  da2->decrRef();
+  da->decrRef();
+  //
+  da=DataArrayInt::New();
+  da->alloc(8,1);
+  da->iota(0);
+  da2=da->checkAndPreparePermutation();
+  CPPUNIT_ASSERT_EQUAL(8,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  CPPUNIT_ASSERT(da2->isIdentity());
+  da2->decrRef();
+  da->decrRef();
+  //
+  da=DataArrayInt::New();
+  da->alloc(8,1);
+  std::copy(vals2,vals2+8,da->getPointer());
+  CPPUNIT_ASSERT_THROW(da->checkAndPreparePermutation(),INTERP_KERNEL::Exception);
+  da->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAIChangeSurjectiveFormat1()
+{
+  const int vals1[8]={0,3,2,3,2,2,1,2};
+  const int expected1[5]={0,1,2,6,8};
+  const int expected2[8]={0,  6,  2,4,5,7,  1,3};
+  DataArrayInt *da=DataArrayInt::New();
+  da->alloc(8,1);
+  std::copy(vals1,vals1+8,da->getPointer());
+  //
+  DataArrayInt *da2,*da2I;
+  da->changeSurjectiveFormat(4,da2,da2I);
+  CPPUNIT_ASSERT_EQUAL(5,da2I->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(8,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+5,da2I->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+8,da2->getConstPointer()));
+  da2->decrRef();
+  da2I->decrRef();
+  //
+  CPPUNIT_ASSERT_THROW(da->changeSurjectiveFormat(3,da2,da2I),INTERP_KERNEL::Exception);
+  //
+  da->decrRef();
+}
+
+void MEDCouplingBasicsTest::testUMeshGetCellIdsLyingOnNodes1()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  const int nodeIds1[5]={1,2,3,4,6};
+  const int nodeIds2[2]={6,7};
+  DataArrayInt *da=m->getCellIdsLyingOnNodes(nodeIds1,nodeIds1+5,true);
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(1,da->getIJ(0,0));
+  da->decrRef();
+  da=m->getCellIdsLyingOnNodes(nodeIds2,nodeIds2+2,false);
+  CPPUNIT_ASSERT_EQUAL(2,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(3,da->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(4,da->getIJ(1,0));
+  da->decrRef();
+  //
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testUMeshFindCellsIdsOnBoundary1()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  DataArrayInt *da5=m->findCellsIdsOnBoundary();
+  CPPUNIT_ASSERT_EQUAL(5,da5->getNumberOfTuples());
+  CPPUNIT_ASSERT(da5->isIdentity());
+  //
+  da5->decrRef();
+  m->decrRef();
+}
+

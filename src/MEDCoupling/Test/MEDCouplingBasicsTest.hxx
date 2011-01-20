@@ -193,6 +193,10 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDescriptionInMeshTimeUnit1 );
     CPPUNIT_TEST( testMultiFields1 );
     CPPUNIT_TEST( testFieldOverTime1 );
+    CPPUNIT_TEST( testDAICheckAndPreparePermutation1 );
+    CPPUNIT_TEST( testDAIChangeSurjectiveFormat1 );
+    CPPUNIT_TEST( testUMeshGetCellIdsLyingOnNodes1 );
+    CPPUNIT_TEST( testUMeshFindCellsIdsOnBoundary1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -412,6 +416,10 @@ namespace ParaMEDMEM
     void testDescriptionInMeshTimeUnit1();
     void testMultiFields1();
     void testFieldOverTime1();
+    void testDAICheckAndPreparePermutation1();
+    void testDAIChangeSurjectiveFormat1();
+    void testUMeshGetCellIdsLyingOnNodes1();
+    void testUMeshFindCellsIdsOnBoundary1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
