@@ -314,13 +314,13 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg) throw(INTERP_KE
  * This method performs half job of MEDCouplingFieldDouble::renumberNodes. That is to say no permutation of cells is done on underlying mesh.
  * That is to say, the field content is changed by this method.
  */
-void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, double eps) throw(INTERP_KERNEL::Exception)
 {
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(old2NewBg,*iter);
+      _type->renumberValuesOnNodes(eps,old2NewBg,*iter);
 }
 
 /*!
@@ -1061,8 +1061,10 @@ void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f,
 
 /*!
  * Merge nodes of underlying mesh. In case of some node will be merged the underlying mesh instance will change.
+ * The first 'eps' stands for geometric approximation. The second 'epsOnVals' is for epsilon on values in case of node merging.
+ * If 2 nodes distant from less than 'eps' and with value different with more than 'epsOnVals' an exception will be thrown.
  */
-bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -1077,15 +1079,17 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Excepti
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(arr->getConstPointer(),*iter);
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
   setMesh(meshC2);
   return true;
 }
 
 /*!
  * Merge nodes with (barycenter computation) of underlying mesh. In case of some node will be merged the underlying mesh instance will change.
+ * The first 'eps' stands for geometric approximation. The second 'epsOnVals' is for epsilon on values in case of node merging.
+ * If 2 nodes distant from less than 'eps' and with value different with more than 'epsOnVals' an exception will be thrown.
  */
-bool MEDCouplingFieldDouble::mergeNodes2(double eps) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::mergeNodes2(double eps, double epsOnVals) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -1100,7 +1104,7 @@ bool MEDCouplingFieldDouble::mergeNodes2(double eps) throw(INTERP_KERNEL::Except
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(arr->getConstPointer(),*iter);
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
   setMesh(meshC2);
   return true;
 }
@@ -1108,8 +1112,9 @@ bool MEDCouplingFieldDouble::mergeNodes2(double eps) throw(INTERP_KERNEL::Except
 /*!
  * This method applyies ParaMEDMEM::MEDCouplingPointSet::zipCoords method on 'this->_mesh' that should be set and of type ParaMEDMEM::MEDCouplingPointSet.
  * If some nodes have disappeared true is returned.
+ * 'epsOnVals' stands for epsilon in case of merge of cells. This value is used as tolerance in case the corresponding values differ.
  */
-bool MEDCouplingFieldDouble::zipCoords() throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::zipCoords(double epsOnVals) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -1123,7 +1128,7 @@ bool MEDCouplingFieldDouble::zipCoords() throw(INTERP_KERNEL::Exception)
       _time_discr->getArrays(arrays);
       for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
         if(*iter)
-          _type->renumberValuesOnNodes(arr->getConstPointer(),*iter);
+          _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
       setMesh(meshC2);
       return true;
     }
@@ -1133,8 +1138,9 @@ bool MEDCouplingFieldDouble::zipCoords() throw(INTERP_KERNEL::Exception)
 /*!
  * This method applyies ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer on 'this->_mesh' that should be set and of type ParaMEDMEM::MEDCouplingUMesh.
  * The semantic of 'compType' is given in ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer method.
+ * 'epsOnVals' stands for epsilon in case of merge of cells. This value is used as tolerance in case the corresponding values differ.
  */
-bool MEDCouplingFieldDouble::zipConnectivity(int compType) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingUMesh *meshC=dynamic_cast<const MEDCouplingUMesh *>(_mesh);
   if(!meshC)
@@ -1148,7 +1154,7 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType) throw(INTERP_KERNEL::
       _time_discr->getArrays(arrays);
       for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
         if(*iter)
-          _type->renumberValuesOnCells(meshC,arr->getConstPointer(),*iter);
+          _type->renumberValuesOnCells(epsOnVals,meshC,arr->getConstPointer(),*iter);
       setMesh(meshC2);
       return true;
     }

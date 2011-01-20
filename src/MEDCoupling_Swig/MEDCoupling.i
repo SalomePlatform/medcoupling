@@ -1871,10 +1871,10 @@ namespace ParaMEDMEM
     void updateTime() throw(INTERP_KERNEL::Exception);
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
-    bool mergeNodes(double eps) throw(INTERP_KERNEL::Exception);
-    bool mergeNodes2(double eps) throw(INTERP_KERNEL::Exception);
-    bool zipCoords() throw(INTERP_KERNEL::Exception);
-    bool zipConnectivity(int compType) throw(INTERP_KERNEL::Exception);
+    bool mergeNodes(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    bool mergeNodes2(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    bool zipCoords(double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    bool zipConnectivity(int compType,double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
     bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);

@@ -6071,7 +6071,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
         da5=m.findCellsIdsOnBoundary();
         self.assertEqual(5,da5.getNumberOfTuples());
-        self.assertTrue(da5->isIdentity());
+        self.assertTrue(da5.isIdentity());
         pass
     
     def setUp(self):
