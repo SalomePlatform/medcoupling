@@ -1470,6 +1470,76 @@ void DataArrayDouble::divideEqual(const DataArrayDouble *other) throw(INTERP_KER
   declareAsNew();
 }
 
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ * Server side.
+ */
+void DataArrayDouble::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+  tinyInfo.resize(2);
+  if(isAllocated())
+    {
+      tinyInfo[0]=getNumberOfTuples();
+      tinyInfo[1]=getNumberOfComponents();
+    }
+  else
+    {
+      tinyInfo[0]=-1;
+      tinyInfo[1]=-1;
+    }
+}
+
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ * Server side.
+ */
+void DataArrayDouble::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
+{
+  if(isAllocated())
+    {
+      int nbOfCompo=getNumberOfComponents();
+      tinyInfo.resize(nbOfCompo+1);
+      tinyInfo[0]=getName();
+      for(int i=0;i<nbOfCompo;i++)
+        tinyInfo[i+1]=getInfoOnComponent(i);
+    }
+  else
+    {
+      tinyInfo.resize(1);
+      tinyInfo[0]=getName();
+    }
+}
+
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ * This method returns if a feeding is needed.
+ */
+bool DataArrayDouble::resizeForUnserialization(const std::vector<int>& tinyInfoI)
+{
+  int nbOfTuple=tinyInfoI[0];
+  int nbOfComp=tinyInfoI[1];
+  if(nbOfTuple!=-1 || nbOfComp!=-1)
+    {
+      alloc(nbOfTuple,nbOfComp);
+      return true;
+    }
+  return false;
+}
+
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ */
+void DataArrayDouble::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS)
+{
+  setName(tinyInfoS[0].c_str());
+  if(isAllocated())
+    {
+      int nbOfCompo=getNumberOfComponents();
+      for(int i=0;i<nbOfCompo;i++)
+        setInfoOnComponent(i,tinyInfoS[i+1].c_str());
+    }
+}
+
 DataArrayInt *DataArrayInt::New()
 {
   return new DataArrayInt;
@@ -1828,6 +1898,22 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
       throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleIdSafe : some ids has been detected to be out of [0,this->getNumberOfTuples) !");
   ret->copyStringInfoFrom(*this);
   ret->incrRef();
+  return ret;
+}
+
+/*!
+ * 
+ */
+DataArrayInt *DataArrayInt::checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::checkAndPreparePermutation : number of components must == 1 !");
+  int nbTuples=getNumberOfTuples();
+  const int *pt=getConstPointer();
+  int *pt2=CheckAndPreparePermutation(pt,pt+nbTuples);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->useArray(pt2,true,CPP_DEALLOC,nbTuples,1);
   return ret;
 }
 

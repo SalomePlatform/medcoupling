@@ -40,6 +40,8 @@ namespace ParaMEDMEM
   public:
     void updateTime();
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
+    void setTimeUnit(const char *unit) { _time_unit=unit; }
+    const char *getTimeUnit() const { return _time_unit.c_str(); }
     virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
@@ -50,8 +52,7 @@ namespace ParaMEDMEM
     virtual bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
     virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;
-    virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(const MEDCouplingTimeDiscretization *other,
-                                                                    TypeOfTimeDiscretization type, bool deepCpy) const;
+    virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCpy) const;
     virtual std::string getStringRepr() const = 0;
     virtual TypeOfTimeDiscretization getEnum() const = 0;
     virtual MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const = 0;
@@ -74,6 +75,9 @@ namespace ParaMEDMEM
     virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
     virtual void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
     virtual void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    virtual void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const = 0;
+    virtual void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const = 0;
+    virtual void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD) = 0;
     virtual MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const = 0;
     void setTimeTolerance(double val) { _time_tolerance=val; }
     double getTimeTolerance() const { return _time_tolerance; }
@@ -132,6 +136,7 @@ namespace ParaMEDMEM
     //
     virtual ~MEDCouplingTimeDiscretization();
   protected:
+    std::string _time_unit;
     double _time_tolerance;
     DataArrayDouble *_array;
   protected:
@@ -186,6 +191,9 @@ namespace ParaMEDMEM
     void setEndTime(double time, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void getValueOnTime(int eltId, double time, double *value) const throw(INTERP_KERNEL::Exception);
     void getValueOnDiscTime(int eltId, int iteration, int order, double *value) const throw(INTERP_KERNEL::Exception);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=NO_TIME;
     static const char REPR[];
@@ -227,6 +235,9 @@ namespace ParaMEDMEM
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     void checkNoTimePresence() const throw(INTERP_KERNEL::Exception);
     void checkTimePresence(double time) const throw(INTERP_KERNEL::Exception);
@@ -265,6 +276,9 @@ namespace ParaMEDMEM
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
     MEDCouplingTimeDiscretization *performCpy(bool deepCpy) const;
     bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
     bool areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const;
@@ -353,6 +367,9 @@ namespace ParaMEDMEM
     void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
     void resizeForUnserialization(const std::vector<int>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    void getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const;
+    void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    void finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD);
     std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception);
     void setArrays(const std::vector<DataArrayDouble *>& arrays, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
   protected:

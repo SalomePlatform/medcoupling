@@ -48,6 +48,8 @@ namespace ParaMEDMEM
   public:
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
+    void setDescription(const char *descr) { _description=descr; }
+    const char *getDescription() const { return _description.c_str(); }
     virtual MEDCouplingMesh *deepCpy() const = 0;
     virtual MEDCouplingMeshType getType() const = 0;
     bool isStructured() const;
@@ -104,10 +106,11 @@ namespace ParaMEDMEM
                                  const std::vector<std::string>& littleStrings) = 0;
   protected:
     MEDCouplingMesh() { }
-    MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name) { }
+    MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name),_description(other._description) { }
     virtual ~MEDCouplingMesh() { }
   private:
     std::string _name;
+    std::string _description;
   };
 }
 

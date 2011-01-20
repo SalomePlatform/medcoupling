@@ -31,6 +31,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr(const MEDCouplingAutoRefCountObjectPtr& other):_ptr(0) { referPtr(other._ptr); }
     MEDCouplingAutoRefCountObjectPtr(T *ptr=0):_ptr(ptr) { }
     ~MEDCouplingAutoRefCountObjectPtr() { destroyPtr(); }
+    bool operator==(const MEDCouplingAutoRefCountObjectPtr& other) { return _ptr==other._ptr; }
     MEDCouplingAutoRefCountObjectPtr &operator=(const MEDCouplingAutoRefCountObjectPtr& other) { if(_ptr!=other._ptr) { destroyPtr(); referPtr(other._ptr); } return *this; }
     MEDCouplingAutoRefCountObjectPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
     T *operator->() { return _ptr ; }

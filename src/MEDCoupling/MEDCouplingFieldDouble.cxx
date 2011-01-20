@@ -18,6 +18,7 @@
 //
 
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
@@ -33,6 +34,21 @@ using namespace ParaMEDMEM;
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTimeDiscretization td)
 {
   return new MEDCouplingFieldDouble(type,td);
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td)
+{
+  return new MEDCouplingFieldDouble(ft,td);
+}
+
+void MEDCouplingFieldDouble::setTimeUnit(const char *unit)
+{
+  _time_discr->setTimeUnit(unit);
+}
+
+const char *MEDCouplingFieldDouble::getTimeUnit() const
+{
+  return _time_discr->getTimeUnit();
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
@@ -59,7 +75,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const
 {
-  MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(_time_discr,td,deepCpy);
+  MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(td,deepCpy);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(getNature(),tdo,_type->clone());
   ret->setMesh(getMesh());
   ret->setName(getName());
@@ -377,6 +393,11 @@ TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
 
 MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),
                                                                                               _time_discr(MEDCouplingTimeDiscretization::New(td))
+{
+}
+
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td):MEDCouplingField(*ft),
+                                                                                                                _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }
 
@@ -903,6 +924,11 @@ void MEDCouplingFieldDouble::setArray(DataArrayDouble *array)
 void MEDCouplingFieldDouble::setEndArray(DataArrayDouble *array)
 {
   _time_discr->setEndArray(array,this);
+}
+
+void MEDCouplingFieldDouble::setArrays(const std::vector<DataArrayDouble *>& arrs) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->setArrays(arrs,this);
 }
 
 void MEDCouplingFieldDouble::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const

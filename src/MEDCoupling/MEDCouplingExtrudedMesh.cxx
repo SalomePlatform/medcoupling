@@ -257,6 +257,7 @@ std::string MEDCouplingExtrudedMesh::simpleRepr() const
 {
   std::ostringstream ret;
   ret << "3D Extruded mesh from a 2D Surf Mesh with name : \"" << getName() << "\"\n";
+  ret << "Description of mesh : \"" << getDescription() << "\"\n";
   ret << "Cell id where 1D mesh has been deduced : " << _cell_2D_id << "\n";
   ret << "Number of cells : " << getNumberOfCells() << "(" << _mesh2D->getNumberOfCells() << "x" << _mesh1D->getNumberOfCells() << ")\n";
   ret << "1D Mesh info : _____________________\n\n\n";
@@ -269,6 +270,7 @@ std::string MEDCouplingExtrudedMesh::advancedRepr() const
 {
   std::ostringstream ret;
   ret << "3D Extruded mesh from a 2D Surf Mesh with name : \"" << getName() << "\"\n";
+  ret << "Description of mesh : \"" << getDescription() << "\"\n";
   ret << "Cell id where 1D mesh has been deduced : " << _cell_2D_id << "\n";
   ret << "Number of cells : " << getNumberOfCells() << "(" << _mesh2D->getNumberOfCells() << "x" << _mesh1D->getNumberOfCells() << ")\n";
   ret << "1D Mesh info : _____________________\n\n\n";

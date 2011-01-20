@@ -39,7 +39,7 @@ bool MEDCouplingMesh::isStructured() const
 
 bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
-  return _name==other->_name;
+  return _name==other->_name && _description==other->_description;
 }
 
 /*!
@@ -183,6 +183,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
 void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
 {
   _name=other->_name;
+  _description=other->_description;
 }
 
 /*!

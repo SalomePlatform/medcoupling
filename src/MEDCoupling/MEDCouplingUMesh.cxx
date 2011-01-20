@@ -1423,6 +1423,7 @@ std::string MEDCouplingUMesh::simpleRepr() const
   static const char msg0[]="No coordinates specified !";
   std::ostringstream ret;
   ret << "Unstructured mesh with name : \"" << getName() << "\"\n";
+  ret << "Description of mesh : \"" << getDescription() << "\"\n";
   ret << "Mesh dimension : " << _mesh_dim << "\nSpace dimension : ";
   if(_coords!=0)
     {
@@ -3392,6 +3393,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::keepSpecifiedCells(INTERP_KERNEL::Normalized
       return 0;
     }
   ret2->setName(getName());
+  ret2->setDescription(getDescription());
   return ret2;
 }
 

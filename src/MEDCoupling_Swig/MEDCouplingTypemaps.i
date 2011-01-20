@@ -39,6 +39,16 @@ static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner) throw
   return ret;
 }
 
+static PyObject* convertMultiFields(ParaMEDMEM::MEDCouplingMultiFields *mfs, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldOverTime *>(mfs))
+    ret=SWIG_NewPointerObj((void*)mfs,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldOverTime,owner);
+  else
+    ret=SWIG_NewPointerObj((void*)mfs,SWIGTYPE_p_ParaMEDMEM__MEDCouplingMultiFields,owner);
+  return ret;
+}
+
 static PyObject *convertIntArrToPyList(const int *ptr, int size) throw(INTERP_KERNEL::Exception)
 {
 #ifndef WITH_NUMPY2

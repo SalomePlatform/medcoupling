@@ -34,6 +34,9 @@
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MEDCouplingMultiFields.hxx"
+#include "MEDCouplingFieldOverTime.hxx"
+#include "MEDCouplingDefinitionTime.hxx"
 #include "MEDCouplingTypemaps.i"
 
 #include "InterpKernelAutoPtr.hxx"
@@ -54,6 +57,11 @@ using namespace INTERP_KERNEL;
 %typemap(out) ParaMEDMEM::MEDCouplingPointSet*
 {
   $result=convertMesh($1,$owner);
+}
+
+%typemap(out) ParaMEDMEM::MEDCouplingMultiFields*
+{
+  $result=convertMultiFields($1,$owner);
 }
 
 #ifdef WITH_NUMPY2
@@ -111,6 +119,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::keepSelectedComponents;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleIdSafe;
+%newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
 %newobject ParaMEDMEM::DataArrayInt::renumber;
 %newobject ParaMEDMEM::DataArrayInt::renumberR;
 %newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
@@ -166,6 +175,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromPolarToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
+%newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::getBarycenterAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildOrthogonalField;
@@ -207,6 +217,10 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
+%newobject ParaMEDMEM::MEDCouplingMultiFields::New;
+%newobject ParaMEDMEM::MEDCouplingMultiFields::deepCpy;
+%newobject ParaMEDMEM::MEDCouplingFieldOverTime::New;
+
 %feature("unref") DataArrayDouble "$this->decrRef();"
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -216,6 +230,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") DataArrayInt "$this->decrRef();"
 %feature("unref") MEDCouplingField "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
+%feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 
 %rename(assign) *::operator=;
 %ignore ParaMEDMEM::MemArray::operator=;
@@ -262,10 +277,13 @@ namespace ParaMEDMEM
   class MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
   public:
-    void setName(const char *name) { _name=name; }
-    const char *getName() const { return _name.c_str(); }
+    void setName(const char *name);
+    const char *getName() const;
+    void setDescription(const char *descr);
+    const char *getDescription() const;
     virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception) = 0;
     bool isStructured() const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *deepCpy() const = 0;
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
@@ -1785,6 +1803,9 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
+    static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td=NO_TIME);
+    void setTimeUnit(const char *unit);
+    const char *getTimeUnit() const;
     void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
@@ -1883,6 +1904,35 @@ namespace ParaMEDMEM
         if(ret)
           ret->incrRef();
         return ret;
+      }
+
+      PyObject *getArrays() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<DataArrayDouble *> arrs=self->getArrays();
+        for(std::vector<DataArrayDouble *>::iterator it=arrs.begin();it!=arrs.end();it++)
+          if(*it)
+            (*it)->incrRef();
+        int sz=arrs.size();
+        PyObject *ret=PyTuple_New(sz);
+        for(int i=0;i<sz;i++)
+          {
+            if(arrs[i])
+              PyTuple_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(arrs[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+            else
+              PyTuple_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 | 0 ));
+          }
+        return ret;
+      }
+
+      void setArrays(PyObject *ls) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const DataArrayDouble *> tmp;
+        convertPyObjToVecDataArrayDblCst(ls,tmp);
+        int sz=tmp.size();
+        std::vector<DataArrayDouble *> arrs(sz);
+        for(int i=0;i<sz;i++)
+          arrs[i]=const_cast<DataArrayDouble *>(tmp[i]);
+        self->setArrays(arrs);
       }
 
       DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception)
@@ -2094,5 +2144,199 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    std::string advancedRepr() const;
+    %extend
+       {
+         std::string __str__() const
+           {
+             return self->simpleRepr();
+           }
+       }
+  };
+
+  class MEDCouplingMultiFields : public RefCountObject, public TimeLabel
+  {
+  public:
+    int getNumberOfFields() const;
+    MEDCouplingMultiFields *deepCpy() const;
+    virtual std::string simpleRepr() const;
+    virtual std::string advancedRepr() const;
+    virtual bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
+    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    %extend
+       {
+         std::string __str__() const
+         {
+           return self->simpleRepr();
+         }
+         static MEDCouplingMultiFields *New(PyObject *li) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *> tmp;
+           convertPyObjToVecFieldDblCst(li,tmp);
+           int sz=tmp.size();
+           std::vector<MEDCouplingFieldDouble *> fs(sz);
+           for(int i=0;i<sz;i++)
+             fs[i]=const_cast<MEDCouplingFieldDouble *>(tmp[i]);
+           return MEDCouplingMultiFields::New(fs);
+         }
+         PyObject *getFields() const
+         {
+           std::vector<const MEDCouplingFieldDouble *> fields=self->getFields();
+           int sz=fields.size();
+           PyObject *res = PyList_New(sz);
+           for(int i=0;i<sz;i++)
+             {
+               if(fields[i])
+                 {
+                   fields[i]->incrRef();
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(fields[i]),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 ));
+                 }
+               else
+                 {
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(0),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, 0 ));
+                 }
+             }
+           return res;
+         }
+         PyObject *getFieldAtPos(int id) const throw(INTERP_KERNEL::Exception)
+         {
+           const MEDCouplingFieldDouble *ret=self->getFieldAtPos(id);
+           if(ret)
+             {
+               ret->incrRef();
+               return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, SWIG_POINTER_OWN | 0 );
+             }
+           else
+             return SWIG_NewPointerObj(SWIG_as_voidptr(0),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble, 0 );
+         }
+         PyObject *getMeshes() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<MEDCouplingMesh *> ms=self->getMeshes();
+           int sz=ms.size();
+           PyObject *res = PyList_New(sz);
+           for(int i=0;i<sz;i++)
+             {
+               if(ms[i])
+                 {
+                   ms[i]->incrRef();
+                   PyList_SetItem(res,i,convertMesh(ms[i], SWIG_POINTER_OWN | 0 ));
+                 }
+               else
+                 {
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(0),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, 0 ));
+                 }
+             }
+           return res;
+         }
+         PyObject *getDifferentMeshes() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<int> refs;
+           std::vector<MEDCouplingMesh *> ms=self->getDifferentMeshes(refs);
+           int sz=ms.size();
+           PyObject *res = PyList_New(sz);
+           for(int i=0;i<sz;i++)
+             {
+               if(ms[i])
+                 {
+                   ms[i]->incrRef();
+                   PyList_SetItem(res,i,convertMesh(ms[i], SWIG_POINTER_OWN | 0 ));
+                 }
+               else
+                 {
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(0),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, 0 ));
+                 }
+             }
+           //
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,res);
+           PyTuple_SetItem(ret,1,convertIntArrToPyList2(refs));
+           return ret;
+         }
+         PyObject *getArrays() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<DataArrayDouble *> ms=self->getArrays();
+           int sz=ms.size();
+           PyObject *res = PyList_New(sz);
+           for(int i=0;i<sz;i++)
+             {
+               if(ms[i])
+                 {
+                   ms[i]->incrRef();
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(ms[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+                 }
+               else
+                 {
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 ));
+                 }
+             }
+           return res;
+         }
+         PyObject *getDifferentArrays() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::vector<int> > refs;
+           std::vector<DataArrayDouble *> ms=self->getDifferentArrays(refs);
+           int sz=ms.size();
+           PyObject *res = PyList_New(sz);
+           PyObject *res2 = PyList_New(sz);
+           for(int i=0;i<sz;i++)
+             {
+               if(ms[i])
+                 {
+                   ms[i]->incrRef();
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(ms[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+                 }
+               else
+                 {
+                   PyList_SetItem(res,i,SWIG_NewPointerObj(SWIG_as_voidptr(0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 ));
+                 }
+               PyList_SetItem(res2,i,convertIntArrToPyList2(refs[i]));
+             }
+           //
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,res);
+           PyTuple_SetItem(ret,1,res2);
+           return ret;
+         }
+       }
+  };
+  
+  class MEDCouplingDefinitionTime
+  {
+  public:
+    %extend
+      {
+        std::string __str__() const
+          {
+            std::ostringstream oss;
+            self->appendRepr(oss);
+            return oss.str();
+          }
+      }
+  };
+
+  class MEDCouplingFieldOverTime : public MEDCouplingMultiFields
+  {
+  public:
+    double getTimeTolerance() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingDefinitionTime getDefinitionTimeZone() const;
+    %extend
+      {
+        std::string __str__() const
+          {
+            return self->simpleRepr();
+          }
+        static MEDCouplingFieldOverTime *New(PyObject *li) throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *> tmp;
+          convertPyObjToVecFieldDblCst(li,tmp);
+           int sz=tmp.size();
+           std::vector<MEDCouplingFieldDouble *> fs(sz);
+           for(int i=0;i<sz;i++)
+             fs[i]=const_cast<MEDCouplingFieldDouble *>(tmp[i]);
+           return MEDCouplingFieldOverTime::New(fs);
+         }
+      }
   };
 }

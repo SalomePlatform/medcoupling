@@ -28,6 +28,8 @@
 namespace ParaMEDMEM
 {
   class MEDCouplingUMesh;
+  class MEDCouplingFieldDouble;
+  class MEDCouplingMultiFields;
 
   class MEDCouplingBasicsTest : public CppUnit::TestFixture
   {
@@ -128,6 +130,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFillFromAnalytic3 );
     CPPUNIT_TEST( testFieldDoubleOpEqual1 );
     CPPUNIT_TEST( testAreaBary3D2 );
+    //MEDCouplingBasicsTest3.cxx
     CPPUNIT_TEST( testGetMeasureFieldCMesh1 );
     CPPUNIT_TEST( testFieldDoubleZipCoords1 );
     CPPUNIT_TEST( testFieldDoubleZipConnectivity1 );
@@ -186,6 +189,10 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDAIAggregateMulti1 );
     CPPUNIT_TEST( testMergeUMeshes2 );
     CPPUNIT_TEST( testBuild0DMeshFromCoords1 );
+    //MEDCouplingBasicsTest4.cxx
+    CPPUNIT_TEST( testDescriptionInMeshTimeUnit1 );
+    CPPUNIT_TEST( testMultiFields1 );
+    CPPUNIT_TEST( testFieldOverTime1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -342,6 +349,7 @@ namespace ParaMEDMEM
     void testFillFromAnalytic3();
     void testFieldDoubleOpEqual1();
     void testAreaBary3D2();
+    //MEDCouplingBasicsTest3.cxx
     void testGetMeasureFieldCMesh1();
     void testFieldDoubleZipCoords1();
     void testFieldDoubleZipConnectivity1();
@@ -400,6 +408,10 @@ namespace ParaMEDMEM
     void testDAIAggregateMulti1();
     void testMergeUMeshes2();
     void testBuild0DMeshFromCoords1();
+    //MEDCouplingBasicsTest4.cxx
+    void testDescriptionInMeshTimeUnit1();
+    void testMultiFields1();
+    void testFieldOverTime1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
@@ -493,6 +505,8 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *build2DTargetMesh_3();
     static MEDCouplingUMesh *build3DTargetMesh_3();
     static MEDCouplingUMesh *build2DTargetMesh_4();
+    static MEDCouplingMultiFields *buildMultiFields_1();
+    static std::vector<MEDCouplingFieldDouble *> buildMultiFields_2();
     static double sumAll(const std::vector< std::map<int,double> >& matrix);
   };
 }

@@ -31,6 +31,8 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldTemplate *New(TypeOfField type);
+    std::string simpleRepr() const;
+    std::string advancedRepr() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     //
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;

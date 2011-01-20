@@ -27,10 +27,15 @@
 
 namespace ParaMEDMEM
 {
+  class MEDCouplingFieldTemplate;
+
   class MEDCOUPLING_EXPORT MEDCouplingFieldDouble : public MEDCouplingField
   {
   public:
     static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
+    static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td=NO_TIME);
+    void setTimeUnit(const char *unit);
+    const char *getTimeUnit() const;
     void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
@@ -74,8 +79,10 @@ namespace ParaMEDMEM
     double getIJK(int cellId, int nodeIdInCell, int compoId) const;
     void setArray(DataArrayDouble *array);
     void setEndArray(DataArrayDouble *array);
+    void setArrays(const std::vector<DataArrayDouble *>& arrs) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getArray() const { return _time_discr->getArray(); }
     DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
+    std::vector<DataArrayDouble *> getArrays() const { std::vector<DataArrayDouble *> ret; _time_discr->getArrays(ret); return ret; }
     double accumulate(int compId) const;
     void accumulate(double *res) const;
     double getMaxValue() const throw(INTERP_KERNEL::Exception);
@@ -159,8 +166,12 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) { return DivideFields(this,&other); }
     const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     static MEDCouplingFieldDouble *DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
+  public:
+    const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return _time_discr; }
+    MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return _time_discr; }
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
+    MEDCouplingFieldDouble(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
     ~MEDCouplingFieldDouble();

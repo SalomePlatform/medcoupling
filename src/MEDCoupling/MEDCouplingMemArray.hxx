@@ -209,6 +209,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() { }
+  public:
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   private:
     DataArrayDouble() { }
   private:
@@ -253,6 +258,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isIdentity() const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);

@@ -65,10 +65,12 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::New(TypeOfTimeDisc
 void MEDCouplingTimeDiscretization::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
 {
   _time_tolerance=other._time_tolerance;
+  _time_unit=other._time_unit;
 }
 
 void MEDCouplingTimeDiscretization::copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other)
 {
+  _time_unit=other._time_unit;
   if(_array && other._array)
     _array->copyStringInfoFrom(*other._array);
 }
@@ -102,6 +104,8 @@ bool MEDCouplingTimeDiscretization::areCompatible(const MEDCouplingTimeDiscretiz
 
 bool MEDCouplingTimeDiscretization::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const
 {
+  if(_time_unit!=other->_time_unit)
+    return false;
   if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
     return false;
   if(_array==0 && other->_array==0)
@@ -177,10 +181,10 @@ bool MEDCouplingTimeDiscretization::isEqualWithoutConsideringStr(const MEDCoupli
   return _array->isEqualWithoutConsideringStr(*other->_array,prec);
 }
 
-MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::buildNewTimeReprFromThis(const MEDCouplingTimeDiscretization *other,
-                                                                                       TypeOfTimeDiscretization type, bool deepCpy) const
+MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCpy) const
 {
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(type);
+  ret->setTimeUnit(getTimeUnit());
   DataArrayDouble *arrSrc=getArray();
   DataArrayDouble *arr=0;
   if(arrSrc)
@@ -245,7 +249,7 @@ MEDCouplingTimeDiscretization::MEDCouplingTimeDiscretization():_time_tolerance(T
 {
 }
 
-MEDCouplingTimeDiscretization::MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy):_time_tolerance(other._time_tolerance)
+MEDCouplingTimeDiscretization::MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy):_time_unit(other._time_unit),_time_tolerance(other._time_tolerance)
 {
   if(other._array)
     _array=other._array->performCpy(deepCpy);
@@ -315,6 +319,7 @@ bool MEDCouplingTimeDiscretization::isStrictlyBefore(const MEDCouplingTimeDiscre
 MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::doublyContractedProduct() const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
@@ -348,6 +353,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::determinant() cons
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -368,6 +374,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenValues() cons
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -388,6 +395,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::eigenVectors() con
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -408,6 +416,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::inverse() const th
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -428,6 +437,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::trace() const thro
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -448,6 +458,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::deviator() const t
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -468,6 +479,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::magnitude() const 
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -488,6 +500,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::maxPerTuple() cons
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -508,6 +521,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::keepSelectedCompon
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(getEnum());
+  ret->setTimeUnit(getTimeUnit());
   ret->setArrays(arrays3,0);
   return ret;
 }
@@ -709,6 +723,7 @@ std::string MEDCouplingNoTimeLabel::getStringRepr() const
 {
   std::ostringstream stream;
   stream << REPR;
+  stream << "\nTime unit is : \"" << _time_unit << "\"";
   return stream.str();
 }
 
@@ -1029,6 +1044,31 @@ void MEDCouplingNoTimeLabel::getValueOnDiscTime(int eltId, int iteration, int or
   throw INTERP_KERNEL::Exception(EXCEPTION_MSG);
 }
 
+/*!
+ * idem getTinySerializationIntInformation except that it is for multi field fetch
+ */
+void MEDCouplingNoTimeLabel::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+{
+  tinyInfo.clear();
+}
+
+/*!
+ * idem getTinySerializationDbleInformation except that it is for multi field fetch
+ */
+void MEDCouplingNoTimeLabel::getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const
+{
+  tinyInfo.resize(1);
+  tinyInfo[0]=_time_tolerance;
+}
+
+/*!
+ * idem finishUnserialization except that it is for multi field fetch
+ */
+void MEDCouplingNoTimeLabel::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+{
+  _time_tolerance=tinyInfoD[0];
+}
+
 MEDCouplingWithTimeStep::MEDCouplingWithTimeStep(const MEDCouplingWithTimeStep& other, bool deepCpy):MEDCouplingTimeDiscretization(other,deepCpy),
                                                                                                      _time(other._time),_iteration(other._iteration),_order(other._order)
 {
@@ -1042,6 +1082,7 @@ std::string MEDCouplingWithTimeStep::getStringRepr() const
 {
   std::ostringstream stream;
   stream << REPR << " Time is defined by iteration=" << _iteration << " order=" << _order << " and time=" << _time << ".";
+  stream << "\nTime unit is : \"" << _time_unit << "\"";
   return stream.str();
 }
 
@@ -1064,6 +1105,37 @@ void MEDCouplingWithTimeStep::finishUnserialization(const std::vector<int>& tiny
   _time=tinyInfoD[1];
   _iteration=tinyInfoI[2];
   _order=tinyInfoI[3];
+}
+
+/*!
+ * idem getTinySerializationIntInformation except that it is for multi field fetch
+ */
+void MEDCouplingWithTimeStep::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+{
+  tinyInfo.resize(2);
+  tinyInfo[0]=_iteration;
+  tinyInfo[1]=_order;
+}
+
+/*!
+ * idem getTinySerializationDbleInformation except that it is for multi field fetch
+ */
+void MEDCouplingWithTimeStep::getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const
+{
+  tinyInfo.resize(2);
+  tinyInfo[0]=_time_tolerance;
+  tinyInfo[1]=_time;
+}
+
+/*!
+ * idem finishUnserialization except that it is for multi field fetch
+ */
+void MEDCouplingWithTimeStep::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+{
+  _iteration=tinyInfoI[0];
+  _order=tinyInfoI[1];
+  _time_tolerance=tinyInfoD[0];
+  _time=tinyInfoD[1];
 }
 
 bool MEDCouplingWithTimeStep::areCompatible(const MEDCouplingTimeDiscretization *other) const
@@ -1427,6 +1499,43 @@ void MEDCouplingConstOnTimeInterval::finishUnserialization(const std::vector<int
   _end_order=tinyInfoI[5];
 }
 
+/*!
+ * idem getTinySerializationIntInformation except that it is for multi field fetch
+ */
+void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+{
+  tinyInfo.resize(4);
+  tinyInfo[0]=_start_iteration;
+  tinyInfo[1]=_start_order;
+  tinyInfo[2]=_end_iteration;
+  tinyInfo[3]=_end_order;
+}
+
+/*!
+ * idem getTinySerializationDbleInformation except that it is for multi field fetch
+ */
+void MEDCouplingConstOnTimeInterval::getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const
+{
+  tinyInfo.resize(3);
+  tinyInfo[0]=_time_tolerance;
+  tinyInfo[1]=_start_time;
+  tinyInfo[2]=_end_time;
+}
+
+/*!
+ * idem finishUnserialization except that it is for multi field fetch
+ */
+void MEDCouplingConstOnTimeInterval::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+{
+  _start_iteration=tinyInfoI[0];
+  _start_order=tinyInfoI[1];
+  _end_iteration=tinyInfoI[2];
+  _end_order=tinyInfoI[3];
+  _time_tolerance=tinyInfoD[0];
+  _start_time=tinyInfoD[1];
+  _end_time=tinyInfoD[2];
+}
+
 MEDCouplingConstOnTimeInterval::MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCpy):
   MEDCouplingTimeDiscretization(other,deepCpy),_start_time(other._start_time),_end_time(other._end_time),_start_iteration(other._start_iteration),
   _end_iteration(other._end_iteration),_start_order(other._start_order),_end_order(other._end_order)
@@ -1438,6 +1547,7 @@ std::string MEDCouplingConstOnTimeInterval::getStringRepr() const
   std::ostringstream stream;
   stream << REPR << " Time interval is defined by :\niteration_start=" << _start_iteration << " order_start=" << _start_order << " and time_start=" << _start_time << "\n";
   stream << "iteration_end=" << _end_iteration << " order_end=" << _end_order << " and end_time=" << _end_time << "\n";
+  stream << "\nTime unit is : \"" << _time_unit << "\"";
   return stream.str();
 }
 
@@ -1992,6 +2102,43 @@ void MEDCouplingTwoTimeSteps::finishUnserialization(const std::vector<int>& tiny
   _end_order=tinyInfoI[5];
 }
 
+/*!
+ * idem getTinySerializationIntInformation except that it is for multi field fetch
+ */
+void MEDCouplingTwoTimeSteps::getTinySerializationIntInformation2(std::vector<int>& tinyInfo) const
+{
+  tinyInfo.resize(4);
+  tinyInfo[0]=_start_iteration;
+  tinyInfo[1]=_start_order;
+  tinyInfo[2]=_end_iteration;
+  tinyInfo[3]=_end_order;
+}
+
+/*!
+ * idem getTinySerializationDbleInformation except that it is for multi field fetch
+ */
+void MEDCouplingTwoTimeSteps::getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const
+{
+  tinyInfo.resize(3);
+  tinyInfo[0]=_time_tolerance;
+  tinyInfo[1]=_start_time;
+  tinyInfo[2]=_end_time;
+}
+
+/*!
+ * idem finishUnserialization except that it is for multi field fetch
+ */
+void MEDCouplingTwoTimeSteps::finishUnserialization2(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
+{
+  _start_iteration=tinyInfoI[0];
+  _start_order=tinyInfoI[1];
+  _end_iteration=tinyInfoI[2];
+  _end_order=tinyInfoI[3];
+  _time_tolerance=tinyInfoD[0];
+  _start_time=tinyInfoD[1];
+  _end_time=tinyInfoD[2];
+}
+
 std::vector< const DataArrayDouble *> MEDCouplingTwoTimeSteps::getArraysForTime(double time) const throw(INTERP_KERNEL::Exception)
 {
    if(time>_start_time-_time_tolerance && time<_end_time+_time_tolerance)
@@ -2026,6 +2173,7 @@ std::string MEDCouplingLinearTime::getStringRepr() const
   std::ostringstream stream;
   stream << REPR << " Time interval is defined by :\niteration_start=" << _start_iteration << " order_start=" << _start_order << " and time_start=" << _start_time << "\n";
   stream << "iteration_end=" << _end_iteration << " order_end=" << _end_order << " and end_time=" << _end_time << "\n";
+  stream << "Time unit is : \"" << _time_unit << "\"";
   return stream.str();
 }
 

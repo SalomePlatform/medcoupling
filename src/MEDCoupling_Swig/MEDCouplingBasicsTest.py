@@ -5966,6 +5966,45 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         self.assertEqual(m.getName(),"My0D");
         pass
+
+    def testDescriptionInMeshTimeUnit1(self):
+        text1="totoTTEDD";
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m.setDescription(text1);
+        self.assertEqual(m.getDescription(),text1);
+        m2=m.deepCpy();
+        self.assertTrue(m.isEqual(m2,1e-12));
+        self.assertEqual(m2.getDescription(),text1);
+        m2.setDescription("ggg");
+        self.assertTrue(not m.isEqual(m2,1e-12));
+        #
+        f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f.setTimeUnit(text1);
+        self.assertEqual(f.getTimeUnit(),text1);
+        f2=f.deepCpy();
+        self.assertEqual(f2.getTimeUnit(),text1);
+        #
+        pass
+
+    def testMultiFields1(self):
+        mfs=MEDCouplingDataForTest.buildMultiFields_1();
+        ms=mfs.getMeshes();
+        dms,refs=mfs.getDifferentMeshes()
+        das=mfs.getArrays();
+        das2,refs2=mfs.getDifferentArrays()
+        self.assertEqual(5,len(mfs.getFields()))
+        self.assertEqual(1,len(mfs.getFields()[0].getArrays()));
+        self.assertEqual(2,len(mfs.getFields()[1].getArrays()));
+        self.assertEqual(1,len(mfs.getFields()[2].getArrays()));
+        self.assertEqual(1,len(mfs.getFields()[3].getArrays()));
+        self.assertEqual(1,len(mfs.getFields()[4].getArrays()));
+        self.assertEqual(5,len(ms));
+        self.assertEqual(2,len(dms));
+        self.assertEqual(6,len(das));
+        self.assertEqual(5,len(das2));
+        mfs2=mfs.deepCpy();
+        self.assertTrue(mfs.isEqual(mfs2,1e-12,1e-12))
+        pass
     
     def setUp(self):
         pass

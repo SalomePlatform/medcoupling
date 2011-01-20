@@ -361,6 +361,7 @@ std::string MEDCouplingCMesh::simpleRepr() const
 {
   std::ostringstream ret;
   ret << "Cartesian mesh with name : \"" << getName() << "\"\n";
+  ret << "Description of mesh : \"" << getDescription() << "\"\n";
   ret << "Mesh and SpaceDimension dimension : " << getSpaceDimension() << "\n\nArrays :\n________\n\n";
   if(_x_array)
     {

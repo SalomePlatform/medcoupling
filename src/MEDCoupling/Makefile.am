@@ -37,7 +37,8 @@ MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx MEDCouplingPointSet.t
 MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx MEDCouplingFieldTemplate.hxx                \
 MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx                     \
 MEDCouplingRemapper.hxx MEDCouplingExtrudedMesh.hxx MEDCouplingGaussLocalization.hxx              \
-MEDCouplingAutoRefCountObjectPtr.hxx
+MEDCouplingAutoRefCountObjectPtr.hxx MEDCouplingMultiFields.hxx MEDCouplingDefinitionTime.hxx     \
+MEDCouplingFieldOverTime.hxx
 
 # Libraries targets
 
@@ -48,7 +49,8 @@ dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx                    \
 	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx  MEDCouplingFieldTemplate.cxx      \
 	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx    \
-	MEDCouplingNatureOfField.cxx
+	MEDCouplingNatureOfField.cxx MEDCouplingMultiFields.cxx                             \
+	MEDCouplingDefinitionTime.cxx MEDCouplingFieldOverTime.cxx
 
 libmedcoupling_la_LDFLAGS= 
 
@@ -93,4 +95,8 @@ EXTRA_DIST += \
 	MEDCouplingNatureOfField.hxx              \
 	MEDCouplingRemapper.hxx                   \
 	MEDCouplingExtrudedMesh.hxx               \
-	MEDCouplingGaussLocalization.hxx 
+	MEDCouplingGaussLocalization.hxx          \
+	MEDCouplingMultiFields.hxx                \
+	MEDCouplingFieldTemplate.hxx              \
+	MEDCouplingDefinitionTime.hxx             \
+	MEDCouplingFieldOverTime.hxx
