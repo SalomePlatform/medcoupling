@@ -6032,6 +6032,47 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setValues(vals2,8,1);
         self.assertRaises(InterpKernelException,da.checkAndPreparePermutation);
         pass
+
+    def testDAIChangeSurjectiveFormat1(self):
+        vals1=[0,3,2,3,2,2,1,2]
+        expected1=[0,1,2,6,8]
+        expected2=[0,  6,  2,4,5,7,  1,3]
+        da=DataArrayInt.New();
+        da.setValues(vals1,8,1);
+        #
+        da2,da2I=da.changeSurjectiveFormat(4);
+        self.assertEqual(5,da2I.getNumberOfTuples());
+        self.assertEqual(8,da2.getNumberOfTuples());
+        self.assertEqual(expected1,da2I.getValues());
+        self.assertEqual(expected2,da2.getValues());
+        #
+        self.assertRaises(InterpKernelException,da.changeSurjectiveFormat,3);
+        #
+        pass
+
+    def testUMeshGetCellIdsLyingOnNodes1(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        nodeIds1=[1,2,3,4,6]
+        nodeIds2=[6,7]
+        da=m.getCellIdsLyingOnNodes(nodeIds1,True);
+        self.assertEqual(1,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(1,da.getIJ(0,0));
+        da2=DataArrayInt.New()
+        da2.setValues(nodeIds2,2,1)
+        da=m.getCellIdsLyingOnNodes(da2,False);
+        self.assertEqual(2,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(3,da.getIJ(0,0));
+        self.assertEqual(4,da.getIJ(1,0));
+        pass
+
+    def testUMeshFindCellsIdsOnBoundary1(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        da5=m.findCellsIdsOnBoundary();
+        self.assertEqual(5,da5.getNumberOfTuples());
+        self.assertTrue(da5->isIdentity());
+        pass
     
     def setUp(self):
         pass

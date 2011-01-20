@@ -1711,6 +1711,17 @@ namespace ParaMEDMEM
      return convertIntArrToPyList(tmp,sz);
    }
 
+   PyObject *changeSurjectiveFormat(int targetNb) const throw(INTERP_KERNEL::Exception)
+   {
+     DataArrayInt *arr=0;
+     DataArrayInt *arrI=0;
+     self->changeSurjectiveFormat(targetNb,arr,arrI);
+     PyObject *res = PyList_New(2);
+     PyList_SetItem(res,0,SWIG_NewPointerObj((void*)arr,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
+     PyList_SetItem(res,1,SWIG_NewPointerObj((void*)arrI,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
+     return res;
+   }
+
    static DataArrayInt *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayInt *> tmp;

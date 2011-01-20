@@ -1150,11 +1150,28 @@ DataArrayInt *MEDCouplingUMesh::findCellsIdsOnBoundary() const throw(INTERP_KERN
   DataArrayInt *revDescIndx=DataArrayInt::New();
   //
   MEDCouplingUMesh *meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  meshDM1->decrRef();
+  desc->decrRef();
+  descIndx->decrRef();
+  //
+  DataArrayInt *tmp=revDescIndx->deltaShiftIndex();
+  DataArrayInt *faceIds=tmp->getIdsEqual(1);
+  tmp->decrRef();
+  int nbOfFaces=faceIds->getNumberOfTuples();
+  const int *faces=faceIds->getConstPointer();
+  std::set<int> ret;
+  for(const int *w=faces;w!=faces+nbOfFaces;w++)
+    ret.insert(revDesc->getIJ(revDescIndx->getIJ(*w,0),0));
+  faceIds->decrRef();
   //
   revDescIndx->decrRef();
   revDesc->decrRef();
-  desc->decrRef();
-  descIndx->decrRef();
+  //
+  DataArrayInt *ret2=DataArrayInt::New();
+  ret2->alloc(ret.size(),1);
+  std::copy(ret.begin(),ret.end(),ret2->getPointer());
+  ret2->setName("BoundaryCells");
+  return ret2;
 }
 
 /*!

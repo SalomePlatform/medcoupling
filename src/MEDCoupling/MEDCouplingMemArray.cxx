@@ -1922,6 +1922,55 @@ DataArrayInt *DataArrayInt::checkAndPreparePermutation() const throw(INTERP_KERN
 }
 
 /*!
+ * This method makes the assumption that 'this' is correctly set, and has exactly one component. If not an exception will be thrown.
+ * Given a sujective application defined by 'this' from a set of size this->getNumberOfTuples() to a set of size targetNb.
+ * 'targetNb'<this->getNumberOfTuples(). 'this' should be surjective that is to say for each id in [0,'targetNb') it exists at least one tupleId tid
+ * so that this->getIJ(tid,0)==id.
+ * If not an exception will be thrown.
+ * This method returns 2 newly allocated arrays 'arr' and 'arrI', corresponding respectively to array and its corresponding index.
+ * This method is usefull for methods that returns old2New numbering concecutive to a reduction ( MEDCouplingUMesh::zipConnectivityTraducer, MEDCouplingUMesh::zipConnectivityTraducer for example)
+ * Example : if 'this' equals [0,3,2,3,2,2,1,2] this method will return arrI=[0,1,2,6,8] arr=[0,  6,  2,4,5,7,  1,3]
+ * That is to say elt id 2 has arrI[2+1]-arrI[2]=4 places in 'this'. The corresponding tuple ids are [2,4,5,7].
+ */
+void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, DataArrayInt *&arrI) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::changeSurjectiveFormat : number of components must == 1 !");
+  int nbOfTuples=getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> retI(DataArrayInt::New());
+  retI->alloc(targetNb+1,1);
+  const int *input=getConstPointer();
+  std::vector< std::vector<int> > tmp(targetNb);
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      int tmp2=input[i];
+      if(tmp2<targetNb)
+        tmp[tmp2].push_back(i);
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::changeSurjectiveFormat : At pos " << i << " presence of element " << tmp2 << " higher than " << targetNb;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  int *retIPtr=retI->getPointer();
+  *retIPtr=0;
+  for(std::vector< std::vector<int> >::const_iterator it1=tmp.begin();it1!=tmp.end();it1++,retIPtr++)
+    retIPtr[1]=retIPtr[0]+(*it1).size();
+  if(nbOfTuples!=retI->getIJ(targetNb,0))
+    throw INTERP_KERNEL::Exception("DataArrayInt::changeSurjectiveFormat : big problem should never happen !");
+  ret->alloc(nbOfTuples,1);
+  int *retPtr=ret->getPointer();
+  for(std::vector< std::vector<int> >::const_iterator it1=tmp.begin();it1!=tmp.end();it1++)
+    retPtr=std::copy((*it1).begin(),(*it1).end(),retPtr);
+  ret->incrRef();
+  retI->incrRef();
+  arr=ret;
+  arrI=retI;
+}
+
+/*!
  * This method checks that 'this' is with numberofcomponents == 1 and that it is equal to
  * stdext::iota() of size getNumberOfTuples. This method is particalary usefull for DataArrayInt instances
  * that represents a renumbering array to check the real need in renumbering. 
