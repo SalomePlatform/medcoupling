@@ -1902,7 +1902,11 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
 }
 
 /*!
- * 
+ * This method works only for arrays having single component.
+ * If this contains the array a1 containing [9,10,0,6,4,11,3,7] this method returns an array a2 [5,6,0,3,2,7,1,4].
+ * By doing a1.renumber(a2) the user will obtain array a3 equal to a1 sorted.
+ * This method is useful for renumbering (in MED file for example). This method is used by MEDCouplingFieldDouble::renumberCells when check is set to true.
+ * This method throws an exception if more 2 or more elements in 'this' are same.
  */
 DataArrayInt *DataArrayInt::checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception)
 {

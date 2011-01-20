@@ -37,6 +37,9 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingDefinitionTimeSlice *New(const MEDCouplingFieldDouble *f, int meshId, const std::vector<int>& arrId, int fieldId) throw(INTERP_KERNEL::Exception);
     int getArrayId() const { return _array_id; }
+    virtual bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
+    virtual void getHotSpotsTime(std::vector<double>& ret) const = 0;
+    virtual void getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception) = 0;
     virtual bool isContaining(double tmp, double eps) const = 0;
     virtual int getStartId() const;
     virtual int getEndId() const;
@@ -58,6 +61,9 @@ namespace ParaMEDMEM
   class MEDCouplingDefinitionTimeSliceInst : public MEDCouplingDefinitionTimeSlice
   {
   public:
+    bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
+    void getHotSpotsTime(std::vector<double>& ret) const;
+    void getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception);
     bool isContaining(double tmp, double eps) const;
     void appendRepr(std::ostream& stream) const;
     double getStartTime() const;
@@ -71,6 +77,9 @@ namespace ParaMEDMEM
   class MEDCouplingDefinitionTimeSliceCstOnTI : public  MEDCouplingDefinitionTimeSlice
   {
   public:
+    bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
+    void getHotSpotsTime(std::vector<double>& ret) const;
+    void getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception);
     bool isContaining(double tmp, double eps) const;
     void appendRepr(std::ostream& stream) const;
     double getStartTime() const;
@@ -86,6 +95,9 @@ namespace ParaMEDMEM
   class MEDCouplingDefinitionTimeSliceLT : public MEDCouplingDefinitionTimeSlice
   {
   public:
+    bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
+    void getHotSpotsTime(std::vector<double>& ret) const;
+    void getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception);
     bool isContaining(double tmp, double eps) const;
     void appendRepr(std::ostream& stream) const;
     double getStartTime() const;
@@ -103,10 +115,12 @@ namespace ParaMEDMEM
   {
   public:
     MEDCouplingDefinitionTime();
+    bool isEqual(const MEDCouplingDefinitionTime& other, double eps) const;
     MEDCouplingDefinitionTime(const std::vector<const MEDCouplingFieldDouble *>& fs, const std::vector<int>& meshRefs, const std::vector<std::vector<int> >& arrRefs) throw(INTERP_KERNEL::Exception);
     double getTimeResolution() const { return _eps; }
     void getIdsOnTimeRight(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception);
     void getIdsOnTimeLeft(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception);
+    std::vector<double> getHotSpotsTime() const;
     void appendRepr(std::ostream& stream) const;
   private:
     void getIdsOnTime(double tm, std::vector<int>& meshIds, std::vector<int>& arrIds, std::vector<int>& arrIdsInField, std::vector<int>& fieldIds) const throw(INTERP_KERNEL::Exception);

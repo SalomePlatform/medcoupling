@@ -6005,6 +6005,33 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mfs2=mfs.deepCpy();
         self.assertTrue(mfs.isEqual(mfs2,1e-12,1e-12))
         pass
+
+    def testDAICheckAndPreparePermutation1(self):
+        vals1=[9,10,0,6,4,11,3,7];
+        expect1=[5,6,0,3,2,7,1,4];
+        vals2=[9,10,0,6,10,11,3,7];
+        da=DataArrayInt.New();
+        da.setValues(vals1,8,1);
+        da2=da.checkAndPreparePermutation();
+        self.assertEqual(8,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        for i in xrange(8):
+            self.assertEqual(expect1[i],da2.getIJ(i,0));
+            pass
+        #
+        da=DataArrayInt.New();
+        da.alloc(8,1);
+        da.iota(0);
+        da2=da.checkAndPreparePermutation();
+        self.assertEqual(8,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        self.assertTrue(da2.isIdentity());
+        #
+        da=DataArrayInt.New();
+        da.alloc(8,1);
+        da.setValues(vals2,8,1);
+        self.assertRaises(InterpKernelException,da.checkAndPreparePermutation);
+        pass
     
     def setUp(self):
         pass

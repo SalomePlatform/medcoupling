@@ -1064,6 +1064,20 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const int *begin, const int 
 }
 
 /*!
+ * This method is very close too MEDCouplingUMesh::buildPartOfMySelfNode. The difference is that it returns directly ids.
+ */
+DataArrayInt *MEDCouplingUMesh::getCellIdsLyingOnNodes(const int *begin, const int *end, bool fullyIn) const
+{
+  std::vector<int> cellIdsKept;
+  fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(cellIdsKept.size(),1);
+  std::copy(cellIdsKept.begin(),cellIdsKept.end(),ret->getPointer());
+  ret->setName(getName());
+  return ret;
+}
+
+/*!
  * Keeps from 'this' only cells which constituing point id are in the ids specified by ['begin','end').
  * The return newly allocated mesh will share the same coordinates as 'this'.
  * Parameter 'fullyIn' specifies if a cell that has part of its nodes in ids array is kept or not.
@@ -1120,6 +1134,27 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
   MEDCouplingPointSet *ret=meshDM1->buildPartOfMySelf(&boundaryCells[0],&boundaryCells[0]+boundaryCells.size(),keepCoords);
   meshDM1->decrRef();
   return ret;
+}
+
+/*!
+ * This method returns a newly created DataArrayInt instance containing ids of cells located in boundary.
+ * A cell is detected to be on boundary if it contains one or more than one face having only one father.
+ * This method makes the assumption that 'this' is fully defined (coords,connectivity). If not an exception will be thrown. 
+ */
+DataArrayInt *MEDCouplingUMesh::findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  DataArrayInt *desc=DataArrayInt::New();
+  DataArrayInt *descIndx=DataArrayInt::New();
+  DataArrayInt *revDesc=DataArrayInt::New();
+  DataArrayInt *revDescIndx=DataArrayInt::New();
+  //
+  MEDCouplingUMesh *meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  //
+  revDescIndx->decrRef();
+  revDesc->decrRef();
+  desc->decrRef();
+  descIndx->decrRef();
 }
 
 /*!

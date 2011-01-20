@@ -56,6 +56,17 @@ MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(const MEDCou
     }
 }
 
+bool MEDCouplingDefinitionTimeSlice::isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const
+{
+  if(_mesh_id!=other._mesh_id)
+    return false;
+  if(_array_id!=other._array_id)
+    return false;
+  if(_field_id!=other._field_id)
+    return false;
+  return true;
+}
+
 int MEDCouplingDefinitionTimeSlice::getStartId() const
 {
   return _array_id;
@@ -114,6 +125,24 @@ bool MEDCouplingDefinitionTimeSlice::isBeforeMe(const MEDCouplingDefinitionTimeS
   return (o1<t1+eps && o2<t1+eps);
 }
 
+bool MEDCouplingDefinitionTimeSliceInst::isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const
+{
+}
+
+void MEDCouplingDefinitionTimeSliceInst::getHotSpotsTime(std::vector<double>& ret) const
+{
+  ret.resize(1);
+  ret[0]=_instant;
+}
+
+void MEDCouplingDefinitionTimeSliceInst::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+{
+  meshId=_mesh_id;
+  arrId=_array_id;
+  arrIdInField=0;
+  fieldId=_field_id;
+}
+
 bool MEDCouplingDefinitionTimeSliceInst::isContaining(double tmp, double eps) const
 {
   return fabs(tmp-_instant)<eps;
@@ -146,9 +175,27 @@ MEDCouplingDefinitionTimeSliceInst::MEDCouplingDefinitionTimeSliceInst(const MED
   _instant=t1;
 }
 
+bool MEDCouplingDefinitionTimeSliceCstOnTI::isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const
+{
+}
+
+void MEDCouplingDefinitionTimeSliceCstOnTI::getHotSpotsTime(std::vector<double>& ret) const
+{
+  ret.resize(1);
+  ret[0]=(_start+_end)/2.;
+}
+
+void MEDCouplingDefinitionTimeSliceCstOnTI::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+{
+  meshId=_mesh_id;
+  arrId=_array_id;
+  arrIdInField=0;
+  fieldId=_field_id;
+}
+
 bool MEDCouplingDefinitionTimeSliceCstOnTI::isContaining(double tmp, double eps) const
 {
-  return _start-eps>tmp && _end+eps<tmp;
+  return _start-eps<tmp && _end+eps>tmp;
 }
 
 void MEDCouplingDefinitionTimeSliceCstOnTI::appendRepr(std::ostream& stream) const
@@ -176,9 +223,41 @@ MEDCouplingDefinitionTimeSliceCstOnTI::MEDCouplingDefinitionTimeSliceCstOnTI(con
   _end=t2;
 }
 
+bool MEDCouplingDefinitionTimeSliceLT::isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const
+{
+}
+
+void MEDCouplingDefinitionTimeSliceLT::getHotSpotsTime(std::vector<double>& ret) const
+{
+  ret.resize(2);
+  ret[0]=_start;
+  ret[1]=_end;
+}
+
+void MEDCouplingDefinitionTimeSliceLT::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const throw(INTERP_KERNEL::Exception)
+{
+  if(fabs(tm-_start)<eps)
+    {
+      meshId=_mesh_id;
+      arrId=_array_id;
+      arrIdInField=0;
+      fieldId=_field_id;
+      return ;
+    }
+  if(fabs(tm-_end)<eps)
+    {
+      meshId=_mesh_id;
+      arrId=_array_id_end;
+      arrIdInField=1;
+      fieldId=_field_id;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("LinearTime request not in boundary of this ! use hot spots !");
+}
+
 bool MEDCouplingDefinitionTimeSliceLT::isContaining(double tmp, double eps) const
 {
-  return _start-eps>tmp && _end+eps<tmp;
+  return _start-eps<tmp && _end+eps>tmp;
 }
 
 void MEDCouplingDefinitionTimeSliceLT::appendRepr(std::ostream& stream) const
@@ -283,7 +362,33 @@ void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshId
   int sz=ids.size();
   if(sz>2)
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime::getIdsOnTime : Too many slices match this time !");
-  //tony
+  //
+  meshIds.resize(sz);
+  arrIds.resize(sz);
+  arrIdsInField.resize(sz);
+  fieldIds.resize(sz);
+  for(int i=0;i<sz;i++)
+    _slices[ids[i]]->getIdsOnTime(tm,_eps,meshIds[i],arrIds[i],arrIdsInField[i],fieldIds[i]);
+}
+
+std::vector<double> MEDCouplingDefinitionTime::getHotSpotsTime() const
+{
+  std::vector<double> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++)
+    {
+      std::vector<double> tmp;
+      (*it)->getHotSpotsTime(tmp);
+      if(!ret.empty())
+        {
+          if(fabs(ret.back()-tmp.front())>_eps)
+            ret.insert(ret.end(),tmp.begin(),tmp.end());
+          else
+            ret.insert(ret.end(),tmp.begin()+1,tmp.end());
+        }
+      else
+        ret.insert(ret.end(),tmp.begin(),tmp.end());
+    }
+  return ret;
 }
 
 void MEDCouplingDefinitionTime::appendRepr(std::ostream& stream) const
