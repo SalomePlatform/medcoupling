@@ -937,6 +937,7 @@ void MEDCouplingFieldDouble::getTinySerializationStrInformation(std::vector<std:
   _time_discr->getTinySerializationStrInformation(tinyInfo);
   tinyInfo.push_back(_name);
   tinyInfo.push_back(_desc);
+  tinyInfo.push_back(getTimeUnit());
 }
 
 /*!
@@ -1005,8 +1006,9 @@ void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyI
   _nature=(NatureOfField)tinyInfoI[2];
   _type->finishUnserialization(tmp2);
   int nbOfElemS=tinyInfoS.size();
-  _name=tinyInfoS[nbOfElemS-2];
-  _desc=tinyInfoS[nbOfElemS-1];
+  _name=tinyInfoS[nbOfElemS-3];
+  _desc=tinyInfoS[nbOfElemS-2];
+  setTimeUnit(tinyInfoS[nbOfElemS-1].c_str());
 }
 
 /*!
