@@ -6006,6 +6006,73 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(mfs.isEqual(mfs2,1e-12,1e-12))
         pass
 
+    def testFieldOverTime1(self):
+        fs=MEDCouplingDataForTest.buildMultiFields_2();
+        self.assertRaises(InterpKernelException,MEDCouplingFieldOverTime.New,fs);
+        f4bis=fs[4].buildNewTimeReprFromThis(ONE_TIME,False);
+        fs[4]=f4bis;
+        self.assertRaises(InterpKernelException,MEDCouplingFieldOverTime.New,fs);
+        f4bis.setTime(2.7,20,21);
+        fot=MEDCouplingFieldOverTime.New(fs);
+        dt=fot.getDefinitionTimeZone();
+        hs=dt.getHotSpotsTime();
+        self.assertEqual(6,len(hs));
+        expected1=[0.2,0.7,1.2,1.35,1.7,2.7]
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],hs[i],12);
+            pass
+        meshId,arrId,arrIdInField,fieldId=dt.getIdsOnTimeRight(0.2);
+        self.assertEqual(0,meshId);
+        self.assertEqual(0,arrId);
+        self.assertEqual(0,arrIdInField);
+        self.assertEqual(0,fieldId);
+        #
+        meshId,arrId,arrIdInField,fieldId=dt.getIdsOnTimeRight(0.7);
+        self.assertEqual(0,meshId);
+        self.assertEqual(1,arrId);
+        self.assertEqual(0,arrIdInField);
+        self.assertEqual(1,fieldId);
+        #
+        meshId,arrId,arrIdInField,fieldId=dt.getIdsOnTimeLeft(1.2);#**** WARNING left here
+        self.assertEqual(0,meshId);
+        self.assertEqual(2,arrId);
+        self.assertEqual(1,arrIdInField);
+        self.assertEqual(1,fieldId);
+        #
+        meshId,arrId,arrIdInField,fieldId=dt.getIdsOnTimeRight(1.2);#**** WARNING right again here
+        self.assertEqual(1,meshId);
+        self.assertEqual(3,arrId);
+        self.assertEqual(0,arrIdInField);
+        self.assertEqual(2,fieldId);
+        #
+        meshId,arrId,arrIdInField,fieldId=dt.getIdsOnTimeRight(1.35);
+        self.assertEqual(1,meshId);
+        self.assertEqual(3,arrId);
+        self.assertEqual(0,arrIdInField);
+        self.assertEqual(2,fieldId);
+        #
+        meshId,arrId,arrIdInField,fieldId=dt.getIdsOnTimeRight(1.7);
+        self.assertEqual(0,meshId);
+        self.assertEqual(3,arrId);
+        self.assertEqual(0,arrIdInField);
+        self.assertEqual(3,fieldId);
+        #
+        meshId,arrId,arrIdInField,fieldId=dt.getIdsOnTimeRight(2.7);
+        self.assertEqual(1,meshId);
+        self.assertEqual(4,arrId);
+        self.assertEqual(0,arrIdInField);
+        self.assertEqual(4,fieldId);
+        #
+        dt2=MEDCouplingDefinitionTime();
+        self.assertTrue(not dt2.isEqual(dt));
+        dt2.assign(dt);
+        dt2.assign(dt);#to check memory management
+        self.assertTrue(dt2.isEqual(dt));
+        #
+        dt3=MEDCouplingDefinitionTime();
+        #
+        pass
+
     def testDAICheckAndPreparePermutation1(self):
         vals1=[9,10,0,6,4,11,3,7];
         expect1=[5,6,0,3,2,7,1,4];

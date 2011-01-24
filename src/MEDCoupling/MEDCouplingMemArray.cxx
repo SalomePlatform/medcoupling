@@ -1003,7 +1003,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const char *func) cons
   int oldNbOfComp=getNumberOfComponents();
   if((int)vars.size()>oldNbOfComp)
     {
-      std::ostringstream oss; oss << "The field has a " << oldNbOfComp << " components and there are ";
+      std::ostringstream oss; oss << "The field has " << oldNbOfComp << " components and there are ";
       oss << vars.size() << " variables : ";
       std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -2548,4 +2548,75 @@ int *DataArrayInt::CheckAndPreparePermutation(const int *start, const int *end)
     *iter2=std::distance(work,std::find(work,work+sz,*iter));
   delete [] work;
   return ret;
+}
+
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ * Server side.
+ */
+void DataArrayInt::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
+{
+  tinyInfo.resize(2);
+  if(isAllocated())
+    {
+      tinyInfo[0]=getNumberOfTuples();
+      tinyInfo[1]=getNumberOfComponents();
+    }
+  else
+    {
+      tinyInfo[0]=-1;
+      tinyInfo[1]=-1;
+    }
+}
+
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ * Server side.
+ */
+void DataArrayInt::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
+{
+  if(isAllocated())
+    {
+      int nbOfCompo=getNumberOfComponents();
+      tinyInfo.resize(nbOfCompo+1);
+      tinyInfo[0]=getName();
+      for(int i=0;i<nbOfCompo;i++)
+        tinyInfo[i+1]=getInfoOnComponent(i);
+    }
+  else
+    {
+      tinyInfo.resize(1);
+      tinyInfo[0]=getName();
+    }
+}
+
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ * This method returns if a feeding is needed.
+ */
+bool DataArrayInt::resizeForUnserialization(const std::vector<int>& tinyInfoI)
+{
+  int nbOfTuple=tinyInfoI[0];
+  int nbOfComp=tinyInfoI[1];
+  if(nbOfTuple!=-1 || nbOfComp!=-1)
+    {
+      alloc(nbOfTuple,nbOfComp);
+      return true;
+    }
+  return false;
+}
+
+/*!
+ * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
+ * This method returns if a feeding is needed.
+ */
+void DataArrayInt::finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS)
+{
+  setName(tinyInfoS[0].c_str());
+  if(isAllocated())
+    {
+      int nbOfCompo=getNumberOfComponents();
+      for(int i=0;i<nbOfCompo;i++)
+        setInfoOnComponent(i,tinyInfoS[i+1].c_str());
+    }
 }

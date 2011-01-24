@@ -65,7 +65,7 @@ int MEDCouplingPointSet::getSpaceDimension() const
     throw INTERP_KERNEL::Exception("Unable to get space dimension because no coordinates specified !");
 }
 
-void MEDCouplingPointSet::updateTime()
+void MEDCouplingPointSet::updateTime() const
 {
   if(_coords)
     {
@@ -174,7 +174,7 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(int limitNodeId, d
 /*!
  * This methods searches for each node n1 nodes in _coords that are less far than 'prec' from n1. if any these nodes are stored in params
  * comm and commIndex.
- * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged.
+ * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged each other.
  * @param comm out parameter (not inout)
  * @param commIndex out parameter (not inout)
  */

@@ -34,7 +34,7 @@ namespace ParaMEDMEM
     static MEDCouplingCMesh *New();
     MEDCouplingMesh *deepCpy() const;
     MEDCouplingCMesh *clone(bool recDeepCpy) const;
-    void updateTime();
+    void updateTime() const;
     MEDCouplingMeshType getType() const { return CARTESIAN; }
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingMesh *other, double prec) const;

@@ -208,7 +208,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayDouble *Divide(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
-    MEDCOUPLING_EXPORT void updateTime() { }
+    MEDCOUPLING_EXPORT void updateTime() const { }
   public:
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
@@ -296,9 +296,14 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
-    MEDCOUPLING_EXPORT void updateTime() { }
+    MEDCOUPLING_EXPORT void updateTime() const { }
   public:
     MEDCOUPLING_EXPORT static int *CheckAndPreparePermutation(const int *start, const int *end);
+  public:
+    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
+    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   private:
     DataArrayInt() { }
   private:

@@ -159,3 +159,6 @@ MEDCouplingFieldOverTime::MEDCouplingFieldOverTime(const std::vector<MEDCoupling
   checkCoherency();
 }
 
+MEDCouplingFieldOverTime::MEDCouplingFieldOverTime()
+{
+}

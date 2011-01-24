@@ -31,18 +31,18 @@ TimeLabel::~TimeLabel()
 {
 }
 
- TimeLabel& TimeLabel::operator=(const TimeLabel& other)
+TimeLabel& TimeLabel::operator=(const TimeLabel& other)
 {
   _time=GLOBAL_TIME++;
   return *this;
 }
 
-void TimeLabel::declareAsNew()
+void TimeLabel::declareAsNew() const
 {
   _time=GLOBAL_TIME++;
 }
 
-void TimeLabel::updateTimeWith(const TimeLabel& other)
+void TimeLabel::updateTimeWith(const TimeLabel& other) const
 {
   if(_time<other._time)
     _time=other._time;

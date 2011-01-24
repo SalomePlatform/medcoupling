@@ -86,7 +86,7 @@ bool MEDCouplingField::areStrictlyCompatible(const MEDCouplingField *other) cons
   return _mesh==other->_mesh;
 }
 
-void MEDCouplingField::updateTime()
+void MEDCouplingField::updateTime() const
 {
   if(_mesh)
     updateTimeWith(*_mesh);

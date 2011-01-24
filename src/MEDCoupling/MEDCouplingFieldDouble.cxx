@@ -899,7 +899,7 @@ int MEDCouplingFieldDouble::getNumberOfValues() const throw(INTERP_KERNEL::Excep
   return getArray()->getNbOfElems();
 }
 
-void MEDCouplingFieldDouble::updateTime()
+void MEDCouplingFieldDouble::updateTime() const
 {
   MEDCouplingField::updateTime();
   updateTimeWith(*_time_discr);

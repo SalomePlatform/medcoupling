@@ -83,7 +83,7 @@ void MEDCouplingTimeDiscretization::checkCoherency() const throw(INTERP_KERNEL::
     throw INTERP_KERNEL::Exception("time tolerance is expected to be greater than 0. !");
 }
 
-void MEDCouplingTimeDiscretization::updateTime()
+void MEDCouplingTimeDiscretization::updateTime() const
 {
   if(_array)
     updateTimeWith(*_array);
@@ -1893,7 +1893,7 @@ MEDCouplingTwoTimeSteps::MEDCouplingTwoTimeSteps(const MEDCouplingTwoTimeSteps& 
     _end_array=0;
 }
 
-void MEDCouplingTwoTimeSteps::updateTime()
+void MEDCouplingTwoTimeSteps::updateTime() const
 {
   MEDCouplingTimeDiscretization::updateTime();
   if(_end_array)

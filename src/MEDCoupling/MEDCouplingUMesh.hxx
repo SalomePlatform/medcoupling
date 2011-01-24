@@ -35,7 +35,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const char *meshName, int meshDim);
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
-    MEDCOUPLING_EXPORT void updateTime();
+    MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED; }
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;

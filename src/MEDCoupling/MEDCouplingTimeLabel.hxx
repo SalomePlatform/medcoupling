@@ -33,17 +33,17 @@ namespace ParaMEDMEM
   public:
     TimeLabel& operator=(const TimeLabel& other);
     //! This method should be called when write access has been done on this.
-    void declareAsNew();
+    void declareAsNew() const;
     //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggragates objects.
-    virtual void updateTime() = 0;
+    virtual void updateTime() const = 0;
     unsigned int getTimeOfThis() const { return _time; }
   protected:
     TimeLabel();
     virtual ~TimeLabel();
-    void updateTimeWith(const TimeLabel& other);
+    void updateTimeWith(const TimeLabel& other) const;
   private:
     static unsigned int GLOBAL_TIME;
-    unsigned int _time;
+    mutable unsigned int _time;
   };
 }
 

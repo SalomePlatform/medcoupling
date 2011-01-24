@@ -90,7 +90,6 @@ void MEDCouplingBasicsTest::testFieldOverTime1()
   f4bis->setTime(2.7,20,21);
   MEDCouplingFieldOverTime *fot=MEDCouplingFieldOverTime::New(fs);
   MEDCouplingDefinitionTime dt=fot->getDefinitionTimeZone();
-  dt.appendRepr(std::cout);
   std::vector<double> hs=dt.getHotSpotsTime();
   CPPUNIT_ASSERT_EQUAL(6,(int)hs.size());
   const double expected1[]={0.2,0.7,1.2,1.35,1.7,2.7};
@@ -138,6 +137,21 @@ void MEDCouplingBasicsTest::testFieldOverTime1()
   CPPUNIT_ASSERT_EQUAL(4,arrId);
   CPPUNIT_ASSERT_EQUAL(0,arrIdInField);
   CPPUNIT_ASSERT_EQUAL(4,fieldId);
+  //
+  MEDCouplingDefinitionTime dt2;
+  CPPUNIT_ASSERT(!dt2.isEqual(dt));
+  dt2.assign(dt);
+  dt2.assign(dt);//to check memory management
+  CPPUNIT_ASSERT(dt2.isEqual(dt));
+  //
+  MEDCouplingDefinitionTime dt3;
+  std::vector<int> tmp1;
+  std::vector<double> tmp2;
+  CPPUNIT_ASSERT(!dt2.isEqual(dt3));
+  dt2.getTinySerializationInformation(tmp1,tmp2);
+  dt3.unserialize(tmp1,tmp2);
+  CPPUNIT_ASSERT(dt2.isEqual(dt3));
+  //
   for(std::vector<MEDCouplingFieldDouble *>::iterator it=fs.begin();it!=fs.end();it++)
     (*it)->decrRef();
   fot->decrRef();

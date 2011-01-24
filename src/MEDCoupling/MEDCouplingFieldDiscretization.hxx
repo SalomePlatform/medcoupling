@@ -42,7 +42,7 @@ namespace ParaMEDMEM
     static MEDCouplingFieldDiscretization *New(TypeOfField type);
     double getPrecision() const { return _precision; }
     void setPrecision(double val) { _precision=val; }
-    void updateTime();
+    void updateTime() const;
     static TypeOfField getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const = 0;
@@ -159,7 +159,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretizationPerCell();
     MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other);
     ~MEDCouplingFieldDiscretizationPerCell();
-    void updateTime();
+    void updateTime() const;
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;

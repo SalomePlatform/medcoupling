@@ -306,7 +306,7 @@ void MEDCouplingExtrudedMesh::getBoundingBox(double *bbox) const
   bbox[2*id+1]+=tmp[id];
 }
 
-void MEDCouplingExtrudedMesh::updateTime()
+void MEDCouplingExtrudedMesh::updateTime() const
 {
   if(_mesh2D)
     {

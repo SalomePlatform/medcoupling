@@ -59,7 +59,7 @@ namespace ParaMEDMEM
     std::string advancedRepr() const;
     void checkCoherency() const throw (INTERP_KERNEL::Exception);
     void getBoundingBox(double *bbox) const;
-    void updateTime();
+    void updateTime() const;
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getMesh2D() const { return _mesh2D; }
     MEDCouplingUMesh *getMesh1D() const { return _mesh1D; }

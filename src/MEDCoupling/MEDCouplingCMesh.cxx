@@ -82,7 +82,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::clone(bool recDeepCpy) const
   return new MEDCouplingCMesh(*this,recDeepCpy);
 }
 
-void MEDCouplingCMesh::updateTime()
+void MEDCouplingCMesh::updateTime() const
 {
   if(_x_array)
     updateTimeWith(*_x_array);

@@ -476,7 +476,7 @@ namespace ParaMEDMEM
   class MEDCouplingPointSet : public ParaMEDMEM::MEDCouplingMesh
     {
     public:
-      void updateTime();
+      void updateTime() const;
       void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
       DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception);
       bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const throw(INTERP_KERNEL::Exception);
@@ -717,7 +717,7 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *New();
     static MEDCouplingUMesh *New(const char *meshName, int meshDim);
     MEDCouplingUMesh *clone(bool recDeepCpy) const;
-    void updateTime();
+    void updateTime() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void setMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     void allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exception);
@@ -1868,7 +1868,7 @@ namespace ParaMEDMEM
     void setEndOrder(int order) throw(INTERP_KERNEL::Exception);
     void setTimeValue(double val) throw(INTERP_KERNEL::Exception);
     void setEndTimeValue(double val) throw(INTERP_KERNEL::Exception);
-    void updateTime() throw(INTERP_KERNEL::Exception);
+    void updateTime() const throw(INTERP_KERNEL::Exception);
     void changeUnderlyingMesh(const MEDCouplingMesh *other, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     void substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception);
     bool mergeNodes(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
@@ -2339,6 +2339,11 @@ namespace ParaMEDMEM
   class MEDCouplingDefinitionTime
   {
   public:
+    MEDCouplingDefinitionTime();
+    void assign(const MEDCouplingDefinitionTime& other);
+    bool isEqual(const MEDCouplingDefinitionTime& other) const;
+    double getTimeResolution() const;
+    std::vector<double> getHotSpotsTime() const;
     %extend
       {
         std::string __str__() const
@@ -2347,6 +2352,30 @@ namespace ParaMEDMEM
             self->appendRepr(oss);
             return oss.str();
           }
+
+        PyObject *getIdsOnTimeRight(double tm) const throw(INTERP_KERNEL::Exception)
+        {
+          int meshId,arrId,arrIdInField,fieldId;
+          self->getIdsOnTimeRight(tm,meshId,arrId,arrIdInField,fieldId);
+          PyObject *res=PyList_New(4);
+          PyList_SetItem(res,0,PyInt_FromLong(meshId));
+          PyList_SetItem(res,1,PyInt_FromLong(arrId));
+          PyList_SetItem(res,2,PyInt_FromLong(arrIdInField));
+          PyList_SetItem(res,3,PyInt_FromLong(fieldId));
+          return res;
+        }
+
+        PyObject *getIdsOnTimeLeft(double tm) const throw(INTERP_KERNEL::Exception)
+        {
+          int meshId,arrId,arrIdInField,fieldId;
+          self->getIdsOnTimeLeft(tm,meshId,arrId,arrIdInField,fieldId);
+          PyObject *res=PyList_New(4);
+          PyList_SetItem(res,0,PyInt_FromLong(meshId));
+          PyList_SetItem(res,1,PyInt_FromLong(arrId));
+          PyList_SetItem(res,2,PyInt_FromLong(arrIdInField));
+          PyList_SetItem(res,3,PyInt_FromLong(fieldId));
+          return res;
+        }
       }
   };
 
@@ -2355,6 +2384,7 @@ namespace ParaMEDMEM
   public:
     double getTimeTolerance() const throw(INTERP_KERNEL::Exception);
     MEDCouplingDefinitionTime getDefinitionTimeZone() const;
+    
     %extend
       {
         std::string __str__() const

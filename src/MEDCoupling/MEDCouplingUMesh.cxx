@@ -65,7 +65,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::clone(bool recDeepCpy) const
   return new MEDCouplingUMesh(*this,recDeepCpy);
 }
 
-void MEDCouplingUMesh::updateTime()
+void MEDCouplingUMesh::updateTime() const
 {
   MEDCouplingPointSet::updateTime();
   if(_nodal_connec)

@@ -56,7 +56,7 @@ namespace ParaMEDMEM
   private:
     int prepareUU(const char *method) throw(INTERP_KERNEL::Exception);
     int prepareEE(const char *method) throw(INTERP_KERNEL::Exception);
-    void updateTime();
+    void updateTime() const;
     void releaseData(bool matrixSuppression);
     void computeDeno(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
     void computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField) throw(INTERP_KERNEL::Exception);

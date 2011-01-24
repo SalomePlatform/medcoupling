@@ -376,6 +376,60 @@ class MEDCouplingDataForTest:
         ret=MEDCouplingMultiFields.New([f0,f1,f2,f3,f4]);
         return ret;
 
+    def buildMultiFields_2(cls):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m1.setName("m1");
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2.setName("m2");
+        vals0=[-0.7,-1.,-2.,-3.,-4.];
+        vals1=[0.,1.,2.,3.,4.];
+        vals1_1=[170.,171.,172.,173.,174.];
+        vals2=[5.,6.,7.,8.,9.];
+        vals4=[15.,16.,17.,18.,19.];
+        d0=DataArrayDouble.New();
+        d0.setValues(vals0,5,1);
+        d1=DataArrayDouble.New();
+        d1.setValues(vals1,5,1);
+        d1_1=DataArrayDouble.New();
+        d1_1.setValues(vals1_1,5,1);
+        d2=DataArrayDouble.New();
+        d2.setValues(vals2,5,1);
+        d4=DataArrayDouble.New();
+        d4.setValues(vals4,5,1);
+        d0.setName("d0"); d1.setName("d1"); d1_1.setName("d1_1"); d2.setName("d2"); d4.setName("d4");
+        d0.setInfoOnComponent(0,"c1");
+        d1.setInfoOnComponent(0,"c6");
+        d1_1.setInfoOnComponent(0,"c9");
+        d2.setInfoOnComponent(0,"c5");
+        d4.setInfoOnComponent(0,"c7");
+        f0=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f0.setMesh(m1);
+        f0.setArray(d0);
+        f0.setTime(0.2,5,6);
+        f0.setName("f0");
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
+        f1.setMesh(m1);
+        f1.setArrays([d1,d1_1]);
+        f1.setStartTime(0.7,7,8);
+        f1.setEndTime(1.2,9,10);
+        f1.setName("f1");
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,CONST_ON_TIME_INTERVAL);
+        f2.setMesh(m2);
+        f2.setArray(d2);
+        f2.setTime(1.2,11,12);
+        f2.setEndTime(1.5,13,14);
+        f2.setName("f2");
+        f3=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f3.setMesh(m1);
+        f3.setArray(d2);
+        f3.setTime(1.7,15,16);
+        f3.setName("f3");
+        f4=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f4.setMesh(m2);
+        f4.setArray(d4);
+        f4.setName("f4");
+        return [f0,f1,f2,f3,f4]
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
@@ -391,4 +445,5 @@ class MEDCouplingDataForTest:
     build2DTargetMesh_3=classmethod(build2DTargetMesh_3)
     build2DTargetMesh_4=classmethod(build2DTargetMesh_4)
     buildMultiFields_1=classmethod(buildMultiFields_1)
+    buildMultiFields_2=classmethod(buildMultiFields_2)
     pass

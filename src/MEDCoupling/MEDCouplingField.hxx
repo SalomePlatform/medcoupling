@@ -71,7 +71,7 @@ namespace ParaMEDMEM
     void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
   protected:
-    void updateTime();
+    void updateTime() const;
   protected:
     MEDCouplingField(TypeOfField type);
     MEDCouplingField(const MEDCouplingField& other);

@@ -335,7 +335,7 @@ int MEDCouplingRemapper::prepareEE(const char *method) throw(INTERP_KERNEL::Exce
   return 1;
 }
 
-void MEDCouplingRemapper::updateTime()
+void MEDCouplingRemapper::updateTime() const
 {
 }
 

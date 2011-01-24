@@ -37,11 +37,16 @@ namespace ParaMEDMEM
     std::string simpleRepr() const;
     bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
+    //void getIdsToFetch(double time, int& fieldId, int& arrId, int& meshId) const;
+    //void setFieldOnId(int fieldId, MEDCouplingFieldDouble *f);
+    //void dispatchPointers();
     std::vector<MEDCouplingMesh *> getMeshes() const throw(INTERP_KERNEL::Exception);
     std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const throw(INTERP_KERNEL::Exception);
     std::vector<DataArrayDouble *> getArrays() const throw(INTERP_KERNEL::Exception);
     std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingDefinitionTime getDefinitionTimeZone() const;
+  protected:
+    MEDCouplingFieldOverTime();
   private:
     MEDCouplingFieldOverTime(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception);
   };

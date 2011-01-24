@@ -42,7 +42,7 @@ namespace ParaMEDMEM
     MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCpy);
     ~MEDCouplingPointSet();
   public:
-    void updateTime();
+    void updateTime() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     void setCoords(DataArrayDouble *coords);

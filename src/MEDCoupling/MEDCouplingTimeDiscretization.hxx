@@ -38,7 +38,7 @@ namespace ParaMEDMEM
     MEDCouplingTimeDiscretization();
     MEDCouplingTimeDiscretization(const MEDCouplingTimeDiscretization& other, bool deepCpy);
   public:
-    void updateTime();
+    void updateTime() const;
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     void setTimeUnit(const char *unit) { _time_unit=unit; }
     const char *getTimeUnit() const { return _time_unit.c_str(); }
@@ -341,7 +341,7 @@ namespace ParaMEDMEM
     MEDCouplingTwoTimeSteps();
     ~MEDCouplingTwoTimeSteps();
   public:
-    void updateTime();
+    void updateTime() const;
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     DataArrayDouble *getEndArray() const;

@@ -93,7 +93,7 @@ bool MEDCouplingFieldDiscretization::isEqualWithoutConsideringStr(const MEDCoupl
 /*!
  * Excepted for MEDCouplingFieldDiscretizationPerCell no underlying TimeLabel object : nothing to do in generally.
  */
-void MEDCouplingFieldDiscretization::updateTime()
+void MEDCouplingFieldDiscretization::updateTime() const
 {
 }
 
@@ -594,7 +594,7 @@ MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(con
     _discr_per_cell=arr->deepCpy();
 }
 
-void MEDCouplingFieldDiscretizationPerCell::updateTime()
+void MEDCouplingFieldDiscretizationPerCell::updateTime() const
 {
   if(_discr_per_cell)
     updateTimeWith(*_discr_per_cell);

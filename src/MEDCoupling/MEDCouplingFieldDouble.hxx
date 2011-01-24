@@ -114,7 +114,7 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
-    void updateTime();
+    void updateTime() const;
     //
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;

@@ -170,15 +170,15 @@ const MEDCouplingFieldDouble *MEDCouplingMultiFields::getFieldAtPos(int id) cons
   return _fs[id];
 }
 
-void MEDCouplingMultiFields::updateTime()
+void MEDCouplingMultiFields::updateTime() const
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::iterator it=_fs.begin();
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> >::const_iterator it=_fs.begin();
   for(;it!=_fs.end();it++)
-    if((MEDCouplingFieldDouble *)(*it))
+    if((const MEDCouplingFieldDouble *)(*it))
       (*it)->updateTime();
   it=_fs.begin();
   for(;it!=_fs.end();it++)
-    if((MEDCouplingFieldDouble *)(*it))
+    if((const MEDCouplingFieldDouble *)(*it))
       updateTimeWith(*(*it));
 }
 
