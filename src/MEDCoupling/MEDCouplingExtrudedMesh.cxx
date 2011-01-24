@@ -704,6 +704,7 @@ void MEDCouplingExtrudedMesh::getTinySerializationInformation(std::vector<int>& 
   tinyInfo.push_back(tinyInfo1.size());
   tinyInfo.push_back(_mesh3D_ids->getNbOfElems());
   littleStrings.push_back(getName());
+  littleStrings.push_back(getDescription());
 }
 
 void MEDCouplingExtrudedMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
@@ -728,7 +729,7 @@ void MEDCouplingExtrudedMesh::resizeForUnserialization(const std::vector<int>& t
   //
   a1->alloc(la1+tinyInfo[sz-1],1);
   a2->alloc(la2,1);
-  littleStrings.resize(ls1.size()+ls2.size()+1);
+  littleStrings.resize(ls1.size()+ls2.size()+2);
 }
 
 void MEDCouplingExtrudedMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
@@ -755,7 +756,8 @@ void MEDCouplingExtrudedMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2)
 
 void MEDCouplingExtrudedMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
-  setName(littleStrings.back().c_str());
+  setName(littleStrings[littleStrings.size()-2].c_str());
+  setDescription(littleStrings.back().c_str());
   int sz=tinyInfo.size();
   int sz1=tinyInfo[sz-2];
   _cell_2D_id=tinyInfo[sz-3];
@@ -777,7 +779,7 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<int>& tinyInfo, 
   a1tmp->decrRef(); a2tmp->decrRef();
   //
   ls2.clear();
-  ls2.insert(ls2.end(),littleStrings.begin()+ls1.size(),littleStrings.end()-1);
+  ls2.insert(ls2.end(),littleStrings.begin()+ls1.size(),littleStrings.end()-2);
   _mesh1D=MEDCouplingUMesh::New();
   a1tmp=DataArrayInt::New(); a2tmp=DataArrayDouble::New();
   _mesh1D->resizeForUnserialization(ti2,a1tmp,a2tmp,ls1);

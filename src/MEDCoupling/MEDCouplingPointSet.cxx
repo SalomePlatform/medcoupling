@@ -602,10 +602,12 @@ void MEDCouplingPointSet::getTinySerializationInformation(std::vector<int>& tiny
   if(_coords)
     {
       int spaceDim=getSpaceDimension();
-      littleStrings.resize(spaceDim+1);
+      littleStrings.resize(spaceDim+3);
       littleStrings[0]=getName();
+      littleStrings[1]=getDescription();
+      littleStrings[2]=_coords->getName();
       for(int i=0;i<spaceDim;i++)
-        littleStrings[i+1]=getCoords()->getInfoOnComponent(i);
+        littleStrings[i+3]=getCoords()->getInfoOnComponent(i);
       tinyInfo.clear();
       tinyInfo.push_back(getType());
       tinyInfo.push_back(spaceDim);
@@ -613,8 +615,9 @@ void MEDCouplingPointSet::getTinySerializationInformation(std::vector<int>& tiny
     }
   else
     {
-      littleStrings.resize(1);
+      littleStrings.resize(2);
       littleStrings[0]=getName();
+      littleStrings[1]=getDescription();
       tinyInfo.clear();
       tinyInfo.push_back(getType());
       tinyInfo.push_back(-1);
@@ -645,11 +648,11 @@ void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyI
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
       a2->alloc(tinyInfo[2],tinyInfo[1]);
-      littleStrings.resize(tinyInfo[1]+1);
+      littleStrings.resize(tinyInfo[1]+3);
     }
   else
     {
-      littleStrings.resize(1);
+      littleStrings.resize(2);
     }
 }
 
@@ -663,11 +666,16 @@ void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, cons
     {
       setCoords(a2);
       setName(littleStrings[0].c_str());
+      setDescription(littleStrings[1].c_str());
+      a2->setName(littleStrings[2].c_str());
       for(int i=0;i<tinyInfo[1];i++)
-        getCoords()->setInfoOnComponent(i,littleStrings[i+1].c_str());
+        getCoords()->setInfoOnComponent(i,littleStrings[i+3].c_str());
     }
   else
-    setName(littleStrings[0].c_str());
+    {
+      setName(littleStrings[0].c_str());
+      setDescription(littleStrings[1].c_str());
+    }
 }
 
 /*!

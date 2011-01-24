@@ -771,6 +771,7 @@ void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInf
   tinyInfo.clear();
   littleStrings.clear();
   littleStrings.push_back(getName());
+  littleStrings.push_back(getDescription());
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
   for(int i=0;i<3;i++)
     {
@@ -819,6 +820,7 @@ void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const D
                                        const std::vector<std::string>& littleStrings)
 {
   setName(littleStrings[0].c_str());
+  setDescription(littleStrings[1].c_str());
   DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
   const double *data=a2->getConstPointer();
   for(int i=0;i<3;i++)
@@ -827,7 +829,7 @@ void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const D
         {
           (*(thisArr[i]))=DataArrayDouble::New();
           (*(thisArr[i]))->alloc(tinyInfo[i],1);
-          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+1].c_str());
+          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+2].c_str());
           std::copy(data,data+tinyInfo[i],(*(thisArr[i]))->getPointer());
           data+=tinyInfo[i];
         }
