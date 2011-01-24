@@ -111,10 +111,10 @@ void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
   MEDLoaderBase::safeStrCpy(_name.c_str(),MED_TAILLE_NOM,maa,_too_long_str);
   MEDLoaderBase::safeStrCpy(_desc_name.c_str(),MED_TAILLE_DESC,desc,_too_long_str);
   int spaceDim=coo?coo->getNumberOfComponents():0;
-  MEDmaaCr(fid,maa,spaceDim,MED_NON_STRUCTURE,desc);
+  int mdim=getMeshDimension();
+  MEDmaaCr(fid,maa,mdim,MED_NON_STRUCTURE,desc);
   MEDdimEspaceCr(fid,maa,spaceDim);
   MEDFileUMeshL2::writeCoords(fid,maa,_coords,_fam_coords,_num_coords);
-  int mdim=getMeshDimension();
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     if((const MEDFileUMeshSplitL1 *)(*it)!=0)
       (*it)->write(fid,maa,mdim);
