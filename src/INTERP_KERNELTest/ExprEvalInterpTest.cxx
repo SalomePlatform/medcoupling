@@ -20,6 +20,9 @@
 #include "ExprEvalInterpTest.hxx"
 #include "InterpKernelExprParser.hxx"
 
+#include <limits>
+#include <iterator>
+
 using namespace INTERP_TEST;
 
 void ExprEvalInterpTest::testBuildStringFromFortran()
@@ -377,4 +380,60 @@ void ExprEvalInterpTest::testInterpreterUnit1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.62,unit11.convert(unit10,62.),1e-15);
   INTERP_KERNEL::Unit unit12("m-m");
   CPPUNIT_ASSERT(!unit12.isInterpretationOK());
+}
+
+void ExprEvalInterpTest::testInterpreter3()
+{
+  INTERP_KERNEL::ExprParser expr1("2.3+x>5.");
+  expr1.parse();
+  std::set<std::string> res;
+  expr1.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  expr1.prepareExprEvaluationVec();
+  double input[3];
+  input[0]=0.;
+  double res2[3];
+  expr1.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT(-std::numeric_limits<double>::max()==res2[0]);
+  input[0]=2.8;
+  expr1.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT(std::numeric_limits<double>::max()==res2[0]);
+  input[0]=2.6;
+  expr1.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT(-std::numeric_limits<double>::max()==res2[0]);
+  //
+  INTERP_KERNEL::ExprParser expr2("2.3+x<5.");
+  expr2.parse();
+  res.clear();
+  expr2.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  expr2.prepareExprEvaluationVec();
+  input[0]=0.;
+  expr2.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT(std::numeric_limits<double>::max()==res2[0]);
+  input[0]=2.8;
+  expr2.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT(-std::numeric_limits<double>::max()==res2[0]);
+  input[0]=2.6;
+  expr2.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT(std::numeric_limits<double>::max()==res2[0]);
+  //
+  INTERP_KERNEL::ExprParser expr3("if(2.3+x<5.,2+3*x,3+x/2)");
+  expr3.parse();
+  res.clear();
+  expr3.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  expr3.prepareExprEvaluationVec();
+  input[0]=0.;
+  expr3.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2.,res2[0],1e-12);
+  input[0]=2.8;
+  expr3.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.4,res2[0],1e-12);
+  input[0]=2.6;
+  expr3.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(9.8,res2[0],1e-12);
 }

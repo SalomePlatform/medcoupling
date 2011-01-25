@@ -380,8 +380,8 @@ void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
   if(pos4!=pos1)
     return ;
   std::string funcName=_expr.substr(0,pos1);
-  std::size_t pos2=funcName.find_first_of("+-*/^",0,5);
-  std::size_t pos3=funcName.find_first_not_of("+-*/^",0,5);
+  std::size_t pos2=funcName.find_first_of("+-*/^><",0,7);
+  std::size_t pos3=funcName.find_first_not_of("+-*/^><",0,7);
   if(pos2!=std::string::npos && pos3!=std::string::npos)
     return ;//Bracket group is not alone, can't conclude not recursively.
   std::string newExp2=_expr.substr(pos1+1,_expr.length()-pos1-2);
@@ -401,7 +401,7 @@ void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
   std::size_t pos6=0;
   for(int i=0;i<nbOfParamsInFunc;i++)
     {
-      std::size_t pos5=newExp2.find_first_of(',');
+      std::size_t pos5=newExp2.find_first_of(',',pos6);
       std::size_t len=std::string::npos;
       if(pos5!=std::string::npos)
         len=pos5-pos6;
@@ -434,6 +434,66 @@ bool ExprParser::tryToInterpALeaf() throw(INTERP_KERNEL::Exception)
     _func_btw_sub_expr.push_back(FunctionsFactory::buildUnaryFuncFromString("-"));
   _is_parsing_ok=true;
   return true;
+}
+
+void ExprParser::parseForCmp() throw(INTERP_KERNEL::Exception)
+{
+  std::string::const_iterator iter;
+  int curLevel=0;
+  std::string curPart;
+  bool isParsingSucceed=false;
+  for(iter=_expr.begin();iter!=_expr.end();iter++)
+    {
+      switch(*iter)
+        {
+        case '>':
+        case '<':
+          {
+            isParsingSucceed=true;
+            if(!curPart.empty())
+              {
+                _sub_expr.push_back(ExprParser(curPart.c_str(),this));
+                curPart.clear();
+                _func_btw_sub_expr.push_back(FunctionsFactory::buildBinaryFuncFromString(*iter));
+              }
+            else
+              {
+                std::ostringstream errMsg;
+                char MSGTYP1[]="Error non unary function for '";
+                errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1 << *iter << "'";
+                std::string tmp=_expr.substr(iter-_expr.begin());
+                locateError(errMsg,tmp,0);
+                throw INTERP_KERNEL::Exception(errMsg.str().c_str());
+              }
+            break;
+          }
+        case '(':
+          curLevel++;
+          curPart+=*iter;
+          break;
+        case ')':
+          curLevel--;
+          curPart+=*iter;
+          break;
+        default:
+          curPart+=*iter;
+        }
+    }
+  if(isParsingSucceed)
+    {
+      if(!curPart.empty())
+        {
+          _sub_expr.push_back(ExprParser(curPart.c_str(),this));
+          _is_parsing_ok=true;
+        }
+      else
+        {
+          std::ostringstream errMsg;
+          char MSGTYP4[]="Error following expression finished by > / < without right part.";
+          errMsg << EXPR_PARSE_ERR_MSG << MSGTYP4 << _expr;
+          throw INTERP_KERNEL::Exception(errMsg.str().c_str());
+        }
+    }
 }
 
 void ExprParser::parseForAddMin() throw(INTERP_KERNEL::Exception)
@@ -640,12 +700,16 @@ bool ExprParser::simplify() throw(INTERP_KERNEL::Exception)
   parseUnaryFunc();
   if(!_is_parsing_ok)
     {
-      parseForAddMin();
+      parseForCmp();
       if(!_is_parsing_ok)
         {
-          parseForMulDiv();
+          parseForAddMin();
           if(!_is_parsing_ok)
-            parseForPow();
+            {
+              parseForMulDiv();
+              if(!_is_parsing_ok)
+                parseForPow();
+            }
         }
     }
   if(!_is_parsing_ok)

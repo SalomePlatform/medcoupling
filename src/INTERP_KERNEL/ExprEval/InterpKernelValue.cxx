@@ -137,6 +137,29 @@ Value *ValueDouble::min(const Value *other) const throw(INTERP_KERNEL::Exception
   return new ValueDouble(std::min(_data,valC->_data));
 }
 
+Value *ValueDouble::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDouble *valC=checkSameType(other);
+  return new ValueDouble(_data>valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
+}
+
+Value *ValueDouble::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDouble *valC=checkSameType(other);
+  return new ValueDouble(_data<valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
+}
+
+Value *ValueDouble::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDouble *theC=checkSameType(the);
+  const ValueDouble *elsC=checkSameType(els);
+  if(_data==std::numeric_limits<double>::max())
+    return new ValueDouble(theC->_data);
+  if(_data==-std::numeric_limits<double>::max())
+    return new ValueDouble(elsC->_data);
+  throw INTERP_KERNEL::Exception("ValueDouble::ifFunc : The fist element of ternary function if is not a binary op !");
+}
+
 const ValueDouble *ValueDouble::checkSameType(const Value *val) throw(INTERP_KERNEL::Exception)
 {
   const ValueDouble *valC=dynamic_cast<const ValueDouble *>(val);
@@ -224,6 +247,24 @@ Value *ValueUnit::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
 Value *ValueUnit::minus(const Value *other) const throw(INTERP_KERNEL::Exception)
 {
   unsupportedOp(MinusFunction::REPR);
+  return 0;
+}
+
+Value *ValueUnit::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(GreaterThanFunction::REPR);
+  return 0;
+}
+
+Value *ValueUnit::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(LowerThanFunction::REPR);
+  return 0;
+}
+
+Value *ValueUnit::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(IfFunction::REPR);
   return 0;
 }
 
@@ -422,4 +463,58 @@ Value *ValueDoubleExpr::min(const Value *other) const throw(INTERP_KERNEL::Excep
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun<const double&, const double&, const double& >(std::min));
   return ret;
+}
+
+Value *ValueDoubleExpr::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  for(int i=0;i<_sz_dest_data;i++)
+    if(_dest_data[i]<=otherC->getData()[i])
+      {
+        std::fill(ret->getData(),ret->getData()+_sz_dest_data,-std::numeric_limits<double>::max());
+        return ret;
+      }
+  std::fill(ret->getData(),ret->getData()+_sz_dest_data,std::numeric_limits<double>::max());
+  return ret;
+}
+
+Value *ValueDoubleExpr::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  for(int i=0;i<_sz_dest_data;i++)
+    if(_dest_data[i]>=otherC->getData()[i])
+      {
+        std::fill(ret->getData(),ret->getData()+_sz_dest_data,-std::numeric_limits<double>::max());
+        return ret;
+      }
+  std::fill(ret->getData(),ret->getData()+_sz_dest_data,std::numeric_limits<double>::max());
+  return ret;
+}
+
+Value *ValueDoubleExpr::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDoubleExpr *theC=static_cast<const ValueDoubleExpr *>(the);
+  const ValueDoubleExpr *elsC=static_cast<const ValueDoubleExpr *>(els);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  bool okmax=true;
+  bool okmin=true;
+  for(int i=0;i<_sz_dest_data && (okmax || okmin);i++)
+    {
+      okmax=_dest_data[i]==std::numeric_limits<double>::max();
+      okmin=_dest_data[i]==-std::numeric_limits<double>::max();
+    }
+  if(okmax || okmin)
+    {
+      if(okmax)
+        std::copy(theC->getData(),theC->getData()+_sz_dest_data,ret->getData());
+      else
+        std::copy(elsC->getData(),elsC->getData()+_sz_dest_data,ret->getData());
+      return ret;
+    }
+  else
+    {
+      throw INTERP_KERNEL::Exception("ValueDoubleExpr::ifFunc : first parameter of ternary func is NOT a consequence of a boolean op !");
+    }
 }

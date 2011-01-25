@@ -51,6 +51,10 @@ namespace INTERP_KERNEL
     virtual Value *pow(const Value *other) const throw(INTERP_KERNEL::Exception) = 0;
     virtual Value *max(const Value *other) const throw(INTERP_KERNEL::Exception) = 0;
     virtual Value *min(const Value *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual Value *greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual Value *lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception) = 0;
+    //ternary
+    virtual Value *ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception) = 0;
   };
 
   class INTERPKERNELEXPREVAL_EXPORT ValueDouble : public Value
@@ -79,6 +83,10 @@ namespace INTERP_KERNEL
     Value *pow(const Value *other) const throw(INTERP_KERNEL::Exception);
     Value *max(const Value *other) const throw(INTERP_KERNEL::Exception);
     Value *min(const Value *other) const throw(INTERP_KERNEL::Exception);
+    Value *greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    Value *lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    //
+    Value *ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception);
   private:
     ValueDouble(double val);
     static const ValueDouble *checkSameType(const Value *val) throw(INTERP_KERNEL::Exception);
@@ -112,6 +120,10 @@ namespace INTERP_KERNEL
     Value *pow(const Value *other) const throw(INTERP_KERNEL::Exception);
     Value *max(const Value *other) const throw(INTERP_KERNEL::Exception);
     Value *min(const Value *other) const throw(INTERP_KERNEL::Exception);
+    Value *greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    Value *lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    //
+    Value *ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception);
   private:
     ValueUnit(const DecompositionInUnitBase& unit);
     static void unsupportedOp(const char *type) throw(INTERP_KERNEL::Exception);
@@ -147,6 +159,10 @@ namespace INTERP_KERNEL
     Value *pow(const Value *other) const throw(INTERP_KERNEL::Exception);
     Value *max(const Value *other) const throw(INTERP_KERNEL::Exception);
     Value *min(const Value *other) const throw(INTERP_KERNEL::Exception);
+    Value *greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    Value *lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception);
+    //
+    Value *ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception);
   private:
     int _sz_dest_data;
     double *_dest_data;

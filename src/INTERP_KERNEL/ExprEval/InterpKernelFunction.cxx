@@ -58,6 +58,12 @@ const char MaxFunction::REPR[]="max";
 
 const char MinFunction::REPR[]="min";
 
+const char GreaterThanFunction::REPR[]=">";
+
+const char LowerThanFunction::REPR[]="<";
+
+const char IfFunction::REPR[]="if";
+
 Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams) throw(INTERP_KERNEL::Exception)
 {
   switch(nbOfParams)
@@ -66,6 +72,8 @@ Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams
       return buildUnaryFuncFromString(type);
     case 2:
       return buildBinaryFuncFromString(type);
+    case 3:
+      return buildTernaryFuncFromString(type);
     default:
       throw INTERP_KERNEL::Exception("Invalid number of params detected : limited to 2 !");
     }
@@ -117,7 +125,21 @@ Function *FunctionsFactory::buildBinaryFuncFromString(const char *type) throw(IN
     return new MaxFunction;
   if(tmp==MinFunction::REPR)
     return new MinFunction;
+  if(tmp==GreaterThanFunction::REPR)
+    return new GreaterThanFunction;
+  if(tmp==LowerThanFunction::REPR)
+    return new LowerThanFunction;
   std::string msg("Invalid binary function detected : \"");
+  msg+=type; msg+="\"";
+  throw INTERP_KERNEL::Exception(msg.c_str());
+}
+
+Function *FunctionsFactory::buildTernaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception)
+{
+  std::string tmp(type);
+  if(tmp==IfFunction::REPR)
+    return new IfFunction();
+  std::string msg("Invalid ternary function detected : \"");
   msg+=type; msg+="\"";
   throw INTERP_KERNEL::Exception(msg.c_str());
 }
@@ -649,3 +671,130 @@ bool MinFunction::isACall() const
 {
   return false;
 }
+
+GreaterThanFunction::~GreaterThanFunction()
+{
+}
+
+void GreaterThanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->greaterThan(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+void GreaterThanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *GreaterThanFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool GreaterThanFunction::isACall() const
+{
+  return false;
+}
+
+LowerThanFunction::~LowerThanFunction()
+{
+}
+
+void LowerThanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->lowerThan(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+void LowerThanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *LowerThanFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool LowerThanFunction::isACall() const
+{
+  return false;
+}
+
+int TernaryFunction::getNbInputParams() const
+{
+  return 3;
+}
+
+IfFunction::~IfFunction()
+{
+}
+
+void IfFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *val2=stack.back();
+  stack.pop_back();
+  Value *&val3=stack.back();
+  Value *val4;
+  try
+    {
+      val4=val1->ifFunc(val2,val3);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      delete val2;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  delete val3;
+  val3=val4;
+}
+
+void IfFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *IfFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool IfFunction::isACall() const
+{
+  return false;
+}
+

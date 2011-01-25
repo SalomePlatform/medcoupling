@@ -36,6 +36,7 @@ namespace INTERP_TEST
     CPPUNIT_TEST( testInterpreter2 );
     CPPUNIT_TEST( testInterpreterUnit0 );
     CPPUNIT_TEST( testInterpreterUnit1 );
+    CPPUNIT_TEST( testInterpreter3 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void setUp() { }
@@ -46,6 +47,7 @@ namespace INTERP_TEST
     void testInterpreter0();
     void testInterpreter1();
     void testInterpreter2();
+    void testInterpreter3();
     void testInterpreterUnit0();
     void testInterpreterUnit1();
   };

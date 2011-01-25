@@ -105,6 +105,7 @@ namespace INTERP_KERNEL
     void prepareExprEvaluationVecLowLev() const throw(INTERP_KERNEL::Exception);
     bool tryToInterpALeaf() throw(INTERP_KERNEL::Exception);
     void parseUnaryFunc() throw(INTERP_KERNEL::Exception);
+    void parseForCmp() throw(INTERP_KERNEL::Exception);
     void parseForAddMin() throw(INTERP_KERNEL::Exception);
     void parseForMulDiv() throw(INTERP_KERNEL::Exception);
     void parseForPow() throw(INTERP_KERNEL::Exception);
