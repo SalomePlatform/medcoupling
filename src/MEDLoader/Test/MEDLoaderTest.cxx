@@ -821,9 +821,9 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_2()
   targetMesh->setName("2DMesh_2");
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+12);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+16);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,2);
@@ -848,9 +848,9 @@ MEDCouplingUMesh *MEDLoaderTest::build3DSurfMesh_1()
   targetMesh->setName("3DSurfMesh_1");
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+12);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+16);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_POLYGON,4,targetConn+20);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
@@ -935,7 +935,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
 MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
 {
   MEDCouplingUMesh *m3dsurfBase=build3DSurfMesh_1();
-  int numbers[5]={0,1,3,4,5};
+  int numbers[5]={0,1,2,3,5};
   MEDCouplingUMesh *m3dsurf=(MEDCouplingUMesh *)m3dsurfBase->buildPartOfMySelf(numbers,numbers+5,false);
   m3dsurfBase->decrRef();
   MEDCouplingUMesh *m1dBase=build1DMesh_1();
@@ -1021,12 +1021,14 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGauss_1()
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
   const double refCoo2[12]={-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 };
   std::vector<double> _refCoo2(refCoo2,refCoo2+12);
-  _gsCoo1.resize(6); _wg1.resize(3);
-  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI6,_refCoo2,_gsCoo1,_wg1);
+  std::vector<double> _gsCoo2(_gsCoo1);
+  std::vector<double> _wg2(_wg1);
+  _gsCoo2.resize(6); _wg2.resize(3);
   const double refCoo3[8]={ 0.,0., 1.,0., 1.,1., 0.,1. };
   std::vector<double> _refCoo3(refCoo3,refCoo3+8);
   _gsCoo1.resize(4); _wg1.resize(2);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,_refCoo3,_gsCoo1,_wg1);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI6,_refCoo2,_gsCoo2,_wg2);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(19,2);
   double *ptr=array->getPointer();

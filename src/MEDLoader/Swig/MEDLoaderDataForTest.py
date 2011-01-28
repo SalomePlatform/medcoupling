@@ -89,9 +89,9 @@ class MEDLoaderDataForTest:
         targetMesh.setName("2DMesh_2");
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
-        targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[12:16])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[16:20])
+        targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(targetCoords,12,2);
@@ -172,9 +172,9 @@ class MEDLoaderDataForTest:
         targetMesh.setName("3DSurfMesh_1");
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
-        targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[12:16])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[16:20])
+        targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.insertNextCell(NORM_POLYGON,4,targetConn[20:24])
         targetMesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
@@ -186,7 +186,7 @@ class MEDLoaderDataForTest:
     
     def build3DMesh_2(cls):
         m3dsurfBase=MEDLoaderDataForTest.build3DSurfMesh_1();
-        numbers=[0,1,3,4,5]
+        numbers=[0,1,2,3,5]
         m3dsurf=m3dsurfBase.buildPartOfMySelf(numbers,False);
         m1dBase=MEDLoaderDataForTest.build1DMesh_1();
         numbers2=[0,1,2,3]
@@ -254,13 +254,15 @@ class MEDLoaderDataForTest:
         refCoo2=[-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 ]
         _refCoo2=refCoo2;
         _gsCoo1=_gsCoo1[0:6];
+        _gsCoo2=_gsCoo1
         _wg1=_wg1[0:3];
-        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo1,_wg1);
+        _wg2=_wg1
         refCoo3=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
         _refCoo3=refCoo3;
         _gsCoo1=_gsCoo1[0:4];
         _wg1=_wg1[0:2];
         f.setGaussLocalizationOnType(NORM_QUAD4,_refCoo3,_gsCoo1,_wg1);
+        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2);
         array=DataArrayDouble.New();
         array.alloc(19,2);
         ptr=array.getPointer();
