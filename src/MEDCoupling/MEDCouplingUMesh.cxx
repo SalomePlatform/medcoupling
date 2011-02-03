@@ -2172,16 +2172,14 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
   double bb[2*SPACEDIM];
-  for(int j=0;j<SPACEDIM;j++)
-    { bb[2*j]=std::numeric_limits<double>::max(); bb[2*j+1]=-std::numeric_limits<double>::max(); }
   BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbOfCells,-eps);
   for(int i=0;i<nbOfPoints;i++)
     {
       eltsIndex[i+1]=eltsIndex[i];
       for(int j=0;j<SPACEDIM;j++)
         {
-          bb[2*j]=std::min(bb[2*j],pos[SPACEDIM*i+j]);
-          bb[2*j+1]=std::max(bb[2*j+1],pos[SPACEDIM*i+j]);
+          bb[2*j]=pos[SPACEDIM*i+j];
+          bb[2*j+1]=pos[SPACEDIM*i+j];
         }
       std::vector<int> candidates;
       myTree.getIntersectingElems(bb,candidates);
