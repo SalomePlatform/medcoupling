@@ -232,7 +232,57 @@ bool MEDFileUMeshL2::isNumDefinedOnLev(int levId) const
   return true;
 }
 
-MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id)
+MEDFileUMeshPermCompute::MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st):_st(st),_mpt_time(0),_num_time(0)
+{
+}
+
+/*!
+ * Warning it returns an instance to deallocate !!!!
+ */
+MEDFileUMeshPermCompute::operator MEDCouplingUMesh *() const
+{
+  _st->_m_by_types->updateTime();
+  _st->_num->updateTime();
+  if((MEDCouplingUMesh *)_m==0)
+    {
+      updateTime();
+      MEDCouplingUMesh *ret=(MEDCouplingUMesh *)_st->_m_by_types->deepCpy();
+      _m=ret;
+      _m->renumberCells(_st->_num->getConstPointer(),true);
+      ret->incrRef();
+      return ret;
+    }
+  else
+    {
+      if(_mpt_time==_st->_m_by_types->getTimeOfThis() && _num_time==_st->_num->getTimeOfThis())
+        {
+          _m->incrRef();
+          return _m;
+        }
+      else
+        {
+          updateTime();
+          MEDCouplingUMesh *ret=(MEDCouplingUMesh *)_st->_m_by_types->deepCpy();
+          _m=ret;
+          _m->renumberCells(_st->_num->getConstPointer(),true);
+          ret->incrRef();
+          return ret;
+        }
+    }
+}
+
+void MEDFileUMeshPermCompute::operator=(MEDCouplingUMesh *m)
+{
+  _m=m;
+}
+
+void MEDFileUMeshPermCompute::updateTime() const
+{
+  _mpt_time=_st->_m_by_types->getTimeOfThis();
+  _num_time=_st->_num->getTimeOfThis();
+}
+
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id):_m(this)
 {
   const std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> >& v=l2.getLev(id);
   if(v.empty())
@@ -267,21 +317,17 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
       for(int i=0;i<sz;i++)
         w=std::copy(v[i]->getNum()->getConstPointer(),v[i]->getNum()->getConstPointer()+v[i]->getNum()->getNumberOfTuples(),w);
       computeRevNum();
-      _m=(MEDCouplingUMesh *)_m_by_types->deepCpy();
-      _m->renumberCells(_num->getConstPointer(),true);
     }
-  else
-    _m=_m_by_types;
   for(int i=0;i<sz;i++)
     (const_cast<MEDCouplingUMesh *>(ms[i]))->decrRef();//const cast under control to avoid a copy of array
 }
 
-MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m)
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m):_m(this)
 {
   assignMesh(m,true);
 }
 
-MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld)
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld):_m(this)
 {
   assignMesh(m,newOrOld);
 }
@@ -292,11 +338,12 @@ void MEDFileUMeshSplitL1::assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(I
     {
       m->incrRef();
       _m=m;
-      _m_by_types=(MEDCouplingUMesh *)_m->deepCpy();
+      _m_by_types=(MEDCouplingUMesh *)m->deepCpy();
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_m_by_types->getRenumArrForConsecutiveCellTypesSpec(typmai2,typmai2+MED_NBR_GEOMETRIE_MAILLE+2);
       if(!da->isIdentity())
         {
           _num=da->invertArrayO2N2N2O(m->getNumberOfCells());
+          _m.updateTime();
           computeRevNum();
           _m_by_types->renumberCells(da->getConstPointer(),false);
         }
@@ -390,8 +437,8 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
   _m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,0,corr);
   std::vector< std::vector<int> > fidsOfGroups;
   std::vector< const DataArrayInt * > corr2(corr.begin(),corr.end());
-  _fam=DataArrayInt::MakePartition(corr2,_m->getNumberOfCells(),fidsOfGroups);
-  int nbOfCells=_m->getNumberOfCells();
+  _fam=DataArrayInt::MakePartition(corr2,((MEDCouplingUMesh *)_m)->getNumberOfCells(),fidsOfGroups);
+  int nbOfCells=((MEDCouplingUMesh *)_m)->getNumberOfCells();
   std::map<int,std::string> newfams;
   std::map<int,int> famIdTrad;
   traduceFamilyNumber(fidsOfGroups,familyIds,famIdTrad,newfams);

@@ -79,8 +79,25 @@ namespace ParaMEDMEM
   {
   };
 
+  class MEDFileUMeshSplitL1;
+
+  class MEDFileUMeshPermCompute
+  {
+  public:
+    MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st);
+    operator MEDCouplingUMesh *() const;
+    void operator=(MEDCouplingUMesh *m);
+    void updateTime() const;
+  private:
+    const MEDFileUMeshSplitL1 *_st;
+    mutable unsigned int _mpt_time;
+    mutable unsigned int _num_time;
+    mutable MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
+  };
+
   class MEDFileUMeshSplitL1 : public RefCountObject
   {
+    friend class MEDFileUMeshPermCompute;
   public:
     MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
@@ -117,7 +134,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num;
-    MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> _m;
+    MEDFileUMeshPermCompute _m;
   };
 }
 
