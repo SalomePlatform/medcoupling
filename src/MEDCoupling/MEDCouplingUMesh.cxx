@@ -1322,7 +1322,7 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INT
  * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
  * added in 'elems' parameter.
  */
-void MEDCouplingUMesh::giveElemsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
+void MEDCouplingUMesh::giveCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
 {
   if(getMeshDimension()==-1)
     {
@@ -1370,11 +1370,11 @@ void MEDCouplingUMesh::giveElemsInBoundingBox(const double *bbox, double eps, st
 }
 
 /*!
- * Given a boundary box 'bbox' returns elements 'elems' contained in this 'bbox'.
+ * Given a boundary box 'bbox' returns elements 'elems' contained in this 'bbox' or touching 'bbox' (within 'eps' distance).
  * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
  * added in 'elems' parameter.
  */
-void MEDCouplingUMesh::giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems)
+void MEDCouplingUMesh::giveCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems)
 {
   if(getMeshDimension()==-1)
     {
@@ -2120,6 +2120,8 @@ void MEDCouplingUMesh::project1D(const double *pt, const double *v, double eps, 
 /*!
  * Returns a cell if any that contains the point located on 'pos' with precison eps.
  * If 'pos' is outside 'this' -1 is returned. If several cells contain this point the cell with the smallest id is returned.
+ * \b Warning this method is good if the caller intends to evaluate only one point. But if more than one point is requested on 'this'
+ * it is better to use MEDCouplingUMesh::getCellsContainingPoints method because in this case, the acceleration structure will be computed only once.
  */
 int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) const
 {
@@ -2132,6 +2134,8 @@ int MEDCouplingUMesh::getCellContainingPoint(const double *pos, double eps) cons
 
 /*!
  * Returns all cellIds in 'elts' of point 'pos' with eps accuracy.
+ * \b Warning this method is good if the caller intends to evaluate only one point. But if more than one point is requested on 'this'
+ * it is better to use MEDCouplingUMesh::getCellsContainingPoints method because in this case, the acceleration structure will be computed only once.
  */
 void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
@@ -2197,6 +2201,15 @@ void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const d
     }
 }
 
+/*!
+ * This method is an extension of MEDCouplingUMesh::getCellContainingPoint and MEDCouplingUMesh::getCellsContainingPoint.
+ * This method performs 'nbOfPoints' time the getCellsContainingPoint request. This method is recommended rather than the 2 others
+ * in case of multi points searching.
+ * This method returns 2 arrays 'elts' and 'eltsIndex'. 'eltsIndex' is of size 'nbOfPoints+1' and 'elts' is of size 'eltsIndex[nbOfPoints-1]'.
+ * For point j in [0,nbOfPoints), (eltsIndex[j+1]-eltsIndex[j]) cells contain this point. These cells are : [elts.begin()+eltsIndex[j],elts.begin():eltsIndex[j+1]).
+ * 
+ * \param pos input parameter that points to an array of size 'getSpaceDim()*nbOfPoints' points stored in full interlace mode : X0,Y0,Z0,X1,Y1,Z1...
+ */
 void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps,
                                                 std::vector<int>& elts, std::vector<int>& eltsIndex) const
 {
