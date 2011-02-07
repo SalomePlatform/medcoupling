@@ -193,9 +193,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
     def testRevNodal(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1()
-        revNodal=DataArrayInt.New();
-        revNodalIndx=DataArrayInt.New();
-        mesh.getReverseNodalConnectivity(revNodal,revNodalIndx);
+        revNodal,revNodalIndx=mesh.getReverseNodalConnectivity();
         revNodalExpected=[0,0,1,1,2,0,3,0,1,2,3,4,2,4,3,3,4,4];
         revNodalIndexExpected=[0,1,3,5,7,12,14,15,17,18];
         self.assertEqual(revNodal.getNbOfElems(),18)
@@ -4110,7 +4108,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pos1=[5.,30.,2.]
         self.assertEqual(16,m.getCellContainingPoint(pos1,1e-12));
         #
-        elems=m2.giveCellsInBoundingBox([3.5,6.,12.2,25.,0.,1.5],1e-7)
+        elems=m2.getCellsInBoundingBox([3.5,6.,12.2,25.,0.,1.5],1e-7)
         self.assertEqual([1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17],elems)
         #
         pt=[2.4,12.7,-3.4]

@@ -495,7 +495,7 @@ namespace ParaMEDMEM
       void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const throw(INTERP_KERNEL::Exception);
       void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                            const std::vector<std::string>& littleStrings) throw(INTERP_KERNEL::Exception);
-      virtual void giveCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
+      virtual void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
       virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception) = 0;
       %extend 
          {
@@ -675,12 +675,12 @@ namespace ParaMEDMEM
              return ret;
            }
 
-           PyObject *giveCellsInBoundingBox(PyObject *bbox, double eps) throw(INTERP_KERNEL::Exception)
+           PyObject *getCellsInBoundingBox(PyObject *bbox, double eps) throw(INTERP_KERNEL::Exception)
            {
              std::vector<int> elems;
              int size;
              double *tmp=convertPyToNewDblArr2(bbox,&size);
-             self->giveCellsInBoundingBox(tmp,eps,elems);
+             self->getCellsInBoundingBox(tmp,eps,elems);
              delete [] tmp;
              return convertIntArrToPyList2(elems);
            }
@@ -734,7 +734,6 @@ namespace ParaMEDMEM
     DataArrayInt *rearrange2ConsecutiveCellTypes() throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception);
-    void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
     bool isPresenceOfQuadratic() const throw(INTERP_KERNEL::Exception);
@@ -983,6 +982,19 @@ namespace ParaMEDMEM
         d1->incrRef();
         d2->incrRef();
         d3->incrRef();
+        return ret;
+      }
+
+      PyObject *getReverseNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+        self->getReverseNodalConnectivity(d0,d1);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        d0->incrRef();
+        d1->incrRef();
         return ret;
       }
 

@@ -241,7 +241,7 @@ void MEDCouplingUMeshDesc::unserialization(const std::vector<int>& tinyInfo, Dat
   setMeshDimension(tinyInfo[2]);
 }
 
-void MEDCouplingUMeshDesc::giveCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
+void MEDCouplingUMeshDesc::getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
 {
   int dim=getSpaceDimension();
   double* elem_bb=new double[2*dim];
@@ -286,7 +286,7 @@ void MEDCouplingUMeshDesc::giveCellsInBoundingBox(const double *bbox, double eps
   delete [] elem_bb;
 }
 
-void MEDCouplingUMeshDesc::giveCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox &bbox, double eps, std::vector<int>& elems)
+void MEDCouplingUMeshDesc::getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox &bbox, double eps, std::vector<int>& elems)
 {
   int dim=getSpaceDimension();
   double* elem_bb=new double[2*dim];

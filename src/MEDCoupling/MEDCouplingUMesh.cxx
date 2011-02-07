@@ -1322,7 +1322,7 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INT
  * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
  * added in 'elems' parameter.
  */
-void MEDCouplingUMesh::giveCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
+void MEDCouplingUMesh::getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
 {
   if(getMeshDimension()==-1)
     {
@@ -1374,7 +1374,7 @@ void MEDCouplingUMesh::giveCellsInBoundingBox(const double *bbox, double eps, st
  * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
  * added in 'elems' parameter.
  */
-void MEDCouplingUMesh::giveCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems)
+void MEDCouplingUMesh::getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems)
 {
   if(getMeshDimension()==-1)
     {
