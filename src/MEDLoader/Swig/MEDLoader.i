@@ -211,7 +211,7 @@ public:
 
 %extend ParaMEDMEM::MEDFileUMesh
 {
-  void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=true) throw(INTERP_KERNEL::Exception)
+  void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
   {
     std::vector<const DataArrayInt *> grps;
     convertPyObjToVecDataArrayIntCst(li,grps);

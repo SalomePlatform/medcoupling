@@ -92,10 +92,10 @@ namespace ParaMEDMEM
     INTERP_KERNEL::DirectedBoundingBox dbb;
     double* distant_bb = _domain_bounding_boxes+rank*dbb.dataSize(_local_cell_mesh_space_dim);
     dbb.setData(distant_bb);
-    _local_cell_mesh->giveElemsInBoundingBox(dbb,getBoundingBoxAdjustment(),elems);
+    _local_cell_mesh->giveCellsInBoundingBox(dbb,getBoundingBoxAdjustment(),elems);
 #else
     double* distant_bb = _domain_bounding_boxes+rank*2*_local_cell_mesh_space_dim;
-    _local_cell_mesh->giveElemsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
+    _local_cell_mesh->giveCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
 #endif
     
     DataArrayInt *distant_ids_send;

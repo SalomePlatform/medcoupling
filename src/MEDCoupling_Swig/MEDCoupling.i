@@ -495,7 +495,7 @@ namespace ParaMEDMEM
       void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const throw(INTERP_KERNEL::Exception);
       void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                            const std::vector<std::string>& littleStrings) throw(INTERP_KERNEL::Exception);
-      virtual void giveElemsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
+      virtual void giveCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
       virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception) = 0;
       %extend 
          {
@@ -675,12 +675,12 @@ namespace ParaMEDMEM
              return ret;
            }
 
-           PyObject *giveElemsInBoundingBox(PyObject *bbox, double eps) throw(INTERP_KERNEL::Exception)
+           PyObject *giveCellsInBoundingBox(PyObject *bbox, double eps) throw(INTERP_KERNEL::Exception)
            {
              std::vector<int> elems;
              int size;
              double *tmp=convertPyToNewDblArr2(bbox,&size);
-             self->giveElemsInBoundingBox(tmp,eps,elems);
+             self->giveCellsInBoundingBox(tmp,eps,elems);
              delete [] tmp;
              return convertIntArrToPyList2(elems);
            }
