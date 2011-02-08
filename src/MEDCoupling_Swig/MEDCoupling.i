@@ -853,9 +853,17 @@ namespace ParaMEDMEM
         std::vector<int> elts,eltsIndex;
         self->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
         delete [] pos;
-        PyObject *ret=PyList_New(2);
-        PyList_SetItem(ret,0,convertIntArrToPyList2(elts));
-        PyList_SetItem(ret,1,convertIntArrToPyList2(eltsIndex));
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+        d0->alloc(elts.size(),1);
+        d1->alloc(eltsIndex.size(),1);
+        std::copy(elts.begin(),elts.end(),d0->getPointer());
+        std::copy(eltsIndex.begin(),eltsIndex.end(),d1->getPointer());
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        d0->incrRef();
+        d1->incrRef();
         return ret;
       }
 

@@ -1520,12 +1520,14 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pos=[0.,0.,0.4,0.4,0.,0.4,0.1,0.1,0.25,0.,0.65,0.]
         #2D basic
         t1,t2=targetMesh.getCellsContainingPoints(pos,6,1e-12);
-        self.assertEqual(6,len(t1));
-        self.assertEqual(7,len(t2));
+        self.assertEqual(6,t1.getNumberOfTuples());
+        self.assertEqual(1,t1.getNumberOfComponents());
+        self.assertEqual(7,t2.getNumberOfTuples());
+        self.assertEqual(1,t2.getNumberOfComponents());
         expectedValues1=[0,4,3,0,1,2]
         expectedValues2=[0,1,2,3,4,5,6]
-        self.assertEqual(list(t1),expectedValues1);
-        self.assertEqual(list(t2),expectedValues2);
+        self.assertEqual(list(t1.getValues()),expectedValues1);
+        self.assertEqual(list(t2.getValues()),expectedValues2);
         #2D with no help of bounding box.
         center=[0.2,0.2]
         MEDCouplingPointSet.Rotate2DAlg(center,0.78539816339744830962,6,pos);
@@ -1533,10 +1535,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         t1=None
         t2=None
         t1,t2=targetMesh.getCellsContainingPoints(pos,6,1e-12);
-        self.assertEqual(6,len(t1));
-        self.assertEqual(7,len(t2));
-        self.assertEqual(list(t1),expectedValues1);
-        self.assertEqual(list(t2),expectedValues2);
+        self.assertEqual(6,t1.getNumberOfTuples());
+        self.assertEqual(7,t2.getNumberOfTuples());
+        self.assertEqual(list(t1.getValues()),expectedValues1);
+        self.assertEqual(list(t2.getValues()),expectedValues2);
         #2D outside
         pos1bis=[-0.3303300858899107,-0.11819805153394641]
         self.assertEqual(-1,targetMesh.getCellContainingPoint(pos1bis,1e-12));
