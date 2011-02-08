@@ -31,7 +31,7 @@ All of exemples given here make the assumption that the \c ParaMEDMEM
 namespace is visible ( by calling for example \c using \c
 namespace \c ParaMEDMEM; ).
 
-Here a description of typical usages to use MEDCoupling arrays.
+Here a description of typical usages to use \ref ParaMEDMEM::DataArrayDouble "MEDCoupling arrays".
 In this example we will create arrays with 12 tuples constituted each
 of 3 components. These arrays will be created using different ways.
 
@@ -251,7 +251,21 @@ A mesh has a the following properties :
 mesh have the same dimension)
 - a space dimension (relative to coordinates)
 - a number of nodes
-- a number of cells 
+- a number of cells
+
+In MEDCoupling library there is no presence of faces nor edges.
+
+As a mesh has one dimension and only once, that is to say every cells in
+mesh have the same dimension called MeshDimension.
+
+That is to say the
+MEDMEM vocabulary of faces and edges \b do \b not \b exist \b anymore here in
+MEDCoupling.
+
+For exemple a mesh with a meshDimension equal to 1, have \b cells of type
+NORM_SEG2. An another exemple, a mesh with a meshDimension equal
+to 2, have \b cells of type
+NORM_TRI3 and NORM_POLYGON for example.
 
 The class that incarnates the concept described above is :
 \ref ParaMEDMEM::MEDCouplingMesh.
@@ -276,7 +290,7 @@ used by MEDCoupling to instanciate degenerated meshes as :
   represent fields used by system code. This type of mesh will have
   mesh dimension equal to -1.
 
-The norm used for cells connectivity of different types, is the same as specified in MED file execpt
+The norm used for cells connectivity of different types, is the same as specified in MED file except
 that connectivities are in represented in \b C \b format and \b not \b in
 \b FORTRAN \b format !
 
