@@ -437,3 +437,21 @@ void ExprEvalInterpTest::testInterpreter3()
   expr3.evaluateExpr(1,input,res2);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(9.8,res2[0],1e-12);
 }
+
+/*!
+ * Bug detected by Marc concerning expressions with blanks.
+ */
+void ExprEvalInterpTest::testInterpreter4()
+{
+  INTERP_KERNEL::ExprParser expr("2*x + 1");
+  double vals[3]={0.1,0.2,0.3};
+  std::vector<std::string> varsV(3);
+  varsV[0] = "x";
+  varsV[1] = "y";
+  varsV[2] = "z";
+  expr.parse();
+  expr.prepareExprEvaluation(varsV);
+  double result;
+  expr.evaluateExpr(1,vals, &result);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(1.2,result,1e-12);
+}

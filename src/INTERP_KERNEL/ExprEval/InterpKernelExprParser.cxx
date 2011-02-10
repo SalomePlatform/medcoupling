@@ -124,12 +124,14 @@ LeafExprVar::~LeafExprVar()
 
 ExprParser::ExprParser(const char *expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
 {
+  _expr=deleteWhiteSpaces(_expr);
 }
 
 //! For \b NOT null terminated strings coming from FORTRAN.
 ExprParser::ExprParser(const char *expr, int lgth, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false)
 {
   _expr=buildStringFromFortran(expr,lgth);
+  _expr=deleteWhiteSpaces(_expr);
 }
 
 ExprParser::~ExprParser()
