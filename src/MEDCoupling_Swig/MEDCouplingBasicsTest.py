@@ -4901,8 +4901,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         c=mesh.getNodeIdsNearPoint(pts,1e-7);
         self.assertEqual([4,9,11],c);
         c,cI=mesh.getNodeIdsNearPoints(pts,3,1e-7);
-        self.assertEqual([0,3,3,4],cI);
-        self.assertEqual([4,9,11,6],c);
+        self.assertEqual([0,3,3,4],cI.getValues());
+        self.assertEqual([4,9,11,6],c.getValues());
         pass
 
     def testFieldCopyTinyAttrFrom1(self):
