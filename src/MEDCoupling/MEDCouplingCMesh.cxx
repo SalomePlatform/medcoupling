@@ -362,6 +362,10 @@ std::string MEDCouplingCMesh::simpleRepr() const
   std::ostringstream ret;
   ret << "Cartesian mesh with name : \"" << getName() << "\"\n";
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
+  int tmpp1,tmpp2;
+  double tt=getTime(tmpp1,tmpp2);
+  ret << "Time attached to the mesh (unit) : " << tt << " (" << getTimeUnit() << ")\n";
+  ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
   ret << "Mesh and SpaceDimension dimension : " << getSpaceDimension() << "\n\nArrays :\n________\n\n";
   if(_x_array)
     {
