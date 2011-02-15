@@ -50,6 +50,10 @@ namespace ParaMEDMEM
     const char *getName() const { return _name.c_str(); }
     void setDescription(const char *descr) { _description=descr; }
     const char *getDescription() const { return _description.c_str(); }
+    double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _time; }
+    void setTime(double val, int iteration, int order) { _time=val; _iteration=iteration; _order=order; }
+    void setTimeUnit(const char *unit) { _time_unit=unit; }
+    const char *getTimeUnit() const { return _time_unit.c_str(); }
     virtual MEDCouplingMesh *deepCpy() const = 0;
     virtual MEDCouplingMeshType getType() const = 0;
     bool isStructured() const;
@@ -99,18 +103,22 @@ namespace ParaMEDMEM
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
     static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
     //serialisation-unserialization
-    virtual void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const = 0;
+    virtual void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const = 0;
     virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const = 0;
     virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const = 0;
-    virtual void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+    virtual void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                  const std::vector<std::string>& littleStrings) = 0;
   protected:
-    MEDCouplingMesh() { }
-    MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name),_description(other._description) { }
+    MEDCouplingMesh();
+    MEDCouplingMesh(const MEDCouplingMesh& other);
     virtual ~MEDCouplingMesh() { }
   private:
     std::string _name;
     std::string _description;
+    double _time;
+    int _iteration;
+    int _order;
+    std::string _time_unit;
   };
 }
 

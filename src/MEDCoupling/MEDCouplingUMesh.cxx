@@ -1663,9 +1663,9 @@ int MEDCouplingUMesh::getMeshLength() const
 /*!
  * First step of serialization process. Used by ParaMEDMEM and MEDCouplingCorba to transfert data between process.
  */
-void MEDCouplingUMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+void MEDCouplingUMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
-  MEDCouplingPointSet::getTinySerializationInformation(tinyInfo,littleStrings);
+  MEDCouplingPointSet::getTinySerializationInformation(tinyInfoD,tinyInfo,littleStrings);
   tinyInfo.push_back(getMeshDimension());
   tinyInfo.push_back(getNumberOfCells());
   if(_nodal_connec)
@@ -1679,7 +1679,7 @@ void MEDCouplingUMesh::getTinySerializationInformation(std::vector<int>& tinyInf
  */
 bool MEDCouplingUMesh::isEmptyMesh(const std::vector<int>& tinyInfo) const
 {
-  return tinyInfo[4]<=0;
+  return tinyInfo[6]<=0;
 }
 
 /*!
@@ -1690,7 +1690,7 @@ void MEDCouplingUMesh::resizeForUnserialization(const std::vector<int>& tinyInfo
 {
   MEDCouplingPointSet::resizeForUnserialization(tinyInfo,a1,a2,littleStrings);
   if(tinyInfo[5]!=-1)
-    a1->alloc(tinyInfo[5]+tinyInfo[4]+1,1);
+    a1->alloc(tinyInfo[7]+tinyInfo[6]+1,1);
 }
 
 /*!
@@ -1717,20 +1717,20 @@ void MEDCouplingUMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
  * Second and final unserialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingUMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingUMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
-  MEDCouplingPointSet::unserialization(tinyInfo,a1,a2,littleStrings);
-  setMeshDimension(tinyInfo[3]);
-  if(tinyInfo[5]!=-1)
+  MEDCouplingPointSet::unserialization(tinyInfoD,tinyInfo,a1,a2,littleStrings);
+  setMeshDimension(tinyInfo[5]);
+  if(tinyInfo[7]!=-1)
     {
       // Connectivity
       const int *recvBuffer=a1->getConstPointer();
       DataArrayInt* myConnecIndex=DataArrayInt::New();
-      myConnecIndex->alloc(tinyInfo[4]+1,1);
-      std::copy(recvBuffer,recvBuffer+tinyInfo[4]+1,myConnecIndex->getPointer());
+      myConnecIndex->alloc(tinyInfo[6]+1,1);
+      std::copy(recvBuffer,recvBuffer+tinyInfo[6]+1,myConnecIndex->getPointer());
       DataArrayInt* myConnec=DataArrayInt::New();
-      myConnec->alloc(tinyInfo[5],1);
-      std::copy(recvBuffer+tinyInfo[4]+1,recvBuffer+tinyInfo[4]+1+tinyInfo[5],myConnec->getPointer());
+      myConnec->alloc(tinyInfo[7],1);
+      std::copy(recvBuffer+tinyInfo[6]+1,recvBuffer+tinyInfo[6]+1+tinyInfo[7],myConnec->getPointer());
       setConnectivity(myConnec, myConnecIndex) ;
       myConnec->decrRef();
       myConnecIndex->decrRef();

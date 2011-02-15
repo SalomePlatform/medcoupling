@@ -231,11 +231,12 @@ namespace ParaMEDMEM
   
     // First stage : exchanging sizes
     // ------------------------------
+    vector<double> tinyInfoLocalD,tinyInfoDistantD(1);//not used for the moment
     vector<int> tinyInfoLocal,tinyInfoDistant;
     vector<string> tinyInfoLocalS;
     //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
     //the transmitted mesh.
-    local_mesh->getTinySerializationInformation(tinyInfoLocal,tinyInfoLocalS);
+    local_mesh->getTinySerializationInformation(tinyInfoLocalD,tinyInfoLocal,tinyInfoLocalS);
     tinyInfoLocal.push_back(distant_ids_send->getNumberOfTuples());
     tinyInfoDistant.resize(tinyInfoLocal.size());
     std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
@@ -302,7 +303,7 @@ namespace ParaMEDMEM
     //
     distant_mesh=distant_mesh_tmp;
     //finish unserialization
-    distant_mesh->unserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
+    distant_mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     //
     distant_ids_recv=new int[tinyInfoDistant.back()];
     comm_interface.sendRecv((void *)distant_ids_send->getConstPointer(),tinyInfoLocal.back(), MPI_INT,

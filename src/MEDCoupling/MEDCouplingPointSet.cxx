@@ -597,31 +597,41 @@ MEDCouplingPointSet *MEDCouplingPointSet::BuildInstanceFromMeshType(MEDCouplingM
 /*!
  * First step of serialization process. Used by ParaMEDMEM and MEDCouplingCorba to transfert data between process.
  */
-void MEDCouplingPointSet::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+void MEDCouplingPointSet::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
+  int it,order;
+  double time=getTime(it,order);
   if(_coords)
     {
       int spaceDim=getSpaceDimension();
-      littleStrings.resize(spaceDim+3);
+      littleStrings.resize(spaceDim+4);
       littleStrings[0]=getName();
       littleStrings[1]=getDescription();
       littleStrings[2]=_coords->getName();
+      littleStrings[3]=getTimeUnit();
       for(int i=0;i<spaceDim;i++)
-        littleStrings[i+3]=getCoords()->getInfoOnComponent(i);
+        littleStrings[i+4]=getCoords()->getInfoOnComponent(i);
       tinyInfo.clear();
       tinyInfo.push_back(getType());
       tinyInfo.push_back(spaceDim);
       tinyInfo.push_back(getNumberOfNodes());
+      tinyInfo.push_back(it);
+      tinyInfo.push_back(order);
+      tinyInfoD.push_back(time);
     }
   else
     {
-      littleStrings.resize(2);
+      littleStrings.resize(3);
       littleStrings[0]=getName();
       littleStrings[1]=getDescription();
+      littleStrings[2]=getTimeUnit();
       tinyInfo.clear();
       tinyInfo.push_back(getType());
       tinyInfo.push_back(-1);
       tinyInfo.push_back(-1);
+      tinyInfo.push_back(it);
+      tinyInfo.push_back(order);
+      tinyInfoD.push_back(time);
     }
 }
 
@@ -648,11 +658,11 @@ void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyI
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
       a2->alloc(tinyInfo[2],tinyInfo[1]);
-      littleStrings.resize(tinyInfo[1]+3);
+      littleStrings.resize(tinyInfo[1]+4);
     }
   else
     {
-      littleStrings.resize(2);
+      littleStrings.resize(3);
     }
 }
 
@@ -660,7 +670,7 @@ void MEDCouplingPointSet::resizeForUnserialization(const std::vector<int>& tinyI
  * Second and final unserialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingPointSet::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
@@ -668,13 +678,17 @@ void MEDCouplingPointSet::unserialization(const std::vector<int>& tinyInfo, cons
       setName(littleStrings[0].c_str());
       setDescription(littleStrings[1].c_str());
       a2->setName(littleStrings[2].c_str());
+      setTimeUnit(littleStrings[3].c_str());
       for(int i=0;i<tinyInfo[1];i++)
-        getCoords()->setInfoOnComponent(i,littleStrings[i+3].c_str());
+        getCoords()->setInfoOnComponent(i,littleStrings[i+4].c_str());
+      setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
     }
   else
     {
       setName(littleStrings[0].c_str());
       setDescription(littleStrings[1].c_str());
+      setTimeUnit(littleStrings[2].c_str());
+      setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
     }
 }
 

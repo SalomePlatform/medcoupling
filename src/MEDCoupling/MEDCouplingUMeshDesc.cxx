@@ -174,9 +174,9 @@ void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt 
   computeTypes();
 }
 
-void MEDCouplingUMeshDesc::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+void MEDCouplingUMeshDesc::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
-  MEDCouplingPointSet::getTinySerializationInformation(tinyInfo,littleStrings);
+  MEDCouplingPointSet::getTinySerializationInformation(tinyInfoD,tinyInfo,littleStrings);
   tinyInfo.push_back(getMeshDimension());
   tinyInfo.push_back(getNumberOfNodes());
   tinyInfo.push_back(getNumberOfCells());
@@ -214,10 +214,10 @@ void MEDCouplingUMeshDesc::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) co
   std::copy(faceConnIndex,faceConnIndex+getNumberOfFaces()+1,ptA1);
 }
 
-void MEDCouplingUMeshDesc::unserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingUMeshDesc::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   std::vector<int> tinyInfoTmp(tinyInfo.begin()+1,tinyInfo.end());
-  MEDCouplingPointSet::unserialization(tinyInfoTmp,a1,a2,littleStrings);
+  MEDCouplingPointSet::unserialization(tinyInfoD,tinyInfoTmp,a1,a2,littleStrings);
   //
   const int *recvBuffer=a1->getConstPointer();
   DataArrayInt *descConn=DataArrayInt::New();

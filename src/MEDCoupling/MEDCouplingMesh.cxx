@@ -24,10 +24,21 @@
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <set>
+#include <cmath>
 #include <sstream>
 #include <iterator>
 
 using namespace ParaMEDMEM;
+
+MEDCouplingMesh::MEDCouplingMesh():_time(0.),_iteration(-1),_order(-1)
+{
+}
+
+MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name),_description(other._description),
+                                                               _time(other._time),_iteration(other._iteration),
+                                                               _order(other._order),_time_unit(other._time_unit)
+{
+}
 
 /*!
  * This method is only for ParaMEDMEM in ParaFIELD constructor.
@@ -39,7 +50,8 @@ bool MEDCouplingMesh::isStructured() const
 
 bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
-  return _name==other->_name && _description==other->_description;
+  return _name==other->_name && _description==other->_description && _iteration==other->_iteration
+    && _order==other->_order && _time_unit==other->_time_unit && fabs(_time-other->_time)<1e-12;
 }
 
 /*!
@@ -184,6 +196,7 @@ void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(IN
 {
   _name=other->_name;
   _description=other->_description;
+  _time_unit=other->_time_unit;
 }
 
 /*!

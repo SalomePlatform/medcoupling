@@ -687,14 +687,16 @@ void MEDCouplingExtrudedMesh::computeExtrusionAlg(const MEDCouplingUMesh *mesh3D
   revDescIndx->decrRef();
 }
 
-void MEDCouplingExtrudedMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+void MEDCouplingExtrudedMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   std::vector<int> tinyInfo1;
   std::vector<std::string> ls1;
-  _mesh2D->getTinySerializationInformation(tinyInfo1,ls1);
+  std::vector<double> ls3;
+  _mesh2D->getTinySerializationInformation(ls3,tinyInfo1,ls1);
   std::vector<int> tinyInfo2;
   std::vector<std::string> ls2;
-  _mesh1D->getTinySerializationInformation(tinyInfo2,ls2);
+  std::vector<double> ls4;
+  _mesh1D->getTinySerializationInformation(ls4,tinyInfo2,ls2);
   tinyInfo.clear(); littleStrings.clear();
   tinyInfo.insert(tinyInfo.end(),tinyInfo1.begin(),tinyInfo1.end());
   littleStrings.insert(littleStrings.end(),ls1.begin(),ls1.end());
@@ -754,7 +756,7 @@ void MEDCouplingExtrudedMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2)
   a2_2->decrRef();
 }
 
-void MEDCouplingExtrudedMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingExtrudedMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   setName(littleStrings[littleStrings.size()-2].c_str());
   setDescription(littleStrings.back().c_str());
@@ -775,7 +777,8 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<int>& tinyInfo, 
   a2Ptr+=a2tmp->getNbOfElems();
   a1Ptr+=a1tmp->getNbOfElems();
   ls2.insert(ls2.end(),littleStrings.begin(),littleStrings.begin()+ls1.size());
-  _mesh2D->unserialization(ti1,a1tmp,a2tmp,ls2);
+  std::vector<double> d1(1);
+  _mesh2D->unserialization(d1,ti1,a1tmp,a2tmp,ls2);
   a1tmp->decrRef(); a2tmp->decrRef();
   //
   ls2.clear();
@@ -786,7 +789,7 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<int>& tinyInfo, 
   std::copy(a2Ptr,a2Ptr+a2tmp->getNbOfElems(),a2tmp->getPointer());
   std::copy(a1Ptr,a1Ptr+a1tmp->getNbOfElems(),a1tmp->getPointer());
   a1Ptr+=a1tmp->getNbOfElems();
-  _mesh1D->unserialization(ti2,a1tmp,a2tmp,ls2);
+  _mesh1D->unserialization(d1,ti2,a1tmp,a2tmp,ls2);
   a1tmp->decrRef(); a2tmp->decrRef();
   //
   _mesh3D_ids=DataArrayInt::New();

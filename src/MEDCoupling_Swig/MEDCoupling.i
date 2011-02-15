@@ -283,6 +283,9 @@ namespace ParaMEDMEM
     const char *getName() const;
     void setDescription(const char *descr);
     const char *getDescription() const;
+    void setTime(double val, int iteration, int order);
+    void setTimeUnit(const char *unit);
+    const char *getTimeUnit() const;
     virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception) = 0;
     bool isStructured() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *deepCpy() const = 0;
@@ -315,6 +318,17 @@ namespace ParaMEDMEM
          std::string __str__() const
          {
            return self->simpleRepr();
+         }
+
+         PyObject *getTime() throw(INTERP_KERNEL::Exception)
+         {
+           int tmp1,tmp2;
+           double tmp0=self->getTime(tmp1,tmp2);
+           PyObject *res = PyList_New(3);
+           PyList_SetItem(res,0,SWIG_From_double(tmp0));
+           PyList_SetItem(res,1,SWIG_From_int(tmp1));
+           PyList_SetItem(res,2,SWIG_From_int(tmp2));
+           return res;
          }
 
          int getCellContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
@@ -490,10 +504,10 @@ namespace ParaMEDMEM
       virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const throw(INTERP_KERNEL::Exception) = 0;
       virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception) = 0;
       //! size of returned tinyInfo must be always the same.
-      void getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const throw(INTERP_KERNEL::Exception);
+      void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const throw(INTERP_KERNEL::Exception);
       void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const throw(INTERP_KERNEL::Exception);
       void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const throw(INTERP_KERNEL::Exception);
-      void unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+      void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                            const std::vector<std::string>& littleStrings) throw(INTERP_KERNEL::Exception);
       virtual void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
       virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception) = 0;

@@ -766,12 +766,16 @@ void MEDCouplingCMesh::fill3DUnstructuredMesh(MEDCouplingUMesh *m) const
   connI->decrRef();
 }
 
-void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+void MEDCouplingCMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
+  int it,order;
+  double time=getTime(it,order);
   tinyInfo.clear();
+  tinyInfoD.clear();
   littleStrings.clear();
   littleStrings.push_back(getName());
   littleStrings.push_back(getDescription());
+  littleStrings.push_back(getTimeUnit());
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
   for(int i=0;i<3;i++)
     {
@@ -785,6 +789,9 @@ void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInf
       tinyInfo.push_back(val);
       littleStrings.push_back(st);
     }
+  tinyInfo.push_back(it);
+  tinyInfo.push_back(order);
+  tinyInfoD.push_back(time);
 }
 
 void MEDCouplingCMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
@@ -816,11 +823,12 @@ void MEDCouplingCMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
       a2Ptr=std::copy(thisArr[i]->getConstPointer(),thisArr[i]->getConstPointer()+thisArr[i]->getNumberOfTuples(),a2Ptr);
 }
 
-void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                        const std::vector<std::string>& littleStrings)
 {
   setName(littleStrings[0].c_str());
   setDescription(littleStrings[1].c_str());
+  setTimeUnit(littleStrings[2].c_str());
   DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
   const double *data=a2->getConstPointer();
   for(int i=0;i<3;i++)
@@ -829,10 +837,11 @@ void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const D
         {
           (*(thisArr[i]))=DataArrayDouble::New();
           (*(thisArr[i]))->alloc(tinyInfo[i],1);
-          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+2].c_str());
+          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+3].c_str());
           std::copy(data,data+tinyInfo[i],(*(thisArr[i]))->getPointer());
           data+=tinyInfo[i];
         }
     }
+  setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
 }
 
