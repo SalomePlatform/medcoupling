@@ -50,23 +50,6 @@
 namespace INTERP_KERNEL
 {
   /**
-   * \defgroup interpolation3D Interpolation3D
-   * \class Interpolation3D
-   * \brief Class used to calculate the volumes of intersection between the elements of two 3D meshes.
-   * 
-   */
-  /**
-   * Default constructor
-   * 
-   */
-  Interpolation3D::Interpolation3D()
-  {
-  }
-  Interpolation3D::Interpolation3D(const InterpolationOptions& io):Interpolation<Interpolation3D>(io)
-  {
-  }
-
-  /**
    * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
    * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
    * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the 

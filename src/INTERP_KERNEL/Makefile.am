@@ -52,7 +52,6 @@ Interpolation2D.txx			\
 Interpolation3D.hxx			\
 Interpolation3D.txx			\
 Interpolation3DSurf.hxx			\
-Interpolation3DSurf.txx			\
 InterpolationOptions.hxx		\
 InterpolationPlanar.hxx			\
 InterpolationPlanar.txx			\
@@ -190,6 +189,9 @@ dist_libinterpkernel_la_SOURCES = \
 	InterpolationOptions.cxx \
 	DirectedBoundingBox.cxx \
 	Interpolation2DCurve.cxx \
+	Interpolation3DSurf.cxx \
+	Interpolation3D.cxx \
+	MeshElement.cxx \
 	InterpKernelMeshQuality.cxx \
 	InterpKernelCellSimplify.cxx
 

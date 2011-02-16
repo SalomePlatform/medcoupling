@@ -66,15 +66,6 @@ namespace INTERP_KERNEL
   /////////////////////////////////////////////////////////////////////
   /// ElementBBoxOrder                                    /////////////
   /////////////////////////////////////////////////////////////////////
-  /**
-   * Constructor
-   *
-   * @param  coord   BoundingBox coordinate (XMIN, XMAX, etc) on which to base the ordering
-   */
-  ElementBBoxOrder::ElementBBoxOrder(BoundingBox::BoxCoord coord)
-    : _coord(coord)
-  {
-  }
 
   /**
    * Comparison operator based on the bounding boxes of the elements

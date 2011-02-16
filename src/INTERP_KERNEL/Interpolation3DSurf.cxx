@@ -16,8 +16,6 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __INTERPOLATION3DSURF_TXX__
-#define __INTERPOLATION3DSURF_TXX__
 
 #include "Interpolation3DSurf.hxx"
 #include "InterpolationPlanar.txx"
@@ -60,5 +58,3 @@ namespace INTERP_KERNEL
     InterpolationPlanar<Interpolation3DSurf>::setMedianPlane(medianPlane);
   }
 }
-
-#endif
