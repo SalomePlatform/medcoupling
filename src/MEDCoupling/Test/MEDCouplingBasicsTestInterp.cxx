@@ -27,7 +27,7 @@
 #include "Interpolation3D.txx"
 #include "InterpolationCC.txx"
 #include "InterpolationCU.txx"
-#include "Interpolation2DCurve.txx"
+#include "Interpolation2DCurve.hxx"
 #include "Interpolation1D.txx"
 
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"

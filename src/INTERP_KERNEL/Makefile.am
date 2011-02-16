@@ -159,7 +159,6 @@ CurveIntersectorP1P1.txx                \
 Interpolation1D.hxx	                \
 Interpolation1D.txx	                \
 Interpolation2DCurve.hxx                \
-Interpolation2DCurve.txx                \
 InterpolationCurve.hxx	                \
 InterpolationCurve.txx			\
 DirectedBoundingBox.hxx
@@ -190,6 +189,7 @@ dist_libinterpkernel_la_SOURCES = \
 	UnitTetraIntersectionBary.cxx \
 	InterpolationOptions.cxx \
 	DirectedBoundingBox.cxx \
+	Interpolation2DCurve.cxx \
 	InterpKernelMeshQuality.cxx \
 	InterpKernelCellSimplify.cxx
 

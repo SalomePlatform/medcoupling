@@ -16,8 +16,6 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __INTERPOLATION2DCURVE_TXX__
-#define __INTERPOLATION2DCURVE_TXX__
 
 #include "Interpolation2DCurve.hxx"
 #include "InterpolationCurve.txx"
@@ -59,5 +57,3 @@ namespace INTERP_KERNEL
     InterpolationOptions::setMedianPlane(medianLine);
   }
 }
-
-#endif
