@@ -24,7 +24,7 @@
 #include "MeshTestToolkit.hxx"
 #include "MEDMEM_Mesh.hxx"
 
-#include "Interpolation3DSurf.txx"
+#include "Interpolation3DSurf.hxx"
 #include "Interpolation2D.txx"
 #include "Interpolation3D.txx"
 
