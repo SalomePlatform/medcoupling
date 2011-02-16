@@ -112,7 +112,7 @@ void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
   MEDLoaderBase::safeStrCpy(_desc_name.c_str(),MED_TAILLE_DESC,desc,_too_long_str);
   int spaceDim=coo?coo->getNumberOfComponents():0;
   int mdim=getMeshDimension();
-  MEDmaaCr(fid,maa,mdim,MED_NON_STRUCTURE,desc);
+  MEDmaaCr(fid,maa,spaceDim,MED_NON_STRUCTURE,desc);//spaceDim is false but to make reader happy for 3DSurf and 2DCurve meshes !
   MEDdimEspaceCr(fid,maa,spaceDim);
   MEDFileUMeshL2::writeCoords(fid,maa,_coords,_fam_coords,_num_coords);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
