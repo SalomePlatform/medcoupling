@@ -17,41 +17,40 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __STRUCTUREDCOINCIDENTDEC_HXX__
-#define __STRUCTUREDCOINCIDENTDEC_HXX__
+#ifndef __OVERLAPDEC_HXX__
+#define __OVERLAPDEC_HXX__
 
-#include "DisjointDEC.hxx"
-#include "BlockTopology.hxx"
+#include "DEC.hxx"
+#include "InterpolationOptions.hxx"
 
+#include <mpi.h>
 
 namespace ParaMEDMEM
 {
-  class DEC;
-  class BlockTopology;
-  class StructuredCoincidentDEC : public DisjointDEC
+  class OverlapInterpolationMatrix;
+  class ProcessorGroup;
+  class ParaFIELD;
+
+  class OverlapDEC : public DEC, public INTERP_KERNEL::InterpolationOptions
   {
   public:
-    StructuredCoincidentDEC();
-    StructuredCoincidentDEC( ProcessorGroup& source, ProcessorGroup& target);
-    virtual ~StructuredCoincidentDEC();
+    OverlapDEC(const std::set<int>& procIds,const MPI_Comm& world_comm=MPI_COMM_WORLD);
+    virtual ~OverlapDEC();
+    void sendRecvData(bool way=true);
     void synchronize();
-    void recvData();
-    void sendData();
-    void prepareSourceDE();
-    void prepareTargetDE();
-
-  private :
-    void synchronizeTopology();
-    void broadcastTopology(BlockTopology*&, int tag);
-
-    BlockTopology* _topo_source;
-    BlockTopology* _topo_target;
-    int* _send_counts;
-    int* _recv_counts;
-    int* _send_displs;
-    int* _recv_displs;
-    double* _recv_buffer;
-    double* _send_buffer;
+    void attachSourceLocalField(ParaFIELD *field, bool ownPt=true);
+    void attachTargetLocalField(ParaFIELD *field, bool ownPt=true);
+    ProcessorGroup *getGrp() { return _group; }
+    bool isInGroup() const;
+  private:
+    bool _own_group;
+    OverlapInterpolationMatrix* _interpolation_matrix;
+    ProcessorGroup *_group;
+  private:
+    ParaFIELD *_source_field;
+    bool _own_source_field;
+    ParaFIELD *_target_field;
+    bool _own_target_field;
   };
 }
 

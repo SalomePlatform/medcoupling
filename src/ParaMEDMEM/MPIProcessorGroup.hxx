@@ -20,12 +20,13 @@
 #ifndef __MPIPROCESSORGROUP_HXX__
 #define __MPIPROCESSORGROUP_HXX__
 
+#include "ProcessorGroup.hxx"
+
 #include <set>
 #include <mpi.h>
 
 namespace ParaMEDMEM
 {
-  class ProcessorGroup;
   class CommInterface;
 
   class MPIProcessorGroup : public ProcessorGroup

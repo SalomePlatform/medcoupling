@@ -105,7 +105,7 @@ namespace ParaMEDMEM
     \addtogroup structuredcoincidentdec
     @{
   */
-  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DEC(local_group,distant_group),
+  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DisjointDEC(local_group,distant_group),
                                                                                                                _topo_source(0),_topo_target(0),
                                                                                                                _send_counts(0),_recv_counts(0),
                                                                                                                _send_displs(0),_recv_displs(0),

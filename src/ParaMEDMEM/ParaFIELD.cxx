@@ -128,7 +128,7 @@ namespace ParaMEDMEM
 
   void ParaFIELD::synchronizeTarget(ParaFIELD* source_field)
   {
-    DEC* data_channel;
+    DisjointDEC* data_channel;
     if (dynamic_cast<BlockTopology*>(_topology)!=0)
       {
         data_channel=new StructuredCoincidentDEC;
@@ -147,7 +147,7 @@ namespace ParaMEDMEM
 
   void ParaFIELD::synchronizeSource(ParaFIELD* target_field)
   {
-    DEC* data_channel;
+    DisjointDEC* data_channel;
     if (dynamic_cast<BlockTopology*>(_topology)!=0)
       {
         data_channel=new StructuredCoincidentDEC;

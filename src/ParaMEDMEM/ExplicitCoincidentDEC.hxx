@@ -20,7 +20,7 @@
 #ifndef __EXPLICITCOINCIDENTDEC_HXX__
 #define __EXPLICITCOINCIDENTDEC_HXX__
 
-#include "DEC.hxx"
+#include "DisjointDEC.hxx"
 #include "ExplicitMapping.hxx"
 #include "ExplicitTopology.hxx"
 
@@ -30,7 +30,7 @@ namespace ParaMEDMEM
 {
   class BlockTopology;
 
-  class ExplicitCoincidentDEC : public DEC
+  class ExplicitCoincidentDEC : public DisjointDEC
   {
   public:
     ExplicitCoincidentDEC();

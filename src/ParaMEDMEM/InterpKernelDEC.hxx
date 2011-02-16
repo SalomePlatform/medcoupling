@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELDEC_HXX__
 #define __INTERPKERNELDEC_HXX__
 
-#include "DEC.hxx"
+#include "DisjointDEC.hxx"
 #include "MxN_Mapping.hxx"
 #include "InterpolationOptions.hxx"
 
@@ -28,7 +28,7 @@ namespace ParaMEDMEM
 {
   class InterpolationMatrix;
 
-  class InterpKernelDEC : public DEC, public INTERP_KERNEL::InterpolationOptions
+  class InterpKernelDEC : public DisjointDEC, public INTERP_KERNEL::InterpolationOptions
   {
   public:  
     InterpKernelDEC();

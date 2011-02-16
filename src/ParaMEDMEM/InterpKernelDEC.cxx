@@ -118,13 +118,13 @@ namespace ParaMEDMEM
 
   */
   InterpKernelDEC::InterpKernelDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
-    DEC(source_group, target_group),_interpolation_matrix(0)
+    DisjointDEC(source_group, target_group),_interpolation_matrix(0)
   {
 
   }
 
   InterpKernelDEC::InterpKernelDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
-                                   const MPI_Comm& world_comm):DEC(src_ids,trg_ids,world_comm),
+                                   const MPI_Comm& world_comm):DisjointDEC(src_ids,trg_ids,world_comm),
                                                                _interpolation_matrix(0)
   {
   }

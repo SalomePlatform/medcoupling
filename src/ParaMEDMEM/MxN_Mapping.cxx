@@ -27,6 +27,10 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
+  MxN_Mapping::MxN_Mapping()
+  {
+  }
+
 
   MxN_Mapping::MxN_Mapping(const ProcessorGroup& source_group, const ProcessorGroup& target_group,const DECOptions& dec_options)
     : DECOptions(dec_options),_union_group(source_group.fuse(target_group))

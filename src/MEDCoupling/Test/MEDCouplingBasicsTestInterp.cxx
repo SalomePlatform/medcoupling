@@ -23,7 +23,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "Interpolation2D.txx"
-#include "Interpolation3DSurf.txx"
+#include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
 #include "InterpolationCC.txx"
 #include "InterpolationCU.txx"
