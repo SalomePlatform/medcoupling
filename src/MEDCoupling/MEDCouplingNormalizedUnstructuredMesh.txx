@@ -27,7 +27,7 @@
 #include <limits>
 
 template<int SPACEDIM,int MESHDIM>
-MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(ParaMEDMEM::MEDCouplingUMesh *mesh):_mesh(mesh)
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(const ParaMEDMEM::MEDCouplingUMesh *mesh):_mesh(mesh)
 {
   if(_mesh)
     _mesh->incrRef();
@@ -114,7 +114,7 @@ template<int SPACEDIM,int MESHDIM>
 MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::~MEDCouplingNormalizedUnstructuredMesh()
 {
   if(_mesh)
-    _mesh->decrRef();
+    ((ParaMEDMEM::MEDCouplingUMesh *)_mesh)->decrRef();
   releaseTempArrays();
 }
 

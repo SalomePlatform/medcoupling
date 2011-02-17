@@ -36,7 +36,7 @@ public:
   typedef int MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
-  MEDCouplingNormalizedUnstructuredMesh(ParaMEDMEM::MEDCouplingUMesh *mesh);
+  MEDCouplingNormalizedUnstructuredMesh(const ParaMEDMEM::MEDCouplingUMesh *mesh);
   void getBoundingBox(double *boundingBox) const;
   INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
   unsigned char getNumberOfNodesOfElement(int eltId) const;
@@ -50,7 +50,7 @@ public:
 private:
   void prepare();
 private:
-  ParaMEDMEM::MEDCouplingUMesh *_mesh;
+  const ParaMEDMEM::MEDCouplingUMesh *_mesh;
   int *_conn_for_interp;
   int *_conn_index_for_interp;
 };
