@@ -20,10 +20,10 @@
 #ifndef __TU_POINTLOCATOR_HXX__
 #define __TU_POINTLOCATOR_HXX__
 
-#include <cppunit/extensions/HelperMacros.h>
-
 #include "InterpKernelTestExport.hxx"
 #include "PointLocator.hxx"
+
+#include <cppunit/extensions/HelperMacros.h>
 
 namespace INTERP_TEST
 {
@@ -56,7 +56,5 @@ namespace INTERP_TEST
 
 
 }
-
-
 
 #endif
