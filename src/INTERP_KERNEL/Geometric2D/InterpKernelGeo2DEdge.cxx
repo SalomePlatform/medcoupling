@@ -607,7 +607,7 @@ void Edge::interpolate1DLin(const std::vector<double>& distrib1, const std::vect
   MergePoints commonNode;
   for(int i=0;i<nbOfV1;i++)
     {
-		std::vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind2nd(std::greater_equal<double>(),distrib1[i]));
+      std::vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind2nd(std::greater_equal<double>(),distrib1[i]));
       if(iter!=distrib2.end())
         {
           for(int j=(iter-1)-distrib2.begin();j<nbOfV2;j++)
