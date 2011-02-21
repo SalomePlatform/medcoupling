@@ -133,7 +133,8 @@ int GaussInfo::GetReferenceCoordDim() const
   if( myNbRef ) 
     {
       return myReferenceCoord.size()/myNbRef;
-    } else 
+    }
+  else 
     {
       return 0;
     }
