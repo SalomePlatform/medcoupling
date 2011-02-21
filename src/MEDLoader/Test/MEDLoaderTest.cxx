@@ -403,8 +403,8 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   array->alloc(nbOfNodes,2);
   std::copy(arr1,arr1+24,array->getPointer());
   f1->setArray(array);
-  array->setInfoOnComponent(0,"tyty (mm)");
-  array->setInfoOnComponent(1,"uiop (MW)");
+  array->setInfoOnComponent(0,"tyty [mm]");
+  array->setInfoOnComponent(1,"uiop [MW]");
   array->decrRef();
   f1->setTime(3.14,2,7);
   f1->checkCoherency();
@@ -448,8 +448,8 @@ void MEDLoaderTest::testFieldNodeProfilRW2()
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(12,2);
   f1->setArray(array);
-  array->setInfoOnComponent(0,"plkj (mm)");
-  array->setInfoOnComponent(1,"pqqqss (mm)");
+  array->setInfoOnComponent(0,"plkj [mm]");
+  array->setInfoOnComponent(1,"pqqqss [mm]");
   array->decrRef();
   double *tmp=array->getPointer();
   std::copy(arr2,arr2+24,tmp);
@@ -618,8 +618,8 @@ void MEDLoaderTest::testWriteUMeshesRW1()
   f1->setMesh(m2d);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(m2d->getNumberOfCells(),2);
-  array->setInfoOnComponent(0,"plkj (mm)");
-  array->setInfoOnComponent(1,"pqqqss (mm)");
+  array->setInfoOnComponent(0,"plkj [mm]");
+  array->setInfoOnComponent(1,"pqqqss [mm]");
   f1->setArray(array);
   array->decrRef();
   double *tmp=array->getPointer();
@@ -649,8 +649,8 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(6,2);
   f1->setArray(array);
-  array->setInfoOnComponent(0,"plkj (mm)");
-  array->setInfoOnComponent(1,"pqqqss (mm)");
+  array->setInfoOnComponent(0,"plkj [mm]");
+  array->setInfoOnComponent(1,"pqqqss [mm]");
   array->decrRef();
   double *tmp=array->getPointer();
   const double arr1[12]={71.,171.,10.,110.,20.,120.,30.,130.,40.,140.,50.,150.};
@@ -664,8 +664,8 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   array=DataArrayDouble::New();
   array->alloc(12,2);
   f2->setArray(array);
-  array->setInfoOnComponent(0,"plkj (mm)");
-  array->setInfoOnComponent(1,"pqqqss (mm)");
+  array->setInfoOnComponent(0,"plkj [mm]");
+  array->setInfoOnComponent(1,"pqqqss [mm]");
   array->decrRef();
   tmp=array->getPointer();
   const double arr2[24]={
@@ -755,7 +755,7 @@ MEDCouplingUMesh *MEDLoaderTest::build1DMesh_1()
   mesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(6,1);
-  myCoords->setInfoOnComponent(0,"tototototototot (m*m*m*m*m*m*m*m)");
+  myCoords->setInfoOnComponent(0,"tototototototot [m*m*m*m*m*m*m*m]");
   std::copy(coords,coords+6,myCoords->getPointer());
   mesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -800,8 +800,8 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_1()
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,2);
-  myCoords->setInfoOnComponent(0,"tototototototot (m)");
-  myCoords->setInfoOnComponent(1,"energie (kW)");
+  myCoords->setInfoOnComponent(0,"tototototototot [m]");
+  myCoords->setInfoOnComponent(1,"energie [kW]");
   std::copy(targetCoords,targetCoords+24,myCoords->getPointer());
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -827,8 +827,8 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_2()
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,2);
-  myCoords->setInfoOnComponent(0,"toto (m)");
-  myCoords->setInfoOnComponent(1,"energie (kW)");
+  myCoords->setInfoOnComponent(0,"toto [m]");
+  myCoords->setInfoOnComponent(1,"energie [kW]");
   std::copy(targetCoords,targetCoords+24,myCoords->getPointer());
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -855,8 +855,8 @@ MEDCouplingUMesh *MEDLoaderTest::build3DSurfMesh_1()
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,3);
-  myCoords->setInfoOnComponent(0,"toto (m)");
-  myCoords->setInfoOnComponent(2,"ff (km)");//component 1 is not set for test
+  myCoords->setInfoOnComponent(0,"toto [m]");
+  myCoords->setInfoOnComponent(2,"ff [km]");//component 1 is not set for test
   std::copy(targetCoords,targetCoords+36,myCoords->getPointer());
   targetMesh->setCoords(myCoords);
   myCoords->decrRef();
@@ -923,9 +923,9 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
   ret->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(60,3);
-  myCoords->setInfoOnComponent(0,"titi (m)");
-  myCoords->setInfoOnComponent(1,"density power (MW/m^3)");
-  myCoords->setInfoOnComponent(2,"t (kW)");
+  myCoords->setInfoOnComponent(0,"titi [m]");
+  myCoords->setInfoOnComponent(1,"density power [MW/m^3]");
+  myCoords->setInfoOnComponent(2,"t [kW]");
   std::copy(coords,coords+180,myCoords->getPointer());
   ret->setCoords(myCoords);
   myCoords->decrRef();
@@ -961,9 +961,9 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnCells_1()
   f1->setMesh(mesh);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(nbOfCells,3);
-  array->setInfoOnComponent(0,"power (MW/m^3)");
-  array->setInfoOnComponent(1,"density (g/cm^3)");
-  array->setInfoOnComponent(2,"temperature (K)");
+  array->setInfoOnComponent(0,"power [MW/m^3]");
+  array->setInfoOnComponent(1,"density [g/cm^3]");
+  array->setInfoOnComponent(2,"temperature [K]");
   f1->setArray(array);
   array->decrRef();
   double *tmp=array->getPointer();
@@ -985,9 +985,9 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnNodes_1()
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(nbOfNodes,3);
   f1->setArray(array);
-  array->setInfoOnComponent(0,"power (MW/m^3)");
-  array->setInfoOnComponent(1,"density (g/cm^3)");
-  array->setInfoOnComponent(2,"temperature (K)");
+  array->setInfoOnComponent(0,"power [MW/m^3]");
+  array->setInfoOnComponent(1,"density [g/cm^3]");
+  array->setInfoOnComponent(2,"temperature [K]");
   array->decrRef();
   double *tmp=array->getPointer();
   const double arr1[36]={
@@ -1036,7 +1036,7 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGauss_1()
     ptr[i]=(double)(i+7);
   f->setArray(array);
   f->setName("MyFirstFieldOnGaussPoint");
-  array->setInfoOnComponent(0,"power (MW/m^3)");
+  array->setInfoOnComponent(0,"power [MW/m^3]");
   array->setInfoOnComponent(1,"density");
   array->decrRef();
   f->checkCoherency();
@@ -1056,7 +1056,7 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGaussNE_1()
   for(int i=0;i<20*2;i++)
     ptr[i]=(double)(i+8);
   f->setArray(array);
-  array->setInfoOnComponent(0,"power (W)");
+  array->setInfoOnComponent(0,"power [W]");
   array->setInfoOnComponent(1,"temperature");
   f->setName("MyFieldOnGaussNE");
   array->decrRef();

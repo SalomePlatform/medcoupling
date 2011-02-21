@@ -393,8 +393,8 @@ class MEDLoaderTest(unittest.TestCase):
         array=MEDLoader.DataArrayDouble.New();
         arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
         array.setValues(arr1,m2d.getNumberOfCells(),2);
-        array.setInfoOnComponent(0,"plkj (mm)");
-        array.setInfoOnComponent(1,"pqqqss (mm)");
+        array.setInfoOnComponent(0,"plkj [mm]");
+        array.setInfoOnComponent(1,"pqqqss [mm]");
         f1.setArray(array);
         tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
         f1.setTime(3.14,2,7);
@@ -417,8 +417,8 @@ class MEDLoaderTest(unittest.TestCase):
         arr1=[1.,101.,2.,102.,3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.,12.,112.]
         array.setValues(arr1,nbOfNodes,2);
         f1.setArray(array);
-        array.setInfoOnComponent(0,"tyty (mm)");
-        array.setInfoOnComponent(1,"uiop (MW)");
+        array.setInfoOnComponent(0,"tyty [mm]");
+        array.setInfoOnComponent(1,"uiop [MW]");
         f1.setTime(3.14,2,7);
         f1.checkCoherency();
         arr2=[2,4,5,3,6,7]
@@ -453,8 +453,8 @@ class MEDLoaderTest(unittest.TestCase):
         array=MEDLoader.DataArrayDouble.New();
         array.setValues(arr2,12,2);
         f1.setArray(array);
-        array.setInfoOnComponent(0,"plkj (mm)");
-        array.setInfoOnComponent(1,"pqqqss (mm)");
+        array.setInfoOnComponent(0,"plkj [mm]");
+        array.setInfoOnComponent(1,"pqqqss [mm]");
         tmp=array.getPointer();
         f1.setTime(3.17,2,7);
         #
@@ -477,8 +477,8 @@ class MEDLoaderTest(unittest.TestCase):
         f1.setArray(array);
         arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.,50.,150.]
         array.setValues(arr1,6,2);
-        array.setInfoOnComponent(0,"plkj (mm)");
-        array.setInfoOnComponent(1,"pqqqss (mm)");
+        array.setInfoOnComponent(0,"plkj [mm]");
+        array.setInfoOnComponent(1,"pqqqss [mm]");
         f1.setTime(3.14,2,7);
         f1.checkCoherency();
         #
@@ -490,8 +490,8 @@ class MEDLoaderTest(unittest.TestCase):
         arr2=[1071.,1171.,1010.,1110.,1020.,1120.,1030.,1130.,1040.,1140.,1050.,1150.,
               1060.,1160.,1070.,1170.,1080.,1180.,1090.,1190.,1091.,1191.,1092.,1192.]
         array.setValues(arr2,12,2)
-        array.setInfoOnComponent(0,"plkj (mm)");
-        array.setInfoOnComponent(1,"pqqqss (mm)");
+        array.setInfoOnComponent(0,"plkj [mm]");
+        array.setInfoOnComponent(1,"pqqqss [mm]");
         f2.setTime(3.17,2,7);
         f2.checkCoherency();
         #

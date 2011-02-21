@@ -21,7 +21,7 @@
 #define __OVERLAPINTERPOLATIONMATRIX_HXX__
 
 #include "MPIAccessDEC.hxx"
-#include "MxN_Mapping.hxx"
+#include "OverlapMapping.hxx"
 #include "InterpolationOptions.hxx"
 #include "DECOptions.hxx"
 
@@ -41,6 +41,13 @@ namespace ParaMEDMEM
                                const DECOptions& dec_opt,
                                const InterpolationOptions& i_opt);
 
+    void addContribution(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
+                         const MEDCouplingPointSet *trg, const DataArrayInt *trgIds, const std::string& trgMeth, int trgProcId);
+
+    void prepare(const std::vector< std::vector<int> >& procsInInteraction);
+    
+    void computeDeno();
+    
     virtual ~OverlapInterpolationMatrix();
 #if 0
     void addContribution(MEDCouplingPointSet& distant_support, int iproc_distant,
@@ -83,9 +90,12 @@ namespace ParaMEDMEM
                      const std::vector<std::vector<int> >& globalIdsPartial, std::vector<std::vector<double> >& denoStrorageInv);
     void divideByGlobalRowSum(const std::vector<int>& distantProcs, const std::vector<std::vector<int> >& resPerProcI,
                               const std::vector<std::vector<double> >& resPerProcD, std::vector<std::vector<double> >& deno);
+#endif
   private:
     bool isSurfaceComputationNeeded(const std::string& method) const;
-#endif
+    void fillDistributedMatrix(const std::vector< std::map<int,double> >& res,
+                               const DataArrayInt *srcIds, int srcProc,
+                               const DataArrayInt *trgIds, int trgProc);
   private:
     const ParaMEDMEM::ParaFIELD *_source_field;
     const ParaMEDMEM::ParaFIELD *_target_field;
@@ -93,7 +103,7 @@ namespace ParaMEDMEM
     std::map<std::pair<int,int>, int > _col_offsets;
     MEDCouplingPointSet *_source_support;
     MEDCouplingPointSet *_target_support;
-    MxN_Mapping _mapping;
+    OverlapMapping _mapping;
  
     const ProcessorGroup& _group;
     std::vector< std::vector<double> > _target_volume;

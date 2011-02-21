@@ -58,16 +58,16 @@ std::string MEDLoaderBase::buildUnionUnit(const char *name, int nameLgth, const 
   std::string unitCpp(buildStringFromFortran(unit,unitLgth));
   if(unitCpp[0]=='\0')
     return ret;
-  ret+=" (";
+  ret+=" [";
   ret+=unitCpp;
-  ret+=")";
+  ret+="]";
   return ret;
 }
 
 void MEDLoaderBase::splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit)
 {
-  std::string::size_type f1=s.find_first_of('(');
-  std::string::size_type f2=s.find_last_of(')');
+  std::string::size_type f1=s.find_first_of('[');
+  std::string::size_type f2=s.find_last_of(']');
   if(f1!=std::string::npos && f2!=std::string::npos)
     {
       if(f1<f2)

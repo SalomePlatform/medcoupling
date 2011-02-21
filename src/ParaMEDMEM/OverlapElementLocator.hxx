@@ -22,6 +22,9 @@
 
 #include "InterpolationOptions.hxx"
 #include "MEDCouplingNatureOfField.hxx"
+#include "MEDCouplingPointSet.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <mpi.h>
 #include <vector>
@@ -33,8 +36,6 @@ namespace ParaMEDMEM
   class ProcessorGroup;
   class ParaSUPPORT;
   class InterpolationMatrix;
-  class MEDCouplingPointSet;
-  class DataArrayInt;
 
   class OverlapElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
@@ -42,9 +43,22 @@ namespace ParaMEDMEM
     OverlapElementLocator(const ParaFIELD *sourceField, const ParaFIELD *targetField, const ProcessorGroup& group);
     virtual ~OverlapElementLocator();
     const MPI_Comm *getCommunicator() const;
+    void exchangeMeshes();
+    std::vector< std::pair<int,int> > getToDoList() const { return _to_do_list; }
+    std::vector< std::vector< int > > getProcsInInteraction() const { return _proc_pairs; }
+    std::string getSourceMethod() const;
+    std::string getTargetMethod() const;
+    const MEDCouplingPointSet *getSourceMesh(int procId) const;
+    const DataArrayInt *getSourceIds(int procId) const;
+    const MEDCouplingPointSet *getTargetMesh(int procId) const;
+    const DataArrayInt *getTargetIds(int procId) const;
   private:
-    void _computeBoundingBoxes();
-    bool _intersectsBoundingBox(int i, int j) const;
+    void computeBoundingBoxes();
+    bool intersectsBoundingBox(int i, int j) const;
+    void sendLocalMeshTo(int procId, bool sourceOrTarget) const;
+    void receiveRemoteMesh(int procId, bool sourceOrTarget);
+    void sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayInt *idsToSend) const;
+    void receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayInt *&ids) const;
   private:
     const ParaFIELD *_local_source_field;
     const ParaFIELD *_local_target_field;
@@ -53,6 +67,13 @@ namespace ParaMEDMEM
     MEDCouplingPointSet *_local_target_mesh;
     std::vector<MEDCouplingPointSet*> _distant_cell_meshes;
     std::vector<MEDCouplingPointSet*> _distant_face_meshes;
+    //! of size _group.size(). Contains for each source proc i, the ids of proc j the targets interact with. This vector is common for all procs in _group. 
+    std::vector< std::vector< int > > _proc_pairs;
+    //! list of interpolations couple to be done
+    std::vector< std::pair<int,int> > _to_do_list;
+    std::vector< std::pair<int,bool> > _procs_to_send;
+    std::map<std::pair<int,bool>, MEDCouplingAutoRefCountObjectPtr< MEDCouplingPointSet > > _remote_meshes;
+    std::map<std::pair<int,bool>, MEDCouplingAutoRefCountObjectPtr< DataArrayInt > > _remote_elems;
     double* _domain_bounding_boxes;
     const ProcessorGroup& _group;
     std::vector<int> _distant_proc_ids;

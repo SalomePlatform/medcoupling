@@ -329,8 +329,8 @@ class MEDLoaderTest(unittest.TestCase):
         array=DataArrayDouble.New();
         arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
         array.setValues(arr1,m2d.getNumberOfCells(),2);
-        array.setInfoOnComponent(0,"plkj (mm)");
-        array.setInfoOnComponent(1,"pqqqss (mm)");
+        array.setInfoOnComponent(0,"plkj [mm]");
+        array.setInfoOnComponent(1,"pqqqss [mm]");
         f1.setArray(array);
         tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
         f1.setTime(3.14,2,7);

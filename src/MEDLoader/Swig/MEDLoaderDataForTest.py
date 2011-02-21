@@ -36,7 +36,7 @@ class MEDLoaderDataForTest:
         mesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(coords,6,1);
-        myCoords.setInfoOnComponent(0,"tototototototot (m*m*m*m*m*m*m*m)");
+        myCoords.setInfoOnComponent(0,"tototototototot [m*m*m*m*m*m*m*m]");
         mesh.setCoords(myCoords);
         return mesh;
 
@@ -74,8 +74,8 @@ class MEDLoaderDataForTest:
         targetMesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(targetCoords,12,2);
-        myCoords.setInfoOnComponent(0,"tototototototot (m)");
-        myCoords.setInfoOnComponent(1,"energie (kW)");
+        myCoords.setInfoOnComponent(0,"tototototototot [m]");
+        myCoords.setInfoOnComponent(1,"energie [kW]");
         targetMesh.setCoords(myCoords)
         return targetMesh;
 
@@ -95,8 +95,8 @@ class MEDLoaderDataForTest:
         targetMesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(targetCoords,12,2);
-        myCoords.setInfoOnComponent(0,"toto (m)");
-        myCoords.setInfoOnComponent(1,"energie (kW)");
+        myCoords.setInfoOnComponent(0,"toto [m]");
+        myCoords.setInfoOnComponent(1,"energie [kW]");
         targetMesh.setCoords(myCoords);
         return targetMesh;
 
@@ -156,9 +156,9 @@ class MEDLoaderDataForTest:
         ret.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(coords,60,3);
-        myCoords.setInfoOnComponent(0,"titi (m)");
-        myCoords.setInfoOnComponent(1,"density power (MW/m^3)");
-        myCoords.setInfoOnComponent(2,"t (kW)");
+        myCoords.setInfoOnComponent(0,"titi [m]");
+        myCoords.setInfoOnComponent(1,"density power [MW/m^3]");
+        myCoords.setInfoOnComponent(2,"t [kW]");
         ret.setCoords(myCoords);
         return ret;
     
@@ -179,8 +179,8 @@ class MEDLoaderDataForTest:
         targetMesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(targetCoords,12,3);
-        myCoords.setInfoOnComponent(0,"toto (m)");
-        myCoords.setInfoOnComponent(2,"ff (km)");#component 1 is not set for test
+        myCoords.setInfoOnComponent(0,"toto [m]");
+        myCoords.setInfoOnComponent(2,"ff [km]");#component 1 is not set for test
         targetMesh.setCoords(myCoords);
         return targetMesh;
     
@@ -207,9 +207,9 @@ class MEDLoaderDataForTest:
         array=DataArrayDouble.New();
         arr1=[0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.]
         array.setValues(arr1,nbOfCells,3);
-        array.setInfoOnComponent(0,"power (MW/m^3)");
-        array.setInfoOnComponent(1,"density (g/cm^3)");
-        array.setInfoOnComponent(2,"temperature (K)");
+        array.setInfoOnComponent(0,"power [MW/m^3]");
+        array.setInfoOnComponent(1,"density [g/cm^3]");
+        array.setInfoOnComponent(2,"temperature [K]");
         f1.setArray(array);
         tmp=array.getPointer();
         f1.setTime(2.,0,1);
@@ -227,9 +227,9 @@ class MEDLoaderDataForTest:
         arr1=[70.,80.,90.,71.,81.,91.,72.,82.,92.,73.,83.,93.,74.,84.,94.,75.,85.,95.,
         1000.,10010.,10020.,1001.,10011.,10021.,1002.,10012.,10022.,1003.,10013.,10023.,1004.,10014.,10024.,1005.,10015.,10025.]
         array.setValues(arr1,nbOfNodes,3);
-        array.setInfoOnComponent(0,"power (MW/m^3)");
-        array.setInfoOnComponent(1,"density (g/cm^3)");
-        array.setInfoOnComponent(2,"temperature (K)");
+        array.setInfoOnComponent(0,"power [MW/m^3]");
+        array.setInfoOnComponent(1,"density [g/cm^3]");
+        array.setInfoOnComponent(2,"temperature [K]");
         f1.setTime(2.12,2,3);
         f1.checkCoherency();
         return f1;
@@ -271,7 +271,7 @@ class MEDLoaderDataForTest:
             pass
         f.setArray(array);
         f.setName("MyFirstFieldOnGaussPoint");
-        array.setInfoOnComponent(0,"power (MW/m^3)");
+        array.setInfoOnComponent(0,"power [MW/m^3]");
         array.setInfoOnComponent(1,"density");
         f.checkCoherency();
         return f;
@@ -286,7 +286,7 @@ class MEDLoaderDataForTest:
         for i in xrange(2*20):
             array.setIJ(0,i,float(i+8));
         f.setArray(array);
-        array.setInfoOnComponent(0,"power (W)");
+        array.setInfoOnComponent(0,"power [W]");
         array.setInfoOnComponent(1,"temperature");
         f.setName("MyFieldOnGaussNE");
         f.checkCoherency();

@@ -71,6 +71,21 @@ namespace ParaMEDMEM
     delete _interpolation_matrix;
     _interpolation_matrix=new OverlapInterpolationMatrix(_source_field,_target_field,*_group,*this,*this);
     OverlapElementLocator locator(_source_field,_target_field,*_group);
+    locator.copyOptions(*this);
+    locator.exchangeMeshes();
+    std::vector< std::pair<int,int> > jobs=locator.getToDoList();
+    std::string srcMeth=locator.getSourceMethod();
+    std::string trgMeth=locator.getTargetMethod();
+    for(std::vector< std::pair<int,int> >::const_iterator it=jobs.begin();it!=jobs.end();it++)
+      {
+        const MEDCouplingPointSet *src=locator.getSourceMesh((*it).first);
+        const DataArrayInt *srcIds=locator.getSourceIds((*it).first);
+        const MEDCouplingPointSet *trg=locator.getTargetMesh((*it).second);
+        const DataArrayInt *trgIds=locator.getTargetIds((*it).second);
+        _interpolation_matrix->addContribution(src,srcIds,srcMeth,(*it).first,trg,trgIds,trgMeth,(*it).first);
+      }
+    _interpolation_matrix->prepare(locator.getProcsInInteraction());
+    _interpolation_matrix->computeDeno();
   }
 
   void OverlapDEC::attachSourceLocalField(ParaFIELD *field, bool ownPt)

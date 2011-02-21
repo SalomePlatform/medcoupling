@@ -28,6 +28,7 @@
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 #include "DirectedBoundingBox.hxx"
 
 #include <map>
@@ -51,7 +52,7 @@ namespace ParaMEDMEM
     if(_local_target_field)
       _local_target_mesh=_local_target_field->getSupport()->getCellMesh();
     _comm=getCommunicator();
-    _computeBoundingBoxes();
+    computeBoundingBoxes();
   }
 
   OverlapElementLocator::~OverlapElementLocator()
@@ -65,7 +66,7 @@ namespace ParaMEDMEM
     return group->getComm();
   }
 
-  void OverlapElementLocator::_computeBoundingBoxes()
+  void OverlapElementLocator::computeBoundingBoxes()
   {
     CommInterface comm_interface=_group.getCommInterface();
     const MPIProcessorGroup* group=static_cast<const MPIProcessorGroup*> (&_group);
@@ -79,6 +80,7 @@ namespace ParaMEDMEM
     int bbSize=2*2*_local_space_dim;//2 (for source/target) 2 (min/max)
     _domain_bounding_boxes=new double[bbSize*_group.size()];
     double * minmax=new double[bbSize];
+    //Format minmax : Xmin_src,Xmax_src,Ymin_src,Ymax_src,Zmin_src,Zmax_src,Xmin_trg,Xmax_trg,Ymin_trg,Ymax_trg,Zmin_trg,Zmax_trg
     if(_local_source_mesh)
       _local_source_mesh->getBoundingBox(minmax);
     else
@@ -103,681 +105,263 @@ namespace ParaMEDMEM
                              _domain_bounding_boxes,bbSize, MPI_DOUBLE, 
                              *comm);
   
-    /*std::vector
+    // Computation of all pairs needing an interpolation pairs are duplicated now !
+    
+    _proc_pairs.clear();//first is source second is target
+    _proc_pairs.resize(_group.size());
     for(int i=0;i<_group.size();i++)
       for(int j=0;j<_group.size();j++)
-        if(_intersectsBoundingBox(i,j))
-          {
-            _distant_proc_ids.push_back(rank);
-            }*/
-  }
-
-  bool OverlapElementLocator::_intersectsBoundingBox(int i, int j) const
-  {
-    // double*  local_bb = _domain_bounding_boxes+_union_group->myRank()*2*_local_cell_mesh_space_dim;
-    // double*  distant_bb =  _domain_bounding_boxes+irank*2*_local_cell_mesh_space_dim;
-
-    // for (int idim=0; idim < _local_cell_mesh_space_dim; idim++)
-    //   {
-    //     const double eps =  1e-12;
-    //     bool intersects = (distant_bb[idim*2]<local_bb[idim*2+1]+eps)
-    //       && (local_bb[idim*2]<distant_bb[idim*2+1]+eps);
-    //     if (!intersects) return false; 
-    //   }
-    return true;
-  } 
-
-#if 0
-
-  NatureOfField ElementLocator::getLocalNature() const
-  {
-    return _local_para_field.getField()->getNature();
-  }
-
-  // ==========================================================================
-  // Procedure for exchanging mesh between a distant proc and a local processor
-  // param idistantrank  proc id on distant group
-  // param distant_mesh on return , points to a local reconstruction of
-  //  the distant mesh
-  // param distant_ids on return, contains a vector defining a correspondence
-  // between the distant ids and the ids of the local reconstruction 
-  // ==========================================================================
-  void ElementLocator::exchangeMesh(int idistantrank,
-                                    MEDCouplingPointSet*& distant_mesh,
-                                    int*& distant_ids)
-  {
-    int rank = _union_group->translateRank(&_distant_group,idistantrank);
-
-    if (find(_distant_proc_ids.begin(), _distant_proc_ids.end(),rank)==_distant_proc_ids.end())
-      return;
-   
-    vector<int> elems;
-#ifdef USE_DIRECTED_BB
-    INTERP_KERNEL::DirectedBoundingBox dbb;
-    double* distant_bb = _domain_bounding_boxes+rank*dbb.dataSize(_local_cell_mesh_space_dim);
-    dbb.setData(distant_bb);
-    _local_cell_mesh->getCellsInBoundingBox(dbb,getBoundingBoxAdjustment(),elems);
-#else
-    double* distant_bb = _domain_bounding_boxes+rank*2*_local_cell_mesh_space_dim;
-    _local_cell_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
-#endif
-    
-    DataArrayInt *distant_ids_send;
-    MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(&elems[0],&elems[elems.size()],distant_ids_send);
-    _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
-    distant_ids_send->decrRef();
-    
-    if(send_mesh)
-      send_mesh->decrRef();
-  }
-
-  void ElementLocator::exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth)
-  {
-    CommInterface comm_interface=_union_group->getCommInterface();
-    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
-    const MPI_Comm* comm=(group->getComm());
-    MPI_Status status;
-    // it must be converted to union numbering before communication
-    int idistRankInUnion = group->translateRank(&_distant_group,idistantrank);
-    char *recv_buffer=new char[4];
-    std::vector<char> send_buffer(4);
-    std::copy(sourceMeth.begin(),sourceMeth.end(),send_buffer.begin());
-    comm_interface.sendRecv(&send_buffer[0], 4, MPI_CHAR,idistRankInUnion, 1112,
-                            recv_buffer, 4, MPI_CHAR,idistRankInUnion, 1112,
-                            *comm, &status);
-    targetMeth=recv_buffer;
-    delete [] recv_buffer;
-  }
-
-
-  // ======================
-  // Compute bounding boxes
-  // ======================
-
-  void ElementLocator::_computeBoundingBoxes()
-  {
-    CommInterface comm_interface =_union_group->getCommInterface();
-    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
-    const MPI_Comm* comm = group->getComm();
-    _local_cell_mesh_space_dim = -1;
-    if(_local_cell_mesh->getMeshDimension() != -1)
-      _local_cell_mesh_space_dim=_local_cell_mesh->getSpaceDimension();
-    int *spaceDimForAll=new int[_union_group->size()];
-    comm_interface.allGather(&_local_cell_mesh_space_dim, 1, MPI_INT,
-                             spaceDimForAll,1, MPI_INT, 
-                             *comm);
-    _local_cell_mesh_space_dim=*std::max_element(spaceDimForAll,spaceDimForAll+_union_group->size());
-    _is_m1d_corr=((*std::min_element(spaceDimForAll,spaceDimForAll+_union_group->size()))==-1);
-    for(int i=0;i<_union_group->size();i++)
-      if(spaceDimForAll[i]!=_local_cell_mesh_space_dim && spaceDimForAll[i]!=-1)
-        throw INTERP_KERNEL::Exception("Spacedim not matches !");
-    delete [] spaceDimForAll;
-#ifdef USE_DIRECTED_BB
-    INTERP_KERNEL::DirectedBoundingBox dbb;
-    int bbSize = dbb.dataSize(_local_cell_mesh_space_dim);
-    _domain_bounding_boxes = new double[bbSize*_union_group->size()];
-    if(_local_cell_mesh->getMeshDimension() != -1)
-      dbb = INTERP_KERNEL::DirectedBoundingBox(_local_cell_mesh->getCoords()->getPointer(),
-                                               _local_cell_mesh->getNumberOfNodes(),
-                                               _local_cell_mesh_space_dim);
-    std::vector<double> dbbData = dbb.getData();
-    if ( dbbData.size() < bbSize ) dbbData.resize(bbSize,0);
-    double * minmax= &dbbData[0];
-#else
-    int bbSize = 2*_local_cell_mesh_space_dim;
-    _domain_bounding_boxes = new double[bbSize*_union_group->size()];
-    double * minmax=new double [bbSize];
-    if(_local_cell_mesh->getMeshDimension() != -1)
-      _local_cell_mesh->getBoundingBox(minmax);
-    else
-      for(int i=0;i<_local_cell_mesh_space_dim;i++)
         {
-          minmax[i*2]=-std::numeric_limits<double>::max();
-          minmax[i*2+1]=std::numeric_limits<double>::max();
+          if(intersectsBoundingBox(i,j))
+            _proc_pairs[i].push_back(j);
         }
-#endif
 
-    comm_interface.allGather(minmax, bbSize, MPI_DOUBLE,
-                             _domain_bounding_boxes,bbSize, MPI_DOUBLE, 
-                             *comm);
-  
-    for (int i=0; i< _distant_group.size(); i++)
+    // OK now let's assigning as balanced as possible, job to each proc of group
+    std::vector< std::vector< std::pair<int,int> > > pairsToBeDonePerProc(_group.size());
+    for(int i=0;i<_group.size();i++)
       {
-        int rank=_union_group->translateRank(&_distant_group,i);
+        int i=0;
+        for(std::vector< std::vector< int > >::const_iterator it1=_proc_pairs.begin();it1!=_proc_pairs.end();it1++,i++)
+          for(std::vector< int >::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+            {
+              if(pairsToBeDonePerProc[i].size()<=pairsToBeDonePerProc[*it2].size())//it includes the fact that i==*it2
+                pairsToBeDonePerProc[i].push_back(std::pair<int,int>(i,*it2));
+              else
+                pairsToBeDonePerProc[*it2].push_back(std::pair<int,int>(i,*it2));
+            }
+      }
+    //Keeping todo list of current proc. _to_do_list contains a set of pair where at least _group.myRank() appears once.
+    //This proc will be in charge to perform interpolation of any of element of '_to_do_list'
+    //If _group.myRank()==myPair.first, current proc should fetch target mesh of myPair.second (if different from _group.myRank()).
+    //If _group.myRank()==myPair.second, current proc should fetch source mesh of myPair.second.
+    
+    int myProcId=_group.myRank();
+    _to_do_list=pairsToBeDonePerProc[myProcId];
 
-        if (_intersectsBoundingBox(rank))
+    //Feeding now '_procs_to_send'. A same id can appears twice. The second parameter in pair means what to send true=source, false=target
+    _procs_to_send.clear();
+    for(int i=_group.size()-1;i>=0;i--)
+      if(i!=myProcId)
+        {
+          const std::vector< std::pair<int,int> >& anRemoteProcToDoList=pairsToBeDonePerProc[i];
+          for(std::vector< std::pair<int,int> >::const_iterator it=anRemoteProcToDoList.begin();it!=anRemoteProcToDoList.end();it++)
+            {
+              if((*it).first==myProcId)
+                _procs_to_send.push_back(std::pair<int,bool>(i,true));
+              if((*it).second!=myProcId)
+                _procs_to_send.push_back(std::pair<int,bool>(i,false));
+            }
+        }
+  }
+
+  /*!
+   * The aim of this method is to perform the communication to get data corresponding to '_to_do_list' attribute.
+   * The principle is the following : if proc n1 and n2 need to perform a cross sending with n1<n2, then n1 will send first and receive then.
+   */
+  void OverlapElementLocator::exchangeMeshes()
+  {
+    int myProcId=_group.myRank();
+    //starting to receive every procs whose id is lower than myProcId.
+    std::vector< std::pair<int,int> > toDoListForFetchRemaining;
+    for(std::vector< std::pair<int,int> >::const_iterator it=_to_do_list.begin();it!=_to_do_list.end();it++)
+      {
+        if((*it).first!=(*it).second)
           {
-            _distant_proc_ids.push_back(rank);
+            if((*it).first==myProcId)
+              {
+                if((*it).second<myProcId)
+                  receiveRemoteMesh((*it).second,false);
+                else
+                  toDoListForFetchRemaining.push_back(std::pair<int,int>((*it).first,(*it).second));
+              }
+            else
+              {//(*it).second==myProcId
+                if((*it).first<myProcId)
+                  receiveRemoteMesh((*it).first,true);
+                else
+                  toDoListForFetchRemaining.push_back(std::pair<int,int>((*it).first,(*it).second));
+              }
           }
       }
-#ifdef USE_DIRECTED_BB
-#else
-    delete [] minmax;
-#endif
+    //sending source or target mesh to remote procs
+    for(std::vector< std::pair<int,bool> >::const_iterator it2=_procs_to_send.begin();it2!=_procs_to_send.end();it2++)
+      sendLocalMeshTo((*it2).first,(*it2).second);
+    //fetching remaining meshes
+    for(std::vector< std::pair<int,int> >::const_iterator it=toDoListForFetchRemaining.begin();it!=toDoListForFetchRemaining.end();it++)
+      {
+        if((*it).first!=(*it).second)
+          {
+            if((*it).first==myProcId)
+              receiveRemoteMesh((*it).second,false);
+            else//(*it).second==myProcId
+              receiveRemoteMesh((*it).first,true);
+          }
+      }
+  }
+  
+  std::string OverlapElementLocator::getSourceMethod() const
+  {
+    return _local_source_field->getField()->getDiscretization()->getStringRepr();
   }
 
-
-  // =============================================
-  // Intersect Bounding Box (with a given "irank")
-  // =============================================
-  bool ElementLocator::_intersectsBoundingBox(int irank)
+  std::string OverlapElementLocator::getTargetMethod() const
   {
-#ifdef USE_DIRECTED_BB
-    INTERP_KERNEL::DirectedBoundingBox local_dbb, distant_dbb;
-    local_dbb.setData( _domain_bounding_boxes+_union_group->myRank()*local_dbb.dataSize( _local_cell_mesh_space_dim ));
-    distant_dbb.setData( _domain_bounding_boxes+irank*distant_dbb.dataSize( _local_cell_mesh_space_dim ));
-    return !local_dbb.isDisjointWith( distant_dbb );
-#else
-    double*  local_bb = _domain_bounding_boxes+_union_group->myRank()*2*_local_cell_mesh_space_dim;
-    double*  distant_bb =  _domain_bounding_boxes+irank*2*_local_cell_mesh_space_dim;
+    return _local_target_field->getField()->getDiscretization()->getStringRepr();
+  }
 
-    for (int idim=0; idim < _local_cell_mesh_space_dim; idim++)
+  const MEDCouplingPointSet *OverlapElementLocator::getSourceMesh(int procId) const
+  {
+    int myProcId=_group.myRank();
+    if(myProcId==procId)
+      return _local_source_mesh;
+    std::pair<int,bool> p(procId,true);
+    std::map<std::pair<int,bool>, MEDCouplingAutoRefCountObjectPtr< MEDCouplingPointSet > >::const_iterator it=_remote_meshes.find(p);
+    return (*it).second;
+  }
+
+  const DataArrayInt *OverlapElementLocator::getSourceIds(int procId) const
+  {
+    int myProcId=_group.myRank();
+    if(myProcId==procId)
+      return 0;
+    std::pair<int,bool> p(procId,true);
+    std::map<std::pair<int,bool>, MEDCouplingAutoRefCountObjectPtr< DataArrayInt > >::const_iterator it=_remote_elems.find(p);
+    return (*it).second;
+  }
+
+  const MEDCouplingPointSet *OverlapElementLocator::getTargetMesh(int procId) const
+  {
+    int myProcId=_group.myRank();
+    if(myProcId==procId)
+      return _local_target_mesh;
+    std::pair<int,bool> p(procId,false);
+    std::map<std::pair<int,bool>, MEDCouplingAutoRefCountObjectPtr< MEDCouplingPointSet > >::const_iterator it=_remote_meshes.find(p);
+    return (*it).second;
+  }
+
+  const DataArrayInt *OverlapElementLocator::getTargetIds(int procId) const
+  {
+    int myProcId=_group.myRank();
+    if(myProcId==procId)
+      return 0;
+    std::pair<int,bool> p(procId,false);
+    std::map<std::pair<int,bool>, MEDCouplingAutoRefCountObjectPtr< DataArrayInt > >::const_iterator it=_remote_elems.find(p);
+    return (*it).second;
+  }
+
+  bool OverlapElementLocator::intersectsBoundingBox(int isource, int itarget) const
+  {
+    const double *source_bb=_domain_bounding_boxes+isource*2*2*_local_space_dim;
+    const double *target_bb=_domain_bounding_boxes+itarget*2*2*_local_space_dim+2*_local_space_dim;
+
+    for (int idim=0; idim < _local_space_dim; idim++)
       {
-        const double eps =  1e-12;
-        bool intersects = (distant_bb[idim*2]<local_bb[idim*2+1]+eps)
-          && (local_bb[idim*2]<distant_bb[idim*2+1]+eps);
-        if (!intersects) return false; 
+        const double eps = 1e-12;
+        bool intersects = (target_bb[idim*2]<source_bb[idim*2+1]+eps)
+          && (source_bb[idim*2]<target_bb[idim*2+1]+eps);
+        if (!intersects)
+          return false; 
       }
     return true;
-#endif
-  } 
+  }
 
-  // ======================
-  // Exchanging meshes data
-  // ======================
-  void ElementLocator::_exchangeMesh( MEDCouplingPointSet* local_mesh,
-                                      MEDCouplingPointSet*& distant_mesh,
-                                      int iproc_distant,
-                                      const DataArrayInt* distant_ids_send,
-                                      int*& distant_ids_recv)
+  /*!
+   * This methods sends local source if 'sourceOrTarget'==True to proc 'procId'.
+   * This methods sends local target if 'sourceOrTarget'==False to proc 'procId'.
+   */
+  void OverlapElementLocator::sendLocalMeshTo(int procId, bool sourceOrTarget) const
   {
-    CommInterface comm_interface=_union_group->getCommInterface();
-  
+   vector<int> elems;
+   //int myProcId=_group.myRank();
+   const double *distant_bb=0;
+   MEDCouplingPointSet *local_mesh=0;
+   const ParaFIELD *field=0;
+   if(sourceOrTarget)//source for local but target for distant
+     {
+       distant_bb=_domain_bounding_boxes+procId*2*2*_local_space_dim+2*_local_space_dim;
+       local_mesh=_local_source_mesh;
+       field=_local_source_field;
+     }
+   else//target for local but source for distant
+     {
+       distant_bb=_domain_bounding_boxes+procId*2*2*_local_space_dim;
+       local_mesh=_local_target_mesh;
+       field=_local_target_field;
+     }
+   local_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
+   DataArrayInt *idsToSend;
+   MEDCouplingPointSet *send_mesh=(MEDCouplingPointSet *)field->getField()->buildSubMeshData(&elems[0],&elems[elems.size()],idsToSend);
+   sendMesh(procId,send_mesh,idsToSend);
+   send_mesh->decrRef();
+   idsToSend->decrRef();
+  }
+
+  /*!
+   * This method recieves source remote mesh on proc 'procId' if sourceOrTarget==True
+   * This method recieves target remote mesh on proc 'procId' if sourceOrTarget==False
+   */
+  void OverlapElementLocator::receiveRemoteMesh(int procId, bool sourceOrTarget)
+  {
+    DataArrayInt *da=0;
+    MEDCouplingPointSet *m=0;
+    receiveMesh(procId,m,da);
+    std::pair<int,bool> p(procId,sourceOrTarget);
+    _remote_meshes[p]=m;
+    _remote_elems[p]=da;
+  }
+
+  void OverlapElementLocator::sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayInt *idsToSend) const
+  {
+    CommInterface comInterface=_group.getCommInterface();
     // First stage : exchanging sizes
-    // ------------------------------
-    vector<double> tinyInfoLocalD,tinyInfoDistantD(1);//not used for the moment
-    vector<int> tinyInfoLocal,tinyInfoDistant;
+    vector<double> tinyInfoLocalD;//tinyInfoLocalD not used for the moment
+    vector<int> tinyInfoLocal;
     vector<string> tinyInfoLocalS;
-    //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
-    //the transmitted mesh.
-    local_mesh->getTinySerializationInformation(tinyInfoLocalD,tinyInfoLocal,tinyInfoLocalS);
-    tinyInfoLocal.push_back(distant_ids_send->getNumberOfTuples());
-    tinyInfoDistant.resize(tinyInfoLocal.size());
-    std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
-    MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
-    const MPI_Comm* comm=group->getComm();
-    MPI_Status status; 
-    
-    // iproc_distant is the number of proc in distant group
-    // it must be converted to union numbering before communication
-    int iprocdistant_in_union = group->translateRank(&_distant_group,
-                                                     iproc_distant);
-    
-    comm_interface.sendRecv(&tinyInfoLocal[0], tinyInfoLocal.size(), MPI_INT, iprocdistant_in_union, 1112,
-                            &tinyInfoDistant[0], tinyInfoDistant.size(), MPI_INT,iprocdistant_in_union,1112,
-                            *comm, &status);
+    mesh->getTinySerializationInformation(tinyInfoLocalD,tinyInfoLocal,tinyInfoLocalS);
+    const MPI_Comm *comm=getCommunicator();
+    //
+    int lgth[2];
+    lgth[0]=tinyInfoLocal.size();
+    lgth[1]=idsToSend->getNbOfElems();
+    comInterface.send(&lgth,2,MPI_INT,procId,1140,*_comm);
+    comInterface.send(&tinyInfoLocal[0],tinyInfoLocal.size(),MPI_INT,procId,1140,*comm);
+    //
     DataArrayInt *v1Local=0;
     DataArrayDouble *v2Local=0;
+    mesh->serialize(v1Local,v2Local);
+    comInterface.send(v1Local->getPointer(),v1Local->getNbOfElems(),MPI_INT,procId,1140,*comm);
+    comInterface.send(v2Local->getPointer(),v2Local->getNbOfElems(),MPI_DOUBLE,procId,1140,*comm);
+    //finished for mesh, ids now
+    comInterface.send((int *)idsToSend->getConstPointer(),lgth[1],MPI_INT,procId,1140,*comm);
+    //
+    v1Local->decrRef();
+    v2Local->decrRef();
+  }
+
+  void OverlapElementLocator::receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayInt *&ids) const
+  {
+    int lgth[2];
+    MPI_Status status;
+    const MPI_Comm *comm=getCommunicator();
+    CommInterface comInterface=_group.getCommInterface();
+    comInterface.recv(lgth,2,MPI_INT,procId,1140,*_comm,&status);
+    std::vector<int> tinyInfoDistant(lgth[0]);
+    ids=DataArrayInt::New();
+    ids->alloc(lgth[1],1);
+    comInterface.recv(&tinyInfoDistant[0],lgth[0],MPI_INT,procId,1140,*comm,&status);
+    mesh=MEDCouplingPointSet::BuildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
+    std::vector<std::string> unusedTinyDistantSts;
+    vector<double> tinyInfoDistantD(1);//tinyInfoDistantD not used for the moment
     DataArrayInt *v1Distant=DataArrayInt::New();
     DataArrayDouble *v2Distant=DataArrayDouble::New();
-    //serialization of local mesh to send data to distant proc.
-    local_mesh->serialize(v1Local,v2Local);
-    //Building the right instance of copy of distant mesh.
-    MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::BuildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
-    std::vector<std::string> unusedTinyDistantSts;
-    distant_mesh_tmp->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
-    int nbLocalElems=0;
-    int nbDistElem=0;
-    int *ptLocal=0;
-    int *ptDist=0;
-    if(v1Local)
-      {
-        nbLocalElems=v1Local->getNbOfElems();
-        ptLocal=v1Local->getPointer();
-      }
-    if(v1Distant)
-      {
-        nbDistElem=v1Distant->getNbOfElems();
-        ptDist=v1Distant->getPointer();
-      }
-    comm_interface.sendRecv(ptLocal, nbLocalElems, MPI_INT,
-                            iprocdistant_in_union, 1111,
-                            ptDist, nbDistElem, MPI_INT,
-                            iprocdistant_in_union,1111,
-                            *comm, &status);
-    nbLocalElems=0;
-    double *ptLocal2=0;
-    double *ptDist2=0;
-    if(v2Local)
-      {
-        nbLocalElems=v2Local->getNbOfElems();
-        ptLocal2=v2Local->getPointer();
-      }
-    nbDistElem=0;
-    if(v2Distant)
-      {
-        nbDistElem=v2Distant->getNbOfElems();
-        ptDist2=v2Distant->getPointer();
-      }
-    comm_interface.sendRecv(ptLocal2, nbLocalElems, MPI_DOUBLE,
-                            iprocdistant_in_union, 1112,
-                            ptDist2, nbDistElem, MPI_DOUBLE,
-                            iprocdistant_in_union, 1112, 
-                            *comm, &status);
+    mesh->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
+    comInterface.recv(v1Distant->getPointer(),v1Distant->getNbOfElems(),MPI_INT,procId,1140,*comm,&status);
+    comInterface.recv(v2Distant->getPointer(),v2Distant->getNbOfElems(),MPI_DOUBLE,procId,1140,*comm,&status);
+    mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
+    //finished for mesh, ids now
+    comInterface.recv(ids->getPointer(),lgth[1],MPI_INT,procId,1140,*comm,&status);
     //
-    distant_mesh=distant_mesh_tmp;
-    //finish unserialization
-    distant_mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
-    //
-    distant_ids_recv=new int[tinyInfoDistant.back()];
-    comm_interface.sendRecv((void *)distant_ids_send->getConstPointer(),tinyInfoLocal.back(), MPI_INT,
-                            iprocdistant_in_union, 1113,
-                            distant_ids_recv,tinyInfoDistant.back(), MPI_INT,
-                            iprocdistant_in_union,1113,
-                            *comm, &status);
-    if(v1Local)
-      v1Local->decrRef();
-    if(v2Local)
-      v2Local->decrRef();
-    if(v1Distant)
-      v1Distant->decrRef();
-    if(v2Distant)
-      v2Distant->decrRef();
+    v1Distant->decrRef();
+    v2Distant->decrRef();
   }
-  
-  /*!
-   * connected with ElementLocator::sendPolicyToWorkingSideL
-   */
-  void ElementLocator::recvPolicyFromLazySideW(std::vector<int>& policy)
-  {
-    policy.resize(_distant_proc_ids.size());
-    int procId=0;
-    CommInterface comm;
-    MPI_Status status;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        int toRecv;
-        comm.recv((void *)&toRecv,1,MPI_INT,*iter,1120,*_comm,&status);
-        policy[procId]=toRecv;
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::recvFromWorkingSideL
-   */
-  void ElementLocator::sendSumToLazySideW(const std::vector< std::vector<int> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds)
-  {
-    int procId=0;
-    CommInterface comm;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        const vector<int>& eltIds=distantLocEltIds[procId];
-        const vector<double>& valued=partialSumRelToDistantIds[procId];
-        int lgth=eltIds.size();
-        comm.send(&lgth,1,MPI_INT,*iter,1114,*_comm);
-        comm.send((void *)&eltIds[0],lgth,MPI_INT,*iter,1115,*_comm);
-        comm.send((void *)&valued[0],lgth,MPI_DOUBLE,*iter,1116,*_comm);
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::sendToWorkingSideL
-   */
-  void ElementLocator::recvSumFromLazySideW(std::vector< std::vector<double> >& globalSumRelToDistantIds)
-  {
-    int procId=0;
-    CommInterface comm;
-    MPI_Status status;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        std::vector<double>& vec=globalSumRelToDistantIds[procId];
-        comm.recv(&vec[0],vec.size(),MPI_DOUBLE,*iter,1117,*_comm,&status);
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::recvLocalIdsFromWorkingSideL
-   */
-  void ElementLocator::sendLocalIdsToLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds)
-  {
-    int procId=0;
-    CommInterface comm;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        const vector<int>& eltIds=distantLocEltIds[procId];
-        int lgth=eltIds.size();
-        comm.send(&lgth,1,MPI_INT,*iter,1121,*_comm);
-        comm.send((void *)&eltIds[0],lgth,MPI_INT,*iter,1122,*_comm);
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::sendGlobalIdsToWorkingSideL
-   */
-  void ElementLocator::recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<int> >& distantLocEltIds, std::vector< std::vector<int> >& globalIds)
-  {
-    int procId=0;
-    CommInterface comm;
-    MPI_Status status;
-    globalIds.resize(_distant_proc_ids.size());
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        const std::vector<int>& vec=distantLocEltIds[procId];
-        std::vector<int>& global=globalIds[procId];
-        global.resize(vec.size());
-        comm.recv(&global[0],vec.size(),MPI_INT,*iter,1123,*_comm,&status);
-      }
-  }
-  
-  /*!
-   * connected with ElementLocator::sendCandidatesGlobalIdsToWorkingSideL
-   */
-  void ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<int> >& globalIds)
-  {
-    int procId=0;
-    CommInterface comm;
-    MPI_Status status;
-    globalIds.resize(_distant_proc_ids.size());
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        std::vector<int>& global=globalIds[procId];
-        int lgth;
-        comm.recv(&lgth,1,MPI_INT,*iter,1132,*_comm,&status);
-        global.resize(lgth);
-        comm.recv(&global[0],lgth,MPI_INT,*iter,1133,*_comm,&status);
-      }
-  }
-  
-  /*!
-   * connected with ElementLocator::recvSumFromWorkingSideL
-   */
-  void ElementLocator::sendPartialSumToLazyProcsW(const std::vector<int>& distantGlobIds, const std::vector<double>& sum)
-  {
-    int procId=0;
-    CommInterface comm;
-    int lgth=distantGlobIds.size();
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        comm.send(&lgth,1,MPI_INT,*iter,1124,*_comm);
-        comm.send((void*)&distantGlobIds[0],lgth,MPI_INT,*iter,1125,*_comm);
-        comm.send((void*)&sum[0],lgth,MPI_DOUBLE,*iter,1126,*_comm);
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::recvCandidatesForAddElementsL
-   */
-  void ElementLocator::sendCandidatesForAddElementsW(const std::vector<int>& distantGlobIds)
-  {
-    int procId=0;
-    CommInterface comm;
-    int lgth=distantGlobIds.size();
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        comm.send(&lgth,1,MPI_INT,*iter,1128,*_comm);
-        comm.send((void*)&distantGlobIds[0],lgth,MPI_INT,*iter,1129,*_comm);
-      }
-  }
-  
-  /*!
-   * connected with ElementLocator::sendAddElementsToWorkingSideL
-   */
-  void ElementLocator::recvAddElementsFromLazyProcsW(std::vector<std::vector<int> >& elementsToAdd)
-  {
-    int procId=0;
-    CommInterface comm;
-    MPI_Status status;
-    int lgth=_distant_proc_ids.size();
-    elementsToAdd.resize(lgth);
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        int locLgth;
-        std::vector<int>& eltToFeed=elementsToAdd[procId];
-        comm.recv(&locLgth,1,MPI_INT,*iter,1130,*_comm,&status);
-        eltToFeed.resize(locLgth);
-        comm.recv(&eltToFeed[0],locLgth,MPI_INT,*iter,1131,*_comm,&status);
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::recvPolicyFromLazySideW
-   */
-  int ElementLocator::sendPolicyToWorkingSideL()
-  {
-    CommInterface comm;
-    int toSend;
-    DataArrayInt *isCumulative=_local_para_field.returnCumulativeGlobalNumbering();
-    if(isCumulative)
-      {
-        toSend=CUMULATIVE_POLICY;
-        isCumulative->decrRef();
-      }
-    else
-      toSend=NO_POST_TREATMENT_POLICY;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++)
-      comm.send(&toSend,1,MPI_INT,*iter,1120,*_comm);
-    return toSend;
-  }
-
-  /*!
-   * connected with ElementLocator::sendSumToLazySideW
-   */
-  void ElementLocator::recvFromWorkingSideL()
-  {
-    _values_added.resize(_local_para_field.getField()->getNumberOfTuples());
-    int procId=0;
-    CommInterface comm;
-    _ids_per_working_proc.resize(_distant_proc_ids.size());
-    MPI_Status status;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        int lgth;
-        comm.recv(&lgth,1,MPI_INT,*iter,1114,*_comm,&status);
-        vector<int>& ids=_ids_per_working_proc[procId];
-        ids.resize(lgth);
-        vector<double> values(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1115,*_comm,&status);
-        comm.recv(&values[0],lgth,MPI_DOUBLE,*iter,1116,*_comm,&status);
-        for(int i=0;i<lgth;i++)
-          _values_added[ids[i]]+=values[i];
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::recvSumFromLazySideW
-   */
-  void ElementLocator::sendToWorkingSideL()
-  {
-    int procId=0;
-    CommInterface comm;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        vector<int>& ids=_ids_per_working_proc[procId];
-        vector<double> valsToSend(ids.size());
-        vector<double>::iterator iter3=valsToSend.begin();
-        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter3++)
-          *iter3=_values_added[*iter2];
-        comm.send(&valsToSend[0],ids.size(),MPI_DOUBLE,*iter,1117,*_comm);
-        //ids.clear();
-      }
-    //_ids_per_working_proc.clear();
-  }
-
-  /*!
-   * connected with ElementLocator::sendLocalIdsToLazyProcsW
-   */
-  void ElementLocator::recvLocalIdsFromWorkingSideL()
-  {
-    int procId=0;
-    CommInterface comm;
-    _ids_per_working_proc.resize(_distant_proc_ids.size());
-    MPI_Status status;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        int lgth;
-        vector<int>& ids=_ids_per_working_proc[procId];
-        comm.recv(&lgth,1,MPI_INT,*iter,1121,*_comm,&status);
-        ids.resize(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1122,*_comm,&status);
-      }
-  }
-
-  /*!
-   * connected with ElementLocator::recvGlobalIdsFromLazyProcsW
-   */
-  void ElementLocator::sendGlobalIdsToWorkingSideL()
-  {
-    int procId=0;
-    CommInterface comm;
-    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
-    const int *globalIdsC=globalIds->getConstPointer();
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        const vector<int>& ids=_ids_per_working_proc[procId];
-        vector<int> valsToSend(ids.size());
-        vector<int>::iterator iter1=valsToSend.begin();
-        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
-          *iter1=globalIdsC[*iter2];
-        comm.send(&valsToSend[0],ids.size(),MPI_INT,*iter,1123,*_comm);
-      }
-    if(globalIds)
-      globalIds->decrRef();
-  }
-
-  /*!
-   * connected with ElementLocator::sendPartialSumToLazyProcsW
-   */
-  void ElementLocator::recvSumFromWorkingSideL()
-  {
-    int procId=0;
-    int wProcSize=_distant_proc_ids.size();
-    CommInterface comm;
-    _ids_per_working_proc.resize(wProcSize);
-    _values_per_working_proc.resize(wProcSize);
-    MPI_Status status;
-    std::map<int,double> sums;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        int lgth;
-        comm.recv(&lgth,1,MPI_INT,*iter,1124,*_comm,&status);
-        vector<int>& ids=_ids_per_working_proc[procId];
-        vector<double>& vals=_values_per_working_proc[procId];
-        ids.resize(lgth);
-        vals.resize(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1125,*_comm,&status);
-        comm.recv(&vals[0],lgth,MPI_DOUBLE,*iter,1126,*_comm,&status);
-        vector<int>::const_iterator iter1=ids.begin();
-        vector<double>::const_iterator iter2=vals.begin();
-        for(;iter1!=ids.end();iter1++,iter2++)
-          sums[*iter1]+=*iter2;
-      }
-    //assign sum to prepare sending to working side
-    for(procId=0;procId<wProcSize;procId++)
-      {
-        vector<int>& ids=_ids_per_working_proc[procId];
-        vector<double>& vals=_values_per_working_proc[procId];
-        vector<int>::const_iterator iter1=ids.begin();
-        vector<double>::iterator iter2=vals.begin();
-        for(;iter1!=ids.end();iter1++,iter2++)
-          *iter2=sums[*iter1];
-        ids.clear();
-      }
-  }
-
-  /*!
-   * Foreach working procs Wi compute and push it in _ids_per_working_proc3,
-   * if it exist, local id of nodes that are in interaction with an another lazy proc than this
-   * and that exists in this \b but with no interaction with this.
-   * The computation is performed here. sendAddElementsToWorkingSideL is only in charge to send
-   * precomputed _ids_per_working_proc3 attribute.
-   * connected with ElementLocator::sendCandidatesForAddElementsW
-   */
-  void ElementLocator::recvCandidatesForAddElementsL()
-  {
-    int procId=0;
-    int wProcSize=_distant_proc_ids.size();
-    CommInterface comm;
-    _ids_per_working_proc3.resize(wProcSize);
-    MPI_Status status;
-    std::map<int,double> sums;
-    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
-    const int *globalIdsC=globalIds->getConstPointer();
-    int nbElts=globalIds->getNumberOfTuples();
-    std::set<int> globalIdsS(globalIdsC,globalIdsC+nbElts);
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        const std::vector<int>& ids0=_ids_per_working_proc[procId];
-        int lgth0=ids0.size();
-        std::set<int> elts0;
-        for(int i=0;i<lgth0;i++)
-          elts0.insert(globalIdsC[ids0[i]]);
-        int lgth;
-        comm.recv(&lgth,1,MPI_INT,*iter,1128,*_comm,&status);
-        vector<int> ids(lgth);
-        comm.recv(&ids[0],lgth,MPI_INT,*iter,1129,*_comm,&status);
-        set<int> ids1(ids.begin(),ids.end());
-        ids.clear();
-        set<int> tmp5,tmp6;
-        set_intersection(globalIdsS.begin(),globalIdsS.end(),ids1.begin(),ids1.end(),inserter(tmp5,tmp5.begin()));
-        set_difference(tmp5.begin(),tmp5.end(),elts0.begin(),elts0.end(),inserter(tmp6,tmp6.begin()));
-        std::vector<int>& ids2=_ids_per_working_proc3[procId];
-        ids2.resize(tmp6.size());
-        std::copy(tmp6.begin(),tmp6.end(),ids2.begin());
-        //global->local
-        for(std::vector<int>::iterator iter2=ids2.begin();iter2!=ids2.end();iter2++)
-          *iter2=std::find(globalIdsC,globalIdsC+nbElts,*iter2)-globalIdsC;
-      }
-    if(globalIds)
-      globalIds->decrRef();
-  }
-
-  /*!
-   * connected with ElementLocator::recvAddElementsFromLazyProcsW
-   */
-  void ElementLocator::sendAddElementsToWorkingSideL()
-  {
-    int procId=0;
-    CommInterface comm;
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        const std::vector<int>& vals=_ids_per_working_proc3[procId];
-        int size=vals.size();
-        comm.send((void *)&size,1,MPI_INT,*iter,1130,*_comm);
-        comm.send((void *)&vals[0],size,MPI_INT,*iter,1131,*_comm);
-      }
-  }
-
-  /*!
-   * This method sends to working side Wi only nodes in interaction with Wi \b and located on boundary, to reduce number.
-   * connected with ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW
-   */
-  void ElementLocator::sendCandidatesGlobalIdsToWorkingSideL()
-  { 
-    int procId=0;
-    CommInterface comm;
-    DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
-    const int *globalIdsC=globalIds->getConstPointer();
-    std::vector<int> candidates;
-    _local_para_field.getSupport()->getCellMesh()->findBoundaryNodes(candidates);
-    for(std::vector<int>::iterator iter1=candidates.begin();iter1!=candidates.end();iter1++)
-      (*iter1)=globalIdsC[*iter1];
-    std::set<int> candidatesS(candidates.begin(),candidates.end());
-    for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
-      {
-        const vector<int>& ids=_ids_per_working_proc[procId];
-        vector<int> valsToSend(ids.size());
-        vector<int>::iterator iter1=valsToSend.begin();
-        for(vector<int>::const_iterator iter2=ids.begin();iter2!=ids.end();iter2++,iter1++)
-          *iter1=globalIdsC[*iter2];
-        std::set<int> tmp2(valsToSend.begin(),valsToSend.end());
-        std::vector<int> tmp3;
-        set_intersection(candidatesS.begin(),candidatesS.end(),tmp2.begin(),tmp2.end(),std::back_insert_iterator< std::vector<int> >(tmp3));
-        int lgth=tmp3.size();
-        comm.send(&lgth,1,MPI_INT,*iter,1132,*_comm);
-        comm.send(&tmp3[0],lgth,MPI_INT,*iter,1133,*_comm);
-      }
-    if(globalIds)
-      globalIds->decrRef();
-  }
-#endif
 }

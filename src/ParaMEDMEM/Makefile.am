@@ -37,6 +37,7 @@ DisjointDEC.hxx\
 OverlapDEC.hxx\
 DECOptions.hxx\
 MxN_Mapping.hxx\
+OverlapMapping.hxx\
 StructuredCoincidentDEC.hxx\
 InterpolationMatrix.hxx\
 OverlapInterpolationMatrix.hxx\
@@ -74,6 +75,7 @@ DisjointDEC.cxx\
 OverlapDEC.cxx\
 ExplicitTopology.cxx\
 MxN_Mapping.cxx\
+OverlapMapping.cxx\
 ICoCoMEDField.cxx\
 ICoCoField.cxx\
 ICoCoTrioField.cxx\
