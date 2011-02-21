@@ -613,7 +613,7 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate f
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
-  std::vector<DataArrayDouble *> arrays2(arrays.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
     {
       if(arrays[j])
@@ -621,17 +621,17 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, FunctionToEvaluate f
       else
         arrays2[j]=0;
     }
-  setArrays(arrays2,0);
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
-    if(arrays2[j])
-      arrays2[j]->decrRef();
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
 }
 
 void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
-  std::vector<DataArrayDouble *> arrays2(arrays.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
     {
       if(arrays[j])
@@ -639,17 +639,53 @@ void MEDCouplingTimeDiscretization::applyFunc(int nbOfComp, const char *func)
       else
         arrays2[j]=0;
     }
-  setArrays(arrays2,0);
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
-    if(arrays2[j])
-      arrays2[j]->decrRef();
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
+}
+
+void MEDCouplingTimeDiscretization::applyFunc2(int nbOfComp, const char *func)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    {
+      if(arrays[j])
+        arrays2[j]=arrays[j]->applyFunc2(nbOfComp,func);
+      else
+        arrays2[j]=0;
+    }
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
+}
+
+void MEDCouplingTimeDiscretization::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    {
+      if(arrays[j])
+        arrays2[j]=arrays[j]->applyFunc3(nbOfComp,varsOrder,func);
+      else
+        arrays2[j]=0;
+    }
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
 }
 
 void MEDCouplingTimeDiscretization::applyFunc(const char *func)
 {
   std::vector<DataArrayDouble *> arrays;
   getArrays(arrays);
-  std::vector<DataArrayDouble *> arrays2(arrays.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
     {
       if(arrays[j])
@@ -657,10 +693,10 @@ void MEDCouplingTimeDiscretization::applyFunc(const char *func)
       else
         arrays2[j]=0;
     }
-  setArrays(arrays2,0);
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
-    if(arrays2[j])
-      arrays2[j]->decrRef();
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
 }
 
 void MEDCouplingTimeDiscretization::applyFuncFast32(const char *func)
@@ -705,6 +741,32 @@ void MEDCouplingTimeDiscretization::fillFromAnalytic(const DataArrayDouble *loc,
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
     arrays2[j]=loc->applyFunc(nbOfComp,func);
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
+}
+
+void MEDCouplingTimeDiscretization::fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays2[j]=loc->applyFunc2(nbOfComp,func);
+  std::vector<DataArrayDouble *> arrays3(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays3[j]=arrays2[j];
+  setArrays(arrays3,0);
+}
+
+void MEDCouplingTimeDiscretization::fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<DataArrayDouble *> arrays;
+  getArrays(arrays);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > arrays2(arrays.size());
+  for(int j=0;j<(int)arrays.size();j++)
+    arrays2[j]=loc->applyFunc3(nbOfComp,varsOrder,func);
   std::vector<DataArrayDouble *> arrays3(arrays.size());
   for(int j=0;j<(int)arrays.size();j++)
     arrays3[j]=arrays2[j];

@@ -128,11 +128,15 @@ namespace ParaMEDMEM
     virtual void applyLin(double a, double b, int compoId);
     virtual void applyFunc(int nbOfComp, FunctionToEvaluate func);
     virtual void applyFunc(int nbOfComp, const char *func);
+    virtual void applyFunc2(int nbOfComp, const char *func);
+    virtual void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func);
     virtual void applyFunc(const char *func);
     virtual void applyFuncFast32(const char *func);
     virtual void applyFuncFast64(const char *func);
     virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
     virtual void fillFromAnalytic(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void fillFromAnalytic2(const DataArrayDouble *loc, int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    virtual void fillFromAnalytic3(const DataArrayDouble *loc, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
     //
     virtual ~MEDCouplingTimeDiscretization();
   protected:

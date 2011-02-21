@@ -158,6 +158,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
+%newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
+%newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
 %newobject ParaMEDMEM::DataArrayDouble::doublyContractedProduct;
 %newobject ParaMEDMEM::DataArrayDouble::determinant;
 %newobject ParaMEDMEM::DataArrayDouble::eigenValues;
@@ -182,6 +184,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds;
 %newobject ParaMEDMEM::MEDCouplingMesh::mergeMyselfWith;
 %newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic;
+%newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic2;
+%newobject ParaMEDMEM::MEDCouplingMesh::fillFromAnalytic3;
 %newobject ParaMEDMEM::MEDCouplingMesh::getMeasureField;
 %newobject ParaMEDMEM::MEDCouplingMesh::simplexize;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildUnstructured;
@@ -307,6 +311,8 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *buildOrthogonalField() const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception) = 0;
@@ -1832,6 +1838,7 @@ namespace ParaMEDMEM
     virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDiscretization *getDiscretization() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
     void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
@@ -1932,6 +1939,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
     void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, double val) throw(INTERP_KERNEL::Exception);
     void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);

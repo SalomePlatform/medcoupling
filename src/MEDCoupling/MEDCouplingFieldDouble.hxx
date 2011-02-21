@@ -105,10 +105,14 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
     void fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception);
     void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, FunctionToEvaluate func);
     void applyFunc(int nbOfComp, double val);
-    void applyFunc(int nbOfComp, const char *func);
-    void applyFunc(const char *func);
+    void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
+    void applyFunc(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exception);
     void applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const throw(INTERP_KERNEL::Exception);

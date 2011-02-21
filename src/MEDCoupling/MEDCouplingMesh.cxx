@@ -219,6 +219,46 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
 }
 
 /*!
+ * This method builds a field lying on 'this' with 'nbOfComp' components.
+ * 'func' is a string that is the expression to evaluate.
+ * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
+ * evaluate. This method is different than MEDCouplingMesh::fillFromAnalytic, because the info on components are used here to determine vars pos in 'func'.
+ *
+ * @param t type of field returned and specifies where the evaluation of func will be done.
+ * @param nbOfComp number of components of returned field.
+ * @param func expression.
+ * @return field with counter = 1.
+ */
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  ret->setMesh(this);
+  ret->fillFromAnalytic2(nbOfComp,func);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * This method builds a field lying on 'this' with 'nbOfComp' components.
+ * 'func' is a string that is the expression to evaluate.
+ * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
+ * evaluate. This method is different than MEDCouplingMesh::fillFromAnalytic, because 'varsOrder' specifies the pos to assign of vars in 'func'.
+ *
+ * @param t type of field returned and specifies where the evaluation of func will be done.
+ * @param nbOfComp number of components of returned field.
+ * @param func expression.
+ * @return field with counter = 1.
+ */
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  ret->setMesh(this);
+  ret->fillFromAnalytic3(nbOfComp,varsOrder,func);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * retruns a newly created mesh with counter=1 
  * that is the union of mesh1 and mesh2 if possible. The cells of mesh2 will appear after cells of 'mesh1'. Idem for nodes.
  */

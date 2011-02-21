@@ -244,3 +244,237 @@ void MEDCouplingBasicsTest::testUMeshFindCellsIdsOnBoundary1()
   m->decrRef();
 }
 
+void MEDCouplingBasicsTest::testMeshSetTime1()
+{
+  MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=build3DSurfTargetMesh_1();
+  //
+  CPPUNIT_ASSERT(m1->isEqual(m2,1e-12));
+  m1->setTime(3.14,6,7);
+  int tmp1,tmp2;
+  double tmp3=m1->getTime(tmp1,tmp2);
+  CPPUNIT_ASSERT_EQUAL(6,tmp1);
+  CPPUNIT_ASSERT_EQUAL(7,tmp2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.14,tmp3,1e-12);
+  CPPUNIT_ASSERT(!m1->isEqual(m2,1e-12));
+  m2->setTime(3.14,6,7);
+  CPPUNIT_ASSERT(m1->isEqual(m2,1e-12));
+  m2->setTime(3.14,6,8);
+  CPPUNIT_ASSERT(!m1->isEqual(m2,1e-12));
+  m2->setTime(3.14,7,7);
+  CPPUNIT_ASSERT(!m1->isEqual(m2,1e-12));
+  m2->setTime(3.15,6,7);
+  CPPUNIT_ASSERT(!m1->isEqual(m2,1e-12));
+  //
+  m1->setTime(10.34,55,12);
+  MEDCouplingUMesh *m3=(MEDCouplingUMesh *)m1->deepCpy();
+  CPPUNIT_ASSERT(m1->isEqual(m3,1e-12));
+  tmp3=m3->getTime(tmp1,tmp2);
+  CPPUNIT_ASSERT_EQUAL(55,tmp1);
+  CPPUNIT_ASSERT_EQUAL(12,tmp2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(10.34,tmp3,1e-12);
+  //
+  m3->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+  // testing CMesh
+  const double coo1[4]={0.,1.,2.,3.5};
+  DataArrayDouble *a=DataArrayDouble::New();
+  a->alloc(4,1);
+  std::copy(coo1,coo1+4,a->getPointer());
+  MEDCouplingCMesh *b=MEDCouplingCMesh::New();
+  b->setCoordsAt(0,a);
+  a->decrRef();
+  //
+  b->setTime(5.67,8,100);
+  tmp3=b->getTime(tmp1,tmp2);
+  CPPUNIT_ASSERT_EQUAL(8,tmp1);
+  CPPUNIT_ASSERT_EQUAL(100,tmp2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.67,tmp3,1e-12);
+  MEDCouplingCMesh *c=(MEDCouplingCMesh *)b->deepCpy();
+  CPPUNIT_ASSERT(c->isEqual(b,1e-12));
+  tmp3=c->getTime(tmp1,tmp2);
+  CPPUNIT_ASSERT_EQUAL(8,tmp1);
+  CPPUNIT_ASSERT_EQUAL(100,tmp2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5.67,tmp3,1e-12);
+  c->decrRef();
+  b->decrRef();
+}
+
+void MEDCouplingBasicsTest::testApplyFuncTwo1()
+{
+  MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setMesh(m1);
+  //
+  const double vals[15]={1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.};
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(5,3);
+  std::copy(vals,vals+15,da->getPointer());
+  f1->setArray(da);
+  //
+  CPPUNIT_ASSERT_THROW(da->applyFunc2(1,"y+z"),INTERP_KERNEL::Exception);
+  da->setInfoOnComponent(0,"x [m]");
+  da->setInfoOnComponent(1,"y [mm]");
+  da->setInfoOnComponent(2,"z [km]");
+  DataArrayDouble *da2=da->applyFunc2(1,"y+z");
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,da2->getNumberOfTuples());
+  const double expected1[5]={32.,34.,36.,38.,40.};
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da2->getIJ(0,i),1e-12);
+  da2->decrRef();
+  da2=da->applyFunc(1,"y+z");
+  const double expected2[5]={12.,14.,16.,18.,20.};
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],da2->getIJ(0,i),1e-12);
+  da2->decrRef();
+  //
+  CPPUNIT_ASSERT_EQUAL(3,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
+  f1->applyFunc2(1,"y+z");
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getArray()->getIJ(0,i),1e-12);
+  //
+  da->decrRef();
+  f1->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testApplyFuncThree1()
+{
+  MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setMesh(m1);
+  //
+  const double vals[15]={1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.};
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(5,3);
+  std::copy(vals,vals+15,da->getPointer());
+  f1->setArray(da);
+  //
+  std::vector<std::string> vs(3);
+  vs[0]="x"; vs[1]="Y"; vs[2]="z";
+  CPPUNIT_ASSERT_THROW(da->applyFunc3(1,vs,"y+z"),INTERP_KERNEL::Exception);
+  vs[1]="y";
+  DataArrayDouble *da2=da->applyFunc3(1,vs,"y+z");
+  const double expected1[5]={32.,34.,36.,38.,40.};
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da2->getIJ(0,i),1e-12);
+  da2->decrRef();
+  f1->setArray(da);
+  CPPUNIT_ASSERT_EQUAL(3,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
+  f1->applyFunc3(1,vs,"y+z");
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getArray()->getIJ(0,i),1e-12);
+  //
+  da->decrRef();
+  f1->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testFillFromAnalyticTwo1()
+{
+  MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  CPPUNIT_ASSERT_THROW(m1->fillFromAnalytic2(ON_NODES,1,"y+z"),INTERP_KERNEL::Exception);
+  m1->getCoords()->setInfoOnComponent(0,"x [m]");
+  m1->getCoords()->setInfoOnComponent(1,"y");
+  m1->getCoords()->setInfoOnComponent(2,"z");
+  MEDCouplingFieldDouble *f1=m1->fillFromAnalytic2(ON_NODES,1,"y+z");
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  const double expected1[9]={0.2, 0.7, 1.2, 0.7, 1.2, 1.7, 1.2, 1.7, 2.2};
+  for(int i=0;i<9;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getArray()->getIJ(0,i),1e-12);
+  f1->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testFillFromAnalyticThree1()
+{
+  MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  std::vector<std::string> vs(3);
+  vs[0]="x"; vs[1]="Y"; vs[2]="z";
+  CPPUNIT_ASSERT_THROW(m1->fillFromAnalytic3(ON_NODES,1,vs,"y+z"),INTERP_KERNEL::Exception);
+  vs[1]="y";
+  MEDCouplingFieldDouble *f1=m1->fillFromAnalytic3(ON_NODES,1,vs,"y+z");
+  CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
+  const double expected1[9]={0.2, 0.7, 1.2, 0.7, 1.2, 1.7, 1.2, 1.7, 2.2};
+  for(int i=0;i<9;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getArray()->getIJ(0,i),1e-12);
+  f1->decrRef();
+  m1->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAUnitVar1()
+{
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(1,3);
+  da->setInfoOnComponent(0,"XPS [m]");
+  std::string st1,st2;
+  st1=da->getVarOnComponent(0);
+  CPPUNIT_ASSERT(st1=="XPS");
+  st2=da->getUnitOnComponent(0);
+  CPPUNIT_ASSERT(st2=="m");
+  //
+  da->setInfoOnComponent(0,"XPS         [m]");
+  st1=da->getVarOnComponent(0);
+  CPPUNIT_ASSERT(st1=="XPS");
+  st2=da->getUnitOnComponent(0);
+  CPPUNIT_ASSERT(st2=="m");
+  //
+  da->setInfoOnComponent(0,"XPP         [m]");
+  st1=da->getVarOnComponent(0);
+  CPPUNIT_ASSERT(st1=="XPP");
+  st2=da->getUnitOnComponent(0);
+  CPPUNIT_ASSERT(st2=="m");
+  //
+  da->setInfoOnComponent(0,"XPP kdep  kefer   [ m  ]");
+  st1=da->getVarOnComponent(0);
+  CPPUNIT_ASSERT(st1=="XPP kdep  kefer");
+  st2=da->getUnitOnComponent(0);
+  CPPUNIT_ASSERT(st2==" m  ");
+  //
+  da->setInfoOnComponent(0,"     XPP k[  dep  k]efer   [ m^ 2/s^3*kJ  ]");
+  st1=da->getVarOnComponent(0);
+  CPPUNIT_ASSERT(st1=="     XPP k[  dep  k]efer");
+  st2=da->getUnitOnComponent(0);
+  CPPUNIT_ASSERT(st2==" m^ 2/s^3*kJ  ");
+  //
+  da->setInfoOnComponent(0,"     XPP kefer   ");
+  st1=da->getVarOnComponent(0);
+  CPPUNIT_ASSERT(st1=="     XPP kefer   ");
+  st2=da->getUnitOnComponent(0);
+  CPPUNIT_ASSERT(st2=="");
+  //
+  da->setInfoOnComponent(0,"temperature( bof)");
+  st1=da->getVarOnComponent(0);
+  CPPUNIT_ASSERT(st1=="temperature( bof)");
+  st2=da->getUnitOnComponent(0);
+  CPPUNIT_ASSERT(st2=="");
+  //
+  da->setInfoOnComponent(0,"kkk [m]");
+  da->setInfoOnComponent(1,"ppp   [m^2/kJ]");
+  da->setInfoOnComponent(2,"abcde   [MW/s]");
+  //
+  std::vector<std::string> vs;
+  vs=da->getVarsOnComponent();
+  CPPUNIT_ASSERT_EQUAL(3,(int)vs.size());
+  CPPUNIT_ASSERT(vs[0]=="kkk");
+  CPPUNIT_ASSERT(vs[1]=="ppp");
+  CPPUNIT_ASSERT(vs[2]=="abcde");
+  vs=da->getUnitsOnComponent();
+  CPPUNIT_ASSERT_EQUAL(3,(int)vs.size());
+  CPPUNIT_ASSERT(vs[0]=="m");
+  CPPUNIT_ASSERT(vs[1]=="m^2/kJ");
+  CPPUNIT_ASSERT(vs[2]=="MW/s");
+  //
+  da->decrRef();
+}
+

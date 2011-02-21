@@ -37,11 +37,17 @@ MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):
   if(deepCpy)
     {
       if(other._x_array)
-        _x_array=_x_array->deepCpy();
+        _x_array=other._x_array->deepCpy();
+      else
+	_x_array=0;
       if(other._y_array)
-        _y_array=_y_array->deepCpy();
+        _y_array=other._y_array->deepCpy();
+      else
+	_y_array=0;
       if(other._z_array)
-        _z_array=_z_array->deepCpy();
+        _z_array=other._z_array->deepCpy();
+      else
+	_z_array=0;
     }
   else
     {
@@ -636,7 +642,10 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
   DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
   const double *tabsPtr[3];
   for(int j=0;j<spaceDim;j++)
-    tabsPtr[j]=tabs[j]->getConstPointer();
+    {
+      tabsPtr[j]=tabs[j]->getConstPointer();
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
+    }
   int tmp2[3];
   for(int i=0;i<nbNodes;i++)
     {
@@ -661,6 +670,7 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   for(int j=0;j<spaceDim;j++)
     {
       int sz=tabs[j]->getNbOfElems()-1;
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
       const double *srcPtr=tabs[j]->getConstPointer();
       tabsPtr[j].insert(tabsPtr[j].end(),srcPtr,srcPtr+sz);
       std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),srcPtr+1,tabsPtr[j].begin(),std::plus<double>());

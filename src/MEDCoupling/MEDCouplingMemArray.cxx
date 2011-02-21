@@ -94,6 +94,24 @@ void DataArray::reprWithoutNameStream(std::ostream& stream) const
   stream << "\n";
 }
 
+std::vector<std::string> DataArray::getVarsOnComponent() const
+{
+  int nbOfCompo=(int)_info_on_compo.size();
+  std::vector<std::string> ret(nbOfCompo);
+  for(int i=0;i<nbOfCompo;i++)
+    ret[i]=getVarOnComponent(i);
+  return ret;
+}
+
+std::vector<std::string> DataArray::getUnitsOnComponent() const
+{
+  int nbOfCompo=(int)_info_on_compo.size();
+  std::vector<std::string> ret(nbOfCompo);
+  for(int i=0;i<nbOfCompo;i++)
+    ret[i]=getUnitOnComponent(i);
+  return ret;
+}
+
 std::string DataArray::getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exception)
 {
   if(i<(int)_info_on_compo.size())
@@ -101,6 +119,57 @@ std::string DataArray::getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exce
   else
     {
       std::ostringstream oss; oss << "getInfoOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+/*!
+ * In the info part of i_th component this method returns the var part.
+ * For example, if getInfoOnComponent(0) return "SIGXY (N/m^2)", getVarOnComponent(0) will return "SIGXY"
+ */
+std::string DataArray::getVarOnComponent(int i) const throw(INTERP_KERNEL::Exception)
+{
+  if(i<(int)_info_on_compo.size())
+    {
+      std::string st0=_info_on_compo[i];
+      std::size_t p1=st0.find_last_of('[');
+      std::size_t p2=st0.find_last_of(']');
+      if(p1==std::string::npos || p2==std::string::npos)
+	return st0;
+      if(p1>p2)
+	return st0;
+      if(p1==0)
+	return std::string();
+      std::size_t p3=st0.find_last_not_of(' ',p1-1);
+      return st0.substr(0,p3+1);
+    }
+  else
+    {
+      std::ostringstream oss; oss << "getVarOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+/*!
+ * In the info part of i_th component this method returns the var part.
+ * For example, if getInfoOnComponent(0) return "SIGXY (N/m^2)", getUnitOnComponent(0) will return "N/m^2"
+ */
+std::string DataArray::getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception)
+{
+  if(i<(int)_info_on_compo.size())
+    {
+      std::string st0=_info_on_compo[i];
+      std::size_t p1=st0.find_last_of('[');
+      std::size_t p2=st0.find_last_of(']');
+      if(p1==std::string::npos || p2==std::string::npos)
+	return std::string();
+      if(p1>p2)
+	return std::string();
+      return st0.substr(p1+1,p2-p1-1);
+    }
+  else
+    {
+      std::ostringstream oss; oss << "getUnitOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -1058,6 +1127,94 @@ DataArrayDouble *DataArrayDouble::applyFunc(const char *func) const throw(INTERP
           std::ostringstream oss; oss << "For tuple # " << i << " with value (";
           std::copy(ptr+nbOfComp*i,ptr+nbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
           oss << ") : Evaluation of function failed ! " << e.what();
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return newArr;
+}
+
+/*!
+ * This method is equivalent than DataArrayDouble::applyFunc, except that here components names are used to determine vars orders.
+ * If 'func' contains vars that are not in \c this->getInfoOnComponent() an exception will be thrown.
+ */
+DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  std::set<std::string> vars;
+  expr.getTrueSetOfVars(vars);
+  int oldNbOfComp=getNumberOfComponents();
+  if((int)vars.size()>oldNbOfComp)
+    {
+      std::ostringstream oss; oss << "The field has " << oldNbOfComp << " components and there are ";
+      oss << vars.size() << " variables : ";
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  expr.prepareExprEvaluation(getVarsOnComponent());
+  //
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=getNumberOfTuples();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      try
+        {
+          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed !" << e.what();
+          newArr->decrRef();
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return newArr;
+}
+
+/*!
+ * This method is equivalent than DataArrayDouble::applyFunc, except that here order of vars is passed explicitely in parameter.
+ * In 'func' contains vars not in 'varsOrder' an exception will be thrown.
+ */
+DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  INTERP_KERNEL::ExprParser expr(func);
+  expr.parse();
+  std::set<std::string> vars;
+  expr.getTrueSetOfVars(vars);
+  int oldNbOfComp=getNumberOfComponents();
+  if((int)vars.size()>oldNbOfComp)
+    {
+      std::ostringstream oss; oss << "The field has " << oldNbOfComp << " components and there are ";
+      oss << vars.size() << " variables : ";
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  expr.prepareExprEvaluation(varsOrder);
+  //
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=getNumberOfTuples();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *ptr=getConstPointer();
+  double *ptrToFill=newArr->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      try
+        {
+          expr.evaluateExpr(nbOfComp,ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp);
+        }
+      catch(INTERP_KERNEL::Exception& e)
+        {
+          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
+          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
+          oss << ") : Evaluation of function failed !" << e.what();
           newArr->decrRef();
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }

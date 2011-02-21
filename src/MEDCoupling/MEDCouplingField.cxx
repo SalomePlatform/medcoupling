@@ -283,3 +283,15 @@ MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int 
 {
   return _type->buildSubMeshData(_mesh,start,end,di);
 }
+
+/*!
+ * This method returns number of tuples expected regarding its discretization and its _mesh attribute.
+ * This method expected a not null _mesh instance. If null, an exception will be thrown.
+ */
+int MEDCouplingField::getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh)
+    return _type->getNumberOfTuples(_mesh);
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfTuplesExpected : Empty mesh !");
+}

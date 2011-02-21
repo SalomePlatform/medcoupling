@@ -197,6 +197,12 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDAIChangeSurjectiveFormat1 );
     CPPUNIT_TEST( testUMeshGetCellIdsLyingOnNodes1 );
     CPPUNIT_TEST( testUMeshFindCellsIdsOnBoundary1 );
+    CPPUNIT_TEST( testMeshSetTime1 );
+    CPPUNIT_TEST( testApplyFuncTwo1 );
+    CPPUNIT_TEST( testApplyFuncThree1 );
+    CPPUNIT_TEST( testFillFromAnalyticTwo1 );
+    CPPUNIT_TEST( testFillFromAnalyticThree1 );
+    CPPUNIT_TEST( testDAUnitVar1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -420,6 +426,12 @@ namespace ParaMEDMEM
     void testDAIChangeSurjectiveFormat1();
     void testUMeshGetCellIdsLyingOnNodes1();
     void testUMeshFindCellsIdsOnBoundary1();
+    void testMeshSetTime1();
+    void testApplyFuncTwo1();
+    void testApplyFuncThree1();
+    void testFillFromAnalyticTwo1();
+    void testFillFromAnalyticThree1();
+    void testDAUnitVar1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

@@ -6140,6 +6140,213 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(5,da5.getNumberOfTuples());
         self.assertTrue(da5.isIdentity());
         pass
+
+    def testMeshSetTime1(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        #
+        self.assertTrue(m1.isEqual(m2,1e-12));
+        m1.setTime(3.14,6,7);
+        tmp3,tmp1,tmp2=m1.getTime();
+        self.assertEqual(6,tmp1);
+        self.assertEqual(7,tmp2);
+        self.assertAlmostEqual(3.14,tmp3,12);
+        self.assertTrue(not m1.isEqual(m2,1e-12));
+        m2.setTime(3.14,6,7);
+        self.assertTrue(m1.isEqual(m2,1e-12));
+        m2.setTime(3.14,6,8);
+        self.assertTrue(not m1.isEqual(m2,1e-12));
+        m2.setTime(3.14,7,7);
+        self.assertTrue(not m1.isEqual(m2,1e-12));
+        m2.setTime(3.15,6,7);
+        self.assertTrue(not m1.isEqual(m2,1e-12));
+        #
+        m1.setTime(10.34,55,12);
+        m3=m1.deepCpy();
+        self.assertTrue(m1.isEqual(m3,1e-12));
+        tmp3,tmp1,tmp2=m3.getTime();
+        self.assertEqual(55,tmp1);
+        self.assertEqual(12,tmp2);
+        self.assertAlmostEqual(10.34,tmp3,12);
+        #
+        # testing CMesh
+        coo1=[0.,1.,2.,3.5]
+        a=DataArrayDouble.New();
+        a.setValues(coo1,4,1);
+        b=MEDCouplingCMesh.New();
+        b.setCoordsAt(0,a);
+        #
+        b.setTime(5.67,8,100);
+        tmp3,tmp1,tmp2=b.getTime();
+        self.assertEqual(8,tmp1);
+        self.assertEqual(100,tmp2);
+        self.assertAlmostEqual(5.67,tmp3,12);
+        c=b.deepCpy();
+        self.assertTrue(c.isEqual(b,1e-12));
+        tmp3,tmp1,tmp2=c.getTime();
+        self.assertEqual(8,tmp1);
+        self.assertEqual(100,tmp2);
+        self.assertAlmostEqual(5.67,tmp3,12);
+        pass
+
+    def testApplyFuncTwo1(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setMesh(m1);
+        #
+        vals=[1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.]
+        da=DataArrayDouble.New();
+        da.setValues(vals,5,3);
+        f1.setArray(da);
+        #
+        self.assertRaises(InterpKernelException,da.applyFunc2,1,"y+z");
+        da.setInfoOnComponent(0,"x [m]");
+        da.setInfoOnComponent(1,"y [mm]");
+        da.setInfoOnComponent(2,"z [km]");
+        da2=da.applyFunc2(1,"y+z");
+        self.assertEqual(1,da2.getNumberOfComponents());
+        self.assertEqual(5,da2.getNumberOfTuples());
+        expected1=[32.,34.,36.,38.,40.]
+        for i in xrange(5):
+            self.assertAlmostEqual(expected1[i],da2.getIJ(0,i),12);
+            pass
+        da2=da.applyFunc(1,"y+z");
+        expected2=[12.,14.,16.,18.,20.]
+        for i in xrange(5):
+            self.assertAlmostEqual(expected2[i],da2.getIJ(0,i),12);
+            pass
+        #
+        self.assertEqual(3,f1.getNumberOfComponents());
+        self.assertEqual(5,f1.getNumberOfTuples());
+        f1.applyFunc2(1,"y+z");
+        self.assertEqual(1,f1.getNumberOfComponents());
+        self.assertEqual(5,f1.getNumberOfTuples());
+        for i in xrange(5):
+            self.assertAlmostEqual(expected1[i],f1.getArray().getIJ(0,i),12);
+            pass
+        #
+        pass
+
+    def testApplyFuncThree1(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setMesh(m1);
+        #
+        vals=[1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.]
+        da=DataArrayDouble.New();
+        da.setValues(vals,5,3);
+        f1.setArray(da);
+        #
+        vs=3*[None];
+        vs[0]="x"; vs[1]="Y"; vs[2]="z";
+        self.assertRaises(InterpKernelException,da.applyFunc3,1,vs,"y+z");
+        vs[1]="y";
+        da2=da.applyFunc3(1,vs,"y+z");
+        expected1=[32.,34.,36.,38.,40.]
+        for i in xrange(5):
+            self.assertAlmostEqual(expected1[i],da2.getIJ(0,i),12);
+            pass
+        f1.setArray(da);
+        self.assertEqual(3,f1.getNumberOfComponents());
+        self.assertEqual(5,f1.getNumberOfTuples());
+        f1.applyFunc3(1,vs,"y+z");
+        self.assertEqual(1,f1.getNumberOfComponents());
+        self.assertEqual(5,f1.getNumberOfTuples());
+        for i in xrange(5):
+            self.assertAlmostEqual(expected1[i],f1.getArray().getIJ(0,i),12);
+            pass
+        pass
+
+    def testFillFromAnalyticTwo1(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        self.assertRaises(InterpKernelException,m1.fillFromAnalytic2,ON_NODES,1,"y+z");
+        m1.getCoords().setInfoOnComponent(0,"x [m]");
+        m1.getCoords().setInfoOnComponent(1,"y");
+        m1.getCoords().setInfoOnComponent(2,"z");
+        f1=m1.fillFromAnalytic2(ON_NODES,1,"y+z");
+        self.assertEqual(1,f1.getNumberOfComponents());
+        self.assertEqual(9,f1.getNumberOfTuples());
+        expected1=[0.2, 0.7, 1.2, 0.7, 1.2, 1.7, 1.2, 1.7, 2.2]
+        for i in xrange(9):
+            self.assertAlmostEqual(expected1[i],f1.getArray().getIJ(0,i),12);
+            pass
+        pass
+
+    def testFillFromAnalyticThree1(self):
+        m1=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        vs=3*[None];
+        vs[0]="x"; vs[1]="Y"; vs[2]="z";
+        self.assertRaises(InterpKernelException,m1.fillFromAnalytic3,ON_NODES,1,vs,"y+z");
+        vs[1]="y";
+        f1=m1.fillFromAnalytic3(ON_NODES,1,vs,"y+z");
+        self.assertEqual(1,f1.getNumberOfComponents());
+        self.assertEqual(9,f1.getNumberOfTuples());
+        expected1=[0.2, 0.7, 1.2, 0.7, 1.2, 1.7, 1.2, 1.7, 2.2]
+        for i in xrange(9):
+            self.assertAlmostEqual(expected1[i],f1.getArray().getIJ(0,i),12);
+            pass
+        pass
+
+    def testDAUnitVar1(self):
+        da=DataArrayDouble.New();
+        da.alloc(1,3);
+        da.setInfoOnComponent(0,"XPS [m]");
+        st1=da.getVarOnComponent(0);
+        self.assertTrue(st1=="XPS");
+        st2=da.getUnitOnComponent(0);
+        self.assertTrue(st2=="m");
+        #
+        da.setInfoOnComponent(0,"XPS         [m]");
+        st1=da.getVarOnComponent(0);
+        self.assertTrue(st1=="XPS");
+        st2=da.getUnitOnComponent(0);
+        self.assertTrue(st2=="m");
+        #
+        da.setInfoOnComponent(0,"XPP         [m]");
+        st1=da.getVarOnComponent(0);
+        self.assertTrue(st1=="XPP");
+        st2=da.getUnitOnComponent(0);
+        self.assertTrue(st2=="m");
+        #
+        da.setInfoOnComponent(0,"XPP kdep  kefer   [ m  ]");
+        st1=da.getVarOnComponent(0);
+        self.assertTrue(st1=="XPP kdep  kefer");
+        st2=da.getUnitOnComponent(0);
+        self.assertTrue(st2==" m  ");
+        #
+        da.setInfoOnComponent(0,"     XPP k[  dep  k]efer   [ m^ 2/s^3*kJ  ]");
+        st1=da.getVarOnComponent(0);
+        self.assertTrue(st1=="     XPP k[  dep  k]efer");
+        st2=da.getUnitOnComponent(0);
+        self.assertTrue(st2==" m^ 2/s^3*kJ  ");
+        #
+        da.setInfoOnComponent(0,"     XPP kefer   ");
+        st1=da.getVarOnComponent(0);
+        self.assertTrue(st1=="     XPP kefer   ");
+        st2=da.getUnitOnComponent(0);
+        self.assertTrue(st2=="");
+        #
+        da.setInfoOnComponent(0,"temperature( bof)");
+        st1=da.getVarOnComponent(0);
+        self.assertTrue(st1=="temperature( bof)");
+        st2=da.getUnitOnComponent(0);
+        self.assertTrue(st2=="");
+        #
+        da.setInfoOnComponent(0,"kkk [m]");
+        da.setInfoOnComponent(1,"ppp   [m^2/kJ]");
+        da.setInfoOnComponent(2,"abcde   [MW/s]");
+        #
+        vs=da.getVarsOnComponent();
+        self.assertEqual(3,len(vs));
+        self.assertTrue(vs[0]=="kkk");
+        self.assertTrue(vs[1]=="ppp");
+        self.assertTrue(vs[2]=="abcde");
+        vs=da.getUnitsOnComponent();
+        self.assertEqual(3,len(vs));
+        self.assertTrue(vs[0]=="m");
+        self.assertTrue(vs[1]=="m^2/kJ");
+        self.assertTrue(vs[2]=="MW/s");
+        pass
     
     def setUp(self):
         pass

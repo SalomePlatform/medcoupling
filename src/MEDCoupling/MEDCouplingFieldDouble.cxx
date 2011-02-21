@@ -801,6 +801,32 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) th
 }
 
 /*!
+ * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic2.
+ * The main difference is that the field as been started to be constructed here.
+ * An exception is throw if no underlying mesh is set before the call of this method.
+ */
+void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  _time_discr->fillFromAnalytic2(loc,nbOfComp,func);
+}
+
+/*!
+ * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic3.
+ * The main difference is that the field as been started to be constructed here.
+ * An exception is throw if no underlying mesh is set before the call of this method.
+ */
+void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  _time_discr->fillFromAnalytic3(loc,nbOfComp,varsOrder,func);
+}
+
+/*!
  * Applyies the function specified by pointer 'func' on each tuples on all arrays contained in _time_discr.
  * If '*func' returns false during one evaluation an exception will be thrown.
  */
@@ -826,9 +852,27 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
  * If '*func' fails in evaluation during one evaluation an exception will be thrown.
  * The field will contain 'nbOfComp' components after the call.
  */
-void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
+void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
 {
   _time_discr->applyFunc(nbOfComp,func);
+}
+
+/*!
+ * This method is equivalent to MEDCouplingFieldDouble::applyFunc, except that here components info are used to determine variables position in 'func'.
+ * If there is vars detected in 'func' that is not in an info on components an exception will be thrown.
+ */
+void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->applyFunc2(nbOfComp,func);
+}
+
+/*!
+ * This method is equivalent to MEDCouplingFieldDouble::applyFunc, except that here 'varsOrder' is used to determine variables position in 'func'.
+ * If there is vars detected in 'func' that is not in 'varsOrder' an exception will be thrown.
+ */
+void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->applyFunc3(nbOfComp,varsOrder,func);
 }
 
 /*!
@@ -836,7 +880,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
  * If '*func' fails in evaluation during one evaluation an exception will be thrown.
  * The field will contain exactly the same number of components after the call.
  */
-void MEDCouplingFieldDouble::applyFunc(const char *func)
+void MEDCouplingFieldDouble::applyFunc(const char *func) throw(INTERP_KERNEL::Exception)
 {
   _time_discr->applyFunc(func);
 }

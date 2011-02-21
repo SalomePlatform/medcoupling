@@ -3486,6 +3486,7 @@ DataArrayDouble *MEDCouplingUMesh::getBarycenterAndOwner() const
   int spaceDim=getSpaceDimension();
   int nbOfCells=getNumberOfCells();
   ret->alloc(nbOfCells,spaceDim);
+  ret->copyStringInfoFrom(*getCoords());
   double *ptToFill=ret->getPointer();
   double *tmp=new double[spaceDim];
   const int *nodal=_nodal_connec->getConstPointer();
