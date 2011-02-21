@@ -185,7 +185,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::buildNewTimeReprFr
 {
   MEDCouplingTimeDiscretization *ret=MEDCouplingTimeDiscretization::New(type);
   ret->setTimeUnit(getTimeUnit());
-  DataArrayDouble *arrSrc=getArray();
+  const DataArrayDouble *arrSrc=getArray();
   DataArrayDouble *arr=0;
   if(arrSrc)
     arr=arrSrc->performCpy(deepCpy);
@@ -277,7 +277,12 @@ void MEDCouplingTimeDiscretization::setArray(DataArrayDouble *array, TimeLabel *
     }
 }
 
-DataArrayDouble *MEDCouplingTimeDiscretization::getEndArray() const
+const DataArrayDouble *MEDCouplingTimeDiscretization::getEndArray() const
+{
+  throw INTERP_KERNEL::Exception("getEndArray not available for this type of time discretization !");
+}
+
+DataArrayDouble *MEDCouplingTimeDiscretization::getEndArray()
 {
   throw INTERP_KERNEL::Exception("getEndArray not available for this type of time discretization !");
 }
@@ -1984,7 +1989,12 @@ void MEDCouplingTwoTimeSteps::copyTinyStringsFrom(const MEDCouplingTimeDiscretiz
     _end_array->copyStringInfoFrom(*otherC->_end_array);
 }
 
-DataArrayDouble *MEDCouplingTwoTimeSteps::getEndArray() const
+const DataArrayDouble *MEDCouplingTwoTimeSteps::getEndArray() const
+{
+  return _end_array;
+}
+
+DataArrayDouble *MEDCouplingTwoTimeSteps::getEndArray()
 {
   return _end_array;
 }

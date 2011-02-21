@@ -86,8 +86,10 @@ namespace ParaMEDMEM
     virtual void setArray(DataArrayDouble *array, TimeLabel *owner);
     virtual void setEndArray(DataArrayDouble *array, TimeLabel *owner);
     virtual void setArrays(const std::vector<DataArrayDouble *>& arrays, TimeLabel *owner) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getArray() const { return _array; }
-    virtual DataArrayDouble *getEndArray() const;
+    DataArrayDouble *getArray() { return _array; }
+    const DataArrayDouble *getArray() const { return _array; }
+    virtual const DataArrayDouble *getEndArray() const;
+    virtual DataArrayDouble *getEndArray();
     virtual std::vector< const DataArrayDouble *> getArraysForTime(double time) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void getValueForTime(double time, const std::vector<double>& vals, double *res) const = 0; 
     virtual void getArrays(std::vector<DataArrayDouble *>& arrays) const;
@@ -348,7 +350,8 @@ namespace ParaMEDMEM
     void updateTime() const;
     void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
     void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
-    DataArrayDouble *getEndArray() const;
+    const DataArrayDouble *getEndArray() const;
+    DataArrayDouble *getEndArray();
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const;

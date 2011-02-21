@@ -1983,7 +1983,7 @@ namespace ParaMEDMEM
         return self->simpleRepr();
       }
 
-      DataArrayDouble *getArray() const throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *getArray() throw(INTERP_KERNEL::Exception)
       {
         DataArrayDouble *ret=self->getArray();
         if(ret)
@@ -2020,7 +2020,7 @@ namespace ParaMEDMEM
         self->setArrays(arrs);
       }
 
-      DataArrayDouble *getEndArray() const throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *getEndArray() throw(INTERP_KERNEL::Exception)
       {
         DataArrayDouble *ret=self->getEndArray();
         if(ret)

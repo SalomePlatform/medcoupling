@@ -80,8 +80,10 @@ namespace ParaMEDMEM
     void setArray(DataArrayDouble *array);
     void setEndArray(DataArrayDouble *array);
     void setArrays(const std::vector<DataArrayDouble *>& arrs) throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getArray() const { return _time_discr->getArray(); }
-    DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
+    const DataArrayDouble *getArray() const { return _time_discr->getArray(); }
+    DataArrayDouble *getArray() { return _time_discr->getArray(); }
+    const DataArrayDouble *getEndArray() const { return _time_discr->getEndArray(); }
+    DataArrayDouble *getEndArray() { return _time_discr->getEndArray(); }
     std::vector<DataArrayDouble *> getArrays() const { std::vector<DataArrayDouble *> ret; _time_discr->getArrays(ret); return ret; }
     double accumulate(int compId) const;
     void accumulate(double *res) const;
