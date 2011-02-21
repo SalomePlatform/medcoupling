@@ -39,15 +39,15 @@ MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):
       if(other._x_array)
         _x_array=other._x_array->deepCpy();
       else
-	_x_array=0;
+        _x_array=0;
       if(other._y_array)
         _y_array=other._y_array->deepCpy();
       else
-	_y_array=0;
+        _y_array=0;
       if(other._z_array)
         _z_array=other._z_array->deepCpy();
       else
-	_z_array=0;
+        _z_array=0;
     }
   else
     {

@@ -135,11 +135,11 @@ std::string DataArray::getVarOnComponent(int i) const throw(INTERP_KERNEL::Excep
       std::size_t p1=st0.find_last_of('[');
       std::size_t p2=st0.find_last_of(']');
       if(p1==std::string::npos || p2==std::string::npos)
-	return st0;
+        return st0;
       if(p1>p2)
-	return st0;
+        return st0;
       if(p1==0)
-	return std::string();
+        return std::string();
       std::size_t p3=st0.find_last_not_of(' ',p1-1);
       return st0.substr(0,p3+1);
     }
@@ -162,9 +162,9 @@ std::string DataArray::getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exce
       std::size_t p1=st0.find_last_of('[');
       std::size_t p2=st0.find_last_of(']');
       if(p1==std::string::npos || p2==std::string::npos)
-	return std::string();
+        return std::string();
       if(p1>p2)
-	return std::string();
+        return std::string();
       return st0.substr(p1+1,p2-p1-1);
     }
   else
