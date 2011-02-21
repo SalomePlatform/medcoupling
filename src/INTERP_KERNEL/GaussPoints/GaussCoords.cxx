@@ -201,19 +201,25 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
   switch( myGeometry ) 
     {
     case NORM_SEG2:
-      myLocalRefDim = 1; myLocalNbRef  = 2; Seg2Init();
+      myLocalRefDim = 1;
+      myLocalNbRef  = 2;
+      Seg2Init();
       aSatify = isSatisfy();
       CHECK_MACRO;
       break;
 
     case NORM_SEG3:
-      myLocalRefDim = 1; myLocalNbRef  = 3; Seg3Init();
+      myLocalRefDim = 1;
+      myLocalNbRef  = 3;
+      Seg3Init();
       aSatify = isSatisfy();
       CHECK_MACRO;
       break;
 
     case NORM_TRI3:
-      myLocalRefDim = 2; myLocalNbRef  = 3; Tria3aInit();
+      myLocalRefDim = 2;
+      myLocalNbRef  = 3;
+      Tria3aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -225,7 +231,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_TRI6:
-      myLocalRefDim = 2; myLocalNbRef  = 6; Tria6aInit();
+      myLocalRefDim = 2;
+      myLocalNbRef  = 6;
+      Tria6aInit();
       aSatify = isSatisfy();
       if(!aSatify)
         {
@@ -236,7 +244,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_QUAD4:
-      myLocalRefDim = 2; myLocalNbRef  = 4; Quad4aInit();
+      myLocalRefDim = 2;
+      myLocalNbRef  = 4;
+      Quad4aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -248,7 +258,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_QUAD8:
-      myLocalRefDim = 2; myLocalNbRef  = 8; Quad8aInit();
+      myLocalRefDim = 2;
+      myLocalNbRef  = 8;
+      Quad8aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -260,7 +272,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_TETRA4:
-      myLocalRefDim = 3; myLocalNbRef  = 4; Tetra4aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 4;
+      Tetra4aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -272,7 +286,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_TETRA10:
-      myLocalRefDim = 3; myLocalNbRef  = 10; Tetra10aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 10;
+      Tetra10aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -284,7 +300,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_PYRA5:
-      myLocalRefDim = 3; myLocalNbRef  = 5; Pyra5aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 5;
+      Pyra5aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -296,7 +314,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_PYRA13:
-      myLocalRefDim = 3; myLocalNbRef  = 13; Pyra13aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 13;
+      Pyra13aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -308,7 +328,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_PENTA6:
-      myLocalRefDim = 3; myLocalNbRef  = 6; Penta6aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 6;
+      Penta6aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -320,7 +342,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_PENTA15:
-      myLocalRefDim = 3; myLocalNbRef  = 15; Penta15aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 15;
+      Penta15aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -332,7 +356,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_HEXA8:
-      myLocalRefDim = 3; myLocalNbRef  = 8; Hexa8aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 8;
+      Hexa8aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -344,7 +370,9 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
       break;
 
     case NORM_HEXA20:
-      myLocalRefDim = 3; myLocalNbRef  = 20; Hexa20aInit();
+      myLocalRefDim = 3;
+      myLocalNbRef  = 20;
+      Hexa20aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
@@ -375,8 +403,12 @@ const double* GaussInfo::GetFunctionValues( const int theGaussId ) const
 void GaussInfo::Seg2Init() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0; break;
-  case  1: coords[0] =  1.0; break;
+  case  0:
+    coords[0] = -1.0;
+    break;
+  case  1:
+    coords[0] =  1.0;
+    break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -391,9 +423,15 @@ void GaussInfo::Seg2Init()
 void GaussInfo::Seg3Init() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0; break;
-  case  1: coords[0] =  1.0; break;
-  case  2: coords[0] =  0.0; break;
+  case  0:
+    coords[0] = -1.0;
+    break;
+  case  1:
+    coords[0] =  1.0;
+    break;
+  case  2:
+    coords[0] =  0.0;
+    break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -410,9 +448,18 @@ void GaussInfo::Seg3Init()
 void GaussInfo::Tria3aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] = -1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -429,9 +476,18 @@ void GaussInfo::Tria3aInit()
 void GaussInfo::Tria3bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  0.0;  coords[1] =  0.0; break;
-  case  1: coords[0] =  1.0;  coords[1] =  0.0; break;
-  case  2: coords[0] =  0.0;  coords[1] =  1.0; break;
+ case  0:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   break;
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -448,12 +504,30 @@ void GaussInfo::Tria3bInit()
 void GaussInfo::Tria6aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] = -1.0; break;
-  case  3: coords[0] = -1.0;  coords[1] =  1.0; break;
-  case  4: coords[0] =  0.0;  coords[1] = -1.0; break;
-  case  5: coords[0] =  0.0;  coords[1] =  0.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -473,12 +547,36 @@ void GaussInfo::Tria6aInit()
 void GaussInfo::Tria6bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  0.0;  coords[1] =  0.0; break;
-  case  1: coords[0] =  1.0;  coords[1] =  0.0; break;
-  case  2: coords[0] =  0.0;  coords[1] =  1.0; break;
-  case  3: coords[0] =  0.5;  coords[1] =  0.0; break;
-  case  4: coords[0] =  0.5;  coords[1] =  0.5; break;
-  case  5: coords[0] =  0.0;  coords[1] =  0.5; break;
+ case  0:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   break;
+
+ case  1:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   break;
+
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   break;
+
+ case  3:
+   coords[0] =  0.5;
+   coords[1] =  0.0;
+   break;
+
+ case  4:
+   coords[0] =  0.5;
+   coords[1] =  0.5;
+   break;
+
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.5;
+   break;
+
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -498,10 +596,23 @@ void GaussInfo::Tria6bInit()
 void GaussInfo::Quad4aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] = -1.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   break;
+
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -519,10 +630,23 @@ void GaussInfo::Quad4aInit()
 void GaussInfo::Quad4bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] = -1.0; break;
-  case  1: coords[0] =  1.0;  coords[1] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] =  1.0; break;
-  case  3: coords[0] = -1.0;  coords[1] =  1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -541,14 +665,38 @@ void GaussInfo::Quad4bInit()
 void GaussInfo::Quad8aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] = -1.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  1.0; break;
-  case  4: coords[0] = -1.0;  coords[1] =  0.0; break;
-  case  5: coords[0] =  0.0;  coords[1] = -1.0; break;
-  case  6: coords[0] =  1.0;  coords[1] =  0.0; break;
-  case  7: coords[0] =  0.0;  coords[1] =  1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   break;
+ case  4:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   break;
+ case  6:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   break;
+ case  7:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -570,14 +718,38 @@ void GaussInfo::Quad8aInit()
 void GaussInfo::Quad8bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] = -1.0; break;
-  case  1: coords[0] =  1.0;  coords[1] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] =  1.0; break;
-  case  3: coords[0] = -1.0;  coords[1] =  1.0; break;
-  case  4: coords[0] =  0.0;  coords[1] = -1.0; break;
-  case  5: coords[0] =  1.0;  coords[1] =  0.0; break;
-  case  6: coords[0] =  0.0;  coords[1] =  1.0; break;
-  case  7: coords[0] = -1.0;  coords[1] =  0.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   break;
+ case  7:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -599,10 +771,26 @@ void GaussInfo::Quad8bInit()
 void GaussInfo::Tetra4aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  1: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  2: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -620,10 +808,26 @@ void GaussInfo::Tetra4aInit()
 void GaussInfo::Tetra4bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  1: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -642,16 +846,56 @@ void GaussInfo::Tetra4bInit()
 void GaussInfo::Tetra10aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  1: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  2: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  4: coords[0] =  0.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case  5: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case  6: coords[0] =  0.0;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  7: coords[0] =  0.5;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  8: coords[0] =  0.5;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case  9: coords[0] =  0.5;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  7:
+   coords[0] =  0.5;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  8:
+   coords[0] =  0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case  9:
+   coords[0] =  0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -675,16 +919,56 @@ void GaussInfo::Tetra10aInit()
 void GaussInfo::Tetra10bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  1: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  6: coords[0] =  0.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case  5: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case  4: coords[0] =  0.0;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  7: coords[0] =  0.5;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  9: coords[0] =  0.5;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case  8: coords[0] =  0.5;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  6:
+   coords[0] =  0.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case  5:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  7:
+   coords[0] =  0.5;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  9:
+   coords[0] =  0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case  8:
+   coords[0] =  0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -708,11 +992,31 @@ void GaussInfo::Tetra10bInit()
 void GaussInfo::Pyra5aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  1: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case  4: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
+ case  0:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -730,11 +1034,31 @@ void GaussInfo::Pyra5aInit()
 void GaussInfo::Pyra5bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  1: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case  4: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
+ case  0:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -753,20 +1077,72 @@ void GaussInfo::Pyra5bInit()
 void GaussInfo::Pyra13aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  1: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case  4: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
+ case  0:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
 
-  case  5: coords[0] =  0.5;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  6: coords[0] = -0.5;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  7: coords[0] = -0.5;  coords[1] = -0.5;  coords[2] =  0.0; break;
-  case  8: coords[0] =  0.5;  coords[1] = -0.5;  coords[2] =  0.0; break;
-  case  9: coords[0] =  0.5;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case 10: coords[0] =  0.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case 11: coords[0] = -0.5;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case 12: coords[0] =  0.0;  coords[1] = -0.5;  coords[2] =  0.5; break;
+ case  5:
+   coords[0] =  0.5;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  6:
+   coords[0] = -0.5;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  7:
+   coords[0] = -0.5;
+   coords[1] = -0.5;
+   coords[2] =  0.0;
+   break;
+ case  8:
+   coords[0] =  0.5;
+   coords[1] = -0.5;
+   coords[2] =  0.0;
+   break;
+ case  9:
+   coords[0] =  0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case 10:
+   coords[0] =  0.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case 11:
+   coords[0] = -0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case 12:
+   coords[0] =  0.0;
+   coords[1] = -0.5;
+   coords[2] =  0.5;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -808,19 +1184,71 @@ void GaussInfo::Pyra13aInit()
 void GaussInfo::Pyra13bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  1: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case  4: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  8: coords[0] =  0.5;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  7: coords[0] = -0.5;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  6: coords[0] = -0.5;  coords[1] = -0.5;  coords[2] =  0.0; break;
-  case  5: coords[0] =  0.5;  coords[1] = -0.5;  coords[2] =  0.0; break;
-  case  9: coords[0] =  0.5;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case 12: coords[0] =  0.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case 11: coords[0] = -0.5;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case 10: coords[0] =  0.0;  coords[1] = -0.5;  coords[2] =  0.5; break;
+ case  0:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  8:
+   coords[0] =  0.5;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  7:
+   coords[0] = -0.5;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  6:
+   coords[0] = -0.5;
+   coords[1] = -0.5;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  0.5;
+   coords[1] = -0.5;
+   coords[2] =  0.0;
+   break;
+ case  9:
+   coords[0] =  0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case 12:
+   coords[0] =  0.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case 11:
+   coords[0] = -0.5;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case 10:
+   coords[0] =  0.0;
+   coords[1] = -0.5;
+   coords[2] =  0.5;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -863,12 +1291,36 @@ void GaussInfo::Pyra13bInit()
 void GaussInfo::Penta6aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  1: coords[0] = -1.0;  coords[1] = -0.0;  coords[2] =  1.0; break;
-  case  2: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  4: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  5: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -0.0;
+   coords[2] =  1.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -889,12 +1341,36 @@ void GaussInfo::Penta6aInit()
 void GaussInfo::Penta6bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] = -1.0;  coords[1] = -0.0;  coords[2] =  1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  5: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  4: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] = -0.0;
+   coords[2] =  1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  4:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -913,22 +1389,82 @@ void GaussInfo::Penta6bInit()
 void GaussInfo::Penta15aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  1: coords[0] = -1.0;  coords[1] = -0.0;  coords[2] =  1.0; break;
-  case  2: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  4: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  5: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] = -0.0;
+   coords[2] =  1.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  4:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
 
-  case  6: coords[0] = -1.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case  7: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case  8: coords[0] = -1.0;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case  9: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case 10: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case 11: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case 12: coords[0] =  1.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case 13: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case 14: coords[0] =  1.0;  coords[1] =  0.5;  coords[2] =  0.0; break;
+ case  6:
+   coords[0] = -1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case  7:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case  8:
+   coords[0] = -1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case  9:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 10:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case 11:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case 12:
+   coords[0] =  1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case 13:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case 14:
+   coords[0] =  1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -961,22 +1497,82 @@ void GaussInfo::Penta15aInit()
 void GaussInfo::Penta15bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  2: coords[0] = -1.0;  coords[1] = -0.0;  coords[2] =  1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case  3: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case  5: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case  4: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  2:
+   coords[0] = -1.0;
+   coords[1] = -0.0;
+   coords[2] =  1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case  4:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
 
-  case  8: coords[0] = -1.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case  7: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case  6: coords[0] = -1.0;  coords[1] =  0.5;  coords[2] =  0.0; break;
-  case 12: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case 14: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case 13: coords[0] =  0.0;  coords[1] =  0.0;  coords[2] =  0.0; break;
-  case 11: coords[0] =  1.0;  coords[1] =  0.5;  coords[2] =  0.5; break;
-  case 10: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  0.5; break;
-  case  9: coords[0] =  1.0;  coords[1] =  0.5;  coords[2] =  0.0; break;
+ case  8:
+   coords[0] = -1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case  7:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case  6:
+   coords[0] = -1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
+ case 12:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 14:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case 13:
+   coords[0] =  0.0;
+   coords[1] =  0.0;
+   coords[2] =  0.0;
+   break;
+ case 11:
+   coords[0] =  1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.5;
+   break;
+ case 10:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  0.5;
+   break;
+ case  9:
+   coords[0] =  1.0;
+   coords[1] =  0.5;
+   coords[2] =  0.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -1009,14 +1605,46 @@ void GaussInfo::Penta15bInit()
 void GaussInfo::Hexa8aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  1: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  3: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  4: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  5: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  6: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
-  case  7: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  4:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  6:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case  7:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -1039,14 +1667,46 @@ void GaussInfo::Hexa8aInit()
 void GaussInfo::Hexa8bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  3: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  4: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  7: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  6: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
-  case  5: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  4:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  7:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  6:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case  5:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -1069,27 +1729,107 @@ void GaussInfo::Hexa8bInit()
 void GaussInfo::Hexa20aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  1: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  3: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  4: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  5: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  6: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
-  case  7: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  1:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  3:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  4:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  5:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  6:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case  7:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
 
-  case  8: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  9: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] = -1.0; break;
-  case 10: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case 11: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] = -1.0; break;
-  case 12: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case 13: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case 14: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case 15: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case 16: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case 17: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case 18: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
-  case 19: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
+ case  8:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  9:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] = -1.0;
+   break;
+ case 10:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case 11:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] = -1.0;
+   break;
+ case 12:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case 13:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case 14:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 15:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 16:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case 17:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case 18:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case 19:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -1129,30 +1869,110 @@ void GaussInfo::Hexa20aInit()
  * Init Qaudratic Hehahedron Reference coordinates and Shape function.
  * Case B.
  */
-void GaussInfo::Hexa20bInit() 
+void GaussInfo::Hexa20bInit()
 {
   LOCAL_COORD_MACRO_BEGIN;
-  case  0: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  3: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case  2: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  1: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  4: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  7: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case  6: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
-  case  5: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
+ case  0:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  3:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case  2:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  1:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  4:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  7:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case  6:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case  5:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
 
-  case 11: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] = -1.0; break;
-  case 10: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] = -1.0; break;
-  case  9: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] = -1.0; break;
-  case  8: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] = -1.0; break;
-  case 16: coords[0] = -1.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case 19: coords[0] =  1.0;  coords[1] = -1.0;  coords[2] =  0.0; break;
-  case 18: coords[0] =  1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case 17: coords[0] = -1.0;  coords[1] =  1.0;  coords[2] =  0.0; break;
-  case 15: coords[0] =  0.0;  coords[1] = -1.0;  coords[2] =  1.0; break;
-  case 14: coords[0] =  1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
-  case 13: coords[0] =  0.0;  coords[1] =  1.0;  coords[2] =  1.0; break;
-  case 12: coords[0] = -1.0;  coords[1] =  0.0;  coords[2] =  1.0; break;
+ case 11:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] = -1.0;
+   break;
+ case 10:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] = -1.0;
+   break;
+ case  9:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] = -1.0;
+   break;
+ case  8:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] = -1.0;
+   break;
+ case 16:
+   coords[0] = -1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case 19:
+   coords[0] =  1.0;
+   coords[1] = -1.0;
+   coords[2] =  0.0;
+   break;
+ case 18:
+   coords[0] =  1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 17:
+   coords[0] = -1.0;
+   coords[1] =  1.0;
+   coords[2] =  0.0;
+   break;
+ case 15:
+   coords[0] =  0.0;
+   coords[1] = -1.0;
+   coords[2] =  1.0;
+   break;
+ case 14:
+   coords[0] =  1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
+ case 13:
+   coords[0] =  0.0;
+   coords[1] =  1.0;
+   coords[2] =  1.0;
+   break;
+ case 12:
+   coords[0] = -1.0;
+   coords[1] =  0.0;
+   coords[2] =  1.0;
+   break;
    LOCAL_COORD_MACRO_END;
 
    SHAPE_FUN_MACRO_BEGIN;
@@ -1297,7 +2117,7 @@ double* GaussCoords::CalculateCoords( NormalizedCellType theGeometry,
   std::cout<<"Cell type : "<<info->GetCellType()<<std::endl;
 #endif
 
-  for( int gaussId = 0; gaussId < info->GetNbGauss() ; gaussId++ ) 
+  for( int gaussId = 0; gaussId < info->GetNbGauss(); gaussId++ ) 
     {
 #ifdef MYDEBUG
       std::cout<<"Gauss ID = "<<gaussId<<std::endl;
@@ -1317,9 +2137,15 @@ double* GaussCoords::CalculateCoords( NormalizedCellType theGeometry,
             {
               switch(dimId)
                 {
-                case 0: std::cout<<"( "<<nodeCoord[dimId];break;
-                case 1: std::cout<<", "<<nodeCoord[dimId];break;
-                case 2: std::cout<<", "<<nodeCoord[dimId]<<" )";break;
+                case 0:
+                  std::cout<<"( "<<nodeCoord[dimId];
+                  break;
+                case 1:
+                  std::cout<<", "<<nodeCoord[dimId];
+                  break;
+                case 2:
+                  std::cout<<", "<<nodeCoord[dimId]<<" )";
+                  break;
                 }
             }
           std::cout<<std::endl;
