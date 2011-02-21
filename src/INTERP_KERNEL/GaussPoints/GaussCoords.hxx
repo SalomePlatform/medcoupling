@@ -24,25 +24,25 @@
 #include "InterpKernelException.hxx"
 #include <vector>
 
-namespace INTERP_KERNEL {
-
+namespace INTERP_KERNEL 
+{
   typedef std::vector<double> DataVector;
   typedef std::vector<int>    IndexVector;
-  
+
   //Class to store Gauss Points information
-  class GaussInfo {
-    
+  class GaussInfo 
+  {
   public:
     GaussInfo( NormalizedCellType theGeometry,
-	       const DataVector& theGaussCoord,
-	       int theNbGauss,
-	       const DataVector& theReferenceCoord,
-	       int theNbRef
-	     );
+               const DataVector& theGaussCoord,
+               int theNbGauss,
+               const DataVector& theReferenceCoord,
+               int theNbRef
+               );
     ~GaussInfo();
 
     NormalizedCellType GetCellType() const;    
-    
+
     int GetGaussCoordDim() const;
     int GetReferenceCoordDim() const;
 
@@ -52,11 +52,11 @@ namespace INTERP_KERNEL {
     const double* GetFunctionValues( const int theGaussId ) const;
 
     void InitLocalInfo() throw (INTERP_KERNEL::Exception);
-    
+
   protected:
-    
+
     bool isSatisfy();
-    
+
     //1D
     void Seg2Init();
     void Seg3Init();
@@ -66,28 +66,28 @@ namespace INTERP_KERNEL {
     void Tria3bInit();
     void Tria6aInit();
     void Tria6bInit();
-    
+
     void Quad4aInit();
     void Quad4bInit();
     void Quad8aInit();
     void Quad8bInit();
-    
+
     //3D
     void Tetra4aInit();
     void Tetra4bInit();
     void Tetra10aInit();
     void Tetra10bInit();
-    
+
     void Pyra5aInit();
     void Pyra5bInit();
     void Pyra13aInit();
     void Pyra13bInit();
-    
+
     void Penta6aInit();
     void Penta6bInit();
     void Penta15aInit();
     void Penta15bInit();
-    
+
     void Hexa8aInit();
     void Hexa8bInit();
     void Hexa20aInit();
@@ -97,10 +97,10 @@ namespace INTERP_KERNEL {
   private:
     //INFORMATION from MEDMEM
     NormalizedCellType myGeometry;               //Cell type
-    
+
     int                myNbGauss;                //Nb of the gauss points for element
     DataVector         myGaussCoord;             //Gauss coordinates
-    
+
     int                myNbRef;                  //Nb of the nodes for element:
                                                  //NORM_SEG2 - 2
                                                  //NORM_SEG3 - 3
@@ -119,27 +119,28 @@ namespace INTERP_KERNEL {
 
     DataVector         myFunctionValue;          //Shape Function values
   };
-  
-  
+
+
   //Class for calculation of the coordinates of the gauss points 
-  class GaussCoords {
+  class GaussCoords 
+  {
   public:
 
-    GaussCoords();    
+    GaussCoords();
     ~GaussCoords();
 
     void addGaussInfo( NormalizedCellType theGeometry,
-		       int coordDim,
-		       const double* theGaussCoord,
-		       int theNbGauss,
-		       const double* theReferenceCoord,
-		       int theNbRef) throw (INTERP_KERNEL::Exception);
-    
+                       int coordDim,
+                       const double* theGaussCoord,
+                       int theNbGauss,
+                       const double* theReferenceCoord,
+                       int theNbRef) throw (INTERP_KERNEL::Exception);
+
     double* CalculateCoords( NormalizedCellType theGeometry, 
-			     const double* theNodeCoords, 
-			     const int theDimSpace,
-			     const int* theIndex
-			     ) throw(INTERP_KERNEL::Exception);
+                             const double* theNodeCoords, 
+                             const int theDimSpace,
+                             const int* theIndex
+                             ) throw(INTERP_KERNEL::Exception);
   private:
     typedef std::vector<GaussInfo*> GaussInfoVector;
     GaussInfoVector myGaussInfo;
