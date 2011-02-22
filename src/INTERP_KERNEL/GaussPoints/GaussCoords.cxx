@@ -93,10 +93,10 @@ GaussInfo::GaussInfo( NormalizedCellType theGeometry,
                       const DataVector& theReferenceCoord,
                       int theNbRef ) :
   myGeometry(theGeometry),
-  myGaussCoord(theGaussCoord),
   myNbGauss(theNbGauss),
-  myReferenceCoord(theReferenceCoord),
-  myNbRef(theNbRef) 
+  myGaussCoord(theGaussCoord),
+  myNbRef(theNbRef),
+  myReferenceCoord(theReferenceCoord)
 {
 
   //Allocate shape function values
@@ -2113,16 +2113,16 @@ double* GaussCoords::CalculateCoords( NormalizedCellType theGeometry,
   for( int i = 0; i < nbCoords; i++ )
     aCoords[i] = 0.0;
 
-#ifdef MYDEBUG
-  std::cout<<"#######################################################"<<std::endl;
-  std::cout<<"Cell type : "<<info->GetCellType()<<std::endl;
-#endif
+// #ifdef MYDEBUG
+//   std::cout<<"#######################################################"<<std::endl;
+//   std::cout<<"Cell type : "<<info->GetCellType()<<std::endl;
+// #endif
 
   for( int gaussId = 0; gaussId < info->GetNbGauss(); gaussId++ ) 
     {
-#ifdef MYDEBUG
-      std::cout<<"Gauss ID = "<<gaussId<<std::endl;
-#endif
+// #ifdef MYDEBUG
+//       std::cout<<"Gauss ID = "<<gaussId<<std::endl;
+// #endif
 
       double* coord = &aCoords[ gaussId*theSpaceDim ];
       const double* function = info->GetFunctionValues(gaussId);
@@ -2130,27 +2130,27 @@ double* GaussCoords::CalculateCoords( NormalizedCellType theGeometry,
         {
           const double* nodeCoord = theNodeCoords + (theIndex[connId]*theSpaceDim);
 
-#ifdef MYDEBUG
-          std::cout<<"Function Value["<<connId<<"] = "<<function[connId]<<std::endl;
+// #ifdef MYDEBUG
+//           std::cout<<"Function Value["<<connId<<"] = "<<function[connId]<<std::endl;
 
-          std::cout<<"Node #"<<connId <<" ";
-          for( int dimId = 0; dimId < theSpaceDim; dimId++ ) 
-            {
-              switch(dimId)
-                {
-                case 0:
-                  std::cout<<"( "<<nodeCoord[dimId];
-                  break;
-                case 1:
-                  std::cout<<", "<<nodeCoord[dimId];
-                  break;
-                case 2:
-                  std::cout<<", "<<nodeCoord[dimId]<<" )";
-                  break;
-                }
-            }
-          std::cout<<std::endl;
-#endif
+//           std::cout<<"Node #"<<connId <<" ";
+//           for( int dimId = 0; dimId < theSpaceDim; dimId++ ) 
+//             {
+//               switch(dimId)
+//                 {
+//                 case 0:
+//                   std::cout<<"( "<<nodeCoord[dimId];
+//                   break;
+//                 case 1:
+//                   std::cout<<", "<<nodeCoord[dimId];
+//                   break;
+//                 case 2:
+//                   std::cout<<", "<<nodeCoord[dimId]<<" )";
+//                   break;
+//                 }
+//             }
+//           std::cout<<std::endl;
+// #endif
 
           for( int dimId = 0; dimId < theSpaceDim; dimId++ ) 
             {
