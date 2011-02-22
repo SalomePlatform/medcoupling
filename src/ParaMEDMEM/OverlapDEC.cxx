@@ -39,6 +39,7 @@ namespace ParaMEDMEM
     delete [] ranks_world;
     MPI_Comm theComm;
     comm.commCreate(world_comm,group,&theComm);
+    comm.groupFree(&group);
     if(theComm==MPI_COMM_NULL)
       {
         _group=0;
@@ -58,10 +59,25 @@ namespace ParaMEDMEM
       delete _source_field;
     if(_own_target_field)
       delete _target_field;
+    delete _interpolation_matrix;
   }
 
   void OverlapDEC::sendRecvData(bool way)
   {
+    if(way)
+      sendData();
+    else
+      recvData();
+  }
+
+  void OverlapDEC::sendData()
+  {
+    throw INTERP_KERNEL::Exception("Not implemented yet !!!!");
+  }
+
+  void OverlapDEC::recvData()
+  {
+    _interpolation_matrix->transposeMultiply();;
   }
   
   void OverlapDEC::synchronize()

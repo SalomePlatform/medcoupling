@@ -30,6 +30,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "DirectedBoundingBox.hxx"
+#include "InterpKernelAutoPtr.hxx"
 
 #include <map>
 #include <set>
@@ -79,7 +80,7 @@ namespace ParaMEDMEM
     const MPI_Comm* comm = group->getComm();
     int bbSize=2*2*_local_space_dim;//2 (for source/target) 2 (min/max)
     _domain_bounding_boxes=new double[bbSize*_group.size()];
-    double * minmax=new double[bbSize];
+    INTERP_KERNEL::AutoPtr<double> minmax=new double[bbSize];
     //Format minmax : Xmin_src,Xmax_src,Ymin_src,Ymax_src,Zmin_src,Zmax_src,Xmin_trg,Xmax_trg,Ymin_trg,Ymax_trg,Zmin_trg,Zmax_trg
     if(_local_source_mesh)
       _local_source_mesh->getBoundingBox(minmax);
@@ -118,18 +119,15 @@ namespace ParaMEDMEM
 
     // OK now let's assigning as balanced as possible, job to each proc of group
     std::vector< std::vector< std::pair<int,int> > > pairsToBeDonePerProc(_group.size());
-    for(int i=0;i<_group.size();i++)
-      {
-        int i=0;
-        for(std::vector< std::vector< int > >::const_iterator it1=_proc_pairs.begin();it1!=_proc_pairs.end();it1++,i++)
-          for(std::vector< int >::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
-            {
-              if(pairsToBeDonePerProc[i].size()<=pairsToBeDonePerProc[*it2].size())//it includes the fact that i==*it2
-                pairsToBeDonePerProc[i].push_back(std::pair<int,int>(i,*it2));
-              else
-                pairsToBeDonePerProc[*it2].push_back(std::pair<int,int>(i,*it2));
-            }
-      }
+    int i=0;
+    for(std::vector< std::vector< int > >::const_iterator it1=_proc_pairs.begin();it1!=_proc_pairs.end();it1++,i++)
+      for(std::vector< int >::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+        {
+          if(pairsToBeDonePerProc[i].size()<=pairsToBeDonePerProc[*it2].size())//it includes the fact that i==*it2
+            pairsToBeDonePerProc[i].push_back(std::pair<int,int>(i,*it2));
+          else
+            pairsToBeDonePerProc[*it2].push_back(std::pair<int,int>(i,*it2));
+        }
     //Keeping todo list of current proc. _to_do_list contains a set of pair where at least _group.myRank() appears once.
     //This proc will be in charge to perform interpolation of any of element of '_to_do_list'
     //If _group.myRank()==myPair.first, current proc should fetch target mesh of myPair.second (if different from _group.myRank()).
@@ -148,7 +146,7 @@ namespace ParaMEDMEM
             {
               if((*it).first==myProcId)
                 _procs_to_send.push_back(std::pair<int,bool>(i,true));
-              if((*it).second!=myProcId)
+              if((*it).second==myProcId)
                 _procs_to_send.push_back(std::pair<int,bool>(i,false));
             }
         }
@@ -256,7 +254,7 @@ namespace ParaMEDMEM
 
     for (int idim=0; idim < _local_space_dim; idim++)
       {
-        const double eps = 1e-12;
+        const double eps = -1e-12;//tony to change
         bool intersects = (target_bb[idim*2]<source_bb[idim*2+1]+eps)
           && (source_bb[idim*2]<target_bb[idim*2+1]+eps);
         if (!intersects)
@@ -324,15 +322,15 @@ namespace ParaMEDMEM
     lgth[0]=tinyInfoLocal.size();
     lgth[1]=idsToSend->getNbOfElems();
     comInterface.send(&lgth,2,MPI_INT,procId,1140,*_comm);
-    comInterface.send(&tinyInfoLocal[0],tinyInfoLocal.size(),MPI_INT,procId,1140,*comm);
+    comInterface.send(&tinyInfoLocal[0],tinyInfoLocal.size(),MPI_INT,procId,1141,*comm);
     //
     DataArrayInt *v1Local=0;
     DataArrayDouble *v2Local=0;
     mesh->serialize(v1Local,v2Local);
-    comInterface.send(v1Local->getPointer(),v1Local->getNbOfElems(),MPI_INT,procId,1140,*comm);
-    comInterface.send(v2Local->getPointer(),v2Local->getNbOfElems(),MPI_DOUBLE,procId,1140,*comm);
+    comInterface.send(v1Local->getPointer(),v1Local->getNbOfElems(),MPI_INT,procId,1142,*comm);
+    comInterface.send(v2Local->getPointer(),v2Local->getNbOfElems(),MPI_DOUBLE,procId,1143,*comm);
     //finished for mesh, ids now
-    comInterface.send((int *)idsToSend->getConstPointer(),lgth[1],MPI_INT,procId,1140,*comm);
+    comInterface.send((int *)idsToSend->getConstPointer(),lgth[1],MPI_INT,procId,1144,*comm);
     //
     v1Local->decrRef();
     v2Local->decrRef();
@@ -348,18 +346,18 @@ namespace ParaMEDMEM
     std::vector<int> tinyInfoDistant(lgth[0]);
     ids=DataArrayInt::New();
     ids->alloc(lgth[1],1);
-    comInterface.recv(&tinyInfoDistant[0],lgth[0],MPI_INT,procId,1140,*comm,&status);
+    comInterface.recv(&tinyInfoDistant[0],lgth[0],MPI_INT,procId,1141,*comm,&status);
     mesh=MEDCouplingPointSet::BuildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
     std::vector<std::string> unusedTinyDistantSts;
     vector<double> tinyInfoDistantD(1);//tinyInfoDistantD not used for the moment
     DataArrayInt *v1Distant=DataArrayInt::New();
     DataArrayDouble *v2Distant=DataArrayDouble::New();
     mesh->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
-    comInterface.recv(v1Distant->getPointer(),v1Distant->getNbOfElems(),MPI_INT,procId,1140,*comm,&status);
-    comInterface.recv(v2Distant->getPointer(),v2Distant->getNbOfElems(),MPI_DOUBLE,procId,1140,*comm,&status);
+    comInterface.recv(v1Distant->getPointer(),v1Distant->getNbOfElems(),MPI_INT,procId,1142,*comm,&status);
+    comInterface.recv(v2Distant->getPointer(),v2Distant->getNbOfElems(),MPI_DOUBLE,procId,1143,*comm,&status);
     mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     //finished for mesh, ids now
-    comInterface.recv(ids->getPointer(),lgth[1],MPI_INT,procId,1140,*comm,&status);
+    comInterface.recv(ids->getPointer(),lgth[1],MPI_INT,procId,1144,*comm,&status);
     //
     v1Distant->decrRef();
     v2Distant->decrRef();

@@ -37,9 +37,11 @@ namespace ParaMEDMEM
     OverlapDEC(const std::set<int>& procIds,const MPI_Comm& world_comm=MPI_COMM_WORLD);
     virtual ~OverlapDEC();
     void sendRecvData(bool way=true);
+    void sendData();
+    void recvData();
     void synchronize();
-    void attachSourceLocalField(ParaFIELD *field, bool ownPt=true);
-    void attachTargetLocalField(ParaFIELD *field, bool ownPt=true);
+    void attachSourceLocalField(ParaFIELD *field, bool ownPt=false);
+    void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
     ProcessorGroup *getGrp() { return _group; }
     bool isInGroup() const;
   private:

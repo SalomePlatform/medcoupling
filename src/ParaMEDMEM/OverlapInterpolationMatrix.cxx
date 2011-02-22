@@ -41,8 +41,8 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-  OverlapInterpolationMatrix::OverlapInterpolationMatrix(const ParaFIELD *source_field,
-                                                         const ParaFIELD *target_field,
+  OverlapInterpolationMatrix::OverlapInterpolationMatrix(ParaFIELD *source_field,
+                                                         ParaFIELD *target_field,
                                                          const ProcessorGroup& group,
                                                          const DECOptions& dec_options,
                                                          const INTERP_KERNEL::InterpolationOptions& i_opt):
@@ -207,30 +207,34 @@ namespace ParaMEDMEM
     int sz=res.size();
     std::vector< std::map<int,double> > res1(sz);
     const int *trgIds2=0;
+    int nbTrgIds=_target_field->getField()->getNumberOfTuplesExpected();
+    INTERP_KERNEL::AutoPtr<int> tmp2=new int[nbTrgIds];
     if(trgIds)
       trgIds2=trgIds->getConstPointer();
+    else
+      {
+        trgIds2=tmp2;
+        for(int i=0;i<nbTrgIds;i++)
+          tmp2[i]=i;
+      }
     for(int i=0;i<sz;i++)
       {
         std::map<int,double>& m=res1[i];
         const std::map<int,double>& ref=res[i];
         for(std::map<int,double>::const_iterator it=ref.begin();it!=ref.end();it++)
           {
-            if(trgIds2)
-              m[trgIds2[(*it).first]]=(*it).second;
-            else
-              m[(*it).first]=(*it).second;
+            m[(*it).first]=(*it).second; //if(trgIds2) m[trgIds2[(*it).first]]=(*it).second;
           } 
       }
     //dealing source ids
     if(srcIds)
-      _mapping.addContributionST(res1,srcIds->getConstPointer(),srcProc,trgProc);
+      _mapping.addContributionST(res1,srcIds->getConstPointer(),trgIds2,nbTrgIds,srcProc,trgProc);
     else
       {
-        INTERP_KERNEL::AutoPtr<int> tmp;
-        tmp=new int[sz];
+        INTERP_KERNEL::AutoPtr<int> tmp=new int[sz];
         for(int i=0;i<sz;i++)
           tmp[i]=i;
-        _mapping.addContributionST(res1,tmp,srcProc,trgProc);
+        _mapping.addContributionST(res1,tmp,trgIds2,nbTrgIds,srcProc,trgProc);
       }
   }
 
@@ -248,7 +252,13 @@ namespace ParaMEDMEM
 
   void OverlapInterpolationMatrix::computeDeno()
   {
-    _mapping.computeDeno();
+    if(_source_field->getField()->getNature()==IntegralGlobConstraint)
+      _mapping.computeDenoGlobConstraint();
+  }
+
+  void OverlapInterpolationMatrix::transposeMultiply()
+  {
+    _mapping.transposeMultiply(_target_field->getField(),_source_field->getField());
   }
   
   bool OverlapInterpolationMatrix::isSurfaceComputationNeeded(const std::string& method) const

@@ -39,6 +39,7 @@ dist_libParaMEDMEMTest_la_SOURCES = \
 	ParaMEDMEMTest_Gauthier1.cxx \
 	ParaMEDMEMTest_FabienAPI.cxx \
 	ParaMEDMEMTest_NonCoincidentDEC.cxx \
+	ParaMEDMEMTest_OverlapDEC.cxx \
 	MPIAccessDECTest.cxx \
 	test_AllToAllDEC.cxx \
 	test_AllToAllvDEC.cxx \

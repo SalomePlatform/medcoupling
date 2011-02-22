@@ -35,8 +35,8 @@ namespace ParaMEDMEM
   {
   public:
     
-    OverlapInterpolationMatrix(const ParaFIELD *source_field,
-                               const ParaFIELD *target_field,
+    OverlapInterpolationMatrix(ParaFIELD *source_field,
+                               ParaFIELD *target_field,
                                const ProcessorGroup& group,
                                const DECOptions& dec_opt,
                                const InterpolationOptions& i_opt);
@@ -47,6 +47,8 @@ namespace ParaMEDMEM
     void prepare(const std::vector< std::vector<int> >& procsInInteraction);
     
     void computeDeno();
+
+    void transposeMultiply();
     
     virtual ~OverlapInterpolationMatrix();
 #if 0
@@ -97,8 +99,8 @@ namespace ParaMEDMEM
                                const DataArrayInt *srcIds, int srcProc,
                                const DataArrayInt *trgIds, int trgProc);
   private:
-    const ParaMEDMEM::ParaFIELD *_source_field;
-    const ParaMEDMEM::ParaFIELD *_target_field;
+    ParaMEDMEM::ParaFIELD *_source_field;
+    ParaMEDMEM::ParaFIELD *_target_field;
     std::vector<int> _row_offsets;
     std::map<std::pair<int,int>, int > _col_offsets;
     MEDCouplingPointSet *_source_support;
