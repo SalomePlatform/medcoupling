@@ -18,28 +18,23 @@
 //
 
 //Local includes
-#include "GaussCoords.hxx"
+#include "InterpKernelGaussCoords.hxx"
 #include "CellModel.hxx"
-using namespace INTERP_KERNEL;
 
 //STL includes
 #include <math.h>
 #include <algorithm>
 #include <sstream>
 
-//#define MYDEBUG
-
-#ifdef MYDEBUG
-#include <iostream>
-#endif
+using namespace INTERP_KERNEL;
 
 //Define common part of the code in the MACRO
 //---------------------------------------------------------------
 #define LOCAL_COORD_MACRO_BEGIN                                         \
-  myLocalReferenceCoord.resize( myLocalRefDim*myLocalNbRef );           \
-  for( int refId = 0; refId < myLocalNbRef; refId++ )                   \
+  _my_local_reference_coord.resize( _my_local_ref_dim*_my_local_nb_ref );           \
+  for( int refId = 0; refId < _my_local_nb_ref; refId++ )                   \
     {                                                                   \
-      double* coords = &myLocalReferenceCoord[ refId*myLocalRefDim ];   \
+      double* coords = &_my_local_reference_coord[ refId*_my_local_ref_dim ];   \
       switch(refId)                                                     \
         {
 
@@ -50,10 +45,10 @@ using namespace INTERP_KERNEL;
 
 //---------------------------------------------------------------
 #define SHAPE_FUN_MACRO_BEGIN                                           \
-  for( int gaussId     = 0 ; gaussId < myNbGauss ; gaussId++ )          \
+  for( int gaussId     = 0 ; gaussId < _my_nb_gauss ; gaussId++ )          \
     {                                                                   \
-      double* funValue =  &myFunctionValue[ gaussId * myNbRef ];        \
-      const double* gc = &myGaussCoord[ gaussId * GetGaussCoordDim() ];
+      double* funValue =  &_my_function_value[ gaussId * _my_nb_ref ];        \
+      const double* gc = &_my_gauss_coord[ gaussId * getGaussCoordDim() ];
 
 //---------------------------------------------------------------
 #define SHAPE_FUN_MACRO_END                     \
@@ -92,15 +87,15 @@ GaussInfo::GaussInfo( NormalizedCellType theGeometry,
                       int theNbGauss,
                       const DataVector& theReferenceCoord,
                       int theNbRef ) :
-  myGeometry(theGeometry),
-  myNbGauss(theNbGauss),
-  myGaussCoord(theGaussCoord),
-  myNbRef(theNbRef),
-  myReferenceCoord(theReferenceCoord)
+  _my_geometry(theGeometry),
+  _my_nb_gauss(theNbGauss),
+  _my_gauss_coord(theGaussCoord),
+  _my_nb_ref(theNbRef),
+  _my_reference_coord(theReferenceCoord)
 {
 
   //Allocate shape function values
-  myFunctionValue.resize( myNbGauss * myNbRef );
+  _my_function_value.resize( _my_nb_gauss * _my_nb_ref );
 }
 
 /*!
@@ -113,11 +108,11 @@ GaussInfo::~GaussInfo()
 /*!
  * Return dimension of the gauss coordinates
  */
-int GaussInfo::GetGaussCoordDim() const 
+int GaussInfo::getGaussCoordDim() const 
 {
-  if( myNbGauss ) 
+  if( _my_nb_gauss ) 
     {
-      return myGaussCoord.size()/myNbGauss;
+      return _my_gauss_coord.size()/_my_nb_gauss;
     }
   else 
     {
@@ -128,11 +123,11 @@ int GaussInfo::GetGaussCoordDim() const
 /*!
  * Return dimension of the reference coordinates
  */
-int GaussInfo::GetReferenceCoordDim() const 
+int GaussInfo::getReferenceCoordDim() const 
 {
-  if( myNbRef ) 
+  if( _my_nb_ref ) 
     {
-      return myReferenceCoord.size()/myNbRef;
+      return _my_reference_coord.size()/_my_nb_ref;
     }
   else 
     {
@@ -143,25 +138,25 @@ int GaussInfo::GetReferenceCoordDim() const
 /*!
  * Return type of the cell.
  */
-NormalizedCellType GaussInfo::GetCellType() const 
+NormalizedCellType GaussInfo::getCellType() const 
 {
-  return myGeometry;
+  return _my_geometry;
 }
 
 /*!
  * Return Nb of the gauss points.
  */
-int GaussInfo::GetNbGauss() const 
+int GaussInfo::getNbGauss() const 
 {
-  return myNbGauss;
+  return _my_nb_gauss;
 }
 
 /*!
  * Return Nb of the reference coordinates.
  */
-int GaussInfo::GetNbRef() const 
+int GaussInfo::getNbRef() const 
 {
-  return myNbRef;
+  return _my_nb_ref;
 }
 
 /*!
@@ -170,16 +165,16 @@ int GaussInfo::GetNbRef() const
 bool GaussInfo::isSatisfy() 
 {
 
-  bool anIsSatisfy = ((myLocalNbRef == myNbRef) && (myLocalRefDim == GetReferenceCoordDim()));
+  bool anIsSatisfy = ((_my_local_nb_ref == _my_nb_ref) && (_my_local_ref_dim == getReferenceCoordDim()));
   //Check coordinates
   if(anIsSatisfy)
     {
-      for( int refId = 0; refId < myLocalNbRef; refId++ ) 
+      for( int refId = 0; refId < _my_local_nb_ref; refId++ ) 
         {
-          double* refCoord = &myReferenceCoord[ refId*myLocalRefDim ];
-          double* localRefCoord = &myLocalReferenceCoord[ refId*myLocalRefDim ];
+          double* refCoord = &_my_reference_coord[ refId*_my_local_ref_dim ];
+          double* localRefCoord = &_my_local_reference_coord[ refId*_my_local_ref_dim ];
           bool anIsEqual = false;
-          for( int dimId = 0; dimId < myLocalRefDim; dimId++ ) 
+          for( int dimId = 0; dimId < _my_local_ref_dim; dimId++ ) 
             {
               anIsEqual = IsEqual( localRefCoord[dimId], refCoord[dimId]);
               if(!anIsEqual ) 
@@ -195,197 +190,197 @@ bool GaussInfo::isSatisfy()
 /*!
  * Initialize the internal vectors
  */
-void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception) 
+void GaussInfo::initLocalInfo() throw (INTERP_KERNEL::Exception) 
 {
   bool aSatify = false;
-  const CellModel& cellModel=CellModel::getCellModel(myGeometry);
-  switch( myGeometry ) 
+  const CellModel& cellModel=CellModel::getCellModel(_my_geometry);
+  switch( _my_geometry ) 
     {
     case NORM_SEG2:
-      myLocalRefDim = 1;
-      myLocalNbRef  = 2;
-      Seg2Init();
+      _my_local_ref_dim = 1;
+      _my_local_nb_ref  = 2;
+      seg2Init();
       aSatify = isSatisfy();
       CHECK_MACRO;
       break;
 
     case NORM_SEG3:
-      myLocalRefDim = 1;
-      myLocalNbRef  = 3;
-      Seg3Init();
+      _my_local_ref_dim = 1;
+      _my_local_nb_ref  = 3;
+      seg3Init();
       aSatify = isSatisfy();
       CHECK_MACRO;
       break;
 
     case NORM_TRI3:
-      myLocalRefDim = 2;
-      myLocalNbRef  = 3;
-      Tria3aInit();
+      _my_local_ref_dim = 2;
+      _my_local_nb_ref  = 3;
+      tria3aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Tria3bInit();
+          tria3bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_TRI6:
-      myLocalRefDim = 2;
-      myLocalNbRef  = 6;
-      Tria6aInit();
+      _my_local_ref_dim = 2;
+      _my_local_nb_ref  = 6;
+      tria6aInit();
       aSatify = isSatisfy();
       if(!aSatify)
         {
-          Tria6bInit();
+          tria6bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_QUAD4:
-      myLocalRefDim = 2;
-      myLocalNbRef  = 4;
-      Quad4aInit();
+      _my_local_ref_dim = 2;
+      _my_local_nb_ref  = 4;
+      quad4aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Quad4bInit();
+          quad4bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_QUAD8:
-      myLocalRefDim = 2;
-      myLocalNbRef  = 8;
-      Quad8aInit();
+      _my_local_ref_dim = 2;
+      _my_local_nb_ref  = 8;
+      quad8aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Quad8bInit();
+          quad8bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_TETRA4:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 4;
-      Tetra4aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 4;
+      tetra4aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Tetra4bInit();
+          tetra4bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_TETRA10:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 10;
-      Tetra10aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 10;
+      tetra10aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Tetra10bInit();
+          tetra10bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_PYRA5:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 5;
-      Pyra5aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 5;
+      pyra5aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Pyra5bInit();
+          pyra5bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_PYRA13:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 13;
-      Pyra13aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 13;
+      pyra13aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Pyra13bInit();
+          pyra13bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_PENTA6:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 6;
-      Penta6aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 6;
+      penta6aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Penta6bInit();
+          penta6bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_PENTA15:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 15;
-      Penta15aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 15;
+      penta15aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Penta15bInit();
+          penta15bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_HEXA8:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 8;
-      Hexa8aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 8;
+      hexa8aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Hexa8aInit();
+          hexa8aInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     case NORM_HEXA20:
-      myLocalRefDim = 3;
-      myLocalNbRef  = 20;
-      Hexa20aInit();
+      _my_local_ref_dim = 3;
+      _my_local_nb_ref  = 20;
+      hexa20aInit();
       aSatify = isSatisfy();
 
       if(!aSatify)
         {
-          Hexa20aInit();
+          hexa20aInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
       break;
 
     default:
-      throw INTERP_KERNEL::Exception("Bad Cell type !!!");
+      throw INTERP_KERNEL::Exception("Not manged cell type !");
       break;
     }
 }
@@ -393,15 +388,15 @@ void GaussInfo::InitLocalInfo() throw (INTERP_KERNEL::Exception)
 /**
  * Return shape function value by node id
  */
-const double* GaussInfo::GetFunctionValues( const int theGaussId ) const 
+const double* GaussInfo::getFunctionValues( const int theGaussId ) const 
 {
-  return &myFunctionValue[ myNbRef*theGaussId ];
+  return &_my_function_value[ _my_nb_ref*theGaussId ];
 }
 
 /*!
  * Init Segment 2 Reference coordinates ans Shape function.
  */
-void GaussInfo::Seg2Init() 
+void GaussInfo::seg2Init() 
 {
   LOCAL_COORD_MACRO_BEGIN;
   case  0:
@@ -421,7 +416,7 @@ void GaussInfo::Seg2Init()
 /*!
  * Init Segment 3 Reference coordinates ans Shape function.
  */
-void GaussInfo::Seg3Init() 
+void GaussInfo::seg3Init() 
 {
   LOCAL_COORD_MACRO_BEGIN;
   case  0:
@@ -446,7 +441,7 @@ void GaussInfo::Seg3Init()
  * Init Triangle Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Tria3aInit() 
+void GaussInfo::tria3aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -474,7 +469,7 @@ void GaussInfo::Tria3aInit()
  * Init Triangle Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Tria3bInit() 
+void GaussInfo::tria3bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -502,7 +497,7 @@ void GaussInfo::Tria3bInit()
  * Init Quadratic Triangle Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Tria6aInit() 
+void GaussInfo::tria6aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -545,7 +540,7 @@ void GaussInfo::Tria6aInit()
  * Init Quadratic Triangle Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Tria6bInit() 
+void GaussInfo::tria6bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -594,7 +589,7 @@ void GaussInfo::Tria6bInit()
  * Init Quadrangle Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Quad4aInit() 
+void GaussInfo::quad4aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -628,7 +623,7 @@ void GaussInfo::Quad4aInit()
  * Init Quadrangle Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Quad4bInit() 
+void GaussInfo::quad4bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -663,7 +658,7 @@ void GaussInfo::Quad4bInit()
  * Init Quadratic Quadrangle Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Quad8aInit() 
+void GaussInfo::quad8aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -716,7 +711,7 @@ void GaussInfo::Quad8aInit()
  * Init Quadratic Quadrangle Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Quad8bInit() 
+void GaussInfo::quad8bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -769,7 +764,7 @@ void GaussInfo::Quad8bInit()
  * Init Tetrahedron Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Tetra4aInit() 
+void GaussInfo::tetra4aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -806,7 +801,7 @@ void GaussInfo::Tetra4aInit()
  * Init Tetrahedron Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Tetra4bInit() 
+void GaussInfo::tetra4bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -844,7 +839,7 @@ void GaussInfo::Tetra4bInit()
  * Init Quadratic Tetrahedron Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Tetra10aInit() 
+void GaussInfo::tetra10aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -917,7 +912,7 @@ void GaussInfo::Tetra10aInit()
  * Init Quadratic Tetrahedron Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Tetra10bInit() 
+void GaussInfo::tetra10bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -990,7 +985,7 @@ void GaussInfo::Tetra10bInit()
  * Init Pyramid Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Pyra5aInit() 
+void GaussInfo::pyra5aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1032,7 +1027,7 @@ void GaussInfo::Pyra5aInit()
  * Init Pyramid Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Pyra5bInit() 
+void GaussInfo::pyra5bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1075,7 +1070,7 @@ void GaussInfo::Pyra5bInit()
  * Init Quadratic Pyramid Reference coordinates ans Shape function.
  * Case A.
  */
-void GaussInfo::Pyra13aInit() 
+void GaussInfo::pyra13aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1182,7 +1177,7 @@ void GaussInfo::Pyra13aInit()
  * Init Quadratic Pyramid Reference coordinates ans Shape function.
  * Case B.
  */
-void GaussInfo::Pyra13bInit() 
+void GaussInfo::pyra13bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1289,7 +1284,7 @@ void GaussInfo::Pyra13bInit()
  * Init Pentahedron Reference coordinates and Shape function.
  * Case A.
  */
-void GaussInfo::Penta6aInit() 
+void GaussInfo::penta6aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1339,7 +1334,7 @@ void GaussInfo::Penta6aInit()
  * Init Pentahedron Reference coordinates and Shape function.
  * Case B.
  */
-void GaussInfo::Penta6bInit() 
+void GaussInfo::penta6bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1387,7 +1382,7 @@ void GaussInfo::Penta6bInit()
  * Init Pentahedron Reference coordinates and Shape function.
  * Case A.
  */
-void GaussInfo::Penta15aInit() 
+void GaussInfo::penta15aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1495,7 +1490,7 @@ void GaussInfo::Penta15aInit()
  * Init Qaudratic Pentahedron Reference coordinates and Shape function.
  * Case B.
  */
-void GaussInfo::Penta15bInit() 
+void GaussInfo::penta15bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1603,7 +1598,7 @@ void GaussInfo::Penta15bInit()
  * Init Hehahedron Reference coordinates and Shape function.
  * Case A.
  */
-void GaussInfo::Hexa8aInit() 
+void GaussInfo::hexa8aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1665,7 +1660,7 @@ void GaussInfo::Hexa8aInit()
  * Init Hehahedron Reference coordinates and Shape function.
  * Case B.
  */
-void GaussInfo::Hexa8bInit() 
+void GaussInfo::hexa8bInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1727,7 +1722,7 @@ void GaussInfo::Hexa8bInit()
  * Init Qaudratic Hehahedron Reference coordinates and Shape function.
  * Case A.
  */
-void GaussInfo::Hexa20aInit() 
+void GaussInfo::hexa20aInit() 
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -1870,7 +1865,7 @@ void GaussInfo::Hexa20aInit()
  * Init Qaudratic Hehahedron Reference coordinates and Shape function.
  * Case B.
  */
-void GaussInfo::Hexa20bInit()
+void GaussInfo::hexa20bInit()
 {
   LOCAL_COORD_MACRO_BEGIN;
  case  0:
@@ -2027,8 +2022,8 @@ GaussCoords::GaussCoords()
  */
 GaussCoords::~GaussCoords()
 {
-  GaussInfoVector::iterator it = myGaussInfo.begin();
-  for( ; it != myGaussInfo.end(); it++ ) 
+  GaussInfoVector::iterator it = _my_gauss_info.begin();
+  for( ; it != _my_gauss_info.end(); it++ ) 
     {
       if((*it) != NULL)
         delete (*it);
@@ -2045,10 +2040,10 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
                                 const double* theReferenceCoord,
                                 int theNbRef) throw (INTERP_KERNEL::Exception) 
 {
-  GaussInfoVector::iterator it = myGaussInfo.begin();
-  for( ; it != myGaussInfo.end(); it++ ) 
+  GaussInfoVector::iterator it = _my_gauss_info.begin();
+  for( ; it != _my_gauss_info.end(); it++ ) 
     {
-      if( (*it)->GetCellType() == theGeometry ) 
+      if( (*it)->getCellType() == theGeometry ) 
         {
           break;
         }
@@ -2064,19 +2059,20 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
 
 
   GaussInfo* info = new GaussInfo( theGeometry, aGaussCoord, theNbGauss, aReferenceCoord, theNbRef);
-  info->InitLocalInfo();
+  info->initLocalInfo();
 
   //If info with cell type doesn't exist add it
-  if( it == myGaussInfo.end() ) 
+  if( it == _my_gauss_info.end() ) 
     {
-      myGaussInfo.push_back(info);
+      _my_gauss_info.push_back(info);
 
       // If information exists, update it
-    } else 
+    }
+  else 
     {
-      int index = std::distance(myGaussInfo.begin(),it);
+      int index = std::distance(_my_gauss_info.begin(),it);
       delete (*it);
-      myGaussInfo[index] = info;
+      _my_gauss_info[index] = info;
     }
 }
 
@@ -2084,19 +2080,19 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
 /*!
  * Calculate gauss points coordinates
  */
-double* GaussCoords::CalculateCoords( NormalizedCellType theGeometry, 
+double* GaussCoords::calculateCoords( NormalizedCellType theGeometry, 
                                       const double* theNodeCoords, 
                                       const int theSpaceDim,
                                       const int* theIndex) 
   throw (INTERP_KERNEL::Exception) 
 {
-  GaussInfoVector::const_iterator it = myGaussInfo.begin();
-  GaussInfoVector::const_iterator it_end = myGaussInfo.end();
+  GaussInfoVector::const_iterator it = _my_gauss_info.begin();
+  GaussInfoVector::const_iterator it_end = _my_gauss_info.end();
 
   //Try to find gauss localization info
   for( ; it != it_end ; it++ ) 
     {
-      if( (*it)->GetCellType() == theGeometry ) 
+      if( (*it)->getCellType() == theGeometry ) 
         {
           break;
         }
@@ -2106,52 +2102,20 @@ double* GaussCoords::CalculateCoords( NormalizedCellType theGeometry,
       throw INTERP_KERNEL::Exception("Can't find gauss localization information !!!");
     }
   const GaussInfo* info = (*it);
-  int aConn = info->GetNbRef();
+  int aConn = info->getNbRef();
 
-  int nbCoords = theSpaceDim * info->GetNbGauss();
+  int nbCoords = theSpaceDim * info->getNbGauss();
   double* aCoords = new double [nbCoords];
   for( int i = 0; i < nbCoords; i++ )
     aCoords[i] = 0.0;
 
-// #ifdef MYDEBUG
-//   std::cout<<"#######################################################"<<std::endl;
-//   std::cout<<"Cell type : "<<info->GetCellType()<<std::endl;
-// #endif
-
-  for( int gaussId = 0; gaussId < info->GetNbGauss(); gaussId++ ) 
+  for( int gaussId = 0; gaussId < info->getNbGauss(); gaussId++ ) 
     {
-// #ifdef MYDEBUG
-//       std::cout<<"Gauss ID = "<<gaussId<<std::endl;
-// #endif
-
       double* coord = &aCoords[ gaussId*theSpaceDim ];
-      const double* function = info->GetFunctionValues(gaussId);
+      const double* function = info->getFunctionValues(gaussId);
       for ( int connId = 0; connId < aConn ; connId++ ) 
         {
           const double* nodeCoord = theNodeCoords + (theIndex[connId]*theSpaceDim);
-
-// #ifdef MYDEBUG
-//           std::cout<<"Function Value["<<connId<<"] = "<<function[connId]<<std::endl;
-
-//           std::cout<<"Node #"<<connId <<" ";
-//           for( int dimId = 0; dimId < theSpaceDim; dimId++ ) 
-//             {
-//               switch(dimId)
-//                 {
-//                 case 0:
-//                   std::cout<<"( "<<nodeCoord[dimId];
-//                   break;
-//                 case 1:
-//                   std::cout<<", "<<nodeCoord[dimId];
-//                   break;
-//                 case 2:
-//                   std::cout<<", "<<nodeCoord[dimId]<<" )";
-//                   break;
-//                 }
-//             }
-//           std::cout<<std::endl;
-// #endif
-
           for( int dimId = 0; dimId < theSpaceDim; dimId++ ) 
             {
               coord[dimId] += nodeCoord[dimId]*function[connId];

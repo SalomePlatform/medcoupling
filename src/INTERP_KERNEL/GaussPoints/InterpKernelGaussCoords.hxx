@@ -22,6 +22,7 @@
 
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
+
 #include <vector>
 
 namespace INTERP_KERNEL 
@@ -41,83 +42,83 @@ namespace INTERP_KERNEL
                );
     ~GaussInfo();
 
-    NormalizedCellType GetCellType() const;    
+    NormalizedCellType getCellType() const;    
 
-    int GetGaussCoordDim() const;
-    int GetReferenceCoordDim() const;
+    int getGaussCoordDim() const;
+    int getReferenceCoordDim() const;
 
-    int GetNbGauss() const;
-    int GetNbRef() const;
+    int getNbGauss() const;
+    int getNbRef() const;
 
-    const double* GetFunctionValues( const int theGaussId ) const;
+    const double* getFunctionValues( const int theGaussId ) const;
 
-    void InitLocalInfo() throw (INTERP_KERNEL::Exception);
+    void initLocalInfo() throw (INTERP_KERNEL::Exception);
 
   protected:
 
     bool isSatisfy();
 
     //1D
-    void Seg2Init();
-    void Seg3Init();
+    void seg2Init();
+    void seg3Init();
 
     //2D
-    void Tria3aInit();
-    void Tria3bInit();
-    void Tria6aInit();
-    void Tria6bInit();
+    void tria3aInit();
+    void tria3bInit();
+    void tria6aInit();
+    void tria6bInit();
 
-    void Quad4aInit();
-    void Quad4bInit();
-    void Quad8aInit();
-    void Quad8bInit();
+    void quad4aInit();
+    void quad4bInit();
+    void quad8aInit();
+    void quad8bInit();
 
     //3D
-    void Tetra4aInit();
-    void Tetra4bInit();
-    void Tetra10aInit();
-    void Tetra10bInit();
+    void tetra4aInit();
+    void tetra4bInit();
+    void tetra10aInit();
+    void tetra10bInit();
 
-    void Pyra5aInit();
-    void Pyra5bInit();
-    void Pyra13aInit();
-    void Pyra13bInit();
+    void pyra5aInit();
+    void pyra5bInit();
+    void pyra13aInit();
+    void pyra13bInit();
 
-    void Penta6aInit();
-    void Penta6bInit();
-    void Penta15aInit();
-    void Penta15bInit();
+    void penta6aInit();
+    void penta6bInit();
+    void penta15aInit();
+    void penta15bInit();
 
-    void Hexa8aInit();
-    void Hexa8bInit();
-    void Hexa20aInit();
-    void Hexa20bInit();
+    void hexa8aInit();
+    void hexa8bInit();
+    void hexa20aInit();
+    void hexa20bInit();
 
 
   private:
     //INFORMATION from MEDMEM
-    NormalizedCellType myGeometry;               //Cell type
+    NormalizedCellType _my_geometry;               //Cell type
 
-    int                myNbGauss;                //Nb of the gauss points for element
-    DataVector         myGaussCoord;             //Gauss coordinates
+    int                _my_nb_gauss;                //Nb of the gauss points for element
+    DataVector         _my_gauss_coord;             //Gauss coordinates
 
-    int                myNbRef;                  //Nb of the nodes for element:
+    int                _my_nb_ref;                  //Nb of the nodes for element:
                                                  //NORM_SEG2 - 2
                                                  //NORM_SEG3 - 3
                                                  //NORM_TRI3 - 3
                                                  //.............
 
-    DataVector         myReferenceCoord;         //Reference coordinates
+    DataVector         _my_reference_coord;         //Reference coordinates
 
     //LOCAL INFORMATION
-    DataVector         myLocalReferenceCoord;    //Vector to store reference coordinates
-    int                myLocalRefDim;            //Dimension of the local reference coordinates:
+    DataVector         _my_local_reference_coord;    //Vector to store reference coordinates
+    int                _my_local_ref_dim;            //Dimension of the local reference coordinates:
                                                  // (x)       - 1D case
                                                  // (x, y)    - 2D case
                                                  // (x, y, z) - 3D case
-    int                myLocalNbRef;             //Nb of the local reference coordinates
+    int                _my_local_nb_ref;             //Nb of the local reference coordinates
 
-    DataVector         myFunctionValue;          //Shape Function values
+    DataVector         _my_function_value;          //Shape Function values
   };
 
 
@@ -136,14 +137,14 @@ namespace INTERP_KERNEL
                        const double* theReferenceCoord,
                        int theNbRef) throw (INTERP_KERNEL::Exception);
 
-    double* CalculateCoords( NormalizedCellType theGeometry, 
+    double* calculateCoords( NormalizedCellType theGeometry, 
                              const double* theNodeCoords, 
                              const int theDimSpace,
                              const int* theIndex
                              ) throw(INTERP_KERNEL::Exception);
   private:
     typedef std::vector<GaussInfo*> GaussInfoVector;
-    GaussInfoVector myGaussInfo;
+    GaussInfoVector _my_gauss_info;
   };
 }
 #endif //INTERPKERNELGAUSS

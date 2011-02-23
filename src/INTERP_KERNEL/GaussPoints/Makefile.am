@@ -26,11 +26,11 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 noinst_LTLIBRARIES = libinterpkernelgauss.la
 
 salomeinclude_HEADERS = \
-GaussCoords.hxx
+InterpKernelGaussCoords.hxx
 
 # Libraries targets
 dist_libinterpkernelgauss_la_SOURCES = \
-GaussCoords.cxx
+InterpKernelGaussCoords.cxx
 
 libinterpkernelgauss_la_CPPFLAGS=-I$(srcdir)/../Bases -I$(srcdir)/..
 
