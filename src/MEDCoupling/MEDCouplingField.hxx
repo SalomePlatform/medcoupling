@@ -33,6 +33,7 @@
 namespace ParaMEDMEM
 {
   class DataArrayInt;
+  class DataArrayDouble;
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldDiscretization;
@@ -55,6 +56,7 @@ namespace ParaMEDMEM
     TypeOfField getTypeOfField() const;
     NatureOfField getNature() const { return _nature; }
     virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
     MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }

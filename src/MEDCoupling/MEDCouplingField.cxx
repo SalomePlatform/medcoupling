@@ -105,6 +105,19 @@ void MEDCouplingField::setNature(NatureOfField nat) throw(INTERP_KERNEL::Excepti
 }
 
 /*!
+ * This method returns is case of success an instance of DataArrayDouble the user is in reponsability to deal with.
+ * If 'this->_mesh' is not set an exception will be thrown.
+ * For a field on node the array of coords will be returned. For a field on cell a ParaMEDMEM::DataArrayDouble instance
+ * containing the barycenter of cells will be returned. And for a field on gauss point the explicit position of gauss points.
+ */
+DataArrayDouble *MEDCouplingField::getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getLocalizationOfDiscr : No mesh set !");
+  return _type->getLocalizationOfDiscValues(_mesh);
+}
+
+/*!
  * This method retrieves the measure field of 'this'. If no '_mesh' is defined an exception will be thrown.
  * Warning the retrieved field life cycle is the responsability of caller.
  */

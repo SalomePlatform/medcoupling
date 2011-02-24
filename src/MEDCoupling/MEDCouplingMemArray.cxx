@@ -2344,6 +2344,22 @@ DataArrayInt *DataArrayInt::getIdsEqual(int val) const throw(INTERP_KERNEL::Exce
   return ret;
 }
 
+DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqual : the array must have only one component !");
+  const int *cptr=getConstPointer();
+  std::vector<int> res;
+  int nbOfTuples=getNumberOfTuples();
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    if(*cptr!=val)
+      res.push_back(i);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(res.size(),1);
+  std::copy(res.begin(),res.end(),ret->getPointer());
+  return ret;
+}
+
 DataArrayInt *DataArrayInt::getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -2354,6 +2370,23 @@ DataArrayInt *DataArrayInt::getIdsEqualList(const std::vector<int>& vals) const 
   int nbOfTuples=getNumberOfTuples();
   for(int i=0;i<nbOfTuples;i++,cptr++)
     if(vals2.find(*cptr)!=vals2.end())
+      res.push_back(i);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(res.size(),1);
+  std::copy(res.begin(),res.end(),ret->getPointer());
+  return ret;
+}
+
+DataArrayInt *DataArrayInt::getIdsNotEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqualList : the array must have only one component !");
+  std::set<int> vals2(vals.begin(),vals.end());
+  const int *cptr=getConstPointer();
+  std::vector<int> res;
+  int nbOfTuples=getNumberOfTuples();
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    if(vals2.find(*cptr)==vals2.end())
       res.push_back(i);
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(res.size(),1);
@@ -2674,6 +2707,31 @@ DataArrayInt *DataArrayInt::deltaShiftIndex() const throw(INTERP_KERNEL::Excepti
   int *out=ret->getPointer();
   std::transform(ptr+1,ptr+nbOfTuples,ptr,out,std::minus<int>());
   return ret;
+}
+
+/*!
+ * This method performs the work on itself. This method works on array with number of component equal to one and allocated. If not an exception is thrown.
+ * This method conserves the number of tuples and number of components (1). No reallocation is done.
+ * For an array [3,5,1,2,0,8] it becomes [0,3,8,9,11,11]. For each i>0 new[i]=new[i-1]+old[i-1] for i==0 new[i]=0.
+ * This could be usefull for allToAllV in MPI with contiguous policy.
+ */
+void DataArrayInt::computeOffsets() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsets : only single component allowed !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples==0)
+    return ;
+  int *work=getPointer();
+  int tmp=work[0];
+  work[0]=0;
+  for(int i=1;i<nbOfTuples;i++)
+    {
+      int tmp2=work[i];
+      work[i]=work[i-1]+tmp;
+      tmp=tmp2;
+    }
 }
 
 /*!

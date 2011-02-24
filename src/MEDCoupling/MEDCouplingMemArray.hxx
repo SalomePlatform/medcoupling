@@ -282,7 +282,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
@@ -298,6 +300,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *buildIntersection(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *deltaShiftIndex() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void computeOffsets() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::set<int> getDifferentValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
