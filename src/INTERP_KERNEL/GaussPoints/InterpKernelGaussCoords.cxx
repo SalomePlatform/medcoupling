@@ -2081,46 +2081,50 @@ void GaussCoords::addGaussInfo( NormalizedCellType theGeometry,
  * Calculate gauss points coordinates
  */
 double* GaussCoords::calculateCoords( NormalizedCellType theGeometry, 
-                                      const double* theNodeCoords, 
+                                      const double *theNodeCoords, 
                                       const int theSpaceDim,
-                                      const int* theIndex) 
-  throw (INTERP_KERNEL::Exception) 
+                                      const int *theIndex) throw (INTERP_KERNEL::Exception) 
 {
-  GaussInfoVector::const_iterator it = _my_gauss_info.begin();
-  GaussInfoVector::const_iterator it_end = _my_gauss_info.end();
+  const GaussInfo *info = getInfoGivenCellType(theGeometry);
+  int nbCoords = theSpaceDim * info->getNbGauss();
+  double *aCoords = new double[nbCoords];
+  calculateCoordsAlg(info,theNodeCoords,theSpaceDim,theIndex,aCoords);
+  return aCoords;
+}
 
-  //Try to find gauss localization info
-  for( ; it != it_end ; it++ ) 
-    {
-      if( (*it)->getCellType() == theGeometry ) 
-        {
-          break;
-        }
-    }
-  if(it == it_end) 
-    {
-      throw INTERP_KERNEL::Exception("Can't find gauss localization information !!!");
-    }
-  const GaussInfo* info = (*it);
+
+void GaussCoords::calculateCoords( NormalizedCellType theGeometry, const double *theNodeCoords, const int theSpaceDim, const int *theIndex, double *result) throw(INTERP_KERNEL::Exception)
+{
+  const GaussInfo *info = getInfoGivenCellType(theGeometry);
+  calculateCoordsAlg(info,theNodeCoords,theSpaceDim,theIndex,result);
+}
+
+void GaussCoords::calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const int *theIndex, double *result)
+{
   int aConn = info->getNbRef();
 
   int nbCoords = theSpaceDim * info->getNbGauss();
-  double* aCoords = new double [nbCoords];
-  for( int i = 0; i < nbCoords; i++ )
-    aCoords[i] = 0.0;
+  std::fill(result,result+nbCoords,0.);
 
   for( int gaussId = 0; gaussId < info->getNbGauss(); gaussId++ ) 
     {
-      double* coord = &aCoords[ gaussId*theSpaceDim ];
-      const double* function = info->getFunctionValues(gaussId);
+      double *coord=result+gaussId*theSpaceDim;
+      const double *function=info->getFunctionValues(gaussId);
       for ( int connId = 0; connId < aConn ; connId++ ) 
         {
           const double* nodeCoord = theNodeCoords + (theIndex[connId]*theSpaceDim);
-          for( int dimId = 0; dimId < theSpaceDim; dimId++ ) 
-            {
-              coord[dimId] += nodeCoord[dimId]*function[connId];
-            }
+          for( int dimId = 0; dimId < theSpaceDim; dimId++ )
+            coord[dimId] += nodeCoord[dimId]*function[connId];
         }
     }
-  return aCoords;
+}
+
+const GaussInfo *GaussCoords::getInfoGivenCellType(NormalizedCellType cellType)
+{
+  GaussInfoVector::const_iterator it = _my_gauss_info.begin();
+  //Try to find gauss localization info
+  for( ; it != _my_gauss_info.end() ; it++ ) 
+    if( (*it)->getCellType()==cellType) 
+      return (*it);
+  throw INTERP_KERNEL::Exception("Can't find gauss localization information !");
 }

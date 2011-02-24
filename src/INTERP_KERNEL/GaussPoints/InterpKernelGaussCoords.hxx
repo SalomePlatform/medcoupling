@@ -139,9 +139,18 @@ namespace INTERP_KERNEL
 
     double* calculateCoords( NormalizedCellType theGeometry, 
                              const double* theNodeCoords, 
-                             const int theDimSpace,
-                             const int* theIndex
-                             ) throw(INTERP_KERNEL::Exception);
+                             const int theSpaceDim,
+                             const int* theIndex) throw(INTERP_KERNEL::Exception);
+
+    void calculateCoords( NormalizedCellType theGeometry, 
+                          const double* theNodeCoords, 
+                          const int theSpaceDim,
+                          const int* theIndex,
+                          double *result) throw(INTERP_KERNEL::Exception);
+  private:
+    const GaussInfo *getInfoGivenCellType(NormalizedCellType cellType);
+    void calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const int *theIndex,
+                            double *result);
   private:
     typedef std::vector<GaussInfo*> GaussInfoVector;
     GaussInfoVector _my_gauss_info;
