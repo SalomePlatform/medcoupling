@@ -6154,6 +6154,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(not m1.isEqual(m2,1e-12));
         m2.setTime(3.14,6,7);
         self.assertTrue(m1.isEqual(m2,1e-12));
+        m1.setTimeUnit("ms");
+        self.assertTrue(m1.getTimeUnit()=="ms");
+        m1.setTimeUnit("us");
+        self.assertTrue(m1.getTimeUnit()=="us");
+        self.assertTrue(not m1.isEqual(m2,1e-12));
+        m2.setTimeUnit("us");
+        self.assertTrue(m1.isEqual(m2,1e-12));
         m2.setTime(3.14,6,8);
         self.assertTrue(not m1.isEqual(m2,1e-12));
         m2.setTime(3.14,7,7);
@@ -6346,6 +6353,209 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(vs[0]=="m");
         self.assertTrue(vs[1]=="m^2/kJ");
         self.assertTrue(vs[2]=="MW/s");
+        pass
+
+    def testGaussCoordinates1(self):
+        #Testing 1D cell types
+        m1=MEDCouplingDataForTest.build1DMultiTypes_1();
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
+        f.setMesh(m1);
+        wg1=[0.3];
+        gsCoo1=[0.2];
+        refCoo1=[-1.0,1.0];
+        f.setGaussLocalizationOnType(NORM_SEG2,refCoo1,gsCoo1,wg1);
+        wg2=wg1;
+        gsCoo2=[0.2];
+        refCoo2=[-1.0,1.0,0.0];
+        f.setGaussLocalizationOnType(NORM_SEG3,refCoo2,gsCoo2,wg2);
+        #
+        resToTest=f.getLocalizationOfDiscr();
+        self.assertEqual(3,resToTest.getNumberOfComponents());
+        self.assertEqual(2,resToTest.getNumberOfTuples());
+        expected1=[0.6,0.6,0.6, 0.6,0.6,0.6]
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],resToTest.getIJ(0,i),14);
+            pass
+        #
+        #Testing 2D cell types
+        m2=MEDCouplingDataForTest.build2DMultiTypes_1();
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
+        f.setMesh(m2);
+        wg3=[0.3,0.3];
+        tria3CooGauss=[ 0.1, 0.8, 0.2, 0.7 ]
+        gsCoo3=tria3CooGauss
+        tria3CooRef=[ 0.0, 0.0, 1.0 , 0.0, 0.0, 1.0 ]
+        refCoo3=tria3CooRef;
+        f.setGaussLocalizationOnType(NORM_TRI3,refCoo3,gsCoo3,wg3);
+        wg4=[0.3,0.3,0.3];
+        tria6CooGauss=[ 0.3, 0.2, 0.2, 0.1, 0.2, 0.4 ]
+        gsCoo4=tria6CooGauss;
+        tria6CooRef=[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5]
+        refCoo4=tria6CooRef;
+        f.setGaussLocalizationOnType(NORM_TRI6,refCoo4,gsCoo4,wg4);
+        wg5=[0.3,0.3,0.3,0.3];
+        quad4CooGauss=[ 0.3, 0.2, 0.2, 0.1, 0.2, 0.4, 0.15, 0.27 ]
+        gsCoo5=quad4CooGauss;
+        quad4CooRef=[-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0]
+        refCoo5=quad4CooRef;
+        f.setGaussLocalizationOnType(NORM_QUAD4,refCoo5,gsCoo5,wg5);
+        wg6=[0.3,0.3,0.3,0.3];
+        quad8CooGauss=[ 0.34, 0.16, 0.21, 0.3, 0.23, 0.4, 0.14, 0.37 ]
+        gsCoo6=quad8CooGauss;
+        quad8CooRef=[ -1.0, -1.0, 1.0, -1.0, 1.0,  1.0, -1.0,  1.0, 0.0, -1.0, 1.0,  0.0, 0.0,  1.0, -1.0,  0.0]
+        refCoo6=quad8CooRef;
+        f.setGaussLocalizationOnType(NORM_QUAD8,refCoo6,gsCoo6,wg6);
+        #
+        resToTest=f.getLocalizationOfDiscr();
+        self.assertEqual(3,resToTest.getNumberOfComponents());
+        self.assertEqual(13,resToTest.getNumberOfTuples());#2+3+4+4 gauss points for resp TRI3,TRI6,QUAD4,QUAD8
+        expected2=[5.1,1.55,0.0, 4.7,1.65,0.0,
+                   2.32,1.52,0.0, 1.6,1.32,0.0, 3.52,1.26,0.0,#TRI6
+                   2.6,1.6,0.0, 2.4,1.8,0.0, 2.4,1.2,0.0, 2.3,1.46,0.0,#QUAD4
+                   2.32,2.68,0.0, 2.6,2.42,0.0, 2.8,2.46,0.0, 2.74,2.28,0.0 ];#QUAD8
+        for i in xrange(39):
+            self.assertAlmostEqual(expected2[i],resToTest.getIJ(0,i),14);
+            pass
+        #
+        #Testing 3D cell types
+        m3=MEDCouplingDataForTest.build3DMultiTypes_1();
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
+        f.setMesh(m3);
+        #
+        wg7=[0.3];
+        tetra4CooGauss=[0.34, 0.16, 0.21]
+        gsCoo7=tetra4CooGauss;
+        tetra4CooRef=[0.0,1.0,0.0, 0.0,0.0,1.0, 0.0,0.0,0.0, 1.0,0.0,0.0]
+        refCoo7=tetra4CooRef;
+        f.setGaussLocalizationOnType(NORM_TETRA4,refCoo7,gsCoo7,wg7);
+        wg8=[0.3];
+        tetra10CooGauss=[0.2, 0.3, 0.1]
+        gsCoo8=tetra10CooGauss;
+        tetra10CooRef=[0.0,1.0,0.0, 0.0,0.0,0.0, 0.0,0.0,1.0, 1.0,0.0,0.0, 0.0,0.5,0.0, 0.0,0.0,0.5, 0.0,0.5,0.5, 0.5,0.5,0.0, 0.5,0.0,0.0, 0.5,0.0,0.5]
+        refCoo8=tetra10CooRef;
+        f.setGaussLocalizationOnType(NORM_TETRA10,refCoo8,gsCoo8,wg8);
+        wg9=[0.3];
+        pyra5CooGauss=[0.2, 0.3, 0.1]
+        gsCoo9=pyra5CooGauss;
+        pyra5CooRef=[1.0,0.0,0.0, 0.0,1.0,0.0, -1.0,0.0,0.0, 0.0,-1.0,0.0, 0.0,0.0,1.0]
+        refCoo9=pyra5CooRef;
+        f.setGaussLocalizationOnType(NORM_PYRA5,refCoo9,gsCoo9,wg9);
+        wg10=[0.3];
+        pyra13CooGauss=[0.1, 0.2, 0.7]
+        gsCoo10=pyra13CooGauss;
+        pyra13CooRef=[1.0,0.0,0.0, 0.0,1.0,0.0,-1.0,0.0,0.0,0.0,-1.0,0.0,0.0,0.0,1.0,0.5,0.5,0.0,-0.5,0.5,0.0,-0.5,-0.5,0.0,0.5,-0.5,0.0,0.5,0.0,0.5,0.0,0.5,0.5,-0.5,0.0,0.5,0.0,-0.5,0.5]
+        refCoo10=pyra13CooRef;
+        f.setGaussLocalizationOnType(NORM_PYRA13,refCoo10,gsCoo10,wg10);
+        wg11=[0.3];
+        penta6CooGauss=[0.2, 0.3, 0.1]
+        gsCoo11=penta6CooGauss;
+        penta6CooRef=[-1.0,1.0,0.0,-1.0,-0.0,1.0,-1.0,0.0,0.0,1.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0]
+        refCoo11=penta6CooRef;
+        f.setGaussLocalizationOnType(NORM_PENTA6,refCoo11,gsCoo11,wg11);
+        wg12=[0.3];
+        penta15CooGauss=[0.2, 0.3,0.15]
+        gsCoo12=penta15CooGauss;
+        penta15CooRef=[-1.0,1.0,0.0,-1.0,0.0,1.0,-1.0,0.0,0.0,1.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0,0.0,-1.0,0.5,0.5,-1.0,0.0,0.5,-1.0,0.5,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0,0.5,0.5,1.0,0.0, 0.5,1.0,0.5,0.0]
+        refCoo12=penta15CooRef;
+        f.setGaussLocalizationOnType(NORM_PENTA15,refCoo12,gsCoo12,wg12);
+        wg13=[0.3];
+        hexa8CooGauss=[0.2,0.3,0.15]
+        gsCoo13=hexa8CooGauss;
+        hexa8CooRef=[-1.0,-1.0,-1.0,1.0,-1.0,-1.0,1.0,1.0,-1.0,-1.0,1.0,-1.0,-1.0,-1.0,1.0,1.0,-1.0,1.0,1.0,1.0,1.0,-1.0,1.0,1.0]
+        refCoo13=hexa8CooRef;
+        f.setGaussLocalizationOnType(NORM_HEXA8,refCoo13,gsCoo13,wg13);
+        wg14=[0.3];
+        hexa20CooGauss=[0.11,0.3,0.55]
+        gsCoo14=hexa20CooGauss;
+        hexa20CooRef=[-1.0,-1.0,-1.0,1.0,-1.0,-1.0,1.0,1.0,-1.0,-1.0,1.0,-1.0,-1.0,-1.0,1.0,1.0,-1.0,1.0,1.0,1.0,1.0,-1.0,1.0,1.0,0.0,-1.0,-1.0,1.0,0.0,-1.0,0.0,1.0,-1.0,-1.0,0.0,-1.0,-1.0,-1.0,0.0,1.0,-1.0,0.0,1.0,1.0,0.0,-1.0,1.0,0.0,0.0,-1.0,1.0,1.0,0.0,1.0,0.0,1.0,1.0,-1.0,0.0,1.0]
+        refCoo14=hexa20CooRef;
+        f.setGaussLocalizationOnType(NORM_HEXA20,refCoo14,gsCoo14,wg14);
+        #
+        resToTest=f.getLocalizationOfDiscr();
+        self.assertEqual(3,resToTest.getNumberOfComponents());
+        self.assertEqual(8,resToTest.getNumberOfTuples());#2+3+4+4 gauss points for resp TRI3,TRI6,QUAD4,QUAD8
+        expected3=[1.312,3.15,1.02, 0.56,3.3,0.6, 2.18,1.1,0.2, 1.18,1.54,0.98, 1.56,0.3,3.6, 1.613,0.801,4.374, 2.6,2.4,2.3, 2.31232,2.3933985,1.553255]
+        for i in xrange(24):
+            self.assertAlmostEqual(expected3[i],resToTest.getIJ(0,i),14);
+            pass
+        #
+        pass
+
+    def testGetValueOn2(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f.setMesh(m);
+        arr=DataArrayDouble.New();
+        nbOfCells=m.getNumberOfCells();
+        f.setArray(arr);
+        values1=[7.,107.,10007.,8.,108.,10008.,9.,109.,10009.,10.,110.,10010.,11.,111.,10011.]
+        arr.setValues(values1,nbOfCells,3);
+        loc=[-0.05,-0.05, 0.55,-0.25, 0.55,0.15, -0.05,0.45, 0.45,0.45]
+        f.checkCoherency();
+        locs=f.getValueOnMulti(loc);
+        self.assertEqual(5,locs.getNumberOfTuples());
+        self.assertEqual(3,locs.getNumberOfComponents());
+        for j in xrange(15):
+            self.assertAlmostEqual(values1[j],locs.getIJ(0,j),12);
+            pass
+        # Testing ON_NODES
+        f=MEDCouplingFieldDouble.New(ON_NODES,NO_TIME);
+        f.setMesh(m);
+        arr=DataArrayDouble.New();
+        nbOfNodes=m.getNumberOfNodes();
+        f.setArray(arr);
+        values2=[7.,107.,10007.,8.,108.,10008.,9.,109.,10009.,10.,110.,10010.,11.,111.,10011.,12.,112.,10012.,13.,113.,10013.,14.,114.,10014.,15.,115.,10015.]
+        arr.setValues(values2,nbOfNodes,3);
+        loc2=[0.5432,-0.2432, 0.5478,0.1528, 0.5432,-0.2432, 0.5432,-0.2432]
+        expected2=[9.0272, 109.0272, 10009.0272, 11.4124,111.4124,10011.4124, 9.0272, 109.0272, 10009.0272, 9.0272, 109.0272, 10009.0272]
+        f.checkCoherency();
+        loc3=DataArrayDouble.New()
+        loc3.setValues(loc2,4,2);
+        locs=f.getValueOnMulti(loc3);
+        self.assertEqual(4,locs.getNumberOfTuples());
+        self.assertEqual(3,locs.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertAlmostEqual(expected2[i],locs.getIJ(0,i),12);
+            pass
+        #
+        pass
+
+    def testDAIGetIdsNotEqual1(self):
+        d=DataArrayInt.New();
+        vals1=[2,3,5,6,8,5,5,6,1,-5]
+        d.setValues(vals1,10,1);
+        d2=d.getIdsNotEqual(5);
+        self.assertEqual(7,d2.getNumberOfTuples());
+        self.assertEqual(1,d2.getNumberOfComponents());
+        expected1=[0,1,3,4,7,8,9]
+        for i in xrange(7):
+            self.assertEqual(expected1[i],d2.getIJ(0,i));
+            pass
+        d.rearrange(2);
+        self.assertRaises(InterpKernelException,d.getIdsNotEqual,5);
+        vals2=[-4,5,6]
+        vals3=vals2;
+        d.rearrange(1);
+        d3=d.getIdsNotEqualList(vals3);
+        self.assertEqual(5,d3.getNumberOfTuples());
+        self.assertEqual(1,d3.getNumberOfComponents());
+        expected2=[0,1,4,8,9]
+        for i in xrange(5):
+            self.assertEqual(expected2[i],d3.getIJ(0,i));
+            pass
+        pass
+
+    def testDAIComputeOffsets1(self):
+        d=DataArrayInt.New();
+        vals1=[3,5,1,2,0,8]
+        expected1=[0,3,8,9,11,11]
+        d.setValues(vals1,6,1);
+        d.computeOffsets();
+        self.assertEqual(6,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        for i in xrange(6):
+            self.assertEqual(expected1[i],d.getIJ(0,i));
+            pass
         pass
     
     def setUp(self):

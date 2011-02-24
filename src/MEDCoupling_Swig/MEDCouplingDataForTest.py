@@ -430,6 +430,84 @@ class MEDCouplingDataForTest:
         f4.setName("f4");
         return [f0,f1,f2,f3,f4]
 
+    def build1DMultiTypes_1(self):
+        mesh=MEDCouplingUMesh.New("Multi1DMesh",1);
+        coo=MEDCouplingDataForTest.buildCoordsForMultiTypes_1();
+        conn=[0,2, 0,2,1]
+        mesh.allocateCells(2);
+        mesh.insertNextCell(NORM_SEG2,2,conn[0:2])
+        mesh.insertNextCell(NORM_SEG3,3,conn[2:5])
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
+    def build2DMultiTypes_1(self):
+        mesh=MEDCouplingUMesh.New("Multi2DMesh",2);
+        coo=MEDCouplingDataForTest.buildCoordsForMultiTypes_1();
+        conn=[3,4,5, 3,4,5,6,7,8, 0,9,10,11, 0,9,10,11,12,13,14,15]
+        mesh.allocateCells(4);
+        mesh.insertNextCell(NORM_TRI3,3,conn[0:3])
+        mesh.insertNextCell(NORM_TRI6,6,conn[3:9])
+        mesh.insertNextCell(NORM_QUAD4,4,conn[9:13])
+        mesh.insertNextCell(NORM_QUAD8,8,conn[13:21])
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
+    def build3DMultiTypes_1(self):
+        mesh=MEDCouplingUMesh.New("Multi3DMesh",3);
+        coo=MEDCouplingDataForTest.buildCoordsForMultiTypes_1();
+        conn=[0,16,17,18,
+              0,16,17,18,19,20,21,22,23,24,
+              0,11,10,9,25,
+              0,11,10,9,25,15,14,13,12,26,27,28,29,
+              0,30,31,32,33,34,
+              0,30,31,32,33,34,35,36,37,38,39,40,41,42,43,
+              0,9,10,11,44,45,46,47,
+              0,9,10,11,44,45,46,47,12,13,14,15,48,49,50,51,52,53,54,55 ];
+        mesh.allocateCells(8);
+        mesh.insertNextCell(NORM_TETRA4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TETRA10,10,conn[4:14])
+        mesh.insertNextCell(NORM_PYRA5,5,conn[14:19])
+        mesh.insertNextCell(NORM_PYRA13,13,conn[19:32])
+        mesh.insertNextCell(NORM_PENTA6,6,conn[32:38])
+        mesh.insertNextCell(NORM_PENTA15,15,conn[38:53])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[53:61])
+        mesh.insertNextCell(NORM_HEXA20,20,conn[61:81])
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
+    def buildCoordsForMultiTypes_1(self):
+        coords=DataArrayDouble.New();
+        data=[0.0,0.0,0.0, 0.5,0.5,0.5, 1.0,1.0,1.0, 1.0,1.0,0.0, 2.0,2.5,0.0, 6.0,1.5,0.0, 1.0,2.0,0.0, 4.5,2.5,0.0, 4.0,0.5,0.0, 0.0,4.0,0.0, 4.0,4.0,0.0, 4.0,0.0,0.0, 0.0,2.0,0.0, 2.0,4.0,0.0, 4.0,2.0,0.0, 2.0,0.0,0.0, 0.0,6.0,0.0, 3.0,3.0,0.0, 1.3,3.0,3.0, 0.0,3.0,0.0, 1.5,4.5,0.0, 1.5,1.5,0.0, 0.65,1.5,1.5, 0.65,4.5,1.5, 2.15,3.0,1.5, 2.0,2.0,2.0, 3.0,1.0,1.0, 3.0,3.0,1.0, 1.0,3.0,1.0, 1.0,1.0,1.0, 0.0,3.0,0.0, 2.0,0.0,0.0, 0.0,0.0,6.0, 0.0,3.0,6.0, 3.0,0.0,6.0, 0.0,1.5,0.0, 1.5,1.5,0.0, 1.5,0.0,0.0, 0.0,1.5,6.0, 1.5,1.5,6.0, 1.5,0.0,6.0, 0.0,0.0,3.0, 0.0,3.0,3.0, 3.0,0.0,3.0, 0.0,0.0,4.0, 0.0,4.0,4.0, 4.0,4.0,4.0, 4.0,0.0,4.0, 0.0,2.0,4.0, 2.0,4.0,4.0, 4.0,2.0,4.0, 2.0,0.0,4.0, 0.0,0.0,2.0, 0.0,4.0,2.0, 4.0,4.0,2.0, 4.0,0.0,2.0]
+        coords.setValues(data,56,3);
+        coords.setInfoOnComponent(0,"X (cm)");
+        coords.setInfoOnComponent(1,"Y (cm)");
+        coords.setInfoOnComponent(2,"Z (cm)");
+        return coords
+
+    def buildHexa8Mesh_1(self):
+        mesh=MEDCouplingUMesh.New("Hexa8Only",3);
+        coo=DataArrayDouble.New();
+        coords=[0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.5, 1.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.5, 1.0, 0.5, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0]
+        coo.setValues(coords,27,3);
+        conn=[3,12,13,4,0,9,10,1,
+              4,13,14,5,1,10,11,2,
+              6,15,16,7,3,12,13,4,
+              7,16,17,8,4,13,14,5,
+              12,21,22,13,9,18,19,10,
+              13,22,23,14,10,19,20,11,
+              15,24,25,16,12,21,22,13,
+              16,25,26,17,13,22,23,14];
+        mesh.allocateCells(8);
+        for i in xrange(8):
+            mesh.insertNextCell(NORM_HEXA8,8,conn[8*i:8*(i+1)])
+            pass
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
@@ -446,4 +524,9 @@ class MEDCouplingDataForTest:
     build2DTargetMesh_4=classmethod(build2DTargetMesh_4)
     buildMultiFields_1=classmethod(buildMultiFields_1)
     buildMultiFields_2=classmethod(buildMultiFields_2)
+    build1DMultiTypes_1=classmethod(build1DMultiTypes_1)
+    build2DMultiTypes_1=classmethod(build2DMultiTypes_1)
+    build3DMultiTypes_1=classmethod(build3DMultiTypes_1)
+    buildCoordsForMultiTypes_1=classmethod(buildCoordsForMultiTypes_1)
+    buildHexa8Mesh_1=classmethod(buildHexa8Mesh_1)
     pass

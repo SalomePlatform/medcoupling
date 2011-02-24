@@ -102,6 +102,7 @@ namespace ParaMEDMEM
     void getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception);
     void getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getValueOnMulti(const double *spaceLoc, int nbOfPoints) const throw(INTERP_KERNEL::Exception);
     //! \b temporary
     void applyLin(double a, double b, int compoId);
     MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);

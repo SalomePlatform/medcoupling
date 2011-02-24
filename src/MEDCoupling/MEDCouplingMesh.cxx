@@ -266,3 +266,29 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, cons
 {
   return mesh1->mergeMyselfWith(mesh2);
 }
+
+void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+{
+  int ret=getCellContainingPoint(pos,eps);
+  elts.push_back(ret);
+}
+
+void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
+{
+  eltsIndex.resize(nbOfPoints+1);
+  eltsIndex[0]=0;
+  elts.clear();
+  int spaceDim=getSpaceDimension();
+  const double *work=pos;
+  for(int i=0;i<nbOfPoints;i++,work+=spaceDim)
+    {
+      int ret=getCellContainingPoint(work,eps);
+      if(ret>=0)
+        {
+          elts.push_back(ret);
+          eltsIndex[i+1]=eltsIndex[i]+1;
+        }
+      else
+        eltsIndex[i+1]=eltsIndex[i];
+    }
+}

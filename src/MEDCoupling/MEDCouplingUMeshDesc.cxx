@@ -459,6 +459,5 @@ DataArrayDouble *MEDCouplingUMeshDesc::getBarycenterAndOwner() const
 
 int MEDCouplingUMeshDesc::getCellContainingPoint(const double *pos, double eps) const
 {
-  //not implemented yet.
-  return -1;
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::getCellContainingPoint : not implemented yet !");
 }

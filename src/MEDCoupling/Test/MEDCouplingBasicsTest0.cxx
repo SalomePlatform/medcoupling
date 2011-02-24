@@ -982,6 +982,156 @@ std::vector<MEDCouplingFieldDouble *> MEDCouplingBasicsTest::buildMultiFields_2(
   return fs;
 }
 
+MEDCouplingUMesh *MEDCouplingBasicsTest::build1DMultiTypes_1()
+{
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Multi1DMesh",1);
+  DataArrayDouble *coo=buildCoordsForMultiTypes_1();
+  const int conn[5]={0,2, 0,2,1};
+  mesh->allocateCells(2);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_SEG3,3,conn+2);
+  mesh->finishInsertingCells();
+  mesh->setCoords(coo);
+  coo->decrRef();
+  return mesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build2DMultiTypes_1()
+{
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Multi2DMesh",2);
+  DataArrayDouble *coo=buildCoordsForMultiTypes_1();
+  const int conn[21]={3,4,5, 3,4,5,6,7,8, 0,9,10,11, 0,9,10,11,12,13,14,15};
+  mesh->allocateCells(4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,conn+3);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+9);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8,conn+13);
+  mesh->finishInsertingCells();
+  mesh->setCoords(coo);
+  coo->decrRef();
+  return mesh;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::build3DMultiTypes_1()
+{
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Multi3DMesh",3);
+  DataArrayDouble *coo=buildCoordsForMultiTypes_1();
+  const int conn[81]={0,16,17,18,
+                      0,16,17,18,19,20,21,22,23,24,
+                      0,11,10,9,25,
+                      0,11,10,9,25,15,14,13,12,26,27,28,29,
+                      0,30,31,32,33,34,
+                      0,30,31,32,33,34,35,36,37,38,39,40,41,42,43,
+                      0,9,10,11,44,45,46,47,
+                      0,9,10,11,44,45,46,47,12,13,14,15,48,49,50,51,52,53,54,55 };
+  mesh->allocateCells(8);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TETRA10,10,conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_PYRA5,5,conn+14);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_PYRA13,13,conn+19);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_PENTA6,6,conn+32);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_PENTA15,15,conn+38);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+53);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA20,20,conn+61);
+  mesh->finishInsertingCells();
+  mesh->setCoords(coo);
+  coo->decrRef();
+  return mesh;
+}
+
+DataArrayDouble *MEDCouplingBasicsTest::buildCoordsForMultiTypes_1()
+{
+  DataArrayDouble *coords=DataArrayDouble::New();
+  coords->alloc(56,3);
+  coords->setInfoOnComponent(0,"X (cm)");
+  coords->setInfoOnComponent(1,"Y (cm)");
+  coords->setInfoOnComponent(2,"Z (cm)");
+  const double data[168]={
+    0.0, 0.0, 0.0, //#0
+    0.5, 0.5, 0.5, //#1
+    1.0, 1.0, 1.0, //#2
+    1.0, 1.0, 0.0, //#3
+    2.0, 2.5, 0.0, //#4
+    6.0, 1.5, 0.0, //#5
+    1.0, 2.0, 0.0, //#6
+    4.5, 2.5, 0.0, //#7
+    4.0, 0.5, 0.0, //#8
+    0.0, 4.0, 0.0, //#9
+    4.0, 4.0, 0.0, //#10
+    4.0, 0.0, 0.0, //#11
+    0.0, 2.0, 0.0, //#12
+    2.0, 4.0, 0.0, //#13
+    4.0, 2.0, 0.0, //#14
+    2.0, 0.0, 0.0, //#15
+    0.0, 6.0, 0.0, //#16
+    3.0, 3.0, 0.0, //#17
+    1.3, 3.0, 3.0, //#18
+    0.0, 3.0, 0.0, //#19
+    1.5, 4.5, 0.0, //#20
+    1.5, 1.5, 0.0, //#21
+    0.65, 1.5, 1.5, //#22
+    0.65, 4.5, 1.5, //#23
+    2.15, 3.0, 1.5, //#24
+    2.0, 2.0, 2.0, //#25
+    3.0, 1.0, 1.0, //#26
+    3.0, 3.0, 1.0, //#27
+    1.0, 3.0, 1.0, //#28
+    1.0, 1.0, 1.0, //#29
+    0.0, 3.0, 0.0, //#30
+    2.0, 0.0, 0.0, //#31
+    0.0, 0.0, 6.0, //#32
+    0.0, 3.0, 6.0, //#33
+    3.0, 0.0, 6.0, //#34
+    0.0, 1.5, 0.0, //#35
+    1.5, 1.5, 0.0, //#36
+    1.5, 0.0, 0.0, //#37
+    0.0, 1.5, 6.0, //#38
+    1.5, 1.5, 6.0, //#39
+    1.5, 0.0, 6.0, //#40
+    0.0, 0.0, 3.0, //#41
+    0.0, 3.0, 3.0, //#42
+    3.0, 0.0, 3.0, //#43
+    0.0, 0.0, 4.0, //#44
+    0.0, 4.0, 4.0, //#45
+    4.0, 4.0, 4.0, //#46
+    4.0, 0.0, 4.0, //#47
+    0.0, 2.0, 4.0, //#48
+    2.0, 4.0, 4.0, //#49
+    4.0, 2.0, 4.0, //#50
+    2.0, 0.0, 4.0, //#51
+    0.0, 0.0, 2.0, //#52
+    0.0, 4.0, 2.0, //#53
+    4.0, 4.0, 2.0, //#54
+    4.0, 0.0, 2.0  //#55
+  };
+  std::copy(data,data+168,coords->getPointer());
+  return coords;
+}
+
+MEDCouplingUMesh *MEDCouplingBasicsTest::buildHexa8Mesh_1()
+{
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Hexa8Only",3);
+  DataArrayDouble *coo=DataArrayDouble::New();
+  const double coords[81]={0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.5, 1.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.5, 1.0, 0.5, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0};
+  coo->alloc(27,3);
+  std::copy(coords,coords+81,coo->getPointer());
+  const int conn[64]={3,12,13,4,0,9,10,1,
+                      4,13,14,5,1,10,11,2,
+                      6,15,16,7,3,12,13,4,
+                      7,16,17,8,4,13,14,5,
+                      12,21,22,13,9,18,19,10,
+                      13,22,23,14,10,19,20,11,
+                      15,24,25,16,12,21,22,13,
+                      16,25,26,17,13,22,23,14};
+  mesh->allocateCells(8);
+  for(int i=0;i<8;i++)
+    mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+8*i);
+  mesh->finishInsertingCells();
+  mesh->setCoords(coo);
+  coo->decrRef();
+  return mesh;
+}
+
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)
 {
   double ret=0.;

@@ -2732,6 +2732,7 @@ void DataArrayInt::computeOffsets() throw(INTERP_KERNEL::Exception)
       work[i]=work[i-1]+tmp;
       tmp=tmp2;
     }
+  declareAsNew();
 }
 
 /*!

@@ -72,6 +72,7 @@ using namespace INTERP_KERNEL;
 %feature("docstring");
 
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
+%newobject ParaMEDMEM::MEDCouplingField::getLocalizationOfDiscr;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getArray;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getEndArray;
@@ -109,6 +110,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::cloneWithMesh;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::buildNewTimeReprFromThis;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
 %newobject ParaMEDMEM::DataArrayInt::New;
 %newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
@@ -126,7 +128,9 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::invertArrayO2N2N2O;
 %newobject ParaMEDMEM::DataArrayInt::invertArrayN2O2O2N;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqual;
+%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqual;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
+%newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
 %newobject ParaMEDMEM::DataArrayInt::BuildUnion;
@@ -344,6 +348,35 @@ namespace ParaMEDMEM
            int ret=self->getCellContainingPoint(pos,eps);
            delete [] pos;
            return ret;
+         }
+
+         PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const throw(INTERP_KERNEL::Exception)
+         {
+           int sz;
+           INTERP_KERNEL::AutoPtr<double> pos=convertPyToNewDblArr2(p,&sz);
+           std::vector<int> elts,eltsIndex;
+           self->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+           d0->alloc(elts.size(),1);
+           d1->alloc(eltsIndex.size(),1);
+           std::copy(elts.begin(),elts.end(),d0->getPointer());
+           std::copy(eltsIndex.begin(),eltsIndex.end(),d1->getPointer());
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           d0->incrRef();
+           d1->incrRef();
+           return ret;
+         }
+
+         PyObject *getCellsContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
+         {
+           int sz;
+           INTERP_KERNEL::AutoPtr<double> pos=convertPyToNewDblArr2(p,&sz);
+           std::vector<int> elts;
+           self->getCellsContainingPoint(pos,eps,elts);
+           return convertIntArrToPyList2(elts);
          }
          
          void renumberCells(PyObject *li, bool check) throw(INTERP_KERNEL::Exception)
@@ -872,37 +905,6 @@ namespace ParaMEDMEM
         INTERP_KERNEL::AutoPtr<INTERP_KERNEL::NormalizedCellType> order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
         DataArrayInt *ret=self->getRenumArrForConsecutiveCellTypesSpec(order,(INTERP_KERNEL::NormalizedCellType *)order+sz);
         return ret;
-      }
-
-      PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const throw(INTERP_KERNEL::Exception)
-      {
-        int sz;
-        double *pos=convertPyToNewDblArr2(p,&sz);
-        std::vector<int> elts,eltsIndex;
-        self->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
-        delete [] pos;
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
-        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-        d0->alloc(elts.size(),1);
-        d1->alloc(eltsIndex.size(),1);
-        std::copy(elts.begin(),elts.end(),d0->getPointer());
-        std::copy(eltsIndex.begin(),eltsIndex.end(),d1->getPointer());
-        PyObject *ret=PyTuple_New(2);
-        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        d0->incrRef();
-        d1->incrRef();
-        return ret;
-      }
-
-      PyObject *getCellsContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
-      {
-        int sz;
-        double *pos=convertPyToNewDblArr2(p,&sz);
-        std::vector<int> elts;
-        self->getCellsContainingPoint(pos,eps,elts);
-        delete [] pos;
-        return convertIntArrToPyList2(elts);
       }
 
       static PyObject *MergeUMeshesOnSameCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
@@ -1836,6 +1838,7 @@ namespace ParaMEDMEM
     TypeOfField getTypeOfField() const throw(INTERP_KERNEL::Exception);
     NatureOfField getNature() const throw(INTERP_KERNEL::Exception);
     virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDiscretization *getDiscretization() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
@@ -2037,6 +2040,39 @@ namespace ParaMEDMEM
         self->getValueOn(spaceLoc,res);
         return convertDblArrToPyList(res,sz);
       }
+
+      DataArrayDouble *getValueOnMulti(PyObject *li) const throw(INTERP_KERNEL::Exception)
+      {
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<double> tmp=convertPyToNewDblArr2(li,&size);
+            int spaceDim=self->getMesh()->getSpaceDimension();
+            int nbOfPoints=size/spaceDim;
+            if(size%spaceDim!=0)
+              {
+                throw INTERP_KERNEL::Exception("Invalid list length ! Must be a multiple of self.getMesh().getSpaceDimension() !");
+              }
+            return self->getValueOnMulti(tmp,nbOfPoints);
+          }
+        else
+          {
+            DataArrayDouble *da2=reinterpret_cast< DataArrayDouble * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayDouble instance expected !");
+            da2->checkAllocated();
+            int size=da2->getNumberOfTuples();
+            int nbOfCompo=da2->getNumberOfComponents();
+            if(nbOfCompo!=self->getMesh()->getSpaceDimension())
+              {
+                throw INTERP_KERNEL::Exception("Invalid DataArrayDouble nb of components ! Expected same as self.getMesh().getSpaceDimension() !");
+              }
+            return self->getValueOnMulti(da2->getConstPointer(),size);
+          }
+      }
+
       PyObject *getValueOn(PyObject *sl, double time) const throw(INTERP_KERNEL::Exception)
       {
         int sz;

@@ -1478,7 +1478,7 @@ std::string MEDCouplingUMesh::simpleRepr() const
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
   int tmpp1,tmpp2;
   double tt=getTime(tmpp1,tmpp2);
-  ret << "Time attached to the mesh (unit) : " << tt << " (" << getTimeUnit() << ")\n";
+  ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
   ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
   ret << "Mesh dimension : " << _mesh_dim << "\nSpace dimension : ";
   if(_coords!=0)

@@ -735,6 +735,15 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) con
 }
 
 /*!
+ * Returns a newly allocated array with 'nbOfPoints' tuples and nb of components equal to 'this->getNumberOfComponents()'.
+ */
+DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc, int nbOfPoints) const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *arr=_time_discr->getArray();
+  return _type->getValueOnMulti(arr,_mesh,spaceLoc,nbOfPoints);
+}
+
+/*!
  * Returns value of 'this' on time 'time' of point 'spaceLoc' using spatial discretization.
  * If 'time' is not covered by this->_time_discr an exception will be thrown.
  * If 'point' is outside the spatial discretization of this an exception will be thrown.

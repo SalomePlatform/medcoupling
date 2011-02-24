@@ -409,6 +409,29 @@ void MEDCouplingFieldDiscretizationP0::getValueOnPos(const DataArrayDouble *arr,
   arr->getTuple(id,res);
 }
 
+DataArrayDouble *MEDCouplingFieldDiscretizationP0::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
+{
+  std::vector<int> elts,eltsIndex;
+  mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,elts,eltsIndex);
+  int spaceDim=mesh->getSpaceDimension();
+  int nbOfComponents=arr->getNumberOfComponents();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  ret->alloc(nbOfPoints,nbOfComponents);
+  double *ptToFill=ret->getPointer();
+  for(int i=0;i<nbOfPoints;i++,ptToFill+=nbOfComponents)
+    if(eltsIndex[i+1]-eltsIndex[i]>=1)
+      arr->getTuple(elts[eltsIndex[i]],ptToFill);
+    else
+      {
+        std::ostringstream oss; oss << "Point #" << i << " with coordinates : (";
+        std::copy(loc+i*spaceDim,loc+(i+1)*spaceDim,std::ostream_iterator<double>(oss,", "));
+        oss << ") detected outside mesh : unable to apply P0::getValueOnMulti ! ";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  ret->incrRef();
+  return ret;
+}
+
 /*!
  * Nothing to do. It's not a bug.
  */
@@ -516,9 +539,18 @@ void MEDCouplingFieldDiscretizationP1::getValueOn(const DataArrayDouble *arr, co
   INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(id);
   if(type!=INTERP_KERNEL::NORM_SEG2 && type!=INTERP_KERNEL::NORM_TRI3 && type!=INTERP_KERNEL::NORM_TETRA4)
     throw INTERP_KERNEL::Exception("P1 getValueOn is not specified for not simplex cells !");
+  getValueInCell(mesh,id,arr,loc,res);
+}
+
+/*!
+ * This method localizes a point defined by 'loc' in a cell with id 'cellId' into mesh 'mesh'.
+ * The result is put into res expected to be of size at least arr->getNumberOfComponents()
+ */
+void MEDCouplingFieldDiscretizationP1::getValueInCell(const MEDCouplingMesh *mesh, int cellId, const DataArrayDouble *arr, const double *loc, double *res) const
+{
   std::vector<int> conn;
   std::vector<double> coo;
-  mesh->getNodeIdsOfCell(id,conn);
+  mesh->getNodeIdsOfCell(cellId,conn);
   for(std::vector<int>::const_iterator iter=conn.begin();iter!=conn.end();iter++)
     mesh->getCoordinatesOfNode(*iter,coo);
   int spaceDim=mesh->getSpaceDimension();
@@ -526,19 +558,17 @@ void MEDCouplingFieldDiscretizationP1::getValueOn(const DataArrayDouble *arr, co
   std::vector<const double *> vec(nbOfNodes);
   for(int i=0;i<nbOfNodes;i++)
     vec[i]=&coo[i*spaceDim];
-  double *tmp=new double[nbOfNodes];
+  INTERP_KERNEL::AutoPtr<double> tmp=new double[nbOfNodes];
   INTERP_KERNEL::barycentric_coords(vec,loc,tmp);
   int sz=arr->getNumberOfComponents();
-  double *tmp2=new double[sz];
+  INTERP_KERNEL::AutoPtr<double> tmp2=new double[sz];
   std::fill(res,res+sz,0.);
   for(int i=0;i<nbOfNodes;i++)
     {
-      arr->getTuple(conn[i],tmp2);
-      std::transform(tmp2,tmp2+sz,tmp2,std::bind2nd(std::multiplies<double>(),tmp[i]));
-      std::transform(res,res+sz,tmp2,res,std::plus<double>());
+      arr->getTuple(conn[i],(double *)tmp2);
+      std::transform((double *)tmp2,((double *)tmp2)+sz,(double *)tmp2,std::bind2nd(std::multiplies<double>(),tmp[i]));
+      std::transform(res,res+sz,(double *)tmp2,res,std::plus<double>());
     }
-  delete [] tmp;
-  delete [] tmp2;
 }
 
 void MEDCouplingFieldDiscretizationP1::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
@@ -548,6 +578,29 @@ void MEDCouplingFieldDiscretizationP1::getValueOnPos(const DataArrayDouble *arr,
     throw INTERP_KERNEL::Exception("P1::getValueOnPos is only accessible for structured meshes !");
   int id=meshC->getNodeIdFromPos(i,j,k);
   arr->getTuple(id,res);
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationP1::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
+{
+  std::vector<int> elts,eltsIndex;
+  mesh->getCellsContainingPoints(loc,nbOfPoints,_precision,elts,eltsIndex);
+  int spaceDim=mesh->getSpaceDimension();
+  int nbOfComponents=arr->getNumberOfComponents();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  ret->alloc(nbOfPoints,nbOfComponents);
+  double *ptToFill=ret->getPointer();
+  for(int i=0;i<nbOfPoints;i++)
+    if(eltsIndex[i+1]-eltsIndex[i]>=1)
+      getValueInCell(mesh,elts[eltsIndex[i]],arr,loc+i*spaceDim,ptToFill+i*nbOfComponents);
+    else
+      {
+        std::ostringstream oss; oss << "Point #" << i << " with coordinates : (";
+        std::copy(loc+i*spaceDim,loc+(i+1)*spaceDim,std::ostream_iterator<double>(oss,", "));
+        oss << ") detected outside mesh : unable to apply P1::getValueOnMulti ! ";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  ret->incrRef();
+  return ret;
 }
 
 void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(double epsOnVals, const int *old2NewPtr, DataArrayDouble *arr) const
@@ -948,6 +1001,11 @@ void MEDCouplingFieldDiscretizationGauss::getValueOnPos(const DataArrayDouble *a
   throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
 }
 
+DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
+{
+  throw INTERP_KERNEL::Exception("getValueOnMulti : Not implemented yet for gauss points !");
+}
+
 MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
@@ -1343,6 +1401,11 @@ void MEDCouplingFieldDiscretizationGaussNE::getValueOn(const DataArrayDouble *ar
 void MEDCouplingFieldDiscretizationGaussNE::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
 {
   throw INTERP_KERNEL::Exception("getValueOnPos(i,j,k) : Not applyable for Gauss points !");
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
+{
+  throw INTERP_KERNEL::Exception("getValueOnMulti : Not implemented for Gauss NE !");
 }
 
 MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const

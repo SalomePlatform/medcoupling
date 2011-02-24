@@ -260,7 +260,7 @@ std::string MEDCouplingExtrudedMesh::simpleRepr() const
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
   int tmpp1,tmpp2;
   double tt=getTime(tmpp1,tmpp2);
-  ret << "Time attached to the mesh (unit) : " << tt << " (" << getTimeUnit() << ")\n";
+  ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
   ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
   ret << "Cell id where 1D mesh has been deduced : " << _cell_2D_id << "\n";
   ret << "Number of cells : " << getNumberOfCells() << "(" << _mesh2D->getNumberOfCells() << "x" << _mesh1D->getNumberOfCells() << ")\n";
@@ -386,8 +386,7 @@ MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::buildOrthogonalField() const
 
 int MEDCouplingExtrudedMesh::getCellContainingPoint(const double *pos, double eps) const
 {
-  //not implemented yet
-  return -1;
+  throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::getCellContainingPoint : not implemented yet !");
 }
 
 MEDCouplingExtrudedMesh::~MEDCouplingExtrudedMesh()

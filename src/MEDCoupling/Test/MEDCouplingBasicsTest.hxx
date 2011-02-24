@@ -27,6 +27,7 @@
 
 namespace ParaMEDMEM
 {
+  class DataArrayDouble;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
   class MEDCouplingMultiFields;
@@ -203,6 +204,11 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFillFromAnalyticTwo1 );
     CPPUNIT_TEST( testFillFromAnalyticThree1 );
     CPPUNIT_TEST( testDAUnitVar1 );
+    CPPUNIT_TEST( testGaussCoordinates1 );
+    //CPPUNIT_TEST( testP2Localization1 ); not implemented yet
+    CPPUNIT_TEST( testGetValueOn2 );
+    CPPUNIT_TEST( testDAIGetIdsNotEqual1 );
+    CPPUNIT_TEST( testDAIComputeOffsets1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -432,6 +438,11 @@ namespace ParaMEDMEM
     void testFillFromAnalyticTwo1();
     void testFillFromAnalyticThree1();
     void testDAUnitVar1();
+    void testGaussCoordinates1();
+    void testP2Localization1();
+    void testGetValueOn2();
+    void testDAIGetIdsNotEqual1();
+    void testDAIComputeOffsets1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
@@ -525,6 +536,11 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *build2DTargetMesh_3();
     static MEDCouplingUMesh *build3DTargetMesh_3();
     static MEDCouplingUMesh *build2DTargetMesh_4();
+    static MEDCouplingUMesh *build1DMultiTypes_1();
+    static MEDCouplingUMesh *build2DMultiTypes_1();
+    static MEDCouplingUMesh *build3DMultiTypes_1();
+    static MEDCouplingUMesh *buildHexa8Mesh_1();
+    static DataArrayDouble *buildCoordsForMultiTypes_1();
     static MEDCouplingMultiFields *buildMultiFields_1();
     static std::vector<MEDCouplingFieldDouble *> buildMultiFields_2();
     static double sumAll(const std::vector< std::map<int,double> >& matrix);
