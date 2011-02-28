@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
   class CellModel
   {
   public:
-    static const unsigned MAX_NB_OF_SONS=6;
+    static const unsigned MAX_NB_OF_SONS=8;
     static const unsigned MAX_NB_OF_NODES_PER_ELEM=30;
   private:
     CellModel(NormalizedCellType type);

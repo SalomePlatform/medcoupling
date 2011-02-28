@@ -209,6 +209,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGetValueOn2 );
     CPPUNIT_TEST( testDAIGetIdsNotEqual1 );
     CPPUNIT_TEST( testDAIComputeOffsets1 );
+    CPPUNIT_TEST( testUMeshHexagonPrism1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -443,6 +444,7 @@ namespace ParaMEDMEM
     void testGetValueOn2();
     void testDAIGetIdsNotEqual1();
     void testDAIComputeOffsets1();
+    void testUMeshHexagonPrism1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

@@ -35,6 +35,7 @@ namespace INTERP_KERNEL
     static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(const int *conn, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPoly3D(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPolyHex8(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHexp12(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPolyPenta6(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPolyPyra5(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPolyTetra4(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);

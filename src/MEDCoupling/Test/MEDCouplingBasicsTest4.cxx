@@ -729,3 +729,65 @@ void MEDCouplingBasicsTest::testDAIComputeOffsets1()
     CPPUNIT_ASSERT_EQUAL(expected1[i],d->getIJ(0,i));
   d->decrRef();
 }
+
+void MEDCouplingBasicsTest::testUMeshHexagonPrism1()
+{
+  const double coords[36]={
+    0.8660254037844386, 0.5, 0.0, 0.0, 1.0, 0.0, -0.8660254037844386, 0.5, 0.0, -0.8660254037844386, -0.5, 0.0, 0.0, -1.0, 0.0, 0.8660254037844386, -0.5, 0.0,
+    0.8660254037844386, 0.5, 2.0, 0.0, 1.0, 2.0, -0.8660254037844386, 0.5, 2.0, -0.8660254037844386, -0.5, 2.0, 0.0, -1.0, 2.0, 0.8660254037844386, -0.5, 2.0
+  };
+  const int conn[12]={1,2,3,4,5,0,7,8,9,10,11,6};
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("MyFirstHexagonalPrism",3);
+  DataArrayDouble *coo=DataArrayDouble::New();
+  coo->alloc(12,3);
+  std::copy(coords,coords+36,coo->getPointer());
+  mesh->setCoords(coo);
+  mesh->allocateCells(1);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_HEXGP12,12,conn);
+  mesh->finishInsertingCells();
+  coo->decrRef();
+  //
+  mesh->checkCoherency();
+  MEDCouplingFieldDouble *vols=mesh->getMeasureField(false);
+  CPPUNIT_ASSERT_EQUAL(1,vols->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,vols->getNumberOfComponents());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-5.196152422706632,vols->getIJ(0,0),1e-12);
+  DataArrayDouble *bary=mesh->getBarycenterAndOwner();
+  CPPUNIT_ASSERT_EQUAL(1,bary->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,bary->getNumberOfComponents());
+  const double expected1[3]={0.,0.,1.};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],bary->getIJ(0,i),1e-12);
+  DataArrayInt *d1=DataArrayInt::New();
+  DataArrayInt *d2=DataArrayInt::New();
+  DataArrayInt *d3=DataArrayInt::New();
+  DataArrayInt *d4=DataArrayInt::New();
+  MEDCouplingUMesh *m2=mesh->buildDescendingConnectivity(d1,d2,d3,d4);
+  CPPUNIT_ASSERT_EQUAL(8,m2->getNumberOfCells());
+  const int expected4[8][6]={{1,2,3,4,5,0},{7,6,11,10,9,8},{1,7,8,2},{2,8,9,3},{3,9,10,4},{4,10,11,5},{5,11,6,0},{0,6,7,1}};
+  const INTERP_KERNEL::NormalizedCellType expected2[8]={INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_QUAD4};
+  const int expected3[8]={6,6,4,4,4,4,4,4};
+  for(int i=0;i<8;i++)
+    {
+      CPPUNIT_ASSERT(m2->getTypeOfCell(i)==expected2[i]);
+      std::vector<int> v;
+      m2->getNodeIdsOfCell(i,v);
+      CPPUNIT_ASSERT((int)v.size()==expected3[i]);
+      CPPUNIT_ASSERT(std::equal(expected4[i],expected4[i]+expected3[i],v.begin()));
+    }
+  d1->decrRef();
+  d2->decrRef();
+  d3->decrRef();
+  d4->decrRef();
+  m2->decrRef();
+  //
+  mesh->convertAllToPoly();
+  CPPUNIT_ASSERT(INTERP_KERNEL::NORM_POLYHED==mesh->getTypeOfCell(0));
+  mesh->unPolyze();
+  CPPUNIT_ASSERT(INTERP_KERNEL::NORM_HEXGP12==mesh->getTypeOfCell(0));
+  CPPUNIT_ASSERT_EQUAL(13,mesh->getMeshLength());
+  //
+  vols->decrRef();
+  bary->decrRef();
+  mesh->decrRef();
+}

@@ -29,6 +29,7 @@
 #include "InterpKernelCellSimplify.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "InterpKernelAutoPtr.hxx"
 
 #include <sstream>
 #include <numeric>
@@ -583,6 +584,20 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
 }
 
 /*!
+ * This method converts all cells into poly type if possible.
+ * This method is purely for userfriendliness.
+ * As this method can be costly in Memory, no optimization is done to avoid construction of useless vector.
+ */
+void MEDCouplingUMesh::convertAllToPoly()
+{
+  int nbOfCells=getNumberOfCells();
+  std::vector<int> cellIds(nbOfCells);
+  for(int i=0;i<nbOfCells;i++)
+    cellIds[i]=i;
+  convertToPolyTypes(cellIds);
+}
+
+/*!
  * This method is the opposite of ParaMEDMEM::MEDCouplingUMesh::convertToPolyTypes method.
  * The aim is to take all polygons or polyhedrons cell and to try to traduce them into classical cells.
  * 
@@ -612,17 +627,15 @@ void MEDCouplingUMesh::unPolyze()
         {
           if(cm.getDimension()==2)
             {
-              int *tmp=new int[lgthOfCurCell-1];
-              std::copy(conn+posOfCurCell+1,conn+posOfCurCell+lgthOfCurCell,tmp);
+              INTERP_KERNEL::AutoPtr<int> tmp=new int[lgthOfCurCell-1];
+              std::copy(conn+posOfCurCell+1,conn+posOfCurCell+lgthOfCurCell,(int *)tmp);
               newType=INTERP_KERNEL::CellSimplify::tryToUnPoly2D(tmp,lgthOfCurCell-1,conn+newPos+1,newLgth);
-              delete [] tmp;
             }
           if(cm.getDimension()==3)
             {
               int nbOfFaces,lgthOfPolyhConn;
-              int *zipFullReprOfPolyh=INTERP_KERNEL::CellSimplify::getFullPolyh3DCell(type,conn+posOfCurCell+1,lgthOfCurCell-1,nbOfFaces,lgthOfPolyhConn);
+              INTERP_KERNEL::AutoPtr<int> zipFullReprOfPolyh=INTERP_KERNEL::CellSimplify::getFullPolyh3DCell(type,conn+posOfCurCell+1,lgthOfCurCell-1,nbOfFaces,lgthOfPolyhConn);
               newType=INTERP_KERNEL::CellSimplify::tryToUnPoly3D(zipFullReprOfPolyh,nbOfFaces,lgthOfPolyhConn,conn+newPos+1,newLgth);
-              delete [] zipFullReprOfPolyh;
             }
           conn[newPos]=newType;
           newPos+=newLgth+1;

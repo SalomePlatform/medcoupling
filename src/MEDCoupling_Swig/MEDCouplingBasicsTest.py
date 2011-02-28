@@ -6557,6 +6557,53 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],d.getIJ(0,i));
             pass
         pass
+
+    def testUMeshHexagonPrism1(self):
+        coords=[0.8660254037844386, 0.5, 0.0, 0.0, 1.0, 0.0, -0.8660254037844386, 0.5, 0.0, -0.8660254037844386, -0.5, 0.0, 0.0, -1.0, 0.0, 0.8660254037844386, -0.5, 0.0,
+                0.8660254037844386, 0.5, 2.0, 0.0, 1.0, 2.0, -0.8660254037844386, 0.5, 2.0, -0.8660254037844386, -0.5, 2.0, 0.0, -1.0, 2.0, 0.8660254037844386, -0.5, 2.0];
+        conn=[1,2,3,4,5,0,7,8,9,10,11,6]
+        mesh=MEDCouplingUMesh.New("MyFirstHexagonalPrism",3);
+        coo=DataArrayDouble.New();
+        coo.setValues(coords,12,3);
+        mesh.setCoords(coo);
+        mesh.allocateCells(1);
+        mesh.insertNextCell(NORM_HEXGP12,12,conn[0:12])
+        mesh.finishInsertingCells();
+        #
+        mesh.checkCoherency();
+        vols=mesh.getMeasureField(False);
+        self.assertEqual(1,vols.getNumberOfTuples());
+        self.assertEqual(1,vols.getNumberOfComponents());
+        self.assertAlmostEqual(-5.196152422706632,vols.getIJ(0,0),12);
+        bary=mesh.getBarycenterAndOwner();
+        self.assertEqual(1,bary.getNumberOfTuples());
+        self.assertEqual(3,bary.getNumberOfComponents());
+        expected1=[0.,0.,1.]
+        for i in xrange(3):
+            self.assertAlmostEqual(expected1[i],bary.getIJ(0,i),12);
+            pass
+        d1=DataArrayInt.New();
+        d2=DataArrayInt.New();
+        d3=DataArrayInt.New();
+        d4=DataArrayInt.New();
+        m2=mesh.buildDescendingConnectivity(d1,d2,d3,d4);
+        self.assertEqual(8,m2.getNumberOfCells());
+        expected4=[[1,2,3,4,5,0],[7,6,11,10,9,8],[1,7,8,2],[2,8,9,3],[3,9,10,4],[4,10,11,5],[5,11,6,0],[0,6,7,1]];
+        expected2=[NORM_POLYGON, NORM_POLYGON, NORM_QUAD4, NORM_QUAD4, NORM_QUAD4, NORM_QUAD4, NORM_QUAD4, NORM_QUAD4];
+        expected3=[6,6,4,4,4,4,4,4]
+        for i in xrange(8):
+            self.assertTrue(m2.getTypeOfCell(i)==expected2[i]);
+            v=m2.getNodeIdsOfCell(i);
+            self.assertTrue(len(v)==expected3[i]);
+            self.assertEqual(expected4[i],v);
+        #
+        mesh.convertAllToPoly();
+        self.assertTrue(NORM_POLYHED==mesh.getTypeOfCell(0));
+        mesh.unPolyze();
+        self.assertTrue(NORM_HEXGP12==mesh.getTypeOfCell(0));
+        self.assertEqual(13,mesh.getMeshLength());
+        #
+        pass
     
     def setUp(self):
         pass

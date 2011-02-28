@@ -153,6 +153,8 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly3D(const int *conn, i
     {
     case 806:
       return tryToUnPolyHex8(conn,nbOfFaces,lgth,retConn,retLgth);
+    case 1208:
+      return tryToUnPolyHexp12(conn,nbOfFaces,lgth,retConn,retLgth);
     case 605:
       return tryToUnPolyPenta6(conn,nbOfFaces,lgth,retConn,retLgth);
     case 505:
@@ -299,6 +301,47 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHex8(const int *conn,
               std::copy(tmp2,tmp2+4,retConn+4);
               retLgth=8;
               return INTERP_KERNEL::NORM_HEXA8;
+            }
+        }
+    }
+  retLgth=lgth;
+  std::copy(conn,conn+lgth,retConn);
+  return INTERP_KERNEL::NORM_POLYHED;
+}
+
+INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHexp12(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth)
+{
+  int nbOfHexagon=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_POLYGON);
+  int nbOfQuad=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4);
+  if(nbOfQuad==6 && nbOfHexagon==2)
+    {
+      const int *hexag0=std::find(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_POLYGON);
+      int hexg0Id=std::distance(conn+lgth,hexag0);
+      const int *hexag1=std::find(hexag0+1,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_POLYGON);
+      int hexg1Id=std::distance(conn+lgth,hexag1);
+      const int *connHexag0=conn+5*hexg0Id;
+      int lgthH0=std::distance(connHexag0,std::find(connHexag0,conn+lgth,-1));
+      if(lgthH0==6)
+        {
+          const int *connHexag1=conn+5*hexg0Id+7+(hexg1Id-hexg0Id-1)*5;
+          int lgthH1=std::distance(connHexag1,std::find(connHexag1,conn+lgth,-1));
+          if(lgthH1==6)
+            {
+              std::vector<int> tmp;
+              std::set<int> conn1(connHexag0,connHexag0+6);
+              std::set<int> conn2(connHexag1,connHexag1+6);
+              std::set_intersection(conn1.begin(),conn1.end(),conn2.begin(),conn2.end(),std::back_insert_iterator< std::vector<int> >(tmp));
+              if(tmp.empty())
+                {
+                  int tmp2[6];
+                  if(tryToArrangeOppositeFace(conn,lgth,6,connHexag0,connHexag1,8,tmp2))
+                    {
+                      std::copy(connHexag0,connHexag0+6,retConn);
+                      std::copy(tmp2,tmp2+6,retConn+6);
+                      retLgth=12;
+                      return INTERP_KERNEL::NORM_HEXGP12;
+                    }
+                }
             }
         }
     }
