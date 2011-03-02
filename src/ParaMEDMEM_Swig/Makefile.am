@@ -21,7 +21,8 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES = _ParaMEDMEM.la
+salomepython_PYTHON = ParaMEDMEM.py
+salomepyexec_LTLIBRARIES = _ParaMEDMEM.la
 
 salomeinclude_HEADERS =  \
 	ParaMEDMEM.i
