@@ -22,3 +22,5 @@ SUBDIRS = MEDMEM salome doxygen
 dev_docs:
 	(cd salome && $(MAKE) $(AM_MAKEFLAGS) dev_docs)
 
+usr_docs:
+	(cd doxygen && $(MAKE) $(AM_MAKEFLAGS) html-local)
