@@ -26,8 +26,10 @@ DOX_INPUT_FILE = Doxyfile_med_user
 guidocdir = $(docdir)/gui/MED
 guidoc_DATA = images/head.png
 
-install-data-local : html-local
-	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED
+install-data-local :
+	@if test -d doc_ref_user; then 					\
+	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED;	     		\
+	fi
 	@if test -d doc_ref_user/html ; then				\
 	  for filen in `find doc_ref_user/html -maxdepth 1 -type f` ; do\
 	    echo "Installing $${filen}" ; 				\
