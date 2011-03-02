@@ -23,7 +23,7 @@
 #include <map>
 #include <iostream>
 #include <mpi.h>
-#include <time.h>
+#include <ctime>
 
 #include "MPIAccessDECTest.hxx"
 #include <cppunit/TestAssert.h>
