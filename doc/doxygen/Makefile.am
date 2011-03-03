@@ -26,7 +26,7 @@ DOX_INPUT_FILE = Doxyfile_med_user
 guidocdir = $(docdir)/gui/MED
 guidoc_DATA = images/head.png
 
-install-data-local :
+install-data-local : html-local
 	@if test -d doc_ref_user; then 					\
 	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED;	     		\
 	fi
