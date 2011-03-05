@@ -26,14 +26,12 @@
 
 namespace INTERP_TEST
 {
-
-
-  void InterpolationOptionsTest::setUp() 
+  void InterpolationOptionsTest::setUp()
   {
   }
 
- 
-  void InterpolationOptionsTest::tearDown() 
+
+  void InterpolationOptionsTest::tearDown()
   {
   }
 
@@ -45,25 +43,24 @@ namespace INTERP_TEST
    * a standard case
    * a bbox overlapping the bboxes of the tree
    */
-  void InterpolationOptionsTest::test_InterpolationOptions() {
+  void InterpolationOptionsTest::test_InterpolationOptions() 
+  {
     string sourcename=INTERP_TEST::getResourceFile("square1.med");
     MEDMEM::MESH *source_mesh=new MEDMEM::MESH(MED_DRIVER,sourcename,"Mesh_2");
 
     string targetname=INTERP_TEST::getResourceFile("square2.med");
     MEDMEM::MESH *target_mesh=new MEDMEM::MESH(MED_DRIVER,targetname,"Mesh_3");
 
-    MEDMEM::SUPPORT *source_support=new SUPPORT(source_mesh,"on All support");
+    const MEDMEM::SUPPORT *source_support=source_mesh->getSupportOnAll(MED_EN::MED_CELL);
     MEDMEM::FIELD<double> *source_field=new FIELD<double>(source_support,1);
     double* value=const_cast<double*>(source_field->getValue());
     for (int i=0; i<source_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
       value[i]=1.0;
-    source_support->removeReference();
-    MEDMEM::SUPPORT *target_support=new MEDMEM::SUPPORT(target_mesh,"on All support");
+    const MEDMEM::SUPPORT *target_support=target_mesh->getSupportOnAll(MED_EN::MED_CELL);
     MEDMEM::FIELD<double> *target_field=new FIELD<double>(target_support,1);
     double* targetvalue=const_cast<double*>(target_field->getValue());
     for (int i=0; i<target_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
       targetvalue[i]=0.0;
-    target_support->removeReference();
     // Ok at this point we have our mesh in MED-Memory format.
     // Go to wrap med_source_mesh and med_target_mesh.
     MEDNormalizedUnstructuredMesh<2,2> wrap_source_mesh(source_mesh);
@@ -78,6 +75,4 @@ namespace INTERP_TEST
     target_field->removeReference();
     target_mesh->removeReference();
   }
-
-
 }
