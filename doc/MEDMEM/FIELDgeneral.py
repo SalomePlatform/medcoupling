@@ -31,13 +31,13 @@ from libMEDMEM_Swig import *
 
 MedFile = "pointe.med"
 meshName = "maa1"
-fieldName = "fieldcelldouble"
+fieldName = "fieldcelldoublescalar"
 
 myMesh = MESH(MED_DRIVER,MedFile,meshName)
 
-mySupport = SUPPORT(myMesh,"Support on CELLs",MED_CELL)
+mySupport = myMesh.getSupportOnAll(MED_CELL)
 
-myField = FIELDDOUBLE(mySupport,MED_DRIVER,MedFile,fieldName)
+myField = FIELDDOUBLE(mySupport,MED_DRIVER,MedFile,fieldName,-1,-1)
 
 numberOfComponents = myField.getNumberOfComponents()
 
@@ -59,7 +59,7 @@ print "Iteration ",iterationNumber,"  at time ",time,\
       " (and order number ",orderNumber,")"
 
 numberOfValue = mySupport.getNumberOfElements(MED_ALL_ELEMENTS)
-value = myField.getValue(MED_FULL_INTERLACE)
+value = myField.getValue()
 
 for i in range(numberOfValue):
     print "  * ",value[i*numberOfComponents:(i+1)*numberOfComponents]
