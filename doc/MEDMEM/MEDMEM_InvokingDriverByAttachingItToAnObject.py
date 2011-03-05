@@ -53,17 +53,17 @@ except :
 
 try:
     myMesh = MESH()
+
     myRdOnlyDriver = MED_MESH_RDONLY_DRIVER(medFile,myMesh)
     myRdOnlyDriver.setMeshName(meshName)
     myRdOnlyDriver.open()
     myRdOnlyDriver.read()
     myRdOnlyDriver.close()
 
-    myWrOnlyDriver = MED_MESH_WRONLY_DRIVER(medFile,myMesh)
+    myWrOnlyDriver = MED_MESH_WRONLY_DRIVER(medFile2,myMesh)
     myWrOnlyDriver.setMeshName(meshName)
     myWrOnlyDriver.open()
     myWrOnlyDriver.write()
-
     myWrOnlyDriver.close()
 
     print "Invoking mesh drivers OK"
