@@ -34,7 +34,7 @@ meshName = "maa1"
 
 myMesh = MESH(MED_DRIVER,MedFile,meshName)
 
-mySupport = SUPPORT(myMesh,"Support on all CELLs",MED_CELL)
+mySupport = myMesh.getSupportOnAll(MED_CELL)
 
 numberOfComponents = 3
 myField = FIELDDOUBLE(mySupport,numberOfComponents)

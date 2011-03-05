@@ -486,10 +486,10 @@ myMeshing.write(idVtk)
 #                         2 fields on nodes (cells) :
 #                         1 scalar (vector)
 
-supportOnNodes = SUPPORT(myMeshing,"On_All_Nodes",MED_NODE)
+supportOnNodes = myMeshing.getSupportOnAll(MED_NODE)
 numberOfNodes = supportOnNodes.getNumberOfElements(MED_ALL_ELEMENTS)
 
-supportOnCells = SUPPORT(myMeshing,"On_All_Cells",MED_CELL)
+supportOnCells = myMeshing.getSupportOnAll(MED_CELL)
 numberOfCells = supportOnCells.getNumberOfElements(MED_ALL_ELEMENTS)
 
 fieldDoubleScalarOnNodes = FIELDDOUBLE(supportOnNodes,1)
