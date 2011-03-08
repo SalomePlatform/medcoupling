@@ -113,7 +113,7 @@ void OverlapMapping::prepare(const std::vector< std::vector<int> >& procsInInter
   unserializationST(nbOfSrcElems,nbrecv,bigArrRecv,nbrecv1,nbrecv2,
                     bigArrRecv2,bigArrDRecv2,nbrecv3,nbrecv4);
   //finish to fill _the_matrix_st and _the_matrix_st_target_proc_id with already in place matrix in _matrixes_st
-  finishToFillFinalMatrixST();
+  finishToFillFinalMatrixST(nbOfSrcElems);
   //exchanging target ids for future sending
   prepareIdsToSendST();
 }
@@ -318,12 +318,8 @@ void OverlapMapping::unserializationST(int nbOfSrcElems,
  * and 'this->_the_matrix_st_target_ids'.
  * This method finish the job of filling 'this->_the_matrix_st' and 'this->_the_matrix_st_target_proc_id' by putting candidates in 'this->_matrixes_st' into them.
  */
-void OverlapMapping::finishToFillFinalMatrixST()
+void OverlapMapping::finishToFillFinalMatrixST(int nbOfSrcElems)
 {
-  if(_the_matrix_st.empty())
-    return ;
-  if(_the_matrix_st[0].empty())
-    return ;
   int myProcId=_group.myRank();
   int sz=_matrixes_st.size();
   int nbOfEntryToAdd=0;
@@ -337,7 +333,6 @@ void OverlapMapping::finishToFillFinalMatrixST()
     return ;
   int oldNbOfEntry=_the_matrix_st.size();
   int newNbOfEntry=oldNbOfEntry+nbOfEntryToAdd;
-  int nbOfSrcElems=_the_matrix_st[0].size();
   _the_matrix_st.resize(newNbOfEntry);
   _the_matrix_st_target_ids.resize(newNbOfEntry);
   for(int i=oldNbOfEntry;i<newNbOfEntry;i++)

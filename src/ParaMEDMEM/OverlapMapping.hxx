@@ -45,7 +45,7 @@ namespace ParaMEDMEM
                                int *countForRecv, int *offsForRecv) const;
     void unserializationST(int nbOfSrcElems, const int *nbOfElemsSrcPerProc, const int *bigArrRecv, const int *bigArrRecvCounts, const int *bigArrRecvOffs,
                            const int *bigArrRecv2, const double *bigArrDRecv2, const int *bigArrRecv2Count, const int *bigArrRecv2Offs);
-    void finishToFillFinalMatrixST();
+    void finishToFillFinalMatrixST(int nbOfSrcElems);
     void prepareIdsToSendST();
   private:
     const ProcessorGroup &_group;
