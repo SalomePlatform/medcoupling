@@ -51,7 +51,7 @@ eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
 
 field_ini=[2,3,12,13,14,15,4,5,6,7,8,9,16,17,0,1,10,11]
-s = SUPPORT(m,"Support on all",MED_CELL)
+s = m.getSupportOnAll(MED_CELL)
 f = FIELDDOUBLE(s,2)
 id=f.addDriver(MED_DRIVER,dir_mesh+"/out_"+filename,"Test field")
 f.read(id);
