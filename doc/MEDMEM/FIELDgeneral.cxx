@@ -39,7 +39,7 @@ int main (int argc, char ** argv) {
 
   /* read FIELD */
   // we need a support :
-  SUPPORT * mySupport = new SUPPORT(myMesh,"Support on all Cells",MED_CELL);
+  const SUPPORT * mySupport = myMesh->getSupportOnAll(MED_CELL);
   FIELD<double> myField(mySupport,MED_DRIVER,MedFile,FieldName) ;
   //  myField.read() ;
 
@@ -77,8 +77,7 @@ int main (int argc, char ** argv) {
     cout << endl ;
   }
 
-  delete mySupport;
-  delete myMesh;
+  myMesh->removeReference();
 
   return 0 ;
 }

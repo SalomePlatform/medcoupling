@@ -37,7 +37,7 @@ int main (int argc, char ** argv) {
   //  myMesh->read() ;
 
   // we need a support :
-  SUPPORT * mySupport = new SUPPORT(myMesh,"Support on all CELLs",MED_CELL);
+  const SUPPORT * mySupport = myMesh->getSupportOnAll(MED_CELL);
 
   /* create FIELD on mySupport, with 3 components */
   int NumberOfCompoennts = 3 ;

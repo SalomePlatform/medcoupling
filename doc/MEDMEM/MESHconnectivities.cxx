@@ -123,8 +123,8 @@ int main (int argc, char ** argv) {
     myMesh.getNumberOfElements(ConstituentEntity,MED_ALL_ELEMENTS);
   
   if (MeshDimension==1) {
-    MESSAGE("ERROR : MeshDimension = 1 !");
-    MESSAGE("We could not see Reverse Descending Connectivity.") ;
+    MESSAGE_MED("ERROR : MeshDimension = 1 !");
+    MESSAGE_MED("We could not see Reverse Descending Connectivity.") ;
   } else {
     for (int i=0; i<NumberOfConstituents; i++) {
       cout << Constituent << " " << i+1 << " : " ;

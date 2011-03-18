@@ -37,7 +37,7 @@ main () {
   const char * fileName   = "pointe.med";
   const char * fileName2  = "Field&MeshGeneratedPointe.med";
   const char * fileName3  = "MedGeneratedPointe.med";
-  const char * fieldName  = "fieldcelldouble";
+  const char * fieldName  = "fieldcelldoublescalar";
   const char * meshName   = "maa1";
 
   try {
@@ -47,14 +47,12 @@ main () {
       MED_FIELD_RDONLY_DRIVER<double> myRdOnlyDriver(fileName,myField);
       myRdOnlyDriver.setFieldName(fieldName);
       myRdOnlyDriver.open(); 
-      //This test failed due to inadequate Support implementation   
-      // myRdOnlyDriver.read();
+      myRdOnlyDriver.read();
       // try  { myRdOnlyDriver.write(); } catch  (MEDEXCEPTION& ex) 
       //   { MESSAGE(ex.what()); }
       MED_FIELD_WRONLY_DRIVER<double> myWrOnlyDriver(fileName2,myField);
       myWrOnlyDriver.open(); 
-      //This test failed due to inadequate Support implementation   
-      // myWrOnlyDriver.write(); 
+      myWrOnlyDriver.write(); 
       // try  myWrOnlyDriver.read(); catch  (MEDEXCEPTION& ex) 
       //   { MESSAGE(ex.what()); }
       myRdOnlyDriver.close();
@@ -77,9 +75,7 @@ main () {
       myWrOnlyDriver.write(); 
       // try  myWrOnlyDriver.read(); catch  (MEDEXCEPTION& ex)
       //   { MESSAGE(ex.what()); }
-      // myRdOnlyDriver.close(); 
-      //While we use H5close() in the MESH/FIELD drivers, the next
-      //line will fail, because all files are previously closed !
+      myRdOnlyDriver.close(); 
       myWrOnlyDriver.close();
       delete myMesh;
     }
@@ -91,7 +87,7 @@ main () {
       myRdOnlyDriver.readFileStruct();
       myRdOnlyDriver.close(); 
       myMed->updateSupport(); // DOIT ETRE SUPPRIMEE
-      //      myRdOnlyDriver.read();
+      myRdOnlyDriver.read();
       // try { myRdOnlyDriver.write(); } catch  (MEDEXCEPTION& ex) 
       //   { MESSAGE(ex.what()); }
       //MED_MED_WRONLY_DRIVER myWrOnlyDriver(fileName3,myMed);
@@ -103,6 +99,6 @@ main () {
 
   } catch (MEDEXCEPTION& ex){
     cout << "MAIN BLOCK EXCEPTION" << endl;
-    MESSAGE(ex.what()) ;
+    MESSAGE_MED(ex.what()) ;
   }
 }
