@@ -6006,6 +6006,118 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([],da2.getValues())
         pass
 
+    def testSwigSetItem1(self):
+        da=DataArrayInt.New()
+        da.alloc(20,1)
+        da.iota(7)
+        da.rearrange(5)
+        da.setInfoOnComponent(0,"X [m]") ; da.setInfoOnComponent(1,"Y [km]") ; da.setInfoOnComponent(2,"Y [m]")
+        da.setInfoOnComponent(3,"Z [W]") ; da.setInfoOnComponent(4,"ZZ [km]") ; 
+        da[:,2]=3
+        self.assertEqual([7, 8, 3, 10, 11, 12, 13, 3, 15, 16, 17, 18, 3, 20, 21, 22, 23, 3, 25, 26],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[2]=3
+        self.assertEqual([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 3, 3, 3, 3, 3, 22, 23, 24, 25, 26],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[[0,3]]=-1
+        self.assertEqual([-1, -1, -1, -1, -1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, -1, -1, -1, -1, -1],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[:,[1,3,4]]=-3
+        self.assertEqual([7, -3, 9, -3, -3, 12, -3, 14, -3, -3, 17, -3, 19, -3, -3, 22, -3, 24, -3, -3],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da2=DataArrayInt.New() ; da2.setValues([0,2,3],3,1)
+        da[da2]=-7
+        self.assertEqual([-7, -7, -7, -7, -7, 12, 13, 14, 15, 16, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,-2:]=-7
+        self.assertEqual([7, 8, 9, -7, -7, 12, 13, 14, 15, 16, 17, 18, 19, -7, -7, 22, 23, 24, -7, -7],da.getValues())
+        # Let's test with DAI right hand side
+        da1=DataArrayInt.New()
+        da1.setValues([25,26,27,125,126,127],2,3)
+        #
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[-2:,1:4]=da1
+        self.assertEqual([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 25, 26, 27, 21, 22, 125, 126, 127, 26],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[1:,3]=[225,226,227]
+        self.assertEqual([7, 8, 9, 10, 11, 12, 13, 14, 225, 16, 17, 18, 19, 226, 21, 22, 23, 24, 227, 26],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[1,2:]=[225,226,227]
+        self.assertEqual([7, 8, 9, 10, 11, 12, 13, 225, 226, 227, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,-2:]=[88,99,1010,1111,1212,1313]
+        self.assertEqual([7, 8, 9, 88, 99, 12, 13, 14, 15, 16, 17, 18, 19, 1010, 1111, 22, 23, 24, 1212, 1313],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da3=DataArrayInt.New(); da3.setValues([88,99,1010,1111,1212,1313],3,2)
+        da[da2,-2:]=da3
+        self.assertEqual([7, 8, 9, 88, 99, 12, 13, 14, 15, 16, 17, 18, 19, 1010, 1111, 22, 23, 24, 1212, 1313],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,[0,2]]=da3
+        self.assertEqual([88, 8, 99, 10, 11, 12, 13, 14, 15, 16, 1010, 18, 1111, 20, 21, 1212, 23, 1313, 25, 26],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,0:3:2]=da3
+        self.assertEqual([88, 8, 99, 10, 11, 12, 13, 14, 15, 16, 1010, 18, 1111, 20, 21, 1212, 23, 1313, 25, 26],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,0:3:2]=-8
+        self.assertEqual([-8, 8, -8, 10, 11, 12, 13, 14, 15, 16, -8, 18, -8, 20, 21, -8, 23, -8, 25, 26],da.getValues())
+        pass
+
+    def testSwigSetItem2(self):
+        da=DataArrayDouble.New()
+        da.alloc(20,1)
+        da.iota(7)
+        da.rearrange(5)
+        da.setInfoOnComponent(0,"X [m]") ; da.setInfoOnComponent(1,"Y [km]") ; da.setInfoOnComponent(2,"Y [m]")
+        da.setInfoOnComponent(3,"Z [W]") ; da.setInfoOnComponent(4,"ZZ [km]") ; 
+        da[:,2]=3.
+        self.assertEqual([7., 8., 3., 10., 11., 12., 13., 3., 15., 16., 17., 18., 3., 20., 21., 22., 23., 3., 25., 26.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[2]=3.
+        self.assertEqual([7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 3., 3., 3., 3., 3., 22., 23., 24., 25., 26.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[[0,3]]=-1.
+        self.assertEqual([-1., -1., -1., -1., -1., 12., 13., 14., 15., 16., 17., 18., 19., 20., 21., -1., -1., -1., -1., -1.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[:,[1,3,4]]=-3.
+        self.assertEqual([7., -3., 9., -3., -3., 12., -3., 14., -3., -3., 17., -3., 19., -3., -3., 22., -3., 24., -3., -3.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da2=DataArrayInt.New() ; da2.setValues([0,2,3],3,1)
+        da[da2]=-7.
+        self.assertEqual([-7., -7., -7., -7., -7., 12., 13., 14., 15., 16., -7., -7., -7., -7., -7., -7., -7., -7., -7., -7.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,-2:]=-7
+        self.assertEqual([7., 8., 9., -7., -7., 12., 13., 14., 15., 16., 17., 18., 19., -7., -7., 22., 23., 24., -7., -7.],da.getValues())
+        # Let's test with DAI right hand side
+        da1=DataArrayDouble.New()
+        da1.setValues([25,26,27,125,126,127],2,3)
+        #
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[-2:,1:4]=da1
+        self.assertEqual([7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 25., 26., 27., 21., 22., 125., 126., 127., 26.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[1:,3]=[225.,226.,227.]
+        self.assertEqual([7., 8., 9., 10., 11., 12., 13., 14., 225., 16., 17., 18., 19., 226., 21., 22., 23., 24., 227., 26.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[1,2:]=[225,226,227]
+        self.assertEqual([7., 8., 9., 10., 11., 12., 13., 225., 226., 227., 17., 18., 19., 20., 21., 22., 23., 24., 25., 26.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,-2:]=[88,99,1010,1111,1212,1313]
+        self.assertEqual([7., 8., 9., 88., 99., 12., 13., 14., 15., 16., 17., 18., 19., 1010., 1111., 22., 23., 24., 1212., 1313.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da3=DataArrayDouble.New(); da3.setValues([88,99,1010,1111,1212,1313],3,2)
+        da[da2,-2:]=da3
+        self.assertEqual([7., 8., 9., 88., 99., 12., 13., 14., 15., 16., 17., 18., 19., 1010., 1111., 22., 23., 24., 1212., 1313.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,[0,2]]=da3
+        self.assertEqual([88., 8., 99., 10., 11., 12., 13., 14., 15., 16., 1010., 18., 1111., 20., 21., 1212., 23., 1313., 25., 26.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,0:3:2]=da3
+        self.assertEqual([88., 8., 99., 10., 11., 12., 13., 14., 15., 16., 1010., 18., 1111., 20., 21., 1212., 23., 1313., 25., 26.],da.getValues())
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(5)
+        da[da2,0:3:2]=-8.
+        self.assertEqual([-8., 8., -8., 10., 11., 12., 13., 14., 15., 16., -8., 18., -8., 20., 21., -8., 23., -8., 25., 26.],da.getValues())
+        pass
+
     def testDAIAggregateMulti1(self):
         a=DataArrayInt.New()
         a.setValues(range(4),2,2)

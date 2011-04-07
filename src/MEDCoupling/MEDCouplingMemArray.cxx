@@ -185,6 +185,62 @@ void DataArray::setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL:
     }
 }
 
+void DataArray::checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfTuples()!=nbOfTuples)
+    {
+      std::ostringstream oss; oss << msg << " : mismatch number of tuples : expected " <<  nbOfTuples << " having " << getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(getNumberOfComponents()!=nbOfCompo)
+    {
+      std::ostringstream oss; oss << msg << " : mismatch number of components : expected " << nbOfCompo << " having " << getNumberOfComponents() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void DataArray::checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNbOfElems()!=nbOfElems)
+    {
+      std::ostringstream oss; oss << msg << " : mismatch number of elems : Expected " << nbOfElems << " having " << getNbOfElems() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void DataArray::CheckValueInRange(int ref, int value, const char *msg) throw(INTERP_KERNEL::Exception)
+{
+  if(value<0 || value>=ref)
+    {
+      std::ostringstream oss; oss << "DataArray::CheckValueInRange : " << msg  << " ! Expected in range [0," << ref << ") having " << value << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void DataArray::CheckClosingParInRange(int ref, int value, const char *msg) throw(INTERP_KERNEL::Exception)
+{
+  if(value<0 || value>ref)
+    {
+      std::ostringstream oss; oss << "DataArray::CheckClosingParInRange : " << msg  << " ! Expected a range in [0," << ref << ") having closing open parenthesis " << value << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+int DataArray::GetNumberOfItemGivenBES(int begin, int end, int step, const char *msg) throw(INTERP_KERNEL::Exception)
+{
+  if(end<begin)
+    {
+      std::ostringstream oss; oss << msg << " : end before begin !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(step<=0)
+    {
+      std::ostringstream oss; oss << msg << " : invalid step should be > 0 !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return (end-1-begin)/step+1;
+}
+
 DataArrayDouble *DataArrayDouble::New()
 {
   return new DataArrayDouble;
@@ -542,7 +598,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleId2(int bg, int end, int step) co
     throw INTERP_KERNEL::Exception("DataArrayDouble::selectByTupleId2 : invalid step should > 0 !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=(end-bg)/step;
+  int newNbOfTuples=(end-1-bg)/step+1;
   ret->alloc(newNbOfTuples,nbComp);
   double *pt=ret->getPointer();
   const double *srcPt=getConstPointer()+bg*nbComp;
@@ -696,6 +752,153 @@ void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std:
   for(int i=0;i<nbOfTuples;i++)
     for(int j=0;j<partOfCompoSz;j++,ac++)
       nc[nbOfCompo*i+compoIds[j]]=*ac;
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ * 'strictCompoCompare' specifies if DataArray 'a' should have exactly same number of components and tuples than 'this' (true) or not (false). By default set to true with maximal test.
+ */
+void DataArrayDouble::setPartOfValues1(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayDouble::setPartOfValues1";
+  checkAllocated();
+  a->checkAllocated();
+  int newNbOfTuples=DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg);
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
+  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
+  if(strictCompoCompare)
+    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  double *pt=getPointer()+bgTuples*nbComp+bgComp;
+  const double *srcPt=a->getConstPointer();
+  for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+    for(int j=0;j<newNbOfComp;j++,srcPt++)
+      pt[j*stepComp]=*srcPt;
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ */
+void DataArrayDouble::setPartOfValuesSimple1(double a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayDouble::setPartOfValuesSimple1";
+  checkAllocated();
+  int newNbOfTuples=DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg);
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
+  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  double *pt=getPointer()+bgTuples*nbComp+bgComp;
+  for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+    for(int j=0;j<newNbOfComp;j++)
+      pt[j*stepComp]=a;
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ * 'strictCompoCompare' specifies if DataArray 'a' should have exactly same number of components and tuples than 'this' (true) or not (false). By default set to true with maximal test.
+ */
+void DataArrayDouble::setPartOfValues2(const DataArrayDouble *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayDouble::setPartOfValues2";
+  checkAllocated();
+  a->checkAllocated();
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  for(const int *z=bgComp;z!=endComp;z++)
+    DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  int newNbOfComp=std::distance(bgComp,endComp);
+  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
+  if(strictCompoCompare)
+    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  double *pt=getPointer();
+  const double *srcPt=a->getConstPointer();
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(const int *z=bgComp;z!=endComp;z++,srcPt++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+(*z)]=*srcPt;
+      }
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ */
+void DataArrayDouble::setPartOfValuesSimple2(double a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  for(const int *z=bgComp;z!=endComp;z++)
+    DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  int newNbOfComp=std::distance(bgComp,endComp);
+  double *pt=getPointer();
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(const int *z=bgComp;z!=endComp;z++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+(*z)]=a;
+      }
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ * 'strictCompoCompare' specifies if DataArray 'a' should have exactly same number of components and tuples than 'this' (true) or not (false). By default set to true with maximal test.
+ */
+void DataArrayDouble::setPartOfValues3(const DataArrayDouble *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayDouble::setPartOfValues3";
+  checkAllocated();
+  a->checkAllocated();
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
+  if(strictCompoCompare)
+    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  double *pt=getPointer()+bgComp;
+  const double *srcPt=a->getConstPointer();
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(int j=0;j<newNbOfComp;j++,srcPt++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+j*stepComp]=*srcPt;
+      }
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ */
+void DataArrayDouble::setPartOfValuesSimple3(double a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayDouble::setPartOfValuesSimple3";
+  checkAllocated();
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  double *pt=getPointer()+bgComp;
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(int j=0;j<newNbOfComp;j++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+j*stepComp]=a;
+      }
 }
 
 void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
@@ -2126,7 +2329,7 @@ DataArrayInt *DataArrayInt::selectByTupleId2(int bg, int end, int step) const th
     throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleId2 : invalid step should > 0 !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=(end-bg)/step;
+  int newNbOfTuples=(end+1-bg)/step-1;
   ret->alloc(newNbOfTuples,nbComp);
   int *pt=ret->getPointer();
   const int *srcPt=getConstPointer()+bg*nbComp;
@@ -2340,11 +2543,7 @@ DataArrayInt *DataArrayInt::keepSelectedComponents(const std::vector<int>& compo
   int newNbOfCompo=compoIds.size();
   int oldNbOfCompo=getNumberOfComponents();
   for(std::vector<int>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
-    if((*it)<0 || (*it)>=oldNbOfCompo)
-      {
-        std::ostringstream oss; oss << "DataArrayDouble::keepSelectedComponents : invalid requested component : " << *it << " whereas it should be in [0," << oldNbOfCompo << ") !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
+    DataArray::CheckValueInRange(oldNbOfCompo,(*it),"keepSelectedComponents invalid requested component");
   int nbOfTuples=getNumberOfTuples();
   ret->alloc(nbOfTuples,newNbOfCompo);
   ret->copyPartOfStringInfoFrom(*this,compoIds);
@@ -2399,6 +2598,153 @@ void DataArrayInt::setSelectedComponents(const DataArrayInt *a, const std::vecto
   for(int i=0;i<nbOfTuples;i++)
     for(int j=0;j<partOfCompoSz;j++,ac++)
       nc[nbOfCompo*i+compoIds[j]]=*ac;
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ * 'strictCompoCompare' specifies if DataArray 'a' should have exactly same number of components and tuples than 'this' (true) or not (false). By default set to true with maximal test.
+ */
+void DataArrayInt::setPartOfValues1(const DataArrayInt *a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayInt::setPartOfValues1";
+  checkAllocated();
+  a->checkAllocated();
+  int newNbOfTuples=DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg);
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
+  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
+  if(strictCompoCompare)
+    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  int *pt=getPointer()+bgTuples*nbComp+bgComp;
+  const int *srcPt=a->getConstPointer();
+  for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+    for(int j=0;j<newNbOfComp;j++,srcPt++)
+      pt[j*stepComp]=*srcPt;
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ */
+void DataArrayInt::setPartOfValuesSimple1(int a, int bgTuples, int endTuples, int stepTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayInt::setPartOfValuesSimple1";
+  checkAllocated();
+  int newNbOfTuples=DataArray::GetNumberOfItemGivenBES(bgTuples,endTuples,stepTuples,msg);
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
+  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  int *pt=getPointer()+bgTuples*nbComp+bgComp;
+  for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
+    for(int j=0;j<newNbOfComp;j++)
+      pt[j*stepComp]=a;
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ * 'strictCompoCompare' specifies if DataArray 'a' should have exactly same number of components and tuples than 'this' (true) or not (false). By default set to true with maximal test.
+ */
+void DataArrayInt::setPartOfValues2(const DataArrayInt *a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp, bool strictCompoCompare) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayInt::setPartOfValues2";
+  checkAllocated();
+  a->checkAllocated();
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  for(const int *z=bgComp;z!=endComp;z++)
+    DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  int newNbOfComp=std::distance(bgComp,endComp);
+  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
+  if(strictCompoCompare)
+    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  int *pt=getPointer();
+  const int *srcPt=a->getConstPointer();
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(const int *z=bgComp;z!=endComp;z++,srcPt++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+(*z)]=*srcPt;
+      }
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ */
+void DataArrayInt::setPartOfValuesSimple2(int a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  for(const int *z=bgComp;z!=endComp;z++)
+    DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  int newNbOfComp=std::distance(bgComp,endComp);
+  int *pt=getPointer();
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(const int *z=bgComp;z!=endComp;z++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+(*z)]=a;
+      }
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ * 'strictCompoCompare' specifies if DataArray 'a' should have exactly same number of components and tuples than 'this' (true) or not (false). By default set to true with maximal test.
+ */
+void DataArrayInt::setPartOfValues3(const DataArrayInt *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayInt::setPartOfValues3";
+  checkAllocated();
+  a->checkAllocated();
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
+  if(strictCompoCompare)
+    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  int *pt=getPointer()+bgComp;
+  const int *srcPt=a->getConstPointer();
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(int j=0;j<newNbOfComp;j++,srcPt++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+j*stepComp]=*srcPt;
+      }
+}
+
+/*!
+ * This method performs a partial assignment of 'this' using 'a' as input. Other input parameters specifies the subpart being considered by the assignment.
+ */
+void DataArrayInt::setPartOfValuesSimple3(int a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="DataArrayInt::setPartOfValuesSimple3";
+  checkAllocated();
+  int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
+  int nbComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
+  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  int newNbOfTuples=std::distance(bgTuples,endTuples);
+  int *pt=getPointer()+bgComp;
+  for(const int *w=bgTuples;w!=endTuples;w++)
+    for(int j=0;j<newNbOfComp;j++)
+      {
+        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+        pt[(*w)*nbComp+j*stepComp]=a;
+      }
 }
 
 void DataArrayInt::SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)

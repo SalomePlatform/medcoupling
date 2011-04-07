@@ -576,3 +576,267 @@ void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM
       throw INTERP_KERNEL::Exception(msg);
     }
 }
+
+/*!
+ * if python int -> cpp int sw=1
+ * if python list[int] -> cpp vector<int> sw=2
+ * if python tuple[int] -> cpp vector<int> sw=2
+ * if python DataArrayInt -> cpp DataArrayInt sw=3
+ *
+ * switch between (int,vector<int>,DataArrayInt)
+ */
+static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyInt_Check(value))
+    {
+      iTyypp=(int)PyInt_AS_LONG(value);
+      sw=1;
+      return;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not integer ! only tuples of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not integer ! only lists of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+  if(!SWIG_IsOK(status))
+    throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, DataArrayInt");
+  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+  sw=3;
+}
+
+/*!
+ * if python double -> cpp double sw=1
+ * if python int -> cpp double sw=1
+ * if python list[double] -> cpp vector<double> sw=2
+ * if python list[int] -> cpp vector<double> sw=2
+ * if python tuple[double] -> cpp vector<double> sw=2
+ * if python tuple[int] -> cpp vector<double> sw=2
+ * if python DataArrayDouble -> cpp DataArrayDouble sw=3
+ *
+ * switch between (int,vector<int>,DataArrayInt)
+ */
+static void convertObjToPossibleCpp4(PyObject *value, int& sw, double& iTyypp, std::vector<double>& stdvecTyypp, ParaMEDMEM::DataArrayDouble *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyFloat_Check(value))
+    {
+      iTyypp=PyFloat_AS_DOUBLE(value);
+      sw=1;
+      return;
+    }
+  if(PyInt_Check(value))
+    {
+      iTyypp=(double)PyInt_AS_LONG(value);
+      sw=1;
+      return;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyFloat_Check(o))
+            stdvecTyypp[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            stdvecTyypp[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyFloat_Check(o))
+            stdvecTyypp[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            stdvecTyypp[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  if(!SWIG_IsOK(status))
+    throw INTERP_KERNEL::Exception("5 types accepted : double float, integer, tuple of double float or int, list of double float or int, DataArrayDouble");
+  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+  sw=3;
+}
+
+/*!
+ * if python int -> cpp int sw=1
+ * if python list[int] -> cpp vector<int> sw=2
+ * if python tuple[int] -> cpp vector<int> sw=2
+ * if python slicp -> cpp pair sw=3
+ * if python DataArrayInt -> cpp DataArrayInt sw=4
+ *
+ * switch between (int,vector<int>,DataArrayInt)
+ */
+static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyInt_Check(value))
+    {
+      iTyypp=(int)PyInt_AS_LONG(value);
+      sw=1;
+      return;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not integer ! only tuples of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not integer ! only lists of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  if(PySlice_Check(value))
+    {
+      Py_ssize_t strt,stp,step;
+      PySliceObject *oC=reinterpret_cast<PySliceObject *>(value);
+      if(PySlice_GetIndices(oC,nbelem,&strt,&stp,&step)!=0)
+        {
+          std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elemnts is : " << nbelem;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      p.first=strt;
+      p.second.first=stp;
+      p.second.second=step;
+      sw=3;
+      return ;
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+  if(!SWIG_IsOK(status))
+    throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, slice, DataArrayInt");
+  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+  sw=4;
+}
+
+/*!
+ * if value int -> cpp it sw=1
+ * if value list[int] -> vt sw=2
+ * if value tuple[int] -> vt sw=2
+ * if value slice -> pt sw=3
+ * if value DataArrayInt -> dt sw=4
+ * if value tuple [int,int] -> cpp it,ip sw=5
+ * if value tuple [list[int],int] -> cpp vt,ip sw=6
+ * if value tuple [tuple[int],int] -> cpp vt,ip sw=6
+ * if value tuple [slice,int] -> cpp pt,ip sw=7
+ * if value tuple [DaI,int] -> cpp dt,ip sw=8
+ * if value tuple [int,list[int]] -> cpp it,vc sw=9
+ * if value tuple [list[int],list[int]] -> cpp vt,vc sw=10
+ * if value tuple [tuple[int],list[int]] -> cpp vt,vc sw=10
+ * if value tuple [slice,list[int]] -> cpp pt,vc sw=11
+ * if value tuple [DaI,list[int]] -> cpp dt,vc sw=12
+ * if value tuple [int,tuple[int]] -> cpp it,vc sw=9
+ * if value tuple [list[int],tuple[int]] -> cpp vt,vc sw=10
+ * if value tuple [tuple[int],tuple[int]] -> cpp vt,vc sw=10
+ * if value tuple [slice,tuple[int]] -> cpp pt,vc sw=11
+ * if value tuple [DaI,tuple[int]] -> cpp dt,vc sw=12
+ * if value tuple [int,slice] -> cpp it,pc sw=13
+ * if value tuple [list[int],slice] -> cpp vt,pc sw=14
+ * if value tuple [tuple[int],slice] -> cpp vt,pc sw=14
+ * if value tuple [slice,slice] -> cpp pt,pc sw=15
+ * if value tuple [DaI,slice] -> cpp dt,pc sw=16
+ *
+ * switch between (int,vector<int>,DataArrayInt)
+ */
+static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, int& sw, int& it, int& ic, std::vector<int>& vt, std::vector<int>& vc,
+                                     std::pair<int, std::pair<int,int> >& pt, std::pair<int, std::pair<int,int> >& pc,
+                                     ParaMEDMEM::DataArrayInt *&dt, ParaMEDMEM::DataArrayInt *&dc) throw(INTERP_KERNEL::Exception)
+{
+  if(!PyTuple_Check(value))
+    {
+      convertObjToPossibleCpp2(value,nbTuple,sw,it,vt,pt,dt);
+      return ;
+    }
+  else
+    {
+      int sz=PyTuple_Size(value);
+      if(sz!=2)
+        throw INTERP_KERNEL::Exception("Unexpected nb of slice element : 1 or 2 expected !\n1st is for tuple selection, 2nd for component selection !");
+      PyObject *ob0=PyTuple_GetItem(value,0);
+      int sw1,sw2;
+      convertObjToPossibleCpp2(ob0,nbTuple,sw1,it,vt,pt,dt);
+      PyObject *ob1=PyTuple_GetItem(value,1);
+      convertObjToPossibleCpp2(ob1,nbCompo,sw2,ic,vc,pc,dc);
+      sw=4*sw2+sw1;
+    }
+}
