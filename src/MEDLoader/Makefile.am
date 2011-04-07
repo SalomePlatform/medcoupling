@@ -51,4 +51,4 @@ libmedloader_la_CPPFLAGS= $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../MEDCoupling
 
 libmedloader_la_LDFLAGS= ../MEDCoupling/libmedcoupling.la \
-../INTERP_KERNEL/libinterpkernel.la $(MED2_LIBS) $(HDF5_LIBS)
+../INTERP_KERNEL/libinterpkernel.la $(MED2_LIBS_C_ONLY) $(HDF5_LIBS)

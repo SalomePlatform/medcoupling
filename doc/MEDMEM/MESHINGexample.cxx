@@ -75,7 +75,7 @@ int main (int argc, char ** argv) {
   // cell part
   
   const int NumberOfTypes = 3 ;
-  medGeometryElement Types[NumberOfTypes] = {MED_TETRA4,MED_PYRA5,MED_HEXA8} ;
+  medGeometryElement Types[NumberOfTypes] = {MEDMEM_TETRA4,MEDMEM_PYRA5,MEDMEM_HEXA8} ;
   const int NumberOfElements[NumberOfTypes] = {12,2,2} ;
 
   myMeshing->setNumberOfTypes(NumberOfTypes,MED_CELL);
@@ -99,7 +99,7 @@ int main (int argc, char ** argv) {
     2,10,6,9
   };
   
-  myMeshing->setConnectivity(ConnectivityTetra,MED_CELL,MED_TETRA4);
+  myMeshing->setConnectivity(MED_CELL,MEDMEM_TETRA4,ConnectivityTetra);
 
   int ConnectivityPyra[2*5]=
   {
@@ -107,7 +107,7 @@ int main (int argc, char ** argv) {
     15,18,17,16,19
   };
 
-  myMeshing->setConnectivity(ConnectivityPyra,MED_CELL,MED_PYRA5);
+  myMeshing->setConnectivity(MED_CELL,MEDMEM_PYRA5,ConnectivityPyra);
 
   int ConnectivityHexa[2*8]=
   {
@@ -115,12 +115,12 @@ int main (int argc, char ** argv) {
     15,16,17,18,11,12,13,14
   };
 
-  myMeshing->setConnectivity(ConnectivityHexa,MED_CELL,MED_HEXA8);
+  myMeshing->setConnectivity(MED_CELL,MEDMEM_HEXA8,ConnectivityHexa);
 
   // face part
 
   const int NumberOfFacesTypes = 2 ;
-  medGeometryElement FacesTypes[NumberOfFacesTypes] = {MED_TRIA3,MED_QUAD4} ;
+  medGeometryElement FacesTypes[NumberOfFacesTypes] = {MEDMEM_TRIA3,MEDMEM_QUAD4} ;
   const int NumberOfFacesElements[NumberOfFacesTypes] = {4,4} ;
 
   myMeshing->setNumberOfTypes(NumberOfFacesTypes,MED_FACE);
@@ -136,7 +136,7 @@ int main (int argc, char ** argv) {
     1,3,6
   };
   
-  myMeshing->setConnectivity(ConnectivityTria,MED_FACE,MED_TRIA3);
+  myMeshing->setConnectivity(MED_FACE,MEDMEM_TRIA3,ConnectivityTria);
 
   int ConnectivityQua[4*4]=
   {
@@ -146,7 +146,7 @@ int main (int argc, char ** argv) {
     12,8,9,13
   };
 
-  myMeshing->setConnectivity(ConnectivityQua,MED_FACE,MED_QUAD4);
+  myMeshing->setConnectivity(MED_FACE,MEDMEM_QUAD4,ConnectivityQua);
 
   // edge part
 
@@ -161,7 +161,7 @@ int main (int argc, char ** argv) {
     myGroup->setMesh(myMeshing);
     myGroup->setEntity(MED_NODE);
     myGroup->setNumberOfGeometricType(1);
-    medGeometryElement myTypes[1] = {MED_NONE};
+    medGeometryElement myTypes[1] = {MEDMEM_NONE};
     myGroup->setGeometricType(myTypes);
     const int myNumberOfElements[1] = {4} ;
     myGroup->setNumberOfElements(myNumberOfElements);
@@ -178,7 +178,7 @@ int main (int argc, char ** argv) {
     myGroup->setMesh(myMeshing);
     myGroup->setEntity(MED_NODE);
     myGroup->setNumberOfGeometricType(1);
-    medGeometryElement myTypes[1] = {MED_NONE};
+    medGeometryElement myTypes[1] = {MEDMEM_NONE};
     myGroup->setGeometricType(myTypes);
     const int myNumberOfElements[1] = {3} ;
     myGroup->setNumberOfElements(myNumberOfElements);
@@ -197,7 +197,7 @@ int main (int argc, char ** argv) {
     myGroup->setMesh(myMeshing);
     myGroup->setEntity(MED_CELL);
     myGroup->setNumberOfGeometricType(3);
-    medGeometryElement myTypes[3] = {MED_TETRA4,MED_PYRA5,MED_HEXA8};
+    medGeometryElement myTypes[3] = {MEDMEM_TETRA4,MEDMEM_PYRA5,MEDMEM_HEXA8};
     myGroup->setGeometricType(myTypes);
     const int myNumberOfElements[3] = {4,1,2} ;
     myGroup->setNumberOfElements(myNumberOfElements);
@@ -219,7 +219,7 @@ int main (int argc, char ** argv) {
     myGroup->setMesh(myMeshing);
     myGroup->setEntity(MED_CELL);
     myGroup->setNumberOfGeometricType(2);
-    medGeometryElement myTypes[] = {MED_TETRA4,MED_PYRA5};
+    medGeometryElement myTypes[] = {MEDMEM_TETRA4,MEDMEM_PYRA5};
     myGroup->setGeometricType(myTypes);
     const int myNumberOfElements[] = {4,1} ;
     myGroup->setNumberOfElements(myNumberOfElements);
@@ -242,7 +242,7 @@ int main (int argc, char ** argv) {
     myGroup->setMesh(myMeshing);
     myGroup->setEntity(MED_FACE);
     myGroup->setNumberOfGeometricType(2);
-    medGeometryElement myTypes[2] = {MED_TRIA3,MED_QUAD4};
+    medGeometryElement myTypes[2] = {MEDMEM_TRIA3,MEDMEM_QUAD4};
     myGroup->setGeometricType(myTypes);
     const int myNumberOfElements[2] = {2,3} ;
     myGroup->setNumberOfElements(myNumberOfElements);
@@ -263,7 +263,7 @@ int main (int argc, char ** argv) {
     myGroup->setMesh(myMeshing);
     myGroup->setEntity(MED_FACE);
     myGroup->setNumberOfGeometricType(1);
-    medGeometryElement myTypes[1] = {MED_TRIA3};
+    medGeometryElement myTypes[1] = {MEDMEM_TRIA3};
     myGroup->setGeometricType(myTypes);
     const int myNumberOfElements[1] = {2} ;
     myGroup->setNumberOfElements(myNumberOfElements);
@@ -282,6 +282,5 @@ int main (int argc, char ** argv) {
 
   int id = myMeshing->addDriver(MED_DRIVER,filename,myMeshing->getName());
   myMeshing->write(id) ;
-
+  myMeshing->removeReference();
 }
-

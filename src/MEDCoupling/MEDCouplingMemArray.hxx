@@ -132,6 +132,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void iota(double init=0.) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isUniform(double val, double eps) const;
     MEDCOUPLING_EXPORT void sort() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkMonotonic(double eps) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isMonotonic(double eps) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
@@ -152,6 +154,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception);
@@ -264,6 +267,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *renumberAndReduce(const int *old2NewBg, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, DataArrayInt *&arrI) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isIdentity() const;

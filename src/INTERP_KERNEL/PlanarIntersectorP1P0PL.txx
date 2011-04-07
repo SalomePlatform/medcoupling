@@ -60,7 +60,7 @@ namespace INTERP_KERNEL
         else
           {
             double littleTargetCell[9];
-            std::copy(baryT,baryT+3,littleTargetCell);
+            std::copy(baryT,baryT+SPACEDIM,littleTargetCell);
             std::copy(CoordsT.begin(),CoordsT.begin()+3,littleTargetCell+3);
             std::copy(CoordsT.begin()+3,CoordsT.begin()+6,littleTargetCell+6);
             PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&CoordsS[0],littleTargetCell,3,3);

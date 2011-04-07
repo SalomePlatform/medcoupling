@@ -45,6 +45,8 @@ namespace ParaMEDMEM
                                                             DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setMeshDimension(int meshDim);
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells);
     MEDCOUPLING_EXPORT void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell) throw(INTERP_KERNEL::Exception);
@@ -52,8 +54,10 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const std::set<INTERP_KERNEL::NormalizedCellType>& getAllTypes() const { return _types; }
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const int *begin, const int *end) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true);
-    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivity() const { return _nodal_connec; }
-    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivityIndex() const { return _nodal_connec_index; }
+    MEDCOUPLING_EXPORT const DataArrayInt *getNodalConnectivity() const { return _nodal_connec; }
+    MEDCOUPLING_EXPORT const DataArrayInt *getNodalConnectivityIndex() const { return _nodal_connec_index; }
+    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivity() { return _nodal_connec; }
+    MEDCOUPLING_EXPORT DataArrayInt *getNodalConnectivityIndex() { return _nodal_connec_index; }
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
     MEDCOUPLING_EXPORT int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     MEDCOUPLING_EXPORT void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
@@ -134,6 +138,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getWarpField() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getSkewField() const throw(INTERP_KERNEL::Exception);
     //utilities for MED File RW
+    MEDCOUPLING_EXPORT DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *getRenumArrForConsecutiveCellTypesSpec(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const;
@@ -141,7 +146,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::vector<MEDCouplingUMesh *> splitByType() const;
     MEDCOUPLING_EXPORT DataArrayInt *keepCellIdsByType(INTERP_KERNEL::NormalizedCellType type, const int *begin, const int *end) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const std::vector<int>& idsPerGeoType) const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const int *idsPerGeoTypeBg, const int *idsPerGeoTypeEnd) const;
     //
     MEDCOUPLING_EXPORT MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getBarycenterAndOwner() const;

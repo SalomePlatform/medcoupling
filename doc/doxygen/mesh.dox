@@ -3,21 +3,23 @@
 
 \section mesh_general General information
 
-The MESH class is dedicated to the handling of unstructured meshes. Two classes derive from it : MESHING supplies functions for creating meshes from scratch (c.f. \ref meshing), while GRID gives specific constructors for creating structured meshes.
+The MESH class is dedicated to the handling of unstructured
+meshes. Class MESHING  deriving from it supplies functions for creating meshes from scratch (c.f. \ref meshing).
 
 \section mesh_connectivity Content of the connectivity array
-Underlying the unstructured meshes is the notion of connectivity. This section only covers meshes made out of standard elements, the \c MED_POLYGON and \c MED_POLYHEDRA case being detailed in section \ref polygon .
+Underlying the unstructured meshes is the notion of connectivity. This section only covers meshes made out of standard elements, the \c MEDMEM_POLYGON and \c MEDMEM_POLYHEDRA case being detailed in section \ref polygon .
 
 \anchor medmemConnArrays
 \image html connectivity_arrays_small.png "Nodal connectivity storage scheme"
 \image latex connectivity_arrays_small.eps "Nodal connectivity storage scheme"
 
-In MEDMEM, an unstructured mesh nodal connectivity is defined with these arrays (if the mesh has no MED_POLYGON and MED_POLYHEDRA element) :
-- the type array, which contains the number of cells for each present type
-- the nodal connectivity array containing the connectivity of each cell, all cells being sorted by type,
-- the connectivity index array, which indicates the beginning of each cell in the connectivity array,
+In MEDMEM, an unstructured mesh nodal connectivity is defined with these arrays:
+- the type array, which contains the number of cells for each present type;
+- the nodal connectivity array containing the connectivity of each cell, all cells being sorted by type;
+- the connectivity index array, which indicates the beginning of each cell in the connectivity array.
 
-The cell types are ordered by their number of nodes.
+The cell types are ordered by their number of nodes; MEDMEM_POLYGON and
+MEDMEM_POLYHEDRA is always the last type, if present.
 
 As an example, let us consider a mesh made out of a linear triangle, two linear quadrangles and a quadratic triangle (c.f. figure \ref fig_connectivity_example ).
 \image html connectivity_example_small.png "Example for mesh connectivity"
@@ -25,7 +27,7 @@ As an example, let us consider a mesh made out of a linear triangle, two linear 
 The number of types is :  3
 
 The type array writes :
-\{ \a MED_TRIA3, \a MED_QUAD4, \a MED_TRIA6 \} 
+\{ \a MEDMEM_TRIA3, \a MEDMEM_QUAD4, \a MEDMEM_TRIA6 \} 
 
 The global numbering index is :  \{ 1,2,4,5 \} }. Its dimension is \f$ n_{types}+1 \f$
 so that elements of type \f$ type[i] \f$ are stored between element \f$ index[i] \f$ and 
@@ -56,6 +58,7 @@ The description of MESH methods is given by the following sections :
 - Connectivity information methods are described in \ref MESH_connectivity.
 - The methods retrieving family information are given in \ref MESH_families.
 - The IO methods are given in \ref MESH_io. 
-- The methods for an advanced usage (applying algorithms to meshes) are given in \ref MESH_advanced.
+- The methods for an advanced usage (applying algorithms to meshes)
+are given in \ref MESH_advanced.
 
 */

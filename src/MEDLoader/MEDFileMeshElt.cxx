@@ -24,25 +24,27 @@
 #include "InterpKernelAutoPtr.hxx"
 #include "CellModel.hxx"
 
-extern med_geometrie_element typmai3[32];
+extern med_geometry_type typmai3[32];
 
 using namespace ParaMEDMEM;
 
-MEDFileUMeshPerType *MEDFileUMeshPerType::New(med_idt fid, const char *mName, int mdim, med_geometrie_element geoElt, INTERP_KERNEL::NormalizedCellType geoElt2)
+MEDFileUMeshPerType *MEDFileUMeshPerType::New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2)
 {
-  med_entite_maillage whichEntity;
-  if(!isExisting(fid,mName,geoElt,whichEntity))
+  med_entity_type whichEntity;
+  if(!isExisting(fid,mName,dt,it,geoElt,whichEntity))
     return 0;
-  return new MEDFileUMeshPerType(fid,mName,mdim,geoElt,geoElt2,whichEntity);
+  return new MEDFileUMeshPerType(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity);
 }
 
-bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, med_geometrie_element geoElt, med_entite_maillage& whichEntity)
+bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity)
 {
-  static const med_entite_maillage entities[3]={MED_MAILLE,MED_FACE,MED_ARETE};
+  static const med_entity_type entities[1]={MED_CELL};
   int nbOfElt=0;
-  for(int i=0;i<3;i++)
+  for(int i=0;i<1;i++)
     {
-      int tmp=MEDnEntMaa(fid,(char *)mName,MED_CONN,entities[i],geoElt,MED_NOD);
+      med_bool changement,transformation;
+      int tmp=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,geoElt,MED_CONNECTIVITY,MED_NODAL,
+                             &changement,&transformation);
       if(tmp>nbOfElt)
         {
           nbOfElt=tmp;
@@ -58,41 +60,42 @@ int MEDFileUMeshPerType::getDim() const
   return cm.getDimension();
 }
 
-MEDFileUMeshPerType::MEDFileUMeshPerType(med_idt fid, const char *mName, int mdim, med_geometrie_element geoElt, INTERP_KERNEL::NormalizedCellType type,
-                                         med_entite_maillage entity):_type(type),_entity(entity)
+MEDFileUMeshPerType::MEDFileUMeshPerType(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
+                                         med_entity_type entity):_type(type),_entity(entity)
 {
-  int curNbOfElem=MEDnEntMaa(fid,(char *)mName,MED_CONN,entity,geoElt,MED_NOD);
+  med_bool changement,transformation;
+  int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,
+                                 &changement,&transformation);
   if(type!=INTERP_KERNEL::NORM_POLYGON && type!=INTERP_KERNEL::NORM_POLYHED)
     {
-      loadFromStaticType(fid,mName,mdim,curNbOfElem,geoElt,type,entity);
+      loadFromStaticType(fid,mName,dt,it,mdim,curNbOfElem,geoElt,type,entity);
       return;
     }
   if(type==INTERP_KERNEL::NORM_POLYGON)
     {
-      loadPolyg(fid,mName,mdim,curNbOfElem,geoElt,entity);
+      loadPolyg(fid,mName,dt,it,mdim,curNbOfElem,geoElt,entity);
       return;
     }
   //if(type==INTERP_KERNEL::NORM_POLYHED)
-  loadPolyh(fid,mName,mdim,curNbOfElem,geoElt,entity);
+  loadPolyh(fid,mName,dt,it,mdim,curNbOfElem,geoElt,entity);
 }
 
-void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int mdim, int curNbOfElem, med_geometrie_element geoElt, INTERP_KERNEL::NormalizedCellType type,
-                                             med_entite_maillage entity)
+void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int dt, int it, int mdim, int curNbOfElem, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
+                                             med_entity_type entity)
 {
   _conn=DataArrayInt::New();
   int nbOfNodesPerCell=(geoElt%100);
   _conn->alloc((nbOfNodesPerCell+1)*curNbOfElem,1);
   _conn_index=DataArrayInt::New();
   _conn_index->alloc(curNbOfElem+1,1);
-  int *connTab=new int[(nbOfNodesPerCell)*curNbOfElem];
+  INTERP_KERNEL::AutoPtr<int> connTab=new int[(nbOfNodesPerCell)*curNbOfElem];
   _num=DataArrayInt::New();
   _num->alloc(curNbOfElem,1);
-  char *noms=new char[MED_TAILLE_PNOM*curNbOfElem+1];
-  med_booleen inoele, inuele;
   _fam=DataArrayInt::New();
   _fam->alloc(curNbOfElem,1);
-  MEDelementsLire(fid,(char *)mName,mdim,connTab,MED_FULL_INTERLACE,noms,&inoele,_num->getPointer(),&inuele,_fam->getPointer(),curNbOfElem,entity,geoElt,MED_NOD);
-  delete [] noms;
+  med_bool withname=MED_FALSE,withnumber=MED_FALSE,withfam=MED_FALSE;
+  INTERP_KERNEL::AutoPtr<char> noms=new char[MED_SNAME_SIZE*curNbOfElem+1];
+  MEDmeshElementRd(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,connTab,&withname,noms,&withnumber,_num->getPointer(),&withfam,_fam->getPointer());
   int *w1=_conn->getPointer();
   int *w2=_conn_index->getPointer();
   *w2++=0;
@@ -103,16 +106,15 @@ void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int
       w1=std::transform(wi,wi+nbOfNodesPerCell,w1,std::bind2nd(std::plus<int>(),-1));
       *w2=w2[-1]+nbOfNodesPerCell+1;
     }
-  delete [] connTab;
-  if(!inuele)
+  if(!withnumber)
     _num=0;
 }
 
-void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int mdim, int curNbOfElem, med_geometrie_element geoElt,
-                                    med_entite_maillage entity)
+void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int it, int mdim, int arraySize, med_geometry_type geoElt,
+                                    med_entity_type entity)
 {
-  med_int arraySize;
-  MEDpolygoneInfo(fid,(char *)mName,entity,MED_NOD,&arraySize);
+  med_bool changement,transformation;
+  med_int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYGON,MED_INDEX_NODE,MED_NODAL,&changement,&transformation)-1;
   _conn_index=DataArrayInt::New();
   _conn_index->alloc(curNbOfElem+1,1);
   _conn=DataArrayInt::New();
@@ -121,8 +123,8 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int mdim, in
   _num->alloc(curNbOfElem,1);
   _fam=DataArrayInt::New();
   _fam->alloc(curNbOfElem,1);
-  int *locConn=new int[arraySize];
-  MEDpolygoneConnLire(fid,(char *)mName,_conn_index->getPointer(),curNbOfElem+1,locConn,entity,MED_NOD);
+  INTERP_KERNEL::AutoPtr<int> locConn=new int[arraySize];
+  MEDmeshPolygonRd(fid,mName,dt,it,MED_CELL,MED_NODAL,_conn_index->getPointer(),locConn);
   int *w1=_conn->getPointer();
   int *w2=_conn_index->getPointer();
   const int *wi=locConn;
@@ -133,24 +135,41 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int mdim, in
       *w2=*w2-1+i;
     }
   *w2=*w2-1+curNbOfElem;
-  delete [] locConn;
-  MEDfamLire(fid,(char *)mName,_fam->getPointer(),curNbOfElem,entity,MED_POLYGONE);
-  if(MEDnumLire(fid,(char *)mName,_num->getPointer(),curNbOfElem,entity,MED_POLYGONE)!=0)
+  if(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYGON,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      if(MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_CELL,MED_POLYGON,_fam->getPointer())!=0)
+        std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
+    }
+  else
+    std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
+  if(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYGON,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      if(MEDmeshEntityNumberRd(fid,mName,dt,it,entity,MED_POLYGON,_num->getPointer())!=0)
+        _num=0;
+    }
+  else
     _num=0;
 }
 
-void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int mdim, int curNbOfElem, med_geometrie_element geoElt,
-                                    med_entite_maillage entity)
+void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, int connFaceLgth, med_geometry_type geoElt,
+                                    med_entity_type entity)
 {
-  med_int indexFaceLgth,connFaceLgth;
-  MEDpolyedreInfo(fid,(char*)mName,MED_NOD,&indexFaceLgth,&connFaceLgth);
-  int *index=new int[curNbOfElem+1];
-  int *indexFace=new int[indexFaceLgth];
-  int *locConn=new int[connFaceLgth];
+  med_bool changement,transformation;
+  med_int indexFaceLgth=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_NODE,MED_NODAL,&changement,&transformation);
+  int curNbOfElem=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_FACE,MED_NODAL,&changement,&transformation)-1;
+  INTERP_KERNEL::AutoPtr<int> index=new int[curNbOfElem+1];
+  INTERP_KERNEL::AutoPtr<int> indexFace=new int[indexFaceLgth];
+  INTERP_KERNEL::AutoPtr<int> locConn=new int[connFaceLgth];
   _fam=DataArrayInt::New();
   _fam->alloc(curNbOfElem,1);
-  MEDpolyedreConnLire(fid,(char *)mName,index,curNbOfElem+1,indexFace,indexFaceLgth,locConn,MED_NOD);
-  MEDfamLire(fid,(char *)mName,_fam->getPointer(),curNbOfElem,MED_MAILLE,MED_POLYEDRE);
+  MEDmeshPolyhedronRd(fid,mName,dt,it,MED_CELL,MED_NODAL,index,indexFace,locConn);
+  if(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      if(MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,_fam->getPointer())!=0)
+        std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
+    }
+  else
+    std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
   int arraySize=connFaceLgth;
   for(int i=0;i<curNbOfElem;i++)
     arraySize+=index[i+1]-index[i]-1;
@@ -172,12 +191,14 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int mdim, in
           wFinalConn=std::transform(locConn+indexFace[j]-1,locConn+indexFace[j+1]-1,wFinalConn,std::bind2nd(std::plus<int>(),-1));
         }
     }
-  delete [] index;
-  delete [] locConn;
-  delete [] indexFace;
   _num=DataArrayInt::New();
   _num->alloc(curNbOfElem,1);
-  if(MEDnumLire(fid,(char *)mName,_num->getPointer(),curNbOfElem,MED_MAILLE,MED_POLYEDRE)!=0)
+  if(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      if(MEDmeshEntityNumberRd(fid,mName,dt,it,entity,MED_POLYHEDRON,_num->getPointer())!=0)
+        _num=0;
+    }
+  else
     _num=0;
 }
 
@@ -186,9 +207,11 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
   int nbOfCells=m->getNumberOfCells();
   if(nbOfCells<1)
     return ;
+  int dt,it;
+  double timm=m->getTime(dt,it);
   INTERP_KERNEL::NormalizedCellType ikt=m->getTypeOfCell(0);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(ikt);
-  med_geometrie_element curMedType=typmai3[(int)ikt];
+  med_geometry_type curMedType=typmai3[(int)ikt];
   const int *conn=m->getNodalConnectivity()->getConstPointer();
   const int *connI=m->getNodalConnectivityIndex()->getConstPointer();
   if(ikt!=INTERP_KERNEL::NORM_POLYGON && ikt!=INTERP_KERNEL::NORM_POLYHED)
@@ -198,7 +221,7 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
       int *w=tab;
       for(int i=0;i<nbOfCells;i++)
         w=std::transform(conn+connI[i]+1,conn+connI[i+1],w,std::bind2nd(std::plus<int>(),1));
-      MEDconnEcr(fid,(char *)mname,mdim,tab,MED_FULL_INTERLACE,nbOfCells,MED_MAILLE,curMedType,MED_NOD);
+      MEDmeshElementConnectivityWr(fid,mname,dt,it,timm,MED_CELL,curMedType,MED_NODAL,MED_FULL_INTERLACE,nbOfCells,tab);
     }
   else
     {
@@ -213,7 +236,7 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
               wI[1]=wI[0]+connI[i+1]-connI[i]-1;
               w=std::transform(conn+connI[i]+1,conn+connI[i+1],w,std::bind2nd(std::plus<int>(),1));
             }
-          MEDpolygoneConnEcr(fid,(char *)mname,tab1,nbOfCells,tab2,MED_MAILLE,MED_NOD);
+          MEDmeshPolygonWr(fid,mname,dt,it,timm,MED_CELL,MED_NODAL,nbOfCells+1,tab1,tab2);
         }
       else
         {
@@ -242,12 +265,11 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
                 }
               w1[1]=w1[0]+nbOfFaces;
             }
-          MEDpolyedreConnEcr(fid,(char *)mname,tab1,nbOfCells+1,tab2,nbOfFaces+1,
-                             bigtab,MED_NOD);
+          MEDmeshPolyhedronWr(fid,mname,dt,it,timm,MED_CELL,MED_NODAL,nbOfCells+1,tab1,nbOfFaces+1,tab2,bigtab);
         }
     }
   if(fam)
-    MEDfamEcr(fid,(char *)mname,(int *)fam->getConstPointer(),nbOfCells,MED_MAILLE,curMedType);
+    MEDmeshEntityFamilyNumberWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,fam->getConstPointer());
   if(num)
-    MEDnumEcr(fid,(char *)mname,(int *)num->getConstPointer(),nbOfCells,MED_MAILLE,curMedType);
+    MEDmeshEntityNumberWr(fid,mname,dt,it,MED_CELL,curMedType,nbOfCells,num->getConstPointer());
 }

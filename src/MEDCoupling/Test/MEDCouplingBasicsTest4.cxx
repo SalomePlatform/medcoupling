@@ -619,9 +619,9 @@ void MEDCouplingBasicsTest::testGaussCoordinates1()
 }
 
 /*!
- * Not activated test ! To be implemented ! WARNING Hexa8 should be replaced by Quad8...
+ * Not activated test ! To be implemented !
  */
-void MEDCouplingBasicsTest::testP2Localization1()
+void MEDCouplingBasicsTest::testQ1Localization1()
 {
   MEDCouplingUMesh *m=buildHexa8Mesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
@@ -640,6 +640,74 @@ void MEDCouplingBasicsTest::testP2Localization1()
   //
   f->decrRef();
   m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testP2Localization1()
+{
+  MEDCouplingUMesh *m=MEDCouplingUMesh::New("testP2",2);
+  const double coords[12]={0.,2.,3.5,0.,4.5,1.5,1.2,0.32,3.4,1.,2.1,2.4};
+  const int conn[6]={0,1,2,3,4,5};
+  DataArrayDouble *coo=DataArrayDouble::New();
+  coo->alloc(6,2);
+  std::copy(coords,coords+12,coo->getPointer());
+  m->setCoords(coo);
+  coo->decrRef();
+  m->allocateCells(1);
+  m->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,conn);
+  m->finishInsertingCells();
+  //
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
+  f->setMesh(m);
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(6,3);
+  const double vals1[18]={1.2,2.3,3.4, 2.2,3.3,4.4, 3.2,4.3,5.4, 4.2,5.3,6.4, 5.2,6.3,7.4, 6.2,7.3,8.4};
+  std::copy(vals1,vals1+18,da->getPointer());
+  f->setArray(da);
+  da->decrRef();
+  //
+  const double loc[2]={2.27,1.3};
+  DataArrayDouble *locs=f->getValueOnMulti(loc,1);
+  const double expected1[3]={6.0921164547752236, 7.1921164547752232, 8.2921164547752255};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],locs->getIJ(0,i),1e-12);
+  locs->decrRef();
+  //
+  m->decrRef();
+  f->decrRef();
+}
+
+void MEDCouplingBasicsTest::testP2Localization2()
+{
+  MEDCouplingUMesh *m=MEDCouplingUMesh::New("testP2_2",3);
+  const double coords[30]={0.33312787792955395, -0.35155740179580952, -0.03567564825034563, 1.307146326477638, -0.57234557776250305, -0.08608044208272235, 0.5551834466499993, 0.62324964668794192, -0.014638951108536295, 0.37761817224442129, -0.38324019806913578, 0.96283164472856886, 0.79494856035658679, -0.40628057809270046, 0.0021004190225864614, 1.023740446371799, 0.07665912970471335, -0.072889657161871096, 0.54564584619517376, 0.11132872093429744, 0.039647326652013051, 0.27164784387819052, -0.42018012100866675, 0.46563376500745146, 0.89501965094896418, -0.56148455362735061, 0.43337469695473035, 0.49118025152924394, 0.093884938060727313, 0.47216346905220891};
+  const int conn[10]={0,1,2,3,4,5,6,7,8,9};
+  DataArrayDouble *coo=DataArrayDouble::New();
+  coo->alloc(10,3);
+  std::copy(coords,coords+30,coo->getPointer());
+  m->setCoords(coo);
+  coo->decrRef();
+  m->allocateCells(1);
+  m->insertNextCell(INTERP_KERNEL::NORM_TETRA10,10,conn);
+  m->finishInsertingCells();
+  //
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
+  f->setMesh(m);
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(10,1);
+  const double vals1[10]={1.1,2.1,3.1,4.1,5.2,6.2,7.2,8.2,9.2,10.2};
+  std::copy(vals1,vals1+10,da->getPointer());
+  f->setArray(da);
+  da->decrRef();
+  //
+  const double loc[3]={0.64637931739890486, -0.16185896817550552, 0.22678966365273748};
+  DataArrayDouble *locs=f->getValueOnMulti(loc,1);
+  const double expected1[1]={10.0844021968047};
+  for(int i=0;i<1;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],locs->getIJ(0,i),1e-12);
+  locs->decrRef();
+  //
+  m->decrRef();
+  f->decrRef();
 }
 
 void MEDCouplingBasicsTest::testGetValueOn2()
@@ -790,4 +858,101 @@ void MEDCouplingBasicsTest::testUMeshHexagonPrism1()
   vols->decrRef();
   bary->decrRef();
   mesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDADCheckIsMonotonic()
+{
+  DataArrayDouble *da=DataArrayDouble::New();
+  const double vals[4]={-1.,1.01,2.03,6.};
+  da->alloc(2,2);
+  std::copy(vals,vals+4,da->getPointer());
+  CPPUNIT_ASSERT_THROW(da->isMonotonic(1e-12),INTERP_KERNEL::Exception);
+  da->rearrange(1);
+  CPPUNIT_ASSERT(da->isMonotonic(1e-12));
+  da->checkMonotonic(1e-12);
+  da->setIJ(2,0,6.1);
+  CPPUNIT_ASSERT(!da->isMonotonic(1e-12));
+  CPPUNIT_ASSERT_THROW(da->checkMonotonic(1e-12),INTERP_KERNEL::Exception);
+  da->setIJ(2,0,5.99);
+  CPPUNIT_ASSERT(da->isMonotonic(1e-12));
+  CPPUNIT_ASSERT(!da->isMonotonic(1e-1));
+  da->decrRef();
+}
+
+void MEDCouplingBasicsTest::testCheckCoherencyDeeper1()
+{
+  MEDCouplingUMesh *m=build3DSourceMesh_1();
+  m->checkCoherency();
+  m->checkCoherency1();
+  m->getNodalConnectivity()->setIJ(8,0,-1);
+  m->checkCoherency();
+  CPPUNIT_ASSERT_THROW(m->checkCoherency1(),INTERP_KERNEL::Exception);
+  m->getNodalConnectivity()->setIJ(8,0,-6);
+  m->checkCoherency();
+  CPPUNIT_ASSERT_THROW(m->checkCoherency1(),INTERP_KERNEL::Exception);
+  m->getNodalConnectivity()->setIJ(8,0,9);//9>=NbOfNodes
+  m->checkCoherency();
+  CPPUNIT_ASSERT_THROW(m->checkCoherency1(),INTERP_KERNEL::Exception);
+  m->getNodalConnectivity()->setIJ(8,0,8);//OK
+  m->checkCoherency();
+  m->checkCoherency1();
+  const int elts[2]={1,5};
+  std::vector<int> eltsV(elts,elts+2);
+  m->convertToPolyTypes(eltsV);
+  m->checkCoherency();
+  m->checkCoherency1();
+  m->getNodalConnectivity()->setIJ(2,0,9);//9>=NbOfNodes
+  m->checkCoherency();
+  CPPUNIT_ASSERT_THROW(m->checkCoherency1(),INTERP_KERNEL::Exception);
+  m->getNodalConnectivity()->setIJ(2,0,-3);
+  m->checkCoherency();
+  CPPUNIT_ASSERT_THROW(m->checkCoherency1(),INTERP_KERNEL::Exception);
+  m->getNodalConnectivity()->setIJ(2,0,-1);
+  m->checkCoherency();
+  CPPUNIT_ASSERT_THROW(m->checkCoherency1(),INTERP_KERNEL::Exception);//Throw because cell#0 is not a polyhedron
+  m->getNodalConnectivity()->setIJ(2,0,4);
+  m->checkCoherency();
+  m->checkCoherency1();
+  m->getNodalConnectivity()->setIJ(7,0,-1);
+  m->checkCoherency();
+  m->checkCoherency1();//OK because we are in polyhedron connec
+  m->getNodalConnectivity()->setIJ(36,0,14);
+  m->checkCoherency();
+  CPPUNIT_ASSERT_THROW(m->checkCoherency1(),INTERP_KERNEL::Exception);//Throw beacause now cell 5 is a TETRA4 (14) so mimatch of number index and static type.
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testUnPolyze2()
+{
+  MEDCouplingUMesh *m=MEDCouplingUMesh::New("jjj",3);
+  DataArrayDouble *coo=DataArrayDouble::New();
+  coo->alloc(4,3);
+  coo->rearrange(1);
+  coo->iota(0);
+  coo->rearrange(3);
+  m->setCoords(coo);
+  coo->decrRef();
+  m->allocateCells(2);
+  const int conn[4]={0,1,2,3};
+  m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
+  m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
+  m->finishInsertingCells();
+  std::vector<const MEDCouplingUMesh *> ms(4,m);
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms);
+  std::vector<int> temp(1,2);
+  m2->convertToPolyTypes(temp);
+  m2->unPolyze();
+  CPPUNIT_ASSERT(INTERP_KERNEL::NORM_TETRA4==m2->getTypeOfCell(2));
+  CPPUNIT_ASSERT_EQUAL(40,m2->getMeshLength());
+  std::vector<int> temp2;
+  m2->getNodeIdsOfCell(2,temp2);
+  CPPUNIT_ASSERT(4==(int)temp2.size());
+  CPPUNIT_ASSERT(std::equal(conn,conn+4,temp2.begin()));
+  m2->checkCoherency1();
+  MEDCouplingMesh *m3=m2->deepCpy();
+  m2->unPolyze();
+  CPPUNIT_ASSERT(m3->isEqual(m2,1e-12));
+  m3->decrRef();
+  m->decrRef();
+  m2->decrRef();
 }

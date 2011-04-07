@@ -31,7 +31,6 @@ EXTRA_DIST += \
     MEDMEM_InvokingDriverByAttachingItToAnObject.py \
     MEDMEM_InvokingDriverFromStandardObjectMethod.cxx \
     MEDMEM_InvokingDriverFromStandardObjectMethod.py \
-    MEDMEM_MedAddingAnExistingObject.cxx \
     MEDMEM_UsersGuide.lyx \
     MESHconnectivities.cxx \
     MESHconnectivities.py \

@@ -35,6 +35,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static MEDCouplingUMeshDesc *New(const char *meshName, int meshDim);
     MEDCOUPLING_EXPORT MEDCouplingMesh *deepCpy() const;
     MEDCOUPLING_EXPORT void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                  DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
@@ -54,11 +56,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED_DESC; }
     MEDCOUPLING_EXPORT void setConnectivity(DataArrayInt *descConn, DataArrayInt *descConnIndex, DataArrayInt *nodalFaceConn, DataArrayInt *nodalFaceConnIndx);
     //tools to overload
+    MEDCOUPLING_EXPORT DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT bool isEmptyMesh(const std::vector<int>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings);
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
-    MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
+    MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT void getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
     MEDCOUPLING_EXPORT void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox &bbox, double eps, std::vector<int>& elems);
     MEDCOUPLING_EXPORT DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes);
@@ -86,7 +89,7 @@ namespace ParaMEDMEM
     void computeTypes();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
   private:
-    unsigned _mesh_dim;
+    int _mesh_dim;
     DataArrayInt *_desc_connec;
     DataArrayInt *_desc_connec_index;
     DataArrayInt *_nodal_connec_face;

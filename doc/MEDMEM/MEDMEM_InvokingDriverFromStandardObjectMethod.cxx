@@ -25,7 +25,6 @@
 
 #include "MEDMEM_Field.hxx"
 #include "MEDMEM_Mesh.hxx"
-#include "MEDMEM_Med.hxx"
 
 using namespace MEDMEM ;
 using namespace MED_EN ;
@@ -55,14 +54,9 @@ main () {
     myMesh->read();
     myMesh->rmDriver();
 
-    MED  *  myMed  = new MED();
-    int myDriver4  = myMed->addDriver(MED_DRIVER, fileName);
-    myMed->readFileStruct();
-    myMed->rmDriver();
 
-    delete myField;
-    delete myMesh;
-    delete myMed;
+    myMesh->removeReference();
+    myField->removeReference();
 
   } catch (MEDEXCEPTION& ex){
     MESSAGE_MED(ex.what()) ;

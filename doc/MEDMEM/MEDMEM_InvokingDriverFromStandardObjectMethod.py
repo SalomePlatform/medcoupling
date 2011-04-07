@@ -31,7 +31,7 @@ from libMEDMEM_Swig import *
 
 medFile = "pointe.med"
 medFile2 = "fieldCellDoubleOfpointe.med"
-fieldName = "fieldcelldouble"
+fieldName = "fieldcelldoublescalar"
 meshName = "maa1"
 
 try:
@@ -47,10 +47,6 @@ try:
     myDriver3 = myMesh.addDriver(MED_DRIVER,medFile,meshName)
     myMesh.read()
     myMesh.rmDriver()
-
-    myMed = MED(MED_DRIVER,medFile)
-    myMed.readFileStruct()
-    myMed.rmDriver()
 
 except:
     print "There is a problem somewhere !!"

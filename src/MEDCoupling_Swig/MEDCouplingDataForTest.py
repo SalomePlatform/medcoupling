@@ -37,6 +37,7 @@ class MEDCouplingDataForTest:
         myCoords.setValues(targetCoords,9,2);
         targetMesh.setCoords(myCoords);
         return targetMesh;
+    
     def build2DSourceMesh_1(cls):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]
@@ -67,6 +68,32 @@ class MEDCouplingDataForTest:
         myCoords.setValues(targetCoords,27,3);
         targetMesh.setCoords(myCoords);
         return targetMesh
+
+    def build3DSourceMesh_1(self):
+        sourceCoords=[ 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 0.0, 200.0, 200.0, 0.0, 200.0, 0.0, 200.0, 0.0, 200.0,
+                       200.0, 0.0, 0.0, 200.0, 200.0, 200.0, 200.0, 200.0, 0.0, 100.0, 100.0, 100.0]
+        sourceConn=[8,1,7,3, 6,0,8,2, 7,4,5,8, 6,8,4,7, 6,8,0,4, 6,8,7,3, 8,1,3,0, 4,1,5,8, 1,7,5,8, 0,3,8,2, 8,1,0,4, 3,6,8,2]
+        sourceMesh=MEDCouplingUMesh.New();
+        sourceMesh.setMeshDimension(3);
+        sourceMesh.allocateCells(12);
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[0:4])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[4:8])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[8:12])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[12:16])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[16:20])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[20:24])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[24:28])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[28:32])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[32:36])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[36:40])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[40:44])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[44:48])
+        sourceMesh.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(sourceCoords,9,3);
+        sourceMesh.setCoords(myCoords);
+        return sourceMesh;
+        
 
     def build3DSurfTargetMesh_1(self):
         targetCoords=[-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5]
@@ -511,6 +538,7 @@ class MEDCouplingDataForTest:
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
+    build3DSourceMesh_1=classmethod(build3DSourceMesh_1)
     build3DSurfTargetMesh_1=classmethod(build3DSurfTargetMesh_1)
     build3DExtrudedUMesh_1=classmethod(build3DExtrudedUMesh_1)
     buildCU1DMesh_U=classmethod(buildCU1DMesh_U)

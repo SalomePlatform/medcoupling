@@ -27,7 +27,7 @@ class MEDLoaderTest(unittest.TestCase):
     def testMEDMesh1(self):
         fileName="Pyfile18.med"
         mname="ExampleOfMultiDimW"
-        medmesh=MEDFileUMesh.New(fileName,mname)
+        medmesh=MEDFileMesh.New(fileName,mname)
         self.assertEqual((0,-1),medmesh.getNonEmptyLevels())
         m1_0=medmesh.getLevel0Mesh(True)
         m1_1=MEDLoader.ReadUMeshFromFile(fileName,mname,0)
@@ -69,13 +69,13 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_4","Family_2"],True).getValues());
         self.assertEqual([19,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh4","mesh3"],True).getValues());
         famn=medmesh.getFamilyNameGivenId(0)
-        self.assertEqual(range(60),medmesh.getNodeFamilyArr(famn,True).getValues());
+        self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,True);
         #without renum
         self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2",False).getValues());
         self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_2",False).getValues());
         self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_4","Family_2"],False).getValues());
         self.assertEqual([0,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3","mesh4"],False).getValues());
-        self.assertEqual(range(60),medmesh.getNodeFamilyArr(famn,False).getValues());
+        self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,False);
         pass
 
     # this tests emulates MEDMEM ( Except that it works ! ) The permutation are NOT taken into account
@@ -169,6 +169,8 @@ class MEDLoaderTest(unittest.TestCase):
         coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
         c.setValues(coords,9,2)
+        c.setInfoOnComponent(0,"abcdef [km]")
+        c.setInfoOnComponent(1,"ghij [MW]")
         m=MEDCouplingUMesh.New();
         m.setMeshDimension(2);
         m.allocateCells(5);
@@ -206,7 +208,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm.setCoords(c)
         renumNode=DataArrayInt.New()
         renumNode.setValues([10,11,12,13,14,15,16,17,18],9,1)
-        mm.setRenumArr(1,renumNode)
+        mm.setRenumFieldArr(1,renumNode)
         mm.setMeshAtLevel(-1,m1);
         mm.setMeshAtLevel(0,m);
         mm.setMeshAtLevel(-2,m2);
@@ -243,6 +245,63 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(g2_1.isEqual(t));
         #
         mm.write(outFileName,2);
+        mm2=MEDFileMesh.New(outFileName)
+        res=mm.isEqual(mm2,1e-12)
+        self.assertTrue(res[0])
+        pass
+
+    #testing persistence of retrieved arrays
+    def testMEDMesh5(self):
+        fileName="Pyfile18.med"
+        mname="ExampleOfMultiDimW"
+        medmesh=MEDFileUMesh.New(fileName,mname)
+        m1_0=medmesh.getLevel0Mesh(True)
+        da1=medmesh.getFamilyFieldAtLevel(0)
+        del medmesh
+        self.assertEqual(20,m1_0.getNumberOfCells())
+        self.assertEqual(20,da1.getNumberOfTuples())
+        pass
+
+    def testMEDMesh6(self):
+        outFileName="MEDFileMesh5.med"
+        m=MEDFileCMesh.New()
+        m.setTime(2.3,-1,-1)
+        m1=MEDCouplingCMesh.New();
+        da=DataArrayDouble.New()
+        da.setValues([0.,1.,2.],3,1)
+        da.setInfoOnComponent(0,"XX [mm]")
+        m1.setCoordsAt(0,da)
+        da=DataArrayDouble.New()
+        da.setValues([0.,1.2],2,1)
+        da.setInfoOnComponent(0,"YY [km]")
+        m1.setCoordsAt(1,da)
+        da=DataArrayDouble.New()
+        da.setValues([0.,1.3],2,1)
+        da.setInfoOnComponent(0,"ZZ [um]")
+        m1.setCoordsAt(2,da)
+        m.setMesh(m1)
+        m.setName("myFirstCartMesh")
+        m.setDescription("mmmmpppppppp")
+        m.setTimeValue(2.3)
+        m.setTimeUnit("ms")
+        da=DataArrayInt.New()
+        da.setValues([0,0,1,0,1,2,4,3,0,1,2,2],12,1)
+        m.setFamilyFieldArr(1,da)
+        m.setFamilyId("family1",1)
+        da=m.getFamilyArr(1,"family1")
+        expected1=[2,4,9]
+        self.assertEqual(expected1,da.getValues())
+        m.write(outFileName,2);
+        mm=MEDFileMesh.New(outFileName)
+        self.assertTrue(m.isEqual(mm,1e-12)[0])
+        self.assertEqual(expected1,mm.getFamilyArr(1,"family1").getValues())
+        m2=mm.getMesh()
+        tt=m.getTime()
+        m1.setTime(tt[0],tt[1],tt[2])
+        m1.setName(m.getName())
+        m1.setTimeUnit(m.getTimeUnit())
+        m1.setDescription(m.getDescription())
+        self.assertTrue(m2.isEqual(m1,1e-12));
         pass
     pass
 

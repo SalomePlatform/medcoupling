@@ -40,6 +40,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testNatureOfField );
     CPPUNIT_TEST( testExtruded );
     CPPUNIT_TEST( testExtruded2 );
+    CPPUNIT_TEST( testPrepareEx1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void test2DInterpP0P0_1();
@@ -50,6 +51,7 @@ namespace ParaMEDMEM
     void testNatureOfField();
     void testExtruded();
     void testExtruded2();
+    void testPrepareEx1();
   private:
     static MEDCouplingUMesh *build1DTargetMesh_2();
     static MEDCouplingUMesh *build2DTargetMesh_3();

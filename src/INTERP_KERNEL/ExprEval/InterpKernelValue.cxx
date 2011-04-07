@@ -90,9 +90,14 @@ void ValueDouble::exp() throw(INTERP_KERNEL::Exception)
   _data=std::exp(_data);
 }
 
-void ValueDouble:: ln() throw(INTERP_KERNEL::Exception)
+void ValueDouble::ln() throw(INTERP_KERNEL::Exception)
 {
   _data=std::log(_data);
+}
+
+void ValueDouble::log10() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::log10(_data);
 }
 
 Value *ValueDouble::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
@@ -236,6 +241,11 @@ void ValueUnit::exp() throw(INTERP_KERNEL::Exception)
 void ValueUnit::ln() throw(INTERP_KERNEL::Exception)
 {
   unsupportedOp(LnFunction::REPR);
+}
+
+void ValueUnit::log10() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(Log10Function::REPR);
 }
 
 Value *ValueUnit::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
@@ -398,8 +408,16 @@ void ValueDoubleExpr::ln() throw(INTERP_KERNEL::Exception)
 {
   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
   if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply sqrt on < 0. value !");
+    throw INTERP_KERNEL::Exception("Trying to apply neperian/natural log on <= 0. value !");
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log));
+}
+
+void ValueDoubleExpr::log10() throw(INTERP_KERNEL::Exception)
+{
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
+  if(it!=_dest_data+_sz_dest_data)
+    throw INTERP_KERNEL::Exception("Trying to apply log10 on <= 0. value !");
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log10));
 }
 
 Value *ValueDoubleExpr::plus(const Value *other) const throw(INTERP_KERNEL::Exception)

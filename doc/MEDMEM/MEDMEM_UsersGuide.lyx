@@ -488,7 +488,7 @@ C++ Example\SpecialChar ~
 \latex latex 
 
 \backslash 
-verb+int NumberOfTriangle = myMesh.getNumberOfElements(MED_FACE,MED_TRIA3);+
+verb+int NumberOfTriangle = myMesh.getNumberOfElements(MED_FACE,MEDMEM_TRIA3);+
 \layout Standard
 
 
@@ -574,7 +574,7 @@ C++ Example\SpecialChar ~
 \backslash 
 begin{verbatim}
 \newline 
-int NumberOfTetrahedron = myMesh.getNumberOfElements(MED_CELL,MED_TETRA4);
+int NumberOfTetrahedron = myMesh.getNumberOfElements(MED_CELL,MEDMEM_TETRA4);
 \newline 
 int * TetrahedronConnectivity =
 \newline 
@@ -584,7 +584,7 @@ int * TetrahedronConnectivity =
 \newline 
                                 MED_CELL,
 \newline 
-                                MED_TETRA4);
+                                MEDMEM_TETRA4);
 \newline 
 
 \backslash 
@@ -606,7 +606,7 @@ If you want to get connectivity of all elements (with
 \latex latex 
 
 \backslash 
-verb+Type=MED_ALL_ELEMENTS+
+verb+Type=MEDMEM_ALL_ELEMENTS+
 \latex default 
 ), you must use the index array (return by 
 \latex latex 

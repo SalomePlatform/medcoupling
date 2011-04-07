@@ -54,12 +54,12 @@ namespace INTERP_TEST
     const MEDMEM::SUPPORT *source_support=source_mesh->getSupportOnAll(MED_EN::MED_CELL);
     MEDMEM::FIELD<double> *source_field=new FIELD<double>(source_support,1);
     double* value=const_cast<double*>(source_field->getValue());
-    for (int i=0; i<source_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
+    for (int i=0; i<source_support->getNumberOfElements(MED_EN::MEDMEM_ALL_ELEMENTS); i++)
       value[i]=1.0;
     const MEDMEM::SUPPORT *target_support=target_mesh->getSupportOnAll(MED_EN::MED_CELL);
     MEDMEM::FIELD<double> *target_field=new FIELD<double>(target_support,1);
     double* targetvalue=const_cast<double*>(target_field->getValue());
-    for (int i=0; i<target_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
+    for (int i=0; i<target_support->getNumberOfElements(MED_EN::MEDMEM_ALL_ELEMENTS); i++)
       targetvalue[i]=0.0;
     // Ok at this point we have our mesh in MED-Memory format.
     // Go to wrap med_source_mesh and med_target_mesh.

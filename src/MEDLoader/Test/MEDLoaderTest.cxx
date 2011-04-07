@@ -99,6 +99,9 @@ void MEDLoaderTest::testFieldRW1()
   MEDLoader::WriteField("file7.med",f1,true);
   f2=MEDLoader::ReadFieldNode("file7.med",f1->getMesh()->getName(),0,f1->getName(),2,3);
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  // testing kind message on error of field type.
+  CPPUNIT_ASSERT_THROW(MEDLoader::ReadFieldCell("file7.med",f1->getMesh()->getName(),0,f1->getName(),2,3),INTERP_KERNEL::Exception);
+  //
   f1->decrRef();
   f2->decrRef();
 }
@@ -178,7 +181,6 @@ void MEDLoaderTest::testFieldRW3()
   static const double VAL2=-1111111111111.;
   const char name1[]="AField";
   const char name3[]="AMesh1";
-  const char name2[]="AMesh2";
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
   ((MEDCouplingMesh *)f1->getMesh())->setName(name3);
   f1->setName(name1);
@@ -189,14 +191,9 @@ void MEDLoaderTest::testFieldRW3()
   f1->setTime(10.14,18,19);
   tmp[0]=VAL2;
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-  ((MEDCouplingMesh *)f1->getMesh())->setName(name2);
   f1->setTime(10.55,28,29);
   tmp[0]=3*VAL1;
-  MEDLoader::WriteField(fileName,f1,false);
-  std::vector<std::string> vec=MEDLoader::GetMeshNamesOnField(fileName,name1);
-  CPPUNIT_ASSERT_EQUAL(2,(int)vec.size());
-  CPPUNIT_ASSERT(vec[0]==name3);
-  CPPUNIT_ASSERT(vec[1]==name2);
+  MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(10.66,38,39);
   tmp[0]=3*VAL2;
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
@@ -207,7 +204,7 @@ void MEDLoaderTest::testFieldRW3()
   f1->decrRef();
   f1=buildVecFieldOnNodes_1();
   f1->setName(name1);
-  ((MEDCouplingMesh *)f1->getMesh())->setName(name2);
+   ((MEDCouplingMesh *)f1->getMesh())->setName(name3);
   f1->setTime(110.,8,9);
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(110.,108,109);
@@ -219,21 +216,17 @@ void MEDLoaderTest::testFieldRW3()
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   //
   std::vector< std::pair<int,int> > it1=MEDLoader::GetCellFieldIterations(fileName,name3,name1);
-  CPPUNIT_ASSERT_EQUAL(2,(int)it1.size());
+  CPPUNIT_ASSERT_EQUAL(5,(int)it1.size());
   CPPUNIT_ASSERT_EQUAL(8,it1[0].first); CPPUNIT_ASSERT_EQUAL(9,it1[0].second);
   CPPUNIT_ASSERT_EQUAL(18,it1[1].first); CPPUNIT_ASSERT_EQUAL(19,it1[1].second);
-  std::vector< std::pair<int,int> > it2=MEDLoader::GetCellFieldIterations(fileName,name2,name1);
-  CPPUNIT_ASSERT_EQUAL(3,(int)it2.size());
-  CPPUNIT_ASSERT_EQUAL(28,it2[0].first); CPPUNIT_ASSERT_EQUAL(29,it2[0].second);
-  CPPUNIT_ASSERT_EQUAL(38,it2[1].first); CPPUNIT_ASSERT_EQUAL(39,it2[1].second);
-  CPPUNIT_ASSERT_EQUAL(48,it2[2].first); CPPUNIT_ASSERT_EQUAL(49,it2[2].second);
-  std::vector< std::pair<int,int> > it3=MEDLoader::GetNodeFieldIterations(fileName,name2,name1);
+  CPPUNIT_ASSERT_EQUAL(28,it1[2].first); CPPUNIT_ASSERT_EQUAL(29,it1[2].second);
+  CPPUNIT_ASSERT_EQUAL(38,it1[3].first); CPPUNIT_ASSERT_EQUAL(39,it1[3].second);
+  CPPUNIT_ASSERT_EQUAL(48,it1[4].first); CPPUNIT_ASSERT_EQUAL(49,it1[4].second);
+  std::vector< std::pair<int,int> > it3=MEDLoader::GetNodeFieldIterations(fileName,name3,name1);
   CPPUNIT_ASSERT_EQUAL(3,(int)it3.size());
   CPPUNIT_ASSERT_EQUAL(8,it3[0].first); CPPUNIT_ASSERT_EQUAL(9,it3[0].second);
   CPPUNIT_ASSERT_EQUAL(108,it3[1].first); CPPUNIT_ASSERT_EQUAL(109,it3[1].second);
   CPPUNIT_ASSERT_EQUAL(208,it3[2].first); CPPUNIT_ASSERT_EQUAL(209,it3[2].second);
-  std::vector< std::pair<int,int> > it4=MEDLoader::GetNodeFieldIterations(fileName,name3,name1);
-  CPPUNIT_ASSERT(it4.empty());
   //
   f1->decrRef();
   //
@@ -243,23 +236,23 @@ void MEDLoaderTest::testFieldRW3()
   f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,18,19);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldCell(fileName,name2,0,name1,28,29);
+  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,28,29);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL1,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldCell(fileName,name2,0,name1,38,39);
+  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,38,39);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldCell(fileName,name2,0,name1,48,49);
+  f1=MEDLoader::ReadFieldCell(fileName,name3,0,name1,48,49);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(4*VAL2,f1->getArray()->getConstPointer()[0],1e-13);
   f1->decrRef();
   //
-  f1=MEDLoader::ReadFieldNode(fileName,name2,0,name1,8,9);
+  f1=MEDLoader::ReadFieldNode(fileName,name3,0,name1,8,9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(71.,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldNode(fileName,name2,0,name1,108,109);
+  f1=MEDLoader::ReadFieldNode(fileName,name3,0,name1,108,109);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL1,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
-  f1=MEDLoader::ReadFieldNode(fileName,name2,0,name1,208,209);
+  f1=MEDLoader::ReadFieldNode(fileName,name3,0,name1,208,209);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(VAL2,f1->getArray()->getConstPointer()[3],1e-13);
   f1->decrRef();
 }
@@ -379,6 +372,9 @@ void MEDLoaderTest::testFieldProfilRW1()
   MEDLoader::WriteField(fileName,f1,false);//<- false important for the test
   //
   MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(fileName,f1->getMesh()->getName(),0,f1->getName(),2,7);
+  std::vector<ParaMEDMEM::TypeOfField> types=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName(),f1->getName());
+  CPPUNIT_ASSERT_EQUAL(1,(int)types.size());
+  CPPUNIT_ASSERT(types[0]==ON_CELLS);
   f2->checkCoherency();
   CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
   //
@@ -673,11 +669,11 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
     1060.,1160.,1070.,1170.,1080.,1180.,1090.,1190.,1091.,1191.,1092.,1192.
   };
   std::copy(arr2,arr2+24,tmp);
-  f2->setTime(3.17,2,7);
+  f2->setTime(3.14,2,7);
   f2->checkCoherency();
   //
   MEDLoader::WriteField(fileName,f1,true);
-  std::vector<ParaMEDMEM::TypeOfField> ts=MEDLoader::GetTypesOfField(fileName,f1->getName(),f1->getMesh()->getName());
+  std::vector<ParaMEDMEM::TypeOfField> ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName(),f1->getName());
   CPPUNIT_ASSERT_EQUAL(1,(int)ts.size());
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[0]);
   std::vector<std::string> fs=MEDLoader::GetAllFieldNamesOnMesh(fileName,f1->getMesh()->getName());
@@ -688,7 +684,7 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   CPPUNIT_ASSERT_EQUAL(1,(int)fs.size());
   CPPUNIT_ASSERT(fs[0]=="FieldMix");
   //
-  ts=MEDLoader::GetTypesOfField(fileName,f1->getName(),f1->getMesh()->getName());
+  ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName(),f1->getName());
   CPPUNIT_ASSERT_EQUAL(2,(int)ts.size());
   CPPUNIT_ASSERT_EQUAL(ON_NODES,ts[0]);
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[1]);

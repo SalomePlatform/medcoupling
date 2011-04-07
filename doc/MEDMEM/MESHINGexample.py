@@ -49,84 +49,26 @@ spaceDimension = 3
 
 numberOfNodes = 19
 
-coordinates = []
-
-coordinate = [0.0, 0.0, 0.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [0.0, 0.0, 1.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [2.0, 0.0, 1.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [0.0, 2.0, 1.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [-2.0, 0.0, 1.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [0.0, -2.0, 1.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [1.0, 1.0, 2.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [-1.0, 1.0, 2.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [-1.0, -1.0, 2.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [1.0, -1.0, 2.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [1.0, 1.0, 3.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [-1.0, 1.0, 3.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [-1.0, -1.0, 3.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [1.0, -1.0, 3.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [1.0, 1.0, 4.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [-1.0, 1.0, 4.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [-1.0, -1.0, 4.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [1.0, -1.0, 4.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
-coordinate = [0.0, 0.0, 5.0]
-coordinates.append(coordinate[0])
-coordinates.append(coordinate[1])
-coordinates.append(coordinate[2])
+coordinates = [
+    0.0, 0.0, 0.0  ,
+    0.0, 0.0, 1.0  ,
+    2.0, 0.0, 1.0  ,
+    0.0, 2.0, 1.0  ,
+    -2.0, 0.0, 1.0 ,
+    0.0, -2.0, 1.0 ,
+    1.0, 1.0, 2.0  ,
+    -1.0, 1.0, 2.0 ,
+    -1.0, -1.0, 2.0,
+    1.0, -1.0, 2.0 ,
+    1.0, 1.0, 3.0  ,
+    -1.0, 1.0, 3.0 ,
+    -1.0, -1.0, 3.0,
+    1.0, -1.0, 3.0 ,
+    1.0, 1.0, 4.0  ,
+    -1.0, 1.0, 4.0 ,
+    -1.0, -1.0, 4.0,
+    1.0, -1.0, 4.0 ,
+    0.0, 0.0, 5.0]
 
 myMeshing.setCoordinates(spaceDimension,numberOfNodes,coordinates,"CARTESIAN",MED_FULL_INTERLACE)
 
@@ -151,121 +93,46 @@ entity = MED_CELL
 types = []
 numberOfElements = []
 
-types.append(MED_TETRA4)
+types.append(MEDMEM_TETRA4)
 numberOfElements.append(12)
 
-types.append(MED_PYRA5)
+types.append(MEDMEM_PYRA5)
 numberOfElements.append(2)
 
-types.append(MED_HEXA8)
+types.append(MEDMEM_HEXA8)
 numberOfElements.append(2)
 
 myMeshing.setNumberOfTypes(numberOfTypes,entity)
 myMeshing.setTypes(types,entity)
 myMeshing.setNumberOfElements(numberOfElements,entity)
 
-connectivityTetra = []
+connectivityTetra = [
+    1,2,3,6 ,
+    1,2,4,3 ,
+    1,2,5,4 ,
+    1,2,6,5 ,
+    2,7,4,3 ,
+    2,8,5,4 ,
+    2,9,6,5 ,
+    2,10,3,6,
+    2,7,3,10,
+    2,8,4,7 ,
+    2,9,5,8 ,
+    2,10,6,9]
 
-connectivity =  [1,2,3,6]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [1,2,4,3]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [1,2,5,4]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [1,2,6,5]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,7,4,3]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,8,5,4]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,9,6,5]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,10,3,6]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,7,3,10]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,8,4,7]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,9,5,8]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
-connectivity =  [2,10,6,9]
-connectivityTetra.append(connectivity[0])
-connectivityTetra.append(connectivity[1])
-connectivityTetra.append(connectivity[2])
-connectivityTetra.append(connectivity[3])
+myMeshing.setConnectivity(entity,types[0],connectivityTetra)
 
-myMeshing.setConnectivity(connectivityTetra,entity,types[0])
+connectivityPyra = [
+    7,8,9,10,2,
+    15,18,17,16,19]
 
-connectivityPyra = []
-connectivity =  [7,8,9,10,2]
-connectivityPyra.append(connectivity[0])
-connectivityPyra.append(connectivity[1])
-connectivityPyra.append(connectivity[2])
-connectivityPyra.append(connectivity[3])
-connectivityPyra.append(connectivity[4])
-connectivity =  [15,18,17,16,19]
-connectivityPyra.append(connectivity[0])
-connectivityPyra.append(connectivity[1])
-connectivityPyra.append(connectivity[2])
-connectivityPyra.append(connectivity[3])
-connectivityPyra.append(connectivity[4])
+myMeshing.setConnectivity(entity,types[1],connectivityPyra)
 
-myMeshing.setConnectivity(connectivityPyra,entity,types[1])
+connectivityHexa = [
+    11,12,13,14,7,8,9,10,
+    15,16,17,18,11,12,13,14]
 
-connectivityHexa = []
-connectivity =  [11,12,13,14,7,8,9,10]
-connectivityHexa.append(connectivity[0])
-connectivityHexa.append(connectivity[1])
-connectivityHexa.append(connectivity[2])
-connectivityHexa.append(connectivity[3])
-connectivityHexa.append(connectivity[4])
-connectivityHexa.append(connectivity[5])
-connectivityHexa.append(connectivity[6])
-connectivityHexa.append(connectivity[7])
-connectivity =  [15,16,17,18,11,12,13,14]
-connectivityHexa.append(connectivity[0])
-connectivityHexa.append(connectivity[1])
-connectivityHexa.append(connectivity[2])
-connectivityHexa.append(connectivity[3])
-connectivityHexa.append(connectivity[4])
-connectivityHexa.append(connectivity[5])
-connectivityHexa.append(connectivity[6])
-connectivityHexa.append(connectivity[7])
-
-myMeshing.setConnectivity(connectivityHexa,entity,types[2])
+myMeshing.setConnectivity(entity,types[2],connectivityPyra)
 
 # face part
 
@@ -275,62 +142,31 @@ entity = MED_FACE
 types = []
 numberOfElements = []
 
-types.append(MED_TRIA3)
+types.append(MEDMEM_TRIA3)
 numberOfElements.append(4)
 
-types.append(MED_QUAD4)
+types.append(MEDMEM_QUAD4)
 numberOfElements.append(4)
 
 myMeshing.setNumberOfTypes(numberOfTypes,entity)
 myMeshing.setTypes(types,entity)
 myMeshing.setNumberOfElements(numberOfElements,entity)
 
-connectivityTria = []
-connectivity =  [1,4,3]
-connectivityTria.append(connectivity[0])
-connectivityTria.append(connectivity[1])
-connectivityTria.append(connectivity[2])
-connectivity =  [1,5,4]
-connectivityTria.append(connectivity[0])
-connectivityTria.append(connectivity[1])
-connectivityTria.append(connectivity[2])
-connectivity =  [1,6,5]
-connectivityTria.append(connectivity[0])
-connectivityTria.append(connectivity[1])
-connectivityTria.append(connectivity[2])
-connectivity =  [1,3,6]
-connectivityTria.append(connectivity[0])
-connectivityTria.append(connectivity[1])
-connectivityTria.append(connectivity[2])
+connectivityTria = [
+    1,4,3,
+    1,5,4,
+    1,6,5,
+    1,3,6]
 
-myMeshing.setConnectivity(connectivityTria,entity,types[0])
+myMeshing.setConnectivity(entity,types[0],connectivityPyra)
 
-connectivityQuad = []
-connectivity =  [7,8,9,10]
-connectivityQuad.append(connectivity[0])
-connectivityQuad.append(connectivity[1])
-connectivityQuad.append(connectivity[2])
-connectivityQuad.append(connectivity[3])
-connectivity =  [11,12,13,14]
-connectivityQuad.append(connectivity[0])
-connectivityQuad.append(connectivity[1])
-connectivityQuad.append(connectivity[2])
-connectivityQuad.append(connectivity[3])
-connectivity =  [11,7,8,12]
-connectivityQuad.append(connectivity[0])
-connectivityQuad.append(connectivity[1])
-connectivityQuad.append(connectivity[2])
-connectivityQuad.append(connectivity[3])
-connectivity =  [12,8,9,13]
-connectivityQuad.append(connectivity[0])
-connectivityQuad.append(connectivity[1])
-connectivityQuad.append(connectivity[2])
-connectivityQuad.append(connectivity[3])
+connectivityQuad = [
+    7,8,9,10   ,
+    11,12,13,14,
+    11,7,8,12  ,
+    12,8,9,13]
 
-myMeshing.setConnectivity(connectivityQuad,entity,types[1])
-
-meshDimension = spaceDimension # because there 3D cells in the mesh
-myMeshing.setMeshDimension(meshDimension)
+myMeshing.setConnectivity(entity,types[1],connectivityQuad)
 
 # edge part
 
@@ -343,7 +179,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_NODE)
 myGroup.setNumberOfGeometricType(1)
 
-myTypes = [MED_NONE]
+myTypes = [MEDMEM_NONE]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [4]
@@ -361,7 +197,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_NODE)
 myGroup.setNumberOfGeometricType(1)
 
-myTypes = [MED_NONE]
+myTypes = [MEDMEM_NONE]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [3]
@@ -381,7 +217,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_CELL)
 myGroup.setNumberOfGeometricType(3)
 
-myTypes = [MED_TETRA4,MED_PYRA5,MED_HEXA8]
+myTypes = [MEDMEM_TETRA4,MEDMEM_PYRA5,MEDMEM_HEXA8]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [4,1,2]
@@ -403,7 +239,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_CELL)
 myGroup.setNumberOfGeometricType(2)
 
-myTypes = [MED_TETRA4,MED_PYRA5]
+myTypes = [MEDMEM_TETRA4,MEDMEM_PYRA5]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [4,1]
@@ -426,7 +262,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_FACE)
 myGroup.setNumberOfGeometricType(2)
 
-myTypes = [MED_TRIA3,MED_QUAD4]
+myTypes = [MEDMEM_TRIA3,MEDMEM_QUAD4]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [2,3]
@@ -447,7 +283,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_FACE)
 myGroup.setNumberOfGeometricType(1)
 
-myTypes = [MED_TRIA3]
+myTypes = [MEDMEM_TRIA3]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [2]
@@ -461,36 +297,21 @@ myGroup.setNumber(index,values)
 
 myMeshing.addGroup(myGroup)
 
-# saving of the generated mesh in MED 2.1, 2.2 and VTK format
+# saving of the generated mesh in MED and VTK format
 
-medFileVersion = getMedFileVersionForWriting()
-print "Med File Version For Writing ",medFileVersion
+myMeshing.write(MED_DRIVER,med22FileName)
 
-if (medFileVersion == V22):
-    setMedFileVersionForWriting(V21)
-
-idMedV21 = myMeshing.addDriver(MED_DRIVER,med21FileName,myMeshing.getName())
-myMeshing.write(idMedV21)
-
-medFileVersion = getMedFileVersionForWriting()
-if (medFileVersion == V21):
-    setMedFileVersionForWriting(V22)
-
-idMedV22 = myMeshing.addDriver(MED_DRIVER,med22FileName,myMeshing.getName())
-myMeshing.write(idMedV22)
-
-idVtk = myMeshing.addDriver(VTK_DRIVER,vtkFileName,myMeshing.getName())
-myMeshing.write(idVtk)
+myMeshing.write(VTK_DRIVER,vtkFileName)
 
 # we build now 8 fields : 4 fields double (integer) :
 #                         2 fields on nodes (cells) :
 #                         1 scalar (vector)
 
 supportOnNodes = myMeshing.getSupportOnAll(MED_NODE)
-numberOfNodes = supportOnNodes.getNumberOfElements(MED_ALL_ELEMENTS)
+numberOfNodes = supportOnNodes.getNumberOfElements(MEDMEM_ALL_ELEMENTS)
 
 supportOnCells = myMeshing.getSupportOnAll(MED_CELL)
-numberOfCells = supportOnCells.getNumberOfElements(MED_ALL_ELEMENTS)
+numberOfCells = supportOnCells.getNumberOfElements(MEDMEM_ALL_ELEMENTS)
 
 fieldDoubleScalarOnNodes = FIELDDOUBLE(supportOnNodes,1)
 fieldDoubleScalarOnNodes.setName("fieldScalarDoubleNode")
@@ -634,63 +455,14 @@ for i in range(numberOfCells):
     fieldIntVectorOnCells.setValueIJ(i+1,2,valueInt2)
     fieldIntVectorOnCells.setValueIJ(i+1,3,valueInt3)
 
-medFileVersion = getMedFileVersionForWriting()
-print "Med File Version For Writing ",medFileVersion
+fieldIntScalarOnNodes.write(MED_DRIVER,med21FileName)
+fieldDoubleVectorOnNodes.write(MED_DRIVER,med21FileName)
+fieldIntVectorOnNodes.write(MED_DRIVER,med21FileName)
+fieldDoubleScalarOnCells.write(MED_DRIVER,med21FileName)
+fieldIntScalarOnCells.write(MED_DRIVER,med21FileName)
+fieldDoubleVectorOnCells.write(MED_DRIVER,med21FileName)
+fieldIntVectorOnCells.addDriver(MED_DRIVER,med21FileName)
 
-if (medFileVersion == V22):
-    setMedFileVersionForWriting(V21)
-
-idMedV21 = fieldDoubleScalarOnNodes.addDriver(MED_DRIVER,med21FileName,fieldDoubleScalarOnNodes.getName())
-fieldDoubleScalarOnNodes.write(idMedV21)
-
-idMedV21 = fieldIntScalarOnNodes.addDriver(MED_DRIVER,med21FileName,fieldIntScalarOnNodes.getName())
-fieldIntScalarOnNodes.write(idMedV21)
-
-idMedV21 = fieldDoubleVectorOnNodes.addDriver(MED_DRIVER,med21FileName,fieldDoubleVectorOnNodes.getName())
-fieldDoubleVectorOnNodes.write(idMedV21)
-
-idMedV21 = fieldIntVectorOnNodes.addDriver(MED_DRIVER,med21FileName,fieldIntVectorOnNodes.getName())
-fieldIntVectorOnNodes.write(idMedV21)
-
-idMedV21 = fieldDoubleScalarOnCells.addDriver(MED_DRIVER,med21FileName,fieldDoubleScalarOnCells.getName())
-fieldDoubleScalarOnCells.write(idMedV21)
-
-idMedV21 = fieldIntScalarOnCells.addDriver(MED_DRIVER,med21FileName,fieldIntScalarOnCells.getName())
-fieldIntScalarOnCells.write(idMedV21)
-
-idMedV21 = fieldDoubleVectorOnCells.addDriver(MED_DRIVER,med21FileName,fieldDoubleVectorOnCells.getName())
-fieldDoubleVectorOnCells.write(idMedV21)
-
-idMedV21 = fieldIntVectorOnCells.addDriver(MED_DRIVER,med21FileName,fieldIntVectorOnCells.getName())
-fieldIntVectorOnCells.write(idMedV21)
-
-medFileVersion = getMedFileVersionForWriting()
-if (medFileVersion == V21):
-    setMedFileVersionForWriting(V22)
-
-idMedV22 = fieldDoubleScalarOnNodes.addDriver(MED_DRIVER,med22FileName,fieldDoubleScalarOnNodes.getName())
-fieldDoubleScalarOnNodes.write(idMedV22)
-
-idMedV22 = fieldIntScalarOnNodes.addDriver(MED_DRIVER,med22FileName,fieldIntScalarOnNodes.getName())
-fieldIntScalarOnNodes.write(idMedV22)
-
-idMedV22 = fieldDoubleVectorOnNodes.addDriver(MED_DRIVER,med22FileName,fieldDoubleVectorOnNodes.getName())
-fieldDoubleVectorOnNodes.write(idMedV22)
-
-idMedV22 = fieldIntVectorOnNodes.addDriver(MED_DRIVER,med22FileName,fieldIntVectorOnNodes.getName())
-fieldIntVectorOnNodes.write(idMedV22)
-
-idMedV22 = fieldDoubleScalarOnCells.addDriver(MED_DRIVER,med22FileName,fieldDoubleScalarOnCells.getName())
-fieldDoubleScalarOnCells.write(idMedV22)
-
-idMedV22 = fieldIntScalarOnCells.addDriver(MED_DRIVER,med22FileName,fieldIntScalarOnCells.getName())
-fieldIntScalarOnCells.write(idMedV22)
-
-idMedV22 = fieldDoubleVectorOnCells.addDriver(MED_DRIVER,med22FileName,fieldDoubleVectorOnCells.getName())
-fieldDoubleVectorOnCells.write(idMedV22)
-
-idMedV22 = fieldIntVectorOnCells.addDriver(MED_DRIVER,med22FileName,fieldIntVectorOnCells.getName())
-fieldIntVectorOnCells.write(idMedV22)
 
 idVtk = fieldDoubleScalarOnNodes.addDriver(VTK_DRIVER,vtkFileName,fieldDoubleScalarOnNodes.getName())
 fieldDoubleScalarOnNodes.writeAppend(idVtk)

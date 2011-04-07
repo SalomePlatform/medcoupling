@@ -29,9 +29,19 @@ extern "C"
 
 namespace MEDFileUtilities
 {
-  med_mode_acces TraduceWriteMode(int medloaderwritemode) throw(INTERP_KERNEL::Exception);
+  med_access_mode TraduceWriteMode(int medloaderwritemode) throw(INTERP_KERNEL::Exception);
   void CheckMEDCode(int code, med_idt fid, const char *msg) throw(INTERP_KERNEL::Exception);
   void CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception);
+
+  class AutoFid
+  {
+  public:
+    AutoFid(med_idt fid);
+    operator med_idt() const;
+    ~AutoFid();
+  private:
+    med_idt _fid;
+  };
 }
   
 #endif

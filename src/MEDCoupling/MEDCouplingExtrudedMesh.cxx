@@ -292,6 +292,16 @@ void MEDCouplingExtrudedMesh::checkCoherency() const throw (INTERP_KERNEL::Excep
 {
 }
 
+void MEDCouplingExtrudedMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+}
+
+void MEDCouplingExtrudedMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency1(eps);
+}
+
 void MEDCouplingExtrudedMesh::getBoundingBox(double *bbox) const
 {
   double bbox2D[6];
@@ -580,6 +590,11 @@ void MEDCouplingExtrudedMesh::scale(const double *point, double factor)
 {
   _mesh2D->scale(point,factor);
   _mesh1D->scale(point,factor);
+}
+
+DataArrayInt *MEDCouplingExtrudedMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
 MEDCouplingMesh *MEDCouplingExtrudedMesh::buildPart(const int *start, const int *end) const

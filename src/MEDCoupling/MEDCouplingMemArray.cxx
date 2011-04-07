@@ -244,7 +244,7 @@ void DataArrayDouble::iota(double init) throw(INTERP_KERNEL::Exception)
   if(!ptr)
     throw INTERP_KERNEL::Exception("DataArrayDouble::iota : allocate first !");
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::iota : works only for arrays with only one component!");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
   int ntuples=getNumberOfTuples();
   for(int i=0;i<ntuples;i++)
     ptr[i]=init+double(i);
@@ -254,7 +254,7 @@ void DataArrayDouble::iota(double init) throw(INTERP_KERNEL::Exception)
 bool DataArrayDouble::isUniform(double val, double eps) const
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::isUniform : must be applied on DataArrayDouble with only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::isUniform : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
   const double *w=getConstPointer();
   const double *end=w+nbOfTuples;
@@ -272,6 +272,31 @@ void DataArrayDouble::sort() throw(INTERP_KERNEL::Exception)
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::sort : only supported with 'this' array with ONE component !");
   _mem.sort();
+}
+
+void DataArrayDouble::checkMonotonic(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  if(!isMonotonic(eps))
+    throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not monotonic !");
+}
+
+bool DataArrayDouble::isMonotonic(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::isMonotonic : only supported with 'this' array with ONE component !");
+  int nbOfElements=getNumberOfTuples();
+  const double *ptr=getConstPointer();
+  if(nbOfElements==0)
+    return true;
+  double ref=ptr[0];
+  for(int i=1;i<nbOfElements;i++)
+    {
+      if(ptr[i]<ref+eps)
+        return false;
+      ref=ptr[i];
+    }
+  return true;
 }
 
 std::string DataArrayDouble::repr() const
@@ -482,7 +507,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleId(const int *new2OldBg, const in
 }
 
 /*!
- * This method is equivalent to DataArrayInt::selectByTupleId except that an analyze to the content of input range to check that it will not lead to memory corruption !
+ * This method is equivalent to DataArrayDouble::selectByTupleId except that an analyze to the content of input range to check that it will not lead to memory corruption !
  */
 DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception)
 {
@@ -499,6 +524,30 @@ DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, cons
       std::copy(srcPt+(*w)*nbComp,srcPt+((*w)+1)*nbComp,pt+i*nbComp);
     else
       throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleIdSafe : some ids has been detected to be out of [0,this->getNumberOfTuples) !");
+  ret->copyStringInfoFrom(*this);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * Idem than DataArrayInt::selectByTupleIdSafe except that the input array is not constructed explicitely.
+ * The convention is as python one. ['bg','end') with steps of 'step'.
+ * Returns a newly created array.
+ */
+DataArrayDouble *DataArrayDouble::selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception)
+{
+  if(end<bg)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::selectByTupleId2 : end before begin !");
+  if(step<=0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::selectByTupleId2 : invalid step should > 0 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  int nbComp=getNumberOfComponents();
+  int newNbOfTuples=(end-bg)/step;
+  ret->alloc(newNbOfTuples,nbComp);
+  double *pt=ret->getPointer();
+  const double *srcPt=getConstPointer()+bg*nbComp;
+  for(int i=0;i<newNbOfTuples;i++,srcPt+=step*nbComp)
+    std::copy(srcPt,srcPt+nbComp,pt+i*nbComp);
   ret->copyStringInfoFrom(*this);
   ret->incrRef();
   return ret;
@@ -587,6 +636,12 @@ DataArrayDouble *DataArrayDouble::keepSelectedComponents(const std::vector<int>&
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret(DataArrayDouble::New());
   int newNbOfCompo=compoIds.size();
   int oldNbOfCompo=getNumberOfComponents();
+  for(std::vector<int>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
+    if((*it)<0 || (*it)>=oldNbOfCompo)
+      {
+        std::ostringstream oss; oss << "DataArrayDouble::keepSelectedComponents : invalid requested component : " << *it << " whereas it should be in [0," << oldNbOfCompo << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   int nbOfTuples=getNumberOfTuples();
   ret->alloc(nbOfTuples,newNbOfCompo);
   ret->copyPartOfStringInfoFrom(*this,compoIds);
@@ -675,7 +730,7 @@ void DataArrayDouble::checkNoNullValues() const throw(INTERP_KERNEL::Exception)
 double DataArrayDouble::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<=0)
     throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
@@ -697,7 +752,7 @@ double DataArrayDouble::getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP
 double DataArrayDouble::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : must be applied on DataArrayDouble with only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<=0)
     throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : array exists but number of tuples must be > 0 !");
@@ -719,7 +774,7 @@ double DataArrayDouble::getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP
 double DataArrayDouble::getAverageValue() const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getAverageValue : must be applied on DataArrayDouble with only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getAverageValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<=0)
     throw INTERP_KERNEL::Exception("DataArrayDouble::getAverageValue : array exists but number of tuples must be > 0 !");
@@ -1755,7 +1810,7 @@ void DataArrayInt::iota(int init) throw(INTERP_KERNEL::Exception)
   if(!ptr)
     throw INTERP_KERNEL::Exception("DataArrayInt::iota : allocate first !");
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::iota : works only for arrays with only one component!");
+    throw INTERP_KERNEL::Exception("DataArrayInt::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
   int ntuples=getNumberOfTuples();
   for(int i=0;i<ntuples;i++)
     ptr[i]=init+i;
@@ -1803,7 +1858,7 @@ void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
 void DataArrayInt::transformWithIndArr(const int *indArr)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component !");
+    throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
   int *pt=getPointer();
   for(int i=0;i<nbOfTuples;i++)
@@ -2059,6 +2114,30 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
 }
 
 /*!
+ * Idem than DataArrayInt::selectByTupleIdSafe except that the input array is not constructed explicitely.
+ * The convention is as python one. ['bg','end') with steps of 'step'.
+ * Returns a newly created array.
+ */
+DataArrayInt *DataArrayInt::selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception)
+{
+  if(end<bg)
+    throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleId2 : end before begin !");
+  if(step<=0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleId2 : invalid step should > 0 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  int nbComp=getNumberOfComponents();
+  int newNbOfTuples=(end-bg)/step;
+  ret->alloc(newNbOfTuples,nbComp);
+  int *pt=ret->getPointer();
+  const int *srcPt=getConstPointer()+bg*nbComp;
+  for(int i=0;i<newNbOfTuples;i++,srcPt+=step*nbComp)
+    std::copy(srcPt,srcPt+nbComp,pt+i*nbComp);
+  ret->copyStringInfoFrom(*this);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This method works only for arrays having single component.
  * If this contains the array a1 containing [9,10,0,6,4,11,3,7] this method returns an array a2 [5,6,0,3,2,7,1,4].
  * By doing a1.renumber(a2) the user will obtain array a3 equal to a1 sorted.
@@ -2147,7 +2226,7 @@ bool DataArrayInt::isIdentity() const
 bool DataArrayInt::isUniform(int val) const
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::isUniform : must be applied on DataArrayInt with only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::isUniform : must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
   const int *w=getConstPointer();
   const int *end=w+nbOfTuples;
@@ -2260,6 +2339,12 @@ DataArrayInt *DataArrayInt::keepSelectedComponents(const std::vector<int>& compo
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret(DataArrayInt::New());
   int newNbOfCompo=compoIds.size();
   int oldNbOfCompo=getNumberOfComponents();
+  for(std::vector<int>::const_iterator it=compoIds.begin();it!=compoIds.end();it++)
+    if((*it)<0 || (*it)>=oldNbOfCompo)
+      {
+        std::ostringstream oss; oss << "DataArrayDouble::keepSelectedComponents : invalid requested component : " << *it << " whereas it should be in [0," << oldNbOfCompo << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   int nbOfTuples=getNumberOfTuples();
   ret->alloc(nbOfTuples,newNbOfCompo);
   ret->copyPartOfStringInfoFrom(*this,compoIds);
@@ -2331,7 +2416,7 @@ void DataArrayInt::SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)
 DataArrayInt *DataArrayInt::getIdsEqual(int val) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqual : the array must have only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
   const int *cptr=getConstPointer();
   std::vector<int> res;
   int nbOfTuples=getNumberOfTuples();
@@ -2347,7 +2432,7 @@ DataArrayInt *DataArrayInt::getIdsEqual(int val) const throw(INTERP_KERNEL::Exce
 DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqual : the array must have only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqual : the array must have only one component, you can call 'rearrange' method before !");
   const int *cptr=getConstPointer();
   std::vector<int> res;
   int nbOfTuples=getNumberOfTuples();
@@ -2363,7 +2448,7 @@ DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const throw(INTERP_KERNEL::E
 DataArrayInt *DataArrayInt::getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualList : the array must have only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualList : the array must have only one component, you can call 'rearrange' method before !");
   std::set<int> vals2(vals.begin(),vals.end());
   const int *cptr=getConstPointer();
   std::vector<int> res;
@@ -2380,7 +2465,7 @@ DataArrayInt *DataArrayInt::getIdsEqualList(const std::vector<int>& vals) const 
 DataArrayInt *DataArrayInt::getIdsNotEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqualList : the array must have only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqualList : the array must have only one component, you can call 'rearrange' method before !");
   std::set<int> vals2(vals.begin(),vals.end());
   const int *cptr=getConstPointer();
   std::vector<int> res;

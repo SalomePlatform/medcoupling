@@ -41,12 +41,18 @@ namespace ParaMEDMEM
                                const DECOptions& dec_opt,
                                const InterpolationOptions& i_opt);
 
+    void keepTracksOfSourceIds(int procId, DataArrayInt *ids);
+
+    void keepTracksOfTargetIds(int procId, DataArrayInt *ids);
+
     void addContribution(const MEDCouplingPointSet *src, const DataArrayInt *srcIds, const std::string& srcMeth, int srcProcId,
                          const MEDCouplingPointSet *trg, const DataArrayInt *trgIds, const std::string& trgMeth, int trgProcId);
 
     void prepare(const std::vector< std::vector<int> >& procsInInteraction);
     
     void computeDeno();
+
+    void multiply();
 
     void transposeMultiply();
     

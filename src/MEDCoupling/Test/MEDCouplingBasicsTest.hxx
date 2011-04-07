@@ -205,11 +205,15 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFillFromAnalyticThree1 );
     CPPUNIT_TEST( testDAUnitVar1 );
     CPPUNIT_TEST( testGaussCoordinates1 );
-    //CPPUNIT_TEST( testP2Localization1 ); not implemented yet
+    CPPUNIT_TEST( testP2Localization1 );
+    CPPUNIT_TEST( testP2Localization2 );
     CPPUNIT_TEST( testGetValueOn2 );
     CPPUNIT_TEST( testDAIGetIdsNotEqual1 );
     CPPUNIT_TEST( testDAIComputeOffsets1 );
     CPPUNIT_TEST( testUMeshHexagonPrism1 );
+    CPPUNIT_TEST( testDADCheckIsMonotonic );
+    CPPUNIT_TEST( testCheckCoherencyDeeper1 );
+    CPPUNIT_TEST( testUnPolyze2 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -440,11 +444,16 @@ namespace ParaMEDMEM
     void testFillFromAnalyticThree1();
     void testDAUnitVar1();
     void testGaussCoordinates1();
+    void testQ1Localization1();
     void testP2Localization1();
+    void testP2Localization2();
     void testGetValueOn2();
     void testDAIGetIdsNotEqual1();
     void testDAIComputeOffsets1();
     void testUMeshHexagonPrism1();
+    void testDADCheckIsMonotonic();
+    void testCheckCoherencyDeeper1();
+    void testUnPolyze2();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

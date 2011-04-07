@@ -27,7 +27,7 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNELBASES_EXPORT Exception : std::exception
+  class INTERPKERNELBASES_EXPORT Exception : public std::exception
   {
   public:
     Exception(const char *what);

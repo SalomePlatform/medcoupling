@@ -45,8 +45,9 @@ namespace ParaMEDMEM
     void updateTime() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
-    void setCoords(DataArrayDouble *coords);
-    DataArrayDouble *getCoords() const { return _coords; }
+    void setCoords(const DataArrayDouble *coords);
+    const DataArrayDouble *getCoords() const { return _coords; }
+    DataArrayDouble *getCoords() { return _coords; }
     DataArrayDouble *getCoordinatesAndOwner() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingMesh *other, double prec) const;

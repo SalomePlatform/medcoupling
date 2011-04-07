@@ -188,6 +188,7 @@ namespace INTERP_KERNEL
         {
           return isElementContainsPointAlg3D(ptToTest,conn_elem,conn_elem_sz,coords,cmType,eps);
         }
+      throw INTERP_KERNEL::Exception("Invalid spacedim detected ! Managed spaceDim are 2 and 3 !");
     }
         
     bool elementContainsPoint(typename MyMeshType::MyConnType i, const double* x, double eps)

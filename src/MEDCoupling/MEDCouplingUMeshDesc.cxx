@@ -25,7 +25,7 @@
 
 using namespace ParaMEDMEM;
 
-MEDCouplingUMeshDesc::MEDCouplingUMeshDesc():_mesh_dim(-1),_desc_connec(0),_desc_connec_index(0),
+MEDCouplingUMeshDesc::MEDCouplingUMeshDesc():_mesh_dim(-2),_desc_connec(0),_desc_connec_index(0),
                                              _nodal_connec_face(0),_nodal_connec_face_index(0)
 {
 }
@@ -74,6 +74,16 @@ void MEDCouplingUMeshDesc::checkCoherency() const throw(INTERP_KERNEL::Exception
           throw INTERP_KERNEL::Exception(message.str().c_str());
         }
     }
+}
+
+void MEDCouplingUMeshDesc::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+}
+
+void MEDCouplingUMeshDesc::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency1(eps);
 }
 
 void MEDCouplingUMeshDesc::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
@@ -174,6 +184,11 @@ void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt 
   computeTypes();
 }
 
+DataArrayInt *MEDCouplingUMeshDesc::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 void MEDCouplingUMeshDesc::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   MEDCouplingPointSet::getTinySerializationInformation(tinyInfoD,tinyInfo,littleStrings);
@@ -190,7 +205,7 @@ bool MEDCouplingUMeshDesc::isEmptyMesh(const std::vector<int>& tinyInfo) const
   return tinyInfo[5]<=0;
 }
 
-void MEDCouplingUMeshDesc::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings)
+void MEDCouplingUMeshDesc::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   std::vector<int> tinyInfoTmp(tinyInfo.begin()+1,tinyInfo.end());
   MEDCouplingPointSet::resizeForUnserialization(tinyInfoTmp,a1,a2,littleStrings);
@@ -214,7 +229,7 @@ void MEDCouplingUMeshDesc::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) co
   std::copy(faceConnIndex,faceConnIndex+getNumberOfFaces()+1,ptA1);
 }
 
-void MEDCouplingUMeshDesc::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingUMeshDesc::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   std::vector<int> tinyInfoTmp(tinyInfo.begin()+1,tinyInfo.end());
   MEDCouplingPointSet::unserialization(tinyInfoD,tinyInfoTmp,a1,a2,littleStrings);

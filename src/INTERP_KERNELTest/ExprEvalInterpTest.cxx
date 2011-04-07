@@ -384,16 +384,16 @@ void ExprEvalInterpTest::testInterpreterUnit1()
 
 void ExprEvalInterpTest::testInterpreter3()
 {
+  std::set<std::string> res;
+  double input[3];
+  double res2[3];
   INTERP_KERNEL::ExprParser expr1("2.3+x>5.");
   expr1.parse();
-  std::set<std::string> res;
   expr1.getSetOfVars(res);
   CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
   CPPUNIT_ASSERT(*(res.begin())=="x");
   expr1.prepareExprEvaluationVec();
-  double input[3];
   input[0]=0.;
-  double res2[3];
   expr1.evaluateExpr(1,input,res2);
   CPPUNIT_ASSERT(-std::numeric_limits<double>::max()==res2[0]);
   input[0]=2.8;
@@ -436,6 +436,36 @@ void ExprEvalInterpTest::testInterpreter3()
   input[0]=2.6;
   expr3.evaluateExpr(1,input,res2);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(9.8,res2[0],1e-12);
+  //
+  INTERP_KERNEL::ExprParser expr4("if(x>1000,2*x,x/3)");
+  expr4.parse();
+  res.clear();
+  expr4.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  expr4.prepareExprEvaluationVec();
+  input[0]=2.7;
+  expr4.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.9,res2[0],1e-12);
+  input[0]=999.;
+  expr4.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(333.,res2[0],1e-12);
+  input[0]=1002.;
+  expr4.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(2004.,res2[0],1e-12);
+  //
+  INTERP_KERNEL::ExprParser expr5("4.4*x*log10(x)*10");
+  expr5.parse();
+  res.clear();
+  expr5.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  expr5.prepareExprEvaluationVec();
+  input[0]=273.15;
+  expr5.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(29282.131520617437,res2[0],1e-9);
+  input[0]=0.;
+  CPPUNIT_ASSERT_THROW(expr5.evaluateExpr(1,input,res2),INTERP_KERNEL::Exception);
 }
 
 /*!
@@ -454,4 +484,56 @@ void ExprEvalInterpTest::testInterpreter4()
   double result;
   expr.evaluateExpr(1,vals, &result);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.2,result,1e-12);
+}
+
+/*!
+ * Allowing scientific format for floats.
+ */
+void ExprEvalInterpTest::testInterpreter5()
+{
+  std::set<std::string> res;
+  double input[3];
+  double res2[3];
+  INTERP_KERNEL::ExprParser expr1("1.85e-3*x");
+  expr1.parse();
+  expr1.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  input[0]=56.7;
+  expr1.prepareExprEvaluationVec();
+  expr1.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.104895,res2[0],1e-12);
+  input[0]=-65.7;
+  expr1.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.121545,res2[0],1e-12);
+  //
+  INTERP_KERNEL::ExprParser expr2("x*1.85e-3");
+  expr2.parse();
+  expr2.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  input[0]=56.7;
+  expr2.prepareExprEvaluationVec();
+  expr2.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.104895,res2[0],1e-12);
+  input[0]=-65.7;
+  expr2.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.121545,res2[0],1e-12);
+  //
+  INTERP_KERNEL::ExprParser expr3("2.6E+1+x*1.85e-3");
+  expr3.parse();
+  expr3.getSetOfVars(res);
+  CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+  CPPUNIT_ASSERT(*(res.begin())=="x");
+  input[0]=56.7;
+  expr3.prepareExprEvaluationVec();
+  expr3.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(26.104895,res2[0],1e-12);
+  input[0]=-65.7;
+  expr3.evaluateExpr(1,input,res2);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(25.878455,res2[0],1e-12);
+  //
+  INTERP_KERNEL::ExprParser expr4("3.*max(((3.2e+1*(ln((2*5.2E-02+6.)+(1.2E-001*1.2E+2+3e-4))))),((3.2E-2*(exp((6e-1+2*5.2e-2)+(1.2E001*1.2+3.))))))");
+  expr4.parse();
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6994207.8359543988,expr4.evaluate(),1e-5);
 }

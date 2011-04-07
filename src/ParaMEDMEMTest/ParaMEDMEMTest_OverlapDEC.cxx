@@ -81,7 +81,7 @@ void ParaMEDMEMTest::testOverlapDEC1()
       ParaMEDMEM::ComponentTopology comptopo;
       parameshS=new ParaMEDMEM::ParaMESH(meshS,*dec.getGrp(),"source mesh");
       parafieldS=new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::NO_TIME,parameshS,comptopo);
-      parafieldS->getField()->setNature(ParaMEDMEM::IntegralGlobConstraint);//ConservativeVolumic
+      parafieldS->getField()->setNature(ParaMEDMEM::ConservativeVolumic);//IntegralGlobConstraint
       double *valsS=parafieldS->getField()->getArray()->getPointer();
       valsS[0]=7.; valsS[1]=8.;
       //
@@ -98,7 +98,7 @@ void ParaMEDMEMTest::testOverlapDEC1()
       meshT->finishInsertingCells();
       parameshT=new ParaMEDMEM::ParaMESH(meshT,*dec.getGrp(),"target mesh");
       parafieldT=new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::NO_TIME,parameshT,comptopo);
-      parafieldT->getField()->setNature(ParaMEDMEM::IntegralGlobConstraint);//ConservativeVolumic
+      parafieldT->getField()->setNature(ParaMEDMEM::ConservativeVolumic);//IntegralGlobConstraint
       double *valsT=parafieldT->getField()->getArray()->getPointer();
       valsT[0]=7.;
     }
@@ -122,7 +122,7 @@ void ParaMEDMEMTest::testOverlapDEC1()
       ParaMEDMEM::ComponentTopology comptopo;
       parameshS=new ParaMEDMEM::ParaMESH(meshS,*dec.getGrp(),"source mesh");
       parafieldS=new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::NO_TIME,parameshS,comptopo);
-      parafieldS->getField()->setNature(ParaMEDMEM::IntegralGlobConstraint);//ConservativeVolumic
+      parafieldS->getField()->setNature(ParaMEDMEM::ConservativeVolumic);//IntegralGlobConstraint
       double *valsS=parafieldS->getField()->getArray()->getPointer();
       valsS[0]=9.; valsS[1]=11.;
       //
@@ -139,7 +139,7 @@ void ParaMEDMEMTest::testOverlapDEC1()
       meshT->finishInsertingCells();
       parameshT=new ParaMEDMEM::ParaMESH(meshT,*dec.getGrp(),"target mesh");
       parafieldT=new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::NO_TIME,parameshT,comptopo);
-      parafieldT->getField()->setNature(ParaMEDMEM::IntegralGlobConstraint);
+      parafieldT->getField()->setNature(ParaMEDMEM::ConservativeVolumic);//IntegralGlobConstraint
       double *valsT=parafieldT->getField()->getArray()->getPointer();
       valsT[0]=8.;
     }
@@ -162,7 +162,7 @@ void ParaMEDMEMTest::testOverlapDEC1()
       ParaMEDMEM::ComponentTopology comptopo;
       parameshS=new ParaMEDMEM::ParaMESH(meshS,*dec.getGrp(),"source mesh");
       parafieldS=new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::NO_TIME,parameshS,comptopo);
-      parafieldS->getField()->setNature(ParaMEDMEM::IntegralGlobConstraint);//ConservativeVolumic
+      parafieldS->getField()->setNature(ParaMEDMEM::ConservativeVolumic);//IntegralGlobConstraint
       double *valsS=parafieldS->getField()->getArray()->getPointer();
       valsS[0]=10.;
       //
@@ -179,29 +179,27 @@ void ParaMEDMEMTest::testOverlapDEC1()
       meshT->finishInsertingCells();
       parameshT=new ParaMEDMEM::ParaMESH(meshT,*dec.getGrp(),"target mesh");
       parafieldT=new ParaMEDMEM::ParaFIELD(ParaMEDMEM::ON_CELLS,ParaMEDMEM::NO_TIME,parameshT,comptopo);
-      parafieldT->getField()->setNature(ParaMEDMEM::IntegralGlobConstraint);
+      parafieldT->getField()->setNature(ParaMEDMEM::ConservativeVolumic);//IntegralGlobConstraint
       double *valsT=parafieldT->getField()->getArray()->getPointer();
       valsT[0]=9.;
     }
   dec.attachSourceLocalField(parafieldS);
   dec.attachTargetLocalField(parafieldT);
   dec.synchronize();
-  dec.sendRecvData(false);
+  dec.sendRecvData(true);
   //
-  /*if(rank==0)
+  if(rank==0)
     {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(7.5,parafieldS->getField()->getArray()->getIJ(0,0),1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,parafieldS->getField()->getArray()->getIJ(0,1),1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.75,parafieldT->getField()->getArray()->getIJ(0,0),1e-12);
     }
   if(rank==1)
     {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,parafieldS->getField()->getArray()->getIJ(0,0),1e-12);
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,parafieldS->getField()->getArray()->getIJ(0,1),1e-12);
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.5,parafieldT->getField()->getArray()->getIJ(0,0),1e-12);
     }
   if(rank==2)
     {
-      CPPUNIT_ASSERT_DOUBLES_EQUAL(8.5,parafieldS->getField()->getArray()->getIJ(0,0),1e-12);
-      }*/
+      CPPUNIT_ASSERT_DOUBLES_EQUAL(10.5,parafieldT->getField()->getArray()->getIJ(0,0),1e-12);
+    }
   delete parafieldS;
   delete parafieldT;
   delete parameshS;

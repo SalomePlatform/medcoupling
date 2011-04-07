@@ -18,6 +18,7 @@
 //
 
 #include "MEDFileField.hxx"
+#include "MEDFileMesh.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileUtilities.hxx"
 
@@ -25,10 +26,10 @@
 
 #include <algorithm>
 
-extern med_geometrie_element typmai[MED_NBR_GEOMETRIE_MAILLE+2];
-extern INTERP_KERNEL::NormalizedCellType typmai2[MED_NBR_GEOMETRIE_MAILLE+2];
-extern med_geometrie_element typmainoeud[1];
-extern med_geometrie_element typmai3[32];
+extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
+extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
+extern med_geometry_type typmainoeud[1];
+extern med_geometry_type typmai3[32];
 
 using namespace ParaMEDMEM;
 
@@ -40,8 +41,8 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFil
 MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid) throw(INTERP_KERNEL::Exception)
 try:_father(fath)
 {
-  INTERP_KERNEL::AutoPtr<char> locname=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
-  INTERP_KERNEL::AutoPtr<char> pflname=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  INTERP_KERNEL::AutoPtr<char> locname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> pflname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   std::string fieldName=getName();
   std::string meshName=getMeshName();
   int iteration=getIteration();
@@ -49,16 +50,15 @@ try:_father(fath)
   const std::vector<std::string>& infos=getInfos();
   TypeOfField type=getType();
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
-  int nval=MEDnVal(fid,(char *)fieldName.c_str(),type==ON_CELLS?MED_MAILLE:MED_NOEUD,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,
-                   iteration,order,(char *)meshName.c_str(),MED_COMPACT);
+  int profilesize,nbi;
+  int nval=MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,1,MED_COMPACT_PFLMODE,
+                                     pflname,&profilesize,locname,&nbi);//to generalize
   _arr=DataArrayDouble::New();
   _arr->alloc(nval,infos.size());
-  MEDchampLire(fid,(char *)getMeshName().c_str(),(char *)fieldName.c_str(),(unsigned char*)_arr->getPointer(),MED_FULL_INTERLACE,MED_ALL,locname,
-               pflname,MED_COMPACT,type==ON_CELLS?MED_MAILLE:MED_NOEUD,
-               type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,
-               iteration,order);
-  _profile=pflname;
-  _localization=locname;
+  MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,MED_COMPACT_PFLMODE,
+                             pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>(_arr->getPointer()));
+  _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
+  _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
 }
 catch(INTERP_KERNEL::Exception& e)
 {
@@ -103,6 +103,11 @@ std::string MEDFileFieldPerMeshPerTypePerDisc::getMeshName() const
 int MEDFileFieldPerMeshPerTypePerDisc::getNumberOfComponents() const
 {
   return _father->getNumberOfComponents();
+}
+
+int MEDFileFieldPerMeshPerTypePerDisc::getNumberOfTuples() const
+{
+  return _arr->getNumberOfTuples();
 }
 
 const std::vector<std::string>& MEDFileFieldPerMeshPerTypePerDisc::getInfos() const
@@ -195,6 +200,28 @@ std::vector<std::string> MEDFileFieldPerMeshPerType::getLocsReallyUsed() const
   return ret;
 }
 
+bool MEDFileFieldPerMeshPerType::isOnNode(int& type, int& number, const DataArrayInt* &arrs) const throw(INTERP_KERNEL::Exception)
+{
+  if(_type!=ON_NODES)
+    return false;
+  type=INTERP_KERNEL::NORM_ERROR;
+  number=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    number+=(*it)->getNumberOfTuples();
+  return true;
+}
+
+bool MEDFileFieldPerMeshPerType::isOnCell(int dimDimReq, int& type, int& number, const DataArrayInt* &arrs) const throw(INTERP_KERNEL::Exception)
+{
+  if(_type!=ON_CELLS)
+    return false;
+  type=(int)_geo_type;
+  number=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    number+=(*it)->getNumberOfTuples();
+  return true;
+}
+
 MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception):_father(fath),_type(type),_geo_type(geoType)
 {
 }
@@ -206,9 +233,9 @@ void MEDFileFieldPerMeshPerType::finishLoading(med_idt fid) throw(INTERP_KERNEL:
   _field_pm_pt_pd[0]=MEDFileFieldPerMeshPerTypePerDisc::New(this,fid);
 }
 
-MEDFileFieldPerMesh *MEDFileFieldPerMesh::New(MEDFileField1TSWithoutDAS *fath, const char *meshName, double time)
+MEDFileFieldPerMesh *MEDFileFieldPerMesh::New(MEDFileField1TSWithoutDAS *fath, double time)
 {
-  return new MEDFileFieldPerMesh(fath,meshName,time);
+  return new MEDFileFieldPerMesh(fath,time);
 }
 
 void MEDFileFieldPerMesh::pushBack(TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType)
@@ -250,7 +277,7 @@ std::string MEDFileFieldPerMesh::getName() const
 
 std::string MEDFileFieldPerMesh::getMeshName() const
 {
-  return _mesh_name;
+  return _father->getMeshName();
 }
 
 int MEDFileFieldPerMesh::getNumberOfComponents() const
@@ -297,7 +324,55 @@ std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsed() const
   return ret;
 }
 
-MEDFileFieldPerMesh::MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, const char *meshName, double time):_father(fath),_mesh_name(meshName),_time(time)
+MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(int meshDimRelToMaxExt, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<const DataArrayInt *> arrs;
+  std::vector<int> distrib=getDistributionOfTypes(meshDimRelToMaxExt,mesh->getMeshDimension(),arrs);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=mesh->checkTypeConsistencyAndContig(distrib,arrs);
+  return 0;
+}
+
+std::vector<int> MEDFileFieldPerMesh::getDistributionOfTypes(int meshDimRelToMaxExt, int mdim, std::vector<const DataArrayInt *>& arrs) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt>1)
+    throw INTERP_KERNEL::Exception("Invalid meshDimRelToMaxExt parameter passed ! must be 1 for node and 0,-1,-2,-3 for cells !");
+  std::vector<int> ret;
+  int tmp2,tmp3;
+  arrs.clear();
+  const DataArrayInt *arrTmp=0;
+  if(meshDimRelToMaxExt==1)
+    {//On node
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerType> >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+        if((*it)->isOnNode(tmp2,tmp3,arrTmp))
+          {
+            ret.push_back(-1);
+            ret.push_back(tmp2);
+            ret.push_back(tmp3);
+            if(arrTmp)
+              arrs.push_back(arrTmp);
+          }
+      if(ret.size()>2)
+        throw INTERP_KERNEL::Exception("Detected on same time step two different discretization ... Should never happen !");
+    }
+  else
+    {
+      int dimTarget=mdim+meshDimRelToMaxExt;
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerType> >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+        if((*it)->isOnCell(dimTarget,tmp2,tmp3,arrTmp))
+          {
+            ret.push_back((int)(*it)->getGeoType());
+            ret.push_back(tmp2);
+            ret.push_back(tmp3);
+            if(arrTmp)
+              arrs.push_back(arrTmp);
+          }
+    }
+  if(ret.empty())
+    throw INTERP_KERNEL::Exception("No field part correspond to requested meshdimRel !");
+  return ret;
+}
+
+MEDFileFieldPerMesh::MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, double time):_father(fath),_time(time)
 {
 }
 
@@ -305,17 +380,27 @@ void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int id, const char *pflN
 {
   _pfls[id]=DataArrayInt::New();
   _pfls[id]->alloc(lgth,1);
-  MEDprofilLire(fid,_pfls[id]->getPointer(),(char *)pflName);
+  MEDprofileRd(fid,pflName,_pfls[id]->getPointer());
+  _pfls[id]->applyLin(1,-1,0);//Converting into C format
 }
 
 void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int i)
 {
-  INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
+  INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   int sz;
-  MEDprofilInfo(fid,i,pflName,&sz);
+  MEDprofileInfo(fid,i,pflName,&sz);
   _pfls[i]=DataArrayInt::New();
   _pfls[i]->alloc(sz,1);
-  MEDprofilLire(fid,_pfls[i]->getPointer(),(char *)pflName);
+  MEDprofileRd(fid,pflName,_pfls[i]->getPointer());
+}
+
+MEDFieldFieldGlobs::MEDFieldFieldGlobs(const char *fname):_file_name(fname)
+{
+}
+
+void MEDFieldFieldGlobs::setFileName(const char *fileName)
+{
+  _file_name=fileName;
 }
 
 std::vector<std::string> MEDFieldFieldGlobs::getPfls() const
@@ -336,41 +421,34 @@ std::vector<std::string> MEDFieldFieldGlobs::getLocs() const
   return ret;
 }
 
-MEDFileField1TSWithoutDAS *MEDFileField1TSWithoutDAS::New(const char *fieldName, int iteration, int order, const std::vector<std::string>& infos)
+MEDFileField1TSWithoutDAS *MEDFileField1TSWithoutDAS::New(const char *fieldName, const char *meshName, int iteration, int order, int meshIt, int meshOrder, const std::vector<std::string>& infos)
 {
-  return new MEDFileField1TSWithoutDAS(fieldName,iteration,order,infos);
+  return new MEDFileField1TSWithoutDAS(fieldName,meshName,iteration,order,meshIt,meshOrder,infos);
 }
 
-void MEDFileField1TSWithoutDAS::pushBack(TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, double time, const char *meshName) const
+void MEDFileField1TSWithoutDAS::pushBack(TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, double time) const
 {
   _types.push_back(type);
   _geo_types.push_back(geoType);
   _times.push_back(time);
-  _meshes.push_back(meshName);
 }
 
 void MEDFileField1TSWithoutDAS::finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
-  std::vector<std::string> meshesOnlyOnce;
-  int nbOfTurn=_meshes.size();
-  for(int i=0;i<nbOfTurn;i++)
-    {
-      std::vector<std::string>::iterator it=std::find(meshesOnlyOnce.begin(),meshesOnlyOnce.end(),_meshes[i]);
-      if(it==meshesOnlyOnce.end())
-        {
-          _field_per_mesh.push_back(MEDFileFieldPerMesh::New(this,_meshes[i].c_str(),_times[i]));
-          meshesOnlyOnce.push_back(_meshes[i]);
-          _field_per_mesh.back()->pushBack(_types[i],_geo_types[i]);
-        }
-      else
-        {
-          int w=std::distance(meshesOnlyOnce.begin(),it);
-          _field_per_mesh[w]->pushBack(_types[i],_geo_types[i]);
-        }
-    }
-  int nbOfMeshes=_field_per_mesh.size();
-  for(int i=0;i<nbOfMeshes;i++)
-    _field_per_mesh[i]->finishLoading(fid);
+  _field_per_mesh.push_back(MEDFileFieldPerMesh::New(this,_times[0]));
+  _field_per_mesh[0]->finishLoading(fid);
+}
+
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(int meshDimRelToMaxExt, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm=MEDFileMesh::New(glob->getFileName(),_mesh_name.c_str(),_mesh_iteration,_mesh_order);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mm->getGenMeshAtLevel(meshDimRelToMaxExt);
+  return _field_per_mesh[0]->getFieldOnMeshAtLevel(meshDimRelToMaxExt,glob,m);
+}
+
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(int meshDimRelToMaxExt, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+{
+  return _field_per_mesh[0]->getFieldOnMeshAtLevel(meshDimRelToMaxExt,glob,mesh);
 }
 
 std::vector<std::string> MEDFileField1TSWithoutDAS::getPflsReallyUsed() const
@@ -407,7 +485,9 @@ std::vector<std::string> MEDFileField1TSWithoutDAS::getLocsReallyUsed() const
   return ret;
 }
 
-MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int iteration, int order, const std::vector<std::string>& infos):_name(fieldName),_infos(infos),_iteration(iteration),_order(order)
+MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, const char *meshName, int iteration, int order, int meshIt, int meshOrder,
+                                                     const std::vector<std::string>& infos):_name(fieldName),_mesh_name(meshName),_infos(infos),_iteration(iteration),_order(order),
+                                                                                            _mesh_iteration(meshIt),_mesh_order(meshOrder)
 {
 }
 
@@ -417,29 +497,35 @@ MEDFileField1TS *MEDFileField1TS::New(const char *fileName, const char *fieldNam
 }
 
 MEDFileField1TS::MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
-try:MEDFileField1TSWithoutDAS(fieldName,iteration,order,std::vector<std::string>())
+try:MEDFileField1TSWithoutDAS(fieldName,"",iteration,order,-1,-1,std::vector<std::string>()),MEDFieldFieldGlobs(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
-  int nbFields=MEDnChamp(fid,0);
-  med_type_champ typcha;
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  int nbFields=MEDnField(fid);
+  med_field_type typcha;
   bool found=false;
   std::vector<std::string> fns(nbFields);
   for(int i=0;i<nbFields && !found;i++)
     {
-      int ncomp=MEDnChamp(fid,i+1);
-      INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_TAILLE_PNOM+1];
-      INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_TAILLE_PNOM+1];
-      INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
-      MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
+      int ncomp=MEDfieldnComponent(fid,i+1);
+      INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> dtunit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> nomMaa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      med_bool localMesh;
+      int nbOfStep;
+      MEDfieldInfo(fid,i+1,nomcha,nomMaa,&localMesh,&typcha,comp,unit,dtunit,&nbOfStep);
       std::string tmp(nomcha);
       fns[i]=tmp;
       found=(tmp==fieldName);
       if(found)
         {
+          std::string mname=MEDLoaderBase::buildStringFromFortran(nomMaa,MED_NAME_SIZE);
+          _mesh_name=mname;
           _infos.resize(ncomp);
           for(int j=0;j<ncomp;j++)
-            _infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM,(char *)unit+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM);
+            _infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+i*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+i*MED_SNAME_SIZE,MED_SNAME_SIZE);
         }
     }
   if(!found)
@@ -455,70 +541,72 @@ try:MEDFileField1TSWithoutDAS(fieldName,iteration,order,std::vector<std::string>
   _pfls.resize(sz);
   for(int i=0;i<sz;i++)
     loadProfileInFile(fid,i,profiles[i].c_str(),37);//tony
-  MEDfermer(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
 
-MEDFileFieldMultiTSWithoutDAS *MEDFileFieldMultiTSWithoutDAS::New(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos) throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
 {
-  return new MEDFileFieldMultiTSWithoutDAS(fid,fieldName,id,infos);
+  return MEDFileField1TSWithoutDAS::getFieldAtLevel(meshDimRelToMaxExt,this);
+}
+
+MEDCouplingFieldDouble *MEDFileField1TS::getFieldOnMeshAtLevel(int meshDimRelToMaxExt, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
+{
+  return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(meshDimRelToMaxExt,this,mesh);
+}
+
+MEDFileFieldMultiTSWithoutDAS *MEDFileFieldMultiTSWithoutDAS::New(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileFieldMultiTSWithoutDAS(fid,fieldName,id,infos,nbOfStep);
 }
 
 MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS(const char *fieldName):_name(fieldName)
 {
 }
 
-MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS(med_idt fid, const char *fieldName, int id,  const std::vector<std::string>& infos) throw(INTERP_KERNEL::Exception)
+MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
 try:_name(fieldName),_infos(infos)
 {
-  finishLoading(fid);
+  finishLoading(fid,nbOfStep);
 }
 catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
 
-void MEDFileFieldMultiTSWithoutDAS::finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldMultiTSWithoutDAS::finishLoading(med_idt fid, int nbPdt) throw(INTERP_KERNEL::Exception)
 {
-  for(int i=0;i<MED_NBR_GEOMETRIE_MAILLE+2;i++)
-    {
-      int nbPdt=MEDnPasdetemps(fid,(char *)_name.c_str(),MED_MAILLE,typmai[i]);
-      for(int j=0;j<nbPdt;j++)
-        appendTimeStepEntry(fid,MED_MAILLE,i,j);
-    }
-  int nbPdt=MEDnPasdetemps(fid,(char *)_name.c_str(),MED_NOEUD,MED_NONE);
+  for(int i=0;i<MED_N_CELL_FIXED_GEO;i++)
+    for(int j=0;j<nbPdt;j++)
+      appendTimeStepEntry(fid,MED_CELL,i,j);
   for(int j=0;j<nbPdt;j++)
-    appendTimeStepEntry(fid,MED_NOEUD,0,j);
+    appendTimeStepEntry(fid,MED_NODE,0,j);
   int nbOfTimeSteps=_time_steps.size();
   for(int i=0;i<nbOfTimeSteps;i++)
     _time_steps[i]->finishLoading(fid);
 }
 
-void MEDFileFieldMultiTSWithoutDAS::appendTimeStepEntry(med_idt fid, med_entite_maillage entity, int i, int j) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldMultiTSWithoutDAS::appendTimeStepEntry(med_idt fid, med_entity_type entity, int i, int j) throw(INTERP_KERNEL::Exception)
 {
   std::vector< std::pair<int,int> > ts;
-  med_int ngauss=0;
-  med_int numdt=0,numo=0,nbrefmaa;
+  med_int numdt=0,numo=0;
+  med_int meshIt=0,meshOrder=0;
   med_float dt=0.0;
-  med_booleen local;
-  INTERP_KERNEL::AutoPtr<char> maa_ass=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
-  INTERP_KERNEL::AutoPtr<char> dt_unit=MEDLoaderBase::buildEmptyString(MED_TAILLE_PNOM);
-  MEDpasdetempsInfo(fid,(char *)_name.c_str(),MED_MAILLE,typmai[i],j+1,&ngauss,&numdt,&numo,dt_unit,&dt,maa_ass,&local,&nbrefmaa);
+  MEDfieldComputingStepMeshInfo(fid,_name.c_str(),j+1,&numdt,&numo,&dt,&meshIt,&meshOrder);
   std::pair<int,int> p(numdt,numo);
   std::vector< std::pair<int,int> >::iterator where=std::find(ts.begin(),ts.end(),p);
   if(where==ts.end())
     {
       ts.push_back(p);
-      _time_steps.push_back(MEDFileField1TSWithoutDAS::New(_name.c_str(),numdt,numo,_infos));
-      _time_steps.back()->pushBack(entity==MED_MAILLE?ON_CELLS:ON_NODES,entity==MED_MAILLE?typmai2[i]:INTERP_KERNEL::NORM_ERROR,dt,maa_ass);
+      _time_steps.push_back(MEDFileField1TSWithoutDAS::New(_name.c_str(),_mesh_name.c_str(),numdt,numo,meshIt,meshOrder,_infos));
+      _time_steps.back()->pushBack(entity==MED_CELL?ON_CELLS:ON_NODES,entity==MED_CELL?typmai2[i]:INTERP_KERNEL::NORM_ERROR,dt);
     }
   else
     {
       int w=std::distance(ts.begin(),where);
-      _time_steps[w]->pushBack(entity==MED_MAILLE?ON_CELLS:ON_NODES,entity==MED_MAILLE?typmai2[i]:INTERP_KERNEL::NORM_ERROR,dt,maa_ass);
+      _time_steps[w]->pushBack(entity==MED_CELL?ON_CELLS:ON_NODES,entity==MED_CELL?typmai2[i]:INTERP_KERNEL::NORM_ERROR,dt);
     }
 }
 
@@ -556,35 +644,46 @@ std::vector<std::string> MEDFileFieldMultiTSWithoutDAS::getLocsReallyUsed() cons
   return ret;
 }
 
+int MEDFileFieldMultiTSWithoutDAS::getNumberOfTS() const
+{
+  return _time_steps.size();
+}
+
 MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
   return new MEDFileFieldMultiTS(fileName,fieldName);
 }
 
 MEDFileFieldMultiTS::MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
-try:MEDFileFieldMultiTSWithoutDAS(fieldName)
+try:MEDFileFieldMultiTSWithoutDAS(fieldName),MEDFieldFieldGlobs(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
-  int nbFields=MEDnChamp(fid,0);
-  med_type_champ typcha;
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  int nbFields=MEDnField(fid);
+  med_field_type typcha;
   bool found=false;
   std::vector<std::string> fns(nbFields);
+  int nbstep2=-1;
   for(int i=0;i<nbFields && !found;i++)
     {
-      int ncomp=MEDnChamp(fid,i+1);
-      INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_TAILLE_PNOM+1];
-      INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_TAILLE_PNOM+1];
-      INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
-      MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
+      int ncomp=MEDfieldnComponent(fid,i+1);
+      INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> dtunit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> nomMaa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      med_bool localMesh;
+      int nbOfStep;
+      MEDfieldInfo(fid,i+1,nomcha,nomMaa,&localMesh,&typcha,comp,unit,dtunit,&nbOfStep);
       std::string tmp(nomcha);
       fns[i]=tmp;
       found=(tmp==fieldName);
       if(found)
         {
+          nbstep2=nbOfStep;
           _infos.resize(ncomp);
           for(int j=0;j<ncomp;j++)
-            _infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM,(char *)unit+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM);
+            _infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+i*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+i*MED_SNAME_SIZE,MED_SNAME_SIZE);
         }
     }
   if(!found)
@@ -593,8 +692,7 @@ try:MEDFileFieldMultiTSWithoutDAS(fieldName)
       std::copy(fns.begin(),fns.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  finishLoading(fid);
-  MEDfermer(fid);
+  finishLoading(fid,nbstep2);
 }
 catch(INTERP_KERNEL::Exception& e)
   {
@@ -612,30 +710,33 @@ int MEDFileFields::getNumberOfFields() const
 }
 
 MEDFileFields::MEDFileFields(const char *fileName) throw(INTERP_KERNEL::Exception)
-try
+try:MEDFieldFieldGlobs(fileName)
   {
     MEDFileUtilities::CheckFileForRead(fileName);
-    med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
-    int nbFields=MEDnChamp(fid,0);
+    MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+    int nbFields=MEDnField(fid);
     _fields.resize(nbFields);
-    med_type_champ typcha;
+    med_field_type typcha;
     for(int i=0;i<nbFields;i++)
       {
-        int ncomp=MEDnChamp(fid,i+1);
-        INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_TAILLE_PNOM+1];
-        INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_TAILLE_PNOM+1];
-        INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
-        MEDchampInfo(fid,i+1,nomcha,&typcha,comp,unit,ncomp);
+        int ncomp=MEDfieldnComponent(fid,i+1);
+        INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+        INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+        INTERP_KERNEL::AutoPtr<char> dtunit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
+        INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+        INTERP_KERNEL::AutoPtr<char> nomMaa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+        med_bool localMesh;
+        int nbOfStep;
+        MEDfieldInfo(fid,i+1,nomcha,nomMaa,&localMesh,&typcha,comp,unit,dtunit,&nbOfStep);
         std::vector<std::string> infos(ncomp);
         for(int j=0;j<ncomp;j++)
-          infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM,(char *)unit+i*MED_TAILLE_PNOM,MED_TAILLE_PNOM);
-        _fields[i]=MEDFileFieldMultiTSWithoutDAS::New(fid,nomcha,i,infos);
+          infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+i*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+i*MED_SNAME_SIZE,MED_SNAME_SIZE);
+        _fields[i]=MEDFileFieldMultiTSWithoutDAS::New(fid,nomcha,i,infos,nbOfStep);
       }
-    int nProfil=MEDnProfil(fid);
+    int nProfil=MEDnProfile(fid);
     _pfls.resize(nProfil);
     for(int i=0;i<nProfil;i++)
       loadProfileInFile(fid,i);
-    MEDfermer(fid);
   }
 catch(INTERP_KERNEL::Exception& e)
   {

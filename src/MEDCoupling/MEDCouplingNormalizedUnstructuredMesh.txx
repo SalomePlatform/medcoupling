@@ -42,7 +42,7 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getBoundingBox(dou
       boundingBox[i]=std::numeric_limits<double>::max();
       boundingBox[SPACEDIM+i]=-std::numeric_limits<double>::max();
     }
-  ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
+  const ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
   const double *ptr=array->getConstPointer();
   int nbOfPts=array->getNbOfElems()/SPACEDIM;
   for(int j=0;j<SPACEDIM;j++)
@@ -91,7 +91,7 @@ const int *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getConnectiv
 template<int SPACEDIM,int MESHDIM>
 const double *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getCoordinatesPtr() const
 {
-  ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
+  const ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
   return array->getConstPointer();
 }
 

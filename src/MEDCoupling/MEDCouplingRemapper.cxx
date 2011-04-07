@@ -20,6 +20,7 @@
 #include "MEDCouplingRemapper.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
@@ -44,7 +45,7 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
 int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method) throw(INTERP_KERNEL::Exception)
 {
   releaseData(true);
-  _src_mesh=(MEDCouplingMesh *)srcMesh; _target_mesh=(MEDCouplingMesh *)targetMesh;
+  _src_mesh=const_cast<MEDCouplingMesh *>(srcMesh); _target_mesh=const_cast<MEDCouplingMesh *>(targetMesh);
   _src_mesh->incrRef(); _target_mesh->incrRef();
   int meshInterpType=((int)_src_mesh->getType()*16)+(int)_target_mesh->getType();
   switch(meshInterpType)
@@ -56,6 +57,13 @@ int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCoupli
     default:
       throw INTERP_KERNEL::Exception("Not managed type of meshes !");
     }
+}
+
+int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target) throw(INTERP_KERNEL::Exception)
+{
+  std::string meth(src->getDiscretization()->getStringRepr());
+  meth+=target->getDiscretization()->getStringRepr();
+  return prepare(src->getMesh(),target->getMesh(),meth.c_str());
 }
 
 void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)

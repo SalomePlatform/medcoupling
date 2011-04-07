@@ -34,6 +34,7 @@ public:
   static void splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit);
   static void strip(std::string& s);
   static void safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception);
+  static void safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception);
   static std::string buildStringFromFortran(const char *expr, int lgth);
   static void zipEqualConsChar(std::string& s, int minConsSmChar);
   static std::string zipString(const char *src, int sizeToRespect);

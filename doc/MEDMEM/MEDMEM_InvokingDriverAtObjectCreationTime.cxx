@@ -25,7 +25,6 @@
 
 #include "MEDMEM_Field.hxx"
 #include "MEDMEM_Mesh.hxx"
-#include "MEDMEM_Med.hxx"
 
 using namespace MEDMEM ;
 using namespace MED_EN ;
@@ -42,12 +41,10 @@ main () {
 
     FIELD<double> myField (MED_DRIVER,fileName,fieldName); 
     MESH          myMesh  (MED_DRIVER,fileName,meshName);
-    MED           myMed   (MED_DRIVER,fileName);
 
     // Test removal of drivers
     myField.rmDriver();
     myMesh.rmDriver ();
-    myMed.rmDriver  ();
 
   } catch (MEDEXCEPTION& ex){
     MESSAGE_MED(ex.what()) ;

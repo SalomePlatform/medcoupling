@@ -27,17 +27,603 @@
 #include "InterpKernelAutoPtr.hxx"
 
 #include <limits>
+#include <cmath>
 
 using namespace ParaMEDMEM;
 
-MEDFileMesh *MEDFileMesh::New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception)
+const char MEDFileMesh::DFT_FAM_NAME[]="FAMILLE_ZERO";
+
+MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.),_too_long_str(0),_zipconn_pol(2)
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
-MEDFileUMesh *MEDFileUMesh::New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception)
+MEDFileMesh *MEDFileMesh::New(const char *fileName) throw(INTERP_KERNEL::Exception)
 {
-  return new MEDFileUMesh(fileName,mName);
+  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  if(ms.empty())
+    {
+      std::ostringstream oss; oss << "MEDFileMesh::New : no meshes in file \"" << fileName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDFileUtilities::CheckFileForRead(fileName);
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  int dt,it;
+  std::string dummy2;
+  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front().c_str(),meshType,dt,it,dummy2);
+  switch(meshType)
+    {
+    case UNSTRUCTURED:
+      {
+        MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
+        ret->loadUMeshFromFile(fid,ms.front().c_str(),dt,it);
+        ret->incrRef();
+        return (MEDFileUMesh *)ret;
+      }
+    case CARTESIAN:
+      {
+        MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
+        ret->loadCMeshFromFile(fid,ms.front().c_str(),dt,it);
+        ret->incrRef();
+        return (MEDFileCMesh *)ret;
+      }
+    default:
+      {
+        std::ostringstream oss; oss << "MEDFileMesh::New : MED file exists and has mesh '" << ms.front() << "' exists but unsupported type yet !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    }
+}
+
+MEDFileMesh *MEDFileMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  int dummy0,dummy1;
+  std::string dummy2;
+  MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  switch(meshType)
+    {
+    case UNSTRUCTURED:
+      {
+        MEDCouplingAutoRefCountObjectPtr<MEDFileUMesh> ret=MEDFileUMesh::New();
+        ret->loadUMeshFromFile(fid,mName,dt,it);
+        ret->incrRef();
+        return (MEDFileUMesh *)ret;
+      }
+    case CARTESIAN:
+      {
+        MEDCouplingAutoRefCountObjectPtr<MEDFileCMesh> ret=MEDFileCMesh::New();
+        ret->loadCMeshFromFile(fid,mName,dt,it);
+        ret->incrRef();
+        return (MEDFileCMesh *)ret;
+      }
+    default:
+      {
+        std::ostringstream oss; oss << "MEDFileMesh::New : MED file exists and has mesh '" << mName << "' exists but unsupported type yet !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+    }
+}
+
+bool MEDFileMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const
+{
+  if(_order!=other->_order)
+    {
+      what="Orders differ !";
+      return false;
+    }
+  if(_iteration!=other->_iteration)
+    {
+      what="Iterations differ !";
+      return false;
+    }
+  if(fabs(_time-other->_time)>eps)
+    {
+      what="Time values differ !";
+      return false;
+    }
+  if(_dt_unit!=other->_dt_unit)
+    {
+      what="Time units differ !";
+      return false;
+    }
+  if(_name!=other->_name)
+    {
+      what="Names differ !";
+      return false;
+    }
+  if(_univ_name!=other->_univ_name)
+    {
+      what="Univ names differ !";
+      return false;
+    }
+  if(_desc_name!=other->_desc_name)
+    {
+      what="Description names differ !";
+      return false;
+    }
+  if(!areGrpsEqual(other,what))
+    return false;
+  if(!areFamsEqual(other,what))
+    return false;
+  return true;
+}
+
+void MEDFileMesh::clearNonDiscrAttributes() const
+{
+  
+}
+
+void MEDFileMesh::copyFamGrpMapsFrom(const MEDFileMesh& other)
+{
+  _groups=other._groups;
+  _families=other._families;
+}
+
+std::vector<std::string> MEDFileMesh::getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(name);
+  std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.find(oname);
+  std::vector<std::string> grps=getGroupsNames();
+  if(it==_groups.end())
+    {
+      std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
+      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return (*it).second;
+}
+
+std::vector<std::string> MEDFileMesh::getGroupsOnFamily(const char *name) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> ret;
+  for(std::map<std::string, std::vector<std::string> >::const_iterator it1=_groups.begin();it1!=_groups.end();it1++)
+    {
+      for(std::vector<std::string>::const_iterator it2=(*it1).second.begin();it2!=(*it1).second.end();it2++)
+        if((*it2)==name)
+          {
+            ret.push_back((*it1).first);
+            break;
+          }
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileMesh::getGroupsNames() const
+{
+  std::vector<std::string> ret(_groups.size());
+  int i=0;
+  for(std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.begin();it!=_groups.end();it++,i++)
+    ret[i]=(*it).first;
+  return ret;
+}
+
+std::vector<std::string> MEDFileMesh::getFamiliesNames() const
+{
+  std::vector<std::string> ret(_families.size());
+  int i=0;
+  for(std::map<std::string, int >::const_iterator it=_families.begin();it!=_families.end();it++,i++)
+    ret[i]=(*it).first;
+  return ret;
+}
+
+void MEDFileMesh::removeGroup(const char *name) throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(name);
+  std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(oname);
+  std::vector<std::string> grps=getGroupsNames();
+  if(it==_groups.end())
+    {
+      std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
+      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  _groups.erase(it);
+}
+
+void MEDFileMesh::removeFamily(const char *name) throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(name);
+  std::map<std::string, int >::iterator it=_families.find(oname);
+  std::vector<std::string> fams=getFamiliesNames();
+  if(it==_families.end())
+    {
+      std::ostringstream oss; oss << "No such familyname \"" << name << "\" !\nAvailable families are :";
+      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  _families.erase(it);
+}
+
+void MEDFileMesh::changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(oldName);
+  std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(oname);
+  std::vector<std::string> grps=getGroupsNames();
+  if(it==_groups.end())
+    {
+      std::ostringstream oss; oss << "No such groupname \"" << oldName << "\" !\nAvailable groups are :";
+      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::string nname(newName);
+  it=_groups.find(nname);
+  if(it!=_groups.end())
+    {
+      std::ostringstream oss; oss << "Such groupname \"" << newName << "\" already exists ! Kill it before !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector<std::string> cpy=(*it).second;
+  _groups.erase(it);
+  _groups[newName]=cpy;
+}
+
+void MEDFileMesh::changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(oldName);
+  std::map<std::string, int >::iterator it=_families.find(oname);
+  std::vector<std::string> fams=getFamiliesNames();
+  if(it==_families.end())
+    {
+      std::ostringstream oss; oss << "No such familyname \"" << oldName << "\" !\nAvailable families are :";
+      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::string nname(newName);
+  it=_families.find(nname);
+  if(it!=_families.end())
+    {
+      std::ostringstream oss; oss << "Such familyname \"" << newName << " already exists ! Kill it before !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int cpy=(*it).second;
+  _families.erase(it);
+  _families[newName]=cpy;
+}
+
+bool MEDFileMesh::areFamsEqual(const MEDFileMesh *other, std::string& what) const
+{
+  if(_families==other->_families)
+    return true;
+  std::map<std::string,int> fam0;
+  std::map<std::string,int> fam1;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    if((*it).second!=0)
+      fam0[(*it).first]=(*it).second;
+  for(std::map<std::string,int>::const_iterator it=other->_families.begin();it!=other->_families.end();it++)
+    if((*it).second!=0)
+      fam1[(*it).first]=(*it).second;
+  return fam0==fam1;
+}
+
+bool MEDFileMesh::areGrpsEqual(const MEDFileMesh *other, std::string& what) const
+{
+  if(_groups==other->_groups)
+    return true;
+  bool ret=true;
+  std::size_t sz=_groups.size();
+  if(sz!=other->_groups.size())
+    {
+      what="Groups differ because not same number !\n";
+      ret=false;
+    }
+  if(ret)
+    {
+      std::map<std::string, std::vector<std::string> >::const_iterator it1=_groups.begin();
+      for(std::size_t i=0;i<sz && ret;i++,it1++)
+        {
+          std::map<std::string, std::vector<std::string> >::const_iterator it2=other->_groups.find((*it1).first);
+          if(it2!=other->_groups.end())
+            {
+              std::set<std::string> s1((*it1).second.begin(),(*it1).second.end());
+              std::set<std::string> s2((*it2).second.begin(),(*it2).second.end());
+              ret=(s1==s2);
+            }
+          else
+            {
+              ret=false;
+              what="A group in first mesh exists not in other !\n";
+            }
+        }
+    }
+  if(!ret)
+    {
+      std::ostringstream oss; oss << "Groups description differs :\n";
+      oss << "First group description :\n";
+      for(std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.begin();it!=_groups.end();it++)
+        {
+          oss << " Group \"" << (*it).first << "\" on following families :\n";
+          for(std::vector<std::string>::const_iterator it2=(*it).second.begin();it2!=(*it).second.end();it2++)
+        oss << "    \"" << *it2 << "\n";
+        }
+      oss << "Second group description :\n";
+      for(std::map<std::string, std::vector<std::string> >::const_iterator it=other->_groups.begin();it!=other->_groups.end();it++)
+        {
+          oss << " Group \"" << (*it).first << "\" on following families :\n";
+          for(std::vector<std::string>::const_iterator it2=(*it).second.begin();it2!=(*it).second.end();it2++)
+            oss << "    \"" << *it2 << "\n";
+        }
+      what+=oss.str();
+    }
+  return ret;
+}
+
+bool MEDFileMesh::existsFamily(int famId) const
+{
+  for(std::map<std::string,int>::const_iterator it2=_families.begin();it2!=_families.end();it2++)
+    if((*it2).second==famId)
+      return true;
+  return false;
+}
+
+bool MEDFileMesh::existsFamily(const char *familyName) const
+{
+  std::string fname(familyName);
+  return _families.find(fname)!=_families.end();
+}
+
+void MEDFileMesh::setFamilyId(const char *familyName, int id)
+{
+  std::string fname(familyName);
+  _families[fname]=id;
+}
+
+/*!
+ * This method appends a new entry in _families attribute. An exception is thrown if either the famId is already
+ * kept by an another familyName. An exception is thrown if name 'familyName' is alreadyset with a different 'famId'.
+ */
+void MEDFileMesh::addFamily(const char *familyName, int famId) throw(INTERP_KERNEL::Exception)
+{
+  std::string fname(familyName);
+  std::map<std::string,int>::const_iterator it=_families.find(fname);
+  if(it==_families.end())
+    {
+       for(std::map<std::string,int>::const_iterator it2=_families.begin();it2!=_families.end();it2++)
+         if((*it2).second==famId)
+           {
+             std::ostringstream oss;
+             oss << "MEDFileMesh::addFamily : Family \"" << (*it2).first << "\" already exists with specified id : " << famId << " !";
+             throw INTERP_KERNEL::Exception(oss.str().c_str());
+           }
+       _families[fname]=famId;
+    }
+  else
+    {
+      if((*it).second!=famId)
+        {
+          std::ostringstream oss;
+          oss << "MEDFileMesh::addFamily : Family \"" << fname << "\" already exists but has id set to " << (*it).second << " different from asked famId " << famId << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+void MEDFileMesh::addGrpOnFamily(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception)
+{
+  std::string grpn(grpName);
+  std::string famn(famName);
+  if(grpn.empty() || famn.empty())
+    throw INTERP_KERNEL::Exception("MEDFileMesh::addGrpOnFamily : input strings must be non null !");
+  std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(grpn);
+  if(it==_groups.end())
+    {
+      _groups[grpn].push_back(famn);
+    }
+  else
+    {
+      std::vector<std::string>::iterator it2=std::find((*it).second.begin(),(*it).second.end(),famn);
+      if(it2==(*it).second.end())
+        (*it).second.push_back(famn);
+    }
+}
+
+void MEDFileMesh::setFamilyInfo(const std::map<std::string,int>& info)
+{
+  _families=info;
+}
+
+void MEDFileMesh::setGroupInfo(const std::map<std::string, std::vector<std::string> >&info)
+{
+  _groups=info;
+}
+
+int MEDFileMesh::getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(name);
+  std::map<std::string, int>::const_iterator it=_families.find(oname);
+  std::vector<std::string> fams=getFamiliesNames();
+  if(it==_families.end())
+    {
+      std::ostringstream oss; oss << "No such familyname \"" << name << "\" !\nAvailable families are :";
+      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return (*it).second;
+}
+
+int MEDFileMesh::getMaxFamilyId() const throw(INTERP_KERNEL::Exception)
+{
+  if(_families.empty())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::getMaxFamilyId : no families set !");
+  int ret=-std::numeric_limits<int>::max();
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    {
+      ret=std::max((*it).second,ret);
+    }
+  return ret;
+}
+
+std::vector<int> MEDFileMesh::getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> famIds;
+  for(std::vector<std::string>::const_iterator it=famNames.begin();it!=famNames.end();it++)
+    {
+      std::map<std::string,int>::const_iterator it2=_families.find(*it);
+      if(it2==_families.end())
+        {
+          std::ostringstream oss; oss << "No such family in mesh \"" << _name << "\" : " << *it; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      famIds.push_back((*it2).second);
+    }
+  return famIds;
+}
+
+std::string MEDFileMesh::getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception)
+{
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    if((*it).second==id)
+      return (*it).first;
+  std::ostringstream oss; oss << "MEDFileUMesh::getFamilyNameGivenId : no such family id : " << id;
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+DataArrayInt *MEDFileMesh::getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> tmp(1);
+  tmp[0]=grp;
+  DataArrayInt *ret=getGroupsArr(meshDimRelToMaxExt,tmp,renum);
+  ret->setName(grp);
+  return ret;
+}
+
+DataArrayInt *MEDFileMesh::getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  std::set<std::string> fams;
+  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
+    {
+      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
+      if(it2==_groups.end())
+        {
+          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      fams.insert((*it2).second.begin(),(*it2).second.end());
+    }
+  std::vector<std::string> fams2(fams.begin(),fams.end());
+  return getFamiliesArr(meshDimRelToMaxExt,fams2,renum);
+}
+
+DataArrayInt *MEDFileMesh::getFamilyArr(int meshDimRelToMaxExt, const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> tmp(1);
+  tmp[0]=fam;
+  DataArrayInt *ret=getFamiliesArr(meshDimRelToMaxExt,tmp,renum);
+  ret->setName(fam);
+  return ret;
+}
+
+DataArrayInt *MEDFileMesh::getNodeGroupArr(const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> tmp(1);
+  tmp[0]=grp;
+  DataArrayInt *ret=getNodeGroupsArr(tmp,renum);
+  ret->setName(grp);
+  return ret;
+}
+
+DataArrayInt *MEDFileMesh::getNodeGroupsArr(const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  return getGroupsArr(1,grps,renum);
+}
+
+DataArrayInt *MEDFileMesh::getNodeFamilyArr(const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> tmp(1);
+  tmp[0]=fam;
+  DataArrayInt *ret=getNodeFamiliesArr(tmp,renum);
+  ret->setName(fam);
+  return ret;
+}
+
+DataArrayInt *MEDFileMesh::getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  return getFamiliesArr(1,fams,renum);
+}
+
+void MEDFileMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum) throw(INTERP_KERNEL::Exception)
+{
+  if(grps.empty())
+    return ;
+  std::set<std::string> grpsName;
+  std::vector<std::string> grpsName2(grps.size());
+  int i=0;
+
+  for(std::vector<const DataArrayInt *>::const_iterator it=grps.begin();it!=grps.end();it++,i++)
+    {
+      grpsName.insert((*it)->getName());
+      grpsName2[i]=(*it)->getName();
+    }
+  if(grpsName.size()!=grps.size())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsAtLevel : groups name must be different each other !");
+  if(grpsName.find(std::string(""))!=grpsName.end())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsAtLevel : groups name must be different empty string !");
+  int sz=getSizeAtLevel(meshDimRelToMaxExt);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam;
+  std::vector< std::vector<int> > fidsOfGroups;
+  if(!renum)
+    {
+      fam=DataArrayInt::MakePartition(grps,sz,fidsOfGroups);
+    }
+  else
+    {
+      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > grps2(grps.size());
+      for(unsigned int i=0;i<grps.size();i++)
+        {
+          grps2[i]=MEDFileUMeshSplitL1::Renumber(getRevNumberFieldAtLevel(meshDimRelToMaxExt),grps[i]);
+          grps2[i]->setName(grps[i]->getName().c_str());
+        }
+      std::vector<const DataArrayInt *> grps3(grps2.begin(),grps2.end());
+      fam=DataArrayInt::MakePartition(grps3,sz,fidsOfGroups);
+    }
+  int offset=1;
+  if(!_families.empty())
+    offset=getMaxFamilyId()+1;
+  TranslateFamilyIds(offset,fam,fidsOfGroups);
+  std::set<int> ids=fam->getDifferentValues();
+  appendFamilyEntries(ids,fidsOfGroups,grpsName2);
+  setFamilyFieldArr(meshDimRelToMaxExt,fam);
+}
+
+/*!
+ * This method append into '_families' attribute the families whose ids are in 'famIds'. Warning 'famIds' are expected to be ids
+ * not in '_families'. Groups information are given in parameters in order to give to families representative names.
+ * For the moment, the two last input parameters are not taken into account.
+ */
+void MEDFileMesh::appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames)
+{
+  std::map<int,std::string> famInv;
+  for(std::set<int>::const_iterator it=famIds.begin();it!=famIds.end();it++)
+    {
+      std::ostringstream oss;
+      oss << "Family_" << (*it);
+      _families[oss.str()]=(*it);
+      famInv[*it]=oss.str();
+    }
+  int i=0;
+  for(std::vector< std::vector<int> >::const_iterator it1=fidsOfGrps.begin();it1!=fidsOfGrps.end();it1++,i++)
+    {
+      for(std::vector<int>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+        {
+          _groups[grpNames[i]].push_back(famInv[*it2]);
+        }
+    }
+}
+
+void MEDFileMesh::TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp)
+{
+  famArr->applyLin(1,offset,0);
+  for(std::vector< std::vector<int> >::iterator it1=famIdsPerGrp.begin();it1!=famIdsPerGrp.end();it1++)
+    std::transform((*it1).begin(),(*it1).end(),(*it1).begin(),std::bind2nd(std::plus<int>(),offset));
+}
+
+MEDFileUMesh *MEDFileUMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  return new MEDFileUMesh(fid,mName,dt,it);
 }
 
 MEDFileUMesh *MEDFileUMesh::New(const char *fileName) throw(INTERP_KERNEL::Exception)
@@ -48,7 +634,13 @@ MEDFileUMesh *MEDFileUMesh::New(const char *fileName) throw(INTERP_KERNEL::Excep
       std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  return new MEDFileUMesh(fileName,ms.front().c_str());
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  int dt,it;
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  std::string dummy2;
+  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front().c_str(),meshType,dt,it,dummy2);
+  return new MEDFileUMesh(fid,ms.front().c_str(),dt,it);
 }
 
 MEDFileUMesh *MEDFileUMesh::New()
@@ -56,40 +648,161 @@ MEDFileUMesh *MEDFileUMesh::New()
   return new MEDFileUMesh;
 }
 
-MEDFileUMesh::MEDFileUMesh():_too_long_str(0),_zipconn_pol(2)
+bool MEDFileUMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const
+{
+  if(!MEDFileMesh::isEqual(other,eps,what))
+    return false;
+  const MEDFileUMesh *otherC=dynamic_cast<const MEDFileUMesh *>(other);
+  if(!otherC)
+    {
+      what="Mesh types differ ! This is unstructured and other is NOT !";
+      return false;
+    }
+  clearNonDiscrAttributes();
+  otherC->clearNonDiscrAttributes();
+  const DataArrayDouble *coo1=_coords;
+  const DataArrayDouble *coo2=otherC->_coords;
+  if((coo1==0 && coo2!=0) || (coo1!=0 && coo2==0))
+    {
+      what="Mismatch of coordinates ! One is defined and not other !";
+      return false;
+    }
+  if(coo1)
+    {
+      bool ret=coo1->isEqual(*coo2,eps);
+      if(!ret)
+        {
+          what="Coords differ !";
+          return false;
+        }
+    }
+  const DataArrayInt *famc1=_fam_coords;
+  const DataArrayInt *famc2=otherC->_fam_coords;
+  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+    {
+      what="Mismatch of families arr on nodes ! One is defined and not other !";
+      return false;
+    }
+  if(famc1)
+    {
+      bool ret=famc1->isEqual(*famc2);
+      if(!ret)
+        {
+          what="Families arr on node differ !";
+          return false;
+        }
+    }
+  const DataArrayInt *numc1=_num_coords;
+  const DataArrayInt *numc2=otherC->_num_coords;
+  if((numc1==0 && numc2!=0) || (numc1!=0 && numc2==0))
+    {
+      what="Mismatch of numbering arr on nodes ! One is defined and not other !";
+      return false;
+    }
+  if(numc1)
+    {
+      bool ret=numc1->isEqual(*numc2);
+      if(!ret)
+        {
+          what="Numbering arr on node differ !";
+          return false;
+        }
+    }
+  if(_ms.size()!=otherC->_ms.size())
+    {
+      what="Number of levels differs !";
+      return false;
+    }
+  std::size_t sz=_ms.size();
+  for(std::size_t i=0;i<sz;i++)
+    {
+      const MEDFileUMeshSplitL1 *s1=_ms[i];
+      const MEDFileUMeshSplitL1 *s2=otherC->_ms[i];
+      if((s1==0 && s2!=0) || (s1!=0 && s2==0))
+        {
+          what="Mismatch of presence of sub levels !";
+          return false;
+        }
+      if(s1)
+        {
+          bool ret=s1->isEqual(s2,eps,what);
+          if(!ret)
+            return false;
+        }
+    }
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
+  return true;
+}
+
+void MEDFileUMesh::clearNonDiscrAttributes() const
+{
+  MEDFileMesh::clearNonDiscrAttributes();
+  const DataArrayDouble *coo1=_coords;
+  if(coo1)
+    ((DataArrayDouble *)coo1)->setName("");//This parameter is not discriminant for comparison
+  const DataArrayInt *famc1=_fam_coords;
+  if(famc1)
+    ((DataArrayInt *)famc1)->setName("");//This parameter is not discriminant for comparison
+  const DataArrayInt *numc1=_num_coords;
+  if(numc1)
+    ((DataArrayInt *)numc1)->setName("");//This parameter is not discriminant for comparison
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
+    {
+      const MEDFileUMeshSplitL1 *tmp=(*it);
+      if(tmp)
+        tmp->clearNonDiscrAttributes();
+    }
+}
+
+MEDFileUMesh::MEDFileUMesh()
 {
 }
 
-MEDFileUMesh::MEDFileUMesh(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception)
-  try:_too_long_str(0)
+MEDFileUMesh::MEDFileUMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+try
   {
-    MEDFileUtilities::CheckFileForRead(fileName);
-    med_idt fid=MEDouvrir((char *)fileName,MED_LECTURE);
-    MEDFileUMeshL2 loaderl2;
-    loaderl2.loadAll(fid,MEDFileUMeshL2::getMeshIdFromName(fid,mName),mName);
-    int lev=loaderl2.getNumberOfLevels();
-     _ms.resize(lev);
-     for(int i=0;i<lev;i++)
-       {
-         if(!loaderl2.emptyLev(i))
-           _ms[i]=new MEDFileUMeshSplitL1(loaderl2,mName,i);
-         else
-           _ms[i]=0;
-       }
-    MEDFileUMeshL2::readFamiliesAndGrps(fid,mName,_families,_groups);
-    MEDfermer(fid);
-    //
-    setName(loaderl2.getName());
-    setDescription(loaderl2.getDescription());
-    _coords=loaderl2.getCoords();
-    _fam_coords=loaderl2.getCoordsFamily();
-    _num_coords=loaderl2.getCoordsNum();
-    computeRevNum();
+    loadUMeshFromFile(fid,mName,dt,it);
   }
 catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
+
+void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUMeshL2 loaderl2;
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  int dummy0,dummy1;
+  std::string dummy2;
+  int mid=MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
+  if(meshType!=UNSTRUCTURED)
+    {
+         std::ostringstream oss; oss << "Trying to load as unstructured an existing mesh with name '" << mName << "' !";
+         throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  loaderl2.loadAll(fid,mid,mName,dt,it);
+  int lev=loaderl2.getNumberOfLevels();
+  _ms.resize(lev);
+  for(int i=0;i<lev;i++)
+    {
+      if(!loaderl2.emptyLev(i))
+        _ms[i]=new MEDFileUMeshSplitL1(loaderl2,mName,i);
+      else
+        _ms[i]=0;
+    }
+  MEDFileMeshL2::ReadFamiliesAndGrps(fid,mName,_families,_groups);
+  //
+  setName(loaderl2.getName());
+  setDescription(loaderl2.getDescription());
+  setIteration(loaderl2.getIteration());
+  setOrder(loaderl2.getOrder());
+  setTimeValue(loaderl2.getTime());
+  setTimeUnit(loaderl2.getTimeUnit());
+  _coords=loaderl2.getCoords();
+  _fam_coords=loaderl2.getCoordsFamily();
+  _num_coords=loaderl2.getCoordsNum();
+  computeRevNum();
+}
 
 MEDFileUMesh::~MEDFileUMesh()
 {
@@ -100,26 +813,34 @@ void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
   if(_name.empty())
     throw INTERP_KERNEL::Exception("MEDFileUMesh : name is empty. MED file ask for a NON EMPTY name !");
   if(!existsFamily(0))
-    (const_cast<MEDFileUMesh *>(this))->addFamily(0,"FAMILLE_ZERO");
-  med_mode_acces medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  med_idt fid=MEDouvrir((char *)fileName,medmod);
+    (const_cast<MEDFileUMesh *>(this))->addFamily(DFT_FAM_NAME,0);
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
   std::ostringstream oss; oss << "MEDFileUMesh : error on attempt to write in file : \"" << fileName << "\""; 
   MEDFileUtilities::CheckMEDCode(fid,fid,oss.str().c_str());
   const DataArrayDouble *coo=_coords;
-  INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_TAILLE_NOM);
-  INTERP_KERNEL::AutoPtr<char> desc=MEDLoaderBase::buildEmptyString(MED_TAILLE_DESC);
-  MEDLoaderBase::safeStrCpy(_name.c_str(),MED_TAILLE_NOM,maa,_too_long_str);
-  MEDLoaderBase::safeStrCpy(_desc_name.c_str(),MED_TAILLE_DESC,desc,_too_long_str);
+  INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> desc=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
+  MEDLoaderBase::safeStrCpy(_name.c_str(),MED_NAME_SIZE,maa,_too_long_str);
+  MEDLoaderBase::safeStrCpy(_desc_name.c_str(),MED_COMMENT_SIZE,desc,_too_long_str);
   int spaceDim=coo?coo->getNumberOfComponents():0;
   int mdim=getMeshDimension();
-  MEDmaaCr(fid,maa,spaceDim,MED_NON_STRUCTURE,desc);//spaceDim is false but to make reader happy for 3DSurf and 2DCurve meshes !
-  MEDdimEspaceCr(fid,maa,spaceDim);
-  MEDFileUMeshL2::writeCoords(fid,maa,_coords,_fam_coords,_num_coords);
+  INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
+  for(int i=0;i<spaceDim;i++)
+    {
+      std::string info=coo->getInfoOnComponent(i);
+      std::string c,u;
+      MEDLoaderBase::splitIntoNameAndUnit(info,c,u);
+      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+    }
+  MEDmeshCr(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
+  MEDFileUMeshL2::WriteCoords(fid,maa,_iteration,_order,_time,_coords,_fam_coords,_num_coords);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     if((const MEDFileUMeshSplitL1 *)(*it)!=0)
       (*it)->write(fid,maa,mdim);
-  MEDFileUMeshL2::writeFamiliesAndGrps(fid,maa,_families,_groups,_too_long_str);
-  MEDfermer(fid);
+  MEDFileUMeshL2::WriteFamiliesAndGrps(fid,maa,_families,_groups,_too_long_str);
 }
 
 std::vector<int> MEDFileUMesh::getNonEmptyLevels() const
@@ -144,57 +865,6 @@ std::vector<int> MEDFileUMesh::getNonEmptyLevelsExt() const
       return ret;
     }
   return ret0;
-}
-
-int MEDFileUMesh::getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception)
-{
-  std::string oname(name);
-  std::map<std::string, int>::const_iterator it=_families.find(oname);
-  std::vector<std::string> fams=getFamiliesNames();
-  if(it==_families.end())
-    {
-      std::ostringstream oss; oss << "No such familyname \"" << name << "\" !\nAvailable families are :";
-      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  return (*it).second;
-}
-
-int MEDFileUMesh::getMaxFamilyId() const throw(INTERP_KERNEL::Exception)
-{
-  if(_families.empty())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::getMaxFamilyId : no families set !");
-  int ret=-std::numeric_limits<int>::max();
-  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
-    {
-      ret=std::max((*it).second,ret);
-    }
-  return ret;
-}
-
-std::vector<int> MEDFileUMesh::getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception)
-{
-  std::vector<int> famIds;
-  for(std::vector<std::string>::const_iterator it=famNames.begin();it!=famNames.end();it++)
-    {
-      std::map<std::string,int>::const_iterator it2=_families.find(*it);
-      if(it2==_families.end())
-        {
-          std::ostringstream oss; oss << "No such family in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      famIds.push_back((*it2).second);
-    }
-  return famIds;
-}
-
-std::string MEDFileUMesh::getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception)
-{
-  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
-    if((*it).second==id)
-      return (*it).first;
-  std::ostringstream oss; oss << "MEDFileUMesh::getFamilyNameGivenId : no such family id : " << id;
-  throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
 int MEDFileUMesh::getMeshDimension() const
@@ -253,127 +923,6 @@ const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
   return l1->getRevNumberField();
 }
 
-std::vector<std::string> MEDFileUMesh::getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception)
-{
-  std::string oname(name);
-  std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.find(oname);
-  std::vector<std::string> grps=getGroupsNames();
-  if(it==_groups.end())
-    {
-      std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
-      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  return (*it).second;
-}
-
-std::vector<std::string> MEDFileUMesh::getGroupsOnFamily(const char *name) const throw(INTERP_KERNEL::Exception)
-{
-  std::vector<std::string> ret;
-  for(std::map<std::string, std::vector<std::string> >::const_iterator it1=_groups.begin();it1!=_groups.end();it1++)
-    {
-      for(std::vector<std::string>::const_iterator it2=(*it1).second.begin();it2!=(*it1).second.end();it2++)
-        if((*it2)==name)
-          {
-            ret.push_back((*it1).first);
-            break;
-          }
-    }
-  return ret;
-}
-
-std::vector<std::string> MEDFileUMesh::getGroupsNames() const
-{
-  std::vector<std::string> ret(_groups.size());
-  int i=0;
-  for(std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.begin();it!=_groups.end();it++,i++)
-    ret[i]=(*it).first;
-  return ret;
-}
-
-std::vector<std::string> MEDFileUMesh::getFamiliesNames() const
-{
-  std::vector<std::string> ret(_families.size());
-  int i=0;
-  for(std::map<std::string, int >::const_iterator it=_families.begin();it!=_families.end();it++,i++)
-    ret[i]=(*it).first;
-  return ret;
-}
-
-void MEDFileUMesh::removeGroup(const char *name) throw(INTERP_KERNEL::Exception)
-{
-  std::string oname(name);
-  std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(oname);
-  std::vector<std::string> grps=getGroupsNames();
-  if(it==_groups.end())
-    {
-      std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
-      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  _groups.erase(it);
-}
-
-void MEDFileUMesh::removeFamily(const char *name) throw(INTERP_KERNEL::Exception)
-{
-  std::string oname(name);
-  std::map<std::string, int >::iterator it=_families.find(oname);
-  std::vector<std::string> fams=getFamiliesNames();
-  if(it==_families.end())
-    {
-      std::ostringstream oss; oss << "No such familyname \"" << name << "\" !\nAvailable families are :";
-      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  _families.erase(it);
-}
-
-void MEDFileUMesh::changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
-{
-  std::string oname(oldName);
-  std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(oname);
-  std::vector<std::string> grps=getGroupsNames();
-  if(it==_groups.end())
-    {
-      std::ostringstream oss; oss << "No such groupname \"" << oldName << "\" !\nAvailable groups are :";
-      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  std::string nname(newName);
-  it=_groups.find(nname);
-  if(it!=_groups.end())
-    {
-      std::ostringstream oss; oss << "Such groupname \"" << newName << " already exists ! Kill it before !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  std::vector<std::string> cpy=(*it).second;
-  _groups.erase(it);
-  _groups[newName]=cpy;
-}
-
-void MEDFileUMesh::changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
-{
-  std::string oname(oldName);
-  std::map<std::string, int >::iterator it=_families.find(oname);
-  std::vector<std::string> fams=getFamiliesNames();
-  if(it==_families.end())
-    {
-      std::ostringstream oss; oss << "No such familyname \"" << oldName << "\" !\nAvailable families are :";
-      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  std::string nname(newName);
-  it=_families.find(nname);
-  if(it!=_families.end())
-    {
-      std::ostringstream oss; oss << "Such familyname \"" << newName << " already exists ! Kill it before !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  int cpy=(*it).second;
-  _families.erase(it);
-  _families[newName]=cpy;
-}
-
 DataArrayDouble *MEDFileUMesh::getCoords() const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(_coords);
@@ -387,6 +936,7 @@ DataArrayDouble *MEDFileUMesh::getCoords() const
 
 MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMaxExt, const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
 {
+  synchronizeTinyInfoOnLeaves();
   std::vector<std::string> tmp(1);
   tmp[0]=grp;
   MEDCouplingUMesh *ret=getGroups(meshDimRelToMaxExt,tmp,renum);
@@ -394,17 +944,9 @@ MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMaxExt, const char *grp
   return ret;
 }
 
-DataArrayInt *MEDFileUMesh::getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
-{
-  std::vector<std::string> tmp(1);
-  tmp[0]=grp;
-  DataArrayInt *ret=getGroupsArr(meshDimRelToMaxExt,tmp,renum);
-  ret->setName(grp);
-  return ret;
-}
-
 MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
+  synchronizeTinyInfoOnLeaves();
   std::set<std::string> fams;
   for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
     {
@@ -420,25 +962,9 @@ MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMaxExt, const std::vec
   return getFamilies(meshDimRelToMaxExt,fams2,renum);
 }
 
-DataArrayInt *MEDFileUMesh::getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
-{
-  std::set<std::string> fams;
-  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
-    {
-      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
-      if(it2==_groups.end())
-        {
-          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      fams.insert((*it2).second.begin(),(*it2).second.end());
-    }
-  std::vector<std::string> fams2(fams.begin(),fams.end());
-  return getFamiliesArr(meshDimRelToMaxExt,fams2,renum);
-}
-
 MEDCouplingUMesh *MEDFileUMesh::getFamily(int meshDimRelToMaxExt, const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
 {
+  synchronizeTinyInfoOnLeaves();
   std::vector<std::string> tmp(1);
   tmp[0]=fam;
   MEDCouplingUMesh *ret=getFamilies(meshDimRelToMaxExt,tmp,renum);
@@ -446,17 +972,9 @@ MEDCouplingUMesh *MEDFileUMesh::getFamily(int meshDimRelToMaxExt, const char *fa
   return ret;
 }
 
-DataArrayInt *MEDFileUMesh::getFamilyArr(int meshDimRelToMaxExt, const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
-{
-  std::vector<std::string> tmp(1);
-  tmp[0]=fam;
-  DataArrayInt *ret=getFamiliesArr(meshDimRelToMaxExt,tmp,renum);
-  ret->setName(fam);
-  return ret;
-}
-
 MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
 {
+  synchronizeTinyInfoOnLeaves();
   if(meshDimRelToMaxExt==1)
     {
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=getFamiliesArr(1,fams,renum);
@@ -476,43 +994,27 @@ DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
   std::vector<int> famIds=getFamiliesIds(fams);
   if(meshDimRelToMaxExt==1)
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_coords->getIdsEqualList(famIds);
-      return MEDFileUMeshSplitL1::Renumber(_num_coords,da);
+      if((const DataArrayInt *)_fam_coords)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_coords->getIdsEqualList(famIds);
+          if(renum)
+            return MEDFileUMeshSplitL1::Renumber(_num_coords,da);
+          else
+            {
+              da->incrRef();
+              return da;
+            }
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::getFamiliesArr : no family array specified on nodes !");
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getFamilyPartArr(famIds,renum);
 }
 
-DataArrayInt *MEDFileUMesh::getNodeGroupArr(const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
-{
-  std::vector<std::string> tmp(1);
-  tmp[0]=grp;
-  DataArrayInt *ret=getNodeGroupsArr(tmp,renum);
-  ret->setName(grp);
-  return ret;
-}
-
-DataArrayInt *MEDFileUMesh::getNodeGroupsArr(const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
-{
-  return getGroupsArr(1,grps,renum);
-}
-
-DataArrayInt *MEDFileUMesh::getNodeFamilyArr(const char *fam, bool renum) const throw(INTERP_KERNEL::Exception)
-{
-  std::vector<std::string> tmp(1);
-  tmp[0]=fam;
-  DataArrayInt *ret=getNodeFamiliesArr(tmp,renum);
-  ret->setName(fam);
-  return ret;
-}
-
-DataArrayInt *MEDFileUMesh::getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
-{
-  return getFamiliesArr(1,fams,renum);
-}
-
 MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renum) const throw(INTERP_KERNEL::Exception)
 {
+  synchronizeTinyInfoOnLeaves();
   if(meshDimRelToMaxExt==1)
     {
       if(!renum)
@@ -520,11 +1022,17 @@ MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renu
           MEDCouplingUMesh *umesh=MEDCouplingUMesh::New();
           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> cc=_coords->deepCpy();
           umesh->setCoords(cc);
+          MEDFileUMeshSplitL1::ClearNonDiscrAttributes(umesh);
           return umesh;
         }
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getWholeMesh(renum);
+}
+
+MEDCouplingMesh *MEDFileUMesh::getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+{
+  return getMeshAtLevel(meshDimRelToMax,false);
 }
 
 MEDCouplingUMesh *MEDFileUMesh::getLevel0Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
@@ -545,20 +1053,6 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM2Mesh(bool renum) const throw(INTERP_KE
 MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
 {
   return getMeshAtLevel(-3,renum);
-}
-
-bool MEDFileUMesh::existsFamily(int famId) const
-{
-  for(std::map<std::string,int>::const_iterator it2=_families.begin();it2!=_families.end();it2++)
-    if((*it2).second==famId)
-      return true;
-  return false;
-}
-
-bool MEDFileUMesh::existsFamily(const char *familyName) const
-{
-  std::string fname(familyName);
-  return _families.find(fname)!=_families.end();
 }
 
 const MEDFileUMeshSplitL1 *MEDFileUMesh::getMeshAtLevSafe(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
@@ -614,50 +1108,6 @@ void MEDFileUMesh::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Excep
   _fam_coords=DataArrayInt::New();
   _fam_coords->alloc(nbOfTuples,1);
   _fam_coords->fillWithZero();
-}
-
-void MEDFileUMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum) throw(INTERP_KERNEL::Exception)
-{
-  if(grps.empty())
-    return ;
-  std::set<std::string> grpsName;
-  std::vector<std::string> grpsName2(grps.size());
-  int i=0;
-
-  for(std::vector<const DataArrayInt *>::const_iterator it=grps.begin();it!=grps.end();it++,i++)
-    {
-      grpsName.insert((*it)->getName());
-      grpsName2[i]=(*it)->getName();
-    }
-  if(grpsName.size()!=grps.size())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsAtLevel : groups name must be different each other !");
-  if(grpsName.find(std::string(""))!=grpsName.end())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::setGroupsAtLevel : groups name must be different empty string !");
-  int sz=getSizeAtLevel(meshDimRelToMaxExt);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam;
-  std::vector< std::vector<int> > fidsOfGroups;
-  if(!renum)
-    {
-      fam=DataArrayInt::MakePartition(grps,sz,fidsOfGroups);
-    }
-  else
-    {
-      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > grps2(grps.size());
-      for(unsigned int i=0;i<grps.size();i++)
-        {
-          grps2[i]=MEDFileUMeshSplitL1::Renumber(getRevNumberFieldAtLevel(meshDimRelToMaxExt),grps[i]);
-          grps2[i]->setName(grps[i]->getName().c_str());
-        }
-      std::vector<const DataArrayInt *> grps3(grps2.begin(),grps2.end());
-      fam=DataArrayInt::MakePartition(grps3,sz,fidsOfGroups);
-    }
-  int offset=1;
-  if(!_families.empty())
-    offset=getMaxFamilyId()+1;
-  TranslateFamilyIds(offset,fam,fidsOfGroups);
-  std::set<int> ids=fam->getDifferentValues();
-  appendFamilyEntries(ids,fidsOfGroups,grpsName2);
-  setFamilyArr(meshDimRelToMaxExt,fam);
 }
 
 void MEDFileUMesh::eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception)
@@ -724,22 +1174,6 @@ void MEDFileUMesh::addNodeGroup(const std::string& name, const std::vector<int>&
   DataArrayInt *sub=_fam_coords->selectByTupleIdSafe(&ids[0],&ids[0]+ids.size());
   std::set<int> ssub(sub->getConstPointer(),sub->getConstPointer()+sub->getNumberOfTuples());
   
-}
-
-void MEDFileUMesh::copyFamGrpMapsFrom(const MEDFileUMesh& other)
-{
-  _groups=other._groups;
-  _families=other._families;
-}
-
-void MEDFileUMesh::setFamilyInfo(const std::map<std::string,int>& info)
-{
-  _families=info;
-}
-
-void MEDFileUMesh::setGroupInfo(const std::map<std::string, std::vector<std::string> >&info)
-{
-  _groups=info;
 }
 
 void MEDFileUMesh::setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception)
@@ -846,7 +1280,7 @@ void MEDFileUMesh::setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<con
 
 DataArrayDouble *MEDFileUMesh::checkMultiMesh(const std::vector<const MEDCouplingUMesh *>& ms) const throw(INTERP_KERNEL::Exception)
 {
-  DataArrayDouble *ret=ms[0]->getCoords();
+  const DataArrayDouble *ret=ms[0]->getCoords();
   int mdim=ms[0]->getMeshDimension();
   for(unsigned int i=1;i<ms.size();i++)
     {
@@ -856,10 +1290,10 @@ DataArrayDouble *MEDFileUMesh::checkMultiMesh(const std::vector<const MEDCouplin
       if(ms[i]->getMeshDimension()!=mdim)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::checkMultiMesh : meshes have not same mesh dimension !");
     }
-  return ret;
+  return const_cast<DataArrayDouble *>(ret);
 }
 
-void MEDFileUMesh::setFamilyArr(int meshDimRelToMaxExt, DataArrayInt *famArr)
+void MEDFileUMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt==1)
     {
@@ -868,7 +1302,7 @@ void MEDFileUMesh::setFamilyArr(int meshDimRelToMaxExt, DataArrayInt *famArr)
       return ;
     }
   if(meshDimRelToMaxExt>1)
-    throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyArr : Dimension request is invalid (>1) !");
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyFieldArr : Dimension request is invalid (>1) !");
   int traducedRk=-meshDimRelToMaxExt;
   if(traducedRk>=(int)_ms.size())
     throw INTERP_KERNEL::Exception("Invalid mesh dim relative to max given ! To low !");
@@ -877,7 +1311,7 @@ void MEDFileUMesh::setFamilyArr(int meshDimRelToMaxExt, DataArrayInt *famArr)
   return _ms[traducedRk]->setFamilyArr(famArr);
 }
 
-void MEDFileUMesh::setRenumArr(int meshDimRelToMaxExt, DataArrayInt *renumArr)
+void MEDFileUMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt==1)
     {
@@ -897,66 +1331,11 @@ void MEDFileUMesh::setRenumArr(int meshDimRelToMaxExt, DataArrayInt *renumArr)
   return _ms[traducedRk]->setRenumArr(renumArr);
 }
 
-void MEDFileUMesh::TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp)
+void MEDFileUMesh::synchronizeTinyInfoOnLeaves() const
 {
-  famArr->applyLin(1,offset,0);
-  for(std::vector< std::vector<int> >::iterator it1=famIdsPerGrp.begin();it1!=famIdsPerGrp.end();it1++)
-    std::transform((*it1).begin(),(*it1).end(),(*it1).begin(),std::bind2nd(std::plus<int>(),offset));
-}
-
-/*!
- * This method append into '_families' attribute the families whose ids are in 'famIds'. Warning 'famIds' are expected to be ids
- * not in '_families'. Groups information are given in parameters in order to give to families representative names.
- * For the moment, the two last input parameters are not taken into account.
- */
-void MEDFileUMesh::appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames)
-{
-  std::map<int,std::string> famInv;
-  for(std::set<int>::const_iterator it=famIds.begin();it!=famIds.end();it++)
-    {
-      std::ostringstream oss;
-      oss << "Family_" << (*it);
-      _families[oss.str()]=(*it);
-      famInv[*it]=oss.str();
-    }
-  int i=0;
-  for(std::vector< std::vector<int> >::const_iterator it1=fidsOfGrps.begin();it1!=fidsOfGrps.end();it1++,i++)
-    {
-      for(std::vector<int>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
-        {
-          _groups[grpNames[i]].push_back(famInv[*it2]);
-        }
-    }
-}
-
-/*!
- * This method appends a new entry in _families attribute. An exception is thrown if either the famId is already
- * kept by an another familyName. An exception is thrown if name 'familyName' is alreadyset with a different 'famId'.
- */
-void MEDFileUMesh::addFamily(int famId, const char *familyName) throw(INTERP_KERNEL::Exception)
-{
-  std::string fname(familyName);
-  std::map<std::string,int>::const_iterator it=_families.find(fname);
-  if(it==_families.end())
-    {
-       for(std::map<std::string,int>::const_iterator it2=_families.begin();it2!=_families.end();it2++)
-         if((*it2).second==famId)
-           {
-             std::ostringstream oss;
-             oss << "MEDFileUMesh::addFamily : Family \"" << (*it2).first << "\" already exists with specified id : " << famId << " !";
-             throw INTERP_KERNEL::Exception(oss.str().c_str());
-           }
-       _families[fname]=famId;
-    }
-  else
-    {
-      if((*it).second!=famId)
-        {
-          std::ostringstream oss;
-          oss << "MEDFileUMesh::addFamily : Family \"" << fname << "\" already exists but has id set to " << (*it).second << " different from asked famId " << famId << " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-    }
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
+    if((const MEDFileUMeshSplitL1 *)(*it))
+      (*it)->synchronizeTinyInfo(*this);
 }
 
 void MEDFileUMesh::computeRevNum() const
@@ -966,5 +1345,433 @@ void MEDFileUMesh::computeRevNum() const
       int pos;
       int maxValue=_num_coords->getMaxValue(pos);
       _rev_num_coords=_num_coords->invertArrayN2O2O2N(maxValue+1);
+    }
+}
+
+MEDFileCMesh *MEDFileCMesh::New()
+{
+  return new MEDFileCMesh;
+}
+
+MEDFileCMesh *MEDFileCMesh::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  if(ms.empty())
+    {
+      std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  int dt,it;
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  std::string dummy2;
+  MEDFileMeshL2::GetMeshIdFromName(fid,ms.front().c_str(),meshType,dt,it,dummy2);
+  return new MEDFileCMesh(fid,ms.front().c_str(),dt,it);
+}
+
+MEDFileCMesh *MEDFileCMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  return new MEDFileCMesh(fid,mName,dt,it);
+}
+
+bool MEDFileCMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const
+{
+  if(!MEDFileMesh::isEqual(other,eps,what))
+    return false;
+  const MEDFileCMesh *otherC=dynamic_cast<const MEDFileCMesh *>(other);
+  if(!otherC)
+    {
+      what="Mesh types differ ! This is cartesian and other is NOT !";
+      return false;
+    }
+  clearNonDiscrAttributes();
+  otherC->clearNonDiscrAttributes();
+  const MEDCouplingCMesh *coo1=_cmesh;
+  const MEDCouplingCMesh *coo2=otherC->_cmesh;
+  if((coo1==0 && coo2!=0) || (coo1!=0 && coo2==0))
+    {
+      what="Mismatch of cartesian meshes ! One is defined and not other !";
+      return false;
+    }
+  if(coo1)
+    {
+      bool ret=coo1->isEqual(coo2,eps);
+      if(!ret)
+        {
+          what="cartesian meshes differ !";
+          return false;
+        }
+    }
+  const DataArrayInt *famc1=_fam_nodes;
+  const DataArrayInt *famc2=otherC->_fam_nodes;
+  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+    {
+      what="Mismatch of families arr on nodes ! One is defined and not other !";
+      return false;
+    }
+  if(famc1)
+    {
+      bool ret=famc1->isEqual(*famc2);
+      if(!ret)
+        {
+          what="Families arr on nodes differ !";
+          return false;
+        }
+    }
+  famc1=_fam_cells;
+  famc2=otherC->_fam_cells;
+  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+    {
+      what="Mismatch of families arr on cells ! One is defined and not other !";
+      return false;
+    }
+  if(famc1)
+    {
+      bool ret=famc1->isEqual(*famc2);
+      if(!ret)
+        {
+          what="Families arr on cells differ !";
+          return false;
+        }
+    }
+  famc1=_num_nodes;
+  famc2=otherC->_num_nodes;
+  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+    {
+      what="Mismatch of numbering arr on nodes ! One is defined and not other !";
+      return false;
+    }
+  if(famc1)
+    {
+      bool ret=famc1->isEqual(*famc2);
+      if(!ret)
+        {
+          what="Numbering arr on nodes differ !";
+          return false;
+        }
+    }
+  famc1=_num_cells;
+  famc2=otherC->_num_cells;
+  if((famc1==0 && famc2!=0) || (famc1!=0 && famc2==0))
+    {
+      what="Mismatch of numbering arr on cells ! One is defined and not other !";
+      return false;
+    }
+  if(famc1)
+    {
+      bool ret=famc1->isEqual(*famc2);
+      if(!ret)
+        {
+          what="Numbering arr on cells differ !";
+          return false;
+        }
+    }
+  return true;
+}
+
+void MEDFileCMesh::clearNonDiscrAttributes() const
+{
+  MEDFileMesh::clearNonDiscrAttributes();
+  MEDFileUMeshSplitL1::ClearNonDiscrAttributes(_cmesh);
+  const DataArrayInt *tmp=_fam_nodes;
+  if(tmp)
+    (const_cast<DataArrayInt *>(tmp))->setName("");
+  tmp=_num_nodes;
+  if(tmp)
+    (const_cast<DataArrayInt *>(tmp))->setName("");
+  tmp=_fam_cells;
+  if(tmp)
+    (const_cast<DataArrayInt *>(tmp))->setName("");
+  tmp=_num_cells;
+  if(tmp)
+    (const_cast<DataArrayInt *>(tmp))->setName("");
+}
+
+MEDFileCMesh::MEDFileCMesh()
+{
+}
+
+MEDFileCMesh::MEDFileCMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+try
+  {
+    loadCMeshFromFile(fid,mName,dt,it);
+  }
+catch(INTERP_KERNEL::Exception& e)
+  {
+    throw e;
+  }
+
+void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+{
+  MEDFileCMeshL2 loaderl2;
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  int dummy0,dummy1;
+  std::string dtunit;
+  int mid=MEDFileMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dtunit);
+  if(meshType!=CARTESIAN)
+    {
+      std::ostringstream oss; oss << "Trying to load as cartesian an existing mesh with name '" << mName << "' that is NOT cartesian !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  loaderl2.loadAll(fid,mid,mName,dt,it);
+  MEDCouplingCMesh *mesh=loaderl2.getMesh();
+  mesh->incrRef();
+  _cmesh=mesh;
+  setName(loaderl2.getName());
+  setDescription(loaderl2.getDescription());
+  setIteration(loaderl2.getIteration());
+  setOrder(loaderl2.getOrder());
+  setTimeValue(loaderl2.getTime());
+  setTimeUnit(loaderl2.getTimeUnit());
+  MEDFileMeshL2::ReadFamiliesAndGrps(fid,mName,_families,_groups);
+  med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+  int nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf);
+  if(nbOfElt>0)
+    {
+      _fam_nodes=DataArrayInt::New();
+      _fam_nodes->alloc(nbOfElt,1);
+      MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_NODE,MED_NONE,_fam_nodes->getPointer());
+    }
+  nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_NUMBER,MED_NODAL,&chgt,&trsf);
+  if(nbOfElt>0)
+    {
+      _num_nodes=DataArrayInt::New();
+      _num_nodes->alloc(nbOfElt,1);
+      MEDmeshEntityNumberRd(fid,mName,dt,it,MED_NODE,MED_NONE,_num_nodes->getPointer());
+    }
+  int spaceDim=mesh->getSpaceDimension();
+  med_geometry_type geoTypeReq=MED_NONE;
+  switch(spaceDim)
+    {
+    case 3:
+      geoTypeReq=MED_HEXA8;
+      break;
+    case 2:
+      geoTypeReq=MED_QUAD4;
+      break;
+    case 1:
+      geoTypeReq=MED_SEG2;
+      break;
+    case 0:
+      geoTypeReq=MED_POINT1;
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("Invalid spacedim detected for cartesian mesh ! Must be in (1,2,3) !");
+    }
+  nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,geoTypeReq,MED_FAMILY_NUMBER,MED_NODAL,&chgt,&trsf);
+  if(nbOfElt>0)
+    {
+      _fam_cells=DataArrayInt::New();
+      _fam_cells->alloc(nbOfElt,1);
+      MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_fam_cells->getPointer());
+    }
+  nbOfElt=MEDmeshnEntity(fid,mName,dt,it,MED_CELL,geoTypeReq,MED_NUMBER,MED_NODAL,&chgt,&trsf);
+  if(nbOfElt>0)
+    {
+      _num_cells=DataArrayInt::New();
+      _num_cells->alloc(nbOfElt,1);
+      MEDmeshEntityNumberRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_num_cells->getPointer());
+    }
+}
+
+const MEDCouplingCMesh *MEDFileCMesh::getMesh() const
+{
+  synchronizeTinyInfoOnLeaves();
+  return _cmesh;
+}
+
+MEDCouplingMesh *MEDFileCMesh::getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMax!=0)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh does not support multi level for mesh 0 expected as input !");
+  const MEDCouplingCMesh *m=getMesh();
+  if(m)
+    m->incrRef();
+  return const_cast<MEDCouplingCMesh *>(m);
+}
+
+void MEDFileCMesh::setMesh(MEDCouplingCMesh *m)
+{
+  if(m)
+    m->incrRef();
+  _cmesh=m;
+}
+
+void MEDFileCMesh::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  if(_name.empty())
+    throw INTERP_KERNEL::Exception("MEDFileCMesh : name is empty. MED file ask for a NON EMPTY name !");
+  if(!existsFamily(0))
+    (const_cast<MEDFileCMesh *>(this))->addFamily(DFT_FAM_NAME,0);
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  std::ostringstream oss; oss << "MEDFileCMesh : error on attempt to write in file : \"" << fileName << "\""; 
+  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str().c_str());
+  INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> desc=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
+  INTERP_KERNEL::AutoPtr<char> dtunit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
+  MEDLoaderBase::safeStrCpy(_name.c_str(),MED_NAME_SIZE,maa,_too_long_str);
+  MEDLoaderBase::safeStrCpy(_desc_name.c_str(),MED_COMMENT_SIZE,desc,_too_long_str);
+  MEDLoaderBase::safeStrCpy(_dt_unit.c_str(),MED_LNAME_SIZE,dtunit,_too_long_str);
+  int spaceDim=_cmesh->getSpaceDimension();
+  INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(spaceDim*MED_SNAME_SIZE);
+  for(int i=0;i<spaceDim;i++)
+    {
+      std::string info(_cmesh->getCoordsAt(i)->getInfoOnComponent(0));
+      std::string c,u;
+      MEDLoaderBase::splitIntoNameAndUnit(info,c,u);
+      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+    }
+  MEDmeshCr(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
+  MEDmeshGridTypeWr(fid,maa,MED_CARTESIAN_GRID);
+  for(int i=0;i<spaceDim;i++)
+    {
+      const DataArrayDouble *da=_cmesh->getCoordsAt(i);
+      MEDmeshGridIndexCoordinateWr(fid,maa,_iteration,_order,_time,i+1,da->getNumberOfTuples(),da->getConstPointer());
+    }
+  if((const DataArrayInt *)_fam_cells)
+    MEDmeshEntityFamilyNumberWr(fid,maa,_iteration,_order,MED_CELL,MED_GEO_ALL,_fam_cells->getNumberOfTuples(),_fam_cells->getConstPointer());
+  if((const DataArrayInt *)_fam_nodes)
+    MEDmeshEntityFamilyNumberWr(fid,maa,_iteration,_order,MED_NODE,MED_NONE,_fam_nodes->getNumberOfTuples(),_fam_nodes->getConstPointer());
+  //
+  MEDFileUMeshL2::WriteFamiliesAndGrps(fid,maa,_families,_groups,_too_long_str);
+}
+
+int MEDFileCMesh::getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getSizeAtLevel : Only available for levels 0 or 1 !");
+  if(!((const MEDCouplingCMesh *)_cmesh))
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getSizeAtLevel : No cartesian mesh set !");
+  if(meshDimRelToMaxExt==0)
+    return _cmesh->getNumberOfCells();
+  else
+    return _cmesh->getNumberOfNodes();
+}
+
+void MEDFileCMesh::synchronizeTinyInfoOnLeaves() const
+{
+  const MEDCouplingCMesh *cmesh=_cmesh;
+  (const_cast<MEDCouplingCMesh *>(cmesh))->setName(_name.c_str());
+  (const_cast<MEDCouplingCMesh *>(cmesh))->setDescription(_desc_name.c_str());
+  (const_cast<MEDCouplingCMesh *>(cmesh))->setTime(_time,_iteration,_order);
+  (const_cast<MEDCouplingCMesh *>(cmesh))->setTimeUnit(_dt_unit.c_str());
+}
+
+DataArrayInt *MEDFileCMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getFamiliesArr : Only available for levels 0 or 1 !");
+  std::vector<int> famIds=getFamiliesIds(fams);
+  if(meshDimRelToMaxExt==1)
+    {
+      if((const DataArrayInt *)_fam_nodes)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_nodes->getIdsEqualList(famIds);
+          if(renum)
+            return MEDFileUMeshSplitL1::Renumber(_num_nodes,da);
+          else
+            {
+              da->incrRef();
+              return da;
+            }
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileCMesh::getFamiliesArr : no family array specified on nodes !");
+    }
+  else
+    {
+      if((const DataArrayInt *)_fam_cells)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_cells->getIdsEqualList(famIds);
+          if(renum)
+            return MEDFileUMeshSplitL1::Renumber(_num_cells,da);
+          else
+            {
+              da->incrRef();
+              return da;
+            }
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileCMesh::getFamiliesArr : no family array specified on cells !");
+    }
+}
+
+void MEDFileCMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::setRenumFieldArr : Only available for levels 0 or 1 !");
+  if(famArr)
+    famArr->incrRef();
+  if(meshDimRelToMaxExt==0)
+    _fam_cells=famArr;
+  else
+    _fam_nodes=famArr;
+}
+
+void MEDFileCMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::setRenumFieldArr : Only available for levels 0 or 1 !");
+  if(renumArr)
+    renumArr->incrRef();
+  if(meshDimRelToMaxExt==0)
+    _num_cells=renumArr;
+  else
+    _num_nodes=renumArr;
+}
+
+const DataArrayInt *MEDFileCMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getFamilyFieldAtLevel : Only available for levels 0 or 1 !");
+  if(meshDimRelToMaxExt==0)
+    return _fam_cells;
+  else
+    return _fam_nodes;
+}
+
+const DataArrayInt *MEDFileCMesh::getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getNumberFieldAtLevel : Only available for levels 0 or 1 !");
+  if(meshDimRelToMaxExt==0)
+    return _num_cells;
+  else
+    return _num_nodes;
+}
+
+const DataArrayInt *MEDFileCMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+{
+  if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getRevNumberFieldAtLevel : Only available for levels 0 or 1 !");
+  if(meshDimRelToMaxExt==0)
+    {
+      if((const DataArrayInt *)_num_cells)
+        {
+          int pos;
+          int maxValue=_num_cells->getMaxValue(pos);
+          _rev_num_cells=_num_cells->invertArrayN2O2O2N(maxValue+1);
+          return _rev_num_cells;
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileCMesh::getRevNumberFieldAtLevel : no cell renumbering for a request on reverse numbering !");
+    }
+  else
+    {
+      if((const DataArrayInt *)_num_nodes)
+        {
+          int pos;
+          int maxValue=_num_nodes->getMaxValue(pos);
+          _rev_num_nodes=_num_nodes->invertArrayN2O2O2N(maxValue+1);
+          return _rev_num_nodes;
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDFileCMesh::getRevNumberFieldAtLevel : no node renumbering for a request on reverse numbering !");
     }
 }

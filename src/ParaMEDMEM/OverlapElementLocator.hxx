@@ -35,15 +35,15 @@ namespace ParaMEDMEM
   class ParaFIELD;
   class ProcessorGroup;
   class ParaSUPPORT;
-  class InterpolationMatrix;
-
+  class OverlapInterpolationMatrix;
+  
   class OverlapElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
   public:
     OverlapElementLocator(const ParaFIELD *sourceField, const ParaFIELD *targetField, const ProcessorGroup& group);
     virtual ~OverlapElementLocator();
     const MPI_Comm *getCommunicator() const;
-    void exchangeMeshes();
+    void exchangeMeshes(OverlapInterpolationMatrix& matrix);
     std::vector< std::pair<int,int> > getToDoList() const { return _to_do_list; }
     std::vector< std::vector< int > > getProcsInInteraction() const { return _proc_pairs; }
     std::string getSourceMethod() const;
@@ -55,7 +55,7 @@ namespace ParaMEDMEM
   private:
     void computeBoundingBoxes();
     bool intersectsBoundingBox(int i, int j) const;
-    void sendLocalMeshTo(int procId, bool sourceOrTarget) const;
+    void sendLocalMeshTo(int procId, bool sourceOrTarget, OverlapInterpolationMatrix& matrix) const;
     void receiveRemoteMesh(int procId, bool sourceOrTarget);
     void sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayInt *idsToSend) const;
     void receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayInt *&ids) const;

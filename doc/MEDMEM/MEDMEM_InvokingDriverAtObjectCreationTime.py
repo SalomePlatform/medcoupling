@@ -37,14 +37,8 @@ try:
     print "Creation of MESH object"
     myMesh = MESH(MED_DRIVER,medFile,meshName)
 
-    print "Creation of MED object"
-    myMed = MED(MED_DRIVER,medFile)
-
-    print "Test the driver removal dor MESH"
+    print "Test the driver removal for MESH"
     myMesh.rmDriver()
-
-    print "Test the driver removal dor MED"
-    myMed.rmDriver()
 
     print "End of Python script"
     

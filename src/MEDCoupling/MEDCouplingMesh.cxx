@@ -200,6 +200,18 @@ void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(IN
 }
 
 /*!
+ * This method copies all attributes that are \b NOT arrays in this.
+ * All tiny attributes not usefully for state of 'this' are ignored.
+ */
+void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+{
+  copyTinyStringsFrom(other);
+  _time=other->_time;
+  _iteration=other->_iteration;
+  _order=other->_order;
+}
+
+/*!
  * This method builds a field lying on 'this' with 'nbOfComp' components.
  * 'func' is a string that is the expression to evaluate.
  * The return field will have type specified by 't'. 't' is also used to determine where values of field will be

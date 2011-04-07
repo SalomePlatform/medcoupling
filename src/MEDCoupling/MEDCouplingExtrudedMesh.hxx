@@ -58,6 +58,8 @@ namespace ParaMEDMEM
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     void checkCoherency() const throw (INTERP_KERNEL::Exception);
+    void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     void getBoundingBox(double *bbox) const;
     void updateTime() const;
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
@@ -77,6 +79,7 @@ namespace ParaMEDMEM
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     void scale(const double *point, double factor);
+    DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
     DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);

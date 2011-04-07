@@ -29,8 +29,8 @@
 #include "MEDMEM_Connectivity.hxx"
 #include "MEDMEM_Field.hxx"
 #include "MEDMEM_DriversDef.hxx"
-#include "MEDMEM_Med.hxx"
-#include "MEDMEM_MedMeshDriver22.hxx"
+#include "MEDMEM_MedFileBrowser.hxx"
+#include "MEDMEM_MedMeshDriver.hxx"
 
 #include "RenumberingFactory.hxx"
 
@@ -46,9 +46,9 @@ void computeNeighbour(const MESH* mesh,const medGeometryElement& Type, vector<li
   conn->calculateFullDescendingConnectivity(MED_CELL);
   const int* rev_conn=mesh->getReverseConnectivity(MED_EN::MED_DESCENDING, MED_EN::MED_CELL);
   const int* rev_conn_index=mesh->getReverseConnectivityIndex(MED_EN::MED_DESCENDING, MED_EN::MED_CELL);
-  int nb_face= mesh->getNumberOfElementsWithPoly(MED_FACE,MED_ALL_ELEMENTS);
-  int nb_edge = mesh->getNumberOfElementsWithPoly(MED_EDGE,MED_ALL_ELEMENTS);
-  nb_cell= mesh->getNumberOfElementsWithPoly(MED_CELL,Type);
+  int nb_face= mesh->getNumberOfElements(MED_FACE,MEDMEM_ALL_ELEMENTS);
+  int nb_edge = mesh->getNumberOfElements(MED_EDGE,MEDMEM_ALL_ELEMENTS);
+  nb_cell= mesh->getNumberOfElements(MED_CELL,Type);
 
   int nb_constituent;
   if(mesh->getMeshDimension()==2)
@@ -79,7 +79,7 @@ void computeNeighbour(const MESH* mesh,const medGeometryElement& Type, vector<li
 
 void changeConnectivity(MESH& mesh, const medGeometryElement& Type, const int& nb_cell, const vector<int>& iperm)
 {
-  if(Type==MED_POLYHEDRA)
+  /*if(Type==MED_POLYHEDRA)
     {
       int *conn_face_index_init=(int*)mesh.getPolyhedronFacesIndex();
       int *conn_index_init=(int*)mesh.getPolyhedronIndex(MED_FULL_INTERLACE);
@@ -144,9 +144,9 @@ void changeConnectivity(MESH& mesh, const medGeometryElement& Type, const int& n
       delete[] conn_renum;
       delete[] conn_index_renum;
     }
-  else
+    else*/
     {
-      const int *conn_init=mesh.getConnectivity(MED_FULL_INTERLACE,MED_NODAL,MED_CELL,Type);
+      const int *conn_init=mesh.getConnectivity(MED_NODAL,MED_CELL,Type);
       const int *conn_index_init=mesh.getConnectivityIndex(MED_NODAL,MED_CELL);
       int *conn_renum=new int[conn_index_init[nb_cell]-1];
       int *conn_index_renum=new int[nb_cell+1];
@@ -166,7 +166,7 @@ void changeConnectivity(MESH& mesh, const medGeometryElement& Type, const int& n
         }
 
       CONNECTIVITY* myConnectivity=(CONNECTIVITY*)mesh.getConnectivityptr();
-      myConnectivity->setNodal(conn_renum,MED_CELL,Type);
+      myConnectivity->setNodal(conn_renum,MED_CELL,Type,conn_index_renum);
       delete[] conn_renum;
       delete[] conn_index_renum;
     }
@@ -213,9 +213,9 @@ int main (int argc, char** argv)
   system(s.c_str());
 
   // Reading file structure
-  const MED med_struct (MED_DRIVER,filename_in);
+  const MEDFILEBROWSER med_struct(filename_in);
   int nb_mesh, nb_fields;
-  deque<string> mesh_names,f_names;
+  vector<string> mesh_names,f_names;
   nb_mesh=med_struct.getNumberOfMeshes();
   nb_fields=med_struct.getNumberOfFields();
   mesh_names=med_struct.getMeshNames();
@@ -237,15 +237,14 @@ int main (int argc, char** argv)
   int nb_fields_tot=0;
   for (int ifield = 0; ifield < nb_fields; ifield++)
     {
-      deque<DT_IT_> dtit=med_struct.getFieldIteration(f_names[ifield]);
-      for (deque<DT_IT_>::const_iterator iter =dtit.begin(); iter!=dtit.end(); iter++)
+      vector<DT_IT_> dtit=med_struct.getFieldIteration(f_names[ifield]);
+      for (vector<DT_IT_>::const_iterator iter =dtit.begin(); iter!=dtit.end(); iter++)
         {
           field_names.push_back(f_names[ifield]);
           iternumber.push_back(iter->dt);
           ordernumber.push_back(iter->it);
           ++nb_fields_tot;
-          FIELD_* field = med_struct.getField(f_names[ifield],iter->dt,iter->it);
-          if (dynamic_cast<FIELD<double>*>(field))
+          if(med_struct.getFieldType(f_names[ifield])==MED_EN::MED_REEL64)
             types.push_back(1);
           else
             types.push_back(0);
@@ -257,20 +256,19 @@ int main (int argc, char** argv)
   // Reading mesh
   MESH myMesh;
   myMesh.setName(meshname);
-  MED_MESH_RDONLY_DRIVER22 *drv22=new MED_MESH_RDONLY_DRIVER22(filename_in,&myMesh);
+  MED_MESH_RDONLY_DRIVER *drv22=new MED_MESH_RDONLY_DRIVER(filename_in,&myMesh);
   drv22->desactivateFacesComputation();
   int newDrv=myMesh.addDriver(*drv22);
   delete drv22;
   myMesh.read(newDrv);
-  int nb_type=myMesh.getNumberOfTypesWithPoly(MED_CELL);
+  int nb_type=myMesh.getNumberOfTypes(MED_CELL);
   if (nb_type!=1)
     {
       cout << "Mesh must have only one type of cell" << endl;
       return -1;
     }
-  medGeometryElement *Types = myMesh.getTypesWithPoly(MED_CELL);
+  const medGeometryElement *Types = myMesh.getTypes(MED_CELL);
   medGeometryElement Type=Types[0];
-  delete[] Types;
 
   t_read_mesh=clock();
   MESH* workMesh=new MESH(myMesh);

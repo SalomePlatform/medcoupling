@@ -25,8 +25,6 @@
 
 #include "MEDMEM_Field.hxx"
 #include "MEDMEM_Mesh.hxx"
-#include "MEDMEM_Med.hxx"
-#include "MEDMEM_MedMedDriver.hxx"
 #include "MEDMEM_MedMeshDriver.hxx"
 
 using namespace MEDMEM ;
@@ -80,22 +78,6 @@ main () {
       delete myMesh;
     }
 
-    {
-      MED * myMed = new MED();
-      MED_MED_RDONLY_DRIVER myRdOnlyDriver(fileName,myMed);
-      myRdOnlyDriver.open(); 
-      myRdOnlyDriver.readFileStruct();
-      myRdOnlyDriver.close(); 
-      myMed->updateSupport(); // DOIT ETRE SUPPRIMEE
-      myRdOnlyDriver.read();
-      // try { myRdOnlyDriver.write(); } catch  (MEDEXCEPTION& ex) 
-      //   { MESSAGE(ex.what()); }
-      //MED_MED_WRONLY_DRIVER myWrOnlyDriver(fileName3,myMed);
-      //myWrOnlyDriver.open(); 
-      //myWrOnlyDriver.write(); // Not implemented yet.
-      //myWrOnlyDriver.close();
-      delete myMed;
-    }
 
   } catch (MEDEXCEPTION& ex){
     cout << "MAIN BLOCK EXCEPTION" << endl;

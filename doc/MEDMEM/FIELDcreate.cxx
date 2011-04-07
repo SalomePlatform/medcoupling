@@ -34,7 +34,6 @@ int main (int argc, char ** argv) {
 
   /* read MESH */
   MESH * myMesh = new MESH(MED_DRIVER,MedFile,MeshName) ;
-  //  myMesh->read() ;
 
   // we need a support :
   const SUPPORT * mySupport = myMesh->getSupportOnAll(MED_CELL);
@@ -75,7 +74,7 @@ int main (int argc, char ** argv) {
   myField.setTime(Time) ;
 
   // Value :
-  int NumberOfValue = mySupport->getNumberOfElements(MED_ALL_ELEMENTS);
+  int NumberOfValue = mySupport->getNumberOfElements(MEDMEM_ALL_ELEMENTS);
   for(int i=1; i<=NumberOfValue; i++) // i^th element
     for (int j=1; j<=NumberOfCompoennts; j++) { // j^th component
       double myValue = (i+j) * 0.1 ;
@@ -83,7 +82,7 @@ int main (int argc, char ** argv) {
     }
   
   // save this new field
-  int id = myField.addDriver(MED_DRIVER) ;
+  myField.write(MED_DRIVER,filename) ;
 
   return 0 ;
 }

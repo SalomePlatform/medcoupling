@@ -77,13 +77,15 @@ INPUT                  = @srcdir@ \
 			 @srcdir@/../../src/MEDLoader \
                          @srcdir@/../../src/MEDMEM
 
-FILE_PATTERNS          = MEDMEM_Mesh.* \
+FILE_PATTERNS          = MEDMEM_GMesh.* \
+                         MEDMEM_Mesh.* \
                          MEDMEM_Grid.* \
                          MEDMEM_Meshing.* \
                          MEDMEM_Support.* \
                          MEDMEM_Field.* \
-                         MEDMEM_Med.* \
+                         MEDMEM_MedFileBrowser.* \
                          InterpKernelDEC.* \
+			 OverlapDEC.* \
                          DEC.* \
                          MPIProcessorGroup.* \
                          StructuredCoincidentDEC.* \
@@ -108,28 +110,30 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          InterpKernelGeo2DNode.* \
                          InterpKernelGeo2DQuadraticPolygon.* \
                          ParaFIELD.* \
-			 MEDCouplingMesh.* \
+                         MEDCouplingMesh.* \
                          MEDCouplingUMesh.* \
-			 MEDCouplingUMeshDesc.* \
-			 MEDCouplingPointSet.* \
-			 MEDCouplingCMesh.* \
-			 MEDCouplingExtrudedMesh.* \
-			 MEDCouplingFieldDouble.* \
-			 MEDCouplingField.* \
-			 MEDCouplingFieldDiscretization.* \
-			 MEDCouplingTimeDiscretization.* \
-			 MEDCouplingTimeLabel.* \
-			 MEDCouplingRefCountObject.* \
-			 MEDCouplingMemArray.* \
-			 MEDCouplingRemapper.* \
-			 MEDLoader.* \
- 			 MEDFileMesh.* \
+                         MEDCouplingUMeshDesc.* \
+                         MEDCouplingPointSet.* \
+                         MEDCouplingCMesh.* \
+                         MEDCouplingExtrudedMesh.* \
+                         MEDCouplingFieldDouble.* \
+                         MEDCouplingField.* \
+			 MEDCouplingFieldTemplate.* \
+                         MEDCouplingFieldDiscretization.* \
+                         MEDCouplingTimeDiscretization.* \
+                         MEDCouplingTimeLabel.* \
+                         MEDCouplingRefCountObject.* \
+                         MEDCouplingMemArray.* \
+                         MEDCouplingRemapper.* \
+                         MEDLoader.* \
+                         MEDFileMesh.* \
                          *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
 EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM/ \
                          @srcdir@/../../doc/MEDMEM \
+                         @srcdir@/../../src/MEDMEMBinTest \
                          @srcdir@/../../src/MEDMEM
 EXAMPLE_PATTERNS       = *.cxx *.py
 EXAMPLE_RECURSIVE      = NO

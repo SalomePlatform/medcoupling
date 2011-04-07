@@ -58,6 +58,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingMeshType getType() const = 0;
     bool isStructured() const;
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
+    virtual void copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     // comparison methods
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const = 0;
@@ -70,6 +71,8 @@ namespace ParaMEDMEM
                              DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);
     //
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfCells() const = 0;
     virtual int getNumberOfNodes() const = 0;
     virtual int getSpaceDimension() const = 0;
@@ -84,6 +87,7 @@ namespace ParaMEDMEM
     virtual std::string simpleRepr() const = 0;
     virtual std::string advancedRepr() const = 0;
     // tools
+    virtual DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void getBoundingBox(double *bbox) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const = 0;
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const = 0;

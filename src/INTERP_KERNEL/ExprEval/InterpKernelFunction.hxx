@@ -178,6 +178,30 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
+  class INTERPKERNELEXPREVAL_EXPORT LogFunction : public UnaryFunction
+  {
+  public:
+    ~LogFunction();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
+  class INTERPKERNELEXPREVAL_EXPORT Log10Function : public UnaryFunction
+  {
+  public:
+    ~Log10Function();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
   class INTERPKERNELEXPREVAL_EXPORT BinaryFunction : public Function
   {
   public:

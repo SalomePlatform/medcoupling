@@ -721,6 +721,8 @@ void MEDCouplingFieldDouble::integral(bool isWAbs, double *res) const throw(INTE
 void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOnPos");
   _type->getValueOnPos(arr,_mesh,i,j,k,res);
 }
 
@@ -731,6 +733,8 @@ void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) con
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOn");
   _type->getValueOn(arr,_mesh,spaceLoc,res);
 }
 
@@ -740,6 +744,8 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) con
 DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc, int nbOfPoints) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOnMulti");
   return _type->getValueOnMulti(arr,_mesh,spaceLoc,nbOfPoints);
 }
 
@@ -751,6 +757,8 @@ DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc,
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception)
 {
   std::vector< const DataArrayDouble *> arrs=_time_discr->getArraysForTime(time);
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOn");
   std::vector<double> res2;
   for(std::vector< const DataArrayDouble *>::const_iterator iter=arrs.begin();iter!=arrs.end();iter++)
     {

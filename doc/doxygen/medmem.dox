@@ -13,10 +13,9 @@ The Med libraries are oganized in multiple layers:
 - CORBA API to simplify distributed computation inside SALOME (Server Side).
 - MED Client classes to simplify and optimize interaction of distant objects within the local solver.
 
-Thanks to Med Memory, any component can access a distant 
-mesh or field object. Two codes running on 
-different machines can thus exchange meshes and fields.
-These meshes and fields can easily be read/written in a Med file
+Thanks to Med Memory, any component can access a distant mesh or field
+object. Two codes running on different machines can thus exchange
+meshes and fields. These meshes and fields can easily be read/written in a Med file
 format, enabling access to the whole Salome suite of tools
 (CAD, meshing, Visualization, other components).
 
@@ -26,13 +25,14 @@ In this document, we describe the API of the Med Memory library (available in C+
 
 As will be seen in section \ref medmem_api, the API consists of very few classes:
 
-- a general MED container : \ref MED_class,
+- a MED-file browser : \ref MEDFILEBROWSER_class,
 - meshes : \ref mesh ,
 - structured meshes : \ref grid ,
 - supports and derived classes : \ref support ,
 - mesh generation tool : \ref meshing ,
 - fields : \ref field ,
-- \ref medmem_drivers "drivers for reading and writing" in MED, GIBI and VTK files.
+- \ref medmem_drivers "drivers for reading and writing" in MED, GIBI,
+VTK, EnSight and Porflow files.
 
 All these are detailed in the following sections. The C++ 
 formalism will be used for the description in these sections.
@@ -85,7 +85,7 @@ a temperature at times \a t=0.0 s, \a t=1.0 s, \a t=2.0 s will be considered as 
 MEDMEM supports data exchange in following formats:
 - \b GIBI - reading and writing the mesh and the fields in ASCII format.
 - \b VTK - writing the mesh and the fields in ASCII and binary formats.
-- \b EnSight - reading and writing the mesh and the fields in ASCII and binary formats.
+- \b EnSight - reading and writing the mesh and the fields in EnSigth6 and EnSigth GOLD formats (ASCII and binary).
 - \b PORFLOW - reading the mesh in ASCII format.
 
 Limitation of length of names in GIBI format is overcome by storing names in the specific string pile of GIBI file.
@@ -124,7 +124,7 @@ At a basic usage level, the API consists in few classes which are located in
 the \c MEDMEM C++ namespace (consult figure \ref fig_UML_light which gives
 an UML diagram view of the main Med Memory classes):
 
-- \b MED the global container;
+- \b MEDFILEBROWSER the class provinding information on meshes and fields conatained in a MED file;
 - \b MESH the class containing 2D or 3D mesh objects;
 - \b SUPPORT the class containing mainly a list of mesh elements;
 - \b FIELD the class template containing list of values lying on a particular support.
@@ -146,8 +146,7 @@ of the mesh;
 - read/write such fields.
 
 Note that on the figure \ref fig_UML_light as well as on figure
-\ref fig_UML that the
-MED container controls the life cycle of all the objects it contains: its destructor will destroy all the objects it aggregates. On the other hand, the life cycle of mesh, support and field objects are independent. Destroying a support (resp. a field) will have no effect on the mesh (resp. support) which refers to it. But the user has to maintain the link: a mesh aggregates a support which aggregates a field. If the user has to delete Med Memory objects, the field has to be deleted first, then the support and finally the mesh.
+\ref fig_UML the life cycle of mesh and field objects are independent. Destroying a field will have no effect on the mesh. But the user has to maintain the link: a mesh aggregates a support which aggregates a field. If the user has to delete Med Memory objects, the field has to be deleted first, then the support and finally the mesh.
 
 A more advanced usage of the Med Memory is possible through other classes.
 Figure \ref fig_UML gives a complete view of the Med Memory API. It includes :
@@ -196,25 +195,25 @@ only \b node and \b cell are considered. In 2D mesh, only \b node,
 available types are linear and quadratic elements (consult
 \ref RefManualMedMemory). The entries of this enum are quite
 self-explanatory :
-  - \c MED_NONE
-  - \c MED_POINT1
-  - \c MED_SEG2
-  - \c MED_SEG3
-  - \c MED_TRIA3
-  - \c MED_QUAD4
-  - \c MED_TRIA6
-  - \c MED_QUAD8
-  - \c MED_TETRA4
-  - \c MED_PYRA5
-  - \c MED_PENTA6
-  - \c MED_HEXA8
-  - \c MED_TETRA10
-  - \c MED_PYRA13
-  - \c MED_PENTA15
-  - \c MED_HEXA20
-  - \c MED_POLYGON
-  - \c MED_POLYHEDRA
-  - \c MED_ALL_ELEMENTS
+  - \c MEDMEM_NONE
+  - \c MEDMEM_POINT1
+  - \c MEDMEM_SEG2
+  - \c MEDMEM_SEG3
+  - \c MEDMEM_TRIA3
+  - \c MEDMEM_QUAD4
+  - \c MEDMEM_TRIA6
+  - \c MEDMEM_QUAD8
+  - \c MEDMEM_TETRA4
+  - \c MEDMEM_PYRA5
+  - \c MEDMEM_PENTA6
+  - \c MEDMEM_HEXA8
+  - \c MEDMEM_TETRA10
+  - \c MEDMEM_PYRA13
+  - \c MEDMEM_PENTA15
+  - \c MEDMEM_HEXA20
+  - \c MEDMEM_POLYGON
+  - \c MEDMEM_POLYHEDRA
+  - \c MEDMEM_ALL_ELEMENTS
   .
 The connectivity of all these elements is defined in MED project Web page
 http://hammi.extra.cea.fr/static/MED/web_med/logiciels/med-2.3.1/doc/ .
@@ -237,6 +236,8 @@ The classes that make up the API of the library are :
  - \ref noncoincidentdec for a non-conservative interpolation based on element localization,
  - \ref structuredcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies.
  - \ref explicitcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies,
+ - \ref overlapdec based on intersecting elems volume
+ computation with source and target meshes are on same process id
 
 */
 
@@ -276,4 +277,3 @@ The following options can be useful to configure MEDMEM :
 - \a --with-lam=${LAMDIR} specifies an install path for a LAM MPI library,
 - \a --with-mpich=${MPICHDIR} specifies an install path for a MPICH-1 library.
 */
->>>>>>> 1.1.4.1.2.1

@@ -121,6 +121,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::keepSelectedComponents;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleIdSafe;
+%newobject ParaMEDMEM::DataArrayInt::selectByTupleId2;
 %newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
 %newobject ParaMEDMEM::DataArrayInt::renumber;
 %newobject ParaMEDMEM::DataArrayInt::renumberR;
@@ -143,6 +144,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
+%newobject ParaMEDMEM::DataArrayInt::__getitem__;
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayDouble::deepCpy;
@@ -161,6 +163,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleIdSafe;
+%newobject ParaMEDMEM::DataArrayDouble::selectByTupleId2;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
@@ -181,7 +184,9 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromPolarToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
+%newobject ParaMEDMEM::DataArrayDouble::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
+%newobject ParaMEDMEM::MEDCouplingMesh::checkTypeConsistencyAndContig;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::getBarycenterAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildOrthogonalField;
@@ -245,7 +250,6 @@ using namespace INTERP_KERNEL;
 %rename(assign) *::operator=;
 %ignore ParaMEDMEM::MemArray::operator=;
 %ignore ParaMEDMEM::MemArray::operator[];
-%ignore ParaMEDMEM::MEDCouplingPointSet::getCoords();
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationDblInfo;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues;
@@ -300,7 +304,10 @@ namespace ParaMEDMEM
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
+    virtual void copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
     virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception) = 0;
@@ -496,6 +503,15 @@ namespace ParaMEDMEM
           return res;
         }
 
+        DataArrayInt *checkTypeConsistencyAndContig(PyObject *li, PyObject *li2) const throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<int> code;
+          std::vector<const DataArrayInt *> idsPerType;
+          convertPyObjToVecDataArrayIntCst(li2,idsPerType);
+          convertPyToNewIntArr3(li,code);
+          return self->checkTypeConsistencyAndContig(code,idsPerType);
+        }
+
          void translate(PyObject *vector) throw(INTERP_KERNEL::Exception)
          {
            int sz;
@@ -530,7 +546,7 @@ namespace ParaMEDMEM
     {
     public:
       void updateTime() const;
-      void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
+      void setCoords(const DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
       DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception);
       bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const throw(INTERP_KERNEL::Exception);
       void zipCoords() throw(INTERP_KERNEL::Exception);
@@ -577,7 +593,7 @@ namespace ParaMEDMEM
              return res;
            }
            
-           PyObject *getCoords() const throw(INTERP_KERNEL::Exception)
+           PyObject *getCoords() throw(INTERP_KERNEL::Exception)
            {
              DataArrayDouble *ret1=self->getCoords();
              ret1->incrRef();
@@ -821,14 +837,14 @@ namespace ParaMEDMEM
         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&sz);
         self->insertNextCell(type,size,tmp);
       }
-      DataArrayInt *getNodalConnectivity() const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *getNodalConnectivity() throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *ret=self->getNodalConnectivity();
         if(ret)
           ret->incrRef();
         return ret;
       }
-      DataArrayInt *getNodalConnectivityIndex() const throw(INTERP_KERNEL::Exception)
+      DataArrayInt *getNodalConnectivityIndex() throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *ret=self->getNodalConnectivityIndex();
         if(ret)
@@ -885,9 +901,9 @@ namespace ParaMEDMEM
 
       PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids) const throw(INTERP_KERNEL::Exception)
       {
-        std::vector<int> idsPerGeoType;
-        convertPyToNewIntArr3(ids,idsPerGeoType);
-        MEDCouplingUMesh *ret=self->keepSpecifiedCells(type,idsPerGeoType);
+        int size;
+        INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(ids,&size);
+        MEDCouplingUMesh *ret=self->keepSpecifiedCells(type,tmp,tmp+size);
         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 );
       }
 
@@ -1144,16 +1160,16 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingCMesh *New();
-    void setCoords(DataArrayDouble *coordsX,
-                   DataArrayDouble *coordsY=0,
-                   DataArrayDouble *coordsZ=0) throw(INTERP_KERNEL::Exception);
-    void setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
+    void setCoords(const DataArrayDouble *coordsX,
+                   const DataArrayDouble *coordsY=0,
+                   const DataArrayDouble *coordsZ=0) throw(INTERP_KERNEL::Exception);
+    void setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
       {
         return self->simpleRepr();
       }
-      DataArrayDouble *getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
+      DataArrayDouble *getCoordsAt(int i) throw(INTERP_KERNEL::Exception)
       {
         DataArrayDouble *ret=self->getCoordsAt(i);
         if(ret)
@@ -1495,6 +1511,84 @@ namespace ParaMEDMEM
      convertPyObjToVecDataArrayDblCst(li,tmp);
      return DataArrayDouble::Meld(tmp);
    }
+
+   DataArrayDouble *__getitem__(PyObject *ob) throw(INTERP_KERNEL::Exception)
+   {
+     self->checkAllocated();
+     int nbOfTuples=self->getNumberOfTuples();
+     bool isTuple=PyTuple_Check(ob);
+     PyObject *obj=0;
+     if(!isTuple)
+       obj=ob;
+     else
+       {
+         int sz=PyTuple_Size(ob);
+         if(sz!=2)
+           throw INTERP_KERNEL::Exception("Unexpected nb of slice element : 1 or 2 expected !\n1st is for tuple selection, 2nd for component selection !");
+         obj=PyTuple_GetItem(ob,0);
+       }
+     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret;
+       {
+         if(PyInt_Check(obj))
+           {
+             int val=(int)PyInt_AS_LONG(obj);
+             ret=self->selectByTupleIdSafe(&val,&val+1);
+           }
+         else
+           {
+             if(!PySlice_Check(obj))
+               {
+                 std::ostringstream oss;
+                 oss << "Expecting a slice or an integer for subscriptable object DataArrayDouble on tuples !";
+                 throw INTERP_KERNEL::Exception(oss.str().c_str());
+               }
+             Py_ssize_t strt,stp,step;
+             PySliceObject *oC=reinterpret_cast<PySliceObject *>(obj);
+             if(PySlice_GetIndices(oC,nbOfTuples,&strt,&stp,&step)!=0)
+               {
+                 std::ostringstream oss; oss << "Slice in subscriptable object DataArrayDouble invalid : number of tuples is : " << nbOfTuples << " : check with your 1st slice !";
+                 throw INTERP_KERNEL::Exception(oss.str().c_str());
+               }
+             ret=self->selectByTupleId2(strt,stp,step);
+           }
+       }
+     if(!isTuple)
+       {
+         ret->incrRef();
+         return ret;
+       }
+     int nbOfComponents=self->getNumberOfComponents();
+     PyObject *obj1=PyTuple_GetItem(ob,1);
+     if(PyInt_Check(obj1))
+       {
+         int val=(int)PyInt_AS_LONG(obj1);
+         std::vector<int> v(1,val);
+         return ret->keepSelectedComponents(v);
+       }
+     else
+       {
+         if(!PySlice_Check(obj1))
+           {
+             std::ostringstream oss;
+             oss << "Expecting a slice or an integer for subscriptable object DataArrayDouble on components !";
+             throw INTERP_KERNEL::Exception(oss.str().c_str());
+           }
+         Py_ssize_t strt,stp,step;
+         PySliceObject *oC=reinterpret_cast<PySliceObject *>(obj1);
+         if(PySlice_GetIndices(oC,nbOfComponents,&strt,&stp,&step)!=0)
+           {
+             std::ostringstream oss; oss << "Slice in subscriptable object DataArrayDouble invalid : number of components is : " << nbOfComponents << " : check with your 2nd slice !";
+             throw INTERP_KERNEL::Exception(oss.str().c_str());
+           }
+         if(step<=0)
+           throw INTERP_KERNEL::Exception("2nd Slice in subscriptable object DataArrayDouble invalid : should be > 0 !");
+         Py_ssize_t newNbOfComp=(stp-strt)/step;
+         std::vector<int> v(newNbOfComp);
+         for(int i=0;i<newNbOfComp;i++)
+           v[i]=strt+i*step;
+         return ret->keepSelectedComponents(v);
+       }
+   }
  };
 
 %extend ParaMEDMEM::DataArrayInt
@@ -1819,6 +1913,84 @@ namespace ParaMEDMEM
      PyTuple_SetItem(ret,0,PyInt_FromLong(r1));
      PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
      return ret;
+   }
+
+   DataArrayInt *__getitem__(PyObject *ob) throw(INTERP_KERNEL::Exception)
+   {
+     self->checkAllocated();
+     int nbOfTuples=self->getNumberOfTuples();
+     bool isTuple=PyTuple_Check(ob);
+     PyObject *obj=0;
+     if(!isTuple)
+       obj=ob;
+     else
+       {
+         int sz=PyTuple_Size(ob);
+         if(sz!=2)
+           throw INTERP_KERNEL::Exception("Unexpected nb of slice element : 1 or 2 expected !\n1st is for tuple selection, 2nd for component selection !");
+         obj=PyTuple_GetItem(ob,0);
+       }
+     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret;
+       {
+         if(PyInt_Check(obj))
+           {
+             int val=(int)PyInt_AS_LONG(obj);
+             ret=self->selectByTupleIdSafe(&val,&val+1);
+           }
+         else
+           {
+             if(!PySlice_Check(obj))
+               {
+                 std::ostringstream oss;
+                 oss << "Expecting a slice or an integer for subscriptable object DataArrayInt on tuples !";
+                 throw INTERP_KERNEL::Exception(oss.str().c_str());
+               }
+             Py_ssize_t strt,stp,step;
+             PySliceObject *oC=reinterpret_cast<PySliceObject *>(obj);
+             if(PySlice_GetIndices(oC,nbOfTuples,&strt,&stp,&step)!=0)
+               {
+                 std::ostringstream oss; oss << "Slice in subscriptable object DataArrayInt invalid : number of tuples is : " << nbOfTuples << " : check with your 1st slice !";
+                 throw INTERP_KERNEL::Exception(oss.str().c_str());
+               }
+             ret=self->selectByTupleId2(strt,stp,step);
+           }
+       }
+     if(!isTuple)
+       {
+         ret->incrRef();
+         return ret;
+       }
+     int nbOfComponents=self->getNumberOfComponents();
+     PyObject *obj1=PyTuple_GetItem(ob,1);
+     if(PyInt_Check(obj1))
+       {
+         int val=(int)PyInt_AS_LONG(obj1);
+         std::vector<int> v(1,val);
+         return ret->keepSelectedComponents(v);
+       }
+     else
+       {
+         if(!PySlice_Check(obj1))
+           {
+             std::ostringstream oss;
+             oss << "Expecting a slice or an integer for subscriptable object DataArrayInt on components !";
+             throw INTERP_KERNEL::Exception(oss.str().c_str());
+           }
+         Py_ssize_t strt,stp,step;
+         PySliceObject *oC=reinterpret_cast<PySliceObject *>(obj1);
+         if(PySlice_GetIndices(oC,nbOfComponents,&strt,&stp,&step)!=0)
+           {
+             std::ostringstream oss; oss << "Slice in subscriptable object DataArrayInt invalid : number of components is : " << nbOfComponents << " : check with your 2nd slice !";
+             throw INTERP_KERNEL::Exception(oss.str().c_str());
+           }
+         if(step<=0)
+           throw INTERP_KERNEL::Exception("2nd Slice in subscriptable object DataArrayInt invalid : should be > 0 !");
+         Py_ssize_t newNbOfComp=(stp-strt)/step;
+         std::vector<int> v(newNbOfComp);
+         for(int i=0;i<newNbOfComp;i++)
+           v[i]=strt+i*step;
+         return ret->keepSelectedComponents(v);
+       }
    }
  };
 
@@ -2266,6 +2438,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     %extend

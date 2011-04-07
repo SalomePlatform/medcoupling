@@ -384,7 +384,7 @@ namespace INTERP_KERNEL
       }
     else
       {
-        std::cout << " Maille dégénérée " << "epsilon = " << epsilon << std::endl;
+        std::cout << " Degenerated cell " << "epsilon = " << epsilon << std::endl;
         std::cout << " i_A1= " << i_A1 << " i_A2= " << i_A2 << std::endl;
         std::cout << " distance2<SPACEDIM>(Coords_A,&Coords_A[i_A1])= " <<  distance2<SPACEDIM>(Coords_A,&Coords_A[i_A1]) << std::endl;
         std::cout << "abs(normal_A) = " << fabs(normal_A[0]) << " ; " <<fabs( normal_A[1]) << " ; " << fabs(normal_A[2]) << std::endl;

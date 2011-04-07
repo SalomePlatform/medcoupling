@@ -27,6 +27,7 @@
 #include "ParaMESH.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
+#include "OverlapInterpolationMatrix.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "DirectedBoundingBox.hxx"
@@ -156,7 +157,7 @@ namespace ParaMEDMEM
    * The aim of this method is to perform the communication to get data corresponding to '_to_do_list' attribute.
    * The principle is the following : if proc n1 and n2 need to perform a cross sending with n1<n2, then n1 will send first and receive then.
    */
-  void OverlapElementLocator::exchangeMeshes()
+  void OverlapElementLocator::exchangeMeshes(OverlapInterpolationMatrix& matrix)
   {
     int myProcId=_group.myRank();
     //starting to receive every procs whose id is lower than myProcId.
@@ -183,7 +184,7 @@ namespace ParaMEDMEM
       }
     //sending source or target mesh to remote procs
     for(std::vector< std::pair<int,bool> >::const_iterator it2=_procs_to_send.begin();it2!=_procs_to_send.end();it2++)
-      sendLocalMeshTo((*it2).first,(*it2).second);
+      sendLocalMeshTo((*it2).first,(*it2).second,matrix);
     //fetching remaining meshes
     for(std::vector< std::pair<int,int> >::const_iterator it=toDoListForFetchRemaining.begin();it!=toDoListForFetchRemaining.end();it++)
       {
@@ -266,8 +267,10 @@ namespace ParaMEDMEM
   /*!
    * This methods sends local source if 'sourceOrTarget'==True to proc 'procId'.
    * This methods sends local target if 'sourceOrTarget'==False to proc 'procId'.
+   *
+   * This method prepares the matrix too, for matrix assembling and future matrix-vector computation.
    */
-  void OverlapElementLocator::sendLocalMeshTo(int procId, bool sourceOrTarget) const
+  void OverlapElementLocator::sendLocalMeshTo(int procId, bool sourceOrTarget, OverlapInterpolationMatrix& matrix) const
   {
    vector<int> elems;
    //int myProcId=_group.myRank();
@@ -288,7 +291,11 @@ namespace ParaMEDMEM
      }
    local_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
    DataArrayInt *idsToSend;
-   MEDCouplingPointSet *send_mesh=(MEDCouplingPointSet *)field->getField()->buildSubMeshData(&elems[0],&elems[elems.size()],idsToSend);
+   MEDCouplingPointSet *send_mesh=static_cast<MEDCouplingPointSet *>(field->getField()->buildSubMeshData(&elems[0],&elems[elems.size()],idsToSend));
+   if(sourceOrTarget)
+     matrix.keepTracksOfSourceIds(procId,idsToSend);//Case#1 in Step2 of main algorithm.
+   else
+     matrix.keepTracksOfTargetIds(procId,idsToSend);//Case#0 in Step2 of main algorithm.
    sendMesh(procId,send_mesh,idsToSend);
    send_mesh->decrRef();
    idsToSend->decrRef();

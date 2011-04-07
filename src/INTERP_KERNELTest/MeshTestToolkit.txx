@@ -119,7 +119,7 @@ namespace INTERP_TEST
         break;
       }
     const double *tabS = f->getValue();
-    std::copy(tabS,tabS+mesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS),tab);
+    std::copy(tabS,tabS+mesh.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS),tab);
     f->removeReference();
   }
 
@@ -168,10 +168,10 @@ namespace INTERP_TEST
     bool ok = true;
 
     // source elements
-    double* sVol = new double[sMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)];
+    double* sVol = new double[sMesh.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)];
     getVolumes(sMesh, sVol);
 
-    for(int i = 0; i < sMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS); ++i)
+    for(int i = 0; i < sMesh.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS); ++i)
       {
         const double sum_row = sumRow(m, i+1);
         if(!epsilonEqualRelative(sum_row, fabs(sVol[i]), _precision))
@@ -183,9 +183,9 @@ namespace INTERP_TEST
       }
 
     // target elements
-    double* tVol = new double[tMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)];
+    double* tVol = new double[tMesh.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)];
     getVolumes(tMesh, tVol);
-    for(int i = 0; i < tMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS); ++i)
+    for(int i = 0; i < tMesh.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS); ++i)
       {
         const double sum_col = sumCol(m, i);
         if(!epsilonEqualRelative(sum_col,fabs(tVol[i]), _precision))

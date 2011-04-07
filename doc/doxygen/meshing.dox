@@ -12,14 +12,14 @@ dimensions are wrong, results are impredictable.
 All the arrays passed as arguments in the set methods are duplicated in MESHING object.
 
 The creation of a mesh should respect the following sequence :
-- setting general information (name, description, dimensions, coordinate system, ...),
+- setting general information (name, description, coordinate system, ...),
 - setting the nodes (number and coordinates),
 - setting the connectivity (types, connectivity arrays,...),
 - group creations.
 
 The following paragraphs describe the methods that must be called 
 when creating a mesh. An example illustrates the general procedure.
-The specific case of \c MED_POLYGON and \c MED_POLYHEDRA
+The specific case of \c MEDMEM_POLYGON and \c MEDMEM_POLYHEDRA
 elements requires some methods that are described in \ref polygon.
 
 \section outline_meshing Outline

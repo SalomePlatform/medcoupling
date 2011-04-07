@@ -73,13 +73,13 @@ void MEDCouplingPointSet::updateTime() const
     }
 }
 
-void MEDCouplingPointSet::setCoords(DataArrayDouble *coords)
+void MEDCouplingPointSet::setCoords(const DataArrayDouble *coords)
 {
   if( coords != _coords )
     {
       if (_coords)
         _coords->decrRef();
-      _coords=coords;
+      _coords=const_cast<DataArrayDouble *>(coords);
       if(_coords)
         _coords->incrRef();
       declareAsNew();
@@ -642,7 +642,7 @@ void MEDCouplingPointSet::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) con
 {
   if(_coords)
     {
-      a2=getCoords();
+      a2=const_cast<DataArrayDouble *>(getCoords());
       a2->incrRef();
     }
   else

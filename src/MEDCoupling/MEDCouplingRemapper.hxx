@@ -34,6 +34,7 @@ namespace ParaMEDMEM
   class MEDCouplingMesh;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
+  class MEDCouplingFieldTemplate;
 }
 
 namespace ParaMEDMEM
@@ -44,6 +45,7 @@ namespace ParaMEDMEM
     MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper();
     MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper();
     MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLINGREMAPPER_EXPORT int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target) throw(INTERP_KERNEL::Exception);
     MEDCOUPLINGREMAPPER_EXPORT void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
     MEDCOUPLINGREMAPPER_EXPORT void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
     MEDCOUPLINGREMAPPER_EXPORT MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue) throw(INTERP_KERNEL::Exception);

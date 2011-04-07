@@ -78,17 +78,17 @@ namespace INTERP_KERNEL
             if(fabs(det) > _epsilon) 
               {
                 inv_det = 1/det;
-                t1=(AC[1]*DC[2]-AC[2]*DC[1])*inv_det;
-                t2=(AB[1]*AC[2]-AB[2]*AC[1])*inv_det;
+                t1=(AC[1]*DC[DIM-1]-AC[DIM-1]*DC[1])*inv_det;
+                t2=(AB[1]*AC[DIM-1]-AB[DIM-1]*AC[1])*inv_det;
               }
             else //beware AB and CD may belong to a plane y = constant
               {
-                det = AB[0]*DC[2]-AB[2]*DC[0];
+                det = AB[0]*DC[DIM-1]-AB[DIM-1]*DC[0];
                 if(fabs(det) > _epsilon) 
                   {
                     inv_det = 1/det;
-                    t1=(AC[0]*DC[2]-AC[2]*DC[0])*inv_det;
-                    t2=(AB[0]*AC[2]-AB[2]*AC[0])*inv_det;
+                    t1=(AC[0]*DC[DIM-1]-AC[DIM-1]*DC[0])*inv_det;
+                    t2=(AB[0]*AC[DIM-1]-AB[DIM-1]*AC[0])*inv_det;
                   }
                 else
                   {

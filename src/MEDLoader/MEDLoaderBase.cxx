@@ -117,6 +117,32 @@ void MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int beh
   strcpy(dest,src);
 }
 
+/*!
+ * This method is equivalent to MEDLoaderBase::safeStrCpy except that here no '\0' car is put.
+ * This method should be used for multi string in one string.
+ */
+void MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour) throw(INTERP_KERNEL::Exception)
+{
+  if((int)strlen(src)>maxLgth)
+    {
+      if(behaviour==0 || behaviour>1)
+        {
+          std::ostringstream oss; oss << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      else if(behaviour==1)
+        {
+          std::string s=zipString(src,maxLgth);
+          std::cerr << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") : ";
+          std::cerr << "zipping to : " << s << "\n";
+          strcpy(dest,s.c_str());
+          return ;
+        }
+    }
+  int n=strlen(src);
+  strncpy(dest,src,n);
+}
+
 std::string MEDLoaderBase::buildStringFromFortran(const char *expr, int lgth)
 {
   std::string ret(expr,lgth);

@@ -54,6 +54,10 @@ const char ExpFunction::REPR[]="exp";
 
 const char LnFunction::REPR[]="ln";
 
+const char LogFunction::REPR[]="log";
+
+const char Log10Function::REPR[]="log10";
+
 const char MaxFunction::REPR[]="max";
 
 const char MinFunction::REPR[]="min";
@@ -102,6 +106,10 @@ Function *FunctionsFactory::buildUnaryFuncFromString(const char *type) throw(INT
     return new ExpFunction;
   if(tmp==LnFunction::REPR)
     return new LnFunction;
+  if(tmp==LogFunction::REPR)
+    return new LogFunction;
+  if(tmp==Log10Function::REPR)
+    return new Log10Function;
   //
   std::string msg("Invalid unary function detected : \"");
   msg+=type; msg+="\"";
@@ -395,6 +403,56 @@ const char *LnFunction::getRepr() const
 }
 
 bool LnFunction::isACall() const
+{
+  return true;
+}
+
+LogFunction::~LogFunction()
+{
+}
+
+void LogFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->ln();
+}
+
+void LogFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
+}
+
+const char *LogFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool LogFunction::isACall() const
+{
+  return true;
+}
+
+Log10Function::~Log10Function()
+{
+}
+
+void Log10Function::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->log10();
+}
+
+void Log10Function::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
+}
+
+const char *Log10Function::getRepr() const
+{
+  return REPR;
+}
+
+bool Log10Function::isACall() const
 {
   return true;
 }

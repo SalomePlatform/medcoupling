@@ -46,7 +46,6 @@ clean-local:
 EXTRA_DIST += figures \
 	      main.dox \
 	      Geometric2D.dox \
-	      MED_class.dox \
 	      biblio.dox \
 	      barycoords.dox \
 	      dualmesh.dox \
@@ -55,6 +54,7 @@ EXTRA_DIST += figures \
 	      grid.dox \
 	      interpkernel.dox \
 	      medcoupling.dox \
+	      medfilebrowser.dox \
 	      medloader.dox \
 	      medmem.dox \
 	      medsplitter.dox \
