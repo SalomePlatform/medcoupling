@@ -840,3 +840,31 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
       sw=4*sw2+sw1;
     }
 }
+
+/*!
+ * if value int -> cpp val sw=1
+ * if value double -> cpp val sw=1
+ * if value DataArrayDouble -> cpp DataArrayDouble sw=2
+ */
+static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d)
+{
+  sw=-1;
+  if(PyFloat_Check(value))
+    {
+      val=PyFloat_AS_DOUBLE(value);
+      sw=1;
+      return;
+    }
+  if(PyInt_Check(value))
+    {
+      val=(double)PyInt_AS_LONG(value);
+      sw=1;
+      return;
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  if(!SWIG_IsOK(status))
+    throw INTERP_KERNEL::Exception("3 types accepted : integer, double, DataArrayDouble");
+  d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+  sw=2;
+}

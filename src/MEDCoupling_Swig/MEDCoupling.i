@@ -185,6 +185,14 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
 %newobject ParaMEDMEM::DataArrayDouble::__getitem__;
+%newobject ParaMEDMEM::DataArrayDouble::__add__;
+%newobject ParaMEDMEM::DataArrayDouble::__radd__;
+%newobject ParaMEDMEM::DataArrayDouble::__sub__;
+%newobject ParaMEDMEM::DataArrayDouble::__rsub__;
+%newobject ParaMEDMEM::DataArrayDouble::__mul__;
+%newobject ParaMEDMEM::DataArrayDouble::__rmul__;
+%newobject ParaMEDMEM::DataArrayDouble::__div__;
+%newobject ParaMEDMEM::DataArrayDouble::__rdiv__;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkTypeConsistencyAndContig;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
@@ -287,6 +295,15 @@ namespace ParaMEDMEM
   class DataArrayDouble;
   class MEDCouplingUMesh;
   class MEDCouplingFieldDouble;
+
+  %extend RefCountObject
+  {
+    std::string getHiddenCppPointer() const
+    {
+      std::ostringstream oss; oss << "C++ Pointer address is : " << self;
+      return oss.str();
+    }
+  }
 
   class MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
@@ -1512,81 +1529,111 @@ namespace ParaMEDMEM
      return DataArrayDouble::Meld(tmp);
    }
 
-   DataArrayDouble *__getitem__(PyObject *ob) throw(INTERP_KERNEL::Exception)
+   DataArrayDouble *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
+     const char msg[]="Unexpected situation in __getitem__ !";
      self->checkAllocated();
      int nbOfTuples=self->getNumberOfTuples();
-     bool isTuple=PyTuple_Check(ob);
-     PyObject *obj=0;
-     if(!isTuple)
-       obj=ob;
-     else
-       {
-         int sz=PyTuple_Size(ob);
-         if(sz!=2)
-           throw INTERP_KERNEL::Exception("Unexpected nb of slice element : 1 or 2 expected !\n1st is for tuple selection, 2nd for component selection !");
-         obj=PyTuple_GetItem(ob,0);
-       }
-     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret;
-       {
-         if(PyInt_Check(obj))
-           {
-             int val=(int)PyInt_AS_LONG(obj);
-             ret=self->selectByTupleIdSafe(&val,&val+1);
-           }
-         else
-           {
-             if(!PySlice_Check(obj))
-               {
-                 std::ostringstream oss;
-                 oss << "Expecting a slice or an integer for subscriptable object DataArrayDouble on tuples !";
-                 throw INTERP_KERNEL::Exception(oss.str().c_str());
-               }
-             Py_ssize_t strt,stp,step;
-             PySliceObject *oC=reinterpret_cast<PySliceObject *>(obj);
-             if(PySlice_GetIndices(oC,nbOfTuples,&strt,&stp,&step)!=0)
-               {
-                 std::ostringstream oss; oss << "Slice in subscriptable object DataArrayDouble invalid : number of tuples is : " << nbOfTuples << " : check with your 1st slice !";
-                 throw INTERP_KERNEL::Exception(oss.str().c_str());
-               }
-             ret=self->selectByTupleId2(strt,stp,step);
-           }
-       }
-     if(!isTuple)
-       {
-         ret->incrRef();
-         return ret;
-       }
      int nbOfComponents=self->getNumberOfComponents();
-     PyObject *obj1=PyTuple_GetItem(ob,1);
-     if(PyInt_Check(obj1))
+     int it1,ic1;
+     std::vector<int> vt1,vc1;
+     std::pair<int, std::pair<int,int> > pt1,pc1;
+     DataArrayInt *dt1=0,*dc1=0;
+     int sw;
+     convertObjToPossibleCpp3(obj,nbOfTuples,nbOfComponents,sw,it1,ic1,vt1,vc1,pt1,pc1,dt1,dc1);
+     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret;
+     switch(sw)
        {
-         int val=(int)PyInt_AS_LONG(obj1);
-         std::vector<int> v(1,val);
-         return ret->keepSelectedComponents(v);
-       }
-     else
-       {
-         if(!PySlice_Check(obj1))
-           {
-             std::ostringstream oss;
-             oss << "Expecting a slice or an integer for subscriptable object DataArrayDouble on components !";
-             throw INTERP_KERNEL::Exception(oss.str().c_str());
-           }
-         Py_ssize_t strt,stp,step;
-         PySliceObject *oC=reinterpret_cast<PySliceObject *>(obj1);
-         if(PySlice_GetIndices(oC,nbOfComponents,&strt,&stp,&step)!=0)
-           {
-             std::ostringstream oss; oss << "Slice in subscriptable object DataArrayDouble invalid : number of components is : " << nbOfComponents << " : check with your 2nd slice !";
-             throw INTERP_KERNEL::Exception(oss.str().c_str());
-           }
-         if(step<=0)
-           throw INTERP_KERNEL::Exception("2nd Slice in subscriptable object DataArrayDouble invalid : should be > 0 !");
-         Py_ssize_t newNbOfComp=(stp-strt)/step;
-         std::vector<int> v(newNbOfComp);
-         for(int i=0;i<newNbOfComp;i++)
-           v[i]=strt+i*step;
-         return ret->keepSelectedComponents(v);
+       case 1:
+         return self->selectByTupleIdSafe(&it1,&it1+1);
+       case 2:
+         return self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+       case 3:
+         return self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+       case 4:
+         return self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+       case 5:
+         {
+           ret=self->selectByTupleIdSafe(&it1,&it1+1);
+           std::vector<int> v2(1,ic1);
+           return ret->keepSelectedComponents(v2);
+         }
+       case 6:
+         {
+           ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+           std::vector<int> v2(1,ic1);
+           return ret->keepSelectedComponents(v2);
+         }
+       case 7:
+         {
+           ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+           std::vector<int> v2(1,ic1);
+           return ret->keepSelectedComponents(v2);
+         }
+       case 8:
+         {
+           ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+           std::vector<int> v2(1,ic1);
+           return ret->keepSelectedComponents(v2);
+         }
+       case 9:
+         {
+           ret=self->selectByTupleIdSafe(&it1,&it1+1);
+           return ret->keepSelectedComponents(vc1);
+         }
+       case 10:
+         {
+           ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+           return ret->keepSelectedComponents(vc1);
+         }
+       case 11:
+         {
+           ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+           return ret->keepSelectedComponents(vc1);
+         }
+       case 12:
+         {
+           ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+           return ret->keepSelectedComponents(vc1);
+         }
+       case 13:
+         {
+           ret=self->selectByTupleIdSafe(&it1,&it1+1);
+           int nbOfComp=(pc1.second.first-1-pc1.first)/pc1.second.second+1;
+           std::vector<int> v2(nbOfComp);
+           for(int i=0;i<nbOfComp;i++)
+             v2[i]=pc1.first+i*pc1.second.second;
+           return ret->keepSelectedComponents(v2);
+         }
+       case 14:
+         {
+           ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+           int nbOfComp=(pc1.second.first-1-pc1.first)/pc1.second.second+1;
+           std::vector<int> v2(nbOfComp);
+           for(int i=0;i<nbOfComp;i++)
+             v2[i]=pc1.first+i*pc1.second.second;
+           return ret->keepSelectedComponents(v2);
+         }
+       case 15:
+         {
+           ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+           int nbOfComp=(pc1.second.first-1-pc1.first)/pc1.second.second+1;
+           std::vector<int> v2(nbOfComp);
+           for(int i=0;i<nbOfComp;i++)
+             v2[i]=pc1.first+i*pc1.second.second;
+           return ret->keepSelectedComponents(v2);
+         }
+       case 16:
+         {
+           ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+           int nbOfComp=(pc1.second.first-1-pc1.first)/pc1.second.second+1;
+           std::vector<int> v2(nbOfComp);
+           for(int i=0;i<nbOfComp;i++)
+             v2[i]=pc1.first+i*pc1.second.second;
+           return ret->keepSelectedComponents(v2);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
        }
    }
 
@@ -1937,6 +1984,290 @@ namespace ParaMEDMEM
                throw INTERP_KERNEL::Exception(msg);
              }
            break;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __add__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyLin(1.,val);
+           ret->incrRef();
+           return ret;
+         }
+       case 2:
+         {
+           return DataArrayDouble::Add(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__radd__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __radd__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyLin(1.,val);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *operator+=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __iadd__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyLin(1.,val);
+           return self;
+         }
+       case 2:
+         {
+           self->addEqual(a);
+           return self;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__sub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __sub__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyLin(1.,-val);
+           ret->incrRef();
+           return ret;
+         }
+       case 2:
+         {
+           return DataArrayDouble::Substract(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__rsub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __rsub__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyLin(-1.,val);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *operator-=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __isub__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyLin(1.,-val);
+           return self;
+         }
+       case 2:
+         {
+           self->substractEqual(a);
+           return self;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__mul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __mul__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyLin(val,0.);
+           ret->incrRef();
+           return ret;
+         }
+       case 2:
+         {
+           return DataArrayDouble::Multiply(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__rmul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __rmul__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyLin(val,0.);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *operator*=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __imul__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyLin(val,0.);
+           return self;
+         }
+       case 2:
+         {
+           self->multiplyEqual(a);
+           return self;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__div__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __div__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           if(val==0.)
+             throw INTERP_KERNEL::Exception("DataArrayDouble::__div__ : trying to divide by zero !");
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyLin(1/val,0.);
+           ret->incrRef();
+           return ret;
+         }
+       case 2:
+         {
+           return DataArrayDouble::Divide(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *__rdiv__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __rdiv__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->deepCpy();
+           ret->applyInv(val);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayDouble *operator/=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __imul__ !";
+     double val;
+     DataArrayDouble *a;
+     int sw;
+     convertObjToPossibleCpp5(obj,sw,val,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           if(val==0.)
+             throw INTERP_KERNEL::Exception("DataArrayDouble::__div__ : trying to divide by zero !");
+           self->applyLin(1./val,0.);
+           return self;
+         }
+       case 2:
+         {
+           self->divideEqual(a);
+           return self;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);

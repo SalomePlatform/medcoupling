@@ -6118,6 +6118,70 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([-8., 8., -8., 10., 11., 12., 13., 14., 15., 16., -8., 18., -8., 20., 21., -8., 23., -8., 25., 26.],da.getValues())
         pass
 
+    def testSwigDADOp(self):
+        da=DataArrayDouble.New()
+        da.alloc(12,1)
+        da.iota(7.)
+        da1=DataArrayDouble.New()
+        da1.alloc(12,1)
+        da1.iota(8.)
+        da2=da+da1
+        self.assertEqual([15., 17., 19., 21., 23., 25., 27., 29., 31., 33., 35., 37.],da2.getValues())
+        da2=da+3
+        da3=3+da
+        self.assertTrue(da2.isEqual(da3,1e-12))
+        da2=da-1.
+        self.assertEqual([6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0],da2.getValues())
+        da2=1-da
+        self.assertEqual([-6.0, -7.0, -8.0, -9.0, -10.0, -11.0, -12.0, -13.0, -14.0, -15.0, -16.0, -17.0],da2.getValues())
+        da2=da*3
+        self.assertEqual([21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0, 45.0, 48.0, 51.0, 54.0],da2.getValues())
+        da2=3.*da
+        self.assertEqual([21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0, 45.0, 48.0, 51.0, 54.0],da2.getValues())
+        da2=da*da1
+        self.assertEqual([56.0, 72.0, 90.0, 110.0, 132.0, 156.0, 182.0, 210.0, 240.0, 272.0, 306.0, 342.0],da2.getValues())
+        da2=da/4.
+        self.assertEqual([1.75, 2.0, 2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25, 4.5],da2.getValues())
+        da3=4./da
+        da4=da3*da2
+        self.assertTrue(da4.isUniform(1.,1e-12))
+        st1=da.getHiddenCppPointer()
+        da+=1
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertTrue(da.isEqual(da1,1e-12))
+        da-=8
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual(range(12),da.getValues())
+        da+=da1
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0],da.getValues())
+        da*=0.5
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0],da.getValues())
+        da*=da1
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([32.0, 45.0, 60.0, 77.0, 96.0, 117.0, 140.0, 165.0, 192.0, 221.0, 252.0, 285.0],da.getValues())
+        da/=da1
+        self.assertEqual(st1,st2)
+        self.assertEqual([4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0],da.getValues())
+        da/=2
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5],da.getValues())
+        da.rearrange(3)
+        da5=DataArrayDouble.New()
+        da5.setValues([5.,4.,3.,2.],4,1)
+        da*=da5 # it works with unmathing number of compo
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([10.0, 12.5, 15.0, 14.0, 16.0, 18.0, 15.0, 16.5, 18.0, 13.0, 14.0, 15.0],da.getValues())
+        pass
+
     def testDAIAggregateMulti1(self):
         a=DataArrayInt.New()
         a.setValues(range(4),2,2)

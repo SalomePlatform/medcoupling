@@ -1297,6 +1297,42 @@ void DataArrayDouble::applyLin(double a, double b, int compoId) throw(INTERP_KER
   declareAsNew();
 }
 
+void DataArrayDouble::applyLin(double a, double b) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  double *ptr=getPointer();
+  int nbOfElems=getNbOfElems();
+  for(int i=0;i<nbOfElems;i++,ptr++)
+    *ptr=a*(*ptr)+b;
+  declareAsNew();
+}
+
+/*!
+ * This method applies the operation 'numerator/x' for each element 'x' in 'this'.
+ * If there is a value in 'this' exactly equal to 0. an exception is thrown.
+ * Warning if presence of null this is modified for each values previous than place where exception was thrown !
+ */
+void DataArrayDouble::applyInv(double numerator) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  double *ptr=getPointer();
+  int nbOfElems=getNbOfElems();
+  for(int i=0;i<nbOfElems;i++,ptr++)
+    {
+      if(*ptr!=0.)
+        {
+          *ptr=numerator/(*ptr);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::applyInv : presence of null value in tuple #" << i/getNumberOfComponents() << " component #" << i%getNumberOfComponents();
+          oss << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  declareAsNew();
+}
+
 DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
@@ -2895,6 +2931,16 @@ void DataArrayInt::applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exce
   int nbOfComp=getNumberOfComponents();
   int nbOfTuple=getNumberOfTuples();
   for(int i=0;i<nbOfTuple;i++,ptr+=nbOfComp)
+    *ptr=a*(*ptr)+b;
+  declareAsNew();
+}
+
+void DataArrayInt::applyLin(int a, int b) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int *ptr=getPointer();
+  int nbOfElems=getNbOfElems();
+  for(int i=0;i<nbOfElems;i++,ptr++)
     *ptr=a*(*ptr)+b;
   declareAsNew();
 }
