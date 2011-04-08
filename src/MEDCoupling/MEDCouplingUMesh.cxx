@@ -3340,7 +3340,7 @@ namespace ParaMEDMEMImpl
  * an exception is thrown too.
  * 
  * If all geometric types in 'code' are exactly those in 'this' null pointer is returned.
- * If it exists a geometric type in 'this' \b not in 'code' \b no exception is thrown and a DataArrayInt instance is returned that the user as the responsability
+ * If it exists a geometric type in 'this' \b not in 'code' \b no exception is thrown and a DataArrayInt instance is returned that the user has the responsability
  * to deallocate.
  */
 DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
@@ -3350,7 +3350,7 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
   int sz=code.size();
   std::size_t n=sz/3;
   if(sz%3!=0)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : code size is NOT even !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::checkTypeConsistencyAndContig : code size is NOT %3 !");
   std::vector<INTERP_KERNEL::NormalizedCellType> types;
   int nb=0;
   for(std::size_t i=0;i<n;i++)
@@ -3397,6 +3397,50 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
         }
     }
   return ret;
+}
+
+/*!
+ * This method is here too emulate the MEDMEM behaviour on BDC (buildDescendingConnectivity). Hoping this method becomes deprecated very soon.
+ * This method make the assumption that 'this' and 'nM1LevMesh' mesh lyies on same coords (same pointer) as MED and MEDMEM does.
+ * The following equality should be verified 'nM1LevMesh->getMeshDimension()==this->getMeshDimension()-1'
+ * This method returns 5+1 elements. 'desc', 'descIndx', 'revDesc', 'revDescIndx' and 'meshnM1' behaves exactly as ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity except the content as described after. The returned array specifies the numbering old2new that is to say the cell #k in 'nM1LevMesh' will have the number ret[k] in returned mesh 'nM1LevMesh'.
+ */
+DataArrayInt *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh, DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *&revDesc, DataArrayInt *&revDescIndx, MEDCouplingUMesh *& meshnM1) const throw(INTERP_KERNEL::Exception)
+{
+  static const int N=18;
+  static const INTERP_KERNEL::NormalizedCellType MEDMEM_ORDER[N] = { INTERP_KERNEL::NORM_POINT1, INTERP_KERNEL::NORM_SEG2, INTERP_KERNEL::NORM_SEG3, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QUAD8, INTERP_KERNEL::NORM_TETRA4, INTERP_KERNEL::NORM_PYRA5, INTERP_KERNEL::NORM_PENTA6, INTERP_KERNEL::NORM_HEXA8, INTERP_KERNEL::NORM_HEXGP12, INTERP_KERNEL::NORM_TETRA10, INTERP_KERNEL::NORM_PYRA13, INTERP_KERNEL::NORM_PENTA15, INTERP_KERNEL::NORM_HEXA20, INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_POLYHED };
+  checkFullyDefined();
+  nM1LevMesh->checkFullyDefined();
+  if(getMeshDimension()-1!=nM1LevMesh->getMeshDimension())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::emulateMEDMEMBDC : The mesh passed as first argument should have a meshDim equal to this->getMeshDimension()-1 !" );
+  if(_coords!=nM1LevMesh->getCoords())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::emulateMEDMEMBDC : 'this' and mesh in first argument should share the same coords : Use tryToShareSameCoords method !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp0=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret1=buildDescendingConnectivity(desc,descIndx,tmp0,tmp1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0=ret1->getRenumArrForConsecutiveCellTypesSpec(MEDMEM_ORDER,MEDMEM_ORDER+N);
+  desc->transformWithIndArr(ret0->getConstPointer(),ret0->getConstPointer()+ret0->getNbOfElems());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=MEDCouplingUMesh::New();
+  tmp->setConnectivity(tmp0,tmp1);
+  tmp->renumberCells(ret0->getConstPointer(),false);
+  revDesc=tmp->getNodalConnectivity();
+  revDescIndx=tmp->getNodalConnectivityIndex();
+  DataArrayInt *ret=0;
+  if(!ret1->areCellsIncludedIn(nM1LevMesh,2,ret))
+    {
+      int tmp;
+      ret->getMaxValue(tmp);
+      ret->decrRef();
+      std::ostringstream oss; oss << "MEDCouplingUMesh::emulateMEDMEMBDC : input N-1 mesh present a cell not in descending mesh ... Id of cell is " << tmp << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  //
+  revDesc->incrRef();
+  revDescIndx->incrRef();
+  meshnM1=ret1;
+  ret1->incrRef();
+  ret0->incrRef();
+  return ret0;
 }
 
 /*!

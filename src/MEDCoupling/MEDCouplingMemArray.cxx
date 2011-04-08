@@ -273,6 +273,30 @@ DataArrayDouble *DataArrayDouble::performCpy(bool dCpy) const
     }
 }
 
+void DataArrayDouble::cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception)
+{
+  other.checkAllocated();
+  int nbOfTuples=other.getNumberOfTuples();
+  int nbOfComp=other.getNumberOfComponents();
+  allocIfNecessary(nbOfTuples,nbOfComp);
+  int nbOfElems=nbOfTuples*nbOfComp;
+  double *pt=getPointer();
+  const double *ptI=other.getConstPointer();
+  for(int i=0;i<nbOfElems;i++)
+    pt[i]=ptI[i];
+}
+
+void DataArrayDouble::allocIfNecessary(int nbOfTuple, int nbOfCompo)
+{
+  if(isAllocated())
+    {
+      if(nbOfTuple!=getNumberOfTuples() || nbOfCompo!=getNumberOfComponents())
+        alloc(nbOfTuple,nbOfCompo);
+    }
+  else
+    alloc(nbOfTuple,nbOfCompo);
+}
+
 void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
@@ -840,8 +864,6 @@ void DataArrayDouble::setPartOfValuesSimple2(double a, const int *bgTuples, cons
   int nbOfTuples=getNumberOfTuples();
   for(const int *z=bgComp;z!=endComp;z++)
     DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
-//   int newNbOfTuples=std::distance(bgTuples,endTuples);
-//   int newNbOfComp=std::distance(bgComp,endComp);
   double *pt=getPointer();
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(const int *z=bgComp;z!=endComp;z++)
@@ -891,7 +913,6 @@ void DataArrayDouble::setPartOfValuesSimple3(double a, const int *bgTuples, cons
   int nbOfTuples=getNumberOfTuples();
   DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
   DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
-//   int newNbOfTuples=std::distance(bgTuples,endTuples);
   double *pt=getPointer()+bgComp;
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(int j=0;j<newNbOfComp;j++)
@@ -2023,6 +2044,30 @@ DataArrayInt *DataArrayInt::performCpy(bool dCpy) const
     }
 }
 
+void DataArrayInt::cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception)
+{
+  other.checkAllocated();
+  int nbOfTuples=other.getNumberOfTuples();
+  int nbOfComp=other.getNumberOfComponents();
+  allocIfNecessary(nbOfTuples,nbOfComp);
+  int nbOfElems=nbOfTuples*nbOfComp;
+  int *pt=getPointer();
+  const int *ptI=other.getConstPointer();
+  for(int i=0;i<nbOfElems;i++)
+    pt[i]=ptI[i];
+}
+
+void DataArrayInt::allocIfNecessary(int nbOfTuple, int nbOfCompo)
+{
+  if(isAllocated())
+    {
+      if(nbOfTuple!=getNumberOfTuples() || nbOfCompo!=getNumberOfComponents())
+        alloc(nbOfTuple,nbOfCompo);
+    }
+  else
+    alloc(nbOfTuple,nbOfCompo);
+}
+
 void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
@@ -2094,14 +2139,23 @@ void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
-void DataArrayInt::transformWithIndArr(const int *indArr)
+void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd) throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("Call transformWithIndArr method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  int nbElemsIn=std::distance(indArrBg,indArrEnd);
   int nbOfTuples=getNumberOfTuples();
   int *pt=getPointer();
-  for(int i=0;i<nbOfTuples;i++)
-    pt[i]=indArr[pt[i]];
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      if(*pt<nbElemsIn)
+        *pt=indArrBg[*pt];
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArr : error on tuple #" << i << " value is " << *pt << " and indirectionnal array as a size equal to " << nbElemsIn;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
 }
 
 /*!
@@ -2722,8 +2776,6 @@ void DataArrayInt::setPartOfValuesSimple2(int a, const int *bgTuples, const int 
   int nbOfTuples=getNumberOfTuples();
   for(const int *z=bgComp;z!=endComp;z++)
     DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
-//   int newNbOfTuples=std::distance(bgTuples,endTuples);
-//   int newNbOfComp=std::distance(bgComp,endComp);
   int *pt=getPointer();
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(const int *z=bgComp;z!=endComp;z++)
@@ -2773,7 +2825,6 @@ void DataArrayInt::setPartOfValuesSimple3(int a, const int *bgTuples, const int 
   int nbOfTuples=getNumberOfTuples();
   DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
   DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
-//   int newNbOfTuples=std::distance(bgTuples,endTuples);
   int *pt=getPointer()+bgComp;
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(int j=0;j<newNbOfComp;j++)

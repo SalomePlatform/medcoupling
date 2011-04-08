@@ -132,7 +132,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT void cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void fillWithZero() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void fillWithValue(double val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void iota(double init=0.) throw(INTERP_KERNEL::Exception);
@@ -251,7 +253,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
+    MEDCOUPLING_EXPORT void cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
@@ -266,7 +270,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
-    MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArr);
+    MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArrBg, const int *indArrEnd) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
     //!alloc or useArray should have been called before.

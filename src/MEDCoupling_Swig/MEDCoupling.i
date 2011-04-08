@@ -1055,6 +1055,26 @@ namespace ParaMEDMEM
         d3->incrRef();
         return ret;
       }
+      
+      PyObject *emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh)
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+        DataArrayInt *d2;
+        DataArrayInt *d3;
+        MEDCouplingUMesh *mOut;
+        DataArrayInt *d4=self->emulateMEDMEMBDC(nM1LevMesh,d0,d1,d2,d3,mOut);
+        PyObject *ret=PyTuple_New(6);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(mOut),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d4),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(d2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(d3),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        d0->incrRef();
+        d1->incrRef();
+        return ret;
+      }
 
       PyObject *getReverseNodalConnectivity() const throw(INTERP_KERNEL::Exception)
       {
@@ -2331,6 +2351,23 @@ namespace ParaMEDMEM
        PyList_SetItem(ret1,i,convertIntArrToPyList2(fidsOfGroups[i]));
      PyList_SetItem(ret,1,ret1);
      return ret;
+   }
+
+   void transformWithIndArr(PyObject *li)
+   {
+     void *da=0;
+     int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+     if (!SWIG_IsOK(res1))
+       {
+         int size;
+         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+         self->transformWithIndArr(tmp,tmp+size);
+       }
+     else
+       {
+         DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+         self->transformWithIndArr(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+       }
    }
 
    void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
