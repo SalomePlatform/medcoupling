@@ -7022,6 +7022,66 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m2.unPolyze();
         self.assertTrue(m3.isEqual(m2,1e-12));
         pass
+
+    def testDACpyFrom1(self):
+        d=DataArrayDouble.New();
+        d.alloc(12,1);
+        d.iota(14.);
+        d.rearrange(3);
+        d.setName("Toto");
+        d.setInfoOnComponent(0,"X [m]");
+        d.setInfoOnComponent(1,"Y [m]");
+        d.setInfoOnComponent(2,"Z [m]");
+        #
+        d1=DataArrayDouble.New();
+        self.assertTrue(not d.isEqual(d1,1e-12));
+        d1.cpyFrom(d);
+        self.assertTrue(d.isEqual(d1,1e-12));
+        d1.cpyFrom(d);
+        self.assertTrue(d.isEqual(d1,1e-12));
+        d1.rearrange(2);
+        self.assertTrue(not d.isEqual(d1,1e-12));
+        d1.cpyFrom(d);
+        self.assertTrue(d.isEqual(d1,1e-12));
+        #
+        d2=d.convertToIntArr();
+        d4=DataArrayInt.New();
+        self.assertTrue(not d2.isEqual(d4));
+        d4.cpyFrom(d2);
+        self.assertTrue(d2.isEqual(d4));
+        d4.cpyFrom(d2);
+        self.assertTrue(d2.isEqual(d4));
+        d4.rearrange(2);
+        self.assertTrue(not d2.isEqual(d4));
+        d4.cpyFrom(d2);
+        self.assertTrue(d2.isEqual(d4));
+        pass
+
+    def testDAITransformWithIndArr1(self):
+        tab1=[17,18,22,19]
+        tab2=[0,1,1,3,3,0,1,3,2,2,3,0]
+        expected=[17,18,18,19,19,17,18,19,22,22,19,17]
+        d=DataArrayInt.New();
+        d.setValues(tab1,4,1);
+        d1=DataArrayInt.New();
+        d1.setValues(tab2,12,1);
+        d2=d1[:]
+        #
+        d1.transformWithIndArr(d);
+        self.assertEqual(12,d1.getNumberOfTuples());
+        self.assertEqual(1,d1.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(expected[i],d1.getIJ(i,0));
+            pass
+        #
+        d1=d2
+        d1.transformWithIndArr(tab1)
+        self.assertEqual(12,d1.getNumberOfTuples());
+        self.assertEqual(1,d1.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(expected[i],d1.getIJ(i,0));
+            pass
+        pass
     
     def setUp(self):
         pass

@@ -956,3 +956,65 @@ void MEDCouplingBasicsTest::testUnPolyze2()
   m->decrRef();
   m2->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDACpyFrom1()
+{
+  DataArrayDouble *d=DataArrayDouble::New();
+  d->alloc(12,1);
+  d->iota(14.);
+  d->rearrange(3);
+  d->setName("Toto");
+  d->setInfoOnComponent(0,"X [m]");
+  d->setInfoOnComponent(1,"Y [m]");
+  d->setInfoOnComponent(2,"Z [m]");
+  //
+  DataArrayDouble *d1=DataArrayDouble::New();
+  CPPUNIT_ASSERT(!d->isEqual(*d1,1e-12));
+  d1->cpyFrom(*d);
+  CPPUNIT_ASSERT(d->isEqual(*d1,1e-12));
+  d1->cpyFrom(*d);
+  CPPUNIT_ASSERT(d->isEqual(*d1,1e-12));
+  d1->rearrange(2);
+  CPPUNIT_ASSERT(!d->isEqual(*d1,1e-12));
+  d1->cpyFrom(*d);
+  CPPUNIT_ASSERT(d->isEqual(*d1,1e-12));
+  //
+  DataArrayInt *d2=d->convertToIntArr();
+  DataArrayInt *d4=DataArrayInt::New();
+  CPPUNIT_ASSERT(!d2->isEqual(*d4));
+  d4->cpyFrom(*d2);
+  CPPUNIT_ASSERT(d2->isEqual(*d4));
+  d4->cpyFrom(*d2);
+  CPPUNIT_ASSERT(d2->isEqual(*d4));
+  d4->rearrange(2);
+  CPPUNIT_ASSERT(!d2->isEqual(*d4));
+  d4->cpyFrom(*d2);
+  CPPUNIT_ASSERT(d2->isEqual(*d4));
+  //
+  d->decrRef();
+  d1->decrRef();
+  d2->decrRef();
+  d4->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAITransformWithIndArr1()
+{
+  const int tab1[4]={17,18,22,19};
+  const int tab2[12]={0,1,1,3,3,0,1,3,2,2,3,0};
+  const int expected[12]={17,18,18,19,19,17,18,19,22,22,19,17};
+  DataArrayInt *d=DataArrayInt::New();
+  d->alloc(4,1);
+  std::copy(tab1,tab1+4,d->getPointer());
+  DataArrayInt *d1=DataArrayInt::New();
+  d1->alloc(12,1);
+  std::copy(tab2,tab2+12,d1->getPointer());
+  //
+  d1->transformWithIndArr(d->getConstPointer(),d->getConstPointer()+d->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(12,d1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d1->getNumberOfComponents());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected[i],d1->getIJ(i,0));
+  //
+  d->decrRef();
+  d1->decrRef();
+}

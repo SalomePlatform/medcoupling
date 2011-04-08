@@ -535,6 +535,35 @@ class MEDCouplingDataForTest:
         mesh.setCoords(coo);
         return mesh;
 
+    def buildPointe_1(self):
+        mesh=MEDCouplingUMesh.New("Pointe.med",3);
+        mesh2=MEDCouplingUMesh.New("Pointe.med",2);
+        coords=[0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 1.0, 0.0, 2.0, 1.0, -2.0, 0.0, 1.0, 0.0, -2.0, 1.0, 1.0, 1.0, 2.0, -1.0, 1.0, 2.0, -1.0, -1.0, 2.0, 1.0, -1.0, 2.0, 1.0, 1.0, 3.0, -1.0, 1.0, 3.0, -1.0, -1.0, 3.0, 1.0, -1.0, 3.0, 1.0, 1.0, 4.0, -1.0, 1.0, 4.0, -1.0, -1.0, 4.0, 1.0, -1.0, 4.0, 0.0, 0.0, 5.0]
+        conn=[0,1,2,5,0,1,3,2,0,1,4,3,0,1,5,4,1,6,3,2,1,7,4,3,1,8,5,4,1,9,2,5,1,6,2,9,1,7,3,6,1,8,4,7,1,9,5,8, 6,7,8,9,1,14,17,16,15,18, 10,11,12,13,6,7,8,9,14,15,16,17,10,11,12,13]
+        coo=DataArrayDouble.New();
+        coo.setValues(coords,19,3);
+        mesh.setCoords(coo);
+        mesh2.setCoords(coo);
+        mesh.allocateCells(16);
+        for i in xrange(12):
+            mesh.insertNextCell(NORM_TETRA4,4,conn[4*i:4*i+4])
+            pass
+        mesh.insertNextCell(NORM_PYRA5,5,conn[48:53])
+        mesh.insertNextCell(NORM_PYRA5,5,conn[53:58])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[58:66])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[66:74])
+        mesh.finishInsertingCells();
+        #[1,34,29,23,41,32]
+        conn2=[0,5,1,14,18,17,8,7,4,9,5,2, 12,8,9,13,6,7,8,9]
+        mesh2.allocateCells(6);
+        for i in xrange(4):
+            mesh2.insertNextCell(NORM_TRI3,3,conn2[3*i:3*i+3])
+            pass
+        mesh2.insertNextCell(NORM_QUAD4,4,conn2[12:16])
+        mesh2.insertNextCell(NORM_QUAD4,4,conn2[16:20])
+        mesh2.finishInsertingCells();
+        return [mesh,mesh2]
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
@@ -557,4 +586,5 @@ class MEDCouplingDataForTest:
     build3DMultiTypes_1=classmethod(build3DMultiTypes_1)
     buildCoordsForMultiTypes_1=classmethod(buildCoordsForMultiTypes_1)
     buildHexa8Mesh_1=classmethod(buildHexa8Mesh_1)
+    buildPointe_1=classmethod(buildPointe_1)
     pass

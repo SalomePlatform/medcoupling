@@ -214,6 +214,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDADCheckIsMonotonic );
     CPPUNIT_TEST( testCheckCoherencyDeeper1 );
     CPPUNIT_TEST( testUnPolyze2 );
+    CPPUNIT_TEST( testDACpyFrom1 );
+    CPPUNIT_TEST( testDAITransformWithIndArr1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -454,6 +456,8 @@ namespace ParaMEDMEM
     void testDADCheckIsMonotonic();
     void testCheckCoherencyDeeper1();
     void testUnPolyze2();
+    void testDACpyFrom1();
+    void testDAITransformWithIndArr1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
@@ -551,6 +555,7 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *build2DMultiTypes_1();
     static MEDCouplingUMesh *build3DMultiTypes_1();
     static MEDCouplingUMesh *buildHexa8Mesh_1();
+    static MEDCouplingUMesh *buildPointe_1(MEDCouplingUMesh *&m1);
     static DataArrayDouble *buildCoordsForMultiTypes_1();
     static MEDCouplingMultiFields *buildMultiFields_1();
     static std::vector<MEDCouplingFieldDouble *> buildMultiFields_2();

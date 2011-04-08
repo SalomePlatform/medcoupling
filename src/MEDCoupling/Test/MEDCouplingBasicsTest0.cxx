@@ -1132,6 +1132,39 @@ MEDCouplingUMesh *MEDCouplingBasicsTest::buildHexa8Mesh_1()
   return mesh;
 }
 
+MEDCouplingUMesh *MEDCouplingBasicsTest::buildPointe_1(MEDCouplingUMesh *& m1)
+{
+  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New("Pointe.med",3);
+  MEDCouplingUMesh *mesh2=MEDCouplingUMesh::New("Pointe.med",2);
+  const double coords[57]={0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 1.0, 0.0, 2.0, 1.0, -2.0, 0.0, 1.0, 0.0, -2.0, 1.0, 1.0, 1.0, 2.0, -1.0, 1.0, 2.0, -1.0, -1.0, 2.0, 1.0, -1.0, 2.0, 1.0, 1.0, 3.0, -1.0, 1.0, 3.0, -1.0, -1.0, 3.0, 1.0, -1.0, 3.0, 1.0, 1.0, 4.0, -1.0, 1.0, 4.0, -1.0, -1.0, 4.0, 1.0, -1.0, 4.0, 0.0, 0.0, 5.0};
+  const int conn[74]={0,1,2,5,0,1,3,2,0,1,4,3,0,1,5,4,1,6,3,2,1,7,4,3,1,8,5,4,1,9,2,5,1,6,2,9,1,7,3,6,1,8,4,7,1,9,5,8, 6,7,8,9,1,14,17,16,15,18, 10,11,12,13,6,7,8,9,14,15,16,17,10,11,12,13};
+  DataArrayDouble *coo=DataArrayDouble::New();
+  coo->alloc(19,3);
+  std::copy(coords,coords+57,coo->getPointer());
+  mesh->setCoords(coo);
+  mesh2->setCoords(coo);
+  coo->decrRef();
+  mesh->allocateCells(16);
+  for(int i=0;i<12;i++)
+    mesh->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn+4*i);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_PYRA5,5,conn+48);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_PYRA5,5,conn+53);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+58);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+66);
+  mesh->finishInsertingCells();
+  //[1,34,29,23,41,32]
+  const int conn2[20]={0,5,1,14,18,17,8,7,4,9,5,2, 12,8,9,13,6,7,8,9};
+  mesh2->allocateCells(6);
+  for(int i=0;i<4;i++)
+    mesh2->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn2+3*i);
+  mesh2->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2+12);
+  mesh2->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2+16);
+  mesh2->finishInsertingCells();
+  m1=mesh2;
+  //
+  return mesh;
+}
+
 double MEDCouplingBasicsTest::sumAll(const std::vector< std::map<int,double> >& matrix)
 {
   double ret=0.;

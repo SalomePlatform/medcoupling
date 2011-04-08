@@ -284,6 +284,7 @@ void DataArrayDouble::cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL:
   const double *ptI=other.getConstPointer();
   for(int i=0;i<nbOfElems;i++)
     pt[i]=ptI[i];
+  copyStringInfoFrom(other);
 }
 
 void DataArrayDouble::allocIfNecessary(int nbOfTuple, int nbOfCompo)
@@ -2055,6 +2056,7 @@ void DataArrayInt::cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Excep
   const int *ptI=other.getConstPointer();
   for(int i=0;i<nbOfElems;i++)
     pt[i]=ptI[i];
+  copyStringInfoFrom(other);
 }
 
 void DataArrayInt::allocIfNecessary(int nbOfTuple, int nbOfCompo)
