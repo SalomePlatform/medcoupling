@@ -159,20 +159,20 @@ void MEDCouplingUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Ex
             {
               if(nodeId>=nbOfNodes)
                 {
-                  std::ostringstream oss; oss << "Cell #" << i << " has is consituted of node #" << nodeId << " whereas there are only " << nbOfNodes << " nodes !";
+                  std::ostringstream oss; oss << "Cell #" << i << " is consituted of node #" << nodeId << " whereas there are only " << nbOfNodes << " nodes !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
             }
           else if(nodeId<-1)
             {
-              std::ostringstream oss; oss << "Cell #" << i << " has is consituted of node #" << nodeId << " in connectivity ! sounds bad !";
+              std::ostringstream oss; oss << "Cell #" << i << " is consituted of node #" << nodeId << " in connectivity ! sounds bad !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
           else
             {
               if((INTERP_KERNEL::NormalizedCellType)(ptr[ptrI[i]])!=INTERP_KERNEL::NORM_POLYHED)
                 {
-                  std::ostringstream oss; oss << "Cell #" << i << " has is consituted of node #-1 in connectivity ! sounds bad !";
+                  std::ostringstream oss; oss << "Cell #" << i << " is consituted of node #-1 in connectivity ! sounds bad !";
                   throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
             }
