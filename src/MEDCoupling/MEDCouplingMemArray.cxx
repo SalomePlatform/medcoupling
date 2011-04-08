@@ -840,8 +840,8 @@ void DataArrayDouble::setPartOfValuesSimple2(double a, const int *bgTuples, cons
   int nbOfTuples=getNumberOfTuples();
   for(const int *z=bgComp;z!=endComp;z++)
     DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
-  int newNbOfTuples=std::distance(bgTuples,endTuples);
-  int newNbOfComp=std::distance(bgComp,endComp);
+//   int newNbOfTuples=std::distance(bgTuples,endTuples);
+//   int newNbOfComp=std::distance(bgComp,endComp);
   double *pt=getPointer();
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(const int *z=bgComp;z!=endComp;z++)
@@ -891,7 +891,7 @@ void DataArrayDouble::setPartOfValuesSimple3(double a, const int *bgTuples, cons
   int nbOfTuples=getNumberOfTuples();
   DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
   DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
-  int newNbOfTuples=std::distance(bgTuples,endTuples);
+//   int newNbOfTuples=std::distance(bgTuples,endTuples);
   double *pt=getPointer()+bgComp;
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(int j=0;j<newNbOfComp;j++)
@@ -2722,8 +2722,8 @@ void DataArrayInt::setPartOfValuesSimple2(int a, const int *bgTuples, const int 
   int nbOfTuples=getNumberOfTuples();
   for(const int *z=bgComp;z!=endComp;z++)
     DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
-  int newNbOfTuples=std::distance(bgTuples,endTuples);
-  int newNbOfComp=std::distance(bgComp,endComp);
+//   int newNbOfTuples=std::distance(bgTuples,endTuples);
+//   int newNbOfComp=std::distance(bgComp,endComp);
   int *pt=getPointer();
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(const int *z=bgComp;z!=endComp;z++)
@@ -2773,7 +2773,7 @@ void DataArrayInt::setPartOfValuesSimple3(int a, const int *bgTuples, const int 
   int nbOfTuples=getNumberOfTuples();
   DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
   DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
-  int newNbOfTuples=std::distance(bgTuples,endTuples);
+//   int newNbOfTuples=std::distance(bgTuples,endTuples);
   int *pt=getPointer()+bgComp;
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(int j=0;j<newNbOfComp;j++)
