@@ -62,7 +62,6 @@ void OverlapMapping::keepTracksOfTargetIds(int procId, DataArrayInt *ids)
  */
 void OverlapMapping::addContributionST(const std::vector< std::map<int,double> >& matrixST, const DataArrayInt *srcIds, int srcProcId, const DataArrayInt *trgIds, int trgProcId)
 {
-  int nbOfRows=matrixST.size();
   _matrixes_st.push_back(matrixST);
   _source_proc_id_st.push_back(srcProcId);
   _target_proc_id_st.push_back(trgProcId);
@@ -185,8 +184,6 @@ void OverlapMapping::computeDenoGlobConstraint()
 void OverlapMapping::computeDenoConservativeVolumic(int nbOfTuplesTrg)
 {
   CommInterface commInterface=_group.getCommInterface();
-  const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
-  const MPI_Comm *comm=group->getComm();
   int myProcId=_group.myRank();
   //
   _the_deno_st.clear();
@@ -629,9 +626,6 @@ void OverlapMapping::transposeMultiply(const MEDCouplingFieldDouble *fieldInput,
 void OverlapMapping::updateZipSourceIdsForFuture()
 {
   CommInterface commInterface=_group.getCommInterface();
-  const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
-  const MPI_Comm *comm=group->getComm();
-  int grpSize=_group.size();
   int myProcId=_group.myRank();
   int nbOfMatrixRecveived=_the_matrix_st_source_proc_id.size();
   for(int i=0;i<nbOfMatrixRecveived;i++)
