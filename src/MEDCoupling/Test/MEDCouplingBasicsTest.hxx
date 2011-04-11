@@ -216,6 +216,9 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testUnPolyze2 );
     CPPUNIT_TEST( testDACpyFrom1 );
     CPPUNIT_TEST( testDAITransformWithIndArr1 );
+    CPPUNIT_TEST( testDAIBuildPermArrPerLevel1 );
+    CPPUNIT_TEST( testDAIOperations1 );
+    CPPUNIT_TEST( testEmulateMEDMEMBDC1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -458,6 +461,9 @@ namespace ParaMEDMEM
     void testUnPolyze2();
     void testDACpyFrom1();
     void testDAITransformWithIndArr1();
+    void testDAIBuildPermArrPerLevel1();
+    void testDAIOperations1();
+    void testEmulateMEDMEMBDC1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

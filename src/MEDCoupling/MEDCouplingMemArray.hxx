@@ -104,6 +104,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return _info_on_compo.size(); }
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _nb_of_tuples; }
     MEDCOUPLING_EXPORT int getNbOfElems() const { return _info_on_compo.size()*_nb_of_tuples; }
+    MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception);
   protected:
@@ -288,6 +289,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *checkAndPreparePermutation() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, DataArrayInt *&arrI) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *buildPermArrPerLevel() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isIdentity() const;
     MEDCOUPLING_EXPORT bool isUniform(int val) const;
     MEDCOUPLING_EXPORT DataArrayInt *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
@@ -317,6 +319,10 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(int a, int b) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyInv(int numerator) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyDivideBy(int val) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyModulus(int val) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void applyRModulus(int val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2);
     MEDCOUPLING_EXPORT static DataArrayInt *Aggregate(const std::vector<const DataArrayInt *>& a) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static DataArrayInt *Meld(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
@@ -333,6 +339,16 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::set<int> getDifferentValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
+    MEDCOUPLING_EXPORT static DataArrayInt *Add(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void addEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayInt *Substract(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void substractEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayInt *Multiply(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void multiplyEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayInt *Divide(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static DataArrayInt *Modulus(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() const { }
   public:

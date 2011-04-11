@@ -3403,9 +3403,9 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
  * This method is here too emulate the MEDMEM behaviour on BDC (buildDescendingConnectivity). Hoping this method becomes deprecated very soon.
  * This method make the assumption that 'this' and 'nM1LevMesh' mesh lyies on same coords (same pointer) as MED and MEDMEM does.
  * The following equality should be verified 'nM1LevMesh->getMeshDimension()==this->getMeshDimension()-1'
- * This method returns 5+1 elements. 'desc', 'descIndx', 'revDesc', 'revDescIndx' and 'meshnM1' behaves exactly as ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity except the content as described after. The returned array specifies the numbering old2new that is to say the cell #k in 'nM1LevMesh' will have the number ret[k] in returned mesh 'nM1LevMesh'.
+ * This method returns 5+2 elements. 'desc', 'descIndx', 'revDesc', 'revDescIndx' and 'meshnM1' behaves exactly as ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity except the content as described after. The returned array specifies the n-1 mesh reordered by type as MEDMEM does. 'nM1LevMeshIds' contains the ids in returned 'meshnM1'. Finally 'meshnM1Old2New' contains numbering old2new that is to say the cell #k in coarse 'nM1LevMesh' will have the number ret[k] in returned mesh 'nM1LevMesh' MEDMEM reordered.
  */
-DataArrayInt *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh, DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *&revDesc, DataArrayInt *&revDescIndx, MEDCouplingUMesh *& meshnM1) const throw(INTERP_KERNEL::Exception)
+MEDCouplingUMesh *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh, DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *&revDesc, DataArrayInt *&revDescIndx, DataArrayInt *& nM1LevMeshIds, DataArrayInt *&meshnM1Old2New) const throw(INTERP_KERNEL::Exception)
 {
   static const int N=18;
   static const INTERP_KERNEL::NormalizedCellType MEDMEM_ORDER[N] = { INTERP_KERNEL::NORM_POINT1, INTERP_KERNEL::NORM_SEG2, INTERP_KERNEL::NORM_SEG3, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QUAD8, INTERP_KERNEL::NORM_TETRA4, INTERP_KERNEL::NORM_PYRA5, INTERP_KERNEL::NORM_PENTA6, INTERP_KERNEL::NORM_HEXA8, INTERP_KERNEL::NORM_HEXGP12, INTERP_KERNEL::NORM_TETRA10, INTERP_KERNEL::NORM_PYRA13, INTERP_KERNEL::NORM_PENTA15, INTERP_KERNEL::NORM_HEXA20, INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_POLYHED };
@@ -3419,6 +3419,7 @@ DataArrayInt *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevM
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret1=buildDescendingConnectivity(desc,descIndx,tmp0,tmp1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret0=ret1->getRenumArrForConsecutiveCellTypesSpec(MEDMEM_ORDER,MEDMEM_ORDER+N);
+  ret1->renumberCells(ret0->getConstPointer(),false);
   desc->transformWithIndArr(ret0->getConstPointer(),ret0->getConstPointer()+ret0->getNbOfElems());
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=MEDCouplingUMesh::New();
   tmp->setConnectivity(tmp0,tmp1);
@@ -3434,13 +3435,14 @@ DataArrayInt *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevM
       std::ostringstream oss; oss << "MEDCouplingUMesh::emulateMEDMEMBDC : input N-1 mesh present a cell not in descending mesh ... Id of cell is " << tmp << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+  nM1LevMeshIds=ret;
   //
   revDesc->incrRef();
   revDescIndx->incrRef();
-  meshnM1=ret1;
   ret1->incrRef();
   ret0->incrRef();
-  return ret0;
+  meshnM1Old2New=ret0;
+  return ret1;
 }
 
 /*!
@@ -3489,46 +3491,58 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::No
 }
 
 /*!
- * This method is similar to method MEDCouplingUMesh::rearrange2ConsecutiveCellTypes except that the type order is specfied by [orderBg,orderEnd) (as MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder method) and that this method is \b const and performs \b NO permutation is 'this'.
- * This method returns an array of size getNumberOfCells() that gives a renumber array old2New that can be used as input of MEDCouplingMesh::renumberCells.
- * The mesh after this call will pass the test of MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder with the same inputs.
- * The returned array minimizes the permutations that is to say the order of cells inside same geometric type remains the same.
+ * This method returns 2 newly allocated DataArrayInt instances. The first is an array of size 'this->getNumberOfCells()' with one component,
+ * that tells for each cell the pos of its type in the array on type given in input parameter. The 2nd output parameter is an array with the same
+ * number of tuples than input type array and with one component. This 2nd output array gives type by type the number of occurence of type in 'this'.
  */
-DataArrayInt *MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const
+DataArrayInt *MEDCouplingUMesh::getLevArrPerCellTypes(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd, DataArrayInt *&nbPerType) const throw(INTERP_KERNEL::Exception)
 {
   checkFullyDefined();
   int nbOfCells=getNumberOfCells();
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
-  int *tmp=new int[nbOfCells];
-  int minPos=std::numeric_limits<int>::max();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmpa=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmpb=DataArrayInt::New();
+  tmpa->alloc(nbOfCells,1);
+  tmpb->alloc(std::distance(orderBg,orderEnd),1);
+  tmpb->fillWithZero();
+  int *tmp=tmpa->getPointer();
+  int *tmp2=tmpb->getPointer();
   for(const int *i=connI;i!=connI+nbOfCells;i++)
     {
-      int pos=std::distance(orderBg,std::find(orderBg,orderEnd,(INTERP_KERNEL::NormalizedCellType)conn[*i]));
-      tmp[std::distance(connI,i)]=pos;
-      minPos=std::min(minPos,pos);
-    }
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(nbOfCells,1);
-  int *optr=ret->getPointer();
-  int k=0;
-  while(minPos!=std::numeric_limits<int>::max())
-    {    
-      int nextMinPos=std::numeric_limits<int>::max();
-      for(int j=0;j<nbOfCells;j++)
+      const INTERP_KERNEL::NormalizedCellType *where=std::find(orderBg,orderEnd,(INTERP_KERNEL::NormalizedCellType)conn[*i]);
+      if(where!=orderEnd)
         {
-          if(tmp[j]==minPos)
-            {
-              optr[j]=k++;
-              tmp[j]=std::numeric_limits<int>::max();
-            }
-          else
-            nextMinPos=std::min(nextMinPos,tmp[j]);
+          int pos=std::distance(orderBg,where);
+          tmp2[pos]++;
+          tmp[std::distance(connI,i)]=pos;
         }
-      minPos=nextMinPos;
+      else
+        {
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[*i]);
+          std::ostringstream oss; oss << "MEDCouplingUMesh::getLevArrPerCellTypes : Cell #" << std::distance(connI,i);
+          oss << " has a type " << cm.getRepr() << " not in input array of type !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
     }
-  delete [] tmp;
-  return ret;
+  nbPerType=tmpb;
+  tmpa->incrRef();
+  tmpb->incrRef();
+  return tmpa;
+}
+
+/*!
+ * This method is similar to method MEDCouplingUMesh::rearrange2ConsecutiveCellTypes except that the type order is specfied by [orderBg,orderEnd) (as MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder method) and that this method is \b const and performs \b NO permutation in 'this'.
+ * This method returns an array of size getNumberOfCells() that gives a renumber array old2New that can be used as input of MEDCouplingMesh::renumberCells.
+ * The mesh after this call to MEDCouplingMesh::renumberCells will pass the test of MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder with the same inputs.
+ * The returned array minimizes the permutations that is to say the order of cells inside same geometric type remains the same.
+ */
+DataArrayInt *MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *nbPerType=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmpa=getLevArrPerCellTypes(orderBg,orderEnd,nbPerType);
+  nbPerType->decrRef();
+  return tmpa->buildPermArrPerLevel();
 }
 
 /*!

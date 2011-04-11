@@ -134,6 +134,10 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
+%newobject ParaMEDMEM::DataArrayInt::Add;
+%newobject ParaMEDMEM::DataArrayInt::Substract;
+%newobject ParaMEDMEM::DataArrayInt::Multiply;
+%newobject ParaMEDMEM::DataArrayInt::Divide;
 %newobject ParaMEDMEM::DataArrayInt::BuildUnion;
 %newobject ParaMEDMEM::DataArrayInt::BuildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
@@ -144,7 +148,18 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
+%newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
 %newobject ParaMEDMEM::DataArrayInt::__getitem__;
+%newobject ParaMEDMEM::DataArrayInt::__add__;
+%newobject ParaMEDMEM::DataArrayInt::__radd__;
+%newobject ParaMEDMEM::DataArrayInt::__sub__;
+%newobject ParaMEDMEM::DataArrayInt::__rsub__;
+%newobject ParaMEDMEM::DataArrayInt::__mul__;
+%newobject ParaMEDMEM::DataArrayInt::__rmul__;
+%newobject ParaMEDMEM::DataArrayInt::__div__;
+%newobject ParaMEDMEM::DataArrayInt::__rdiv__;
+%newobject ParaMEDMEM::DataArrayInt::__mod__;
+%newobject ParaMEDMEM::DataArrayInt::__rmod__;
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayDouble::deepCpy;
@@ -940,6 +955,18 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      PyObject *getLevArrPerCellTypes(PyObject *li, DataArrayInt *&nbPerType) const throw(INTERP_KERNEL::Exception)
+      {
+        int sz;
+        INTERP_KERNEL::AutoPtr<INTERP_KERNEL::NormalizedCellType> order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
+        DataArrayInt *tmp0,*tmp1=0;
+        tmp0=self->getLevArrPerCellTypes(order,(INTERP_KERNEL::NormalizedCellType *)order+sz,tmp1);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       static PyObject *MergeUMeshesOnSameCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> meshes;
@@ -1060,17 +1087,16 @@ namespace ParaMEDMEM
       {
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
-        DataArrayInt *d2;
-        DataArrayInt *d3;
-        MEDCouplingUMesh *mOut;
-        DataArrayInt *d4=self->emulateMEDMEMBDC(nM1LevMesh,d0,d1,d2,d3,mOut);
-        PyObject *ret=PyTuple_New(6);
+        DataArrayInt *d2,*d3,*d4,*dd5;
+        MEDCouplingUMesh *mOut=self->emulateMEDMEMBDC(nM1LevMesh,d0,d1,d2,d3,d4,dd5);
+        PyObject *ret=PyTuple_New(7);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(mOut),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d4),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(d2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-        PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(d3),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr((DataArrayInt *)d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr((DataArrayInt *)d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(d3),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,5,SWIG_NewPointerObj(SWIG_as_voidptr(d4),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,6,SWIG_NewPointerObj(SWIG_as_voidptr(dd5),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         d0->incrRef();
         d1->incrRef();
         return ret;
@@ -3091,6 +3117,375 @@ namespace ParaMEDMEM
                throw INTERP_KERNEL::Exception(msg);
              }
            break;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __add__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyLin(1,val);
+           ret->incrRef();
+           return ret;
+         }
+       case 3:
+         {
+           return DataArrayInt::Add(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__radd__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __radd__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyLin(1,val);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *operator+=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __iadd__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyLin(1,val);
+           return self;
+         }
+       case 3:
+         {
+           self->addEqual(a);
+           return self;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__sub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __sub__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyLin(1,-val);
+           ret->incrRef();
+           return ret;
+         }
+       case 3:
+         {
+           return DataArrayInt::Substract(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__rsub__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __rsub__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyLin(-1,val);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *operator-=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __isub__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyLin(1.,-val);
+           return self;
+         }
+       case 3:
+         {
+           self->substractEqual(a);
+           return self;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__mul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __mul__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyLin(val,0);
+           ret->incrRef();
+           return ret;
+         }
+       case 3:
+         {
+           return DataArrayInt::Multiply(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__rmul__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __rmul__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyLin(val,0);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *operator*=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __imul__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyLin(val,0);
+           return self;
+         }
+       case 3:
+         {
+           self->multiplyEqual(a);
+           return self;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__div__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __div__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyDivideBy(val);
+           ret->incrRef();
+           return ret;
+         }
+       case 3:
+         {
+           return DataArrayInt::Divide(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__rdiv__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __rdiv__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyInv(val);
+           ret->incrRef();
+           return ret;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *operator/=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __imul__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyDivideBy(val);
+           return self;
+         }
+       case 3:
+         {
+           self->divideEqual(a);
+           return self;
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__mod__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __mod__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyModulus(val);
+           ret->incrRef();
+           return ret;
+         }
+       case 3:
+         {
+           return DataArrayInt::Modulus(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *__rmod__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __rmod__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->deepCpy();
+           ret->applyRModulus(val);
+           ret->incrRef();
+           return ret;
+         }
+       case 3:
+         {
+           return DataArrayInt::Modulus(self,a);
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+
+   DataArrayInt *operator%=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     const char msg[]="Unexpected situation in __imod__ !";
+     int val;
+     DataArrayInt *a;
+     std::vector<int> aa;
+     int sw;
+     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     switch(sw)
+       {
+       case 1:
+         {
+           self->applyModulus(val);
+           return self;
+         }
+       case 3:
+         {
+           self->modulusEqual(a);
+           return self;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);

@@ -1018,3 +1018,153 @@ void MEDCouplingBasicsTest::testDAITransformWithIndArr1()
   d->decrRef();
   d1->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAIBuildPermArrPerLevel1()
+{
+  const int arr[12]={2,0,1,1,0,1,2,0,1,1,0,0};
+  const int expected1[12]={10,0,5,6,1,7,11,2,8,9,3,4};
+  DataArrayInt *da=DataArrayInt::New();
+  da->alloc(12,1);
+  std::copy(arr,arr+12,da->getPointer());
+  DataArrayInt *da2=da->buildPermArrPerLevel();
+  CPPUNIT_ASSERT_EQUAL(12,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(i,0));
+  da->decrRef();
+  da2->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAIOperations1()
+{
+  const int arr1[12]={-1,-2,4,7,3,2,6,6,4,3,0,1};
+  DataArrayInt *da=DataArrayInt::New();
+  da->alloc(4,3);
+  std::copy(arr1,arr1+12,da->getPointer());
+  DataArrayInt *da1=DataArrayInt::New();
+  da1->alloc(12,1);
+  da1->iota(2);
+  CPPUNIT_ASSERT_THROW(DataArrayInt::Add(da,da1),INTERP_KERNEL::Exception);//not same number of tuples/Components
+  da1->rearrange(3);
+  DataArrayInt *da2=DataArrayInt::Add(da,da1);
+  CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfComponents());
+  const int expected1[12]={1,1,8,12,9,9,14,15,14,14,12,14};
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(0,i));
+  da2->decrRef();
+  da1->substractEqual(da);
+  const int expected2[12]={3,5,0,-2,3,5,2,3,6,8,12,12};
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected2[i],da1->getIJ(0,i));
+  da1->rearrange(1); da1->iota(2); da1->rearrange(3);
+  da1->addEqual(da);
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da1->getIJ(0,i));
+  da1->rearrange(1); da1->iota(2); da1->rearrange(3);
+  da2=DataArrayInt::Multiply(da,da1);
+  CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfComponents());
+  const int expected3[12]={-2,-6,16,35,18,14,48,54,40,33,0,13};
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected3[i],da2->getIJ(0,i));
+  da2->decrRef();
+  da->divideEqual(da1);
+  CPPUNIT_ASSERT_EQUAL(4,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da->getNumberOfComponents());
+  const int expected4[12]={0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected4[i],da->getIJ(0,i));
+  std::copy(arr1,arr1+12,da->getPointer());
+  da1->multiplyEqual(da);
+  CPPUNIT_ASSERT_EQUAL(4,da1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da1->getNumberOfComponents());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected3[i],da1->getIJ(0,i));
+  da1->rearrange(1); da1->iota(2); da1->rearrange(3);
+  da2=DataArrayInt::Divide(da,da1);
+  CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da2->getNumberOfComponents());
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected4[i],da2->getIJ(0,i));
+  da2->decrRef();
+  da1->applyInv(321);
+  CPPUNIT_ASSERT_EQUAL(4,da1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da1->getNumberOfComponents());
+  const int expected5[12]={160,107,80,64,53,45,40,35,32,29,26,24};
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected5[i],da1->getIJ(0,i));
+  da1->applyDivideBy(2);
+  CPPUNIT_ASSERT_EQUAL(4,da1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,da1->getNumberOfComponents());
+  const int expected6[12]={80,53,40,32,26,22,20,17,16,14,13,12};
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected6[i],da1->getIJ(0,i));
+  const int expected7[12]={3,4,5,4,5,1,6,3,2,0,6,5};
+  da1->applyModulus(7);
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected7[i],da1->getIJ(0,i));
+  da1->applyLin(1,1);
+  const int expected8[12]={3,3,3,3,3,1,3,3,0,0,3,3};
+  da1->applyRModulus(3);
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected8[i],da1->getIJ(0,i));
+  //
+  da1->decrRef();
+  da->decrRef();
+}
+
+void MEDCouplingBasicsTest::testEmulateMEDMEMBDC1()
+{
+  MEDCouplingUMesh *m1=0;
+  MEDCouplingUMesh *m=buildPointe_1(m1);
+  DataArrayInt *da1=DataArrayInt::New();
+  DataArrayInt *da2=DataArrayInt::New();
+  DataArrayInt *da3=0;
+  DataArrayInt *da4=0;
+  DataArrayInt *da5=0;
+  DataArrayInt *da0=0;
+  MEDCouplingUMesh *m2=m->emulateMEDMEMBDC(m1,da1,da2,da3,da4,da5,da0);
+  const int expected0[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
+  const int expected1[6]={1,32,29,23,41,36};
+  CPPUNIT_ASSERT_EQUAL(47,da0->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da0->getNumberOfComponents());
+  for(int i=0;i<47;i++)
+    CPPUNIT_ASSERT_EQUAL(expected0[i],da0->getIJ(0,i));
+  CPPUNIT_ASSERT_EQUAL(6,da5->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da5->getNumberOfComponents());
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da5->getIJ(0,i));
+  const int expected2[70]={0,1,2,3,4,0,5,6,7,4,8,9,1,7,10,11,12,13,14,5,15,16,17,8,18,19,20,10,21,22,23,2,13,24,25,21,16,26,27,12,19,28,29,15,22,30,31,18,36,26,28,30,24,37,32,33,34,35,38,36,39,40,41,42,37,38,43,44,45,46};
+  CPPUNIT_ASSERT_EQUAL(70,da1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da1->getNumberOfComponents());
+  for(int i=0;i<70;i++)
+    CPPUNIT_ASSERT_EQUAL(expected2[i],da1->getIJ(0,i));
+  const int expected3[17]={0,4,8,12,16,20,24,28,32,36,40,44,48,53,58,64,70};
+  CPPUNIT_ASSERT_EQUAL(17,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  for(int i=0;i<17;i++)
+    CPPUNIT_ASSERT_EQUAL(expected3[i],da2->getIJ(0,i));
+  const int expected4[48]={0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,53,54,55,56,58,60,62,63,64,65,66,67,68,69,70};
+  //const int expected4[48]={0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,54,56,57,58,59,60,62,63,64,65,66,67,68,69,70};
+  CPPUNIT_ASSERT_EQUAL(48,da4->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da4->getNumberOfComponents());
+  for(int i=0;i<48;i++)
+    CPPUNIT_ASSERT_EQUAL(expected4[i],da4->getIJ(0,i));
+  const int expected5[70]={0,1,0,3,0,7,0,1,2,1,4,1,2,3,2,5,2,3,6,3,4,9,4,8,4,5,10,5,9,5,6,11,6,10,6,7,8,7,11,7,8,12,8,9,12,9,10,12,10,11,12,11,13,13,13,13,12,14,13,15,14,15,14,14,14,14,15,15,15,15};
+  CPPUNIT_ASSERT_EQUAL(70,da3->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da3->getNumberOfComponents());
+  for(int i=0;i<70;i++)
+    CPPUNIT_ASSERT_EQUAL(expected5[i],da3->getIJ(0,i));
+  //
+  da0->decrRef();
+  da1->decrRef();
+  da2->decrRef();
+  da3->decrRef();
+  da4->decrRef();
+  da5->decrRef();
+  //
+  m2->decrRef();
+  m1->decrRef();
+  m->decrRef();
+}

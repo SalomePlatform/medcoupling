@@ -6182,6 +6182,70 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([10.0, 12.5, 15.0, 14.0, 16.0, 18.0, 15.0, 16.5, 18.0, 13.0, 14.0, 15.0],da.getValues())
         pass
 
+    def testSwigDAIOp(self):
+        da=DataArrayInt.New()
+        da.alloc(12,1)
+        da.iota(7)
+        da1=DataArrayInt.New()
+        da1.alloc(12,1)
+        da1.iota(8)
+        da2=da+da1
+        self.assertEqual([15,17,19,21,23,25,27,29,31,33,35,37],da2.getValues())
+        da2=da+3
+        da3=3+da
+        self.assertTrue(da2.isEqual(da3))
+        da2=da-1
+        self.assertEqual([6,7,8,9,10,11,12,13,14,15,16,17],da2.getValues())
+        da2=1-da
+        self.assertEqual([-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17],da2.getValues())
+        da2=da*3
+        self.assertEqual([21,24,27,30,33,36,39,42,45,48,51,54.0],da2.getValues())
+        da2=3*da
+        self.assertEqual([21,24,27,30,33,36,39,42,45,48,51,54.0],da2.getValues())
+        da2=da*da1
+        self.assertEqual([56,72,90,110,132,156,182,210,240,272,306,342.0],da2.getValues())
+        da2=da/4
+        self.assertEqual([1,2,2,2,2,3,3,3,3,4,4,4],da2.getValues())
+        da3=4/da
+        da4=da3*da2
+        self.assertTrue(da4.isUniform(0))
+        st1=da.getHiddenCppPointer()
+        da+=1
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertTrue(da.isEqual(da1))
+        da-=8
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual(range(12),da.getValues())
+        da+=da1
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([8,10,12,14,16,18,20,22,24,26,28,30],da.getValues())
+        da/=2
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([4,5,6,7,8,9,10,11,12,13,14,15],da.getValues())
+        da*=da1
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([32,45,60,77,96,117,140,165,192,221,252,285],da.getValues())
+        da/=da1
+        self.assertEqual(st1,st2)
+        self.assertEqual([4,5,6,7,8,9,10,11,12,13,14,15],da.getValues())
+        da/=2
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([2,2, 3,3, 4,4, 5,5, 6,6, 7,7],da.getValues())
+        da.rearrange(3)
+        da5=DataArrayInt.New()
+        da5.setValues([5,4,3,2],4,1)
+        da*=da5 # it works with unmathing number of compo
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([10,10, 15,12,16,16,15,15, 18,12,14,14],da.getValues())
+        pass
+
     def testDAIAggregateMulti1(self):
         a=DataArrayInt.New()
         a.setValues(range(4),2,2)
@@ -7080,6 +7144,143 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1,d1.getNumberOfComponents());
         for i in xrange(12):
             self.assertEqual(expected[i],d1.getIJ(i,0));
+            pass
+        pass
+
+    def testDAIBuildPermArrPerLevel1(self):
+        arr=[2,0,1,1,0,1,2,0,1,1,0,0]
+        expected1=[10,0,5,6,1,7,11,2,8,9,3,4]
+        da=DataArrayInt.New();
+        da.setValues(arr,12,1);
+        da2=da.buildPermArrPerLevel();
+        self.assertEqual(12,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(expected1[i],da2.getIJ(i,0));
+            pass
+        pass
+
+    def testDAIOperations1(self):
+        arr1=[-1,-2,4,7,3,2,6,6,4,3,0,1]
+        da=DataArrayInt.New();
+        da.setValues(arr1,4,3);
+        da1=DataArrayInt.New();
+        da1.alloc(12,1);
+        da1.iota(2);
+        self.assertRaises(InterpKernelException,DataArrayInt.Add,da,da1);#not same number of tuples/Components
+        da1.rearrange(3);
+        da2=DataArrayInt.Add(da,da1);
+        self.assertEqual(4,da2.getNumberOfTuples());
+        self.assertEqual(3,da2.getNumberOfComponents());
+        expected1=[1,1,8,12,9,9,14,15,14,14,12,14]
+        for i in xrange(12):
+            self.assertEqual(expected1[i],da2.getIJ(0,i));
+            pass
+        da1.substractEqual(da);
+        expected2=[3,5,0,-2,3,5,2,3,6,8,12,12]
+        for i in xrange(12):
+            self.assertEqual(expected2[i],da1.getIJ(0,i));
+            pass
+        da1.rearrange(1); da1.iota(2); da1.rearrange(3);
+        da1.addEqual(da);
+        for i in xrange(12):
+            self.assertEqual(expected1[i],da1.getIJ(0,i));
+            pass
+        da1.rearrange(1); da1.iota(2); da1.rearrange(3);
+        da2=DataArrayInt.Multiply(da,da1);
+        self.assertEqual(4,da2.getNumberOfTuples());
+        self.assertEqual(3,da2.getNumberOfComponents());
+        expected3=[-2,-6,16,35,18,14,48,54,40,33,0,13]
+        for i in xrange(12):
+            self.assertEqual(expected3[i],da2.getIJ(0,i));
+            pass
+        da.divideEqual(da1);
+        self.assertEqual(4,da.getNumberOfTuples());
+        self.assertEqual(3,da.getNumberOfComponents());
+        expected4=[0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+        for i in xrange(12):
+            self.assertEqual(expected4[i],da.getIJ(0,i));
+            pass
+        da.setValues(arr1,4,3);
+        da1.multiplyEqual(da);
+        self.assertEqual(4,da1.getNumberOfTuples());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(expected3[i],da1.getIJ(0,i));
+            pass
+        da1.rearrange(1); da1.iota(2); da1.rearrange(3);
+        da2=DataArrayInt.Divide(da,da1);
+        self.assertEqual(4,da2.getNumberOfTuples());
+        self.assertEqual(3,da2.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(expected4[i],da2.getIJ(0,i));
+            pass
+        da1.applyInv(321);
+        self.assertEqual(4,da1.getNumberOfTuples());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        expected5=[160,107,80,64,53,45,40,35,32,29,26,24]
+        for i in xrange(12):
+            self.assertEqual(expected5[i],da1.getIJ(0,i));
+            pass
+        da1.applyDivideBy(2);
+        self.assertEqual(4,da1.getNumberOfTuples());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        expected6=[80,53,40,32,26,22,20,17,16,14,13,12]
+        for i in xrange(12):
+            self.assertEqual(expected6[i],da1.getIJ(0,i));
+            pass
+        expected7=[3,4,5,4,5,1,6,3,2,0,6,5]
+        da1.applyModulus(7);
+        for i in xrange(12):
+            self.assertEqual(expected7[i],da1.getIJ(0,i));
+            pass
+        da1.applyLin(1,1);
+        expected8=[3,3,3,3,3,1,3,3,0,0,3,3]
+        da1.applyRModulus(3);
+        for i in xrange(12):
+            self.assertEqual(expected8[i],da1.getIJ(0,i));
+            pass
+        pass
+
+    def testEmulateMEDMEMBDC1(self):
+        m,m1=MEDCouplingDataForTest.buildPointe_1();
+        m2,da1,da2,da3,da4,da5,da0=m.emulateMEDMEMBDC(m1)
+        expected0=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46]
+        expected1=[1,32,29,23,41,36]
+        self.assertEqual(47,da0.getNumberOfTuples());
+        self.assertEqual(1,da0.getNumberOfComponents());
+        for i in xrange(47):
+            self.assertEqual(expected0[i],da0.getIJ(0,i));
+            pass
+        self.assertEqual(6,da5.getNumberOfTuples());
+        self.assertEqual(1,da5.getNumberOfComponents());
+        for i in xrange(6):
+            self.assertEqual(expected1[i],da5.getIJ(0,i));
+            pass
+        expected2=[0,1,2,3,4,0,5,6,7,4,8,9,1,7,10,11,12,13,14,5,15,16,17,8,18,19,20,10,21,22,23,2,13,24,25,21,16,26,27,12,19,28,29,15,22,30,31,18,36,26,28,30,24,37,32,33,34,35,38,36,39,40,41,42,37,38,43,44,45,46]
+        self.assertEqual(70,da1.getNumberOfTuples());
+        self.assertEqual(1,da1.getNumberOfComponents());
+        for i in xrange(70):
+            self.assertEqual(expected2[i],da1.getIJ(0,i));
+            pass
+        expected3=[0,4,8,12,16,20,24,28,32,36,40,44,48,53,58,64,70]
+        self.assertEqual(17,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        for i in xrange(17):
+            self.assertEqual(expected3[i],da2.getIJ(0,i));
+            pass
+        expected4=[0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,53,54,55,56,58,60,62,63,64,65,66,67,68,69,70]
+        #expected4=[0,2,4,6,7,9,11,12,14,16,17,19,20,22,24,25,27,29,30,32,34,35,37,39,40,42,43,45,46,48,49,51,52,54,56,57,58,59,60,62,63,64,65,66,67,68,69,70];
+        self.assertEqual(48,da4.getNumberOfTuples());
+        self.assertEqual(1,da4.getNumberOfComponents());
+        for i in xrange(48):
+            self.assertEqual(expected4[i],da4.getIJ(0,i));
+            pass
+        expected5=[0,1,0,3,0,7,0,1,2,1,4,1,2,3,2,5,2,3,6,3,4,9,4,8,4,5,10,5,9,5,6,11,6,10,6,7,8,7,11,7,8,12,8,9,12,9,10,12,10,11,12,11,13,13,13,13,12,14,13,15,14,15,14,14,14,14,15,15,15,15]
+        self.assertEqual(70,da3.getNumberOfTuples());
+        self.assertEqual(1,da3.getNumberOfComponents());
+        for i in xrange(70):
+            self.assertEqual(expected5[i],da3.getIJ(0,i));
             pass
         pass
     
