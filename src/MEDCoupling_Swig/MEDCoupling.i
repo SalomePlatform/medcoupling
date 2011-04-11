@@ -2034,6 +2034,7 @@ namespace ParaMEDMEM
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
+     return self;
    }
 
    DataArrayDouble *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
@@ -3121,6 +3122,7 @@ namespace ParaMEDMEM
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
+     return self;
    }
 
    DataArrayInt *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
