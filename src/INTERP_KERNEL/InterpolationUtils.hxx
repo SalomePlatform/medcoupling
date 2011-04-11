@@ -336,9 +336,10 @@ namespace INTERP_KERNEL
   template<unsigned SZ, unsigned NB_OF_RES>
   bool solveSystemOfEquations2(const double *matrix, double *solutions, double eps)
   {
-    int nr,n,nx,k,np;
+    unsigned k,j;
+    int nr,n,m,nx,np;
     double s,g;
-    int m,mb,j;
+    int mb;
     //
     double B[SZ*(SZ+NB_OF_RES)];
     std::copy(matrix,matrix+SZ*(SZ+NB_OF_RES),B);
@@ -353,14 +354,14 @@ namespace INTERP_KERNEL
             n=k;
             do
               {
-                n=n++;
+                n++;
                 if(fabs(B[nr*k+n])>eps)
                   {/* Rows permutation */
                     for(m=0;m<nr;m++)
                       std::swap(B[nr*k+m],B[nr*n+m]);
                   }
               }
-            while (n<SZ);
+            while (n<(int)SZ);
           }
         s=B[np];//s is the Pivot
         std::transform(B+k*nr,B+(k+1)*nr,B+k*nr,std::bind2nd(std::divides<double>(),s));
