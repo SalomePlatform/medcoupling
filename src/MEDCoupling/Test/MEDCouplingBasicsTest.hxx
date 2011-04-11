@@ -219,6 +219,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDAIBuildPermArrPerLevel1 );
     CPPUNIT_TEST( testDAIOperations1 );
     CPPUNIT_TEST( testEmulateMEDMEMBDC1 );
+    CPPUNIT_TEST( testGetLevArrPerCellTypes1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -464,6 +465,7 @@ namespace ParaMEDMEM
     void testDAIBuildPermArrPerLevel1();
     void testDAIOperations1();
     void testEmulateMEDMEMBDC1();
+    void testGetLevArrPerCellTypes1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

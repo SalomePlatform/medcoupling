@@ -955,7 +955,7 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *getLevArrPerCellTypes(PyObject *li, DataArrayInt *&nbPerType) const throw(INTERP_KERNEL::Exception)
+      PyObject *getLevArrPerCellTypes(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
         int sz;
         INTERP_KERNEL::AutoPtr<INTERP_KERNEL::NormalizedCellType> order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);

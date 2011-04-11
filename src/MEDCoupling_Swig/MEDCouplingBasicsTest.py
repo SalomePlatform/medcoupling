@@ -6244,6 +6244,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         st2=da.getHiddenCppPointer()
         self.assertEqual(st1,st2)
         self.assertEqual([10,10, 15,12,16,16,15,15, 18,12,14,14],da.getValues())
+        da%=6
+        st2=da.getHiddenCppPointer()
+        self.assertEqual(st1,st2)
+        self.assertEqual([4,4,3,0,4,4,3,3,0,0,2,2],da.getValues())
         pass
 
     def testDAIAggregateMulti1(self):
@@ -7281,6 +7285,32 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1,da3.getNumberOfComponents());
         for i in xrange(70):
             self.assertEqual(expected5[i],da3.getIJ(0,i));
+            pass
+        pass
+
+    def testGetLevArrPerCellTypes1(self):
+        m,m1=MEDCouplingDataForTest.buildPointe_1();
+        m1,d0,d1,d2,d3=m.buildDescendingConnectivity();
+        order=[NORM_TRI3,NORM_QUAD4];
+        da0,da1=m1.getLevArrPerCellTypes(order);
+        expected0=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1]
+        expected1=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46]
+        self.assertEqual(47,da0.getNumberOfTuples());
+        self.assertEqual(1,da0.getNumberOfComponents());
+        for i in xrange(47):
+            self.assertEqual(expected0[i],da0.getIJ(0,i));
+            pass
+        self.assertEqual(2,da1.getNumberOfTuples());
+        self.assertEqual(1,da1.getNumberOfComponents());
+        self.assertEqual(36,da1.getIJ(0,0));#36 TRI3
+        self.assertEqual(11,da1.getIJ(1,0));#11 QUAD4
+        #
+        da2=da0.buildPermArrPerLevel();
+        #
+        self.assertEqual(47,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        for i in xrange(47):
+            self.assertEqual(expected1[i],da2.getIJ(0,i));
             pass
         pass
     

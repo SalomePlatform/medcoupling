@@ -1168,3 +1168,42 @@ void MEDCouplingBasicsTest::testEmulateMEDMEMBDC1()
   m1->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testGetLevArrPerCellTypes1()
+{
+  MEDCouplingUMesh *m1=0;
+  MEDCouplingUMesh *m=buildPointe_1(m1);
+  m1->decrRef();
+  DataArrayInt *d0=DataArrayInt::New();
+  DataArrayInt *d1=DataArrayInt::New();
+  DataArrayInt *d2=DataArrayInt::New();
+  DataArrayInt *d3=DataArrayInt::New();
+  m1=m->buildDescendingConnectivity(d0,d1,d2,d3);
+  d0->decrRef(); d1->decrRef(); d2->decrRef(); d3->decrRef();
+  INTERP_KERNEL::NormalizedCellType order[2]={INTERP_KERNEL::NORM_TRI3,INTERP_KERNEL::NORM_QUAD4};
+  DataArrayInt *da1=0;
+  DataArrayInt *da0=m1->getLevArrPerCellTypes(order,order+2,da1);
+  const int expected0[47]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,1,1,1,1,1,1,1,1,1};
+  const int expected1[47]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,36,37,32,33,34,35,38,39,40,41,42,43,44,45,46};
+  CPPUNIT_ASSERT_EQUAL(47,da0->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da0->getNumberOfComponents());
+  for(int i=0;i<47;i++)
+    CPPUNIT_ASSERT_EQUAL(expected0[i],da0->getIJ(0,i));
+  CPPUNIT_ASSERT_EQUAL(2,da1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da1->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(36,da1->getIJ(0,0));//36 TRI3
+  CPPUNIT_ASSERT_EQUAL(11,da1->getIJ(1,0));//11 QUAD4
+  //
+  DataArrayInt *da2=da0->buildPermArrPerLevel();
+  //
+  CPPUNIT_ASSERT_EQUAL(47,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  for(int i=0;i<47;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(0,i));
+  da2->decrRef();
+  da0->decrRef();
+  da1->decrRef();
+  //
+  m->decrRef();
+  m1->decrRef();
+}
