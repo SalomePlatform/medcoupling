@@ -149,14 +149,14 @@ void INTERP_KERNEL::AsmX86::convertOneInstructionInML(const std::string& inst, s
 void INTERP_KERNEL::AsmX86::convertMov(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
   const char ASM1[]="ebp,esp";
-  const char ML1[2]={0x89,0xe5};
+  const unsigned char ML1[2]={0x89,0xe5};
   if(inst==ASM1)
     {
       ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
       return ;
     }
   const char ASM2[]="rbp,rsp";
-  const char ML2[3]={0x48,0x89,0xe5};
+  const unsigned char ML2[3]={0x48,0x89,0xe5};
   if(inst==ASM2)
     {
       ml.insert(ml.end(),ML2,ML2+sizeof(ML2));
@@ -186,7 +186,7 @@ void INTERP_KERNEL::AsmX86::convertMovToEsp(const std::string& inst1, const std:
     throw INTERP_KERNEL::Exception("not recognized convertMovToEsp exp !");
   std::string inst1bis=inst1.substr(1,inst1.length()-2);
   const char ASM1[]="esp";
-  const char ML1[3]={0xc7,0x04,0x24};
+  const unsigned char ML1[3]={0xc7,0x04,0x24};
   if(inst1bis==ASM1)
     {//mov dword [esp],0x3ff3c0ca
       ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
@@ -197,7 +197,7 @@ void INTERP_KERNEL::AsmX86::convertMovToEsp(const std::string& inst1, const std:
     {
       if(inst1bis[3]=='+')
         {//mov dword [esp+4],0x3ff3c0ca
-          const char ML2[3]={0xc7,0x44,0x24};
+          const unsigned char ML2[3]={0xc7,0x44,0x24};
           ml.insert(ml.end(),ML2,ML2+sizeof(ML2));
           std::string::size_type pos=inst1bis.find_first_of(']');
           std::string inst1_1=inst1bis.substr(4,pos-4-1);
@@ -209,7 +209,7 @@ void INTERP_KERNEL::AsmX86::convertMovToEsp(const std::string& inst1, const std:
         throw INTERP_KERNEL::Exception("Not recognized exp : mov [esp@..],...");
     }
   const char ASM3[]="rsp";
-  const char ML3[3]={0xc7,0x04,0x24};
+  const unsigned char ML3[3]={0xc7,0x04,0x24};
   if(inst1bis==ASM3)
     {//mov dword [rsp],0x3ff3c0ca
       ml.insert(ml.end(),ML3,ML3+sizeof(ML3));
@@ -220,7 +220,7 @@ void INTERP_KERNEL::AsmX86::convertMovToEsp(const std::string& inst1, const std:
     {
       if(inst1bis[3]=='+')
         {//mov dword [rsp+4],0x3ff3c0ca
-          const char ML2[3]={0xc7,0x44,0x24};
+          const unsigned char ML2[3]={0xc7,0x44,0x24};
           ml.insert(ml.end(),ML2,ML2+sizeof(ML2));
           std::string::size_type pos=inst1bis.find_first_of(']');
           std::string inst1_1=inst1bis.substr(4,pos-4-1);
@@ -239,21 +239,21 @@ void INTERP_KERNEL::AsmX86::convertPush(const std::string& inst, std::vector<cha
   std::string::size_type pos=inst.find_first_of(' ');
   std::string inst2=inst.substr(pos+1);
   const char ASM1[]="ebp";
-  const char ML1[1]={0x55};
+  const unsigned char ML1[1]={0x55};
   if(inst2==ASM1)
     {//push ebp
       ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
       return ;
     }
   const char ASM2[]="ebx";
-  const char ML2[1]={0x53};
+  const unsigned char ML2[1]={0x53};
   if(inst2==ASM2)
     {//push ebx
       ml.insert(ml.end(),ML2,ML2+sizeof(ML2));
       return ;
     }
   const char ASM3[]="rbp";
-  const char ML3[1]={0x55};
+  const unsigned char ML3[1]={0x55};
   if(inst2==ASM3)
     {//push rbp
       ml.insert(ml.end(),ML3,ML3+sizeof(ML3));
@@ -267,14 +267,14 @@ void INTERP_KERNEL::AsmX86::convertPop(const std::string& inst, std::vector<char
   std::string::size_type pos=inst.find_first_of(' ');
   std::string inst2=inst.substr(pos+1);
   const char ASM1[]="ebp";
-  const char ML1[1]={0x5d};
+  const unsigned char ML1[1]={0x5d};
   if(inst2==ASM1)
     {//push ebp
       ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
       return ;
     }
   const char ASM2[]="ebx";
-  const char ML2[1]={0x5b};
+  const unsigned char ML2[1]={0x5b};
   if(inst2==ASM2)
     {//push ebx
       ml.insert(ml.end(),ML2,ML2+sizeof(ML2));
@@ -290,7 +290,7 @@ void INTERP_KERNEL::AsmX86::convertFld(const std::string& inst, std::vector<char
   std::string params2=params.substr(1,params.length()-2);
   if(params2.substr(0,3)=="esp")
     {
-      const char ML1[3]={0xdd,0x04,0x24};
+      const unsigned char ML1[3]={0xdd,0x04,0x24};
       if(params2.length()==3)
         {//fld qword [esp]
           ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
@@ -308,7 +308,7 @@ void INTERP_KERNEL::AsmX86::convertFld(const std::string& inst, std::vector<char
     }
   if(params2.substr(0,3)=="ebp")
     {
-      const char ML2[2]={0xdd,0x45};
+      const unsigned char ML2[2]={0xdd,0x45};
       if(params2.length()==3)
         {//fld qword [ebp]
           ml.insert(ml.end(),ML2,ML2+sizeof(ML2));
@@ -327,7 +327,7 @@ void INTERP_KERNEL::AsmX86::convertFld(const std::string& inst, std::vector<char
     }
   if(params2.substr(0,3)=="rsp")
     {
-      const char ML2[3]={0xdd,0x04,0x24};
+      const unsigned char ML2[3]={0xdd,0x04,0x24};
       ml.insert(ml.end(),ML2,ML2+sizeof(ML2));// to improve ! no fully managed !
       return ;
     }
@@ -336,55 +336,55 @@ void INTERP_KERNEL::AsmX86::convertFld(const std::string& inst, std::vector<char
 
 void INTERP_KERNEL::AsmX86::convertFaddp(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML1[2]={0xde,0xc1};
+  const unsigned char ML1[2]={0xde,0xc1};
   ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
 }
 
 void INTERP_KERNEL::AsmX86::convertFsubp(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML1[2]={0xde,0xe9};
+  const unsigned char ML1[2]={0xde,0xe9};
   ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
 }
 
 void INTERP_KERNEL::AsmX86::convertFmulp(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML1[2]={0xde,0xc9};
+  const unsigned char ML1[2]={0xde,0xc9};
   ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
 }
 
 void INTERP_KERNEL::AsmX86::convertFdivp(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML1[2]={0xde,0xf9};
+  const unsigned char ML1[2]={0xde,0xf9};
   ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
 }
 
 void INTERP_KERNEL::AsmX86::convertFcos(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML[2]={0xd9,0xff};
+  const unsigned char ML[2]={0xd9,0xff};
   ml.insert(ml.end(),ML,ML+sizeof(ML));
 }
 
 void INTERP_KERNEL::AsmX86::convertFsin(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML[2]={0xd9,0xfe};
+  const unsigned char ML[2]={0xd9,0xfe};
   ml.insert(ml.end(),ML,ML+sizeof(ML));
 }
 
 void INTERP_KERNEL::AsmX86::convertFabs(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML[2]={0xd9,0xe1};
+  const unsigned char ML[2]={0xd9,0xe1};
   ml.insert(ml.end(),ML,ML+sizeof(ML));
 }
 
 void INTERP_KERNEL::AsmX86::convertFchs(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML[2]={0xd9,0xe0};
+  const unsigned char ML[2]={0xd9,0xe0};
   ml.insert(ml.end(),ML,ML+sizeof(ML));
 }
 
 void INTERP_KERNEL::AsmX86::convertFsqrt(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML[2]={0xd9,0xfa};
+  const unsigned char ML[2]={0xd9,0xfa};
   ml.insert(ml.end(),ML,ML+sizeof(ML));
 }
 
@@ -392,7 +392,7 @@ void INTERP_KERNEL::AsmX86::convertSub(const std::string& inst, std::vector<char
 {
   if(inst.substr(0,4)=="esp,")
     {
-      const char ML[2]={0x81,0xec};
+      const unsigned char ML[2]={0x81,0xec};
       ml.insert(ml.end(),ML,ML+sizeof(ML));
       std::string inst2=inst.substr(4);
       appendAddress(inst2,4,ml);
@@ -400,7 +400,7 @@ void INTERP_KERNEL::AsmX86::convertSub(const std::string& inst, std::vector<char
     }
   if(inst.substr(0,4)=="rsp,")
     {
-      const char ML[4]={0x48,0x83,0xec,0x08};
+      const unsigned char ML[4]={0x48,0x83,0xec,0x08};
       ml.insert(ml.end(),ML,ML+sizeof(ML)); // to improve 8 statically put (last of element of ML) !!!!
       return;
     }
@@ -411,7 +411,7 @@ void INTERP_KERNEL::AsmX86::convertAdd(const std::string& inst, std::vector<char
 {
   if(inst.substr(0,4)=="esp,")
     {
-      const char ML[2]={0x81,0xc4};
+      const unsigned char ML[2]={0x81,0xc4};
       ml.insert(ml.end(),ML,ML+sizeof(ML));
       std::string inst2=inst.substr(4);
       appendAddress(inst2,4,ml);
@@ -419,7 +419,7 @@ void INTERP_KERNEL::AsmX86::convertAdd(const std::string& inst, std::vector<char
     }
   if(inst.substr(0,4)=="rsp,")
     {
-      const char ML[4]={0x48,0x83,0xc4,0x08};
+      const unsigned char ML[4]={0x48,0x83,0xc4,0x08};
       ml.insert(ml.end(),ML,ML+sizeof(ML)); // to improve 8 statically put (last of element of ML) !!!!
       return;
     }
@@ -428,27 +428,27 @@ void INTERP_KERNEL::AsmX86::convertAdd(const std::string& inst, std::vector<char
 
 void INTERP_KERNEL::AsmX86::convertRet(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML[1]={0xc3};
+  const unsigned char ML[1]={0xc3};
   ml.insert(ml.end(),ML,ML+sizeof(ML));
 }
 
 void INTERP_KERNEL::AsmX86::convertLeave(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
-  const char ML[1]={0xc9};
+  const unsigned char ML[1]={0xc9};
   ml.insert(ml.end(),ML,ML+sizeof(ML));
 }
 
 void INTERP_KERNEL::AsmX86::convertMovsd(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
   const char ASM1[]="[rsp],xmm0";
-  const char ML1[5]={0xf2,0x0f,0x11,0x04,0x24};
+  const unsigned char ML1[5]={0xf2,0x0f,0x11,0x04,0x24};
   if(inst==ASM1)
     {
       ml.insert(ml.end(),ML1,ML1+sizeof(ML1));
       return ;
     }
   const char ASM2[]="xmm0,[rsp]";
-  const char ML2[5]={0xf2,0x0f,0x10,0x04,0x24};
+  const unsigned char ML2[5]={0xf2,0x0f,0x10,0x04,0x24};
   if(inst==ASM2)
     {
       ml.insert(ml.end(),ML2,ML2+sizeof(ML2));
@@ -461,7 +461,7 @@ void INTERP_KERNEL::AsmX86::convertMovsd(const std::string& inst, std::vector<ch
 void INTERP_KERNEL::AsmX86::convertFst(const std::string& inst, std::vector<char>& ml) throw(INTERP_KERNEL::Exception)
 {
   const char ASM1[]="qword [rsp]";
-  const char ML1[3]={0xdd,0x14,0x24};
+  const unsigned char ML1[3]={0xdd,0x14,0x24};
   if(inst==ASM1)
     {
       ml.insert(ml.end(),ML1,ML1+sizeof(ML1));

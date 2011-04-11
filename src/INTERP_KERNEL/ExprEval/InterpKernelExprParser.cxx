@@ -816,7 +816,6 @@ void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr) throw(INTER
 {
   const char FIGURES[]="0123456789";
   const std::string other("+-*^/(<>,");
-  double val=std::numeric_limits<double>::max();
   std::size_t lgth=_expr.length();
   int id=0,delta;
   for(std::size_t pos=0;pos!=std::string::npos;id++)
