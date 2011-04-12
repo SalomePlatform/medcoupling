@@ -1634,8 +1634,28 @@ void MEDFileCMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
       const DataArrayDouble *da=_cmesh->getCoordsAt(i);
       MEDmeshGridIndexCoordinateWr(fid,maa,_iteration,_order,_time,i+1,da->getNumberOfTuples(),da->getConstPointer());
     }
+  //
+  med_geometry_type geoTypeReq=MED_NONE;
+  switch(spaceDim)
+    {
+    case 3:
+      geoTypeReq=MED_HEXA8;
+      break;
+    case 2:
+      geoTypeReq=MED_QUAD4;
+      break;
+    case 1:
+      geoTypeReq=MED_SEG2;
+      break;
+    case 0:
+      geoTypeReq=MED_POINT1;
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("Invalid spacedim detected for cartesian mesh ! Must be in (1,2,3) !");
+    }
+  //
   if((const DataArrayInt *)_fam_cells)
-    MEDmeshEntityFamilyNumberWr(fid,maa,_iteration,_order,MED_CELL,MED_GEO_ALL,_fam_cells->getNumberOfTuples(),_fam_cells->getConstPointer());
+    MEDmeshEntityFamilyNumberWr(fid,maa,_iteration,_order,MED_CELL,geoTypeReq,_fam_cells->getNumberOfTuples(),_fam_cells->getConstPointer());
   if((const DataArrayInt *)_fam_nodes)
     MEDmeshEntityFamilyNumberWr(fid,maa,_iteration,_order,MED_NODE,MED_NONE,_fam_nodes->getNumberOfTuples(),_fam_nodes->getConstPointer());
   //
