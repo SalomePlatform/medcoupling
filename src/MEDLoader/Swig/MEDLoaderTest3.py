@@ -209,9 +209,11 @@ class MEDLoaderTest(unittest.TestCase):
         renumNode=DataArrayInt.New()
         renumNode.setValues([10,11,12,13,14,15,16,17,18],9,1)
         mm.setRenumFieldArr(1,renumNode)
-        mm.setMeshAtLevel(-1,m1);
-        mm.setMeshAtLevel(0,m);
-        mm.setMeshAtLevel(-2,m2);
+        mm.setMeshAtLevel(-1,m1,True);
+        mm.setMeshAtLevel(0,m,True);
+        mm.setMeshAtLevel(-2,m2,True);
+        mm.removeMeshAtLevel(-2)
+        mm.setMeshAtLevel(-2,m2,True);
         # playing with groups
         g1_2=DataArrayInt.New()
         g1_2.setValues([2,3],2,1)

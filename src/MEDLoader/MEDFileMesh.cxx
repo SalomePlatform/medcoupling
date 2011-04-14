@@ -1183,9 +1183,19 @@ void MEDFileUMesh::setFamilyNameAttachedOnId(int id, const std::string& newFamNa
   _families[newFamName]=id;
 }
 
-void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
+void MEDFileUMesh::removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
 {
-  setMeshAtLevelGen(meshDimRelToMax,m,true);
+  std::vector<int> levSet=getNonEmptyLevels();
+  std::vector<int>::const_iterator it=std::find(levSet.begin(),levSet.end(),meshDimRelToMax);
+  if(it==levSet.end())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::removeMeshAtLevel : the requested level is not existing !");
+  int pos=(-meshDimRelToMax);
+  _ms[pos]=0;
+}
+
+void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
+{
+  setMeshAtLevelGen(meshDimRelToMax,m,newOrOld);
 }
 
 void MEDFileUMesh::setMeshAtLevelOld(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
