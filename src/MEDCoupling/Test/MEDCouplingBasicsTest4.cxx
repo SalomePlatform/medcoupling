@@ -1207,3 +1207,26 @@ void MEDCouplingBasicsTest::testGetLevArrPerCellTypes1()
   m->decrRef();
   m1->decrRef();
 }
+
+void MEDCouplingBasicsTest::testSortCellsInMEDFileFrmt1()
+{
+  MEDCouplingUMesh *m1=0;
+  MEDCouplingUMesh *m=buildPointe_1(m1);
+  MEDCouplingUMesh *m2=(MEDCouplingUMesh *)m->deepCpy();
+  m->setCoords(0);
+  const int vals[16]={0,1,2,14,3,12,4,5,15,6,7,8,9,10,11,13};
+  DataArrayInt *da=DataArrayInt::New();
+  da->alloc(16,1);
+  std::copy(vals,vals+16,da->getPointer());
+  DataArrayInt *daa=da->invertArrayN2O2O2N(16);
+  m->renumberCells(daa->getConstPointer(),false);
+  daa->decrRef();
+  DataArrayInt *da2=m->sortCellsInMEDFileFrmt();
+  CPPUNIT_ASSERT(m2->isEqual(m2,1e-12));
+  CPPUNIT_ASSERT(da->isEqual(*da2));
+  m2->decrRef();
+  da2->decrRef();
+  da->decrRef();
+  m1->decrRef();
+  m->decrRef();
+}

@@ -1368,6 +1368,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbers)
  */
 void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
+  checkConnectivityFullyDefined();
   int nbCells=getNumberOfCells();
   const int *array=old2NewBg;
   if(check)
@@ -1719,6 +1720,15 @@ void MEDCouplingUMesh::checkFullyDefined() const throw(INTERP_KERNEL::Exception)
 {
   if(!_nodal_connec_index || !_nodal_connec || !_coords)
     throw INTERP_KERNEL::Exception("Reverse nodal connectivity computation requires full connectivity and coordinates set in unstructured mesh.");
+}
+
+/*!
+ * This method checks that all connectivity arrays are set. If yes nothing done if no an exception is thrown.
+ */
+void MEDCouplingUMesh::checkConnectivityFullyDefined() const throw(INTERP_KERNEL::Exception)
+{
+  if(!_nodal_connec_index || !_nodal_connec)
+    throw INTERP_KERNEL::Exception("Reverse nodal connectivity computation requires full connectivity set in unstructured mesh.");
 }
 
 int MEDCouplingUMesh::getNumberOfCells() const
@@ -3446,6 +3456,23 @@ MEDCouplingUMesh *MEDCouplingUMesh::emulateMEDMEMBDC(const MEDCouplingUMesh *nM1
 }
 
 /*!
+ * This method sorts cell in this so that cells are sorted by cell type specified by MEDMEM and so for MED file.
+ * It avoids to deal with renum in MEDLoader so it is usefull for MED file R/W with multi types.
+ * This method returns a newly allocated array old2New.
+ * This method expects that connectivity of this is set. If not an exception will be thrown. Coordinates are not taken into account.
+ */
+DataArrayInt *MEDCouplingUMesh::sortCellsInMEDFileFrmt() throw(INTERP_KERNEL::Exception)
+{
+  static const int N=18;
+  static const INTERP_KERNEL::NormalizedCellType MEDMEM_ORDER[N] = { INTERP_KERNEL::NORM_POINT1, INTERP_KERNEL::NORM_SEG2, INTERP_KERNEL::NORM_SEG3, INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QUAD8, INTERP_KERNEL::NORM_TETRA4, INTERP_KERNEL::NORM_PYRA5, INTERP_KERNEL::NORM_PENTA6, INTERP_KERNEL::NORM_HEXA8, INTERP_KERNEL::NORM_HEXGP12, INTERP_KERNEL::NORM_TETRA10, INTERP_KERNEL::NORM_PYRA13, INTERP_KERNEL::NORM_PENTA15, INTERP_KERNEL::NORM_HEXA20, INTERP_KERNEL::NORM_POLYGON, INTERP_KERNEL::NORM_POLYHED };
+  checkConnectivityFullyDefined();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=getRenumArrForConsecutiveCellTypesSpec(MEDMEM_ORDER,MEDMEM_ORDER+N);
+  renumberCells(ret->getConstPointer(),false);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This methods checks that cells are sorted by their types.
  * This method makes asumption (no check) that connectivity is correctly set before calling.
  */
@@ -3497,7 +3524,7 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::No
  */
 DataArrayInt *MEDCouplingUMesh::getLevArrPerCellTypes(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd, DataArrayInt *&nbPerType) const throw(INTERP_KERNEL::Exception)
 {
-  checkFullyDefined();
+  checkConnectivityFullyDefined();
   int nbOfCells=getNumberOfCells();
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();

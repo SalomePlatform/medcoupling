@@ -140,6 +140,7 @@ namespace ParaMEDMEM
     //utilities for MED File RW
     MEDCOUPLING_EXPORT DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh, DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *&revDesc, DataArrayInt *&revDescIndx, DataArrayInt *& nM1LevMeshIds, DataArrayInt *&meshnM1Old2New) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *sortCellsInMEDFileFrmt() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypes() const;
     MEDCOUPLING_EXPORT bool checkConsecutiveCellTypesAndOrder(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd) const;
     MEDCOUPLING_EXPORT DataArrayInt *getLevArrPerCellTypes(const INTERP_KERNEL::NormalizedCellType *orderBg, const INTERP_KERNEL::NormalizedCellType *orderEnd, DataArrayInt *&nbPerType) const throw(INTERP_KERNEL::Exception);
@@ -167,6 +168,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
     ~MEDCouplingUMesh();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
+    void checkConnectivityFullyDefined() const throw(INTERP_KERNEL::Exception);
     void reprConnectivityOfThisLL(std::ostringstream& stream) const;
     //tools
     DataArrayInt *simplexizePol0() throw(INTERP_KERNEL::Exception);

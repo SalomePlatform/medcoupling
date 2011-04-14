@@ -7313,6 +7313,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],da2.getIJ(0,i));
             pass
         pass
+
+    def testSortCellsInMEDFileFrmt1(self):
+        m,m1=MEDCouplingDataForTest.buildPointe_1();
+        m2=m.deepCpy()
+        da=DataArrayInt.New()
+        da.setValues([0,1,2,14,3,12,4,5,15,6,7,8,9,10,11,13],16,1)
+        daa=da.invertArrayN2O2O2N(16)
+        m.renumberCells(daa,False)
+        da2=m.sortCellsInMEDFileFrmt()
+        self.assertEqual(da2.getValues(),[0,1,2,14,3,12,4,5,15,6,7,8,9,10,11,13])
+        self.assertTrue(m.isEqual(m2,1e-12))
+        self.assertTrue(da.isEqual(da2))
+        pass
     
     def setUp(self):
         pass
