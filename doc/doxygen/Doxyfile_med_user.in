@@ -84,6 +84,7 @@ FILE_PATTERNS          = MEDMEM_GMesh.* \
                          MEDMEM_Support.* \
                          MEDMEM_Field.* \
                          MEDMEM_MedFileBrowser.* \
+                         MEDMEM_Remapper.* \
                          InterpKernelDEC.* \
 			 OverlapDEC.* \
                          DEC.* \
