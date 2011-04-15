@@ -93,9 +93,25 @@ void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int
   _num->alloc(curNbOfElem,1);
   _fam=DataArrayInt::New();
   _fam->alloc(curNbOfElem,1);
-  med_bool withname=MED_FALSE,withnumber=MED_FALSE,withfam=MED_FALSE;
+  med_bool changement,transformation;
   INTERP_KERNEL::AutoPtr<char> noms=new char[MED_SNAME_SIZE*curNbOfElem+1];
-  MEDmeshElementRd(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,connTab,&withname,noms,&withnumber,_num->getPointer(),&withfam,_fam->getPointer());
+  MEDmeshElementConnectivityRd(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,connTab);
+  if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      if(MEDmeshEntityFamilyNumberRd(fid,mName,dt,it,MED_CELL,geoElt,_fam->getPointer())!=0)
+        std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
+    }
+  else
+    std::fill(_fam->getPointer(),_fam->getPointer()+curNbOfElem,0);
+  if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
+    {
+      _num=DataArrayInt::New();
+      _num->alloc(curNbOfElem,1);
+      if(MEDmeshEntityNumberRd(fid,mName,dt,it,entity,geoElt,_num->getPointer())!=0)
+        _num=0;
+    }
+  else
+    _num=0;
   int *w1=_conn->getPointer();
   int *w2=_conn_index->getPointer();
   *w2++=0;
@@ -106,8 +122,6 @@ void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int
       w1=std::transform(wi,wi+nbOfNodesPerCell,w1,std::bind2nd(std::plus<int>(),-1));
       *w2=w2[-1]+nbOfNodesPerCell+1;
     }
-  if(!withnumber)
-    _num=0;
 }
 
 void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int it, int mdim, int arraySize, med_geometry_type geoElt,
