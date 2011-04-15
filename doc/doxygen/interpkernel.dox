@@ -1,28 +1,34 @@
 /*!
-\page interpkernel Interpolation kernel toolkit
+\page interpkernel Interpolation tools
 
 \section InterpKerIntro Introduction
 
 The main purpose of this module is to propose a set of algorithms for
-mesh interpolation \b fully \b independant \b of \b mesh \b datastructure to
+mesh interpolation \b fully \b independant \b of \b the \b mesh \b datastructure to
 support several type of format. This component is parameterized as
 much as possible using C++ templates.
 For the moment only interpolators for unstructured meshes are present in
-%interpolation kernel.
+the %interpolation kernel.
 
-\section InterpKerTheory Theory of interpolation
+\section InterpKerTheory Theory of conservative interpolation
+
+At the basis of many CFD numerical schemes is the fact that physical
+quantities such as density, momentum per unit volume or energy per
+unit volume obey some balance laws that should be preserved at the
+discrete level on every cell. This property is critical for example to
+accurately capture shockwaves. 
 
 \subsection InterpKerPerfOverl Mesh overlapping
 
 When interpolation is performed between a source mesh S and a target
 mesh T the aspect of overlapping is important. In fact if any cell of
 of S is fully overlapped by cells of T and inversely any cell of T is
-fully overlapped by cells of S the meshes S and T are said \b
-coincidant and some general formulae in next sub section are simpler.
+fully overlapped by cells of S the meshes S and T are said to be \b
+coincident and some general formulae in next sub section are simpler.
 As far as possible in the next sub sections the formulae for
-coincidant and non-coincidant meshes will be given.
+coincident and non-coincident meshes will be given.
 
-\subsection InterpKerRemapGlobal Global conservative remapping
+\subsection InterpKerRemapGlobal Linear conservative remapping
 
 For fields with polynomial representation on each cell, the components of the discretized field  \f$ \phi_s \f$ on the source side can be expressed as linear combinations of the components of the discretized field \f$ \phi_t \f$ on the target side, in terms of a matrix-vector product : 
 
@@ -30,11 +36,10 @@ For fields with polynomial representation on each cell, the components of the di
  \phi_t=W.\phi_s.
 \f]
 
-All the aim of interpolators is to compute W depending on a physical
-quantities and the type of interpolation wanted (P0, P1, P1d etc...).
+The objectives of interpolators is to compute the matrix W depending on their physical
+properties (intensive or extensive field) and their mesh discretisation (P0, P1,...).
 
-For the \b intensive \b field \f$ \phi \f$ from the
-source mesh \f$ S \f$ to the target mesh \f$ T \f$ the interpolation should preserve the
+It is often desired that the process interpolation preserve the
 integral of \f$ \phi \f$ on any domain. At the discrete level, for any
 target cell \f$ T_i \f$, the following \b general \b interpolation \b
 equation \anchor InterpKerGenralEq has to
@@ -44,19 +49,17 @@ be always verified :
 \int_{T_i} \phi = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi. 
 \f]
 
-To compute \f$ W_{ij} \f$
-this equation is used. The evaluation of integrals depends on the source and target meshes and on the nature of interpolation chosen : P0, P1, P1d etc... For the moment it is only possible to
-remap fields with P0 representations.
+This equation is used to compute \f$ W_{ij} \f$, based on the fields representation ( P0, P1, P1d etc..) and the
+geometry of source and target mesh cells. :
 
-\subsection InterpKerRemapInt Conservative remapping of intensive physical quantities
+\subsection InterpKerRemapInt Conservative remapping of P0 (cell based) fields
 
-At the basis of many CFD numerical schemes is the fact that physical
-quantities such as density, momentum per unit volume or energy per
-unit volume obey some balance laws that should be preserved at the
-discrete level on every cell. This property is critical for example to
-accurately capture shockwaves. 
+We assume that the field is represented by a vector with a discrete value on each cell. 
+This value can represent either 
+- an average value of the field in the cell (average density, velocity or temperature in the cell) in which case the representation is said to be \b intensive, 
+- an integrated value over the cell (total mass, power of the cell) in which case the representation is said to be \b extensive
 
-\subsection InterpKerP0P0Int cell-cell (P0->P0) conservative remapping of intensive physical quantities
+\subsection InterpKerP0P0Int cell-cell (P0->P0) conservative remapping of intensive fields
 
 In the \ref InterpKerGenralEq "general interpolation equation" the
 left hand side becomes :
@@ -65,7 +68,10 @@ left hand side becomes :
 \int_{T_i} \phi = (\sum_{S_j} Vol(T_i\cap S_j)).\phi_{T_i}. 
 \f]
 
-\note \f$ \sum_{S_j} Vol(T_i\cap S_j) = Vol(T_i) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
+Here Vol represents the volume when the mesh dimension is equal to 3, the
+area when mesh dimension is equal to 2, and length when mesh dimension is equal to 1.
+
+Note that \f$ \sum_{S_j} Vol(T_i\cap S_j) = Vol(T_i) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
 
 In the \ref InterpKerGenralEq "general interpolation equation" the
 right hand side becomes :
@@ -74,7 +80,7 @@ right hand side becomes :
 \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi = \sum_{S_j\cap T_i \neq \emptyset} {Vol(T_i\cap S_j)}.\phi_{S_j}. 
 \f]
 
-In the case where the \b intensive field values are constant on each
+As the field values are constant on each
 cell, the coefficients of the linear remapping matrix \f$ W \f$ are
 given by the formula :
 
@@ -88,37 +94,28 @@ and \ref InterpKerPerfOverl "in case of perfect overlapping" :
  W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(T_i) }. 
 \f]
 
-Where Vol represents the volume with mesh dimension of interpolation equals to 3, the
-area when mesh dimension equals to 2, and length when mesh dimension equals to 1.
-
-\subsection InterpKerRemapExt Conservative remapping of extensive physical quantities
-
-In code coupling from neutronics to hydraulic code \b extensive field
-of power is exchanged and the all power as to be kept the same. The
-principle is to 'intensify' the field to move on from extensive field
-\e P to an intensive one \f$ \phi \f$.
-
 \subsection InterpKerP0P0Ext cell-cell (P0->P0) conservative remapping of extensive physical quantities
 
-In the \ref InterpKerGenralEq "general interpolation equation" the
+In code coupling from neutronics to hydraulics, \b extensive field
+of power is exchanged and the total power should remain the same. 
+The discrete values of the field represent the total power contained in the cell. 
+Hence in the \ref InterpKerGenralEq "general interpolation equation" the
 left hand side becomes :
 
 \f[
-\int_{T_i} \phi = P_{T_i}. 
+\int_{T_i} \phi = P_{T_i}, 
 \f]
 
-In the \ref InterpKerGenralEq "general interpolation equation" the
-right hand side becomes :
+while the right hand side is now :
 
 \f[
 \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi =
 \sum_{S_j\cap T_i \neq \emptyset} \frac{Vol(T_i\cap S_j)}{\sum_{T_i} Vol(T_i \cap S_j)}.P_{S_j}.
 \f]
 
-\note \f$ \sum_{T_i} Vol(T_i \cap S_j) = Vol(S_j) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
+Note \f$ \sum_{T_i} Vol(T_i \cap S_j) = Vol(S_j) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
 
-In the case where the \b extensive field values are constant on each
-cell, the coefficients of the linear remapping matrix \f$ W \f$ are
+The coefficients of the linear remapping matrix \f$ W \f$ are then
 given by the formula :
 
 \f[
@@ -133,38 +130,35 @@ and \ref InterpKerPerfOverl "in case of perfect overlapping" :
 
 \section InterpKerMainArchitecture Main architecture of interpolation kernel.
 
-In %interpolation kernel, the algorithm that computes \f$ W_{ij} \f$ given cell i
-in source mesh and cell j in target mesh is called intersector.
+In the %interpolation kernel, algorithms that computes the intersection \f$ T_i\cap S_j\f$ given the locations and geometries of source cell i
+and target cell j are called \ref InterpKerIntersectors.
 
-As seen in \ref InterpKerTheory "the theory of interpolation", for all interpolation the aim is to
-fill the W matrix (which is generally a sparse matrix). Fundamatally for each pair (i,j) \f$ W_{ij} \f$ is obtained
-by calling each time the wanted intersector. The problem is that each call to algorithm
+As seen in \ref InterpKerTheory "the theory of interpolation", all the proposed interpolators aim at
+filling the matrix W (which is generally sparse). For each pair (i,j), \f$ W_{ij} \f$ is obtained
+by calling the desired intersector. The problem is that each call to this algorithm
 is CPU-expensive.
-To reduce the computation time a first filtering is done to found a
-maximim of (i,j) pairs where \f$ W_{ij} \f$ is obviously equal to 0. Typically it
-is the case when a cell in source mesh is too far from an another cell
-in target mesh each other.
+To reduce the computational time, a first filtering is done to detect
+pairs (i,j) \f$ W_{ij} \f$ is obviously equal to 0. It is typically the case when a cell in the source mesh 
+is too far from an another cell in the target mesh each.
 
 So for a given type of interpolation, the computation of W is
 performed in two steps :
 
       -# A filtering process reduces the number of pairs of
       elements for which the calculation must be carried out by
-      eliminating pairs that do not intersect through a comparison of
-      their bounding boxes. It reduces as much as possible call to intersector.
+      eliminating the pairs whose bounding boxes do not intersect. 
       -# For all remaining pairs calling for each intersector (see \ref interpolation2D, \ref interpolation3Dsurf or \ref interpolation3D).
 
-Each interpolator inherits from INTERP_KERNEL::Interpolation ( whatever
-its dimension and its type ) that is a
-CRTP class in order to clearly see the main API without useless CPU cost.
+Whatever its dimension and type, each interpolator inherits from INTERP_KERNEL::Interpolation which is a
+template (CRTP) class than enable an easy access to the main API without useless CPU cost.
 
 \subsection InterpKerMeshType class MeshType
 
 Each Interpolators and Intersectors are parameterized (templated in
 C++ langage) with \c class \c MeshType . This type of generalization
 has been chosen to reduce at maximum overhead. \n
-Thanks to this principle \b intersectors \b and \b interpolators \b are \b usable
-\b with \b several \b formats \b without \b preformance \b loss. For example MED, VTK...\n
+Thanks to this principle intersectors and interpolators are usable
+with \bseveral \b mesh \b formats such as \c MED or \c VTK, \b without \b preformance \b loss.
 \c MeshType is a concept that should strictly fulfilled the following
 rules :
 
@@ -185,38 +179,35 @@ rules :
         -# \code void releaseTempArrays() \endcode
       - Formats of arrays
         - the array returned by \c getCoordinatesPtr must be a \b full \b interlace array.
-        - the arrays returned by \c getConnectivityPtr and \c
-        - getConnectivityIndexPtr must be with the same principle as it is in \ref medmemConnArrays "medmem". Of course the numbering format may change according to \a My_numPol policy.
+        - the arrays returned by \c getConnectivityPtr and \c getConnectivityIndexPtr must be with the same principle as it is in \ref medmemConnArrays "medmem". Of course the numbering format may change according to \a My_numPol policy.
 
-\note The arrays formats of connectivity is kept close to MED. It is
-close to VTK too but slightly different. So it needs VTK side a copy
-on wrap. To avoid this copy of a part of connectivity structure, iterator should be used.
+Note that the array format for connectivity is kept close to MED. It is
+close to VTK format too but slightly different. So it may require for the VTK side a copy
+on wrap. To avoid this copy of a part of the connectivity structure, an iterator should be used.
 
 \subsection InterpKerMatrixType class MatrixType
 
 As already said, the matrix returned by interpolator is typically a sparse matrix. Instances of
-\c class \c MatrixType are used to stores these results of
-interpolation. To be able to be filled by the interpolator the \c MatrixType class has to match the following concept :
+\c class \c MatrixType are used to store the resulting interpolation matrix. To be able to be filled by the interpolator the \c MatrixType class has to match the following concept :
 
       - Methods
         -# \code void resize(uint nbrows) \endcode
         -# \code Row &operator [] (uint irow) \endcode
 
-\c class \c Row has to match at least following concept :
+\c class \c Row has to match at least the following concept :
 
       - Methods
         - \code void insert(const std::pair<int,T>& myPair) \endcode
 
-\note \c std::vector\c < \c std::map<int,double> > is a candidate for
+Note that \c std::vector\c < \c std::map<int,double> > is a candidate for
 \c MatrixType.
 
-\section InterpKerGenUsage Usage of interpolation kernel.
+\section InterpKerGenUsage Usage of interpolation tools.
 
 \subsection InterpKerHighLevUsage high-level usage
 
-The simplest mode of usage of interpolator in sequential mode is to use REMAPPER classes. These classes fulfill HXX2SALOME rules to allow the user to use it 
-in coupling graphs. 2 REMAPPERS exist, ParaMEDMEM::MEDCouplingRemapper and Remapper. These classes are strongly linked to their corresponding data structure, respectively
-MEDCoupling and MEDMEM. In return, all interpolation request and spare interpolation matrix are hidden from you. Here two examples of REMAPPER classes :
+The simplest way of using the interpolation tools is in sequential mode to use REMAPPER classes. These classes fulfill \c HXX2SALOME rules and may be used
+in coupling graphs. Two sequential REMAPPERS exist, \c ParaMEDMEM::MEDCouplingRemapper and \c MEDMEM::MEDMEM_Remapper. These classes are strongly linked to their corresponding data structure, respectively \c MEDCoupling and \c MEDMEM.
 
 - If you intend to use MEDCoupling data struture, ParaMEDMEM::MEDCouplingRemapper class should be used :
 
@@ -251,7 +242,7 @@ MEDMEM::MESH med_target_mesh(MED_DRIVER,targetFileName,"Target_Mesh");
 FIELD<double> sourceField(MED_DRIVER,sourceFileName,"Density",0,0);
 FIELD<double> targetField;
 Remapper mapper;
-mapper.prepare(med_source_mesh,med_target_mesh);
+mapper.prepare(med_source_mesh,med_target_mesh,"P0P1");
 mapper.transfer(sourceField,targetField);
 //use targetField
 ...
