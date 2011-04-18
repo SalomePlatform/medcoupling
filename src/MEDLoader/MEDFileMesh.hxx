@@ -66,7 +66,11 @@ namespace ParaMEDMEM
     const std::map<std::string,int>& getFamilyInfo() const { return _families; }
     const std::map<std::string, std::vector<std::string> >& getGroupInfo() const { return _groups; }
     std::vector<std::string> getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamiliesIdsOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
+    void setFamiliesOnGroup(const char *name, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception);
+    void setFamiliesIdsOnGroup(const char *name, const std::vector<int>& famIds) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsOnFamily(const char *name) const throw(INTERP_KERNEL::Exception);
+    void setGroupsOnFamily(const char *famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsNames() const;
     std::vector<std::string> getFamiliesNames() const;
     void removeGroup(const char *name) throw(INTERP_KERNEL::Exception);

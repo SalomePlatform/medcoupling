@@ -305,6 +305,34 @@ class MEDLoaderTest(unittest.TestCase):
         m1.setDescription(m.getDescription())
         self.assertTrue(m2.isEqual(m1,1e-12));
         pass
+
+    def testMEDMesh7(self):
+       fileName="Pyfile24.med"
+       m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
+       m=MEDFileUMesh.New()
+       m.setCoords(m2.getCoords())
+       m.setMeshAtLevel(0,m2)
+       m.setMeshAtLevel(-1,m1)
+       m.setMeshAtLevel(-2,m0)
+       m.setFamilyFieldArr(0,f2)
+       m.setFamilyFieldArr(-1,f1)
+       m.setFamilyFieldArr(-2,f0)
+       m.setFamilyFieldArr(1,p)
+       m.setRenumFieldArr(0,n2)
+       m.setRenumFieldArr(-1,n1)
+       m.setRenumFieldArr(-2,n0)
+       nbOfFams=len(fns)
+       for i in xrange(nbOfFams):
+           m.addFamily(fns[i],fids[i])
+           pass
+       nbOfGrps=len(grpns)
+       for i in xrange(nbOfGrps):
+           m.setFamiliesIdsOnGroup(grpns[i],famIdsPerGrp[i])
+           pass
+       m.setName(m2.getName())
+       m.setDescription(m2.getDescription())
+       m.write(fileName,2)
+       pass
     pass
 
 unittest.main()

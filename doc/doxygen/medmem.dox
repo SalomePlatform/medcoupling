@@ -189,7 +189,7 @@ entities \c MED_CELL and  \c MED_FACE (resp. \c MED_EDGE) are
 considered. In 1D, of course only mesh entities \c MED_CELL+ are considered. Using our naming convention (consult \ref medmem_naming), in $1$ D mesh
 only \b node and \b cell are considered. In 2D mesh, only \b node,
 \b cell and \b edge are considered. Finally in 3D mesh only
-\b node}, \b cell and \b face are considered.
+\b node, \b cell and \b face are considered.
 
 - The \c medGeometryElement enum which defines geometric types. The
 available types are linear and quadratic elements (consult

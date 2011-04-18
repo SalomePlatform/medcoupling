@@ -176,6 +176,53 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroup(const char *name) const
   return (*it).second;
 }
 
+std::vector<int> MEDFileMesh::getFamiliesIdsOnGroup(const char *name) const throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(name);
+  std::map<std::string, std::vector<std::string> >::const_iterator it=_groups.find(oname);
+  std::vector<std::string> grps=getGroupsNames();
+  if(it==_groups.end())
+    {
+      std::ostringstream oss; oss << "No such groupname \"" << name << "\" !\nAvailable groups are :";
+      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return getFamiliesIds((*it).second);
+}
+
+/*!
+ * This method sets families at a corresponding groups existing or not. If it existed, it is replaced by new 'fams'.
+ * Each entry in 'fams' is checked if it is not still existing default id 0 is set.
+ */
+void MEDFileMesh::setFamiliesOnGroup(const char *name, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(name);
+  _groups[oname]=fams;
+  for(std::vector<std::string>::const_iterator it1=fams.begin();it1!=fams.end();it1++)
+    {
+      std::map<std::string,int>::iterator it2=_families.find(*it1);
+      if(it2==_families.end())
+        _families[*it1]=0;
+    }
+}
+
+/*!
+ * Behaves as MEDFileMesh::setFamiliesOnGroup, except that if there is presence of a family id in 'famIds' not existing an exception is thrown.
+ * If several families have same id the first one in lexical order is taken into account.
+ */
+void MEDFileMesh::setFamiliesIdsOnGroup(const char *name, const std::vector<int>& famIds) throw(INTERP_KERNEL::Exception)
+{
+  std::string oname(name);
+  std::vector<std::string> fams(famIds.size());
+  int i=0;
+  for(std::vector<int>::const_iterator it1=famIds.begin();it1!=famIds.end();it1++,i++)
+    {
+      std::string name=getFamilyNameGivenId(*it1);
+      fams[i]=name;
+    }
+  _groups[oname]=fams;
+}
+
 std::vector<std::string> MEDFileMesh::getGroupsOnFamily(const char *name) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> ret;
@@ -189,6 +236,33 @@ std::vector<std::string> MEDFileMesh::getGroupsOnFamily(const char *name) const 
           }
     }
   return ret;
+}
+
+/*!
+ * This method expects that family 'famName' is already existing. If not an exception will be thrown.
+ */
+void MEDFileMesh::setGroupsOnFamily(const char *famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception)
+{
+  std::string fName(famName);
+  const std::map<std::string,int>::const_iterator it=_families.find(fName);
+  if(it==_families.end())
+    {
+      std::vector<std::string> fams=getFamiliesNames();
+      std::ostringstream oss; oss << "No such familyname \"" << fName << "\" !\nAvailable families are :";
+      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
+    {
+      std::map< std::string, std::vector<std::string> >::iterator it2=_groups.find(*it);
+      if(it2!=_groups.end())
+        (*it2).second.push_back(fName);
+      else
+        {
+          std::vector<std::string> grps(1,fName);
+          _groups[*it]=grps;
+        }
+    }
 }
 
 std::vector<std::string> MEDFileMesh::getGroupsNames() const
@@ -443,6 +517,25 @@ int MEDFileMesh::getFamilyId(const char *name) const throw(INTERP_KERNEL::Except
   return (*it).second;
 }
 
+std::vector<int> MEDFileMesh::getFamiliesIds(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret(fams.size());
+  int i=0;
+  for(std::vector<std::string>::const_iterator it=fams.begin();it!=fams.end();it++,i++)
+    {
+      std::map<std::string, int>::const_iterator it2=_families.find(*it);
+      if(it2==_families.end())
+        {
+          std::vector<std::string> fams2=getFamiliesNames();
+          std::ostringstream oss; oss << "No such familyname \"" << *it << "\" in input list !\nAvailable families are :";
+          std::copy(fams2.begin(),fams2.end(),std::ostream_iterator<std::string>(oss," "));
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      ret[i]=(*it2).second;
+    }
+  return ret;
+}
+
 int MEDFileMesh::getMaxFamilyId() const throw(INTERP_KERNEL::Exception)
 {
   if(_families.empty())
@@ -455,22 +548,9 @@ int MEDFileMesh::getMaxFamilyId() const throw(INTERP_KERNEL::Exception)
   return ret;
 }
 
-std::vector<int> MEDFileMesh::getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception)
-{
-  std::vector<int> famIds;
-  for(std::vector<std::string>::const_iterator it=famNames.begin();it!=famNames.end();it++)
-    {
-      std::map<std::string,int>::const_iterator it2=_families.find(*it);
-      if(it2==_families.end())
-        {
-          std::ostringstream oss; oss << "No such family in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      famIds.push_back((*it2).second);
-    }
-  return famIds;
-}
-
+/*!
+ * Returns the first (in lexical order) family name having family id equal to 'id'.
+ */
 std::string MEDFileMesh::getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception)
 {
   for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
