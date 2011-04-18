@@ -21,12 +21,13 @@
 #define __MEDFILEMESH_HXX__
 
 #include "MEDFileMeshLL.hxx"
+#include "MEDFileUtilities.hxx"
 
 #include <map>
 
 namespace ParaMEDMEM
 {
-  class MEDFileMesh : public RefCountObject
+  class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
@@ -112,9 +113,6 @@ namespace ParaMEDMEM
   protected:
     std::map<std::string, std::vector<std::string> > _groups;
     std::map<std::string,int> _families;
-  protected://policies on write
-    int _too_long_str;
-    int _zipconn_pol;
   public:
     static const char DFT_FAM_NAME[];
   };

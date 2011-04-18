@@ -384,6 +384,9 @@ void MEDLoaderTest::testFieldProfilRW1()
   mesh2->decrRef();
 }
 
+/*!
+ * Test MED file profiles.
+ */
 void MEDLoaderTest::testFieldNodeProfilRW1()
 {
   const char fileName[]="file19.med";
@@ -534,6 +537,9 @@ void MEDLoaderTest::testFieldShuffleRW1()
   f1->decrRef();
 }
 
+/*!
+ * Shuffle de cells but no profile. Like pointe.med
+ */
 void MEDLoaderTest::testMultiFieldShuffleRW1()
 {
   const char fileName[]="file17.med";

@@ -99,3 +99,35 @@ MEDFileUtilities::AutoFid::~AutoFid()
 {
   MEDfileClose(_fid);
 }
+
+ParaMEDMEM::MEDFileWritable::MEDFileWritable():_too_long_str(0),_zipconn_pol(2)
+{
+}
+
+void ParaMEDMEM::MEDFileWritable::copyOptionsFrom(const MEDFileWritable& other) const
+{
+  _too_long_str=other._too_long_str;
+  _zipconn_pol=other._zipconn_pol;
+}
+
+int ParaMEDMEM::MEDFileWritable::getTooLongStrPolicy() const throw(INTERP_KERNEL::Exception)
+{
+  return _too_long_str;
+}
+
+void ParaMEDMEM::MEDFileWritable::setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception)
+{
+  if(newVal!=2 && newVal!=1 && newVal!=0)
+    throw INTERP_KERNEL::Exception("MEDFileWritable::setTooLongStrPolicy : invalid policy should be in 0,1 or 2 !");
+  _too_long_str=newVal;
+}
+
+int ParaMEDMEM::MEDFileWritable::getZipConnPolicy() throw(INTERP_KERNEL::Exception)
+{
+  return _zipconn_pol;
+}
+
+void ParaMEDMEM::MEDFileWritable::setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception)
+{
+  _zipconn_pol=newVal;
+}

@@ -217,7 +217,17 @@ public:
 
 namespace ParaMEDMEM
 {
-  class MEDFileMesh : public RefCountObject
+  class MEDFileWritable
+  {
+  public:
+    void copyOptionsFrom(const MEDFileWritable& other) const;
+    int getTooLongStrPolicy() const throw(INTERP_KERNEL::Exception);
+    void setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+    int getZipConnPolicy() throw(INTERP_KERNEL::Exception);
+    void setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+  };
+
+  class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
@@ -441,15 +451,16 @@ namespace ParaMEDMEM
     std::string getName();
     std::string getMeshName();
     int getNumberOfComponents() const;
-    const std::vector<std::string>& getInfos() const;
+    const std::vector<std::string>& getInfo() const;
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
   };
 
-  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobs
+  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFieldMultiTSWithoutDAS
@@ -458,13 +469,14 @@ namespace ParaMEDMEM
     int getNumberOfTS() const;
   };
 
-  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobs
+  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   };
 
-  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs
+  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
     static MEDFileFields *New(const char *fileName) throw(INTERP_KERNEL::Exception);

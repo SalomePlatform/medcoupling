@@ -44,4 +44,21 @@ namespace MEDFileUtilities
   };
 }
   
+namespace ParaMEDMEM
+{
+  class MEDFileWritable
+  {
+  public:
+    MEDFileWritable();
+    void copyOptionsFrom(const MEDFileWritable& other) const;
+    int getTooLongStrPolicy() const throw(INTERP_KERNEL::Exception);
+    void setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+    int getZipConnPolicy() throw(INTERP_KERNEL::Exception);
+    void setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+  protected://policies on write
+    mutable int _too_long_str;
+    mutable int _zipconn_pol;
+  };
+}
+
 #endif

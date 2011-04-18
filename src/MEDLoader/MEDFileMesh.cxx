@@ -33,7 +33,7 @@ using namespace ParaMEDMEM;
 
 const char MEDFileMesh::DFT_FAM_NAME[]="FAMILLE_ZERO";
 
-MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.),_too_long_str(0),_zipconn_pol(2)
+MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.)
 {
 }
 
@@ -912,8 +912,8 @@ void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
       std::string info=coo->getInfoOnComponent(i);
       std::string c,u;
       MEDLoaderBase::splitIntoNameAndUnit(info,c,u);
-      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
-      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDmeshCr(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
   MEDFileUMeshL2::WriteCoords(fid,maa,_iteration,_order,_time,_coords,_fam_coords,_num_coords);
@@ -1714,8 +1714,8 @@ void MEDFileCMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
       std::string info(_cmesh->getCoordsAt(i)->getInfoOnComponent(0));
       std::string c,u;
       MEDLoaderBase::splitIntoNameAndUnit(info,c,u);
-      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
-      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDmeshCr(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
   MEDmeshGridTypeWr(fid,maa,MED_CARTESIAN_GRID);
