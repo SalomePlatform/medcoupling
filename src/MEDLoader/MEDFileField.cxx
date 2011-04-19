@@ -23,6 +23,7 @@
 #include "MEDFileUtilities.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
+#include "CellModel.hxx"
 
 #include <algorithm>
 
@@ -32,6 +33,33 @@ extern med_geometry_type typmainoeud[1];
 extern med_geometry_type typmai3[32];
 
 using namespace ParaMEDMEM;
+
+MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, const char *locName)
+{
+  return new MEDFileFieldLoc(fid,locName);
+}
+
+MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const char *locName):_name(locName)
+{
+  med_geometry_type geotype;
+  med_geometry_type sectiongeotype;
+  int nsectionmeshcell;
+  INTERP_KERNEL::AutoPtr<char> geointerpname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  MEDlocalizationInfoByName(fid,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
+  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+32,geotype)));
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_geo_type);
+  _nb_node_per_cell=cm.getNumberOfNodes();
+  _ref_coo.resize(_dim*_nb_node_per_cell);
+  _gs_coo.resize(_dim*_nb_gauss_pt);
+  _w.resize(_nb_gauss_pt);
+  MEDlocalizationRd(fid,locName,MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
+}
+
+void MEDFileFieldLoc::writeLL(med_idt fid) const
+{
+  MEDlocalizationWr(fid,_name.c_str(),typmai3[(int)_geo_type],_dim,&_ref_coo[0],MED_FULL_INTERLACE,_nb_gauss_pt,&_gs_coo[0],&_w[0],MED_NO_INTERPOLATION,MED_NO_MESH_SUPPORT);
+}
 
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFileFieldPerMeshPerType *fath, med_idt fid, int profileIt) throw(INTERP_KERNEL::Exception)
 {
@@ -51,10 +79,10 @@ try:_father(fath),_profile_it(profileIt)
   TypeOfField type=getType();
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
   int profilesize,nbi;
-  int nval=MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,profileIt,MED_COMPACT_PFLMODE,
-                                     pflname,&profilesize,locname,&nbi);
+  _nval=MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,profileIt,MED_COMPACT_PFLMODE,
+                                  pflname,&profilesize,locname,&nbi);
   _arr=DataArrayDouble::New();
-  _arr->alloc(nval,infos.size());
+  _arr->alloc(_nval*nbi,infos.size());
   MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,MED_COMPACT_PFLMODE,
                              pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>(_arr->getPointer()));
   _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
@@ -135,7 +163,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid) const throw(INTERP_
   TypeOfField type=getType();
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
   MEDfieldValueWithProfileWr(fid,getName().c_str(),getIteration(),getOrder(),getTime(),type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,
-                             MED_COMPACT_PFLMODE,_profile.c_str(),_localization.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,_arr->getNumberOfTuples(),
+                             MED_COMPACT_PFLMODE,_profile.c_str(),_localization.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,_nval,
                              reinterpret_cast<const unsigned char*>(_arr->getConstPointer()));
 }
 
@@ -459,6 +487,25 @@ void MEDFieldFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) c
       MEDLoaderBase::safeStrCpy(_pfls[i]->getName().c_str(),MED_NAME_SIZE,pflName,opt.getTooLongStrPolicy());
       MEDprofileWr(fid,pflName,_pfls[i]->getNumberOfTuples(),cpy->getConstPointer());
     }
+  //
+  int nbOfLocs=_locs.size();
+  for(int i=0;i<nbOfLocs;i++)
+    _locs[i]->writeLL(fid);
+}
+
+void MEDFieldFieldGlobs::loadGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> profiles=getPflsReallyUsed();
+  int sz=profiles.size();
+  _pfls.resize(sz);
+  for(int i=0;i<sz;i++)
+    loadProfileInFile(fid,i,profiles[i].c_str());
+  //
+  std::vector<std::string> locs=getLocsReallyUsed();
+  sz=locs.size();
+  _locs.resize(sz);
+  for(int i=0;i<sz;i++)
+    _locs[i]=MEDFileFieldLoc::New(fid,locs[i].c_str());
 }
 
 MEDFieldFieldGlobs::MEDFieldFieldGlobs(const char *fname):_file_name(fname)
@@ -526,6 +573,40 @@ void MEDFileField1TSWithoutDAS::finishLoading(med_idt fid) throw(INTERP_KERNEL::
     _field_per_mesh[i]->finishLoading(fid);
 }
 
+std::vector<std::string> MEDFileField1TSWithoutDAS::getPflsReallyUsed2() const
+{
+  std::vector<std::string> ret;
+  std::set<std::string> ret2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getPflsReallyUsed();
+      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
+        if(ret2.find(*it2)==ret2.end())
+          {
+            ret.push_back(*it2);
+            ret2.insert(*it2);
+          }
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileField1TSWithoutDAS::getLocsReallyUsed2() const
+{
+  std::vector<std::string> ret;
+  std::set<std::string> ret2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getLocsReallyUsed();
+      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
+        if(ret2.find(*it2)==ret2.end())
+          {
+            ret.push_back(*it2);
+            ret2.insert(*it2);
+          }
+    }
+  return ret;
+}
+
 void MEDFileField1TSWithoutDAS::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_per_mesh.empty())
@@ -545,40 +626,6 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(int meshDimRe
 MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(int meshDimRelToMaxExt, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
 {
   return _field_per_mesh[0]->getFieldOnMeshAtLevel(meshDimRelToMaxExt,glob,mesh);
-}
-
-std::vector<std::string> MEDFileField1TSWithoutDAS::getPflsReallyUsed() const
-{
-  std::vector<std::string> ret;
-  std::set<std::string> ret2;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
-    {
-      std::vector<std::string> tmp=(*it)->getPflsReallyUsed();
-      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
-        if(ret2.find(*it2)==ret2.end())
-          {
-            ret.push_back(*it2);
-            ret2.insert(*it2);
-          }
-    }
-  return ret;
-}
-
-std::vector<std::string> MEDFileField1TSWithoutDAS::getLocsReallyUsed() const
-{
-  std::vector<std::string> ret;
-  std::set<std::string> ret2;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
-    {
-      std::vector<std::string> tmp=(*it)->getLocsReallyUsed();
-      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
-        if(ret2.find(*it2)==ret2.end())
-          {
-            ret.push_back(*it2);
-            ret2.insert(*it2);
-          }
-    }
-  return ret;
 }
 
 MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order,
@@ -674,16 +721,22 @@ try:MEDFileField1TSWithoutDAS(fieldName,-1,iteration,order,std::vector<std::stri
     }
   finishLoading(fid);
   //
-  std::vector<std::string> profiles=getPflsReallyUsed();
-  int sz=profiles.size();
-  _pfls.resize(sz);
-  for(int i=0;i<sz;i++)
-    loadProfileInFile(fid,i,profiles[i].c_str());
+  loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
+
+std::vector<std::string> MEDFileField1TS::getPflsReallyUsed() const
+{
+  return getPflsReallyUsed2();
+}
+
+std::vector<std::string> MEDFileField1TS::getLocsReallyUsed() const
+{
+  return getLocsReallyUsed2();
+}
 
 MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
 {
@@ -775,40 +828,6 @@ void MEDFileFieldMultiTSWithoutDAS::writeLL(med_idt fid) const throw(INTERP_KERN
     }
 }
 
-std::vector<std::string> MEDFileFieldMultiTSWithoutDAS::getPflsReallyUsed() const
-{
-  std::vector<std::string> ret;
-  std::set<std::string> ret2;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileField1TSWithoutDAS > >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
-    {
-      std::vector<std::string> tmp=(*it)->getPflsReallyUsed();
-      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
-        if(ret2.find(*it2)==ret2.end())
-          {
-            ret.push_back(*it2);
-            ret2.insert(*it2);
-          }
-    }
-  return ret;
-}
-
-std::vector<std::string> MEDFileFieldMultiTSWithoutDAS::getLocsReallyUsed() const
-{
-  std::vector<std::string> ret;
-  std::set<std::string> ret2;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileField1TSWithoutDAS > >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
-    {
-      std::vector<std::string> tmp=(*it)->getLocsReallyUsed();
-      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
-        if(ret2.find(*it2)==ret2.end())
-          {
-            ret.push_back(*it2);
-            ret2.insert(*it2);
-          }
-    }
-  return ret;
-}
-
 int MEDFileFieldMultiTSWithoutDAS::getNumberOfTS() const
 {
   return _time_steps.size();
@@ -866,16 +885,46 @@ try:MEDFileFieldMultiTSWithoutDAS(fieldName),MEDFieldFieldGlobs(fileName)
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   finishLoading(fid,nbstep2);
-  std::vector<std::string> profiles=getPflsReallyUsed();
-  int sz=profiles.size();
-  _pfls.resize(sz);
-  for(int i=0;i<sz;i++)
-    loadProfileInFile(fid,i,profiles[i].c_str());
+  loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
+
+std::vector<std::string> MEDFileFieldMultiTS::getPflsReallyUsed() const
+{
+  std::vector<std::string> ret;
+  std::set<std::string> ret2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileField1TSWithoutDAS > >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getPflsReallyUsed2();
+      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
+        if(ret2.find(*it2)==ret2.end())
+          {
+            ret.push_back(*it2);
+            ret2.insert(*it2);
+          }
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileFieldMultiTS::getLocsReallyUsed() const
+{
+  std::vector<std::string> ret;
+  std::set<std::string> ret2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileField1TSWithoutDAS > >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getLocsReallyUsed2();
+      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
+        if(ret2.find(*it2)==ret2.end())
+          {
+            ret.push_back(*it2);
+            ret2.insert(*it2);
+          }
+    }
+  return ret;
+}
 
 MEDFileFields *MEDFileFields::New(const char *fileName) throw(INTERP_KERNEL::Exception)
 {
@@ -920,3 +969,14 @@ catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
+
+std::vector<std::string> MEDFileFields::getPflsReallyUsed() const
+{
+  return std::vector<std::string>();//tony
+}
+
+std::vector<std::string> MEDFileFields::getLocsReallyUsed() const
+{
+  return std::vector<std::string>();//tony
+}
+

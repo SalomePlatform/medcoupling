@@ -441,6 +441,8 @@ namespace ParaMEDMEM
   public:
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
+    virtual std::vector<std::string> getPflsReallyUsed() const = 0;
+    virtual std::vector<std::string> getLocsReallyUsed() const = 0;
   };
 
   class MEDFileField1TSWithoutDAS : public RefCountObject
@@ -452,8 +454,6 @@ namespace ParaMEDMEM
     std::string getMeshName();
     int getNumberOfComponents() const;
     const std::vector<std::string>& getInfo() const;
-    std::vector<std::string> getPflsReallyUsed() const;
-    std::vector<std::string> getLocsReallyUsed() const;
   };
 
   class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable

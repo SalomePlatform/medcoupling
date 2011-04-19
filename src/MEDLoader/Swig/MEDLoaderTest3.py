@@ -347,6 +347,14 @@ class MEDLoaderTest(unittest.TestCase):
         ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
         ff.write("Pyfile19_bis.med",0)
         pass
+
+    def testMEDField3(self):
+        mm=MEDFileMesh.New("Pyfile13.med")
+        mm.write("Pyfile13_bis.med",2)
+        ff=MEDFileFieldMultiTS.New("Pyfile13.med","MyFirstFieldOnGaussPoint")
+        ff.write("Pyfile13_bis.med",0)
+        pass
+    
     pass
 
 unittest.main()

@@ -46,7 +46,11 @@ namespace ParaMEDMEM
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
-    const std::string& getName() const { return _name; } 
+    const std::string& getName() const { return _name; }
+    static MEDFileFieldLoc *New(med_idt fid, const char *locName);
+    void writeLL(med_idt fid) const;
+  private:
+    MEDFileFieldLoc(med_idt fid, const char *locName);
   private:
     int _dim;
     int _nb_gauss_pt;
@@ -86,6 +90,7 @@ namespace ParaMEDMEM
   private:
     MEDFileFieldPerMeshPerType *_father;
     MEDCouplingAutoRefCountObjectPtr< DataArrayDouble > _arr;
+    int _nval;
     int _profile_it;
     std::string _profile;
     std::string _localization;
@@ -158,11 +163,14 @@ namespace ParaMEDMEM
     MEDFieldFieldGlobs(const char *fname);
     void loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception);
     void loadProfileInFile(med_idt fid, int id);
+    void loadGlobals(med_idt fid) throw(INTERP_KERNEL::Exception);
     void writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
     void setFileName(const char *fileName);
     const char *getFileName() const { return _file_name.c_str(); }
+    virtual std::vector<std::string> getPflsReallyUsed() const = 0;
+    virtual std::vector<std::string> getLocsReallyUsed() const = 0;
   protected:
     std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _pfls;
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> > _locs;
@@ -180,13 +188,13 @@ namespace ParaMEDMEM
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const { return _infos.size(); }
     const std::vector<std::string>& getInfo() const { return _infos; }
-    std::vector<std::string> getPflsReallyUsed() const;
-    std::vector<std::string> getLocsReallyUsed() const;
     //
     static MEDFileField1TSWithoutDAS *New(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
     void pushBack(TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, double time) const;
     void finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getPflsReallyUsed2() const;
+    std::vector<std::string> getLocsReallyUsed2() const;
   protected:
     MEDCouplingFieldDouble *getFieldAtLevel(int meshDimRelToMaxExt, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(int meshDimRelToMaxExt, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
@@ -219,6 +227,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(int meshDimRelToMaxExt, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
   private:
+    std::vector<std::string> getPflsReallyUsed() const;
+    std::vector<std::string> getLocsReallyUsed() const;
     MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
   };
   
@@ -234,8 +244,6 @@ namespace ParaMEDMEM
     MEDFileFieldMultiTSWithoutDAS(const char *fieldName);
     MEDFileFieldMultiTSWithoutDAS(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception);
     void finishLoading(med_idt fid, int nbPdt) throw(INTERP_KERNEL::Exception);
-    std::vector<std::string> getPflsReallyUsed() const;
-    std::vector<std::string> getLocsReallyUsed() const;
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
   protected:
     std::string _name;
@@ -252,6 +260,9 @@ namespace ParaMEDMEM
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   private:
+    std::vector<std::string> getPflsReallyUsed() const;
+    std::vector<std::string> getLocsReallyUsed() const;
+  private:
     MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
   };
 
@@ -263,6 +274,9 @@ namespace ParaMEDMEM
   public:
     static MEDFileFields *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
+  private:
+    std::vector<std::string> getPflsReallyUsed() const;
+    std::vector<std::string> getLocsReallyUsed() const;
   private:
     MEDFileFields(const char *fileName) throw(INTERP_KERNEL::Exception);
   private:
