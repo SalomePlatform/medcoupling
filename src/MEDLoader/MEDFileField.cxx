@@ -79,11 +79,13 @@ try:_father(fath),_profile_it(profileIt)
   TypeOfField type=getType();
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
   int profilesize,nbi;
-  _nval=MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,profileIt,MED_COMPACT_PFLMODE,
+  med_geometry_type mgeoti;
+  med_entity_type menti=MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(type,geoType,mgeoti);
+  _nval=MEDfieldnValueWithProfile(fid,fieldName.c_str(),iteration,order,menti,mgeoti,profileIt,MED_COMPACT_PFLMODE,
                                   pflname,&profilesize,locname,&nbi);
   _arr=DataArrayDouble::New();
   _arr->alloc(_nval*nbi,infos.size());
-  MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,MED_COMPACT_PFLMODE,
+  MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,
                              pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>(_arr->getPointer()));
   _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
   _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
@@ -162,7 +164,9 @@ void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid) const throw(INTERP_
 {
   TypeOfField type=getType();
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
-  MEDfieldValueWithProfileWr(fid,getName().c_str(),getIteration(),getOrder(),getTime(),type==ON_CELLS?MED_CELL:MED_NODE,type==ON_CELLS?typmai3[(int)geoType]:MED_NONE,
+  med_geometry_type mgeoti;
+  med_entity_type menti=MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(type,geoType,mgeoti);
+  MEDfieldValueWithProfileWr(fid,getName().c_str(),getIteration(),getOrder(),getTime(),menti,mgeoti,
                              MED_COMPACT_PFLMODE,_profile.c_str(),_localization.c_str(),MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,_nval,
                              reinterpret_cast<const unsigned char*>(_arr->getConstPointer()));
 }
@@ -241,7 +245,7 @@ std::vector<std::string> MEDFileFieldPerMeshPerType::getLocsReallyUsed() const
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it1=_field_pm_pt_pd.begin();it1!=_field_pm_pt_pd.end();it1++)
     {
       std::string tmp=(*it1)->getLocalization();
-      if(!tmp.empty())
+      if(!tmp.empty() && tmp!=MED_GAUSS_ELNO)
         ret.push_back(tmp);
     }
   return ret;
@@ -278,8 +282,9 @@ void MEDFileFieldPerMeshPerType::finishLoading(med_idt fid) throw(INTERP_KERNEL:
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
   INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  int nbProfiles=MEDfieldnProfile(fid,getName().c_str(),getIteration(),getOrder(),getType()==ON_CELLS?MED_CELL:MED_NODE,getType()==ON_CELLS?typmai3[(int)geoType]:MED_NONE,
-                                  pflName,locName);
+  med_geometry_type mgeoti;
+  med_entity_type menti=ConvertIntoMEDFileType(getType(),geoType,mgeoti);
+  int nbProfiles=MEDfieldnProfile(fid,getName().c_str(),getIteration(),getOrder(),menti,mgeoti,pflName,locName);
   _field_pm_pt_pd.resize(nbProfiles);
   for(int i=0;i<nbProfiles;i++)
     {
@@ -290,6 +295,25 @@ void MEDFileFieldPerMeshPerType::finishLoading(med_idt fid) throw(INTERP_KERNEL:
 void MEDFileFieldPerMeshPerType::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   _field_pm_pt_pd[0]->writeLL(fid);
+}
+
+med_entity_type MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType)
+{
+  switch(ikType)
+    {
+    case ON_CELLS:
+      medfGeoType=typmai3[(int)ikGeoType];
+      return MED_CELL;
+    case ON_NODES:
+      medfGeoType=MED_NONE;
+      return MED_NODE;
+    case ON_GAUSS_NE:
+      medfGeoType=typmai3[(int)ikGeoType];
+      return MED_NODE_ELEMENT;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType : unexpected entity type ! internal error");
+    }
+  return MED_UNDEF_ENTITY_TYPE;
 }
 
 MEDFileFieldPerMesh *MEDFileFieldPerMesh::New(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder)
@@ -316,6 +340,14 @@ void MEDFileFieldPerMesh::finishLoading(med_idt fid) throw(INTERP_KERNEL::Except
         {
           _field_pm_pt.resize(_field_pm_pt.size()+1);
           _field_pm_pt.back()=MEDFileFieldPerMeshPerType::New(this,ON_CELLS,typmai2[i]);
+          _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
+          _field_pm_pt.back()->finishLoading(fid);
+        }
+      nbProfile=MEDfield23nProfile(fid,getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,typmai[i],_mesh_csit,meshName,pflName,locName);
+      if(nbProfile>0)
+        {
+          _field_pm_pt.resize(_field_pm_pt.size()+1);
+          _field_pm_pt.back()=MEDFileFieldPerMeshPerType::New(this,ON_GAUSS_NE,typmai2[i]);
           _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
           _field_pm_pt.back()->finishLoading(fid);
         }
