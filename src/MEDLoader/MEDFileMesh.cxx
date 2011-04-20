@@ -947,7 +947,7 @@ std::vector<int> MEDFileUMesh::getNonEmptyLevelsExt() const
   return ret0;
 }
 
-int MEDFileUMesh::getMeshDimension() const
+int MEDFileUMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
 {
   int lev=0;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++,lev++)
@@ -1110,9 +1110,9 @@ MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renu
   return l1->getWholeMesh(renum);
 }
 
-MEDCouplingMesh *MEDFileUMesh::getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDFileUMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  return getMeshAtLevel(meshDimRelToMax,false);
+  return getMeshAtLevel(meshDimRelToMax,renum);
 }
 
 MEDCouplingUMesh *MEDFileUMesh::getLevel0Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
@@ -1467,6 +1467,13 @@ MEDFileCMesh *MEDFileCMesh::New(const char *fileName, const char *mName, int dt,
   return new MEDFileCMesh(fid,mName,dt,it);
 }
 
+int MEDFileCMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
+{
+  if(!((const MEDCouplingCMesh*)_cmesh))
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getMeshDimension : unable to get meshdimension because no mesh set !");
+  return _cmesh->getMeshDimension();
+}
+
 bool MEDFileCMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const
 {
   if(!MEDFileMesh::isEqual(other,eps,what))
@@ -1594,6 +1601,8 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
+
+
 void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
 {
   MEDFileCMeshL2 loaderl2;
@@ -1673,8 +1682,10 @@ const MEDCouplingCMesh *MEDFileCMesh::getMesh() const
   return _cmesh;
 }
 
-MEDCouplingMesh *MEDFileCMesh::getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDFileCMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum) const throw(INTERP_KERNEL::Exception)
 {
+  if(renum)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh does not support renumbering ! To do it perform request of renum array directly !");
   if(meshDimRelToMax!=0)
     throw INTERP_KERNEL::Exception("MEDFileCMesh does not support multi level for mesh 0 expected as input !");
   const MEDCouplingCMesh *m=getMesh();

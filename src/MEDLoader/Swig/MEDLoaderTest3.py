@@ -333,14 +333,16 @@ class MEDLoaderTest(unittest.TestCase):
         m.setDescription(m2.getDescription())
         m.write(fileName,2)
         pass
-   
+
+    #emulation of pointe.med file.
     def testMEDField1(self):
         mm=MEDFileMesh.New("Pyfile17.med")
         mm.write("Pyfile17_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile17.med","MeasureOfMesh_Extruded")
         ff.write("Pyfile17_bis.med",0)
         pass
-    
+
+    #profiles
     def testMEDField2(self):
         mm=MEDFileMesh.New("Pyfile19.med")
         mm.write("Pyfile19_bis.med",2)
@@ -348,6 +350,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff.write("Pyfile19_bis.med",0)
         pass
 
+    #gauss points
     def testMEDField3(self):
         mm=MEDFileMesh.New("Pyfile13.med")
         mm.write("Pyfile13_bis.med",2)
@@ -355,11 +358,23 @@ class MEDLoaderTest(unittest.TestCase):
         ff.write("Pyfile13_bis.med",0)
         pass
 
+    #gauss NE
     def testMEDField4(self):
         mm=MEDFileMesh.New("Pyfile14.med")
         mm.write("Pyfile14_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile14.med","MyFieldOnGaussNE")
         ff.write("Pyfile14_bis.med",0)
+        pass
+
+    # MEDField get/set on pointe.med
+    def testMEDField5(self):
+        ff=MEDFileField1TS.New("Pyfile17.med","MeasureOfMesh_Extruded",1,2)
+        f=ff.getFieldAtLevel(ON_CELLS,0)
+        f2=MEDLoader.ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
+        self.assertTrue(f.getMesh().getCoords().isEqual(f2.getMesh().getCoords(),1e-12))
+        f.getMesh().tryToShareSameCoords(f2.getMesh(),1e-12)
+        f.changeUnderlyingMesh(f2.getMesh(),22,1e-12)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         pass
     
     pass

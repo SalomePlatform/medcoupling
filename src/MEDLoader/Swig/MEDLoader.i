@@ -76,6 +76,8 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileField1TS::New;
+%newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevel;
+%newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
 
 class MEDLoader
 {
@@ -277,8 +279,9 @@ namespace ParaMEDMEM
     int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
     std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
+    virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception);
     //
-    virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
     virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
@@ -364,7 +367,6 @@ namespace ParaMEDMEM
     static MEDFileUMesh *New();
     ~MEDFileUMesh();
     //
-    int getMeshDimension() const;
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
     DataArrayDouble *getCoords() const;
@@ -461,6 +463,9 @@ namespace ParaMEDMEM
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFieldMultiTSWithoutDAS
