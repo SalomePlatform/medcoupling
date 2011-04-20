@@ -1055,7 +1055,7 @@ void MEDCouplingBasicsTest::testChangeUnderlyingMesh1()
   CPPUNIT_ASSERT(f1->getMesh()==mesh1);
   f1->changeUnderlyingMesh(mesh2,10,1e-12);
   CPPUNIT_ASSERT(f1->getMesh()==mesh2);
-  const double expected2[22]={7.,107.,9.,109.,17.,117.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.,8.,108.};
+  const double expected2[22]={7.,107.,17.,117.,8.,108.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.,9.,109.};
   for(int i=0;i<22;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f1->getArray()->getIJ(0,i),1e-12);
   f1->decrRef();
@@ -1117,14 +1117,14 @@ void MEDCouplingBasicsTest::testSubstractInPlaceDM1()
   CPPUNIT_ASSERT_EQUAL(2,f1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(20,f1->getNumberOfValues());
   //
-  const int renum[]={0,2,1,3,4,5,6,8,7,9};
+  const int renum[]={0,2,3,1,4,5,6,8,7,9};
   mesh2->renumberCells(renum,false);
   //
   MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
   f2->setMesh(mesh2);
   array=DataArrayDouble::New();
   array->alloc(mesh2->getNumberOfCells(),2);
-  const double arr2[20]={7.1,107.1,9.1,109.1,8.1,108.1,10.1,110.1,11.1,111.1,12.1,112.1,13.1,113.1,15.1,115.1,14.1,114.1,16.1,116.1};
+  const double arr2[20]={7.1,107.1,10.1,110.1,8.1,108.1,9.1,109.1,11.1,111.1,12.1,112.1,13.1,113.1,15.1,115.1,14.1,114.1,16.1,116.1};
   std::copy(arr2,arr2+20,array->getPointer());
   f2->setArray(array);
   array->decrRef();

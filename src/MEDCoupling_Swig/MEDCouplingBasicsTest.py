@@ -2635,7 +2635,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #self.assertTrue(f1.getMesh()==mesh1);
         f1.changeUnderlyingMesh(mesh2,10,1e-12);
         #self.assertTrue(f1.getMesh()==mesh2);
-        expected2=[7.,107.,9.,109.,17.,117.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.,8.,108.]
+        expected2=[7.,107.,17.,117.,8.,108.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.,9.,109.]
         for i in xrange(22):
             self.assertAlmostEqual(expected2[i],f1.getArray().getIJ(0,i),12);
             pass
@@ -2683,13 +2683,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,f1.getNumberOfComponents());
         self.assertEqual(20,f1.getNumberOfValues());
         #
-        renum=[0,2,1,3,4,5,6,8,7,9]
+        renum=[0,2,3,1,4,5,6,8,7,9]
         mesh2.renumberCells(renum,False);
         #
         f2=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
         f2.setMesh(mesh2);
         array=DataArrayDouble.New();
-        arr2=[7.1,107.1,9.1,109.1,8.1,108.1,10.1,110.1,11.1,111.1,12.1,112.1,13.1,113.1,15.1,115.1,14.1,114.1,16.1,116.1]
+        arr2=[7.1,107.1,10.1,110.1,8.1,108.1,9.1,109.1,11.1,111.1,12.1,112.1,13.1,113.1,15.1,115.1,14.1,114.1,16.1,116.1]
         array.setValues(arr2,mesh2.getNumberOfCells(),2);
         f2.setArray(array);
         #
