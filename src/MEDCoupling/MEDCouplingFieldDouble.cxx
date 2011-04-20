@@ -1092,7 +1092,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
   if(_mesh==0 || other==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::changeUnderlyingMesh : is expected to operate on not null meshes !");
   DataArrayInt *cellCor,*nodeCor;
-  _mesh->checkGeoEquivalWith(other,levOfCheck,prec,cellCor,nodeCor);
+  other->checkGeoEquivalWith(_mesh,levOfCheck,prec,cellCor,nodeCor);
   if(cellCor)
     {
       renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
