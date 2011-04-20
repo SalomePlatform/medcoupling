@@ -5896,6 +5896,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected1,b.getValues())
         pass
 
+    def testSwigErrorRenum(self):
+        da=DataArrayDouble.New()
+        da.setValues([7.,107.,8.,108.,9.,109.,10.,110.,11.,111.,12.,112.,13.,113.,14.,114.,15.,115.,16.,116.],10,2)
+        d=DataArrayInt.New()
+        d.setValues([0,2,3,1,4,5,6,8,7,9],10,1)
+        da.renumberInPlace(d)
+        da.renumber(d)
+        pass
+
     def testSwigGetItem1(self):
         da=DataArrayInt.New()
         da.alloc(16,3)

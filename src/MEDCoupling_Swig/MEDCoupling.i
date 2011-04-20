@@ -1318,7 +1318,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1347,7 +1347,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1376,7 +1376,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1405,7 +1405,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1434,7 +1434,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2419,7 +2419,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2448,7 +2448,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2477,7 +2477,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2506,7 +2506,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2535,7 +2535,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
