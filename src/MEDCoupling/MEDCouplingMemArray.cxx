@@ -1558,7 +1558,8 @@ void DataArrayDouble::applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exc
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
   char *funcStr=expr.compileX86();
-  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  MYFUNCPTR funcPtr;
+  *((void **)&funcPtr)=funcStr;//he he...
   //
   double *ptr=getPointer();
   int nbOfComp=getNumberOfComponents();
@@ -1575,7 +1576,8 @@ void DataArrayDouble::applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exc
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
   char *funcStr=expr.compileX86_64();
-  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  MYFUNCPTR funcPtr;
+  *((void **)&funcPtr)=funcStr;//he he...
   //
   double *ptr=getPointer();
   int nbOfComp=getNumberOfComponents();
