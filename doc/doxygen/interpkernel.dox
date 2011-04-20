@@ -202,14 +202,14 @@ As already said, the matrix returned by interpolator is typically a sparse matri
 Note that \c std::vector\c < \c std::map<int,double> > is a candidate for
 \c MatrixType.
 
-\section InterpKerGenUsage Usage of interpolation tools.
+\section InterpKerGenUsage Usage of interpolation tools: the REMAPPER classes.
 
 \subsection InterpKerHighLevUsage high-level usage
 
-The simplest way of using the interpolation tools is in sequential mode to use REMAPPER classes. These classes fulfill \c HXX2SALOME rules and may be used
-in coupling graphs. Two sequential REMAPPERS exist, \c ParaMEDMEM::MEDCouplingRemapper and \c MEDMEM::MEDMEM_Remapper. These classes are strongly linked to their corresponding data structure, respectively \c MEDCoupling and \c MEDMEM.
+The simplest way of using the interpolation tools is in sequential mode to use the REMAPPER classes. These classes fulfill \c HXX2SALOME rules and may be used
+in coupling graphs. Two sequential REMAPPERS exist, \c ParaMEDMEM::MEDCouplingRemapper and \ref medmemremapper . These classes are strongly linked to their corresponding data structure, respectively \ref medcoupling and \ref MEDMEM.
 
-- If you intend to use MEDCoupling data struture, ParaMEDMEM::MEDCouplingRemapper class should be used :
+- If you intend to use \ref MEDCoupling data struture, ParaMEDMEM::MEDCouplingRemapper class should be used :
 
 \code
 ...
@@ -231,7 +231,7 @@ sourceField->decrRef();
 med_target_mesh->decrRef();
 \endcode
 
-- If you intend to use MEDMEM data structure, Remapper class should be used :
+- If you intend to use \ref MEDMEM data structure, \c medmemremapper class should be used :
 
 \code
 ...
