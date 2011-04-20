@@ -1305,7 +1305,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const throw(INTERP_KERNE
  * This value is asked because often known by the caller of this method.
  * This method, contrary to MEDCouplingMesh::renumberCells does NOT conserve the number of nodes before and after.
  *
- * @param newNodeNumbers array specifying the new numbering.
+ * @param newNodeNumbers array specifying the new numbering in old2New convention.
  * @param newNbOfNodes the new number of nodes.
  */
 void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
@@ -1333,6 +1333,7 @@ void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNode
 /*!
  * This method renumbers nodes in connectivity only without any reference with coords.
  * Use it with care !
+ * @param 'newNodeNumbers' in old2New convention
  */
 void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbers)
 {

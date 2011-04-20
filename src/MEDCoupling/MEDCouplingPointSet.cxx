@@ -308,7 +308,7 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
  * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
  * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
  * This value is asked because often known by the caller of this method.
- * @param newNodeNumbers array specifying the new numbering.
+ * @param newNodeNumbers array specifying the new numbering in old2New convention..
  * @param newNbOfNodes the new number of nodes.
  */
 void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
