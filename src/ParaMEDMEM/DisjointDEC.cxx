@@ -37,16 +37,16 @@
  *
  * Interface class for creation of a link between two 
  * processor groups for exhanging mesh or field data.
- * The DEC is defined by attaching a field on the receiving or on the 
+ * The \c DEC is defined by attaching a field on the receiving or on the 
  * sending side. 
- * On top of attaching a ParaMEDMEM::FIELD, it is possible to
+ * On top of attaching a \c ParaMEDMEM::FIELD, it is possible to
  * attach a ICoCo::Field. This class is an abstract class that enables 
  * coupling of codes that respect the ICoCo interface \ref icoco. It has two implementations:
- * one for codes that express their fields as MEDCoupling fields (ICoCo::MEDField) and one
+ * one for codes that express their fields as \ref medoupling fields (ICoCo::MEDField) and one
  * for codes that express their fields as Trio/U fields.
  * 
  * \section dec_options DEC Options
- * Options supported by DEC objects are
+ * Options supported by \c DEC objects are
  *
  * <TABLE BORDER=1 >
  * <TR><TD>Option</TD><TD>Description</TD><TD>Default value</TD></TR>
@@ -54,7 +54,7 @@
  *</TABLE>
 
 
- The following code excerpt shows how to set options for an object that inherits from DEC :
+ The following code excerpt shows how to set options for an object that inherits from \c DEC :
 
  \code
  InterpKernelDEC dec(source_group,target_group);
