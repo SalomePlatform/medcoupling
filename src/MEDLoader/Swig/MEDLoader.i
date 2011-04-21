@@ -75,6 +75,8 @@ using namespace ParaMEDMEM;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::New;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
@@ -450,12 +452,25 @@ namespace ParaMEDMEM
   class MEDFileField1TSWithoutDAS : public RefCountObject
   {
   public:
+    int getDimension() const;
     int getIteration() const;
     int getOrder() const;
     std::string getName();
     std::string getMeshName();
     int getNumberOfComponents() const;
+    bool isDealingTS(int iteration, int order) const;
     const std::vector<std::string>& getInfo() const;
+    %extend
+       {
+         PyObject *getDtIt() const
+         {
+           std::pair<int,int> res=self->getDtIt();
+           PyObject *elt=PyTuple_New(2);
+           PyTuple_SetItem(elt,0,SWIG_From_int(res.first));
+           PyTuple_SetItem(elt,1,SWIG_From_int(res.second));
+           return elt;
+         }
+       }
   };
 
   class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
@@ -464,7 +479,7 @@ namespace ParaMEDMEM
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   };
 
@@ -472,6 +487,23 @@ namespace ParaMEDMEM
   {
   public:
     int getNumberOfTS() const;
+    %extend
+       {
+         PyObject *getIterations() const
+         {
+           std::vector< std::pair<int,int> > res=self->getIterations();
+           PyObject *ret=PyList_New(res.size());
+           int rk=0;
+           for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+             {
+               PyObject *elt=PyTuple_New(2);
+               PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
+               PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+               PyList_SetItem(ret,rk,elt);
+             }
+           return ret;
+         }
+       }
   };
 
   class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
@@ -479,6 +511,9 @@ namespace ParaMEDMEM
   public:
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs, public MEDFileWritable

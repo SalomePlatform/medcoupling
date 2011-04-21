@@ -356,6 +356,10 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write("Pyfile13_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile13.med","MyFirstFieldOnGaussPoint")
         ff.write("Pyfile13_bis.med",0)
+        ff=MEDFileField1TS.New("Pyfile13.med","MyFirstFieldOnGaussPoint",1,5)
+        f=ff.getFieldAtLevel(ON_GAUSS_PT,0)
+        f2=MEDLoader.ReadFieldGauss("Pyfile13.med",'2DMesh_2',0,'MyFirstFieldOnGaussPoint',1,5)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         pass
 
     #gauss NE
@@ -364,6 +368,10 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write("Pyfile14_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile14.med","MyFieldOnGaussNE")
         ff.write("Pyfile14_bis.med",0)
+        ff=MEDFileField1TS.New("Pyfile14.med","MyFieldOnGaussNE",1,5)
+        f=ff.getFieldAtLevel(ON_GAUSS_NE,0)
+        f2=MEDLoader.ReadFieldGaussNE("Pyfile14.med",'2DMesh_2',0,"MyFieldOnGaussNE",1,5)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         pass
 
     # MEDField get/set on pointe.med
