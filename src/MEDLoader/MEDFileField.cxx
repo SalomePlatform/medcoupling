@@ -422,46 +422,21 @@ const std::vector<std::string>& MEDFileFieldPerMesh::getInfo() const
 }
 
 /*!
- * geoTypes,dads,pfls,locs are input/output parameters. They should have the same size.
- * After the call of this method 'geoTypes','dads','pfls','locs' are reorganized so that types in geoTypes are contiguous and ordered following typmai2 array.
+ * geoTypes,dads,pfls,locs are input parameters. They should have the same size.
+ * Before the call of this method 'geoTypes','dads','pfls','locs' must be reorganized so that types in geoTypes are contiguous and ordered following typmai2 array.
  * It returns 2 output vectors :
  * - 'code' of size 3*sz where sz is the number of different values into 'geoTypes'
  * - 'notNullPfls' contains sz2 values that are extracted from 'pfls' in which null profiles have been removed.
  * 'code' and 'notNullPfls' are in MEDCouplingUMesh::checkTypeConsistencyAndContig format.
  */
-void MEDFileFieldPerMesh::SortArraysPerType(const MEDFieldFieldGlobs *glob, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, std::vector<const DataArrayDouble *>& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls)
+void MEDFileFieldPerMesh::SortArraysPerType(const MEDFieldFieldGlobs *glob, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector<const DataArrayDouble *>& dads, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& locs, std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls)
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cvrtor=DataArrayInt::New();
-  int nbOfArrs=geoTypes.size();
-  cvrtor->alloc(nbOfArrs,1);
-  int *cvrtorPtr=cvrtor->getPointer();
-  for(int i=0;i<nbOfArrs;i++)
-    {
-      INTERP_KERNEL::NormalizedCellType t=geoTypes[i];
-      cvrtorPtr[i]=std::distance(typmai2,std::find(typmai2,typmai2+MED_N_CELL_FIXED_GEO,t));
-    }
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cvrtor2=cvrtor->buildPermArrPerLevel();
-  const int *cvrtor2Ptr=cvrtor2->getConstPointer();
-  std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes2(geoTypes.size());
-  std::vector<const DataArrayDouble *> dads2(dads.size());
-  std::vector<const DataArrayInt *> pfls2(pfls.size());
-  std::vector<int> locs2(locs.size());
   int notNullPflsSz=0;
+  int nbOfArrs=geoTypes.size();
   for(int i=0;i<nbOfArrs;i++)
-    {
-      geoTypes2[cvrtor2Ptr[i]]=geoTypes[i];
-      dads2[cvrtor2Ptr[i]]=dads[i];
-      if(pfls[i])
-        notNullPflsSz++;
-      pfls2[cvrtor2Ptr[i]]=pfls[i];
-      locs2[cvrtor2Ptr[i]]=locs[i];
-    }
-  geoTypes=geoTypes2;
-  dads=dads2;
-  pfls=pfls2;
-  locs=locs2;
-  //
-  std::set<INTERP_KERNEL::NormalizedCellType> geoTypes3(geoTypes2.begin(),geoTypes2.end());
+    if(pfls[i])
+      notNullPflsSz++;
+  std::set<INTERP_KERNEL::NormalizedCellType> geoTypes3(geoTypes.begin(),geoTypes.end());
   int nbOfDiffGeoTypes=geoTypes3.size();
   code.resize(3*nbOfDiffGeoTypes);
   notNullPfls.resize(notNullPflsSz);
@@ -470,21 +445,21 @@ void MEDFileFieldPerMesh::SortArraysPerType(const MEDFieldFieldGlobs *glob, std:
   for(int i=0;i<nbOfDiffGeoTypes;i++)
     {
       int startZone=j;
-      INTERP_KERNEL::NormalizedCellType refType=geoTypes2[j];
+      INTERP_KERNEL::NormalizedCellType refType=geoTypes[j];
       std::vector<const DataArrayInt *> notNullTmp;
-      if(pfls2[j])
-        notNullTmp.push_back(pfls2[j]);
+      if(pfls[j])
+        notNullTmp.push_back(pfls[j]);
       j++;
       for(;j<nbOfArrs;j++)
-        if(geoTypes2[j]==refType)
+        if(geoTypes[j]==refType)
           {
-            if(pfls2[j])
-              notNullTmp.push_back(pfls2[j]);
+            if(pfls[j])
+              notNullTmp.push_back(pfls[j]);
           }
         else
           break;
       std::vector<const DataArrayDouble *> tmpDads(dads.begin()+startZone,dads.begin()+j);
-      std::vector<const DataArrayInt *> tmpPfls(pfls2.begin()+startZone,pfls2.begin()+j);
+      std::vector<const DataArrayInt *> tmpPfls(pfls.begin()+startZone,pfls.begin()+j);
       std::vector<int> tmpLocs(locs.begin()+startZone,locs.begin()+j);
       code[3*i]=(int)refType;
       code[3*i+1]=ComputeNbOfElems(glob,tmpDads,tmpLocs);
@@ -890,40 +865,40 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(TypeOfField t
 MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFieldFieldGlobs *glob, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
 {
   CheckMeshDimRel(meshDimRelToMax);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax,false);
+  const DataArrayInt *d=mesh->getNumberFieldAtLevel(meshDimRelToMax);
+  const DataArrayInt *e=mesh->getNumberFieldAtLevel(1);
+  return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,renumPol,glob,m,d,e);
+}
+
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception)
+{
   if(renumPol==0)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax,false);
-      int dimRequested=m->getMeshDimension();
+      int dimRequested=mesh->getMeshDimension();
       //no need to test _field_per_mesh.empty() because geMeshName has already done it
-      return _field_per_mesh[0]->getFieldOnMeshAtLevel(type,dimRequested,glob,m);
+      return _field_per_mesh[0]->getFieldOnMeshAtLevel(type,dimRequested,glob,mesh);
     }
   if(renumPol==1)
     {
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax,false);
-      int dimRequested=m->getMeshDimension();
+      int dimRequested=mesh->getMeshDimension();
       //no need to test _field_per_mesh.empty() because geMeshName has already done it
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=_field_per_mesh[0]->getFieldOnMeshAtLevel(type,dimRequested,glob,m);
-      const DataArrayInt *d=mesh->getNumberFieldAtLevel(meshDimRelToMax);
-      if(d)
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=_field_per_mesh[0]->getFieldOnMeshAtLevel(type,dimRequested,glob,mesh);
+      if(cellRenum)
         {
-          if(d->getNbOfElems()!=m->getNumberOfCells())
+          if(cellRenum->getNbOfElems()!=mesh->getNumberOfCells())
             {
-              std::ostringstream oss; oss << "MEDFileField1TSWithoutDAS::getFieldAtLevel : Request of simple renumbering but it seems that underlying mesh \"" << mesh->getName() << "\" of requested field ";
+              std::ostringstream oss; oss << "MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel : Request of simple renumbering but it seems that underlying mesh \"" << mesh->getName() << "\" of requested field ";
               oss << "\"" << getName() << "\" has partial renumbering (some geotype has no renumber) !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
-          ret->renumberCells(d->getConstPointer(),true);
+          ret->renumberCells(cellRenum->getConstPointer(),true);
         }
       ret->incrRef();
       return ret;
     }
   else
-    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getFieldAtLevel : unsupported renum policy ! Dealing with policy 0 and 1 !");
-}
-
-MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception)
-{
-  return 0;//_field_per_mesh[0]->getFieldOnMeshAtLevel(type,0/* tony */,glob,mesh);
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel : unsupported renum policy ! Dealing with policy 0 and 1 !");
 }
 
 MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order,
@@ -1057,7 +1032,7 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(TypeOfField type, int m
  */
 MEDCouplingFieldDouble *MEDFileField1TS::getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol) const throw(INTERP_KERNEL::Exception)
 {
-  return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,renumPol,this,mesh);
+  return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0);
 }
 
 /*!
@@ -1262,7 +1237,7 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField t
 MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol) const throw(INTERP_KERNEL::Exception)
 {
   const MEDFileField1TSWithoutDAS& myF1TS=getTimeStepEntry(iteration,order);
-  return myF1TS.getFieldOnMeshAtLevel(type,renumPol,this,mesh);
+  return myF1TS.getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0);
 }
 
 MEDFileFieldMultiTS::MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
