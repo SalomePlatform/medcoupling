@@ -7355,6 +7355,32 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(0.125,f.getArray().getIJ(0,0),12);
         self.assertAlmostEqual(0.25,f.getArray().getIJ(1,0),12);
         pass
+
+    def testDAITransformWithIndArrR1(self):
+        tab1=[2,4,5,3,6,7]
+        tab2=[-1,-1,0,1,2,3,4,5,-1,-1,-1,-1]
+        expected=[0,3,1,2,4,5]
+        d=DataArrayInt.New();
+        d.setValues(tab1,6,1);
+        d1=DataArrayInt.New();
+        d1.setValues(tab2,12,1);
+        d2=d1[:]
+        #
+        d3=d.transformWithIndArrR(d1);
+        self.assertEqual(6,d3.getNumberOfTuples());
+        self.assertEqual(1,d3.getNumberOfComponents());
+        for i in xrange(6):
+            self.assertEqual(expected[i],d3.getIJ(i,0));
+            pass
+        #
+        d1=d2
+        d3=d.transformWithIndArrR(tab2)
+        self.assertEqual(6,d3.getNumberOfTuples());
+        self.assertEqual(1,d3.getNumberOfComponents());
+        for i in xrange(6):
+            self.assertEqual(expected[i],d3.getIJ(i,0));
+            pass
+        pass
     
     def setUp(self):
         pass

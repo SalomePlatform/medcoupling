@@ -2154,7 +2154,7 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
   int *pt=getPointer();
   for(int i=0;i<nbOfTuples;i++,pt++)
     {
-      if(*pt<nbElemsIn)
+      if(*pt>=0 && *pt<nbElemsIn)
         *pt=indArrBg[*pt];
       else
         {
@@ -2162,6 +2162,33 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+  declareAsNew();
+}
+
+DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call transformWithIndArrR method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  int nbElemsIn=std::distance(indArrBg,indArrEnd);
+  int nbOfTuples=getNumberOfTuples();
+  int *pt=getPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples,1);
+  ret->fillWithValue(-1);
+  int *tmp=ret->getPointer();
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      int pos=indArrBg[*pt];
+      if(pos>=0 && pos<nbElemsIn)
+        tmp[pos]=i;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArrR : error on tuple #" << i << " value is " << *pt << " and indirectionnal array as a size equal to " << nbElemsIn;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->incrRef();
+  return ret;
 }
 
 /*!

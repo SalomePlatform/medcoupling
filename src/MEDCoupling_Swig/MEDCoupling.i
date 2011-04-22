@@ -123,6 +123,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId2;
 %newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
+%newobject ParaMEDMEM::DataArrayInt::transformWithIndArrR;
 %newobject ParaMEDMEM::DataArrayInt::renumber;
 %newobject ParaMEDMEM::DataArrayInt::renumberR;
 %newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
@@ -2411,6 +2412,23 @@ namespace ParaMEDMEM
        {
          DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
          self->transformWithIndArr(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+       }
+   }
+
+   DataArrayInt *transformWithIndArrR(PyObject *li) const
+   {
+     void *da=0;
+     int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+     if (!SWIG_IsOK(res1))
+       {
+         int size;
+         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+         return self->transformWithIndArrR(tmp,tmp+size);
+       }
+     else
+       {
+         DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+         return self->transformWithIndArrR(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
        }
    }
 

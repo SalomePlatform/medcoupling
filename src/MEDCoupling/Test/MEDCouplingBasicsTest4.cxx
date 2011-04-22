@@ -1247,3 +1247,26 @@ void MEDCouplingBasicsTest::testBuildPartAndReduceNodes1()
   m2->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAITransformWithIndArrR1()
+{
+  const int tab1[6]={2,4,5,3,6,7};
+  const int tab2[12]={-1,-1,0,1,2,3,4,5,-1,-1,-1,-1};
+  const int expected[6]={0,3,1,2,4,5};
+  DataArrayInt *d=DataArrayInt::New();
+  d->alloc(6,1);
+  std::copy(tab1,tab1+6,d->getPointer());
+  DataArrayInt *d1=DataArrayInt::New();
+  d1->alloc(12,1);
+  std::copy(tab2,tab2+12,d1->getPointer());
+  //
+  DataArrayInt *d3=d->transformWithIndArrR(d1->getConstPointer(),d1->getConstPointer()+d1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(6,d3->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d3->getNumberOfComponents());
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected[i],d3->getIJ(i,0));
+  d3->decrRef();
+  //
+  d->decrRef();
+  d1->decrRef();
+}

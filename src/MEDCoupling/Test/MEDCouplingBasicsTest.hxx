@@ -222,6 +222,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGetLevArrPerCellTypes1 );
     CPPUNIT_TEST( testSortCellsInMEDFileFrmt1 );
     CPPUNIT_TEST( testBuildPartAndReduceNodes1 );
+    CPPUNIT_TEST( testDAITransformWithIndArrR1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -470,6 +471,7 @@ namespace ParaMEDMEM
     void testGetLevArrPerCellTypes1();
     void testSortCellsInMEDFileFrmt1();
     void testBuildPartAndReduceNodes1();
+    void testDAITransformWithIndArrR1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();
