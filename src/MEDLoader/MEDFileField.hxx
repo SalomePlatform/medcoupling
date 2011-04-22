@@ -153,13 +153,16 @@ namespace ParaMEDMEM
     const std::vector<std::string>& getInfo() const;
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
-    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDim, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDim, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingFieldDouble *finishField(TypeOfField type, const MEDFieldFieldGlobs *glob,
-                                        const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs, const MEDCouplingMesh *mesh) const throw(INTERP_KERNEL::Exception);
+                                        const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *finishField2(TypeOfField type, const MEDFieldFieldGlobs *glob,
-                                         const std::vector<const DataArrayDouble *>& dads, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& locs,
-                                         const MEDCouplingMesh *mesh, const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
+                                         const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs,
+                                         const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *finishField3(const MEDFieldFieldGlobs *glob,
+                                         const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs,
+                                         const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     static void SortArraysPerType(const MEDFieldFieldGlobs *glob,
                                   const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector<const DataArrayDouble *>& dads, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& locs,
                                   std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls);
@@ -186,9 +189,10 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocs() const;
     void setFileName(const char *fileName);
     int getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception);
-    int getLocalisationId(const char *loc) const throw(INTERP_KERNEL::Exception);
+    int getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception);
     const char *getFileName() const { return _file_name.c_str(); }
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception);
+    const DataArrayInt *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception);
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
   protected:
@@ -222,10 +226,11 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocsReallyUsed2() const;
     static void CheckMeshDimRel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
   public:
-    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const char *mName, int renumPol, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFieldFieldGlobs *glob, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception);
   protected:
+    int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
   protected:
     std::string _name;
@@ -250,6 +255,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   private:
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
@@ -292,6 +298,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   private:
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;

@@ -383,8 +383,34 @@ class MEDLoaderTest(unittest.TestCase):
         f.getMesh().tryToShareSameCoords(f2.getMesh(),1e-12)
         f.changeUnderlyingMesh(f2.getMesh(),22,1e-12)
         self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        # no with renumbering
+        f=ff.getFieldAtLevel(ON_CELLS,0,1)
+        f2=MEDLoader.ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        f=ff.getFieldAtLevel(ON_CELLS,0,3)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        f=ff.getFieldAtLevel(ON_CELLS,0,2)
+        self.assertTrue(not f.isEqual(f2,1e-12,1e-12))
+        f.changeUnderlyingMesh(f2.getMesh(),12,1e-12)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
         pass
-    
+
+    # MEDField get/set on profiles nodes
+    def testMEDField6(self):
+        ff=MEDFileFieldMultiTS.New("Pyfile7.med","VectorFieldOnNodes")
+        its=ff.getIterations()
+        self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
+        f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
+        f2=MEDLoader.ReadFieldNode("Pyfile7.med",'3DSurfMesh_1',0,"VectorFieldOnNodes",its[0][0],its[0][1])
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
+        its=ff.getIterations()
+        f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
+        f2=MEDLoader.ReadFieldNode("Pyfile19.med",'2DMesh_1',0,"VFieldOnNodes",its[0][0],its[0][1])
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
+        self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_NODES,its[0][0],its[0][1],0,1)#request renumber following mesh : it is on profile !
+        pass
     pass
 
 unittest.main()

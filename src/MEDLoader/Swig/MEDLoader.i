@@ -77,9 +77,11 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevelOld;
 %newobject ParaMEDMEM::MEDFileField1TS::New;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
+%newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevelOld;
 
 class MEDLoader
 {
@@ -481,6 +483,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFieldMultiTSWithoutDAS
@@ -514,6 +517,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs, public MEDFileWritable
