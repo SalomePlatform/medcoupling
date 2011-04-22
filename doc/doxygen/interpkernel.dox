@@ -10,131 +10,13 @@ much as possible using C++ templates.
 For the moment only interpolators for unstructured meshes are present in
 the %interpolation kernel.
 
-\section InterpKerTheory Theory of conservative interpolation
-
-At the basis of many CFD numerical schemes is the fact that physical
-quantities such as density, momentum per unit volume or energy per
-unit volume obey some balance laws that should be preserved at the
-discrete level on every cell. This property is critical for example to
-accurately capture shockwaves. 
-
-\subsection InterpKerPerfOverl Mesh overlapping
-
-When interpolation is performed between a source mesh S and a target
-mesh T the aspect of overlapping is important. In fact if any cell of
-of S is fully overlapped by cells of T and inversely any cell of T is
-fully overlapped by cells of S the meshes S and T are said to be \b
-coincident and some general formulae in next sub section are simpler.
-As far as possible in the next sub sections the formulae for
-coincident and non-coincident meshes will be given.
-
-\subsection InterpKerRemapGlobal Linear conservative remapping
-
-For fields with polynomial representation on each cell, the components of the discretized field  \f$ \phi_s \f$ on the source side can be expressed as linear combinations of the components of the discretized field \f$ \phi_t \f$ on the target side, in terms of a matrix-vector product : 
-
-\f[
- \phi_t=W.\phi_s.
-\f]
-
-The objectives of interpolators is to compute the matrix W depending on their physical
-properties (intensive or extensive field) and their mesh discretisation (P0, P1,...).
-
-It is often desired that the process interpolation preserve the
-integral of \f$ \phi \f$ on any domain. At the discrete level, for any
-target cell \f$ T_i \f$, the following \b general \b interpolation \b
-equation \anchor InterpKerGenralEq has to
-be always verified :
-
-\f[
-\int_{T_i} \phi = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi. 
-\f]
-
-This equation is used to compute \f$ W_{ij} \f$, based on the fields representation ( P0, P1, P1d etc..) and the
-geometry of source and target mesh cells. :
-
-\subsection InterpKerRemapInt Conservative remapping of P0 (cell based) fields
-
-We assume that the field is represented by a vector with a discrete value on each cell. 
-This value can represent either 
-- an average value of the field in the cell (average density, velocity or temperature in the cell) in which case the representation is said to be \b intensive, 
-- an integrated value over the cell (total mass, power of the cell) in which case the representation is said to be \b extensive
-
-\subsection InterpKerP0P0Int cell-cell (P0->P0) conservative remapping of intensive fields
-
-In the \ref InterpKerGenralEq "general interpolation equation" the
-left hand side becomes :
-
-\f[
-\int_{T_i} \phi = (\sum_{S_j} Vol(T_i\cap S_j)).\phi_{T_i}. 
-\f]
-
-Here Vol represents the volume when the mesh dimension is equal to 3, the
-area when mesh dimension is equal to 2, and length when mesh dimension is equal to 1.
-
-Note that \f$ \sum_{S_j} Vol(T_i\cap S_j) = Vol(T_i) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
-
-In the \ref InterpKerGenralEq "general interpolation equation" the
-right hand side becomes :
-
-\f[
-\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi = \sum_{S_j\cap T_i \neq \emptyset} {Vol(T_i\cap S_j)}.\phi_{S_j}. 
-\f]
-
-As the field values are constant on each
-cell, the coefficients of the linear remapping matrix \f$ W \f$ are
-given by the formula :
-
-\f[
- W_{ij}=\frac{Vol(T_i\cap S_j)}{ \sum_{S_j} Vol(T_i\cap S_j) }. 
-\f]
-
-and \ref InterpKerPerfOverl "in case of perfect overlapping" :
-
-\f[
- W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(T_i) }. 
-\f]
-
-\subsection InterpKerP0P0Ext cell-cell (P0->P0) conservative remapping of extensive physical quantities
-
-In code coupling from neutronics to hydraulics, \b extensive field
-of power is exchanged and the total power should remain the same. 
-The discrete values of the field represent the total power contained in the cell. 
-Hence in the \ref InterpKerGenralEq "general interpolation equation" the
-left hand side becomes :
-
-\f[
-\int_{T_i} \phi = P_{T_i}, 
-\f]
-
-while the right hand side is now :
-
-\f[
-\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi =
-\sum_{S_j\cap T_i \neq \emptyset} \frac{Vol(T_i\cap S_j)}{\sum_{T_i} Vol(T_i \cap S_j)}.P_{S_j}.
-\f]
-
-Note \f$ \sum_{T_i} Vol(T_i \cap S_j) = Vol(S_j) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
-
-The coefficients of the linear remapping matrix \f$ W \f$ are then
-given by the formula :
-
-\f[
- W_{ij}=\frac{Vol(T_i\cap S_j)}{ \sum_{T_i} Vol(T_i \cap S_j) }. 
-\f]
-
-and \ref InterpKerPerfOverl "in case of perfect overlapping" :
-
-\f[
- W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(S_j) }. 
-\f]
-
 \section InterpKerMainArchitecture Main architecture of interpolation kernel.
 
-In the %interpolation kernel, algorithms that computes the intersection \f$ T_i\cap S_j\f$ given the locations and geometries of source cell i
-and target cell j are called \ref InterpKerIntersectors.
+In the %interpolation kernel, algorithms that computes the intersection \f$ T_i\cap S_j\f$ given the locations and geometries of source cell \f$ S_j \f$
+and target cell \f$ T_i \f$ are called \ref InterpKerIntersectors.
 
-As seen in \ref InterpKerTheory "the theory of interpolation", all the proposed interpolators aim at
-filling the matrix W (which is generally sparse). For each pair (i,j), \f$ W_{ij} \f$ is obtained
+As can be seen in \ref InterpKerTheory "the theory of interpolation", all the proposed interpolators aim at
+filling the interpolation matrix W (which is generally sparse). For each pair (i,j), \f$ W_{ij} \f$ is obtained
 by calling the desired intersector. The problem is that each call to this algorithm
 is CPU-expensive.
 To reduce the computational time, a first filtering is done to detect
@@ -332,5 +214,123 @@ readerSource->Delete();
 readerTarget->Delete();
 ...
 \endcode
+
+\section InterpKerTheory Theory of conservative interpolation
+
+At the basis of many CFD numerical schemes is the fact that physical
+quantities such as density, momentum per unit volume or energy per
+unit volume obey some balance laws that should be preserved at the
+discrete level on every cell. This property is critical for example to
+accurately capture shockwaves. 
+
+\subsection InterpKerPerfOverl Mesh overlapping
+
+When interpolation is performed between a source mesh S and a target
+mesh T the aspect of overlapping is important. In fact if any cell of
+of S is fully overlapped by cells of T and inversely any cell of T is
+fully overlapped by cells of S the meshes S and T are said to be \b
+coincident and some general formulae in next sub section are simpler.
+As far as possible in the next sub sections the formulae for
+coincident and non-coincident meshes will be given.
+
+\subsection InterpKerRemapGlobal Linear conservative remapping
+
+For fields with polynomial representation on each cell, the components of the discretized field  \f$ \phi_s \f$ on the source side can be expressed as linear combinations of the components of the discretized field \f$ \phi_t \f$ on the target side, in terms of a matrix-vector product : 
+
+\f[
+ \phi_t=W.\phi_s.
+\f]
+
+The objectives of interpolators is to compute the matrix W depending on their physical
+properties (intensive or extensive field) and their mesh discretisation (P0, P1,...).
+
+It is often desired that the process interpolation preserve the
+integral of \f$ \phi \f$ on any domain. At the discrete level, for any
+target cell \f$ T_i \f$, the following \b general \b interpolation \b
+equation \anchor InterpKerGenralEq has to
+be always verified :
+
+\f[
+\int_{T_i} \phi = \sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi. 
+\f]
+
+This equation is used to compute \f$ W_{ij} \f$, based on the fields representation ( P0, P1, P1d etc..) and the
+geometry of source and target mesh cells. :
+
+\subsection InterpKerRemapInt Conservative remapping of P0 (cell based) fields
+
+We assume that the field is represented by a vector with a discrete value on each cell. 
+This value can represent either 
+- an average value of the field in the cell (average density, velocity or temperature in the cell) in which case the representation is said to be \b intensive, 
+- an integrated value over the cell (total mass, power of the cell) in which case the representation is said to be \b extensive
+
+\subsection InterpKerP0P0Int cell-cell (P0->P0) conservative remapping of intensive fields
+
+In the \ref InterpKerGenralEq "general interpolation equation" the
+left hand side becomes :
+
+\f[
+\int_{T_i} \phi = (\sum_{S_j} Vol(T_i\cap S_j)).\phi_{T_i}. 
+\f]
+
+Here Vol represents the volume when the mesh dimension is equal to 3, the
+area when mesh dimension is equal to 2, and length when mesh dimension is equal to 1.
+
+Note that \f$ \sum_{S_j} Vol(T_i\cap S_j) = Vol(T_i) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
+
+In the \ref InterpKerGenralEq "general interpolation equation" the
+right hand side becomes :
+
+\f[
+\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi = \sum_{S_j\cap T_i \neq \emptyset} {Vol(T_i\cap S_j)}.\phi_{S_j}. 
+\f]
+
+As the field values are constant on each
+cell, the coefficients of the linear remapping matrix \f$ W \f$ are
+given by the formula :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ \sum_{S_j} Vol(T_i\cap S_j) }. 
+\f]
+
+and \ref InterpKerPerfOverl "in case of perfect overlapping" :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(T_i) }. 
+\f]
+
+\subsection InterpKerP0P0Ext cell-cell (P0->P0) conservative remapping of extensive physical quantities
+
+In code coupling from neutronics to hydraulics, \b extensive field
+of power is exchanged and the total power should remain the same. 
+The discrete values of the field represent the total power contained in the cell. 
+Hence in the \ref InterpKerGenralEq "general interpolation equation" the
+left hand side becomes :
+
+\f[
+\int_{T_i} \phi = P_{T_i}, 
+\f]
+
+while the right hand side is now :
+
+\f[
+\sum_{S_j\cap T_i \neq \emptyset} \int_{T_i\cap S_j} \phi =
+\sum_{S_j\cap T_i \neq \emptyset} \frac{Vol(T_i\cap S_j)}{\sum_{T_i} Vol(T_i \cap S_j)}.P_{S_j}.
+\f]
+
+Note \f$ \sum_{T_i} Vol(T_i \cap S_j) = Vol(S_j) \f$ \ref InterpKerPerfOverl "in case of perfect overlapping".
+
+The coefficients of the linear remapping matrix \f$ W \f$ are then
+given by the formula :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ \sum_{T_i} Vol(T_i \cap S_j) }. 
+\f]
+
+and \ref InterpKerPerfOverl "in case of perfect overlapping" :
+
+\f[
+ W_{ij}=\frac{Vol(T_i\cap S_j)}{ Vol(S_j) }. 
+\f]
 
 */
