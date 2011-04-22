@@ -818,6 +818,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end
  * behind returned mesh. This cause an overhead but it is lesser in memory.
  * This method returns an array too. This array allows to the caller to know the mapping between nodeids in 'this' and nodeids in 
  * returned mesh. This is quite usefull for MEDCouplingFieldDouble on nodes for example...
+ * 'arr' is in old2New format of size ret->getNumberOfCells like MEDCouplingUMesh::zipCoordsTraducer is.
  * The returned mesh has to be managed by the caller.
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const

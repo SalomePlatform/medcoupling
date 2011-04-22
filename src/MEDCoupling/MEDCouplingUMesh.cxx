@@ -722,7 +722,7 @@ void MEDCouplingUMesh::unPolyze()
 }
 
 /*!
- * Array returned is the correspondance new to old.
+ * Array returned is the correspondance old to new.
  * The maximum value stored in returned array is the number of nodes of 'this' minus 1 after call of this method.
  * The size of returned array is the number of nodes of the old (previous to the call of this method) number of nodes.
  * -1 values in returned array means that the corresponding old node is no more used.
