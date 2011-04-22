@@ -43,12 +43,12 @@ namespace ParaMEDMEM
     the computation is much faster than the other. It can also be used 
     to couple together codes that share an interface that was generated
     in the same manner (with identical global ids). 
-    Also, this DEC can be used for fields that have component topologies, 
+    Also, this \ref dec can be used for fields that have component topologies, 
     i.e., components that are scattered over several processors.
 
     The remapping between the two supports is based on identity of global
     ids, instead of geometrical considerations as it is the case for
-    NonCoincidentDEC and InterpKernelDEC. Therefore, this DEC must not be used 
+    \ref NonCoincidentDEC and \ref InterpKernelDEC. Therefore, this \ref dec must not be used 
     for coincident meshes that do not have the same numbering.
 
     As all the other DECs, its use is made of two phases :
@@ -58,7 +58,7 @@ namespace ParaMEDMEM
     - a send/recv phase during which the field data is actually transferred.
 
     This example illustrates the sending of a field with 
-    the DEC : 
+    the \c StructuredCoincidentDEC : 
     \code
     ...
     StructuredCoincidentDEC dec(groupA, groupB);

@@ -45,8 +45,7 @@ namespace ParaMEDMEM
     \c NonCoincidentDEC enables nonconservative remapping of fields 
     between two parallel codes. 
     The computation is possible for 3D meshes and 2D meshes.
-    It is not available for 3D surfaces. The computation enables fast parallel localization, based on the 
-    FVM library. The computation is based on a point in element search, followed 
+    It is not available for 3D surfaces. The computation enables fast parallel localization, and is based on a point in element search, followed 
     by a field evaluation at the point location. Thus, it is typically
     faster than the \ref interpkerneldec which gives a \ref conservativeremapping.
     It is particularly true for the initialisation phase (synchronize)
@@ -246,7 +245,7 @@ namespace ParaMEDMEM
     @{
   */
 
-  /*! Constructor of a non coincident DEC with 
+  /*! Constructor of a non coincident \ref dec with 
    * a source group on which lies a field lying on a mesh and a 
    * target group on which lies a mesh.
    * 
