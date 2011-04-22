@@ -7335,6 +7335,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.isEqual(m2,1e-12))
         self.assertTrue(da.isEqual(da2))
         pass
+
+    def testBuildPartAndReduceNodes1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        arr=[1,0]
+        m2,da=m.buildPartAndReduceNodes(arr);
+        self.assertEqual(5,m2.getNumberOfNodes());
+        self.assertEqual(2,m2.getNumberOfCells());
+        f=m2.getMeasureField(True);
+        self.assertAlmostEqual(0.125,f.getArray().getIJ(0,0),12);
+        self.assertAlmostEqual(0.25,f.getArray().getIJ(1,0),12);
+        #
+        arr2=DataArrayInt.New()
+        arr2.setValues(arr,2,1)
+        m2,da=m.buildPartAndReduceNodes(arr2);
+        self.assertEqual(5,m2.getNumberOfNodes());
+        self.assertEqual(2,m2.getNumberOfCells());
+        f=m2.getMeasureField(True);
+        self.assertAlmostEqual(0.125,f.getArray().getIJ(0,0),12);
+        self.assertAlmostEqual(0.25,f.getArray().getIJ(1,0),12);
+        pass
     
     def setUp(self):
         pass

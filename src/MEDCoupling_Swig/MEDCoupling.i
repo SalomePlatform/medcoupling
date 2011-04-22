@@ -524,10 +524,25 @@ namespace ParaMEDMEM
         
         PyObject *buildPartAndReduceNodes(PyObject *li) const throw(INTERP_KERNEL::Exception)
         {
-          int size;
-          INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+          void *da=0;
           DataArrayInt *arr=0;
-          MEDCouplingMesh *ret=self->buildPartAndReduceNodes(tmp,tmp+size,arr);
+          MEDCouplingMesh *ret=0;
+           int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+           if (!SWIG_IsOK(res1))
+             {
+               int size;
+               INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+               ret=self->buildPartAndReduceNodes(tmp,((const int *)tmp)+size,arr);
+             }
+           else
+             {
+               DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+               if(!da2)
+                 throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+               da2->checkAllocated();
+               ret=self->buildPartAndReduceNodes(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),arr);
+               ret->setName(da2->getName().c_str());
+             }
           PyObject *res = PyList_New(2);
           PyObject *obj0=convertMesh(ret, SWIG_POINTER_OWN | 0 );
           PyObject *obj1=SWIG_NewPointerObj(SWIG_as_voidptr(arr),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );

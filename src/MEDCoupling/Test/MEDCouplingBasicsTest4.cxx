@@ -1230,3 +1230,20 @@ void MEDCouplingBasicsTest::testSortCellsInMEDFileFrmt1()
   m1->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testBuildPartAndReduceNodes1()
+{
+  MEDCouplingMesh *m=build2DTargetMesh_1();
+  const int arr[2]={1,0};
+  DataArrayInt *da;
+  MEDCouplingMesh *m2=m->buildPartAndReduceNodes(arr,arr+2,da);
+  CPPUNIT_ASSERT_EQUAL(5,m2->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(2,m2->getNumberOfCells());
+  MEDCouplingFieldDouble *f=m2->getMeasureField(true);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,f->getArray()->getIJ(0,0),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,f->getArray()->getIJ(1,0),1e-12);
+  f->decrRef();
+  da->decrRef();
+  m2->decrRef();
+  m->decrRef();
+}
