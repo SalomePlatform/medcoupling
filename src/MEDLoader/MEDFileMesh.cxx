@@ -1274,11 +1274,6 @@ void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool
   setMeshAtLevelGen(meshDimRelToMax,m,newOrOld);
 }
 
-void MEDFileUMesh::setMeshAtLevelOld(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
-{
-  setMeshAtLevelGen(meshDimRelToMax,m,false);
-}
-
 void MEDFileUMesh::setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> levSet=getNonEmptyLevels();

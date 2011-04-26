@@ -120,9 +120,9 @@ class MEDLoaderTest(unittest.TestCase):
         mm.setName("MyFirstMEDCouplingMEDmesh")
         mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
         mm.setCoords(c)
-        mm.setMeshAtLevelOld(-1,m1);
-        mm.setMeshAtLevelOld(0,m);
-        mm.setMeshAtLevelOld(-2,m2);
+        mm.setMeshAtLevel(-1,m1);
+        mm.setMeshAtLevel(0,m);
+        mm.setMeshAtLevel(-2,m2);
         # playing with groups
         g1_2=DataArrayInt.New()
         g1_2.setValues([1,3],2,1)
