@@ -308,3 +308,15 @@ int MEDCouplingField::getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exc
   else
     throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfTuplesExpected : Empty mesh !");
 }
+
+/*!
+ * This method returns number of mesh placed expected regarding its discretization and its _mesh attribute.
+ * This method expected a not null _mesh instance. If null, an exception will be thrown.
+ */
+int MEDCouplingField::getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh)
+    return _type->getNumberOfMeshPlaces(_mesh);
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfMeshPlacesExpected : Empty mesh !");
+}

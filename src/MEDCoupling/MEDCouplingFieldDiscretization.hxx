@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
     virtual const char *getStringRepr() const = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
+    virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
     virtual void normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
     virtual void normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
     virtual void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
@@ -104,6 +105,7 @@ namespace ParaMEDMEM
     const char *getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
@@ -132,6 +134,7 @@ namespace ParaMEDMEM
     const char *getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
@@ -187,6 +190,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretization *clone() const;
     const char *getStringRepr() const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
@@ -245,6 +249,7 @@ namespace ParaMEDMEM
     const char *getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;

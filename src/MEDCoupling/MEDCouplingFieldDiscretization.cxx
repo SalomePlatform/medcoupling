@@ -344,6 +344,11 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *m
   return mesh->getNumberOfCells();
 }
 
+int MEDCouplingFieldDiscretizationP0::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getNumberOfCells();
+}
+
 void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                                              const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
@@ -494,6 +499,11 @@ void MEDCouplingFieldDiscretizationP1::renumberArraysForCell(const MEDCouplingMe
 }
 
 int MEDCouplingFieldDiscretizationP1::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getNumberOfNodes();
+}
+
+int MEDCouplingFieldDiscretizationP1::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
 {
   return mesh->getNumberOfNodes();
 }
@@ -795,6 +805,11 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh
   for(const int *w=dcPtr;w!=dcPtr+nbOfTuples;w++)
     ret+=_loc[*w].getNumberOfGaussPt();
   return ret;
+}
+
+int MEDCouplingFieldDiscretizationGauss::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getNumberOfCells();
 }
 
 void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
@@ -1314,6 +1329,11 @@ int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMe
       ret+=cm.getNumberOfNodes();
     }
   return ret;
+}
+
+int MEDCouplingFieldDiscretizationGaussNE::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getNumberOfCells();
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
