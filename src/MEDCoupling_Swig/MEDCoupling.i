@@ -3551,6 +3551,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDiscretization *getDiscretization() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
     void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);

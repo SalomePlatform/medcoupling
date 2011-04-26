@@ -1764,6 +1764,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
         f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,NO_TIME);
         f.setMesh(m);
+        self.assertEqual(5,f.getNumberOfMeshPlacesExpected());
         self.assertEqual(0,f.getNbOfGaussLocalization());
         f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
         self.assertRaises(InterpKernelException,f.setGaussLocalizationOnType,NORM_QUAD4,_refCoo1,_gsCoo1,_wg1)
@@ -1833,6 +1834,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
         f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,NO_TIME);
         f.setMesh(m);
+        self.assertEqual(5,f.getNumberOfMeshPlacesExpected());
         f.setName("MyFirstFieldOnNE");
         f.setDescription("MyDescriptionNE");
         array=DataArrayDouble.New();
@@ -2330,6 +2332,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
         f=MEDCouplingFieldDouble.New(ON_NODES,NO_TIME);
         f.setMesh(m);
+        self.assertEqual(9,f.getNumberOfMeshPlacesExpected());
         arr=DataArrayDouble.New();
         nbOfNodes=m.getNumberOfNodes();
         values1=[7.,107.,10007.,8.,108.,10008.,9.,109.,10009.,10.,110.,10010.,11.,111.,10011.,12.,112.,10012.,13.,113.,10013.,14.,114.,10014.,15.,115.,10015.]
@@ -2497,6 +2500,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         nbOfCells=m.getNumberOfCells();
         f=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
         f.setMesh(m);
+        self.assertEqual(5,f.getNumberOfMeshPlacesExpected());
         f.setName("a");
         f.setDescription("b");
         a1=DataArrayDouble.New();

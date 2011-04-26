@@ -48,6 +48,7 @@ void MEDCouplingBasicsTest::testGaussPointField1()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_PT,NO_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   CPPUNIT_ASSERT_EQUAL(0,f->getNbOfGaussLocalization());
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
   CPPUNIT_ASSERT_THROW(f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,_refCoo1,_gsCoo1,_wg1),INTERP_KERNEL::Exception);
@@ -123,6 +124,7 @@ void MEDCouplingBasicsTest::testGaussPointNEField1()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_NE,NO_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   f->setName("MyFirstFieldOnNE");
   f->setDescription("MyDescriptionNE");
   DataArrayDouble *array=DataArrayDouble::New();
@@ -696,6 +698,7 @@ void MEDCouplingBasicsTest::testRenumberNodesForFields()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(9,f->getNumberOfMeshPlacesExpected());
   DataArrayDouble *arr=DataArrayDouble::New();
   int nbOfNodes=m->getNumberOfNodes();
   arr->alloc(nbOfNodes,3);
@@ -895,6 +898,7 @@ void MEDCouplingBasicsTest::testCopyTinyStringsFromOnFields()
   int nbOfCells=m->getNumberOfCells();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,LINEAR_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   f->setName("a");
   f->setDescription("b");
   DataArrayDouble *a1=DataArrayDouble::New();
