@@ -54,6 +54,7 @@ namespace ParaMEDMEM
     int getNodeIdFromPos(int i, int j, int k) const;
     static void GetPosFromId(int nodeId, int spaceDim, const int *split, int *res);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const;
+    std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;

@@ -340,6 +340,25 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingCMesh::getTypeOfCell(int cellId) co
     }
 }
 
+std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingCMesh::getAllGeoTypes() const
+{
+  INTERP_KERNEL::NormalizedCellType ret;
+  switch(getMeshDimension())
+    {
+    case 3:
+      ret=INTERP_KERNEL::NORM_HEXA8;
+    case 2:
+      ret=INTERP_KERNEL::NORM_QUAD4;
+    case 1:
+      ret=INTERP_KERNEL::NORM_SEG2;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingCMesh::getAllGeoTypes !");
+    }
+  std::set<INTERP_KERNEL::NormalizedCellType> ret2;
+  ret2.insert(ret);
+  return ret2;
+}
+
 int MEDCouplingCMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   int ret=getNumberOfCells();

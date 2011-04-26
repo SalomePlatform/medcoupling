@@ -26,6 +26,7 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 
+#include <set>
 #include <vector>
 
 namespace ParaMEDMEM
@@ -81,6 +82,7 @@ namespace ParaMEDMEM
     virtual DataArrayDouble *getBarycenterAndOwner() const = 0;
     virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const = 0;
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const = 0;
+    virtual std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const = 0;
     virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
     virtual DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
     virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;

@@ -137,6 +137,11 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshDesc::getTypeOfCell(int cellId
   return (INTERP_KERNEL::NormalizedCellType)desc_connec[desc_connec_index[cellId]+1];
 }
 
+std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMeshDesc::getAllGeoTypes() const
+{
+  return _types;
+}
+
 int MEDCouplingUMeshDesc::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   const int *desc_connec=_desc_connec->getConstPointer();

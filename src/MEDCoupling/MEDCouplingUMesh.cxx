@@ -263,6 +263,11 @@ void MEDCouplingUMesh::finishInsertingCells()
   updateTime();
 }
 
+std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypes() const
+{
+  return _types;
+}
+
 /*!
  * This method is a method that compares 'this' and 'other'.
  * This method compares \b all attributes, even names and component names.

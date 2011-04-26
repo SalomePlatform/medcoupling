@@ -209,6 +209,15 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cel
   return INTERP_KERNEL::CellModel::GetCellModel(tmp).getExtrudedType();
 }
 
+std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingExtrudedMesh::getAllGeoTypes() const
+{
+  const std::set<INTERP_KERNEL::NormalizedCellType>& ret2D=_mesh2D->getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> ret;
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=ret2D.begin();it!=ret2D.end();it++)
+    ret.insert(INTERP_KERNEL::CellModel::GetCellModel(*it).getExtrudedType());
+  return ret;
+}
+
 int MEDCouplingExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   int ret=0;
