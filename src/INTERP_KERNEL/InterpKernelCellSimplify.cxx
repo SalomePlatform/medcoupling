@@ -39,7 +39,7 @@ using namespace INTERP_KERNEL;
 INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
                                                                         int *retConn, int& retLgth) throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   std::set<int> c(conn,conn+lgth);
   c.erase(-1);
   bool isObviousNonDegeneratedCell=((int)c.size()==lgth);
@@ -104,7 +104,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly2D(const int *conn, i
 int *CellSimplify::getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
                                       int& retNbOfFaces, int& retLgth)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   unsigned nbOfFaces=cm.getNumberOfSons2(conn,lgth);
   int *tmp=new int[nbOfFaces*(lgth+1)];
   int *work=tmp;

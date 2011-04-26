@@ -59,7 +59,7 @@ namespace INTERP_KERNEL
     for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
       {
         NormalizedCellType tS=Intersector3DP0P1<MyMeshType,MyMatrix>::_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
-        const CellModel& cmTypeS=CellModel::getCellModel(tS);
+        const CellModel& cmTypeS=CellModel::GetCellModel(tS);
         std::vector<ConnType> connOfCurCellS;
         Intersector3DP0P1<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
         for(int nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)

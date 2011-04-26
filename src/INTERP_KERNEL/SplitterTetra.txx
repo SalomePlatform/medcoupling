@@ -192,7 +192,7 @@ namespace INTERP_KERNEL
 
     // get type of cell
     NormalizedCellType normCellType=_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(element));
-    const CellModel& cellModelCell=CellModel::getCellModel(normCellType);
+    const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
     unsigned nbOfNodes4Type=cellModelCell.isDynamic() ? _src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(element)) : cellModelCell.getNumberOfNodes();
     // halfspace filtering
     bool isOutside[8] = {true, true, true, true, true, true, true, true};
@@ -253,7 +253,7 @@ namespace INTERP_KERNEL
             else
               {
                 faceType = cellModelCell.getSonType(ii);
-                const CellModel& faceModel=CellModel::getCellModel(faceType);
+                const CellModel& faceModel=CellModel::GetCellModel(faceType);
                 assert(faceModel.getDimension() == 2);
                 faceNodes=new int[faceModel.getNumberOfNodes()];      
                 cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
@@ -415,7 +415,7 @@ namespace INTERP_KERNEL
 
     if(!isTargetOutside)
     {
-      const CellModel& cellModelCell=CellModel::getCellModel(NORM_TETRA4);
+      const CellModel& cellModelCell=CellModel::GetCellModel(NORM_TETRA4);
       int cellNodes[4] = { 0, 1, 2, 3 }, faceNodes[3];
 
       for(unsigned ii = 0 ; ii < 4 ; ++ii)
@@ -795,7 +795,7 @@ namespace INTERP_KERNEL
 
     // get type of cell and nb of cell nodes
     NormalizedCellType normCellType=_target_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(targetCell));
-    const CellModel& cellModelCell=CellModel::getCellModel(normCellType);
+    const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
     unsigned nbOfCellNodes=cellModelCell.isDynamic() ? _target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell)) : cellModelCell.getNumberOfNodes();
 
     // get nb of cell sons (faces)

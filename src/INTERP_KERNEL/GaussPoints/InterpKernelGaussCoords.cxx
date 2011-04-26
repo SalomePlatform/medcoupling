@@ -193,7 +193,7 @@ bool GaussInfo::isSatisfy()
 void GaussInfo::initLocalInfo() throw (INTERP_KERNEL::Exception) 
 {
   bool aSatify = false;
-  const CellModel& cellModel=CellModel::getCellModel(_my_geometry);
+  const CellModel& cellModel=CellModel::GetCellModel(_my_geometry);
   switch( _my_geometry ) 
     {
     case NORM_SEG2:

@@ -62,7 +62,7 @@ namespace INTERP_KERNEL
         NormalizedCellType tS=Intersector3DP1P0<MyMeshType,MyMatrix>::_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
         if(tS!=NORM_TETRA4)
           throw INTERP_KERNEL::Exception("Invalid source cell detected for meshdim==3. Only TETRA4 supported !");
-        const CellModel& cmTypeS=CellModel::getCellModel(tS);
+        const CellModel& cmTypeS=CellModel::GetCellModel(tS);
         std::vector<ConnType> connOfCurCellS;
         Intersector3DP1P0<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
         if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(baryT,&connOfCurCellS[0],connOfCurCellS.size(),coordsS,cmTypeS,_precision) )

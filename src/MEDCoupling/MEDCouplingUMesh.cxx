@@ -96,7 +96,7 @@ void MEDCouplingUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("No mesh dimension specified !");
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
     {
-      if((int)INTERP_KERNEL::CellModel::getCellModel(*iter).getDimension()!=_mesh_dim)
+      if((int)INTERP_KERNEL::CellModel::GetCellModel(*iter).getDimension()!=_mesh_dim)
         {
           std::ostringstream message;
           message << "Mesh invalid because dimension is " << _mesh_dim << " and there is presence of cell(s) with type " << (*iter);
@@ -136,7 +136,7 @@ void MEDCouplingUMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Ex
   const int *ptrI=_nodal_connec_index->getConstPointer();
   for(int i=0;i<nbOfCells;i++)
     {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)ptr[ptrI[i]]);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)ptr[ptrI[i]]);
       if((int)cm.getDimension()!=meshDim)
         {
           std::ostringstream oss;
@@ -223,7 +223,7 @@ void MEDCouplingUMesh::allocateCells(int nbOfCells)
  */
 void MEDCouplingUMesh::insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell) throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   if(_nodal_connec_index==0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::insertNextCell : nodal connectivity not set ! invoke allocateCells before calling insertNextCell !");
   if((int)cm.getDimension()==_mesh_dim)
@@ -499,14 +499,14 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *de
     {
       int pos=connIndex[eltId];
       int posP1=connIndex[eltId+1];
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[pos]);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[pos]);
       unsigned nbOfSons=cm.getNumberOfSons2(conn+pos+1,posP1-pos-1);
       int *tmp=new int[posP1-pos];
       for(unsigned i=0;i<nbOfSons;i++)
         {
           INTERP_KERNEL::NormalizedCellType cmsId;
           unsigned nbOfNodesSon=cm.fillSonCellNodalConnectivity2(i,conn+pos+1,posP1-pos-1,tmp,cmsId);
-          const INTERP_KERNEL::CellModel& cms=INTERP_KERNEL::CellModel::getCellModel(cmsId);
+          const INTERP_KERNEL::CellModel& cms=INTERP_KERNEL::CellModel::GetCellModel(cmsId);
           std::set<int> shareableCells(revNodalB[tmp[0]].begin(),revNodalB[tmp[0]].end());
           for(unsigned j=1;j<nbOfNodesSon && !shareableCells.empty();j++)
             {
@@ -623,7 +623,7 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
           int pos=connIndex[*iter];
           int posP1=connIndex[(*iter)+1];
           int lgthOld=posP1-pos-1;
-          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)connNew[pos]);
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connNew[pos]);
           connNew[pos]=INTERP_KERNEL::NORM_POLYHED;
           unsigned nbOfFaces=cm.getNumberOfSons2(&connNew[pos+1],lgthOld);
           int *tmp=new int[nbOfFaces*lgthOld];
@@ -686,7 +686,7 @@ void MEDCouplingUMesh::unPolyze()
     {
       lgthOfCurCell=index[i+1]-posOfCurCell;
       INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)conn[posOfCurCell];
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
       INTERP_KERNEL::NormalizedCellType newType=INTERP_KERNEL::NORM_ERROR;
       int newLgth;
       if(cm.isDynamic())
@@ -1592,7 +1592,7 @@ std::string MEDCouplingUMesh::simpleRepr() const
   ret << "Cell types present : ";
   for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
     {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(*iter);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(*iter);
       ret << cm.getRepr() << " ";
     }
   ret << "\n";
@@ -1628,7 +1628,7 @@ void MEDCouplingUMesh::reprConnectivityOfThisLL(std::ostringstream& stream) cons
       const int *ci=_nodal_connec_index->getConstPointer();
       for(int i=0;i<nbOfCells;i++)
         {
-          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)c[ci[i]]);
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)c[ci[i]]);
           stream << "Cell #" << i << " " << cm.getRepr() << " : ";
           std::copy(c+ci[i]+1,c+ci[i+1],std::ostream_iterator<int>(stream," "));
           stream << "\n";
@@ -2367,7 +2367,7 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
       int nbOfNodesForCell=connI[i+1]-offset-1;
       if(nbOfNodesForCell<=3)
         continue;
-      bool isQuad=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[offset]).isQuadratic();
+      bool isQuad=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[offset]).isQuadratic();
       project2DCellOnXY(conn+offset+1,conn+connI[i+1],cell2DinS2);
       if(isButterfly2DCell(cell2DinS2,isQuad))
         cells.push_back(i);
@@ -2668,7 +2668,7 @@ bool MEDCouplingUMesh::isFullyQuadratic() const
   for(int i=0;i<nbOfCells && ret;i++)
     {
       INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
       ret=cm.isQuadratic();
     }
   return ret;
@@ -2685,7 +2685,7 @@ bool MEDCouplingUMesh::isPresenceOfQuadratic() const
   for(int i=0;i<nbOfCells && !ret;i++)
     {
       INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
       ret=cm.isQuadratic();
     }
   return ret;
@@ -2703,11 +2703,11 @@ void MEDCouplingUMesh::convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exce
   for(int i=0;i<nbOfCells;i++)
     {
       INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
       if(cm.isQuadratic())
         {
           INTERP_KERNEL::NormalizedCellType typel=cm.getLinearType();
-          const INTERP_KERNEL::CellModel& cml=INTERP_KERNEL::CellModel::getCellModel(typel);
+          const INTERP_KERNEL::CellModel& cml=INTERP_KERNEL::CellModel::GetCellModel(typel);
           delta+=cm.getNumberOfNodes()-cml.getNumberOfNodes();
         }
     }
@@ -2726,7 +2726,7 @@ void MEDCouplingUMesh::convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exce
   for(int i=0;i<nbOfCells;i++,ociptr++)
     {
       INTERP_KERNEL::NormalizedCellType type=getTypeOfCell(i);
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
       if(!cm.isQuadratic())
         {
           _types.insert(type);
@@ -2737,7 +2737,7 @@ void MEDCouplingUMesh::convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exce
         {
           INTERP_KERNEL::NormalizedCellType typel=cm.getLinearType();
           _types.insert(typel);
-          const INTERP_KERNEL::CellModel& cml=INTERP_KERNEL::CellModel::getCellModel(typel);
+          const INTERP_KERNEL::CellModel& cml=INTERP_KERNEL::CellModel::GetCellModel(typel);
           int newNbOfNodes=cml.getNumberOfNodes();
           *ocptr++=(int)typel;
           ocptr=std::copy(icptr+iciptr[i]+1,icptr+iciptr[i]+newNbOfNodes+1,ocptr);
@@ -2779,7 +2779,7 @@ bool MEDCouplingUMesh::areOnlySimplexCells() const throw(INTERP_KERNEL::Exceptio
   const int *connI=_nodal_connec_index->getConstPointer();
   for(int i=0;i<nbCells;i++)
     {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
       if(!cm.isSimplex())
         return false;
     }
@@ -3544,7 +3544,7 @@ DataArrayInt *MEDCouplingUMesh::getLevArrPerCellTypes(const INTERP_KERNEL::Norma
         }
       else
         {
-          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel((INTERP_KERNEL::NormalizedCellType)conn[*i]);
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[*i]);
           std::ostringstream oss; oss << "MEDCouplingUMesh::getLevArrPerCellTypes : Cell #" << std::distance(connI,i);
           oss << " has a type " << cm.getRepr() << " not in input array of type !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -3986,7 +3986,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
 void MEDCouplingUMesh::appendExtrudedCell(const int *connBg, const int *connEnd, int nbOfNodesPerLev, bool isQuad, std::vector<int>& ret)
 {
   INTERP_KERNEL::NormalizedCellType flatType=(INTERP_KERNEL::NormalizedCellType)connBg[0];
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(flatType);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(flatType);
   ret.push_back(cm.getExtrudedType());
   int deltaz=isQuad?2*nbOfNodesPerLev:nbOfNodesPerLev;
   switch(flatType)

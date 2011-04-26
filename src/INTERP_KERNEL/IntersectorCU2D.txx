@@ -60,7 +60,7 @@ namespace INTERP_KERNEL
     getUCoordinates( icellT, uCoords );
 
     NormalizedCellType tT = INTER_CU::_meshU.getTypeOfElement( _TMIU(icellT));
-    bool is_tgt_quad = CellModel::getCellModel(tT).isQuadratic();
+    bool is_tgt_quad = CellModel::GetCellModel(tT).isQuadratic();
 
     double quad[8] = { INTER_CU::_coordsC[0][icellS[0]],   INTER_CU::_coordsC[1][icellS[1]],
                        INTER_CU::_coordsC[0][icellS[0]+1], INTER_CU::_coordsC[1][icellS[1]], 

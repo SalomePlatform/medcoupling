@@ -39,7 +39,7 @@ namespace INTERP_KERNEL
 
   std::map<NormalizedCellType,CellModel> CellModel::_map_of_unique_instance;
 
-  const CellModel& CellModel::getCellModel(NormalizedCellType type)
+  const CellModel& CellModel::GetCellModel(NormalizedCellType type)
   {
     if(_map_of_unique_instance.empty())
       buildUniqueInstance();
@@ -64,7 +64,7 @@ namespace INTERP_KERNEL
   {
     if(_type==type)
       return true;
-    const CellModel& other=getCellModel(type);
+    const CellModel& other=GetCellModel(type);
     if(_dim!=other.getDimension())
       return false;
     bool b1=isQuadratic();

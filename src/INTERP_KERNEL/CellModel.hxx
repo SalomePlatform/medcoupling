@@ -40,7 +40,7 @@ namespace INTERP_KERNEL
     CellModel(NormalizedCellType type);
     static void buildUniqueInstance();
   public:
-    INTERPKERNEL_EXPORT static const CellModel& getCellModel(NormalizedCellType type);
+    INTERPKERNEL_EXPORT static const CellModel& GetCellModel(NormalizedCellType type);
     INTERPKERNEL_EXPORT const char *getRepr() const;
     INTERPKERNEL_EXPORT bool isDynamic() const { return _dyn; }
     INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }

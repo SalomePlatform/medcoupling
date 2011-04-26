@@ -42,7 +42,7 @@ catch(INTERP_KERNEL::Exception& e)
 
 void ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
   int dim=cm.getDimension();
   if(!cm.isDynamic())
@@ -90,7 +90,7 @@ bool ParaMEDMEM::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLoc
 
 double ParaMEDMEM::MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, int comp) const throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
   int dim=cm.getDimension();
   if(ptIdInCell<0 || ptIdInCell>=nbNodes)
@@ -160,7 +160,7 @@ const double *ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues(const dou
  */
 void ParaMEDMEM::MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
   int dim=cm.getDimension();
   if(ptIdInCell<0 || ptIdInCell>=nbNodes)
@@ -193,7 +193,7 @@ ParaMEDMEM::MEDCouplingGaussLocalization ParaMEDMEM::MEDCouplingGaussLocalizatio
 
 int ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussPtIdInCell, int comp) const throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int dim=cm.getDimension();
   int nbGsPts=getNumberOfGaussPt();
   if(gaussPtIdInCell<0 || gaussPtIdInCell>=nbGsPts)

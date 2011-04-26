@@ -79,7 +79,7 @@ namespace INTERP_KERNEL
                 if(SPACEDIM==3)
                   orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&sourceCellCoordsTmp[0],quadrangle,sourceCellCoords.size()/SPACEDIM,4);
                 NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(OTT<ConnType,numPol>::indFC(iS));
-                double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,sourceCellCoordsTmp,CellModel::getCellModel(tS).isQuadratic());
+                double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,sourceCellCoordsTmp,CellModel::GetCellModel(tS).isQuadratic());
                 surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
                 if(surf!=0.)
                   {

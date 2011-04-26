@@ -60,7 +60,7 @@ namespace INTERP_KERNEL
         NormalizedCellType tS=Intersector3DP1P1<MyMeshType,MyMatrix>::_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
         if(tS!=NORM_TETRA4)
           throw INTERP_KERNEL::Exception("Invalid source cell detected for meshdim==3. Only TETRA4 supported !");
-        const CellModel& cmTypeS=CellModel::getCellModel(tS);
+        const CellModel& cmTypeS=CellModel::GetCellModel(tS);
         const ConnType *startOfCellNodeConnT=Intersector3DP1P1<MyMeshType,MyMatrix>::getStartConnOfTargetCell(targetCell);
         for(int nodeIdT=0;nodeIdT<nbOfNodesT;nodeIdT++)
           {

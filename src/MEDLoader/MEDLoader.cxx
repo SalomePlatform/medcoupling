@@ -318,8 +318,8 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
           if(loc==locName)
             break;
         }
-      int dim=(int)INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getDimension();
-      int nbPtPerCell=(int)INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getNumberOfNodes();
+      int dim=(int)INTERP_KERNEL::CellModel::GetCellModel((*iter).getType()).getDimension();
+      int nbPtPerCell=(int)INTERP_KERNEL::CellModel::GetCellModel((*iter).getType()).getNumberOfNodes();
       std::vector<double> refcoo(nbPtPerCell*dim),gscoo(nbOfGaussPt*dim),w(nbOfGaussPt);
       MEDlocalizationRd(fid,(*iter).getLocName().c_str(),MED_FULL_INTERLACE,&refcoo[0],&gscoo[0],&w[0]);
       f->setGaussLocalizationOnType((*iter).getType(),refcoo,gscoo,w);
@@ -1203,7 +1203,7 @@ int MEDLoaderNS::readUMeshDimFromFile(const char *fileName, const char *meshName
       if(curNbOfElem>0)
         {
           INTERP_KERNEL::NormalizedCellType type=typmai2[i];
-          int curDim=(int)INTERP_KERNEL::CellModel::getCellModel(type).getDimension();
+          int curDim=(int)INTERP_KERNEL::CellModel::GetCellModel(type).getDimension();
           poss.insert(curDim);
         }
     }
@@ -1375,7 +1375,7 @@ namespace MEDLoaderNS
     unsigned ret=0;
     for(typename std::list<T>::const_iterator iter=conn.begin();iter!=conn.end();iter++)
       {
-        unsigned curDim=INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getDimension();
+        unsigned curDim=INTERP_KERNEL::CellModel::GetCellModel((*iter).getType()).getDimension();
         if(ret<curDim)
           ret=curDim;
       }
@@ -1387,7 +1387,7 @@ namespace MEDLoaderNS
   {
     for(typename std::list<T>::iterator iter=conn.begin();iter!=conn.end();)
       {
-        unsigned curDim=INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getDimension();
+        unsigned curDim=INTERP_KERNEL::CellModel::GetCellModel((*iter).getType()).getDimension();
         if(curDim!=meshDim)
           {
             (*iter).releaseArray();
@@ -1478,7 +1478,7 @@ void MEDLoaderNS::tradMEDFileCoreFrmt2MEDCouplingUMesh(const std::list<MEDLoader
     {
       if((*iter).getGlobal()==0)
         renumber=false;
-      const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::getCellModel((*iter).getType());
+      const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::GetCellModel((*iter).getType());
       if(keepAll)
         totalNbOfCells+=(*iter).getLength();
       else
@@ -1516,7 +1516,7 @@ void MEDLoaderNS::tradMEDFileCoreFrmt2MEDCouplingUMesh(const std::list<MEDLoader
       const int *sourceConn=(*iter).getArray();
       const int *sourceIndex=(*iter).getIndex();
       const int *globalNum=(*iter).getGlobal();
-      const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::getCellModel(type);
+      const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::GetCellModel(type);
       int nbOfCellsInCurType;
       int nbOfNodesIn1Cell=cellMod.getNumberOfNodes();
       nbOfCellsInCurType=(*iter).getLength();
@@ -1728,7 +1728,7 @@ int MEDLoaderNS::buildMEDSubConnectivityOfOneType(const std::vector<const DataAr
                                                   std::vector<int>& connIndex4MEDFile, std::vector<int>& connIndexRk24MEDFile, std::vector<int>& fam4MEDFile, std::vector<int>& renumber)
 {
     
-  const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::getCellModel(type);
+  const INTERP_KERNEL::CellModel& cellMod=INTERP_KERNEL::CellModel::GetCellModel(type);
   if(!cellMod.isDynamic())
     return buildMEDSubConnectivityOfOneTypeStaticTypes(conn,connIndex,families,type,conn4MEDFile,fam4MEDFile,renumber);
   else
@@ -2422,7 +2422,7 @@ void MEDLoaderNS::appendFieldDirectly(const char *fileName, const ParaMEDMEM::ME
         prepareCellFieldDoubleForWriting(f,0,split);
         for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=split.begin();iter!=split.end();iter++)
           {
-            int nbPtPerCell=(int)INTERP_KERNEL::CellModel::getCellModel((*iter).getType()).getNumberOfNodes();
+            int nbPtPerCell=(int)INTERP_KERNEL::CellModel::GetCellModel((*iter).getType()).getNumberOfNodes();
             int nbOfEntity=f->getMesh()->getNumberOfCellsWithType((*iter).getType());
             int nbOfValues=nbPtPerCell*nbOfEntity;
             MEDfieldValueWithProfileWr(fid,f->getName(),numdt,numo,dt,MED_NODE_ELEMENT,typmai3[(int)(*iter).getType()],MED_COMPACT_PFLMODE,

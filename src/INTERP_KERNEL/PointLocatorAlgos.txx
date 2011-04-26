@@ -168,7 +168,7 @@ namespace INTERP_KERNEL
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
 
-      const CellModel& cmType=CellModel::getCellModel(type);
+      const CellModel& cmType=CellModel::GetCellModel(type);
       //
       if (SPACEDIM==2)
         {
@@ -253,7 +253,7 @@ namespace INTERP_KERNEL
           const ConnType* conn_elem=conn+OTT<ConnType,numPol>::ind2C(conn_index[i]);
           int conn_elem_sz=conn_index[i+1]-conn_index[i];
           NormalizedCellType type=_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
-          CellModel cell = CellModel::getCellModel(type);
+          CellModel cell = CellModel::GetCellModel(type);
 
           if ( cell.isQuadratic() )
             throw Exception("P2 not implemented yet");

@@ -166,7 +166,7 @@ namespace INTERP_KERNEL
     std::vector<Node *> nodes(nbNodes);
     for(int i=0;i<nbNodes;i++)
       nodes[i]=new Node(coords[i*SPACEDIM],coords[i*SPACEDIM+1]);
-    if(!CellModel::getCellModel(type).isQuadratic())
+    if(!CellModel::GetCellModel(type).isQuadratic())
       return QuadraticPolygon::buildLinearPolygon(nodes);
     else
       return QuadraticPolygon::buildArcCirclePolygon(nodes);
@@ -179,7 +179,7 @@ namespace INTERP_KERNEL
     std::vector<Node *> nodes(nbOfPoints);
     for(int i=0;i<nbOfPoints;i++)
       nodes[i]=new Node(PlanarIntersector<MyMeshType,MyMatrix>::_coordsT+OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[i])*SPACEDIM);
-    if(CellModel::getCellModel(type).isQuadratic())
+    if(CellModel::GetCellModel(type).isQuadratic())
       return QuadraticPolygon::buildLinearPolygon(nodes);
     else
       return QuadraticPolygon::buildArcCirclePolygon(nodes);
