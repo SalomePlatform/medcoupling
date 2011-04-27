@@ -349,6 +349,15 @@ int MEDCouplingFieldDiscretizationP0::getNumberOfMeshPlaces(const MEDCouplingMes
   return mesh->getNumberOfCells();
 }
 
+DataArrayInt *MEDCouplingFieldDiscretizationP0::getOffsetArr(const MEDCouplingMesh *mesh) const
+{
+  int nbOfTuples=mesh->getNumberOfCells();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples+1,1);
+  ret->iota(0);
+  return ret;
+}
+
 void MEDCouplingFieldDiscretizationP0::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                                              const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
@@ -506,6 +515,15 @@ int MEDCouplingFieldDiscretizationP1::getNumberOfTuples(const MEDCouplingMesh *m
 int MEDCouplingFieldDiscretizationP1::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
 {
   return mesh->getNumberOfNodes();
+}
+
+DataArrayInt *MEDCouplingFieldDiscretizationP1::getOffsetArr(const MEDCouplingMesh *mesh) const
+{
+  int nbOfTuples=mesh->getNumberOfNodes();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples+1,1);
+  ret->iota(0);
+  return ret;
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationP1::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
@@ -742,6 +760,11 @@ void MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells() const throw(INT
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells : presence of orphan cells !");
 }
 
+const DataArrayInt *MEDCouplingFieldDiscretizationPerCell::getArrayOfDiscIds() const
+{
+  return _discr_per_cell;
+}
+
 MEDCouplingFieldDiscretizationGauss::MEDCouplingFieldDiscretizationGauss()
 {
 }
@@ -810,6 +833,19 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh
 int MEDCouplingFieldDiscretizationGauss::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
 {
   return mesh->getNumberOfCells();
+}
+
+DataArrayInt *MEDCouplingFieldDiscretizationGauss::getOffsetArr(const MEDCouplingMesh *mesh) const
+{
+  int nbOfTuples=mesh->getNumberOfCells();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples+1,1);
+  int *retPtr=ret->getPointer();
+  const int *start=_discr_per_cell->getConstPointer();
+  retPtr[0]=0;
+  for(int i=0;i<nbOfTuples;i++,start++)
+    retPtr[i+1]=retPtr[i]+_loc[*start].getNumberOfGaussPt();
+  return ret;
 }
 
 void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
@@ -945,7 +981,7 @@ void MEDCouplingFieldDiscretizationGauss::resizeForUnserialization(const std::ve
   for(int i=0;i<nbOfLoc;i++)
     {
       std::vector<int> tmp(tinyInfo.begin()+3+i*delta,tinyInfo.begin()+3+(i+1)*delta);
-      MEDCouplingGaussLocalization elt=MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo(dim,tmp);
+      MEDCouplingGaussLocalization elt=MEDCouplingGaussLocalization::BuildNewInstanceFromTinyInfo(dim,tmp);
       _loc.push_back(elt);
     }
 }
@@ -1334,6 +1370,24 @@ int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMe
 int MEDCouplingFieldDiscretizationGaussNE::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
 {
   return mesh->getNumberOfCells();
+}
+
+DataArrayInt *MEDCouplingFieldDiscretizationGaussNE::getOffsetArr(const MEDCouplingMesh *mesh) const
+{
+  int nbOfTuples=mesh->getNumberOfCells();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples+1,1);
+  int *retPtr=ret->getPointer();
+  retPtr[0]=0;
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=mesh->getTypeOfCell(i);
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+      if(cm.isDynamic())
+        throw INTERP_KERNEL::Exception("Not implemented yet Gauss node on elements for polygons and polyedrons !");
+      retPtr[i+1]=retPtr[i]+cm.getNumberOfNodes();
+    }
+  return ret;
 }
 
 void MEDCouplingFieldDiscretizationGaussNE::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,

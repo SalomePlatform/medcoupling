@@ -79,11 +79,11 @@ bool ParaMEDMEM::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLoc
 {
   if(_type!=other._type)
     return false;
-  if(!areAlmostEqual(_ref_coord,other._ref_coord,eps))
+  if(!AreAlmostEqual(_ref_coord,other._ref_coord,eps))
     return false;
-  if(!areAlmostEqual(_gauss_coord,other._gauss_coord,eps))
+  if(!AreAlmostEqual(_gauss_coord,other._gauss_coord,eps))
     return false;
-  if(!areAlmostEqual(_weight,other._weight,eps))
+  if(!AreAlmostEqual(_weight,other._weight,eps))
     return false;
   return true;
 }
@@ -185,7 +185,7 @@ void ParaMEDMEM::MEDCouplingGaussLocalization::setWeight(int gaussPtIdInCell, do
 /*!
  * The format of 'tinyData' parameter is the same than pushed in method ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo.
  */
-ParaMEDMEM::MEDCouplingGaussLocalization ParaMEDMEM::MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData)
+ParaMEDMEM::MEDCouplingGaussLocalization ParaMEDMEM::MEDCouplingGaussLocalization::BuildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData)
 {
   std::vector<double> v1(dim*tinyData[1]),v2(dim*tinyData[2]),v3(tinyData[2]);
   return ParaMEDMEM::MEDCouplingGaussLocalization((INTERP_KERNEL::NormalizedCellType)tinyData[0],v1,v2,v3);
@@ -203,7 +203,7 @@ int ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussP
   return dim;
 }
 
-bool ParaMEDMEM::MEDCouplingGaussLocalization::areAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
+bool ParaMEDMEM::MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
 {
   int sz=v1.size();
   if(sz!=(int)v2.size())

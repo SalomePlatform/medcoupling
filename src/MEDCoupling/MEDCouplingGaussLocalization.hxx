@@ -55,10 +55,10 @@ namespace ParaMEDMEM
     void setGaussCoord(int gaussPtIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception);
     void setWeight(int gaussPtIdInCell, double newVal) throw(INTERP_KERNEL::Exception);
     //
-    static MEDCouplingGaussLocalization buildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData);
+    static MEDCouplingGaussLocalization BuildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData);
+    static bool AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps);
   private:
     int checkCoherencyOfRequest(int gaussPtIdInCell, int comp) const throw(INTERP_KERNEL::Exception);
-    static bool areAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps);
   private:
     INTERP_KERNEL::NormalizedCellType _type;
     std::vector<double> _ref_coord;

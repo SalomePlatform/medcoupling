@@ -71,6 +71,7 @@ using namespace INTERP_KERNEL;
 %feature("autodoc", "1");
 %feature("docstring");
 
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getOffsetArr;
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingField::getLocalizationOfDiscr;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;

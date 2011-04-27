@@ -6263,6 +6263,22 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([4,4,3,0,4,4,3,3,0,0,2,2],da.getValues())
         pass
 
+    def testSwigDAIOp2(self):
+        da=DataArrayInt.New()
+        st=da.getHiddenCppPointer()
+        da.alloc(10,3)
+        da.rearrange(1)
+        da.iota(0)
+        da.rearrange(3)
+        da[:,1]+=4
+        da[-2:,2]+=10
+        da[-2:,2]+=10
+        da[:,2]+=da[:,0]
+        da[da[0],:]=7
+        self.assertEqual(st,da.getHiddenCppPointer())
+        self.assertEqual(da.getValues(),[7,7,7,3,8,8,7,7,7,9,14,20,12,17,26,7,7,7,18,23,38,21,26,44,24,29,70,27,32,76])
+        pass
+
     def testDAIAggregateMulti1(self):
         a=DataArrayInt.New()
         a.setValues(range(4),2,2)
