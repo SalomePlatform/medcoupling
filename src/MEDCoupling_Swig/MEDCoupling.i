@@ -3581,22 +3581,51 @@ namespace ParaMEDMEM
 
       PyObject *buildSubMeshData(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
-        int size;
-        INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-        DataArrayInt *ret1;
-        MEDCouplingMesh *ret0=self->buildSubMeshData(tmp,tmp+size,ret1);
+        DataArrayInt *ret1=0;
+        MEDCouplingMesh *ret0=0;
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            ret0=self->buildSubMeshData(tmp,tmp+size,ret1);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            ret0=self->buildSubMeshData(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),ret1);
+          }
         PyObject *res = PyList_New(2);
         PyList_SetItem(res,0,convertMesh(ret0, SWIG_POINTER_OWN | 0 ));
         PyList_SetItem(res,1,SWIG_NewPointerObj((void*)ret1,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
         return res;
       }
+
       void setGaussLocalizationOnCells(PyObject *li, const std::vector<double>& refCoo,
                                        const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
       {
-        int size;
-        INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-        self->setGaussLocalizationOnCells(tmp,tmp+size,refCoo,gsCoo,wg);
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            self->setGaussLocalizationOnCells(tmp,((int *)tmp)+size,refCoo,gsCoo,wg);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            self->setGaussLocalizationOnCells(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),refCoo,gsCoo,wg);
+          }
       }
+
       PyObject *getCellIdsHavingGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> tmp;

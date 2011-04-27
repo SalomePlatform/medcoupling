@@ -100,6 +100,36 @@ class MEDLoaderDataForTest:
         targetMesh.setCoords(myCoords);
         return targetMesh;
 
+    #this mesh has several cells duplicated ! it is not beautiful but efficient to test file WR.
+    def build2DMesh_3(cls):
+        targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
+                      -0.05,0.95, 0.2,1.2, 0.45,0.95]
+        targetConn=[1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4]
+        targetMesh=MEDCouplingUMesh.New();
+        targetMesh.setMeshDimension(2);
+        targetMesh.allocateCells(13);
+        targetMesh.setName("2DMesh_3");
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[12:16])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[16:20])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[12:16])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[16:20])
+        targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
+        targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
+        targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
+        targetMesh.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(targetCoords,12,2);
+        myCoords.setInfoOnComponent(0,"toto [m]");
+        myCoords.setInfoOnComponent(1,"energie [kW]");
+        targetMesh.setCoords(myCoords);
+        return targetMesh;
+
     def build3DMesh_1(cls):
         coords=[0.,0.,0., 1.,1.,0., 1.,1.25,0., 0.,1.,0., 1.,1.5,0., 2.,0.,0., 2.,1.,0., 1.,2.,0., 0.,2.,0., 3.,1.,0.,
                 3.,2.,0., 0.,1.,0., 1.,3.,0., 2.,2.,0., 2.,3.,0.,
@@ -361,6 +391,55 @@ class MEDLoaderDataForTest:
         f.checkCoherency();
         return f;
 
+    def buildVecFieldOnGauss_2(cls):
+        _a=0.446948490915965;
+        _b=0.091576213509771;
+        _p1=0.11169079483905;
+        _p2=0.0549758718227661;
+        refCoo1=[ 0.,0., 1.,0., 0.,1. ]
+        gsCoo1=[ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
+                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ];
+        wg1=[ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 ]
+        _refCoo1=refCoo1;
+        _gsCoo1=gsCoo1;
+        _wg1=wg1;
+        m=MEDLoaderDataForTest.build2DMesh_3();
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
+        f.setTime(3.14,1,5);
+        f.setMesh(m);
+        di=DataArrayInt.New(); di.setValues([0,2,3],3,1)
+        f.setGaussLocalizationOnCells(di,_refCoo1,_gsCoo1,_wg1)
+        _wg1[-1]*=2
+        f.setGaussLocalizationOnCells([1,5],_refCoo1,_gsCoo1,_wg1);
+        _wg1[-1]*=2
+        f.setGaussLocalizationOnCells([4],_refCoo1,_gsCoo1,_wg1);
+        refCoo2=[-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 ]
+        _refCoo2=refCoo2;
+        _gsCoo1=_gsCoo1[0:6];
+        _gsCoo2=_gsCoo1
+        _wg1=_wg1[0:3];
+        _wg2=_wg1
+        refCoo3=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
+        _refCoo3=refCoo3;
+        _gsCoo1=_gsCoo1[0:4];
+        _wg1=_wg1[0:2];
+        f.setGaussLocalizationOnCells([6,7,8],_refCoo3,_gsCoo1,_wg1);
+        _wg1[-1]*=2
+        f.setGaussLocalizationOnCells([9],_refCoo3,_gsCoo1,_wg1);
+        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2);
+        array=DataArrayDouble.New();
+        array.alloc(53,2);
+        ptr=array.getPointer();
+        for i in xrange(53*2):
+            array.setIJ(0,i,float(i+7));
+            pass
+        f.setArray(array);
+        f.setName("MyFirstFieldOnGaussPoint");
+        array.setInfoOnComponent(0,"power [MW/m^3]");
+        array.setInfoOnComponent(1,"density");
+        f.checkCoherency();
+        return f;
+
     def buildVecFieldOnGaussNE_1(cls):
         m=MEDLoaderDataForTest.build2DMesh_2();
         f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME);
@@ -381,6 +460,7 @@ class MEDLoaderDataForTest:
     build2DCurveMesh_1=classmethod(build2DCurveMesh_1)
     build2DMesh_1=classmethod(build2DMesh_1)
     build2DMesh_2=classmethod(build2DMesh_2)
+    build2DMesh_3=classmethod(build2DMesh_3)
     build3DMesh_1=classmethod(build3DMesh_1)
     build3DSurfMesh_1=classmethod(build3DSurfMesh_1)
     build3DMesh_2=classmethod(build3DMesh_2)
@@ -388,5 +468,6 @@ class MEDLoaderDataForTest:
     buildVecFieldOnCells_1=classmethod(buildVecFieldOnCells_1)
     buildVecFieldOnNodes_1=classmethod(buildVecFieldOnNodes_1)
     buildVecFieldOnGauss_1=classmethod(buildVecFieldOnGauss_1)
+    buildVecFieldOnGauss_2=classmethod(buildVecFieldOnGauss_2)
     buildVecFieldOnGaussNE_1=classmethod(buildVecFieldOnGaussNE_1)
     pass
