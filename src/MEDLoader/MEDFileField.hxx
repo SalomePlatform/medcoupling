@@ -49,14 +49,17 @@ namespace ParaMEDMEM
   public:
     const std::string& getName() const { return _name; }
     static MEDFileFieldLoc *New(med_idt fid, const char *locName);
+    static MEDFileFieldLoc *New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
     int getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
     void writeLL(med_idt fid) const;
     bool isName(const char *name) const { return _name==name; }
     const std::vector<double>& getRefCoords() const { return _ref_coo; }
     const std::vector<double>& getGaussCoords() const { return _gs_coo; }
     const std::vector<double>& getGaussWeights() const { return _w; }
+    bool isEqual(const MEDFileFieldLoc& other, double eps) const;
   private:
     MEDFileFieldLoc(med_idt fid, const char *locName);
+    MEDFileFieldLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
   private:
     int _dim;
     int _nb_gauss_pt;
@@ -76,6 +79,8 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
+    static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId);
+    void assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     const MEDFileFieldPerMeshPerType *getFather() const;
     int getIteration() const;
@@ -91,25 +96,31 @@ namespace ParaMEDMEM
     const std::vector<std::string>& getInfo() const;
     std::string getProfile() const;
     std::string getLocalization() const;
+    int getLocId() const { return _loc_id; }
     void getFieldAtLevel(TypeOfField type, const MEDFieldFieldGlobs *glob, std::vector<const DataArrayDouble *>& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs,
                          std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
+    static int ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception);
   private:
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
-    
+    MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt);
   private:
     TypeOfField _type;
     MEDFileFieldPerMeshPerType *_father;
     MEDCouplingAutoRefCountObjectPtr< DataArrayDouble > _arr;
+    //! _nval is different than _arr->getNumberOfTuples() in case of ON_GAUSS_PT and ON_GAUSS_NE ! (_nval=_arr->getNumberOfTuples()/nbi)
     int _nval;
     int _profile_it;
     std::string _profile;
     std::string _localization;
+    //! only on assignement -2 : ON_CELLS, -1 : ON_GAUSS_NE, 0..* : ON_GAUSS_PT
+    mutable int _loc_id;
   };
 
   class MEDFileFieldPerMeshPerType : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileFieldPerMeshPerType *New(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception);
+    void assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     const MEDFileFieldPerMesh *getFather() const;
     void finishLoading(med_idt fid, TypeOfField type) throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
@@ -127,6 +138,8 @@ namespace ParaMEDMEM
     void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFieldFieldGlobs *glob, std::vector<const DataArrayDouble *>& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
   private:
+    std::vector<int> addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception);
+    std::vector<int> addNewEntryIfNecessaryGauss(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception);
     MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception);
   private:
     MEDFileFieldPerMesh *_father;
@@ -137,7 +150,10 @@ namespace ParaMEDMEM
   class MEDFileFieldPerMesh : public RefCountObject, public MEDFileWritable
   {
   public:
+    static MEDFileFieldPerMesh *New(const MEDCouplingMesh *mesh);
     static MEDFileFieldPerMesh *New(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder);
+    void copyTinyInfoFrom(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
+    void assignFieldNoProfile(const std::vector<int>& code, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     void getDimension(int& dim) const;
@@ -155,6 +171,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocsReallyUsed() const;
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDim, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
   private:
+    int addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type);
     MEDCouplingFieldDouble *finishField(TypeOfField type, const MEDFieldFieldGlobs *glob,
                                         const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *finishField2(TypeOfField type, const MEDFieldFieldGlobs *glob,
@@ -168,6 +185,7 @@ namespace ParaMEDMEM
                                   std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls);
     static int ComputeNbOfElems(const MEDFieldFieldGlobs *glob, const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs) throw(INTERP_KERNEL::Exception);
     MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder);
+    MEDFileFieldPerMesh(const MEDCouplingMesh *mesh);
   private:
     std::string _mesh_name;
     int _mesh_iteration;
@@ -195,6 +213,9 @@ namespace ParaMEDMEM
     const DataArrayInt *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception);
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
+    //
+    void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
+    void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
   protected:
     std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > _pfls;
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> > _locs;
@@ -204,6 +225,7 @@ namespace ParaMEDMEM
   class MEDFileField1TSWithoutDAS : public RefCountObject, public MEDFileWritable
   {
   public:
+    void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     int getDimension() const;
     int getIteration() const { return _iteration; }
     int getOrder() const { return _order; }
@@ -225,11 +247,13 @@ namespace ParaMEDMEM
     std::vector<std::string> getPflsReallyUsed2() const;
     std::vector<std::string> getLocsReallyUsed2() const;
     static void CheckMeshDimRel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
+    static std::vector<int> CheckSBTMesh(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
   public:
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const char *mName, int renumPol, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFieldFieldGlobs *glob, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception);
   protected:
+    int addNewEntryIfNecessary(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
   protected:
@@ -256,6 +280,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    //
+    void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
   private:
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;

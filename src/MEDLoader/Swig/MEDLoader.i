@@ -453,6 +453,8 @@ namespace ParaMEDMEM
   class MEDFileField1TSWithoutDAS : public RefCountObject
   {
   public:
+    void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
+    //
     int getDimension() const;
     int getIteration() const;
     int getOrder() const;

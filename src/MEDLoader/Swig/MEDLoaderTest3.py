@@ -411,6 +411,15 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
         self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_NODES,its[0][0],its[0][1],0,1)#request renumber following mesh : it is on profile !
         pass
+
+    # MEDField get/set on profiles cells
+    def testMEDField7(self):
+        ff=MEDFileFieldMultiTS.New("Pyfile12.med","VectorFieldOnCells")
+        its=ff.getIterations()
+        f=ff.getFieldAtLevel(ON_CELLS,its[0][0],its[0][1],0)
+        f2=MEDLoader.ReadFieldCell("Pyfile12.med",'3DMesh_1',0,"VectorFieldOnCells",its[0][0],its[0][1])
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        pass
     pass
 
 unittest.main()

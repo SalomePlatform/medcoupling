@@ -23,6 +23,7 @@
 #include "MEDFileUtilities.hxx"
 
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 #include "CellModel.hxx"
@@ -39,6 +40,11 @@ using namespace ParaMEDMEM;
 MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, const char *locName)
 {
   return new MEDFileFieldLoc(fid,locName);
+}
+
+MEDFileFieldLoc *MEDFileFieldLoc::New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
+{
+  return new MEDFileFieldLoc(locName,geoType,refCoo,gsCoo,w);
 }
 
 MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const char *locName):_name(locName)
@@ -58,14 +64,96 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const char *locName):_name(locName
   MEDlocalizationRd(fid,locName,MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
 }
 
+MEDFileFieldLoc::MEDFileFieldLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType,
+                                 const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w):_name(locName),_geo_type(geoType),_ref_coo(_ref_coo),_gs_coo(gsCoo),
+                                                                                                                                    _w(w)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  _nb_node_per_cell=cm.getNumberOfNodes();
+  _nb_gauss_pt=_w.size();
+}
+
+bool MEDFileFieldLoc::isEqual(const MEDFileFieldLoc& other, double eps) const
+{
+  if(_name!=other._name)
+    return false;
+  if(_dim!=other._dim)
+    return false;
+  if(_nb_gauss_pt!=other._nb_gauss_pt)
+    return false;
+  if(_nb_node_per_cell!=other._nb_node_per_cell)
+    return false;
+  if(_geo_type!=other._geo_type)
+    return false;
+  if(MEDCouplingGaussLocalization::AreAlmostEqual(_ref_coo,other._ref_coo,eps))
+    return false;
+  if(MEDCouplingGaussLocalization::AreAlmostEqual(_gs_coo,other._gs_coo,eps))
+    return false;
+  if(MEDCouplingGaussLocalization::AreAlmostEqual(_w,other._w,eps))
+    return false;
+  
+  return true;
+}
+
 void MEDFileFieldLoc::writeLL(med_idt fid) const
 {
   MEDlocalizationWr(fid,_name.c_str(),typmai3[(int)_geo_type],_dim,&_ref_coo[0],MED_FULL_INTERLACE,_nb_gauss_pt,&_gs_coo[0],&_w[0],MED_NO_INTERPOLATION,MED_NO_MESH_SUPPORT);
 }
 
+void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+{
+  INTERP_KERNEL::NormalizedCellType type=getGeoType();
+  const DataArrayDouble *da=field->getArray();
+  switch(type)
+    {
+    case ON_CELLS:
+      {
+        _arr=da->selectByTupleId2(offset,offset+nbOfCells,1);
+        _nval=nbOfCells;
+        break;
+      }
+    case ON_GAUSS_NE:
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=field->getDiscretization()->getOffsetArr(field->getMesh());
+        const int *arrPtr=arr->getConstPointer();
+        _nval=nbOfCells;
+        _arr=da->selectByTupleId2(arrPtr[offset],arrPtr[offset+nbOfCells],1);
+        break;
+      }
+    case ON_GAUSS_PT:
+      {
+        const MEDCouplingFieldDiscretization *disc=field->getDiscretization();
+        const MEDCouplingFieldDiscretizationGauss *disc2=dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc);
+        if(!disc2)
+          throw INTERP_KERNEL::Exception("assignFieldNoProfile : invalid call to this method ! Internal Error !");
+        const DataArrayInt *da=disc2->getArrayOfDiscIds();
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da2=da->selectByTupleId2(offset,nbOfCells,1);
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da3=da2->getIdsEqual(_loc_id);
+        if(da3->getNumberOfTuples()!=nbOfCells)
+          {//profile : for gauss even in NoProfile !!!
+            std::ostringstream oss; oss << "Pfl_" << getName() << "_" << INTERP_KERNEL::CellModel::GetCellModel(getGeoType()).getRepr() << "_" << _loc_id;
+            _profile=oss.str();
+            da3->setName(_profile.c_str());
+            glob.appendProfile(da3);
+          }
+        std::ostringstream oss2; oss2 << "Loc_" << getName() << "_" << INTERP_KERNEL::CellModel::GetCellModel(getGeoType()).getRepr() << "_" << _loc_id;
+        _localization=oss2.str();
+        const MEDCouplingGaussLocalization& gsLoc=field->getGaussLocalization(_loc_id);
+        glob.appendLoc(_localization.c_str(),getGeoType(),gsLoc.getRefCoords(),gsLoc.getGaussCoords(),gsLoc.getWeights());
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile : not implemented yet for such discretization type of field !");
+    }
+}
+
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception)
 {
   return new MEDFileFieldPerMeshPerTypePerDisc(fath,fid,type,profileIt);
+}
+
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId)
+{
+  return new MEDFileFieldPerMeshPerTypePerDisc(fath,type,locId);
 }
 
 MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception)
@@ -97,6 +185,10 @@ try:_type(type),_father(fath),_profile_it(profileIt)
 catch(INTERP_KERNEL::Exception& e)
 {
   throw e;
+}
+
+MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId):_type(type),_father(fath),_loc_id(locId)
+{
 }
 
 const MEDFileFieldPerMeshPerType *MEDFileFieldPerMeshPerTypePerDisc::getFather() const
@@ -200,9 +292,97 @@ void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid) const throw(INTERP_
                              reinterpret_cast<const unsigned char*>(_arr->getConstPointer()));
 }
 
+int MEDFileFieldPerMeshPerTypePerDisc::ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception)
+{
+  switch(type)
+    {
+    case ON_CELLS:
+      return -2;
+    case ON_GAUSS_NE:
+      return -1;
+    case ON_GAUSS_PT:
+      return locId;
+    default:
+      throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::ConvertType : not managed type of field !");
+    }
+}
+
 MEDFileFieldPerMeshPerType *MEDFileFieldPerMeshPerType::New(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
 {
   return new MEDFileFieldPerMeshPerType(fath,geoType);
+}
+
+void MEDFileFieldPerMeshPerType::assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> pos=addNewEntryIfNecessary(field,offset,nbOfCells);
+  for(std::vector<int>::const_iterator it=pos.begin();it!=pos.end();it++)
+    _field_pm_pt_pd[*it]->assignFieldNoProfile(offset,nbOfCells,field,glob);
+}
+
+std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception)
+{
+  TypeOfField type=field->getTypeOfField();
+  if(type!=ON_GAUSS_PT)
+    {
+      int locIdToFind=MEDFileFieldPerMeshPerTypePerDisc::ConvertType(type,0);
+      int sz=_field_pm_pt_pd.size();
+      bool found=false;
+      for(int j=0;j<sz && !found;j++)
+        {
+          if(_field_pm_pt_pd[j]->getLocId()==locIdToFind)
+            {
+              _field_pm_pt_pd[j]=MEDFileFieldPerMeshPerTypePerDisc::New(this,type,locIdToFind);
+              found=true;
+            }
+        }
+      if(!found)
+        {
+          _field_pm_pt_pd.resize(sz+1);
+          _field_pm_pt_pd[sz]=MEDFileFieldPerMeshPerTypePerDisc::New(this,type,locIdToFind);
+        }
+      std::vector<int> ret(1,0);
+      return ret;
+    }
+  else
+    {
+      std::vector<int> ret2=addNewEntryIfNecessaryGauss(field,offset,nbOfCells);
+      int sz2=ret2.size();
+      for(int i=0;i<sz2;i++)
+        {
+          int sz=_field_pm_pt_pd.size();
+          int locIdToFind=ret2[i];
+          bool found=false;
+          for(int j=0;j<sz && !found;j++)
+            {
+              if(_field_pm_pt_pd[j]->getLocId()==locIdToFind)
+                {
+                  _field_pm_pt_pd[j]=MEDFileFieldPerMeshPerTypePerDisc::New(this,type,locIdToFind);
+                  found=true;
+                }
+            }
+          if(!found)
+            {
+              _field_pm_pt_pd.resize(sz+1);
+              _field_pm_pt_pd[sz]=MEDFileFieldPerMeshPerTypePerDisc::New(this,type,locIdToFind);
+            }
+        }
+      return ret2;
+    }
+}
+
+std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessaryGauss(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingFieldDiscretization *disc=field->getDiscretization();
+  const MEDCouplingFieldDiscretizationGauss *disc2=dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(disc);
+  if(!disc2)
+    throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : invalid call to this method ! Internal Error !");
+  const DataArrayInt *da=disc2->getArrayOfDiscIds();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da2=da->selectByTupleId2(offset,nbOfCells,1);
+  std::set<int> retTmp=da2->getDifferentValues();
+  if(retTmp.find(-1)!=retTmp.end())
+    throw INTERP_KERNEL::Exception("addNewEntryIfNecessaryGauss : some cells have no dicretization description !");
+  std::vector<int> ret(retTmp.begin(),retTmp.end());
+  return ret;
 }
 
 const MEDFileFieldPerMesh *MEDFileFieldPerMeshPerType::getFather() const
@@ -343,6 +523,31 @@ med_entity_type MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(TypeOfField i
 MEDFileFieldPerMesh *MEDFileFieldPerMesh::New(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder)
 {
   return new MEDFileFieldPerMesh(fath,meshCsit,meshIteration,meshOrder);
+}
+
+MEDFileFieldPerMesh *MEDFileFieldPerMesh::New(const MEDCouplingMesh *mesh)
+{
+  return new MEDFileFieldPerMesh(mesh);
+}
+
+void MEDFileFieldPerMesh::copyTinyInfoFrom(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  _mesh_name=mesh->getName();
+  mesh->getTime(_mesh_iteration,_mesh_order);
+}
+
+void MEDFileFieldPerMesh::assignFieldNoProfile(const std::vector<int>& code, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfTypes=code.size()/3;
+  int offset=0;
+  for(int i=0;i<nbOfTypes;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)code[3*i];
+      int nbOfCells=code[3*i+1];
+      int pos=addNewEntryIfNecessary(type);
+      _field_pm_pt[pos]->assignFieldNoProfile(offset,nbOfCells,field,glob);
+      offset+=nbOfCells;
+    }
 }
 
 void MEDFileFieldPerMesh::finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception)
@@ -562,7 +767,10 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
       if(!arr)
         return finishField(type,glob,dads,locs,mesh,isPfl);
       else
-        return finishField2(type,glob,dads,locs,mesh,arr,isPfl);
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2(arr);
+          return finishField2(type,glob,dads,locs,mesh,arr,isPfl);
+        }
     }
   else
     {
@@ -582,6 +790,28 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
       else
         return finishField3(glob,dads,locs,mesh,notNullPflsPerGeoType3[0],isPfl);
     }
+}
+
+int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type)
+{
+  int i=0;
+  int pos=std::distance(typmai2,std::find(typmai2,typmai2+MED_N_CELL_FIXED_GEO,type));
+  std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::iterator it2=_field_pm_pt.begin();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
+    {
+      INTERP_KERNEL::NormalizedCellType curType=(*it)->getGeoType();
+      if(type==curType)
+        return i;
+      else
+        {
+          int pos2=std::distance(typmai2,std::find(typmai2,typmai2+MED_N_CELL_FIXED_GEO,curType));
+          if(pos>pos2)
+            it2=it+1;
+        }
+    }
+  int ret=std::distance(_field_pm_pt.begin(),it2);
+  _field_pm_pt.insert(it2,MEDFileFieldPerMeshPerType::New(this,type));
+  return ret;
 }
 
 MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const MEDFieldFieldGlobs *glob,
@@ -636,6 +866,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField2(TypeOfField type, cons
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=finishField(type,glob,dads,locs,mesh,isPfl);
   isPfl=true;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m2=mesh->buildPart(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems());
+  m2->setName(mesh->getName());
   ret->setMesh(m2);
   ret->incrRef();
   return ret;
@@ -678,6 +909,11 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFieldFieldGlo
 MEDFileFieldPerMesh::MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder):_mesh_iteration(meshIteration),_mesh_order(meshOrder),
                                                                                                                           _mesh_csit(meshCsit),_father(fath)
 {
+}
+
+MEDFileFieldPerMesh::MEDFileFieldPerMesh(const MEDCouplingMesh *mesh)
+{
+  copyTinyInfoFrom(mesh);
 }
 
 void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception)
@@ -822,6 +1058,43 @@ std::vector<std::string> MEDFieldFieldGlobs::getLocs() const
   return ret;
 }
 
+void MEDFieldFieldGlobs::appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception)
+{
+  std::string name(pfl->getName());
+  if(name.empty())
+    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::appendProfile : unsupported profiles with no name !");
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=_pfls.begin();it!=_pfls.end();it++)
+    if(name==(*it)->getName())
+      {
+        if(!pfl->isEqual(*(*it)))
+          {
+            std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendProfile : profile \"" << name << "\" already exists and is different from existing !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+  pfl->incrRef();
+  _pfls.push_back(pfl);
+}
+
+void MEDFieldFieldGlobs::appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception)
+{
+  std::string name(locName);
+  if(name.empty())
+    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::appendLoc : unsupported localizations with no name !");
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> obj=MEDFileFieldLoc::New(locName,geoType,refCoo,gsCoo,w);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++)
+    if((*it)->isName(locName))
+      {
+        if(!(*it)->isEqual(*obj,1e-12))
+          {
+            std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendLoc : localization \"" << name << "\" already exists and is different from existing !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+  obj->incrRef();
+  _locs.push_back(obj);
+}
+
 /*!
  * This method returns the max dimension of 'this'.
  * This method returns -2 if 'this' is empty, -1 if only nodes are defined.
@@ -840,9 +1113,51 @@ void MEDFileField1TSWithoutDAS::CheckMeshDimRel(int meshDimRelToMax) throw(INTER
     throw INTERP_KERNEL::Exception("CheckMeshDimRel : This is a meshDimRel not a meshDimRelExt ! So value should be <=0 !");
 }
 
+std::vector<int> MEDFileField1TSWithoutDAS::CheckSBTMesh(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  //
+  std::set<INTERP_KERNEL::NormalizedCellType> geoTypes=mesh->getAllGeoTypes();
+  int nbOfTypes=geoTypes.size();
+  std::vector<int> code(3*nbOfTypes);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr1=DataArrayInt::New();
+  arr1->alloc(nbOfTypes,1);
+  int *arrPtr=arr1->getPointer();
+  std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=geoTypes.begin();
+  for(int i=0;i<nbOfTypes;i++,it++)
+    arrPtr[i]=std::distance(typmai2,std::find(typmai2,typmai2+MED_N_CELL_FIXED_GEO,*it));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2=arr1->checkAndPreparePermutation();
+  const int *arrPtr2=arr2->getConstPointer();
+  int i=0;
+  for(it=geoTypes.begin();it!=geoTypes.end();it++,i++)
+    {
+      int pos=arrPtr2[i];
+      int nbCells=mesh->getNumberOfCellsWithType(*it);
+      code[3*pos]=(int)(*it);
+      code[3*pos+1]=nbCells;
+      code[3*pos+2]=0;//no profiles
+    }
+  std::vector<const DataArrayInt *> idsPerType;//no profiles
+  DataArrayInt *da=mesh->checkTypeConsistencyAndContig(code,idsPerType);
+  if(da)
+    {
+      da->decrRef();
+      throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::CheckSBTMesh : underlying mesh is not sorted by type as MED file expects !");
+    }
+  return code;
+}
+
 MEDFileField1TSWithoutDAS *MEDFileField1TSWithoutDAS::New(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos)
 {
   return new MEDFileField1TSWithoutDAS(fieldName,csit,iteration,order,infos);
+}
+
+void MEDFileField1TSWithoutDAS::copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *arr=field->getArray();
+  if(!arr)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::copyTinyInfoFrom : no array set !");
+  _dt=field->getTime(_iteration,_order);
+  _infos=arr->getInfoOnComponent();
 }
 
 std::string MEDFileField1TSWithoutDAS::getMeshName() const throw(INTERP_KERNEL::Exception)
@@ -1031,6 +1346,24 @@ MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int 
 {
 }
 
+int MEDFileField1TSWithoutDAS::addNewEntryIfNecessary(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  std::string tmp(mesh->getName());
+  if(tmp.empty())
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::addNewEntryIfNecessary : empty mesh name ! unsupported by MED file !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();
+  int i=0;
+  for(;it!=_field_per_mesh.end();it++,i++)
+    {
+      if((*it)->getMeshName()==tmp)
+        return i;
+    }
+  int sz=_field_per_mesh.size();
+  _field_per_mesh.resize(sz+1);
+  _field_per_mesh[sz]=MEDFileFieldPerMesh::New(mesh);
+  return sz;
+}
+
 int MEDFileField1TSWithoutDAS::getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_per_mesh.empty())
@@ -1199,6 +1532,23 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevelOld(TypeOfField type, co
   if(_file_name.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   return MEDFileField1TSWithoutDAS::getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this);
+}
+
+/*!
+ * SBT means Sort By Type.
+ * This method is the most basic method to assign field in this. Basic in sense that no renumbering is done. Underlying mesh in 'field' is globaly ignored except for type contiguous check.
+ * 
+ */
+void MEDFileField1TS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception)
+{
+  _file_name="";
+  const MEDCouplingMesh *mesh=field->getMesh();
+  //
+  std::vector<int> code=MEDFileField1TSWithoutDAS::CheckSBTMesh(mesh);
+  copyTinyInfoFrom(field);
+  //
+  int pos=addNewEntryIfNecessary(mesh);
+  _field_per_mesh[pos]->assignFieldNoProfile(code,field,*this);
 }
 
 MEDFileFieldMultiTSWithoutDAS *MEDFileFieldMultiTSWithoutDAS::New(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
