@@ -930,7 +930,7 @@ void MEDCouplingBasicsTest::testBuildSubMeshData()
   DataArrayInt *di;
   MEDCouplingMesh *ret1=fieldCells->buildSubMeshData(elts,elts+3,di);
   CPPUNIT_ASSERT_EQUAL(3,ret1->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(6,ret1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(9,ret1->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,di->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,di->getNumberOfComponents());
   const int *toCheck=di->getConstPointer();

@@ -809,7 +809,7 @@ void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, 
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end) const
 {
-  return buildPartOfMySelf(start,end,false);
+  return buildPartOfMySelf(start,end,true);
 }
 
 /*!

@@ -646,7 +646,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ret1,di=fieldCells.buildSubMeshData(elts);
         self.assertTrue(isinstance(ret1,MEDCouplingUMesh))
         self.assertEqual(3,ret1.getNumberOfCells());
-        self.assertEqual(6,ret1.getNumberOfNodes());
+        self.assertEqual(9,ret1.getNumberOfNodes());
         self.assertEqual(3,di.getNumberOfTuples());
         self.assertEqual(1,di.getNumberOfComponents());
         toCheck=di.getValues();
@@ -2830,6 +2830,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         part1=[2,1,4]
         f2=f1.buildSubPart(part1);
+        f2.zipCoords()
         self.failUnlessEqual(3,f2.getNumberOfTuples());
         self.failUnlessEqual(2,f2.getNumberOfComponents());
         expected1=[5.,105.,4.,104.,7.,107.]

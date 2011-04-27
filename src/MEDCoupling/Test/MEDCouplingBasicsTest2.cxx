@@ -1302,6 +1302,7 @@ void MEDCouplingBasicsTest::testBuildSubPart1()
   //
   const int part1[3]={2,1,4};
   MEDCouplingFieldDouble *f2=f1->buildSubPart(part1,part1+3);
+  f2->zipCoords();
   CPPUNIT_ASSERT_EQUAL(3,f2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,f2->getNumberOfComponents());
   const double expected1[6]={5.,105.,4.,104.,7.,107.};
