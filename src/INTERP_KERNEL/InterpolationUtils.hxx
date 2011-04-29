@@ -337,7 +337,7 @@ namespace INTERP_KERNEL
   bool solveSystemOfEquations2(const double *matrix, double *solutions, double eps)
   {
     unsigned k,j;
-    int nr,n,m,nx,np;
+    int nr,n,m,np;
     double s,g;
     int mb;
     //
@@ -345,7 +345,6 @@ namespace INTERP_KERNEL
     std::copy(matrix,matrix+SZ*(SZ+NB_OF_RES),B);
     //
     nr=SZ+NB_OF_RES;
-    nx=nr*SZ;
     for(k=0;k<SZ;k++)
       {
         np=nr*k+k;
