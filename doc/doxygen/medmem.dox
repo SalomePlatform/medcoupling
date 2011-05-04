@@ -195,25 +195,25 @@ only \b node and \b cell are considered. In 2D mesh, only \b node,
 available types are linear and quadratic elements (consult
 \ref RefManualMedMemory). The entries of this enum are quite
 self-explanatory :
-  - \c MEDMEM_NONE
-  - \c MEDMEM_POINT1
-  - \c MEDMEM_SEG2
-  - \c MEDMEM_SEG3
-  - \c MEDMEM_TRIA3
-  - \c MEDMEM_QUAD4
-  - \c MEDMEM_TRIA6
-  - \c MEDMEM_QUAD8
-  - \c MEDMEM_TETRA4
-  - \c MEDMEM_PYRA5
-  - \c MEDMEM_PENTA6
-  - \c MEDMEM_HEXA8
-  - \c MEDMEM_TETRA10
-  - \c MEDMEM_PYRA13
-  - \c MEDMEM_PENTA15
-  - \c MEDMEM_HEXA20
-  - \c MEDMEM_POLYGON
-  - \c MEDMEM_POLYHEDRA
-  - \c MEDMEM_ALL_ELEMENTS
+  - \c MED_NONE
+  - \c MED_POINT1
+  - \c MED_SEG2
+  - \c MED_SEG3
+  - \c MED_TRIA3
+  - \c MED_QUAD4
+  - \c MED_TRIA6
+  - \c MED_QUAD8
+  - \c MED_TETRA4
+  - \c MED_PYRA5
+  - \c MED_PENTA6
+  - \c MED_HEXA8
+  - \c MED_TETRA10
+  - \c MED_PYRA13
+  - \c MED_PENTA15
+  - \c MED_HEXA20
+  - \c MED_POLYGON
+  - \c MED_POLYHEDRA
+  - \c MED_ALL_ELEMENTS
   .
 The connectivity of all these elements is defined in MED project Web page
 http://hammi.extra.cea.fr/static/MED/web_med/logiciels/med-2.3.1/doc/ .

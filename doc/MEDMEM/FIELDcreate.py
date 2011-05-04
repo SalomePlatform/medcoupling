@@ -66,7 +66,7 @@ myField.setOrderNumber(orderNumber)
 time = 3.435678
 myField.setTime(time)
 
-numberOfValue = mySupport.getNumberOfElements(MEDMEM_ALL_ELEMENTS)
+numberOfValue = mySupport.getNumberOfElements(MED_ALL_ELEMENTS)
 
 for i in range(numberOfValue):
     ip1 = i+1

@@ -93,13 +93,13 @@ entity = MED_CELL
 types = []
 numberOfElements = []
 
-types.append(MEDMEM_TETRA4)
+types.append(MED_TETRA4)
 numberOfElements.append(12)
 
-types.append(MEDMEM_PYRA5)
+types.append(MED_PYRA5)
 numberOfElements.append(2)
 
-types.append(MEDMEM_HEXA8)
+types.append(MED_HEXA8)
 numberOfElements.append(2)
 
 myMeshing.setNumberOfTypes(numberOfTypes,entity)
@@ -142,10 +142,10 @@ entity = MED_FACE
 types = []
 numberOfElements = []
 
-types.append(MEDMEM_TRIA3)
+types.append(MED_TRIA3)
 numberOfElements.append(4)
 
-types.append(MEDMEM_QUAD4)
+types.append(MED_QUAD4)
 numberOfElements.append(4)
 
 myMeshing.setNumberOfTypes(numberOfTypes,entity)
@@ -179,7 +179,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_NODE)
 myGroup.setNumberOfGeometricType(1)
 
-myTypes = [MEDMEM_NONE]
+myTypes = [MED_NONE]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [4]
@@ -197,7 +197,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_NODE)
 myGroup.setNumberOfGeometricType(1)
 
-myTypes = [MEDMEM_NONE]
+myTypes = [MED_NONE]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [3]
@@ -217,7 +217,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_CELL)
 myGroup.setNumberOfGeometricType(3)
 
-myTypes = [MEDMEM_TETRA4,MEDMEM_PYRA5,MEDMEM_HEXA8]
+myTypes = [MED_TETRA4,MED_PYRA5,MED_HEXA8]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [4,1,2]
@@ -239,7 +239,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_CELL)
 myGroup.setNumberOfGeometricType(2)
 
-myTypes = [MEDMEM_TETRA4,MEDMEM_PYRA5]
+myTypes = [MED_TETRA4,MED_PYRA5]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [4,1]
@@ -262,7 +262,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_FACE)
 myGroup.setNumberOfGeometricType(2)
 
-myTypes = [MEDMEM_TRIA3,MEDMEM_QUAD4]
+myTypes = [MED_TRIA3,MED_QUAD4]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [2,3]
@@ -283,7 +283,7 @@ myGroup.setMesh(myMeshing)
 myGroup.setEntity(MED_FACE)
 myGroup.setNumberOfGeometricType(1)
 
-myTypes = [MEDMEM_TRIA3]
+myTypes = [MED_TRIA3]
 myGroup.setGeometricType(myTypes)
 
 myNumberOfElements = [2]
@@ -308,10 +308,10 @@ myMeshing.write(VTK_DRIVER,vtkFileName)
 #                         1 scalar (vector)
 
 supportOnNodes = myMeshing.getSupportOnAll(MED_NODE)
-numberOfNodes = supportOnNodes.getNumberOfElements(MEDMEM_ALL_ELEMENTS)
+numberOfNodes = supportOnNodes.getNumberOfElements(MED_ALL_ELEMENTS)
 
 supportOnCells = myMeshing.getSupportOnAll(MED_CELL)
-numberOfCells = supportOnCells.getNumberOfElements(MEDMEM_ALL_ELEMENTS)
+numberOfCells = supportOnCells.getNumberOfElements(MED_ALL_ELEMENTS)
 
 fieldDoubleScalarOnNodes = FIELDDOUBLE(supportOnNodes,1)
 fieldDoubleScalarOnNodes.setName("fieldScalarDoubleNode")

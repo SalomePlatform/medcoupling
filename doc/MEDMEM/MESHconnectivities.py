@@ -79,8 +79,8 @@ print "Show Connectivity (Descending) :"
 
 # This example use global access with index array
 
-numberOfElements = myMesh.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
-descendingConnectivity = myMesh.getConnectivity(MED_DESCENDING,MED_CELL,MEDMEM_ALL_ELEMENTS)
+numberOfElements = myMesh.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
+descendingConnectivity = myMesh.getConnectivity(MED_DESCENDING,MED_CELL,MED_ALL_ELEMENTS)
 descendingConnectivityIndex = myMesh.getConnectivityIndex(MED_DESCENDING,MED_CELL)
 
 for i in range(numberOfElements):
@@ -111,7 +111,7 @@ else:
         constituentEntity = MED_FACE
 
     numberOfConstituents = myMesh.getNumberOfElements(constituentEntity,
-                                                      MEDMEM_ALL_ELEMENTS)
+                                                      MED_ALL_ELEMENTS)
     reverseDescendingConnectivity = myMesh.getReverseConnectivity(
         MED_DESCENDING)
     reverseDescendingConnectivityIndex = myMesh.getReverseConnectivityIndex(
@@ -128,7 +128,7 @@ else:
 
     print "Show ",constituent," Connectivity (Nodal) :"
 
-    constituentConnectivity = myMesh.getConnectivity(MED_NODAL,constituentEntity,MEDMEM_ALL_ELEMENTS)
+    constituentConnectivity = myMesh.getConnectivity(MED_NODAL,constituentEntity,MED_ALL_ELEMENTS)
     constituentConnectivityIndex = myMesh.getConnectivityIndex(MED_NODAL,constituentEntity)
 
     for i in range(numberOfConstituents):

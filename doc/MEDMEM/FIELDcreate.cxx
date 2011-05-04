@@ -74,7 +74,7 @@ int main (int argc, char ** argv) {
   myField.setTime(Time) ;
 
   // Value :
-  int NumberOfValue = mySupport->getNumberOfElements(MEDMEM_ALL_ELEMENTS);
+  int NumberOfValue = mySupport->getNumberOfElements(MED_ALL_ELEMENTS);
   for(int i=1; i<=NumberOfValue; i++) // i^th element
     for (int j=1; j<=NumberOfCompoennts; j++) { // j^th component
       double myValue = (i+j) * 0.1 ;

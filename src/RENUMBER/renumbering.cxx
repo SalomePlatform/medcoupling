@@ -46,8 +46,8 @@ void computeNeighbour(const MESH* mesh,const medGeometryElement& Type, vector<li
   conn->calculateFullDescendingConnectivity(MED_CELL);
   const int* rev_conn=mesh->getReverseConnectivity(MED_EN::MED_DESCENDING, MED_EN::MED_CELL);
   const int* rev_conn_index=mesh->getReverseConnectivityIndex(MED_EN::MED_DESCENDING, MED_EN::MED_CELL);
-  int nb_face= mesh->getNumberOfElements(MED_FACE,MEDMEM_ALL_ELEMENTS);
-  int nb_edge = mesh->getNumberOfElements(MED_EDGE,MEDMEM_ALL_ELEMENTS);
+  int nb_face= mesh->getNumberOfElements(MED_FACE,MED_ALL_ELEMENTS);
+  int nb_edge = mesh->getNumberOfElements(MED_EDGE,MED_ALL_ELEMENTS);
   nb_cell= mesh->getNumberOfElements(MED_CELL,Type);
 
   int nb_constituent;

@@ -31,14 +31,14 @@ MEDMEM::MESH* MEDMeshMaker(int dim, int nbedge, MED_EN::medGeometryElement type)
     {
     case 2: 
       nbnodes=(nbedge+1)*(nbedge+1);
-      if(type==MED_EN::MEDMEM_QUAD4)
+      if(type==MED_EN::MED_QUAD4)
         nbelems=(nbedge*nbedge);
       else
         throw MEDMEM::MEDEXCEPTION("MEDMeshMaker: type not impletmented");
       break;
     case 3:
       nbnodes=(nbedge+1)*(nbedge+1)*(nbedge+1);
-      if (type==MED_EN::MEDMEM_HEXA8)
+      if (type==MED_EN::MED_HEXA8)
         nbelems= nbedge*nbedge*nbedge;
       else
         throw MEDMEM::MEDEXCEPTION("MEDMeshMaker: type not impletmented");

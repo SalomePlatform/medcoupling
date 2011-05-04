@@ -58,7 +58,7 @@ time = myField.getTime()
 print "Iteration ",iterationNumber,"  at time ",time,\
       " (and order number ",orderNumber,")"
 
-numberOfValue = mySupport.getNumberOfElements(MEDMEM_ALL_ELEMENTS)
+numberOfValue = mySupport.getNumberOfElements(MED_ALL_ELEMENTS)
 value = myField.getValue()
 
 for i in range(numberOfValue):

@@ -19,7 +19,7 @@ The creation of a mesh should respect the following sequence :
 
 The following paragraphs describe the methods that must be called 
 when creating a mesh. An example illustrates the general procedure.
-The specific case of \c MEDMEM_POLYGON and \c MEDMEM_POLYHEDRA
+The specific case of \c MED_POLYGON and \c MED_POLYHEDRA
 elements requires some methods that are described in \ref polygon.
 
 \section outline_meshing Outline

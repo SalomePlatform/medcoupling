@@ -61,10 +61,10 @@ for i in range(9):
     field=field&(f.getValueIJ(i+1,2)==field_ini[i*2+1])
 f.rmDriver(id)
 
-nbcell2dboost=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell2dboost=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[2,6,13,11,11,13,14,12,6,5,15,13,12,14,10,4,13,15,16,14,5,1,7,15,14,16,9,10,15,7,8,16,16,8,3,9]
 connectivite_index=[1,5,9,13,17,21,25,29,33,37]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_QUAD4)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_QUAD4)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
 conn2dboost=(list(conn)==connectivite) # convert numpy.ndarray to list
 conn_index2dboost=(list(conn_index)==connectivite_index)
@@ -77,10 +77,10 @@ method="METIS"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
-nbcell2dmetis=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell2dmetis=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[12,14,10,4,2,6,13,11,11,13,14,12,16,8,3,9,5,1,7,15,15,7,8,16,14,16,9,10,6,5,15,13,13,15,16,14]
 connectivite_index=[1,5,9,13,17,21,25,29,33,37]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_QUAD4)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_QUAD4)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
 conn2dmetis=(list(conn)==connectivite)
 conn_index2dmetis=(list(conn_index)==connectivite_index)
@@ -98,10 +98,10 @@ method="BOOST"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
-nbcell2dpolyboost=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell2dpolyboost=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[2,5,9,10,11,10,9,12,5,6,8,9,4,11,12,16,12,9,8,13,6,1,7,8,16,12,13,15,13,8,7,14,15,13,14,3]
 connectivite_index=[1,5,9,13,17,21,25,29,33,37]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_POLYGON)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_POLYGON)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL)
 conn2dpolyboost=(list(conn)==connectivite)
 conn_index2dpolyboost=(list(conn_index)==connectivite_index)
@@ -113,10 +113,10 @@ method="METIS"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
-nbcell2dpolymetis=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell2dpolymetis=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[6,1,7,8,2,5,9,10,5,6,8,9,15,13,14,3,4,11,12,16,16,12,13,15,11,10,9,12,12,9,8,13,13,8,7,14]
 connectivite_index=[1,5,9,13,17,21,25,29,33,37]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_POLYGON)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_POLYGON)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL)
 conn2dpolymetis=(list(conn)==connectivite)
 conn_index2dpolymetis=(list(conn_index)==connectivite_index)
@@ -138,10 +138,10 @@ method="BOOST"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
-nbcell3dboost=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell3dboost=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[23,13,5,18,27,22,14,26,17,6,13,23,25,16,22,27,27,22,14,26,24,15,7,20,9,23,18,1,21,27,26,10,25,16,22,27,19,8,15,24,2,17,23,9,12,25,27,21,21,27,26,10,11,24,20,3,12,25,27,21,4,19,24,11]
 connectivite_index=[1,9,17,25,33,41,49,57,65]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_HEXA8)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_HEXA8)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
 conn3dboost=(list(conn)==connectivite)
 conn_index3dboost=(list(conn_index)==connectivite_index)
@@ -154,10 +154,10 @@ method="METIS"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
-nbcell3dmetis=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell3dmetis=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[12,25,27,21,4,19,24,11,27,22,14,26,24,15,7,20,17,6,13,23,25,16,22,27,9,23,18,1,21,27,26,10,23,13,5,18,27,22,14,26,25,16,22,27,19,8,15,24,2,17,23,9,12,25,27,21,21,27,26,10,11,24,20,3]
 connectivite_index=[1,9,17,25,33,41,49,57,65]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_HEXA8)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_HEXA8)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
 conn3dmetis=(list(conn)==connectivite)
 conn_index3dmetis=(list(conn_index)==connectivite_index)
@@ -186,7 +186,7 @@ method="BOOST"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
-nbcell3dpolyboost=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell3dpolyboost=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[23,13,5,18,-1,27,26,14,22,-1,23,27,22,13,-1,13,22,14,5,-1,5,14,26,18,-1,18,26,27,23,
               17,6,13,23,-1,25,27,22,16,-1,17,25,16,6,-1,6,16,22,13,-1,13,22,27,23,-1,23,27,25,17,
               27,22,14,26,-1,24,20,7,15,-1,27,24,15,22,-1,22,15,7,14,-1,14,7,20,26,-1,26,20,24,27,
@@ -196,7 +196,7 @@ connectivite=[23,13,5,18,-1,27,26,14,22,-1,23,27,22,13,-1,13,22,14,5,-1,5,14,26,
               21,27,26,10,-1,11,3,20,24,-1,21,11,24,27,-1,27,24,20,26,-1,26,20,3,10,-1,10,3,11,21,
               12,25,27,21,-1,4,11,24,19,-1,12,4,19,25,-1,25,19,24,27,-1,27,24,11,21,-1,21,11,4,12]
 connectivite_index=[1, 30, 59, 88, 117, 146, 175, 204, 233]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_POLYHEDRA)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_POLYHEDRA)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
 conn3dpolyboost=(connectivite==list(conn))
 conn_index3dpolyboost=(connectivite_index==list(conn_index))
@@ -209,7 +209,7 @@ method="METIS"
 string_to_execute="'"+dir_renumber+" "+dir_mesh+"/"+filename+" "+meshname+" "+method+" "+dir_mesh+"/out_"+filename+"'"
 eval("os.system("+string_to_execute+")")
 m = MESH(MED_DRIVER,dir_mesh+"/out_"+filename,meshname)
-nbcell3dpolymetis=m.getNumberOfElements(MED_CELL,MEDMEM_ALL_ELEMENTS)
+nbcell3dpolymetis=m.getNumberOfElements(MED_CELL,MED_ALL_ELEMENTS)
 connectivite=[12,25,27,21,-1,4,11,24,19,-1,12,4,19,25,-1,25,19,24,27,-1,27,24,11,21,-1,21,11,4,12,
               27,22,14,26,-1,24,20,7,15,-1,27,24,15,22,-1,22,15,7,14,-1,14,7,20,26,-1,26,20,24,27,
               17,6,13,23,-1,25,27,22,16,-1,17,25,16,6,-1,6,16,22,13,-1,13,22,27,23,-1,23,27,25,17,
@@ -219,7 +219,7 @@ connectivite=[12,25,27,21,-1,4,11,24,19,-1,12,4,19,25,-1,25,19,24,27,-1,27,24,11
               2,17,23,9,-1,12,21,27,25,-1,2,12,25,17,-1,17,25,27,23,-1,23,27,21,9,-1,9,21,12,2,
               21,27,26,10,-1,11,3,20,24,-1,21,11,24,27,-1,27,24,20,26,-1,26,20,3,10,-1,10,3,11,21]
 connectivite_index=[1, 30, 59, 88, 117, 146, 175, 204, 233]
-conn=m.getConnectivity(MED_NODAL,MED_CELL,MEDMEM_POLYHEDRA)
+conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_POLYHEDRA)
 conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
 conn3dpolymetis=(list(conn)==connectivite)
 conn_index3dpolymetis=(list(conn_index)==connectivite_index)
