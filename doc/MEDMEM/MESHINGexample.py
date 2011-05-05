@@ -461,7 +461,7 @@ fieldIntVectorOnNodes.write(MED_DRIVER,med21FileName)
 fieldDoubleScalarOnCells.write(MED_DRIVER,med21FileName)
 fieldIntScalarOnCells.write(MED_DRIVER,med21FileName)
 fieldDoubleVectorOnCells.write(MED_DRIVER,med21FileName)
-fieldIntVectorOnCells.addDriver(MED_DRIVER,med21FileName)
+fieldIntVectorOnCells.write(MED_DRIVER,med21FileName)
 
 
 idVtk = fieldDoubleScalarOnNodes.addDriver(VTK_DRIVER,vtkFileName,fieldDoubleScalarOnNodes.getName())
