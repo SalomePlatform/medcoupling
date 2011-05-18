@@ -496,6 +496,63 @@ myCoords->decrRef();
 \section MEDCouplingArrayRenumbering Array renumbering
 
 Here is presented all it is necessary to know concerning renumbering.
-Renumbering is intensely required in %MEDLoader in %ParaMEDMEM. For MED
+Renumbering is intensely required in %MEDLoader in %ParaMEDMEM. One of the user of renumbering is MED file for I/O where cells are sorted by type.
+But it is also used on operations of node cell merging. It is also used in parallel mode when splitting of mesh is needed...
+
+Formally a renumbering is a mathematical application that can be surjective, injective or bijective. This application is defined using an instance of
+\ref ParaMEDMEM::DataArrayInt "DataArrayInt". There are different ways to define this application.
+
+\subsection MEDCouplingArrayRenumberingO2N Old to new mode
+
+The old to new mode is particulary recommanded for surjective and bijective application. This is typically the case of \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "MEDCouplingUMesh::mergeNodes" method.
+Let's consider a call to \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes" that reduces the number of nodes from 5 nodes to 3 nodes.\n
+In old to new mode the array \b MySurjection that specifies this surjection will have 5 tuples and 1 component. The content of the 5*1 values will be in {0,1,2}.\n
+
+If \b MySujection equals [2,1,0,1,2], it means that :
+
+- old id #0 will have new id equal to 2
+- old id #1 will have new id equal to 1
+- old id #2 will have new id equal to 0
+- old id #3 will have new id equal to 1 like old id #1
+- old id #4 will have new id equal to 2 like old id #0
+
+This is the most common mode of renumbering in MEDCoupling because there is more methods implying renumbering that reduce the number of entities than method that increase number of entities.
+
+Method in old to new mode that works on bijective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::renumber "DataArrayDouble::renumber"
+- \ref ParaMEDMEM::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlace"
+
+Method in old to new mode that works on surjective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::renumberAndReduce "DataArrayDouble::renumberAndReduce"
+
+Sometimes the format old to new for sujections can be replaced by another format with 2 arrays. Less compact in memory. The \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that.
+
+\subsection MEDCouplingArrayRenumberingN2O New to old mode
+
+The new to old mode is particulary recommanded for strictly injective and bijective permutations. This is particulary usefull for methods that increase the number of entities like for example
+\ref ParaMEDMEM::MEDCouplingUMesh::simplexize "MEDCouplingUMesh::simplexize".\n
+All non static methods in \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" or \ref ParaMEDMEM::DataArrayInt "DataArrayInt" having as last letter \b R (meaning Reversed) in capital works with
+the mode new to old.
+Let's consider a call to \ref ParaMEDMEM::MEDCouplingUMesh::simplexize "simplexize" that increases the number of cell from 4 cells to 6 cells.\n
+In new to old mode the array \b MyInjection that specifies this injection will have 6 tuples and 1 component. The content of the 5*1 values will be in {0,1,2,3}.\n
+If \b MyInjection equals [2,0,1,1,3,0] it means that :
+
+- new id #0 comes from old id 2
+- new id #1 comes from old id 0
+- new id #2 comes from old id 1
+- new id #3 comes from old id 1
+- new id #4 comes from old id 3
+- new id #5 comes from old id 0
+
+Method in new to old mode that works on bijective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::renumberR "DataArrayDouble::renumberR"
+- \ref ParaMEDMEM::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlaceR"
+
+Method in new to old mode that works on surjective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::selectByTupleId "DataArrayDouble::selectByTupleId"
 
 */
