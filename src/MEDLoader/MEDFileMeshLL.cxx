@@ -552,6 +552,14 @@ bool MEDFileUMeshSplitL1::empty() const
   return ((const MEDCouplingUMesh *)_m_by_types)==0;
 }
 
+bool MEDFileUMeshSplitL1::presenceOfOneFams(const std::vector<int>& ids) const
+{
+  const DataArrayInt *fam=_fam;
+  if(!fam)
+    return false;
+  return fam->presenceOfValue(ids);
+}
+
 int MEDFileUMeshSplitL1::getMeshDimension() const
 {
   return _m_by_types->getMeshDimension();

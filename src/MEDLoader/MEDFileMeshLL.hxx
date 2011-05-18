@@ -126,6 +126,7 @@ namespace ParaMEDMEM
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
     void assignMesh(MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
     bool empty() const;
+    bool presenceOfOneFams(const std::vector<int>& ids) const;
     int getMeshDimension() const;
     int getSize() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamilyPart(const std::vector<int>& ids, bool renum) const;

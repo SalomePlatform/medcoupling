@@ -331,6 +331,15 @@ class MEDLoaderTest(unittest.TestCase):
             pass
         m.setName(m2.getName())
         m.setDescription(m2.getDescription())
+        #
+        self.assertEqual((-1,),m.getGrpNonEmptyLevels("A2A4"))
+        self.assertEqual((),m.getGrpNonEmptyLevels("A1"))
+        self.assertEqual((-2,),m.getGrpNonEmptyLevels("AP2"))
+        self.assertEqual((-1,-2),m.getGrpsNonEmptyLevels(["A2A4","AP2"]))
+        self.assertEqual((-1,),m.getFamNonEmptyLevels('A4A3____________________________'))
+        self.assertEqual((0,),m.getFamNonEmptyLevels('MESH____DALT3___DALLE___________'))
+        self.assertEqual((0,-1,),m.getFamsNonEmptyLevels(['MESH____DALT3___DALLE___________','A4A3____________________________']))
+        #
         m.write(fileName,2)
         pass
 

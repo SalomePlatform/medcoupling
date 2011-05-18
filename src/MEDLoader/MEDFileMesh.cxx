@@ -176,6 +176,23 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroup(const char *name) const
   return (*it).second;
 }
 
+std::vector<std::string> MEDFileMesh::getFamiliesOnGroups(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+{
+  std::set<std::string> fams;
+  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
+    {
+      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
+      if(it2==_groups.end())
+        {
+          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      fams.insert((*it2).second.begin(),(*it2).second.end());
+    }
+  std::vector<std::string> fams2(fams.begin(),fams.end());
+  return fams2;
+}
+
 std::vector<int> MEDFileMesh::getFamiliesIdsOnGroup(const char *name) const throw(INTERP_KERNEL::Exception)
 {
   std::string oname(name);
@@ -571,18 +588,7 @@ DataArrayInt *MEDFileMesh::getGroupArr(int meshDimRelToMaxExt, const char *grp, 
 
 DataArrayInt *MEDFileMesh::getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  std::set<std::string> fams;
-  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
-    {
-      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
-      if(it2==_groups.end())
-        {
-          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      fams.insert((*it2).second.begin(),(*it2).second.end());
-    }
-  std::vector<std::string> fams2(fams.begin(),fams.end());
+  std::vector<std::string> fams2=getFamiliesOnGroups(grps);
   return getFamiliesArr(meshDimRelToMaxExt,fams2,renum);
 }
 
@@ -947,6 +953,99 @@ std::vector<int> MEDFileUMesh::getNonEmptyLevelsExt() const
   return ret0;
 }
 
+/*!
+ * This methods returns all relative mesh levels where group 'grp' is defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getGrpNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroup(grp);
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getGrpNonEmptyLevelsExt. It looks at the node level to state if the group 'grp' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroup(grp);
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * This methods returns all relative mesh levels where family 'fam' is defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getFamNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getFamNonEmptyLevels(const char *fam) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams(1,std::string(fam));
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getFamNonEmptyLevels. It looks at the node level to state if the family 'fam' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getFamNonEmptyLevelsExt(const char *fam) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams(1,std::string(fam));
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * This methods returns all relative mesh levels where groups 'grps' are defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getGrpsNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroups(grps);
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getGrpsNonEmptyLevels. It looks at the node level to state if the families 'fams' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroups(grps);
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * This methods returns all relative mesh levels where families 'fams' are defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getFamsNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret;
+  std::vector<int> levs=getNonEmptyLevels();
+  std::vector<int> famIds=getFamiliesIds(fams);
+  for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
+    if(_ms[-(*it)]->presenceOfOneFams(famIds))
+      ret.push_back(*it);
+  return ret;
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getFamsNonEmptyLevels. It looks at the node level to state if the families 'fams' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret0=getFamsNonEmptyLevels(fams);
+  const DataArrayInt *famCoords=_fam_coords;
+  if(!famCoords)
+    return ret0;
+  std::vector<int> famIds=getFamiliesIds(fams);
+  if(famCoords->presenceOfValue(famIds))
+    {
+      std::vector<int> ret(ret0.size()+1);
+      ret[0]=1;
+      std::copy(ret0.begin(),ret0.end(),ret.begin()+1);
+      return ret;
+    }
+  else
+    return ret0;
+}
+
 int MEDFileUMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
 {
   int lev=0;
@@ -1023,18 +1122,7 @@ MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMaxExt, const char *grp
 MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   synchronizeTinyInfoOnLeaves();
-  std::set<std::string> fams;
-  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
-    {
-      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
-      if(it2==_groups.end())
-        {
-          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      fams.insert((*it2).second.begin(),(*it2).second.end());
-    }
-  std::vector<std::string> fams2(fams.begin(),fams.end());
+  std::vector<std::string> fams2=getFamiliesOnGroups(grps);
   return getFamilies(meshDimRelToMaxExt,fams2,renum);
 }
 

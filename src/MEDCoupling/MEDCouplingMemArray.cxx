@@ -2343,6 +2343,11 @@ void DataArrayInt::renumberInPlaceR(const int *new2Old)
   declareAsNew();
 }
 
+/*!
+ * This method expects that 'this' is allocated, if not an exception is thrown.
+ * This method in case of success returns a newly created array the user should deal with.
+ * In the case of having a renumber array in "old to new" format. More info on renumbering \ref MEDCouplingArrayRenumbering "here".
+ */
 DataArrayInt *DataArrayInt::renumber(const int *old2New) const
 {
   int nbTuples=getNumberOfTuples();
@@ -2995,6 +3000,24 @@ DataArrayInt *DataArrayInt::getIdsNotEqualList(const std::vector<int>& vals) con
   ret->alloc(res.size(),1);
   std::copy(res.begin(),res.end(),ret->getPointer());
   return ret;
+}
+
+/*!
+ * This method expects to be called when number of components of this is equal to one.
+ * This method returns true if it exists a tuple so that the value is contained in 'vals'.
+ * If not any tuple contains one of the values contained in 'vals' false is returned.
+ */
+bool DataArrayInt::presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::presenceOfValue : the array must have only one component, you can call 'rearrange' method before !");
+  std::set<int> vals2(vals.begin(),vals.end());
+  const int *cptr=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  bool found=false;
+  for(const int *w=cptr;w!=cptr+nbOfTuples && !found;w++)
+    found=(vals2.find(*w)!=vals2.end());
+  return found;
 }
 
 DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2)
