@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingBasicsTest.hxx"
@@ -1229,4 +1229,44 @@ void MEDCouplingBasicsTest::testSortCellsInMEDFileFrmt1()
   da->decrRef();
   m1->decrRef();
   m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testBuildPartAndReduceNodes1()
+{
+  MEDCouplingMesh *m=build2DTargetMesh_1();
+  const int arr[2]={1,0};
+  DataArrayInt *da;
+  MEDCouplingMesh *m2=m->buildPartAndReduceNodes(arr,arr+2,da);
+  CPPUNIT_ASSERT_EQUAL(5,m2->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(2,m2->getNumberOfCells());
+  MEDCouplingFieldDouble *f=m2->getMeasureField(true);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.125,f->getArray()->getIJ(0,0),1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.25,f->getArray()->getIJ(1,0),1e-12);
+  f->decrRef();
+  da->decrRef();
+  m2->decrRef();
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAITransformWithIndArrR1()
+{
+  const int tab1[6]={2,4,5,3,6,7};
+  const int tab2[12]={-1,-1,0,1,2,3,4,5,-1,-1,-1,-1};
+  const int expected[6]={0,3,1,2,4,5};
+  DataArrayInt *d=DataArrayInt::New();
+  d->alloc(6,1);
+  std::copy(tab1,tab1+6,d->getPointer());
+  DataArrayInt *d1=DataArrayInt::New();
+  d1->alloc(12,1);
+  std::copy(tab2,tab2+12,d1->getPointer());
+  //
+  DataArrayInt *d3=d->transformWithIndArrR(d1->getConstPointer(),d1->getConstPointer()+d1->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(6,d3->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d3->getNumberOfComponents());
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected[i],d3->getIJ(i,0));
+  d3->decrRef();
+  //
+  d->decrRef();
+  d1->decrRef();
 }

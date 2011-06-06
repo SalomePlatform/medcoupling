@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "PointLocatorTest.hxx"
@@ -47,7 +47,7 @@ namespace INTERP_TEST
    * a bbox overlapping the bboxes of the tree
    */
   void PointLocatorTest::test_PointLocator() {
-    MEDMEM::MESH* mesh2D= MEDMeshMaker(2,2,MED_EN::MEDMEM_QUAD4);
+    MEDMEM::MESH* mesh2D= MEDMeshMaker(2,2,MED_EN::MED_QUAD4);
     MEDMEM::PointLocator pl(*mesh2D) ;
     double x[2]={0.0,0.0};
     std::list<int> elems = pl.locate(x);
@@ -72,7 +72,7 @@ namespace INTERP_TEST
     elems.clear();
     delete mesh2D;
 
-    MEDMEM::MESH* mesh3D= MEDMeshMaker(3,2,MED_EN::MEDMEM_HEXA8);
+    MEDMEM::MESH* mesh3D= MEDMeshMaker(3,2,MED_EN::MED_HEXA8);
     MEDMEM::PointLocator pl3(*mesh3D);
     double xx[3]={0.0,0.0,0.0};
     elems = pl3.locate(xx);
@@ -108,7 +108,7 @@ namespace INTERP_TEST
    */
   void PointLocatorTest::test_PointLocatorInSimplex()
   {
-    MEDMEM::MESH* mesh2D= MEDMeshMaker(2,2,MED_EN::MEDMEM_QUAD4);
+    MEDMEM::MESH* mesh2D= MEDMeshMaker(2,2,MED_EN::MED_QUAD4);
     // mesh is a quadrangle (0.0-1.0 x 0.0-1.0 )
     // 3 -- 6 -- 9
     // |    |    |
@@ -160,7 +160,7 @@ namespace INTERP_TEST
       CPPUNIT_ASSERT_EQUAL(0,(int)elems.size());
       delete mesh2D;
     }
-    MEDMEM::MESH* mesh3D= MEDMeshMaker(3,2,MED_EN::MEDMEM_HEXA8);
+    MEDMEM::MESH* mesh3D= MEDMeshMaker(3,2,MED_EN::MED_HEXA8);
     // ^Z
     // |
     // 3 -- 6 -- 9

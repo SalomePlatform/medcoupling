@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 %module MEDLoader
@@ -75,7 +75,13 @@ using namespace ParaMEDMEM;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevelOld;
 %newobject ParaMEDMEM::MEDFileField1TS::New;
+%newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevel;
+%newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
+%newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevelOld;
 
 class MEDLoader
 {
@@ -217,7 +223,17 @@ public:
 
 namespace ParaMEDMEM
 {
-  class MEDFileMesh : public RefCountObject
+  class MEDFileWritable
+  {
+  public:
+    void copyOptionsFrom(const MEDFileWritable& other) const;
+    int getTooLongStrPolicy() const throw(INTERP_KERNEL::Exception);
+    void setTooLongStrPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+    int getZipConnPolicy() throw(INTERP_KERNEL::Exception);
+    void setZipConnPolicy(int newVal) throw(INTERP_KERNEL::Exception);
+  };
+
+  class MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
@@ -250,6 +266,7 @@ namespace ParaMEDMEM
     const std::map<std::string,int>& getFamilyInfo() const;
     const std::map<std::string, std::vector<std::string> >& getGroupInfo() const;
     std::vector<std::string> getFamiliesOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getFamiliesOnGroups(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamiliesIdsOnGroup(const char *name) const throw(INTERP_KERNEL::Exception);
     void setFamiliesOnGroup(const char *name, const std::vector<std::string>& fams) throw(INTERP_KERNEL::Exception);
     void setFamiliesIdsOnGroup(const char *name, const std::vector<int>& famIds) throw(INTERP_KERNEL::Exception);
@@ -267,8 +284,9 @@ namespace ParaMEDMEM
     int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
     std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
+    virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception);
     //
-    virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
     virtual void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
@@ -354,9 +372,16 @@ namespace ParaMEDMEM
     static MEDFileUMesh *New();
     ~MEDFileUMesh();
     //
-    int getMeshDimension() const;
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
+    std::vector<int> getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamNonEmptyLevels(const char *fam) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamNonEmptyLevelsExt(const char *fam) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
+    std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getCoords() const;
     MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
@@ -383,7 +408,6 @@ namespace ParaMEDMEM
     void addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception);
     void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);
-    void setMeshAtLevelOld(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception);
     void setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception);
     void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception);
@@ -431,40 +455,85 @@ namespace ParaMEDMEM
   public:
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
+    virtual std::vector<std::string> getPflsReallyUsed() const = 0;
+    virtual std::vector<std::string> getLocsReallyUsed() const = 0;
   };
 
   class MEDFileField1TSWithoutDAS : public RefCountObject
   {
   public:
+    void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
+    //
+    int getDimension() const;
     int getIteration() const;
     int getOrder() const;
     std::string getName();
     std::string getMeshName();
     int getNumberOfComponents() const;
-    const std::vector<std::string>& getInfos() const;
-    std::vector<std::string> getPflsReallyUsed() const;
-    std::vector<std::string> getLocsReallyUsed() const;
+    bool isDealingTS(int iteration, int order) const;
+    const std::vector<std::string>& getInfo() const;
+    %extend
+       {
+         PyObject *getDtIt() const
+         {
+           std::pair<int,int> res=self->getDtIt();
+           PyObject *elt=PyTuple_New(2);
+           PyTuple_SetItem(elt,0,SWIG_From_int(res.first));
+           PyTuple_SetItem(elt,1,SWIG_From_int(res.second));
+           return elt;
+         }
+       }
   };
 
-  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobs
+  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
+    static MEDFileField1TS *New();
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    //
+    void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFieldMultiTSWithoutDAS
   {
   public:
     int getNumberOfTS() const;
+    %extend
+       {
+         PyObject *getIterations() const
+         {
+           std::vector< std::pair<int,int> > res=self->getIterations();
+           PyObject *ret=PyList_New(res.size());
+           int rk=0;
+           for(std::vector< std::pair<int,int> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+             {
+               PyObject *elt=PyTuple_New(2);
+               PyTuple_SetItem(elt,0,SWIG_From_int((*iter).first));
+               PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
+               PyList_SetItem(ret,rk,elt);
+             }
+           return ret;
+         }
+       }
   };
 
-  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobs
+  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
   };
 
-  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs
+  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
     static MEDFileFields *New(const char *fileName) throw(INTERP_KERNEL::Exception);

@@ -1,21 +1,21 @@
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
 from MEDLoader import *
@@ -120,9 +120,9 @@ class MEDLoaderTest(unittest.TestCase):
         mm.setName("MyFirstMEDCouplingMEDmesh")
         mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
         mm.setCoords(c)
-        mm.setMeshAtLevelOld(-1,m1);
-        mm.setMeshAtLevelOld(0,m);
-        mm.setMeshAtLevelOld(-2,m2);
+        mm.setMeshAtLevel(-1,m1);
+        mm.setMeshAtLevel(0,m);
+        mm.setMeshAtLevel(-2,m2);
         # playing with groups
         g1_2=DataArrayInt.New()
         g1_2.setValues([1,3],2,1)
@@ -307,32 +307,188 @@ class MEDLoaderTest(unittest.TestCase):
         pass
 
     def testMEDMesh7(self):
-       fileName="Pyfile24.med"
-       m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
-       m=MEDFileUMesh.New()
-       m.setCoords(m2.getCoords())
-       m.setMeshAtLevel(0,m2)
-       m.setMeshAtLevel(-1,m1)
-       m.setMeshAtLevel(-2,m0)
-       m.setFamilyFieldArr(0,f2)
-       m.setFamilyFieldArr(-1,f1)
-       m.setFamilyFieldArr(-2,f0)
-       m.setFamilyFieldArr(1,p)
-       m.setRenumFieldArr(0,n2)
-       m.setRenumFieldArr(-1,n1)
-       m.setRenumFieldArr(-2,n0)
-       nbOfFams=len(fns)
-       for i in xrange(nbOfFams):
-           m.addFamily(fns[i],fids[i])
-           pass
-       nbOfGrps=len(grpns)
-       for i in xrange(nbOfGrps):
-           m.setFamiliesIdsOnGroup(grpns[i],famIdsPerGrp[i])
-           pass
-       m.setName(m2.getName())
-       m.setDescription(m2.getDescription())
-       m.write(fileName,2)
-       pass
+        fileName="Pyfile24.med"
+        m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
+        m=MEDFileUMesh.New()
+        m.setCoords(m2.getCoords())
+        m.setMeshAtLevel(0,m2)
+        m.setMeshAtLevel(-1,m1)
+        m.setMeshAtLevel(-2,m0)
+        m.setFamilyFieldArr(0,f2)
+        m.setFamilyFieldArr(-1,f1)
+        m.setFamilyFieldArr(-2,f0)
+        m.setFamilyFieldArr(1,p)
+        m.setRenumFieldArr(0,n2)
+        m.setRenumFieldArr(-1,n1)
+        m.setRenumFieldArr(-2,n0)
+        nbOfFams=len(fns)
+        for i in xrange(nbOfFams):
+            m.addFamily(fns[i],fids[i])
+            pass
+        nbOfGrps=len(grpns)
+        for i in xrange(nbOfGrps):
+            m.setFamiliesIdsOnGroup(grpns[i],famIdsPerGrp[i])
+            pass
+        m.setName(m2.getName())
+        m.setDescription(m2.getDescription())
+        #
+        self.assertEqual((-1,),m.getGrpNonEmptyLevels("A2A4"))
+        self.assertEqual((),m.getGrpNonEmptyLevels("A1"))
+        self.assertEqual((-2,),m.getGrpNonEmptyLevels("AP2"))
+        self.assertEqual((-1,-2),m.getGrpsNonEmptyLevels(["A2A4","AP2"]))
+        self.assertEqual((-1,),m.getFamNonEmptyLevels('A4A3____________________________'))
+        self.assertEqual((0,),m.getFamNonEmptyLevels('MESH____DALT3___DALLE___________'))
+        self.assertEqual((0,-1,),m.getFamsNonEmptyLevels(['MESH____DALT3___DALLE___________','A4A3____________________________']))
+        #
+        m.write(fileName,2)
+        pass
+
+    #emulation of pointe.med file.
+    def testMEDField1(self):
+        mm=MEDFileMesh.New("Pyfile17.med")
+        mm.write("Pyfile17_bis.med",2)
+        ff=MEDFileFieldMultiTS.New("Pyfile17.med","MeasureOfMesh_Extruded")
+        ff.write("Pyfile17_bis.med",0)
+        pass
+
+    #profiles
+    def testMEDField2(self):
+        mm=MEDFileMesh.New("Pyfile19.med")
+        mm.write("Pyfile19_bis.med",2)
+        ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
+        ff.write("Pyfile19_bis.med",0)
+        pass
+
+    #gauss points
+    def testMEDField3(self):
+        mm=MEDFileMesh.New("Pyfile13.med")
+        mm.write("Pyfile13_bis.med",2)
+        ff=MEDFileFieldMultiTS.New("Pyfile13.med","MyFirstFieldOnGaussPoint")
+        ff.write("Pyfile13_bis.med",0)
+        ff=MEDFileField1TS.New("Pyfile13.med","MyFirstFieldOnGaussPoint",1,5)
+        f=ff.getFieldAtLevel(ON_GAUSS_PT,0)
+        f2=MEDLoader.ReadFieldGauss("Pyfile13.med",'2DMesh_2',0,'MyFirstFieldOnGaussPoint',1,5)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        pass
+
+    #gauss NE
+    def testMEDField4(self):
+        mm=MEDFileMesh.New("Pyfile14.med")
+        mm.write("Pyfile14_bis.med",2)
+        ff=MEDFileFieldMultiTS.New("Pyfile14.med","MyFieldOnGaussNE")
+        ff.write("Pyfile14_bis.med",0)
+        ff=MEDFileField1TS.New("Pyfile14.med","MyFieldOnGaussNE",1,5)
+        f=ff.getFieldAtLevel(ON_GAUSS_NE,0)
+        f2=MEDLoader.ReadFieldGaussNE("Pyfile14.med",'2DMesh_2',0,"MyFieldOnGaussNE",1,5)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        pass
+
+    # MEDField get/set on pointe.med
+    def testMEDField5(self):
+        ff=MEDFileField1TS.New("Pyfile17.med","MeasureOfMesh_Extruded",1,2)
+        f=ff.getFieldAtLevel(ON_CELLS,0)
+        f2=MEDLoader.ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
+        self.assertTrue(f.getMesh().getCoords().isEqual(f2.getMesh().getCoords(),1e-12))
+        f.getMesh().tryToShareSameCoords(f2.getMesh(),1e-12)
+        f.changeUnderlyingMesh(f2.getMesh(),22,1e-12)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        # no with renumbering
+        f=ff.getFieldAtLevel(ON_CELLS,0,1)
+        f2=MEDLoader.ReadFieldCell("Pyfile17.med","Extruded",0,"MeasureOfMesh_Extruded",1,2)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        f=ff.getFieldAtLevel(ON_CELLS,0,3)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        f=ff.getFieldAtLevel(ON_CELLS,0,2)
+        self.assertTrue(not f.isEqual(f2,1e-12,1e-12))
+        f.changeUnderlyingMesh(f2.getMesh(),12,1e-12)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        pass
+
+    # MEDField get/set on profiles nodes
+    def testMEDField6(self):
+        ff=MEDFileFieldMultiTS.New("Pyfile7.med","VectorFieldOnNodes")
+        its=ff.getIterations()
+        self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
+        f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
+        f2=MEDLoader.ReadFieldNode("Pyfile7.med",'3DSurfMesh_1',0,"VectorFieldOnNodes",its[0][0],its[0][1])
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
+        its=ff.getIterations()
+        f=ff.getFieldAtLevel(ON_NODES,its[0][0],its[0][1],0)
+        f2=MEDLoader.ReadFieldNode("Pyfile19.med",'2DMesh_1',0,"VFieldOnNodes",its[0][0],its[0][1])
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_CELLS,its[0][0],its[0][1],0)# request on cell and it is not on cells
+        self.assertRaises(InterpKernelException,ff.getFieldAtLevel,ON_NODES,its[0][0],its[0][1],0,1)#request renumber following mesh : it is on profile !
+        pass
+
+    # MEDField get/set on profiles cells
+    def testMEDField7(self):
+        ff=MEDFileFieldMultiTS.New("Pyfile12.med","VectorFieldOnCells")
+        its=ff.getIterations()
+        f=ff.getFieldAtLevel(ON_CELLS,its[0][0],its[0][1],0)
+        f2=MEDLoader.ReadFieldCell("Pyfile12.med",'3DMesh_1',0,"VectorFieldOnCells",its[0][0],its[0][1])
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        pass
+
+    #first test of assignation. No profile and types sorted by type.
+    def testMEDField8(self):
+        fname="Pyfile25.med"
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        m1=f1.getMesh()
+        mm1=MEDFileUMesh.New()
+        mm1.setCoords(m1.getCoords())
+        mm1.setMeshAtLevel(0,m1)
+        mm1.setName(m1.getName())
+        mm1.write(fname,2)
+        ff1=MEDFileField1TS.New()
+        ff1.setFieldNoProfileSBT(f1)
+        ff1.write(fname,0)
+        f2=MEDLoader.ReadFieldCell(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2]);
+        self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        #
+        fname="Pyfile26.med"
+        f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
+        m1=f1.getMesh()
+        mm1=MEDFileUMesh.New()
+        mm1.setCoords(m1.getCoords())
+        mm1.setMeshAtLevel(0,m1)
+        mm1.setName(m1.getName())
+        mm1.write(fname,2)
+        ff1=MEDFileField1TS.New()
+        ff1.setFieldNoProfileSBT(f1)
+        ff1.write(fname,0)
+        f2=MEDLoader.ReadFieldNode(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
+        self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        #
+        fname="Pyfile27.med"
+        f1=MEDLoaderDataForTest.buildVecFieldOnGaussNE_1();
+        m1=f1.getMesh()
+        mm1=MEDFileUMesh.New()
+        mm1.setCoords(m1.getCoords())
+        mm1.setMeshAtLevel(0,m1)
+        mm1.setName(m1.getName())
+        mm1.write(fname,2)
+        ff1=MEDFileField1TS.New()
+        ff1.setFieldNoProfileSBT(f1)
+        ff1.write(fname,0)
+        f2=MEDLoader.ReadFieldGaussNE(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
+        self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        #
+        fname="Pyfile28.med"
+        f1=MEDLoaderDataForTest.buildVecFieldOnGauss_2();
+        m1=f1.getMesh()
+        mm1=MEDFileUMesh.New()
+        mm1.setCoords(m1.getCoords())
+        mm1.setMeshAtLevel(0,m1)
+        mm1.setName(m1.getName())
+        mm1.write(fname,2)
+        ff1=MEDFileField1TS.New()
+        ff1.setFieldNoProfileSBT(f1)
+        ff1.write(fname,0)
+        ff2=MEDFileField1TS.New(fname,f1.getName(),f1.getTime()[1],f1.getTime()[2])
+        #f2=ff2.getFieldAtLevel(ON_GAUSS_PT,0) BUG TONY
+        #self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        pass
     pass
 
 unittest.main()

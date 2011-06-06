@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingGaussLocalization.hxx"
@@ -42,7 +42,7 @@ catch(INTERP_KERNEL::Exception& e)
 
 void ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
   int dim=cm.getDimension();
   if(!cm.isDynamic())
@@ -79,18 +79,18 @@ bool ParaMEDMEM::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLoc
 {
   if(_type!=other._type)
     return false;
-  if(!areAlmostEqual(_ref_coord,other._ref_coord,eps))
+  if(!AreAlmostEqual(_ref_coord,other._ref_coord,eps))
     return false;
-  if(!areAlmostEqual(_gauss_coord,other._gauss_coord,eps))
+  if(!AreAlmostEqual(_gauss_coord,other._gauss_coord,eps))
     return false;
-  if(!areAlmostEqual(_weight,other._weight,eps))
+  if(!AreAlmostEqual(_weight,other._weight,eps))
     return false;
   return true;
 }
 
 double ParaMEDMEM::MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, int comp) const throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
   int dim=cm.getDimension();
   if(ptIdInCell<0 || ptIdInCell>=nbNodes)
@@ -160,7 +160,7 @@ const double *ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues(const dou
  */
 void ParaMEDMEM::MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int comp, double newVal) throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int nbNodes=cm.getNumberOfNodes();
   int dim=cm.getDimension();
   if(ptIdInCell<0 || ptIdInCell>=nbNodes)
@@ -185,7 +185,7 @@ void ParaMEDMEM::MEDCouplingGaussLocalization::setWeight(int gaussPtIdInCell, do
 /*!
  * The format of 'tinyData' parameter is the same than pushed in method ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo.
  */
-ParaMEDMEM::MEDCouplingGaussLocalization ParaMEDMEM::MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData)
+ParaMEDMEM::MEDCouplingGaussLocalization ParaMEDMEM::MEDCouplingGaussLocalization::BuildNewInstanceFromTinyInfo(int dim, const std::vector<int>& tinyData)
 {
   std::vector<double> v1(dim*tinyData[1]),v2(dim*tinyData[2]),v3(tinyData[2]);
   return ParaMEDMEM::MEDCouplingGaussLocalization((INTERP_KERNEL::NormalizedCellType)tinyData[0],v1,v2,v3);
@@ -193,7 +193,7 @@ ParaMEDMEM::MEDCouplingGaussLocalization ParaMEDMEM::MEDCouplingGaussLocalizatio
 
 int ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussPtIdInCell, int comp) const throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   int dim=cm.getDimension();
   int nbGsPts=getNumberOfGaussPt();
   if(gaussPtIdInCell<0 || gaussPtIdInCell>=nbGsPts)
@@ -203,7 +203,7 @@ int ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussP
   return dim;
 }
 
-bool ParaMEDMEM::MEDCouplingGaussLocalization::areAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
+bool ParaMEDMEM::MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
 {
   int sz=v1.size();
   if(sz!=(int)v2.size())

@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef __PARAMEDMEM_MEDCOUPLINGFIELDDISCRETIZATION_HXX__
@@ -50,6 +50,8 @@ namespace ParaMEDMEM
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
     virtual const char *getStringRepr() const = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
+    virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
+    virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
     virtual void normL1(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
     virtual void normL2(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, double *res) const throw(INTERP_KERNEL::Exception);
     virtual void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
@@ -104,6 +106,8 @@ namespace ParaMEDMEM
     const char *getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
@@ -132,6 +136,8 @@ namespace ParaMEDMEM
     const char *getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
@@ -160,6 +166,8 @@ namespace ParaMEDMEM
    */
   class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationPerCell : public MEDCouplingFieldDiscretization
   {
+  public:
+    const DataArrayInt *getArrayOfDiscIds() const;
   protected:
     MEDCouplingFieldDiscretizationPerCell();
     MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other);
@@ -187,6 +195,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretization *clone() const;
     const char *getStringRepr() const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
@@ -245,6 +255,8 @@ namespace ParaMEDMEM
     const char *getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
+    int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
+    DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;

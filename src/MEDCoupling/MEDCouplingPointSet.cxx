@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingPointSet.hxx"
@@ -308,7 +308,7 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
  * This method renumber 'this' using 'newNodeNumbers' array of size this->getNumberOfNodes.
  * newNbOfNodes specifies the *std::max_element(newNodeNumbers,newNodeNumbers+this->getNumberOfNodes())
  * This value is asked because often known by the caller of this method.
- * @param newNodeNumbers array specifying the new numbering.
+ * @param newNodeNumbers array specifying the new numbering in old2New convention..
  * @param newNbOfNodes the new number of nodes.
  */
 void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
@@ -809,7 +809,7 @@ void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, 
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end) const
 {
-  return buildPartOfMySelf(start,end,false);
+  return buildPartOfMySelf(start,end,true);
 }
 
 /*!
@@ -818,6 +818,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const int *start, const int *end
  * behind returned mesh. This cause an overhead but it is lesser in memory.
  * This method returns an array too. This array allows to the caller to know the mapping between nodeids in 'this' and nodeids in 
  * returned mesh. This is quite usefull for MEDCouplingFieldDouble on nodes for example...
+ * 'arr' is in old2New format of size ret->getNumberOfCells like MEDCouplingUMesh::zipCoordsTraducer is.
  * The returned mesh has to be managed by the caller.
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const

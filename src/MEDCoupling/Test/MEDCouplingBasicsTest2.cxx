@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingBasicsTest.hxx"
@@ -48,6 +48,7 @@ void MEDCouplingBasicsTest::testGaussPointField1()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_PT,NO_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   CPPUNIT_ASSERT_EQUAL(0,f->getNbOfGaussLocalization());
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
   CPPUNIT_ASSERT_THROW(f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,_refCoo1,_gsCoo1,_wg1),INTERP_KERNEL::Exception);
@@ -123,6 +124,7 @@ void MEDCouplingBasicsTest::testGaussPointNEField1()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_NE,NO_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   f->setName("MyFirstFieldOnNE");
   f->setDescription("MyDescriptionNE");
   DataArrayDouble *array=DataArrayDouble::New();
@@ -696,6 +698,7 @@ void MEDCouplingBasicsTest::testRenumberNodesForFields()
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(9,f->getNumberOfMeshPlacesExpected());
   DataArrayDouble *arr=DataArrayDouble::New();
   int nbOfNodes=m->getNumberOfNodes();
   arr->alloc(nbOfNodes,3);
@@ -895,6 +898,7 @@ void MEDCouplingBasicsTest::testCopyTinyStringsFromOnFields()
   int nbOfCells=m->getNumberOfCells();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,LINEAR_TIME);
   f->setMesh(m);
+  CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   f->setName("a");
   f->setDescription("b");
   DataArrayDouble *a1=DataArrayDouble::New();
@@ -1055,7 +1059,7 @@ void MEDCouplingBasicsTest::testChangeUnderlyingMesh1()
   CPPUNIT_ASSERT(f1->getMesh()==mesh1);
   f1->changeUnderlyingMesh(mesh2,10,1e-12);
   CPPUNIT_ASSERT(f1->getMesh()==mesh2);
-  const double expected2[22]={7.,107.,9.,109.,17.,117.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.,8.,108.};
+  const double expected2[22]={7.,107.,17.,117.,8.,108.,10.,110.,11.,111.,12.,112.,13.,113.,15.,115.,14.,114.,16.,116.,9.,109.};
   for(int i=0;i<22;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],f1->getArray()->getIJ(0,i),1e-12);
   f1->decrRef();
@@ -1117,14 +1121,14 @@ void MEDCouplingBasicsTest::testSubstractInPlaceDM1()
   CPPUNIT_ASSERT_EQUAL(2,f1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(20,f1->getNumberOfValues());
   //
-  const int renum[]={0,2,1,3,4,5,6,8,7,9};
+  const int renum[]={0,2,3,1,4,5,6,8,7,9};
   mesh2->renumberCells(renum,false);
   //
   MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
   f2->setMesh(mesh2);
   array=DataArrayDouble::New();
   array->alloc(mesh2->getNumberOfCells(),2);
-  const double arr2[20]={7.1,107.1,9.1,109.1,8.1,108.1,10.1,110.1,11.1,111.1,12.1,112.1,13.1,113.1,15.1,115.1,14.1,114.1,16.1,116.1};
+  const double arr2[20]={7.1,107.1,10.1,110.1,8.1,108.1,9.1,109.1,11.1,111.1,12.1,112.1,13.1,113.1,15.1,115.1,14.1,114.1,16.1,116.1};
   std::copy(arr2,arr2+20,array->getPointer());
   f2->setArray(array);
   array->decrRef();
@@ -1298,6 +1302,7 @@ void MEDCouplingBasicsTest::testBuildSubPart1()
   //
   const int part1[3]={2,1,4};
   MEDCouplingFieldDouble *f2=f1->buildSubPart(part1,part1+3);
+  f2->zipCoords();
   CPPUNIT_ASSERT_EQUAL(3,f2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,f2->getNumberOfComponents());
   const double expected1[6]={5.,105.,4.,104.,7.,107.};

@@ -220,25 +220,25 @@ available types are linear and quadratic elements (consult
 \cite{RefManualMedMemory}). The entries of the enum are quite
 self-explanatory~:
 \begin{itemize}
-\item \verb+MEDMEM_NONE+
-\item \verb+MEDMEM_POINT1+
-\item \verb+MEDMEM_SEG2+
-\item \verb+MEDMEM_SEG3+
-\item \verb+MEDMEM_TRIA3+
-\item \verb+MEDMEM_QUAD4+
-\item \verb+MEDMEM_TRIA6+
-\item \verb+MEDMEM_QUAD8+
-\item \verb+MEDMEM_TETRA4+
-\item \verb+MEDMEM_PYRA5+
-\item \verb+MEDMEM_PENTA6+
-\item \verb+MEDMEM_HEXA8+
-\item \verb+MEDMEM_TETRA10+
-\item \verb+MEDMEM_PYRA13+
-\item \verb+MEDMEM_PENTA15+
-\item \verb+MEDMEM_HEXA20+
-\item \verb+MEDMEM_POLYGON+
-\item \verb+MEDMEM_POLYHEDRA+
-\item \verb+MEDMEM_ALL_ELEMENTS+
+\item \verb+MED_NONE+
+\item \verb+MED_POINT1+
+\item \verb+MED_SEG2+
+\item \verb+MED_SEG3+
+\item \verb+MED_TRIA3+
+\item \verb+MED_QUAD4+
+\item \verb+MED_TRIA6+
+\item \verb+MED_QUAD8+
+\item \verb+MED_TETRA4+
+\item \verb+MED_PYRA5+
+\item \verb+MED_PENTA6+
+\item \verb+MED_HEXA8+
+\item \verb+MED_TETRA10+
+\item \verb+MED_PYRA13+
+\item \verb+MED_PENTA15+
+\item \verb+MED_HEXA20+
+\item \verb+MED_POLYGON+
+\item \verb+MED_POLYHEDRA+
+\item \verb+MED_ALL_ELEMENTS+
 \end{itemize}
 \item
 an enum which contains the different mesh entities, \verb+medEntityMesh+, the
@@ -385,7 +385,7 @@ type of this entity.
 
 \textbf{C++ Example~:}
 
-\verb+int NumberOfTriangle = myMesh.getNumberOfElements(MED_FACE,MEDMEM_TRIA3);+
+\verb+int NumberOfTriangle = myMesh.getNumberOfElements(MED_FACE,MED_TRIA3);+
 
 \verb+int NumberOfFace = myMesh.getNumberOfElements(MED_FACE,MED_ALL_ELEMENT);+
 
@@ -408,18 +408,18 @@ return an array with connectivity values.
 \textbf{C++ Example~:}
 
 \begin{verbatim}
-int NumberOfTetrahedron = myMesh.getNumberOfElements(MED_CELL,MEDMEM_TETRA4);
+int NumberOfTetrahedron = myMesh.getNumberOfElements(MED_CELL,MED_TETRA4);
 const int * TetrahedronConnectivity =
          myMesh.getConnectivity(MED_FULL_ENTERLACE,
                                 MED_NODAL,
                                 MED_CELL,
-                                MEDMEM_TETRA4);
+                                MED_TETRA4);
 \end{verbatim}
 \verb+TetrahedronConnectivity+ contain nodal connectivity
 of tetrahedron in mesh. It is arranged in full enterlace mode and
 its size is \verb+NumberOfTetrahedron x 4+.
 
-If you want to get connectivity of all elements (with \verb+Type=MEDMEM_ALL_ELEMENTS+),
+If you want to get connectivity of all elements (with \verb+Type=MED_ALL_ELEMENTS+),
 you must use the index array (return by \method{getConnectivityIndex})
 to get connectivity for each elements (see example \myref{MESHconnectivities.cxx}).
 
@@ -685,10 +685,10 @@ MESHING myMeshing ;
 myMeshing.setCoordinates(SpaceDimension,NumberOfNodes,Coordinates,System,Mode);
 
 myMeshing.setNumberOfTypes(2,MED_CELL);
-myMeshing.setTypes({MEDMEM_TRIA3,MEDMEM_QUAD4},MED_CELL);
-myMeshing.setNumberOfElements({3,2},MED_CELL); // 3 MEDMEM_TRIA3 and 2 MEDMEM_QUAD4
-myMeshing.setConnectivity({1,2,3,6,8,9,4,5,6},MED_CELL,MEDMEM_TRIA3);
-myMeshing.setConnectivity({1,3,4,5,4,5,7,8},MED_CELL,MEDMEM_QUAD4);
+myMeshing.setTypes({MED_TRIA3,MED_QUAD4},MED_CELL);
+myMeshing.setNumberOfElements({3,2},MED_CELL); // 3 MED_TRIA3 and 2 MED_QUAD4
+myMeshing.setConnectivity({1,2,3,6,8,9,4,5,6},MED_CELL,MED_TRIA3);
+myMeshing.setConnectivity({1,3,4,5,4,5,7,8},MED_CELL,MED_QUAD4);
 \end{verbatim}
 
 

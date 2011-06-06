@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "InterpolationOptionsTest.hxx"
@@ -54,12 +54,12 @@ namespace INTERP_TEST
     const MEDMEM::SUPPORT *source_support=source_mesh->getSupportOnAll(MED_EN::MED_CELL);
     MEDMEM::FIELD<double> *source_field=new FIELD<double>(source_support,1);
     double* value=const_cast<double*>(source_field->getValue());
-    for (int i=0; i<source_support->getNumberOfElements(MED_EN::MEDMEM_ALL_ELEMENTS); i++)
+    for (int i=0; i<source_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
       value[i]=1.0;
     const MEDMEM::SUPPORT *target_support=target_mesh->getSupportOnAll(MED_EN::MED_CELL);
     MEDMEM::FIELD<double> *target_field=new FIELD<double>(target_support,1);
     double* targetvalue=const_cast<double*>(target_field->getValue());
-    for (int i=0; i<target_support->getNumberOfElements(MED_EN::MEDMEM_ALL_ELEMENTS); i++)
+    for (int i=0; i<target_support->getNumberOfElements(MED_EN::MED_ALL_ELEMENTS); i++)
       targetvalue[i]=0.0;
     // Ok at this point we have our mesh in MED-Memory format.
     // Go to wrap med_source_mesh and med_target_mesh.

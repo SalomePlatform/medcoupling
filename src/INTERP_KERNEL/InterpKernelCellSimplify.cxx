@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "InterpKernelCellSimplify.hxx"
@@ -39,7 +39,7 @@ using namespace INTERP_KERNEL;
 INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
                                                                         int *retConn, int& retLgth) throw(INTERP_KERNEL::Exception)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   std::set<int> c(conn,conn+lgth);
   c.erase(-1);
   bool isObviousNonDegeneratedCell=((int)c.size()==lgth);
@@ -104,7 +104,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly2D(const int *conn, i
 int *CellSimplify::getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
                                       int& retNbOfFaces, int& retLgth)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   unsigned nbOfFaces=cm.getNumberOfSons2(conn,lgth);
   int *tmp=new int[nbOfFaces*(lgth+1)];
   int *work=tmp;

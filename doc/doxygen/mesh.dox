@@ -7,7 +7,7 @@ The MESH class is dedicated to the handling of unstructured
 meshes. Class MESHING  deriving from it supplies functions for creating meshes from scratch (c.f. \ref meshing).
 
 \section mesh_connectivity Content of the connectivity array
-Underlying the unstructured meshes is the notion of connectivity. This section only covers meshes made out of standard elements, the \c MEDMEM_POLYGON and \c MEDMEM_POLYHEDRA case being detailed in section \ref polygon .
+Underlying the unstructured meshes is the notion of connectivity. This section only covers meshes made out of standard elements, the \c MED_POLYGON and \c MED_POLYHEDRA case being detailed in section \ref polygon .
 
 \anchor medmemConnArrays
 \image html connectivity_arrays_small.png "Nodal connectivity storage scheme"
@@ -18,8 +18,8 @@ In MEDMEM, an unstructured mesh nodal connectivity is defined with these arrays:
 - the nodal connectivity array containing the connectivity of each cell, all cells being sorted by type;
 - the connectivity index array, which indicates the beginning of each cell in the connectivity array.
 
-The cell types are ordered by their number of nodes; MEDMEM_POLYGON and
-MEDMEM_POLYHEDRA is always the last type, if present.
+The cell types are ordered by their number of nodes; MED_POLYGON and
+MED_POLYHEDRA is always the last type, if present.
 
 As an example, let us consider a mesh made out of a linear triangle, two linear quadrangles and a quadratic triangle (c.f. figure \ref fig_connectivity_example ).
 \image html connectivity_example_small.png "Example for mesh connectivity"
@@ -27,7 +27,7 @@ As an example, let us consider a mesh made out of a linear triangle, two linear 
 The number of types is :  3
 
 The type array writes :
-\{ \a MEDMEM_TRIA3, \a MEDMEM_QUAD4, \a MEDMEM_TRIA6 \} 
+\{ \a MED_TRIA3, \a MED_QUAD4, \a MED_TRIA6 \} 
 
 The global numbering index is :  \{ 1,2,4,5 \} }. Its dimension is \f$ n_{types}+1 \f$
 so that elements of type \f$ type[i] \f$ are stored between element \f$ index[i] \f$ and 

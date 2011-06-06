@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingMemArray.txx"
@@ -1558,7 +1558,8 @@ void DataArrayDouble::applyFuncFast32(const char *func) throw(INTERP_KERNEL::Exc
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
   char *funcStr=expr.compileX86();
-  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  MYFUNCPTR funcPtr;
+  *((void **)&funcPtr)=funcStr;//he he...
   //
   double *ptr=getPointer();
   int nbOfComp=getNumberOfComponents();
@@ -1575,7 +1576,8 @@ void DataArrayDouble::applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exc
   INTERP_KERNEL::ExprParser expr(func);
   expr.parse();
   char *funcStr=expr.compileX86_64();
-  MYFUNCPTR funcPtr=(MYFUNCPTR)funcStr;//he he...
+  MYFUNCPTR funcPtr;
+  *((void **)&funcPtr)=funcStr;//he he...
   //
   double *ptr=getPointer();
   int nbOfComp=getNumberOfComponents();
@@ -2152,7 +2154,7 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
   int *pt=getPointer();
   for(int i=0;i<nbOfTuples;i++,pt++)
     {
-      if(*pt<nbElemsIn)
+      if(*pt>=0 && *pt<nbElemsIn)
         *pt=indArrBg[*pt];
       else
         {
@@ -2160,6 +2162,33 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+  declareAsNew();
+}
+
+DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call transformWithIndArrR method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  int nbElemsIn=std::distance(indArrBg,indArrEnd);
+  int nbOfTuples=getNumberOfTuples();
+  int *pt=getPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples,1);
+  ret->fillWithValue(-1);
+  int *tmp=ret->getPointer();
+  for(int i=0;i<nbOfTuples;i++,pt++)
+    {
+      int pos=indArrBg[*pt];
+      if(pos>=0 && pos<nbElemsIn)
+        tmp[pos]=i;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::transformWithIndArrR : error on tuple #" << i << " value is " << *pt << " and indirectionnal array as a size equal to " << nbElemsIn;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->incrRef();
+  return ret;
 }
 
 /*!
@@ -2314,6 +2343,11 @@ void DataArrayInt::renumberInPlaceR(const int *new2Old)
   declareAsNew();
 }
 
+/*!
+ * This method expects that 'this' is allocated, if not an exception is thrown.
+ * This method in case of success returns a newly created array the user should deal with.
+ * In the case of having a renumber array in "old to new" format. More info on renumbering \ref MEDCouplingArrayRenumbering "here".
+ */
 DataArrayInt *DataArrayInt::renumber(const int *old2New) const
 {
   int nbTuples=getNumberOfTuples();
@@ -2966,6 +3000,24 @@ DataArrayInt *DataArrayInt::getIdsNotEqualList(const std::vector<int>& vals) con
   ret->alloc(res.size(),1);
   std::copy(res.begin(),res.end(),ret->getPointer());
   return ret;
+}
+
+/*!
+ * This method expects to be called when number of components of this is equal to one.
+ * This method returns true if it exists a tuple so that the value is contained in 'vals'.
+ * If not any tuple contains one of the values contained in 'vals' false is returned.
+ */
+bool DataArrayInt::presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::presenceOfValue : the array must have only one component, you can call 'rearrange' method before !");
+  std::set<int> vals2(vals.begin(),vals.end());
+  const int *cptr=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  bool found=false;
+  for(const int *w=cptr;w!=cptr+nbOfTuples && !found;w++)
+    found=(vals2.find(*w)!=vals2.end());
+  return found;
 }
 
 DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2)

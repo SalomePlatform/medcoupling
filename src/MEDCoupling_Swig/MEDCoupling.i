@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 %module MEDCoupling
@@ -71,6 +71,7 @@ using namespace INTERP_KERNEL;
 %feature("autodoc", "1");
 %feature("docstring");
 
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getOffsetArr;
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingField::getLocalizationOfDiscr;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
@@ -123,6 +124,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId2;
 %newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
+%newobject ParaMEDMEM::DataArrayInt::transformWithIndArrR;
 %newobject ParaMEDMEM::DataArrayInt::renumber;
 %newobject ParaMEDMEM::DataArrayInt::renumberR;
 %newobject ParaMEDMEM::DataArrayInt::renumberAndReduce;
@@ -524,10 +526,25 @@ namespace ParaMEDMEM
         
         PyObject *buildPartAndReduceNodes(PyObject *li) const throw(INTERP_KERNEL::Exception)
         {
-          int size;
-          INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+          void *da=0;
           DataArrayInt *arr=0;
-          MEDCouplingMesh *ret=self->buildPartAndReduceNodes(tmp,tmp+size,arr);
+          MEDCouplingMesh *ret=0;
+           int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+           if (!SWIG_IsOK(res1))
+             {
+               int size;
+               INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+               ret=self->buildPartAndReduceNodes(tmp,((const int *)tmp)+size,arr);
+             }
+           else
+             {
+               DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+               if(!da2)
+                 throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+               da2->checkAllocated();
+               ret=self->buildPartAndReduceNodes(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),arr);
+               ret->setName(da2->getName().c_str());
+             }
           PyObject *res = PyList_New(2);
           PyObject *obj0=convertMesh(ret, SWIG_POINTER_OWN | 0 );
           PyObject *obj1=SWIG_NewPointerObj(SWIG_as_voidptr(arr),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
@@ -562,6 +579,16 @@ namespace ParaMEDMEM
            if(!v)
              { return ; }
            self->rotate(c,v,alpha);
+         }
+
+         PyObject *getAllGeoTypes() const throw(INTERP_KERNEL::Exception)
+         {
+           std::set<INTERP_KERNEL::NormalizedCellType> result=self->getAllGeoTypes();
+           std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iL=result.begin();
+           PyObject *res=PyList_New(result.size());
+           for(int i=0;iL!=result.end(); i++, iL++)
+             PyList_SetItem(res,i,PyInt_FromLong(*iL));
+           return res;
          }
        }
   };
@@ -1318,7 +1345,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1347,7 +1374,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1376,7 +1403,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1405,7 +1432,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -1434,7 +1461,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2399,6 +2426,23 @@ namespace ParaMEDMEM
        }
    }
 
+   DataArrayInt *transformWithIndArrR(PyObject *li) const
+   {
+     void *da=0;
+     int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+     if (!SWIG_IsOK(res1))
+       {
+         int size;
+         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+         return self->transformWithIndArrR(tmp,tmp+size);
+       }
+     else
+       {
+         DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+         return self->transformWithIndArrR(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+       }
+   }
+
    void renumberInPlace(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      void *da=0;
@@ -2419,7 +2463,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2448,7 +2492,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2477,7 +2521,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2506,7 +2550,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -2535,7 +2579,7 @@ namespace ParaMEDMEM
          if(!da2)
            throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
          da2->checkAllocated();
-         int size=self->getNbOfElems();
+         int size=self->getNumberOfTuples();
          if(size!=self->getNumberOfTuples())
            {
              throw INTERP_KERNEL::Exception("Invalid list length ! Must be equal to number of tuples !");
@@ -3518,6 +3562,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDiscretization *getDiscretization() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                     const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception);
     void clearGaussLocalizations() throw(INTERP_KERNEL::Exception);
@@ -3536,22 +3581,51 @@ namespace ParaMEDMEM
 
       PyObject *buildSubMeshData(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
-        int size;
-        INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-        DataArrayInt *ret1;
-        MEDCouplingMesh *ret0=self->buildSubMeshData(tmp,tmp+size,ret1);
+        DataArrayInt *ret1=0;
+        MEDCouplingMesh *ret0=0;
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            ret0=self->buildSubMeshData(tmp,tmp+size,ret1);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            ret0=self->buildSubMeshData(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),ret1);
+          }
         PyObject *res = PyList_New(2);
         PyList_SetItem(res,0,convertMesh(ret0, SWIG_POINTER_OWN | 0 ));
         PyList_SetItem(res,1,SWIG_NewPointerObj((void*)ret1,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
         return res;
       }
+
       void setGaussLocalizationOnCells(PyObject *li, const std::vector<double>& refCoo,
                                        const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
       {
-        int size;
-        INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-        self->setGaussLocalizationOnCells(tmp,tmp+size,refCoo,gsCoo,wg);
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            self->setGaussLocalizationOnCells(tmp,((int *)tmp)+size,refCoo,gsCoo,wg);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            self->setGaussLocalizationOnCells(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems(),refCoo,gsCoo,wg);
+          }
       }
+
       PyObject *getCellIdsHavingGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> tmp;

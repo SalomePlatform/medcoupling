@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingField.hxx"
@@ -307,4 +307,16 @@ int MEDCouplingField::getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exc
     return _type->getNumberOfTuples(_mesh);
   else
     throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfTuplesExpected : Empty mesh !");
+}
+
+/*!
+ * This method returns number of mesh placed expected regarding its discretization and its _mesh attribute.
+ * This method expected a not null _mesh instance. If null, an exception will be thrown.
+ */
+int MEDCouplingField::getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh)
+    return _type->getNumberOfMeshPlaces(_mesh);
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfMeshPlacesExpected : Empty mesh !");
 }

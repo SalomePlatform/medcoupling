@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingExtrudedMesh.hxx"
@@ -206,7 +206,16 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cel
   int nbOfCells2D=_mesh2D->getNumberOfCells();
   int locId=std::distance(ids,where)%nbOfCells2D;
   INTERP_KERNEL::NormalizedCellType tmp=_mesh2D->getTypeOfCell(locId);
-  return INTERP_KERNEL::CellModel::getCellModel(tmp).getExtrudedType();
+  return INTERP_KERNEL::CellModel::GetCellModel(tmp).getExtrudedType();
+}
+
+std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingExtrudedMesh::getAllGeoTypes() const
+{
+  const std::set<INTERP_KERNEL::NormalizedCellType>& ret2D=_mesh2D->getAllTypes();
+  std::set<INTERP_KERNEL::NormalizedCellType> ret;
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=ret2D.begin();it!=ret2D.end();it++)
+    ret.insert(INTERP_KERNEL::CellModel::GetCellModel(*it).getExtrudedType());
+  return ret;
 }
 
 int MEDCouplingExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
@@ -216,7 +225,7 @@ int MEDCouplingExtrudedMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedC
   for(int i=0;i<nbOfCells2D;i++)
     {
       INTERP_KERNEL::NormalizedCellType t=_mesh2D->getTypeOfCell(i);
-      if(INTERP_KERNEL::CellModel::getCellModel(t).getExtrudedType()==type)
+      if(INTERP_KERNEL::CellModel::GetCellModel(t).getExtrudedType()==type)
         ret++;
     }
   return ret*_mesh1D->getNumberOfCells();

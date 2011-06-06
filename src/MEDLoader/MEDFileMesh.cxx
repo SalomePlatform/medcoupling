@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDFileMesh.hxx"
@@ -33,7 +33,7 @@ using namespace ParaMEDMEM;
 
 const char MEDFileMesh::DFT_FAM_NAME[]="FAMILLE_ZERO";
 
-MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.),_too_long_str(0),_zipconn_pol(2)
+MEDFileMesh::MEDFileMesh():_order(-1),_iteration(-1),_time(0.)
 {
 }
 
@@ -174,6 +174,23 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroup(const char *name) const
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   return (*it).second;
+}
+
+std::vector<std::string> MEDFileMesh::getFamiliesOnGroups(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+{
+  std::set<std::string> fams;
+  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
+    {
+      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
+      if(it2==_groups.end())
+        {
+          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      fams.insert((*it2).second.begin(),(*it2).second.end());
+    }
+  std::vector<std::string> fams2(fams.begin(),fams.end());
+  return fams2;
 }
 
 std::vector<int> MEDFileMesh::getFamiliesIdsOnGroup(const char *name) const throw(INTERP_KERNEL::Exception)
@@ -571,18 +588,7 @@ DataArrayInt *MEDFileMesh::getGroupArr(int meshDimRelToMaxExt, const char *grp, 
 
 DataArrayInt *MEDFileMesh::getGroupsArr(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  std::set<std::string> fams;
-  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
-    {
-      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
-      if(it2==_groups.end())
-        {
-          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      fams.insert((*it2).second.begin(),(*it2).second.end());
-    }
-  std::vector<std::string> fams2(fams.begin(),fams.end());
+  std::vector<std::string> fams2=getFamiliesOnGroups(grps);
   return getFamiliesArr(meshDimRelToMaxExt,fams2,renum);
 }
 
@@ -912,8 +918,8 @@ void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
       std::string info=coo->getInfoOnComponent(i);
       std::string c,u;
       MEDLoaderBase::splitIntoNameAndUnit(info,c,u);
-      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
-      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDmeshCr(fid,maa,spaceDim,mdim,MED_UNSTRUCTURED_MESH,desc,"",MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
   MEDFileUMeshL2::WriteCoords(fid,maa,_iteration,_order,_time,_coords,_fam_coords,_num_coords);
@@ -947,7 +953,100 @@ std::vector<int> MEDFileUMesh::getNonEmptyLevelsExt() const
   return ret0;
 }
 
-int MEDFileUMesh::getMeshDimension() const
+/*!
+ * This methods returns all relative mesh levels where group 'grp' is defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getGrpNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroup(grp);
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getGrpNonEmptyLevelsExt. It looks at the node level to state if the group 'grp' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroup(grp);
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * This methods returns all relative mesh levels where family 'fam' is defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getFamNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getFamNonEmptyLevels(const char *fam) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams(1,std::string(fam));
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getFamNonEmptyLevels. It looks at the node level to state if the family 'fam' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getFamNonEmptyLevelsExt(const char *fam) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams(1,std::string(fam));
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * This methods returns all relative mesh levels where groups 'grps' are defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getGrpsNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getGrpsNonEmptyLevels(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroups(grps);
+  return getFamsNonEmptyLevels(fams);
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getGrpsNonEmptyLevels. It looks at the node level to state if the families 'fams' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getGrpsNonEmptyLevelsExt(const std::vector<std::string>& grps) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> fams=getFamiliesOnGroups(grps);
+  return getFamsNonEmptyLevelsExt(fams);
+}
+
+/*!
+ * This methods returns all relative mesh levels where families 'fams' are defined \b excluded \b nodes.
+ * To include nodes call MEDFileUMesh::getFamsNonEmptyLevelsExt method.
+ */
+std::vector<int> MEDFileUMesh::getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret;
+  std::vector<int> levs=getNonEmptyLevels();
+  std::vector<int> famIds=getFamiliesIds(fams);
+  for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
+    if(_ms[-(*it)]->presenceOfOneFams(famIds))
+      ret.push_back(*it);
+  return ret;
+}
+
+/*!
+ * This method is a generalization of MEDFileUMesh::getFamsNonEmptyLevels. It looks at the node level to state if the families 'fams' has a part lying on node.
+ */
+std::vector<int> MEDFileUMesh::getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret0=getFamsNonEmptyLevels(fams);
+  const DataArrayInt *famCoords=_fam_coords;
+  if(!famCoords)
+    return ret0;
+  std::vector<int> famIds=getFamiliesIds(fams);
+  if(famCoords->presenceOfValue(famIds))
+    {
+      std::vector<int> ret(ret0.size()+1);
+      ret[0]=1;
+      std::copy(ret0.begin(),ret0.end(),ret.begin()+1);
+      return ret;
+    }
+  else
+    return ret0;
+}
+
+int MEDFileUMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
 {
   int lev=0;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++,lev++)
@@ -982,11 +1081,7 @@ const DataArrayInt *MEDFileUMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) 
 const DataArrayInt *MEDFileUMesh::getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt==1)
-    {
-      if(!((const DataArrayInt *)_num_coords))
-        throw INTERP_KERNEL::Exception("MEDFileUMesh::getNumberFieldAtLevel : no coordinates renum specified !");
-      return _num_coords;
-    }
+    return _num_coords;
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getNumberField();
 }
@@ -1027,18 +1122,7 @@ MEDCouplingUMesh *MEDFileUMesh::getGroup(int meshDimRelToMaxExt, const char *grp
 MEDCouplingUMesh *MEDFileUMesh::getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   synchronizeTinyInfoOnLeaves();
-  std::set<std::string> fams;
-  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
-    {
-      std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
-      if(it2==_groups.end())
-        {
-          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      fams.insert((*it2).second.begin(),(*it2).second.end());
-    }
-  std::vector<std::string> fams2(fams.begin(),fams.end());
+  std::vector<std::string> fams2=getFamiliesOnGroups(grps);
   return getFamilies(meshDimRelToMaxExt,fams2,renum);
 }
 
@@ -1110,9 +1194,9 @@ MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renu
   return l1->getWholeMesh(renum);
 }
 
-MEDCouplingMesh *MEDFileUMesh::getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDFileUMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum) const throw(INTERP_KERNEL::Exception)
 {
-  return getMeshAtLevel(meshDimRelToMax,false);
+  return getMeshAtLevel(meshDimRelToMax,renum);
 }
 
 MEDCouplingUMesh *MEDFileUMesh::getLevel0Mesh(bool renum) const throw(INTERP_KERNEL::Exception)
@@ -1276,11 +1360,6 @@ void MEDFileUMesh::removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::E
 void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
 {
   setMeshAtLevelGen(meshDimRelToMax,m,newOrOld);
-}
-
-void MEDFileUMesh::setMeshAtLevelOld(int meshDimRelToMax, MEDCouplingUMesh *m) throw(INTERP_KERNEL::Exception)
-{
-  setMeshAtLevelGen(meshDimRelToMax,m,false);
 }
 
 void MEDFileUMesh::setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
@@ -1467,6 +1546,13 @@ MEDFileCMesh *MEDFileCMesh::New(const char *fileName, const char *mName, int dt,
   return new MEDFileCMesh(fid,mName,dt,it);
 }
 
+int MEDFileCMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
+{
+  if(!((const MEDCouplingCMesh*)_cmesh))
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getMeshDimension : unable to get meshdimension because no mesh set !");
+  return _cmesh->getMeshDimension();
+}
+
 bool MEDFileCMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const
 {
   if(!MEDFileMesh::isEqual(other,eps,what))
@@ -1594,6 +1680,8 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
+
+
 void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
 {
   MEDFileCMeshL2 loaderl2;
@@ -1673,8 +1761,10 @@ const MEDCouplingCMesh *MEDFileCMesh::getMesh() const
   return _cmesh;
 }
 
-MEDCouplingMesh *MEDFileCMesh::getGenMeshAtLevel(int meshDimRelToMax) const throw(INTERP_KERNEL::Exception)
+MEDCouplingMesh *MEDFileCMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum) const throw(INTERP_KERNEL::Exception)
 {
+  if(renum)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh does not support renumbering ! To do it perform request of renum array directly !");
   if(meshDimRelToMax!=0)
     throw INTERP_KERNEL::Exception("MEDFileCMesh does not support multi level for mesh 0 expected as input !");
   const MEDCouplingCMesh *m=getMesh();
@@ -1714,8 +1804,8 @@ void MEDFileCMesh::write(const char *fileName, int mode) const throw(INTERP_KERN
       std::string info(_cmesh->getCoordsAt(i)->getInfoOnComponent(0));
       std::string c,u;
       MEDLoaderBase::splitIntoNameAndUnit(info,c,u);
-      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
-      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(c.c_str(),MED_SNAME_SIZE-1,comp+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
+      MEDLoaderBase::safeStrCpy2(u.c_str(),MED_SNAME_SIZE-1,unit+i*MED_SNAME_SIZE,_too_long_str);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
   MEDmeshCr(fid,maa,spaceDim,spaceDim,MED_STRUCTURED_MESH,desc,dtunit,MED_SORT_DTIT,MED_CARTESIAN,comp,unit);
   MEDmeshGridTypeWr(fid,maa,MED_CARTESIAN_GRID);

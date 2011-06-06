@@ -37,8 +37,8 @@ all faces with -1 as separator between faces.
 
 Let us consider an example with the two tetrahedra represented on
 figure \ref fig_polyhedron_connectivity , the left one
-being stored as a \c MEDMEM_TETRA4 element, the right one being stored
-as a \c MEDMEM_POLYHEDRA element.
+being stored as a \c MED_TETRA4 element, the right one being stored
+as a \c MED_POLYHEDRA element.
 
 \anchor fig_polyhedron_connectivity
 \image html polyhedron_connectivity_small.png "Example for polyhedron connectivity. Node numbers are written with a normal font, while face numbers are written in italic font."
@@ -47,7 +47,7 @@ as a \c MEDMEM_POLYHEDRA element.
 - The connectivity table writes : {1, 2, 3, 4, 2, 5, 3, -1, 2, 4, 5, -1, 4, 3, 5, -1, 2, 3, 4}
 - The index connectivity table writes : {1, 5, 20 }
 
-If there are two \c MEDMEM_POLYHEDRA elements that share a common face, 
+If there are two \c MED_POLYHEDRA elements that share a common face, 
 the list of nodes is repeated twice in the polyhedron connectivity
 array but with reversed order.
 
