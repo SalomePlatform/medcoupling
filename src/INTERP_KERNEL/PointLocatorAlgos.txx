@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __POINTLOCATORALGOS_TXX__
 #define __POINTLOCATORALGOS_TXX__
@@ -24,6 +24,7 @@
 #include "BBTree.txx"
 
 #include <list>
+#include <set>
 #include <limits>
 
 namespace INTERP_KERNEL
@@ -167,7 +168,7 @@ namespace INTERP_KERNEL
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
 
-      const CellModel& cmType=CellModel::getCellModel(type);
+      const CellModel& cmType=CellModel::GetCellModel(type);
       //
       if (SPACEDIM==2)
         {
@@ -187,6 +188,7 @@ namespace INTERP_KERNEL
         {
           return isElementContainsPointAlg3D(ptToTest,conn_elem,conn_elem_sz,coords,cmType,eps);
         }
+      throw INTERP_KERNEL::Exception("Invalid spacedim detected ! Managed spaceDim are 2 and 3 !");
     }
         
     bool elementContainsPoint(typename MyMeshType::MyConnType i, const double* x, double eps)
@@ -216,6 +218,98 @@ namespace INTERP_KERNEL
         }
       return (min_sign!=-1 || max_sign!=1);     
     }
+  };
+
+  template<class MyMeshType>
+  class PointLocatorInSimplex : public PointLocatorAlgos<MyMeshType>
+  {
+    const MyMeshType& _mesh;
+  public:
+    PointLocatorInSimplex(const MyMeshType& mesh)
+      :PointLocatorAlgos<MyMeshType>(mesh),_mesh(mesh)
+    {
+    }
+
+    //================================================================================
+    /*!
+     * \brief Returns nodes composing the simplex the point x is in
+     */
+    //================================================================================
+
+    virtual std::list<int> locates(const double* x, double eps)
+    {
+      typedef typename MyMeshType::MyConnType ConnType;
+      const NumberingPolicy numPol=MyMeshType::My_numPol;
+
+      std::list<int> simplexNodes;
+      std::list<int> candidates = PointLocatorAlgos<MyMeshType>::locates(x,eps);
+      std::list<int>::iterator eIt = candidates.begin();
+      for ( ; eIt != candidates.end(); ++eIt )
+        {
+          const int i = OTT<ConnType,numPol>::ind2C( *eIt );
+          const double* coords= _mesh.getCoordinatesPtr();
+          const ConnType* conn=_mesh.getConnectivityPtr();
+          const ConnType* conn_index= _mesh.getConnectivityIndexPtr();
+          const ConnType* conn_elem=conn+OTT<ConnType,numPol>::ind2C(conn_index[i]);
+          int conn_elem_sz=conn_index[i+1]-conn_index[i];
+          NormalizedCellType type=_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
+          CellModel cell = CellModel::GetCellModel(type);
+
+          if ( cell.isQuadratic() )
+            throw Exception("P2 not implemented yet");
+
+          if ( cell.isSimplex())
+            {
+              for ( int n = 0; n < conn_elem_sz; ++n )
+                simplexNodes.push_back( conn_elem[ n ]);
+            }
+          else
+            {
+              NormalizedCellType simlexType = cell.getDimension()==3 ? NORM_TETRA4 : NORM_TRI3;
+              std::vector<int> sonNodes;
+              NormalizedCellType sonType;
+              const unsigned nbSons = cell.getNumberOfSons2( conn_elem, conn_elem_sz );
+              for ( unsigned s = 0; s < nbSons; ++s )
+                {
+                  sonNodes.resize( cell.getNumberOfNodesConstituentTheSon2( s, conn_elem, conn_elem_sz ));
+                  cell.fillSonCellNodalConnectivity2( s, conn_elem, conn_elem_sz, &sonNodes[0], sonType );
+                  std::set<int> sonNodesSet( sonNodes.begin(), sonNodes.end() );
+
+                  std::set< std::set< ConnType > > checkedSonSimplex;
+                  for ( unsigned sn = 0; sn < sonNodes.size(); ++sn )
+                    {
+                      std::vector< ConnType > simplexConn( cell.getDimension() + 1 );
+                      unsigned n;
+                      for ( n = 0; n < cell.getDimension()-1; ++n )
+                        simplexConn[n] = sonNodes[ (sn+n) % sonNodes.size() ];
+
+                      for ( unsigned n2 = 0; n2 < sonNodes.size()-cell.getDimension()+1; ++n2 )
+                        {
+                          simplexConn[n] = sonNodes[ (sn+n+n2) % sonNodes.size() ];
+                          std::set< ConnType > sonSimplex( simplexConn.begin(), --simplexConn.end());
+                          if ( checkedSonSimplex.insert( sonSimplex ).second )
+                            {
+                              for ( unsigned cn = 0; cn < conn_elem_sz; ++cn )
+                                if ( !sonNodesSet.count( conn_elem[cn] ))
+                                  {
+                                    simplexConn.back() = conn_elem[cn];
+                                    if ( isElementContainsPoint( x, simlexType, coords,
+                                                                 &simplexConn[0], simplexConn.size(), eps ))
+                                      {
+                                        simplexNodes.insert( simplexNodes.end(),
+                                                             simplexConn.begin(), simplexConn.end());
+                                        return simplexNodes;
+                                      }
+                                  }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+      return simplexNodes;
+    }
+
   };
 }
 

@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __VOLSURFUSER_TXX__
 #define __VOLSURFUSER_TXX__
@@ -152,7 +152,19 @@ namespace INTERP_KERNEL
                                                        coords+SPACEDIM*N8);
         }
         break;
-            
+      case INTERP_KERNEL::NORM_HEXGP12:
+        {
+          const int connecHexa12[43]={
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[7]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[1]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[2]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[0])};
+          return calculateVolumeForPolyh2<ConnType,numPol>(connecHexa12,43,coords);
+        }
       case INTERP_KERNEL::NORM_POLYHED :
         {
           return calculateVolumeForPolyh2<ConnType,numPol>(connec,lgth,coords);
@@ -269,6 +281,20 @@ namespace INTERP_KERNEL
             OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[4])
           };
           barycenterOfPolyhedron<ConnType,numPol>(conn,22,coords,res);
+          break;
+        }
+      case INTERP_KERNEL::NORM_HEXGP12:
+        {
+          const int connecHexa12[43]={
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[7]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[0]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[1]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[1]),OTT<ConnType,numPol>::coo2C(connec[7]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[2]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[2]),OTT<ConnType,numPol>::coo2C(connec[8]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[3]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[3]),OTT<ConnType,numPol>::coo2C(connec[9]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[4]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[4]),OTT<ConnType,numPol>::coo2C(connec[10]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[5]),-1,
+            OTT<ConnType,numPol>::coo2C(connec[5]),OTT<ConnType,numPol>::coo2C(connec[11]),OTT<ConnType,numPol>::coo2C(connec[6]),OTT<ConnType,numPol>::coo2C(connec[0])};
+          barycenterOfPolyhedron<ConnType,numPol>(connecHexa12,43,coords,res);
           break;
         }
       case NORM_POLYHED:

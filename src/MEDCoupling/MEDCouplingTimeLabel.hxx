@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef __PARAMEDMEM_TIMELABEL_HXX__
@@ -33,17 +33,17 @@ namespace ParaMEDMEM
   public:
     TimeLabel& operator=(const TimeLabel& other);
     //! This method should be called when write access has been done on this.
-    void declareAsNew();
+    void declareAsNew() const;
     //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggragates objects.
-    virtual void updateTime() = 0;
+    virtual void updateTime() const = 0;
     unsigned int getTimeOfThis() const { return _time; }
   protected:
     TimeLabel();
     virtual ~TimeLabel();
-    void updateTimeWith(const TimeLabel& other);
+    void updateTimeWith(const TimeLabel& other) const;
   private:
     static unsigned int GLOBAL_TIME;
-    unsigned int _time;
+    mutable unsigned int _time;
   };
 }
 

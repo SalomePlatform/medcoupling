@@ -1,20 +1,20 @@
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
@@ -34,10 +34,11 @@ MEDCouplingField.hxx MEDCouplingNormalizedUnstructuredMesh.hxx MEDCouplingMemArr
 MEDCouplingNormalizedUnstructuredMesh.txx  MEDCouplingMemArray.txx MEDCouplingRefCountObject.hxx  \
 MEDCouplingCMesh.hxx MEDCouplingTimeDiscretization.hxx                                            \
 MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx MEDCouplingPointSet.txx                \
-MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx                                             \
+MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx MEDCouplingFieldTemplate.hxx                \
 MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx                     \
 MEDCouplingRemapper.hxx MEDCouplingExtrudedMesh.hxx MEDCouplingGaussLocalization.hxx              \
-MEDCouplingAutoRefCountObjectPtr.hxx
+MEDCouplingAutoRefCountObjectPtr.hxx MEDCouplingMultiFields.hxx MEDCouplingDefinitionTime.hxx     \
+MEDCouplingFieldOverTime.hxx
 
 # Libraries targets
 
@@ -46,16 +47,17 @@ dist_libmedcoupling_la_SOURCES = \
 	MEDCouplingUMesh.cxx  MEDCouplingMemArray.cxx  MEDCouplingTimeLabel.cxx             \
 	MEDCouplingCMesh.cxx MEDCouplingTimeDiscretization.cxx                              \
 	MEDCouplingFieldDiscretization.cxx MEDCouplingRefCountObject.cxx                    \
-	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx                                    \
+	MEDCouplingPointSet.cxx MEDCouplingUMeshDesc.cxx  MEDCouplingFieldTemplate.cxx      \
 	MEDCouplingExtrudedMesh.cxx MEDCouplingMesh.cxx MEDCouplingGaussLocalization.cxx    \
-	MEDCouplingNatureOfField.cxx
+	MEDCouplingNatureOfField.cxx MEDCouplingMultiFields.cxx                             \
+	MEDCouplingDefinitionTime.cxx MEDCouplingFieldOverTime.cxx
 
 libmedcoupling_la_LDFLAGS= 
 
 libmedcoupling_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D \
-	-I$(srcdir)/../INTERP_KERNEL/ExprEval
+	-I$(srcdir)/../INTERP_KERNEL/ExprEval -I$(srcdir)/../INTERP_KERNEL/GaussPoints
 
 # the geom2D library is included in the interpkernel one
 libmedcoupling_la_LIBADD= ../INTERP_KERNEL/libinterpkernel.la
@@ -93,4 +95,8 @@ EXTRA_DIST += \
 	MEDCouplingNatureOfField.hxx              \
 	MEDCouplingRemapper.hxx                   \
 	MEDCouplingExtrudedMesh.hxx               \
-	MEDCouplingGaussLocalization.hxx 
+	MEDCouplingGaussLocalization.hxx          \
+	MEDCouplingMultiFields.hxx                \
+	MEDCouplingFieldTemplate.hxx              \
+	MEDCouplingDefinitionTime.hxx             \
+	MEDCouplingFieldOverTime.hxx

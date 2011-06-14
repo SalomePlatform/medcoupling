@@ -1,23 +1,24 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
@@ -33,6 +34,21 @@ using namespace ParaMEDMEM;
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(TypeOfField type, TypeOfTimeDiscretization td)
 {
   return new MEDCouplingFieldDouble(type,td);
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::New(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td)
+{
+  return new MEDCouplingFieldDouble(ft,td);
+}
+
+void MEDCouplingFieldDouble::setTimeUnit(const char *unit)
+{
+  _time_discr->setTimeUnit(unit);
+}
+
+const char *MEDCouplingFieldDouble::getTimeUnit() const
+{
+  return _time_discr->getTimeUnit();
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
@@ -52,9 +68,14 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) c
   return ret;
 }
 
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
+{
+  return cloneWithMesh(true);
+}
+
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const
 {
-  MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(_time_discr,td,deepCpy);
+  MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(td,deepCpy);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(getNature(),tdo,_type->clone());
   ret->setMesh(getMesh());
   ret->setName(getName());
@@ -72,6 +93,17 @@ void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingFieldDouble *o
       setName(other->_name.c_str());
       setDescription(other->_desc.c_str());
       _time_discr->copyTinyStringsFrom(*other->_time_discr);
+    }
+}
+
+/*!
+ * Copy only times, order, iteration from other. The underlying mesh is not impacted by this method.
+ */
+void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
+{
+  if(other)
+    {
+      _time_discr->copyTinyAttrFrom(*other->_time_discr);
     }
 }
 
@@ -132,8 +164,6 @@ bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshP
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(_nature!=otherC->_nature)
-    return false;
   if(!MEDCouplingField::isEqual(other,meshPrec,valsPrec))
     return false;
   if(!_time_discr->isEqual(otherC->_time_discr,valsPrec))
@@ -145,8 +175,6 @@ bool MEDCouplingFieldDouble::isEqualWithoutConsideringStr(const MEDCouplingField
 {
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
-    return false;
-  if(_nature!=otherC->_nature)
     return false;
   if(!MEDCouplingField::isEqualWithoutConsideringStr(other,meshPrec,valsPrec))
     return false;
@@ -167,8 +195,6 @@ bool MEDCouplingFieldDouble::areCompatibleForMerge(const MEDCouplingField *other
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(_nature!=otherC->_nature)
-    return false;
   if(!_time_discr->areCompatible(otherC->_time_discr))
     return false;
   return true;
@@ -184,8 +210,6 @@ bool MEDCouplingFieldDouble::areStrictlyCompatible(const MEDCouplingField *other
     return false;
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
-    return false;
-  if(_nature!=otherC->_nature)
     return false;
   if(!_time_discr->areStrictlyCompatible(otherC->_time_discr))
     return false;
@@ -203,9 +227,36 @@ bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) 
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(_nature!=otherC->_nature)
-    return false;
   if(!_time_discr->areStrictlyCompatibleForMul(otherC->_time_discr))
+    return false;
+  return true;
+}
+
+/*!
+ * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatible method except that
+ * number of components between 'this' and 'other' can be different here (for operator/).
+ */
+bool MEDCouplingFieldDouble::areCompatibleForDiv(const MEDCouplingField *other) const
+{
+  if(!MEDCouplingField::areStrictlyCompatible(other))
+    return false;
+  const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
+  if(!otherC)
+    return false;
+  if(!_time_discr->areStrictlyCompatibleForDiv(otherC->_time_discr))
+    return false;
+  return true;
+}
+
+/*!
+ * This method is invocated before any attempt of melding. This method is very close to areStrictlyCompatible,
+ * except that 'this' and other can have different number of components.
+ */
+bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *other) const
+{
+  if(!MEDCouplingField::areStrictlyCompatible(other))
+    return false;
+  if(!_time_discr->areCompatibleForMeld(other->_time_discr))
     return false;
   return true;
 }
@@ -263,13 +314,13 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg) throw(INTERP_KE
  * This method performs half job of MEDCouplingFieldDouble::renumberNodes. That is to say no permutation of cells is done on underlying mesh.
  * That is to say, the field content is changed by this method.
  */
-void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, double eps) throw(INTERP_KERNEL::Exception)
 {
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(old2NewBg,*iter);
+      _type->renumberValuesOnNodes(eps,old2NewBg,*iter);
 }
 
 /*!
@@ -340,18 +391,22 @@ TypeOfTimeDiscretization MEDCouplingFieldDouble::getTimeDiscretization() const
   return _time_discr->getEnum();
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),_nature(NoNature),
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingField(type),
                                                                                               _time_discr(MEDCouplingTimeDiscretization::New(td))
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),_nature(other._nature),
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td):MEDCouplingField(*ft),
+                                                                                                                _time_discr(MEDCouplingTimeDiscretization::New(td))
+{
+}
+
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),
                                                                                                   _time_discr(other._time_discr->performCpy(deepCpy))
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type):MEDCouplingField(type),
-                                                                                                                                         _nature(n),_time_discr(td)
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type):MEDCouplingField(type,n),_time_discr(td)
 {
 }
 
@@ -666,6 +721,8 @@ void MEDCouplingFieldDouble::integral(bool isWAbs, double *res) const throw(INTE
 void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOnPos");
   _type->getValueOnPos(arr,_mesh,i,j,k,res);
 }
 
@@ -676,7 +733,20 @@ void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) con
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *arr=_time_discr->getArray();
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOn");
   _type->getValueOn(arr,_mesh,spaceLoc,res);
+}
+
+/*!
+ * Returns a newly allocated array with 'nbOfPoints' tuples and nb of components equal to 'this->getNumberOfComponents()'.
+ */
+DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc, int nbOfPoints) const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *arr=_time_discr->getArray();
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOnMulti");
+  return _type->getValueOnMulti(arr,_mesh,spaceLoc,nbOfPoints);
 }
 
 /*!
@@ -687,6 +757,8 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) con
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, double *res) const throw(INTERP_KERNEL::Exception)
 {
   std::vector< const DataArrayDouble *> arrs=_time_discr->getArraysForTime(time);
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("No mesh underlying this field to perform getValueOn");
   std::vector<double> res2;
   for(std::vector< const DataArrayDouble *>::const_iterator iter=arrs.begin();iter!=arrs.end();iter++)
     {
@@ -746,6 +818,32 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) th
 }
 
 /*!
+ * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic2.
+ * The main difference is that the field as been started to be constructed here.
+ * An exception is throw if no underlying mesh is set before the call of this method.
+ */
+void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  _time_discr->fillFromAnalytic2(loc,nbOfComp,func);
+}
+
+/*!
+ * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic3.
+ * The main difference is that the field as been started to be constructed here.
+ * An exception is throw if no underlying mesh is set before the call of this method.
+ */
+void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::fillFromAnalytic2 : no mesh defined !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> loc=_type->getLocalizationOfDiscValues(_mesh);
+  _time_discr->fillFromAnalytic3(loc,nbOfComp,varsOrder,func);
+}
+
+/*!
  * Applyies the function specified by pointer 'func' on each tuples on all arrays contained in _time_discr.
  * If '*func' returns false during one evaluation an exception will be thrown.
  */
@@ -771,9 +869,27 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, double val)
  * If '*func' fails in evaluation during one evaluation an exception will be thrown.
  * The field will contain 'nbOfComp' components after the call.
  */
-void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
+void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
 {
   _time_discr->applyFunc(nbOfComp,func);
+}
+
+/*!
+ * This method is equivalent to MEDCouplingFieldDouble::applyFunc, except that here components info are used to determine variables position in 'func'.
+ * If there is vars detected in 'func' that is not in an info on components an exception will be thrown.
+ */
+void MEDCouplingFieldDouble::applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->applyFunc2(nbOfComp,func);
+}
+
+/*!
+ * This method is equivalent to MEDCouplingFieldDouble::applyFunc, except that here 'varsOrder' is used to determine variables position in 'func'.
+ * If there is vars detected in 'func' that is not in 'varsOrder' an exception will be thrown.
+ */
+void MEDCouplingFieldDouble::applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->applyFunc3(nbOfComp,varsOrder,func);
 }
 
 /*!
@@ -781,7 +897,7 @@ void MEDCouplingFieldDouble::applyFunc(int nbOfComp, const char *func)
  * If '*func' fails in evaluation during one evaluation an exception will be thrown.
  * The field will contain exactly the same number of components after the call.
  */
-void MEDCouplingFieldDouble::applyFunc(const char *func)
+void MEDCouplingFieldDouble::applyFunc(const char *func) throw(INTERP_KERNEL::Exception)
 {
   _time_discr->applyFunc(func);
 }
@@ -844,7 +960,7 @@ int MEDCouplingFieldDouble::getNumberOfValues() const throw(INTERP_KERNEL::Excep
   return getArray()->getNbOfElems();
 }
 
-void MEDCouplingFieldDouble::updateTime()
+void MEDCouplingFieldDouble::updateTime() const
 {
   MEDCouplingField::updateTime();
   updateTimeWith(*_time_discr);
@@ -852,8 +968,8 @@ void MEDCouplingFieldDouble::updateTime()
 
 void MEDCouplingFieldDouble::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
 {
+  MEDCouplingField::setNature(nat);
   _type->checkCompatibilityWithNature(nat);
-  _nature=nat;
 }
 
 double MEDCouplingFieldDouble::getIJK(int cellId, int nodeIdInCell, int compoId) const
@@ -871,12 +987,18 @@ void MEDCouplingFieldDouble::setEndArray(DataArrayDouble *array)
   _time_discr->setEndArray(array,this);
 }
 
+void MEDCouplingFieldDouble::setArrays(const std::vector<DataArrayDouble *>& arrs) throw(INTERP_KERNEL::Exception)
+{
+  _time_discr->setArrays(arrs,this);
+}
+
 void MEDCouplingFieldDouble::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
 {
   tinyInfo.clear();
   _time_discr->getTinySerializationStrInformation(tinyInfo);
   tinyInfo.push_back(_name);
   tinyInfo.push_back(_desc);
+  tinyInfo.push_back(getTimeUnit());
 }
 
 /*!
@@ -945,8 +1067,9 @@ void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyI
   _nature=(NatureOfField)tinyInfoI[2];
   _type->finishUnserialization(tmp2);
   int nbOfElemS=tinyInfoS.size();
-  _name=tinyInfoS[nbOfElemS-2];
-  _desc=tinyInfoS[nbOfElemS-1];
+  _name=tinyInfoS[nbOfElemS-3];
+  _desc=tinyInfoS[nbOfElemS-2];
+  setTimeUnit(tinyInfoS[nbOfElemS-1].c_str());
 }
 
 /*!
@@ -969,7 +1092,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
   if(_mesh==0 || other==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::changeUnderlyingMesh : is expected to operate on not null meshes !");
   DataArrayInt *cellCor,*nodeCor;
-  _mesh->checkGeoEquivalWith(other,levOfCheck,prec,cellCor,nodeCor);
+  other->checkGeoEquivalWith(_mesh,levOfCheck,prec,cellCor,nodeCor);
   if(cellCor)
     {
       renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
@@ -1001,8 +1124,10 @@ void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f,
 
 /*!
  * Merge nodes of underlying mesh. In case of some node will be merged the underlying mesh instance will change.
+ * The first 'eps' stands for geometric approximation. The second 'epsOnVals' is for epsilon on values in case of node merging.
+ * If 2 nodes distant from less than 'eps' and with value different with more than 'epsOnVals' an exception will be thrown.
  */
-bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -1017,7 +1142,32 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Excepti
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(arr->getConstPointer(),*iter);
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
+  setMesh(meshC2);
+  return true;
+}
+
+/*!
+ * Merge nodes with (barycenter computation) of underlying mesh. In case of some node will be merged the underlying mesh instance will change.
+ * The first 'eps' stands for geometric approximation. The second 'epsOnVals' is for epsilon on values in case of node merging.
+ * If 2 nodes distant from less than 'eps' and with value different with more than 'epsOnVals' an exception will be thrown.
+ */
+bool MEDCouplingFieldDouble::mergeNodes2(double eps, double epsOnVals) throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
+  if(!meshC)
+    throw INTERP_KERNEL::Exception("Invalid support mesh to apply mergeNodes on it : must be a MEDCouplingPointSet one !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
+  bool ret;
+  int ret2;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->mergeNodes2(eps,ret,ret2);
+  if(!ret)//no nodes have been merged.
+    return ret;
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+    if(*iter)
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
   setMesh(meshC2);
   return true;
 }
@@ -1025,8 +1175,9 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps) throw(INTERP_KERNEL::Excepti
 /*!
  * This method applyies ParaMEDMEM::MEDCouplingPointSet::zipCoords method on 'this->_mesh' that should be set and of type ParaMEDMEM::MEDCouplingPointSet.
  * If some nodes have disappeared true is returned.
+ * 'epsOnVals' stands for epsilon in case of merge of cells. This value is used as tolerance in case the corresponding values differ.
  */
-bool MEDCouplingFieldDouble::zipCoords() throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::zipCoords(double epsOnVals) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingPointSet *meshC=dynamic_cast<const MEDCouplingPointSet *>(_mesh);
   if(!meshC)
@@ -1040,7 +1191,7 @@ bool MEDCouplingFieldDouble::zipCoords() throw(INTERP_KERNEL::Exception)
       _time_discr->getArrays(arrays);
       for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
         if(*iter)
-          _type->renumberValuesOnNodes(arr->getConstPointer(),*iter);
+          _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
       setMesh(meshC2);
       return true;
     }
@@ -1050,8 +1201,9 @@ bool MEDCouplingFieldDouble::zipCoords() throw(INTERP_KERNEL::Exception)
 /*!
  * This method applyies ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer on 'this->_mesh' that should be set and of type ParaMEDMEM::MEDCouplingUMesh.
  * The semantic of 'compType' is given in ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer method.
+ * 'epsOnVals' stands for epsilon in case of merge of cells. This value is used as tolerance in case the corresponding values differ.
  */
-bool MEDCouplingFieldDouble::zipConnectivity(int compType) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingUMesh *meshC=dynamic_cast<const MEDCouplingUMesh *>(_mesh);
   if(!meshC)
@@ -1065,11 +1217,32 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType) throw(INTERP_KERNEL::
       _time_discr->getArrays(arrays);
       for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
         if(*iter)
-          _type->renumberValuesOnCells(meshC,arr->getConstPointer(),*iter);
+          _type->renumberValuesOnCells(epsOnVals,meshC,arr->getConstPointer(),*iter);
       setMesh(meshC2);
       return true;
     }
   return false;
+}
+
+/*!
+ * This method applyies ParaMEDMEM::MEDCouplingUMesh::simplexize on 'this->_mesh'.
+ * The semantic of 'policy' is given in ParaMEDMEM::MEDCouplingUMesh::simplexize method.
+ */
+bool MEDCouplingFieldDouble::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  int oldNbOfCells=_mesh->getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> meshC2(_mesh->deepCpy());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=meshC2->simplexize(policy);
+  int newNbOfCells=meshC2->getNumberOfCells();
+  if(oldNbOfCells==newNbOfCells)
+    return false;
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
+    if(*iter)
+      _type->renumberValuesOnCellsR(_mesh,arr->getConstPointer(),arr->getNbOfElems(),*iter);
+  setMesh(meshC2);
+  return true;
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::doublyContractedProduct() const throw(INTERP_KERNEL::Exception)
@@ -1189,14 +1362,15 @@ void MEDCouplingFieldDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Excepti
   _time_discr->sortPerTuple(asc);
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areCompatibleForMerge(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply mergeFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MergeFields on them !");
   const MEDCouplingMesh *m1=f1->getMesh();
   const MEDCouplingMesh *m2=f2->getMesh();
   MEDCouplingMesh *m=m1->mergeMyselfWith(m2);
   MEDCouplingTimeDiscretization *td=f1->_time_discr->aggregate(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
   ret->setMesh(m);
   m->decrRef();
@@ -1205,10 +1379,51 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::mergeFields(const MEDCouplingFie
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::dotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a) throw(INTERP_KERNEL::Exception)
+{
+  if(a.size()<=1)
+    throw INTERP_KERNEL::Exception("FieldDouble::MergeFields : size of array must be > 1 !");
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms(a.size());
+  std::vector< const MEDCouplingUMesh *> ms2(a.size());
+  std::vector< const MEDCouplingTimeDiscretization *> tds(a.size());
+  std::vector<const MEDCouplingFieldDouble *>::const_iterator it=a.begin();
+  const MEDCouplingFieldDouble *ref=(*it++);
+  for(;it!=a.end();it++)
+    if(!ref->areCompatibleForMerge(*it))
+      throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MergeFields on them !");
+  for(int i=0;i<(int)a.size();i++)
+    {
+      if(!a[i]->getMesh())
+        throw INTERP_KERNEL::Exception("MergeFields : A field as no underlying mesh !");
+      ms[i]=a[i]->getMesh()->buildUnstructured();
+      ms2[i]=ms[i];
+      tds[i]=a[i]->_time_discr;
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
+  MEDCouplingTimeDiscretization *td=tds[0]->aggregate(tds);
+  td->copyTinyAttrFrom(*(a[0]->_time_discr));
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());
+  ret->setMesh(m);
+  ret->setName(a[0]->getName());
+  ret->setDescription(a[0]->getDescription());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
+{
+  if(!f1->areCompatibleForMeld(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MeldFields on them !");
+  MEDCouplingTimeDiscretization *td=f1->_time_discr->meld(f2->_time_discr);
+  td->copyTinyAttrFrom(*f1->_time_discr);
+  MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
+  ret->setMesh(f1->getMesh());
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::DotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply dotFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply DotFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->dot(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1216,10 +1431,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::dotFields(const MEDCouplingField
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::crossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::CrossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply crossProductFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply CrossProductFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->crossProduct(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1227,10 +1442,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::crossProductFields(const MEDCoup
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MaxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply maxFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MaxFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->max(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1238,10 +1453,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::maxFields(const MEDCouplingField
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::minFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MinFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply minFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MinFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->min(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1249,10 +1464,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::minFields(const MEDCouplingField
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::AddFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply addFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply AddFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->add(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1260,7 +1475,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::addFields(const MEDCouplingField
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
   if(!areStrictlyCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply += on them !");
@@ -1268,10 +1483,10 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator+=(const MEDCoupli
   return *this;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::SubstractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply substractFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply SubstractFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->substract(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1279,7 +1494,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::substractFields(const MEDCouplin
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
   if(!areStrictlyCompatible(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply -= on them !");
@@ -1287,10 +1502,10 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator-=(const MEDCoupli
   return *this;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
   if(!f1->areCompatibleForMul(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply multiplyFields on them !");
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply MultiplyFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->multiply(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1298,7 +1513,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::multiplyFields(const MEDCoupling
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
   if(!areCompatibleForMul(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply *= on them !");
@@ -1306,10 +1521,10 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator*=(const MEDCoupli
   return *this;
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2)
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception)
 {
-  if(!f1->areStrictlyCompatible(f2))
-    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply divideFields on them !");
+  if(!f1->areCompatibleForDiv(f2))
+    throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply DivideFields on them !");
   MEDCouplingTimeDiscretization *td=f1->_time_discr->divide(f2->_time_discr);
   td->copyTinyAttrFrom(*f1->_time_discr);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(f1->getNature(),td,f1->_type->clone());
@@ -1317,9 +1532,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::divideFields(const MEDCouplingFi
   return ret;
 }
 
-const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other)
+const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
 {
-  if(!areStrictlyCompatible(&other))
+  if(!areCompatibleForDiv(&other))
     throw INTERP_KERNEL::Exception("Fields are not compatible ; unable to apply /= on them !");
   _time_discr->divideEqual(other._time_discr);
   return *this;

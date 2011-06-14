@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef __INTERPKERNELEXPRPARSER_HXX__
@@ -41,6 +41,7 @@ namespace INTERP_KERNEL
     virtual void fillValue(Value *val) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void compileX86(std::vector<std::string>& ass) const = 0;
     virtual void compileX86_64(std::vector<std::string>& ass) const = 0;
+    virtual void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception) = 0;
     static LeafExpr *buildInstanceFrom(const std::string& expr) throw(INTERP_KERNEL::Exception);
   };
 
@@ -52,6 +53,7 @@ namespace INTERP_KERNEL
     void compileX86(std::vector<std::string>& ass) const;
     void compileX86_64(std::vector<std::string>& ass) const;
     void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
+    void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
   private:
     double _value;
   };
@@ -67,6 +69,7 @@ namespace INTERP_KERNEL
     std::string getVar() const { return _var_name; }
     void prepareExprEvaluation(const std::vector<std::string>& vars) const throw(INTERP_KERNEL::Exception);
     void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
+    void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
     static bool isRecognizedKeyVar(const std::string& var, int& pos);
   public:
     static const char END_OF_RECOGNIZED_VAR[];
@@ -105,6 +108,7 @@ namespace INTERP_KERNEL
     void prepareExprEvaluationVecLowLev() const throw(INTERP_KERNEL::Exception);
     bool tryToInterpALeaf() throw(INTERP_KERNEL::Exception);
     void parseUnaryFunc() throw(INTERP_KERNEL::Exception);
+    void parseForCmp() throw(INTERP_KERNEL::Exception);
     void parseForAddMin() throw(INTERP_KERNEL::Exception);
     void parseForMulDiv() throw(INTERP_KERNEL::Exception);
     void parseForPow() throw(INTERP_KERNEL::Exception);
@@ -112,8 +116,11 @@ namespace INTERP_KERNEL
     bool simplify() throw(INTERP_KERNEL::Exception);
     void releaseFunctions();
     void checkBracketsParity() const throw(INTERP_KERNEL::Exception);
-    static std::size_t findCorrespondingOpenBracket(const std::string& expr, std::size_t posOfCloseBracket);
-    static void locateError(std::ostream& stringToDisp, const std::string& srcOfErr, int posOfErr);
+    void fillValuesInExpr(std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
+    void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
+    static double ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, std::size_t end, int& delta) throw(INTERP_KERNEL::Exception);
+    static std::size_t FindCorrespondingOpenBracket(const std::string& expr, std::size_t posOfCloseBracket);
+    static void LocateError(std::ostream& stringToDisp, const std::string& srcOfErr, int posOfErr);
   private:
     ExprParser *_father;
     bool _is_parsed;

@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 #define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
@@ -179,6 +179,39 @@ namespace ParaMEDMEM
   {
     T *pt=_pointer.getPointer();
     std::fill(pt,pt+_nb_of_elem,val);
+  }
+  
+  template<class T>
+  T *MemArray<T>::fromNoInterlace(int nbOfComp) const
+  {
+    const T *pt=_pointer.getConstPointer();
+    int nbOfTuples=_nb_of_elem/nbOfComp;
+    T *ret=new T[_nb_of_elem];
+    T *w=ret;
+    for(int i=0;i<nbOfTuples;i++)
+      for(int j=0;j<nbOfComp;j++,w++)
+        *w=pt[j*nbOfTuples+i];
+    return ret;
+  }
+  
+  template<class T>
+  T *MemArray<T>::toNoInterlace(int nbOfComp) const
+  {
+    const T *pt=_pointer.getConstPointer();
+    int nbOfTuples=_nb_of_elem/nbOfComp;
+    T *ret=new T[_nb_of_elem];
+    T *w=ret;
+    for(int i=0;i<nbOfComp;i++)
+      for(int j=0;j<nbOfTuples;j++,w++)
+        *w=pt[j*nbOfComp+i];
+    return ret;
+  }
+
+  template<class T>
+  void MemArray<T>::sort()
+  {
+    T *pt=_pointer.getPointer();
+    std::sort(pt,pt+_nb_of_elem);
   }
 
   template<class T>

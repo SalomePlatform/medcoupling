@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __POLYGONALGORITHMS_TXX__
 #define __POLYGONALGORITHMS_TXX__
@@ -78,17 +78,17 @@ namespace INTERP_KERNEL
             if(fabs(det) > _epsilon) 
               {
                 inv_det = 1/det;
-                t1=(AC[1]*DC[2]-AC[2]*DC[1])*inv_det;
-                t2=(AB[1]*AC[2]-AB[2]*AC[1])*inv_det;
+                t1=(AC[1]*DC[DIM-1]-AC[DIM-1]*DC[1])*inv_det;
+                t2=(AB[1]*AC[DIM-1]-AB[DIM-1]*AC[1])*inv_det;
               }
             else //beware AB and CD may belong to a plane y = constant
               {
-                det = AB[0]*DC[2]-AB[2]*DC[0];
+                det = AB[0]*DC[DIM-1]-AB[DIM-1]*DC[0];
                 if(fabs(det) > _epsilon) 
                   {
                     inv_det = 1/det;
-                    t1=(AC[0]*DC[2]-AC[2]*DC[0])*inv_det;
-                    t2=(AB[0]*AC[2]-AB[2]*AC[0])*inv_det;
+                    t1=(AC[0]*DC[DIM-1]-AC[DIM-1]*DC[0])*inv_det;
+                    t2=(AB[0]*AC[DIM-1]-AB[DIM-1]*AC[0])*inv_det;
                   }
                 else
                   {

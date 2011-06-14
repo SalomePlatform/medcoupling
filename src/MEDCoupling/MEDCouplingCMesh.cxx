@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingCMesh.hxx"
@@ -37,11 +37,17 @@ MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):
   if(deepCpy)
     {
       if(other._x_array)
-        _x_array=_x_array->deepCopy();
+        _x_array=other._x_array->deepCpy();
+      else
+        _x_array=0;
       if(other._y_array)
-        _y_array=_y_array->deepCopy();
+        _y_array=other._y_array->deepCpy();
+      else
+        _y_array=0;
       if(other._z_array)
-        _z_array=_z_array->deepCopy();
+        _z_array=other._z_array->deepCpy();
+      else
+        _z_array=0;
     }
   else
     {
@@ -82,7 +88,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::clone(bool recDeepCpy) const
   return new MEDCouplingCMesh(*this,recDeepCpy);
 }
 
-void MEDCouplingCMesh::updateTime()
+void MEDCouplingCMesh::updateTime() const
 {
   if(_x_array)
     updateTimeWith(*_x_array);
@@ -207,6 +213,22 @@ void MEDCouplingCMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
     }
 }
 
+void MEDCouplingCMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  if(_x_array)
+    _x_array->checkMonotonic(eps);
+  if(_y_array)
+    _y_array->checkMonotonic(eps);
+  if(_z_array)
+    _z_array->checkMonotonic(eps);
+}
+
+void MEDCouplingCMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency1(eps);
+}
+
 int MEDCouplingCMesh::getNumberOfCells() const
 {
   int ret=1;
@@ -275,7 +297,7 @@ int MEDCouplingCMesh::getNodeIdFromPos(int i, int j, int k) const
   return std::accumulate(tmp,tmp+spaceDim,0);
 }
 
-void MEDCouplingCMesh::getPosFromId(int nodeId, int spaceDim, const int *split, int *res)
+void MEDCouplingCMesh::GetPosFromId(int nodeId, int spaceDim, const int *split, int *res)
 {
   int work=nodeId;
   for(int i=spaceDim-1;i>=0;i--)
@@ -318,6 +340,25 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingCMesh::getTypeOfCell(int cellId) co
     }
 }
 
+std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingCMesh::getAllGeoTypes() const
+{
+  INTERP_KERNEL::NormalizedCellType ret;
+  switch(getMeshDimension())
+    {
+    case 3:
+      ret=INTERP_KERNEL::NORM_HEXA8;
+    case 2:
+      ret=INTERP_KERNEL::NORM_QUAD4;
+    case 1:
+      ret=INTERP_KERNEL::NORM_SEG2;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingCMesh::getAllGeoTypes !");
+    }
+  std::set<INTERP_KERNEL::NormalizedCellType> ret2;
+  ret2.insert(ret);
+  return ret2;
+}
+
 int MEDCouplingCMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   int ret=getNumberOfCells();
@@ -351,7 +392,7 @@ void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo
   getSplitNodeValues(tmp);
   const DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
   int tmp2[3];
-  getPosFromId(nodeId,spaceDim,tmp,tmp2);
+  GetPosFromId(nodeId,spaceDim,tmp,tmp2);
   for(int j=0;j<spaceDim;j++)
     if(tabs[j])
       coo.push_back(tabs[j]->getConstPointer()[tmp2[j]]);
@@ -361,6 +402,11 @@ std::string MEDCouplingCMesh::simpleRepr() const
 {
   std::ostringstream ret;
   ret << "Cartesian mesh with name : \"" << getName() << "\"\n";
+  ret << "Description of mesh : \"" << getDescription() << "\"\n";
+  int tmpp1,tmpp2;
+  double tt=getTime(tmpp1,tmpp2);
+  ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
+  ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
   ret << "Mesh and SpaceDimension dimension : " << getSpaceDimension() << "\n\nArrays :\n________\n\n";
   if(_x_array)
     {
@@ -385,7 +431,7 @@ std::string MEDCouplingCMesh::advancedRepr() const
   return simpleRepr();
 }
 
-DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
+const DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL::Exception)
 {
   switch(i)
     {
@@ -400,7 +446,22 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) const throw(INTERP_KERNEL:
     }
 }
 
-void MEDCouplingCMesh::setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) throw(INTERP_KERNEL::Exception)
+{
+  switch(i)
+    {
+    case 0:
+      return _x_array;
+    case 1:
+      return _y_array;
+    case 2:
+      return _z_array;
+    default:
+      throw INTERP_KERNEL::Exception("Invalid rank specified must be 0 or 1 or 2.");
+    }
+}
+
+void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
 {
   DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
   if(i<0 || i>2)
@@ -409,34 +470,71 @@ void MEDCouplingCMesh::setCoordsAt(int i, DataArrayDouble *arr) throw(INTERP_KER
     {
       if(*(thisArr[i]))
         (*(thisArr[i]))->decrRef();
-      (*(thisArr[i]))=arr;
+      (*(thisArr[i]))=const_cast<DataArrayDouble *>(arr);
       if(*(thisArr[i]))
         (*(thisArr[i]))->incrRef();
       declareAsNew();
     }
 }
 
-void MEDCouplingCMesh::setCoords(DataArrayDouble *coordsX, DataArrayDouble *coordsY, DataArrayDouble *coordsZ)
+void MEDCouplingCMesh::setCoords(const DataArrayDouble *coordsX, const DataArrayDouble *coordsY, const DataArrayDouble *coordsZ)
 {
   if(_x_array)
     _x_array->decrRef();
-  _x_array=coordsX;
+  _x_array=const_cast<DataArrayDouble *>(coordsX);
   if(_x_array)
     _x_array->incrRef();
   if(_y_array)
     _y_array->decrRef();
-  _y_array=coordsY;
+  _y_array=const_cast<DataArrayDouble *>(coordsY);
   if(_y_array)
     _y_array->incrRef();
   if(_z_array)
     _z_array->decrRef();
-  _z_array=coordsZ;
+  _z_array=const_cast<DataArrayDouble *>(coordsZ);
   if(_z_array)
     _z_array->incrRef();
   declareAsNew();
 }
 
-MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const
+/*!
+ * See MEDCouplingUMesh::checkTypeConsistencyAndContig for more information
+ */
+DataArrayInt *MEDCouplingCMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  int sz=code.size();
+  if(sz!=0 && sz!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code should be of size 2 exactly !");
+  if(code[0]==INTERP_KERNEL::NORM_ERROR)
+    {
+      int nbNodes=getNumberOfNodes();
+      if(code[2]==-1)
+        {
+          if(code[1]==nbNodes)
+            return 0;
+          else
+            throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : number of nodes mismatch !");
+        }
+      else
+        idsPerType[code[2]]->deepCpy();
+    }
+  else
+    {
+      int nbCells=getNumberOfCellsWithType((INTERP_KERNEL::NormalizedCellType)code[0]);
+      if(code[2]==-1)
+        {
+          if(code[1]==nbCells)
+            return 0;
+          else
+            throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : number of cells mismatch !");
+        }
+      else
+        idsPerType[code[2]]->deepCpy();
+    }
+  return 0;
+}
+
+MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=getSpaceDimension();
   MEDCouplingUMesh *ret=MEDCouplingUMesh::New(getName(),spaceDim);
@@ -476,13 +574,18 @@ MEDCouplingMesh *MEDCouplingCMesh::buildPartAndReduceNodes(const int *start, con
   return ret;
 }
 
+DataArrayInt *MEDCouplingCMesh::simplexize(int policy) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingCMesh::simplexize : not available for Cartesian mesh !");
+}
+
 void MEDCouplingCMesh::getBoundingBox(double *bbox) const
 {
   int dim=getSpaceDimension();
   int j=0;
   for (int idim=0; idim<dim; idim++)
     {
-      DataArrayDouble *c=getCoordsAt(idim);
+      const DataArrayDouble *c=getCoordsAt(idim);
       if(c)
         {
           const double *coords=c->getConstPointer();
@@ -517,7 +620,7 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
   for(int icell=0;icell<nbelem;icell++)
     {
       int tmp2[3];
-      getPosFromId(icell,dim,tmp,tmp2);
+      GetPosFromId(icell,dim,tmp,tmp2);
       area_vol[icell]=1.;
       for(int i=0;i<dim;i++)
         area_vol[icell]*=thisArr[i][tmp2[i]+1]-thisArr[i][tmp2[i]];
@@ -623,14 +726,17 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
   double *pt=ret->getPointer();
   int tmp[3];
   getSplitNodeValues(tmp);
-  DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
+  const DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
   const double *tabsPtr[3];
   for(int j=0;j<spaceDim;j++)
-    tabsPtr[j]=tabs[j]->getConstPointer();
+    {
+      tabsPtr[j]=tabs[j]->getConstPointer();
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
+    }
   int tmp2[3];
   for(int i=0;i<nbNodes;i++)
     {
-      getPosFromId(i,spaceDim,tmp,tmp2);
+      GetPosFromId(i,spaceDim,tmp,tmp2);
       for(int j=0;j<spaceDim;j++)
         pt[i*spaceDim+j]=tabsPtr[j][tmp2[j]];
     }
@@ -646,11 +752,12 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   double *pt=ret->getPointer();
   int tmp[3];
   getSplitCellValues(tmp);
-  DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
+  const DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
   std::vector<double> tabsPtr[3];
   for(int j=0;j<spaceDim;j++)
     {
       int sz=tabs[j]->getNbOfElems()-1;
+      ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0).c_str());
       const double *srcPtr=tabs[j]->getConstPointer();
       tabsPtr[j].insert(tabsPtr[j].end(),srcPtr,srcPtr+sz);
       std::transform(tabsPtr[j].begin(),tabsPtr[j].end(),srcPtr+1,tabsPtr[j].begin(),std::plus<double>());
@@ -659,7 +766,7 @@ DataArrayDouble *MEDCouplingCMesh::getBarycenterAndOwner() const
   int tmp2[3];
   for(int i=0;i<nbCells;i++)
     {
-      getPosFromId(i,spaceDim,tmp,tmp2);
+      GetPosFromId(i,spaceDim,tmp,tmp2);
       for(int j=0;j<spaceDim;j++)
         pt[i*spaceDim+j]=tabsPtr[j][tmp2[j]];
     }
@@ -760,11 +867,16 @@ void MEDCouplingCMesh::fill3DUnstructuredMesh(MEDCouplingUMesh *m) const
   connI->decrRef();
 }
 
-void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
+void MEDCouplingCMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
+  int it,order;
+  double time=getTime(it,order);
   tinyInfo.clear();
+  tinyInfoD.clear();
   littleStrings.clear();
   littleStrings.push_back(getName());
+  littleStrings.push_back(getDescription());
+  littleStrings.push_back(getTimeUnit());
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
   for(int i=0;i<3;i++)
     {
@@ -778,6 +890,9 @@ void MEDCouplingCMesh::getTinySerializationInformation(std::vector<int>& tinyInf
       tinyInfo.push_back(val);
       littleStrings.push_back(st);
     }
+  tinyInfo.push_back(it);
+  tinyInfo.push_back(order);
+  tinyInfoD.push_back(time);
 }
 
 void MEDCouplingCMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
@@ -809,10 +924,12 @@ void MEDCouplingCMesh::serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const
       a2Ptr=std::copy(thisArr[i]->getConstPointer(),thisArr[i]->getConstPointer()+thisArr[i]->getNumberOfTuples(),a2Ptr);
 }
 
-void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
+void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                        const std::vector<std::string>& littleStrings)
 {
   setName(littleStrings[0].c_str());
+  setDescription(littleStrings[1].c_str());
+  setTimeUnit(littleStrings[2].c_str());
   DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
   const double *data=a2->getConstPointer();
   for(int i=0;i<3;i++)
@@ -821,10 +938,11 @@ void MEDCouplingCMesh::unserialization(const std::vector<int>& tinyInfo, const D
         {
           (*(thisArr[i]))=DataArrayDouble::New();
           (*(thisArr[i]))->alloc(tinyInfo[i],1);
-          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+1].c_str());
+          (*(thisArr[i]))->setInfoOnComponent(0,littleStrings[i+3].c_str());
           std::copy(data,data+tinyInfo[i],(*(thisArr[i]))->getPointer());
           data+=tinyInfo[i];
         }
     }
+  setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
 }
 

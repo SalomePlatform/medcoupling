@@ -1,26 +1,27 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingRemapperTest.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingRemapper.hxx"
 
@@ -980,6 +981,44 @@ void MEDCouplingRemapperTest::testExtruded2()
   meshN->decrRef();
   meshTT->decrRef();
   meshTF->decrRef();
+}
+
+void MEDCouplingRemapperTest::testPrepareEx1()
+{
+  MEDCouplingUMesh *sourceMesh=MEDCouplingBasicsTest::build2DSourceMesh_1();
+  MEDCouplingUMesh *targetMesh=build2DTargetMesh_3();
+  //
+  MEDCouplingRemapper remapper;
+  remapper.setPrecision(1e-12);
+  remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
+  MEDCouplingFieldTemplate *srcFt=MEDCouplingFieldTemplate::New(ON_CELLS);
+  MEDCouplingFieldTemplate *trgFt=MEDCouplingFieldTemplate::New(ON_CELLS);
+  srcFt->setMesh(sourceMesh);
+  trgFt->setMesh(targetMesh);
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepareEx(srcFt,trgFt));
+  srcFt->decrRef();
+  trgFt->decrRef();
+  MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
+  srcField->setNature(ConservativeVolumic);
+  srcField->setMesh(sourceMesh);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(sourceMesh->getNumberOfCells(),1);
+  srcField->setArray(array);
+  double *ptr=array->getPointer();
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    ptr[i]=(double)(i+7);
+  array->decrRef();
+  MEDCouplingFieldDouble *trgfield=remapper.transferField(srcField,4.220173);
+  const double *values=trgfield->getArray()->getConstPointer();
+  const double valuesExpected[4]={7.75, 7.0625, 4.220173,8.0};
+  CPPUNIT_ASSERT_EQUAL(4,trgfield->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgfield->getArray()->getNumberOfComponents());
+  for(int i0=0;i0<4;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected[i0],values[i0],1e-12);
+  trgfield->decrRef();
+  srcField->decrRef();
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
 }
 
 MEDCouplingUMesh *MEDCouplingRemapperTest::build1DTargetMesh_2()

@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingBasicsTest.hxx"
@@ -258,18 +258,18 @@ void MEDCouplingBasicsTest::testMesh()
 void MEDCouplingBasicsTest::testMeshPointsCloud()
 {
   double targetCoords[27]={-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5};
-  int *targetConn=0;
+  const int targetConn[]={0,1,2,3,4,5,7,6};
   MEDCouplingUMesh *targetMesh=MEDCouplingUMesh::New();
   targetMesh->setMeshDimension(0);
   targetMesh->allocateCells(8);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT0,0,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+1);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+2);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+3);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+5);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+6);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+7);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(9,3);
@@ -325,7 +325,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
   std::fill(array->getPointer(),array->getPointer()+5*3,7.);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,array->getIJ(3,2),1e-14);
   double *tmp1=array->getPointer();
-  DataArrayDouble *array2=array->deepCopy();
+  DataArrayDouble *array2=array->deepCpy();
   double *tmp2=array2->getPointer();
   CPPUNIT_ASSERT(tmp1!=tmp2);
   array->decrRef();
@@ -337,7 +337,7 @@ void MEDCouplingBasicsTest::testDeepCopy()
   std::fill(array3->getPointer(),array3->getPointer()+5*3,17);
   CPPUNIT_ASSERT_EQUAL(17,array3->getIJ(3,2));
   int *tmp3=array3->getPointer();
-  DataArrayInt *array4=array3->deepCopy();
+  DataArrayInt *array4=array3->deepCpy();
   int *tmp4=array4->getPointer();
   CPPUNIT_ASSERT(tmp3!=tmp4);
   array3->decrRef();
@@ -730,10 +730,10 @@ void MEDCouplingBasicsTest::testZipConnectivity()
   CPPUNIT_ASSERT(m3);
   m2->decrRef();
   MEDCouplingUMesh *m4=build2DSourceMesh_1();
-  MEDCouplingUMesh *m5=MEDCouplingUMesh::mergeUMeshes(m1,m3);
+  MEDCouplingUMesh *m5=MEDCouplingUMesh::MergeUMeshes(m1,m3);
   m1->decrRef();
   m3->decrRef();
-  MEDCouplingUMesh *m6=MEDCouplingUMesh::mergeUMeshes(m5,m4);
+  MEDCouplingUMesh *m6=MEDCouplingUMesh::MergeUMeshes(m5,m4);
   m4->decrRef();
   m5->decrRef();
   //
@@ -873,7 +873,7 @@ void MEDCouplingBasicsTest::testEqualFieldDouble()
   CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
   CPPUNIT_ASSERT(fieldOnCells2->isEqual(fieldOnCells1,1e-12,1e-15));
   //
-  DataArrayDouble *arr2=arr->deepCopy();
+  DataArrayDouble *arr2=arr->deepCpy();
   fieldOnCells2->setArray(arr2);
   arr2->decrRef();
   CPPUNIT_ASSERT(fieldOnCells1->isEqual(fieldOnCells2,1e-12,1e-15));
@@ -930,7 +930,7 @@ void MEDCouplingBasicsTest::testBuildSubMeshData()
   DataArrayInt *di;
   MEDCouplingMesh *ret1=fieldCells->buildSubMeshData(elts,elts+3,di);
   CPPUNIT_ASSERT_EQUAL(3,ret1->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(6,ret1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(9,ret1->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,di->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,di->getNumberOfComponents());
   const int *toCheck=di->getConstPointer();
@@ -1049,7 +1049,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh2()
 }
 
 /*!
- * This test check MEDCouplingUMesh::buildExtrudedMeshFromThis method.
+ * This test check MEDCouplingUMesh::buildExtrudedMesh method.
  */
 void MEDCouplingBasicsTest::testExtrudedMesh3()
 {
@@ -1060,7 +1060,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   double center[3]={0.,0.,0.};
   double vector[3]={0,1,0};
   m2->rotate(center,vector,-M_PI/2.);
-  MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
+  MEDCouplingUMesh *m3=m1->buildExtrudedMesh(m2,0);
   //
   MEDCouplingExtrudedMesh *m4=MEDCouplingExtrudedMesh::New(m3,m1,0);
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
@@ -1085,7 +1085,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
   //play with polygons and polyedrons
   std::vector<int> cells(2); cells[0]=2; cells[1]=3;
   m1->convertToPolyTypes(cells);
-  m3=m1->buildExtrudedMeshFromThis(m2,0);
+  m3=m1->buildExtrudedMesh(m2,0);
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_HEXA8,(int)m3->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_PENTA6,(int)m3->getTypeOfCell(1));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_POLYHED,(int)m3->getTypeOfCell(2));
@@ -1107,7 +1107,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh3()
 }
 
 /*!
- * This test check MEDCouplingUMesh::buildExtrudedMeshFromThis method, but also, MEDCouplingExtrudedMesh following methods :
+ * This test check MEDCouplingUMesh::buildExtrudedMesh method, but also, MEDCouplingExtrudedMesh following methods :
  * getCellContainingPoint getMeasureField getNodeIdsOfCell getCoordinateOfNode getTypeOfCell build3DUnstructuredMesh.
  */
 void MEDCouplingBasicsTest::testExtrudedMesh4()
@@ -1121,7 +1121,7 @@ void MEDCouplingBasicsTest::testExtrudedMesh4()
   double center[3]={0.,0.,0.};
   double vector[3]={0.,1.,0.};
   m2->rotate(center,vector,-M_PI/2.);
-  MEDCouplingUMesh *m3=m1->buildExtrudedMeshFromThis(m2,0);
+  MEDCouplingUMesh *m3=m1->buildExtrudedMesh(m2,0);
   const int expected1[15]= {1,3,2,0,6,5,7,10,11,8,12,9,14,13,4};
   const int rexpected1[15]={3, 0, 2, 1, 14, 5, 4, 6, 9, 11, 7, 8, 10, 13, 12};
   m3->renumberCells(expected1,false);
@@ -1319,9 +1319,9 @@ void MEDCouplingBasicsTest::testMergeMeshOnSameCoords1()
   m1->tryToShareSameCoords(*m2,1e-12);
   MEDCouplingUMesh *m3=build2DTargetMesh_1();
   m3->tryToShareSameCoords(*m2,1e-12);
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(m1); meshes.push_back(m2); meshes.push_back(m3);
-  MEDCouplingUMesh *m4=MEDCouplingUMesh::mergeUMeshesOnSameCoords(meshes);
+  MEDCouplingUMesh *m4=MEDCouplingUMesh::MergeUMeshesOnSameCoords(meshes);
   m4->checkCoherency();
   CPPUNIT_ASSERT(m4->getCoords()==m1->getCoords());
   CPPUNIT_ASSERT_EQUAL(15,m4->getNumberOfCells());
@@ -1353,7 +1353,7 @@ void MEDCouplingBasicsTest::testMergeField1()
   m2->translate(vec);
   MEDCouplingFieldDouble *f1=m1->getMeasureField(true);
   MEDCouplingFieldDouble *f2=m2->getMeasureField(true);
-  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::mergeFields(f1,f2);
+  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::MergeFields(f1,f2);
   f3->checkCoherency();
   MEDCouplingUMesh *m4=build2DTargetMeshMerged_1();
   CPPUNIT_ASSERT(f3->getMesh()->isEqual(m4,1.e-12));
@@ -1978,7 +1978,8 @@ void MEDCouplingBasicsTest::testSplitByType()
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   std::vector<MEDCouplingUMesh *> v=m1->splitByType();
   CPPUNIT_ASSERT_EQUAL(3,(int)v.size());
-  MEDCouplingUMesh *m2=MEDCouplingUMesh::mergeUMeshesOnSameCoords(v);
+  std::vector<const MEDCouplingUMesh *> v2(v.begin(),v.end());
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(v2);
   m2->setName(m1->getName());
   CPPUNIT_ASSERT(m1->isEqual(m2,1.e-12));
   for(std::vector<MEDCouplingUMesh *>::const_iterator iter=v.begin();iter!=v.end();iter++)
@@ -1989,7 +1990,7 @@ void MEDCouplingBasicsTest::testSplitByType()
 
 void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
 {
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   MEDCouplingUMesh *m2=build2DTargetMesh_1();
   int cells1[3]={2,3,4};
   MEDCouplingPointSet *m3_1=m2->buildPartOfMySelf(cells1,cells1+3,true);
@@ -2009,7 +2010,7 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
   m2->decrRef();
   //
   std::vector<DataArrayInt *> corr;
-  MEDCouplingUMesh *m7=MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
+  MEDCouplingUMesh *m7=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(4,m7->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(3,(int)corr.size());
   const int expectedVals1[3]={3,3,2};
@@ -2025,7 +2026,8 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords()
         CPPUNIT_ASSERT_EQUAL(expectedVals2[i][j],vals[j]);
     }
   std::vector< std::vector<int> > fidsOfGroups;
-  DataArrayInt *arr2=DataArrayInt::makePartition(corr,m7->getNumberOfCells(),fidsOfGroups);
+  std::vector<const DataArrayInt *> corr2(corr.begin(),corr.end());
+  DataArrayInt *arr2=DataArrayInt::MakePartition(corr2,m7->getNumberOfCells(),fidsOfGroups);
   const int fidExp[4]={5,1,3,4};
   const int fidsGrp[3][3]={{1,3,5},{3,4,5},{4,5,23344}};
   CPPUNIT_ASSERT_EQUAL(3,(int)fidsOfGroups.size());
@@ -2057,13 +2059,13 @@ void MEDCouplingBasicsTest::testFuseUMeshesOnSameCoords2()
   MEDCouplingUMesh *m3=(MEDCouplingUMesh *)m1->buildPartOfMySelf(part1,part1+5,true);
   const int part2[4]={5,6,4,7};
   MEDCouplingUMesh *m4=(MEDCouplingUMesh *)m1->buildPartOfMySelf(part2,part2+4,true);
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(m1);
   meshes.push_back(m3);
   meshes.push_back(m3);
   meshes.push_back(m4);
   std::vector<DataArrayInt *> corr;
-  MEDCouplingUMesh *m5=MEDCouplingUMesh::fuseUMeshesOnSameCoords(meshes,0,corr);
+  MEDCouplingUMesh *m5=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(18,m5->getNumberOfCells());
   std::vector<DataArrayInt *>::iterator it=corr.begin();
   const int exp1[4]={18,5,5,4};
@@ -2139,7 +2141,7 @@ void MEDCouplingBasicsTest::testGetCellsContainingPoint()
   CPPUNIT_ASSERT(std::equal(t2.begin(),t2.end(),expectedValues2));
   //2D with no help of bounding box.
   double center[2]={0.2,0.2};
-  MEDCouplingPointSet::rotate2DAlg(center,0.78539816339744830962,6,pos);
+  MEDCouplingPointSet::Rotate2DAlg(center,0.78539816339744830962,6,pos);
   targetMesh->rotate(center,0,0.78539816339744830962);
   t1.clear(); t2.clear();
   targetMesh->getCellsContainingPoints(pos,6,1e-12,t1,t2);

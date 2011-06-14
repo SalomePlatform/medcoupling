@@ -194,7 +194,7 @@ namespace INTERP_KERNEL
            class _HashFn = hash<_Key>,
            class _EqualKey = std::equal_to<_Key>,
            class _Alloc = std::allocator<_Tp> >
-  class hash_multimap
+  class HashMultiMap
   {
   private:
     typedef hashtable<std::pair<const _Key, _Tp>, _Key, _HashFn,
@@ -227,32 +227,32 @@ namespace INTERP_KERNEL
     
     allocator_type get_allocator() const { return _M_ht.get_allocator(); }
     
-    hash_multimap() : _M_ht(100, hasher(), key_equal(), allocator_type()) { }
+    HashMultiMap() : _M_ht(100, hasher(), key_equal(), allocator_type()) { }
     
-    explicit hash_multimap(size_type __n) : _M_ht(__n, hasher(), key_equal(), allocator_type()) {}
+    explicit HashMultiMap(size_type __n) : _M_ht(__n, hasher(), key_equal(), allocator_type()) {}
     
-    hash_multimap(size_type __n, const hasher& __hf) : _M_ht(__n, __hf, key_equal(), allocator_type()) {}
+    HashMultiMap(size_type __n, const hasher& __hf) : _M_ht(__n, __hf, key_equal(), allocator_type()) {}
     
-    hash_multimap(size_type __n, const hasher& __hf, const key_equal& __eql,
-                  const allocator_type& __a = allocator_type()) : _M_ht(__n, __hf, __eql, __a) {}
+    HashMultiMap(size_type __n, const hasher& __hf, const key_equal& __eql,
+                 const allocator_type& __a = allocator_type()) : _M_ht(__n, __hf, __eql, __a) {}
     
     template<class _InputIterator>
-    hash_multimap(_InputIterator __f, _InputIterator __l) : _M_ht(100, hasher(), key_equal(), allocator_type())
+    HashMultiMap(_InputIterator __f, _InputIterator __l) : _M_ht(100, hasher(), key_equal(), allocator_type())
     { _M_ht.insert_equal(__f, __l); }
     
     template<class _InputIterator>
-    hash_multimap(_InputIterator __f, _InputIterator __l, size_type __n) : _M_ht(__n, hasher(), key_equal(), allocator_type())
+    HashMultiMap(_InputIterator __f, _InputIterator __l, size_type __n) : _M_ht(__n, hasher(), key_equal(), allocator_type())
     { _M_ht.insert_equal(__f, __l); }
     
     template<class _InputIterator>
-    hash_multimap(_InputIterator __f, _InputIterator __l, size_type __n, const hasher& __hf)
+    HashMultiMap(_InputIterator __f, _InputIterator __l, size_type __n, const hasher& __hf)
       : _M_ht(__n, __hf, key_equal(), allocator_type())
     { _M_ht.insert_equal(__f, __l); }
     
     template<class _InputIterator>
-    hash_multimap(_InputIterator __f, _InputIterator __l, size_type __n,
-                  const hasher& __hf, const key_equal& __eql,
-                  const allocator_type& __a = allocator_type())
+    HashMultiMap(_InputIterator __f, _InputIterator __l, size_type __n,
+                 const hasher& __hf, const key_equal& __eql,
+                 const allocator_type& __a = allocator_type())
       : _M_ht(__n, __hf, __eql, __a)
     { _M_ht.insert_equal(__f, __l); }
     
@@ -262,11 +262,11 @@ namespace INTERP_KERNEL
     
     bool empty() const { return _M_ht.empty(); }
     
-    void swap(hash_multimap& __hs) { _M_ht.swap(__hs._M_ht); }
+    void swap(HashMultiMap& __hs) { _M_ht.swap(__hs._M_ht); }
     
     template<class _K1, class _T1, class _HF, class _EqK, class _Al>
-    friend bool operator==(const hash_multimap<_K1, _T1, _HF, _EqK, _Al>&,
-                           const hash_multimap<_K1, _T1, _HF, _EqK, _Al>&);
+    friend bool operator==(const HashMultiMap<_K1, _T1, _HF, _EqK, _Al>&,
+                           const HashMultiMap<_K1, _T1, _HF, _EqK, _Al>&);
     
     iterator begin() { return _M_ht.begin(); }
     
@@ -311,18 +311,18 @@ namespace INTERP_KERNEL
   };
   
   template<class _Key, class _Tp, class _HF, class _EqKey, class _Alloc>
-  inline bool operator==(const hash_multimap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm1,
-                         const hash_multimap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm2)
+  inline bool operator==(const HashMultiMap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm1,
+                         const HashMultiMap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm2)
   { return __hm1._M_ht == __hm2._M_ht; }
   
   template<class _Key, class _Tp, class _HF, class _EqKey, class _Alloc>
-  inline bool operator!=(const hash_multimap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm1,
-                         const hash_multimap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm2)
+  inline bool operator!=(const HashMultiMap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm1,
+                         const HashMultiMap<_Key, _Tp, _HF, _EqKey, _Alloc>& __hm2)
   { return !(__hm1 == __hm2); }
   
   template<class _Key, class _Tp, class _HashFn, class _EqlKey, class _Alloc>
-  inline void swap(hash_multimap<_Key, _Tp, _HashFn, _EqlKey, _Alloc>& __hm1,
-                   hash_multimap<_Key, _Tp, _HashFn, _EqlKey, _Alloc>& __hm2)
+  inline void swap(HashMultiMap<_Key, _Tp, _HashFn, _EqlKey, _Alloc>& __hm1,
+                   HashMultiMap<_Key, _Tp, _HashFn, _EqlKey, _Alloc>& __hm2)
   { __hm1.swap(__hm2); }
   
 }
@@ -330,7 +330,7 @@ namespace INTERP_KERNEL
 namespace std
 {
   // Specialization of insert_iterator so that it will work for HashMap
-  // and hash_multimap.
+  // and HashMultiMap.
   template<class _Key, class _Tp, class _HashFn,  class _EqKey, class _Alloc>
   class insert_iterator<INTERP_KERNEL::HashMap<_Key, _Tp, _HashFn, 
                                                _EqKey, _Alloc> >
@@ -365,11 +365,11 @@ namespace std
   };
 
   template<class _Key, class _Tp, class _HashFn,  class _EqKey, class _Alloc>
-  class insert_iterator<INTERP_KERNEL::hash_multimap<_Key, _Tp, _HashFn,
-                                                     _EqKey, _Alloc> >
+  class insert_iterator<INTERP_KERNEL::HashMultiMap<_Key, _Tp, _HashFn,
+                                                    _EqKey, _Alloc> >
   {
   protected:
-    typedef INTERP_KERNEL::hash_multimap<_Key, _Tp, _HashFn, _EqKey, _Alloc>
+    typedef INTERP_KERNEL::HashMultiMap<_Key, _Tp, _HashFn, _EqKey, _Alloc>
     _Container;
     _Container* container;
     typename _Container::iterator iter;

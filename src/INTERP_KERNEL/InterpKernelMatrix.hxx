@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef __INTERPKERNELMATRIX_HXX_
@@ -51,10 +51,10 @@ namespace INTERP_KERNEL
       int _val;
     };
 
-    class Row : public std::vector< typename std::pair<int,T> >
+    class Row : public std::vector< std::pair<int,T> >
     {
     public:
-      Row():std::vector< typename std::pair<int,T> >(){};
+      Row():std::vector< std::pair<int,T> >(){};
       Row (const Row& row)
       {
         this->resize(row.size());
@@ -70,12 +70,12 @@ namespace INTERP_KERNEL
       }
       typename std::vector< std::pair<int,T> >::const_iterator find(int elem) const
       {
-        return std::find_if(std::vector< typename std::pair<int,T> >::begin(),std::vector< typename std::pair<int,T> >::end(),KeyComparator(elem));
+        return std::find_if(std::vector< std::pair<int,T> >::begin(),std::vector< std::pair<int,T> >::end(),KeyComparator(elem));
       }
 
-      void erase(int elem) { std::vector< typename std::pair<int,T> >::erase(std::find_if(std::vector< typename std::pair<int,T> >::begin(),std::vector< typename std::pair<int,T> >::end(),KeyComparator(elem))); }
+      void erase(int elem) { std::vector< std::pair<int,T> >::erase(std::find_if(std::vector< std::pair<int,T> >::begin(),std::vector< std::pair<int,T> >::end(),KeyComparator(elem))); }
 
-      void insert(const std::pair<int,T>& myPair) { push_back(myPair); }
+      void insert(const std::pair<int,T>& myPair) { vector<std::pair<int,T> >::push_back(myPair); }
     };
     
   private:

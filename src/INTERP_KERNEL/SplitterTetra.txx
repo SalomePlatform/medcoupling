@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __SPLITTERTETRA_TXX__
 #define __SPLITTERTETRA_TXX__
@@ -192,7 +192,7 @@ namespace INTERP_KERNEL
 
     // get type of cell
     NormalizedCellType normCellType=_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(element));
-    const CellModel& cellModelCell=CellModel::getCellModel(normCellType);
+    const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
     unsigned nbOfNodes4Type=cellModelCell.isDynamic() ? _src_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(element)) : cellModelCell.getNumberOfNodes();
     // halfspace filtering
     bool isOutside[8] = {true, true, true, true, true, true, true, true};
@@ -242,7 +242,7 @@ namespace INTERP_KERNEL
           {
             // get sons connectivity
             NormalizedCellType faceType;
-            int *faceNodes, nbFaceNodes;
+            int *faceNodes, nbFaceNodes=-1;
             if ( cellModelCell.isDynamic() )
               {
                 faceNodes=new int[nbOfNodes4Type];
@@ -253,7 +253,7 @@ namespace INTERP_KERNEL
             else
               {
                 faceType = cellModelCell.getSonType(ii);
-                const CellModel& faceModel=CellModel::getCellModel(faceType);
+                const CellModel& faceModel=CellModel::GetCellModel(faceType);
                 assert(faceModel.getDimension() == 2);
                 faceNodes=new int[faceModel.getNumberOfNodes()];      
                 cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
@@ -415,7 +415,7 @@ namespace INTERP_KERNEL
 
     if(!isTargetOutside)
     {
-      const CellModel& cellModelCell=CellModel::getCellModel(NORM_TETRA4);
+      const CellModel& cellModelCell=CellModel::GetCellModel(NORM_TETRA4);
       int cellNodes[4] = { 0, 1, 2, 3 }, faceNodes[3];
 
       for(unsigned ii = 0 ; ii < 4 ; ++ii)
@@ -709,7 +709,7 @@ namespace INTERP_KERNEL
         nodes[1] = getCoordsOfSubNode2(faceCenterNode,conn[1]);
         for(int j = 0; j < 4; ++j)
           {
-            const int row = 4*(faceCenterNode - 9) + j;
+            const int row = 4*(faceCenterNode - 8) + j;
             nodes[2] = getCoordsOfSubNode2(TETRA_EDGES[2*row],conn[2]);
             nodes[3] = getCoordsOfSubNode2(TETRA_EDGES[2*row + 1],conn[3]);
            
@@ -795,7 +795,7 @@ namespace INTERP_KERNEL
 
     // get type of cell and nb of cell nodes
     NormalizedCellType normCellType=_target_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(targetCell));
-    const CellModel& cellModelCell=CellModel::getCellModel(normCellType);
+    const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
     unsigned nbOfCellNodes=cellModelCell.isDynamic() ? _target_mesh.getNumberOfNodesOfElement(OTT<ConnType,numPol>::indFC(targetCell)) : cellModelCell.getNumberOfNodes();
 
     // get nb of cell sons (faces)
@@ -883,7 +883,7 @@ namespace INTERP_KERNEL
                   1,2,5,6,// sub-node 12 (face)
                   4,5,6,7,// sub-node 13 (face)
                   2,3,6,7,// sub-node 14 (face)
-                  9,10,11,12// sub-node 15 (cell)
+                  8,9,10,11// sub-node 15 (cell)
                 };
 
               for(int i = 0; i < 7; ++i)

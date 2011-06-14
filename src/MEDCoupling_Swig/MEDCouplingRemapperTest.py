@@ -1,24 +1,24 @@
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from libMEDCouplingRemapper_Swig import *
+from MEDCouplingRemapper import *
 from math import *
 import unittest
 
@@ -47,6 +47,38 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.failUnless(abs(values[i]-valuesExpected[i])<1e-12);
             pass
         self.failUnless(1==trgfield.getArray().getNumberOfComponents());
+        pass
+
+    def testPrepareEx1(self):
+        sourceMesh=self.build2DSourceMesh_1();
+        targetMesh=self.build2DTargetMesh_3();
+        #
+        remapper=MEDCouplingRemapper();
+        remapper.setPrecision(1e-12);
+        remapper.setIntersectionType(Triangulation);
+        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS);
+        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS);
+        srcFt.setMesh(sourceMesh);
+        trgFt.setMesh(targetMesh);
+        self.assertEqual(1,remapper.prepareEx(srcFt,trgFt));
+        srcField=MEDCouplingFieldDouble.New(ON_CELLS);
+        srcField.setNature(ConservativeVolumic);
+        srcField.setMesh(sourceMesh);
+        array=DataArrayDouble.New();
+        ptr=sourceMesh.getNumberOfCells()*[None]
+        for i in xrange(sourceMesh.getNumberOfCells()):
+            ptr[i]=float(i+7);
+            pass
+        array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
+        srcField.setArray(array);
+        trgfield=remapper.transferField(srcField,4.220173);
+        values=trgfield.getArray().getValues();
+        valuesExpected=[7.75, 7.0625, 4.220173,8.0]
+        self.assertEqual(4,trgfield.getArray().getNumberOfTuples());
+        self.assertEqual(1,trgfield.getArray().getNumberOfComponents());
+        for i0 in xrange(4):
+            self.assertAlmostEqual(valuesExpected[i0],values[i0],12);
+            pass
         pass
     
     def build2DSourceMesh_1(self):
@@ -78,6 +110,22 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         myCoords.setValues(targetCoords,9,2);
         targetMesh.setCoords(myCoords);
         return targetMesh;
+
+    def build2DTargetMesh_3(self):
+        targetCoords=[-0.6,-0.4, -0.1,-0.4, 1.1,-0.4, 2.1,-0.4, -0.6,0.1,  -0.1,0.1,  1.1,0.1,  2.1,0.1, -0.6,1.1,  -0.1,1.1]
+        targetConn=[0,4,5,1, 1,5,6,2, 2,6,7,3, 4,8,9,5]
+        targetMesh=MEDCouplingUMesh.New();
+        targetMesh.setMeshDimension(2);
+        targetMesh.allocateCells(4);
+        for i in xrange(4):
+            targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[4*i:4*(i+1)])
+            pass
+        targetMesh.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(targetCoords,10,2);
+        targetMesh.setCoords(myCoords);
+        return targetMesh;
+        pass
     
     def setUp(self):
         pass

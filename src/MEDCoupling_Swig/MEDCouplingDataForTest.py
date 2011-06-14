@@ -1,24 +1,24 @@
 #  -*- coding: iso-8859-1 -*-
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-from libMEDCoupling_Swig import *
+from MEDCoupling import *
 
 class MEDCouplingDataForTest:
     def build2DTargetMesh_1(cls):
@@ -37,6 +37,7 @@ class MEDCouplingDataForTest:
         myCoords.setValues(targetCoords,9,2);
         targetMesh.setCoords(myCoords);
         return targetMesh;
+    
     def build2DSourceMesh_1(cls):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]
@@ -68,6 +69,32 @@ class MEDCouplingDataForTest:
         targetMesh.setCoords(myCoords);
         return targetMesh
 
+    def build3DSourceMesh_1(self):
+        sourceCoords=[ 0.0, 0.0, 200.0, 0.0, 0.0, 0.0, 0.0, 200.0, 200.0, 0.0, 200.0, 0.0, 200.0, 0.0, 200.0,
+                       200.0, 0.0, 0.0, 200.0, 200.0, 200.0, 200.0, 200.0, 0.0, 100.0, 100.0, 100.0]
+        sourceConn=[8,1,7,3, 6,0,8,2, 7,4,5,8, 6,8,4,7, 6,8,0,4, 6,8,7,3, 8,1,3,0, 4,1,5,8, 1,7,5,8, 0,3,8,2, 8,1,0,4, 3,6,8,2]
+        sourceMesh=MEDCouplingUMesh.New();
+        sourceMesh.setMeshDimension(3);
+        sourceMesh.allocateCells(12);
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[0:4])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[4:8])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[8:12])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[12:16])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[16:20])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[20:24])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[24:28])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[28:32])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[32:36])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[36:40])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[40:44])
+        sourceMesh.insertNextCell(NORM_TETRA4,4,sourceConn[44:48])
+        sourceMesh.finishInsertingCells();
+        myCoords=DataArrayDouble.New();
+        myCoords.setValues(sourceCoords,9,3);
+        sourceMesh.setCoords(myCoords);
+        return sourceMesh;
+        
+
     def build3DSurfTargetMesh_1(self):
         targetCoords=[-0.3,-0.3,0.5, 0.2,-0.3,1., 0.7,-0.3,1.5, -0.3,0.2,0.5, 0.2,0.2,1., 0.7,0.2,1.5, -0.3,0.7,0.5, 0.2,0.7,1., 0.7,0.7,1.5]
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
@@ -87,13 +114,13 @@ class MEDCouplingDataForTest:
 
     def build3DExtrudedUMesh_1(self):
         coords=[
-            0.,0.,0., 1.,1.,0., 1.,1.25,0., 0.,1.,0., 1.,1.5,0., 2.,0.,0., 2.,1.,0., 1.,2.,0., 0.,2.,0., 3.,1.,0.,
+            0.,0.,0., 1.,1.,0., 1.,1.25,0., 1.,0.,0., 1.,1.5,0., 2.,0.,0., 2.,1.,0., 1.,2.,0., 0.,2.,0., 3.,1.,0.,
             3.,2.,0., 0.,1.,0., 1.,3.,0., 2.,2.,0., 2.,3.,0.,
-            0.,0.,1., 1.,1.,1., 1.,1.25,1., 0.,1.,1., 1.,1.5,1., 2.,0.,1., 2.,1.,1., 1.,2.,1., 0.,2.,1., 3.,1.,1.,
+            0.,0.,1., 1.,1.,1., 1.,1.25,1., 1.,0.,1., 1.,1.5,1., 2.,0.,1., 2.,1.,1., 1.,2.,1., 0.,2.,1., 3.,1.,1.,
             3.,2.,1., 0.,1.,1., 1.,3.,1., 2.,2.,1., 2.,3.,1.,
-            0.,0.,2., 1.,1.,2., 1.,1.25,2., 0.,1.,2., 1.,1.5,2., 2.,0.,2., 2.,1.,2., 1.,2.,2., 0.,2.,2., 3.,1.,2.,
+            0.,0.,2., 1.,1.,2., 1.,1.25,2., 1.,0.,2., 1.,1.5,2., 2.,0.,2., 2.,1.,2., 1.,2.,2., 0.,2.,2., 3.,1.,2.,
             3.,2.,2., 0.,1.,2., 1.,3.,2., 2.,2.,2., 2.,3.,2.,
-            0.,0.,3., 1.,1.,3., 1.,1.25,3., 0.,1.,3., 1.,1.5,3., 2.,0.,3., 2.,1.,3., 1.,2.,3., 0.,2.,3., 3.,1.,3.,
+            0.,0.,3., 1.,1.,3., 1.,1.25,3., 1.,0.,3., 1.,1.5,3., 2.,0.,3., 2.,1.,3., 1.,2.,3., 0.,2.,3., 3.,1.,3.,
             3.,2.,3., 0.,1.,3., 1.,3.,3., 2.,2.,3., 2.,3.,3.]
 
         conn=[
@@ -321,9 +348,226 @@ class MEDCouplingDataForTest:
         targetMesh.setCoords(myCoords);
         return targetMesh;
 
+    def buildMultiFields_1(cls):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m1.setName("m1");
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2.setName("m2");
+        vals0=[-0.7,-1.,-2.,-3.,-4.];
+        vals1=[0.,1.,2.,3.,4.,0.1,0.2,0.3,0.4];
+        vals1_1=[170.,171.,172.,173.,174.,170.1,170.2,170.3,170.4];
+        vals2=[5.,6.,7.,8.,9.];
+        vals4=[15.,16.,17.,18.,19.];
+        d0=DataArrayDouble.New();
+        d0.setValues(vals0,5,1);
+        d1=DataArrayDouble.New();
+        d1.setValues(vals1,9,1);
+        d1_1=DataArrayDouble.New();
+        d1_1.setValues(vals1_1,9,1);
+        d2=DataArrayDouble.New();
+        d2.setValues(vals2,5,1);
+        d4=DataArrayDouble.New();
+        d4.setValues(vals4,5,1);
+        d0.setName("d0"); d1.setName("d1"); d1_1.setName("d1_1"); d2.setName("d2"); d4.setName("d4");
+        d0.setInfoOnComponent(0,"c1");
+        d1.setInfoOnComponent(0,"c6");
+        d1_1.setInfoOnComponent(0,"c9");
+        d2.setInfoOnComponent(0,"c5");
+        d4.setInfoOnComponent(0,"c7");
+        f0=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f0.setMesh(m1);
+        f0.setArray(d0);
+        f0.setTime(0.2,5,6);
+        f0.setName("f0");
+        f1=MEDCouplingFieldDouble.New(ON_NODES,LINEAR_TIME);
+        f1.setMesh(m1);
+        f1.setArrays([d1,d1_1]);
+        f1.setStartTime(0.7,7,8);
+        f1.setEndTime(1.2,9,10);
+        f1.setName("f1");
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,CONST_ON_TIME_INTERVAL);
+        f2.setMesh(m2);
+        f2.setArray(d2);
+        f2.setTime(1.2,11,12);
+        f2.setEndTime(1.5,13,14);
+        f2.setName("f2");
+        f3=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f3.setMesh(m1);
+        f3.setArray(d2);
+        f3.setTime(1.7,15,16);
+        f3.setName("f3");
+        f4=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f4.setMesh(m2);
+        f4.setArray(d4);
+        f4.setName("f4");
+        ret=MEDCouplingMultiFields.New([f0,f1,f2,f3,f4]);
+        return ret;
+
+    def buildMultiFields_2(cls):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m1.setName("m1");
+        m2=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m2.setName("m2");
+        vals0=[-0.7,-1.,-2.,-3.,-4.];
+        vals1=[0.,1.,2.,3.,4.];
+        vals1_1=[170.,171.,172.,173.,174.];
+        vals2=[5.,6.,7.,8.,9.];
+        vals4=[15.,16.,17.,18.,19.];
+        d0=DataArrayDouble.New();
+        d0.setValues(vals0,5,1);
+        d1=DataArrayDouble.New();
+        d1.setValues(vals1,5,1);
+        d1_1=DataArrayDouble.New();
+        d1_1.setValues(vals1_1,5,1);
+        d2=DataArrayDouble.New();
+        d2.setValues(vals2,5,1);
+        d4=DataArrayDouble.New();
+        d4.setValues(vals4,5,1);
+        d0.setName("d0"); d1.setName("d1"); d1_1.setName("d1_1"); d2.setName("d2"); d4.setName("d4");
+        d0.setInfoOnComponent(0,"c1");
+        d1.setInfoOnComponent(0,"c6");
+        d1_1.setInfoOnComponent(0,"c9");
+        d2.setInfoOnComponent(0,"c5");
+        d4.setInfoOnComponent(0,"c7");
+        f0=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f0.setMesh(m1);
+        f0.setArray(d0);
+        f0.setTime(0.2,5,6);
+        f0.setName("f0");
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,LINEAR_TIME);
+        f1.setMesh(m1);
+        f1.setArrays([d1,d1_1]);
+        f1.setStartTime(0.7,7,8);
+        f1.setEndTime(1.2,9,10);
+        f1.setName("f1");
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,CONST_ON_TIME_INTERVAL);
+        f2.setMesh(m2);
+        f2.setArray(d2);
+        f2.setTime(1.2,11,12);
+        f2.setEndTime(1.5,13,14);
+        f2.setName("f2");
+        f3=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f3.setMesh(m1);
+        f3.setArray(d2);
+        f3.setTime(1.7,15,16);
+        f3.setName("f3");
+        f4=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME);
+        f4.setMesh(m2);
+        f4.setArray(d4);
+        f4.setName("f4");
+        return [f0,f1,f2,f3,f4]
+
+    def build1DMultiTypes_1(self):
+        mesh=MEDCouplingUMesh.New("Multi1DMesh",1);
+        coo=MEDCouplingDataForTest.buildCoordsForMultiTypes_1();
+        conn=[0,2, 0,2,1]
+        mesh.allocateCells(2);
+        mesh.insertNextCell(NORM_SEG2,2,conn[0:2])
+        mesh.insertNextCell(NORM_SEG3,3,conn[2:5])
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
+    def build2DMultiTypes_1(self):
+        mesh=MEDCouplingUMesh.New("Multi2DMesh",2);
+        coo=MEDCouplingDataForTest.buildCoordsForMultiTypes_1();
+        conn=[3,4,5, 3,4,5,6,7,8, 0,9,10,11, 0,9,10,11,12,13,14,15]
+        mesh.allocateCells(4);
+        mesh.insertNextCell(NORM_TRI3,3,conn[0:3])
+        mesh.insertNextCell(NORM_TRI6,6,conn[3:9])
+        mesh.insertNextCell(NORM_QUAD4,4,conn[9:13])
+        mesh.insertNextCell(NORM_QUAD8,8,conn[13:21])
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
+    def build3DMultiTypes_1(self):
+        mesh=MEDCouplingUMesh.New("Multi3DMesh",3);
+        coo=MEDCouplingDataForTest.buildCoordsForMultiTypes_1();
+        conn=[0,16,17,18,
+              0,16,17,18,19,20,21,22,23,24,
+              0,11,10,9,25,
+              0,11,10,9,25,15,14,13,12,26,27,28,29,
+              0,30,31,32,33,34,
+              0,30,31,32,33,34,35,36,37,38,39,40,41,42,43,
+              0,9,10,11,44,45,46,47,
+              0,9,10,11,44,45,46,47,12,13,14,15,48,49,50,51,52,53,54,55 ];
+        mesh.allocateCells(8);
+        mesh.insertNextCell(NORM_TETRA4,4,conn[0:4])
+        mesh.insertNextCell(NORM_TETRA10,10,conn[4:14])
+        mesh.insertNextCell(NORM_PYRA5,5,conn[14:19])
+        mesh.insertNextCell(NORM_PYRA13,13,conn[19:32])
+        mesh.insertNextCell(NORM_PENTA6,6,conn[32:38])
+        mesh.insertNextCell(NORM_PENTA15,15,conn[38:53])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[53:61])
+        mesh.insertNextCell(NORM_HEXA20,20,conn[61:81])
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
+    def buildCoordsForMultiTypes_1(self):
+        coords=DataArrayDouble.New();
+        data=[0.0,0.0,0.0, 0.5,0.5,0.5, 1.0,1.0,1.0, 1.0,1.0,0.0, 2.0,2.5,0.0, 6.0,1.5,0.0, 1.0,2.0,0.0, 4.5,2.5,0.0, 4.0,0.5,0.0, 0.0,4.0,0.0, 4.0,4.0,0.0, 4.0,0.0,0.0, 0.0,2.0,0.0, 2.0,4.0,0.0, 4.0,2.0,0.0, 2.0,0.0,0.0, 0.0,6.0,0.0, 3.0,3.0,0.0, 1.3,3.0,3.0, 0.0,3.0,0.0, 1.5,4.5,0.0, 1.5,1.5,0.0, 0.65,1.5,1.5, 0.65,4.5,1.5, 2.15,3.0,1.5, 2.0,2.0,2.0, 3.0,1.0,1.0, 3.0,3.0,1.0, 1.0,3.0,1.0, 1.0,1.0,1.0, 0.0,3.0,0.0, 2.0,0.0,0.0, 0.0,0.0,6.0, 0.0,3.0,6.0, 3.0,0.0,6.0, 0.0,1.5,0.0, 1.5,1.5,0.0, 1.5,0.0,0.0, 0.0,1.5,6.0, 1.5,1.5,6.0, 1.5,0.0,6.0, 0.0,0.0,3.0, 0.0,3.0,3.0, 3.0,0.0,3.0, 0.0,0.0,4.0, 0.0,4.0,4.0, 4.0,4.0,4.0, 4.0,0.0,4.0, 0.0,2.0,4.0, 2.0,4.0,4.0, 4.0,2.0,4.0, 2.0,0.0,4.0, 0.0,0.0,2.0, 0.0,4.0,2.0, 4.0,4.0,2.0, 4.0,0.0,2.0]
+        coords.setValues(data,56,3);
+        coords.setInfoOnComponent(0,"X (cm)");
+        coords.setInfoOnComponent(1,"Y (cm)");
+        coords.setInfoOnComponent(2,"Z (cm)");
+        return coords
+
+    def buildHexa8Mesh_1(self):
+        mesh=MEDCouplingUMesh.New("Hexa8Only",3);
+        coo=DataArrayDouble.New();
+        coords=[0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.5, 1.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.0, 1.0, 0.5, 0.5, 1.0, 0.5, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.5, 1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 1.0, 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0]
+        coo.setValues(coords,27,3);
+        conn=[3,12,13,4,0,9,10,1,
+              4,13,14,5,1,10,11,2,
+              6,15,16,7,3,12,13,4,
+              7,16,17,8,4,13,14,5,
+              12,21,22,13,9,18,19,10,
+              13,22,23,14,10,19,20,11,
+              15,24,25,16,12,21,22,13,
+              16,25,26,17,13,22,23,14];
+        mesh.allocateCells(8);
+        for i in xrange(8):
+            mesh.insertNextCell(NORM_HEXA8,8,conn[8*i:8*(i+1)])
+            pass
+        mesh.finishInsertingCells();
+        mesh.setCoords(coo);
+        return mesh;
+
+    def buildPointe_1(self):
+        mesh=MEDCouplingUMesh.New("Pointe.med",3);
+        mesh2=MEDCouplingUMesh.New("Pointe.med",2);
+        coords=[0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 0.0, 1.0, 0.0, 2.0, 1.0, -2.0, 0.0, 1.0, 0.0, -2.0, 1.0, 1.0, 1.0, 2.0, -1.0, 1.0, 2.0, -1.0, -1.0, 2.0, 1.0, -1.0, 2.0, 1.0, 1.0, 3.0, -1.0, 1.0, 3.0, -1.0, -1.0, 3.0, 1.0, -1.0, 3.0, 1.0, 1.0, 4.0, -1.0, 1.0, 4.0, -1.0, -1.0, 4.0, 1.0, -1.0, 4.0, 0.0, 0.0, 5.0]
+        conn=[0,1,2,5,0,1,3,2,0,1,4,3,0,1,5,4,1,6,3,2,1,7,4,3,1,8,5,4,1,9,2,5,1,6,2,9,1,7,3,6,1,8,4,7,1,9,5,8, 6,7,8,9,1,14,17,16,15,18, 10,11,12,13,6,7,8,9,14,15,16,17,10,11,12,13]
+        coo=DataArrayDouble.New();
+        coo.setValues(coords,19,3);
+        mesh.setCoords(coo);
+        mesh2.setCoords(coo);
+        mesh.allocateCells(16);
+        for i in xrange(12):
+            mesh.insertNextCell(NORM_TETRA4,4,conn[4*i:4*i+4])
+            pass
+        mesh.insertNextCell(NORM_PYRA5,5,conn[48:53])
+        mesh.insertNextCell(NORM_PYRA5,5,conn[53:58])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[58:66])
+        mesh.insertNextCell(NORM_HEXA8,8,conn[66:74])
+        mesh.finishInsertingCells();
+        #[1,34,29,23,41,32]
+        conn2=[0,5,1,14,18,17,8,7,4,9,5,2, 12,8,9,13,6,7,8,9]
+        mesh2.allocateCells(6);
+        for i in xrange(4):
+            mesh2.insertNextCell(NORM_TRI3,3,conn2[3*i:3*i+3])
+            pass
+        mesh2.insertNextCell(NORM_QUAD4,4,conn2[12:16])
+        mesh2.insertNextCell(NORM_QUAD4,4,conn2[16:20])
+        mesh2.finishInsertingCells();
+        return [mesh,mesh2]
+
     build2DTargetMesh_1=classmethod(build2DTargetMesh_1)
     build2DSourceMesh_1=classmethod(build2DSourceMesh_1)
     build3DTargetMesh_1=classmethod(build3DTargetMesh_1)
+    build3DSourceMesh_1=classmethod(build3DSourceMesh_1)
     build3DSurfTargetMesh_1=classmethod(build3DSurfTargetMesh_1)
     build3DExtrudedUMesh_1=classmethod(build3DExtrudedUMesh_1)
     buildCU1DMesh_U=classmethod(buildCU1DMesh_U)
@@ -335,4 +579,12 @@ class MEDCouplingDataForTest:
     build2DCurveTargetMesh_3=classmethod(build2DCurveTargetMesh_3)
     build2DTargetMesh_3=classmethod(build2DTargetMesh_3)
     build2DTargetMesh_4=classmethod(build2DTargetMesh_4)
+    buildMultiFields_1=classmethod(buildMultiFields_1)
+    buildMultiFields_2=classmethod(buildMultiFields_2)
+    build1DMultiTypes_1=classmethod(build1DMultiTypes_1)
+    build2DMultiTypes_1=classmethod(build2DMultiTypes_1)
+    build3DMultiTypes_1=classmethod(build3DMultiTypes_1)
+    buildCoordsForMultiTypes_1=classmethod(buildCoordsForMultiTypes_1)
+    buildHexa8Mesh_1=classmethod(buildHexa8Mesh_1)
+    buildPointe_1=classmethod(buildPointe_1)
     pass

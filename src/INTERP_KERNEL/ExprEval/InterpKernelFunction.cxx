@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "InterpKernelFunction.hxx"
@@ -54,9 +54,19 @@ const char ExpFunction::REPR[]="exp";
 
 const char LnFunction::REPR[]="ln";
 
+const char LogFunction::REPR[]="log";
+
+const char Log10Function::REPR[]="log10";
+
 const char MaxFunction::REPR[]="max";
 
 const char MinFunction::REPR[]="min";
+
+const char GreaterThanFunction::REPR[]=">";
+
+const char LowerThanFunction::REPR[]="<";
+
+const char IfFunction::REPR[]="if";
 
 Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams) throw(INTERP_KERNEL::Exception)
 {
@@ -66,6 +76,8 @@ Function *FunctionsFactory::buildFuncFromString(const char *type, int nbOfParams
       return buildUnaryFuncFromString(type);
     case 2:
       return buildBinaryFuncFromString(type);
+    case 3:
+      return buildTernaryFuncFromString(type);
     default:
       throw INTERP_KERNEL::Exception("Invalid number of params detected : limited to 2 !");
     }
@@ -94,6 +106,10 @@ Function *FunctionsFactory::buildUnaryFuncFromString(const char *type) throw(INT
     return new ExpFunction;
   if(tmp==LnFunction::REPR)
     return new LnFunction;
+  if(tmp==LogFunction::REPR)
+    return new LogFunction;
+  if(tmp==Log10Function::REPR)
+    return new Log10Function;
   //
   std::string msg("Invalid unary function detected : \"");
   msg+=type; msg+="\"";
@@ -117,7 +133,21 @@ Function *FunctionsFactory::buildBinaryFuncFromString(const char *type) throw(IN
     return new MaxFunction;
   if(tmp==MinFunction::REPR)
     return new MinFunction;
+  if(tmp==GreaterThanFunction::REPR)
+    return new GreaterThanFunction;
+  if(tmp==LowerThanFunction::REPR)
+    return new LowerThanFunction;
   std::string msg("Invalid binary function detected : \"");
+  msg+=type; msg+="\"";
+  throw INTERP_KERNEL::Exception(msg.c_str());
+}
+
+Function *FunctionsFactory::buildTernaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception)
+{
+  std::string tmp(type);
+  if(tmp==IfFunction::REPR)
+    return new IfFunction();
+  std::string msg("Invalid ternary function detected : \"");
   msg+=type; msg+="\"";
   throw INTERP_KERNEL::Exception(msg.c_str());
 }
@@ -373,6 +403,56 @@ const char *LnFunction::getRepr() const
 }
 
 bool LnFunction::isACall() const
+{
+  return true;
+}
+
+LogFunction::~LogFunction()
+{
+}
+
+void LogFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->ln();
+}
+
+void LogFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
+}
+
+const char *LogFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool LogFunction::isACall() const
+{
+  return true;
+}
+
+Log10Function::~Log10Function()
+{
+}
+
+void Log10Function::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->log10();
+}
+
+void Log10Function::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly for log Not implemented yet !");
+}
+
+const char *Log10Function::getRepr() const
+{
+  return REPR;
+}
+
+bool Log10Function::isACall() const
 {
   return true;
 }
@@ -649,3 +729,130 @@ bool MinFunction::isACall() const
 {
   return false;
 }
+
+GreaterThanFunction::~GreaterThanFunction()
+{
+}
+
+void GreaterThanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->greaterThan(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+void GreaterThanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *GreaterThanFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool GreaterThanFunction::isACall() const
+{
+  return false;
+}
+
+LowerThanFunction::~LowerThanFunction()
+{
+}
+
+void LowerThanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *& val2=stack.back();
+  Value *val3;
+  try
+    {
+      val3=val1->lowerThan(val2);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  val2=val3;
+}
+
+void LowerThanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *LowerThanFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool LowerThanFunction::isACall() const
+{
+  return false;
+}
+
+int TernaryFunction::getNbInputParams() const
+{
+  return 3;
+}
+
+IfFunction::~IfFunction()
+{
+}
+
+void IfFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val1=stack.back();
+  stack.pop_back();
+  Value *val2=stack.back();
+  stack.pop_back();
+  Value *&val3=stack.back();
+  Value *val4;
+  try
+    {
+      val4=val1->ifFunc(val2,val3);
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      delete val1;
+      delete val2;
+      throw e;
+    }
+  delete val1;
+  delete val2;
+  delete val3;
+  val3=val4;
+}
+
+void IfFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *IfFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool IfFunction::isACall() const
+{
+  return false;
+}
+

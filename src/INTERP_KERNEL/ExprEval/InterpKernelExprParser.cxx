@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "InterpKernelExprParser.hxx"
@@ -23,18 +23,11 @@
 
 #include <cctype>
 #include <sstream>
+#include <limits>
 #include <vector>
 #include <iterator>
 #include <iostream>
 #include <algorithm>
-
-#ifdef _POSIX_MAPPED_FILES
-#include <sys/mman.h>
-#else
-#ifdef WNT
-#include <windows.h>
-#endif
-#endif
 
 using namespace INTERP_KERNEL;
 
@@ -79,6 +72,15 @@ LeafExprVal::~LeafExprVal()
 void LeafExprVal::fillValue(Value *val) const throw(INTERP_KERNEL::Exception)
 {
   val->setDouble(_value);
+}
+
+void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+{
+  int pos=(int)_value;
+  int lgth=valuesInExpr.size();
+  if(pos>=lgth || pos<0)
+    throw INTERP_KERNEL::Exception("LeafExprVal::replaceValues : Big Problem detected ! Send expression to Salome support with expression !");
+  _value=valuesInExpr[pos];
 }
 
 LeafExprVar::LeafExprVar(const std::string& var):_fast_pos(-1),_var_name(var)
@@ -126,18 +128,27 @@ bool LeafExprVar::isRecognizedKeyVar(const std::string& var, int& pos)
   return true;
 }
 
+/*!
+ * Nothing to do it is not a bug.
+ */
+void LeafExprVar::replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+{
+}
+
 LeafExprVar::~LeafExprVar()
 {
 }
 
 ExprParser::ExprParser(const char *expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
 {
+  _expr=deleteWhiteSpaces(_expr);
 }
 
 //! For \b NOT null terminated strings coming from FORTRAN.
 ExprParser::ExprParser(const char *expr, int lgth, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false)
 {
   _expr=buildStringFromFortran(expr,lgth);
+  _expr=deleteWhiteSpaces(_expr);
 }
 
 ExprParser::~ExprParser()
@@ -146,19 +157,22 @@ ExprParser::~ExprParser()
   releaseFunctions();
 }
 
-std::size_t ExprParser::findCorrespondingOpenBracket(const std::string& expr, std::size_t posOfCloseBracket)
+std::size_t ExprParser::FindCorrespondingOpenBracket(const std::string& expr, std::size_t posOfCloseBracket)
 {
   int level=0;
-  for(std::size_t iter=posOfCloseBracket-1;iter>=0;iter--)
-    if(expr[iter]==')')
-      level++;
-    else if(expr[iter]=='(')
-      {
-        if(level==0)
-          return iter;
-        else
-          level--;
-      }
+  for(std::size_t iter=0;iter<posOfCloseBracket;iter++)
+    {
+      std::size_t iter2=posOfCloseBracket-1-iter;
+      if(expr[iter2]==')')
+        level++;
+      else if(expr[iter2]=='(')
+        {
+          if(level==0)
+            return iter2;
+          else
+            level--;
+        }
+    }
   return std::string::npos;
 }
 
@@ -202,9 +216,14 @@ void ExprParser::parse() throw(INTERP_KERNEL::Exception)
   releaseFunctions();
   if(!_expr.empty())
     {
+      std::string tmp(_expr);
+      std::vector<double> valuesInExpr;
+      fillValuesInExpr(valuesInExpr);
       checkBracketsParity();
       if(!simplify())
         parseDeeper();
+      replaceValues(valuesInExpr);
+      _expr=tmp;
     }
   _is_parsing_ok=true;
 }
@@ -384,12 +403,12 @@ void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
     return ;
   //at this level of code _expr 
   std::size_t pos1=_expr.find_first_of('(');
-  std::size_t pos4=findCorrespondingOpenBracket(_expr,_expr.length()-1);
+  std::size_t pos4=FindCorrespondingOpenBracket(_expr,_expr.length()-1);
   if(pos4!=pos1)
     return ;
   std::string funcName=_expr.substr(0,pos1);
-  std::size_t pos2=funcName.find_first_of("+-*/^",0,5);
-  std::size_t pos3=funcName.find_first_not_of("+-*/^",0,5);
+  std::size_t pos2=funcName.find_first_of("+-*/^><",0,7);
+  std::size_t pos3=funcName.find_first_not_of("+-*/^><",0,7);
   if(pos2!=std::string::npos && pos3!=std::string::npos)
     return ;//Bracket group is not alone, can't conclude not recursively.
   std::string newExp2=_expr.substr(pos1+1,_expr.length()-pos1-2);
@@ -409,7 +428,7 @@ void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
   std::size_t pos6=0;
   for(int i=0;i<nbOfParamsInFunc;i++)
     {
-      std::size_t pos5=newExp2.find_first_of(',');
+      std::size_t pos5=newExp2.find_first_of(',',pos6);
       std::size_t len=std::string::npos;
       if(pos5!=std::string::npos)
         len=pos5-pos6;
@@ -429,7 +448,7 @@ bool ExprParser::tryToInterpALeaf() throw(INTERP_KERNEL::Exception)
 {
   std::size_t pos=_expr.find_first_not_of("+-",0,2);
   std::string minimizedExpr=_expr.substr(pos);
-  std::size_t pos2=minimizedExpr.find_first_of("+-*/^()",0,7);
+  std::size_t pos2=minimizedExpr.find_first_of("+-*/^()<>",0,9);
   if(pos2!=std::string::npos)
     return false;
   delete _leaf;
@@ -442,6 +461,66 @@ bool ExprParser::tryToInterpALeaf() throw(INTERP_KERNEL::Exception)
     _func_btw_sub_expr.push_back(FunctionsFactory::buildUnaryFuncFromString("-"));
   _is_parsing_ok=true;
   return true;
+}
+
+void ExprParser::parseForCmp() throw(INTERP_KERNEL::Exception)
+{
+  std::string::const_iterator iter;
+  int curLevel=0;
+  std::string curPart;
+  bool isParsingSucceed=false;
+  for(iter=_expr.begin();iter!=_expr.end();iter++)
+    {
+      switch(*iter)
+        {
+        case '>':
+        case '<':
+          {
+            isParsingSucceed=true;
+            if(!curPart.empty())
+              {
+                _sub_expr.push_back(ExprParser(curPart.c_str(),this));
+                curPart.clear();
+                _func_btw_sub_expr.push_back(FunctionsFactory::buildBinaryFuncFromString(*iter));
+              }
+            else
+              {
+                std::ostringstream errMsg;
+                char MSGTYP1[]="Error non unary function for '";
+                errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1 << *iter << "'";
+                std::string tmp=_expr.substr(iter-_expr.begin());
+                LocateError(errMsg,tmp,0);
+                throw INTERP_KERNEL::Exception(errMsg.str().c_str());
+              }
+            break;
+          }
+        case '(':
+          curLevel++;
+          curPart+=*iter;
+          break;
+        case ')':
+          curLevel--;
+          curPart+=*iter;
+          break;
+        default:
+          curPart+=*iter;
+        }
+    }
+  if(isParsingSucceed)
+    {
+      if(!curPart.empty())
+        {
+          _sub_expr.push_back(ExprParser(curPart.c_str(),this));
+          _is_parsing_ok=true;
+        }
+      else
+        {
+          std::ostringstream errMsg;
+          char MSGTYP4[]="Error following expression finished by > / < without right part.";
+          errMsg << EXPR_PARSE_ERR_MSG << MSGTYP4 << _expr;
+          throw INTERP_KERNEL::Exception(errMsg.str().c_str());
+        }
+    }
 }
 
 void ExprParser::parseForAddMin() throw(INTERP_KERNEL::Exception)
@@ -535,7 +614,7 @@ void ExprParser::parseForMulDiv() throw(INTERP_KERNEL::Exception)
                   char MSGTYP1[]="Error non unary function for '";
                   errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1 << *iter << "'";
                   std::string tmp=_expr.substr(iter-_expr.begin());
-                  locateError(errMsg,tmp,0);
+                  LocateError(errMsg,tmp,0);
                   throw INTERP_KERNEL::Exception(errMsg.str().c_str());
                 }
             }
@@ -596,7 +675,7 @@ void ExprParser::parseForPow() throw(INTERP_KERNEL::Exception)
                 char MSGTYP1[]="Error non unary function for '";
                 errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1 << *iter << "'";
                 std::string tmp=_expr.substr(iter-_expr.begin());
-                locateError(errMsg,tmp,0);curPart+=*iter;
+                LocateError(errMsg,tmp,0);curPart+=*iter;
                 throw INTERP_KERNEL::Exception(errMsg.str().c_str());
               }
           break;
@@ -648,12 +727,16 @@ bool ExprParser::simplify() throw(INTERP_KERNEL::Exception)
   parseUnaryFunc();
   if(!_is_parsing_ok)
     {
-      parseForAddMin();
+      parseForCmp();
       if(!_is_parsing_ok)
         {
-          parseForMulDiv();
+          parseForAddMin();
           if(!_is_parsing_ok)
-            parseForPow();
+            {
+              parseForMulDiv();
+              if(!_is_parsing_ok)
+                parseForPow();
+            }
         }
     }
   if(!_is_parsing_ok)
@@ -661,7 +744,7 @@ bool ExprParser::simplify() throw(INTERP_KERNEL::Exception)
       std::ostringstream errMsg;
       char MSGTYP3[]="Error in interpreting : ";
       errMsg << EXPR_PARSE_ERR_MSG << MSGTYP3 << _expr;
-      locateError(errMsg,_expr,0);
+      LocateError(errMsg,_expr,0);
       throw INTERP_KERNEL::Exception(errMsg.str().c_str());
     }
   return false;
@@ -682,7 +765,7 @@ void ExprParser::checkBracketsParity() const throw(INTERP_KERNEL::Exception)
               std::ostringstream errMsg;
               char MSGTYP1[]="Error in brackets : closing brackets ')' before openning '('";
               errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1;
-              locateError(errMsg,_expr,iter-_expr.begin());
+              LocateError(errMsg,_expr,iter-_expr.begin());
               throw INTERP_KERNEL::Exception(errMsg.str().c_str());
             }
           curLevel--;
@@ -697,7 +780,139 @@ void ExprParser::checkBracketsParity() const throw(INTERP_KERNEL::Exception)
     }
 }
 
-void ExprParser::locateError(std::ostream& stringToDisp, const std::string& srcOfErr, int posOfErr)
+/*!
+ * This method substitutes part in [bg,end) in expr by the content of (str(id)) and returns the double value representation in expr[bg,end).
+ * If double representation is invalid an exception is thrown.
+ * This method returns a delta that is the delta to operate to pos in expr after substitution.
+ */
+double ExprParser::ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, std::size_t end, int& delta) throw(INTERP_KERNEL::Exception)
+{
+  static const char MSG[]="Interal error : A string expected to be a float is not one ! Bug to signal !";
+  std::istringstream stream;
+  std::ostringstream oss;
+  std::size_t end2=end!=std::string::npos?end-bg:end;
+  std::string tmp=expr.substr(bg,end2);
+  stream.str(tmp);
+  double ret=std::numeric_limits<double>::max();
+  stream >> ret;
+  if(stream.fail())
+    throw INTERP_KERNEL::Exception(MSG);
+  if(!stream.eof())
+    throw INTERP_KERNEL::Exception(MSG);
+  oss << id;
+  std::string tmp2(oss.str());
+  std::size_t l1=tmp.length();
+  delta=(int)tmp2.length()-(int)l1;
+  expr.replace(bg,l1,tmp2);
+  return ret;
+}
+
+/*!
+ * This method makes the assumption that _expr has no white space.
+ * This method scans _expr finding in greedy mode the following pattern :
+ * {0..9}+{.}?{0..9}*{{eE}{-}?{0..9}+}?
+ */
+void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+{
+  const char FIGURES[]="0123456789";
+  const std::string other("+-*^/(<>,");
+  std::size_t lgth=_expr.length();
+  int id=0,delta;
+  for(std::size_t pos=0;pos!=std::string::npos;id++)
+    {
+      std::size_t pos2=_expr.find_first_of(FIGURES,pos,10);
+      if(pos2>0)
+        {//treat case of "x*log10(x)" -> "10" should NOT be intercepted by this
+          if(other.find_first_of(_expr[pos2-1])==std::string::npos)
+            {
+              pos=_expr.find_first_not_of(FIGURES,pos2,10);
+              id--;
+              continue;
+            }
+          if(_expr[pos2-1]==')')
+            {
+              pos=_expr.find_first_not_of(FIGURES,pos2,10);
+              std::ostringstream oss; oss << "Problem on parsing : Number \"" << _expr.substr(pos2,pos!=std::string::npos?pos2-pos:std::string::npos);
+              oss << "\" is right after close parenthesis... ')'";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      if(pos2==std::string::npos)
+        break;
+      std::size_t pos3=_expr.find_first_not_of(FIGURES,pos2,10);
+      if(pos3==std::string::npos)
+        {//"x+1223442320"
+          valuesInExpr.push_back(ReplaceAndTraduce(_expr,id,pos2,std::string::npos,delta));
+          break;
+        }
+      if(_expr[pos3]=='.')
+        pos3++;
+      if(pos3<lgth)
+        {
+          std::size_t pos4=_expr.find_first_not_of(FIGURES,pos3,10);
+          if(pos4==std::string::npos)
+            {//"x+1223334.223"
+              valuesInExpr.push_back(ReplaceAndTraduce(_expr,id,pos2,std::string::npos,delta));
+              break;
+            }
+          else
+            {
+              if(_expr[pos4]!='e' && _expr[pos4]!='E')
+                {//"x+1223334.223+x"
+                  valuesInExpr.push_back(ReplaceAndTraduce(_expr,id,pos2,pos4,delta));
+                  pos=pos4+delta;
+                  continue;
+                }
+              else
+                {
+                  if(++pos4<lgth)
+                    {
+                      if(_expr[pos4]=='+' || _expr[pos4]=='-')
+                        pos4++;
+                      if(pos4>=lgth)
+                        {//"x+1223334.223e+" or "1223334.223E-"
+                          std::ostringstream oss; oss << "Invalid expr : float number at the end of expr is invalid lacking number after exponential and sign ! -> \"" << _expr.substr(pos2) << "\"";
+                          throw INTERP_KERNEL::Exception(oss.str().c_str());
+                        }
+                      std::size_t pos5=_expr.find_first_not_of(FIGURES,pos4,10);
+                      if(pos4==pos5)
+                        {//"x+1223334.223e+x" or "1223334.223E-y"
+                          std::ostringstream oss; oss << "Invalid expr : float number in expr is invalid lacking number after exponential ! -> \"" << _expr.substr(pos2,pos4-pos2) << "\"";
+                          throw INTERP_KERNEL::Exception(oss.str().c_str());
+                        }
+                      //OK, normal case
+                      valuesInExpr.push_back(ReplaceAndTraduce(_expr,id,pos2,pos5,delta));
+                      pos=pos5+delta;
+                      continue;
+                    }
+                  else//"x+1223334.223e"
+                    {
+                      std::ostringstream oss; oss << "Invalid expr : float number at the end of expr is invalid lacking number after exponential ! " << _expr.substr(pos2);
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                }
+            }
+        }
+      else
+        {//"x+1223334."
+          valuesInExpr.push_back(ReplaceAndTraduce(_expr,id,pos2,std::string::npos,delta));
+          break;
+        }
+    }
+}
+
+void ExprParser::replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
+{
+  if(_leaf)
+    _leaf->replaceValues(valuesInExpr);
+  else
+    {
+      for(std::list<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+        (*iter).replaceValues(valuesInExpr);
+    }
+}
+
+void ExprParser::LocateError(std::ostream& stringToDisp, const std::string& srcOfErr, int posOfErr)
 {
   stringToDisp << "Position is " << posOfErr << " of string : \"" <<  srcOfErr << "\"" << std::endl;
 }
@@ -719,21 +934,8 @@ char *ExprParser::compileX86() const
   for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
     std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
   std::cout << std::endl;
-  int lgth;
-  char *lm=asmb.convertMachineLangageInBasic(output,lgth);
-  char *ret=0;
-#ifdef _POSIX_MAPPED_FILES
-  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
-#else
-#ifdef WNT
-  HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
-  ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
-#endif
-#endif
-  if(ret)
-    std::copy(lm,lm+lgth,ret);
-  delete [] lm;
-  return ret;
+  unsigned offset;
+  return asmb.copyToExecMemZone(output,offset);
 }
 
 char *ExprParser::compileX86_64() const
@@ -757,21 +959,8 @@ char *ExprParser::compileX86_64() const
   for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
     std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
   std::cout << std::endl;
-  int lgth;
-  char *lm=asmb.convertMachineLangageInBasic(output,lgth);
-  char *ret=0;
-#ifdef _POSIX_MAPPED_FILES
-  ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
-#else
-#ifdef WNT
-  HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
-  ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
-#endif
-#endif
-  if(ret)
-    std::copy(lm,lm+lgth,ret);
-  delete [] lm;
-  return ret;
+  unsigned offset;
+  return asmb.copyToExecMemZone(output,offset);
 }
 
 void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
@@ -782,9 +971,9 @@ void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
     {
       for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86LowLev(ass);
-      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
-        (*iter2)->operateX86(ass);
     }
+  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
@@ -795,9 +984,9 @@ void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
     {
       for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
         (*iter).compileX86_64LowLev(ass);
-      for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
-        (*iter2)->operateX86(ass);
     }
+  for(std::list<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 void LeafExprVal::compileX86(std::vector<std::string>& ass) const

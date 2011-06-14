@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MEDCouplingMesh.hxx"
@@ -24,10 +24,21 @@
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <set>
+#include <cmath>
 #include <sstream>
 #include <iterator>
 
 using namespace ParaMEDMEM;
+
+MEDCouplingMesh::MEDCouplingMesh():_time(0.),_iteration(-1),_order(-1)
+{
+}
+
+MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name),_description(other._description),
+                                                               _time(other._time),_iteration(other._iteration),
+                                                               _order(other._order),_time_unit(other._time_unit)
+{
+}
 
 /*!
  * This method is only for ParaMEDMEM in ParaFIELD constructor.
@@ -39,7 +50,8 @@ bool MEDCouplingMesh::isStructured() const
 
 bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
-  return _name==other->_name;
+  return _name==other->_name && _description==other->_description && _iteration==other->_iteration
+    && _order==other->_order && _time_unit==other->_time_unit && fabs(_time-other->_time)<1e-12;
 }
 
 /*!
@@ -183,6 +195,20 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
 void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
 {
   _name=other->_name;
+  _description=other->_description;
+  _time_unit=other->_time_unit;
+}
+
+/*!
+ * This method copies all attributes that are \b NOT arrays in this.
+ * All tiny attributes not usefully for state of 'this' are ignored.
+ */
+void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception)
+{
+  copyTinyStringsFrom(other);
+  _time=other->_time;
+  _iteration=other->_iteration;
+  _order=other->_order;
 }
 
 /*!
@@ -205,10 +231,76 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
 }
 
 /*!
+ * This method builds a field lying on 'this' with 'nbOfComp' components.
+ * 'func' is a string that is the expression to evaluate.
+ * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
+ * evaluate. This method is different than MEDCouplingMesh::fillFromAnalytic, because the info on components are used here to determine vars pos in 'func'.
+ *
+ * @param t type of field returned and specifies where the evaluation of func will be done.
+ * @param nbOfComp number of components of returned field.
+ * @param func expression.
+ * @return field with counter = 1.
+ */
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  ret->setMesh(this);
+  ret->fillFromAnalytic2(nbOfComp,func);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * This method builds a field lying on 'this' with 'nbOfComp' components.
+ * 'func' is a string that is the expression to evaluate.
+ * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
+ * evaluate. This method is different than MEDCouplingMesh::fillFromAnalytic, because 'varsOrder' specifies the pos to assign of vars in 'func'.
+ *
+ * @param t type of field returned and specifies where the evaluation of func will be done.
+ * @param nbOfComp number of components of returned field.
+ * @param func expression.
+ * @return field with counter = 1.
+ */
+MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  ret->setMesh(this);
+  ret->fillFromAnalytic3(nbOfComp,varsOrder,func);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * retruns a newly created mesh with counter=1 
  * that is the union of mesh1 and mesh2 if possible. The cells of mesh2 will appear after cells of 'mesh1'. Idem for nodes.
  */
-MEDCouplingMesh *MEDCouplingMesh::mergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
+MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
 {
   return mesh1->mergeMyselfWith(mesh2);
+}
+
+void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
+{
+  int ret=getCellContainingPoint(pos,eps);
+  elts.push_back(ret);
+}
+
+void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints, double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const
+{
+  eltsIndex.resize(nbOfPoints+1);
+  eltsIndex[0]=0;
+  elts.clear();
+  int spaceDim=getSpaceDimension();
+  const double *work=pos;
+  for(int i=0;i<nbOfPoints;i++,work+=spaceDim)
+    {
+      int ret=getCellContainingPoint(work,eps);
+      if(ret>=0)
+        {
+          elts.push_back(ret);
+          eltsIndex[i+1]=eltsIndex[i]+1;
+        }
+      else
+        eltsIndex[i+1]=eltsIndex[i];
+    }
 }

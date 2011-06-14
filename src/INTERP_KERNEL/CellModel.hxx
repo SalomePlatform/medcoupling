@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef __CELLMODEL_INTERP_KERNEL_HXX__
@@ -34,18 +34,19 @@ namespace INTERP_KERNEL
   class CellModel
   {
   public:
-    static const unsigned MAX_NB_OF_SONS=6;
+    static const unsigned MAX_NB_OF_SONS=8;
     static const unsigned MAX_NB_OF_NODES_PER_ELEM=30;
   private:
     CellModel(NormalizedCellType type);
     static void buildUniqueInstance();
   public:
-    INTERPKERNEL_EXPORT static const CellModel& getCellModel(NormalizedCellType type);
+    INTERPKERNEL_EXPORT static const CellModel& GetCellModel(NormalizedCellType type);
     INTERPKERNEL_EXPORT const char *getRepr() const;
     INTERPKERNEL_EXPORT bool isDynamic() const { return _dyn; }
     INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }
     INTERPKERNEL_EXPORT unsigned getDimension() const { return _dim; }
     INTERPKERNEL_EXPORT bool isCompatibleWith(NormalizedCellType type) const;
+    INTERPKERNEL_EXPORT bool isSimplex() const { return _is_simplex; }
     //! sonId is in C format.
     INTERPKERNEL_EXPORT const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
     INTERPKERNEL_EXPORT unsigned getNumberOfNodes() const { return _nb_of_pts; }
@@ -63,6 +64,7 @@ namespace INTERP_KERNEL
   private:
     bool _dyn;
     bool _quadratic;
+    bool _is_simplex;
     unsigned _dim;
     unsigned _nb_of_pts;
     unsigned _nb_of_sons;

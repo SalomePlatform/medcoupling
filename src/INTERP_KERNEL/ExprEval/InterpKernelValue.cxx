@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "InterpKernelValue.hxx"
@@ -90,9 +90,14 @@ void ValueDouble::exp() throw(INTERP_KERNEL::Exception)
   _data=std::exp(_data);
 }
 
-void ValueDouble:: ln() throw(INTERP_KERNEL::Exception)
+void ValueDouble::ln() throw(INTERP_KERNEL::Exception)
 {
   _data=std::log(_data);
+}
+
+void ValueDouble::log10() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::log10(_data);
 }
 
 Value *ValueDouble::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
@@ -135,6 +140,29 @@ Value *ValueDouble::min(const Value *other) const throw(INTERP_KERNEL::Exception
 {
   const ValueDouble *valC=checkSameType(other);
   return new ValueDouble(std::min(_data,valC->_data));
+}
+
+Value *ValueDouble::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDouble *valC=checkSameType(other);
+  return new ValueDouble(_data>valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
+}
+
+Value *ValueDouble::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDouble *valC=checkSameType(other);
+  return new ValueDouble(_data<valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
+}
+
+Value *ValueDouble::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDouble *theC=checkSameType(the);
+  const ValueDouble *elsC=checkSameType(els);
+  if(_data==std::numeric_limits<double>::max())
+    return new ValueDouble(theC->_data);
+  if(_data==-std::numeric_limits<double>::max())
+    return new ValueDouble(elsC->_data);
+  throw INTERP_KERNEL::Exception("ValueDouble::ifFunc : The fist element of ternary function if is not a binary op !");
 }
 
 const ValueDouble *ValueDouble::checkSameType(const Value *val) throw(INTERP_KERNEL::Exception)
@@ -215,6 +243,11 @@ void ValueUnit::ln() throw(INTERP_KERNEL::Exception)
   unsupportedOp(LnFunction::REPR);
 }
 
+void ValueUnit::log10() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(Log10Function::REPR);
+}
+
 Value *ValueUnit::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
 {
   unsupportedOp(PlusFunction::REPR);
@@ -224,6 +257,24 @@ Value *ValueUnit::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
 Value *ValueUnit::minus(const Value *other) const throw(INTERP_KERNEL::Exception)
 {
   unsupportedOp(MinusFunction::REPR);
+  return 0;
+}
+
+Value *ValueUnit::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(GreaterThanFunction::REPR);
+  return 0;
+}
+
+Value *ValueUnit::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(LowerThanFunction::REPR);
+  return 0;
+}
+
+Value *ValueUnit::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(IfFunction::REPR);
   return 0;
 }
 
@@ -357,8 +408,16 @@ void ValueDoubleExpr::ln() throw(INTERP_KERNEL::Exception)
 {
   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
   if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply sqrt on < 0. value !");
+    throw INTERP_KERNEL::Exception("Trying to apply neperian/natural log on <= 0. value !");
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log));
+}
+
+void ValueDoubleExpr::log10() throw(INTERP_KERNEL::Exception)
+{
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less_equal<double>(),0.));
+  if(it!=_dest_data+_sz_dest_data)
+    throw INTERP_KERNEL::Exception("Trying to apply log10 on <= 0. value !");
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::log10));
 }
 
 Value *ValueDoubleExpr::plus(const Value *other) const throw(INTERP_KERNEL::Exception)
@@ -422,4 +481,58 @@ Value *ValueDoubleExpr::min(const Value *other) const throw(INTERP_KERNEL::Excep
   ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::ptr_fun<const double&, const double&, const double& >(std::min));
   return ret;
+}
+
+Value *ValueDoubleExpr::greaterThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  for(int i=0;i<_sz_dest_data;i++)
+    if(_dest_data[i]<=otherC->getData()[i])
+      {
+        std::fill(ret->getData(),ret->getData()+_sz_dest_data,-std::numeric_limits<double>::max());
+        return ret;
+      }
+  std::fill(ret->getData(),ret->getData()+_sz_dest_data,std::numeric_limits<double>::max());
+  return ret;
+}
+
+Value *ValueDoubleExpr::lowerThan(const Value *other) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  for(int i=0;i<_sz_dest_data;i++)
+    if(_dest_data[i]>=otherC->getData()[i])
+      {
+        std::fill(ret->getData(),ret->getData()+_sz_dest_data,-std::numeric_limits<double>::max());
+        return ret;
+      }
+  std::fill(ret->getData(),ret->getData()+_sz_dest_data,std::numeric_limits<double>::max());
+  return ret;
+}
+
+Value *ValueDoubleExpr::ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception)
+{
+  const ValueDoubleExpr *theC=static_cast<const ValueDoubleExpr *>(the);
+  const ValueDoubleExpr *elsC=static_cast<const ValueDoubleExpr *>(els);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  bool okmax=true;
+  bool okmin=true;
+  for(int i=0;i<_sz_dest_data && (okmax || okmin);i++)
+    {
+      okmax=_dest_data[i]==std::numeric_limits<double>::max();
+      okmin=_dest_data[i]==-std::numeric_limits<double>::max();
+    }
+  if(okmax || okmin)
+    {
+      if(okmax)
+        std::copy(theC->getData(),theC->getData()+_sz_dest_data,ret->getData());
+      else
+        std::copy(elsC->getData(),elsC->getData()+_sz_dest_data,ret->getData());
+      return ret;
+    }
+  else
+    {
+      throw INTERP_KERNEL::Exception("ValueDoubleExpr::ifFunc : first parameter of ternary func is NOT a consequence of a boolean op !");
+    }
 }
