@@ -21,35 +21,36 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES = _libMEDLoader_Swig.la
+lib_LTLIBRARIES = _MEDLoader.la
 
 salomeinclude_HEADERS =  \
-	libMEDLoader_Swig.i MEDLoaderTypemaps.i
+	MEDLoader.i MEDLoaderTypemaps.i
 
-SWIG_DEF = libMEDLoader_Swig.i MEDLoaderTypemaps.i
+SWIG_DEF = MEDLoader.i MEDLoaderTypemaps.i
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/.. -I$(srcdir)/../../MEDCoupling -I$(srcdir)/../../MEDCoupling_Swig \
 	-I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Bases
 
-dist__libMEDLoader_Swig_la_SOURCES   = $(SWIG_DEF)
-nodist__libMEDLoader_Swig_la_SOURCES = libMEDLoader_Swig_wrap.cxx
-libMEDLoader_Swig.py: libMEDLoader_Swig_wrap.cxx
+dist__MEDLoader_la_SOURCES   = $(SWIG_DEF)
+nodist__MEDLoader_la_SOURCES = MEDLoader_wrap.cxx
+MEDLoader.py: MEDLoader_wrap.cxx
 
-libMEDLoader_Swig_wrap.cxx: $(SWIG_DEF)
+MEDLoader_wrap.cxx: $(SWIG_DEF)
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
-_libMEDLoader_Swig_la_CPPFLAGS = $(PYTHON_INCLUDES) \
+_MEDLoader_la_CPPFLAGS = $(PYTHON_INCLUDES) \
 	$(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../../INTERP_KERNEL \
 	-I$(srcdir)/.. -I$(srcdir)/../../MEDCoupling_Swig -I$(srcdir)/../../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../../MEDCoupling
 
-_libMEDLoader_Swig_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) \
+_MEDLoader_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) \
 	../../MEDCoupling/libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la \
 	../libmedloader.la
 
-CLEANFILES = libMEDLoader_Swig_wrap.cxx libMEDLoader_Swig.py
+CLEANFILES = MEDLoader_wrap.cxx MEDLoader.py
 
-dist_salomescript_DATA= libMEDLoader_Swig.py MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py
+dist_salomescript_DATA= MEDLoaderDataForTest.py MEDLoaderTest.py MEDLoaderTest2.py MEDLoaderTest3.py libMEDLoader_Swig.py
+nodist_salomescript_DATA = MEDLoader.py
 
 UNIT_TEST_PROG = MEDLoaderTest.py MEDLoaderTest2.py

@@ -282,7 +282,7 @@ void MEDLoaderTest::testMultiMeshRW1()
   mesh4->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   mesh4->finishInsertingCells();
   mesh4->setCoords(mesh1->getCoords());
-  std::vector<MEDCouplingUMesh *> meshes;
+  std::vector<const MEDCouplingUMesh *> meshes;
   meshes.push_back(mesh1);
   meshes.push_back(mesh2);
   meshes.push_back(mesh3);
@@ -329,6 +329,18 @@ void MEDLoaderTest::testMultiMeshRW1()
   mesh2_2->setName("mesh2");
   CPPUNIT_ASSERT(mesh2_2->isEqual(mesh2,1e-12));
   mesh2_2->decrRef();
+  //
+  std::vector<std::string> ret=MEDLoader::GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
+  CPPUNIT_ASSERT_EQUAL(4,(int)ret.size());
+  CPPUNIT_ASSERT(ret[0]=="Family_1");
+  CPPUNIT_ASSERT(ret[1]=="Family_2");
+  CPPUNIT_ASSERT(ret[2]=="Family_3");
+  CPPUNIT_ASSERT(ret[3]=="Family_4");
+  //
+  std::vector<std::string> ret1=MEDLoader::GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_2");
+  CPPUNIT_ASSERT_EQUAL(2,(int)ret1.size());
+  CPPUNIT_ASSERT(ret1[0]=="3DMesh_1");
+  CPPUNIT_ASSERT(ret1[1]=="mesh2");
   //
   mesh4->decrRef();
   mesh3->decrRef();
@@ -665,7 +677,7 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   f2->checkCoherency();
   //
   MEDLoader::WriteField(fileName,f1,true);
-  std::vector<ParaMEDMEM::TypeOfField> ts=MEDLoader::GetTypesOfField(fileName,f1->getName(),f1->getMesh()->getName());
+  std::vector<ParaMEDMEM::TypeOfField> ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName(),f1->getName());
   CPPUNIT_ASSERT_EQUAL(1,(int)ts.size());
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[0]);
   std::vector<std::string> fs=MEDLoader::GetAllFieldNamesOnMesh(fileName,f1->getMesh()->getName());
@@ -676,7 +688,7 @@ void MEDLoaderTest::testMixCellAndNodesFieldRW1()
   CPPUNIT_ASSERT_EQUAL(1,(int)fs.size());
   CPPUNIT_ASSERT(fs[0]=="FieldMix");
   //
-  ts=MEDLoader::GetTypesOfField(fileName,f1->getName(),f1->getMesh()->getName());
+  ts=MEDLoader::GetTypesOfField(fileName,f1->getMesh()->getName(),f1->getName());
   CPPUNIT_ASSERT_EQUAL(2,(int)ts.size());
   CPPUNIT_ASSERT_EQUAL(ON_NODES,ts[0]);
   CPPUNIT_ASSERT_EQUAL(ON_CELLS,ts[1]);
@@ -809,9 +821,9 @@ MEDCouplingUMesh *MEDLoaderTest::build2DMesh_2()
   targetMesh->setName("2DMesh_2");
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+12);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+16);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(12,2);
@@ -836,9 +848,9 @@ MEDCouplingUMesh *MEDLoaderTest::build3DSurfMesh_1()
   targetMesh->setName("3DSurfMesh_1");
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+3);
-  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+12);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+16);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_POLYGON,4,targetConn+20);
   targetMesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
@@ -923,7 +935,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_1()
 MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
 {
   MEDCouplingUMesh *m3dsurfBase=build3DSurfMesh_1();
-  int numbers[5]={0,1,3,4,5};
+  int numbers[5]={0,1,2,3,5};
   MEDCouplingUMesh *m3dsurf=(MEDCouplingUMesh *)m3dsurfBase->buildPartOfMySelf(numbers,numbers+5,false);
   m3dsurfBase->decrRef();
   MEDCouplingUMesh *m1dBase=build1DMesh_1();
@@ -934,7 +946,7 @@ MEDCouplingUMesh *MEDLoaderTest::build3DMesh_2()
   const double vec[3]={0.,1.,0.};
   const double pt[3]={0.,0.,0.};
   m1d->rotate(pt,vec,-M_PI/2.);
-  MEDCouplingUMesh *ret=m3dsurf->buildExtrudedMeshFromThis(m1d,0);
+  MEDCouplingUMesh *ret=m3dsurf->buildExtrudedMesh(m1d,0);
   m1d->decrRef();
   m3dsurf->decrRef();
   return ret;
@@ -1009,12 +1021,14 @@ MEDCouplingFieldDouble *MEDLoaderTest::buildVecFieldOnGauss_1()
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
   const double refCoo2[12]={-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 };
   std::vector<double> _refCoo2(refCoo2,refCoo2+12);
-  _gsCoo1.resize(6); _wg1.resize(3);
-  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI6,_refCoo2,_gsCoo1,_wg1);
+  std::vector<double> _gsCoo2(_gsCoo1);
+  std::vector<double> _wg2(_wg1);
+  _gsCoo2.resize(6); _wg2.resize(3);
   const double refCoo3[8]={ 0.,0., 1.,0., 1.,1., 0.,1. };
   std::vector<double> _refCoo3(refCoo3,refCoo3+8);
   _gsCoo1.resize(4); _wg1.resize(2);
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,_refCoo3,_gsCoo1,_wg1);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI6,_refCoo2,_gsCoo2,_wg2);
   DataArrayDouble *array=DataArrayDouble::New();
   array->alloc(19,2);
   double *ptr=array->getPointer();

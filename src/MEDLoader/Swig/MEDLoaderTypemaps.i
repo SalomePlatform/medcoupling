@@ -19,6 +19,21 @@
 
 #include <vector>
 
+static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner)
+{
+  PyObject *ret=0;
+  if(dynamic_cast<ParaMEDMEM::MEDFileUMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileUMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDFileCMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileCMesh,owner);
+  if(!ret)
+    {
+      PyErr_SetString(PyExc_TypeError,"Not recognized type of MEDFileMesh on downcast !");
+      PyErr_Print();
+    }
+  return ret;
+}
+
 static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
 {
   std::vector<std::pair<int,int> > ret;
@@ -87,6 +102,45 @@ static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
   return ret;
 }
 
+static void converPyListToVecString(PyObject *pyLi, std::vector<std::string>& v)
+{
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(!PyString_Check(o))
+            throw INTERP_KERNEL::Exception("In list passed in argument some elements are NOT strings ! Expected a list containing only strings !");
+          const char *st=PyString_AsString(o);
+          v[i]=std::string(st);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(!PyString_Check(o))
+            throw INTERP_KERNEL::Exception("In tuple passed in argument some elements are NOT strings ! Expected a tuple containing only strings !");
+          const char *st=PyString_AsString(o);
+          v[i]=std::string(st);
+        }
+    }
+  else if(PyString_Check(pyLi))
+    {
+      v.resize(1);
+      v[0]=std::string((const char *)PyString_AsString(pyLi));
+    }
+  else
+    {
+      throw INTERP_KERNEL::Exception("Unrecognized python argument : expected a list of string or tuple of string or string !");
+    }
+}
+
 static PyObject *convertFieldDoubleVecToPy(const std::vector<ParaMEDMEM::MEDCouplingFieldDouble *>& li)
 {
   int sz=li.size();
@@ -99,9 +153,9 @@ static PyObject *convertFieldDoubleVecToPy(const std::vector<ParaMEDMEM::MEDCoup
   return ret;
 }
 
-static std::vector<ParaMEDMEM::MEDCouplingUMesh *> convertFieldDoubleVecFromPy(PyObject *pyLi)
+static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(PyObject *pyLi)
 {
-  std::vector<ParaMEDMEM::MEDCouplingUMesh *> ret;
+  std::vector<const ParaMEDMEM::MEDCouplingUMesh *> ret;
   if(PyList_Check(pyLi))
     {
       int size=PyList_Size(pyLi);
