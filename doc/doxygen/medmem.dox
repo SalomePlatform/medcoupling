@@ -232,11 +232,13 @@ describe the coupling between two parallel codes.
 The classes that make up the API of the library are :
 - communication interface : \ref comm_interface,
 - definition of processor groups : \ref processor_group,
-- Data Exchange Channel (aka DEC, abstract class) : \ref dec, and its implementations :
- - \ref interpkerneldec for a \ref InterpKerRemapGlobal based on intersecting elems volume computation,
+- Data Exchange Channel \ref dec, and its implementations :
+ - \ref interpkerneldec for a \ref InterpKerRemapGlobal based on intersecting elements volume computation,
  - \ref noncoincidentdec for a non-conservative interpolation based on element localization,
  - \ref structuredcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies.
  - \ref explicitcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies,
+ - \ref overlapdec based on intersecting elems volume
+ computation when source and target meshes are on same process id
 
 */
 
