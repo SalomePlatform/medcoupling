@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include <mpi.h>
@@ -43,12 +43,12 @@ namespace ParaMEDMEM
     the computation is much faster than the other. It can also be used 
     to couple together codes that share an interface that was generated
     in the same manner (with identical global ids). 
-    Also, this DEC can be used for fields that have component topologies, 
+    Also, this \ref dec can be used for fields that have component topologies, 
     i.e., components that are scattered over several processors.
 
     The remapping between the two supports is based on identity of global
     ids, instead of geometrical considerations as it is the case for
-    NonCoincidentDEC and InterpKernelDEC. Therefore, this DEC must not be used 
+    \ref NonCoincidentDEC and \ref InterpKernelDEC. Therefore, this \ref dec must not be used 
     for coincident meshes that do not have the same numbering.
 
     As all the other DECs, its use is made of two phases :
@@ -58,7 +58,7 @@ namespace ParaMEDMEM
     - a send/recv phase during which the field data is actually transferred.
 
     This example illustrates the sending of a field with 
-    the DEC : 
+    the \c StructuredCoincidentDEC : 
     \code
     ...
     StructuredCoincidentDEC dec(groupA, groupB);
@@ -105,7 +105,7 @@ namespace ParaMEDMEM
     \addtogroup structuredcoincidentdec
     @{
   */
-  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DEC(local_group,distant_group),
+  StructuredCoincidentDEC::StructuredCoincidentDEC(ProcessorGroup& local_group, ProcessorGroup& distant_group):DisjointDEC(local_group,distant_group),
                                                                                                                _topo_source(0),_topo_target(0),
                                                                                                                _send_counts(0),_recv_counts(0),
                                                                                                                _send_displs(0),_recv_displs(0),

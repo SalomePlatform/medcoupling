@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include <mpi.h>
@@ -92,10 +92,10 @@ namespace ParaMEDMEM
     INTERP_KERNEL::DirectedBoundingBox dbb;
     double* distant_bb = _domain_bounding_boxes+rank*dbb.dataSize(_local_cell_mesh_space_dim);
     dbb.setData(distant_bb);
-    _local_cell_mesh->giveElemsInBoundingBox(dbb,getBoundingBoxAdjustment(),elems);
+    _local_cell_mesh->getCellsInBoundingBox(dbb,getBoundingBoxAdjustment(),elems);
 #else
     double* distant_bb = _domain_bounding_boxes+rank*2*_local_cell_mesh_space_dim;
-    _local_cell_mesh->giveElemsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
+    _local_cell_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
 #endif
     
     DataArrayInt *distant_ids_send;
@@ -231,11 +231,12 @@ namespace ParaMEDMEM
   
     // First stage : exchanging sizes
     // ------------------------------
+    vector<double> tinyInfoLocalD,tinyInfoDistantD(1);//not used for the moment
     vector<int> tinyInfoLocal,tinyInfoDistant;
     vector<string> tinyInfoLocalS;
     //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
     //the transmitted mesh.
-    local_mesh->getTinySerializationInformation(tinyInfoLocal,tinyInfoLocalS);
+    local_mesh->getTinySerializationInformation(tinyInfoLocalD,tinyInfoLocal,tinyInfoLocalS);
     tinyInfoLocal.push_back(distant_ids_send->getNumberOfTuples());
     tinyInfoDistant.resize(tinyInfoLocal.size());
     std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
@@ -258,7 +259,7 @@ namespace ParaMEDMEM
     //serialization of local mesh to send data to distant proc.
     local_mesh->serialize(v1Local,v2Local);
     //Building the right instance of copy of distant mesh.
-    MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::buildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
+    MEDCouplingPointSet *distant_mesh_tmp=MEDCouplingPointSet::BuildInstanceFromMeshType((MEDCouplingMeshType)tinyInfoDistant[0]);
     std::vector<std::string> unusedTinyDistantSts;
     distant_mesh_tmp->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     int nbLocalElems=0;
@@ -302,7 +303,7 @@ namespace ParaMEDMEM
     //
     distant_mesh=distant_mesh_tmp;
     //finish unserialization
-    distant_mesh->unserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
+    distant_mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
     //
     distant_ids_recv=new int[tinyInfoDistant.back()];
     comm_interface.sendRecv((void *)distant_ids_send->getConstPointer(),tinyInfoLocal.back(), MPI_INT,

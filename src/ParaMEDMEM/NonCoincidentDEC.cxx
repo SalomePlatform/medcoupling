@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include <mpi.h>
@@ -45,8 +45,7 @@ namespace ParaMEDMEM
     \c NonCoincidentDEC enables nonconservative remapping of fields 
     between two parallel codes. 
     The computation is possible for 3D meshes and 2D meshes.
-    It is not available for 3D surfaces. The computation enables fast parallel localization, based on the 
-    FVM library. The computation is based on a point in element search, followed 
+    It is not available for 3D surfaces. The computation enables fast parallel localization, and is based on a point in element search, followed 
     by a field evaluation at the point location. Thus, it is typically
     faster than the \ref interpkerneldec which gives a \ref conservativeremapping.
     It is particularly true for the initialisation phase (synchronize)
@@ -246,7 +245,7 @@ namespace ParaMEDMEM
     @{
   */
 
-  /*! Constructor of a non coincident DEC with 
+  /*! Constructor of a non coincident \ref dec with 
    * a source group on which lies a field lying on a mesh and a 
    * target group on which lies a mesh.
    * 

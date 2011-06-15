@@ -54,7 +54,7 @@ bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, med_geometr
 
 int MEDFileUMeshPerType::getDim() const
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(_type);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
   return cm.getDimension();
 }
 
@@ -187,7 +187,7 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
   if(nbOfCells<1)
     return ;
   INTERP_KERNEL::NormalizedCellType ikt=m->getTypeOfCell(0);
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::getCellModel(ikt);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(ikt);
   med_geometrie_element curMedType=typmai3[(int)ikt];
   const int *conn=m->getNodalConnectivity()->getConstPointer();
   const int *connI=m->getNodalConnectivityIndex()->getConstPointer();

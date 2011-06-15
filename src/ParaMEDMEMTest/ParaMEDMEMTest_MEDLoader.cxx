@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "ParaMEDMEMTest.hxx"
@@ -34,7 +34,7 @@ using namespace ParaMEDMEM;
 
 void ParaMEDMEMTest::testMEDLoaderRead1()
 {
-  string fileName=getResourceFile("pointe_import22.med");
+  string fileName=getResourceFile("pointe.med");
   vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
@@ -176,11 +176,11 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(fieldsNameNode[1]=="fieldnodeint");
   std::vector<std::pair<int,int> > its0Node=MEDLoader::GetNodeFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsNameNode[0].c_str());
   CPPUNIT_ASSERT_EQUAL(3,(int)its0Node.size());
-  CPPUNIT_ASSERT_EQUAL(1,its0Node[0].first);
+  CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].second);
-  CPPUNIT_ASSERT_EQUAL(2,its0Node[1].first);
+  CPPUNIT_ASSERT_EQUAL(1,its0Node[1].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[1].second);
-  CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].first);//strange but like that
+  CPPUNIT_ASSERT_EQUAL(2,its0Node[2].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].second);
   MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkCoherency();
@@ -196,7 +196,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[1].first,its0Node[1].second);
+  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -224,7 +224,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
+  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
