@@ -1,17 +1,49 @@
 /*!
-\page medloader MEDLoader
+\page medloader %MEDLoader
 
 \section MEDLoaderIntro Introduction
 
-MEDLoader is a package in charge of loading from a file or write to a file
+%MEDLoader is a package in charge of loading from a file or write to a file
 in MED format a \ref medcoupling data structure. The fact that these
 functionalities are not merged in \ref medcoupling is explained by a
 willingness of reducing as much as possible the dependancies of \ref medcoupling libraries.
 
 As a MED file can combine several \ref medcoupling aspects in one (for exemple meshes in
-MED file on different mesh dimension with families and groups) the API of MEDLoader is much more rich than simply read and write.
+MED file on different mesh dimension with families and groups) the API
+of %MEDLoader is much more rich than simply read and write.
 
-MEDLoader offers \b static methods whose method names have the first
+MEDCoupling mesh does \b not fit a MED file mesh, and a MEDCoupling
+field does \b not fit a MED file field. But it is possible to emulate
+with a very good fidelity a MED file mesh and a MED file field with
+a collection of MEDCoupling instances for each.
+
+That's why %MEDLoader module offers two different approaches to perform Read/Write from/to MED
+file.
+
+- Either the user is close too MEDCoupling concepts. This is the case
+if pieces of information to access or to write are \b directly
+mapped to a MEDCouplingMesh/MEDCouplingFieldDouble in MEDCoupling package. \nIn this case, the \ref MEDLoaderBasicAPI "basic API" is recommended in this case because simpler and faster.
+
+- Or the user knows the MED file concept well and if nature of
+information to deal with do not fit exactly the class offered by
+MEDCoupling, the \ref MEDLoaderAdvancedAPI "advanced API" is
+recommended. This is typically the case for a user that wants to precisely set/get
+mesh/group/family groups set on different level lying on a same field defined
+partially...  This API is faster, all information contained in file is represented, but
+less check is performed.\n This API is recommended for users that want to operate directly on MED files (split of MED files for example)
+
+The two methods are \b not opposed, they are compatible each other so
+it is possible to mix them. But the user should keep in mind that
+behaviour of these two methods can vary. 
+
+*/
+
+/*!
+\page MEDLoaderBasicAPI Basic %MEDLoader API.
+
+The aim of this page is to present basic API of MEDLoader. The goal of
+this basic API is to perform a read or a write in one shot without any
+internal state. That's why the basic API of MEDLoader offers \b only \b static methods whose method names have the first
 character in capital. You are intended to use these methods. The following
 chapters will try to describe in details some of important ones.
 
@@ -24,7 +56,7 @@ name of meshes and fields are used by MEDLoader to use it as this into
 MED file. A field f with \ref ParaMEDMEM::MEDCouplingTimeDiscretization
 "time discretization" set to ONE_TIME, the value of
 \c f->getTime(time,iteration,order) are used by MEDLoader to store
-identifies the field into MED file. All strings used by MEDLoader to
+to identify the field into MED file. All strings used by MEDLoader to
 use it into MED file should fulfill the rules of MED file where length
 are limited. 
 That's why the user should be aware of these constaints when trying to read/write a MED file using MEDLoader. 
@@ -35,7 +67,7 @@ MEDLoader tries to manage that by protecting the user by throwing exceptions whe
 Here we will describes some of basic concepts of MED files in order to
 use the best methods proposed by MEDLoader API.
 
-\subsection MEDLoaderMEDFileGen Basics in MED files
+\subsection BasicMEDLoaderAPIGen Basics in MED files
 
 First of all MEDLoader \b will \b not read MED files whose version is
 \b lower \b than \b 2.2. The MEDLoader::CheckFileForRead will perform
@@ -68,11 +100,11 @@ This recalled specificities of MED file explains that it is necessary to specify
 each time, at field-read time, the type of field, the iteration and order
 number the mesh you are interested in.  
 
-\subsection MEDLoaderMEDFileMesh Meshes in MED files
+\subsection BasicMEDLoaderAPIMesh Meshes in MED files
 
 In MED file meshes could combine in one unstructured mesh cells that
 have different dimension. For example it is possible to mix
-MED_TETRA4, MED_TRIA6, MED_SEG2, MED_POINT0, MED_POLYGON,
+MED_TETRA4, MED_TRIA6, MED_SEG2, MED_POINT1, MED_POLYGON,
 MED_POLYHEDRA in a same mesh. In MEDCouplingUMesh such a mix is not
 allowed as described \ref MEDCouplingUMeshes "here". So to \b read such mesh it
 is important to know which meshdimension you are interested to. In API
@@ -102,7 +134,7 @@ help you to have this mesh dimension.
 \anchor MEDLoaderExample2
 - Consider an another mesh called "Example2" in file "file2.med"
 containing MED_POLYHEDRA, MED_TETRA4, MED_QUAD8, MED_TRI6, MED_SEG2
-and MED_POINT0. In this case you will have :
+and MED_POINT1. In this case you will have :
 
 \code
 assert(3==MEDLoader::ReadUMeshDimFromFile("file2.med","Example2"));
@@ -125,7 +157,7 @@ To get 1D cells (MED_SEG2) you should type :
 MEDCouplingUMesh *m1D=MEDLoader::ReadUMeshFromFile("file2.med","Example2",-2);
 \endcode
 
-And finally for 0D cells (MED_POINT0) you will write :
+And finally for 0D cells (MED_POINT1) you will write :
 
 \code
 MEDCouplingUMesh *m0D=MEDLoader::ReadUMeshFromFile("file2.med","Example2",-3);
@@ -137,7 +169,7 @@ file. This renumbering allows MEDLoader to conserve the order of
 MEDCoupling cells into the file. So if the renumbering of cells in MED
 file is not correct an exception will be thrown.
 
-\subsection MEDLoaderMEDFilePoMesh Part of meshes in MED files
+\subsection BasicMEDLoaderAPIPoMesh Part of meshes in MED files
 
 A mesh contains one or more families on nodes and/or on cells. A family is a partition
 (mathematical sense) of the mesh it lies to. A family can be described
@@ -158,7 +190,7 @@ MEDLoader::ReadUMeshFromFamilies and MEDLoader::ReadUMeshFromGroups.
 This method allows you to combine several families and groups in the
 same returned mesh.
 
-\subsection MEDLoaderMEDFileField Reading a field at one time step in MED files
+\subsection BasicMEDLoaderAPIField Reading a field at one time step in MED files
 
 A field at one time step on one mesh, with one entity (cell, node)
 lies on all mesh on on a part of it. In this last case a definition of
@@ -355,3 +387,253 @@ to other MEDLoader::Write* method the parameter of \b writeFromScratch
 is not needed here.
 
 */
+
+/*!
+\page MEDLoaderAdvancedAPI Advanced %MEDLoader API.
+
+This method is much closer to MED file organization than \ref
+MEDLoaderBasicAPI "basic MEDLoader API". All MED file
+concepts are exposed to the user. As a consequence, this advanced
+API is lead to change with MED file data model enhancement.
+
+In reading mode, the user can scan entirely and directly the content of its MED file as it is organized in its MED file.
+Inversely, in writing mode, the user can describe its data in the same
+way that MED file does.
+
+\section AdvMEDLoaderBasics Some of basic parameters appearing in advanced API
+
+- Like basic %MEDLoader API there is a notion of \c meshDimRelToMax.
+Each time This parameter appears in API, it will have the semantic
+explain here.
+The value of the parameter \c meshDimRelToMax is at most in {0,-1,-2,-3}. This relative value specifies a level
+relative to value returned by \c myMedMesh->getMeshDimension().
+
+A mesh containing MED_TETRA4, MED_TRI3, MED_QUAD4 and MED_POINT1 has a meshDimension
+equal to 3. For \c meshDimRelToMax equal to 0 the user will
+deal with cells whose type has a dimension equal to 3+0, that is to
+say here MED_TETRA4. For \c meshDimRelToMax equal to -1 the user will
+deal with cells witch dimension equal to 3-1 that is to say MED_TRI3
+and MED_QUAD4.
+
+An important method is \c getNonEmptyLevels() method. It returns all
+non empty levels available. In the previous example, this method will
+return {0,-1,-3}. -2 does not appear because no cells with dimension
+equal to 1 (3-2) appear in MED file mesh (no MED_SEG2 not MED_SEG3).
+
+- Besides notion of \c meshDimRelToMax there is notion of \c meshDimRelToMaxExt.
+\c meshDimRelToMaxExt is simply an extension of \c meshDimRelToMax for
+nodes.
+
+The parameter of \c meshDimRelToMaxExt appears in
+\ref ParaMEDMEM::MEDFileUMesh "umesh advanced API" of %MEDLoader with the following semantics.
+
+Some of MED file concepts are available both for cells and
+nodes, (for example families, groups, numbering ) that's why for a simpler API this
+concept has been introduced. \c meshDimRelToMaxExt parameter can take a value in at
+most {1,0,-1,-2,-3}.
+1 stands for node and 0,-1,-2,-3 has exactly the
+same semantic than those described in \c meshDimRelToMax decribed
+before.
+
+- A parameter that also often appears in advanced %MEDLoader API is \c renum.
+This parameter by default in advanced %MEDLoader API is set to \c
+true.
+This parameter indicates if the user intend to take into account
+of the renumbering array of cells of the current MED file mesh.
+If no renumbering array is defined, this parameter is ignored by
+%MEDLoader.
+
+If such renumbering exists and the \c renum parameter is
+set to \c true, then the renumbering is taken into account. This is
+exactly the behaviour of \ref MEDLoader::ReadUMeshFromFile "basic MEDLoader API".
+If the user expects to ignore this renumbering even in case of
+presence of renumbering array, false should be passed to \c renum
+parameter. \b The \b parameter \b renum \b should \b be \b set \b with
+\b cauton \b for \b users \b concerned \b by \b cells \b orders.
+
+- A laster important parameter is the \c mode during writing. The
+  available values for the parameter \c mode are :
+  - 2 : for a write from scratch. If file already exists, file will be
+  erased and replace by the content of the instance on which \c write
+  method has been calles.
+  - 1 : If the file does not exists equivalent to 2. If file already
+  exists, the write is done on APPEND mode. That is to say that no
+  data loss will occur. But in case that an element with same ids than
+  current instance already exists, the content is not written and an
+  exception is thrown.
+  - 0 : If the file does not exists equivalent to 2. If file already
+  exists write without any question. If an element with same ids
+  existed previously the content is overwritten by the content of the
+  current instance, that can lead to a file corruption.
+
+\section AdvMEDLoaderAPIReading Reading from a file with advanced API.
+
+Contrary to the basic %MEDLoader API, here after reading process, the user
+has to deal with a new instance of class that fits the MED file model.
+To access to a MEDCoupling mesh the user should request this class
+instance.
+
+\subsection AdvMEDLoaderAPIMeshReading Reading a mesh.
+
+The class that incarnates Read/Write mesh in MED file is ParaMEDMEM::MEDFileUMesh.
+
+First of all, like basic %MEDLoader API, only MEDfile files whose version >= 2.2 are able
+to be read with advanced API.
+
+To read a mesh having the name \c meshName in file \c fileName the
+following simple code has to be written :
+
+\code
+
+MEDFileUMesh *myMedMesh=MEDFileUMesh::New(fileName,meshName);
+
+\endcode
+
+If the user do not know the name of the mesh inside MED file
+'fileName' the following code should be written :
+
+\code
+
+MEDFileUMesh *myMedMesh=MEDFileUMesh::New(fileName);
+
+\endcode
+
+In this case the first mesh (in MED file sense) found in \c fileName
+file will be loaded.
+
+Now the user can ask for mesh dimension of of \c myMedMesh instance by
+calling \c myMedMesh->getMeshDimension(). This method returns the
+highest level of present cell in MED file mesh \c myMedMesh.
+This returned integer is computed and \b not those contained in MED file
+that can be invalid.
+
+\n
+
+- Retrieving a mesh at a specified relative level \c meshDimRelToMax=mdrm : simply call
+  - \c myMedMesh->getMeshAtLevel(mdrm)
+  - or \c myMedMesh->getLevel0Mesh() or \c
+  myMedMesh->getLevelM1Mesh(), or \c myMedMesh->getLevelM2Mesh()
+  depending on the value of mdrm
+
+
+- Retrieving a family at a specified level :
+  - Either an array of node/cell id
+    - \c getFamilyArr method or \c getFamiliesArr
+  - Or on \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" form by calling
+    - \c getFamily method or \c getFamilies
+
+- Retrieving a group at a specified level :
+  - Either an array of node/cell id
+    - \c getGroupArr method or \c getGroupsArr
+  - Or on \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" form by calling
+    - \c getGroup method or \c getGroups
+
+- Retrieving family field array :
+Method \c getFamilyFieldAtLevel retrieves for a specified extended level the
+family id of each cell or node.
+
+- Retrieving renumbering array :
+Method \c getNumberFieldAtLevel returns, if it exists for a specified extended level, the
+family id of each cell or node. If it does not exist an exception will
+be thrown.
+
+An important point is that families and groups are \b not sorted in
+MED file. No sort is stored in MED file explicitely for Groups and
+Families. Advanced %MEDLoader API, uses the same order than underlying
+mesh at specified level.
+
+\subsection AdvMEDLoaderAPIMeshReadingSampl Sample of reading a mesh.
+
+Here a typical use of \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" instance.
+
+\code
+
+const char fileName[]=...;
+const char meshName[]=...;
+MEDFileUMesh *medmesh=MEDFileUMesh::New(fileName,meshName);
+std::vector<int> nel=medmesh->getNonEmptyLevels();
+if(nel.size()<1)
+  throw INTERP_KERNEL::Exception("The test is not good for my file ! Expecting a multi level mesh to play with !");
+MEDCouplingUMesh *m0=medmesh->getMeshAtLevel(nel[1],false);
+MEDCouplingUMesh *g1=medmesh->getGroup(nel[1],"mesh2",false);
+DataArrayInt *dag1=medmesh->getGroupArr(nel[1],"mesh2",false);
+MEDCouplingUMesh *g1bis=m0->buildPartOfMySelf(dag1->getConstPointer(),dag1->getConstPointer()+dag1->getNbOfElems());
+g1bis->setName(dag1->getName());
+if(!g1->isEqual(g1bis,1e-12))
+  throw INTERP_KERNEL::Exception("hmmmm :g1 and g1bis should be equal...");
+//
+dag1->decrRef();
+g1->decrRef();
+m0->decrRef();
+medmesh->decrRef();
+
+\endcode
+
+\subsection AdvMEDLoaderAPIMeshWriting Writing a mesh.
+
+The use is very symetric to reading part. It is possible to either
+build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance from
+scratch, or to work with an existing instance coming from a loading
+from a file.
+
+One important point is that coordinates of a mesh are shared by all
+cells whatever their level. That's why the
+\ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" instance
+should be shared by all \ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" used in input parameter of
+set* methods. If the user intend to build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance from
+scratch, a call to \c setCoords should be done first.
+
+
+Generally speaking traduce get* methods with set* methods have corresponding write semantic.
+
+Some differences still exist :
+
+- \c setMeshAtLevel, \c setMeshAtLevelOld simply call \c setMeshAtLevelGen with repectively \c newOrOld parameter
+set to true and false. These method specifies if a renumbering computation is needed or not. \c setMeshAtLevelOld is faster
+than \c setMeshAtLevel because no renumbering computation is done. If the user is not warranty about the order of its meshes to enter
+it is better to use \c setMeshAtLevel method.
+
+- Groups definition : Groups constitution is time consuming because of the stored mode chosen by MED file to store them. Groups definition
+lead to a partition computation which is time/mem consuming that's why groups should be defined at once and not with addGroup one by one that will lead to
+compute a partition for each appended group. One important point to note is that DataArrayInt instance given in input to define groups should have its name
+set to the desired group name. If not an exception will be thrown, because MED file does not support groups with no name.
+
+\subsection AdvMEDLoaderAPIMeshWritingSampl Sample of writing a mesh.
+
+\code
+
+MEDCouplingUMesh *m=...; //m is a mesh with meshDim=2 spaceDim=2
+MEDCouplingUMesh *m1=...; //m1 is a mesh with meshDim=1 spaceDim=2 same coords than m
+MEDCouplingUMesh *m2=...; //m2 is a mesh with meshDim=0 spaceDim=2 same coords than m
+MEDFileUMesh *mm=MEDFileUMesh::New();
+mm->setName("mm");//name needed to be non empty
+mm->setDescription("Description mm");
+mm->setCoords(m1->getCoords());
+mm->setMeshAtLevel(-1,m1,false);
+mm->setMeshAtLevel(0,m,false);
+mm->setMeshAtLevel(-2,m2,false);
+DataArrayInt *g1=DataArrayInt::New();
+g1->alloc(2,1);
+g1->setName("G1");
+const int val1[2]={1,3};
+std::copy(val1,val1+2,g1->getPointer());
+DataArrayInt *g2=DataArrayInt::New();
+g2->alloc(3,1);
+g2->setName("G2");
+const int val2[3]={1,2,3};
+std::copy(val2,val2+3,g2->getPointer());
+//
+std::vector<const DataArrayInt *> grps(2);
+grps[0]=g1; grps[1]=g2;
+mm->setGroupsAtLevel(0,grps,false);
+//
+g2->decrRef();
+g1->decrRef();
+//
+mm->write(2);
+
+
+\endcode
+
+*/
+

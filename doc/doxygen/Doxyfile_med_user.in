@@ -1,20 +1,20 @@
-#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
 # Doxyfile 0.1
@@ -71,6 +71,7 @@ WARN_LOGFILE           = log_user
 INPUT                  = @srcdir@ \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
+			 @srcdir@/../../src/INTERP_KERNEL/Bases \
                          @srcdir@/../../src/INTERP_KERNEL/Geometric2D \
                          @srcdir@/../../src/MEDCoupling \
 			 @srcdir@/../../src/MEDLoader \
@@ -83,12 +84,15 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
                          MEDMEM_Field.* \
                          MEDMEM_Med.* \
                          InterpKernelDEC.* \
-                         DEC.* \
+			 OverlapDEC.* \
+                         DEC.* \      
+			 DisjointDEC.* \
                          MPIProcessorGroup.* \
                          StructuredCoincidentDEC.* \
                          ExplicitCoincidentDEC.* \
                          NonCoincidentDEC.* \
                          CommInterface.* \
+			 NormalizedUnstructuredMesh.* \
                          Interpolation2D.* \
                          Interpolation3D.* \
                          Interpolation3DSurf.* \
@@ -121,12 +125,14 @@ FILE_PATTERNS          = MEDMEM_Mesh.* \
 			 MEDCouplingMemArray.* \
 			 MEDCouplingRemapper.* \
 			 MEDLoader.* \
+			 MEDFileMesh.* \
                          *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
 EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM/ \
                          @srcdir@/../../doc/MEDMEM \
+			 @srcdir@/../../src/MEDMEMBinTest \
                          @srcdir@/../../src/MEDMEM
 EXAMPLE_PATTERNS       = *.cxx *.py
 EXAMPLE_RECURSIVE      = NO
@@ -199,13 +205,13 @@ GENERATE_XML           = NO
 # Configuration options related to the preprocessor   
 #---------------------------------------------------------------------------
 ENABLE_PREPROCESSING   = YES
-MACRO_EXPANSION        = NO
-EXPAND_ONLY_PREDEF     = NO
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = 
-EXPAND_AS_DEFINED      = 
+EXPAND_AS_DEFINED      = MEDCOUPLING_EXPORT MEDCOUPLINGREMAPPER_EXPORT
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::addtions related to external references   

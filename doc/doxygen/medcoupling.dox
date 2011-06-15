@@ -20,77 +20,23 @@ developped to be compatible with HPC constraints (compact structures,
 limitation of copies and launching of CPU consuming algorithms only when
 absolutely needed ).
 
+\section MEDCouplingMainBasics Basics
+
+One of the most basic concept mainly used all over MEDCoupling is
+MEDCoupling array. This concept is used all over
+MEDCoupling/ParaMEDMEM/MEDLoader modules so it should be correctly
+handled to play well with \ref MEDCouplingMeshesP "Meshes" and \ref MEDCouplingFieldsP "Fields".
+
+It exists two type of arrays :
+ - double precision float array incarnated by ParaMEDMEM::DataArrayDouble class.
+ - integer array incarnated by ParaMEDMEM::DataArrayInt class.
+
+To know more about arrays \ref MEDCouplingArrayPage "click here for arrays documentation".
+
 \section MEDCouplingMainConc Main Concepts
 
 - \ref MEDCouplingMeshesP "Meshes"
 - \ref MEDCouplingFieldsP "Fields"
-
-\section MEDCouplingFirstSteps1 Building an array from scratch
-
-All of exemples given here make the assumption that the \c ParaMEDMEM
-namespace is visible ( by calling for example \c using \c
-namespace \c ParaMEDMEM; ).
-
-Here a description of typical usages to use MEDCoupling arrays.
-In this example we will create arrays with 12 tuples constituted each
-of 3 components. These arrays will be created using different ways.
-
-\code
-
-const int nbOfNodes=12;
-double coords[3*nbOfNodes]={ ... };
-
-DataArrayDouble *myCoords=0;
-double *tmp=0;
-\endcode
-
-- no copy no ownership
-\code
-myCoords=DataArrayDouble::New();
-myCoords->useArray(coords,false,CPP_DEALLOC,nbOfNodes,3);
-//now use myCoords as you need
-...
-//myCoords is no more usefully here : release it
-myCoords->decrRef();
-\endcode
-
-
-- no copy and ownership C++
-\code
-myCoords=DataArrayDouble::New();
-tmp=new double[3*nbOfNodes];
-std::copy(coords,coords+3*nbOfNodes,tmp);
-myCoords->useArray(tmp,true,CPP_DEALLOC,nbOfNodes,3);
-//now use myCoords as you need
-...
-//myCoords is no more usefully, release it
-myCoords->decrRef();
-\endcode
-
-- no copy and ownership C
-\code
-myCoords=DataArrayDouble::New();
-tmp=(double *)malloc(3*nbOfNodes*sizeof(double));
-std::copy(coords,coords+3*nbOfNodes,tmp);
-myCoords->useArray(tmp,true,C_DEALLOC,nbOfNodes,3);
-//now use myCoords as you need
-...
-//myCoords is no more usefully here : release it
-myCoords->decrRef();
-\endcode
-
-- copy
-\code
-myCoords=DataArrayDouble::New();
-myCoords->alloc(nbOfNodes,3);
-tmp=myCoords->getPointer();
-std::copy(coords,coords+3*nbOfNodes,tmp);
-myCoords->declareAsNew();//you have modified data pointed by internal pointer notify object
-//now use myCoords as you need
-...
-//myCoords is no more usefully here : release it
-myCoords->decrRef();
-\endcode
 
 \section MEDCouplingFirstSteps2 Building unstructured mesh from scratch
 
@@ -251,7 +197,21 @@ A mesh has a the following properties :
 mesh have the same dimension)
 - a space dimension (relative to coordinates)
 - a number of nodes
-- a number of cells 
+- a number of cells
+
+In MEDCoupling library there is no presence of faces nor edges.
+
+As a mesh has one dimension and only once, that is to say every cells in
+mesh have the same dimension called MeshDimension.
+
+That is to say the
+MEDMEM vocabulary of faces and edges \b do \b not \b exist \b anymore here in
+MEDCoupling.
+
+For exemple a mesh with a meshDimension equal to 1, have \b cells of type
+NORM_SEG2. An another exemple, a mesh with a meshDimension equal
+to 2, have \b cells of type
+NORM_TRI3 and NORM_POLYGON for example.
 
 The class that incarnates the concept described above is :
 \ref ParaMEDMEM::MEDCouplingMesh.
@@ -276,7 +236,7 @@ used by MEDCoupling to instanciate degenerated meshes as :
   represent fields used by system code. This type of mesh will have
   mesh dimension equal to -1.
 
-The norm used for cells connectivity of different types, is the same as specified in MED file execpt
+The norm used for cells connectivity of different types, is the same as specified in MED file except
 that connectivities are in represented in \b C \b format and \b not \b in
 \b FORTRAN \b format !
 
@@ -407,5 +367,192 @@ The most important methods are :
 - \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArray "getArray" and \ref ParaMEDMEM::MEDCouplingTimeDiscretization::setArray "setArray"
 - \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArraysForTime "getArraysForTime"
 - \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getValueForTime "getValueForTime"
+
+*/
+
+/*!
+\page MEDCouplingArrayPage MEDCoupling Arrays
+
+\section MEDCouplingArrayIntro Introduction
+
+This page will try to describe data arrays in MEDCoupling. Presently,
+in MEDCoupling it exists two types of arrays :
+
+- double precision array incarnated by ParaMEDMEM::DataArrayDouble class.
+- signed integer (32 bits) array incarnated by ParaMEDMEM::DataArrayInt class.
+
+\section MEDCouplingArrayBasics Basics concepts
+
+It will be presented in this section common concept shared by the two classes to \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" and \ref ParaMEDMEM::DataArrayInt "DataArrayInt".
+
+- The first thing is that an array has a name (stored as a C++ string). This name is often ignored in MEDCoupling algorithm when arrays are aggregated (field array, connectivity, coordinates).
+  The reason is that name is stored by the aggregating object.
+  But it can be very usefull for arrays not aggregated in bigger MEDCoupling object for groups ids and families ids for example.
+
+- The second thing is the data storage. For obvious reason, MEDCoupling DataArray stores data in a contiguous way in memory like \c std::vector does.\n
+
+- The third thing is linked to previous point. Data arrays are able to store vectorized data. It is usefull to store the data of a vectorial field. That's why MEDCoupling arrays uses the concepts
+  of components. To store an array for a vector field on cell with 3 components lying on a mesh having 5 cells. The array will contain 5*3=15 values grouped by 3.
+  The 5 groups containing each 3 elements are called \b tuples.\n \b Number \b of \b values \b stored \b in \b an \b array \b is \b equal \b to \b number \b of \b tuples
+  \b multiplied \b by \b number \b of \b components. \n
+  Generally speaking, except for vector field arrays, and array for nodes coordinates, the number of components is equal to one.
+
+- The fourth thing is linked to point 2 and 3 as MEDCoupling is developped in C++ the values of arrays are stored tuples by tuples, that is to say in full interlace mode.\n
+  That is to say, the 15 values in the example in point 3 will be stored like this :\n
+  \f$ x_0,y_0,z_0,x_1,y_1,z_1,x_2,y_2,z_2,x_3,y_3,z_3,x_4,y_4,z_4 \f$ where x stands for component #0, y for component #1 and z for component #2
+  As consequence \b all \b algorithms \b in \b ParaMEDMEM \b are \b working \b in \b full \b interlace \b mode. 
+
+- The fifth thing is that each components of an array has info stored in a string. If a unit is desired to be added on components the following convention should be used "MY_COMPO_INFO [MYUNIT]".\n
+  Unit should be put between "[" and "]" after info and one space character.
+
+- The sixth thing is that MEDCoupling arrays inherits from \ref ParaMEDMEM::TimeLabel "TimeLabel" class. It means that the time stamp attached to array indicates if yes or no the array has been modified.
+  In C++ if the access of data is direct using non const \c getPointer method it is the reponsability to the use to notify the possible modification.
+  Inversely if setIJ method is used to modify an array, take care of the fact that the time stamp of the array is modified on each call to setIJ. If huge amount of call to setIJ is required it
+  is better to use setIJSilent instead and call notifyNew right after instead.
+  
+
+\section MEDCouplingArraySteps0 Building an array from scratch in Python
+
+\verbatim
+arrayDouble=DataArrayDouble.New();
+dataDouble=[0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.]
+arrayDouble.setValues(dataDouble,5,3);# 5 tuples containing each 3 components
+#####
+arrayInt=DataArrayInt.New();
+dataInt=[0, 10, 20, 1, 11, 21, 2, 12, 22, 3, 13, 23, 4, 14, 24]
+arrayInt.setValues(dataInt,5,3);# 5 tuples containing each 3 components
+\endverbatim
+
+\section MEDCouplingArraySteps1 Building an array from scratch in C++
+
+All of exemples given here make the assumption that the \c ParaMEDMEM
+namespace is visible ( by calling for example \c using \c
+namespace \c ParaMEDMEM; ).
+
+Here a description of typical usages to use \ref ParaMEDMEM::DataArrayDouble "MEDCoupling arrays".\n
+In this example we will create arrays with 12 tuples constituted each
+of 3 components. These arrays will be created using different ways.\n
+
+The following code is only based using \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble"
+but the use of \ref ParaMEDMEM::DataArrayInt "DataArrayInt" is strictly equivalent.
+
+\code
+
+const int nbOfNodes=12;
+double coords[3*nbOfNodes]={ ... };
+
+DataArrayDouble *myCoords=0;
+double *tmp=0;
+\endcode
+
+- no copy no ownership
+\code
+myCoords=DataArrayDouble::New();
+myCoords->useArray(coords,false,CPP_DEALLOC,nbOfNodes,3);
+//now use myCoords as you need
+...
+//myCoords is no more usefully here : release it
+myCoords->decrRef();
+\endcode
+
+
+- no copy and ownership C++
+\code
+myCoords=DataArrayDouble::New();
+tmp=new double[3*nbOfNodes];
+std::copy(coords,coords+3*nbOfNodes,tmp);
+myCoords->useArray(tmp,true,CPP_DEALLOC,nbOfNodes,3);
+//now use myCoords as you need
+...
+//myCoords is no more usefully, release it
+myCoords->decrRef();
+\endcode
+
+- no copy and ownership C
+\code
+myCoords=DataArrayDouble::New();
+tmp=(double *)malloc(3*nbOfNodes*sizeof(double));
+std::copy(coords,coords+3*nbOfNodes,tmp);
+myCoords->useArray(tmp,true,C_DEALLOC,nbOfNodes,3);
+//now use myCoords as you need
+...
+//myCoords is no more usefully here : release it
+myCoords->decrRef();
+\endcode
+
+- copy
+\code
+myCoords=DataArrayDouble::New();
+myCoords->alloc(nbOfNodes,3);
+tmp=myCoords->getPointer();
+std::copy(coords,coords+3*nbOfNodes,tmp);
+myCoords->declareAsNew();//you have modified data pointed by internal pointer notify object
+//now use myCoords as you need
+...
+//myCoords is no more usefully here : release it
+myCoords->decrRef();
+\endcode
+
+\section MEDCouplingArrayRenumbering Array renumbering
+
+Here is presented all it is necessary to know concerning renumbering.
+Renumbering is intensely required in %MEDLoader in %ParaMEDMEM. One of the user of renumbering is MED file for I/O where cells are sorted by type.
+But it is also used on operations of node cell merging. It is also used in parallel mode when splitting of mesh is needed...
+
+Formally a renumbering is a mathematical application that can be surjective, injective or bijective. This application is defined using an instance of
+\ref ParaMEDMEM::DataArrayInt "DataArrayInt". There are different ways to define this application.
+
+\subsection MEDCouplingArrayRenumberingO2N Old to new mode
+
+The old to new mode is particulary recommanded for surjective and bijective application. This is typically the case of \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "MEDCouplingUMesh::mergeNodes" method.
+Let's consider a call to \ref ParaMEDMEM::MEDCouplingUMesh::mergeNodes "mergeNodes" that reduces the number of nodes from 5 nodes to 3 nodes.\n
+In old to new mode the array \b MySurjection that specifies this surjection will have 5 tuples and 1 component. The content of the 5*1 values will be in {0,1,2}.\n
+
+If \b MySujection equals [2,1,0,1,2], it means that :
+
+- old id #0 will have new id equal to 2
+- old id #1 will have new id equal to 1
+- old id #2 will have new id equal to 0
+- old id #3 will have new id equal to 1 like old id #1
+- old id #4 will have new id equal to 2 like old id #0
+
+This is the most common mode of renumbering in MEDCoupling because there is more methods implying renumbering that reduce the number of entities than method that increase number of entities.
+
+Method in old to new mode that works on bijective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::renumber "DataArrayDouble::renumber"
+- \ref ParaMEDMEM::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlace"
+
+Method in old to new mode that works on surjective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::renumberAndReduce "DataArrayDouble::renumberAndReduce"
+
+Sometimes the format old to new for sujections can be replaced by another format with 2 arrays. Less compact in memory. The \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that.
+
+\subsection MEDCouplingArrayRenumberingN2O New to old mode
+
+The new to old mode is particulary recommanded for strictly injective and bijective permutations. This is particulary usefull for methods that increase the number of entities like for example
+\ref ParaMEDMEM::MEDCouplingUMesh::simplexize "MEDCouplingUMesh::simplexize".\n
+All non static methods in \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" or \ref ParaMEDMEM::DataArrayInt "DataArrayInt" having as last letter \b R (meaning Reversed) in capital works with
+the mode new to old.
+Let's consider a call to \ref ParaMEDMEM::MEDCouplingUMesh::simplexize "simplexize" that increases the number of cell from 4 cells to 6 cells.\n
+In new to old mode the array \b MyInjection that specifies this injection will have 6 tuples and 1 component. The content of the 5*1 values will be in {0,1,2,3}.\n
+If \b MyInjection equals [2,0,1,1,3,0] it means that :
+
+- new id #0 comes from old id 2
+- new id #1 comes from old id 0
+- new id #2 comes from old id 1
+- new id #3 comes from old id 1
+- new id #4 comes from old id 3
+- new id #5 comes from old id 0
+
+Method in new to old mode that works on bijective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::renumberR "DataArrayDouble::renumberR"
+- \ref ParaMEDMEM::DataArrayDouble::renumberInPlace "DataArrayDouble::renumberInPlaceR"
+
+Method in new to old mode that works on surjective applications :
+
+- \ref ParaMEDMEM::DataArrayDouble::selectByTupleId "DataArrayDouble::selectByTupleId"
 
 */

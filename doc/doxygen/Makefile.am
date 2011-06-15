@@ -47,6 +47,9 @@ EXTRA_DIST += figures \
 	      biblio.dox \
 	      field.dox \
 	      grid.dox \
+	      interpkernel.dox \
+	      medcoupling.dox \
+	      medloader.dox \
 	      medsplitter.dox \
 	      mesh.dox \
 	      meshing.dox \
