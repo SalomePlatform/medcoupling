@@ -274,6 +274,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 
 %rename(assign) *::operator=;
+%ignore ParaMEDMEM::RefCountObject::decrRef;
 %ignore ParaMEDMEM::MemArray::operator=;
 %ignore ParaMEDMEM::MemArray::operator[];
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationIntInfo;
