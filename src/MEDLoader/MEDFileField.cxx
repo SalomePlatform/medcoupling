@@ -529,7 +529,8 @@ void MEDFileFieldPerMeshPerType::finishLoading(med_idt fid, TypeOfField type) th
 
 void MEDFileFieldPerMeshPerType::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
-  _field_pm_pt_pd[0]->writeLL(fid);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    (*it)->writeLL(fid);
 }
 
 med_entity_type MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType)

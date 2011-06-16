@@ -475,7 +475,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
         #
         fname="Pyfile28.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnGauss_2();
+        f1=MEDLoaderDataForTest.buildVecFieldOnGauss_2_Simpler();
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
         mm1.setCoords(m1.getCoords())
@@ -486,8 +486,9 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.setFieldNoProfileSBT(f1)
         ff1.write(fname,0)
         ff2=MEDFileField1TS.New(fname,f1.getName(),f1.getTime()[1],f1.getTime()[2])
-        #f2=ff2.getFieldAtLevel(ON_GAUSS_PT,0) BUG TONY
-        #self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        f2=ff2.getFieldAtLevel(ON_GAUSS_PT,0)
+        self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        #
         pass
     pass
 
