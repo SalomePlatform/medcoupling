@@ -272,6 +272,8 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingField "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
+%feature("unref") MEDCouplingFieldTemplate "$this->decrRef();"
+%feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 
 %rename(assign) *::operator=;
 %ignore ParaMEDMEM::RefCountObject::decrRef;

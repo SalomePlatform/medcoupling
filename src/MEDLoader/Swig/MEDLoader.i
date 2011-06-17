@@ -28,6 +28,7 @@
 #include "MEDLoader.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
+#include "MEDFileData.hxx"
 #include "MEDLoaderTypemaps.i"
 
 using namespace ParaMEDMEM;
@@ -72,6 +73,10 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileUMesh::getLevelM2Mesh;
 %newobject ParaMEDMEM::MEDFileUMesh::getLevelM3Mesh;
 %newobject ParaMEDMEM::MEDFileCMesh::New;
+%newobject ParaMEDMEM::MEDFileMeshMultiTS::New;
+%newobject ParaMEDMEM::MEDFileMeshMultiTS::getOneTimeStep;
+%newobject ParaMEDMEM::MEDFileMeshes::New;
+%newobject ParaMEDMEM::MEDFileMeshes::getMeshAtPos;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
@@ -82,6 +87,17 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevelOld;
+
+%newobject ParaMEDMEM::MEDFileData::New;
+
+%feature("unref") MEDFileMesh "$this->decrRef();"
+%feature("unref") MEDFileUMesh "$this->decrRef();"
+%feature("unref") MEDFileCMesh "$this->decrRef();"
+%feature("unref") MEDFileMeshMultiTS "$this->decrRef();"
+%feature("unref") MEDFileMeshes "$this->decrRef();"
+%feature("unref") MEDFileField1TS "$this->decrRef();"
+%feature("unref") MEDFileFieldMultiTS "$this->decrRef();"
+%feature("unref") MEDFileFields "$this->decrRef();"
 
 class MEDLoader
 {
@@ -450,6 +466,51 @@ namespace ParaMEDMEM
        }
   };
 
+  class MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileMeshMultiTS *New();
+    static MEDFileMeshMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
+    const char *getName() const throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
+    %extend
+       {
+         MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception)
+           {
+             MEDFileMesh *ret=self->getOneTimeStep();
+             if(ret)
+               ret->incrRef();
+             return ret;
+           }
+       }
+  };
+
+  class MEDFileMeshes : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileMeshes *New();
+    static MEDFileMeshes *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    //
+    void resize(int newSize) throw(INTERP_KERNEL::Exception);
+    void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
+    %extend
+       {
+         MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception)
+           {
+             MEDFileMesh *ret=self->getMeshAtPos(i);
+             if(ret)
+               ret->incrRef();
+             return ret;
+           }
+       }
+  };
+
   class MEDFieldFieldGlobs
   {
   public:
@@ -525,20 +586,43 @@ namespace ParaMEDMEM
   class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
+    static MEDFileFieldMultiTS *New();
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    //
+    void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs, public MEDFileWritable
   {
   public:
+    static MEDFileFields *New();
     static MEDFileFields *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
-    std::vector<std::string> getPfls() const;
-    std::vector<std::string> getLocs() const;
+    //
+    void resize(int newSize) throw(INTERP_KERNEL::Exception);
+    void pushField(MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
+    void setFieldAtPos(int i, MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
+    void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
+  };
+
+  class MEDFileData : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileData *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileData *New();
+    MEDFileFields *getFields() const;
+    MEDFileMeshes *getMeshes() const;
+    void setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception);
+    void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
+    int getNumberOfFields() const throw(INTERP_KERNEL::Exception);
+    int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    //
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   };
 }

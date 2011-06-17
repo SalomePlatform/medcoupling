@@ -1975,3 +1975,209 @@ const DataArrayInt *MEDFileCMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
         throw INTERP_KERNEL::Exception("MEDFileCMesh::getRevNumberFieldAtLevel : no node renumbering for a request on reverse numbering !");
     }
 }
+
+
+MEDFileMeshMultiTS *MEDFileMeshMultiTS::New()
+{
+  return new MEDFileMeshMultiTS;
+}
+
+MEDFileMeshMultiTS *MEDFileMeshMultiTS::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileMeshMultiTS(fileName);
+}
+
+MEDFileMeshMultiTS *MEDFileMeshMultiTS::New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileMeshMultiTS(fileName,mName);
+}
+
+const char *MEDFileMeshMultiTS::getName() const throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh_one_ts.empty())
+    throw INTERP_KERNEL::Exception("MEDFileMeshMultiTS::getName : no time steps set !");
+  return _mesh_one_ts[0]->getName();
+}
+
+MEDFileMesh *MEDFileMeshMultiTS::getOneTimeStep() const throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh_one_ts.empty())
+    throw INTERP_KERNEL::Exception("MEDFileMeshMultiTS::getOneTimeStep : empty time step set !");
+  return const_cast<MEDFileMesh *>(static_cast<const MEDFileMesh *>(_mesh_one_ts[0]));
+}
+
+void MEDFileMeshMultiTS::setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh1TimeStep)
+    throw INTERP_KERNEL::Exception("MEDFileMeshMultiTS::setOneTimeStep : input pointer should be different from 0 !");
+  _mesh_one_ts.resize(1);
+  mesh1TimeStep->incrRef();
+  //MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> toto=mesh1TimeStep;
+  _mesh_one_ts[0]=mesh1TimeStep;
+}
+
+void MEDFileMeshMultiTS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    {
+      (*it)->copyOptionsFrom(*this);
+      (*it)->write(fileName,mode);
+    }
+}
+
+void MEDFileMeshMultiTS::loadFromFile(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception)
+{//for the moment to be improved
+  _mesh_one_ts.resize(1);
+  _mesh_one_ts[0]=MEDFileMesh::New(fileName,mName,-1,-1);
+}
+
+MEDFileMeshMultiTS::MEDFileMeshMultiTS()
+{
+}
+
+MEDFileMeshMultiTS::MEDFileMeshMultiTS(const char *fileName) throw(INTERP_KERNEL::Exception)
+try
+  {
+    std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+    if(ms.empty())
+    {
+      std::ostringstream oss; oss << "MEDFileUMesh::New : no meshes in file \"" << fileName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+    MEDFileUtilities::CheckFileForRead(fileName);
+    MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+    int dt,it;
+    ParaMEDMEM::MEDCouplingMeshType meshType;
+    std::string dummy2;
+    MEDFileMeshL2::GetMeshIdFromName(fid,ms.front().c_str(),meshType,dt,it,dummy2);
+    loadFromFile(fileName,ms.front().c_str());
+  }
+catch(INTERP_KERNEL::Exception& e)
+  {
+    throw e;
+  }
+
+MEDFileMeshMultiTS::MEDFileMeshMultiTS(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception)
+try
+  {
+    loadFromFile(fileName,mName);
+  }
+catch(INTERP_KERNEL::Exception& e)
+  {
+    throw e;
+  }
+
+MEDFileMeshes *MEDFileMeshes::New()
+{
+  return new MEDFileMeshes;
+}
+
+MEDFileMeshes *MEDFileMeshes::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileMeshes(fileName);
+}
+
+void MEDFileMeshes::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  checkCoherency();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++)
+    {
+      (*it)->copyOptionsFrom(*this);
+      (*it)->write(fileName,mode);
+    }
+}
+
+int MEDFileMeshes::getNumberOfMeshes() const throw(INTERP_KERNEL::Exception)
+{
+  return _meshes.size();
+}
+
+MEDFileMesh *MEDFileMeshes::getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception)
+{
+  if(i<0 || i>=(int)_meshes.size())
+    {
+      std::ostringstream oss; oss << "MEDFileMeshes::getMeshAtPos : invalid mesh id given in parameter ! Should be in [0;" << _meshes.size() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return _meshes[i]->getOneTimeStep();
+}
+
+void MEDFileMeshes::resize(int newSize) throw(INTERP_KERNEL::Exception)
+{
+  _meshes.resize(newSize);
+}
+
+void MEDFileMeshes::pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDFileMeshes::pushMesh : invalid input pointer ! should be different from 0 !");
+  MEDFileMeshMultiTS *elt=MEDFileMeshMultiTS::New();
+  elt->setOneTimeStep(mesh);
+  _meshes.push_back(elt);
+}
+
+void MEDFileMeshes::setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDFileMeshes::setMeshAtPos : invalid input pointer ! should be different from 0 !");
+  if(i>=_meshes.size())
+    _meshes.resize(i+1);
+  MEDFileMeshMultiTS *elt=MEDFileMeshMultiTS::New();
+  elt->setOneTimeStep(mesh);
+  _meshes[i]=elt;
+}
+
+void MEDFileMeshes::destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception)
+{
+  if(i<0 || i>=_meshes.size())
+    {
+      std::ostringstream oss; oss << "MEDFileMeshes::destroyMeshAtPos : Invalid given id in input (" << i << ") should be in [0," << _meshes.size() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  _meshes.erase(_meshes.begin()+i);
+}
+
+void MEDFileMeshes::loadFromFile(const char *fileName) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> ms=MEDLoader::GetMeshNames(fileName);
+  int i=0;
+  _meshes.resize(ms.size());
+  for(std::vector<std::string>::const_iterator it=ms.begin();it!=ms.end();it++,i++)
+    _meshes[i]=MEDFileMeshMultiTS::New(fileName,(*it).c_str());
+}
+
+MEDFileMeshes::MEDFileMeshes()
+{
+}
+
+MEDFileMeshes::MEDFileMeshes(const char *fileName) throw(INTERP_KERNEL::Exception)
+try
+  {
+    loadFromFile(fileName);
+  }
+catch(INTERP_KERNEL::Exception& e)
+  {
+  }
+
+void MEDFileMeshes::checkCoherency() const throw(INTERP_KERNEL::Exception)
+{
+  static const char MSG[]="MEDFileMeshes::checkCoherency : mesh at rank ";
+  int i=0;
+  std::set<std::string> s;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++,i++)
+    {
+      const MEDFileMeshMultiTS *elt=(*it);
+      if(!elt)
+        {
+          std::ostringstream oss; oss << MSG << i << "/" << _meshes.size() << " is empty !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      std::size_t sz=s.size();
+      s.insert(std::string((*it)->getName()));
+      if(s.size()==sz)
+        {
+          std::ostringstream oss; oss << MSG << i << " has a name (\"" << (*it)->getName() << "\") already used by an another mesh in list !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}

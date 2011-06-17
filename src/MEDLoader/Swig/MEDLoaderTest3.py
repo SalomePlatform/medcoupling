@@ -490,6 +490,45 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
         #
         pass
+    def testMEDFileData1(self):
+        fname="Pyfile29.med"
+        d=MEDFileData.New()
+        #
+        m1=MEDLoaderDataForTest.build1DMesh_1()
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ; mm1.setName(m1.getName())
+        mmm1=MEDFileMeshMultiTS.New() ;
+        mmm1.setOneTimeStep(mm1)
+        m2=MEDLoaderDataForTest.build2DCurveMesh_1()
+        mm2=MEDFileUMesh.New() ; mm2.setCoords(m2.getCoords()) ; mm2.setMeshAtLevel(0,m2) ; mm2.setName(m2.getName())
+        mmm2=MEDFileMeshMultiTS.New() ; mmm2.setOneTimeStep(mm2)
+        ms=MEDFileMeshes.New(); ms.setMeshAtPos(0,mm1) ; ms.setMeshAtPos(1,mm2)
+        d.setMeshes(ms)
+        #
+        ff1=MEDFileFieldMultiTS.New()
+        ff21=MEDFileFieldMultiTS.New()
+        ff22=MEDFileFieldMultiTS.New()
+        f1=m1.getMeasureField(True) ; f1.setName("f1") ; f1=f1.buildNewTimeReprFromThis(ONE_TIME,False)
+        f1.getArray().setInfoOnComponent(0,"power [kW]")
+        ff1.appendFieldNoProfileSBT(f1)
+        f21=m2.getMeasureField(True) ; f21.setName("f21") ; f21=f21.buildNewTimeReprFromThis(ONE_TIME,False)
+        f21.getArray().setInfoOnComponent(0,"sta [mm]") ;
+        ff21.appendFieldNoProfileSBT(f21)
+        f22=f21.deepCpy() ; f22.setName("f22") ; f22=f22.buildNewTimeReprFromThis(ONE_TIME,False) ;
+        f22.applyFunc(2,"3*x*IVec+2*x*JVec")
+        f22.getArray().setInfoOnComponent(0,"distance [km]") ; f22.getArray().setInfoOnComponent(1,"displacement [cm]")
+        ff22.appendFieldNoProfileSBT(f22)
+        fs=MEDFileFields.New()
+        fs.pushField(ff1) ; fs.pushField(ff21) ; fs.pushField(ff22)
+        d.setFields(fs)
+        #
+        d.write(fname,0)
+        #
+        d2=MEDFileData.New(fname)
+        self.assertEqual(2,d2.getNumberOfMeshes())
+        self.assertEqual(3,d2.getNumberOfFields())
+        m1bis=d2.getMeshes().getMeshAtPos(0).getMeshAtLevel(0)
+        self.assertTrue(m1.isEqual(m1bis,1e-12))
+        pass
     pass
 
 unittest.main()
