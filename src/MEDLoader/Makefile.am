@@ -42,7 +42,7 @@ MEDFileMeshElt.hxx MEDFileBasis.hxx MEDFileField.hxx
 dist_libmedloader_la_SOURCES= \
 MEDLoader.cxx MEDLoaderBase.cxx MEDFileUtilities.cxx      \
 MEDFileMesh.cxx MEDFileMeshElt.cxx MEDFileBasis.cxx       \
-MEDFileMeshLL.cxx MEDFileField.cxx
+MEDFileMeshLL.cxx MEDFileField.cxx MEDFileData.cxx
 
 libmedloader_la_CPPFLAGS= $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
