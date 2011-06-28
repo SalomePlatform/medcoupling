@@ -821,6 +821,8 @@ void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr) throw(INTER
   for(std::size_t pos=0;pos!=std::string::npos;id++)
     {
       std::size_t pos2=_expr.find_first_of(FIGURES,pos,10);
+      if(pos2==std::string::npos)
+        break;
       if(pos2>0)
         {//treat case of "x*log10(x)" -> "10" should NOT be intercepted by this
           if(other.find_first_of(_expr[pos2-1])==std::string::npos)
@@ -837,8 +839,6 @@ void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr) throw(INTER
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
-      if(pos2==std::string::npos)
-        break;
       std::size_t pos3=_expr.find_first_not_of(FIGURES,pos2,10);
       if(pos3==std::string::npos)
         {//"x+1223442320"
