@@ -2165,6 +2165,72 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
   declareAsNew();
 }
 
+/*!
+ * 'this' should be allocated and with numberOfComponents set to one. If not an exception will be thrown.
+ * This method takes as input an array defined by ['arrBg','arrEnd'). The size of the array (std::distance(arrBg,arrEnd)) is equal to the number of cast + 1.
+ * The values contained in ['arrBg','arrEnd') should be sorted ascendently. No check of this will be done. If not the result is not waranted.
+ * For each cast j the value range that defines the cast is equal to [arrBg[j],arrBg[j+1]).
+ * This method returns three arrays (to be managed by the caller).
+ * This method is typically usefull for entity number spliting by types for example.
+ * Example : If 'this' contains [6,5,0,3,2,7,8,1,4] and if ['arrBg','arrEnd') contains [0,4,9] then the output of this method will be :
+ * - 'castArr'        : [1,1,0,0,0,1,1,0,1]
+ * - 'rankInsideCast' : [2,1,0,3,2,3,4,1,0]
+ * - 'return' : [0,1]
+ *
+ * @param castArr is a returned param has the same number of tuples than 'this' and number of components set to one. In case of sucess, this param contains for each tuple in 'this' in which cast it holds.
+ * @param rankInsideCast is an another returned param has the same number of tuples than 'this' and number of components set to one too. In case of sucess, this param contains for each tuple its rank inside its cast.
+ * @param castsPresent the casts that 'this' contains.
+ * @throw if a value in 'this' is greater or equal to the last value of ['arrBg','arrEnd')
+ */
+void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
+                                     DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call splitByValueRange  method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  int nbOfTuples=getNumberOfTuples();
+  std::size_t nbOfCast=std::distance(arrBg,arrEnd);
+  if(nbOfCast<2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::splitByValueRange : The input array giving the cast range values should be of size >=2 !");
+  nbOfCast--;
+  const int *work=getConstPointer();
+  typedef std::reverse_iterator<const int *> rintstart;
+  rintstart bg(arrEnd);//OK no problem because size of 'arr' is greater of equal 2
+  rintstart end(arrBg);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret3=DataArrayInt::New();
+  ret1->alloc(nbOfTuples,1);
+  ret2->alloc(nbOfTuples,1);
+  int *ret1Ptr=ret1->getPointer();
+  int *ret2Ptr=ret2->getPointer();
+  std::set<std::size_t> castsDetected;
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      rintstart res=std::find_if(bg,end,std::bind2nd(std::less_equal<int>(), work[i]));
+      std::size_t pos=std::distance(bg,res);
+      std::size_t pos2=nbOfCast-pos;
+      if(pos2<nbOfCast)
+        {
+          ret1Ptr[i]=(int)pos2;
+          ret2Ptr[i]=work[i]-arrBg[pos2];
+          castsDetected.insert(pos2);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::splitByValueRange : At rank #" << i << " the value is " << work[i] << " whereas the last value is " << *bg;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret3->alloc((int)castsDetected.size(),1);
+  std::copy(castsDetected.begin(),castsDetected.end(),ret3->getPointer());
+  ret1->incrRef();
+  castArr=ret1;
+  ret2->incrRef();
+  rankInsideCast=ret2;
+  ret3->incrRef();
+  castsPresent=ret3;
+}
+
 DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)

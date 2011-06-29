@@ -606,6 +606,11 @@ DataArrayInt *MEDCouplingExtrudedMesh::checkTypeConsistencyAndContig(const std::
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+void MEDCouplingExtrudedMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 MEDCouplingMesh *MEDCouplingExtrudedMesh::buildPart(const int *start, const int *end) const
 {
   // not implemented yet !

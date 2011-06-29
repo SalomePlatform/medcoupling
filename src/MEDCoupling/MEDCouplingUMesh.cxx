@@ -3416,6 +3416,70 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
 }
 
 /*!
+ * This method makes the hypothesis that 'this' is sorted by type. If not an exception will be thrown.
+ * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in 'profile' it returns a list of profiles sorted by geo type.
+ * This method has 1 input 'profile' and 2 outputs 'code' and 'idsPerType'.
+ * @throw if 'profile' has not exactly one component. It throws too, if 'profile' contains some values not in [0,getNumberOfCells()) or if 'this' is not fully defined
+ */
+void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  if(profile->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::splitProfilePerType : input profile should have exactly one component !");
+  checkConnectivityFullyDefined();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  std::vector<INTERP_KERNEL::NormalizedCellType> types;
+  std::vector<int> typeRangeVals(1);
+  for(const int *i=connI;i!=connI+nbOfCells;)
+    {
+      INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
+      if(std::find(types.begin(),types.end(),curType)!=types.end())
+        {
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::splitProfilePerType : current mesh is not sorted by type !");
+        }
+      types.push_back(curType);
+      i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
+      typeRangeVals.push_back(std::distance(connI,i));
+    }
+  //
+  DataArrayInt *castArr=0,*rankInsideCast=0,*castsPresent=0;
+  profile->splitByValueRange(&typeRangeVals[0],&typeRangeVals[0]+typeRangeVals.size(),castArr,rankInsideCast,castsPresent);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp0=castArr;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1=rankInsideCast;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2=castsPresent;
+  //
+  int nbOfCastsFinal=castsPresent->getNumberOfTuples();
+  code.resize(3*nbOfCastsFinal);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerType2;
+  for(int i=0;i<nbOfCastsFinal;i++)
+    {
+      int castId=castsPresent->getIJ(i,0);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp3=castArr->getIdsEqual(castId);
+      code[3*i]=(int)types[castId];
+      code[3*i+1]=tmp3->getNumberOfTuples();
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp4=rankInsideCast->selectByTupleId(tmp3->getConstPointer(),tmp3->getConstPointer()+tmp3->getNumberOfTuples());
+      if(tmp4->getNumberOfTuples()!=typeRangeVals[castId+1]-typeRangeVals[castId] || !tmp4->isIdentity())
+        {
+          idsPerType2.push_back(tmp4);
+          code[3*i+2]=(int)idsPerType2.size()-1;
+        }
+      else
+        {
+          code[3*i+2]=-1;
+        }
+    }
+  int sz=idsPerType2.size();
+  idsPerType.resize(sz);
+  for(int i=0;i<sz;i++)
+    {
+      DataArrayInt *locDa=idsPerType2[i];
+      locDa->incrRef();
+      idsPerType[i]=locDa;
+    }
+}
+
+/*!
  * This method is here too emulate the MEDMEM behaviour on BDC (buildDescendingConnectivity). Hoping this method becomes deprecated very soon.
  * This method make the assumption that 'this' and 'nM1LevMesh' mesh lyies on same coords (same pointer) as MED and MEDMEM does.
  * The following equality should be verified 'nM1LevMesh->getMeshDimension()==this->getMeshDimension()-1'
@@ -3490,7 +3554,7 @@ bool MEDCouplingUMesh::checkConsecutiveCellTypes() const
     {
       INTERP_KERNEL::NormalizedCellType curType=(INTERP_KERNEL::NormalizedCellType)conn[*i];
       if(types.find(curType)!=types.end())
-            return false;
+        return false;
       types.insert(curType);
       i=std::find_if(i+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,(int)curType));
     }

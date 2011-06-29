@@ -273,6 +273,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArrBg, const int *indArrEnd) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void splitByValueRange(const int *arrBg, const int *arrEnd,
+                                              DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayO2N2N2O(int newNbOfElem) const;
     MEDCOUPLING_EXPORT DataArrayInt *invertArrayN2O2O2N(int oldNbOfElem) const;
     //!alloc or useArray should have been called before.

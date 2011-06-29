@@ -534,6 +534,19 @@ DataArrayInt *MEDCouplingCMesh::checkTypeConsistencyAndContig(const std::vector<
   return 0;
 }
 
+/*!
+ * See MEDCouplingUMesh::splitProfilePerType for more information
+ */
+void MEDCouplingCMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+{
+  int nbCells=getNumberOfCells();
+  code.resize(3);
+  code[0]=(int)getTypeOfCell(0);
+  code[1]=nbCells;
+  code[2]=0;
+  idsPerType.push_back(profile->deepCpy());
+}
+
 MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
 {
   int spaceDim=getSpaceDimension();
