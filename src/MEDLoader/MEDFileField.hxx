@@ -81,9 +81,9 @@ namespace ParaMEDMEM
     static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId);
     void assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
-    void assignFieldProfile(const char *pflName, const DataArrayInt *globIds, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
+    void assignFieldProfile(const char *pflName, const DataArrayInt *globIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldNoProfile(const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
-    void assignNodeFieldProfile(const char *pflName, const DataArrayInt *globIds, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
+    void assignNodeFieldProfile(const char *pflName, const DataArrayInt *globIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     const MEDFileFieldPerMeshPerType *getFather() const;
     int getIteration() const;
@@ -124,7 +124,7 @@ namespace ParaMEDMEM
   public:
     static MEDFileFieldPerMeshPerType *New(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception);
     void assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
-    void assignFieldProfile(const DataArrayInt *globIds, DataArrayInt *locIds, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
+    void assignFieldProfile(const DataArrayInt *globIds, DataArrayInt *locIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldNoProfile(const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldProfile(const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     const MEDFileFieldPerMesh *getFather() const;
@@ -161,8 +161,8 @@ namespace ParaMEDMEM
     static MEDFileFieldPerMesh *New(MEDFileField1TSWithoutDAS *fath, const MEDCouplingMesh *mesh);
     static MEDFileFieldPerMesh *New(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder);
     void copyTinyInfoFrom(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
-    void assignFieldProfile(const std::vector<int>& code, const std::vector<DataArrayInt *>& globIdsPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
-    void assignFieldProfileGeneral(const std::vector<int>& code, const std::vector<DataArrayInt *>& globIdsPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
+    void assignFieldProfile(const std::vector<int>& code, const std::vector<DataArrayInt *>& globIdsPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
+    void assignFieldProfileGeneral(const std::vector<int>& code, const std::vector<DataArrayInt *>& globIdsPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void assignFieldNoProfileNoRenum(const std::vector<int>& code, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldNoProfile(const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldProfile(const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception);
