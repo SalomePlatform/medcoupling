@@ -173,6 +173,12 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(const char *pflName, 
   const DataArrayDouble *da=field->getArray();
   switch(_type)
     {
+    case ON_NODES:
+      {
+         _nval=globIds->getNumberOfTuples();
+         _arr=da->deepCpy();
+         break;
+      }
     case ON_CELLS:
       {
         _nval=globIds->getNumberOfTuples();
@@ -386,7 +392,7 @@ void MEDFileFieldPerMeshPerType::assignFieldProfile(const DataArrayInt *globIds,
       if(pflName.empty())
         throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerType::assignFieldProfile : existing profile with empty name !");
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
-      std::ostringstream oss; oss << locIds->getName() << "_" <<  cm.getRepr();
+      std::ostringstream oss; oss << pflName << "_" <<  cm.getRepr();
       locIds->setName(oss.str().c_str());
       glob.appendProfile(locIds);
       //
@@ -405,6 +411,21 @@ void MEDFileFieldPerMeshPerType::assignNodeFieldNoProfile(const MEDCouplingField
   _field_pm_pt_pd.resize(1);
   _field_pm_pt_pd[0]=MEDFileFieldPerMeshPerTypePerDisc::New(this,ON_NODES,-3);
   _field_pm_pt_pd[0]->assignNodeFieldNoProfile(field,glob);
+}
+
+void MEDFileFieldPerMeshPerType::assignNodeFieldProfile(const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+{
+  std::string pflName(pfl->getName());
+  if(pflName.empty())
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerType::assignNodeFieldProfile : existing profile with empty name !");
+  std::ostringstream oss; oss << pflName << "_NODE";
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pfl2=pfl->deepCpy();
+  pfl2->setName(oss.str().c_str());
+  glob.appendProfile(pfl2);
+  //
+  _field_pm_pt_pd.resize(1);
+  _field_pm_pt_pd[0]=MEDFileFieldPerMeshPerTypePerDisc::New(this,ON_NODES,-3);
+  _field_pm_pt_pd[0]->assignFieldProfile(oss.str().c_str(),pfl2,field,glob);
 }
 
 std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception)
@@ -757,6 +778,12 @@ void MEDFileFieldPerMesh::assignNodeFieldNoProfile(const MEDCouplingFieldDouble 
   _field_pm_pt[pos]->assignNodeFieldNoProfile(field,glob);
 }
 
+void MEDFileFieldPerMesh::assignNodeFieldProfile(const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+{
+  int pos=addNewEntryIfNecessary(INTERP_KERNEL::NORM_ERROR);
+  _field_pm_pt[pos]->assignNodeFieldProfile(pfl,field,glob);
+}
+
 void MEDFileFieldPerMesh::finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
   INTERP_KERNEL::AutoPtr<char> meshName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -949,7 +976,7 @@ std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsed() const
   return ret;
 }
 
-MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField type, int meshDim, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField type, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_pm_pt.empty())
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getFieldOnMeshAtLevel : no types field set !");
@@ -960,7 +987,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
   std::vector<int> locs,code;
   std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
-    (*it)->getFieldAtLevel(meshDim,type,glob,dads,pfls,locs,geoTypes);
+    (*it)->getFieldAtLevel(mesh->getMeshDimension(),type,glob,dads,pfls,locs,geoTypes);
   // Sort by types
   SortArraysPerType(glob,geoTypes,dads,pfls,locs,code,notNullPflsPerGeoType);
   if(code.empty())
@@ -1000,6 +1027,52 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
       else
         return finishField3(glob,dads,locs,mesh,notNullPflsPerGeoType3[0],isPfl);
     }
+}
+
+DataArrayDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception)
+{
+  if(_field_pm_pt.empty())
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getFieldOnMeshAtLevel : no types field set !");
+  //
+  std::vector<const DataArrayDouble *> dads;
+  std::vector<const DataArrayInt *> pfls;
+  std::vector<DataArrayInt *> notNullPflsPerGeoType;
+  std::vector<int> locs,code;
+  std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    (*it)->getFieldAtLevel(mesh->getMeshDimension(),type,glob,dads,pfls,locs,geoTypes);
+  // Sort by types
+  SortArraysPerType(glob,geoTypes,dads,pfls,locs,code,notNullPflsPerGeoType);
+  if(code.empty())
+    {
+      std::ostringstream oss; oss << "MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl : " << "The field \"" << getName() << "\" exists but not with such spatial discretization or such dimension specified !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > notNullPflsPerGeoType2(notNullPflsPerGeoType.begin(),notNullPflsPerGeoType.end());
+  std::vector< const DataArrayInt *> notNullPflsPerGeoType3(notNullPflsPerGeoType.begin(),notNullPflsPerGeoType.end());
+  if(type!=ON_NODES)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr=mesh->checkTypeConsistencyAndContig(code,notNullPflsPerGeoType3);
+      return finishField4(dads,arr,mesh->getNumberOfCells(),pfl);
+    }
+  else
+    {
+      if(code.size()!=3)
+        throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getFieldOnMeshAtLevel : internal error #1 !");
+      int nb=code[1];
+      if(code[2]==-1)
+        {
+          if(nb!=mesh->getNumberOfNodes())
+            {
+              std::ostringstream oss; oss << "MEDFileFieldPerMesh::getFieldOnMeshAtLevel : There is a problem there is " << nb << " nodes in field whereas there is " << mesh->getNumberOfNodes();
+              oss << " nodes in mesh !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      return finishField4(dads,code[2]==-1?0:notNullPflsPerGeoType3[0],mesh->getNumberOfNodes(),pfl);
+    }
+  //
+  return 0;
 }
 
 int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type)
@@ -1114,6 +1187,33 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFieldFieldGlo
   else
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::finishField3 : not implemented yet !");
   return 0;
+}
+
+/*!
+ * This method is the most light method of field retrieving.
+ */
+DataArrayDouble *MEDFileFieldPerMesh::finishField4(const std::vector<const DataArrayDouble *>& dads, const DataArrayInt *pflIn, int nbOfElems, DataArrayInt *&pflOut) const throw(INTERP_KERNEL::Exception)
+{
+  if(!pflIn)
+    {
+      pflOut=DataArrayInt::New();
+      pflOut->alloc(nbOfElems,1);
+      pflOut->iota(0);
+    }
+  else
+    {
+      pflOut=const_cast<DataArrayInt*>(pflIn);
+      pflOut->incrRef();
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> safePfl(pflOut);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> da=DataArrayDouble::Aggregate(dads);
+  const std::vector<std::string>& infos=getInfo();
+  int nbOfComp=infos.size();
+  for(int i=0;i<nbOfComp;i++)
+    da->setInfoOnComponent(i,infos[i].c_str());
+  safePfl->incrRef();
+  da->incrRef();
+  return da;
 }
 
 MEDFileFieldPerMesh::MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder):_mesh_iteration(meshIteration),_mesh_order(meshOrder),
@@ -1510,12 +1610,12 @@ void MEDFileField1TSWithoutDAS::setFieldProfile(const MEDCouplingFieldDouble *fi
 {
   TypeOfField type=field->getTypeOfField();
   copyTinyInfoFrom(field);
+  std::vector<DataArrayInt *> globIdsPerType;
+  std::vector<DataArrayInt *> idsPerType;
+  std::vector<int> code;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
   if(type!=ON_NODES)
     {
-      std::vector<int> code;
-      std::vector<DataArrayInt *> globIdsPerType;
-      std::vector<DataArrayInt *> idsPerType;
-      MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
       m->splitProfilePerType(profile,code,globIdsPerType,idsPerType);
       //
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > globIdsPerType2(globIdsPerType.size());
@@ -1529,7 +1629,10 @@ void MEDFileField1TSWithoutDAS::setFieldProfile(const MEDCouplingFieldDouble *fi
       _field_per_mesh[pos]->assignFieldProfile(code,globIdsPerType,idsPerType,field,glob);
     }
   else
-    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::setFieldProfile : not implemented yet !");
+    {
+      int pos=addNewEntryIfNecessary(m);
+      _field_per_mesh[pos]->assignNodeFieldProfile(profile,field,glob);
+    }
 }
 
 MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const char *mName, int renumPol, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception)
@@ -1554,10 +1657,9 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfF
 MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobs *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception)
 {
   static const char msg1[]="MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel : request for a renumbered field following mesh numbering whereas it is a profile field !";
-  int dimRequested=mesh->getMeshDimension();
   int meshId=getMeshIdFromMeshName(mesh->getName());
   bool isPfl=false;
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=_field_per_mesh[meshId]->getFieldOnMeshAtLevel(type,dimRequested,glob,mesh,isPfl);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=_field_per_mesh[meshId]->getFieldOnMeshAtLevel(type,glob,mesh,isPfl);
   switch(renumPol)
     {
     case 0:
@@ -1610,6 +1712,13 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfF
     default:
       throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel : unsupported renum policy ! Dealing with policy 0 1 2 and 3 !");
     }
+}
+
+DataArrayDouble *MEDFileField1TSWithoutDAS::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobs *glob) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
+  int meshId=getMeshIdFromMeshName(mesh->getName());
+  return _field_per_mesh[meshId]->getFieldOnMeshAtLevelWithPfl(type,m,pfl,glob);
 }
 
 MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order,
@@ -1818,6 +1927,11 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevelOld(TypeOfField type, co
   if(_file_name.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   return MEDFileField1TSWithoutDAS::getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this);
+}
+
+DataArrayDouble *MEDFileField1TS::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const throw(INTERP_KERNEL::Exception)
+{
+  return MEDFileField1TSWithoutDAS::getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this);
 }
 
 /*!
@@ -2090,6 +2204,12 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtLevelOld(TypeOfField type
 {
   const MEDFileField1TSWithoutDAS& myF1TS=getTimeStepEntry(iteration,order);
   return myF1TS.getFieldAtLevel(type,meshDimRelToMax,mname,renumPol,this);
+}
+
+DataArrayDouble *MEDFileFieldMultiTS::getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDFileField1TSWithoutDAS& myF1TS=getTimeStepEntry(iteration,order);
+  return myF1TS.getFieldWithProfile(type,meshDimRelToMax,mesh,pfl,this);
 }
 
 void MEDFileFieldMultiTS::appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception)
