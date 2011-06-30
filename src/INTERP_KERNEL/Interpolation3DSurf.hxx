@@ -20,7 +20,7 @@
 #ifndef __INTERPOLATION3DSURF_HXX__
 #define __INTERPOLATION3DSURF_HXX__
 
-#include "InterpolationPlanar.hxx"
+#include "InterpolationPlanar.txx"
 #include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
