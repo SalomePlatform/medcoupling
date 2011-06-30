@@ -615,6 +615,39 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
+
+    def testMEDField12(self):
+        fname="Pyfile33.med"
+        m1=MEDLoaderDataForTest.build2DMesh_1()
+        m1.renumberCells([0,1,4,2,3,5],False)
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1.write(fname,2)
+        ff1=MEDFileFieldMultiTS.New()
+        f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME) ; f1.setName("F1Node")
+        d=DataArrayDouble.New() ; d.alloc(2*6,1) ; d.iota(7.); d.rearrange(2); d.setInfoOnComponent(0,"sigX [MPa]") ; d.setInfoOnComponent(1,"sigY [GPa]")
+        f1.setArray(d) # note that f1 is NOT defined fully (no mesh !). It is not a bug of test it is too test that MEDFileField1TS.appendFieldProfile is NOT sensible of that.
+        da=DataArrayInt.New(); da.setValues([1,2,4,5,7,8],6,1) ; da.setName("sup1Node")
+        #
+        ff1.appendFieldProfile(f1,mm1,0,da)
+        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
+        ff1.appendFieldProfile(f1,mm1,0,da)
+        ff1.write(fname,0)
+        #
+        vals,pfl=ff1.getFieldWithProfile(ON_NODES,1,2,0,mm1)
+        self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
+        self.assertTrue(vals.isEqual(e,1e-14))
+        vals,pfl=ff1.getFieldWithProfile(ON_NODES,-1,-1,0,mm1)
+        self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
+        self.assertTrue(vals.isEqual(d,1e-14))
+        #
+        ff2=MEDFileFieldMultiTS.New(fname,f1.getName())
+        vals,pfl=ff2.getFieldWithProfile(ON_NODES,1,2,0,mm1)
+        self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
+        self.assertTrue(vals.isEqual(e,1e-14))
+        vals,pfl=ff2.getFieldWithProfile(ON_NODES,-1,-1,0,mm1)
+        self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
+        self.assertTrue(vals.isEqual(d,1e-14))
+        pass
     pass
 
 unittest.main()
