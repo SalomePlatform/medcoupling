@@ -528,6 +528,38 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(3,d2.getNumberOfFields())
         m1bis=d2.getMeshes().getMeshAtPos(0).getMeshAtLevel(0)
         self.assertTrue(m1.isEqual(m1bis,1e-12))
+        pass  
+    def testMEDField9(self):
+        # first test field profile WR. Full type but with some type missing
+        fname="Pyfile30.med"
+        m1=MEDLoaderDataForTest.build2DMesh_3()
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1.write(fname,2)
+        ff1=MEDFileField1TS.New()
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f1.setName("F1")
+        d=DataArrayDouble.New() ; d.alloc(2*10,1) ; d.iota(7.); d.rearrange(2); d.setInfoOnComponent(0,"sigX [MPa]") ; d.setInfoOnComponent(1,"sigY [GPa]")
+        f1.setArray(d) # note that f1 is NOT defined fully (no mesh !). It is not a bug of test it is too test that MEDFileField1TS.appendFieldProfile is NOT sensible of that.
+        da=DataArrayInt.New(); da.alloc(9,1) ; da.iota(0) ; da.setName("sup1")
+        #
+        ff1.setFieldProfile(f1,mm1,0,da)
+        ff1.write(fname,0)
+        pass
+    def testMEDField10(self):
+        fname="Pyfile31.med"
+        m1=MEDLoaderDataForTest.build2DMesh_1()
+        m1.renumberCells([0,1,4,2,3,5],False)
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ; mm1.setName(m1.getName())
+        mm1.write(fname,2)
+        ff1=MEDFileFieldMultiTS.New()
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f1.setName("F2")
+        d=DataArrayDouble.New() ; d.alloc(2*4,1) ; d.iota(7.); d.rearrange(2); d.setInfoOnComponent(0,"sigX [MPa]") ; d.setInfoOnComponent(1,"sigY [GPa]")
+        f1.setArray(d) # note that f1 is NOT defined fully (no mesh !). It is not a bug of test it is too test that MEDFileField1TS.appendFieldProfile is NOT sensible of that.
+        da=DataArrayInt.New(); da.setValues([0,1,2,4],4,1) ; da.setName("sup2")
+        #
+        ff1.appendFieldProfile(f1,mm1,0,da)
+        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
+        ff1.appendFieldProfile(f1,mm1,0,da)
+        ff1.write(fname,0)
         pass
     pass
 

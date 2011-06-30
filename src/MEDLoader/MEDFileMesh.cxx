@@ -705,6 +705,31 @@ void MEDFileMesh::TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vect
     std::transform((*it1).begin(),(*it1).end(),(*it1).begin(),std::bind2nd(std::plus<int>(),offset));
 }
 
+/*!
+ * This method should be called by any set* method of subclasses to deal automatically with _name attribute.
+ * If _name attribute is empty the name of 'm' if taken as _name attribute.
+ * If _name is not empty and that 'm' has the same name nothing is done.
+ * If _name is not emplt and that 'm' has \b NOT the same name an exception is thrown.
+ */
+void MEDFileMesh::dealWithTinyInfo(const MEDCouplingMesh *m) throw(INTERP_KERNEL::Exception)
+{
+  if(_name.empty())
+    _name=m->getName();
+  else
+    {
+      std::string name(m->getName());
+      if(!name.empty())
+        {
+          if(_name!=name)
+            {
+              std::ostringstream oss; oss << "MEDFileMesh::dealWithTinyInfo : name of current MEDfile mesh is '" << _name << "' whereas name of input mesh is : '";
+              oss << name << "' ! Names must match !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+}
+
 MEDFileUMesh *MEDFileUMesh::New(const char *fileName, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
@@ -1364,6 +1389,7 @@ void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool
 
 void MEDFileUMesh::setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld) throw(INTERP_KERNEL::Exception)
 {
+  dealWithTinyInfo(m);
   std::vector<int> levSet=getNonEmptyLevels();
   if(std::find(levSet.begin(),levSet.end(),meshDimRelToMax)==levSet.end())
     {
@@ -1773,8 +1799,9 @@ MEDCouplingMesh *MEDFileCMesh::getGenMeshAtLevel(int meshDimRelToMax, bool renum
   return const_cast<MEDCouplingCMesh *>(m);
 }
 
-void MEDFileCMesh::setMesh(MEDCouplingCMesh *m)
+void MEDFileCMesh::setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception)
 {
+  dealWithTinyInfo(m);
   if(m)
     m->incrRef();
   _cmesh=m;
@@ -2120,7 +2147,7 @@ void MEDFileMeshes::setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::
 {
   if(!mesh)
     throw INTERP_KERNEL::Exception("MEDFileMeshes::setMeshAtPos : invalid input pointer ! should be different from 0 !");
-  if(i>=_meshes.size())
+  if(i>=(int)_meshes.size())
     _meshes.resize(i+1);
   MEDFileMeshMultiTS *elt=MEDFileMeshMultiTS::New();
   elt->setOneTimeStep(mesh);
@@ -2129,7 +2156,7 @@ void MEDFileMeshes::setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::
 
 void MEDFileMeshes::destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception)
 {
-  if(i<0 || i>=_meshes.size())
+  if(i<0 || i>=(int)_meshes.size())
     {
       std::ostringstream oss; oss << "MEDFileMeshes::destroyMeshAtPos : Invalid given id in input (" << i << ") should be in [0," << _meshes.size() << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());

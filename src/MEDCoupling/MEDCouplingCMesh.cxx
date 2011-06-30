@@ -537,7 +537,7 @@ DataArrayInt *MEDCouplingCMesh::checkTypeConsistencyAndContig(const std::vector<
 /*!
  * See MEDCouplingUMesh::splitProfilePerType for more information
  */
-void MEDCouplingCMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingCMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& globIdsPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
   int nbCells=getNumberOfCells();
   code.resize(3);
@@ -545,6 +545,7 @@ void MEDCouplingCMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
   code[1]=nbCells;
   code[2]=0;
   idsPerType.push_back(profile->deepCpy());
+  globIdsPerType.push_back(profile->deepCpy());
 }
 
 MEDCouplingUMesh *MEDCouplingCMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)

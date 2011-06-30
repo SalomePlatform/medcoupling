@@ -453,7 +453,7 @@ namespace ParaMEDMEM
     static MEDFileCMesh *New();
     static MEDFileCMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
-    void setMesh(MEDCouplingCMesh *m);
+    void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
     %extend
        {
          PyObject *getMesh() const
@@ -558,6 +558,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
+    void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFieldMultiTSWithoutDAS
@@ -595,6 +596,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     //
     void appendFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
+    void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
   };
 
   class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs, public MEDFileWritable

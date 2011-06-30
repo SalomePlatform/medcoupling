@@ -7402,6 +7402,122 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected[i],d3.getIJ(i,0));
             pass
         pass
+
+    def testDAISplitByValueRange1(self):
+        val1=[6,5,0,3,2,7,8,1,4]
+        val2=[0,4,9]
+        d=DataArrayInt.New();
+        d.setValues(val1,9,1);
+        e,f,g=d.splitByValueRange(val2);
+        self.assertEqual(9,e.getNumberOfTuples());
+        self.assertEqual(1,e.getNumberOfComponents());
+        self.assertEqual(9,f.getNumberOfTuples());
+        self.assertEqual(1,f.getNumberOfComponents());
+        self.assertEqual(2,g.getNumberOfTuples());
+        self.assertEqual(1,g.getNumberOfComponents());
+        #
+        expected1=[1,1,0,0,0,1,1,0,1]
+        expected2=[2,1,0,3,2,3,4,1,0]
+        for i in xrange(9):
+            self.assertEqual(expected1[i],e.getIJ(i,0));
+            self.assertEqual(expected2[i],f.getIJ(i,0));
+            pass
+        self.assertEqual(0,g.getIJ(0,0));
+        self.assertEqual(1,g.getIJ(1,0));
+        #
+        d.setIJ(6,0,9);
+        self.assertRaises(InterpKernelException,d.splitByValueRange,val2);
+        pass
+
+    def testUMeshSplitProfilePerType1(self):
+        val0=[2,0,1,3,4]
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m.renumberCells(val0,False);
+        #
+        val1=[0,2,3]
+        d=DataArrayInt.New();
+        d.setValues(val1,3,1);
+        d.setName("sup")
+        code,globIdsPerType,pfls=m.splitProfilePerType(d);
+        self.assertEqual(6,len(code));
+        self.assertEqual(2,len(globIdsPerType));
+        expected1=[3,1,0, 4,2,1]
+        for i in xrange(6):
+            self.assertEqual(expected1[i],code[i]);
+            pass
+        self.assertEqual(1,globIdsPerType[0].getNumberOfTuples());
+        self.assertEqual(0,globIdsPerType[0].getIJ(0,0));
+        self.assertEqual(2,globIdsPerType[1].getNumberOfTuples());
+        self.assertEqual(1,globIdsPerType[1].getIJ(0,0));
+        self.assertEqual(2,globIdsPerType[1].getIJ(1,0));
+        self.assertEqual(2,len(pfls));
+        self.assertEqual("sup",pfls[0].getName())
+        self.assertEqual(1,pfls[0].getNumberOfTuples());
+        self.assertEqual(0,pfls[0].getIJ(0,0));
+        self.assertEqual("sup",pfls[1].getName())
+        self.assertEqual(2,pfls[1].getNumberOfTuples());
+        self.assertEqual(0,pfls[1].getIJ(0,0));
+        self.assertEqual(1,pfls[1].getIJ(1,0));
+        #
+        val2=[0,2,3,4]
+        d=DataArrayInt.New();
+        d.setValues(val2,4,1);
+        code,globIdsPerType,pfls=m.splitProfilePerType(d);
+        self.assertEqual(6,len(code));
+        self.assertEqual(2,len(globIdsPerType));
+        expected2=[3,1,0, 4,3,-1]
+        for i in xrange(6):
+            self.assertEqual(expected2[i],code[i]);
+            pass
+        self.assertEqual(1,globIdsPerType[0].getNumberOfTuples());
+        self.assertEqual(0,globIdsPerType[0].getIJ(0,0));
+        self.assertEqual(3,globIdsPerType[1].getNumberOfTuples());
+        self.assertEqual(1,globIdsPerType[1].getIJ(0,0));
+        self.assertEqual(2,globIdsPerType[1].getIJ(1,0));
+        self.assertEqual(3,globIdsPerType[1].getIJ(2,0));
+        self.assertEqual(1,len(pfls));
+        self.assertEqual(1,pfls[0].getNumberOfTuples());
+        self.assertEqual(0,pfls[0].getIJ(0,0));
+        #
+        val3=[1,0,2]
+        d=DataArrayInt.New();
+        d.setValues(val3,3,1);
+        code,globIdsPerType,pfls=m.splitProfilePerType(d);
+        self.assertEqual(6,len(code));
+        self.assertEqual(2,len(globIdsPerType));
+        expected3=[3,2,0, 4,1,1]
+        for i in xrange(6):
+            self.assertEqual(expected3[i],code[i]);
+            pass
+        self.assertEqual(2,globIdsPerType[0].getNumberOfTuples());
+        self.assertEqual(0,globIdsPerType[0].getIJ(0,0));
+        self.assertEqual(1,globIdsPerType[0].getIJ(1,0));
+        self.assertEqual(1,globIdsPerType[1].getNumberOfTuples());
+        self.assertEqual(2,globIdsPerType[1].getIJ(0,0));
+        self.assertEqual(2,len(pfls));
+        self.assertEqual(2,pfls[0].getNumberOfTuples());
+        self.assertEqual(1,pfls[0].getIJ(0,0));
+        self.assertEqual(0,pfls[0].getIJ(1,0));
+        self.assertEqual(0,pfls[1].getIJ(0,0));
+        #
+        val4=[3,4]
+        d=DataArrayInt.New();
+        d.setValues(val4,2,1);
+        code,globIdsPerType,pfls=m.splitProfilePerType(d);
+        self.assertEqual(3,len(code));
+        self.assertEqual(1,len(globIdsPerType));
+        expected4=[4,2,0]
+        for i in xrange(3):
+            self.assertEqual(expected4[i],code[i]);
+            pass
+        self.assertEqual(2,globIdsPerType[0].getNumberOfTuples());
+        self.assertEqual(0,globIdsPerType[0].getIJ(0,0));
+        self.assertEqual(1,globIdsPerType[0].getIJ(1,0));
+        self.assertEqual(1,len(pfls));
+        self.assertEqual(2,pfls[0].getNumberOfTuples());
+        self.assertEqual(1,pfls[0].getIJ(0,0));
+        self.assertEqual(2,pfls[0].getIJ(1,0));
+        pass
     
     def setUp(self):
         pass
