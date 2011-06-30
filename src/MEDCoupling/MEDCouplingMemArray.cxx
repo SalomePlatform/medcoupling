@@ -3512,6 +3512,61 @@ void DataArrayInt::computeOffsets() throw(INTERP_KERNEL::Exception)
 }
 
 /*!
+ * This method works on array with number of component equal to one and allocated. If not an exception is thrown.
+ * 'offsets' should be monotic ascendently. If not, an exception will be thrown.
+ * This method retrives a newly created DataArrayInt instance with 1 component and this->getNumberOfTuples()-1 tuples.
+ * If 'this' contains [0,2,3] and 'offsets' [0,3,6,10,14,20] the returned array will contain [0,1,2,6,7,8,9,10,11,12,13]
+ */
+DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : only single component allowed !");
+  offsets->checkAllocated();
+  if(offsets->getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : input array should have only single component !");
+  int othNbTuples=offsets->getNumberOfTuples()-1;
+  int nbOfTuples=getNumberOfTuples();
+  int retNbOftuples=0;
+  const int *work=getConstPointer();
+  const int *offPtr=offsets->getConstPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      int val=work[i];
+      if(val>=0 && val<othNbTuples)
+        {
+          int delta=offPtr[val+1]-offPtr[val];
+          if(delta>=0)
+            retNbOftuples+=delta;
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrByRanges : Tuple #" << val << " of offset array has a delta < 0 !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrByRanges : Tuple #" << i << " in this contains " << val;
+          oss << " whereas offsets array is of size " << othNbTuples+1 << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(retNbOftuples,1);
+  int *retPtr=ret->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      int val=work[i];
+      int start=offPtr[val];
+      int off=offPtr[val+1]-start;
+      for(int j=0;j<off;j++,retPtr++)
+        *retPtr=start+j;
+    }
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This method returns all different values found in 'this'.
  */
 std::set<int> DataArrayInt::getDifferentValues() const throw(INTERP_KERNEL::Exception)

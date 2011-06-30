@@ -225,6 +225,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDAITransformWithIndArrR1 );
     CPPUNIT_TEST( testDAISplitByValueRange1 );
     CPPUNIT_TEST( testUMeshSplitProfilePerType1 );
+    CPPUNIT_TEST( testDAIBuildExplicitArrByRanges1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -476,6 +477,7 @@ namespace ParaMEDMEM
     void testDAITransformWithIndArrR1();
     void testDAISplitByValueRange1();
     void testUMeshSplitProfilePerType1();
+    void testDAIBuildExplicitArrByRanges1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

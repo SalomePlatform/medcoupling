@@ -1431,3 +1431,26 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   //
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAIBuildExplicitArrByRanges1()
+{
+  DataArrayInt *d=DataArrayInt::New();
+  d->alloc(3,1);
+  const int vals1[3]={0,2,3};
+  std::copy(vals1,vals1+3,d->getPointer());
+  DataArrayInt *e=DataArrayInt::New();
+  e->alloc(6,1);
+  const int vals2[6]={0,3,6,10,14,20};
+  std::copy(vals2,vals2+6,e->getPointer());
+  //
+  DataArrayInt *f=d->buildExplicitArrByRanges(e);
+  CPPUNIT_ASSERT_EQUAL(11,f->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f->getNumberOfComponents());
+  const int expected1[11]={0,1,2,6,7,8,9,10,11,12,13};
+  for(int i=0;i<11;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],f->getIJ(i,0));
+  //
+  f->decrRef();
+  e->decrRef();
+  d->decrRef();
+}
