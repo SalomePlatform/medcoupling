@@ -163,7 +163,13 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int offset, int nbO
     }
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(const char *pflName, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const DataArrayInt *globIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+/*!
+ * Leaf method of field with profile assignement.
+ * @param pflName input containing name of profile if any. 0 if no profile.
+ * @param multiTypePfl input containing the profile array \b including \b all \b types. This array is usefull only for GAUSS_NE.
+ * @param idsInPfl input containing the ids in the profile 'multiTypePfl' concerning the current geo type.
+ */
+void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(const char *pflName, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
 {
   if(pflName)
     _profile=pflName;
@@ -385,7 +391,7 @@ void MEDFileFieldPerMeshPerType::assignFieldNoProfile(int offset, int nbOfCells,
     _field_pm_pt_pd[*it]->assignFieldNoProfile(offset,nbOfCells,field,glob);
 }
 
-void MEDFileFieldPerMeshPerType::assignFieldProfile(const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const DataArrayInt *globIds, DataArrayInt *locIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerType::assignFieldProfile(const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, DataArrayInt *locIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> pos=addNewEntryIfNecessary(field,idsInPfl);
   if(locIds)
@@ -400,12 +406,12 @@ void MEDFileFieldPerMeshPerType::assignFieldProfile(const DataArrayInt *multiTyp
       glob.appendProfile(locIds);
       //
       for(std::vector<int>::const_iterator it=pos.begin();it!=pos.end();it++)
-        _field_pm_pt_pd[*it]->assignFieldProfile(oss.str().c_str(),multiTypePfl,idsInPfl,globIds,field,mesh,glob);
+        _field_pm_pt_pd[*it]->assignFieldProfile(oss.str().c_str(),multiTypePfl,idsInPfl,field,mesh,glob);
     }
   else
     {
       for(std::vector<int>::const_iterator it=pos.begin();it!=pos.end();it++)
-        _field_pm_pt_pd[*it]->assignFieldProfile(0,multiTypePfl,idsInPfl,globIds,field,mesh,glob);
+        _field_pm_pt_pd[*it]->assignFieldProfile(0,multiTypePfl,idsInPfl,field,mesh,glob);
     }
 }
 
@@ -428,7 +434,7 @@ void MEDFileFieldPerMeshPerType::assignNodeFieldProfile(const DataArrayInt *pfl,
   //
   _field_pm_pt_pd.resize(1);
   _field_pm_pt_pd[0]=MEDFileFieldPerMeshPerTypePerDisc::New(this,ON_NODES,-3);
-  _field_pm_pt_pd[0]->assignFieldProfile(oss.str().c_str(),pfl,pfl2,0,field,0,glob);//mesh is not requested so 0 is send. Idem for globIds no requested here.
+  _field_pm_pt_pd[0]->assignFieldProfile(oss.str().c_str(),pfl,pfl2,field,0,glob);//mesh is not requested so 0 is send.
 }
 
 std::vector<int> MEDFileFieldPerMeshPerType::addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception)
@@ -726,7 +732,7 @@ void MEDFileFieldPerMesh::copyTinyInfoFrom(const MEDCouplingMesh *mesh) throw(IN
   mesh->getTime(_mesh_iteration,_mesh_order);
 }
 
-void MEDFileFieldPerMesh::assignFieldProfile(const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& globIdsPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::assignFieldProfile(const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
 {
   int nbOfTypes=code.size()/3;
   bool isProfile=false;
@@ -738,10 +744,10 @@ void MEDFileFieldPerMesh::assignFieldProfile(const DataArrayInt *multiTypePfl, c
       if(idsInPflPerType.empty())
         assignFieldNoProfileNoRenum(code,field,glob);
       else
-        assignFieldProfileGeneral(multiTypePfl,code,idsInPflPerType,globIdsPerType,idsPerType,field,mesh,glob);
+        assignFieldProfileGeneral(multiTypePfl,code,idsInPflPerType,idsPerType,field,mesh,glob);
     }
   else
-    assignFieldProfileGeneral(multiTypePfl,code,idsInPflPerType,globIdsPerType,idsPerType,field,mesh,glob);
+    assignFieldProfileGeneral(multiTypePfl,code,idsInPflPerType,idsPerType,field,mesh,glob);
 }
 
 void MEDFileFieldPerMesh::assignFieldNoProfileNoRenum(const std::vector<int>& code, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
@@ -761,7 +767,7 @@ void MEDFileFieldPerMesh::assignFieldNoProfileNoRenum(const std::vector<int>& co
 /*!
  * This method is the most general one. No optimization is done here.
  */
-void MEDFileFieldPerMesh::assignFieldProfileGeneral(const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& globIdsPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::assignFieldProfileGeneral(const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobs& glob) throw(INTERP_KERNEL::Exception)
 {
   int nbOfTypes=code.size()/3;
   for(int i=0;i<nbOfTypes;i++)
@@ -771,7 +777,7 @@ void MEDFileFieldPerMesh::assignFieldProfileGeneral(const DataArrayInt *multiTyp
       DataArrayInt *pfl=0;
       if(code[3*i+2]!=-1)
         pfl=idsPerType[code[3*i+2]];
-      _field_pm_pt[pos]->assignFieldProfile(multiTypePfl,idsInPflPerType[i],globIdsPerType[i],pfl,field,mesh,glob);
+      _field_pm_pt[pos]->assignFieldProfile(multiTypePfl,idsInPflPerType[i],pfl,field,mesh,glob);
     }
 }
 
@@ -1605,7 +1611,7 @@ void MEDFileField1TSWithoutDAS::setFieldNoProfileSBT(const MEDCouplingFieldDoubl
       std::vector<int> code=MEDFileField1TSWithoutDAS::CheckSBTMesh(mesh);
       //
       int pos=addNewEntryIfNecessary(mesh);
-      _field_per_mesh[pos]->assignFieldProfile(0,code,dummy,dummy,dummy,field,0,glob);//mesh is set to 0 because no external mesh is needed to be sent because no profile.
+      _field_per_mesh[pos]->assignFieldProfile(0,code,dummy,dummy,field,0,glob);//mesh is set to 0 because no external mesh is needed to be sent because no profile.
     }
   else
     {
@@ -1622,26 +1628,22 @@ void MEDFileField1TSWithoutDAS::setFieldProfile(const MEDCouplingFieldDouble *fi
   TypeOfField type=field->getTypeOfField();
   copyTinyInfoFrom(field);
   std::vector<DataArrayInt *> idsInPflPerType;
-  std::vector<DataArrayInt *> globIdsPerType;
   std::vector<DataArrayInt *> idsPerType;
   std::vector<int> code;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
   if(type!=ON_NODES)
     {
-      m->splitProfilePerType(profile,code,idsInPflPerType,globIdsPerType,idsPerType);
+      m->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
       //
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsInPflPerType2(idsInPflPerType.size());
       for(std::size_t i=0;i<idsInPflPerType.size();i++)
         idsInPflPerType2[i]=idsInPflPerType[i];
-      std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > globIdsPerType2(globIdsPerType.size());
-      for(std::size_t i=0;i<globIdsPerType.size();i++)
-        globIdsPerType2[i]=globIdsPerType[i];
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerType2(idsPerType.size());
       for(std::size_t i=0;i<idsPerType.size();i++)
         idsPerType2[i]=idsPerType[i];
       //
       int pos=addNewEntryIfNecessary(m);
-      _field_per_mesh[pos]->assignFieldProfile(profile,code,idsInPflPerType,globIdsPerType,idsPerType,field,m,glob);
+      _field_per_mesh[pos]->assignFieldProfile(profile,code,idsInPflPerType,idsPerType,field,m,glob);
     }
   else
     {

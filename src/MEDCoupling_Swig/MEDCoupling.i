@@ -570,24 +570,19 @@ namespace ParaMEDMEM
         {
           std::vector<int> code;
           std::vector<DataArrayInt *> idsInPflPerType;
-          std::vector<DataArrayInt *> globIdsPerType;
           std::vector<DataArrayInt *> idsPerType;
-          self->splitProfilePerType(profile,code,idsInPflPerType,globIdsPerType,idsPerType);
-          PyObject *ret=PyTuple_New(4);
+          self->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
+          PyObject *ret=PyTuple_New(3);
           PyTuple_SetItem(ret,0,convertIntArrToPyList2(code));
           PyObject *ret1=PyList_New(idsInPflPerType.size());
           for(std::size_t j=0;j<idsInPflPerType.size();j++)
             PyList_SetItem(ret1,j,SWIG_NewPointerObj(SWIG_as_voidptr(idsInPflPerType[j]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
           PyTuple_SetItem(ret,1,ret1);
-          PyObject *ret2=PyList_New(globIdsPerType.size());
-          for(std::size_t j=0;j<globIdsPerType.size();j++)
-            PyList_SetItem(ret2,j,SWIG_NewPointerObj(SWIG_as_voidptr(globIdsPerType[j]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-          PyTuple_SetItem(ret,2,ret2);
           int n=idsPerType.size();
-          PyObject *ret3=PyList_New(n);
+          PyObject *ret2=PyList_New(n);
           for(int i=0;i<n;i++)
-            PyList_SetItem(ret3,i,SWIG_NewPointerObj(SWIG_as_voidptr(idsPerType[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
-          PyTuple_SetItem(ret,3,ret3);
+            PyList_SetItem(ret2,i,SWIG_NewPointerObj(SWIG_as_voidptr(idsPerType[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+          PyTuple_SetItem(ret,2,ret2);
           return ret;
         }
 

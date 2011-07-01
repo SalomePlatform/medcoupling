@@ -1314,7 +1314,6 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   m->renumberCells(val0,false);
   std::vector<int> code;
   std::vector<DataArrayInt *> idsInPflPerType;
-  std::vector<DataArrayInt *> globIdsPerType;
   std::vector<DataArrayInt *> pfls;
   //
   const int val1[3]={0,2,3};
@@ -1322,7 +1321,7 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   d->alloc(3,1);
   d->setName("sup");
   std::copy(val1,val1+3,d->getPointer());
-  m->splitProfilePerType(d,code,idsInPflPerType,globIdsPerType,pfls);
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
   const int expected1[6]={3,1,0, 4,2,1};
@@ -1335,13 +1334,6 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(1,0));
   idsInPflPerType[0]->decrRef();
   idsInPflPerType[1]->decrRef();
-  CPPUNIT_ASSERT_EQUAL(1,globIdsPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,globIdsPerType[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(2,globIdsPerType[1]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(2,globIdsPerType[1]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(3,globIdsPerType[1]->getIJ(1,0));
-  globIdsPerType[0]->decrRef();
-  globIdsPerType[1]->decrRef();
   CPPUNIT_ASSERT_EQUAL(2,(int)pfls.size());
   CPPUNIT_ASSERT(std::string("sup")==pfls[0]->getName());
   CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getNumberOfTuples());
@@ -1354,7 +1346,6 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   pfls[1]->decrRef();
   d->decrRef();
   idsInPflPerType.clear();
-  globIdsPerType.clear();
   pfls.clear();
   code.clear();
   //
@@ -1362,7 +1353,7 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   d=DataArrayInt::New();
   d->alloc(4,1);
   std::copy(val2,val2+4,d->getPointer());
-  m->splitProfilePerType(d,code,idsInPflPerType,globIdsPerType,pfls);
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
   const int expected2[6]={3,1,0, 4,3,-1};
@@ -1376,21 +1367,12 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   CPPUNIT_ASSERT_EQUAL(3,idsInPflPerType[1]->getIJ(2,0));
   idsInPflPerType[0]->decrRef();
   idsInPflPerType[1]->decrRef();
-  CPPUNIT_ASSERT_EQUAL(1,globIdsPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(0,globIdsPerType[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(3,globIdsPerType[1]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(2,globIdsPerType[1]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(3,globIdsPerType[1]->getIJ(1,0));
-  CPPUNIT_ASSERT_EQUAL(4,globIdsPerType[1]->getIJ(2,0));
-  globIdsPerType[0]->decrRef();
-  globIdsPerType[1]->decrRef();
   CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
   CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(0,pfls[0]->getIJ(0,0));
   pfls[0]->decrRef();
   d->decrRef();
   idsInPflPerType.clear();
-  globIdsPerType.clear();
   pfls.clear();
   code.clear();
   //
@@ -1398,7 +1380,7 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   d=DataArrayInt::New();
   d->alloc(3,1);
   std::copy(val3,val3+3,d->getPointer());
-  m->splitProfilePerType(d,code,idsInPflPerType,globIdsPerType,pfls);
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
   const int expected3[6]={3,2,0, 4,1,1};
@@ -1411,13 +1393,6 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(0,0));
   idsInPflPerType[0]->decrRef();
   idsInPflPerType[1]->decrRef();
-  CPPUNIT_ASSERT_EQUAL(2,globIdsPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,globIdsPerType[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(0,globIdsPerType[0]->getIJ(1,0));
-  CPPUNIT_ASSERT_EQUAL(1,globIdsPerType[1]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(2,globIdsPerType[1]->getIJ(0,0));
-  globIdsPerType[0]->decrRef();
-  globIdsPerType[1]->decrRef();
   CPPUNIT_ASSERT_EQUAL(2,(int)pfls.size());
   CPPUNIT_ASSERT_EQUAL(2,pfls[0]->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getIJ(0,0));
@@ -1427,7 +1402,6 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   pfls[1]->decrRef();
   d->decrRef();
   idsInPflPerType.clear();
-  globIdsPerType.clear();
   pfls.clear();
   code.clear();
   //
@@ -1435,7 +1409,7 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   d=DataArrayInt::New();
   d->alloc(2,1);
   std::copy(val4,val4+2,d->getPointer());
-  m->splitProfilePerType(d,code,idsInPflPerType,globIdsPerType,pfls);
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
   CPPUNIT_ASSERT_EQUAL(3,(int)code.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType.size());
   const int expected4[3]={4,2,0};
@@ -1445,10 +1419,6 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
   CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[0]->getIJ(1,0));
   idsInPflPerType[0]->decrRef();
-  CPPUNIT_ASSERT_EQUAL(2,globIdsPerType[0]->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(3,globIdsPerType[0]->getIJ(0,0));
-  CPPUNIT_ASSERT_EQUAL(4,globIdsPerType[0]->getIJ(1,0));
-  globIdsPerType[0]->decrRef();
   CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
   CPPUNIT_ASSERT_EQUAL(2,pfls[0]->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getIJ(0,0));
@@ -1456,7 +1426,6 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   pfls[0]->decrRef();
   d->decrRef();
   idsInPflPerType.clear();
-  globIdsPerType.clear();
   pfls.clear();
   code.clear();
   //

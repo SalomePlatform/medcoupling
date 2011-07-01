@@ -194,7 +194,7 @@ DataArrayInt *MEDCouplingUMeshDesc::checkTypeConsistencyAndContig(const std::vec
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
-void MEDCouplingUMeshDesc::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& globalIdsPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMeshDesc::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
