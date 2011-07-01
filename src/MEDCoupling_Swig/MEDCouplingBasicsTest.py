@@ -7584,4 +7584,46 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
     pass
 
+class MEDCouplingBasicsTest(unittest.TestCase):
+    def test(self):
+        val0=[2,0,1,3,4]
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m.renumberCells(val0,False);
+        print m.advancedRepr()
+        #
+        val1=[0,2,3]
+        d=DataArrayInt.New();
+        d.setValues(val1,3,1);
+        d.setName("sup")
+        code,idsInPflPerType,globIdsPerType,pfls=m.splitProfilePerType(d);
+        self.assertEqual(6,len(code));
+        self.assertEqual(2,len(idsInPflPerType));
+        expected1=[3,1,0, 4,2,1]
+        for i in xrange(6):
+            self.assertEqual(expected1[i],code[i]);
+            pass
+        self.assertEqual(2,len(idsInPflPerType));
+        self.assertEqual(1,idsInPflPerType[0].getNumberOfTuples());
+        self.assertEqual(0,idsInPflPerType[0].getIJ(0,0));
+        self.assertEqual(2,idsInPflPerType[1].getNumberOfTuples());
+        self.assertEqual(0,idsInPflPerType[1].getIJ(0,0));
+        self.assertEqual(1,idsInPflPerType[1].getIJ(1,0));
+        #
+        self.assertEqual(2,len(globIdsPerType));
+        self.assertEqual(1,globIdsPerType[0].getNumberOfTuples());
+        self.assertEqual(0,globIdsPerType[0].getIJ(0,0));
+        self.assertEqual(2,globIdsPerType[1].getNumberOfTuples());
+        self.assertEqual(2,globIdsPerType[1].getIJ(0,0));
+        self.assertEqual(3,globIdsPerType[1].getIJ(1,0));
+        self.assertEqual(2,len(pfls));
+        self.assertEqual("sup",pfls[0].getName())
+        self.assertEqual(1,pfls[0].getNumberOfTuples());
+        self.assertEqual(0,pfls[0].getIJ(0,0));
+        self.assertEqual("sup",pfls[1].getName())
+        self.assertEqual(2,pfls[1].getNumberOfTuples());
+        self.assertEqual(0,pfls[1].getIJ(0,0));
+        self.assertEqual(1,pfls[1].getIJ(1,0));
+        #
+    pass
+
 unittest.main()
