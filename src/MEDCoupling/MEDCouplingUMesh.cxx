@@ -3421,7 +3421,7 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
  * This method has 1 input 'profile' and 2 outputs 'code' and 'idsPerType'.
  * @throw if 'profile' has not exactly one component. It throws too, if 'profile' contains some values not in [0,getNumberOfCells()) or if 'this' is not fully defined
  */
-void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& globIdsPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& globalIdsPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
   if(profile->getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::splitProfilePerType : input profile should have exactly one component !");
@@ -3451,13 +3451,16 @@ void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
   //
   int nbOfCastsFinal=castsPresent->getNumberOfTuples();
   code.resize(3*nbOfCastsFinal);
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > globIdsPerType2;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsInPflPerType2;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > globalIdsPerType2;
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > idsPerType2;
   for(int i=0;i<nbOfCastsFinal;i++)
     {
       int castId=castsPresent->getIJ(i,0);
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp3=castArr->getIdsEqual(castId);
-      globIdsPerType2.push_back(tmp3);
+      idsInPflPerType2.push_back(tmp3);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp5=profile->selectByTupleId(tmp3->getConstPointer(),tmp3->getConstPointer()+tmp3->getNumberOfTuples());
+      globalIdsPerType2.push_back(tmp5);
       code[3*i]=(int)types[castId];
       code[3*i+1]=tmp3->getNumberOfTuples();
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp4=rankInsideCast->selectByTupleId(tmp3->getConstPointer(),tmp3->getConstPointer()+tmp3->getNumberOfTuples());
@@ -3472,13 +3475,21 @@ void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vec
           code[3*i+2]=-1;
         }
     }
-  int sz2=globIdsPerType2.size();
-  globIdsPerType.resize(sz2);
+  int sz2=idsInPflPerType2.size();
+  idsInPflPerType.resize(sz2);
   for(int i=0;i<sz2;i++)
     {
-      DataArrayInt *locDa=globIdsPerType2[i];
+      DataArrayInt *locDa=idsInPflPerType2[i];
       locDa->incrRef();
-      globIdsPerType[i]=locDa;
+      idsInPflPerType[i]=locDa;
+    }
+  int sz3=globalIdsPerType2.size();
+  globalIdsPerType.resize(sz2);
+  for(int i=0;i<sz3;i++)
+    {
+      DataArrayInt *locDa=globalIdsPerType2[i];
+      locDa->incrRef();
+      globalIdsPerType[i]=locDa;
     }
   int sz=idsPerType2.size();
   idsPerType.resize(sz);
