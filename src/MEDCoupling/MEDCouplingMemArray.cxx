@@ -3512,6 +3512,30 @@ void DataArrayInt::computeOffsets() throw(INTERP_KERNEL::Exception)
 }
 
 /*!
+ * Idem DataArrayInt::computeOffsets method execpt that 'this' changes its number of tuples.
+ * After the call in case of success new number of tuples is equal to old number of tuples +1.
+ * The content in 'this' for the first old number of tuples is exactly the same than those given by
+ * DataArrayInt::computeOffsets method.
+ * For an array [3,5,1,2,0,8] it becomes [0,3,8,9,11,11,19].
+ */
+void DataArrayInt::computeOffsets2() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsets2 : only single component allowed !");
+  int nbOfTuples=getNumberOfTuples();
+  int *ret=new int[nbOfTuples+1];
+  if(nbOfTuples==0)
+    return ;
+  const int *work=getConstPointer();
+  ret[0]=0;
+  for(int i=0;i<nbOfTuples;i++)
+    ret[i+1]=work[i]+ret[i];
+  useArray(ret,true,CPP_DEALLOC,nbOfTuples+1,1);
+  declareAsNew();
+}
+
+/*!
  * This method works on array with number of component equal to one and allocated. If not an exception is thrown.
  * 'offsets' should be monotic ascendently. If not, an exception will be thrown.
  * This method retrives a newly created DataArrayInt instance with 1 component and this->getNumberOfTuples()-1 tuples.

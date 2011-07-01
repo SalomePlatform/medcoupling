@@ -1485,3 +1485,18 @@ void MEDCouplingBasicsTest::testDAIBuildExplicitArrByRanges1()
   e->decrRef();
   d->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAIComputeOffsets2()
+{
+  DataArrayInt *d=DataArrayInt::New();
+  const int vals1[6]={3,5,1,2,0,8};
+  const int expected1[7]={0,3,8,9,11,11,19};
+  d->alloc(6,1);
+  std::copy(vals1,vals1+6,d->getPointer());
+  d->computeOffsets2();
+  CPPUNIT_ASSERT_EQUAL(7,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  for(int i=0;i<7;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],d->getIJ(0,i));
+  d->decrRef();
+}

@@ -7566,6 +7566,19 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],f.getIJ(i,0));
             pass
         pass
+
+    def testDAIComputeOffsets2(self):
+        d=DataArrayInt.New();
+        vals1=[3,5,1,2,0,8]
+        expected1=[0,3,8,9,11,11,19]
+        d.setValues(vals1,6,1);
+        d.computeOffsets2();
+        self.assertEqual(7,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        for i in xrange(7):
+            self.assertEqual(expected1[i],d.getIJ(0,i));
+            pass
+        pass
     
     def setUp(self):
         pass
