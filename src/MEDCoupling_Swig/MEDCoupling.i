@@ -149,6 +149,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildSubstraction;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
+%newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
 %newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
 %newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
 %newobject ParaMEDMEM::DataArrayInt::__getitem__;
@@ -271,6 +272,8 @@ using namespace INTERP_KERNEL;
 %feature("unref") DataArrayInt "$this->decrRef();"
 %feature("unref") MEDCouplingField "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
+%feature("unref") MEDCouplingMultiFields "$this->decrRef();"
+%feature("unref") MEDCouplingFieldTemplate "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 
 %rename(assign) *::operator=;
@@ -561,6 +564,26 @@ namespace ParaMEDMEM
           convertPyObjToVecDataArrayIntCst(li2,idsPerType);
           convertPyToNewIntArr3(li,code);
           return self->checkTypeConsistencyAndContig(code,idsPerType);
+        }
+
+        PyObject *splitProfilePerType(const DataArrayInt *profile) const throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<int> code;
+          std::vector<DataArrayInt *> idsInPflPerType;
+          std::vector<DataArrayInt *> idsPerType;
+          self->splitProfilePerType(profile,code,idsInPflPerType,idsPerType);
+          PyObject *ret=PyTuple_New(3);
+          PyTuple_SetItem(ret,0,convertIntArrToPyList2(code));
+          PyObject *ret1=PyList_New(idsInPflPerType.size());
+          for(std::size_t j=0;j<idsInPflPerType.size();j++)
+            PyList_SetItem(ret1,j,SWIG_NewPointerObj(SWIG_as_voidptr(idsInPflPerType[j]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+          PyTuple_SetItem(ret,1,ret1);
+          int n=idsPerType.size();
+          PyObject *ret2=PyList_New(n);
+          for(int i=0;i<n;i++)
+            PyList_SetItem(ret2,i,SWIG_NewPointerObj(SWIG_as_voidptr(idsPerType[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+          PyTuple_SetItem(ret,2,ret2);
+          return ret;
         }
 
          void translate(PyObject *vector) throw(INTERP_KERNEL::Exception)
@@ -2425,6 +2448,33 @@ namespace ParaMEDMEM
          DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
          self->transformWithIndArr(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
        }
+   }
+
+   PyObject *splitByValueRange(PyObject *li) const throw(INTERP_KERNEL::Exception)
+   {
+     DataArrayInt *ret0=0,*ret1=0,*ret2=0;
+     void *da=0;
+     int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+     if (!SWIG_IsOK(res1))
+       {
+         int size;
+         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+         self->splitByValueRange(tmp,(int *)tmp+size,ret0,ret1,ret2);
+       }
+     else
+       {
+         DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+         if(!da2)
+           throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+         da2->checkAllocated();
+         int size=self->getNumberOfTuples();
+         self->splitByValueRange(da2->getConstPointer(),da2->getConstPointer()+size,ret0,ret1,ret2);
+       }
+     PyObject *ret = PyList_New(3);
+     PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     PyList_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     PyList_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     return ret;
    }
 
    DataArrayInt *transformWithIndArrR(PyObject *li) const

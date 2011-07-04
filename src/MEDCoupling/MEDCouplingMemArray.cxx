@@ -2165,6 +2165,72 @@ void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd
   declareAsNew();
 }
 
+/*!
+ * 'this' should be allocated and with numberOfComponents set to one. If not an exception will be thrown.
+ * This method takes as input an array defined by ['arrBg','arrEnd'). The size of the array (std::distance(arrBg,arrEnd)) is equal to the number of cast + 1.
+ * The values contained in ['arrBg','arrEnd') should be sorted ascendently. No check of this will be done. If not the result is not waranted.
+ * For each cast j the value range that defines the cast is equal to [arrBg[j],arrBg[j+1]).
+ * This method returns three arrays (to be managed by the caller).
+ * This method is typically usefull for entity number spliting by types for example.
+ * Example : If 'this' contains [6,5,0,3,2,7,8,1,4] and if ['arrBg','arrEnd') contains [0,4,9] then the output of this method will be :
+ * - 'castArr'        : [1,1,0,0,0,1,1,0,1]
+ * - 'rankInsideCast' : [2,1,0,3,2,3,4,1,0]
+ * - 'return' : [0,1]
+ *
+ * @param castArr is a returned param has the same number of tuples than 'this' and number of components set to one. In case of sucess, this param contains for each tuple in 'this' in which cast it holds.
+ * @param rankInsideCast is an another returned param has the same number of tuples than 'this' and number of components set to one too. In case of sucess, this param contains for each tuple its rank inside its cast.
+ * @param castsPresent the casts that 'this' contains.
+ * @throw if a value in 'this' is greater or equal to the last value of ['arrBg','arrEnd')
+ */
+void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
+                                     DataArrayInt *& castArr, DataArrayInt *& rankInsideCast, DataArrayInt *& castsPresent) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("Call splitByValueRange  method on DataArrayInt with only one component, you can call 'rearrange' method before !");
+  int nbOfTuples=getNumberOfTuples();
+  std::size_t nbOfCast=std::distance(arrBg,arrEnd);
+  if(nbOfCast<2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::splitByValueRange : The input array giving the cast range values should be of size >=2 !");
+  nbOfCast--;
+  const int *work=getConstPointer();
+  typedef std::reverse_iterator<const int *> rintstart;
+  rintstart bg(arrEnd);//OK no problem because size of 'arr' is greater of equal 2
+  rintstart end(arrBg);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret3=DataArrayInt::New();
+  ret1->alloc(nbOfTuples,1);
+  ret2->alloc(nbOfTuples,1);
+  int *ret1Ptr=ret1->getPointer();
+  int *ret2Ptr=ret2->getPointer();
+  std::set<std::size_t> castsDetected;
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      rintstart res=std::find_if(bg,end,std::bind2nd(std::less_equal<int>(), work[i]));
+      std::size_t pos=std::distance(bg,res);
+      std::size_t pos2=nbOfCast-pos;
+      if(pos2<nbOfCast)
+        {
+          ret1Ptr[i]=(int)pos2;
+          ret2Ptr[i]=work[i]-arrBg[pos2];
+          castsDetected.insert(pos2);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::splitByValueRange : At rank #" << i << " the value is " << work[i] << " whereas the last value is " << *bg;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret3->alloc((int)castsDetected.size(),1);
+  std::copy(castsDetected.begin(),castsDetected.end(),ret3->getPointer());
+  ret1->incrRef();
+  castArr=ret1;
+  ret2->incrRef();
+  rankInsideCast=ret2;
+  ret3->incrRef();
+  castsPresent=ret3;
+}
+
 DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -3443,6 +3509,85 @@ void DataArrayInt::computeOffsets() throw(INTERP_KERNEL::Exception)
       tmp=tmp2;
     }
   declareAsNew();
+}
+
+/*!
+ * Idem DataArrayInt::computeOffsets method execpt that 'this' changes its number of tuples.
+ * After the call in case of success new number of tuples is equal to old number of tuples +1.
+ * The content in 'this' for the first old number of tuples is exactly the same than those given by
+ * DataArrayInt::computeOffsets method.
+ * For an array [3,5,1,2,0,8] it becomes [0,3,8,9,11,11,19].
+ */
+void DataArrayInt::computeOffsets2() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::computeOffsets2 : only single component allowed !");
+  int nbOfTuples=getNumberOfTuples();
+  int *ret=new int[nbOfTuples+1];
+  if(nbOfTuples==0)
+    return ;
+  const int *work=getConstPointer();
+  ret[0]=0;
+  for(int i=0;i<nbOfTuples;i++)
+    ret[i+1]=work[i]+ret[i];
+  useArray(ret,true,CPP_DEALLOC,nbOfTuples+1,1);
+  declareAsNew();
+}
+
+/*!
+ * This method works on array with number of component equal to one and allocated. If not an exception is thrown.
+ * 'offsets' should be monotic ascendently. If not, an exception will be thrown.
+ * This method retrives a newly created DataArrayInt instance with 1 component and this->getNumberOfTuples()-1 tuples.
+ * If 'this' contains [0,2,3] and 'offsets' [0,3,6,10,14,20] the returned array will contain [0,1,2,6,7,8,9,10,11,12,13]
+ */
+DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : only single component allowed !");
+  offsets->checkAllocated();
+  if(offsets->getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildExplicitArrByRanges : input array should have only single component !");
+  int othNbTuples=offsets->getNumberOfTuples()-1;
+  int nbOfTuples=getNumberOfTuples();
+  int retNbOftuples=0;
+  const int *work=getConstPointer();
+  const int *offPtr=offsets->getConstPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      int val=work[i];
+      if(val>=0 && val<othNbTuples)
+        {
+          int delta=offPtr[val+1]-offPtr[val];
+          if(delta>=0)
+            retNbOftuples+=delta;
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrByRanges : Tuple #" << val << " of offset array has a delta < 0 !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::buildExplicitArrByRanges : Tuple #" << i << " in this contains " << val;
+          oss << " whereas offsets array is of size " << othNbTuples+1 << " !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(retNbOftuples,1);
+  int *retPtr=ret->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      int val=work[i];
+      int start=offPtr[val];
+      int off=offPtr[val+1]-start;
+      for(int j=0;j<off;j++,retPtr++)
+        *retPtr=start+j;
+    }
+  ret->incrRef();
+  return ret;
 }
 
 /*!

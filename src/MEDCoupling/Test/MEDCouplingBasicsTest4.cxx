@@ -1270,3 +1270,202 @@ void MEDCouplingBasicsTest::testDAITransformWithIndArrR1()
   d->decrRef();
   d1->decrRef();
 }
+
+void MEDCouplingBasicsTest::testDAISplitByValueRange1()
+{
+  const int val1[9]={6,5,0,3,2,7,8,1,4};
+  const int val2[3]={0,4,9};
+  DataArrayInt *d=DataArrayInt::New();
+  d->alloc(9,1);
+  std::copy(val1,val1+9,d->getPointer());
+  DataArrayInt *e=0,*f=0,*g=0;
+  d->splitByValueRange(val2,val2+3,e,f,g);
+  CPPUNIT_ASSERT_EQUAL(9,e->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,e->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(9,f->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(2,g->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,g->getNumberOfComponents());
+  //
+  const int expected1[9]={1,1,0,0,0,1,1,0,1};
+  const int expected2[9]={2,1,0,3,2,3,4,1,0};
+  for(int i=0;i<9;i++)
+    {
+      CPPUNIT_ASSERT_EQUAL(expected1[i],e->getIJ(i,0));
+      CPPUNIT_ASSERT_EQUAL(expected2[i],f->getIJ(i,0));
+    }
+  CPPUNIT_ASSERT_EQUAL(0,g->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,g->getIJ(1,0));
+  //
+  e->decrRef();
+  f->decrRef();
+  g->decrRef();
+  //
+  d->setIJ(6,0,9);
+  CPPUNIT_ASSERT_THROW(d->splitByValueRange(val2,val2+3,e,f,g),INTERP_KERNEL::Exception);
+  //
+  d->decrRef();
+}
+
+void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
+{
+  const int val0[5]={2,0,1,3,4};
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  m->renumberCells(val0,false);
+  std::vector<int> code;
+  std::vector<DataArrayInt *> idsInPflPerType;
+  std::vector<DataArrayInt *> pfls;
+  //
+  const int val1[3]={0,2,3};
+  DataArrayInt *d=DataArrayInt::New();
+  d->alloc(3,1);
+  d->setName("sup");
+  std::copy(val1,val1+3,d->getPointer());
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
+  CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
+  const int expected1[6]={3,1,0, 4,2,1};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],code[i]);
+  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(1,0));
+  idsInPflPerType[0]->decrRef();
+  idsInPflPerType[1]->decrRef();
+  CPPUNIT_ASSERT_EQUAL(2,(int)pfls.size());
+  CPPUNIT_ASSERT(std::string("sup")==pfls[0]->getName());
+  CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,pfls[0]->getIJ(0,0));
+  CPPUNIT_ASSERT(std::string("sup")==pfls[1]->getName());
+  CPPUNIT_ASSERT_EQUAL(2,pfls[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,pfls[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,pfls[1]->getIJ(1,0));
+  pfls[0]->decrRef();
+  pfls[1]->decrRef();
+  d->decrRef();
+  idsInPflPerType.clear();
+  pfls.clear();
+  code.clear();
+  //
+  const int val2[4]={0,2,3,4};// all quad4 are selected here ! So no profile for Quads
+  d=DataArrayInt::New();
+  d->alloc(4,1);
+  std::copy(val2,val2+4,d->getPointer());
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
+  CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
+  const int expected2[6]={3,1,0, 4,3,-1};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected2[i],code[i]);
+  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(3,idsInPflPerType[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[1]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(3,idsInPflPerType[1]->getIJ(2,0));
+  idsInPflPerType[0]->decrRef();
+  idsInPflPerType[1]->decrRef();
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
+  CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,pfls[0]->getIJ(0,0));
+  pfls[0]->decrRef();
+  d->decrRef();
+  idsInPflPerType.clear();
+  pfls.clear();
+  code.clear();
+  //
+  const int val3[3]={1,0,2};// all tri3 are selected here but not in the same order ! Profile requested for Tri3
+  d=DataArrayInt::New();
+  d->alloc(3,1);
+  std::copy(val3,val3+3,d->getPointer());
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
+  CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
+  CPPUNIT_ASSERT_EQUAL(2,(int)idsInPflPerType.size());
+  const int expected3[6]={3,2,0, 4,1,1};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(expected3[i],code[i]);
+  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[0]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[1]->getIJ(0,0));
+  idsInPflPerType[0]->decrRef();
+  idsInPflPerType[1]->decrRef();
+  CPPUNIT_ASSERT_EQUAL(2,(int)pfls.size());
+  CPPUNIT_ASSERT_EQUAL(2,pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(0,pfls[0]->getIJ(1,0));
+  CPPUNIT_ASSERT_EQUAL(0,pfls[1]->getIJ(0,0));
+  pfls[0]->decrRef();
+  pfls[1]->decrRef();
+  d->decrRef();
+  idsInPflPerType.clear();
+  pfls.clear();
+  code.clear();
+  //
+  const int val4[2]={3,4};// all tri3 are selected here but not in the same order ! Profile requested for Tri3
+  d=DataArrayInt::New();
+  d->alloc(2,1);
+  std::copy(val4,val4+2,d->getPointer());
+  m->splitProfilePerType(d,code,idsInPflPerType,pfls);
+  CPPUNIT_ASSERT_EQUAL(3,(int)code.size());
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType.size());
+  const int expected4[3]={4,2,0};
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_EQUAL(expected4[i],code[i]);
+  CPPUNIT_ASSERT_EQUAL(2,idsInPflPerType[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(0,idsInPflPerType[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(1,idsInPflPerType[0]->getIJ(1,0));
+  idsInPflPerType[0]->decrRef();
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
+  CPPUNIT_ASSERT_EQUAL(2,pfls[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,pfls[0]->getIJ(0,0));
+  CPPUNIT_ASSERT_EQUAL(2,pfls[0]->getIJ(1,0));
+  pfls[0]->decrRef();
+  d->decrRef();
+  idsInPflPerType.clear();
+  pfls.clear();
+  code.clear();
+  //
+  m->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAIBuildExplicitArrByRanges1()
+{
+  DataArrayInt *d=DataArrayInt::New();
+  d->alloc(3,1);
+  const int vals1[3]={0,2,3};
+  std::copy(vals1,vals1+3,d->getPointer());
+  DataArrayInt *e=DataArrayInt::New();
+  e->alloc(6,1);
+  const int vals2[6]={0,3,6,10,14,20};
+  std::copy(vals2,vals2+6,e->getPointer());
+  //
+  DataArrayInt *f=d->buildExplicitArrByRanges(e);
+  CPPUNIT_ASSERT_EQUAL(11,f->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,f->getNumberOfComponents());
+  const int expected1[11]={0,1,2,6,7,8,9,10,11,12,13};
+  for(int i=0;i<11;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],f->getIJ(i,0));
+  //
+  f->decrRef();
+  e->decrRef();
+  d->decrRef();
+}
+
+void MEDCouplingBasicsTest::testDAIComputeOffsets2()
+{
+  DataArrayInt *d=DataArrayInt::New();
+  const int vals1[6]={3,5,1,2,0,8};
+  const int expected1[7]={0,3,8,9,11,11,19};
+  d->alloc(6,1);
+  std::copy(vals1,vals1+6,d->getPointer());
+  d->computeOffsets2();
+  CPPUNIT_ASSERT_EQUAL(7,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  for(int i=0;i<7;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],d->getIJ(0,i));
+  d->decrRef();
+}
