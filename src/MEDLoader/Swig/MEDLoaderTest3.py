@@ -530,6 +530,9 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(isinstance(d2.getMeshes().getMeshAtPos(0),MEDFileUMesh))
         m1bis=d2.getMeshes().getMeshAtPos(0).getMeshAtLevel(0)
         self.assertTrue(m1.isEqual(m1bis,1e-12))
+        self.assertEqual(('f1', 'f21', 'f22'),d2.getFields().getFieldsNames())
+        self.assertEqual([(-1, -1, 0.0)],d2.getFields().getFieldAtPos(2).getTimeSteps())
+        self.assertEqual([(-1, -1, 0.0)],d2.getFields().getField("f21").getTimeSteps())
         pass
     
     def testMEDField9(self):
@@ -582,6 +585,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileFieldMultiTS.New(fname,f1.getName())
+        self.assertEqual([(-1, -1, 0.0), (1, 2, 1.2)],ff2.getTimeSteps())
         vals,pfl=ff2.getFieldWithProfile(ON_CELLS,1,2,0,mm1)
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))

@@ -79,6 +79,8 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMeshes::getMeshAtPos;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
+%newobject ParaMEDMEM::MEDFileFields::getField;
+%newobject ParaMEDMEM::MEDFileFields::getFieldAtPos;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
@@ -511,9 +513,10 @@ namespace ParaMEDMEM
        }
   };
 
-  class MEDFieldFieldGlobs
+  class MEDFieldFieldGlobsReal
   {
   public:
+    void shallowCpyGlobs(const MEDFieldFieldGlobsReal& other);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
@@ -546,7 +549,7 @@ namespace ParaMEDMEM
        }
   };
 
-  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
+  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobsReal, public MEDFileWritable
   {
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -577,6 +580,7 @@ namespace ParaMEDMEM
   {
   public:
     int getNumberOfTS() const;
+    std::string getName() const;
     %extend
        {
          PyObject *getIterations() const
@@ -593,10 +597,27 @@ namespace ParaMEDMEM
              }
            return ret;
          }
+
+         PyObject *getTimeSteps() const throw(INTERP_KERNEL::Exception)
+           {
+             std::vector<double> ret1;
+             std::vector< std::pair<int,int> > ret=self->getTimeSteps(ret1);
+             std::size_t sz=ret.size();
+             PyObject *ret2=PyList_New(sz);
+             for(std::size_t i=0;i<sz;i++)
+               {
+                 PyObject *elt=PyTuple_New(3);
+                 PyTuple_SetItem(elt,0,SWIG_From_int(ret[i].first));
+                 PyTuple_SetItem(elt,1,SWIG_From_int(ret[i].second));
+                 PyTuple_SetItem(elt,2,SWIG_From_double(ret1[i]));
+                 PyList_SetItem(ret2,i,elt);
+               }
+             return ret2;
+           }
        }
   };
 
-  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobs, public MEDFileWritable
+  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobsReal, public MEDFileWritable
   {
   public:
     static MEDFileFieldMultiTS *New();
@@ -623,17 +644,20 @@ namespace ParaMEDMEM
        }
   };
 
-  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobs, public MEDFileWritable
+  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobsReal, public MEDFileWritable
   {
   public:
     static MEDFileFields *New();
     static MEDFileFields *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
+    std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
     //
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
     void pushField(MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
     void setFieldAtPos(int i, MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
+    MEDFileFieldMultiTS *getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldMultiTS *getField(const char *fieldName) const throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
   };
 
