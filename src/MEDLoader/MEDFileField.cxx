@@ -252,7 +252,15 @@ try:_type(atype),_father(fath),_profile_it(profileIt)
   _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
   _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
   if(type==ON_CELLS && !_localization.empty())
-    setType(ON_GAUSS_PT);
+    {
+      if(_localization!="MED_GAUSS_ELNO")
+        setType(ON_GAUSS_PT);
+      else
+        {
+          setType(ON_GAUSS_NE);
+          _localization.clear();
+        }
+    }
 }
 catch(INTERP_KERNEL::Exception& e)
 {
