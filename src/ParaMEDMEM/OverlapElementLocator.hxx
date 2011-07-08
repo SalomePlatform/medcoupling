@@ -29,6 +29,7 @@
 #include <mpi.h>
 #include <vector>
 #include <set>
+#include <map>
 
 namespace ParaMEDMEM
 {
