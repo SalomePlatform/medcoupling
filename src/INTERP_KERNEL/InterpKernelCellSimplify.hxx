@@ -20,12 +20,13 @@
 #ifndef __INTERPKERNELCELLSIMPLIFY_HXX__
 #define __INTERPKERNELCELLSIMPLIFY_HXX__
 
+#include "INTERPKERNELDefines.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 
 namespace INTERP_KERNEL
 {
-  class CellSimplify
+  class INTERPKERNEL_EXPORT CellSimplify
   {
   public:
     static INTERP_KERNEL::NormalizedCellType simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,

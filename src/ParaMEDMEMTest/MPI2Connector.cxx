@@ -20,7 +20,7 @@
 #include "MPI2Connector.hxx"
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 MPI2Connector::MPI2Connector()
 {

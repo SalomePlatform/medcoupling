@@ -101,6 +101,7 @@ namespace ParaMEDMEM
     virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
   protected:
     MEDFileMesh();
+    void dealWithTinyInfo(const MEDCouplingMesh *m) throw(INTERP_KERNEL::Exception);
     virtual void synchronizeTinyInfoOnLeaves() const = 0;
     virtual void appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
     static void TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
@@ -190,7 +191,6 @@ namespace ParaMEDMEM
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_coords;
   };
 
-
   class MEDFileCMesh : public MEDFileMesh
   {
     friend class MEDFileMesh;
@@ -203,7 +203,7 @@ namespace ParaMEDMEM
     void clearNonDiscrAttributes() const;
     const MEDCouplingCMesh *getMesh() const;
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
-    void setMesh(MEDCouplingCMesh *m);
+    void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
@@ -225,6 +225,47 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_cells;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_nodes;
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_cells;
+  };
+
+  class MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileMeshMultiTS *New();
+    static MEDFileMeshMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
+    const char *getName() const throw(INTERP_KERNEL::Exception);
+    MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
+  private:
+    void loadFromFile(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
+    MEDFileMeshMultiTS();
+    MEDFileMeshMultiTS(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDFileMeshMultiTS(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
+  private:
+    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> > _mesh_one_ts;
+  };
+
+  class MEDFileMeshes : public RefCountObject, public MEDFileWritable
+  {
+  public:
+    static MEDFileMeshes *New();
+    static MEDFileMeshes *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);
+    //
+    void resize(int newSize) throw(INTERP_KERNEL::Exception);
+    void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    void setMeshAtPos(int i, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
+    void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
+  private:
+    void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    void loadFromFile(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDFileMeshes();
+    MEDFileMeshes(const char *fileName) throw(INTERP_KERNEL::Exception);
+  private:
+    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> > _meshes;
   };
 }
 

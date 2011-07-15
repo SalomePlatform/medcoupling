@@ -20,13 +20,14 @@
 #ifndef __INTERPOLATION3D_HXX__
 #define __INTERPOLATION3D_HXX__
 
+#include "INTERPKERNELDefines.hxx"
 #include "Interpolation.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
 {
-  class Interpolation3D : public Interpolation<Interpolation3D>
+  class INTERPKERNEL_EXPORT Interpolation3D : public Interpolation<Interpolation3D>
   {
   public:
     Interpolation3D();

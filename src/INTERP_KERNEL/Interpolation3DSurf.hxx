@@ -20,12 +20,13 @@
 #ifndef __INTERPOLATION3DSURF_HXX__
 #define __INTERPOLATION3DSURF_HXX__
 
-#include "InterpolationPlanar.hxx"
+#include "InterpolationPlanar.txx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
 {
-  class Interpolation3DSurf : public InterpolationPlanar<Interpolation3DSurf>
+  class INTERPKERNEL_EXPORT Interpolation3DSurf : public InterpolationPlanar<Interpolation3DSurf>
   {
   public:
     Interpolation3DSurf();
