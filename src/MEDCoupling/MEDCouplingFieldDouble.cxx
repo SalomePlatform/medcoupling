@@ -1383,10 +1383,16 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const MEDCouplingFie
   return ret;
 }
 
+/*!
+ * This method returns a newly created field that is the union of all fields in input array 'a'.
+ * This method expects that 'a' is non empty. If not an exception will be thrown.
+ * If there is only one field in 'a' a deepCopy (except time information of mesh and field) of the unique field instance in 'a' will be returned.
+ * Generally speaking the first instance field in 'a' will be used to assign tiny attributes of returned field.
+ */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a) throw(INTERP_KERNEL::Exception)
 {
-  if(a.size()<=1)
-    throw INTERP_KERNEL::Exception("FieldDouble::MergeFields : size of array must be > 1 !");
+  if(a.size()<1)
+    throw INTERP_KERNEL::Exception("FieldDouble::MergeFields : size of array must be >= 1 !");
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms(a.size());
   std::vector< const MEDCouplingUMesh *> ms2(a.size());
   std::vector< const MEDCouplingTimeDiscretization *> tds(a.size());
@@ -1404,6 +1410,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::MergeFields(const std::vector<co
       tds[i]=a[i]->_time_discr;
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDCouplingUMesh::MergeUMeshes(ms2);
+  m->setName(ms2[0]->getName()); m->setDescription(ms2[0]->getDescription());
   MEDCouplingTimeDiscretization *td=tds[0]->aggregate(tds);
   td->copyTinyAttrFrom(*(a[0]->_time_discr));
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(a[0]->getNature(),td,a[0]->_type->clone());

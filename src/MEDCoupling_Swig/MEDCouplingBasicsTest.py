@@ -7556,6 +7556,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],d.getIJ(0,i));
             pass
         pass
+
+    def testMergeField3(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m.getCoords().setInfoOnComponent(0,"x [m]");
+        m.getCoords().setInfoOnComponent(1,"z [km]");
+        m.setName("m");
+        m.setDescription("desc");
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setName("f1");
+        f1.setMesh(m);
+        arr=DataArrayDouble.New();
+        arr.alloc(5,2);
+        arr.setInfoOnComponent(0,"X [m]");
+        arr.setInfoOnComponent(1,"YY [mm]");
+        arr.fillWithValue(2.);
+        f1.setArray(arr);
+        #
+        f2=MEDCouplingFieldDouble.MergeFields([f1]);
+        self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+        #
+        pass
     
     def setUp(self):
         pass

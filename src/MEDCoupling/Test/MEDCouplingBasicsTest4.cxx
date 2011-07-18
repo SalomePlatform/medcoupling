@@ -1469,3 +1469,31 @@ void MEDCouplingBasicsTest::testDAIComputeOffsets2()
     CPPUNIT_ASSERT_EQUAL(expected1[i],d->getIJ(0,i));
   d->decrRef();
 }
+
+void MEDCouplingBasicsTest::testMergeField3()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  m->getCoords()->setInfoOnComponent(0,"x [m]");
+  m->getCoords()->setInfoOnComponent(1,"z [km]");
+  m->setName("m");
+  m->setDescription("desc");
+  MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f1->setName("f1");
+  f1->setMesh(m);
+  DataArrayDouble *arr=DataArrayDouble::New();
+  arr->alloc(5,2);
+  arr->setInfoOnComponent(0,"X [m]");
+  arr->setInfoOnComponent(1,"YY [mm]");
+  arr->fillWithValue(2.);
+  f1->setArray(arr);
+  arr->decrRef();
+  m->decrRef();
+  //
+  std::vector<const MEDCouplingFieldDouble *> tmp(1);
+  tmp[0]=f1;
+  MEDCouplingFieldDouble *f2=MEDCouplingFieldDouble::MergeFields(tmp);
+  CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+  //
+  f1->decrRef();
+  f2->decrRef();
+}
