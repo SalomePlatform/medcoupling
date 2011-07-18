@@ -19,7 +19,6 @@
 
 #include "OverlapElementLocator.hxx"
 
-#include <mpi.h>
 #include "CommInterface.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
@@ -33,8 +32,6 @@
 #include "DirectedBoundingBox.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
-#include <map>
-#include <set>
 #include <limits>
 
 using namespace std;
