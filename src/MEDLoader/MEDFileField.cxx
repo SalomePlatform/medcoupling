@@ -253,7 +253,7 @@ try:_type(atype),_father(fath),_profile_it(profileIt)
   _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
   if(type==ON_CELLS && !_localization.empty())
     {
-      if(_localization!="MED_GAUSS_ELNO")
+      if(_localization!="MED_GAUSS_ELNO")//For compatibily with MED2.3
         setType(ON_GAUSS_PT);
       else
         {
@@ -928,7 +928,8 @@ void MEDFileFieldPerMesh::SortArraysPerType(const MEDFieldFieldGlobsReal *glob, 
       std::vector<const DataArrayInt *> tmpPfls(pfls.begin()+startZone,pfls.begin()+j);
       std::vector<int> tmpLocs(locs.begin()+startZone,locs.begin()+j);
       code[3*i]=(int)refType;
-      code[3*i+1]=ComputeNbOfElems(glob,type,refType,tmpDads,tmpLocs);
+      std::vector<INTERP_KERNEL::NormalizedCellType> refType2(1,refType);
+      code[3*i+1]=ComputeNbOfElems(glob,type,refType2,tmpDads,tmpLocs);
       if(notNullTmp.empty())
         code[3*i+2]=-1;
       else
@@ -940,9 +941,9 @@ void MEDFileFieldPerMesh::SortArraysPerType(const MEDFieldFieldGlobsReal *glob, 
 }
 
 /*!
- * 'dads' and 'locs' are input parameters that should have same size sz. sz should be >=1.
+ * 'dads' 'geoTypes' and 'locs' are input parameters that should have same size sz. sz should be >=1.
  */
-int MEDFileFieldPerMesh::ComputeNbOfElems(const MEDFieldFieldGlobsReal *glob, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs) throw(INTERP_KERNEL::Exception)
+int MEDFileFieldPerMesh::ComputeNbOfElems(const MEDFieldFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs) throw(INTERP_KERNEL::Exception)
 {
   int sz=dads.size();
   int ret=0;
@@ -954,7 +955,7 @@ int MEDFileFieldPerMesh::ComputeNbOfElems(const MEDFieldFieldGlobsReal *glob, Ty
             ret+=dads[i]->getNumberOfTuples();
           else
             {
-              const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(geoType);
+              const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(geoTypes[i]);
               ret+=dads[i]->getNumberOfTuples()/cm.getNumberOfNodes();
             }
         }
@@ -1031,7 +1032,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
       else
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2(arr);
-          return finishField2(type,glob,dads,locs,mesh,arr,isPfl);
+          return finishField2(type,glob,dads,locs,geoTypes,mesh,arr,isPfl);
         }
     }
   else
@@ -1122,6 +1123,9 @@ int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellTyp
   return ret;
 }
 
+/*!
+ * 'dads' and 'locs' input parameters have the same number of elements.
+ */
 MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
                                                          const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs,
                                                          const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception)
@@ -1142,7 +1146,8 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const
       for(int i=0;i<nbOfArrs;i++)
         {
           std::vector<const DataArrayDouble *> dads2(1,dads[i]); const std::vector<int> locs2(1,locs[i]);
-          int nbOfElems=ComputeNbOfElems(glob,type,INTERP_KERNEL::NORM_ERROR,dads2,locs2);
+          const std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes2(1,INTERP_KERNEL::NORM_ERROR);
+          int nbOfElems=ComputeNbOfElems(glob,type,geoTypes2,dads2,locs2);
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> di=DataArrayInt::New();
           di->alloc(nbOfElems,1);
           di->iota(offset);
@@ -1158,17 +1163,19 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const
 
 /*!
  * This method is an extension of MEDFileFieldPerMesh::finishField method. It deals with profiles. This method should be called when type is different from ON_NODES.
+ * 'dads', 'locs' and 'geoTypes' input parameters have the same number of elements.
  * No check of this is performed. 'da' array contains an array in old2New style to be applyied to mesh to obtain the right support.
  * The order of cells in the returned field is those imposed by the profile.
  */
 MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField2(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
                                                           const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs,
+                                                          const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes,
                                                           const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl) const throw(INTERP_KERNEL::Exception)
 {
   if(da->isIdentity())
     {
       int nbOfTuples=da->getNumberOfTuples();
-      if(nbOfTuples==ComputeNbOfElems(glob,type,INTERP_KERNEL::NORM_ERROR,dads,locs))//No problem for NORM_ERROR because it is in context of node
+      if(nbOfTuples==ComputeNbOfElems(glob,type,geoTypes,dads,locs))
         return finishField(type,glob,dads,locs,mesh,isPfl);
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=finishField(type,glob,dads,locs,mesh,isPfl);
@@ -1190,7 +1197,8 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFieldFieldGlo
   if(da->isIdentity())
     {
       int nbOfTuples=da->getNumberOfTuples();
-      if(nbOfTuples==ComputeNbOfElems(glob,ON_NODES,INTERP_KERNEL::NORM_ERROR,dads,locs))//No problem for NORM_ERROR because it is in context of node
+      const std::vector<INTERP_KERNEL::NormalizedCellType> geoTypes2(1,INTERP_KERNEL::NORM_ERROR);
+      if(nbOfTuples==ComputeNbOfElems(glob,ON_NODES,geoTypes2,dads,locs))//No problem for NORM_ERROR because it is in context of node
         return finishField(ON_NODES,glob,dads,locs,mesh,isPfl);
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=finishField(ON_NODES,glob,dads,locs,mesh,isPfl);

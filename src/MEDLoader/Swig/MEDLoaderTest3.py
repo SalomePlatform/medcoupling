@@ -714,6 +714,32 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
         pass
+    # Tricky test of the case of in a MED file containing a Field on GAUSS_NE is lying on a profile that is reality represents all the geom entities of a level.
+    # By default when using setFieldProfile method such profile is not created because it is not useful ! So here a trick is used to force MEDLoader to do that
+    # for the necessity of the test ! The idea is too create artificially a mesh having one more fictious cell per type and to roll back right after !
+    def testMEDField15(self):
+        fname="Pyfile36.med"
+        m0=MEDLoaderDataForTest.build2DMesh_1()
+        m0.renumberCells([0,1,4,2,3,5],False)
+        tmp=m0.getName();
+        m1=m0.buildPartOfMySelf([0,1,1,2,3,3,4,4],True) ; m1.setName(tmp) # suppression of last cell that is a polygon and creation of one more cell per type
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        ff1=MEDFileField1TS.New()
+        f1=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME) ; f1.setName("F4Node")
+        d=DataArrayDouble.New() ; d.alloc(2*20,1) ; d.iota(7.); d.rearrange(2); d.setInfoOnComponent(0,"sigX [MPa]") ; d.setInfoOnComponent(1,"sigY [GPa]")
+        f1.setArray(d) # note that f1 is NOT defined fully (no mesh !). It is not a bug of test it is too test that MEDFileField1TS.appendFieldProfile is NOT sensible of that.
+        da=DataArrayInt.New(); da.setValues([0,1,3,4,6],5,1) ; da.setName("sup1NodeElt")
+        #
+        ff1.setFieldProfile(f1,mm1,0,da)
+        m1=m0.buildPartOfMySelf(range(5),True) ; m1.setName(tmp) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1.write(fname,2)
+        ff1.write(fname,0)
+        f1=ff1.getFieldOnMeshAtLevel(ON_GAUSS_NE,m1,0)
+        f2,p1=ff1.getFieldWithProfile(ON_GAUSS_NE,0,mm1)
+        self.assertTrue(p1.isIdentity())
+        self.assertEqual(5,p1.getNumberOfTuples())
+        self.assertTrue(f1.getArray().isEqual(f2,1e-12))
+        pass
     pass
-
+        
 unittest.main()

@@ -39,7 +39,7 @@ med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode) throw
 
 void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const char *msg) throw(INTERP_KERNEL::Exception)
 {
-  if(code==-1)
+  if(code<0)
     {
       std::ostringstream oss;
       oss << "MEDFile has returned an error code (" << code <<") : " << msg;

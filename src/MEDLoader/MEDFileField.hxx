@@ -190,6 +190,7 @@ namespace ParaMEDMEM
                                         const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *finishField2(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
                                          const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs,
+                                         const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes,
                                          const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *finishField3(const MEDFieldFieldGlobsReal *glob,
                                          const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs,
@@ -198,7 +199,7 @@ namespace ParaMEDMEM
     static void SortArraysPerType(const MEDFieldFieldGlobsReal *glob, TypeOfField type, 
                                   const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector<const DataArrayDouble *>& dads, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& locs,
                                   std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls);
-    static int ComputeNbOfElems(const MEDFieldFieldGlobsReal *glob, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs) throw(INTERP_KERNEL::Exception);
+    static int ComputeNbOfElems(const MEDFieldFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector<const DataArrayDouble *>& dads, const std::vector<int>& locs) throw(INTERP_KERNEL::Exception);
     MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder);
     MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, const MEDCouplingMesh *mesh);
   private:

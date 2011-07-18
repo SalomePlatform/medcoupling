@@ -1411,6 +1411,8 @@ void MEDFileUMesh::setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, b
           _ms[sz-1]=new MEDFileUMeshSplitL1(m,newOrOld);
         }
     }
+  else
+    _ms[-meshDimRelToMax]=new MEDFileUMeshSplitL1(m,newOrOld);
 }
 
 void MEDFileUMesh::setGroupsFromScratch(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms) throw(INTERP_KERNEL::Exception)

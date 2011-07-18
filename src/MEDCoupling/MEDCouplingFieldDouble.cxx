@@ -793,8 +793,9 @@ MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator=(double value) throw(IN
 
 /*!
  * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic.
+ * See MEDCouplingMesh::fillFromAnalytic method doc to have more details.
  * The main difference is that the field as been started to be constructed here.
- * An exception is throw if no underlying mesh is set before the call of this method.
+ * An exception is thrown if no underlying mesh is set before the call of this method.
  */
 void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate func) throw(INTERP_KERNEL::Exception)
 {
@@ -806,8 +807,9 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, FunctionToEvaluate f
 
 /*!
  * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic.
+ * See MEDCouplingMesh::fillFromAnalytic method doc to have more details.
  * The main difference is that the field as been started to be constructed here.
- * An exception is throw if no underlying mesh is set before the call of this method.
+ * An exception is thrown if no underlying mesh is set before the call of this method.
  */
 void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception)
 {
@@ -819,6 +821,7 @@ void MEDCouplingFieldDouble::fillFromAnalytic(int nbOfComp, const char *func) th
 
 /*!
  * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic2.
+ * See MEDCouplingMesh::fillFromAnalytic method doc to have more details.
  * The main difference is that the field as been started to be constructed here.
  * An exception is throw if no underlying mesh is set before the call of this method.
  */
@@ -832,8 +835,9 @@ void MEDCouplingFieldDouble::fillFromAnalytic2(int nbOfComp, const char *func) t
 
 /*!
  * This method is very similar to this one MEDCouplingMesh::fillFromAnalytic3.
+ * See MEDCouplingMesh::fillFromAnalytic method doc to have more details.
  * The main difference is that the field as been started to be constructed here.
- * An exception is throw if no underlying mesh is set before the call of this method.
+ * An exception is thrown if no underlying mesh is set before the call of this method.
  */
 void MEDCouplingFieldDouble::fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception)
 {

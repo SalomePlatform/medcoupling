@@ -174,6 +174,10 @@ bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
  * The first array is a in-param of size this->getSpaceDimension and the second an out param of size 'nbOfComp'.
  * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
  * evaluate.
+ * Contrary to other fillFromAnalytic methods this method requests a C++ function pointer as input.
+ * The 'func' is a callback that takes as first parameter an input array of size 'this->getSpaceDimension()',
+ * the second parameter is a pointer on a valid zone of size at least equal to 'nbOfComp' values. And too finish
+ * the returned value is a boolean that is equal to False in case of invalid evaluation (log(0) for example...)
  * @param t type of field returned and specifies where the evaluation of func will be done.
  * @param nbOfComp number of components of returned field.
  * @param func pointer to a function that should return false if the evaluation failed. (division by 0. for example)
@@ -216,6 +220,24 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTER
  * 'func' is a string that is the expression to evaluate.
  * The return field will have type specified by 't'. 't' is also used to determine where values of field will be
  * evaluate.
+ * This method is equivalent to those taking a C++ function pointer except that here the 'func' is informed by 
+ * an interpretable input string.
+ *
+ * The dynamic interpretor uses \b alphabetical \b order to assign the component id to the var name.
+ * For example :
+ * - "2*x+z" func : x stands for component #0 and z stands for component #1 \b NOT #2 !
+ * 
+ * Some var names are reserved and have special meaning. IVec stands for (1,0,0,...). JVec stands for (0,1,0...).
+ * KVec stands for (0,0,1,...)... These keywords allows too differentate the evaluation of output components each other.
+ * 
+ * If 'nbOfComp' equals to 4 for example and that 'this->getSpaceDimension()' equals to 3.
+ * 
+ * For the input tuple T = (1.,3.,7.) :
+ *   - '2*x+z' will return (5.,5.,5.,5.)
+ *   - '2*x+0*y+z' will return (9.,9.,9.,9.)
+ *   - '2*x*IVec+(x+z)*LVec' will return (2.,0.,0.,4.)
+ *   - '2*x*IVec+(y+z)*KVec' will return (2.,0.,10.,0.)
+ *
  * @param t type of field returned and specifies where the evaluation of func will be done.
  * @param nbOfComp number of components of returned field.
  * @param func expression.
