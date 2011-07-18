@@ -2237,7 +2237,7 @@ DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int 
     throw INTERP_KERNEL::Exception("Call transformWithIndArrR method on DataArrayInt with only one component, you can call 'rearrange' method before !");
   int nbElemsIn=std::distance(indArrBg,indArrEnd);
   int nbOfTuples=getNumberOfTuples();
-  int *pt=getPointer();
+  const int *pt=getConstPointer();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples,1);
   ret->fillWithValue(-1);
@@ -3477,7 +3477,7 @@ DataArrayInt *DataArrayInt::deltaShiftIndex() const throw(INTERP_KERNEL::Excepti
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<2)
     throw INTERP_KERNEL::Exception("DataArrayInt::deltaShiftIndex : 1 tuple at least must be present in 'this' !");
-  const int *ptr=getPointer();
+  const int *ptr=getConstPointer();
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(nbOfTuples-1,1);
   int *out=ret->getPointer();

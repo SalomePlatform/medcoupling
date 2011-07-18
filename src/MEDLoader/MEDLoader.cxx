@@ -2194,7 +2194,7 @@ void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const std::vector<c
   std::copy(DftFamilyName,DftFamilyName+sizeof(DftFamilyName),familyName);
   MEDfamilyCr(fid,maa,familyName,0,0,0);
   
-  MEDmeshNodeCoordinateWr(fid,maa,-1,-1,0.,MED_FULL_INTERLACE,mesh[0]->getNumberOfNodes(),arr->getPointer());
+  MEDmeshNodeCoordinateWr(fid,maa,-1,-1,0.,MED_FULL_INTERLACE,mesh[0]->getNumberOfNodes(),arr->getConstPointer());
   MEDfileClose(fid);
 }
 

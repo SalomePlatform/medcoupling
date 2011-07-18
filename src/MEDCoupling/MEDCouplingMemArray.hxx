@@ -43,7 +43,7 @@ namespace ParaMEDMEM
     void setExternal(const T *pointer);
     const T *getConstPointer() const { if(_internal) return _internal; else return _external; }
     const T *getConstPointerLoc(int offset) const { if(_internal) return _internal+offset; else return _external+offset; }
-    T *getPointer() const { if(_internal) return _internal; if(_external) throw INTERP_KERNEL::Exception("Trying to write on an external pointer."); else return 0; }
+    T *getPointer() { if(_internal) return _internal; if(_external) throw INTERP_KERNEL::Exception("Trying to write on an external pointer."); else return 0; }
   private:
     T *_internal;
     const T *_external;
@@ -58,7 +58,7 @@ namespace ParaMEDMEM
     bool isNull() const { return _pointer.isNull(); }
     const T *getConstPointerLoc(int offset) const { return _pointer.getConstPointerLoc(offset); }
     const T *getConstPointer() const { return _pointer.getConstPointer(); }
-    T *getPointer() const { return _pointer.getPointer(); }
+    T *getPointer() { return _pointer.getPointer(); }
     MemArray<T> &operator=(const MemArray<T>& other);
     T operator[](int id) const { return _pointer.getConstPointer()[id]; }
     T& operator[](int id) { return _pointer.getPointer()[id]; }
@@ -180,7 +180,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT double *getPointer() const { return _mem.getPointer(); }
+    MEDCOUPLING_EXPORT double *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
     MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
@@ -311,7 +311,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
     MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
     MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
-    MEDCOUPLING_EXPORT int *getPointer() const { return _mem.getPointer(); }
+    MEDCOUPLING_EXPORT int *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(int val) const throw(INTERP_KERNEL::Exception);

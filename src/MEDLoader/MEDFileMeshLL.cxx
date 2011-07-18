@@ -276,11 +276,11 @@ void MEDFileUMeshL2::WriteCoords(med_idt fid, const char *mname, int dt, int it,
 {
   if(!coords)
     return ;
-  MEDmeshNodeCoordinateWr(fid,mname,dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->getPointer());
+  MEDmeshNodeCoordinateWr(fid,mname,dt,it,time,MED_FULL_INTERLACE,coords->getNumberOfTuples(),coords->getConstPointer());
   if(famCoords)
-    MEDmeshEntityFamilyNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getPointer());
+    MEDmeshEntityFamilyNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,famCoords->getNumberOfTuples(),famCoords->getConstPointer());
   if(numCoords)
-    MEDmeshEntityNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getPointer());
+    MEDmeshEntityNumberWr(fid,mname,dt,it,MED_NODE,MED_NO_GEOTYPE,numCoords->getNumberOfTuples(),numCoords->getConstPointer());
 }
 
 bool MEDFileUMeshL2::isFamDefinedOnLev(int levId) const

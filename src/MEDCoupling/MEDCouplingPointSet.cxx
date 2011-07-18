@@ -280,8 +280,8 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
   int *pt=ret->getPointer();
   std::fill(pt,pt+nbNodesOld,-1);
   int nbOfGrps=commIndex->getNumberOfTuples()-1;
-  const int *cIPtr=commIndex->getPointer();
-  const int *cPtr=comm->getPointer();
+  const int *cIPtr=commIndex->getConstPointer();
+  const int *cPtr=comm->getConstPointer();
   for(int i=0;i<nbOfGrps;i++)
     pt[cPtr[cIPtr[i]]]=-(i+2);
   int newNb=0;
