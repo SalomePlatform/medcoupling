@@ -24,6 +24,7 @@
 #include "MEDCouplingUMesh.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
+#include "CellModel.hxx"
 
 #include <set>
 
@@ -563,6 +564,17 @@ bool MEDFileUMeshSplitL1::presenceOfOneFams(const std::vector<int>& ids) const
 int MEDFileUMeshSplitL1::getMeshDimension() const
 {
   return _m_by_types->getMeshDimension();
+}
+
+void MEDFileUMeshSplitL1::simpleRepr(std::ostream& oss) const
+{
+  std::vector<int> code=_m_by_types->getDistributionOfTypes();
+  int nbOfTypes=code.size()/3;
+  for(int i=0;i<nbOfTypes;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType) code[3*i];
+      oss << "    - Number of cells with type " << INTERP_KERNEL::CellModel::GetCellModel(typ).getRepr() << " : " << code[3*i+1] << std::endl;
+    }
 }
 
 int MEDFileUMeshSplitL1::getSize() const throw(INTERP_KERNEL::Exception)

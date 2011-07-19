@@ -1497,3 +1497,20 @@ void MEDCouplingBasicsTest::testMergeField3()
   f1->decrRef();
   f2->decrRef();
 }
+
+void MEDCouplingBasicsTest::testGetDistributionOfTypes1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  const int tab1[5]={2,0,1,3,4};
+  CPPUNIT_ASSERT_THROW(m->getDistributionOfTypes(),INTERP_KERNEL::Exception);
+  m->renumberCells(tab1,false);
+  std::vector<int> code=m->getDistributionOfTypes();
+  CPPUNIT_ASSERT_EQUAL(6,(int)code.size());
+  CPPUNIT_ASSERT_EQUAL(3,code[0]);
+  CPPUNIT_ASSERT_EQUAL(2,code[1]);
+  CPPUNIT_ASSERT_EQUAL(0,code[2]);
+  CPPUNIT_ASSERT_EQUAL(4,code[3]);
+  CPPUNIT_ASSERT_EQUAL(3,code[4]);
+  CPPUNIT_ASSERT_EQUAL(0,code[5]);
+  m->decrRef();
+}

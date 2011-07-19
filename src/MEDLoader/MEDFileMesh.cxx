@@ -1080,6 +1080,49 @@ int MEDFileUMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
   throw INTERP_KERNEL::Exception("MEDFileUMesh::getMeshDimension : impossible to find a mesh dimension !");
 }
 
+std::string MEDFileUMesh::simpleRepr() const
+{
+  std::ostringstream oss;
+  oss << "(*************************************)\n(* GENERAL INFORMATION ON THE MESH : *)\n(*************************************)\n";
+  oss << "- Name of the mesh : <<" << getName() << ">>\n";
+  const DataArrayDouble *coo=_coords;
+  oss << "- The dimension of the space is ";
+  static const char MSG1[]= "*** NO COORDS SET ***";
+  static const char MSG2[]= "*** NO CONNECTIVITY SET FOR THIS LEVEL***";
+  if(coo)
+    oss << _coords->getNumberOfComponents() << std::endl;
+  else
+    oss << MSG1 << std::endl;
+  oss << "- Type of the mesh : UNSTRUCTURED\n";
+  oss << "- Description associated to the mesh : " << getDescription() << std::endl;
+  oss << "- Number of nodes : ";
+  if(coo)
+    oss << _coords->getNumberOfTuples() << std::endl;
+  else
+    oss << MSG1 << std::endl;
+  std::size_t nbOfLev=_ms.size();
+  oss << "- Number of levels allocated : " << nbOfLev << std::endl;
+  for(std::size_t i=0;i<nbOfLev;i++)
+    {
+      const MEDFileUMeshSplitL1 *lev=_ms[i];
+      oss << "  - Level #" << -((int) i) << " has dimension : ";
+      if(lev)
+        {
+          oss << lev->getMeshDimension() << std::endl;
+          lev->simpleRepr(oss);
+        }
+      else
+        oss << MSG2 << std::endl;
+    }
+  oss << "- Number of families : " << _families.size() << std::endl;
+  return oss.str();
+}
+
+std::string MEDFileUMesh::advancedRepr() const
+{
+  return simpleRepr();
+}
+
 int MEDFileUMesh::getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt==1)
@@ -1579,6 +1622,15 @@ int MEDFileCMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
   if(!((const MEDCouplingCMesh*)_cmesh))
     throw INTERP_KERNEL::Exception("MEDFileCMesh::getMeshDimension : unable to get meshdimension because no mesh set !");
   return _cmesh->getMeshDimension();
+}
+
+std::string MEDFileCMesh::simpleRepr() const
+{
+}
+
+std::string MEDFileCMesh::advancedRepr() const
+{
+  return simpleRepr();
 }
 
 bool MEDFileCMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const

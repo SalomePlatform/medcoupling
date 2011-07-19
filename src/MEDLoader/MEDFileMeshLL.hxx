@@ -128,6 +128,7 @@ namespace ParaMEDMEM
     bool empty() const;
     bool presenceOfOneFams(const std::vector<int>& ids) const;
     int getMeshDimension() const;
+    void simpleRepr(std::ostream& oss) const;
     int getSize() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getFamilyPart(const std::vector<int>& ids, bool renum) const;
     DataArrayInt *getFamilyPartArr(const std::vector<int>& ids, bool renum) const;

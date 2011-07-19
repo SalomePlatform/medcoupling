@@ -228,6 +228,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDAIBuildExplicitArrByRanges1 );
     CPPUNIT_TEST( testDAIComputeOffsets2 );
     CPPUNIT_TEST( testMergeField3 );
+    CPPUNIT_TEST( testGetDistributionOfTypes1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -482,6 +483,7 @@ namespace ParaMEDMEM
     void testDAIBuildExplicitArrByRanges1();
     void testDAIComputeOffsets2();
     void testMergeField3();
+    void testGetDistributionOfTypes1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

@@ -189,6 +189,11 @@ void MEDCouplingUMeshDesc::setConnectivity(DataArrayInt *descConn, DataArrayInt 
   computeTypes();
 }
 
+std::vector<int> MEDCouplingUMeshDesc::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 DataArrayInt *MEDCouplingUMeshDesc::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");

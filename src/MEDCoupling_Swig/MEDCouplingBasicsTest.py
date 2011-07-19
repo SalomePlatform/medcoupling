@@ -7578,6 +7578,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         pass
     
+    def testGetDistributionOfTypes1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        tab1=[2,0,1,3,4]
+        self.assertRaises(InterpKernelException,m.getDistributionOfTypes);
+        m.renumberCells(tab1,False);
+        code=m.getDistributionOfTypes();
+        self.assertEqual(6,len(code));
+        self.assertEqual(3,code[0]);
+        self.assertEqual(2,code[1]);
+        self.assertEqual(0,code[2]);
+        self.assertEqual(4,code[3]);
+        self.assertEqual(3,code[4]);
+        self.assertEqual(0,code[5]);
+        pass
+    
     def setUp(self):
         pass
     pass

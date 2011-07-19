@@ -84,6 +84,8 @@ namespace ParaMEDMEM
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
     std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
     virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual std::string simpleRepr() const = 0;
+    virtual std::string advancedRepr() const = 0;
     //
     virtual void setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum=false) throw(INTERP_KERNEL::Exception);
     virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception) = 0;
@@ -133,6 +135,8 @@ namespace ParaMEDMEM
     //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getMeshDimension() const throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    std::string advancedRepr() const;
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
@@ -200,6 +204,8 @@ namespace ParaMEDMEM
     static MEDFileCMesh *New(const char *fileName, const char *mName, int dt=-1, int it=-1) throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     int getMeshDimension() const throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    std::string advancedRepr() const;
     void clearNonDiscrAttributes() const;
     const MEDCouplingCMesh *getMesh() const;
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);

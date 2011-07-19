@@ -303,6 +303,8 @@ namespace ParaMEDMEM
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
     std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
     virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception);
+    virtual std::string simpleRepr() const = 0;
+    virtual std::string advancedRepr() const = 0;
     //
     virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
@@ -317,6 +319,11 @@ namespace ParaMEDMEM
     virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     %extend
        {
+         std::string __str__() const
+         {
+           return self->simpleRepr();
+         }
+
          PyObject *getTime()
          {
            int tmp1,tmp2;

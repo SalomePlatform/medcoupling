@@ -89,6 +89,7 @@ namespace ParaMEDMEM
     virtual std::string simpleRepr() const = 0;
     virtual std::string advancedRepr() const = 0;
     // tools
+    virtual std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception) = 0;
     virtual void getBoundingBox(double *bbox) const = 0;
