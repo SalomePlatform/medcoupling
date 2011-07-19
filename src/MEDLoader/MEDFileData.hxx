@@ -29,7 +29,7 @@ namespace ParaMEDMEM
   /*!
    * User class.
    */
-  class MEDFileData : public RefCountObject, public MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileData : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileData *New(const char *fileName) throw(INTERP_KERNEL::Exception);

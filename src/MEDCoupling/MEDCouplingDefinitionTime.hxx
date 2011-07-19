@@ -32,7 +32,7 @@ namespace ParaMEDMEM
 {
   class MEDCouplingFieldDouble;
 
-  class MEDCouplingDefinitionTimeSlice : public RefCountObject
+  class MEDCOUPLING_EXPORT MEDCouplingDefinitionTimeSlice : public RefCountObject
   {
   public:
     static MEDCouplingDefinitionTimeSlice *New(const MEDCouplingFieldDouble *f, int meshId, const std::vector<int>& arrId, int fieldId) throw(INTERP_KERNEL::Exception);
@@ -136,7 +136,7 @@ namespace ParaMEDMEM
     double _end;
   };
 
-  class MEDCouplingDefinitionTime
+  class MEDCOUPLING_EXPORT MEDCouplingDefinitionTime
   {
   public:
     MEDCouplingDefinitionTime();

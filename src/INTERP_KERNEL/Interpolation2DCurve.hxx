@@ -25,7 +25,7 @@
 
 namespace INTERP_KERNEL
 {
-  class Interpolation2DCurve : public InterpolationCurve<Interpolation2DCurve>
+  class INTERPKERNEL_EXPORT Interpolation2DCurve : public InterpolationCurve<Interpolation2DCurve>
   {
   public:
     Interpolation2DCurve();

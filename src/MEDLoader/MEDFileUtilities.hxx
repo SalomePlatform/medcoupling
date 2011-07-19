@@ -21,6 +21,7 @@
 #define __MEDFILEUTILITIES_HXX__
 
 #include "InterpKernelException.hxx"
+#include "MEDLoaderDefines.hxx"
 
 extern "C"
 {
@@ -46,7 +47,7 @@ namespace MEDFileUtilities
   
 namespace ParaMEDMEM
 {
-  class MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileWritable
   {
   public:
     MEDFileWritable();

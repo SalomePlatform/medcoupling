@@ -35,7 +35,7 @@ namespace ParaMEDMEM
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldTemplate;
 
-  class MEDCouplingMultiFields : public RefCountObject, public TimeLabel
+  class MEDCOUPLING_EXPORT MEDCouplingMultiFields : public RefCountObject, public TimeLabel
   {
   public:
     static MEDCouplingMultiFields *New(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception);

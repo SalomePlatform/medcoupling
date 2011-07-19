@@ -20,6 +20,7 @@
 #ifndef __MEDFILEMESH_HXX__
 #define __MEDFILEMESH_HXX__
 
+#include "MEDLoaderDefines.hxx"
 #include "MEDFileMeshLL.hxx"
 #include "MEDFileUtilities.hxx"
 
@@ -27,7 +28,7 @@
 
 namespace ParaMEDMEM
 {
-  class MEDFileMesh : public RefCountObject, public MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileMesh : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
@@ -122,7 +123,7 @@ namespace ParaMEDMEM
     static const char DFT_FAM_NAME[];
   };
 
-  class MEDFileUMesh : public MEDFileMesh
+  class MEDLOADER_EXPORT MEDFileUMesh : public MEDFileMesh
   {
     friend class MEDFileMesh;
   public:
@@ -195,7 +196,7 @@ namespace ParaMEDMEM
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_coords;
   };
 
-  class MEDFileCMesh : public MEDFileMesh
+  class MEDLOADER_EXPORT MEDFileCMesh : public MEDFileMesh
   {
     friend class MEDFileMesh;
   public:
@@ -233,7 +234,7 @@ namespace ParaMEDMEM
     mutable MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _rev_num_cells;
   };
 
-  class MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileMeshMultiTS : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileMeshMultiTS *New();
@@ -252,7 +253,7 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> > _mesh_one_ts;
   };
 
-  class MEDFileMeshes : public RefCountObject, public MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileMeshes : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileMeshes *New();

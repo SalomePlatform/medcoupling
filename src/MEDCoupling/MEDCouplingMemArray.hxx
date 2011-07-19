@@ -236,10 +236,10 @@ namespace ParaMEDMEM
     //! nothing to do here because this class does not aggregate any TimeLabel instance.
     MEDCOUPLING_EXPORT void updateTime() const { }
   public:
-    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
-    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    MEDCOUPLING_EXPORT bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   private:
     DataArrayDouble() { }
   private:
@@ -360,10 +360,10 @@ namespace ParaMEDMEM
   public:
     MEDCOUPLING_EXPORT static int *CheckAndPreparePermutation(const int *start, const int *end);
   public:
-    void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
-    void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
-    void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    MEDCOUPLING_EXPORT bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   private:
     DataArrayInt() { }
   private:

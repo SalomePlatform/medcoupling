@@ -26,7 +26,7 @@ namespace ParaMEDMEM
 {
   class MEDCouplingFieldDouble;
 
-  class MEDCouplingFieldTemplate : public MEDCouplingField
+  class MEDCOUPLING_EXPORT MEDCouplingFieldTemplate : public MEDCouplingField
   {
   public:
     static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception);

@@ -18,6 +18,7 @@
 //
 
 #include "Interpolation3D.hxx"
+#include "Interpolation3D.txx"
 
 namespace INTERP_KERNEL
 {

@@ -244,7 +244,7 @@ namespace ParaMEDMEM
     std::string _file_name;
   };
 
-  class MEDFieldFieldGlobsReal
+  class MEDLOADER_EXPORT MEDFieldFieldGlobsReal
   {
   public:
     MEDFieldFieldGlobsReal(const char *fname);
@@ -273,7 +273,7 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr< MEDFieldFieldGlobs > _globals;
   };
 
-  class MEDFileField1TSWithoutDAS : public RefCountObject, public MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileField1TSWithoutDAS : public RefCountObject, public MEDFileWritable
   {
   public:
     void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
@@ -327,7 +327,7 @@ namespace ParaMEDMEM
   /*!
    * User class.
    */
-  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobsReal
+  class MEDLOADER_EXPORT MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobsReal
   {
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -348,7 +348,7 @@ namespace ParaMEDMEM
     MEDFileField1TS();
   };
   
-  class MEDFileFieldMultiTSWithoutDAS : public RefCountObject, public MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileFieldMultiTSWithoutDAS : public RefCountObject, public MEDFileWritable
   {
   public:
     static MEDFileFieldMultiTSWithoutDAS *New(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception);
@@ -381,7 +381,7 @@ namespace ParaMEDMEM
   /*!
    * User class.
    */
-  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobsReal
+  class MEDLOADER_EXPORT MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobsReal
   {
   public:
     static MEDFileFieldMultiTS *New();
@@ -408,7 +408,7 @@ namespace ParaMEDMEM
   /*!
    * Use class.
    */
-  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobsReal, public MEDFileWritable
+  class MEDLOADER_EXPORT MEDFileFields : public RefCountObject, public MEDFieldFieldGlobsReal, public MEDFileWritable
   {
   public:
     static MEDFileFields *New();
