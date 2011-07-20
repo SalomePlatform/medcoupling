@@ -85,7 +85,7 @@ namespace ParaMEDMEM
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
     std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
     virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual std::string simpleRepr() const = 0;
+    virtual std::string simpleRepr() const;
     virtual std::string advancedRepr() const = 0;
     //
     virtual void setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayInt *>& grps, bool renum=false) throw(INTERP_KERNEL::Exception);
@@ -106,6 +106,7 @@ namespace ParaMEDMEM
     MEDFileMesh();
     void dealWithTinyInfo(const MEDCouplingMesh *m) throw(INTERP_KERNEL::Exception);
     virtual void synchronizeTinyInfoOnLeaves() const = 0;
+    void getFamilyRepr(std::ostream& oss) const;
     virtual void appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
     static void TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
   protected:

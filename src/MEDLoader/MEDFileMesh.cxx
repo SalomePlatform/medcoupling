@@ -577,6 +577,15 @@ std::string MEDFileMesh::getFamilyNameGivenId(int id) const throw(INTERP_KERNEL:
   throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
+std::string MEDFileMesh::simpleRepr() const
+{
+  std::ostringstream oss;
+  oss << "(*************************************)\n(* GENERAL INFORMATION ON THE MESH : *)\n(*************************************)\n";
+  oss << "- Name of the mesh : <<" << getName() << ">>\n";
+  oss << "- Description associated to the mesh : " << getDescription() << std::endl;
+  return oss.str();
+}
+
 DataArrayInt *MEDFileMesh::getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> tmp(1);
@@ -727,6 +736,19 @@ void MEDFileMesh::dealWithTinyInfo(const MEDCouplingMesh *m) throw(INTERP_KERNEL
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
+    }
+}
+
+void MEDFileMesh::getFamilyRepr(std::ostream& oss) const
+{
+  oss << "(**************************)\n(* FAMILIES OF THE MESH : *)\n(**************************)\n";
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    {
+      oss << "- Family with name \"" << (*it).first << "\" with number " << (*it).second << std::endl;
+      oss << "  - Groups lying on this family : ";
+      std::vector<std::string> grps=getGroupsOnFamily((*it).first.c_str());
+      std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+      oss << std::endl << std::endl;
     }
 }
 
@@ -1083,8 +1105,7 @@ int MEDFileUMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
 std::string MEDFileUMesh::simpleRepr() const
 {
   std::ostringstream oss;
-  oss << "(*************************************)\n(* GENERAL INFORMATION ON THE MESH : *)\n(*************************************)\n";
-  oss << "- Name of the mesh : <<" << getName() << ">>\n";
+  oss << MEDFileMesh::simpleRepr();
   const DataArrayDouble *coo=_coords;
   oss << "- The dimension of the space is ";
   static const char MSG1[]= "*** NO COORDS SET ***";
@@ -1094,7 +1115,6 @@ std::string MEDFileUMesh::simpleRepr() const
   else
     oss << MSG1 << std::endl;
   oss << "- Type of the mesh : UNSTRUCTURED\n";
-  oss << "- Description associated to the mesh : " << getDescription() << std::endl;
   oss << "- Number of nodes : ";
   if(coo)
     oss << _coords->getNumberOfTuples() << std::endl;
@@ -1114,7 +1134,19 @@ std::string MEDFileUMesh::simpleRepr() const
       else
         oss << MSG2 << std::endl;
     }
-  oss << "- Number of families : " << _families.size() << std::endl;
+  oss << "- Number of families : " << _families.size() << std::endl << std::endl;
+  if(coo)
+    {
+      oss << "(***********************)\n(* NODES OF THE MESH : *)\n(***********************)\n";
+      oss << "- Names of coordinates :" << std::endl;
+      std::vector<std::string> vars=coo->getVarsOnComponent();
+      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
+      oss << std::endl << "- Units of coordinates : " << std::endl;
+      std::vector<std::string> units=coo->getUnitsOnComponent();
+      std::copy(units.begin(),units.end(),std::ostream_iterator<std::string>(oss," "));
+    }
+  oss << std::endl << std::endl;
+  getFamilyRepr(oss);
   return oss.str();
 }
 
@@ -1626,6 +1658,7 @@ int MEDFileCMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
 
 std::string MEDFileCMesh::simpleRepr() const
 {
+  return MEDFileMesh::simpleRepr();
 }
 
 std::string MEDFileCMesh::advancedRepr() const
