@@ -346,7 +346,7 @@ The most important pure virtual methods are :
 
 - \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getNumberOfTuples "getnumberOfTuples"
 - \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getValueOn "getValueOn"
-- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getWeightingField "getWeightingField"
+- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getMeasureField "getMeasureField"
 
 \section MEDCouplingTemporalDisc Temporal discretization concept
 
