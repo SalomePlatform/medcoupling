@@ -34,7 +34,7 @@ using namespace ParaMEDMEM;
 
 void ParaMEDMEMTest::testMEDLoaderRead1()
 {
-  string fileName=getResourceFile("pointe.med");
+  string fileName=getResourceFile("pointe_import22.med");
   vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
   CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
   MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
@@ -136,9 +136,9 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
   CPPUNIT_ASSERT_EQUAL(90,constMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getPointer(),constMesh->getNodalConnectivity()->getPointer()+90,0));
-  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getPointer(),constMesh->getNodalConnectivityIndex()->getPointer()+17,0));
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
+  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
+  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field0->decrRef();
   //
   MEDCouplingFieldDouble *field1=MEDLoader::ReadFieldCell(fileName.c_str(),meshNames[0].c_str(),0,fieldsName[1].c_str(),its1[0].first,its1[0].second);
@@ -165,9 +165,9 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
   CPPUNIT_ASSERT_EQUAL(90,constMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getPointer(),constMesh->getNodalConnectivity()->getPointer()+90,0));
-  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getPointer(),constMesh->getNodalConnectivityIndex()->getPointer()+17,0));
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
+  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
+  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field1->decrRef();
   //fields on nodes
   std::vector<std::string> fieldsNameNode=MEDLoader::GetNodeFieldNamesOnMesh(fileName.c_str(),meshNames[0].c_str());
@@ -176,13 +176,13 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(fieldsNameNode[1]=="fieldnodeint");
   std::vector<std::pair<int,int> > its0Node=MEDLoader::GetNodeFieldIterations(fileName.c_str(),meshNames[0].c_str(),fieldsNameNode[0].c_str());
   CPPUNIT_ASSERT_EQUAL(3,(int)its0Node.size());
-  CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].first);
+  CPPUNIT_ASSERT_EQUAL(1,its0Node[0].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[0].second);
-  CPPUNIT_ASSERT_EQUAL(1,its0Node[1].first);
+  CPPUNIT_ASSERT_EQUAL(2,its0Node[1].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[1].second);
-  CPPUNIT_ASSERT_EQUAL(2,its0Node[2].first);
+  CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].first);
   CPPUNIT_ASSERT_EQUAL(-1,its0Node[2].second);
-  MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  MEDCouplingFieldDouble *field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -196,7 +196,7 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT(constMesh);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
+  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[1].first,its0Node[1].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -219,12 +219,12 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
   CPPUNIT_ASSERT_EQUAL(90,constMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getPointer(),constMesh->getNodalConnectivity()->getPointer()+90,0));
-  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getPointer(),constMesh->getNodalConnectivityIndex()->getPointer()+17,0));
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
+  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
+  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field0Nodes->decrRef();
   //
-  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[0].first,its0Node[0].second);
+  field0Nodes=MEDLoader::ReadFieldNode(fileName.c_str(),meshNames[0].c_str(),0,fieldsNameNode[0].c_str(),its0Node[2].first,its0Node[2].second);
   field0Nodes->checkCoherency();
   CPPUNIT_ASSERT(field0Nodes->getName()==fieldsNameNode[0]);
   CPPUNIT_ASSERT_EQUAL(1,field0Nodes->getNumberOfComponents());
@@ -247,9 +247,9 @@ void ParaMEDMEMTest::testMEDLoaderRead1()
   CPPUNIT_ASSERT_EQUAL(NORM_HEXA8,constMesh->getTypeOfCell(14));
   CPPUNIT_ASSERT_EQUAL(NORM_PYRA5,constMesh->getTypeOfCell(15));
   CPPUNIT_ASSERT_EQUAL(90,constMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getPointer(),constMesh->getNodalConnectivity()->getPointer()+90,0));
-  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getPointer(),constMesh->getNodalConnectivityIndex()->getPointer()+17,0));
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+57,0),1e-12);
+  CPPUNIT_ASSERT_EQUAL(701,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+90,0));
+  CPPUNIT_ASSERT_EQUAL(705,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+17,0));
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(46.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+57,0),1e-12);
   field0Nodes->decrRef();
 }
 
@@ -304,13 +304,13 @@ void ParaMEDMEMTest::testMEDLoaderPolygonRead()
     CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,constMesh->getTypeOfCell(i));
   for(int i=514;i<538;i++)
     CPPUNIT_ASSERT_EQUAL(NORM_POLYGON,constMesh->getTypeOfCell(i));
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,std::accumulate(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+1737,0),1e-12);
-  std::transform(constMesh->getCoords()->getPointer(),constMesh->getCoords()->getPointer()+12,expectedVals1,diffValue1,std::minus<double>());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,std::accumulate(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+1737,0),1e-12);
+  std::transform(constMesh->getCoords()->getConstPointer(),constMesh->getCoords()->getConstPointer()+12,expectedVals1,diffValue1,std::minus<double>());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::max_element(diffValue1,diffValue1+12),1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,*std::min_element(diffValue1,diffValue1+12),1e-12);
   CPPUNIT_ASSERT_EQUAL(2768,constMesh->getNodalConnectivity()->getNbOfElems());
-  CPPUNIT_ASSERT_EQUAL(651050,std::accumulate(constMesh->getNodalConnectivity()->getPointer(),constMesh->getNodalConnectivity()->getPointer()+2768,0));
-  CPPUNIT_ASSERT_EQUAL(725943,std::accumulate(constMesh->getNodalConnectivityIndex()->getPointer(),constMesh->getNodalConnectivityIndex()->getPointer()+539,0));
+  CPPUNIT_ASSERT_EQUAL(651050,std::accumulate(constMesh->getNodalConnectivity()->getConstPointer(),constMesh->getNodalConnectivity()->getConstPointer()+2768,0));
+  CPPUNIT_ASSERT_EQUAL(725943,std::accumulate(constMesh->getNodalConnectivityIndex()->getConstPointer(),constMesh->getNodalConnectivityIndex()->getConstPointer()+539,0));
   const double *values=field->getArray()->getPointer();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2.87214203182918,std::accumulate(values,values+538,0.),1e-12);
   field->decrRef();
