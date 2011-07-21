@@ -498,6 +498,17 @@ void MEDCouplingCMesh::setCoords(const DataArrayDouble *coordsX, const DataArray
 }
 
 /*!
+ * See MEDCouplingUMesh::getDistributionOfTypes for more information
+ */
+std::vector<int> MEDCouplingCMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret(3);
+  ret[0]=getTypeOfCell(0);
+  ret[1]=getNumberOfCells();
+  return ret;
+}
+
+/*!
  * See MEDCouplingUMesh::checkTypeConsistencyAndContig for more information
  */
 DataArrayInt *MEDCouplingCMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)

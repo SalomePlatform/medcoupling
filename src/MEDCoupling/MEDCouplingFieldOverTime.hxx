@@ -28,7 +28,7 @@
 
 namespace ParaMEDMEM
 {
-  class MEDCouplingFieldOverTime : public MEDCouplingMultiFields
+  class MEDCOUPLING_EXPORT MEDCouplingFieldOverTime : public MEDCouplingMultiFields
   {
   public:
     static MEDCouplingFieldOverTime *New(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception);

@@ -3344,6 +3344,41 @@ namespace ParaMEDMEMImpl
 }
 
 /*!
+ * This method expects that 'this' is sorted by types. If not an exception will be thrown.
+ * This method returns in the same format as code (see MEDCouplingUMesh::checkTypeConsistencyAndContig or MEDCouplingUMesh::splitProfilePerType) how
+ * 'this' is composed in cell types.
+ * The returned array is of size 3*n where n is the number of different types present in 'this'. For every k in [0,n] ret[3*k+2]==0 because it has no
+ * sense here. This parameter is kept only for compatibility with other methode listed above.
+ */
+std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const int *work=connI;
+  int nbOfCells=getNumberOfCells();
+  std::size_t n=getAllTypes().size();
+  std::vector<int> ret(3*n);
+  std::set<INTERP_KERNEL::NormalizedCellType> types;
+  for(std::size_t i=0;work!=connI+nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)conn[*work];
+      if(types.find(typ)!=types.end())
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::getDistributionOfTypes : Type " << INTERP_KERNEL::CellModel::GetCellModel(typ).getRepr();
+          oss << " is not contiguous !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      types.insert(typ);
+      ret[3*i]=typ;
+      const int *work2=std::find_if(work+1,connI+nbOfCells,ParaMEDMEMImpl::ConnReader(conn,typ));
+      ret[3*i+1]=std::distance(work,work2);
+      work=work2;
+    }
+  return ret;
+}
+
+/*!
  * This method is used to check that this has contiguous cell type in same order than described in 'code'.
  * Format of 'code' is the following. 'code' should be of size 3*n and non empty. If not an exception is thrown.
  * foreach k in [0,n) on 3*k pos represent the geometric type and 3*k+1 number of elements of type 3*k.

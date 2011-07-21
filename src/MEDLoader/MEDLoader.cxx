@@ -2202,7 +2202,7 @@ void MEDLoaderNS::writeUMeshesDirectly(const char *fileName, const std::vector<c
       MEDLoaderBase::safeStrCpy(c.c_str(),MED_TAILLE_PNOM-1,comp+i*MED_TAILLE_PNOM,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy(u.c_str(),MED_TAILLE_PNOM-1,unit+i*MED_TAILLE_PNOM,MEDLoader::_TOO_LONG_STR);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDcoordEcr(fid,maa,spaceDim,arr->getPointer(),MED_FULL_INTERLACE,mesh[0]->getNumberOfNodes(),MED_CART,comp,unit);
+  MEDcoordEcr(fid,maa,spaceDim,(double *)arr->getConstPointer(),MED_FULL_INTERLACE,mesh[0]->getNumberOfNodes(),MED_CART,comp,unit);
   delete [] comp;
   delete [] unit;
   delete [] maa;

@@ -67,6 +67,7 @@ namespace ParaMEDMEM
                    const DataArrayDouble *coordsY=0,
                    const DataArrayDouble *coordsZ=0);
     // tools
+    std::vector<int> getDistributionOfTypes() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     void splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);

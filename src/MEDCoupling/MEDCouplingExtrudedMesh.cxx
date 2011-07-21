@@ -601,6 +601,11 @@ void MEDCouplingExtrudedMesh::scale(const double *point, double factor)
   _mesh1D->scale(point,factor);
 }
 
+std::vector<int> MEDCouplingExtrudedMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+}
+
 DataArrayInt *MEDCouplingExtrudedMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");

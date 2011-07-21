@@ -557,6 +557,12 @@ namespace ParaMEDMEM
           return res;
         }
 
+        PyObject *getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
+        {
+          std::vector<int> ret=self->getDistributionOfTypes();
+          return convertIntArrToPyList2(ret);
+        }
+
         DataArrayInt *checkTypeConsistencyAndContig(PyObject *li, PyObject *li2) const throw(INTERP_KERNEL::Exception)
         {
           std::vector<int> code;

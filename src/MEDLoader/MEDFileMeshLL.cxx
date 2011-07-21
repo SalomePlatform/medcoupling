@@ -210,10 +210,10 @@ void MEDFileUMeshL2::writeCoords(med_idt fid, const char *mname, const DataArray
       MEDLoaderBase::safeStrCpy(c.c_str(),MED_TAILLE_PNOM-1,comp+i*MED_TAILLE_PNOM,0);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
       MEDLoaderBase::safeStrCpy(u.c_str(),MED_TAILLE_PNOM-1,unit+i*MED_TAILLE_PNOM,0);//MED_TAILLE_PNOM-1 to avoid to write '\0' on next compo
     }
-  MEDcoordEcr(fid,(char *)mname,spaceDim,coords->getPointer(),MED_FULL_INTERLACE,coords->getNumberOfTuples(),MED_CART,comp,unit);
-  MEDfamEcr(fid,(char *)mname,famCoords->getPointer(),famCoords->getNumberOfTuples(),MED_NOEUD,MED_NONE);
+  MEDcoordEcr(fid,(char *)mname,spaceDim,(double *)coords->getConstPointer(),MED_FULL_INTERLACE,coords->getNumberOfTuples(),MED_CART,comp,unit);
+  MEDfamEcr(fid,(char *)mname,(int *)famCoords->getConstPointer(),famCoords->getNumberOfTuples(),MED_NOEUD,MED_NONE);
   if(numCoords)
-    MEDnumEcr(fid,(char *)mname,numCoords->getPointer(),numCoords->getNumberOfTuples(),MED_NOEUD,MED_NONE);
+    MEDnumEcr(fid,(char *)mname,(int *)numCoords->getConstPointer(),numCoords->getNumberOfTuples(),MED_NOEUD,MED_NONE);
 }
 
 bool MEDFileUMeshL2::isFamDefinedOnLev(int levId) const

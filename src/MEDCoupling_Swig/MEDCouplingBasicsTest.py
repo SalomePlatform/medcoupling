@@ -7556,6 +7556,42 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected1[i],d.getIJ(0,i));
             pass
         pass
+
+    def testMergeField3(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m.getCoords().setInfoOnComponent(0,"x [m]");
+        m.getCoords().setInfoOnComponent(1,"z [km]");
+        m.setName("m");
+        m.setDescription("desc");
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f1.setName("f1");
+        f1.setMesh(m);
+        arr=DataArrayDouble.New();
+        arr.alloc(5,2);
+        arr.setInfoOnComponent(0,"X [m]");
+        arr.setInfoOnComponent(1,"YY [mm]");
+        arr.fillWithValue(2.);
+        f1.setArray(arr);
+        #
+        f2=MEDCouplingFieldDouble.MergeFields([f1]);
+        self.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+        #
+        pass
+    
+    def testGetDistributionOfTypes1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        tab1=[2,0,1,3,4]
+        self.assertRaises(InterpKernelException,m.getDistributionOfTypes);
+        m.renumberCells(tab1,False);
+        code=m.getDistributionOfTypes();
+        self.assertEqual(6,len(code));
+        self.assertEqual(3,code[0]);
+        self.assertEqual(2,code[1]);
+        self.assertEqual(0,code[2]);
+        self.assertEqual(4,code[3]);
+        self.assertEqual(3,code[4]);
+        self.assertEqual(0,code[5]);
+        pass
     
     def setUp(self):
         pass
