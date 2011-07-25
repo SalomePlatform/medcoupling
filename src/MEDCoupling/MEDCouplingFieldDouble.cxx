@@ -571,6 +571,20 @@ double MEDCouplingFieldDouble::getAverageValue() const throw(INTERP_KERNEL::Exce
 }
 
 /*!
+ * This method returns the euclidean norm of 'this'.
+ * \f[
+ * \sqrt{\sum_{0 \leq i < nbOfEntity}val[i]*val[i]}
+ * \f]
+ * If default array does not exist, an exception will be thrown.
+ */
+double MEDCouplingFieldDouble::norm2() const throw(INTERP_KERNEL::Exception)
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::norm2 : no default array defined !");
+  return getArray()->norm2();
+}
+
+/*!
  * This method returns the average value in 'this' weighted by ParaMEDMEM::MEDCouplingField::buildMeasureField.
  * 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
  * To getAverageValue on vector field applyFunc is needed before. This method looks only \b default array \b and \b only \b default.

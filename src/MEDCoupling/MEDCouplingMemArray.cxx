@@ -1022,6 +1022,17 @@ double DataArrayDouble::getAverageValue() const throw(INTERP_KERNEL::Exception)
   return ret/nbOfTuples;
 }
 
+double DataArrayDouble::norm2() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  double ret=0.;
+  int nbOfElems=getNbOfElems();
+  const double *pt=getConstPointer();
+  for(int i=0;i<nbOfElems;i++,pt++)
+    ret+=(*pt)*(*pt);
+  return sqrt(ret);
+}
+
 void DataArrayDouble::accumulate(double *res) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();

@@ -191,6 +191,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getAverageValue() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double norm2() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void accumulate(double *res) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double accumulate(int compId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *fromPolarToCart() const throw(INTERP_KERNEL::Exception);

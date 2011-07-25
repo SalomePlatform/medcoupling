@@ -1514,3 +1514,23 @@ void MEDCouplingBasicsTest::testGetDistributionOfTypes1()
   CPPUNIT_ASSERT_EQUAL(0,code[5]);
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testNorm2_1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f->setMesh(m);
+  m->decrRef();
+  //
+  DataArrayDouble *d=DataArrayDouble::New();
+  const double tab[10]={1.2,1.3,2.2,2.3,3.2,3.3,4.2,4.3,5.2,5.3};
+  d->alloc(5,2);
+  std::copy(tab,tab+10,d->getPointer());
+  f->setArray(d);
+  d->decrRef();
+  f->checkCoherency();
+  //
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(11.209371079592289,f->norm2(),1e-14);
+  //
+  f->decrRef();
+}
