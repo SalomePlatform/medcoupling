@@ -7607,6 +7607,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(11.209371079592289,f.norm2(),1e-14);
         #
         pass
+
+    def testNormMax1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        f=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
+        f.setMesh(m);
+        #
+        d=DataArrayDouble.New();
+        tab=[2.3,-1.2,6.3,-7.8,2.9,7.7,2.1,0.,3.6,-7.6]
+        d.setValues(tab,5,2);
+        f.setArray(d);
+        f.checkCoherency();
+        #
+        self.assertAlmostEqual(7.8,f.normMax(),1e-14);
+        #
+        pass
     
     def setUp(self):
         pass

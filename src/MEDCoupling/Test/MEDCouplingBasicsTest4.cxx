@@ -1534,3 +1534,23 @@ void MEDCouplingBasicsTest::testNorm2_1()
   //
   f->decrRef();
 }
+
+void MEDCouplingBasicsTest::testNormMax1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f->setMesh(m);
+  m->decrRef();
+  //
+  DataArrayDouble *d=DataArrayDouble::New();
+  const double tab[10]={2.3,-1.2,6.3,-7.8,2.9,7.7,2.1,0.,3.6,-7.6};
+  d->alloc(5,2);
+  std::copy(tab,tab+10,d->getPointer());
+  f->setArray(d);
+  d->decrRef();
+  f->checkCoherency();
+  //
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.8,f->normMax(),1e-14);
+  //
+  f->decrRef();
+}

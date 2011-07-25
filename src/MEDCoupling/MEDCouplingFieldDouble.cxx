@@ -585,6 +585,20 @@ double MEDCouplingFieldDouble::norm2() const throw(INTERP_KERNEL::Exception)
 }
 
 /*!
+ * This method returns the max norm of 'this'.
+ * \f[
+ * \max_{0 \leq i < nbOfEntity}{abs(val[i])}
+ * \f]
+ * If default array does not exist, an exception will be thrown.
+ */
+double MEDCouplingFieldDouble::normMax() const throw(INTERP_KERNEL::Exception)
+{
+  if(getArray()==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::normMax : no default array defined !");
+  return getArray()->normMax();
+}
+
+/*!
  * This method returns the average value in 'this' weighted by ParaMEDMEM::MEDCouplingField::buildMeasureField.
  * 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
  * To getAverageValue on vector field applyFunc is needed before. This method looks only \b default array \b and \b only \b default.

@@ -93,6 +93,7 @@ namespace ParaMEDMEM
     double getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
     double getAverageValue() const throw(INTERP_KERNEL::Exception);
     double norm2() const throw(INTERP_KERNEL::Exception);
+    double normMax() const throw(INTERP_KERNEL::Exception);
     double getWeightedAverageValue() const throw(INTERP_KERNEL::Exception);
     double normL1(int compId) const throw(INTERP_KERNEL::Exception);
     void normL1(double *res) const throw(INTERP_KERNEL::Exception);

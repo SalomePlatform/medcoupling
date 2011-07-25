@@ -1033,6 +1033,21 @@ double DataArrayDouble::norm2() const throw(INTERP_KERNEL::Exception)
   return sqrt(ret);
 }
 
+double DataArrayDouble::normMax() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  double ret=-1.;
+  int nbOfElems=getNbOfElems();
+  const double *pt=getConstPointer();
+  for(int i=0;i<nbOfElems;i++,pt++)
+    {
+      double val=std::abs(*pt);
+      if(val>ret)
+        ret=val;
+    }
+  return ret;
+}
+
 void DataArrayDouble::accumulate(double *res) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
