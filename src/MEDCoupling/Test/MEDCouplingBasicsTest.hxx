@@ -231,6 +231,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGetDistributionOfTypes1 );
     CPPUNIT_TEST( testNorm2_1 );
     CPPUNIT_TEST( testNormMax1 );
+    CPPUNIT_TEST( testFindAndCorrectBadOriented3DExtrudedCells1 );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -488,6 +489,7 @@ namespace ParaMEDMEM
     void testGetDistributionOfTypes1();
     void testNorm2_1();
     void testNormMax1();
+    void testFindAndCorrectBadOriented3DExtrudedCells1();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

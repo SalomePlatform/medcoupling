@@ -2381,6 +2381,52 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
 }
 
 /*!
+ * This method is expected to be applied on a mesh with spaceDim==3 and meshDim==3. If not an exception will be thrown.
+ * This method analyzes only linear extruded 3D cells (NORM_HEXA8,NORM_PENTA6,NORM_HEXGP12...)
+ * If some extruded cells does not fulfill the MED norm for extruded cells (first face of 3D cell should be oriented to the exterior of the 3D cell).
+ * Some viewers are very careful of that (SMESH), but ParaVis ignore that.
+ */
+void MEDCouplingUMesh::findAndCorrectBadOriented3DExtrudedCells(std::vector<int>& cells) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="check3DCellsWellOriented detection works only for 3D cells !";
+  if(getMeshDimension()!=3)
+    throw INTERP_KERNEL::Exception(msg);
+  int spaceDim=getSpaceDimension();
+  if(spaceDim!=3)
+    throw INTERP_KERNEL::Exception(msg);
+  //
+  int nbOfCells=getNumberOfCells();
+  int *conn=_nodal_connec->getPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coo=getCoords()->getConstPointer();
+  double vec0[3],vec1[3];
+  for(int i=0;i<nbOfCells;i++)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
+      if(cm.isExtruded() && !cm.isDynamic() && !cm.isQuadratic())
+        {
+          INTERP_KERNEL::AutoPtr<int> tmp=new int[connI[i+1]-connI[i]-1];
+          int nbOfNodes=cm.fillSonCellNodalConnectivity(0,conn+connI[i]+1,tmp);
+          INTERP_KERNEL::areaVectorOfPolygon<int,INTERP_KERNEL::ALL_C_MODE>(tmp,nbOfNodes,coo,vec0);
+          const double *pt0=coo+3*conn[connI[i]+1];
+          const double *pt1=coo+3*conn[connI[i]+nbOfNodes+1];
+          vec1[0]=pt0[0]-pt1[0]; vec1[1]=pt0[1]-pt1[1]; vec1[2]=pt0[2]-pt1[2];
+          double dot=vec0[0]*vec1[0]+vec0[1]*vec1[1]+vec0[2]*vec1[2];
+          if(dot<0)
+            {
+              cells.push_back(i);
+              std::copy(conn+connI[i]+1,conn+connI[i+1],(int *)tmp);
+              for(int j=1;j<nbOfNodes;j++)
+                {
+                  conn[connI[i]+1+j]=tmp[nbOfNodes-j];
+                  conn[connI[i]+1+j+nbOfNodes]=tmp[nbOfNodes+nbOfNodes-j];
+                }
+            }
+        }
+    }
+}
+
+/*!
  * This method is \b NOT const because it can modify 'this'.
  * 'this' is expected to be an unstructured mesh with meshDim==2 and spaceDim==3. If not an exception will be thrown.
  * @param mesh1D is an unstructured mesh with MeshDim==1 and spaceDim==3. If not an exception will be thrown.

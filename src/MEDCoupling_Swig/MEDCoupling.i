@@ -1092,6 +1092,13 @@ namespace ParaMEDMEM
         return convertIntArrToPyList2(cells);
       }
 
+      PyObject *findAndCorrectBadOriented3DExtrudedCells() throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<int> cells;
+        self->findAndCorrectBadOriented3DExtrudedCells(cells);
+        return convertIntArrToPyList2(cells);
+      }
+
       PyObject *getFastAveragePlaneOfThis() const throw(INTERP_KERNEL::Exception)
       {
         double vec[3];

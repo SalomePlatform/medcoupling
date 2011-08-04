@@ -42,6 +42,7 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT static const CellModel& GetCellModel(NormalizedCellType type);
     INTERPKERNEL_EXPORT const char *getRepr() const;
+    INTERPKERNEL_EXPORT bool isExtruded() const { return _is_extruded; }
     INTERPKERNEL_EXPORT bool isDynamic() const { return _dyn; }
     INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }
     INTERPKERNEL_EXPORT unsigned getDimension() const { return _dim; }
@@ -65,6 +66,7 @@ namespace INTERP_KERNEL
     bool _dyn;
     bool _quadratic;
     bool _is_simplex;
+    bool _is_extruded;
     unsigned _dim;
     unsigned _nb_of_pts;
     unsigned _nb_of_sons;
