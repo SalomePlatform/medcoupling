@@ -7649,6 +7649,46 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(connExp,m.getNodalConnectivity().getValues());
         #
         pass
+
+    def testConvertExtrudedPolyhedra1(self):
+        conn=[1,2,3,4, 5,6,7,8,9,10,11,12, 13,14,15,16, 17,18,19,-1,20,21,22, 23,24,25,26,27,28, 29,30,31,32,33,-1,34,35,36,37,38, 39,40,41,42,43,44,45,46, 47,48,49,50,51,52,53,54,55,56,57,58, 59,60,61,62,63,64,65,-1,66,67,68,69,70,71,72]
+        m=MEDCouplingUMesh.New("Example",3);
+        coo=DataArrayDouble.New();
+        coo.alloc(73,3);
+        coo.rearrange(1); coo.iota(0); coo.rearrange(3);
+        m.setCoords(coo);
+        m.allocateCells(9);
+        m.insertNextCell(NORM_TETRA4,4,conn[0:4])
+        m.insertNextCell(NORM_HEXA8,8,conn[4:12])
+        m.insertNextCell(NORM_TETRA4,4,conn[12:16])
+        m.insertNextCell(NORM_POLYHED,7,conn[16:23])
+        m.insertNextCell(NORM_PENTA6,6,conn[23:29])
+        m.insertNextCell(NORM_POLYHED,11,conn[29:40])
+        m.insertNextCell(NORM_HEXA8,8,conn[40:48])
+        m.insertNextCell(NORM_HEXGP12,12,conn[48:60])
+        m.insertNextCell(NORM_POLYHED,15,conn[60:75])
+        m.finishInsertingCells();
+        #
+        m.convertExtrudedPolyhedra();
+        da=m.getNodalConnectivity();
+        dai=m.getNodalConnectivityIndex();
+        self.assertEqual(10,dai.getNbOfElems());
+        self.assertEqual(159,da.getNbOfElems());
+        #
+        expected1=[14, 1, 2, 3, 4,
+                   18, 5, 6, 7, 8, 9, 10, 11, 12,
+                   14, 13, 14, 15, 16,
+                   31, 17, 18, 19, -1, 20, 22, 21, -1, 17, 18, 21, 20, -1, 18, 19, 22, 21, -1, 19, 17, 20, 22,
+                   16, 23, 24, 25, 26, 27, 28,
+                   31, 29, 30, 31, 32, 33, -1, 34, 38, 37, 36, 35, -1, 29, 30, 35, 34, -1, 30, 31, 36, 35, -1, 31, 32, 37, 36, -1, 32, 33, 38, 37, -1, 33, 29, 34, 38,
+                   18, 39, 40, 41, 42, 43, 44, 45, 46,
+                   22, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58,
+                   31, 59, 60, 61, 62, 63, 64, 65, -1, 66, 72, 71, 70, 69, 68, 67, -1, 59, 60, 67, 66, -1, 60, 61, 68, 67, -1, 61, 62, 69, 68, -1, 62, 63, 70, 69, -1, 63, 64, 71, 70, -1, 64, 65, 72, 71, -1, 65, 59, 66, 72];
+        expected2=[0,5,14,19,42,49,86,95,108,159]
+        self.assertEqual(expected1,da.getValues());
+        self.assertEqual(expected2,dai.getValues());
+        m.checkCoherency2()
+        pass
     
     def setUp(self):
         pass

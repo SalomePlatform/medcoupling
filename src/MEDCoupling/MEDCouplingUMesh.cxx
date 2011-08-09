@@ -669,6 +669,83 @@ void MEDCouplingUMesh::convertAllToPoly()
 }
 
 /*!
+ * This method expects that 'this' has a spacedim equal to 3 and a mesh dimension equal to 3 too, if not an exception will be thrown.
+ * This method work only on cells with type NORM_POLYHED, all other cells with different type, are remains unchanged.
+. For such polyhedra, they are expected to have only 2 faces, and each face should
+ * have the same number of nodes. The first face is expected to be right oriented because all faces of this polyhedron will be deduced.
+ * When called 'this' is an invalid mesh on MED sense. This method will correct that for polyhedra.
+ * In case of presence of polyhedron that has not the extruded aspect (2 faces with the same number of nodes) an exception is thrown and 'this'
+ * remains unchanged.
+ * This method is usefull only for users that wants to build extruded unstructured mesh.
+ * This method is a convenient one that avoids boring polyhedra setting during insertNextCell process.
+ * In case of success, 'this' has be corrected contains the same number of cells and is valid in MED sense.
+ */
+void MEDCouplingUMesh::convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertExtrudedPolyhedra works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
+  int nbOfCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newCi=DataArrayInt::New();
+  newCi->alloc(nbOfCells+1,1);
+  int *newci=newCi->getPointer();
+  const int *ci=_nodal_connec_index->getConstPointer();
+  const int *c=_nodal_connec->getConstPointer();
+  newci[0]=0;
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)c[ci[i]];
+      if(type==INTERP_KERNEL::NORM_POLYHED)
+        {
+          if(std::count(c+ci[i]+1,c+ci[i+1],-1)!=1)
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::convertExtrudedPolyhedra : cell # " << i << " is a polhedron BUT it has NOT exactly 2 faces !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          const int *sp=std::find(c+ci[i]+1,c+ci[i+1],-1);
+          int n1=std::distance(c+ci[i]+1,sp);
+          int n2=std::distance(sp+1,c+ci[i+1]);
+          if(n1!=n2)
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::convertExtrudedPolyhedra : cell # " << i << " is a polhedron with 2 faces but there is a mismatch of number of nodes in faces !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          newci[i+1]=7*n1+2+newci[i];//6*n1 (nodal length) + n1+2 (number of faces) - 1 (number of '-1' separator is equal to number of faces -1) + 1 (for cell type)
+        }
+      else
+        newci[i+1]=(ci[i+1]-ci[i])+newci[i];
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newC=DataArrayInt::New();
+  newC->alloc(newci[nbOfCells],1);
+  int *newc=newC->getPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)c[ci[i]];
+      if(type==INTERP_KERNEL::NORM_POLYHED)
+        {
+          const int *sp=std::find(c+ci[i]+1,c+ci[i+1],-1);
+          int n1=std::distance(c+ci[i]+1,sp);
+          newc=std::copy(c+ci[i],sp+1,newc);
+          for(int j=0;j<n1;j++)
+            {
+              newc[j]=c[ci[i]+2+n1+(n1-j)%n1];
+              newc[n1+5*j]=-1;
+              newc[n1+5*j+1]=c[ci[i]+1+j];
+              newc[n1+5*j+2]=c[ci[i]+1+(j+1)%n1];
+              newc[n1+5*j+3]=c[ci[i]+1+(j+1)%n1+n1+1];
+              newc[n1+5*j+4]=c[ci[i]+1+j+n1+1];
+            }
+          newc+=n1*6;
+        }
+      else
+        newc=std::copy(c+ci[i],c+ci[i+1],newc);
+    }
+  _nodal_connec_index->decrRef(); _nodal_connec_index=newCi;
+  _nodal_connec->decrRef(); _nodal_connec=newC;
+  newC->incrRef(); newCi->incrRef();
+}
+
+/*!
  * This method is the opposite of ParaMEDMEM::MEDCouplingUMesh::convertToPolyTypes method.
  * The aim is to take all polygons or polyhedrons cell and to try to traduce them into classical cells.
  * 
