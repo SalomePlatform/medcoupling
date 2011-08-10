@@ -91,6 +91,8 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevelOld;
 
 %newobject ParaMEDMEM::MEDFileData::New;
+%newobject ParaMEDMEM::MEDFileData::getMeshes;
+%newobject ParaMEDMEM::MEDFileData::getFields;
 
 %feature("unref") MEDFileMesh "$this->decrRef();"
 %feature("unref") MEDFileUMesh "$this->decrRef();"
@@ -100,6 +102,7 @@ using namespace ParaMEDMEM;
 %feature("unref") MEDFileField1TS "$this->decrRef();"
 %feature("unref") MEDFileFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileFields "$this->decrRef();"
+%feature("unref") MEDFileData "$this->decrRef();"
 
 class MEDLoader
 {
@@ -503,6 +506,7 @@ namespace ParaMEDMEM
     static MEDFileMeshes *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
     //
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
     void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
@@ -673,13 +677,29 @@ namespace ParaMEDMEM
   public:
     static MEDFileData *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileData *New();
-    MEDFileFields *getFields() const;
-    MEDFileMeshes *getMeshes() const;
     void setFields(MEDFileFields *fields) throw(INTERP_KERNEL::Exception);
     void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    %extend
+       {
+         MEDFileMeshes *getMeshes() const
+         {
+           MEDFileMeshes *ret=self->getMeshes();
+           if(ret)
+             ret->incrRef();
+           return ret;
+         }
+
+         MEDFileFields *getFields() const
+         {
+           MEDFileFields *ret=self->getFields();
+           if(ret)
+             ret->incrRef();
+           return ret;
+         }
+       }
   };
 }

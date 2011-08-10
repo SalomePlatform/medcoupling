@@ -2216,6 +2216,26 @@ MEDFileMesh *MEDFileMeshes::getMeshAtPos(int i) const throw(INTERP_KERNEL::Excep
   return _meshes[i]->getOneTimeStep();
 }
 
+std::vector<std::string> MEDFileMeshes::getMeshesNames() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> ret(_meshes.size());
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++,i++)
+    {
+      const MEDFileMeshMultiTS *f=(*it);
+      if(f)
+        {
+          ret[i]=f->getName();
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDFileMeshes::getMeshesNames : At rank #" << i << " mesh is not defined !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return ret;
+}
+
 void MEDFileMeshes::resize(int newSize) throw(INTERP_KERNEL::Exception)
 {
   _meshes.resize(newSize);

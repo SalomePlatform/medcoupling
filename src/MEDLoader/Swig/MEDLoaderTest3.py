@@ -504,6 +504,7 @@ class MEDLoaderTest(unittest.TestCase):
         mmm2=MEDFileMeshMultiTS.New() ; mmm2.setOneTimeStep(mm2)
         ms=MEDFileMeshes.New(); ms.setMeshAtPos(0,mm1) ; ms.setMeshAtPos(1,mm2)
         d.setMeshes(ms)
+        self.assertEqual(('1DMesh_1', '2DCurveMesh_1'),d.getMeshes().getMeshesNames())
         #
         ff1=MEDFileFieldMultiTS.New()
         ff21=MEDFileFieldMultiTS.New()
