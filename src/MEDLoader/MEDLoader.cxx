@@ -2313,6 +2313,9 @@ void MEDLoaderNS::appendCellProfileField(const char *fileName, const ParaMEDMEM:
  */
 med_idt MEDLoaderNS::appendFieldSimpleAtt(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, med_int& numdt, med_int& numo, med_float& dt)
 {
+  std::string fieldName(f->getName());
+  if(fieldName.empty())
+    throw INTERP_KERNEL::Exception("MEDLoaderNS::appendFieldSimpleAtt : Trying to store a field with no name ! MED file format requires a NON EMPTY field name !");
   med_idt fid=MEDfileOpen(fileName,MED_ACC_RDWR);
   int nbComp=f->getNumberOfComponents();
   INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(nbComp*MED_SNAME_SIZE);
