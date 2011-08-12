@@ -149,7 +149,9 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int 
   for(int i=0;i<curNbOfElem;i++,w2++)
     {
       *w1++=(int)INTERP_KERNEL::NORM_POLYGON;
-      w1=std::transform(wi,wi+(w2[1]-w2[0]),w1,std::bind2nd(std::plus<int>(),-1));
+      const int *wi2=wi+(w2[1]-w2[0]);
+      w1=std::transform(wi,wi2,w1,std::bind2nd(std::plus<int>(),-1));
+      wi=wi2;
       *w2=*w2-1+i;
     }
   *w2=*w2-1+curNbOfElem;
