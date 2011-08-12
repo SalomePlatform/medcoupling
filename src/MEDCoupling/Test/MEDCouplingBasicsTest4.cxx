@@ -1589,7 +1589,7 @@ void MEDCouplingBasicsTest::testFindAndCorrectBadOriented3DExtrudedCells1()
 
 void MEDCouplingBasicsTest::testConvertExtrudedPolyhedra1()
 {
-  const int conn[75]={1,2,3,4, 5,6,7,8,9,10,11,12, 13,14,15,16, 17,18,19,-1,20,21,22, 23,24,25,26,27,28, 29,30,31,32,33,-1,34,35,36,37,38, 39,40,41,42,43,44,45,46, 47,48,49,50,51,52,53,54,55,56,57,58, 59,60,61,62,63,64,65,-1,66,67,68,69,70,71,72};
+  const int conn[72]={1,2,3,4, 5,6,7,8,9,10,11,12, 13,14,15,16, 17,18,19,20,21,22, 23,24,25,26,27,28, 29,30,31,32,33,34,35,36,37,38, 39,40,41,42,43,44,45,46, 47,48,49,50,51,52,53,54,55,56,57,58, 59,60,61,62,63,64,65,66,67,68,69,70,71,72};
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("Example",3);
   DataArrayDouble *coo=DataArrayDouble::New();
   coo->alloc(73,3);
@@ -1600,12 +1600,12 @@ void MEDCouplingBasicsTest::testConvertExtrudedPolyhedra1()
   m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn);
   m->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+4);
   m->insertNextCell(INTERP_KERNEL::NORM_TETRA4,4,conn+12);
-  m->insertNextCell(INTERP_KERNEL::NORM_POLYHED,7,conn+16);
-  m->insertNextCell(INTERP_KERNEL::NORM_PENTA6,6,conn+23);
-  m->insertNextCell(INTERP_KERNEL::NORM_POLYHED,11,conn+29);
-  m->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+40);
-  m->insertNextCell(INTERP_KERNEL::NORM_HEXGP12,12,conn+48);
-  m->insertNextCell(INTERP_KERNEL::NORM_POLYHED,15,conn+60);
+  m->insertNextCell(INTERP_KERNEL::NORM_POLYHED,6,conn+16);
+  m->insertNextCell(INTERP_KERNEL::NORM_PENTA6,6,conn+22);
+  m->insertNextCell(INTERP_KERNEL::NORM_POLYHED,10,conn+28);
+  m->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+38);
+  m->insertNextCell(INTERP_KERNEL::NORM_HEXGP12,12,conn+46);
+  m->insertNextCell(INTERP_KERNEL::NORM_POLYHED,14,conn+58);
   m->finishInsertingCells();
   //
   m->convertExtrudedPolyhedra();
