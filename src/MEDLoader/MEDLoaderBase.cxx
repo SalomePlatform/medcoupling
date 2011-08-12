@@ -86,6 +86,11 @@ void MEDLoaderBase::splitIntoNameAndUnit(const std::string& s, std::string& name
 void MEDLoaderBase::strip(std::string& s)
 {
   std::string::size_type f1=s.find_first_not_of(' ');
+  if(f1==std::string::npos)
+    {
+      s="";
+      return ;
+    }
   std::string::size_type f2=s.find_last_not_of(' ');
   s=s.substr(f1,f2-f1+1);
 }

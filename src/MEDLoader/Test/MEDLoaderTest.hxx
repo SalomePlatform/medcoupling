@@ -45,6 +45,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFieldGaussRW1 );
     CPPUNIT_TEST( testFieldGaussNERW1 );
     CPPUNIT_TEST( testLittleStrings1 );
+    CPPUNIT_TEST( testSplitIntoNameAndUnit1 );
     CPPUNIT_TEST( testMesh3DSurfShuffleRW );
     CPPUNIT_TEST( testFieldShuffleRW1 );
     CPPUNIT_TEST( testMultiFieldShuffleRW1 );
@@ -68,6 +69,7 @@ namespace ParaMEDMEM
     void testFieldGaussRW1();
     void testFieldGaussNERW1();
     void testLittleStrings1();
+    void testSplitIntoNameAndUnit1();
     void testMesh3DSurfShuffleRW();
     void testFieldShuffleRW1();
     void testMultiFieldShuffleRW1();

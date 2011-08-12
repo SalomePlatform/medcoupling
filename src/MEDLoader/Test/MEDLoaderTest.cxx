@@ -495,6 +495,30 @@ void MEDLoaderTest::testLittleStrings1()
   CPPUNIT_ASSERT(s=="azertty");
 }
 
+void MEDLoaderTest::testSplitIntoNameAndUnit1()
+{
+  std::string s(" []");
+  std::string c,u;
+  MEDLoaderBase::splitIntoNameAndUnit(s,c,u);
+  CPPUNIT_ASSERT(c.empty());
+  CPPUNIT_ASSERT(u.empty());
+  s="   lmmm  kki jjj      ";
+  MEDLoaderBase::strip(s);
+  CPPUNIT_ASSERT(s=="lmmm  kki jjj");
+  s=" ";
+  MEDLoaderBase::strip(s);
+  CPPUNIT_ASSERT(s.empty());
+  s="";
+  MEDLoaderBase::strip(s);
+  CPPUNIT_ASSERT(s.empty());
+  s="      ";
+  MEDLoaderBase::strip(s);
+  CPPUNIT_ASSERT(s.empty());
+  s="     pp";
+  MEDLoaderBase::strip(s);
+  CPPUNIT_ASSERT(s=="pp");
+}
+
 void MEDLoaderTest::testMesh3DSurfShuffleRW()
 {
   const char fileName[]="file15.med";
