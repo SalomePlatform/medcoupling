@@ -91,8 +91,8 @@ class MEDLoaderTest(unittest.TestCase):
         m.insertNextCell(NORM_TRI3,3,targetConn[4:7])
         m.insertNextCell(NORM_TRI3,3,targetConn[7:10])
         m.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
-        m.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
-        m.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+        m.insertNextCell(NORM_POLYGON,4,targetConn[10:14])
+        m.insertNextCell(NORM_POLYGON,4,targetConn[14:18])
         m.finishInsertingCells();
         m.setCoords(c)
         m.checkCoherency()
@@ -160,6 +160,11 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(g2_N.isEqual(t));
         #
         mm.write(outFileName,2);
+        #
+        mm=MEDFileMesh.New(outFileName)
+        mbis=mm.getMeshAtLevel(0)
+        m.setName(mm.getName()) ; m.setDescription(mm.getDescription())
+        self.assertTrue(m.isEqual(mbis,1e-12));
         pass
 
     # this test is the testMEDMesh3 except that permutation is dealed here
