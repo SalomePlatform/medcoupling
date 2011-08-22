@@ -1802,7 +1802,7 @@ DataArrayDouble *DataArrayDouble::Add(const DataArrayDouble *a1, const DataArray
   a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Add !");
   DataArrayDouble *ret=DataArrayDouble::New();
   ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::plus<double>());
+  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<double>());
   ret->copyStringInfoFrom(*a1);
   return ret;
 }
@@ -1812,7 +1812,7 @@ void DataArrayDouble::addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL
   int nbOfTuple=other->getNumberOfTuples();
   int nbOfComp=other->getNumberOfComponents();
   checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array add equal !");
-  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::plus<double>());
+  std::transform(begin(),end(),other->begin(),getPointer(),std::plus<double>());
   declareAsNew();
 }
 
@@ -1823,7 +1823,7 @@ DataArrayDouble *DataArrayDouble::Substract(const DataArrayDouble *a1, const Dat
   a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Substract !");
   DataArrayDouble *ret=DataArrayDouble::New();
   ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::minus<double>());
+  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<double>());
   ret->copyStringInfoFrom(*a1);
   return ret;
 }
@@ -1833,7 +1833,7 @@ void DataArrayDouble::substractEqual(const DataArrayDouble *other) throw(INTERP_
   int nbOfTuple=other->getNumberOfTuples();
   int nbOfComp=other->getNumberOfComponents();
   checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array substract equal !");
-  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::minus<double>());
+  std::transform(begin(),end(),other->begin(),getPointer(),std::minus<double>());
   declareAsNew();
 }
 
@@ -1850,7 +1850,7 @@ DataArrayDouble *DataArrayDouble::Multiply(const DataArrayDouble *a1, const Data
     {
       ret=DataArrayDouble::New();
       ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::multiplies<double>());
+      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::multiplies<double>());
       ret->copyStringInfoFrom(*a1);
     }
   else
@@ -1894,7 +1894,7 @@ void DataArrayDouble::multiplyEqual(const DataArrayDouble *other) throw(INTERP_K
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiplyEqual !");
   if(nbOfComp==nbOfComp2)
     {
-      std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::multiplies<double>());
+      std::transform(begin(),end(),other->begin(),getPointer(),std::multiplies<double>());
     }
   else
     {
@@ -1924,7 +1924,7 @@ DataArrayDouble *DataArrayDouble::Divide(const DataArrayDouble *a1, const DataAr
     {
       ret=DataArrayDouble::New();
       ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::divides<double>());
+      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<double>());
       ret->copyStringInfoFrom(*a1);
     }
   else
@@ -1956,7 +1956,7 @@ void DataArrayDouble::divideEqual(const DataArrayDouble *other) throw(INTERP_KER
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divideEqual !");
   if(nbOfComp==nbOfComp2)
     {
-      std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::divides<double>());
+      std::transform(begin(),end(),other->begin(),getPointer(),std::divides<double>());
     }
   else
     {
@@ -3634,7 +3634,7 @@ DataArrayInt *DataArrayInt::Add(const DataArrayInt *a1, const DataArrayInt *a2) 
   a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Add !");
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::plus<int>());
+  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<int>());
   ret->copyStringInfoFrom(*a1);
   return ret;
 }
@@ -3644,7 +3644,7 @@ void DataArrayInt::addEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exce
   int nbOfTuple=other->getNumberOfTuples();
   int nbOfComp=other->getNumberOfComponents();
   checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array add equal !");
-  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::plus<int>());
+  std::transform(begin(),end(),other->begin(),getPointer(),std::plus<int>());
   declareAsNew();
 }
 
@@ -3655,7 +3655,7 @@ DataArrayInt *DataArrayInt::Substract(const DataArrayInt *a1, const DataArrayInt
   a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Substract !");
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::minus<int>());
+  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<int>());
   ret->copyStringInfoFrom(*a1);
   return ret;
 }
@@ -3665,7 +3665,7 @@ void DataArrayInt::substractEqual(const DataArrayInt *other) throw(INTERP_KERNEL
   int nbOfTuple=other->getNumberOfTuples();
   int nbOfComp=other->getNumberOfComponents();
   checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array substract equal !");
-  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::minus<int>());
+  std::transform(begin(),end(),other->begin(),getPointer(),std::minus<int>());
   declareAsNew();
 }
 
@@ -3682,7 +3682,7 @@ DataArrayInt *DataArrayInt::Multiply(const DataArrayInt *a1, const DataArrayInt 
     {
       ret=DataArrayInt::New();
       ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::multiplies<int>());
+      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::multiplies<int>());
       ret->copyStringInfoFrom(*a1);
     }
   else
@@ -3726,7 +3726,7 @@ void DataArrayInt::multiplyEqual(const DataArrayInt *other) throw(INTERP_KERNEL:
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiplyEqual !");
   if(nbOfComp==nbOfComp2)
     {
-      std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::multiplies<int>());
+      std::transform(begin(),end(),other->begin(),getPointer(),std::multiplies<int>());
     }
   else
     {
@@ -3756,7 +3756,7 @@ DataArrayInt *DataArrayInt::Divide(const DataArrayInt *a1, const DataArrayInt *a
     {
       ret=DataArrayInt::New();
       ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::divides<int>());
+      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<int>());
       ret->copyStringInfoFrom(*a1);
     }
   else
@@ -3788,7 +3788,7 @@ void DataArrayInt::divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::E
     throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divideEqual !");
   if(nbOfComp==nbOfComp2)
     {
-      std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::divides<int>());
+      std::transform(begin(),end(),other->begin(),getPointer(),std::divides<int>());
     }
   else
     {
@@ -3812,7 +3812,7 @@ DataArrayInt *DataArrayInt::Modulus(const DataArrayInt *a1, const DataArrayInt *
   a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Modulus");
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->getConstPointer(),a1->getConstPointer()+nbOfTuple*nbOfComp,a2->getConstPointer(),ret->getPointer(),std::modulus<int>());
+  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::modulus<int>());
   ret->copyStringInfoFrom(*a1);
   return ret;
 }
@@ -3822,7 +3822,7 @@ void DataArrayInt::modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::
   int nbOfTuple=other->getNumberOfTuples();
   int nbOfComp=other->getNumberOfComponents();
   checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array modulus equal");
-  std::transform(getConstPointer(),getConstPointer()+nbOfTuple*nbOfComp,other->getConstPointer(),getPointer(),std::modulus<int>());
+  std::transform(begin(),end(),other->begin(),getPointer(),std::modulus<int>());
   declareAsNew();
 }
 

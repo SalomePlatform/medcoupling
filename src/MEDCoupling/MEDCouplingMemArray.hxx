@@ -183,6 +183,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
     MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
+    MEDCOUPLING_EXPORT const double *begin() const { return getConstPointer(); }
+    MEDCOUPLING_EXPORT const double *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
@@ -316,6 +318,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
+    MEDCOUPLING_EXPORT const int *begin() const { return getConstPointer(); }
+    MEDCOUPLING_EXPORT const int *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
