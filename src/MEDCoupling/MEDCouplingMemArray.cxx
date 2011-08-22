@@ -3028,6 +3028,11 @@ void DataArrayInt::SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)
     }
 }
 
+DataArrayIntIterator *DataArrayInt::iterator()
+{
+  return new DataArrayIntIterator(this);
+}
+
 DataArrayInt *DataArrayInt::getIdsEqual(int val) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -3915,4 +3920,55 @@ void DataArrayInt::finishUnserialization(const std::vector<int>& tinyInfoI, cons
       for(int i=0;i<nbOfCompo;i++)
         setInfoOnComponent(i,tinyInfoS[i+1].c_str());
     }
+}
+
+DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):_da(da),_tuple(new DataArrayIntTuple(da)),_tuple_id(0),_nb_tuple(0)
+{
+  if(_da)
+    {
+      _da->incrRef();
+      _nb_tuple=da->getNumberOfTuples();
+    }
+}
+
+DataArrayIntIterator::~DataArrayIntIterator()
+{
+  if(_da)
+    _da->decrRef();
+  delete _tuple;
+}
+
+DataArrayIntTuple *DataArrayIntIterator::nextt()
+{
+  if(_tuple_id<_nb_tuple)
+    {
+      _tuple_id++;
+      _tuple->next();
+      return _tuple;
+    }
+  else
+    return 0;
+}
+
+DataArrayIntTuple::DataArrayIntTuple(DataArrayInt *da):_pt(0),_nb_of_compo(0)
+{
+  if(da)
+    {
+      _nb_of_compo=da->getNumberOfComponents();
+      _pt=da->getPointer()-_nb_of_compo;
+    }
+}
+
+void DataArrayIntTuple::next()
+{
+  _pt+=_nb_of_compo;
+}
+
+std::string DataArrayIntTuple::repr() const
+{
+  std::ostringstream oss; oss << "(";
+  for(int i=0;i<_nb_of_compo-1;i++)
+    oss << _pt[i] << ", ";
+  oss << _pt[_nb_of_compo-1] << ")";
+  return oss.str();
 }

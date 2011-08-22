@@ -789,6 +789,74 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
   sw=4;
 }
 
+static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayIntTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyInt_Check(value))
+    {
+      iTyypp=(int)PyInt_AS_LONG(value);
+      sw=1;
+      return;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not integer ! only tuples of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not integer ! only lists of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2;
+      return;
+    }
+  if(PySlice_Check(value))
+    {
+      Py_ssize_t strt,stp,step;
+      PySliceObject *oC=reinterpret_cast<PySliceObject *>(value);
+      if(PySlice_GetIndices(oC,nbelem,&strt,&stp,&step)!=0)
+        {
+          std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elemnts is : " << nbelem;
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      p.first=strt;
+      p.second.first=stp;
+      p.second.second=step;
+      sw=3;
+      return ;
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  if(!SWIG_IsOK(status))
+    throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, slice, DataArrayIntTuple");
+  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+  sw=4;
+}
+
 /*!
  * if value int -> cpp it sw=1
  * if value list[int] -> vt sw=2

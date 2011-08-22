@@ -114,6 +114,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject ParaMEDMEM::MEDCouplingFieldTemplate::New;
 %newobject ParaMEDMEM::DataArrayInt::New;
+%newobject ParaMEDMEM::DataArrayInt::__iter__;
 %newobject ParaMEDMEM::DataArrayInt::convertToDblArr;
 %newobject ParaMEDMEM::DataArrayInt::deepCpy;
 %newobject ParaMEDMEM::DataArrayInt::performCpy;
@@ -284,6 +285,9 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::pushTinySerializationDblInfo;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo;
+%ignore ParaMEDMEM::DataArrayIntIterator::nextt;
+%ignore ParaMEDMEM::DataArrayIntTuple::next;
+%ignore ParaMEDMEM::DataArrayIntTuple::repr;
 
 %nodefaultctor;
 
@@ -2389,11 +2393,255 @@ namespace ParaMEDMEM
    }
  };
 
+%extend ParaMEDMEM::DataArrayIntTuple
+{
+  std::string __str__() const
+  {
+    return self->repr();
+  }
+  
+  PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    int sw;
+    int singleVal;
+    std::vector<int> multiVal;
+    std::pair<int, std::pair<int,int> > slic;
+    ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+    const int *pt=self->getConstPointer();
+    int nbc=self->getNumberOfCompo();
+    convertObjToPossibleCpp2(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+    switch(sw)
+      {
+      case 1:
+        {
+          if(singleVal>=nbc)
+            {
+              std::ostringstream oss;
+              oss << "Requesting for id " << singleVal << " having only " << nbc << " components !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          if(singleVal>=0)
+            return PyInt_FromLong(pt[singleVal]);
+          else
+            {
+              if(nbc+singleVal>0)
+                return PyInt_FromLong(pt[nbc+singleVal]);
+              else
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for id " << singleVal << " having only " << nbc << " components !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+        }
+      case 2:
+        {
+          PyObject *t=PyTuple_New(multiVal.size());
+          for(int j=0;j<(int)multiVal.size();j++)
+            {
+              int cid=multiVal[j];
+              if(cid>=nbc)
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for id #" << cid << " having only " << nbc << " components !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+              PyTuple_SetItem(t,j,PyInt_FromLong(pt[cid]));
+            }
+          return t;
+        }
+      case 3:
+          {
+            int sz=DataArray::GetNumberOfItemGivenBES(slic.first,slic.second.first,slic.second.second,"");
+            PyObject *t=PyTuple_New(sz);
+            for(int j=0;j<sz;j++)
+              PyTuple_SetItem(t,j,PyInt_FromLong(pt[slic.first+j*slic.second.second]));
+            return t;
+          }
+      default:
+        throw INTERP_KERNEL::Exception("DataArrayIntTuple::__getitem__ : unrecognized type entered !");
+      }
+  }
+
+  DataArrayIntTuple *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+  {
+     const char msg[]="DataArrayIntTuple::__setitem__ : unrecognized type entered, int, slice, list<int>, tuple<int> !";
+     int sw1,sw2;
+     int singleValV;
+     std::vector<int> multiValV;
+     std::pair<int, std::pair<int,int> > slicV;
+     ParaMEDMEM::DataArrayIntTuple *daIntTyyppV=0;
+     int nbc=self->getNumberOfCompo();
+     convertObjToPossibleCpp22(value,nbc,sw1,singleValV,multiValV,slicV,daIntTyyppV);
+     int singleVal;
+     std::vector<int> multiVal;
+     std::pair<int, std::pair<int,int> > slic;
+     ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+     int *pt=self->getPointer();
+     convertObjToPossibleCpp2(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
+     switch(sw2)
+       {
+       case 1:
+         {
+           if(singleVal>=nbc)
+            {
+              std::ostringstream oss;
+              oss << "Requesting for setting id # " << singleVal << " having only " << nbc << " components !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+           switch(sw1)
+             {
+             case 1:
+               {
+                 pt[singleVal]=singleValV;
+                 return self;
+               }
+             case 2:
+               {
+                 if(multiValV.size()!=1)
+                   {
+                     std::ostringstream oss;
+                     oss << "Requesting for setting id # " << singleVal << " with a list or tuple with size != 1 ! ";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 pt[singleVal]=multiValV[0];
+                 return self;
+               }
+             case 4:
+               {
+                 pt[singleVal]=daIntTyyppV->getConstPointer()[0];
+                 return self;
+               }
+             default:
+               throw INTERP_KERNEL::Exception(msg);
+             }
+         }
+       case 2:
+         {
+           switch(sw1)
+             {
+             case 1:
+               {
+                 for(std::vector<int>::const_iterator it=multiVal.begin();it!=multiVal.end();it++)
+                   {
+                     if(*it>=nbc)
+                       {
+                         std::ostringstream oss;
+                         oss << "Requesting for setting id # " << *it << " having only " << nbc << " components !";
+                         throw INTERP_KERNEL::Exception(oss.str().c_str());
+                       }
+                     pt[*it]=singleValV;
+                   }
+                 return self;
+               }
+             case 2:
+               {
+                 if(multiVal.size()!=multiValV.size())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << multiValV.size() << " != " << multiVal.size() << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 for(int i=0;i<multiVal.size();i++)
+                   {
+                     int pos=multiVal[i];
+                     if(pos>=nbc)
+                       {
+                         std::ostringstream oss;
+                         oss << "Requesting for setting id # " << pos << " having only " << nbc << " components !";
+                         throw INTERP_KERNEL::Exception(oss.str().c_str());
+                       }
+                     pt[multiVal[i]]=multiValV[i];
+                   }
+                 return self;
+               }
+             case 4:
+               {
+                 const int *ptV=daIntTyyppV->getConstPointer();
+                 if(nbc>daIntTyyppV->getNumberOfCompo())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << nbc << " != " << daIntTyyppV->getNumberOfCompo() << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 std::copy(ptV,ptV+nbc,pt);
+                 return self;
+               }
+             default:
+               throw INTERP_KERNEL::Exception(msg);
+             }
+         }
+       case 3:
+         {
+           int sz=DataArray::GetNumberOfItemGivenBES(slic.first,slic.second.first,slic.second.second,"");
+           switch(sw1)
+             {
+             case 1:
+               {
+                 for(int j=0;j<sz;j++)
+                   pt[slic.first+j*slic.second.second]=singleValV;
+                 return self;
+               }
+             case 2:
+               {
+                 if(sz!=multiValV.size())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << multiValV.size() << " != " << sz << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 for(int j=0;j<sz;j++)
+                   pt[slic.first+j*slic.second.second]=multiValV[j];
+                 return self;
+               }
+             case 4:
+               {
+                 const int *ptV=daIntTyyppV->getConstPointer();
+                 if(sz>daIntTyyppV->getNumberOfCompo())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << nbc << " != " << daIntTyyppV->getNumberOfCompo() << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 for(int j=0;j<sz;j++)
+                   pt[slic.first+j*slic.second.second]=ptV[j];
+                 return self;
+               }
+             default:
+               throw INTERP_KERNEL::Exception(msg);
+             }
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+}
+
+%extend ParaMEDMEM::DataArrayIntIterator
+{
+  PyObject *next()
+  {
+    DataArrayIntTuple *ret=self->nextt();
+    if(ret)
+      return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+    else
+      {
+        PyErr_SetString(PyExc_StopIteration,"No more data.");
+        return 0;
+      }
+  }
+}
+
 %extend ParaMEDMEM::DataArrayInt
  {
    std::string __str__() const
    {
      return self->repr();
+   }
+
+   DataArrayIntIterator *__iter__()
+   {
+     return self->iterator();
    }
 
    PyObject *getDifferentValues(bool val) const throw(INTERP_KERNEL::Exception)

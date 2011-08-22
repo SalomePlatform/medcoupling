@@ -6280,6 +6280,64 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(da.getValues(),[7,7,7,3,8,8,7,7,7,9,14,20,12,17,26,7,7,7,18,23,38,21,26,44,24,29,70,27,32,76])
         pass
 
+    def testSwigDataArrayIntIterator1(self):
+        da=DataArrayInt.New()
+        da.alloc(12,1)
+        da.iota(2)
+        da.rearrange(3)
+        # __getitem__ testing
+        li=[]
+        for it in da:
+            li+=it[1:]
+            pass
+        self.assertEqual([3, 4, 6, 7, 9, 10, 12, 13],li)
+        li=[]
+        for it in da:
+            li+=[it[-1]]
+            pass
+        self.assertEqual([4, 7, 10, 13],li)
+        li=[]
+        for it in da:
+            li+=it[[2,1,0]]
+            pass
+        self.assertEqual([4, 3, 2, 7, 6, 5, 10, 9, 8, 13, 12, 11],li)
+        # __setitem__ testing
+        da3=da.deepCpy()
+        da2=DataArrayInt.New()
+        da2.alloc(12,1)
+        da2.iota(2002)
+        da2.rearrange(3)
+        it2=da2.__iter__()
+        i=0
+        for it in da:
+            pt=it2.next()
+            it[:]=pt
+            pass
+        self.assertTrue(da.isEqual(da2))
+        da=da3
+        da3=da.deepCpy()
+        #
+        for it in da:
+            it[:]=5
+            pass
+        da.rearrange(1)
+        self.assertTrue(da.isUniform(5))
+        da=da3
+        da3=da.deepCpy()
+        #
+        for it in da:
+            it[:]=[8,9,12]
+            pass
+        self.assertEqual([8, 9, 12, 8, 9, 12, 8, 9, 12, 8, 9, 12],da.getValues())
+        da=da3
+        da3=da.deepCpy()
+        #
+        for it in da:
+            it[2]=[7]
+            pass
+        self.assertEqual([2, 3, 7, 5, 6, 7, 8, 9, 7, 11, 12, 7],da.getValues())
+        pass
+
     def testDAIAggregateMulti1(self):
         a=DataArrayInt.New()
         a.setValues(range(4),2,2)

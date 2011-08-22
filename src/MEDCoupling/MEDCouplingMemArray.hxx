@@ -107,12 +107,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static int GetNumberOfItemGivenBES(int begin, int end, int step, const char *msg) throw(INTERP_KERNEL::Exception);
   protected:
     DataArray():_nb_of_tuples(-1) { }
   protected:
     static void CheckValueInRange(int ref, int value, const char *msg) throw(INTERP_KERNEL::Exception);
     static void CheckClosingParInRange(int ref, int value, const char *msg) throw(INTERP_KERNEL::Exception);
-    static int GetNumberOfItemGivenBES(int begin, int end, int step, const char *msg) throw(INTERP_KERNEL::Exception);
   protected:
     int _nb_of_tuples;
     std::string _name;
@@ -250,6 +250,8 @@ namespace ParaMEDMEM
     MemArray<double> _mem;
   };
 
+  class DataArrayIntIterator;
+
   class DataArrayInt : public DataArray
   {
   public:
@@ -318,6 +320,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }
+    MEDCOUPLING_EXPORT DataArrayIntIterator *iterator();
     MEDCOUPLING_EXPORT const int *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const int *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
@@ -374,6 +377,35 @@ namespace ParaMEDMEM
     DataArrayInt() { }
   private:
     MemArray<int> _mem;
+  };
+
+  class DataArrayIntTuple;
+
+  class DataArrayIntIterator
+  {
+  public:
+    DataArrayIntIterator(DataArrayInt *da);
+    ~DataArrayIntIterator();
+     DataArrayIntTuple *nextt();
+  private:
+    DataArrayInt *_da;
+    DataArrayIntTuple *_tuple;
+    int _tuple_id;
+    int _nb_tuple;
+  };
+
+  class DataArrayIntTuple
+  {
+  public:
+    DataArrayIntTuple(DataArrayInt *da);
+    void next();
+    std::string repr() const;
+    int getNumberOfCompo() const { return _nb_of_compo; }
+    const int *getConstPointer() const { return  _pt; }
+    int *getPointer() { return _pt; }
+  private:
+    int *_pt;
+    int _nb_of_compo;
   };
 }
 
