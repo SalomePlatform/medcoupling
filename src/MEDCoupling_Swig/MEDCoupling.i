@@ -165,6 +165,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::__mod__;
 %newobject ParaMEDMEM::DataArrayInt::__rmod__;
 %newobject ParaMEDMEM::DataArrayDouble::New;
+%newobject ParaMEDMEM::DataArrayDouble::__iter__;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
 %newobject ParaMEDMEM::DataArrayDouble::deepCpy;
 %newobject ParaMEDMEM::DataArrayDouble::performCpy;
@@ -288,6 +289,9 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::DataArrayIntIterator::nextt;
 %ignore ParaMEDMEM::DataArrayIntTuple::next;
 %ignore ParaMEDMEM::DataArrayIntTuple::repr;
+%ignore ParaMEDMEM::DataArrayDoubleIterator::nextt;
+%ignore ParaMEDMEM::DataArrayDoubleTuple::next;
+%ignore ParaMEDMEM::DataArrayDoubleTuple::repr;
 
 %nodefaultctor;
 
@@ -1331,11 +1335,254 @@ namespace ParaMEDMEM
   }
 }
 
+%extend ParaMEDMEM::DataArrayDoubleIterator
+{
+  PyObject *next()
+  {
+    DataArrayDoubleTuple *ret=self->nextt();
+    if(ret)
+      return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+    else
+      {
+        PyErr_SetString(PyExc_StopIteration,"No more data.");
+        return 0;
+      }
+  }
+}
+
+%extend ParaMEDMEM::DataArrayDoubleTuple
+{
+  std::string __str__() const
+  {
+    return self->repr();
+  }
+  
+  PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    int sw;
+    int singleVal;
+    std::vector<int> multiVal;
+    std::pair<int, std::pair<int,int> > slic;
+    ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+    const double *pt=self->getConstPointer();
+    int nbc=self->getNumberOfCompo();
+    convertObjToPossibleCpp2(obj,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+    switch(sw)
+      {
+      case 1:
+        {
+          if(singleVal>=nbc)
+            {
+              std::ostringstream oss;
+              oss << "Requesting for id " << singleVal << " having only " << nbc << " components !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          if(singleVal>=0)
+            return PyFloat_FromDouble(pt[singleVal]);
+          else
+            {
+              if(nbc+singleVal>0)
+                return PyFloat_FromDouble(pt[nbc+singleVal]);
+              else
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for id " << singleVal << " having only " << nbc << " components !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+        }
+      case 2:
+        {
+          PyObject *t=PyTuple_New(multiVal.size());
+          for(int j=0;j<(int)multiVal.size();j++)
+            {
+              int cid=multiVal[j];
+              if(cid>=nbc)
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for id #" << cid << " having only " << nbc << " components !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+              PyTuple_SetItem(t,j,PyFloat_FromDouble(pt[cid]));
+            }
+          return t;
+        }
+      case 3:
+          {
+            int sz=DataArray::GetNumberOfItemGivenBES(slic.first,slic.second.first,slic.second.second,"");
+            PyObject *t=PyTuple_New(sz);
+            for(int j=0;j<sz;j++)
+              PyTuple_SetItem(t,j,PyFloat_FromDouble(pt[slic.first+j*slic.second.second]));
+            return t;
+          }
+      default:
+        throw INTERP_KERNEL::Exception("DataArrayDoubleTuple::__getitem__ : unrecognized type entered !");
+      }
+  }
+
+  DataArrayDoubleTuple *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
+  {
+     const char msg[]="DataArrayDoubleTuple::__setitem__ : unrecognized type entered, int, slice, list<int>, tuple<int> !";
+     int sw1,sw2;
+     double singleValV;
+     std::vector<double> multiValV;
+     ParaMEDMEM::DataArrayDoubleTuple *daIntTyyppV=0;
+     int nbc=self->getNumberOfCompo();
+     convertObjToPossibleCpp44(value,sw1,singleValV,multiValV,daIntTyyppV);
+     int singleVal;
+     std::vector<int> multiVal;
+     std::pair<int, std::pair<int,int> > slic;
+     ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+     double *pt=self->getPointer();
+     convertObjToPossibleCpp2(obj,nbc,sw2,singleVal,multiVal,slic,daIntTyypp);
+     switch(sw2)
+       {
+       case 1:
+         {
+           if(singleVal>=nbc)
+            {
+              std::ostringstream oss;
+              oss << "Requesting for setting id # " << singleVal << " having only " << nbc << " components !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+           switch(sw1)
+             {
+             case 1:
+               {
+                 pt[singleVal]=singleValV;
+                 return self;
+               }
+             case 2:
+               {
+                 if(multiValV.size()!=1)
+                   {
+                     std::ostringstream oss;
+                     oss << "Requesting for setting id # " << singleVal << " with a list or tuple with size != 1 ! ";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 pt[singleVal]=multiValV[0];
+                 return self;
+               }
+             case 3:
+               {
+                 pt[singleVal]=daIntTyyppV->getConstPointer()[0];
+                 return self;
+               }
+             default:
+               throw INTERP_KERNEL::Exception(msg);
+             }
+         }
+       case 2:
+         {
+           switch(sw1)
+             {
+             case 1:
+               {
+                 for(std::vector<int>::const_iterator it=multiVal.begin();it!=multiVal.end();it++)
+                   {
+                     if(*it>=nbc)
+                       {
+                         std::ostringstream oss;
+                         oss << "Requesting for setting id # " << *it << " having only " << nbc << " components !";
+                         throw INTERP_KERNEL::Exception(oss.str().c_str());
+                       }
+                     pt[*it]=singleValV;
+                   }
+                 return self;
+               }
+             case 2:
+               {
+                 if(multiVal.size()!=multiValV.size())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << multiValV.size() << " != " << multiVal.size() << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 for(int i=0;i<(int)multiVal.size();i++)
+                   {
+                     int pos=multiVal[i];
+                     if(pos>=nbc)
+                       {
+                         std::ostringstream oss;
+                         oss << "Requesting for setting id # " << pos << " having only " << nbc << " components !";
+                         throw INTERP_KERNEL::Exception(oss.str().c_str());
+                       }
+                     pt[multiVal[i]]=multiValV[i];
+                   }
+                 return self;
+               }
+             case 3:
+               {
+                 const double *ptV=daIntTyyppV->getConstPointer();
+                 if(nbc>daIntTyyppV->getNumberOfCompo())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << nbc << " != " << daIntTyyppV->getNumberOfCompo() << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 std::copy(ptV,ptV+nbc,pt);
+                 return self;
+               }
+             default:
+               throw INTERP_KERNEL::Exception(msg);
+             }
+         }
+       case 3:
+         {
+           int sz=DataArray::GetNumberOfItemGivenBES(slic.first,slic.second.first,slic.second.second,"");
+           switch(sw1)
+             {
+             case 1:
+               {
+                 for(int j=0;j<sz;j++)
+                   pt[slic.first+j*slic.second.second]=singleValV;
+                 return self;
+               }
+             case 2:
+               {
+                 if(sz!=(int)multiValV.size())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << multiValV.size() << " != " << sz << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 for(int j=0;j<sz;j++)
+                   pt[slic.first+j*slic.second.second]=multiValV[j];
+                 return self;
+               }
+             case 3:
+               {
+                 const double *ptV=daIntTyyppV->getConstPointer();
+                 if(sz>daIntTyyppV->getNumberOfCompo())
+                   {
+                     std::ostringstream oss;
+                     oss << "Mismatch length of during assignment : " << nbc << " != " << daIntTyyppV->getNumberOfCompo() << " !";
+                     throw INTERP_KERNEL::Exception(oss.str().c_str());
+                   }
+                 for(int j=0;j<sz;j++)
+                   pt[slic.first+j*slic.second.second]=ptV[j];
+                 return self;
+               }
+             default:
+               throw INTERP_KERNEL::Exception(msg);
+             }
+         }
+       default:
+         throw INTERP_KERNEL::Exception(msg);
+       }
+   }
+}
+
 %extend ParaMEDMEM::DataArrayDouble
  {
    std::string __str__() const
    {
      return self->repr();
+   }
+
+   DataArrayDoubleIterator *__iter__()
+   {
+     return self->iterator();
    }
 
    void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple) throw(INTERP_KERNEL::Exception)
@@ -2542,7 +2789,7 @@ namespace ParaMEDMEM
                      oss << "Mismatch length of during assignment : " << multiValV.size() << " != " << multiVal.size() << " !";
                      throw INTERP_KERNEL::Exception(oss.str().c_str());
                    }
-                 for(int i=0;i<multiVal.size();i++)
+                 for(int i=0;i<(int)multiVal.size();i++)
                    {
                      int pos=multiVal[i];
                      if(pos>=nbc)
@@ -2584,7 +2831,7 @@ namespace ParaMEDMEM
                }
              case 2:
                {
-                 if(sz!=multiValV.size())
+                 if(sz!=(int)multiValV.size())
                    {
                      std::ostringstream oss;
                      oss << "Mismatch length of during assignment : " << multiValV.size() << " != " << sz << " !";

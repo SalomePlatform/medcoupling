@@ -125,6 +125,7 @@ namespace ParaMEDMEM
 namespace ParaMEDMEM
 {
   class DataArrayInt;
+  class DataArrayDoubleIterator;
   class DataArrayDouble : public DataArray
   {
   public:
@@ -183,6 +184,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT double *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
     MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
+    MEDCOUPLING_EXPORT DataArrayDoubleIterator *iterator();
     MEDCOUPLING_EXPORT const double *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const double *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
@@ -248,6 +250,35 @@ namespace ParaMEDMEM
     DataArrayDouble() { }
   private:
     MemArray<double> _mem;
+  };
+
+  class DataArrayDoubleTuple;
+
+  class DataArrayDoubleIterator
+  {
+  public:
+    DataArrayDoubleIterator(DataArrayDouble *da);
+    ~DataArrayDoubleIterator();
+     DataArrayDoubleTuple *nextt();
+  private:
+    DataArrayDouble *_da;
+    DataArrayDoubleTuple *_tuple;
+    int _tuple_id;
+    int _nb_tuple;
+  };
+
+  class DataArrayDoubleTuple
+  {
+  public:
+    DataArrayDoubleTuple(DataArrayDouble *da);
+    void next();
+    std::string repr() const;
+    int getNumberOfCompo() const { return _nb_of_compo; }
+    const double *getConstPointer() const { return  _pt; }
+    double *getPointer() { return _pt; }
+  private:
+    double *_pt;
+    int _nb_of_compo;
   };
 
   class DataArrayIntIterator;

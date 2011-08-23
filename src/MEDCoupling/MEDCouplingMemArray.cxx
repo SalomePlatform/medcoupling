@@ -1614,6 +1614,11 @@ void DataArrayDouble::applyFuncFast64(const char *func) throw(INTERP_KERNEL::Exc
   declareAsNew();
 }
 
+DataArrayDoubleIterator *DataArrayDouble::iterator()
+{
+  return new DataArrayDoubleIterator(this);
+}
+
 DataArrayInt *DataArrayDouble::getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -2041,6 +2046,57 @@ void DataArrayDouble::finishUnserialization(const std::vector<int>& tinyInfoI, c
       for(int i=0;i<nbOfCompo;i++)
         setInfoOnComponent(i,tinyInfoS[i+1].c_str());
     }
+}
+
+DataArrayDoubleIterator::DataArrayDoubleIterator(DataArrayDouble *da):_da(da),_tuple(new DataArrayDoubleTuple(da)),_tuple_id(0),_nb_tuple(0)
+{
+  if(_da)
+    {
+      _da->incrRef();
+      _nb_tuple=da->getNumberOfTuples();
+    }
+}
+
+DataArrayDoubleIterator::~DataArrayDoubleIterator()
+{
+  if(_da)
+    _da->decrRef();
+  delete _tuple;
+}
+
+DataArrayDoubleTuple *DataArrayDoubleIterator::nextt()
+{
+  if(_tuple_id<_nb_tuple)
+    {
+      _tuple_id++;
+      _tuple->next();
+      return _tuple;
+    }
+  else
+    return 0;
+}
+
+DataArrayDoubleTuple::DataArrayDoubleTuple(DataArrayDouble *da):_pt(0),_nb_of_compo(0)
+{
+  if(da)
+    {
+      _nb_of_compo=da->getNumberOfComponents();
+      _pt=da->getPointer()-_nb_of_compo;
+    }
+}
+
+void DataArrayDoubleTuple::next()
+{
+  _pt+=_nb_of_compo;
+}
+
+std::string DataArrayDoubleTuple::repr() const
+{
+  std::ostringstream oss; oss.precision(15); oss << "(";
+  for(int i=0;i<_nb_of_compo-1;i++)
+    oss << _pt[i] << ", ";
+  oss << _pt[_nb_of_compo-1] << ")";
+  return oss.str();
 }
 
 DataArrayInt *DataArrayInt::New()
