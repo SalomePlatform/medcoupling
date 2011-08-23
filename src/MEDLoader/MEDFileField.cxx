@@ -1793,6 +1793,18 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfF
   return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,renumPol,glob,m,d,e);
 }
 
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtTopLevel(TypeOfField type, const char *mName, int renumPol, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
+{
+   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm;
+  if(mName==0)
+    mm=MEDFileMesh::New(glob->getFileName(),getMeshName().c_str(),getMeshIteration(),getMeshOrder());
+  else
+    mm=MEDFileMesh::New(glob->getFileName(),mName,-1,-1);
+  int absDim=getDimension();
+  int meshDimRelToMax=absDim-mm->getMeshDimension();
+  return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,glob,mm);
+}
+
 MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception)
 {
   static const char msg1[]="MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel : request for a renumbered field following mesh numbering whereas it is a profile field !";
@@ -2033,6 +2045,18 @@ MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtLevel(TypeOfField type, int m
   if(getFileName2().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtLevel method instead !");
   return MEDFileField1TSWithoutDAS::getFieldAtLevel(type,meshDimRelToMax,0,renumPol,this);
+}
+
+/*!
+ * This method is close to MEDFileField1TS::getFieldAtLevel except that here the 'meshDimRelToMax' param is ignored and the maximal dimension is taken
+ * automatically. If the field lies on different level and that an another level than the maximal is requested MEDFileField1TS::getFieldAtLevel
+ * should be called instead.
+ */
+MEDCouplingFieldDouble *MEDFileField1TS::getFieldAtTopLevel(TypeOfField type, int renumPol) const throw(INTERP_KERNEL::Exception)
+{
+  if(getFileName2().empty())
+    throw INTERP_KERNEL::Exception("MEDFileField1TS::getFieldAtTopLevel : Request for a method that can be used for instances coming from file loading ! Use getFieldOnMeshAtTopLevel method instead !");
+  return MEDFileField1TSWithoutDAS::getFieldAtTopLevel(type,0,renumPol,this);
 }
 
 /*!
@@ -2352,6 +2376,12 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtLevel(TypeOfField type, i
   return myF1TS.getFieldAtLevel(type,meshDimRelToMax,0,renumPol,this);
 }
 
+MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDFileField1TSWithoutDAS& myF1TS=getTimeStepEntry(iteration,order);
+  return myF1TS.getFieldAtTopLevel(type,0,renumPol,this);
+}
+
 /*!
  * Performs the job than MEDFileField1TS::getFieldOnMeshAtLevel except that (iteration,order) couple should be specified !
  * If such couple does not exist an exception is thrown.
@@ -2372,6 +2402,11 @@ MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldOnMeshAtLevel(TypeOfField t
   return myF1TS.getFieldOnMeshAtLevel(type,renumPol,this,mesh,0,0);
 }
 
+/*!
+ * This method has a close behaviour than MEDFileFieldMultiTS::getFieldAtLevel.
+ * This method is called 'old' because the user should give the mesh name he wants to use for it's field.
+ * This method is useful for MED2 file format when field on different mesh was autorized.
+ */
 MEDCouplingFieldDouble *MEDFileFieldMultiTS::getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol) const throw(INTERP_KERNEL::Exception)
 {
   const MEDFileField1TSWithoutDAS& myF1TS=getTimeStepEntry(iteration,order);

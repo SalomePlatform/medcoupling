@@ -83,10 +83,12 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileFields::getFieldAtPos;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtTopLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevelOld;
 %newobject ParaMEDMEM::MEDFileField1TS::New;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevel;
+%newobject ParaMEDMEM::MEDFileField1TS::getFieldAtTopLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevelOld;
 
@@ -567,6 +569,7 @@ namespace ParaMEDMEM
     static MEDFileField1TS *New();
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -635,6 +638,7 @@ namespace ParaMEDMEM
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, const MEDCouplingMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevelOld(TypeOfField type, const char *mname, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
