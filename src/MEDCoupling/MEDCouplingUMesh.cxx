@@ -263,6 +263,14 @@ void MEDCouplingUMesh::finishInsertingCells()
   updateTime();
 }
 
+/*!
+ * Entry point for iteration over cells of this. Warning the returned cell iterator should be deallocated.
+ */
+MEDCouplingUMeshCellIterator *MEDCouplingUMesh::cellIterator()
+{
+  return new MEDCouplingUMeshCellIterator(this);
+}
+
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypes() const
 {
   return _types;
@@ -4416,3 +4424,82 @@ void MEDCouplingUMesh::fillInCompact3DMode(int spaceDim, int nbOfNodesInCell, co
   else
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillInCompact3DMode : Invalid spaceDim specified : must be 2 or 3 !");
 }
+
+MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),
+                                                                                   _cell_id(-1),_nb_cell(0)
+{
+  if(mesh)
+    {
+      mesh->incrRef();
+      _nb_cell=mesh->getNumberOfCells();
+    }
+}
+
+MEDCouplingUMeshCellIterator::~MEDCouplingUMeshCellIterator()
+{
+  if(_mesh)
+    _mesh->decrRef();
+  delete _cell;
+}
+
+MEDCouplingUMeshCell *MEDCouplingUMeshCellIterator::nextt()
+{
+  _cell_id++;
+  if(_cell_id<_nb_cell)
+    {
+      _cell->next();
+      return _cell;
+    }
+  else
+    return 0;
+}
+
+MEDCouplingUMeshCell::MEDCouplingUMeshCell(MEDCouplingUMesh *mesh):_conn(0),_conn_indx(0),_conn_lgth(NOTICABLE_FIRST_VAL)
+{
+  if(mesh)
+    {
+      _conn=mesh->getNodalConnectivity()->getPointer();
+      _conn_indx=mesh->getNodalConnectivityIndex()->getPointer();
+    }
+}
+
+void MEDCouplingUMeshCell::next()
+{
+  if(_conn_lgth!=NOTICABLE_FIRST_VAL)
+    {
+      _conn+=_conn_lgth;
+      _conn_indx++;
+    }
+  _conn_lgth=_conn_indx[1]-_conn_indx[0];
+}
+
+std::string MEDCouplingUMeshCell::repr() const
+{
+  if(_conn_lgth!=NOTICABLE_FIRST_VAL)
+    {
+      std::ostringstream oss; oss << "Cell Type " << INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)_conn[0]).getRepr();
+      oss << " : ";
+      std::copy(_conn+1,_conn+_conn_lgth,std::ostream_iterator<int>(oss," "));
+      return oss.str();
+    }
+  else
+    return std::string("MEDCouplingUMeshCell::repr : Invalid pos");
+}
+
+INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshCell::getType() const
+{
+  if(_conn_lgth!=NOTICABLE_FIRST_VAL)
+    return (INTERP_KERNEL::NormalizedCellType)_conn[0];
+  else
+    return INTERP_KERNEL::NORM_ERROR;
+}
+
+const int *MEDCouplingUMeshCell::getAllConn(int& lgth) const
+{
+  lgth=_conn_lgth;
+  if(_conn_lgth!=NOTICABLE_FIRST_VAL)
+    return _conn;
+  else
+    return 0;
+}
+

@@ -6395,7 +6395,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         self.assertEqual([2, 3, 7, 5, 6, 7, 8, 9, 7, 11, 12, 7],da.getValues())
         pass
-    pass
+
+    def testSwigUMeshIterator1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        li1=[]
+        li2=[]
+        for cell in m:
+            li1+=cell.getAllConn()[1:]
+            li2+=[cell.getType()]
+            pass
+        self.assertEqual(li1,[0, 3, 4, 1, 1, 4, 2, 4, 5, 2, 6, 7, 4, 3, 7, 8, 5, 4])
+        self.assertEqual(li2,[4, 3, 3, 4, 4])
+        pass
 
     def testDAIAggregateMulti1(self):
         a=DataArrayInt.New()

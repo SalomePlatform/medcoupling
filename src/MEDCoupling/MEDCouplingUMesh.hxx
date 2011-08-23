@@ -28,6 +28,8 @@
 
 namespace ParaMEDMEM
 {
+  class MEDCouplingUMeshCellIterator;
+  
   class MEDCouplingUMesh : public MEDCouplingPointSet
   {
   public:
@@ -51,6 +53,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void allocateCells(int nbOfCells);
     MEDCOUPLING_EXPORT void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void finishInsertingCells();
+    MEDCOUPLING_EXPORT MEDCouplingUMeshCellIterator *cellIterator();
     MEDCOUPLING_EXPORT const std::set<INTERP_KERNEL::NormalizedCellType>& getAllTypes() const { return _types; }
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const int *begin, const int *end) const throw(INTERP_KERNEL::Exception);
@@ -205,6 +208,36 @@ namespace ParaMEDMEM
     static const char PART_OF_NAME[];
   public:
     static double EPS_FOR_POLYH_ORIENTATION;
+  };
+
+  class MEDCouplingUMeshCell;
+
+  class MEDCouplingUMeshCellIterator
+  {
+  public:
+    MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh);
+    ~MEDCouplingUMeshCellIterator();
+    MEDCouplingUMeshCell *nextt();
+  private:
+    MEDCouplingUMesh *_mesh;
+    MEDCouplingUMeshCell *_cell;
+    int _cell_id;
+    int _nb_cell;
+  };
+
+  class MEDCouplingUMeshCell
+  {
+  public:
+    MEDCouplingUMeshCell(MEDCouplingUMesh *mesh);
+    void next();
+    std::string repr() const;
+    INTERP_KERNEL::NormalizedCellType getType() const;
+    const int *getAllConn(int& lgth) const;
+  private:
+    int *_conn;
+    int *_conn_indx;
+    int _conn_lgth;
+    static const int NOTICABLE_FIRST_VAL=-7;
   };
 }
 

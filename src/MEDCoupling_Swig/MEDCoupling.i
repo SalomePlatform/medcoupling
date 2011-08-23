@@ -235,6 +235,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
+%newobject ParaMEDMEM::MEDCouplingUMesh::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMesh;
@@ -885,6 +886,48 @@ namespace ParaMEDMEM
            }
          }
     };
+
+  class MEDCouplingUMeshCell
+  {
+  public:
+    INTERP_KERNEL::NormalizedCellType getType() const;
+    %extend
+      {
+        std::string __str__() const
+        {
+          return self->repr();
+        }
+
+        PyObject *getAllConn() const
+        {
+          int ret2;
+          const int *r=self->getAllConn(ret2);
+          PyObject *ret=PyTuple_New(ret2);
+          for(int i=0;i<ret2;i++)
+            PyTuple_SetItem(ret,i,PyInt_FromLong(r[i]));
+          return ret;
+        }
+      }
+  };
+
+  class MEDCouplingUMeshCellIterator
+  {
+  public:
+    %extend
+      {
+        PyObject *next()
+        {
+          MEDCouplingUMeshCell *ret=self->nextt();
+          if(ret)
+            return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMeshCell,0|0);
+          else
+            {
+              PyErr_SetString(PyExc_StopIteration,"No more data.");
+              return 0;
+            }
+        }
+      }
+  };
   
   class MEDCouplingUMesh : public ParaMEDMEM::MEDCouplingPointSet
   {
@@ -930,6 +973,12 @@ namespace ParaMEDMEM
       {
         return self->simpleRepr();
       }
+      
+      MEDCouplingUMeshCellIterator *__iter__()
+      {
+        return self->cellIterator();
+      }
+
       void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         int sz;
