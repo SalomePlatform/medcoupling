@@ -2701,6 +2701,7 @@ void MEDFileFields::pushField(MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::E
     throw INTERP_KERNEL::Exception("MEDFileFields::pushMesh : invalid input pointer ! should be different from 0 !");
   field->incrRef();
   _fields.push_back(field);
+  appendGlobs(*field,1e-12);
 }
 
 void MEDFileFields::setFieldAtPos(int i, MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception)
