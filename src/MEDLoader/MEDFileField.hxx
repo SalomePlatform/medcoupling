@@ -218,6 +218,7 @@ namespace ParaMEDMEM
   public:
     static MEDFieldFieldGlobs *New(const char *fname);
     static MEDFieldFieldGlobs *New();
+    void appendGlobs(const MEDFieldFieldGlobs& other, double eps) throw(INTERP_KERNEL::Exception);
     void loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception);
     void loadProfileInFile(med_idt fid, int id);
     void loadGlobals(med_idt fid, const MEDFieldFieldGlobsReal& real) throw(INTERP_KERNEL::Exception);
@@ -250,6 +251,7 @@ namespace ParaMEDMEM
     MEDFieldFieldGlobsReal(const char *fname);
     MEDFieldFieldGlobsReal();
     void shallowCpyGlobs(const MEDFieldFieldGlobsReal& other);
+    void appendGlobs(const MEDFieldFieldGlobsReal& other, double eps) throw(INTERP_KERNEL::Exception);
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
     //

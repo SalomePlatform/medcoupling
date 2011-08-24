@@ -29,6 +29,7 @@
 #include "CellModel.hxx"
 
 #include <algorithm>
+#include <iterator>
 
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
@@ -1302,6 +1303,46 @@ void MEDFieldFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) c
     _locs[i]->writeLL(fid);
 }
 
+void MEDFieldFieldGlobs::appendGlobs(const MEDFieldFieldGlobs& other, double eps) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> pfls=getPfls();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=other._pfls.begin();it!=other._pfls.end();it++)
+    {
+      std::vector<std::string>::iterator it2=std::find(pfls.begin(),pfls.end(),(*it)->getName());
+      if(it2==pfls.end())
+        {
+          _pfls.push_back(*it);
+        }
+      else
+        {
+          int id=std::distance(pfls.begin(),it2);
+          if(!(*it)->isEqual(*_pfls[id]))
+            {
+              std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendGlobs : Profile \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+  std::vector<std::string> locs=getLocs();
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++)
+    {
+      std::vector<std::string>::iterator it2=std::find(locs.begin(),locs.end(),(*it)->getName());
+      if(it2==locs.end())
+        {
+          _locs.push_back(*it);
+        }
+      else
+        {
+          int id=std::distance(locs.begin(),it2);
+          if(!(*it)->isEqual(*_locs[id],eps))
+            {
+              std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendGlobs : Localization \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+}
+
 void MEDFieldFieldGlobs::loadGlobals(med_idt fid, const MEDFieldFieldGlobsReal& real) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> profiles=real.getPflsReallyUsed();
@@ -1470,6 +1511,11 @@ MEDFieldFieldGlobsReal::MEDFieldFieldGlobsReal():_globals(MEDFieldFieldGlobs::Ne
 void MEDFieldFieldGlobsReal::shallowCpyGlobs(const MEDFieldFieldGlobsReal& other)
 {
   _globals=other._globals;
+}
+
+void MEDFieldFieldGlobsReal::appendGlobs(const MEDFieldFieldGlobsReal& other, double eps) throw(INTERP_KERNEL::Exception)
+{
+  _globals->appendGlobs(*other._globals,eps);
 }
 
 void MEDFieldFieldGlobsReal::loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception)
@@ -2596,6 +2642,7 @@ void MEDFileFields::write(const char *fileName, int mode) const throw(INTERP_KER
   int i=0;
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  writeGlobals(fid,*this);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
       const MEDFileFieldMultiTSWithoutDAS *elt=*it;
@@ -2664,6 +2711,7 @@ void MEDFileFields::setFieldAtPos(int i, MEDFileFieldMultiTS *field) throw(INTER
     _fields.resize(i+1);
   field->incrRef();
   _fields[i]=field;
+  appendGlobs(*field,1e-12);
 }
 
 void MEDFileFields::destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception)
