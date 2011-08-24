@@ -746,6 +746,52 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(5,p1.getNumberOfTuples())
         self.assertTrue(f1.getArray().isEqual(f2,1e-12))
         pass
+    # Test for getFieldAtTopLevel method
+    def testMEDField16(self):
+        fname="Pyfile37.med"
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        m1=f1.getMesh()
+        mm1=MEDFileUMesh.New()
+        mm1.setCoords(m1.getCoords())
+        mm1.setMeshAtLevel(0,m1)
+        mm1.setName(m1.getName())
+        ff1=MEDFileField1TS.New()
+        ff1.setFieldNoProfileSBT(f1)
+        m2=m1.buildDescendingConnectivity()[0]
+        m2.sortCellsInMEDFileFrmt()
+        m2.setName(m1.getName())
+        mm1.setMeshAtLevel(-1,m2)
+        mm1.write(fname,2)
+        f2=m2.getMeasureField(True)
+        dd=DataArrayDouble.New()
+        dd.alloc(f2.getArray().getNumberOfTuples(),3)
+        dd[:,0]=f2.getArray()
+        dd[:,1]=2*f2.getArray()
+        dd[:,2]=3*f2.getArray()
+        f2=f2.buildNewTimeReprFromThis(ONE_TIME,False)
+        f2.setArray(dd)
+        f2.copyTinyStringsFrom(f1)
+        f2.copyTinyAttrFrom(f1)
+        ff1.setFieldNoProfileSBT(f2)
+        ff1.write(fname,0)
+        # Reading Pyfile37.med
+        ff2=MEDFileField1TS.New(fname,f2.getName(),0,1)
+        f1bis=ff2.getFieldAtLevel(ON_CELLS,0)
+        self.assertTrue(f1.isEqual(f1bis,1e-12,1e-12))
+        f1bis=ff2.getFieldAtLevel(ON_CELLS,-1)
+        self.assertTrue(f2.isEqual(f1bis,1e-12,1e-12))
+        f1bis=ff2.getFieldAtTopLevel(ON_CELLS)
+        self.assertTrue(f1.isEqual(f1bis,1e-12,1e-12))
+        # More complex
+        fname="Pyfile38.med"
+        mm1.write(fname,2)
+        ff1=MEDFileField1TS.New()
+        ff1.setFieldNoProfileSBT(f2)
+        ff1.write(fname,0)
+        ff2=MEDFileField1TS.New(fname,f2.getName(),0,1)
+        f1bis=ff2.getFieldAtTopLevel(ON_CELLS)
+        self.assertTrue(f2.isEqual(f1bis,1e-12,1e-12))
+        pass
     pass
         
 unittest.main()
