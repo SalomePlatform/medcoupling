@@ -561,6 +561,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileField1TS.New(fname,f1.getName(),-1,-1)
+        self.assertEqual([0],ff2.getTypesOfFieldAvailable())
         vals,pfl=ff2.getFieldWithProfile(ON_CELLS,0,mm1)
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
@@ -711,6 +712,7 @@ class MEDLoaderTest(unittest.TestCase):
         vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,1,2,0,mm1)
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
+        self.assertEqual([[3],[3]],ff1.getTypesOfFieldAvailable())
         #
         ff2=MEDFileFieldMultiTS.New(fname,f1.getName())
         vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,-1,-1,0,mm1)

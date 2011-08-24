@@ -567,6 +567,15 @@ namespace ParaMEDMEM
            PyTuple_SetItem(elt,1,SWIG_From_int(res.second));
            return elt;
          }
+
+         PyObject *getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<TypeOfField> ret=self->getTypesOfFieldAvailable();
+           PyObject *ret2=PyList_New(ret.size());
+           for(int i=0;i<ret.size();i++)
+             PyList_SetItem(ret2,i,SWIG_From_int(ret[i]));
+           return ret2;
+         }
        }
   };
 
@@ -637,6 +646,21 @@ namespace ParaMEDMEM
                }
              return ret2;
            }
+
+         PyObject *getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::vector<TypeOfField> > ret=self->getTypesOfFieldAvailable();
+           PyObject *ret2=PyList_New(ret.size());
+           for(int i=0;i<ret.size();i++)
+             {
+               const std::vector<TypeOfField>& rett=ret[i];
+               PyObject *ret3=PyList_New(rett.size());
+               for(int j=0;j<rett.size();j++)
+                 PyList_SetItem(ret3,j,SWIG_From_int(rett[j]));
+               PyList_SetItem(ret2,i,ret3);
+             }
+           return ret2;
+         }
        }
   };
 

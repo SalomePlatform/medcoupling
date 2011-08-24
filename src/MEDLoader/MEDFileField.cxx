@@ -307,6 +307,11 @@ TypeOfField MEDFileFieldPerMeshPerTypePerDisc::getType() const
   return _type;
 }
 
+void MEDFileFieldPerMeshPerTypePerDisc::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const throw(INTERP_KERNEL::Exception)
+{
+  types.insert(_type);
+}
+
 void MEDFileFieldPerMeshPerTypePerDisc::setType(TypeOfField newType)
 {
   _type=newType;
@@ -598,6 +603,14 @@ void MEDFileFieldPerMeshPerType::getDimension(int& dim) const
   dim=std::max(dim,curDim);
 }
 
+void MEDFileFieldPerMeshPerType::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    {
+      (*it)->fillTypesOfFieldAvailable(types);
+    }
+}
+
 int MEDFileFieldPerMeshPerType::getIteration() const
 {
   return _father->getIteration();
@@ -851,6 +864,12 @@ void MEDFileFieldPerMesh::getDimension(int& dim) const
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->getDimension(dim);
+}
+
+void MEDFileFieldPerMesh::fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    (*it)->fillTypesOfFieldAvailable(types);
 }
 
 double MEDFileFieldPerMesh::getTime() const
@@ -1700,6 +1719,24 @@ void MEDFileField1TSWithoutDAS::fillIteration(std::pair<int,int>& p) const
   p.second=_order;
 }
 
+void MEDFileField1TSWithoutDAS::fillTypesOfFieldAvailable(std::vector<TypeOfField>& types) const throw(INTERP_KERNEL::Exception)
+{
+  std::set<TypeOfField> types2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      (*it)->fillTypesOfFieldAvailable(types2);
+    }
+  std::back_insert_iterator< std::vector<TypeOfField> > bi(types);
+  std::copy(types2.begin(),types2.end(),bi);
+}
+
+std::vector<TypeOfField> MEDFileField1TSWithoutDAS::getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<TypeOfField> ret;
+  fillTypesOfFieldAvailable(ret);
+  return ret;
+}
+
 void MEDFileField1TSWithoutDAS::finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
   med_int numdt,numit;
@@ -2328,6 +2365,15 @@ std::vector< std::pair<int,int> > MEDFileFieldMultiTSWithoutDAS::getIterations()
   std::vector< std::pair<int,int> > ret(lgth);
   for(int i=0;i<lgth;i++)
     _time_steps[i]->fillIteration(ret[i]);
+  return ret;
+}
+
+std::vector< std::vector<TypeOfField> > MEDFileFieldMultiTSWithoutDAS::getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)
+{
+  int lgth=_time_steps.size();
+  std::vector< std::vector<TypeOfField> > ret(lgth);
+  for(int i=0;i<lgth;i++)
+    _time_steps[i]->fillTypesOfFieldAvailable(ret[i]);
   return ret;
 }
 
