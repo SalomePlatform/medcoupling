@@ -2216,6 +2216,19 @@ MEDFileMesh *MEDFileMeshes::getMeshAtPos(int i) const throw(INTERP_KERNEL::Excep
   return _meshes[i]->getOneTimeStep();
 }
 
+MEDFileMesh *MEDFileMeshes::getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> ms=getMeshesNames();
+  std::vector<std::string>::iterator it=std::find(ms.begin(),ms.end(),mname);
+  if(it==ms.end())
+    {
+      std::ostringstream oss; oss << "MEDFileMeshes::getMeshWithName : Mesh  \"" << mname << "\" does not exist in this ! Existing are : ";
+      std::copy(ms.begin(),ms.end(),std::ostream_iterator<std::string>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return getMeshAtPos((int)std::distance(ms.begin(),it));
+}
+
 std::vector<std::string> MEDFileMeshes::getMeshesNames() const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> ret(_meshes.size());

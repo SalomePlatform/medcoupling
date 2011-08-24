@@ -77,6 +77,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMeshMultiTS::getOneTimeStep;
 %newobject ParaMEDMEM::MEDFileMeshes::New;
 %newobject ParaMEDMEM::MEDFileMeshes::getMeshAtPos;
+%newobject ParaMEDMEM::MEDFileMeshes::getMeshWithName;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFields::getField;
@@ -523,6 +524,13 @@ namespace ParaMEDMEM
                ret->incrRef();
              return ret;
            }
+         MEDFileMesh *getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception)
+           {
+             MEDFileMesh *ret=self->getMeshWithName(mname);
+             if(ret)
+               ret->incrRef();
+             return ret;
+           }
        }
   };
 
@@ -595,6 +603,7 @@ namespace ParaMEDMEM
   public:
     int getNumberOfTS() const;
     std::string getName() const;
+    std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     %extend
        {
          PyObject *getIterations() const

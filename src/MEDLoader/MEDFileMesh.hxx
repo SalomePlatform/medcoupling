@@ -262,6 +262,7 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);
+    MEDFileMesh *getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
     //
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
