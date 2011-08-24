@@ -538,7 +538,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m1.isEqual(m1bis,1e-12))
         self.assertEqual(('f1', 'f21', 'f22'),d2.getFields().getFieldsNames())
         self.assertEqual([(-1, -1, 0.0)],d2.getFields().getFieldAtPos(2).getTimeSteps())
-        self.assertEqual([(-1, -1, 0.0)],d2.getFields().getField("f21").getTimeSteps())
+        self.assertEqual([(-1, -1, 0.0)],d2.getFields().getFieldWithName("f21").getTimeSteps())
         pass
     
     def testMEDField9(self):

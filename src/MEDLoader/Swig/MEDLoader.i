@@ -80,7 +80,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMeshes::getMeshWithName;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
-%newobject ParaMEDMEM::MEDFileFields::getField;
+%newobject ParaMEDMEM::MEDFileFields::getFieldWithName;
 %newobject ParaMEDMEM::MEDFileFields::getFieldAtPos;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
@@ -705,7 +705,7 @@ namespace ParaMEDMEM
     void pushField(MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
     void setFieldAtPos(int i, MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTS *getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception);
-    MEDFileFieldMultiTS *getField(const char *fieldName) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldMultiTS *getFieldWithName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
   };
 

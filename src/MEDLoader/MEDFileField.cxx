@@ -2785,7 +2785,7 @@ MEDFileFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const throw(INTERP_KERN
   return ret;
 }
 
-MEDFileFieldMultiTS *MEDFileFields::getField(const char *fieldName) const throw(INTERP_KERNEL::Exception)
+MEDFileFieldMultiTS *MEDFileFields::getFieldWithName(const char *fieldName) const throw(INTERP_KERNEL::Exception)
 {
   return getFieldAtPos(getPosFromFieldName(fieldName));
 }
