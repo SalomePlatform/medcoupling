@@ -131,17 +131,7 @@ std::string DataArray::getVarOnComponent(int i) const throw(INTERP_KERNEL::Excep
 {
   if(i<(int)_info_on_compo.size())
     {
-      std::string st0=_info_on_compo[i];
-      std::size_t p1=st0.find_last_of('[');
-      std::size_t p2=st0.find_last_of(']');
-      if(p1==std::string::npos || p2==std::string::npos)
-        return st0;
-      if(p1>p2)
-        return st0;
-      if(p1==0)
-        return std::string();
-      std::size_t p3=st0.find_last_not_of(' ',p1-1);
-      return st0.substr(0,p3+1);
+      return GetVarNameFromInfo(_info_on_compo[i]);
     }
   else
     {
@@ -158,20 +148,38 @@ std::string DataArray::getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exce
 {
   if(i<(int)_info_on_compo.size())
     {
-      std::string st0=_info_on_compo[i];
-      std::size_t p1=st0.find_last_of('[');
-      std::size_t p2=st0.find_last_of(']');
-      if(p1==std::string::npos || p2==std::string::npos)
-        return std::string();
-      if(p1>p2)
-        return std::string();
-      return st0.substr(p1+1,p2-p1-1);
+      return GetUnitFromInfo(_info_on_compo[i]);
     }
   else
     {
       std::ostringstream oss; oss << "getUnitOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
+}
+
+std::string DataArray::GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t p1=info.find_last_of('[');
+  std::size_t p2=info.find_last_of(']');
+  if(p1==std::string::npos || p2==std::string::npos)
+    return info;
+  if(p1>p2)
+    return info;
+  if(p1==0)
+    return std::string();
+  std::size_t p3=info.find_last_not_of(' ',p1-1);
+  return info.substr(0,p3+1);
+}
+
+std::string DataArray::GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t p1=info.find_last_of('[');
+  std::size_t p2=info.find_last_of(']');
+  if(p1==std::string::npos || p2==std::string::npos)
+    return std::string();
+  if(p1>p2)
+    return std::string();
+  return info.substr(p1+1,p2-p1-1);
 }
 
 void DataArray::setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception)
