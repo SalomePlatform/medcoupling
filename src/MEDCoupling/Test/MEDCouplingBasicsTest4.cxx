@@ -1632,3 +1632,18 @@ void MEDCouplingBasicsTest::testConvertExtrudedPolyhedra1()
   //
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest::testNonRegressionCopyTinyStrings()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  MEDCouplingFieldDouble *f1=m->getMeasureField(true);
+  f1->getArray()->setInfoOnComponent(0,"P [N/m^2]");
+  DataArrayDouble *bary=m->getBarycenterAndOwner();
+  MEDCouplingFieldDouble *f2=f1->buildNewTimeReprFromThis(ONE_TIME,false);
+  f2->setArray(bary);
+  CPPUNIT_ASSERT_THROW(f2->copyTinyAttrFrom(f1),INTERP_KERNEL::Exception);
+  m->decrRef();
+  f1->decrRef();
+  bary->decrRef();
+  f2->decrRef();
+}

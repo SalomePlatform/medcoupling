@@ -7817,6 +7817,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected2,dai.getValues());
         m.checkCoherency2()
         pass
+
+    def testNonRegressionCopyTinyStrings(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f1=m.getMeasureField(True)
+        f1.getArray().setInfoOnComponent(0,"P [N/m^2]")
+        bary=m.getBarycenterAndOwner()
+        f2=f1.buildNewTimeReprFromThis(ONE_TIME,False)
+        f2.setArray(bary)
+        self.assertRaises(InterpKernelException,f2.copyTinyAttrFrom,f1)
+        pass
     
     def setUp(self):
         pass

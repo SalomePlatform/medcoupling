@@ -42,7 +42,7 @@ namespace ParaMEDMEM
     static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     void setTimeUnit(const char *unit) { _time_unit=unit; }
     const char *getTimeUnit() const { return _time_unit.c_str(); }
-    virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
+    virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatible(const MEDCouplingTimeDiscretization *other) const;
@@ -214,7 +214,7 @@ namespace ParaMEDMEM
   public:
     MEDCouplingWithTimeStep();
     std::string getStringRepr() const;
-    void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
+    void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
     MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
     MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
@@ -278,7 +278,7 @@ namespace ParaMEDMEM
     MEDCouplingConstOnTimeInterval(const MEDCouplingConstOnTimeInterval& other, bool deepCpy);
   public:
     MEDCouplingConstOnTimeInterval();
-    void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
+    void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
@@ -348,7 +348,7 @@ namespace ParaMEDMEM
     ~MEDCouplingTwoTimeSteps();
   public:
     void updateTime() const;
-    void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other);
+    void copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception);
     void copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other);
     const DataArrayDouble *getEndArray() const;
     DataArrayDouble *getEndArray();

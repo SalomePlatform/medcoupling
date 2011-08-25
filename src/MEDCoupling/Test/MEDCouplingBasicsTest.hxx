@@ -233,6 +233,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testNormMax1 );
     CPPUNIT_TEST( testFindAndCorrectBadOriented3DExtrudedCells1 );
     CPPUNIT_TEST( testConvertExtrudedPolyhedra1 );
+    CPPUNIT_TEST( testNonRegressionCopyTinyStrings );
     //MEDCouplingBasicsTestInterp.cxx
     CPPUNIT_TEST( test2DInterpP0P0_1 );
     CPPUNIT_TEST( test2DInterpP0P0PL_1 );
@@ -492,6 +493,7 @@ namespace ParaMEDMEM
     void testNormMax1();
     void testFindAndCorrectBadOriented3DExtrudedCells1();
     void testConvertExtrudedPolyhedra1();
+    void testNonRegressionCopyTinyStrings();
     //MEDCouplingBasicsTestInterp.cxx
     void test2DInterpP0P0_1();
     void test2DInterpP0P0PL_1();

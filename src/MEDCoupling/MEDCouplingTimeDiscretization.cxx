@@ -62,7 +62,7 @@ MEDCouplingTimeDiscretization *MEDCouplingTimeDiscretization::New(TypeOfTimeDisc
     }
 }
 
-void MEDCouplingTimeDiscretization::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingTimeDiscretization::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception)
 {
   _time_tolerance=other._time_tolerance;
   _time_unit=other._time_unit;
@@ -1273,13 +1273,15 @@ bool MEDCouplingWithTimeStep::isEqualWithoutConsideringStr(const MEDCouplingTime
   return MEDCouplingTimeDiscretization::isEqualWithoutConsideringStr(other,prec);
 }
 
-void MEDCouplingWithTimeStep::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingWithTimeStep::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingTimeDiscretization::copyTinyAttrFrom(other);
-  const MEDCouplingWithTimeStep& otherC=dynamic_cast<const MEDCouplingWithTimeStep& >(other);
-  _time=otherC._time;
-  _iteration=otherC._iteration;
-  _order=otherC._order;
+  const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(&other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingWithTimeStep::copyTinyAttrFrom : mismatch of time discretization !");
+  _time=otherC->_time;
+  _iteration=otherC->_iteration;
+  _order=otherC->_order;
 }
 
 MEDCouplingTimeDiscretization *MEDCouplingWithTimeStep::aggregate(const MEDCouplingTimeDiscretization *other) const
@@ -1527,16 +1529,18 @@ MEDCouplingConstOnTimeInterval::MEDCouplingConstOnTimeInterval():_start_time(0.)
 {
 }
 
-void MEDCouplingConstOnTimeInterval::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingConstOnTimeInterval::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingTimeDiscretization::copyTinyAttrFrom(other);
-  const MEDCouplingConstOnTimeInterval& otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval& >(other);
-  _start_time=otherC._start_time;
-  _end_time=otherC._end_time;
-  _start_iteration=otherC._start_iteration;
-  _end_iteration=otherC._end_iteration;
-  _start_order=otherC._start_order;
-  _end_order=otherC._end_order;
+  const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(&other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingConstOnTimeInterval::copyTinyAttrFrom : mismatch of time discretization !");
+  _start_time=otherC->_start_time;
+  _end_time=otherC->_end_time;
+  _start_iteration=otherC->_start_iteration;
+  _end_iteration=otherC->_end_iteration;
+  _start_order=otherC->_start_order;
+  _end_order=otherC->_end_order;
 }
 
 void MEDCouplingConstOnTimeInterval::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
@@ -1967,22 +1971,24 @@ void MEDCouplingTwoTimeSteps::updateTime() const
     updateTimeWith(*_end_array);
 }
 
-void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other)
+void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingTimeDiscretization::copyTinyAttrFrom(other);
-  const MEDCouplingTwoTimeSteps& otherC=dynamic_cast<const MEDCouplingTwoTimeSteps& >(other);
-  _start_time=otherC._start_time;
-  _end_time=otherC._end_time;
-  _start_iteration=otherC._start_iteration;
-  _end_iteration=otherC._end_iteration;
-  _start_order=otherC._start_order;
-  _end_order=otherC._end_order;
+  const MEDCouplingTwoTimeSteps *otherC=dynamic_cast<const MEDCouplingTwoTimeSteps *>(&other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingTwoTimeSteps::copyTinyAttrFrom : mismatch of time discretization !");
+  _start_time=otherC->_start_time;
+  _end_time=otherC->_end_time;
+  _start_iteration=otherC->_start_iteration;
+  _end_iteration=otherC->_end_iteration;
+  _start_order=otherC->_start_order;
+  _end_order=otherC->_end_order;
 }
 
 void MEDCouplingTwoTimeSteps::copyTinyStringsFrom(const MEDCouplingTimeDiscretization& other)
 {
   MEDCouplingTimeDiscretization::copyTinyStringsFrom(other);
-  const MEDCouplingTwoTimeSteps* otherC=dynamic_cast<const MEDCouplingTwoTimeSteps* >(&other);
+  const MEDCouplingTwoTimeSteps *otherC=dynamic_cast<const MEDCouplingTwoTimeSteps *>(&other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("Trying to operate copyTinyStringsFrom on different field type (two times//one time) !");
   if(_end_array && otherC->_end_array)
