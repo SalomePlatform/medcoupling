@@ -102,6 +102,47 @@ void MEDFileFieldLoc::writeLL(med_idt fid) const
   MEDlocalizationWr(fid,_name.c_str(),typmai3[(int)_geo_type],_dim,&_ref_coo[0],MED_FULL_INTERLACE,_nb_gauss_pt,&_gs_coo[0],&_w[0],MED_NO_INTERPOLATION,MED_NO_MESH_SUPPORT);
 }
 
+std::string MEDFileFieldLoc::repr() const
+{
+  std::ostringstream oss; oss.precision(15);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  oss << "Localization \"" << _name << "\" :\n" << "  - Geometric Type : " << cm.getRepr();
+  oss << "\n  - Dimension : " << _dim << "\n  - Number of gauss points : ";
+  oss << _nb_gauss_pt << "\n  - Number of nodes in cell : " << _nb_node_per_cell;
+  oss << "\n  - Ref coords are : ";
+  int sz=_ref_coo.size();
+  if(sz%_dim==0)
+    {
+      int nbOfTuples=sz/_dim;
+      for(int i=0;i<nbOfTuples;i++)
+        {
+          oss << "(";
+          for(int j=0;j<_dim;j++)
+            { oss << _ref_coo[i*_dim+j]; if(j!=_dim-1) oss << ", "; }
+          oss << ") ";
+        }
+    }
+  else
+    std::copy(_ref_coo.begin(),_ref_coo.end(),std::ostream_iterator<double>(oss," "));
+  oss << "\n  - Gauss coords in reference element : ";
+  sz=_gs_coo.size();
+  if(sz%_dim==0)
+    {
+      int nbOfTuples=sz/_dim;
+      for(int i=0;i<nbOfTuples;i++)
+        {
+          oss << "(";
+          for(int j=0;j<_dim;j++)
+            { oss << _gs_coo[i*_dim+j]; if(j!=_dim-1) oss << ", "; }
+          oss << ") ";
+        }
+    }
+  else
+    std::copy(_gs_coo.begin(),_gs_coo.end(),std::ostream_iterator<double>(oss," "));
+  oss << "\n  - Weights of Gauss coords are : "; std::copy(_w.begin(),_w.end(),std::ostream_iterator<double>(oss," "));
+  return oss.str();
+}
+
 void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   _type=field->getTypeOfField();
@@ -1442,6 +1483,11 @@ int MEDFieldFieldGlobs::getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERN
   return _locs[locId]->getNbOfGaussPtPerCell();
 }
 
+const MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception)
+{
+  return getLocalizationFromId(getLocalizationId(pflName));
+}
+
 const MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
 {
   if(locId<0 || locId>=(int)_locs.size())
@@ -1621,6 +1667,11 @@ const char *MEDFieldFieldGlobsReal::getFileName() const
 std::string MEDFieldFieldGlobsReal::getFileName2() const
 {
   return _globals->getFileName2();
+}
+
+const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception)
+{
+  return _globals->getLocalization(pflName);
 }
 
 const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)

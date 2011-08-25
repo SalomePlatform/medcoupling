@@ -52,7 +52,11 @@ namespace ParaMEDMEM
     static MEDFileFieldLoc *New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
     int getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
     void writeLL(med_idt fid) const;
+    std::string repr() const;
     bool isName(const char *name) const { return _name==name; }
+    int getDimension() const { return _dim; }
+    int getNumberOfGaussPoints() const { return _nb_gauss_pt; }
+    int getNumberOfPointsInCells() const { return _nb_node_per_cell; }
     const std::vector<double>& getRefCoords() const { return _ref_coo; }
     const std::vector<double>& getGaussCoords() const { return _gs_coo; }
     const std::vector<double>& getGaussWeights() const { return _w; }
@@ -237,6 +241,7 @@ namespace ParaMEDMEM
     const char *getFileName() const { return _file_name.c_str(); }
     std::string getFileName2() const { return _file_name; }
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception);
+    const MEDFileFieldLoc& getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception); 
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
@@ -273,6 +278,7 @@ namespace ParaMEDMEM
     const char *getFileName() const;
     std::string getFileName2() const;
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception);
+    const MEDFileFieldLoc& getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception);
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);

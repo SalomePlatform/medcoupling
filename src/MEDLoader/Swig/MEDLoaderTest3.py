@@ -493,6 +493,13 @@ class MEDLoaderTest(unittest.TestCase):
         ff2=MEDFileField1TS.New(fname,f1.getName(),f1.getTime()[1],f1.getTime()[2])
         f2=ff2.getFieldAtLevel(ON_GAUSS_PT,0)
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        sbt=ff2.getFieldSplitedByType()
+        loc1=ff2.getLocalization("Loc_MyFirstFieldOnGaussPoint_NORM_TRI6_5")
+        self.assertEqual("Loc_MyFirstFieldOnGaussPoint_NORM_TRI6_5",loc1.getName())
+        self.assertEqual((-1, 1,-1,-1,1,-1,-1,0,0,-1,0,0),loc1.getRefCoords())
+        self.assertEqual(6,loc1.getNumberOfPointsInCells())
+        self.assertEqual(3,loc1.getNumberOfGaussPoints())
+        self.assertEqual(2,loc1.getDimension())
         #
         pass
     
@@ -561,6 +568,15 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileField1TS.New(fname,f1.getName(),-1,-1)
+        sbt=ff2.getFieldSplitedByType()
+        self.assertEqual(3,sbt[0][0])#TRI3
+        self.assertEqual(0,sbt[0][1][0][0])#CELL For TRI3
+        self.assertEqual("",sbt[0][1][0][2])#no profile For TRI3
+        self.assertEqual([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],sbt[0][1][0][1].getValues())# values for TRI3
+        self.assertEqual(4,sbt[1][0])#QUAD4
+        self.assertEqual(0,sbt[1][1][0][0])#CELL For QUAD4
+        self.assertEqual("sup1_NORM_QUAD4",sbt[1][1][0][2])# profile For QUAD4
+        self.assertEqual([19, 20, 21, 22, 23, 24],sbt[1][1][0][1].getValues())# values for QUAD4
         self.assertEqual([0],ff2.getTypesOfFieldAvailable())
         vals,pfl=ff2.getFieldWithProfile(ON_CELLS,0,mm1)
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
@@ -848,5 +864,5 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f4.getArray().isEqual(f1.getArray(),1e-12))
         pass
     pass
-        
+
 unittest.main()

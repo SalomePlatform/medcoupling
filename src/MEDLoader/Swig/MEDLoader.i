@@ -102,6 +102,7 @@ using namespace ParaMEDMEM;
 %feature("unref") MEDFileCMesh "$this->decrRef();"
 %feature("unref") MEDFileMeshMultiTS "$this->decrRef();"
 %feature("unref") MEDFileMeshes "$this->decrRef();"
+%feature("unref") MEDFileFieldLoc "$this->decrRef();"
 %feature("unref") MEDFileField1TS "$this->decrRef();"
 %feature("unref") MEDFileFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileFields "$this->decrRef();"
@@ -534,6 +535,26 @@ namespace ParaMEDMEM
        }
   };
 
+  class MEDFileFieldLoc : public RefCountObject
+  {
+  public:
+    const std::string& getName() const;
+    int getDimension() const;
+    int getNumberOfGaussPoints() const;
+    int getNumberOfPointsInCells() const;
+    const std::vector<double>& getRefCoords() const;
+    const std::vector<double>& getGaussCoords() const;
+    const std::vector<double>& getGaussWeights() const;
+    bool isEqual(const MEDFileFieldLoc& other, double eps) const;
+  %extend
+    {
+      std::string __str__() const
+        {
+          return self->repr();
+        }
+    }
+  };
+
   class MEDFieldFieldGlobsReal
   {
   public:
@@ -542,6 +563,30 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocs() const;
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
+  %extend
+     {
+       PyObject *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception)
+       {
+         const DataArrayInt *ret=self->getProfile(pflName);
+         if(ret)
+           ret->incrRef();
+         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+       }
+
+       PyObject *getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
+       {
+         const MEDFileFieldLoc *loc=&self->getLocalizationFromId(locId);
+         loc->incrRef();
+         return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
+       }
+       
+       PyObject *getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception)
+       {
+         const MEDFileFieldLoc *loc=&self->getLocalization(pflName);
+         loc->incrRef();
+         return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
+       }
+     }
   };
 
   class MEDFileField1TSWithoutDAS : public RefCountObject
