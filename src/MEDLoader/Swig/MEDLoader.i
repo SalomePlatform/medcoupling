@@ -572,8 +572,44 @@ namespace ParaMEDMEM
          {
            std::vector<TypeOfField> ret=self->getTypesOfFieldAvailable();
            PyObject *ret2=PyList_New(ret.size());
-           for(int i=0;i<ret.size();i++)
+           for(int i=0;i<(int)ret.size();i++)
              PyList_SetItem(ret2,i,SWIG_From_int(ret[i]));
+           return ret2;
+         }
+
+         PyObject *getFieldSplitedByType(const char *mname=0) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<INTERP_KERNEL::NormalizedCellType> types;
+           std::vector< std::vector<TypeOfField> > typesF;
+           std::vector< std::vector<std::string> > pfls;
+           std::vector< std::vector<std::string> > locs;
+           std::vector< std::vector<const DataArrayDouble *> > ret=self->getFieldSplitedByType(mname,types,typesF,pfls,locs);
+           int sz=ret.size();
+           PyObject *ret2=PyList_New(sz);
+           for(int i=0;i<sz;i++)
+             {
+               const std::vector<const DataArrayDouble *>& dadsI=ret[i];
+               const std::vector<TypeOfField>& typesFI=typesF[i];
+               const std::vector<std::string>& pflsI=pfls[i];
+               const std::vector<std::string>& locsI=locs[i];
+               PyObject *elt=PyTuple_New(2);
+               PyTuple_SetItem(elt,0,SWIG_From_int(types[i]));
+               int sz2=ret[i].size();
+               PyObject *elt2=PyList_New(sz2);
+               for(int j=0;j<sz2;j++)
+                 {
+                   PyObject *elt3=PyTuple_New(4);
+                   if(dadsI[j])
+                     dadsI[j]->incrRef();
+                   PyTuple_SetItem(elt3,0,SWIG_From_int(typesFI[j]));
+                   PyTuple_SetItem(elt3,1,SWIG_NewPointerObj(SWIG_as_voidptr(dadsI[j]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+                   PyTuple_SetItem(elt3,2,PyString_FromString(pflsI[j].c_str()));
+                   PyTuple_SetItem(elt3,3,PyString_FromString(locsI[j].c_str()));
+                   PyList_SetItem(elt2,j,elt3);
+                 }
+               PyTuple_SetItem(elt,1,elt2);
+               PyList_SetItem(ret2,i,elt);
+             }
            return ret2;
          }
        }
@@ -651,13 +687,49 @@ namespace ParaMEDMEM
          {
            std::vector< std::vector<TypeOfField> > ret=self->getTypesOfFieldAvailable();
            PyObject *ret2=PyList_New(ret.size());
-           for(int i=0;i<ret.size();i++)
+           for(int i=0;i<(int)ret.size();i++)
              {
                const std::vector<TypeOfField>& rett=ret[i];
                PyObject *ret3=PyList_New(rett.size());
-               for(int j=0;j<rett.size();j++)
+               for(int j=0;j<(int)rett.size();j++)
                  PyList_SetItem(ret3,j,SWIG_From_int(rett[j]));
                PyList_SetItem(ret2,i,ret3);
+             }
+           return ret2;
+         }
+
+         PyObject *getFieldSplitedByType(int iteration, int order, const char *mname=0) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<INTERP_KERNEL::NormalizedCellType> types;
+           std::vector< std::vector<TypeOfField> > typesF;
+           std::vector< std::vector<std::string> > pfls;
+           std::vector< std::vector<std::string> > locs;
+           std::vector< std::vector<const DataArrayDouble *> > ret=self->getFieldSplitedByType(iteration,order,mname,types,typesF,pfls,locs);
+           int sz=ret.size();
+           PyObject *ret2=PyList_New(sz);
+           for(int i=0;i<sz;i++)
+             {
+               const std::vector<const DataArrayDouble *>& dadsI=ret[i];
+               const std::vector<TypeOfField>& typesFI=typesF[i];
+               const std::vector<std::string>& pflsI=pfls[i];
+               const std::vector<std::string>& locsI=locs[i];
+               PyObject *elt=PyTuple_New(2);
+               PyTuple_SetItem(elt,0,SWIG_From_int(types[i]));
+               int sz2=ret[i].size();
+               PyObject *elt2=PyList_New(sz2);
+               for(int j=0;j<sz2;j++)
+                 {
+                   PyObject *elt3=PyTuple_New(4);
+                   if(dadsI[j])
+                     dadsI[j]->incrRef();
+                   PyTuple_SetItem(elt3,0,SWIG_From_int(typesFI[j]));
+                   PyTuple_SetItem(elt3,1,SWIG_NewPointerObj(SWIG_as_voidptr(dadsI[j]),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+                   PyTuple_SetItem(elt3,2,PyString_FromString(pflsI[j].c_str()));
+                   PyTuple_SetItem(elt3,3,PyString_FromString(locsI[j].c_str()));
+                   PyList_SetItem(elt2,j,elt3);
+                 }
+               PyTuple_SetItem(elt,1,elt2);
+               PyList_SetItem(ret2,i,elt);
              }
            return ret2;
          }

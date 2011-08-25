@@ -378,6 +378,14 @@ void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid) const throw(INTERP_
                              reinterpret_cast<const unsigned char*>(_arr->getConstPointer()));
 }
 
+void MEDFileFieldPerMeshPerTypePerDisc::getCoarseData(TypeOfField& type, const DataArrayDouble *& dad, std::string& pfl, std::string& loc) const throw(INTERP_KERNEL::Exception)
+{
+  type=_type;
+  pfl=_profile;
+  loc=_localization;
+  dad=_arr;
+}
+
 int MEDFileFieldPerMeshPerTypePerDisc::ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception)
 {
   switch(type)
@@ -608,6 +616,16 @@ void MEDFileFieldPerMeshPerType::fillTypesOfFieldAvailable(std::set<TypeOfField>
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
     {
       (*it)->fillTypesOfFieldAvailable(types);
+    }
+}
+
+void MEDFileFieldPerMeshPerType::fillFieldSplitedByType(std::vector<const DataArrayDouble *>& dads, std::vector<TypeOfField>& types, std::vector<std::string>& pfls, std::vector<std::string>& locs) const throw(INTERP_KERNEL::Exception)
+{
+  int sz=_field_pm_pt_pd.size();
+  dads.resize(sz); types.resize(sz); pfls.resize(sz); locs.resize(sz);
+  for(int i=0;i<sz;i++)
+    {
+      _field_pm_pt_pd[i]->getCoarseData(types[i],dads[i],pfls[i],locs[i]);
     }
 }
 
@@ -870,6 +888,19 @@ void MEDFileFieldPerMesh::fillTypesOfFieldAvailable(std::set<TypeOfField>& types
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
     (*it)->fillTypesOfFieldAvailable(types);
+}
+
+std::vector< std::vector<const DataArrayDouble *> > MEDFileFieldPerMesh::getFieldSplitedByType(std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> > & locs) const throw(INTERP_KERNEL::Exception)
+{
+  int sz=_field_pm_pt.size();
+  std::vector< std::vector<const DataArrayDouble *> > ret(sz);
+  types.resize(sz); typesF.resize(sz); pfls.resize(sz); locs.resize(sz);
+  for(int i=0;i<sz;i++)
+    {
+      types[i]=_field_pm_pt[i]->getGeoType();
+      _field_pm_pt[i]->fillFieldSplitedByType(ret[i],typesF[i],pfls[i],locs[i]);
+    }
+  return ret;
 }
 
 double MEDFileFieldPerMesh::getTime() const
@@ -1737,6 +1768,20 @@ std::vector<TypeOfField> MEDFileField1TSWithoutDAS::getTypesOfFieldAvailable() c
   return ret;
 }
 
+/*!
+ * entry point for users that want to iterate into MEDFile DataStructure without any overhead.
+ */
+std::vector< std::vector<const DataArrayDouble *> > MEDFileField1TSWithoutDAS::getFieldSplitedByType(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
+{
+  int meshId=0;
+  if(mname)
+    meshId=getMeshIdFromMeshName(mname);
+  else
+    if(_field_per_mesh.empty())
+      throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getFieldSplitedByType : This is empty !");
+  return _field_per_mesh[meshId]->getFieldSplitedByType(types,typesF,pfls,locs);
+}
+
 void MEDFileField1TSWithoutDAS::finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
   med_int numdt,numit;
@@ -2375,6 +2420,11 @@ std::vector< std::vector<TypeOfField> > MEDFileFieldMultiTSWithoutDAS::getTypesO
   for(int i=0;i<lgth;i++)
     _time_steps[i]->fillTypesOfFieldAvailable(ret[i]);
   return ret;
+}
+
+std::vector< std::vector<const DataArrayDouble *> > MEDFileFieldMultiTSWithoutDAS::getFieldSplitedByType(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
+{
+  return getTimeStepEntry(iteration,order).getFieldSplitedByType(mname,types,typesF,pfls,locs);
 }
 
 const MEDFileField1TSWithoutDAS& MEDFileFieldMultiTSWithoutDAS::getTimeStepEntry(int iteration, int order) const throw(INTERP_KERNEL::Exception)
