@@ -56,6 +56,8 @@ libInterpKernelTest_la_SOURCES=              \
 	TransformedTriangleIntersectTest.cxx \
 	TransformedTriangleTest.hxx          \
 	TransformedTriangleTest.cxx          \
+	UnitTetra3D2DIntersectionTest.hxx    \
+	UnitTetra3D2DIntersectionTest.cxx    \
 	UnitTetraIntersectionBaryTest.hxx    \
 	UnitTetraIntersectionBaryTest.cxx    \
 	TestInterpKernelUtils.hxx            \

@@ -39,7 +39,7 @@ namespace INTERP_KERNEL
 
 namespace MEDMEM {
   class MESH;
-};
+}
 
 namespace INTERP_TEST
 {

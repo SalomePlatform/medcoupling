@@ -25,6 +25,7 @@
 #include "TransformedTriangleIntersectTest.hxx"
 #include "TransformedTriangleTest.hxx"
 #include "UnitTetraIntersectionBaryTest.hxx"
+#include "UnitTetra3D2DIntersectionTest.hxx"
 
 #ifdef DISABLE_MICROMED
 #include "HexaTests.hxx"
@@ -46,6 +47,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementPlanarTests );
 CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleIntersectTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( UnitTetraIntersectionBaryTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( UnitTetra3D2DIntersectionTest );
 
 #ifdef DISABLE_MICROMED
 CPPUNIT_TEST_SUITE_REGISTRATION( HexaTests );
