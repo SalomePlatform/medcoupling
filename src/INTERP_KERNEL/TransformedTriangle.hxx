@@ -46,6 +46,7 @@ namespace INTERP_TEST
 
 namespace INTERP_KERNEL
 {
+  class TetraAffineTransform;
 
   /** \class TransformedTriangle
    * \brief Class representing one of the faces of the triangulated source polyhedron after having been transformed
@@ -137,6 +138,7 @@ namespace INTERP_KERNEL
     ~TransformedTriangle();
 
     double calculateIntersectionVolume(); 
+    double calculateIntersectionSurface(TetraAffineTransform* tat);
 
     void dumpCoords() const;
 
@@ -155,13 +157,20 @@ namespace INTERP_KERNEL
     // ----------------------------------------------------------------------------------
     //  High-level methods called directly by calculateIntersectionVolume()     
     // ----------------------------------------------------------------------------------
-    void calculateIntersectionPolygons(); 
+    void calculateIntersectionAndProjectionPolygons();
 
     void calculatePolygonBarycenter(const IntersectionPolygon poly, double* barycenter); 
 
     void sortIntersectionPolygon(const IntersectionPolygon poly, const double* barycenter); 
 
     double calculateVolumeUnderPolygon(IntersectionPolygon poly, const double* barycenter); 
+
+    // ----------------------------------------------------------------------------------
+    //  High-level methods called directly by calculateIntersectionSurface()
+    // ----------------------------------------------------------------------------------
+    void calculateIntersectionPolygon();
+
+    double calculateSurfacePolygon();
 
     // ----------------------------------------------------------------------------------
     //  Detection of degenerate triangles  

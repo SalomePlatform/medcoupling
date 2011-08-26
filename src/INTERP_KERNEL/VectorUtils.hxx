@@ -81,6 +81,19 @@ namespace INTERP_KERNEL
   }
 
   /**
+   * Adds a double[3] - vector to another one.
+   *
+   * @param v     vector v
+   * @param res   vector in which to store the result res + v.
+   */
+  inline void add(const double* v, double* res)
+  {
+    res[0] += v[0];
+    res[1] += v[1];
+    res[2] += v[2];
+  }
+
+  /**
    * Calculates the cross product of two double[3] - vectors.
    *
    * @param v1    vector v1

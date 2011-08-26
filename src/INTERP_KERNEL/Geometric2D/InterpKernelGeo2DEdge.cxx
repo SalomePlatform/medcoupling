@@ -844,3 +844,8 @@ bool Edge::splitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
       throw Exception("Unexpected situation of overlapping edges : internal error occurs ! ");
     }
 }
+
+bool Edge::isEqual(const Edge& other) const
+{
+  return _start->isEqual(*other._start) && _end->isEqual(*other._end);
+}

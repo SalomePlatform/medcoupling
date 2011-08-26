@@ -64,6 +64,7 @@ namespace INTERP_KERNEL
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
     bool getDirection() const { return _direction; }
     bool intresincEqCoarse(const Edge *other) const;
+    bool isEqual(const ElementaryEdge& other) const;
   private:
     bool _direction;
     Edge *_ptr;

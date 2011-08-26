@@ -51,6 +51,10 @@ Interpolation2D.hxx			\
 Interpolation2D.txx			\
 Interpolation3D.hxx			\
 Interpolation3D.txx			\
+Interpolation2D1D.hxx           \
+Interpolation2D1D.txx           \
+Interpolation3D2D.hxx			\
+Interpolation3D2D.txx			\
 Interpolation3DSurf.hxx			\
 InterpolationOptions.hxx		\
 InterpolationPlanar.hxx			\
@@ -89,6 +93,8 @@ MeshUtils.hxx				\
 PointLocatorAlgos.txx                   \
 PlanarIntersector.hxx			\
 PlanarIntersector.txx			\
+Planar2D1DIntersectorP0P0.hxx       \
+Planar2D1DIntersectorP0P0.txx       \
 PlanarIntersectorP0P0.hxx		\
 PlanarIntersectorP0P0.txx		\
 PlanarIntersectorP0P1.hxx		\
@@ -191,6 +197,7 @@ dist_libinterpkernel_la_SOURCES = \
 	Interpolation2DCurve.cxx \
 	Interpolation3DSurf.cxx \
 	Interpolation3D.cxx \
+	Interpolation3D2D.cxx \
 	MeshElement.cxx \
 	InterpKernelMeshQuality.cxx \
 	InterpKernelCellSimplify.cxx

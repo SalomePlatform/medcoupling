@@ -195,3 +195,8 @@ bool ElementaryEdge::intresincEqCoarse(const Edge *other) const
 {
   return _ptr==other;
 }
+
+bool ElementaryEdge::isEqual(const ElementaryEdge& other) const
+{
+  return _ptr->isEqual(*other._ptr);
+}

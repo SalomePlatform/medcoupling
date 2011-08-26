@@ -22,6 +22,7 @@
 #include "Interpolation.hxx"
 #include "IntegralUniformIntersector.hxx"
 #include "IntegralUniformIntersector.txx"
+#include "VectorUtils.hxx"
 
 namespace INTERP_KERNEL
 { 
@@ -70,6 +71,44 @@ namespace INTERP_KERNEL
     srcMeth=methodC.substr(0,2);
     trgMeth=methodC.substr(2);
   }
+
+  template<class TrueMainInterpolator>
+  template<class MyMeshType>
+  double Interpolation<TrueMainInterpolator>::CalculateCharacteristicSizeOfMeshes(const MyMeshType& myMeshS, const MyMeshType& myMeshT, const int printLevel)
+  {
+    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+
+    long nbMailleS=myMeshS.getNumberOfElements();
+    long nbMailleT=myMeshT.getNumberOfElements();
+
+    /**************************************************/
+    /* Search the characteristic size of the meshes   */
+    /**************************************************/
+
+    double BoxS[2*SPACEDIM]; myMeshS.getBoundingBox(BoxS);
+    double BoxT[2*SPACEDIM]; myMeshT.getBoundingBox(BoxT);
+    double diagonalS,dimCaracteristicS=std::numeric_limits<double>::max();
+    if(nbMailleS!=0)
+      {
+        diagonalS=getDistanceBtw2Pts<SPACEDIM>(BoxS+SPACEDIM,BoxS);
+        dimCaracteristicS=diagonalS/nbMailleS;
+      }
+    double diagonalT,dimCaracteristicT=std::numeric_limits<double>::max();
+    if(nbMailleT!=0)
+      {
+        diagonalT=getDistanceBtw2Pts<SPACEDIM>(BoxT+SPACEDIM,BoxT);
+        dimCaracteristicT=diagonalT/nbMailleT;
+      }
+    if (printLevel>=1)
+      {
+        std::cout << "  - Characteristic size of the source mesh : " << dimCaracteristicS << std::endl;
+        std::cout << "  - Characteristic size of the target mesh: " << dimCaracteristicT << std::endl;
+      }
+
+    return std::min(dimCaracteristicS, dimCaracteristicT);
+
+  }
+
 }
 
 #endif

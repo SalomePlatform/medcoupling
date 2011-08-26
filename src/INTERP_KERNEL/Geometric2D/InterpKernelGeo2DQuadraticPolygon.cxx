@@ -208,6 +208,39 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
 }
 
 /*!
+ * Warning This method is \b NOT const. 'this' and 'other' are modified after call of this method.
+ */
+double QuadraticPolygon::intersectWithAbs1D(QuadraticPolygon& other, bool& isColinear)
+{
+  double ret = 0., xBaryBB, yBaryBB;
+  double fact = normalize(&other, xBaryBB, yBaryBB);
+
+  QuadraticPolygon cpyOfThis(*this);
+  QuadraticPolygon cpyOfOther(other);
+  int nbOfSplits = 0;
+  splitPolygonsEachOther(cpyOfThis, cpyOfOther, nbOfSplits);
+  //At this point cpyOfThis and cpyOfOther have been splited at maximum edge so that in/out can been done.
+  performLocatingOperation(cpyOfOther);
+
+  std::list<QuadraticPolygon *> cpyOfOtherZip = cpyOfOther.zipConsecutiveInSegments();
+
+  isColinear = false;
+  if (cpyOfOtherZip.size() == 1)
+    {
+      QuadraticPolygon& poly = *cpyOfOtherZip.front();
+      if (poly.size() == 2 && poly.front()->isEqual(*poly.back()))
+        isColinear = true;
+    }
+
+  for (std::list<QuadraticPolygon *>::iterator iter = cpyOfOtherZip.begin(); iter != cpyOfOtherZip.end(); iter++)
+    {
+      ret += fabs((*iter)->getPerimeter());
+      delete *iter;
+    }
+  return ret * fact / 2.;
+}
+
+/*!
  * Warning contrary to intersectWith method this method is \b NOT const. 'this' and 'other' are modified after call of this method.
  */
 double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other, double* barycenter)

@@ -42,6 +42,8 @@ namespace INTERP_KERNEL
     Geometric2DIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
                            double dimCaracteristic, double md3DSurf, double medianPlane, double precision, int orientation);
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
+    double intersectGeometry1D(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS,
+                               bool& isColinear);
     double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);
     double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords);
     double intersectGeoBary(const std::vector<double>& targetCell, bool targetCellQuadratic, const double *sourceCell, std::vector<double>& res);

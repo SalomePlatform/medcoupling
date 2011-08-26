@@ -24,11 +24,13 @@
 #include "TetraAffineTransform.hxx"
 #include "InterpolationOptions.hxx"
 #include "InterpKernelHashMap.hxx"
+#include "VectorUtils.hxx"
 
 #include <assert.h>
 #include <vector>
 #include <functional>
 #include <map>
+#include <set>
 
 namespace INTERP_KERNEL
 {
@@ -65,6 +67,28 @@ namespace INTERP_KERNEL
     bool operator==(const TriangleFaceKey& key) const
     {
       return _nodes[0] == key._nodes[0] && _nodes[1] == key._nodes[1] && _nodes[2] == key._nodes[2];
+    }
+
+    /**
+     * Less than operator.
+     *
+     * @param   key  TriangleFaceKey with which to compare
+     * @return  true if this object has the three nodes less than the nodes of the key object, false if not
+     */
+    bool operator<(const TriangleFaceKey& key) const
+    {
+      for (int i = 0; i < 3; ++i)
+        {
+          if (_nodes[i] < key._nodes[i])
+            {
+              return true;
+            }
+          else if (_nodes[i] > key._nodes[i])
+            {
+              return false;
+            }
+        }
+      return false;
     }
 
     /**
@@ -173,6 +197,14 @@ namespace INTERP_KERNEL
     ~SplitterTetra();
 
     double intersectSourceCell(typename MyMeshType::MyConnType srcCell, double* baryCentre=0);
+    double intersectSourceFace(const NormalizedCellType polyType,
+                               const int polyNodesNbr,
+                               const int *const polyNodes,
+                               const double *const *const polyCoords,
+                               const double dimCaracteristic,
+                               const double precision,
+                               std::multiset<TriangleFaceKey>& listOfTetraFacesTreated,
+                               std::set<TriangleFaceKey>& listOfTetraFacesColinear);
 
     double intersectTetra(const double** tetraCorners);
 
@@ -188,9 +220,19 @@ namespace INTERP_KERNEL
     // member functions
     inline void createAffineTransform(const double** corners);
     inline void checkIsOutside(const double* pt, bool* isOutside) const;
+    inline void checkIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol = DEFAULT_ABS_TOL) const;
     inline void calculateNode(typename MyMeshType::MyConnType globalNodeNum);
+    inline void calculateNode2(typename MyMeshType::MyConnType globalNodeNum, const double* node);
     inline void calculateVolume(TransformedTriangle& tri, const TriangleFaceKey& key);
-        
+    inline void calculateSurface(TransformedTriangle& tri, const TriangleFaceKey& key);
+
+    static inline bool IsFacesCoplanar(const double *const planeNormal, const double planeConstant,
+                                const double *const *const coordsFace, const double precision);
+    static inline double CalculateIntersectionSurfaceOfCoplanarTriangles(const double *const planeNormal,
+                                                                         const double planeConstant,
+                                                                         const double *const p1, const double *const p2, const double *const p3,
+                                                                         const double *const p4, const double *const p5, const double *const p6,
+                                                                         const double dimCaracteristic, const double precision);
 
     /// disallow copying
     SplitterTetra(const SplitterTetra& t);
@@ -256,6 +298,19 @@ namespace INTERP_KERNEL
     isOutside[7] = isOutside[7] && (1.0 - pt[0] - pt[1] - pt[2] >= 1.0);
   }
   
+  template<class MyMeshType>
+  inline void SplitterTetra<MyMeshType>::checkIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol) const
+  {
+    isStrictlyOutside[0] = isStrictlyOutside[0] && (pt[0] < -errTol);
+    isStrictlyOutside[1] = isStrictlyOutside[1] && (pt[0] > (1.0 + errTol));
+    isStrictlyOutside[2] = isStrictlyOutside[2] && (pt[1] < -errTol);
+    isStrictlyOutside[3] = isStrictlyOutside[3] && (pt[1] > (1.0 + errTol));
+    isStrictlyOutside[4] = isStrictlyOutside[4] && (pt[2] < -errTol);
+    isStrictlyOutside[5] = isStrictlyOutside[5] && (pt[2] > (1.0 + errTol));
+    isStrictlyOutside[6] = isStrictlyOutside[6] && (1.0 - pt[0] - pt[1] - pt[2] < -errTol);
+    isStrictlyOutside[7] = isStrictlyOutside[7] && (1.0 - pt[0] - pt[1] - pt[2] > (1.0 + errTol));
+  }
+
   /**
    * Calculates the transformed node with a given global node number.
    * Gets the coordinates for the node in _src_mesh with the given global number and applies TetraAffineTransform
@@ -275,6 +330,26 @@ namespace INTERP_KERNEL
     _nodes[globalNodeNum] = transformedNode;
   }
 
+
+  /**
+   * Calculates the transformed node with a given global node number.
+   * Applies TetraAffineTransform * _t to it.
+   * Stores the result in the cache _nodes. The non-existence of the node in _nodes should be verified before * calling.
+   * The only difference with the previous method calculateNode is that the coordinates of the node are passed in arguments
+   * and are not recalculated in order to optimize the method.
+   *
+   * @param globalNodeNum  global node number of the node in the mesh _src_mesh
+   *
+   */
+  template<class MyMeshType>
+  inline void SplitterTetra<MyMeshType>::calculateNode2(typename MyMeshType::MyConnType globalNodeNum, const double* node)
+  {
+    double* transformedNode = new double[MyMeshType::MY_SPACEDIM];
+    assert(transformedNode != 0);
+    _t->apply(transformedNode, node);
+    _nodes[globalNodeNum] = transformedNode;
+  }
+
   /**
    * Calculates the volume contribution from the given TransformedTriangle and stores it with the given key in .
    * Calls TransformedTriangle::calculateIntersectionVolume to perform the calculation.
@@ -287,6 +362,20 @@ namespace INTERP_KERNEL
   {
     const double vol = tri.calculateIntersectionVolume();
     _volumes.insert(std::make_pair(key, vol));
+  }
+
+  /**
+   * Calculates the surface contribution from the given TransformedTriangle and stores it with the given key in.
+   * Calls TransformedTriangle::calculateIntersectionSurface to perform the calculation.
+   *
+   * @param tri    triangle for which to calculate the surface contribution
+   * @param key    key associated with the face
+   */
+  template<class MyMeshType>
+  inline void SplitterTetra<MyMeshType>::calculateSurface(TransformedTriangle& tri, const TriangleFaceKey& key)
+  {
+    const double surf = tri.calculateIntersectionSurface(_t);
+    _volumes.insert(std::make_pair(key, surf));
   }
 
   template<class MyMeshTypeT, class MyMeshTypeS=MyMeshTypeT>

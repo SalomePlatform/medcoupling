@@ -94,7 +94,7 @@ namespace INTERP_KERNEL
         *((TransformedTriangle*)this) = triangle; // copy triangle fields
         _polygonA.clear();
         _polygonB.clear();
-        calculateIntersectionPolygons();
+        calculateIntersectionAndProjectionPolygons();
         if (this->_polygonA.size() < 3)
           return;
         calculatePolygonBarycenter(A, _barycenterA);

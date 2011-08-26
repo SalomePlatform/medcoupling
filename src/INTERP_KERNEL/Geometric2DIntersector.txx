@@ -21,6 +21,7 @@
 
 #include "Geometric2DIntersector.hxx"
 #include "PlanarIntersectorP0P0.txx"
+#include "Planar2D1DIntersectorP0P0.txx"
 #include "PlanarIntersectorP0P1.txx"
 #include "PlanarIntersectorP1P0.txx"
 #include "PlanarIntersectorP1P1.txx"
@@ -59,6 +60,24 @@ namespace INTERP_KERNEL
     QuadraticPolygon *p1=buildPolygonFrom(CoordsT,tT);
     QuadraticPolygon *p2=buildPolygonFrom(CoordsS,tS);
     double ret=p1->intersectWithAbs(*p2);
+    delete p1; delete p2;
+    return ret;
+  }
+
+  INTERSECTOR_TEMPLATE
+  double GEO2D_INTERSECTOR::intersectGeometry1D(ConnType icellT,   ConnType icellS,
+                                                ConnType nbNodesT, ConnType nbNodesS,
+                                                bool& isColinear)
+  {
+    int orientation = 1;
+    std::vector<double> CoordsT;
+    std::vector<double> CoordsS;
+    PlanarIntersector<MyMeshType,MyMatrix>::getRealCoordinates(icellT,icellS,nbNodesT,nbNodesS,CoordsT,CoordsS,orientation);
+    NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(icellT);
+    NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(icellS);
+    QuadraticPolygon *p1=buildPolygonFrom(CoordsT,tT);
+    QuadraticPolygon *p2=buildPolygonFrom(CoordsS,tS);
+    double ret=p1->intersectWithAbs1D(*p2, isColinear);
     delete p1; delete p2;
     return ret;
   }

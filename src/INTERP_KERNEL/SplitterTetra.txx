@@ -28,6 +28,7 @@
 #include "CellModel.hxx"
 #include "Log.hxx"
 #include "UnitTetraIntersectionBary.hxx"
+#include "VolSurfFormulae.hxx"
 
 #include <cmath>
 #include <cassert>
@@ -306,9 +307,9 @@ namespace INTERP_KERNEL
                       calculateVolume(tri, key1);
                       totalVolume += _volumes[key1];
                     } else {
-                    // count negative as face has reversed orientation
-                    totalVolume -= _volumes[key1];
-                  }
+                      // count negative as face has reversed orientation
+                      totalVolume -= _volumes[key1];
+                    }
 
                   // local nodes 1, 3, 4
                   TriangleFaceKey key2 = TriangleFaceKey(faceNodes[0], faceNodes[2], faceNodes[3]);
@@ -365,12 +366,474 @@ namespace INTERP_KERNEL
       {
         totalVolume = 0.0;
       }
-    
+
     LOG(2, "Volume = " << totalVolume << ", det= " << _t->determinant());
 
-    // NB : fault in article, Grandy, [8] : it is the determinant of the inverse transformation 
+    // NB : fault in article, Grandy, [8] : it is the determinant of the inverse transformation
     // that should be used (which is equivalent to dividing by the determinant)
     return std::fabs(1.0 / _t->determinant() * totalVolume) ;
+  }
+
+  /**
+   * Calculates the intersection surface of two coplanar triangles.
+   *
+   * @param palneNormal normal of the plane for the first triangle
+   * @param planeConstant constant of the equation of the plane for the first triangle
+   * @param p1 coordinates of the first  node of the first  triangle
+   * @param p2 coordinates of the second node of the first  triangle
+   * @param p3 coordinates of the third  node of the first  triangle
+   * @param p4 coordinates of the first  node of the second triangle
+   * @param p5 coordinates of the second node of the second triangle
+   * @param p6 coordinates of the third  node of the second triangle
+   * @param dimCaracteristic characteristic size of the meshes containing the triangles
+   * @param precision precision for double float data used for comparison
+   */
+  template<class MyMeshType>
+  double SplitterTetra<MyMeshType>::CalculateIntersectionSurfaceOfCoplanarTriangles(const double *const planeNormal,
+                                                                                    const double planeConstant,
+                                                                                    const double *const p1, const double *const p2, const double *const p3,
+                                                                                    const double *const p4, const double *const p5, const double *const p6,
+                                                                                    const double dimCaracteristic, const double precision)
+  {
+    typedef typename MyMeshType::MyConnType ConnType;
+    typedef double Vect2[2];
+    typedef double Vect3[3];
+    typedef double Triangle2[3][2];
+
+    const double *const tri0[3] = {p1, p2, p3};
+    const double *const tri1[3] = {p4, p5, p6};
+
+    // Plane of the first triangle defined by the normal of the triangle and the constant
+    // Project triangles onto coordinate plane most aligned with plane normal
+    int maxNormal = 0;
+    double fmax = std::abs(planeNormal[0]);
+    double absMax = std::abs(planeNormal[1]);
+    if (absMax > fmax)
+      {
+        maxNormal = 1;
+        fmax = absMax;
+      }
+    absMax = std::abs(planeNormal[2]);
+    if (absMax > fmax)
+      {
+        maxNormal = 2;
+      }
+
+    Triangle2 projTri0, projTri1;
+    int i;
+
+    if (maxNormal == 0)
+      {
+        // Project onto yz-plane.
+        for (i = 0; i < 3; ++i)
+          {
+            projTri0[i][0] = tri0[i][1];
+            projTri0[i][1] = tri0[i][2];
+            projTri1[i][0] = tri1[i][1];
+            projTri1[i][1] = tri1[i][2];
+          }
+      }
+    else if (maxNormal == 1)
+      {
+        // Project onto xz-plane.
+        for (i = 0; i < 3; ++i)
+          {
+            projTri0[i][0] = tri0[i][0];
+            projTri0[i][1] = tri0[i][2];
+            projTri1[i][0] = tri1[i][0];
+            projTri1[i][1] = tri1[i][2];
+          }
+      }
+    else
+      {
+        // Project onto xy-plane.
+        for (i = 0; i < 3; ++i)
+          {
+            projTri0[i][0] = tri0[i][0];
+            projTri0[i][1] = tri0[i][1];
+            projTri1[i][0] = tri1[i][0];
+            projTri1[i][1] = tri1[i][1];
+          }
+      }
+
+    // 2D triangle intersection routines require counterclockwise ordering.
+    Vect2 save;
+    Vect2 edge0;
+    Vect2 edge1;
+    for (int i = 0; i < 2; ++i)
+      {
+        edge0[i] = projTri0[1][i] - projTri0[0][i];
+        edge1[i] = projTri0[2][i] - projTri0[0][i];
+      }
+    if ((edge0[0] * edge1[1] - edge0[1] * edge1[0]) < (double) 0.)
+      {
+        // Triangle is clockwise, reorder it.
+        for (int i = 0; i < 2; ++i)
+          {
+            save[i] = projTri0[1][i];
+            projTri0[1][i] = projTri0[2][i];
+            projTri0[2][i] = save[i];
+          }
+      }
+
+    for (int i = 0; i < 2; ++i)
+      {
+        edge0[i] = projTri1[1][i] - projTri1[0][i];
+        edge1[i] = projTri1[2][i] - projTri1[0][i];
+      }
+    if ((edge0[0] * edge1[1] - edge0[1] * edge1[0]) < (double) 0.)
+      {
+        // Triangle is clockwise, reorder it.
+      for (int i = 0; i < 2; ++i)
+        {
+          save[i] = projTri1[1][i];
+          projTri1[1][i] = projTri1[2][i];
+          projTri1[2][i] = save[i];
+        }
+      }
+
+    std::vector<double> inter2;
+    intersec_de_triangle(projTri0[0], projTri0[1], projTri0[2],
+                         projTri1[0], projTri1[1], projTri1[2],
+                         inter2,
+                         dimCaracteristic, precision);
+    ConnType nb_inter=((ConnType)inter2.size())/2;
+    double surface = 0.;
+    if(nb_inter >3) inter2=reconstruct_polygon(inter2);
+    if (nb_inter > 0)
+      {
+        std::vector<double> inter3;
+        inter3.resize(3 * nb_inter);
+        // Map 2D intersections back to the 3D triangle space.
+        if (maxNormal == 0)
+          {
+            double invNX = ((double) 1.) / planeNormal[0];
+            for (i = 0; i < nb_inter; i++)
+              {
+                inter3[3 * i + 1] = inter2[2 * i];
+                inter3[3 * i + 2] = inter2[2 * i + 1];
+                inter3[3 * i] = invNX * (planeConstant - planeNormal[1] * inter3[3 * i + 1] - planeNormal[2] * inter3[3 * i + 2]);
+              }
+          }
+        else if (maxNormal == 1)
+          {
+            double invNY = ((double) 1.) / planeNormal[1];
+            for (i = 0; i < nb_inter; i++)
+              {
+                inter3[3 * i] = inter2[2 * i];
+                inter3[3 * i + 2] = inter2[2 * i + 1];
+                inter3[3 * i + 1] = invNY * (planeConstant - planeNormal[0] * inter3[3 * i] - planeNormal[2] * inter3[3 * i + 2]);
+              }
+          }
+        else
+          {
+            double invNZ = ((double) 1.) / planeNormal[2];
+            for (i = 0; i < nb_inter; i++)
+              {
+                inter3[3 * i] = inter2[2 * i];
+                inter3[3 * i + 1] = inter2[2 * i + 1];
+                inter3[3 * i + 2] = invNZ * (planeConstant - planeNormal[0] * inter3[3 * i] - planeNormal[1] * inter3[3 * i + 1]);
+              }
+          }
+        surface = polygon_area<3>(inter3);
+      }
+    return surface;
+  }
+
+  /**
+   * Determine if a face is coplanar with a triangle.
+   * The first face is characterized by the equation of her plane
+   *
+   * @param palneNormal normal of the plane for the first triangle
+   * @param planeConstant constant of the equation of the plane for the first triangle
+   * @param coordsFace coordinates of the triangle face
+   * @param precision precision for double float data used for comparison
+   */
+  template<class MyMeshType>
+  bool SplitterTetra<MyMeshType>::IsFacesCoplanar(const double *const planeNormal,
+                                                  const double planeConstant,
+                                                  const double *const *const coordsFace,
+                                                  const double precision)
+  {
+      // Compute the signed distances of triangle vertices to the plane. Use an epsilon-thick plane test.
+      // For faces not left
+      int counter = 0;
+      for (int i = 0; i < 3; ++i)
+        {
+          const double distance = dot(planeNormal, coordsFace[i]) - planeConstant;
+          if (epsilonEqual(distance, precision))
+            {
+              counter++;
+            }
+        }
+      if (counter == 3)
+        return true;
+      else
+        return false;
+  }
+
+  /**
+   * Calculates the surface of intersection of a polygon face in the source mesh and a cell of the target mesh.
+   * It first calculates the transformation that takes the target tetrahedron into the unit tetrahedron. After that, the
+   * faces of the source element are triangulated and the calculated transformation is applied
+   * to each triangle.
+   * The algorithm is based on the algorithm of Grandy used in intersectSourceCell to compute
+   * the volume of intersection of two cell elements.
+   * The case with a source face colinear to one of the face of tetrahedrons is taking into account:
+   * the contribution of the face must not be counted two times.
+   *
+   * The class will cache the intermediary calculations of transformed nodes of source faces and surfaces associated
+   * with triangulated faces to avoid having to recalculate these.
+   *
+   * @param polyType type of the polygon source face
+   * @param polyNodesNbr number of the nodes of the polygon source face
+   * @param polyNodes numbers of the nodes of the polygon source face
+   * @param polyCoords coordinates of the nodes of the polygon source face
+   * @param polyCoords coordinates of the nodes of the polygon source face
+   * @param dimCaracteristic characteristic size of the meshes containing the triangles
+   * @param precision precision for double float data used for comparison
+   * @param listOfTetraFacesTreated list of tetra faces treated
+   * @param listOfTetraFacesColinear list of tetra faces colinear with the polygon source faces
+   */
+  template<class MyMeshType>
+  double SplitterTetra<MyMeshType>::intersectSourceFace(const NormalizedCellType polyType,
+                                                        const int polyNodesNbr,
+                                                        const int *const polyNodes,
+                                                        const double *const *const polyCoords,
+                                                        const double dimCaracteristic,
+                                                        const double precision,
+                                                        std::multiset<TriangleFaceKey>& listOfTetraFacesTreated,
+                                                        std::set<TriangleFaceKey>& listOfTetraFacesColinear)
+  {
+    typedef typename MyMeshType::MyConnType ConnType;
+
+    double totalSurface = 0.0;
+
+    // check if we have planar tetra element
+    if(_t->determinant() == 0.0)
+      {
+        // tetra is planar
+        LOG(2, "Planar tetra -- volume 0");
+        return 0.0;
+      }
+
+    // halfspace filtering
+    bool isOutside[8] = {true, true, true, true, true, true, true, true};
+    bool isStrictlyOutside[8] = {true, true, true, true, true, true, true, true};
+    bool isTargetStrictlyOutside = false;
+    bool isTargetOutside = false;
+
+    // calculate the coordinates of the nodes
+    for(int i = 0;i<(int)polyNodesNbr;++i)
+      {
+        const int globalNodeNum = polyNodes[i];
+        if(_nodes.find(globalNodeNum) == _nodes.end())
+          {
+            //for(HashMap< int , double* >::iterator iter3=_nodes.begin();iter3!=_nodes.end();iter3++)
+            //  std::cout << (*iter3).first << " ";
+            //std::cout << std::endl << "*** " << globalNodeNum << std::endl;
+            calculateNode2(globalNodeNum, polyCoords[i]);
+          }
+
+        checkIsStrictlyOutside(_nodes[globalNodeNum], isStrictlyOutside, precision);
+        checkIsOutside(_nodes[globalNodeNum], isOutside);
+      }
+
+    // halfspace filtering check
+    // NB : might not be beneficial for caching of triangles
+    for(int i = 0; i < 8; ++i)
+      {
+        if(isStrictlyOutside[i])
+          {
+            isTargetStrictlyOutside = true;
+            break;
+          }
+        else if (isOutside[i])
+          {
+            isTargetOutside = true;
+          }
+      }
+
+    if (!isTargetStrictlyOutside)
+      {
+
+        if (isTargetOutside)
+          {
+            // Faces are parallel
+            const int tetraFacesNodesConn[4][3] = {
+                { 0, 1, 2 },
+                { 0, 2, 3 },
+                { 0, 3, 1 },
+                { 1, 2, 3 } };
+            double planeNormal[3];
+            for (int iTetraFace = 0; iTetraFace < 4; ++iTetraFace)
+              {
+                const int * const tetraFaceNodesConn = tetraFacesNodesConn[iTetraFace];
+                TriangleFaceKey key = TriangleFaceKey(_conn[tetraFaceNodesConn[0]],
+                                                      _conn[tetraFaceNodesConn[1]],
+                                                      _conn[tetraFaceNodesConn[2]]);
+                if (listOfTetraFacesTreated.find(key) == listOfTetraFacesTreated.end())
+                  {
+                    const double * const coordsTetraTriNode1 = _coords + tetraFaceNodesConn[0] * MyMeshType::MY_SPACEDIM;
+                    const double * const coordsTetraTriNode2 = _coords + tetraFaceNodesConn[1] * MyMeshType::MY_SPACEDIM;
+                    const double * const coordsTetraTriNode3 = _coords + tetraFaceNodesConn[2] * MyMeshType::MY_SPACEDIM;
+                    calculateNormalForTria(coordsTetraTriNode1, coordsTetraTriNode2, coordsTetraTriNode3, planeNormal);
+                    const double normOfTetraTriNormal = norm(planeNormal);
+                    if (epsilonEqual(normOfTetraTriNormal, 0.))
+                      {
+                        for (int i = 0; i < 3; ++i)
+                          {
+                            planeNormal[i] = 0.;
+                          }
+                      }
+                    else
+                      {
+                        const double invNormOfTetraTriNormal = 1. / normOfTetraTriNormal;
+                        for (int i = 0; i < 3; ++i)
+                          {
+                            planeNormal[i] *= invNormOfTetraTriNormal;
+                          }
+                      }
+                    double planeConstant = dot(planeNormal, coordsTetraTriNode1);
+                    if (IsFacesCoplanar(planeNormal, planeConstant, polyCoords, precision))
+                      {
+                        int nbrPolyTri = polyNodesNbr - 2; // split polygon into nbrPolyTri triangles
+                        for (int iTri = 0; iTri < nbrPolyTri; ++iTri)
+                          {
+                            double volume = CalculateIntersectionSurfaceOfCoplanarTriangles(planeNormal,
+                                                                                            planeConstant,
+                                                                                            polyCoords[0],
+                                                                                            polyCoords[1 + iTri],
+                                                                                            polyCoords[2 + iTri],
+                                                                                            coordsTetraTriNode1,
+                                                                                            coordsTetraTriNode2,
+                                                                                            coordsTetraTriNode3,
+                                                                                            dimCaracteristic,
+                                                                                            precision);
+                            if (!epsilonEqual(volume, 0.))
+                              {
+                                totalSurface += volume;
+                                listOfTetraFacesColinear.insert(key);
+                              }
+                          }
+                      }
+                  }
+                listOfTetraFacesTreated.insert(key);
+              }
+          }
+        else
+          {
+              // intersect a son with the unit tetra
+              switch (polyType)
+                {
+                case NORM_TRI3:
+                  {
+                    // create the face key
+                    TriangleFaceKey key = TriangleFaceKey(polyNodes[0], polyNodes[1], polyNodes[2]);
+
+                    // calculate the triangle if needed
+                    if (_volumes.find(key) == _volumes.end())
+                      {
+                        TransformedTriangle tri(_nodes[polyNodes[0]], _nodes[polyNodes[1]], _nodes[polyNodes[2]]);
+                        calculateSurface(tri, key);
+                        totalSurface += _volumes[key];
+                      }
+                    else
+                      {
+                        // count negative as face has reversed orientation
+                        totalSurface -= _volumes[key];
+                      }
+                  }
+                  break;
+
+                case NORM_QUAD4:
+
+                  // simple triangulation of faces along a diagonal :
+                  //
+                  // 2 ------ 3
+                  // |      / |
+                  // |     /  |
+                  // |    /   |
+                  // |   /    |
+                  // |  /     |
+                  // | /      |
+                  // 1 ------ 4
+                  //
+                  //? not sure if this always works
+                  {
+                    // calculate the triangles if needed
+
+                    // local nodes 1, 2, 3
+                    TriangleFaceKey key1 = TriangleFaceKey(polyNodes[0], polyNodes[1], polyNodes[2]);
+                    if (_volumes.find(key1) == _volumes.end())
+                      {
+                        TransformedTriangle tri(_nodes[polyNodes[0]], _nodes[polyNodes[1]], _nodes[polyNodes[2]]);
+                        calculateSurface(tri, key1);
+                        totalSurface += _volumes[key1];
+                      }
+                    else
+                      {
+                        // count negative as face has reversed orientation
+                        totalSurface -= _volumes[key1];
+                      }
+
+                    // local nodes 1, 3, 4
+                    TriangleFaceKey key2 = TriangleFaceKey(polyNodes[0], polyNodes[2], polyNodes[3]);
+                    if (_volumes.find(key2) == _volumes.end())
+                      {
+                        TransformedTriangle tri(_nodes[polyNodes[0]], _nodes[polyNodes[2]], _nodes[polyNodes[3]]);
+                        calculateSurface(tri, key2);
+                        totalSurface += _volumes[key2];
+                      }
+                    else
+                      {
+                        // count negative as face has reversed orientation
+                        totalSurface -= _volumes[key2];
+                      }
+                  }
+                  break;
+
+                case NORM_POLYGON:
+                  {
+                    int nbrPolyTri = polyNodesNbr - 2; // split polygon into nbrPolyTri triangles
+                    for (int iTri = 0; iTri < nbrPolyTri; ++iTri)
+                      {
+                        TriangleFaceKey key = TriangleFaceKey(polyNodes[0], polyNodes[1 + iTri], polyNodes[2 + iTri]);
+                        if (_volumes.find(key) == _volumes.end())
+                          {
+                            TransformedTriangle tri(_nodes[polyNodes[0]], _nodes[polyNodes[1 + iTri]],
+                                _nodes[polyNodes[2 + iTri]]);
+                            calculateSurface(tri, key);
+                            totalSurface += _volumes[key];
+                          }
+                        else
+                          {
+                            totalSurface -= _volumes[key];
+                          }
+                      }
+                  }
+                  break;
+
+                default:
+                  std::cout
+                      << "+++ Error : Only elements with triangular and quadratilateral faces are supported at the moment."
+                      << std::endl;
+                  assert(false);
+                }
+
+          }
+      }
+
+    // reset if it is very small to keep the matrix sparse
+    // is this a good idea?
+    if(epsilonEqual(totalSurface, 0.0, SPARSE_TRUNCATION_LIMIT))
+      {
+        totalSurface = 0.0;
+      }
+    
+    LOG(2, "Volume = " << totalSurface << ", det= " << _t->determinant());
+
+    return totalSurface;
   }
 
   /**
@@ -597,7 +1060,8 @@ namespace INTERP_KERNEL
         int conn[4];
         for(int j = 0; j < 4; ++j)
           {
-            nodes[j] = getCoordsOfSubNode2(subZone[ SPLIT_NODES_5[4*i+j] ],conn[j]);
+            conn[j] = subZone[ SPLIT_NODES_5[4*i+j] ];
+            nodes[j] = getCoordsOfSubNode(conn[j]);
           }
         SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
@@ -643,7 +1107,8 @@ namespace INTERP_KERNEL
         int conn[4];
         for(int j = 0; j < 4; ++j)
           {
-            nodes[j] = getCoordsOfSubNode2(subZone[ SPLIT_NODES_6[4*i+j] ],conn[j]);
+            conn[j] = subZone[SPLIT_NODES_6[4*i+j]];
+            nodes[j] = getCoordsOfSubNode(conn[j]);
           }
         SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes,conn);
         tetra.push_back(t);
@@ -701,18 +1166,22 @@ namespace INTERP_KERNEL
     const double* nodes[4];
     int conn[4];
     // get the cell center
-    nodes[0] = getCoordsOfSubNode2(14,conn[0]);
-    
+    conn[0] = 14;
+    nodes[0] = getCoordsOfSubNode(conn[0]);
+
     for(int faceCenterNode = 8; faceCenterNode < 14; ++faceCenterNode)
       {
         // get the face center
-        nodes[1] = getCoordsOfSubNode2(faceCenterNode,conn[1]);
+        conn[1] = faceCenterNode;
+        nodes[1] = getCoordsOfSubNode(conn[1]);
         for(int j = 0; j < 4; ++j)
           {
             const int row = 4*(faceCenterNode - 8) + j;
-            nodes[2] = getCoordsOfSubNode2(TETRA_EDGES[2*row],conn[2]);
-            nodes[3] = getCoordsOfSubNode2(TETRA_EDGES[2*row + 1],conn[3]);
-           
+            conn[2] = TETRA_EDGES[2*row];
+            conn[3] = TETRA_EDGES[2*row + 1];
+            nodes[2] = getCoordsOfSubNode(conn[2]);
+            nodes[3] = getCoordsOfSubNode(conn[3]);
+
             SplitterTetra<MyMeshTypeS>* t = new SplitterTetra<MyMeshTypeS>(_src_mesh, nodes, conn);
             tetra.push_back(t);
           }

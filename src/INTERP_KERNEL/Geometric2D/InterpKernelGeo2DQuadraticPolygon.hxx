@@ -51,6 +51,7 @@ namespace INTERP_KERNEL
     void dumpInXfigFileWithOther(const ComposedEdge& other, const char *fileName) const;
     //! Before intersecting as intersectWith a normalization is done.
     double intersectWithAbs(QuadraticPolygon& other);
+    double intersectWithAbs1D(QuadraticPolygon& other, bool& isColinear);
     //! Before intersecting as intersectWith a normalization is done.
     double intersectWithAbs(QuadraticPolygon& other, double* barycenter);
     double intersectWith(const QuadraticPolygon& other) const;
