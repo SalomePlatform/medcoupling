@@ -25,6 +25,8 @@
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
+#include "Interpolation2D1D.txx"
+#include "Interpolation3D2D.txx"
 #include "InterpolationCC.txx"
 #include "InterpolationCU.txx"
 #include "Interpolation2DCurve.hxx"
@@ -37,6 +39,8 @@
 #include <functional>
 
 using namespace ParaMEDMEM;
+
+typedef std::vector<std::map<int,double> > IntersectionMatrix;
 
 void MEDCouplingBasicsTest::test2DInterpP0P0_1()
 {
@@ -2265,3 +2269,515 @@ void MEDCouplingBasicsTest::test2DCurveInterpP1P1_1()
   sourceMesh->decrRef();
   targetMesh->decrRef();
 }
+
+void MEDCouplingBasicsTest::test2D1DBasicInterpP0P0()
+{
+  MEDCouplingUMesh *sourceMesh=build2D1DSourceMesh();
+  MEDCouplingUMesh *targetMesh=build2D1DTargetMesh();
+
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D1D myInterpolator;
+  myInterpolator.setPrecision(1e-12);
+  myInterpolator.setIntersectionType(INTERP_KERNEL::Geometric2D);
+  std::vector<std::map<int,double> > matrix;
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,matrix,"P0P0");
+
+  CPPUNIT_ASSERT_EQUAL(2,(int)matrix.size());
+
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3., matrix[0][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[0][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[0][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8., matrix[0][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[0][4],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5., matrix[0][5],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6., matrix[0][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[0][7],1e-12);
+
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[1][0],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[1][1],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[1][2],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4., matrix[1][3],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(5., matrix[1][4],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0., matrix[1][5],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6., matrix[1][6],1e-12);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3., matrix[1][7],1e-12);
+
+  INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+  CPPUNIT_ASSERT_EQUAL(1,(int)duplicateFaces.size());
+
+  INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType correctDuplicateFaces;
+  std::set<int> face6;
+  face6.insert(0);
+  face6.insert(1);
+  correctDuplicateFaces[6] = face6;
+
+  CPPUNIT_ASSERT(correctDuplicateFaces == duplicateFaces);
+
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+int MEDCouplingBasicsTest::countNonZero(const std::vector< std::map<int,double> >& matrix)
+{
+  int ret=0.;
+  for(std::vector< std::map<int,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
+    for(std::map<int,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
+      if (!INTERP_KERNEL::epsilonEqual((*iter2).second, 0.)) ret +=1;
+  return ret;
+}
+
+void MEDCouplingBasicsTest::test2D1DMeshesIntersection(MEDCouplingUMesh *sourceMesh,
+                                                       MEDCouplingUMesh *targetMesh,
+                                                       const double correctLength,
+                                                       const int correctDuplicateFacesNbr,
+                                                       const int correctTotalIntersectFacesNbr)
+{
+  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation2D1D myInterpolator;
+  myInterpolator.setPrecision(1e-12);
+  const double prec = 1.0e-5;
+  IntersectionMatrix matrix;
+  myInterpolator.setIntersectionType(INTERP_KERNEL::Geometric2D);
+  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,matrix,"P0P0");
+
+  std::cout.precision(16);
+
+  const double length = sumAll(matrix);
+  LOG(1, "length =  " << surf <<"  correctLength = " << correctLength );
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(correctLength, length, prec * std::max(correctLength, length));
+
+  INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+  int duplicateFacesNbr = duplicateFaces.size();
+  LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
+  CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
+
+  if (correctTotalIntersectFacesNbr >= 0)
+    {
+      int totalIntersectFacesNbr = countNonZero(matrix);
+      LOG(1, "totalIntersectFacesNbr =  " << totalIntersectFacesNbr <<"  correctTotalIntersectFacesNbr = " << correctTotalIntersectFacesNbr );
+      CPPUNIT_ASSERT_EQUAL(correctTotalIntersectFacesNbr, totalIntersectFacesNbr);
+    }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_1()
+{
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh();
+  MEDCouplingUMesh *targetMesh=build2D1DQuadTargetMesh();
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 16., 0, 4);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_2()
+{
+  const double shiftX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build2D1DQuadTargetMesh();
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 16., 4, 2 * 4);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_3()
+{
+  const double shiftX = 1.5;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build2D1DQuadTargetMesh(inclinationX);
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 20., 0, 4);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_4()
+{
+  const double shiftX = 3.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build2D1DQuadTargetMesh(inclinationX);
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 20., 4, 2 * 4);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_5()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build2D1DQuadTargetMesh(inclinationX);
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 12., 0, 3);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_6()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build2D1DQuadTargetMesh();
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 10., 0, 2);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_1()
+{
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh();
+  MEDCouplingUMesh *targetMesh=build2D1DTriTargetMesh();
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 16., 0, 4);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_2()
+{
+  const double shiftX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build2D1DTriTargetMesh();
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 16., 4, 2 * 4);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_3()
+{
+  const double shiftX = 1.5;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build2D1DTriTargetMesh(inclinationX);
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 20., 0, 8);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_4()
+{
+  const double shiftX = 3.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build2D1DTriTargetMesh(inclinationX);
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 20., 4, 8);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_5()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build2D1DTriTargetMesh(inclinationX);
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 12., 0, 6);
+}
+
+void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_6()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build2D1DTriTargetMesh();
+  test2D1DMeshesIntersection(sourceMesh, targetMesh, 20., 2, 4);
+}
+
+void MEDCouplingBasicsTest::test3D2DBasicInterpP0P0()
+{
+  MEDCouplingUMesh *sourceMesh=build3D2DSourceMesh();
+  MEDCouplingUMesh *targetMesh=build3D2DTargetMesh();
+
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D2D myInterpolator;
+  myInterpolator.setPrecision(1e-12);
+  std::vector<std::map<int,double> > matrix;
+  INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
+  for ( size_t i = 0; i < sizeof(sp)/sizeof(sp[0]); ++i )
+  {
+    myInterpolator.setSplittingPolicy( sp[i] );
+    matrix.clear();
+    myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,matrix,"P0P0");
+
+    CPPUNIT_ASSERT_EQUAL(3,(int)matrix.size());
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[0][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[0][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(40.        ,matrix[0][2],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(8.         ,matrix[0][3],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.5        ,matrix[0][4],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[0][5],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(32.        ,matrix[0][6],1e-12);
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(8.*sqrt(3.),matrix[1][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[1][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(40.        ,matrix[1][2],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(80.        ,matrix[1][3],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[1][4],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(80.        ,matrix[1][5],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(80.        ,matrix[1][6],1e-12);
+
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[2][0],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(32.        ,matrix[2][1],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[2][2],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[2][3],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.         ,matrix[2][4],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(80.        ,matrix[2][5],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(112.       ,matrix[2][6],1e-12);
+
+    INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+    CPPUNIT_ASSERT_EQUAL(3,(int)duplicateFaces.size());
+
+    INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType correctDuplicateFaces;
+    std::set<int> face2;
+    face2.insert(0);
+    face2.insert(1);
+    correctDuplicateFaces[2] = face2;
+    std::set<int> face5;
+    face5.insert(1);
+    face5.insert(2);
+    correctDuplicateFaces[5] = face5;
+    std::set<int> face6;
+    face6.insert(0);
+    face6.insert(1);
+    face6.insert(2);
+    correctDuplicateFaces[6] = face6;
+
+    CPPUNIT_ASSERT(correctDuplicateFaces == duplicateFaces);
+  }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3D2DMeshesIntersection(MEDCouplingUMesh *sourceMesh,
+                                                       MEDCouplingUMesh *targetMesh,
+                                                       const double correctSurf,
+                                                       const int correctDuplicateFacesNbr,
+                                                       const int correctTotalIntersectFacesNbr)
+{
+  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
+  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
+  INTERP_KERNEL::Interpolation3D2D myInterpolator;
+  myInterpolator.setPrecision(1e-12);
+  const double prec = 1.0e-5;
+  IntersectionMatrix matrix;
+  INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
+  for ( size_t i = 0; i < sizeof(sp)/sizeof(sp[0]); ++i )
+  {
+    myInterpolator.setSplittingPolicy( sp[i] );
+    matrix.clear();
+    myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,matrix,"P0P0");
+
+    std::cout.precision(16);
+
+    const double surf = sumAll(matrix);
+    LOG(1, "surf =  " << surf <<"  correctSurf = " << correctSurf );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(correctSurf, surf, prec * std::max(correctSurf, surf));
+
+    INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
+    int duplicateFacesNbr = duplicateFaces.size();
+    LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
+    CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
+
+    if (correctTotalIntersectFacesNbr >= 0)
+      {
+        int totalIntersectFacesNbr = countNonZero(matrix);
+        LOG(1, "totalIntersectFacesNbr =  " << totalIntersectFacesNbr <<"  correctTotalIntersectFacesNbr = " << correctTotalIntersectFacesNbr );
+        CPPUNIT_ASSERT_EQUAL(correctTotalIntersectFacesNbr, totalIntersectFacesNbr);
+      }
+  }
+  //clean up
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh();
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 0, 20);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_2()
+{
+  const double shiftX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 20, 2 * 20);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_3()
+{
+  const double shiftX = 1.5;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0, 20);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_4()
+{
+  const double shiftX = 3.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 20, 2 * 20);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_5()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0, 15);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_6()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 150., 0, 10);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh();
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 0, 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_2()
+{
+  const double shiftX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 40, 2 * 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_3()
+{
+  const double shiftX = 1.5;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0, 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_4()
+{
+  const double shiftX = 3.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 40, 2 * 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_5()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0, 30);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_6()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 150., 0, 20);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh();
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 20, 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_2()
+{
+  const double shiftX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 20, 2 * 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_3()
+{
+  const double shiftX = 1.5;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0, 100);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_4()
+{
+  const double shiftX = 3.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 20, 2 * 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_5()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0, 45);
+}
+
+void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_6()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 150., 0, 30);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_1()
+{
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh();
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 0, 40);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_2()
+{
+  const double shiftX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 40, 40 + 80);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_3()
+{
+  const double shiftX = 1.5;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_4()
+{
+  const double shiftX = 3.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 40, 40 + 80);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_5()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh(inclinationX);
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0);
+}
+
+void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_6()
+{
+  const double shiftX = 9.;
+  const double inclinationX = 3.;
+  MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX, inclinationX);
+  MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
+  test3D2DMeshesIntersection(sourceMesh, targetMesh, 150., 0);
+}
+
