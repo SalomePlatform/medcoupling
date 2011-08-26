@@ -23,6 +23,9 @@
 #include "TargetIntersector.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 
+#include <map>
+#include <set>
+
 namespace INTERP_KERNEL
 {
   class TranslationRotationMatrix;
@@ -35,6 +38,7 @@ namespace INTERP_KERNEL
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
+    typedef typename std::map<int,std::set<int> > DuplicateFacesType;
   public:
     //! \addtogroup InterpKerGrpIntPlan @{
     PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
@@ -45,6 +49,10 @@ namespace INTERP_KERNEL
     inline void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
     static int projection(double *Coords_A, double *Coords_B,
                           int nb_NodesA, int nb_NodesB, double epsilon, double md3DSurf, double median_plane, bool do_rotate);
+    virtual const DuplicateFacesType* getIntersectFaces() const
+    {
+      return NULL;
+    }
   protected :
     int projectionThis(double *Coords_A, double *Coords_B, int nb_NodesA, int nb_NodesB);
     void getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT);
