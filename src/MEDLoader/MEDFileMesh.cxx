@@ -1977,6 +1977,19 @@ void MEDFileCMesh::synchronizeTinyInfoOnLeaves() const
   (const_cast<MEDCouplingCMesh *>(cmesh))->setTimeUnit(_dt_unit.c_str());
 }
 
+std::vector<int> MEDFileCMesh::getNonEmptyLevels() const
+{
+  std::vector<int> ret(1);
+  return ret;
+}
+
+std::vector<int> MEDFileCMesh::getNonEmptyLevelsExt() const
+{
+  std::vector<int> ret(2);
+  ret[0]=1;
+  return ret;
+}
+
 DataArrayInt *MEDFileCMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt!=0 && meshDimRelToMaxExt!=1)

@@ -279,6 +279,8 @@ namespace ParaMEDMEM
     double getTimeValue() const;
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
+    std::vector<int> getNonEmptyLevels() const;
+    std::vector<int> getNonEmptyLevelsExt() const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     //
@@ -404,8 +406,6 @@ namespace ParaMEDMEM
     static MEDFileUMesh *New();
     ~MEDFileUMesh();
     //
-    std::vector<int> getNonEmptyLevels() const;
-    std::vector<int> getNonEmptyLevelsExt() const;
     std::vector<int> getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamNonEmptyLevels(const char *fam) const throw(INTERP_KERNEL::Exception);
