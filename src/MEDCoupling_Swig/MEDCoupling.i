@@ -38,6 +38,7 @@
 #include "MEDCouplingFieldOverTime.hxx"
 #include "MEDCouplingDefinitionTime.hxx"
 #include "MEDCouplingTypemaps.i"
+#include "MEDCouplingFieldDiscretization.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -637,6 +638,7 @@ namespace ParaMEDMEM
 %include "NormalizedUnstructuredMesh.hxx"
 %include "MEDCouplingNatureOfField.hxx"
 %include "MEDCouplingTimeDiscretization.hxx"
+%include "MEDCouplingFieldDiscretization.hxx"
 %include "MEDCouplingGaussLocalization.hxx"
 
 namespace ParaMEDMEM
