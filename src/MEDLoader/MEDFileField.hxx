@@ -379,13 +379,13 @@ namespace ParaMEDMEM
     std::string getName() const;
     std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
+    const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
   public:
     std::vector<std::string> getPflsReallyUsed2() const;
     std::vector<std::string> getLocsReallyUsed2() const;
   protected:
     const MEDFileField1TSWithoutDAS& getTimeStepEntry(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TSWithoutDAS& getTimeStepEntry(int iteration, int order) throw(INTERP_KERNEL::Exception);
-    const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
     std::string getDtUnit() const throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTSWithoutDAS();
     MEDFileFieldMultiTSWithoutDAS(const char *fieldName);
