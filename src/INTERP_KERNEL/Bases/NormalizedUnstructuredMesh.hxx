@@ -50,7 +50,8 @@ namespace INTERP_KERNEL
       NORM_PENTA15 = 25,
       NORM_HEXA20  = 30,
       NORM_POLYHED = 31,
-      NORM_ERROR   = 40
+      NORM_ERROR   = 40,
+      NORM_MAXTYPE = 31 // = NORM_POLYHED
     } NormalizedCellType;
 
   class GenericMesh
