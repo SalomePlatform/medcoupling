@@ -1,0 +1,30 @@
+/*!
+\page interpkernel_features InterpKernel features
+
+\section Presentation
+The InterpKernel algorithms are part of the MED tool suite. They
+answer to the following basic problem : given a source mesh $M_s$, a
+source field $F_s$ and a target mesh $M_t$, reconstruct a field $F_t$
+that uses $M_t$ as a support. The InterpKernel suite gives a number of
+possibilities to compute the target field, depending on a variety of
+user constraints.
+
+\image html interpolation_image.png
+
+InterpKernel possibilities emcompass:
+- 1D, 2D lines, 2D, 3D surfaces and 3D handling,
+- computation via node localization or via cell intersection (for
+conservative remapping),
+- treatment of MPI-distributed fields and meshes,
+- different APIs for different levels of integration (as SALOME
+components, for MPI distributed codes, as low-level library),
+- treatment of extended polygons (where edges can be arcs or segments)
+for 2D intersection computations,
+- management of P0, P1 and P2 fields. 
+
+The starting point for using the tools is the description of the
+diferent APIs. You can obtain this information by following this
+link : \ref interpkernel. If you would like more information about the
+features, you can follow the following links : \ref interpolation2D,
+\ref interpolation3Dsurf, \ref interpolation3D which provide details
+about the options available when using intersection algorithms.
