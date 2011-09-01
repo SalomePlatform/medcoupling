@@ -19,21 +19,23 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-bin_PROGRAMS= TestMEDLoader
+bin_PROGRAMS= TestMEDLoader TestSauvLoader
 
 TestMEDLoader_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(srcdir)/../../INTERP_KERNEL/Bases -I$(srcdir)/../../INTERP_KERNELTest -I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Geometric2D -I$(srcdir)/../../MEDCoupling
+TestSauvLoader_CPPFLAGS=$(TestMEDLoader_CPPFLAGS) $(MED2_INCLUDES) $(HDF5_INCLUDES)
 
 TestMEDLoader_LDFLAGS = @CPPUNIT_LIBS@ ../libmedloader.la ../../MEDCoupling/libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la
+TestSauvLoader_LDFLAGS=$(TestMEDLoader_LDFLAGS)
 
 dist_TestMEDLoader_SOURCES = TestMEDLoader.cxx MEDLoaderTest.cxx MEDLoaderTest.hxx
+dist_TestSauvLoader_SOURCES = TestSauvLoader.cxx SauvLoaderTest.cxx SauvLoaderTest.hxx
 
-UNIT_TEST_PROG = TestMEDLoader
+UNIT_TEST_PROG = TestMEDLoader TestSauvLoader
 
 check : tests
 
 CLEANFILES = \
         UnitTestsResult
-	
+
 clean-local:
 	rm -rf *.med
-	

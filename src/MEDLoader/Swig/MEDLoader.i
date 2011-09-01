@@ -30,6 +30,8 @@
 #include "MEDFileField.hxx"
 #include "MEDFileData.hxx"
 #include "MEDLoaderTypemaps.i"
+#include "SauvReader.hxx"
+#include "SauvWriter.hxx"
 
 using namespace ParaMEDMEM;
 %}
@@ -97,6 +99,10 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileData::getMeshes;
 %newobject ParaMEDMEM::MEDFileData::getFields;
 
+%newobject ParaMEDMEM::SauvWriter::New;
+%newobject ParaMEDMEM::SauvReader::New;
+%newobject ParaMEDMEM::SauvReader::loadInMEDFileDS;
+
 %feature("unref") MEDFileMesh "$this->decrRef();"
 %feature("unref") MEDFileUMesh "$this->decrRef();"
 %feature("unref") MEDFileCMesh "$this->decrRef();"
@@ -107,6 +113,8 @@ using namespace ParaMEDMEM;
 %feature("unref") MEDFileFieldMultiTS "$this->decrRef();"
 %feature("unref") MEDFileFields "$this->decrRef();"
 %feature("unref") MEDFileData "$this->decrRef();"
+%feature("unref") SauvReader "$this->decrRef();"
+%feature("unref") SauvWriter "$this->decrRef();"
 
 class MEDLoader
 {
@@ -694,6 +702,7 @@ namespace ParaMEDMEM
     int getNumberOfTS() const;
     std::string getName() const;
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
+    const std::vector<std::string>& getInfo() const;
     %extend
        {
          PyObject *getIterations() const
@@ -856,4 +865,20 @@ namespace ParaMEDMEM
          }
        }
   };
+
+  class SauvReader : public RefCountObject
+  {
+  public:
+    static SauvReader* New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    MEDFileData * loadInMEDFileDS() throw(INTERP_KERNEL::Exception);
+  };
+
+  class SauvWriter : public RefCountObject
+  {
+  public:
+    static SauvWriter * New();
+    void setMEDFileDS(const MEDFileData* medData, unsigned meshIndex = 0);
+    void write(const char* fileName);
+  };
+
 }

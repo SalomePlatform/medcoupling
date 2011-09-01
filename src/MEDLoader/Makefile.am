@@ -37,12 +37,14 @@ lib_LTLIBRARIES = libmedloader.la
 salomeinclude_HEADERS= \
 MEDLoaderDefines.hxx \
 MEDLoader.hxx MEDLoaderBase.hxx MEDFileUtilities.hxx MEDFileMesh.hxx MEDFileMeshLL.hxx \
-MEDFileMeshElt.hxx MEDFileBasis.hxx MEDFileField.hxx MEDFileData.hxx
+MEDFileMeshElt.hxx MEDFileBasis.hxx MEDFileField.hxx MEDFileData.hxx \
+SauvMedConvertor.hxx SauvReader.hxx SauvWriter.hxx SauvUtilities.hxx
 
 dist_libmedloader_la_SOURCES= \
 MEDLoader.cxx MEDLoaderBase.cxx MEDFileUtilities.cxx      \
 MEDFileMesh.cxx MEDFileMeshElt.cxx MEDFileBasis.cxx       \
-MEDFileMeshLL.cxx MEDFileField.cxx MEDFileData.cxx
+MEDFileMeshLL.cxx MEDFileField.cxx MEDFileData.cxx      \
+SauvMedConvertor.cxx SauvReader.cxx SauvWriter.cxx
 
 libmedloader_la_CPPFLAGS= $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
