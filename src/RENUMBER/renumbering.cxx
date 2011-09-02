@@ -35,6 +35,13 @@
 #include "RenumberingFactory.hxx"
 
 #include <time.h>
+
+#ifdef WNT
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 using namespace MEDMEM;
 using namespace std;
 using namespace MED_EN;
@@ -82,12 +89,15 @@ void changeConnectivity(MESH& mesh, const medGeometryElement& Type, const int& n
   if(Type==MED_POLYHEDRA)
     {
       int *conn_face_index_init=(int*)mesh.getPolyhedronFacesIndex();
-      int *conn_index_init=(int*)mesh.getPolyhedronIndex(MED_FULL_INTERLACE);
-      int *conn_init=(int*)mesh.getPolyhedronConnectivity(MED_FULL_INTERLACE);
+      int *conn_index_init     =(int*)mesh.getPolyhedronIndex(MED_FULL_INTERLACE);
+      int *conn_init           =(int*)mesh.getPolyhedronConnectivity(MED_FULL_INTERLACE);
 
-      int *conn_index_renum=new int[nb_cell+1];
-      int *conn_face_index_renum=new int[conn_index_init[nb_cell]];
-      int *conn_renum=new int[conn_face_index_init[conn_index_init[nb_cell]-1]-1];
+      const int nbFaces  = conn_index_init[nb_cell]-1;
+      const int connSize = conn_face_index_init[nbFaces]-1;
+
+      int *conn_face_index_renum=new int[nbFaces+1];
+      int *conn_index_renum     =new int[nb_cell+1];
+      int *conn_renum           =new int[connSize];
 
       int i_cell,i_face,i_conn;
       int iter_face=0;
@@ -110,9 +120,21 @@ void changeConnectivity(MESH& mesh, const medGeometryElement& Type, const int& n
             }
           conn_index_renum[i_cell+1]=iter_face+1;
         }
-      memcpy(conn_face_index_init,conn_face_index_renum,sizeof(int)*conn_index_init[nb_cell]);
+#if defined(IRIX64) || defined(OSF1) || defined(VPP5000) || defined(PCLINUX64)
+      // a copy of data is returned by mesh.getPolyhedronConnectivity() etc
+      CONNECTIVITY* connectivity = const_cast<CONNECTIVITY*>( mesh.getConnectivityptr() );
+      connectivity->setPolyhedronConnectivity( MED_NODAL,
+                                               conn_renum, conn_index_renum,
+                                               connSize, nb_cell,
+                                               conn_face_index_renum, nbFaces);
+      delete[] conn_index_init;
+      delete[] conn_face_index_init;
+      delete[] conn_init;
+#else
+      memcpy(conn_face_index_init,conn_face_index_renum,sizeof(int)*(nbFaces+1));
       memcpy(conn_index_init,conn_index_renum,sizeof(int)*(nb_cell+1));
-      memcpy(conn_init,conn_renum, sizeof(int)*(conn_face_index_init[conn_index_init[nb_cell]-1]-1));
+      memcpy(conn_init,conn_renum, sizeof(int)*connSize);       
+#endif
 
       delete[] conn_index_renum;
       delete[] conn_face_index_renum;
@@ -209,8 +231,16 @@ int main (int argc, char** argv)
       exit(-1);
     }
 
-  string s="rm "+filename_out;
-  system(s.c_str());
+#ifdef WNT
+  bool fileExists = ( GetFileAttributes(filename_out.c_str()) & FILE_ATTRIBUTE_NORMAL );
+#else
+  bool fileExists = (::access(filename_out.c_str(), F_OK) == 0);
+#endif
+  if ( fileExists )
+    {
+      string s="rm "+filename_out;
+      system(s.c_str());
+    }
 
   // Reading file structure
   const MED med_struct (MED_DRIVER,filename_in);
