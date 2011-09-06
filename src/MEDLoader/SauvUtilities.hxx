@@ -23,6 +23,7 @@
 #ifndef __SauvUtilities_HXX__
 #define __SauvUtilities_HXX__
 
+#include "MEDLoaderDefines.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 
@@ -37,10 +38,10 @@
 
 namespace SauvUtilities
 {
-  INTERP_KERNEL::NormalizedCellType gibi2medGeom( size_t gibiType );
-  int med2gibiGeom( INTERP_KERNEL::NormalizedCellType medGeomType );
-  const int * getGibi2MedQuadraticInterlace( INTERP_KERNEL::NormalizedCellType type );
-  unsigned getDimension( INTERP_KERNEL::NormalizedCellType type );
+  INTERP_KERNEL::NormalizedCellType MEDLOADER_EXPORT gibi2medGeom( size_t gibiType );
+  int MEDLOADER_EXPORT med2gibiGeom( INTERP_KERNEL::NormalizedCellType medGeomType );
+  const int * MEDLOADER_EXPORT getGibi2MedQuadraticInterlace( INTERP_KERNEL::NormalizedCellType type );
+  unsigned MEDLOADER_EXPORT getDimension( INTERP_KERNEL::NormalizedCellType type );
 
   enum Readable_Piles
     {
