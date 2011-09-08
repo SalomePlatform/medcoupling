@@ -543,12 +543,12 @@ void SauvWriter::makeProfileIDs( SubMesh*                          sm,
       // profile on cells
       vector<int> code(3);
       code[0] = type;
-      if ( profile ) // on all cells
+      if ( profile ) // on profile
         {
           code[1] = profile->getNumberOfTuples();
           code[2] = 0;
         }
-      else
+      else // on all cells
         {
           code[1] = mesh->getNumberOfCellsWithType( type );
           code[2] = -1;
