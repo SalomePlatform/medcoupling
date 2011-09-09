@@ -54,7 +54,7 @@ namespace ParaMEDMEM
     RefCountObject();
     RefCountObject(const RefCountObject& other);
   public:
-    bool decrRef();
+    bool decrRef() const;
     void incrRef() const;
   protected:
     virtual ~RefCountObject();

@@ -29,7 +29,7 @@ RefCountObject::RefCountObject(const RefCountObject& other):_cnt(1)
 {
 }
 
-bool RefCountObject::decrRef()
+bool RefCountObject::decrRef() const
 {
   bool ret=((--_cnt)==0);
   if(ret)
