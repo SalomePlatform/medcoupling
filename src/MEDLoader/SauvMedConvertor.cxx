@@ -366,9 +366,9 @@ bool Cell::operator< (const Cell& ma) const
 
 std::ostream& SauvUtilities::operator<< (std::ostream& os, const SauvUtilities::Cell& ma)
 {
-  os << "cell " << ma._number << " (" << ma._nodes.size() << " nodes) : < " << ma._nodes[0];
+  os << "cell " << ma._number << " (" << ma._nodes.size() << " nodes) : < " << ma._nodes[0]->_number;
   for( size_t i=1; i!=ma._nodes.size(); ++i)
-    os << ", " << ma._nodes[0];
+    os << ", " << ma._nodes[i]->_number;
 #ifdef _DEBUG_
   os << " > sortedNodes: ";
   if ( ma._sortedNodeIDs ) {
@@ -776,7 +776,7 @@ double ASCIIReader::getDouble() const
   if ( _curPos[posE] != 'E' && _curPos[posE] != 'e' )
     {
       std::string aStr (_curPos);
-      if ( aStr.size() < posE )
+      if ( aStr.size() < posE+1 )
         THROW_IK_EXCEPTION("No more doubles (line #" << lineNb() << ")");
       aStr.insert( posE, "E", 1 );
       return atof(aStr.c_str());
