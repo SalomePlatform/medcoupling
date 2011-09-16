@@ -208,9 +208,12 @@ namespace SauvUtilities
       const size_t pos     = (nID-1) % chunkSize;
       if ( _nodes.size() < chunkID+1 )
       {
-        _nodes.resize( chunkID+1 );
+        std::vector< std::vector< Node > > newNodes(chunkID+1);
         for ( size_t i = 0; i < _nodes.size(); ++i )
-          _nodes[i].resize( chunkSize );
+          newNodes[i].swap( _nodes[i] );
+        for ( size_t i = _nodes.size(); i < newNodes.size(); ++i )
+          newNodes[i].resize( chunkSize );
+        _nodes.swap( newNodes );
       }
       return & _nodes[chunkID][pos];
     }
