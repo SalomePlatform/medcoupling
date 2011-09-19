@@ -53,6 +53,7 @@ EXTRA_DIST += figures \
 	      field.dox \
 	      grid.dox \
 	      interpkernel.dox \
+	      interpkernel_features.dox \
 	      medcoupling.dox \
 	      medfilebrowser.dox \
 	      medloader.dox \

@@ -113,6 +113,8 @@ PlanarIntersectorP1P1.hxx		\
 PlanarIntersectorP1P1.txx		\
 PolygonAlgorithms.hxx			\
 PolygonAlgorithms.txx			\
+Polyhedron3D2DIntersectorP0P0.hxx       \
+Polyhedron3D2DIntersectorP0P0.txx       \
 PolyhedronIntersectorP0P0.hxx		\
 PolyhedronIntersectorP0P0.txx		\
 PointLocator3DIntersectorP0P0.hxx       \
