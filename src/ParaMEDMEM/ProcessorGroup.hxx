@@ -34,9 +34,12 @@ namespace ParaMEDMEM
     ProcessorGroup(const CommInterface& interface, std::set<int> proc_ids):
       _comm_interface(interface),_proc_ids(proc_ids) { }
     ProcessorGroup (const ProcessorGroup& proc_group, std::set<int> proc_ids):
-      _comm_interface(proc_group.getCommInterface()) { }
+      _comm_interface(proc_group.getCommInterface()),_proc_ids(proc_ids) { }
+    ProcessorGroup (const ProcessorGroup& other):
+      _comm_interface(other.getCommInterface()),_proc_ids(other._proc_ids) { }
     ProcessorGroup (const CommInterface& interface, int start, int end);
     virtual ~ProcessorGroup() { }
+    virtual ProcessorGroup *deepCpy() const = 0;
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const = 0;
     virtual void intersect (ProcessorGroup&) = 0;
     bool contains(int rank) const { return _proc_ids.find(rank)!=_proc_ids.end(); }

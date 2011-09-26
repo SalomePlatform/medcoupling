@@ -47,7 +47,7 @@ TrioField::TrioField() :
   _has_field_ownership(false) { }
 
 // Copy constructor
-TrioField::TrioField(const TrioField& OtherField) {
+TrioField::TrioField(const TrioField& OtherField):_connectivity(0),_coords(0),_field(0) {
   (*this)=OtherField;
 }
 
@@ -79,7 +79,6 @@ int TrioField::nb_values() const {
   else if (_type==1)
     return _nbnodes;
   throw 0;
-  //exit(-1);
   return -1;
 }
 

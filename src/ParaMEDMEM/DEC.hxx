@@ -30,6 +30,8 @@ namespace ParaMEDMEM
   class DEC : public DECOptions
   {
   public:
+    DEC();
+    void copyFrom(const DEC& other);
     virtual void synchronize() = 0;
     virtual void sendRecvData(bool way=true) = 0;
     virtual ~DEC();

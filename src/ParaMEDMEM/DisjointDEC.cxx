@@ -30,6 +30,7 @@
 #include "MPIProcessorGroup.hxx"
 
 #include <cmath>
+#include <iostream>
 
 /*! \defgroup dec DEC
  *
@@ -85,6 +86,36 @@ namespace ParaMEDMEM
     _union_group = source_group.fuse(target_group);  
   }
   
+  DisjointDEC::DisjointDEC(const DisjointDEC& s):DEC(s),_local_field(0),_union_group(0),_source_group(0),_target_group(0),_owns_field(false),_owns_groups(false),_icoco_field(0)
+  {
+    copyInstance(s);
+  }
+
+  DisjointDEC & DisjointDEC::operator=(const DisjointDEC& s)
+  {
+    cleanInstance();
+    copyInstance(s);
+    return *this;
+     
+  }
+
+  void DisjointDEC::copyInstance(const DisjointDEC& other)
+  {
+    DEC::copyFrom(other);
+    if(other._target_group)
+      {
+        _target_group=other._target_group->deepCpy();
+        _owns_groups=true;
+      }
+    if(other._source_group)
+      {
+        _source_group=other._source_group->deepCpy();
+        _owns_groups=true;
+      }
+    if (_source_group && _target_group)
+      _union_group = _source_group->fuse(*_target_group);
+  }
+
   DisjointDEC::DisjointDEC(const std::set<int>& source_ids, const std::set<int>& target_ids, const MPI_Comm& world_comm):_local_field(0), 
                                                                                                                          _owns_field(false),
                                                                                                                          _owns_groups(true),
@@ -145,15 +176,29 @@ namespace ParaMEDMEM
 
   DisjointDEC::~DisjointDEC()
   {
+    cleanInstance();
+  }
+
+  void DisjointDEC::cleanInstance()
+  {
     if(_owns_field)
-      delete _local_field;
+      {
+        delete _local_field;
+      }
+    _local_field=0;
+    _owns_field=false;
     if(_owns_groups)
       {
         delete _source_group;
         delete _target_group;
       }
+    _owns_groups=false;
+    _source_group=0;
+    _target_group=0;
     delete _icoco_field;
+    _icoco_field=0;
     delete _union_group;
+    _union_group=0;
   }
 
   void DisjointDEC::setNature(NatureOfField nature)

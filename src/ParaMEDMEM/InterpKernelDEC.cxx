@@ -104,7 +104,7 @@ namespace ParaMEDMEM
     @{
   */
   
-  InterpKernelDEC::InterpKernelDEC()
+  InterpKernelDEC::InterpKernelDEC():_interpolation_matrix(0)
   {  
   }
 

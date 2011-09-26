@@ -40,8 +40,10 @@ namespace ParaMEDMEM
   class DisjointDEC : public DEC
   {
   public:
-    DisjointDEC():_local_field(0) { }
+    DisjointDEC():_local_field(0),_union_group(0),_source_group(0),_target_group(0),_owns_field(false),_owns_groups(false),_icoco_field(0) { }
     DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
+    DisjointDEC(const DisjointDEC&);
+    DisjointDEC &operator=(const DisjointDEC& s);
     DisjointDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
                 const MPI_Comm& world_comm=MPI_COMM_WORLD);
     void setNature(NatureOfField nature);
@@ -66,6 +68,8 @@ namespace ParaMEDMEM
     bool isInUnion() const;
   protected:
     void compareFieldAndMethod() const throw(INTERP_KERNEL::Exception);
+    void cleanInstance();
+    void copyInstance(const DisjointDEC& other);
   protected:
     const ParaFIELD* _local_field;
     //! Processor group representing the union of target and source processors

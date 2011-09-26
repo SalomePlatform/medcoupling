@@ -33,6 +33,15 @@
 
 namespace ParaMEDMEM
 {
+  DEC::DEC():_comm_interface(0)
+  {
+  }
+
+  void DEC::copyFrom(const DEC& other)
+  {
+    _comm_interface=other._comm_interface;
+  }
+  
   DEC::~DEC()
   {
   }

@@ -89,6 +89,12 @@ namespace ParaMEDMEM
   MPIProcessorGroup::MPIProcessorGroup(const CommInterface& interface, set<int> proc_ids, const MPI_Comm& world_comm):
     ProcessorGroup(interface, proc_ids),_world_comm(world_comm)
   {
+    updateMPISpecificAttributes();
+  }
+
+
+  void MPIProcessorGroup::updateMPISpecificAttributes()
+  {
     //Creation of a communicator 
     MPI_Group group_world;
   
@@ -98,19 +104,20 @@ namespace ParaMEDMEM
     _comm_interface.commRank(_world_comm,&rank_world);
     _comm_interface.commGroup(_world_comm, &group_world);
 
-    int* ranks=new int[proc_ids.size()];
+    int* ranks=new int[_proc_ids.size()];
    
     // copying proc_ids in ranks
-    copy<set<int>::const_iterator,int*> (proc_ids.begin(), proc_ids.end(), ranks);
-    for (int i=0; i< (int)proc_ids.size();i++)
+    copy<set<int>::const_iterator,int*> (_proc_ids.begin(), _proc_ids.end(), ranks);
+    for (int i=0; i< (int)_proc_ids.size();i++)
       if (ranks[i]>size_world-1)
         throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
       
-    _comm_interface.groupIncl(group_world, proc_ids.size(), ranks, &_group);
+    _comm_interface.groupIncl(group_world, _proc_ids.size(), ranks, &_group);
   
     _comm_interface.commCreate(_world_comm, _group, &_comm);
     delete[] ranks;
   }
+
   /*! Creates a processor group that is based on the processors between \a pstart and \a pend.
     This routine must be called by all processors in MPI_COMM_WORLD.
 
@@ -156,6 +163,11 @@ namespace ParaMEDMEM
     exit(1);
   }
 
+  MPIProcessorGroup::MPIProcessorGroup(const MPIProcessorGroup& other):ProcessorGroup(other),_world_comm(other._world_comm)
+  {
+    updateMPISpecificAttributes();
+  }
+
   MPIProcessorGroup::~MPIProcessorGroup()
   {
     _comm_interface.groupFree(&_group);
@@ -197,6 +209,11 @@ namespace ParaMEDMEM
     
     return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
     
+  }
+
+  ProcessorGroup *MPIProcessorGroup::deepCpy() const
+  {
+    return new MPIProcessorGroup(*this);
   }
 
   /*!Adding processors of group \a group to local group.
