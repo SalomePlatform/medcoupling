@@ -615,7 +615,7 @@ void SauvReader::read_PILE_COORDONNEES (const int nbObjects, std::vector<std::st
   initIntReading(1);
   int nbReals = getIntNext();
 
-  if ( nbReals < _iMed->_nbNodes*(_iMed->_spaceDim+1) )
+  if ( nbReals < (int)(_iMed->_nbNodes*(_iMed->_spaceDim+1)) )
     THROW_IK_EXCEPTION("Erroor of reading PILE NUMERO  " << PILE_COORDONNEES << lineNb() );
 
   // there are coordinates + density for each node

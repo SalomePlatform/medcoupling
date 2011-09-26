@@ -427,7 +427,7 @@ INTERP_KERNEL::NormalizedCellType SauvUtilities::gibi2medGeom( size_t gibiType )
 
 int SauvUtilities::med2gibiGeom( INTERP_KERNEL::NormalizedCellType medGeomType )
 {
-  for ( int i = 0; i < NbGibiCellTypes; i++ )
+  for ( unsigned int i = 0; i < NbGibiCellTypes; i++ )
     if ( GibiTypeToMed[ i ] == medGeomType )
       return i + 1;
 
@@ -1909,7 +1909,7 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
       for ( size_t i = 0; i < _groups.size(); ++i )
         {
           Group& grp = _groups[i];
-          if ( getDim( &grp ) != dim )
+          if ( (int)getDim( &grp ) != dim )
             continue;
           // convert only named groups or field supports
           if ( grp.empty() || (grp._name.empty() && !grp._isProfile ))
@@ -2121,7 +2121,7 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   timeStamp->setDescription( fld->_description.c_str() );
   MEDCouplingAutoRefCountObjectPtr< MEDCouplingUMesh > dimMesh = mesh->getMeshAtLevel( dimRel );
   timeStamp->setMesh( dimMesh );
-  for ( size_t i = 0; i < fld->_sub[iSub].nbComponents(); ++i )
+  for ( size_t i = 0; i < (size_t)fld->_sub[iSub].nbComponents(); ++i )
     values->setInfoOnComponent( i, fld->_sub[iSub]._comp_names[ i ].c_str() );
   timeStamp->setArray( values );
   values->decrRef();
@@ -2285,7 +2285,7 @@ ParaMEDMEM::TypeOfField DoubleField::getMedType( const int iSub ) const
   if ( _sub[iSub].nbGauss() > 1 )
     {
       const CellModel& cm = CellModel::GetCellModel( _sub[iSub]._support->_cellType );
-      return cm.getNumberOfNodes() == _sub[iSub].nbGauss() ? ON_GAUSS_NE : ON_GAUSS_PT;
+      return (int) cm.getNumberOfNodes() == _sub[iSub].nbGauss() ? ON_GAUSS_NE : ON_GAUSS_PT;
     }
   else
     {

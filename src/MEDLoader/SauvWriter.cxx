@@ -385,7 +385,7 @@ void SauvWriter::fillFamilySubMeshes()
       else if ( dimRelExt == 0 )
         {
           // make a submesh including all cells
-          if ( sub0Index == _subs.size()-1 )
+          if ( sub0Index == (int)(_subs.size()-1) )
             {
               _famIDs2Sub[0]->_name = _fileMesh->getName(); // there is the zero family only
             }
@@ -1042,7 +1042,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
       // write support, number of values and number of components
       fcount.init(10);
       vector< int > vals(3);
-      for ( int iIt = 0; iIt < iters.size(); ++iIt )
+      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
         {
           pair<int,int> it = iters[iIt];
 
@@ -1072,7 +1072,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
       makeCompNames( _nodeFields[iF]->getName(), compInfo, mapMedToGibi );
       fcount.init(8);
       *_sauvFile << left;
-      for ( int iIt = 0; iIt < iters.size(); ++iIt )
+      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
         for ( size_t i = 0; i < compInfo.size(); ++i, fcount++ )
           *_sauvFile << " "  << setw(4) << mapMedToGibi[compInfo[i]];
       *_sauvFile << right;
@@ -1080,7 +1080,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
 
       // (4) nb harmonics
       fcount.init(10);
-      for ( size_t i = 0; i < totalNbComp; ++i, fcount++ )
+      for ( size_t i = 0; i < (std::size_t)totalNbComp; ++i, fcount++ )
         *_sauvFile << " "  << setw(8) << 0;
       fcount.stop();
 
@@ -1091,7 +1091,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
 
       // write values of each component
       fcount.init( 3 ); // 3 values per a line
-      for ( int iIt = 0; iIt < iters.size(); ++iIt )
+      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
         {
           pair<int,int> it = iters[iIt];
 
@@ -1106,7 +1106,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
           const DataArrayDouble* valsArray = valsVec[0][0];
           for ( size_t j = 0; j < compInfo.size(); ++j )
             {
-              for ( size_t i = 0; i < valsArray->getNumberOfTuples(); ++i, fcount++ )
+              for ( size_t i = 0; i < (std::size_t)valsArray->getNumberOfTuples(); ++i, fcount++ )
                 *_sauvFile << setw(22) << valsArray->getIJ( i, j );
               fcount.stop();
             }
@@ -1152,7 +1152,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
       // count nb of sub-components
       int iSub, nbSub = 0;
       vector< pair<int,int> >  iters = _cellFields[iF]->getIterations();
-      for ( int iIt = 0; iIt < iters.size(); ++iIt )
+      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
         {
           pair<int,int> it = iters[iIt];
 
@@ -1180,7 +1180,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
       const vector<string>& compInfo = _cellFields[iF]->getInfo();
       vals[2] = compInfo.size();
       fcount.init(10);
-      for ( int iIt = 0; iIt < iters.size(); ++iIt )
+      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
         {
           pair<int,int> it = iters[iIt];
 
@@ -1219,7 +1219,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
 
       // loop on sub-components of a field, each of which refers to
       // a certain support and has its own number of components
-      for ( int iIt = 0; iIt < iters.size(); ++iIt )
+      for ( std::size_t iIt = 0; iIt < iters.size(); ++iIt )
         {
           pair<int,int> it = iters[iIt];
           writeElemTimeStamp( iF, it.first, it.second );
@@ -1303,7 +1303,7 @@ void SauvWriter::writeElemTimeStamp(int iF, int iter, int order)
                        << setw(8) << 0
                        << endl;
             fcount.init(3);
-            for ( size_t i = 0; i < valArray->getNumberOfTuples(); ++i, fcount++ )
+            for ( size_t i = 0; i < (size_t) valArray->getNumberOfTuples(); ++i, fcount++ )
               *_sauvFile << setw(22) << valArray->getIJ( i, iComp );
             fcount.stop();
           }
