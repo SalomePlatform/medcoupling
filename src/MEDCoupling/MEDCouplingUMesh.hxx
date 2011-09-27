@@ -29,7 +29,8 @@
 namespace ParaMEDMEM
 {
   class MEDCouplingUMeshCellIterator;
-  
+  class MEDCouplingUMeshCellByTypeEntry;
+
   class MEDCouplingUMesh : public MEDCouplingPointSet
   {
   public:
@@ -54,6 +55,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, const int *nodalConnOfCell) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void finishInsertingCells();
     MEDCOUPLING_EXPORT MEDCouplingUMeshCellIterator *cellIterator();
+    MEDCOUPLING_EXPORT MEDCouplingUMeshCellByTypeEntry *cellsByType() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT const std::set<INTERP_KERNEL::NormalizedCellType>& getAllTypes() const { return _types; }
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const int *begin, const int *end) const throw(INTERP_KERNEL::Exception);
@@ -216,8 +218,51 @@ namespace ParaMEDMEM
   {
   public:
     MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh);
+    MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh, MEDCouplingUMeshCell *itc, int bg, int end);
     ~MEDCouplingUMeshCellIterator();
     MEDCouplingUMeshCell *nextt();
+  private:
+    MEDCouplingUMesh *_mesh;
+    MEDCouplingUMeshCell *_cell;
+    bool _own_cell;
+    int _cell_id;
+    int _nb_cell;
+  };
+
+  class MEDCouplingUMeshCellByTypeIterator;
+
+  class MEDCouplingUMeshCellByTypeEntry
+  {
+  public:
+    MEDCouplingUMeshCellByTypeEntry(MEDCouplingUMesh *mesh);
+    MEDCouplingUMeshCellByTypeIterator *iterator();
+    ~MEDCouplingUMeshCellByTypeEntry();
+  private:
+    MEDCouplingUMesh *_mesh;
+  };
+
+  class MEDCouplingUMeshCellEntry
+  {
+  public:
+    MEDCouplingUMeshCellEntry(MEDCouplingUMesh *mesh,  INTERP_KERNEL::NormalizedCellType type, MEDCouplingUMeshCell *itc, int bg, int end);
+    ~MEDCouplingUMeshCellEntry();
+    INTERP_KERNEL::NormalizedCellType getType() const;
+    int getNumberOfElems() const;
+    MEDCouplingUMeshCellIterator *iterator();
+  private:
+    MEDCouplingUMesh *_mesh;
+    INTERP_KERNEL::NormalizedCellType _type;
+    MEDCouplingUMeshCell *_itc;
+    int _bg;
+    int _end;
+  };
+
+  class MEDCouplingUMeshCellByTypeIterator
+  {
+  public:
+    MEDCouplingUMeshCellByTypeIterator(MEDCouplingUMesh *mesh);
+    ~MEDCouplingUMeshCellByTypeIterator();
+    MEDCouplingUMeshCellEntry *nextt();
   private:
     MEDCouplingUMesh *_mesh;
     MEDCouplingUMeshCell *_cell;

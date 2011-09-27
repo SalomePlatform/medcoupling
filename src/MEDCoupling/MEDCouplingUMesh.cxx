@@ -271,6 +271,13 @@ MEDCouplingUMeshCellIterator *MEDCouplingUMesh::cellIterator()
   return new MEDCouplingUMeshCellIterator(this);
 }
 
+MEDCouplingUMeshCellByTypeEntry *MEDCouplingUMesh::cellsByType() throw(INTERP_KERNEL::Exception)
+{
+  if(!checkConsecutiveCellTypes())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::cellsByType : this mesh is not sorted by type !");
+  return new MEDCouplingUMeshCellByTypeEntry(this);
+}
+
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypes() const
 {
   return _types;
@@ -4426,7 +4433,7 @@ void MEDCouplingUMesh::fillInCompact3DMode(int spaceDim, int nbOfNodesInCell, co
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),
-                                                                                   _cell_id(-1),_nb_cell(0)
+                                                                                   _own_cell(true),_cell_id(-1),_nb_cell(0)
 {
   if(mesh)
     {
@@ -4439,7 +4446,16 @@ MEDCouplingUMeshCellIterator::~MEDCouplingUMeshCellIterator()
 {
   if(_mesh)
     _mesh->decrRef();
-  delete _cell;
+  if(_own_cell)
+    delete _cell;
+}
+
+MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh, MEDCouplingUMeshCell *itc, int bg, int end):_mesh(mesh),_cell(itc),
+                                                                                                                               _own_cell(false),_cell_id(bg-1),
+                                                                                                                               _nb_cell(end)
+{
+  if(mesh)
+    mesh->incrRef();
 }
 
 MEDCouplingUMeshCell *MEDCouplingUMeshCellIterator::nextt()
@@ -4449,6 +4465,84 @@ MEDCouplingUMeshCell *MEDCouplingUMeshCellIterator::nextt()
     {
       _cell->next();
       return _cell;
+    }
+  else
+    return 0;
+}
+
+MEDCouplingUMeshCellByTypeEntry::MEDCouplingUMeshCellByTypeEntry(MEDCouplingUMesh *mesh):_mesh(mesh)
+{
+  if(_mesh)
+    _mesh->incrRef();
+}
+
+MEDCouplingUMeshCellByTypeIterator *MEDCouplingUMeshCellByTypeEntry::iterator()
+{
+  return new MEDCouplingUMeshCellByTypeIterator(_mesh);
+}
+
+MEDCouplingUMeshCellByTypeEntry::~MEDCouplingUMeshCellByTypeEntry()
+{
+  if(_mesh)
+    _mesh->decrRef();
+}
+
+MEDCouplingUMeshCellEntry::MEDCouplingUMeshCellEntry(MEDCouplingUMesh *mesh,  INTERP_KERNEL::NormalizedCellType type, MEDCouplingUMeshCell *itc, int bg, int end):_mesh(mesh),_type(type),
+                                                                                                                                                                  _itc(itc),
+                                                                                                                                                                  _bg(bg),_end(end)
+{
+  if(_mesh)
+    _mesh->incrRef();
+}
+
+MEDCouplingUMeshCellEntry::~MEDCouplingUMeshCellEntry()
+{
+  if(_mesh)
+    _mesh->decrRef();
+}
+
+INTERP_KERNEL::NormalizedCellType MEDCouplingUMeshCellEntry::getType() const
+{
+  return _type;
+}
+
+int MEDCouplingUMeshCellEntry::getNumberOfElems() const
+{
+  return _end-_bg;
+}
+
+MEDCouplingUMeshCellIterator *MEDCouplingUMeshCellEntry::iterator()
+{
+  return new MEDCouplingUMeshCellIterator(_mesh,_itc,_bg,_end);
+}
+
+MEDCouplingUMeshCellByTypeIterator::MEDCouplingUMeshCellByTypeIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),_cell_id(0),_nb_cell(0)
+{
+  if(mesh)
+    {
+      mesh->incrRef();
+      _nb_cell=mesh->getNumberOfCells();
+    }
+}
+
+MEDCouplingUMeshCellByTypeIterator::~MEDCouplingUMeshCellByTypeIterator()
+{
+  if(_mesh)
+    _mesh->decrRef();
+  delete _cell;
+}
+
+MEDCouplingUMeshCellEntry *MEDCouplingUMeshCellByTypeIterator::nextt()
+{
+  const int *c=_mesh->getNodalConnectivity()->getConstPointer();
+  const int *ci=_mesh->getNodalConnectivityIndex()->getConstPointer();
+  if(_cell_id<_nb_cell)
+    {
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)c[ci[_cell_id]];
+      int nbOfElems=std::distance(ci+_cell_id,std::find_if(ci+_cell_id,ci+_nb_cell,ParaMEDMEMImpl::ConnReader(c,type)));
+      int startId=_cell_id;
+      _cell_id+=nbOfElems;
+      return new MEDCouplingUMeshCellEntry(_mesh,type,_cell,startId,_cell_id);
     }
   else
     return 0;

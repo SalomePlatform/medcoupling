@@ -237,6 +237,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__iter__;
+%newobject ParaMEDMEM::MEDCouplingUMesh::cellsByType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMesh;
@@ -259,6 +260,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::Build0DMeshFromCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findCellsIdsOnBoundary;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes;
+%newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
+%newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
@@ -930,6 +933,53 @@ namespace ParaMEDMEM
         }
       }
   };
+
+  class MEDCouplingUMeshCellByTypeIterator
+  {
+  public:
+    ~MEDCouplingUMeshCellByTypeIterator();
+    %extend
+      {
+        PyObject *next()
+        {
+          MEDCouplingUMeshCellEntry *ret=self->nextt();
+          if(ret)
+            return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMeshCellEntry,SWIG_POINTER_OWN | 0);
+          else
+            {
+              PyErr_SetString(PyExc_StopIteration,"No more data.");
+              return 0;
+            }
+        }
+      }
+  };
+
+  class MEDCouplingUMeshCellByTypeEntry
+  {
+  public:
+    ~MEDCouplingUMeshCellByTypeEntry();
+    %extend
+      {
+        MEDCouplingUMeshCellByTypeIterator *__iter__()
+        {
+          return self->iterator();
+        }
+      }
+  };
+
+  class MEDCouplingUMeshCellEntry
+  {
+  public:
+    INTERP_KERNEL::NormalizedCellType getType() const;
+    int getNumberOfElems() const;
+    %extend
+      {
+        MEDCouplingUMeshCellIterator *__iter__()
+        {
+          return self->iterator();
+        }
+      }
+  };
   
   class MEDCouplingUMesh : public ParaMEDMEM::MEDCouplingPointSet
   {
@@ -942,6 +992,7 @@ namespace ParaMEDMEM
     void setMeshDimension(int meshDim) throw(INTERP_KERNEL::Exception);
     void allocateCells(int nbOfCells) throw(INTERP_KERNEL::Exception);
     void finishInsertingCells() throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMeshCellByTypeEntry *cellsByType() throw(INTERP_KERNEL::Exception);
     void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
