@@ -38,6 +38,7 @@ namespace ParaMEDMEM
 class MEDLOADER_EXPORT MEDLoader
 {
  public:
+/// @cond INTERNAL
   class MEDConnOfOneElemType
   {
   public:
@@ -81,7 +82,7 @@ class MEDLOADER_EXPORT MEDLoader
     std::vector<int> _cell_id_per_type;
     INTERP_KERNEL::NormalizedCellType _type;
   };
-  //
+/// @endcond
   static void setEpsilonForNodeComp(double val) throw(INTERP_KERNEL::Exception);
   static void setCompPolicyForCell(int val) throw(INTERP_KERNEL::Exception);
   static void setTooLongStrPolicy(int val) throw(INTERP_KERNEL::Exception);

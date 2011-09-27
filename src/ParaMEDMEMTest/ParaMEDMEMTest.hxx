@@ -71,6 +71,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testICocoTrio1);
   CPPUNIT_TEST(testGauthier1);
   CPPUNIT_TEST(testGauthier2);
+  CPPUNIT_TEST(testGauthier3);
   CPPUNIT_TEST(testFabienAPI1);
   CPPUNIT_TEST(testFabienAPI2);
   CPPUNIT_TEST(testMEDLoaderRead1);
@@ -126,6 +127,7 @@ public:
   void testICocoTrio1();
   void testGauthier1();
   void testGauthier2();
+  void testGauthier3();
   void testFabienAPI1();
   void testFabienAPI2();
   //
@@ -181,6 +183,6 @@ void ParaMEDMEMTest_DumpArray (std::ostream & stream, const T* array, const int 
     }
   }
   stream << "}" << std::endl;
-};
+}
 
 #endif

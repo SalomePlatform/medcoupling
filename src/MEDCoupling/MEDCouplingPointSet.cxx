@@ -858,6 +858,8 @@ void MEDCouplingPointSet::Rotate2DAlg(const double *center, double angle, int nb
     }
 }
 
+/// @cond INTERNAL
+
 class DummyClsMCPS
 {
 public:
@@ -866,6 +868,8 @@ public:
   typedef int MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 };
+
+/// @endcond
 
 /*!
  * res should be an empty vector before calling this method.

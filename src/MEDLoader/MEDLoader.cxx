@@ -133,6 +133,8 @@ int MEDLoader::_TOO_LONG_STR=0;
 
 using namespace ParaMEDMEM;
 
+/// @cond INTERNAL
+
 namespace MEDLoaderNS
 {
   class FieldPerTypeCopier
@@ -200,6 +202,8 @@ namespace MEDLoaderNS
   void writeFieldAndMeshDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, bool forceFromScratch);
   void writeFieldTryingToFitExistingMesh(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
 }
+
+/// @endcond
 
 /*!
  * This method sets the epsilon value used for node comparison when trying to buid a profile for a field on node/cell on an already written mesh.
@@ -270,6 +274,8 @@ void MEDLoader::MEDFieldDoublePerCellType::releaseArray()
   delete [] _values;
 }
 
+/// @cond INTERNAL
+
 std::vector<std::string> MEDLoaderNS::getMeshNamesFid(med_idt fid)
 {
   med_mesh_type type_maillage;
@@ -326,6 +332,8 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
     }
   MEDfileClose(fid);
 }
+
+/// @endcond
 
 void MEDLoader::CheckFileForRead(const char *fileName) throw(INTERP_KERNEL::Exception)
 {
@@ -1367,6 +1375,8 @@ void MEDLoaderNS::readUMeshDataInMedFile(med_idt fid, med_int meshId, DataArrayD
     }
 }
 
+/// @cond INTERNAL
+
 namespace MEDLoaderNS
 {
   template<class T>
@@ -1926,6 +1936,8 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev1(const char 
   releaseMEDFileCoreFrmt<MEDLoader::MEDFieldDoublePerCellType>(fieldPerCellType);
   return ret;
 }
+
+/// @endcond
 
 MEDCouplingUMesh *MEDLoader::ReadUMeshFromFile(const char *fileName, const char *meshName, int meshDimRelToMax) throw(INTERP_KERNEL::Exception)
 {

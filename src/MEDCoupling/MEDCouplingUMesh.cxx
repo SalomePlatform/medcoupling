@@ -265,12 +265,19 @@ void MEDCouplingUMesh::finishInsertingCells()
 
 /*!
  * Entry point for iteration over cells of this. Warning the returned cell iterator should be deallocated.
+ * Useful for python users.
  */
 MEDCouplingUMeshCellIterator *MEDCouplingUMesh::cellIterator()
 {
   return new MEDCouplingUMeshCellIterator(this);
 }
 
+/*!
+ * Entry point for iteration over cells groups geo types per geotypes. Warning the returned cell iterator should be deallocated.
+ * If 'this' is not so that that cells are grouped by geo types this method will throw an exception.
+ * In this case MEDCouplingUMesh::sortCellsInMEDFileFrmt or MEDCouplingUMesh::rearrange2ConsecutiveCellTypes methods for example can be called before invoking this method.
+ * Useful for python users.
+ */
 MEDCouplingUMeshCellByTypeEntry *MEDCouplingUMesh::cellsByType() throw(INTERP_KERNEL::Exception)
 {
   if(!checkConsecutiveCellTypes())
@@ -2342,6 +2349,8 @@ void MEDCouplingUMesh::getCellsContainingPoint(const double *pos, double eps, st
   getCellsContainingPoints(pos,1,eps,elts,eltsIndex);
 }
 
+/// @cond INTERNAL
+
 namespace ParaMEDMEM
 {
   template<const int SPACEDIMM>
@@ -2361,6 +2370,8 @@ namespace ParaMEDMEM
     // end
   };
 }
+
+/// @endcond
 
 template<int SPACEDIM>
 void MEDCouplingUMesh::getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
@@ -3458,6 +3469,8 @@ void MEDCouplingUMesh::getBoundingBoxForBBTree(std::vector<double>& bbox) const
     }
 }
 
+/// @cond INTERNAL
+
 namespace ParaMEDMEMImpl
 {
   class ConnReader
@@ -3480,6 +3493,8 @@ namespace ParaMEDMEMImpl
     int _val;
   };
 }
+
+/// @endcond
 
 /*!
  * This method expects that 'this' is sorted by types. If not an exception will be thrown.
@@ -3825,8 +3840,10 @@ DataArrayInt *MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec(const INT
 
 /*!
  * This method reorganize the cells of 'this' so that the cells with same geometric types are put together.
- * If checkConsecutiveCellTypes() returns true, this method do not change anything of this.
  * The number of cells remains unchanged after the call of this method.
+ * This method tries to minimizes the number of needed permutations. So, this method behaves not exactly as
+ * MEDCouplingUMesh::sortCellsInMEDFileFrmt.
+ *
  * @return the array giving the correspondance old to new.
  */
 DataArrayInt *MEDCouplingUMesh::rearrange2ConsecutiveCellTypes()
