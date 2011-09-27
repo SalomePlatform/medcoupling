@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     void simpleRepr(std::ostream& oss) const;
     const std::string& getName() const { return _name; }
     static MEDFileFieldLoc *New(med_idt fid, const char *locName);
+    static MEDFileFieldLoc *New(med_idt fid, int id);
     static MEDFileFieldLoc *New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
     int getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
     void writeLL(med_idt fid) const;
@@ -64,6 +65,7 @@ namespace ParaMEDMEM
     bool isEqual(const MEDFileFieldLoc& other, double eps) const;
   private:
     MEDFileFieldLoc(med_idt fid, const char *locName);
+    MEDFileFieldLoc(med_idt fid, int id);
     MEDFileFieldLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
   private:
     int _dim;
@@ -234,6 +236,7 @@ namespace ParaMEDMEM
     void loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception);
     void loadProfileInFile(med_idt fid, int id);
     void loadGlobals(med_idt fid, const MEDFieldFieldGlobsReal& real) throw(INTERP_KERNEL::Exception);
+    void loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception);
     void writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
@@ -272,6 +275,7 @@ namespace ParaMEDMEM
     void loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception);
     void loadProfileInFile(med_idt fid, int id);
     void loadGlobals(med_idt fid) throw(INTERP_KERNEL::Exception);
+    void loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception);
     void writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;

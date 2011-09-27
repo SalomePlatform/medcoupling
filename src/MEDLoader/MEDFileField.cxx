@@ -43,6 +43,11 @@ MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, const char *locName)
   return new MEDFileFieldLoc(fid,locName);
 }
 
+MEDFileFieldLoc *MEDFileFieldLoc::New(med_idt fid, int id)
+{
+  return new MEDFileFieldLoc(fid,id);
+}
+
 MEDFileFieldLoc *MEDFileFieldLoc::New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w)
 {
   return new MEDFileFieldLoc(locName,geoType,refCoo,gsCoo,w);
@@ -56,6 +61,25 @@ MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, const char *locName):_name(locName
   INTERP_KERNEL::AutoPtr<char> geointerpname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   MEDlocalizationInfoByName(fid,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
+  _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+32,geotype)));
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  _nb_node_per_cell=cm.getNumberOfNodes();
+  _ref_coo.resize(_dim*_nb_node_per_cell);
+  _gs_coo.resize(_dim*_nb_gauss_pt);
+  _w.resize(_nb_gauss_pt);
+  MEDlocalizationRd(fid,locName,MED_FULL_INTERLACE,&_ref_coo[0],&_gs_coo[0],&_w[0]);
+}
+
+MEDFileFieldLoc::MEDFileFieldLoc(med_idt fid, int id)
+{
+  med_geometry_type geotype;
+  med_geometry_type sectiongeotype;
+  int nsectionmeshcell;
+  INTERP_KERNEL::AutoPtr<char> locName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> geointerpname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> sectionmeshname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  MEDlocalizationInfo(fid,id+1,locName,&geotype,&_dim,&_nb_gauss_pt,geointerpname,sectionmeshname,&nsectionmeshcell,&sectiongeotype);
+  _name=locName;
   _geo_type=(INTERP_KERNEL::NormalizedCellType)(std::distance(typmai3,std::find(typmai3,typmai3+32,geotype)));
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
   _nb_node_per_cell=cm.getNumberOfNodes();
@@ -1388,6 +1412,7 @@ void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int i)
   _pfls[i]->alloc(sz,1);
   _pfls[i]->setName(pflCpp.c_str());
   MEDprofileRd(fid,pflName,_pfls[i]->getPointer());
+  _pfls[i]->applyLin(1,-1,0);//Converting into C format
 }
 
 void MEDFieldFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception)
@@ -1460,6 +1485,19 @@ void MEDFieldFieldGlobs::loadGlobals(med_idt fid, const MEDFieldFieldGlobsReal& 
   _locs.resize(sz);
   for(int i=0;i<sz;i++)
     _locs[i]=MEDFileFieldLoc::New(fid,locs[i].c_str());
+}
+
+void MEDFieldFieldGlobs::loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
+{
+  int nProfil=MEDnProfile(fid);
+  for(int i=0;i<nProfil;i++)
+    loadProfileInFile(fid,i);
+  int sz=MEDnLocalization(fid);
+  _locs.resize(sz);
+  for(int i=0;i<sz;i++)
+    {
+      _locs[i]=MEDFileFieldLoc::New(fid,i);
+    }
 }
 
 MEDFieldFieldGlobs *MEDFieldFieldGlobs::New(const char *fname)
@@ -1676,6 +1714,11 @@ void MEDFieldFieldGlobsReal::loadProfileInFile(med_idt fid, int id)
 void MEDFieldFieldGlobsReal::loadGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
   _globals->loadGlobals(fid,*this);
+}
+
+void MEDFieldFieldGlobsReal::loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
+{
+  _globals->loadAllGlobals(fid);
 }
 
 void MEDFieldFieldGlobsReal::writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception)
@@ -2876,7 +2919,7 @@ try:MEDFieldFieldGlobsReal(fileName)
           infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+j*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+j*MED_SNAME_SIZE,MED_SNAME_SIZE);
         _fields[i]=MEDFileFieldMultiTSWithoutDAS::New(fid,nomcha,i+1,infos,nbOfStep);
       }
-    loadGlobals(fid);
+    loadAllGlobals(fid);
   }
 catch(INTERP_KERNEL::Exception& e)
   {
