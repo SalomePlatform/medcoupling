@@ -263,6 +263,8 @@ namespace ParaMEDMEM
   public:
     static MEDFileMeshes *New();
     static MEDFileMeshes *New(const char *fileName) throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    void simpleReprWithoutHeader(std::ostream& oss) const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);

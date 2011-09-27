@@ -2319,6 +2319,23 @@ catch(INTERP_KERNEL::Exception& e)
   {
   }
 
+std::string MEDFileMeshes::simpleRepr() const
+{
+  std::ostringstream oss;
+  oss << "(*****************)\n(* MEDFileMeshes *)\n(*****************)\n\n";
+  simpleReprWithoutHeader(oss);
+  return oss.str();
+}
+
+void MEDFileMeshes::simpleReprWithoutHeader(std::ostream& oss) const
+{
+  int nbOfMeshes=getNumberOfMeshes();
+  oss << "There are " << nbOfMeshes << " meshes with the following names : \n";
+  std::vector<std::string> mns=getMeshesNames();
+  for(int i=0;i<nbOfMeshes;i++)
+    oss << "  - #" << i << " \"" << mns[i] << "\"\n";
+}
+
 void MEDFileMeshes::checkCoherency() const throw(INTERP_KERNEL::Exception)
 {
   static const char MSG[]="MEDFileMeshes::checkCoherency : mesh at rank ";

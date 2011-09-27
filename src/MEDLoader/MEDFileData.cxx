@@ -73,6 +73,29 @@ int MEDFileData::getNumberOfMeshes() const throw(INTERP_KERNEL::Exception)
   return m->getNumberOfMeshes();
 }
 
+std::string MEDFileData::simpleRepr() const
+{
+  std::ostringstream oss;
+  oss << "(***************)\n(* MEDFileData *)\n(***************)\n\nFields part :\n*************\n\n";
+  const MEDFileFields *tmp=_fields;
+  if(tmp)
+    {
+      tmp->simpleReprWithoutHeader(oss);
+      oss << std::endl;
+    }
+  else
+    oss << "No fields set !!!\n\n";
+  oss << "Meshes part :\n*************\n\n";
+  const MEDFileMeshes *tmp2=_meshes;
+  if(tmp2)
+    {
+      tmp2->simpleReprWithoutHeader(oss);
+    }
+  else
+    oss << "No meshes set !!!\n";
+  return oss.str();
+}
+
 MEDFileData::MEDFileData()
 {
 }

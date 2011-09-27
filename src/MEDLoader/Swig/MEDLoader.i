@@ -500,7 +500,7 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
     %extend
-       {
+       { 
          MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception)
            {
              MEDFileMesh *ret=self->getOneTimeStep();
@@ -526,6 +526,11 @@ namespace ParaMEDMEM
     void destroyMeshAtPos(int i) throw(INTERP_KERNEL::Exception);
     %extend
        {
+         std::string __str__() const
+           {
+             return self->simpleRepr();
+           }
+         
          MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception)
            {
              MEDFileMesh *ret=self->getMeshAtPos(i);
@@ -557,9 +562,9 @@ namespace ParaMEDMEM
   %extend
     {
       std::string __str__() const
-        {
-          return self->repr();
-        }
+      {
+        return self->repr();
+      }
     }
   };
 
@@ -806,6 +811,11 @@ namespace ParaMEDMEM
     void appendFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
     %extend
        {
+         std::string __str__() const
+           {
+             return self->simpleRepr();
+           }
+
          PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
            {
              DataArrayInt *ret1=0;
@@ -833,6 +843,13 @@ namespace ParaMEDMEM
     MEDFileFieldMultiTS *getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTS *getFieldWithName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
+    %extend
+       {
+         std::string __str__() const
+         {
+           return self->simpleRepr();
+         }
+       }
   };
 
   class MEDFileData : public RefCountObject, public MEDFileWritable
@@ -848,6 +865,11 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     %extend
        {
+         std::string __str__() const
+         {
+           return self->simpleRepr();
+         }
+
          MEDFileMeshes *getMeshes() const
          {
            MEDFileMeshes *ret=self->getMeshes();

@@ -47,6 +47,7 @@ namespace ParaMEDMEM
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
+    void simpleRepr(std::ostream& oss) const;
     const std::string& getName() const { return _name; }
     static MEDFileFieldLoc *New(med_idt fid, const char *locName);
     static MEDFileFieldLoc *New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
@@ -228,6 +229,7 @@ namespace ParaMEDMEM
   public:
     static MEDFieldFieldGlobs *New(const char *fname);
     static MEDFieldFieldGlobs *New();
+    void simpleRepr(std::ostream& oss) const;
     void appendGlobs(const MEDFieldFieldGlobs& other, double eps) throw(INTERP_KERNEL::Exception);
     void loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception);
     void loadProfileInFile(med_idt fid, int id);
@@ -261,6 +263,7 @@ namespace ParaMEDMEM
   public:
     MEDFieldFieldGlobsReal(const char *fname);
     MEDFieldFieldGlobsReal();
+    void simpleRepr(std::ostream& oss) const;
     void shallowCpyGlobs(const MEDFieldFieldGlobsReal& other);
     void appendGlobs(const MEDFieldFieldGlobsReal& other, double eps) throw(INTERP_KERNEL::Exception);
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
@@ -301,6 +304,7 @@ namespace ParaMEDMEM
     int getMeshIteration() const throw(INTERP_KERNEL::Exception);
     int getMeshOrder() const throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const { return _infos.size(); }
+    void simpleReprWithoutHeader(std::ostream& oss) const;
     bool isDealingTS(int iteration, int order) const;
     std::pair<int,int> getDtIt() const;
     void fillIteration(std::pair<int,int>& p) const;
@@ -408,6 +412,7 @@ namespace ParaMEDMEM
     static MEDFileFieldMultiTS *New();
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldMultiTS *New(const MEDFileFieldMultiTSWithoutDAS& other);
+    std::string simpleRepr() const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -438,6 +443,8 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
+    void simpleReprWithoutHeader(std::ostream& oss) const;
     //
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
     void pushField(MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);

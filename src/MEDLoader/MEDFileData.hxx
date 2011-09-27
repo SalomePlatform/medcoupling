@@ -40,6 +40,7 @@ namespace ParaMEDMEM
     void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    std::string simpleRepr() const;
     //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   private:

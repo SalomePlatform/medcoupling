@@ -75,6 +75,19 @@ MEDFileFieldLoc::MEDFileFieldLoc(const char *locName, INTERP_KERNEL::NormalizedC
   _nb_gauss_pt=_w.size();
 }
 
+void MEDFileFieldLoc::simpleRepr(std::ostream& oss) const
+{
+  static const char OFF7[]="\n    ";
+  oss << "\"" << _name << "\"" << OFF7;
+  oss << "GeoType=" << INTERP_KERNEL::CellModel::GetCellModel(_geo_type).getRepr() << OFF7;
+  oss << "Dimension=" << _dim << OFF7;
+  oss << "Number of Gauss points=" << _nb_gauss_pt << OFF7;
+  oss << "Number of nodes per cell=" << _nb_node_per_cell << OFF7;
+  oss << "RefCoords="; std::copy(_ref_coo.begin(),_ref_coo.end(),std::ostream_iterator<double>(oss," ")); oss << OFF7;
+  oss << "Weights="; std::copy(_w.begin(),_w.end(),std::ostream_iterator<double>(oss," ")); oss << OFF7;
+  oss << "GaussPtsCoords="; std::copy(_gs_coo.begin(),_gs_coo.end(),std::ostream_iterator<double>(oss," ")); oss << std::endl;
+}
+
 bool MEDFileFieldLoc::isEqual(const MEDFileFieldLoc& other, double eps) const
 {
   if(_name!=other._name)
@@ -1471,6 +1484,32 @@ MEDFieldFieldGlobs::~MEDFieldFieldGlobs()
 {
 }
 
+void MEDFieldFieldGlobs::simpleRepr(std::ostream& oss) const
+{
+  oss << "Profiles :\n";
+  std::size_t n=_pfls.size();
+  for(std::size_t i=0;i<n;i++)
+    {
+      oss << "  - #" << i << " ";
+      const DataArrayInt *pfl=_pfls[i];
+      if(pfl)
+        oss << "\"" << pfl->getName() << "\"\n";
+      else
+        oss << "EMPTY !\n";
+    }
+  n=_locs.size();
+  oss << "Localizations :\n";
+  for(std::size_t i=0;i<n;i++)
+    {
+      oss << "  - #" << i << " ";
+      const MEDFileFieldLoc *loc=_locs[i];
+      if(loc)
+        loc->simpleRepr(oss);
+      else
+        oss<< "EMPTY !\n";
+    }
+}
+
 void MEDFieldFieldGlobs::setFileName(const char *fileName)
 {
   _file_name=fileName;
@@ -1602,6 +1641,16 @@ MEDFieldFieldGlobsReal::MEDFieldFieldGlobsReal(const char *fname):_globals(MEDFi
 
 MEDFieldFieldGlobsReal::MEDFieldFieldGlobsReal():_globals(MEDFieldFieldGlobs::New())
 {
+}
+
+void MEDFieldFieldGlobsReal::simpleRepr(std::ostream& oss) const
+{
+  oss << "Globals information on fields :" << "\n*******************************\n\n";
+  const MEDFieldFieldGlobs *glob=_globals;
+  if(glob)
+    glob->simpleRepr(oss);
+  else
+    oss << "NO GLOBAL INFORMATION !\n";
 }
 
 void MEDFieldFieldGlobsReal::shallowCpyGlobs(const MEDFieldFieldGlobsReal& other)
@@ -1786,6 +1835,11 @@ int MEDFileField1TSWithoutDAS::getMeshOrder() const throw(INTERP_KERNEL::Excepti
 bool MEDFileField1TSWithoutDAS::isDealingTS(int iteration, int order) const
 {
   return iteration==_iteration && order==_order;
+}
+
+void MEDFileField1TSWithoutDAS::simpleReprWithoutHeader(std::ostream& oss) const
+{
+  oss << "Iteration=" << _iteration << " Order=" << _order << " Time=" << _dt << " Time Unit=\"" << _dt_unit << "\"";
 }
 
 std::pair<int,int> MEDFileField1TSWithoutDAS::getDtIt() const
@@ -2551,6 +2605,35 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const MEDFileFieldMultiTSWithoutDA
   return new MEDFileFieldMultiTS(other);
 }
 
+std::string MEDFileFieldMultiTS::simpleRepr() const
+{
+  std::ostringstream oss;
+  oss << "(***********************)\n" << "(* MEDFileFieldMultiTS *)\n" << "(***********************)\n";
+  oss << "Field with name \"" << _name << "\"\n\n";
+  oss << "Infos attached : \n";
+  std::size_t nis=_infos.size();
+  for(std::size_t i=0;i<nis;i++)
+    oss << "  - " << _infos[i] << std::endl;
+  nis=_time_steps.size();
+  oss << std::endl << "There are " << nis << " time steps on this field :\n";
+  for(std::size_t i=0;i<nis;i++)
+    {
+      const MEDFileField1TSWithoutDAS *ftmp=_time_steps[i];
+      oss << "  - #" << i << " ";
+      if(ftmp)
+        {
+          ftmp->simpleReprWithoutHeader(oss);
+          oss << "\n\n";
+        }
+      else
+        {
+          oss << "NOT DEFINED !!!\n\n";
+        }
+    }
+  MEDFieldFieldGlobsReal::simpleRepr(oss);
+  return oss.str();
+}
+
 void MEDFileFieldMultiTS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
@@ -2747,6 +2830,24 @@ std::vector<std::string> MEDFileFields::getFieldsNames() const throw(INTERP_KERN
   return ret;
 }
 
+std::string MEDFileFields::simpleRepr() const
+{
+  std::ostringstream oss;
+  oss << "(*****************)\n(* MEDFileFields *)\n(*****************)\n\n";
+  simpleReprWithoutHeader(oss);
+  MEDFieldFieldGlobsReal::simpleRepr(oss);
+  return oss.str();
+}
+
+void MEDFileFields::simpleReprWithoutHeader(std::ostream& oss) const
+{
+  int nbOfFields=getNumberOfFields();
+  oss << "There are " << nbOfFields << " fields with the following names : \n";
+  std::vector<std::string> fns=getFieldsNames();
+  for(int i=0;i<nbOfFields;i++)
+    oss << "  - #" << i << " \"" << fns[i] << "\"\n";
+}
+
 MEDFileFields::MEDFileFields()
 {
 }
@@ -2775,9 +2876,7 @@ try:MEDFieldFieldGlobsReal(fileName)
           infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+j*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+j*MED_SNAME_SIZE,MED_SNAME_SIZE);
         _fields[i]=MEDFileFieldMultiTSWithoutDAS::New(fid,nomcha,i+1,infos,nbOfStep);
       }
-    int nProfil=MEDnProfile(fid);
-    for(int i=0;i<nProfil;i++)
-      loadProfileInFile(fid,i);
+    loadGlobals(fid);
   }
 catch(INTERP_KERNEL::Exception& e)
   {
