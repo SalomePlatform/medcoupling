@@ -863,6 +863,12 @@ class MEDLoaderTest(unittest.TestCase):
         f4=ff3.getFieldAtTopLevel(ON_CELLS,1,2)
         self.assertTrue(f4.getArray().isEqual(f1.getArray(),1e-12))
         pass
+
+    def testMEDFieldBug1(self):
+        fname="Pyfile13.med"
+        d=MEDFileData.New(fname)
+        self.assertEqual(('GP_MyFirstFieldOnGaussPoint0', 'GP_MyFirstFieldOnGaussPoint1', 'GP_MyFirstFieldOnGaussPoint2'),d.getFields().getFieldAtPos(0).getLocs())
+        pass
     pass
 
 unittest.main()
