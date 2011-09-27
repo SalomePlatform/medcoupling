@@ -20,8 +20,8 @@
 // Created   : Tue Aug 16 13:04:25 2011
 // Author    : Edward AGAPOV (eap)
 //
-#ifndef __SauvReader_HXX__
-#define __SauvReader_HXX__
+#ifndef __SAUVREADER_HXX__
+#define __SAUVREADER_HXX__
 
 #include "MEDLoaderDefines.hxx"
 #include "InterpKernelException.hxx"

@@ -20,8 +20,8 @@
 // Created   : Wed Aug 24 11:18:49 2011
 // Author    : Edward AGAPOV (eap)
 
-#ifndef __SauvWriter_HXX__
-#define __SauvWriter_HXX__
+#ifndef __SAUVWRITER_HXX__
+#define __SAUVWRITER_HXX__
 
 #include "MEDLoaderDefines.hxx"
 #include "MEDCouplingRefCountObject.hxx"

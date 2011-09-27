@@ -20,8 +20,8 @@
 // Created   : Mon Aug 22 18:27:34 2011
 // Author    : Edward AGAPOV (eap)
 
-#ifndef __SauvUtilities_HXX__
-#define __SauvUtilities_HXX__
+#ifndef __SAUVUTILITIES_HXX__
+#define __SAUVUTILITIES_HXX__
 
 #include "MEDLoaderDefines.hxx"
 #include "MEDCouplingRefCountObject.hxx"
