@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDCouplingBasicsTest.hxx"
+#include "MEDCouplingBasicsTest4.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
@@ -33,7 +33,7 @@
 
 using namespace ParaMEDMEM;
 
-void MEDCouplingBasicsTest::testDescriptionInMeshTimeUnit1()
+void MEDCouplingBasicsTest4::testDescriptionInMeshTimeUnit1()
 {
   static const char text1[]="totoTTEDD";
   MEDCouplingUMesh *m=build2DTargetMesh_1();
@@ -57,7 +57,7 @@ void MEDCouplingBasicsTest::testDescriptionInMeshTimeUnit1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testMultiFields1()
+void MEDCouplingBasicsTest4::testMultiFields1()
 {
   MEDCouplingMultiFields *mfs=buildMultiFields_1();
   std::vector<MEDCouplingMesh *> ms=mfs->getMeshes();
@@ -79,7 +79,7 @@ void MEDCouplingBasicsTest::testMultiFields1()
   mfs->decrRef();
 }
 
-void MEDCouplingBasicsTest::testFieldOverTime1()
+void MEDCouplingBasicsTest4::testFieldOverTime1()
 {
   std::vector<MEDCouplingFieldDouble *> fs=buildMultiFields_2();
   CPPUNIT_ASSERT_THROW(MEDCouplingFieldOverTime::New(fs),INTERP_KERNEL::Exception);
@@ -157,7 +157,7 @@ void MEDCouplingBasicsTest::testFieldOverTime1()
   fot->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAICheckAndPreparePermutation1()
+void MEDCouplingBasicsTest4::testDAICheckAndPreparePermutation1()
 {
   const int vals1[]={9,10,0,6,4,11,3,7};
   const int expect1[]={5,6,0,3,2,7,1,4};
@@ -190,7 +190,7 @@ void MEDCouplingBasicsTest::testDAICheckAndPreparePermutation1()
   da->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAIChangeSurjectiveFormat1()
+void MEDCouplingBasicsTest4::testDAIChangeSurjectiveFormat1()
 {
   const int vals1[8]={0,3,2,3,2,2,1,2};
   const int expected1[5]={0,1,2,6,8};
@@ -213,7 +213,7 @@ void MEDCouplingBasicsTest::testDAIChangeSurjectiveFormat1()
   da->decrRef();
 }
 
-void MEDCouplingBasicsTest::testUMeshGetCellIdsLyingOnNodes1()
+void MEDCouplingBasicsTest4::testUMeshGetCellIdsLyingOnNodes1()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   const int nodeIds1[5]={1,2,3,4,6};
@@ -233,7 +233,7 @@ void MEDCouplingBasicsTest::testUMeshGetCellIdsLyingOnNodes1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testUMeshFindCellsIdsOnBoundary1()
+void MEDCouplingBasicsTest4::testUMeshFindCellsIdsOnBoundary1()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   DataArrayInt *da5=m->findCellsIdsOnBoundary();
@@ -244,7 +244,7 @@ void MEDCouplingBasicsTest::testUMeshFindCellsIdsOnBoundary1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testMeshSetTime1()
+void MEDCouplingBasicsTest4::testMeshSetTime1()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   MEDCouplingUMesh *m2=build3DSurfTargetMesh_1();
@@ -308,7 +308,7 @@ void MEDCouplingBasicsTest::testMeshSetTime1()
   b->decrRef();
 }
 
-void MEDCouplingBasicsTest::testApplyFuncTwo1()
+void MEDCouplingBasicsTest4::testApplyFuncTwo1()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -350,7 +350,7 @@ void MEDCouplingBasicsTest::testApplyFuncTwo1()
   m1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testApplyFuncThree1()
+void MEDCouplingBasicsTest4::testApplyFuncThree1()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -385,7 +385,7 @@ void MEDCouplingBasicsTest::testApplyFuncThree1()
   m1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testFillFromAnalyticTwo1()
+void MEDCouplingBasicsTest4::testFillFromAnalyticTwo1()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   CPPUNIT_ASSERT_THROW(m1->fillFromAnalytic2(ON_NODES,1,"y+z"),INTERP_KERNEL::Exception);
@@ -402,7 +402,7 @@ void MEDCouplingBasicsTest::testFillFromAnalyticTwo1()
   m1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testFillFromAnalyticThree1()
+void MEDCouplingBasicsTest4::testFillFromAnalyticThree1()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
   std::vector<std::string> vs(3);
@@ -419,7 +419,7 @@ void MEDCouplingBasicsTest::testFillFromAnalyticThree1()
   m1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAUnitVar1()
+void MEDCouplingBasicsTest4::testDAUnitVar1()
 {
   DataArrayDouble *da=DataArrayDouble::New();
   da->alloc(1,3);
@@ -485,7 +485,7 @@ void MEDCouplingBasicsTest::testDAUnitVar1()
   da->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGaussCoordinates1()
+void MEDCouplingBasicsTest4::testGaussCoordinates1()
 {
   //Testing 1D cell types
   MEDCouplingUMesh *m1=build1DMultiTypes_1();
@@ -621,7 +621,7 @@ void MEDCouplingBasicsTest::testGaussCoordinates1()
 /*!
  * Not activated test ! To be implemented !
  */
-void MEDCouplingBasicsTest::testQ1Localization1()
+void MEDCouplingBasicsTest4::testQ1Localization1()
 {
   MEDCouplingUMesh *m=buildHexa8Mesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
@@ -642,7 +642,7 @@ void MEDCouplingBasicsTest::testQ1Localization1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testP2Localization1()
+void MEDCouplingBasicsTest4::testP2Localization1()
 {
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("testP2",2);
   const double coords[12]={0.,2.,3.5,0.,4.5,1.5,1.2,0.32,3.4,1.,2.1,2.4};
@@ -676,7 +676,7 @@ void MEDCouplingBasicsTest::testP2Localization1()
   f->decrRef();
 }
 
-void MEDCouplingBasicsTest::testP2Localization2()
+void MEDCouplingBasicsTest4::testP2Localization2()
 {
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("testP2_2",3);
   const double coords[30]={0.33312787792955395, -0.35155740179580952, -0.03567564825034563, 1.307146326477638, -0.57234557776250305, -0.08608044208272235, 0.5551834466499993, 0.62324964668794192, -0.014638951108536295, 0.37761817224442129, -0.38324019806913578, 0.96283164472856886, 0.79494856035658679, -0.40628057809270046, 0.0021004190225864614, 1.023740446371799, 0.07665912970471335, -0.072889657161871096, 0.54564584619517376, 0.11132872093429744, 0.039647326652013051, 0.27164784387819052, -0.42018012100866675, 0.46563376500745146, 0.89501965094896418, -0.56148455362735061, 0.43337469695473035, 0.49118025152924394, 0.093884938060727313, 0.47216346905220891};
@@ -710,7 +710,7 @@ void MEDCouplingBasicsTest::testP2Localization2()
   f->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGetValueOn2()
+void MEDCouplingBasicsTest4::testGetValueOn2()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -755,7 +755,7 @@ void MEDCouplingBasicsTest::testGetValueOn2()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAIGetIdsNotEqual1()
+void MEDCouplingBasicsTest4::testDAIGetIdsNotEqual1()
 {
   DataArrayInt *d=DataArrayInt::New();
   const int vals1[10]={2,3,5,6,8,5,5,6,1,-5};
@@ -783,7 +783,7 @@ void MEDCouplingBasicsTest::testDAIGetIdsNotEqual1()
   d2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAIComputeOffsets1()
+void MEDCouplingBasicsTest4::testDAIComputeOffsets1()
 {
   DataArrayInt *d=DataArrayInt::New();
   const int vals1[6]={3,5,1,2,0,8};
@@ -798,7 +798,7 @@ void MEDCouplingBasicsTest::testDAIComputeOffsets1()
   d->decrRef();
 }
 
-void MEDCouplingBasicsTest::testUMeshHexagonPrism1()
+void MEDCouplingBasicsTest4::testUMeshHexagonPrism1()
 {
   const double coords[36]={
     0.8660254037844386, 0.5, 0.0, 0.0, 1.0, 0.0, -0.8660254037844386, 0.5, 0.0, -0.8660254037844386, -0.5, 0.0, 0.0, -1.0, 0.0, 0.8660254037844386, -0.5, 0.0,
@@ -860,7 +860,7 @@ void MEDCouplingBasicsTest::testUMeshHexagonPrism1()
   mesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDADCheckIsMonotonic()
+void MEDCouplingBasicsTest4::testDADCheckIsMonotonic()
 {
   DataArrayDouble *da=DataArrayDouble::New();
   const double vals[4]={-1.,1.01,2.03,6.};
@@ -879,7 +879,7 @@ void MEDCouplingBasicsTest::testDADCheckIsMonotonic()
   da->decrRef();
 }
 
-void MEDCouplingBasicsTest::testCheckCoherencyDeeper1()
+void MEDCouplingBasicsTest4::testCheckCoherencyDeeper1()
 {
   MEDCouplingUMesh *m=build3DSourceMesh_1();
   m->checkCoherency();
@@ -922,7 +922,7 @@ void MEDCouplingBasicsTest::testCheckCoherencyDeeper1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testUnPolyze2()
+void MEDCouplingBasicsTest4::testUnPolyze2()
 {
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("jjj",3);
   DataArrayDouble *coo=DataArrayDouble::New();
@@ -957,7 +957,7 @@ void MEDCouplingBasicsTest::testUnPolyze2()
   m2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDACpyFrom1()
+void MEDCouplingBasicsTest4::testDACpyFrom1()
 {
   DataArrayDouble *d=DataArrayDouble::New();
   d->alloc(12,1);
@@ -997,7 +997,7 @@ void MEDCouplingBasicsTest::testDACpyFrom1()
   d4->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAITransformWithIndArr1()
+void MEDCouplingBasicsTest4::testDAITransformWithIndArr1()
 {
   const int tab1[4]={17,18,22,19};
   const int tab2[12]={0,1,1,3,3,0,1,3,2,2,3,0};
@@ -1019,7 +1019,7 @@ void MEDCouplingBasicsTest::testDAITransformWithIndArr1()
   d1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAIBuildPermArrPerLevel1()
+void MEDCouplingBasicsTest4::testDAIBuildPermArrPerLevel1()
 {
   const int arr[12]={2,0,1,1,0,1,2,0,1,1,0,0};
   const int expected1[12]={10,0,5,6,1,7,11,2,8,9,3,4};
@@ -1035,7 +1035,7 @@ void MEDCouplingBasicsTest::testDAIBuildPermArrPerLevel1()
   da2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAIOperations1()
+void MEDCouplingBasicsTest4::testDAIOperations1()
 {
   const int arr1[12]={-1,-2,4,7,3,2,6,6,4,3,0,1};
   DataArrayInt *da=DataArrayInt::New();
@@ -1114,7 +1114,7 @@ void MEDCouplingBasicsTest::testDAIOperations1()
   da->decrRef();
 }
 
-void MEDCouplingBasicsTest::testEmulateMEDMEMBDC1()
+void MEDCouplingBasicsTest4::testEmulateMEDMEMBDC1()
 {
   MEDCouplingUMesh *m1=0;
   MEDCouplingUMesh *m=buildPointe_1(m1);
@@ -1169,7 +1169,7 @@ void MEDCouplingBasicsTest::testEmulateMEDMEMBDC1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGetLevArrPerCellTypes1()
+void MEDCouplingBasicsTest4::testGetLevArrPerCellTypes1()
 {
   MEDCouplingUMesh *m1=0;
   MEDCouplingUMesh *m=buildPointe_1(m1);
@@ -1208,7 +1208,7 @@ void MEDCouplingBasicsTest::testGetLevArrPerCellTypes1()
   m1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testSortCellsInMEDFileFrmt1()
+void MEDCouplingBasicsTest4::testSortCellsInMEDFileFrmt1()
 {
   MEDCouplingUMesh *m1=0;
   MEDCouplingUMesh *m=buildPointe_1(m1);
@@ -1231,7 +1231,7 @@ void MEDCouplingBasicsTest::testSortCellsInMEDFileFrmt1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testBuildPartAndReduceNodes1()
+void MEDCouplingBasicsTest4::testBuildPartAndReduceNodes1()
 {
   MEDCouplingMesh *m=build2DTargetMesh_1();
   const int arr[2]={1,0};
@@ -1248,7 +1248,7 @@ void MEDCouplingBasicsTest::testBuildPartAndReduceNodes1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAITransformWithIndArrR1()
+void MEDCouplingBasicsTest4::testDAITransformWithIndArrR1()
 {
   const int tab1[6]={2,4,5,3,6,7};
   const int tab2[12]={-1,-1,0,1,2,3,4,5,-1,-1,-1,-1};
@@ -1271,7 +1271,7 @@ void MEDCouplingBasicsTest::testDAITransformWithIndArrR1()
   d1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAISplitByValueRange1()
+void MEDCouplingBasicsTest4::testDAISplitByValueRange1()
 {
   const int val1[9]={6,5,0,3,2,7,8,1,4};
   const int val2[3]={0,4,9};
@@ -1307,7 +1307,7 @@ void MEDCouplingBasicsTest::testDAISplitByValueRange1()
   d->decrRef();
 }
 
-void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
+void MEDCouplingBasicsTest4::testUMeshSplitProfilePerType1()
 {
   const int val0[5]={2,0,1,3,4};
   MEDCouplingUMesh *m=build2DTargetMesh_1();
@@ -1432,7 +1432,7 @@ void MEDCouplingBasicsTest::testUMeshSplitProfilePerType1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAIBuildExplicitArrByRanges1()
+void MEDCouplingBasicsTest4::testDAIBuildExplicitArrByRanges1()
 {
   DataArrayInt *d=DataArrayInt::New();
   d->alloc(3,1);
@@ -1455,7 +1455,7 @@ void MEDCouplingBasicsTest::testDAIBuildExplicitArrByRanges1()
   d->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDAIComputeOffsets2()
+void MEDCouplingBasicsTest4::testDAIComputeOffsets2()
 {
   DataArrayInt *d=DataArrayInt::New();
   const int vals1[6]={3,5,1,2,0,8};
@@ -1470,7 +1470,7 @@ void MEDCouplingBasicsTest::testDAIComputeOffsets2()
   d->decrRef();
 }
 
-void MEDCouplingBasicsTest::testMergeField3()
+void MEDCouplingBasicsTest4::testMergeField3()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   m->getCoords()->setInfoOnComponent(0,"x [m]");
@@ -1498,7 +1498,7 @@ void MEDCouplingBasicsTest::testMergeField3()
   f2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGetDistributionOfTypes1()
+void MEDCouplingBasicsTest4::testGetDistributionOfTypes1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   const int tab1[5]={2,0,1,3,4};
@@ -1515,7 +1515,7 @@ void MEDCouplingBasicsTest::testGetDistributionOfTypes1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testNorm2_1()
+void MEDCouplingBasicsTest4::testNorm2_1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -1535,7 +1535,7 @@ void MEDCouplingBasicsTest::testNorm2_1()
   f->decrRef();
 }
 
-void MEDCouplingBasicsTest::testNormMax1()
+void MEDCouplingBasicsTest4::testNormMax1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -1555,7 +1555,7 @@ void MEDCouplingBasicsTest::testNormMax1()
   f->decrRef();
 }
 
-void MEDCouplingBasicsTest::testFindAndCorrectBadOriented3DExtrudedCells1()
+void MEDCouplingBasicsTest4::testFindAndCorrectBadOriented3DExtrudedCells1()
 {
   const double coords[38*3]={0.0011180339887498999, -0.0011755705045849499, 0.0, -0.0012331070204200001, -0.0011755705045849499, 0.0, -0.00067557050458494599, -0.00145964954842536, 0.0, -0.00050000000000000001, -0.00086602540378443902, 0.0, 0.00140211303259031, -0.00061803398874989504, 0.0, 0.00086602540378443902, -0.00050000000000000001, 0.0, 0.001, 0.0, 0.0, 0.00034561537182258202, 0.000269164072574575, 0.0, 0.0, 0.001, 0.0, -0.00050000000000000001, 0.00086602540378443902, 0.0, -0.000269164072574575, 0.00034561537182258202, 0.0, -0.001, 0.0, 0.0, -0.00086602540378443902, -0.00050000000000000001, 0.0, -0.00034561537182258202, -0.000269164072574575, 0.0, 0.0, -0.001, 0.0, 0.00050000000000000001, -0.00086602540378443902, 0.0, 0.000269164072574575, -0.00034561537182258202, 0.0, 0.0015, -6.01853107621011e-36, 0.0, 0.00056049747291484397, -0.00145964954842536, 0.0, 0.0011180339887498999, -0.0011755705045849499, 0.00050000000000000001, -0.0012331070204200001, -0.0011755705045849499, 0.00050000000000000001, -0.00067557050458494599, -0.00145964954842536, 0.00050000000000000001, -0.00050000000000000001, -0.00086602540378443902, 0.00050000000000000001, 0.00140211303259031, -0.00061803398874989504, 0.00050000000000000001, 0.00086602540378443902, -0.00050000000000000001, 0.00050000000000000001, 0.001, 0.0, 0.00050000000000000001, 0.00034561537182258202, 0.000269164072574575, 0.00050000000000000001, 0.0, 0.001, 0.00050000000000000001, -0.00050000000000000001, 0.00086602540378443902, 0.00050000000000000001, -0.000269164072574575, 0.00034561537182258202, 0.00050000000000000001, -0.001, 0.0, 0.00050000000000000001, -0.00086602540378443902, -0.00050000000000000001, 0.00050000000000000001, -0.00034561537182258202, -0.000269164072574575, 0.00050000000000000001, 0.0, -0.001, 0.00050000000000000001, 0.00050000000000000001, -0.00086602540378443902, 0.00050000000000000001, 0.000269164072574575, -0.00034561537182258202, 0.00050000000000000001, 0.0015, -6.01853107621011e-36, 0.00050000000000000001, 0.00056049747291484397, -0.00145964954842536, 0.00050000000000000001};
   const int conn[56]={2, 1, 3, 21, 20, 22, 4, 0, 5, 23, 19, 24, 8, 9, 10, 27, 28, 29, 11, 12, 13, 30, 31, 32, 0, 18, 15, 5, 19, 37, 34, 24, 6, 17, 4, 5, 25, 36, 23, 24, 3, 14, 16, 13, 22, 33, 35, 32, 13, 16, 7, 10, 32, 35, 26, 29};
@@ -1587,7 +1587,7 @@ void MEDCouplingBasicsTest::testFindAndCorrectBadOriented3DExtrudedCells1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testConvertExtrudedPolyhedra1()
+void MEDCouplingBasicsTest4::testConvertExtrudedPolyhedra1()
 {
   const int conn[72]={1,2,3,4, 5,6,7,8,9,10,11,12, 13,14,15,16, 17,18,19,20,21,22, 23,24,25,26,27,28, 29,30,31,32,33,34,35,36,37,38, 39,40,41,42,43,44,45,46, 47,48,49,50,51,52,53,54,55,56,57,58, 59,60,61,62,63,64,65,66,67,68,69,70,71,72};
   MEDCouplingUMesh *m=MEDCouplingUMesh::New("Example",3);
@@ -1633,7 +1633,7 @@ void MEDCouplingBasicsTest::testConvertExtrudedPolyhedra1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testNonRegressionCopyTinyStrings()
+void MEDCouplingBasicsTest4::testNonRegressionCopyTinyStrings()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=m->getMeasureField(true);

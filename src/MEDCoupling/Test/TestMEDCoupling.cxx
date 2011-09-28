@@ -17,8 +17,16 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDCouplingBasicsTest.hxx"
+#include "MEDCouplingBasicsTest1.hxx"
+#include "MEDCouplingBasicsTest2.hxx"
+#include "MEDCouplingBasicsTest3.hxx"
+#include "MEDCouplingBasicsTest4.hxx"
+#include "MEDCouplingBasicsTestInterp.hxx"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest1 );
+CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest2 );
+CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest3 );
+CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest4 );
+CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTestInterp );
 
 #include "BasicMainTest.hxx"

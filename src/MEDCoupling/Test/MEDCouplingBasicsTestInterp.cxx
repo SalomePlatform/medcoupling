@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDCouplingBasicsTest.hxx"
+#include "MEDCouplingBasicsTestInterp.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
@@ -42,7 +42,7 @@ using namespace ParaMEDMEM;
 
 typedef std::vector<std::map<int,double> > IntersectionMatrix;
 
-void MEDCouplingBasicsTest::test2DInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -73,7 +73,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0P0PL_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -99,7 +99,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P0PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0P0PL_2()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_2()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -130,7 +130,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P0PL_2()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0P0PL_3()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_3()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -161,7 +161,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P0PL_3()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0P0PL_4()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_4()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -196,7 +196,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P0PL_4()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0P1_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -232,7 +232,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0P1PL_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P1PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -264,7 +264,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P1PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0P1PL_2()
+void MEDCouplingBasicsTestInterp::test2DInterpP0P1PL_2()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -306,7 +306,7 @@ void MEDCouplingBasicsTest::test2DInterpP0P1PL_2()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP1P0_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP1P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -339,7 +339,7 @@ void MEDCouplingBasicsTest::test2DInterpP1P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP1P0PL_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP1P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -376,7 +376,7 @@ void MEDCouplingBasicsTest::test2DInterpP1P0PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP1P0PL_2()
+void MEDCouplingBasicsTestInterp::test2DInterpP1P0PL_2()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -418,7 +418,7 @@ void MEDCouplingBasicsTest::test2DInterpP1P0PL_2()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP1P1_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP1P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_2();
@@ -457,7 +457,7 @@ void MEDCouplingBasicsTest::test2DInterpP1P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP1P1PL_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP1P1PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -491,7 +491,7 @@ void MEDCouplingBasicsTest::test2DInterpP1P1PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -522,7 +522,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP0P0PL_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -549,7 +549,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP0P1_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -585,7 +585,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP0P1PL_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P1PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -617,7 +617,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P1PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP1P0_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -650,7 +650,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP1P0PL_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -687,7 +687,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P0PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP1P1_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_2();
@@ -726,7 +726,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP1P1PL_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P1PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -760,7 +760,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P1PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0_2()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMeshPerm_1();
@@ -828,7 +828,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0_2()
 /*!
  * Test of precision option implemented by Fabien that represents distance of "barycenter" to the other cell.
  */
-void MEDCouplingBasicsTest::test3DSurfInterpP0P0_3()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP0P0_3()
 {
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
   std::vector<std::map<int,double> > res;
@@ -918,7 +918,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0P0_3()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
@@ -986,7 +986,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P0PL_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
@@ -1032,7 +1032,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P0PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P0PL_2()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_2()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
@@ -1082,7 +1082,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P0PL_2()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P0PL_3()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_3()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
@@ -1132,7 +1132,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P0PL_3()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P0PL_4()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_4()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
@@ -1186,7 +1186,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P0PL_4()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P1_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DTargetMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSourceMesh_1();
@@ -1242,7 +1242,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P1PL_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P1PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DTargetMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSourceMesh_1();
@@ -1276,7 +1276,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P1PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP1P0_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP1P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
@@ -1332,7 +1332,7 @@ void MEDCouplingBasicsTest::test3DInterpP1P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP1P0PL_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP1P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
@@ -1380,7 +1380,7 @@ void MEDCouplingBasicsTest::test3DInterpP1P0PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP1P1_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP1P1_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_2();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_2();
@@ -1430,7 +1430,7 @@ void MEDCouplingBasicsTest::test3DInterpP1P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP1P1PL_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP1P1PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_2();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_2();
@@ -1457,7 +1457,7 @@ void MEDCouplingBasicsTest::test3DInterpP1P1PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0P0Empty()
+void MEDCouplingBasicsTestInterp::test3DInterpP0P0Empty()
 {
   MEDCouplingUMesh *sourceMesh=MEDCouplingUMesh::New();
   sourceMesh->setMeshDimension(2);
@@ -1486,7 +1486,7 @@ void MEDCouplingBasicsTest::test3DInterpP0P0Empty()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::testInterpolationCC()
+void MEDCouplingBasicsTestInterp::testInterpolationCC()
 {
   double arr1[3] = { 0/2., 1/2., 2/2. };
   double arr2[4] = { 0/3, 1/3., 2/3., 3/3. };
@@ -1553,7 +1553,7 @@ void MEDCouplingBasicsTest::testInterpolationCC()
   mesh[1]->decrRef();
 }
 
-void MEDCouplingBasicsTest::testInterpolationCU1D()
+void MEDCouplingBasicsTestInterp::testInterpolationCU1D()
 {
   MEDCouplingCMesh* meshC = MEDCouplingCMesh::New();
   DataArrayDouble* coords = DataArrayDouble::New();
@@ -1591,7 +1591,7 @@ void MEDCouplingBasicsTest::testInterpolationCU1D()
   meshU->decrRef();
 }
 
-void MEDCouplingBasicsTest::testInterpolationCU2D()
+void MEDCouplingBasicsTestInterp::testInterpolationCU2D()
 {
   MEDCouplingCMesh* meshC = MEDCouplingCMesh::New();
   DataArrayDouble* coords = DataArrayDouble::New();
@@ -1660,7 +1660,7 @@ void MEDCouplingBasicsTest::testInterpolationCU2D()
   meshU->decrRef();
 }
 
-void MEDCouplingBasicsTest::testInterpolationCU3D()
+void MEDCouplingBasicsTestInterp::testInterpolationCU3D()
 {
   MEDCouplingCMesh* meshC = MEDCouplingCMesh::New();
   DataArrayDouble* coords = DataArrayDouble::New();
@@ -1752,7 +1752,7 @@ void MEDCouplingBasicsTest::testInterpolationCU3D()
   meshU->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP0IntegralUniform()
+void MEDCouplingBasicsTestInterp::test2DInterpP0IntegralUniform()
 {
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
   //
@@ -1805,7 +1805,7 @@ void MEDCouplingBasicsTest::test2DInterpP0IntegralUniform()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP0IntegralUniform()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP0IntegralUniform()
 {
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
   INTERP_KERNEL::Interpolation3DSurf myInterpolator;
@@ -1831,7 +1831,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP0IntegralUniform()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP0IntegralUniform()
+void MEDCouplingBasicsTestInterp::test3DInterpP0IntegralUniform()
 {
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
   INTERP_KERNEL::Interpolation3D myInterpolator;
@@ -1864,7 +1864,7 @@ void MEDCouplingBasicsTest::test3DInterpP0IntegralUniform()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP1IntegralUniform()
+void MEDCouplingBasicsTestInterp::test2DInterpP1IntegralUniform()
 {
   MEDCouplingUMesh *targetMesh=build2DSourceMesh_1();
   //
@@ -1888,7 +1888,7 @@ void MEDCouplingBasicsTest::test2DInterpP1IntegralUniform()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DInterpP1IntegralUniform()
+void MEDCouplingBasicsTestInterp::test3DInterpP1IntegralUniform()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_1();
   //
@@ -1923,7 +1923,7 @@ void MEDCouplingBasicsTest::test3DInterpP1IntegralUniform()
   sourceMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DInterpP1P0Bary_1()
+void MEDCouplingBasicsTestInterp::test2DInterpP1P0Bary_1()
 {
   MEDCouplingUMesh *sourceMesh=build2DSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build2DTargetMesh_1();
@@ -1965,7 +1965,7 @@ void MEDCouplingBasicsTest::test2DInterpP1P0Bary_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DSurfInterpP1P0Bary_1()
+void MEDCouplingBasicsTestInterp::test3DSurfInterpP1P0Bary_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSurfSourceMesh_1();
   MEDCouplingUMesh *targetMesh=build3DSurfTargetMesh_1();
@@ -2008,7 +2008,7 @@ void MEDCouplingBasicsTest::test3DSurfInterpP1P0Bary_1()
 }
 
 #include <iomanip>
-void MEDCouplingBasicsTest::test3DInterpP1P0Bary_1()
+void MEDCouplingBasicsTestInterp::test3DInterpP1P0Bary_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DSourceMesh_2();
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_2();
@@ -2052,7 +2052,7 @@ void MEDCouplingBasicsTest::test3DInterpP1P0Bary_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3DTo1DInterpP0P0PL_1()
+void MEDCouplingBasicsTestInterp::test3DTo1DInterpP0P0PL_1()
 {
   MEDCouplingUMesh *sourceMesh=build3DTargetMesh_1();
   MEDCouplingUMesh *targetMesh=build1DTargetMesh_1();
@@ -2079,7 +2079,7 @@ void MEDCouplingBasicsTest::test3DTo1DInterpP0P0PL_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test1DInterp_1()
+void MEDCouplingBasicsTestInterp::test1DInterp_1()
 {
   //      c1   c0    c2    - pay attention to cell order!
   // S: o---o------o---o
@@ -2144,7 +2144,7 @@ void MEDCouplingBasicsTest::test1DInterp_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DCurveInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test2DCurveInterpP0P0_1()
 {
   // coincident meshes
   MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
@@ -2167,7 +2167,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP0P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DCurveInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test2DCurveInterpP0P0_2()
 {
   // equal meshes shifted one from another along X by 0.5
   MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0.5,0);
@@ -2193,7 +2193,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP0P0_2()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DCurveInterpP0P1_1()
+void MEDCouplingBasicsTestInterp::test2DCurveInterpP0P1_1()
 {
   // coincident meshes
   MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
@@ -2219,7 +2219,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP0P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DCurveInterpP1P0_1()
+void MEDCouplingBasicsTestInterp::test2DCurveInterpP1P0_1()
 {
   // coincident meshes
   MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
@@ -2245,7 +2245,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP1P0_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2DCurveInterpP1P1_1()
+void MEDCouplingBasicsTestInterp::test2DCurveInterpP1P1_1()
 {
   // coincident meshes
   MEDCouplingUMesh *sourceMesh=build2DCurveMesh(0,0);
@@ -2270,7 +2270,7 @@ void MEDCouplingBasicsTest::test2DCurveInterpP1P1_1()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test2D1DBasicInterpP0P0()
+void MEDCouplingBasicsTestInterp::test2D1DBasicInterpP0P0()
 {
   MEDCouplingUMesh *sourceMesh=build2D1DSourceMesh();
   MEDCouplingUMesh *targetMesh=build2D1DTargetMesh();
@@ -2319,60 +2319,14 @@ void MEDCouplingBasicsTest::test2D1DBasicInterpP0P0()
   targetMesh->decrRef();
 }
 
-int MEDCouplingBasicsTest::countNonZero(const std::vector< std::map<int,double> >& matrix)
-{
-  int ret=0.;
-  for(std::vector< std::map<int,double> >::const_iterator iter=matrix.begin();iter!=matrix.end();iter++)
-    for(std::map<int,double>::const_iterator iter2=(*iter).begin();iter2!=(*iter).end();iter2++)
-      if (!INTERP_KERNEL::epsilonEqual((*iter2).second, 0.)) ret +=1;
-  return ret;
-}
-
-void MEDCouplingBasicsTest::test2D1DMeshesIntersection(MEDCouplingUMesh *sourceMesh,
-                                                       MEDCouplingUMesh *targetMesh,
-                                                       const double correctLength,
-                                                       const int correctDuplicateFacesNbr,
-                                                       const int correctTotalIntersectFacesNbr)
-{
-  MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
-  MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
-  INTERP_KERNEL::Interpolation2D1D myInterpolator;
-  myInterpolator.setPrecision(1e-12);
-  const double prec = 1.0e-5;
-  IntersectionMatrix matrix;
-  myInterpolator.setIntersectionType(INTERP_KERNEL::Geometric2D);
-  myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,matrix,"P0P0");
-
-  std::cout.precision(16);
-
-  const double length = sumAll(matrix);
-  LOG(1, "length =  " << surf <<"  correctLength = " << correctLength );
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(correctLength, length, prec * std::max(correctLength, length));
-
-  INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
-  int duplicateFacesNbr = duplicateFaces.size();
-  LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
-  CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
-
-  if (correctTotalIntersectFacesNbr >= 0)
-    {
-      int totalIntersectFacesNbr = countNonZero(matrix);
-      LOG(1, "totalIntersectFacesNbr =  " << totalIntersectFacesNbr <<"  correctTotalIntersectFacesNbr = " << correctTotalIntersectFacesNbr );
-      CPPUNIT_ASSERT_EQUAL(correctTotalIntersectFacesNbr, totalIntersectFacesNbr);
-    }
-  //clean up
-  sourceMesh->decrRef();
-  targetMesh->decrRef();
-}
-
-void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test2D1DSegQuadInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh();
   MEDCouplingUMesh *targetMesh=build2D1DQuadTargetMesh();
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 16., 0, 4);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test2D1DSegQuadInterpP0P0_2()
 {
   const double shiftX = 3.;
   MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX);
@@ -2380,7 +2334,7 @@ void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_2()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 16., 4, 2 * 4);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_3()
+void MEDCouplingBasicsTestInterp::test2D1DSegQuadInterpP0P0_3()
 {
   const double shiftX = 1.5;
   const double inclinationX = 3.;
@@ -2389,7 +2343,7 @@ void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_3()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 20., 0, 4);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_4()
+void MEDCouplingBasicsTestInterp::test2D1DSegQuadInterpP0P0_4()
 {
   const double shiftX = 3.;
   const double inclinationX = 3.;
@@ -2398,7 +2352,7 @@ void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_4()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 20., 4, 2 * 4);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_5()
+void MEDCouplingBasicsTestInterp::test2D1DSegQuadInterpP0P0_5()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2407,7 +2361,7 @@ void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_5()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 12., 0, 3);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_6()
+void MEDCouplingBasicsTestInterp::test2D1DSegQuadInterpP0P0_6()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2416,14 +2370,14 @@ void MEDCouplingBasicsTest::test2D1DSegQuadInterpP0P0_6()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 10., 0, 2);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test2D1DSegTriInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh();
   MEDCouplingUMesh *targetMesh=build2D1DTriTargetMesh();
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 16., 0, 4);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test2D1DSegTriInterpP0P0_2()
 {
   const double shiftX = 3.;
   MEDCouplingUMesh *sourceMesh=build2D1DSegSourceMesh(shiftX);
@@ -2431,7 +2385,7 @@ void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_2()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 16., 4, 2 * 4);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_3()
+void MEDCouplingBasicsTestInterp::test2D1DSegTriInterpP0P0_3()
 {
   const double shiftX = 1.5;
   const double inclinationX = 3.;
@@ -2440,7 +2394,7 @@ void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_3()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 20., 0, 8);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_4()
+void MEDCouplingBasicsTestInterp::test2D1DSegTriInterpP0P0_4()
 {
   const double shiftX = 3.;
   const double inclinationX = 3.;
@@ -2449,7 +2403,7 @@ void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_4()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 2. * 20., 4, 8);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_5()
+void MEDCouplingBasicsTestInterp::test2D1DSegTriInterpP0P0_5()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2458,7 +2412,7 @@ void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_5()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 12., 0, 6);
 }
 
-void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_6()
+void MEDCouplingBasicsTestInterp::test2D1DSegTriInterpP0P0_6()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2467,7 +2421,7 @@ void MEDCouplingBasicsTest::test2D1DSegTriInterpP0P0_6()
   test2D1DMeshesIntersection(sourceMesh, targetMesh, 20., 2, 4);
 }
 
-void MEDCouplingBasicsTest::test3D2DBasicInterpP0P0()
+void MEDCouplingBasicsTestInterp::test3D2DBasicInterpP0P0()
 {
   MEDCouplingUMesh *sourceMesh=build3D2DSourceMesh();
   MEDCouplingUMesh *targetMesh=build3D2DTargetMesh();
@@ -2535,56 +2489,14 @@ void MEDCouplingBasicsTest::test3D2DBasicInterpP0P0()
   targetMesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::test3D2DMeshesIntersection(MEDCouplingUMesh *sourceMesh,
-                                                       MEDCouplingUMesh *targetMesh,
-                                                       const double correctSurf,
-                                                       const int correctDuplicateFacesNbr,
-                                                       const int correctTotalIntersectFacesNbr)
-{
-  MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
-  MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
-  INTERP_KERNEL::Interpolation3D2D myInterpolator;
-  myInterpolator.setPrecision(1e-12);
-  const double prec = 1.0e-5;
-  IntersectionMatrix matrix;
-  INTERP_KERNEL::SplittingPolicy sp[] = { INTERP_KERNEL::PLANAR_FACE_5, INTERP_KERNEL::PLANAR_FACE_6, INTERP_KERNEL::GENERAL_24, INTERP_KERNEL::GENERAL_48 };
-  for ( size_t i = 0; i < sizeof(sp)/sizeof(sp[0]); ++i )
-  {
-    myInterpolator.setSplittingPolicy( sp[i] );
-    matrix.clear();
-    myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,matrix,"P0P0");
-
-    std::cout.precision(16);
-
-    const double surf = sumAll(matrix);
-    LOG(1, "surf =  " << surf <<"  correctSurf = " << correctSurf );
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(correctSurf, surf, prec * std::max(correctSurf, surf));
-
-    INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces = myInterpolator.retrieveDuplicateFaces();
-    int duplicateFacesNbr = duplicateFaces.size();
-    LOG(1, "duplicateFacesNbr =  " << duplicateFacesNbr <<"  correctDuplicateFacesNbr = " <<  correctDuplicateFacesNbr);
-    CPPUNIT_ASSERT_EQUAL(correctDuplicateFacesNbr, duplicateFacesNbr);
-
-    if (correctTotalIntersectFacesNbr >= 0)
-      {
-        int totalIntersectFacesNbr = countNonZero(matrix);
-        LOG(1, "totalIntersectFacesNbr =  " << totalIntersectFacesNbr <<"  correctTotalIntersectFacesNbr = " << correctTotalIntersectFacesNbr );
-        CPPUNIT_ASSERT_EQUAL(correctTotalIntersectFacesNbr, totalIntersectFacesNbr);
-      }
-  }
-  //clean up
-  sourceMesh->decrRef();
-  targetMesh->decrRef();
-}
-
-void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test3D2DQuadHexaInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh();
   MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 0, 20);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test3D2DQuadHexaInterpP0P0_2()
 {
   const double shiftX = 3.;
   MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX);
@@ -2592,7 +2504,7 @@ void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_2()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 20, 2 * 20);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_3()
+void MEDCouplingBasicsTestInterp::test3D2DQuadHexaInterpP0P0_3()
 {
   const double shiftX = 1.5;
   const double inclinationX = 3.;
@@ -2601,7 +2513,7 @@ void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_3()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0, 20);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_4()
+void MEDCouplingBasicsTestInterp::test3D2DQuadHexaInterpP0P0_4()
 {
   const double shiftX = 3.;
   const double inclinationX = 3.;
@@ -2610,7 +2522,7 @@ void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_4()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 20, 2 * 20);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_5()
+void MEDCouplingBasicsTestInterp::test3D2DQuadHexaInterpP0P0_5()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2619,7 +2531,7 @@ void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_5()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0, 15);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_6()
+void MEDCouplingBasicsTestInterp::test3D2DQuadHexaInterpP0P0_6()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2628,14 +2540,14 @@ void MEDCouplingBasicsTest::test3D2DQuadHexaInterpP0P0_6()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 150., 0, 10);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test3D2DTriHexaInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh();
   MEDCouplingUMesh *targetMesh=build3D2DHexaTargetMesh();
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 0, 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test3D2DTriHexaInterpP0P0_2()
 {
   const double shiftX = 3.;
   MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX);
@@ -2643,7 +2555,7 @@ void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_2()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 40, 2 * 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_3()
+void MEDCouplingBasicsTestInterp::test3D2DTriHexaInterpP0P0_3()
 {
   const double shiftX = 1.5;
   const double inclinationX = 3.;
@@ -2652,7 +2564,7 @@ void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_3()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0, 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_4()
+void MEDCouplingBasicsTestInterp::test3D2DTriHexaInterpP0P0_4()
 {
   const double shiftX = 3.;
   const double inclinationX = 3.;
@@ -2661,7 +2573,7 @@ void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_4()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 40, 2 * 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_5()
+void MEDCouplingBasicsTestInterp::test3D2DTriHexaInterpP0P0_5()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2670,7 +2582,7 @@ void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_5()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0, 30);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_6()
+void MEDCouplingBasicsTestInterp::test3D2DTriHexaInterpP0P0_6()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2679,14 +2591,14 @@ void MEDCouplingBasicsTest::test3D2DTriHexaInterpP0P0_6()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 150., 0, 20);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test3D2DQuadTetraInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh();
   MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 20, 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test3D2DQuadTetraInterpP0P0_2()
 {
   const double shiftX = 3.;
   MEDCouplingUMesh *sourceMesh=build3D2DQuadSourceMesh(shiftX);
@@ -2694,7 +2606,7 @@ void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_2()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 20, 2 * 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_3()
+void MEDCouplingBasicsTestInterp::test3D2DQuadTetraInterpP0P0_3()
 {
   const double shiftX = 1.5;
   const double inclinationX = 3.;
@@ -2703,7 +2615,7 @@ void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_3()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0, 100);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_4()
+void MEDCouplingBasicsTestInterp::test3D2DQuadTetraInterpP0P0_4()
 {
   const double shiftX = 3.;
   const double inclinationX = 3.;
@@ -2712,7 +2624,7 @@ void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_4()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 20, 2 * 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_5()
+void MEDCouplingBasicsTestInterp::test3D2DQuadTetraInterpP0P0_5()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2721,7 +2633,7 @@ void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_5()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0, 45);
 }
 
-void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_6()
+void MEDCouplingBasicsTestInterp::test3D2DQuadTetraInterpP0P0_6()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2730,14 +2642,14 @@ void MEDCouplingBasicsTest::test3D2DQuadTetraInterpP0P0_6()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 150., 0, 30);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_1()
+void MEDCouplingBasicsTestInterp::test3D2DTriTetraInterpP0P0_1()
 {
   MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh();
   MEDCouplingUMesh *targetMesh=build3D2DTetraTargetMesh();
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 240., 0, 40);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_2()
+void MEDCouplingBasicsTestInterp::test3D2DTriTetraInterpP0P0_2()
 {
   const double shiftX = 3.;
   MEDCouplingUMesh *sourceMesh=build3D2DTriSourceMesh(shiftX);
@@ -2745,7 +2657,7 @@ void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_2()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 240., 40, 40 + 80);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_3()
+void MEDCouplingBasicsTestInterp::test3D2DTriTetraInterpP0P0_3()
 {
   const double shiftX = 1.5;
   const double inclinationX = 3.;
@@ -2754,7 +2666,7 @@ void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_3()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 300., 0);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_4()
+void MEDCouplingBasicsTestInterp::test3D2DTriTetraInterpP0P0_4()
 {
   const double shiftX = 3.;
   const double inclinationX = 3.;
@@ -2763,7 +2675,7 @@ void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_4()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 2. * 300., 40, 40 + 80);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_5()
+void MEDCouplingBasicsTestInterp::test3D2DTriTetraInterpP0P0_5()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;
@@ -2772,7 +2684,7 @@ void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_5()
   test3D2DMeshesIntersection(sourceMesh, targetMesh, 180., 0);
 }
 
-void MEDCouplingBasicsTest::test3D2DTriTetraInterpP0P0_6()
+void MEDCouplingBasicsTestInterp::test3D2DTriTetraInterpP0P0_6()
 {
   const double shiftX = 9.;
   const double inclinationX = 3.;

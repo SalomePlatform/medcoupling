@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDCouplingBasicsTest.hxx"
+#include "MEDCouplingBasicsTest2.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
@@ -31,7 +31,7 @@
 
 using namespace ParaMEDMEM;
 
-void MEDCouplingBasicsTest::testGaussPointField1()
+void MEDCouplingBasicsTest2::testGaussPointField1()
 {
   const double _a=0.446948490915965;
   const double _b=0.091576213509771;
@@ -119,7 +119,7 @@ void MEDCouplingBasicsTest::testGaussPointField1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGaussPointNEField1()
+void MEDCouplingBasicsTest2::testGaussPointNEField1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_NE,NO_TIME);
@@ -146,7 +146,7 @@ void MEDCouplingBasicsTest::testGaussPointNEField1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testCellOrientation1()
+void MEDCouplingBasicsTest2::testCellOrientation1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   double vec[3]={0.,0.,1.};
@@ -182,7 +182,7 @@ void MEDCouplingBasicsTest::testCellOrientation1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testCellOrientation2()
+void MEDCouplingBasicsTest2::testCellOrientation2()
 {
   MEDCouplingUMesh *m1=0;
   MEDCouplingUMesh *m2=build3DExtrudedUMesh_1(m1);
@@ -260,7 +260,7 @@ void MEDCouplingBasicsTest::testCellOrientation2()
 /*!
  * This test check polyhedron true barycenter computation. 
  */
-void MEDCouplingBasicsTest::testPolyhedronBarycenter()
+void MEDCouplingBasicsTest2::testPolyhedronBarycenter()
 {
   int connN[]={0,3,2,1, -1, 4,5,6,7, -1, 0,4,7,3, -1, 3,7,6,2, -1, 2,6,5,1, -1, 1,5,4,0};
   double coords[]={0.,0.,0., 1.,0.,0., 1.,1.,0., 0.,1.,0., 0.,0.,1., 1.,0.,1., 1.,1.,1., 0.,1.,1., 0.5, 0.5, 0.5};
@@ -323,7 +323,7 @@ void MEDCouplingBasicsTest::testPolyhedronBarycenter()
   meshN->decrRef();
 }
 
-void MEDCouplingBasicsTest::testNormL12Integ1D()
+void MEDCouplingBasicsTest2::testNormL12Integ1D()
 {
   MEDCouplingUMesh *m1=build1DTargetMesh_3();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -448,7 +448,7 @@ void MEDCouplingBasicsTest::testNormL12Integ1D()
   m1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testAreaBary2D()
+void MEDCouplingBasicsTest2::testAreaBary2D()
 {
   MEDCouplingUMesh *m1=build2DTargetMesh_3();
   MEDCouplingFieldDouble *f1=m1->getMeasureField(false);
@@ -500,7 +500,7 @@ void MEDCouplingBasicsTest::testAreaBary2D()
 /*!
  * This test check polyhedron true barycenter computation 2. 
  */
-void MEDCouplingBasicsTest::testAreaBary3D()
+void MEDCouplingBasicsTest2::testAreaBary3D()
 {
   double coords [] = { 0.241310763507 , 0.0504777305619 , 0.0682283524903 , 0.252501053866 , -0.0625176732937 , 0.137272639894 ,
                        0.152262663601 , 0.241816569527 , 0.133812556197 , 0.18047750211 , -0.0789949051358 , 0.339098173401 ,
@@ -594,7 +594,7 @@ void MEDCouplingBasicsTest::testAreaBary3D()
   meshN->decrRef();
 }
 
-void MEDCouplingBasicsTest::testRenumberCellsForFields()
+void MEDCouplingBasicsTest2::testRenumberCellsForFields()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -693,7 +693,7 @@ void MEDCouplingBasicsTest::testRenumberCellsForFields()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testRenumberNodesForFields()
+void MEDCouplingBasicsTest2::testRenumberNodesForFields()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
@@ -739,7 +739,7 @@ void MEDCouplingBasicsTest::testRenumberNodesForFields()
   f->decrRef();
 }
 
-void MEDCouplingBasicsTest::testConvertQuadraticCellsToLinear()
+void MEDCouplingBasicsTest2::testConvertQuadraticCellsToLinear()
 {
   MEDCouplingUMesh *mesh=build2DTargetMesh_3();
   mesh->checkCoherency();
@@ -770,7 +770,7 @@ void MEDCouplingBasicsTest::testConvertQuadraticCellsToLinear()
   mesh->decrRef();
 }
 
-void MEDCouplingBasicsTest::testCheckGeoEquivalWith()
+void MEDCouplingBasicsTest2::testCheckGeoEquivalWith()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
   MEDCouplingUMesh *mesh2=build2DTargetMesh_3();
@@ -875,7 +875,7 @@ void MEDCouplingBasicsTest::testCheckGeoEquivalWith()
   mesh2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testCheckGeoEquivalWith2()
+void MEDCouplingBasicsTest2::testCheckGeoEquivalWith2()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_4();
   MEDCouplingUMesh *mesh2=build2DTargetMesh_1();
@@ -892,7 +892,7 @@ void MEDCouplingBasicsTest::testCheckGeoEquivalWith2()
   mesh2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testCopyTinyStringsFromOnFields()
+void MEDCouplingBasicsTest2::testCopyTinyStringsFromOnFields()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   int nbOfCells=m->getNumberOfCells();
@@ -955,7 +955,7 @@ void MEDCouplingBasicsTest::testCopyTinyStringsFromOnFields()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testTryToShareSameCoordsPermute()
+void MEDCouplingBasicsTest2::testTryToShareSameCoordsPermute()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   MEDCouplingUMesh *m2=build3DSurfTargetMesh_1();
@@ -974,7 +974,7 @@ void MEDCouplingBasicsTest::testTryToShareSameCoordsPermute()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testTryToShareSameCoordsPermute2()
+void MEDCouplingBasicsTest2::testTryToShareSameCoordsPermute2()
 {
   MEDCouplingUMesh *m1=build2DTargetMesh_4();
   double targetCoords[8]={-0.3,-0.3, 0.2,-0.3, -0.3,0.2, 0.2,0.2 };
@@ -1020,7 +1020,7 @@ void MEDCouplingBasicsTest::testTryToShareSameCoordsPermute2()
   m2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testChangeUnderlyingMesh1()
+void MEDCouplingBasicsTest2::testChangeUnderlyingMesh1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
   MEDCouplingUMesh *mesh2=build2DTargetMesh_3();
@@ -1068,7 +1068,7 @@ void MEDCouplingBasicsTest::testChangeUnderlyingMesh1()
   mesh2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGetMaxValue1()
+void MEDCouplingBasicsTest2::testGetMaxValue1()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   int nbOfCells=m->getNumberOfCells();
@@ -1104,7 +1104,7 @@ void MEDCouplingBasicsTest::testGetMaxValue1()
   f->decrRef();
 }
 
-void MEDCouplingBasicsTest::testSubstractInPlaceDM1()
+void MEDCouplingBasicsTest2::testSubstractInPlaceDM1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
   MEDCouplingUMesh *mesh2=build2DTargetMesh_3();
@@ -1143,7 +1143,7 @@ void MEDCouplingBasicsTest::testSubstractInPlaceDM1()
   mesh2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDotCrossProduct1()
+void MEDCouplingBasicsTest2::testDotCrossProduct1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -1182,7 +1182,7 @@ void MEDCouplingBasicsTest::testDotCrossProduct1()
   mesh1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testMinMaxFields1()
+void MEDCouplingBasicsTest2::testMinMaxFields1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -1221,7 +1221,7 @@ void MEDCouplingBasicsTest::testMinMaxFields1()
   mesh1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testApplyLin1()
+void MEDCouplingBasicsTest2::testApplyLin1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,LINEAR_TIME);
@@ -1258,7 +1258,7 @@ void MEDCouplingBasicsTest::testApplyLin1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGetIdsInRange1()
+void MEDCouplingBasicsTest2::testGetIdsInRange1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_3();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -1287,7 +1287,7 @@ void MEDCouplingBasicsTest::testGetIdsInRange1()
   mesh1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testBuildSubPart1()
+void MEDCouplingBasicsTest2::testBuildSubPart1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -1401,7 +1401,7 @@ void MEDCouplingBasicsTest::testBuildSubPart1()
   mesh1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDoublyContractedProduct1()
+void MEDCouplingBasicsTest2::testDoublyContractedProduct1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1426,7 +1426,7 @@ void MEDCouplingBasicsTest::testDoublyContractedProduct1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDeterminant1()
+void MEDCouplingBasicsTest2::testDeterminant1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,CONST_ON_TIME_INTERVAL);
@@ -1524,7 +1524,7 @@ void MEDCouplingBasicsTest::testDeterminant1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testEigenValues1()
+void MEDCouplingBasicsTest2::testEigenValues1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1554,7 +1554,7 @@ void MEDCouplingBasicsTest::testEigenValues1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testEigenVectors1()
+void MEDCouplingBasicsTest2::testEigenVectors1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1594,7 +1594,7 @@ void MEDCouplingBasicsTest::testEigenVectors1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testInverse1()
+void MEDCouplingBasicsTest2::testInverse1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1676,7 +1676,7 @@ void MEDCouplingBasicsTest::testInverse1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testTrace1()
+void MEDCouplingBasicsTest2::testTrace1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1733,7 +1733,7 @@ void MEDCouplingBasicsTest::testTrace1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testDeviator1()
+void MEDCouplingBasicsTest2::testDeviator1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1766,7 +1766,7 @@ void MEDCouplingBasicsTest::testDeviator1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testMagnitude1()
+void MEDCouplingBasicsTest2::testMagnitude1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1791,7 +1791,7 @@ void MEDCouplingBasicsTest::testMagnitude1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testMaxPerTuple1()
+void MEDCouplingBasicsTest2::testMaxPerTuple1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1816,7 +1816,7 @@ void MEDCouplingBasicsTest::testMaxPerTuple1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testChangeNbOfComponents()
+void MEDCouplingBasicsTest2::testChangeNbOfComponents()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1848,7 +1848,7 @@ void MEDCouplingBasicsTest::testChangeNbOfComponents()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testSortPerTuple1()
+void MEDCouplingBasicsTest2::testSortPerTuple1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
@@ -1891,7 +1891,7 @@ void MEDCouplingBasicsTest::testSortPerTuple1()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testIsEqualWithoutConsideringStr1()
+void MEDCouplingBasicsTest2::testIsEqualWithoutConsideringStr1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   MEDCouplingUMesh *mesh2=build2DTargetMesh_1();
@@ -1966,7 +1966,7 @@ void MEDCouplingBasicsTest::testIsEqualWithoutConsideringStr1()
   mesh2->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGetNodeIdsOfCell1()
+void MEDCouplingBasicsTest2::testGetNodeIdsOfCell1()
 {
   MEDCouplingUMesh *mesh1=build2DTargetMesh_1();
   std::vector<int> nodeIds;
@@ -1983,7 +1983,7 @@ void MEDCouplingBasicsTest::testGetNodeIdsOfCell1()
   mesh1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testGetEdgeRatioField1()
+void MEDCouplingBasicsTest2::testGetEdgeRatioField1()
 {
   MEDCouplingUMesh *m1=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=m1->getEdgeRatioField();
@@ -2008,7 +2008,7 @@ void MEDCouplingBasicsTest::testGetEdgeRatioField1()
   m1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testFillFromAnalytic3()
+void MEDCouplingBasicsTest2::testFillFromAnalytic3()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -2100,7 +2100,7 @@ void MEDCouplingBasicsTest::testFillFromAnalytic3()
   f1->decrRef();
 }
 
-void MEDCouplingBasicsTest::testFieldDoubleOpEqual1()
+void MEDCouplingBasicsTest2::testFieldDoubleOpEqual1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -2138,7 +2138,7 @@ void MEDCouplingBasicsTest::testFieldDoubleOpEqual1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest::testAreaBary3D2()
+void MEDCouplingBasicsTest2::testAreaBary3D2()
 {
   const double coordsForHexa8[24]={
     -75.45749305371, 180.95495078401, 39.515472018008,
