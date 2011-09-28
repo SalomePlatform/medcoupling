@@ -271,6 +271,19 @@ void MEDFileUMeshL2::sortTypes()
         if((*it)->getDim()==dim-1)
           elt.push_back(*it);
     }
+  // suppression of contiguous empty levels at the end of _per_type_mesh.
+  int nbOfUselessLev=0;
+  bool isFirst=true;
+  for(std::vector< std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshPerType> > >::reverse_iterator it2=_per_type_mesh.rbegin();it2!=_per_type_mesh.rend();it2++)
+    {
+      if((*it2).empty() && isFirst)
+        {
+          nbOfUselessLev++;
+        }
+      else
+        isFirst=false;
+    }
+  _per_type_mesh.resize(_per_type_mesh.size()-nbOfUselessLev);
 }
 
 void MEDFileUMeshL2::WriteCoords(med_idt fid, const char *mname, int dt, int it, double time, const DataArrayDouble *coords, const DataArrayInt *famCoords, const DataArrayInt *numCoords)
