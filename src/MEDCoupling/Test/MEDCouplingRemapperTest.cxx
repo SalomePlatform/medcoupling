@@ -622,7 +622,67 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   values=srcField->getArray()->getConstPointer();
   for(int i0=0;i0<5;i0++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected7[i0],values[i0],1e-14);
-  //
+  srcField->decrRef();
+  trgField->decrRef();
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+  //------------- 1D -> 2D
+  const int conn[8]={0,1,1,2,2,3,3,0};
+  const int conn2[12]={6,7,5,4,2,7,6,3,0,4,5,1};
+  const double coords1[]={0.17,0.93,0.56,0.93,0.56,0.25,0.17,0.52};
+  const double coords2[]={0.,0.,1.,0.,1.,1.,0.,1.,0.,0.5,1.,0.5,0.,0.8,1.,0.8};
+  sourceMesh=MEDCouplingUMesh::New("src1D",1);
+  sourceMesh->allocateCells(4);
+  sourceMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+  sourceMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2);
+  sourceMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+4);
+  sourceMesh->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+6);
+  sourceMesh->finishInsertingCells();
+  array=DataArrayDouble::New(); array->alloc(4,2);
+  std::copy(coords1,coords1+8,array->getPointer());
+  sourceMesh->setCoords(array); array->decrRef();
+  targetMesh=MEDCouplingUMesh::New("trg2D",2);
+  targetMesh->allocateCells(3);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2+4);
+  targetMesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn2+8);
+  targetMesh->finishInsertingCells();
+  array=DataArrayDouble::New(); array->alloc(8,2);
+  std::copy(coords2,coords2+16,array->getPointer());
+  targetMesh->setCoords(array); array->decrRef();
+  remapper.setPrecision(1e-12);
+  remapper.setIntersectionType(INTERP_KERNEL::Geometric2D);
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
+  srcField=MEDCouplingFieldDouble::New(ON_CELLS);
+  srcField->setNature(ConservativeVolumic);
+  srcField->setMesh(sourceMesh);
+  array=DataArrayDouble::New();
+  array->alloc(4,1); array->iota(2.);
+  srcField->setArray(array); array->decrRef();
+  trgField=remapper.transferField(srcField,4.57);
+  const double valuesExpected10[3]={3.9674868868103834, 2.8, 3.6372633449255796};
+  CPPUNIT_ASSERT_EQUAL(3,trgField->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getNumberOfComponents());
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected10[i],trgField->getIJ(i,0),1e-13);
+  srcField->decrRef();
+  trgField->decrRef();
+  //------------- 2D -> 1D
+  remapper.setPrecision(1e-12);
+  remapper.setIntersectionType(INTERP_KERNEL::Geometric2D);
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(targetMesh,sourceMesh,"P0P0"));
+  srcField=MEDCouplingFieldDouble::New(ON_CELLS);
+  srcField->setNature(ConservativeVolumic);
+  srcField->setMesh(targetMesh);
+  array=DataArrayDouble::New();
+  array->alloc(3,1); array->iota(2.);
+  srcField->setArray(array); array->decrRef();
+  trgField=remapper.transferField(srcField,4.57);
+  const double valuesExpected11[4]={3., 2.9264705882352944, 3.8518518518518516, 2.3170731707317076};
+  CPPUNIT_ASSERT_EQUAL(4,trgField->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getNumberOfComponents());
+  for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected11[i],trgField->getIJ(i,0),1e-13);
   srcField->decrRef();
   trgField->decrRef();
   sourceMesh->decrRef();

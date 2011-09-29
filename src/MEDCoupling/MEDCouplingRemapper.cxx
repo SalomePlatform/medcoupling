@@ -30,6 +30,7 @@
 #include "Interpolation2D.txx"
 #include "Interpolation3D.txx"
 #include "Interpolation3DSurf.hxx"
+#include "Interpolation2D1D.txx"
 
 using namespace ParaMEDMEM;
 
@@ -234,24 +235,43 @@ int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exce
     }
   else if(srcMeshDim==2 && trgMeshDim==1 && srcSpaceDim==2)
     {
-      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
-        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 2D and 1D ! Select PointLocator as intersection type !");
-      MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation2D interpolation(*this);
-      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+      if(getIntersectionType()==INTERP_KERNEL::PointLocator)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
+          MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation2D interpolation(*this);
+          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+        }
+      else
+        {
+          MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
+          MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation2D1D interpolation(*this);
+          std::vector<std::map<int,double> > matrixTmp;
+          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+          reverseMatrix(matrixTmp,nbCols,_matrix);
+          nbCols=matrixTmp.size();
+        }
     }
   else if(srcMeshDim==1 && trgMeshDim==2 && srcSpaceDim==2)
     {
-      if(getIntersectionType()!=INTERP_KERNEL::PointLocator)
-        throw INTERP_KERNEL::Exception("Invalid interpolation requested between 1D and 2D ! Select PointLocator as intersection type !");
-      MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
-      MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
-      INTERP_KERNEL::Interpolation2D interpolation(*this);
-      std::vector<std::map<int,double> > matrixTmp;
-      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
-      reverseMatrix(matrixTmp,nbCols,_matrix);
-      nbCols=matrixTmp.size();
+      if(getIntersectionType()==INTERP_KERNEL::PointLocator)
+        {
+          MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
+          MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation2D interpolation(*this);
+          std::vector<std::map<int,double> > matrixTmp;
+          nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+          reverseMatrix(matrixTmp,nbCols,_matrix);
+          nbCols=matrixTmp.size();
+        }
+      else
+        {
+          MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);
+          MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
+          INTERP_KERNEL::Interpolation2D1D interpolation(*this);
+          nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+        }
     }
   else if(trgMeshDim==-1)
     {
