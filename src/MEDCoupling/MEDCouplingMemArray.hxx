@@ -148,6 +148,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isMonotonic(double eps) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
+    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *nameInFile) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
@@ -193,7 +194,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double getMinValueInArray() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMinValue2(DataArrayInt*& tupleIds) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getAverageValue() const throw(INTERP_KERNEL::Exception);
@@ -306,6 +309,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void iota(int init=0) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
+    MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reprStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
@@ -362,7 +366,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int getMinValueInArray() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(int a, int b) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyInv(int numerator) throw(INTERP_KERNEL::Exception);

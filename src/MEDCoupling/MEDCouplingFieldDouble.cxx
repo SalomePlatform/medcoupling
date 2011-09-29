@@ -1578,3 +1578,39 @@ const MEDCouplingFieldDouble &MEDCouplingFieldDouble::operator/=(const MEDCoupli
   _time_discr->divideEqual(other._time_discr);
   return *this;
 }
+
+/*!
+ * This method writes the field series 'fs' in the VTK file 'fileName'.
+ * If 'fs' is empty no file is written. If fields lies on more than one mesh an exception will be thrown and no file will be written too.
+ * If the single mesh is empty an exception will be thrown.
+ * Finally there is a field in 'fs' with no name an exception will be thrown too.
+ */
+void MEDCouplingFieldDouble::WriteVTK(const char *fileName, const std::vector<const MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception)
+{
+  if(fs.empty())
+    return;
+  std::size_t nfs=fs.size();
+  const MEDCouplingMesh *m=fs[0]->getMesh();
+  for(std::size_t i=1;i<nfs;i++)
+    if(fs[i]->getMesh()!=m)
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : Fields are not lying on a same mesh ! Expected by VTK ! MEDCouplingFieldDouble::setMesh or MEDCouplingFieldDouble::changeUnderlyingMesh can help to that.");
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::WriteVTK : Fields are lying on a same mesh but it is empty !");
+  std::ostringstream coss,noss;
+  for(std::size_t i=0;i<nfs;i++)
+    {
+      const MEDCouplingFieldDouble *cur=fs[i];
+      std::string name(cur->getName());
+      if(name.empty())
+        {
+          std::ostringstream oss; oss << "MEDCouplingFieldDouble::WriteVTK : Field in pos #" << i << " has no name !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      TypeOfField typ=cur->getTypeOfField();
+      if(typ==ON_CELLS)
+        cur->getArray()->writeVTK(coss,8,cur->getName());
+      else if(typ==ON_NODES)
+        cur->getArray()->writeVTK(noss,8,cur->getName());
+    }
+  m->writeVTKAdvanced(fileName,coss.str(),noss.str());
+}

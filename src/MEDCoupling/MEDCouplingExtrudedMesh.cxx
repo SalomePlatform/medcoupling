@@ -21,6 +21,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "CellModel.hxx"
 
 #include "InterpolationUtils.hxx"
@@ -837,4 +838,15 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<double>& tinyInf
   int szIds=std::distance(a1Ptr,a1->getConstPointer()+a1->getNbOfElems());
   _mesh3D_ids->alloc(szIds,1);
   std::copy(a1Ptr,a1Ptr+szIds,_mesh3D_ids->getPointer());
+}
+
+void MEDCouplingExtrudedMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=buildUnstructured();
+  m->writeVTKLL(ofs,cellData,pointData);
+}
+
+std::string MEDCouplingExtrudedMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+{
+  return _mesh2D->getVTKDataSetType();
 }

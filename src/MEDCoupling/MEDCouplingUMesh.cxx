@@ -32,6 +32,7 @@
 #include "InterpKernelAutoPtr.hxx"
 
 #include <sstream>
+#include <fstream>
 #include <numeric>
 #include <cstring>
 #include <limits>
@@ -4449,6 +4450,46 @@ void MEDCouplingUMesh::fillInCompact3DMode(int spaceDim, int nbOfNodesInCell, co
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillInCompact3DMode : Invalid spaceDim specified : must be 2 or 3 !");
 }
 
+void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+{
+  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,-1,23,-1,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,-1,-1,-1,25,42};
+  ofs << "  <" << getVTKDataSetType() << ">\n";
+  ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << getNumberOfCells() << "\">\n";
+  ofs << "      <PointData>\n" << pointData << std::endl;
+  ofs << "      </PointData>\n";
+  ofs << "      <CellData>\n" << cellData << std::endl;
+  ofs << "      </CellData>\n";
+  ofs << "      <Points>\n";
+  if(getSpaceDimension()==3)
+    _coords->writeVTK(ofs,8,"Points");
+  else
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=_coords->changeNbOfComponents(3,0.);
+      coo->writeVTK(ofs,8,"Points");
+    }
+  ofs << "      </Points>\n";
+  ofs << "      <Cells>\n";
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c0=_nodal_connec_index->buildComplement(_nodal_connec->getNumberOfTuples()+1);
+  c0=_nodal_connec->selectByTupleId(c0->begin(),c0->end());
+  c0->writeVTK(ofs,8,"Int64","connectivity");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c1=_nodal_connec_index->deltaShiftIndex();
+  c1->applyLin(1,-1);
+  c1->computeOffsets2();
+  c1=c1->selectByTupleId2(1,c1->getNumberOfTuples(),1);
+  c1->writeVTK(ofs,8,"Int64","offsets");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c2=_nodal_connec->selectByTupleId(_nodal_connec_index->getConstPointer(),_nodal_connec_index->getConstPointer()+getNumberOfCells());
+  c2->transformWithIndArr(PARAMEDMEM2VTKTYPETRADUCER,PARAMEDMEM2VTKTYPETRADUCER+INTERP_KERNEL::NORM_MAXTYPE);
+  c2->writeVTK(ofs,8,"UInt8","types");
+  ofs << "      </Cells>\n";
+  ofs << "    </Piece>\n";
+  ofs << "  </UnstructuredGrid>\n";
+}
+
+std::string MEDCouplingUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+{
+  return std::string("UnstructuredGrid");
+}
+
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),
                                                                                    _own_cell(true),_cell_id(-1),_nb_cell(0)
 {
@@ -4613,4 +4654,3 @@ const int *MEDCouplingUMeshCell::getAllConn(int& lgth) const
   else
     return 0;
 }
-

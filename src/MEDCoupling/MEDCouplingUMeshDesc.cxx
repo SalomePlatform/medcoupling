@@ -491,3 +491,14 @@ int MEDCouplingUMeshDesc::getCellContainingPoint(const double *pos, double eps) 
 {
   throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::getCellContainingPoint : not implemented yet !");
 }
+
+void MEDCouplingUMeshDesc::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::writeVTKLL : not implemented yet !");
+}
+
+std::string MEDCouplingUMeshDesc::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::getVTKDataSetType : not implemented yet !");
+}
+

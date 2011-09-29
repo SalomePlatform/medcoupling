@@ -416,6 +416,16 @@ std::string DataArrayDouble::reprZip() const
   return ret.str();
 }
 
+void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameInFile) const throw(INTERP_KERNEL::Exception)
+{
+  std::string idt(indent,' ');
+  ofs.precision(15);
+  ofs << idt << "<DataArray type=\"Float32\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
+  ofs << " format=\"ascii\" RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\">\n" << idt;
+  std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
+  ofs << std::endl << idt << "</DataArray>\n";
+}
+
 void DataArrayDouble::reprStream(std::ostream& stream) const
 {
   stream << "Name of double array : \"" << _name << "\"\n";
@@ -977,13 +987,23 @@ void DataArrayDouble::checkNoNullValues() const throw(INTERP_KERNEL::Exception)
 double DataArrayDouble::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before or call 'getMaxValueInArray' method !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<=0)
     throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
   const double *vals=getConstPointer();
   const double *loc=std::max_element(vals,vals+nbOfTuples);
   tupleId=std::distance(vals,loc);
+  return *loc;
+}
+
+/*!
+ * Idem to DataArrayDouble::getMaxValue expect that here number of components can be >=1.
+ */
+double DataArrayDouble::getMaxValueInArray() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  const double *loc=std::max_element(begin(),end());
   return *loc;
 }
 
@@ -999,13 +1019,23 @@ double DataArrayDouble::getMaxValue2(DataArrayInt*& tupleIds) const throw(INTERP
 double DataArrayDouble::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before call 'getMinValueInArray' method !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<=0)
     throw INTERP_KERNEL::Exception("DataArrayDouble::getMinValue : array exists but number of tuples must be > 0 !");
   const double *vals=getConstPointer();
   const double *loc=std::min_element(vals,vals+nbOfTuples);
   tupleId=std::distance(vals,loc);
+  return *loc;
+}
+
+/*!
+ * Idem to DataArrayDouble::getMinValue expect that here number of components can be >=1.
+ */
+double DataArrayDouble::getMinValueInArray() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  const double *loc=std::min_element(begin(),end());
   return *loc;
 }
 
@@ -2211,6 +2241,15 @@ std::string DataArrayInt::reprZip() const
   return ret.str();
 }
 
+void DataArrayInt::writeVTK(std::ostream& ofs, int indent, const char *type, const char *nameInFile) const throw(INTERP_KERNEL::Exception)
+{
+  std::string idt(indent,' ');
+  ofs << idt << "<DataArray type=\"" << type << "\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
+  ofs << " format=\"ascii\" RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\">\n" << idt;
+  std::copy(begin(),end(),std::ostream_iterator<int>(ofs," "));
+  ofs << std::endl << idt << "</DataArray>\n";
+}
+
 void DataArrayInt::reprStream(std::ostream& stream) const
 {
   stream << "Name of int array : \"" << _name << "\"\n";
@@ -2235,6 +2274,13 @@ void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
+/*!
+ * This method expects a number of components equal to 1.
+ * This method sweeps all the values (tuples) in 'this' (it should be allocated) and for each value v is replaced by
+ * indArr[v] where 'indArr' is defined by ['indArrBg','indArrEnd').
+ * This method is safe that is to say if there is a value in 'this' not in [0,std::distance('indArrBg','indArrEnd')) an exception
+ * will be thrown.
+ */
 void DataArrayInt::transformWithIndArr(const int *indArrBg, const int *indArrEnd) throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -2321,6 +2367,14 @@ void DataArrayInt::splitByValueRange(const int *arrBg, const int *arrEnd,
   castsPresent=ret3;
 }
 
+/*!
+ * This method expects a number of components equal to 1.
+ * This method sweeps all the values (tuples) in 'this' (it should be allocated) and for each value v on place i, place indArr[v] will have 
+ * value i.
+ * indArr[v] where 'indArr' is defined by ['indArrBg','indArrEnd').
+ * This method is half/safe that is to say if there is location i so that indArr[v] is not in [0,this->getNumberOfTuples()) an exception
+ * will be thrown.
+ */
 DataArrayInt *DataArrayInt::transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -3231,6 +3285,16 @@ int DataArrayInt::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception
   return *loc;
 }
 
+/*!
+ * Idem to DataArrayInt::getMaxValue expect that here number of components can be >=1.
+ */
+int DataArrayInt::getMaxValueInArray() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  const int *loc=std::max_element(begin(),end());
+  return *loc;
+}
+
 int DataArrayInt::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
@@ -3241,6 +3305,16 @@ int DataArrayInt::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception
   const int *vals=getConstPointer();
   const int *loc=std::min_element(vals,vals+nbOfTuples);
   tupleId=std::distance(vals,loc);
+  return *loc;
+}
+
+/*!
+ * Idem to DataArrayInt::getMinValue expect that here number of components can be >=1.
+ */
+int DataArrayInt::getMinValueInArray() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  const int *loc=std::min_element(begin(),end());
   return *loc;
 }
 

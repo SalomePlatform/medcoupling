@@ -971,3 +971,12 @@ void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, con
   setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
 }
 
+void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingCMesh::writeVTKLL : not implemented yet !");
+}
+
+std::string MEDCouplingCMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exception)
+{
+  return std::string("RectilinearGrid");
+}

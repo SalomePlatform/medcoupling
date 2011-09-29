@@ -83,6 +83,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const;
     MEDCOUPLING_EXPORT void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
+    MEDCOUPLING_EXPORT std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);
     //tools
     MEDCOUPLING_EXPORT bool areCellsEqual(int cell1, int cell2, int compType) const;
     MEDCOUPLING_EXPORT bool areCellsEqual0(int cell1, int cell2) const;

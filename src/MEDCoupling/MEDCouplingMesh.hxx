@@ -120,9 +120,15 @@ namespace ParaMEDMEM
     virtual void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const = 0;
     virtual void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                                  const std::vector<std::string>& littleStrings) = 0;
+    void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);
+    /// @cond INTERNAL
+    void writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const throw(INTERP_KERNEL::Exception);
+    /// @endcond
+    virtual void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDCouplingMesh();
     MEDCouplingMesh(const MEDCouplingMesh& other);
+    virtual std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception) = 0;
     virtual ~MEDCouplingMesh() { }
   private:
     std::string _name;

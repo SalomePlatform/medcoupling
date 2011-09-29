@@ -26,6 +26,7 @@
 #include <set>
 #include <cmath>
 #include <sstream>
+#include <fstream>
 #include <iterator>
 
 using namespace ParaMEDMEM;
@@ -325,4 +326,23 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, int nbOfPoints
       else
         eltsIndex[i+1]=eltsIndex[i];
     }
+}
+
+/*!
+ * This method writes a file in VTK format into file 'fileName'.
+ * An exception is thrown if the file is not writable.
+ */
+void MEDCouplingMesh::writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception)
+{
+  std::string cda,pda;
+  writeVTKAdvanced(fileName,cda,pda);
+}
+
+void MEDCouplingMesh::writeVTKAdvanced(const char *fileName, const std::string& cda, const std::string& pda) const throw(INTERP_KERNEL::Exception)
+{
+  std::ofstream ofs(fileName);
+  ofs << "<VTKFile type=\""  << getVTKDataSetType() << "\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
+  writeVTKLL(ofs,cda,pda);
+  ofs << "</VTKFile>\n";
+  ofs.close();
 }

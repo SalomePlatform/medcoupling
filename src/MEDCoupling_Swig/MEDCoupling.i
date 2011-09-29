@@ -370,6 +370,7 @@ namespace ParaMEDMEM
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception) = 0;
     virtual std::string simpleRepr() const = 0;
     virtual std::string advancedRepr() const = 0;
+    void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);
     // tools
     virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
@@ -4671,6 +4672,13 @@ namespace ParaMEDMEM
         std::vector<const MEDCouplingFieldDouble *> tmp;
         convertPyObjToVecFieldDblCst(li,tmp);
         return MEDCouplingFieldDouble::MergeFields(tmp);
+      }
+
+      static void WriteVTK(const char *fileName, PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const MEDCouplingFieldDouble *> tmp;
+        convertPyObjToVecFieldDblCst(li,tmp);
+        MEDCouplingFieldDouble::WriteVTK(fileName,tmp);
       }
     }
   };
