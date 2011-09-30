@@ -76,7 +76,7 @@ namespace INTERP_KERNEL
     NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(icellT);
     NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(icellS);
     QuadraticPolygon *p1=buildPolygonFrom(CoordsT,tT);
-    QuadraticPolygon *p2=buildPolygonFrom(CoordsS,tS);
+    QuadraticPolygon *p2=buildPolygonOfOneEdgeFrom(CoordsS,tS);
     double ret=p1->intersectWithAbs1D(*p2, isColinear);
     delete p1; delete p2;
     return ret;
@@ -189,6 +189,32 @@ namespace INTERP_KERNEL
       return QuadraticPolygon::buildLinearPolygon(nodes);
     else
       return QuadraticPolygon::buildArcCirclePolygon(nodes);
+  }
+
+  INTERSECTOR_TEMPLATE
+  QuadraticPolygon *GEO2D_INTERSECTOR::buildPolygonOfOneEdgeFrom(const std::vector<double>& coords, NormalizedCellType type)
+  {
+    if(type==NORM_SEG2)
+      {
+        Node *node0=new Node(coords[0],coords[1]);
+        Node *node1=new Node(coords[SPACEDIM],coords[SPACEDIM+1]);
+        QuadraticPolygon *ret=new QuadraticPolygon;
+        ret->pushBack(new EdgeLin(node0,node1));
+        node0->decrRef(); node1->decrRef();
+        return ret;
+      }
+    else if(type==NORM_SEG3)
+      {
+        Node *nodeBg=new Node(coords[0],coords[1]);
+        Node *nodeEnd=new Node(coords[SPACEDIM],coords[SPACEDIM+1]);
+        Node *nodeMiddle=new Node(coords[2*SPACEDIM],coords[2*SPACEDIM+1]);
+        QuadraticPolygon *ret=new QuadraticPolygon;
+        ret->pushBack(new EdgeArcCircle(nodeBg,nodeMiddle,nodeEnd));
+        nodeBg->decrRef(); nodeEnd->decrRef(); nodeMiddle->decrRef();
+        return ret;
+      }
+    else
+      throw INTERP_KERNEL::Exception("buildPolygonOfOneEdgeFrom : trying to build such non close QuadraticPolygon with 1D type !");
   }
 
   INTERSECTOR_TEMPLATE

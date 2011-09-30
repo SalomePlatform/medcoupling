@@ -209,6 +209,7 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
 
 /*!
  * Warning This method is \b NOT const. 'this' and 'other' are modified after call of this method.
+ * 'other' is a QuadraticPolygon of \b non closed edges.
  */
 double QuadraticPolygon::intersectWithAbs1D(QuadraticPolygon& other, bool& isColinear)
 {
@@ -221,23 +222,28 @@ double QuadraticPolygon::intersectWithAbs1D(QuadraticPolygon& other, bool& isCol
   splitPolygonsEachOther(cpyOfThis, cpyOfOther, nbOfSplits);
   //At this point cpyOfThis and cpyOfOther have been splited at maximum edge so that in/out can been done.
   performLocatingOperation(cpyOfOther);
-
-  std::list<QuadraticPolygon *> cpyOfOtherZip = cpyOfOther.zipConsecutiveInSegments();
-
   isColinear = false;
-  if (cpyOfOtherZip.size() == 1)
+  for(std::list<ElementaryEdge *>::const_iterator it=cpyOfOther._sub_edges.begin();it!=cpyOfOther._sub_edges.end();it++)
     {
-      QuadraticPolygon& poly = *cpyOfOtherZip.front();
-      if (poly.size() == 2 && poly.front()->isEqual(*poly.back()))
-        isColinear = true;
+      switch((*it)->getLoc())
+        {
+        case FULL_IN_1:
+          {
+            ret += fabs((*it)->getPtr()->getCurveLength());
+            break;
+          }
+        case FULL_ON_1:
+          {
+            isColinear=true;
+            ret += fabs((*it)->getPtr()->getCurveLength());
+            break;
+          }
+        default:
+          {
+          }
+        }
     }
-
-  for (std::list<QuadraticPolygon *>::iterator iter = cpyOfOtherZip.begin(); iter != cpyOfOtherZip.end(); iter++)
-    {
-      ret += fabs((*iter)->getPerimeter());
-      delete *iter;
-    }
-  return ret * fact / 2.;
+  return ret * fact;
 }
 
 /*!

@@ -49,6 +49,7 @@ namespace INTERP_KERNEL
     double intersectGeoBary(const std::vector<double>& targetCell, bool targetCellQuadratic, const double *sourceCell, std::vector<double>& res);
   private:
     QuadraticPolygon *buildPolygonFrom(const std::vector<double>& coords, NormalizedCellType type);
+    QuadraticPolygon *buildPolygonOfOneEdgeFrom(const std::vector<double>& coords, NormalizedCellType type);
     QuadraticPolygon *buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type);
     QuadraticPolygon *buildPolygonBFrom(ConnType cell, int nbOfPoints, NormalizedCellType type);
   };
