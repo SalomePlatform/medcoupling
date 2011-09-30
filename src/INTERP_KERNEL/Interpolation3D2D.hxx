@@ -29,6 +29,15 @@
 
 namespace INTERP_KERNEL
 {
+  /*!
+   * Contrary to its name this class deals with 2D mesh in source and 3D mesh in target.
+   * The meshdim of 'MyMeshType' in input is ignored that's why 'meshS' and 'meshT'
+   * have the same type.
+   * '_duplicate_faces' attribute stores duplicated faces in the following format.
+   * The key of '_duplicate_faces' represents the 2D cellId that is shared by
+   * more than one 3D target cell, and the value of '_duplicate_faces'
+   * the 3D target cells. The size of the value of '_duplicate_faces' is more than or equal to 2.
+   */
   class Interpolation3D2D : public Interpolation<Interpolation3D2D>
   {
   public:
