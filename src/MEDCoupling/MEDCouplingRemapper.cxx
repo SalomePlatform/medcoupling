@@ -31,6 +31,7 @@
 #include "Interpolation3D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation2D1D.txx"
+#include "Interpolation3D2D.txx"
 
 using namespace ParaMEDMEM;
 
@@ -251,6 +252,17 @@ int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exce
           nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
           reverseMatrix(matrixTmp,nbCols,_matrix);
           nbCols=matrixTmp.size();
+          INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+          if(!duplicateFaces.empty())
+            {
+              std::ostringstream oss; oss << "An unexpected situation happend ! For the following 1D Cells are part of edges shared by 2D cells :\n";
+              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+                {
+                  oss << "1D Cell #" << (*it).first << " is part of common edge of following 2D cells ids : ";
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  oss << std::endl;
+                }
+            }
         }
     }
   else if(srcMeshDim==1 && trgMeshDim==2 && srcSpaceDim==2)
@@ -271,6 +283,56 @@ int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exce
           MEDCouplingNormalizedUnstructuredMesh<2,2> target_mesh_wrapper(target_mesh);
           INTERP_KERNEL::Interpolation2D1D interpolation(*this);
           nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+          INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+          if(!duplicateFaces.empty())
+            {
+              std::ostringstream oss; oss << "An unexpected situation happend ! For the following 1D Cells are part of edges shared by 2D cells :\n";
+              for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+                {
+                  oss << "1D Cell #" << (*it).first << " is part of common edge of following 2D cells ids : ";
+                  std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+                  oss << std::endl;
+                }
+            }
+        }
+    }
+  else if(srcMeshDim==2 && trgMeshDim==3 && srcSpaceDim==3)
+    {
+      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation3D2D interpolation(*this);
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+      INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+      if(!duplicateFaces.empty())
+        {
+          std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";
+          for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+            {
+              oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
+              std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+              oss << std::endl;
+            }
+        }
+    }
+  else if(srcMeshDim==3 && trgMeshDim==2 && srcSpaceDim==3)
+    {
+      MEDCouplingNormalizedUnstructuredMesh<3,3> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,3> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation3D2D interpolation(*this);
+      std::vector<std::map<int,double> > matrixTmp;
+      nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
+      reverseMatrix(matrixTmp,nbCols,_matrix);
+      nbCols=matrixTmp.size();
+      INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
+      if(!duplicateFaces.empty())
+        {
+          std::ostringstream oss; oss << "An unexpected situation happend ! For the following 2D Cells are part of edges shared by 3D cells :\n";
+          for(std::map<int,std::set<int> >::const_iterator it=duplicateFaces.begin();it!=duplicateFaces.end();it++)
+            {
+              oss << "2D Cell #" << (*it).first << " is part of common face of following 3D cells ids : ";
+              std::copy((*it).second.begin(),(*it).second.end(),std::ostream_iterator<int>(oss," "));
+              oss << std::endl;
+            }
         }
     }
   else if(trgMeshDim==-1)

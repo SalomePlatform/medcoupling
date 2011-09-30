@@ -687,6 +687,43 @@ void MEDCouplingRemapperTest::testMultiDimCombi()
   trgField->decrRef();
   sourceMesh->decrRef();
   targetMesh->decrRef();
+  //------------- 2D -> 3D
+  sourceMesh=MEDCouplingBasicsTest::build3D2DSourceMesh();
+  targetMesh=MEDCouplingBasicsTest::build3D2DTargetMesh();
+  remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
+  srcField=MEDCouplingFieldDouble::New(ON_CELLS);
+  srcField->setNature(ConservativeVolumic);
+  srcField->setMesh(sourceMesh);
+  array=DataArrayDouble::New();
+  array->alloc(7,1); array->iota(2.);
+  srcField->setArray(array); array->decrRef();
+  trgField=remapper.transferField(srcField,4.57);
+  const double valuesExpected12[3]={5.70909090909091, 6.08362715128042, 6.92857142857143};
+  CPPUNIT_ASSERT_EQUAL(3,trgField->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getNumberOfComponents());
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected12[i],trgField->getIJ(i,0),1e-13);
+  srcField->decrRef();
+  trgField->decrRef();
+  //------------- 3D -> 2D
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(targetMesh,sourceMesh,"P0P0"));
+  srcField=MEDCouplingFieldDouble::New(ON_CELLS);
+  srcField->setNature(ConservativeVolumic);
+  srcField->setMesh(targetMesh);
+  array=DataArrayDouble::New();
+  array->alloc(3,1); array->iota(2.);
+  srcField->setArray(array); array->decrRef();
+  trgField=remapper.transferField(srcField,4.57);
+  const double valuesExpected13[7]={3., 4., 2.5, 2.909090909090909, 2., 3.5, 3.3571428571428572};
+  CPPUNIT_ASSERT_EQUAL(7,trgField->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,trgField->getNumberOfComponents());
+  for(int i=0;i<7;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected13[i],trgField->getIJ(i,0),1e-13);
+  srcField->decrRef();
+  trgField->decrRef();
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
 }
 
 void MEDCouplingRemapperTest::testNatureOfField()
