@@ -39,4 +39,42 @@ using namespace INTERP_KERNEL;
 
 %include "MEDCoupling.i"
 %include "InterpolationOptions.hxx"
-%include "MEDCouplingRemapper.hxx"
+
+namespace ParaMEDMEM
+{
+  class MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
+    {
+    private:
+      void updateTime() const;
+    public:
+      MEDCouplingRemapper();
+      ~MEDCouplingRemapper();
+      int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const char *method) throw(INTERP_KERNEL::Exception);
+      int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target) throw(INTERP_KERNEL::Exception);
+      void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
+      void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
+      MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue) throw(INTERP_KERNEL::Exception);
+      MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception);
+      bool setOptionInt(const std::string& key, int value);
+      bool setOptionDouble(const std::string& key, double value);
+      bool setOptionString(const std::string& key, const std::string& value);
+      %extend
+         {
+           PyObject *getCrudeMatrix() const
+           {
+             const std::vector<std::map<int,double> >& m=self->getCrudeMatrix();
+             std::size_t sz=m.size();
+             PyObject *ret=PyList_New(sz);
+             for(std::size_t i=0;i<sz;i++)
+               {
+                 const std::map<int,double>& row=m[i];
+                 PyObject *ret0=PyDict_New();
+                 for(std::map<int,double>::const_iterator it=row.begin();it!=row.end();it++)
+                   PyDict_SetItem(ret0,PyInt_FromLong((*it).first),PyFloat_FromDouble((*it).second));
+                 PyList_SetItem(ret,i,ret0);
+               }
+             return ret;
+           }
+         }
+    };
+}
