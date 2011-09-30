@@ -104,6 +104,7 @@ namespace ParaMEDMEM
     void fillDistributedMatrix(const std::vector< std::map<int,double> >& res,
                                const DataArrayInt *srcIds, int srcProc,
                                const DataArrayInt *trgIds, int trgProc);
+    static void TransposeMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn, std::vector<std::map<int,double> >& matOut);
   private:
     ParaMEDMEM::ParaFIELD *_source_field;
     ParaMEDMEM::ParaFIELD *_target_field;

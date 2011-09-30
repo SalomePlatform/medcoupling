@@ -29,6 +29,8 @@
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
+#include "Interpolation3D2D.txx"
+#include "Interpolation2D1D.txx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
@@ -157,6 +159,28 @@ namespace ParaMEDMEM
           }
         else
           throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of distant mesh to -1D sourceMesh");
+      }
+    else if ( distant_support.getMeshDimension() == 2
+              && _source_support->getMeshDimension() == 3
+              && distant_support.getSpaceDimension() == 3 && _source_support->getSpaceDimension() == 3)
+      {
+        MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(source_supportC);
+        INTERP_KERNEL::Interpolation3D2D interpolator (*this);
+        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
+      }
+    else if ( distant_support.getMeshDimension() == 1
+              && _source_support->getMeshDimension() == 2
+              && distant_support.getSpaceDimension() == 2 && _source_support->getSpaceDimension() == 2)
+      {
+        MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(distant_supportC);
+        MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(source_supportC);
+        INTERP_KERNEL::Interpolation2D1D interpolator (*this);
+        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
       }
     else if (distant_support.getMeshDimension() != _source_support->getMeshDimension())
       {

@@ -28,6 +28,8 @@
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation3D.txx"
+#include "Interpolation3D2D.txx"
+#include "Interpolation2D1D.txx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "InterpolationOptions.hxx"
@@ -131,6 +133,56 @@ namespace ParaMEDMEM
           }
         else
           throw INTERP_KERNEL::Exception("No para interpolation available for the given mesh and space dimension of distant mesh to -1D sourceMesh");
+      }
+    else if ( src->getMeshDimension() == 2 && trg->getMeshDimension() == 3
+              && trg->getSpaceDimension() == 3 && src->getSpaceDimension() == 3 )
+      {
+        MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(trgC);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
+        
+        INTERP_KERNEL::Interpolation3D2D interpolator (*this);
+        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
+      }
+    else if ( src->getMeshDimension() == 3 && trg->getMeshDimension() == 2
+              && trg->getSpaceDimension() == 3 && src->getSpaceDimension() == 3 )
+      {
+        MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(trgC);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
+        
+        INTERP_KERNEL::Interpolation3D2D interpolator (*this);
+        vector<map<int,double> > surfacesTranspose;
+        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfaces,interpMethod.c_str());//not a bug target in source.
+        TransposeMatrix(surfacesTranspose,colSize,surfaces);
+        colSize=surfacesTranspose.size();
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
+      }
+    else if ( src->getMeshDimension() == 1 && trg->getMeshDimension() == 2
+              && trg->getSpaceDimension() == 2 && src->getSpaceDimension() == 2 )
+      {
+        MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(trgC);
+        MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(srcC);
+        
+        INTERP_KERNEL::Interpolation2D1D interpolator (*this);
+        colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,surfaces,interpMethod.c_str());
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
+      }
+    else if ( src->getMeshDimension() == 2 && trg->getMeshDimension() == 1
+              && trg->getSpaceDimension() == 2 && src->getSpaceDimension() == 2 )
+      {
+        MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(trgC);
+        MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(srcC);
+        
+        INTERP_KERNEL::Interpolation2D1D interpolator (*this);
+        vector<map<int,double> > surfacesTranspose;
+        colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,surfacesTranspose,interpMethod.c_str());//not a bug target in source.
+        TransposeMatrix(surfacesTranspose,colSize,surfaces);
+        colSize=surfacesTranspose.size();
+        target_wrapper.releaseTempArrays();
+        source_wrapper.releaseTempArrays();
       }
     else if (trg->getMeshDimension() != _source_support->getMeshDimension())
       {
@@ -249,5 +301,14 @@ namespace ParaMEDMEM
   bool OverlapInterpolationMatrix::isSurfaceComputationNeeded(const std::string& method) const
   {
     return method=="P0";
+  }
+
+  void OverlapInterpolationMatrix::TransposeMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn, std::vector<std::map<int,double> >& matOut)
+  {
+    matOut.resize(nbColsMatIn);
+    int id=0;
+    for(std::vector<std::map<int,double> >::const_iterator iter1=matIn.begin();iter1!=matIn.end();iter1++,id++)
+      for(std::map<int,double>::const_iterator iter2=(*iter1).begin();iter2!=(*iter1).end();iter2++)
+        matOut[(*iter2).first][id]=(*iter2).second;
   }
 }
