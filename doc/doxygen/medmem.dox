@@ -226,20 +226,36 @@ http://hammi.extra.cea.fr/static/MED/web_med/logiciels/med-2.3.1/doc/ .
 
 
 The ParaMEDMEM library is based on several classes that 
-describe the coupling between two parallel codes.
+describe the coupling between two MPI-based parallel codes.
 
 The classes that make up the API of the library are :
 - communication interface : \ref comm_interface,
 - definition of processor groups : \ref processor_group,
 - Data Exchange Channel \ref dec, and its implementations :
  - \ref interpkerneldec for a \ref InterpKerRemapGlobal based on intersecting elements volume computation,
- - \ref noncoincidentdec for a non-conservative interpolation based on element localization,
- - \ref structuredcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies.
- - \ref explicitcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies,
+ - (obsolete ?) \ref noncoincidentdec for a non-conservative interpolation based on element localization,
+ - (obsolete ?) \ref structuredcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies.
+ - (obsolete ?) \ref explicitcoincidentdec for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies,
  - \ref overlapdec based on intersecting elems volume
  computation when source and target meshes are on same process id
 
+Given two groups of processors groupA (source) and groupB (target), the following code excerpt gives a typical use of the InterpKernelDEC class.
+
+    \code
+    ...
+    InterpKernelDEC dec(groupA, groupB);//creates the data exchange channel
+    dec.attachLocalField(field);//associate the local field
+    dec.synchronize();//builds the interpolation matrix
+    if (groupA.containsMyRank())
+    dec.recvData();//receive the target field
+    else if (groupB.containsMyRank())
+    dec.sendData();//send the source field
+    ...
+    \endcode
+The generation of the \ref interpolationmatrix "interpolation matrix" and the corresponding matrix-vector products are performed either on the source, either on the target side. 
+
 */
+
 
 /*!
 \page medmem_install Configuring and Installing MEDMEM from sources

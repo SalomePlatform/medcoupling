@@ -27,11 +27,11 @@ MEDCoupling array. This concept is used all over
 MEDCoupling/ParaMEDMEM/MEDLoader modules so it should be correctly
 handled to play well with \ref MEDCouplingMeshesP "Meshes" and \ref MEDCouplingFieldsP "Fields".
 
-It exists two type of arrays :
+There are two types of arrays :
  - double precision float array incarnated by ParaMEDMEM::DataArrayDouble class.
  - integer array incarnated by ParaMEDMEM::DataArrayInt class.
 
-To know more about arrays \ref MEDCouplingArrayPage "click here for arrays documentation".
+To learn more about arrays \ref MEDCouplingArrayPage "click here for arrays documentation".
 
 \section MEDCouplingMainConc Main Concepts
 
@@ -48,7 +48,7 @@ Here we will create a mesh with spacedim==2 and meshdim==2 too with 5
 cells and 9 nodes.
 
 You can notice that it is possible to mix cell
-types as you want as long as the dimension of cell is exactly equal to
+types as long as the dimension of cell is exactly equal to
 meshDim to respect \ref MEDCouplingMeshes "this rule".
 
 \code
@@ -317,7 +317,7 @@ The main properties of a field are :
 - name
 - spatial support which is a \ref MEDCouplingMeshesP "mesh"
 - a \ref MEDCouplingSpatialDisc "spatial discretization"
-- a description of intrinsic nature of the values of field. This is important for conservative interpolation.
+- a description of intrinsic nature of the values of field (see \ref NatureOfField). This is important for conservative interpolation (see \ref TableNatureOfField).
 - a temporal discretization that specifies, if it exists, the time interval on which the field is covering, and how.
 - number of components
 
@@ -554,5 +554,55 @@ Method in new to old mode that works on bijective applications :
 Method in new to old mode that works on surjective applications :
 
 - \ref ParaMEDMEM::DataArrayDouble::selectByTupleId "DataArrayDouble::selectByTupleId"
+
+*/
+
+/*!
+    \defgroup NatureOfField Nature of a field
+
+    \section  IntExtFields Overview: intensive and extensive field
+
+\c NatureOfField is an enum which helps determining some physical significance of the field and affects the choice of interpolation formula ( see \ref TableNatureOfField).
+It has five possible values:
+-      "NoNature", the default value, does not allow the use of interpolation tools
+-      "ConservativeVolumic", for intensive field with conservativity favored over the maximum principle
+-      "Integral", for extensive field with the maximum principle favored over conservativity
+-      "IntegralGlobConstraint", for extensive fields with conservativity favored over the maximum principle
+-      "RevIntegral", for intensive field with the maximum principle favored over conservativity
+
+By an intensive field we mean a field that represent volumetric or intensive physical variable such as density (\f$kg.m^{-3}\f$), temperature (\f$\circ K\f$) or pressure (\f$Pa\f$).
+By extensive (or integral) field we mean a field that represents an extensive physical quantity sych as mass (\f$kg\f$), volume (\f$m^3\f$), a momentum (\f$kg.m.s^{-1}\f$) or power \f$(W\f$).
+For fields with a P0 representation, conservativity formulas are different depending on whether the field is extensive or intensive (see \ref InterpKerP0P0Int and \ref InterpKerP0P0Ext).
+In some cases such a non \ref MeshOverlap "overlapping meshes", it is impossible to fulfill both conservation and maximum principle during the interpolation. The nature of the fields determines the formula to be used for non overlapped cells and thus the property that we will be satisfied.
+We consider that fields with P1 or P2 representations are necessarily intensive.
+
+\section Usage
+
+In order to employ the various \ref interptools, it is important to specify the nature of your field. 
+In case the sources and target meshes do not overlap different treatments will be employed, depending on the nature of the source and target fields.
+You can specify the nature of the field when you create a \ref medcoupling field with the following constructor:
+\code
+MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
+\endcode
+
+If you read or copy an already existing field, or later after its creation, you may want to change/set its nature.
+In order to do so, you can use the function
+
+\code
+void setNature(NatureOfField nat);
+\endcode
+
+Here is an example
+
+\code
+...
+const char sourceFileName[]="source.med";
+MEDCouplingFieldDouble *sourceField=MEDLoader::ReadFieldCell(sourceFileName,"Source_Mesh",0,"Density",/*iteration*/0,/*order*/0);
+const char targetFileName[]="target.med";
+MEDCouplingUMesh *med_target_mesh=MEDLoader::ReadUMeshFromFile(targetFileName,"Target_Mesh",0);
+//
+sourceField->setNature(ConservativeVolumic);
+...
+\endcode
 
 */

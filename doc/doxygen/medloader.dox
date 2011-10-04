@@ -1,5 +1,5 @@
 /*!
-\page medloader %MEDLoader
+\page medloader MEDLoader
 
 \section MEDLoaderIntro Introduction
 
@@ -39,7 +39,7 @@ behaviour of these two methods can vary.
 */
 
 /*!
-\page MEDLoaderBasicAPI Basic %MEDLoader API.
+\page MEDLoaderBasicAPI Basic MEDLoader API.
 
 The aim of this page is to present basic API of MEDLoader. The goal of
 this basic API is to perform a read or a write in one shot without any

@@ -53,7 +53,9 @@ EXTRA_DIST += figures \
 	      field.dox \
 	      grid.dox \
 	      interpkernel.dox \
-	      interpkernel_features.dox \
+	      interptheory.dox \
+	      interptools.dox \
+	      intersectors.dox \
 	      medcoupling.dox \
 	      medfilebrowser.dox \
 	      medloader.dox \
@@ -62,7 +64,7 @@ EXTRA_DIST += figures \
 	      mesh.dox \
 	      meshing.dox \
 	      polygon.dox \
-	      remapping.dox \
+	      remapper.dox \
 	      support.dox \
 	      tools.dox \
 	      static/footer.html \
