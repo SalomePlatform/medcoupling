@@ -100,6 +100,6 @@ void MPIAccessTest_DumpArray (std::ostream & stream, const T* array, const int l
     }
   }
   stream << "}" << std::endl;
-};
+}
 
 #endif
