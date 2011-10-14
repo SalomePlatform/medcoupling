@@ -39,12 +39,12 @@ mesh T the aspect of overlapping is important. In fact if any cell of
 of S is fully overlapped by cells of T and inversely any cell of T is
 fully overlapped by cells of S that is
 \f[
-\sum_{S_j} Vol(T_i\cap S_j) = Vol(T_i) and \sum_{T_i} Vol(S_j\cap T_i) = Vol(S_j)
+\sum_{S_j} Vol(T_i\cap S_j) = Vol(T_i),\hspace{1cm} and \hspace{1cm} \sum_{T_i} Vol(S_j\cap T_i) = Vol(S_j)
 \f]
 then the meshes S and T are said to be \b
 overlapping and all the algorithms will return the same results.
 
-The ideal interpolation algorithm should be conservative and respect the maximum principle. However such an algorithm can be impossible to design if the two meshes do not overlap. When the meshes do not overlap, using either \f$Vol(T_i)\f$ or \f$\sum_{S_j} Vol(T_i\cap S_j)\f$ in the formula one obtains an algorithm that respects either conservativity either the maximum principle.
+The ideal interpolation algorithm should be conservative and respect the maximum principle. However such an algorithm can be impossible to design if the two meshes do not overlap. When the meshes do not overlap, using either \f$Vol(T_i)\f$ or \f$\sum_{S_j} Vol(T_i\cap S_j)\f$ in the formula one obtains an algorithm that respects either conservativity either the maximum principle (see the nature of field \ref TableNatureOfField "summary table").
 
 
 \section InterpKerRemapInt Linear conservative remapping of P0 (cell based) fields
@@ -56,8 +56,8 @@ This value can represent either
 
 \section InterpKerP0P0Int cell-cell (P0->P0) conservative remapping of intensive fields
 
-In the \ref InterpKerGenralEq "general interpolation equation" the
-left hand side becomes :
+For intensive fields such as mass density or power density, the
+left hand side in the \ref InterpKerGenralEq "general interpolation equation" becomes :
 
 \f[
 \int_{T_i} \phi = Vol(T_i).\phi_{T_i}. 
@@ -113,10 +113,157 @@ In the case of fields with P0 representation, if the meshes do not overlap the s
 
  * <TABLE BORDER=1 >
  * <TR><TD> </TD><TD>Intensive</TD><TD> extensive </TD></TR>
- * <TR><TD> Conservation</TD><TD> \f[\frac{Vol(T_i\cap S_j)}{ Vol(T_i)}\f] <br />ConservativeVolumic </TD><TD>\f[ \frac{Vol(T_i\cap S_j)}{ \sum_{T_i} Vol(S_j\cap T_i) }\f] <br />IntegralGlobConstraint</TD></TR>
- * <TR><TD> Maximum principle </TD><TD> \f[\frac{Vol(T_i\cap S_j)}{ \sum_{S_j} Vol(T_i\cap S_j)}\f] <br /> RevIntegral</TD><TD> \f[\frac{Vol(T_i\cap S_j)}{  Vol(S_j) }\f] <br /> Integral </TD></TR>
+ * <TR><TD> Conservation</TD><TD> \f[\frac{Vol(T_i\cap S_j)}{ Vol(T_i)}\f] <br /> \ref TableNatureOfFieldExampleRevIntegral "RevIntegral" </TD><TD> \f[ \frac{Vol(T_i\cap S_j)}{ \sum_{T_i} Vol(S_j\cap T_i) }\f] <br /> \ref TableNatureOfFieldExampleIntegralGlobConstraint "IntegralGlobConstraint" </TD></TR>
+ * <TR><TD> Maximum principle </TD><TD> \f[\frac{Vol(T_i\cap S_j)}{ \sum_{S_j} Vol(T_i\cap S_j)}\f] <br /> \ref TableNatureOfFieldExampleConservVol "ConservativeVolumic" </TD><TD>  \f[\frac{Vol(T_i\cap S_j)}{  Vol(S_j) }\f] <br /> \ref TableNatureOfFieldExampleIntegral "Integral"</TD></TR>
  *</TABLE>
 
+\section TableNatureOfFieldExample Illustration of a non overlapping P0P0 interpolation
+
+Let's consider the following case with a source mesh containing two cells and a target mesh containing one cell.
+Let's consider a field FS on cells on the source mesh that we want to interpolate on the target mesh.
+
+The value of FS on the cell#0 is 4 and the value on the cell#1 is 100.
+
+The aim here is to compute the interpolated field FT on the target mesh of field FS depending on the \ref NatureOfField "nature of the field".
+
+\anchor TableNatureOfFieldEx1
+\image html NonOverlapping.png "An example of non overlapping intersection of two meshes."
+
+The first step of the interpolation leads to the following M1 matrix :
+
+\f[
+    M1=\begin{tabular}{|cc|}
+    0.125 & 0.75 \\
+    \end{tabular}
+    \f]
+ 
+\subsection TableNatureOfFieldExampleConservVol Conservative volumic case
+
+If we apply the formula \ref TableNatureOfField "above" it leads to the following \f$ M_{Conservative Volumic} \f$ matrix :
+
+\f[
+    M_{Conservative Volumic}=\begin{tabular}{|cc|}
+    $\frac{0.125}{0.125+0.75} & $\frac{0.75}{0.125+0.75} \\
+    \end{tabular}=\begin{tabular}{|cc|}
+    0.14286 & 0.85714 \\
+    \end{tabular}
+\f]
+\f[
+    FT=\begin{tabular}{|cc|}
+    $\frac{0.125}{0.875} & $\frac{0.75}{0.875} \\
+    \end{tabular}.\begin{tabular}{|c|}
+    4 \\
+    100 \\
+    \end{tabular}
+    =\begin{tabular}{|c|}
+    86.28571\\
+    \end{tabular}
+\f]
+
+As we can see here the maximum principle is respected.This nature of field is particulary recommended to interpolate an intensive
+field such as \b temperature or \b pression.
+
+\subsection TableNatureOfFieldExampleIntegral Integral case
+
+If we apply the formula \ref TableNatureOfField "above" it leads to the following \f$ M_{Integral} \f$ matrix :
+
+\f[
+    M_{Integral}=\begin{tabular}{|cc|}
+    $\frac{0.125}{9} & $\frac{0.75}{3} \\
+    \end{tabular}=\begin{tabular}{|cc|}
+    0.013888 & 0.25 \\
+    \end{tabular}
+\f]
+\f[
+    FT=\begin{tabular}{|cc|}
+    $\frac{0.125}{9} & $\frac{0.75}{3} \\
+    \end{tabular}.\begin{tabular}{|c|}
+    4 \\
+    100 \\
+    \end{tabular}
+    =\begin{tabular}{|c|}
+    25.055\\
+    \end{tabular}
+\f]
+
+This type of interpolation is typically recommended for the interpolation of \b power (\b NOT \b power \b density !) for
+a user who wants to conserve the quantity \b only on the intersecting part of the source mesh (the green part on the \ref TableNatureOfFieldEx1 "example")
+
+This type of interpolation is equivalent to the computation of \f$ FS_{vol} \f$ followed by a multiplication by \f$ M1 \f$ where \f$ FS_{vol} \f$ is given by :
+
+\f[
+   FS_{vol}=\begin{tabular}{|c|}
+    $\frac{4}{9} \\
+    $\frac{100}{3} \\
+    \end{tabular}
+\f]
+
+In the particular case treated \ref TableNatureOfFieldEx1 "here", it means that only a power of 25.055 W is intercepted by the target cell !
+
+So from the 104 W of the source field \f$ FS \f$, only 25.055 W are transmited in the target field using this nature of field.
+In order to treat differently a power field, another policy, \ref TableNatureOfFieldExampleIntegralGlobConstraint "integral global constraint nature" is available. 
+
+\subsection TableNatureOfFieldExampleIntegralGlobConstraint Integral with global constraints case
+
+If we apply the formula \ref TableNatureOfField "above" it leads to the following \f$ M_{IntegralGlobConstraint} \f$ matrix :
+
+\f[
+    M_{IntegralGlobConstraint}=\begin{tabular}{|cc|}
+    $\frac{0.125}{0.125} & $\frac{0.75}{0.75} \\
+    \end{tabular}=\begin{tabular}{|cc|}
+    1 & 1 \\
+    \end{tabular}
+\f]
+\f[
+    FT=\begin{tabular}{|cc|}
+    1 & 1 \\
+    \end{tabular}.\begin{tabular}{|c|}
+    4 \\
+    100 \\
+    \end{tabular}
+    =\begin{tabular}{|c|}
+    104\\
+    \end{tabular}
+\f]
+
+This type of interpolation is typically recommended for the interpolation of \b power (\b NOT \b power \b density !) for
+a user who wants to \b conserve \b all \b the \b power in its source field. Here we have 104 W in source field, we have 104 W too,
+in the output target interpolated field.
+
+\b BUT, As we can see here, the maximum principle is \b not respected here, because the target cell #0 has a value higher than the two
+intercepted source cells.
+
+\subsection TableNatureOfFieldExampleRevIntegral Reverse integral case
+
+If we apply the formula \ref TableNatureOfField "above" it leads to the following \f$ M_{RevIntegral} \f$ matrix :
+
+\f[
+    M_{RevIntegral}=\begin{tabular}{|cc|}
+    $\frac{0.125}{1.5} & $\frac{0.75}{1.5} \\
+    \end{tabular}=\begin{tabular}{|cc|}
+    0.083333 & 0.5 \\
+    \end{tabular}
+\f]
+\f[
+    FT=\begin{tabular}{|cc|}
+    $\frac{0.125}{1.5} & $\frac{0.75}{1.5} \\
+    \end{tabular}.\begin{tabular}{|c|}
+    4 \\
+    100 \\
+    \end{tabular}
+    =\begin{tabular}{|c|}
+    50.333\\
+    \end{tabular}
+\f]
+
+This type of nature is particulary recommended to interpolate an intensive \b density
+field (moderator density, power density).
+The difference with \ref TableNatureOfFieldExampleConservVol "conservative volumic" seen above is that here the
+target field is homogeneized to the \b whole target cell. It explains why this nature of field does not follow the maximum principle.
+
+To illustrate the case, let's consider that \f$ FS \f$ is a power density field in \f$ W/m^2 \f$.
+With this nature of field the target cell #0 cumulates 0.125*4=0.5 W of power from the source cell #0 and 0.75*100=75 W of power from the source cell #1.
+It leads to 75.5 W of power on the \b whole target cell #0. So, the final power density is equal to 75.5/1.5=50.333 W/m^2.
 
 */
 

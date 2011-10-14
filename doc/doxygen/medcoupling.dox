@@ -570,7 +570,7 @@ It has five possible values:
 -      "IntegralGlobConstraint", for extensive fields with conservativity favored over the maximum principle
 -      "RevIntegral", for intensive field with the maximum principle favored over conservativity
 
-By an intensive field we mean a field that represent volumetric or intensive physical variable such as density (\f$kg.m^{-3}\f$), temperature (\f$\circ K\f$) or pressure (\f$Pa\f$).
+By an intensive field we mean a field that represent volumetric or intensive physical variable such as density (\f$kg.m^{-3}\f$), power density (\f$W.m^{-3}\f$), temperature (\f$K\f$) or pressure (\f$Pa\f$).
 By extensive (or integral) field we mean a field that represents an extensive physical quantity sych as mass (\f$kg\f$), volume (\f$m^3\f$), a momentum (\f$kg.m.s^{-1}\f$) or power \f$(W\f$).
 For fields with a P0 representation, conservativity formulas are different depending on whether the field is extensive or intensive (see \ref InterpKerP0P0Int and \ref InterpKerP0P0Ext).
 In some cases such a non \ref MeshOverlap "overlapping meshes", it is impossible to fulfill both conservation and maximum principle during the interpolation. The nature of the fields determines the formula to be used for non overlapped cells and thus the property that we will be satisfied.
