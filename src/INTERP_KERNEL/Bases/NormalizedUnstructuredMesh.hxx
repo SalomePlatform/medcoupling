@@ -39,6 +39,7 @@ namespace INTERP_KERNEL
       NORM_POLYGON =  5,
       NORM_TRI6    =  6,
       NORM_QUAD8   =  8,
+      NORM_QPOLYG  =  32,
       //
       NORM_TETRA4  = 14,
       NORM_PYRA5   = 15,
@@ -51,7 +52,7 @@ namespace INTERP_KERNEL
       NORM_HEXA20  = 30,
       NORM_POLYHED = 31,
       NORM_ERROR   = 40,
-      NORM_MAXTYPE = 31 // = NORM_POLYHED
+      NORM_MAXTYPE = 32
     } NormalizedCellType;
 
   class GenericMesh

@@ -55,9 +55,11 @@ namespace INTERP_KERNEL
     void getBarycenter(double *bary) const;
     void getBarycenterGeneral(double *bary) const;
     double normalize(ComposedEdge *other, double& xBary, double& yBary);
+    double normalizeExt(ComposedEdge *other, double& xBary, double& yBary);
     void fillBounds(Bounds& output) const;
     void applySimilarity(double xBary, double yBary, double dimChar);
     void applyGlobalSimilarity(double xBary, double yBary, double dimChar);
+    void applyGlobalSimilarity2(ComposedEdge *other, double xBary, double yBary, double dimChar);
     void dispatchPerimeter(double& partConsidered) const;
     void dispatchPerimeterExcl(double& partConsidered, double& commonPart) const;
     double dispatchPerimeterAdv(const ComposedEdge& father, std::vector<double>& result) const;

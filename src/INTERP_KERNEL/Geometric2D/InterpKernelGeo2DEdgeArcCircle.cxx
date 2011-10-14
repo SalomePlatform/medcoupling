@@ -21,6 +21,7 @@
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DNode.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 
 #include <sstream>
 #include <algorithm>
@@ -692,4 +693,44 @@ void EdgeArcCircle::updateBounds()
     _bounds[1]=_center[0]+_radius;
   if(isIn2Pi(_angle0,_angle,M_PI))
     _bounds[0]=_center[0]-_radius;
+}
+
+void EdgeArcCircle::fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                      std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+{
+  int tmp[2];
+  _start->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp);
+  _end->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp+1);
+  if(direction)
+    {
+      edgesThis.push_back(tmp[0]);
+      edgesThis.push_back(tmp[1]);
+    }
+  else
+    {
+      edgesThis.push_back(tmp[1]);
+      edgesThis.push_back(tmp[0]);
+    }
+}
+
+void EdgeArcCircle::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                       std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+{
+  _start->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
+  _end->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
+}
+
+void EdgeArcCircle::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis)
+{
+  Bounds b;
+  b.prepareForAggregation();
+  b.aggregate(getBounds());
+  double xBary,yBary;
+  double dimChar=b.getCaracteristicDim();
+  b.getBarycenter(xBary,yBary);
+  applySimilarity(xBary,yBary,dimChar);
+  for(std::vector<Node *>::const_iterator iter=addNodes.begin();iter!=addNodes.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
+  _start->applySimilarity(xBary,yBary,dimChar);
+  _end->applySimilarity(xBary,yBary,dimChar);
 }

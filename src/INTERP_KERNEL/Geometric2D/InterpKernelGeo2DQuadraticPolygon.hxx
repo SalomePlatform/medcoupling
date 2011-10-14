@@ -54,6 +54,12 @@ namespace INTERP_KERNEL
     double intersectWithAbs1D(QuadraticPolygon& other, bool& isColinear);
     //! Before intersecting as intersectWith a normalization is done.
     double intersectWithAbs(QuadraticPolygon& other, double* barycenter);
+    void splitAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, const std::vector<int>& otherEdgeIds,
+                  std::vector<int>& edgesThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo);
+    void buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
+    void appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, std::vector<int>& conn, std::vector<int>& connI);
+    void buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
+
     double intersectWith(const QuadraticPolygon& other) const;
     double intersectWith(const QuadraticPolygon& other, double* barycenter) const;
     std::vector<QuadraticPolygon *> intersectMySelfWith(const QuadraticPolygon& other) const;

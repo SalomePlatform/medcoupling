@@ -50,6 +50,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool isSimplex() const { return _is_simplex; }
     //! sonId is in C format.
     INTERPKERNEL_EXPORT const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
+    INTERPKERNEL_EXPORT bool getOrientationStatus(unsigned lgth, const int *conn1, const int *conn2) const;
     INTERPKERNEL_EXPORT unsigned getNumberOfNodes() const { return _nb_of_pts; }
     INTERPKERNEL_EXPORT unsigned getNumberOfSons() const { return _nb_of_sons; }
     INTERPKERNEL_EXPORT unsigned getNumberOfSons2(const int *conn, int lgth) const;

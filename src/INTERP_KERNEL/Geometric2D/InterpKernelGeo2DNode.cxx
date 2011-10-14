@@ -130,3 +130,54 @@ void Node::applySimilarity(double xBary, double yBary, double dimChar)
   _coords[0]=(_coords[0]-xBary)/dimChar;
   _coords[1]=(_coords[1]-yBary)/dimChar;
 }
+
+/*!
+ * Called by QuadraticPolygon::splitAbs method.
+ */
+void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                             std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo, int *nodeId) const
+{
+  std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapThis.find(const_cast<Node *>(this));
+  if(it!=mapThis.end())
+    {
+      *nodeId=(*it).second;
+      return;
+    }
+  it=mapOther.find(const_cast<Node *>(this));
+  if(it!=mapOther.end())
+    {
+      *nodeId=(*it).second+offset1;
+      return;
+    }
+  it=mapAddCoo.find(const_cast<Node *>(this));
+  if(it!=mapAddCoo.end())
+    {
+      *nodeId=(*it).second;
+      return;
+    }
+  int id=addCoo.size()/2;
+  addCoo.push_back(fact*_coords[0]+baryX);
+  addCoo.push_back(fact*_coords[0]+baryX);
+  mapAddCoo[const_cast<Node *>(this)]=offset2+id;
+}
+
+/*!
+ * Called by QuadraticPolygon::splitAbs method.
+ */
+void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                              std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo, std::vector<int>& pointsOther) const
+{
+  int tmp;
+  std::size_t sz1=addCoo.size();
+  fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,&tmp);
+  if(sz1!=addCoo.size())
+    {
+      pointsOther.push_back(tmp);
+      return ;
+    }
+  std::vector<int>::const_iterator it=std::find(pointsOther.begin(),pointsOther.end(),tmp);
+  if(it!=pointsOther.end())
+    return ;
+  if(tmp<offset1)
+    pointsOther.push_back(tmp);
+}

@@ -60,7 +60,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
       for(int i=1;i<lgth;i++)
         if(std::find(tmp,tmp+newPos,conn[i])==tmp+newPos)
           tmp[newPos++]=conn[i];
-      INTERP_KERNEL::NormalizedCellType ret=tryToUnPoly2D(tmp,newPos,retConn,retLgth);
+      INTERP_KERNEL::NormalizedCellType ret=tryToUnPoly2D(cm.isQuadratic(),tmp,newPos,retConn,retLgth);
       delete [] tmp;
       return ret;
     }
@@ -80,18 +80,33 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
  * This static method tries to unpolygonize a cell whose connectivity is given by 'conn' and 'lgth'.
  * Contrary to INTERP_KERNEL::CellSimplify::simplifyDegeneratedCell method 'conn' and 'retConn' do not overlap. 
  */
-INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly2D(const int *conn, int lgth, int *retConn, int& retLgth)
+INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly2D(bool isQuad, const int *conn, int lgth, int *retConn, int& retLgth)
 {
   retLgth=lgth;
   std::copy(conn,conn+lgth,retConn);
-  switch(lgth)
+  if(!isQuad)
     {
-    case 3:
-      return INTERP_KERNEL::NORM_TRI3;
-    case 4:
-      return INTERP_KERNEL::NORM_QUAD4;
-    default:
-      return INTERP_KERNEL::NORM_POLYGON;
+      switch(lgth)
+        {
+        case 3:
+          return INTERP_KERNEL::NORM_TRI3;
+        case 4:
+          return INTERP_KERNEL::NORM_QUAD4;
+        default:
+          return INTERP_KERNEL::NORM_POLYGON;
+        }
+    }
+  else
+    {
+      switch(lgth)
+        {
+          case 6:
+            return INTERP_KERNEL::NORM_TRI6;
+          case 8:
+            return INTERP_KERNEL::NORM_QUAD8;
+          default:
+            return INTERP_KERNEL::NORM_QPOLYG;
+        }
     }
 }
 
@@ -126,7 +141,7 @@ int *CellSimplify::getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, co
           continue;
         }
       int tmp3;
-      faces.push_back(tryToUnPoly2D(tmp2,newPos,work,tmp3));
+      faces.push_back(tryToUnPoly2D(CellModel::GetCellModel(type).isQuadratic(),tmp2,newPos,work,tmp3));
       delete [] tmp2;
       //
       work+=newPos;

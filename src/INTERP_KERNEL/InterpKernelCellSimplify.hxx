@@ -33,7 +33,7 @@ namespace INTERP_KERNEL
                                                                      int *retConn, int& retLgth) throw(INTERP_KERNEL::Exception);
     static int *getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, const int *conn, int lgth,
                                    int& retNbOfFaces, int& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(const int *conn, int lgth, int *retConn, int& retLgth);
+    static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(bool isQuad, const int *conn, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPoly3D(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPolyHex8(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);
     static INTERP_KERNEL::NormalizedCellType tryToUnPolyHexp12(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth);

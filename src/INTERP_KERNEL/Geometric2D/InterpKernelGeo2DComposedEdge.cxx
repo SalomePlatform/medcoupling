@@ -222,6 +222,18 @@ double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary
   return dimChar;
 }
 
+double ComposedEdge::normalizeExt(ComposedEdge *other, double& xBary, double& yBary)
+{
+  Bounds b;
+  b.prepareForAggregation();
+  fillBounds(b); 
+  other->fillBounds(b);
+  double dimChar=b.getCaracteristicDim();
+  b.getBarycenter(xBary,yBary);
+  applyGlobalSimilarity2(other,xBary,yBary,dimChar);
+  return dimChar;
+}
+
 void ComposedEdge::dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const
 {
   stream.precision(10);
@@ -271,6 +283,26 @@ void ComposedEdge::applyGlobalSimilarity(double xBary, double yBary, double dimC
 {
   std::set<Node *> allNodes;
   getAllNodes(allNodes);
+  for(std::set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
+  for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
+}
+
+/*!
+ * Perform Similarity transformation on all elements of this Nodes and Edges on 'this' and 'other'.
+ * Nodes can be shared between 'this' and 'other'.
+ */
+void ComposedEdge::applyGlobalSimilarity2(ComposedEdge *other, double xBary, double yBary, double dimChar)
+{
+  std::set<Node *> allNodes;
+  getAllNodes(allNodes);
+  std::set<Node *> allNodes2;
+  other->getAllNodes(allNodes2);
+  for(std::set<Node *>::const_iterator it=allNodes2.begin();it!=allNodes2.end();it++)
+    if(allNodes.find(*it)!=allNodes.end())
+      (*it)->declareOn();
+  allNodes.insert(allNodes2.begin(),allNodes2.end());
   for(std::set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
     (*iter)->applySimilarity(xBary,yBary,dimChar);
   for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
@@ -360,7 +392,7 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
       if(val)
         {
           Edge *e=val->getPtr();
-          std::auto_ptr<EdgeIntersector> intersc(Edge::buildIntersectorWith(e1,e));
+          std::auto_ptr<EdgeIntersector> intersc(Edge::BuildIntersectorWith(e1,e));
           bool obviousNoIntersection,areOverlapped;
           intersc->areOverlappedOrOnlyColinears(0,obviousNoIntersection,areOverlapped);
           if(obviousNoIntersection)

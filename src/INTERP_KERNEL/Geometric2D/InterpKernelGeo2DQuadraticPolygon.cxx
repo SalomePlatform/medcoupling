@@ -49,7 +49,7 @@ QuadraticPolygon::QuadraticPolygon(const char *file)
       while(strcmp(currentLine,"1200 2")!=0);
       do
         {
-          Edge *newEdge=Edge::buildFromXfigLine(stream);
+          Edge *newEdge=Edge::BuildFromXfigLine(stream);
           if(!empty())
             newEdge->changeStartNodeWith(back()->getEndNode());
           pushBack(newEdge);
@@ -205,6 +205,149 @@ double QuadraticPolygon::intersectWithAbs(QuadraticPolygon& other)
       delete *iter;
     }
   return ret*fact*fact;
+}
+
+/*!
+ * This method splits 'this' with 'other' into smaller pieces localizable. 'mapThis' is a map that gives the correspondance between nodes contained in 'this' and node ids in a global mesh.
+ * In the same way, 'mapOther' gives the correspondance between nodes contained in 'other' and node ids in a global mesh from wich 'other' is extracted.
+ * This method has 1 out paramater : 'edgesThis', After the call of this method contains nodal connectivity (including type) of 'this' into globlal "this mesh".
+ * This method has 2 in/out parameters : 'subDivOther' and 'addCoo'.'otherEdgeIds' is useful to put values in 'edgesThis', 'subDivOther' and 'addCoo'.
+ * Size of 'otherEdgeIds' has to be equal to number of ElementaryEdges in 'other'. No check of that will be done.
+ * @param offset1 is the number of nodes contained in global mesh from which 'this' is extracted.
+ * @param offset2 is the sum of nodes contained in global mesh from which 'this' is extracted and 'other' is extracted.
+ * @otherEdgeIds is a vector with the same size than other before calling this method. It gives in the same order the cell id in global other mesh.
+ */
+void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2 , const std::vector<int>& otherEdgeIds,
+                                std::vector<int>& edgesThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo)
+{
+  double xBaryBB, yBaryBB;
+  double fact=normalize(&other, xBaryBB, yBaryBB);
+  //
+  IteratorOnComposedEdge it1(this),it3(&other);
+  MergePoints merge;
+  ComposedEdge *c1=new ComposedEdge;
+  ComposedEdge *c2=new ComposedEdge;
+  int i=0;
+  std::map<INTERP_KERNEL::Node *,int> mapAddCoo;
+  for(it3.first();!it3.finished();it3.next(),i++)
+    {
+      QuadraticPolygon otherTmp;
+      ElementaryEdge* curE3=it3.current();
+      otherTmp.pushBack(new ElementaryEdge(curE3->getPtr(),curE3->getDirection())); curE3->getPtr()->incrRef();
+      IteratorOnComposedEdge it2(&otherTmp);
+      for(it2.first();it2.finished();it2.next())
+        {
+          ElementaryEdge* curE2=it2.current();
+          if(!curE2->isThereStartPoint())
+            it1.first();
+          else
+            it1=curE2->getIterator();
+          for(;!it1.finished();)
+            { 
+              ElementaryEdge* curE1=it1.current();
+              merge.clear();
+              if(curE1->getPtr()->intersectWith(curE2->getPtr(),merge,*c1,*c2))
+                {
+                  if(!curE1->getDirection()) c1->reverse();
+                  if(!curE2->getDirection()) c2->reverse();
+                  updateNeighbours(merge,it1,it2,c1,c2);
+                  //Substitution of simple edge by sub-edges.
+                  delete curE1; // <-- destroying simple edge coming from pol1
+                  delete curE2; // <-- destroying simple edge coming from pol2
+                  it1.insertElemEdges(c1,true);// <-- 2nd param is true to go next.
+                  it2.insertElemEdges(c2,false);// <-- 2nd param is false to avoid to go next.
+                  curE2=it2.current();
+                  //
+                  it1.assignMySelfToAllElems(c2);//To avoid that others
+                  SoftDelete(c1);
+                  SoftDelete(c2);
+                  c1=new ComposedEdge;
+                  c2=new ComposedEdge;
+                }
+              else
+                {
+                  updateNeighbours(merge,it1,it2,curE1,curE2);
+                  it1.next();
+                }
+            }
+        }
+      if(otherTmp._sub_edges.size()>1)
+        {
+          for(std::list<ElementaryEdge *>::const_iterator it=otherTmp._sub_edges.begin();it!=otherTmp._sub_edges.end();it++)
+            (*it)->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,/**/fact,xBaryBB,yBaryBB,/**/subDivOther[otherEdgeIds[i]],addCoo,mapAddCoo);
+        }
+    }
+  Delete(c1);
+  Delete(c2);
+  //
+  for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++)
+    (*it)->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,/**/fact,xBaryBB,yBaryBB,/**/edgesThis,addCoo,mapAddCoo);
+  //
+}
+
+/*!
+ * This method builds from descending conn of a quadratic polygon stored in crude mode (MEDCoupling). Descending conn is in FORTRAN relative mode in order to give the
+ * orientation of edge.
+ */
+void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
+{
+  int nbOfSeg=std::distance(descBg,descEnd);
+  for(int i=0;i<nbOfSeg;i++)
+    {
+      bool direct=descBg[i]>0;
+      int edgeId=abs(descBg[i])-1;
+      const std::vector<int>& subEdge=intersectEdges[edgeId];
+      int nbOfSubEdges=subEdge.size()-1;
+      for(int j=0;j<nbOfSubEdges;j++)
+        {
+          Node *start=(*mapp.find(direct?subEdge[j]:subEdge[nbOfSubEdges-j])).second;
+          Node *end=(*mapp.find(direct?subEdge[j+1]:subEdge[nbOfSubEdges-j-1])).second;
+          ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,direct,start,end);
+          pushBack(e);
+        }
+    }
+}
+
+void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, std::vector<int>& conn, std::vector<int>& connI)
+{
+  int nbOfNodesInPg=0,i=0;
+  for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++,i++)
+    {
+      Node *tmp=0;
+      if(i==0)
+        {
+          tmp=(*it)->getStartNode();
+          std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapp.find(tmp);
+          conn.push_back((*it).second);
+          nbOfNodesInPg++;
+        }
+      tmp=(*it)->getEndNode();
+      std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapp.find(tmp);
+      conn.push_back((*it).second);
+      nbOfNodesInPg++;
+    }
+  connI.push_back(connI.back()+nbOfNodesInPg);
+}
+
+/*!
+ * This method make the hypothesis that 'this' and 'other' are splited at the minimum into edges that are fully IN, OUT or ON.
+ * This method returns newly created polygons in 'conn' and 'connI' and the corresponding ids ('idThis','idOther') are stored respectively into 'nbThis' and 'nbOther'.
+ */
+void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nbThis, std::vector<int>& nbOther)
+{
+  double xBaryBB, yBaryBB;
+  normalizeExt(&other, xBaryBB, yBaryBB);
+  //Locate 'this' relative to 'other'
+  other.performLocatingOperation(*this);
+  dumpInXfigFileWithOther(other,"tony.fig");
+  std::vector<QuadraticPolygon *> res=other.buildIntersectionPolygons(*this,other);
+  for(std::vector<QuadraticPolygon *>::iterator it=res.begin();it!=res.end();it++)
+    {
+      (*it)->appendCrudeData(mapp,conn,connI);
+      nbThis.push_back(idThis);
+      nbOther.push_back(idOther);
+      delete *it;
+    }
 }
 
 /*!

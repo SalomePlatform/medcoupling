@@ -541,12 +541,12 @@ void Edge::getNormalVector(double *vectOutput) const
   vectOutput[1]=-tmp;
 }
 
-Edge *Edge::buildEdgeFrom(Node *start, Node *end)
+Edge *Edge::BuildEdgeFrom(Node *start, Node *end)
 {
   return new EdgeLin(start,end);
 }
 
-Edge *Edge::buildFromXfigLine(std::istream& str)
+Edge *Edge::BuildFromXfigLine(std::istream& str)
 {
   unsigned char type;
   str >> type;
@@ -577,13 +577,13 @@ bool Edge::intersectWith(const Edge *other, MergePoints& commonNode,
     return false;
   delete merge;
   merge=0;
-  EdgeIntersector *intersector=buildIntersectorWith(this,other);
-  ret=intersect(this,other,intersector,merge,commonNode,outVal1,outVal2);
+  EdgeIntersector *intersector=BuildIntersectorWith(this,other);
+  ret=Intersect(this,other,intersector,merge,commonNode,outVal1,outVal2);
   delete intersector;
   return ret;
 }
 
-bool Edge::intersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
+bool Edge::IntersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
                                ComposedEdge& outValForF1, ComposedEdge& outValForF2)
 {
   bool rev=intersector->haveTheySameDirection();
@@ -591,14 +591,14 @@ bool Edge::intersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *
   Node *f2End=f2->getNode(rev?END:START);
   TypeOfLocInEdge place1, place2;
   intersector->getPlacements(f2Start,f2End,place1,place2,commonNode);
-  int codeForIntersectionCase=combineCodes(place1,place2);
-  return splitOverlappedEdges(f1,f2,f2Start,f2End,rev,codeForIntersectionCase,outValForF1,outValForF2);
+  int codeForIntersectionCase=CombineCodes(place1,place2);
+  return SplitOverlappedEdges(f1,f2,f2Start,f2End,rev,codeForIntersectionCase,outValForF1,outValForF2);
 }
 
 /*!
  * Perform 1D linear interpolation. Warning distrib1 and distrib2 are expected to be in ascending mode.
  */
-void Edge::interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2, std::map<int, std::map<int,double> >& result)
+void Edge::Interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2, std::map<int, std::map<int,double> >& result)
 {
   int nbOfV1=distrib1.size()-1;
   int nbOfV2=distrib2.size()-1;
@@ -622,7 +622,7 @@ void Edge::interpolate1DLin(const std::vector<double>& distrib1, const std::vect
                   SegSegIntersector inters(*e1,*e2);
                   bool b1,b2;
                   inters.areOverlappedOrOnlyColinears(0,b1,b2);
-                  if(intersectOverlapped(e1,e2,&inters,commonNode,*f1,*f2))
+                  if(IntersectOverlapped(e1,e2,&inters,commonNode,*f1,*f2))
                     {
                       result[i][j]=f1->getCommonLengthWith(*f2)/e1->getCurveLength();
                     }
@@ -635,7 +635,7 @@ void Edge::interpolate1DLin(const std::vector<double>& distrib1, const std::vect
   n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef();
 }
 
-EdgeIntersector *Edge::buildIntersectorWith(const Edge *e1, const Edge *e2)
+EdgeIntersector *Edge::BuildIntersectorWith(const Edge *e1, const Edge *e2)
 {
   EdgeIntersector *ret=0;
   const EdgeLin *tmp1=0;
@@ -671,14 +671,14 @@ void Edge::applySimilarity(double xBary, double yBary, double dimChar)
   _bounds.applySimilarity(xBary,yBary,dimChar);
 }
 
-bool Edge::intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
+bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
                      ComposedEdge& outValForF1, ComposedEdge& outValForF2)
 {
   bool obviousNoIntersection;
   bool areOverlapped;
   intersector->areOverlappedOrOnlyColinears(whereToFind,obviousNoIntersection,areOverlapped);
   if(areOverlapped)
-    return intersectOverlapped(f1,f2,intersector,commonNode,outValForF1,outValForF2);
+    return IntersectOverlapped(f1,f2,intersector,commonNode,outValForF1,outValForF2);
   if(obviousNoIntersection)
     return false;
   std::vector<Node *> newNodes;
@@ -712,7 +712,7 @@ bool Edge::intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersecto
     return false;
 }
 
-int Edge::combineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2)
+int Edge::CombineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2)
 {
   int ret=(int)code1;
   ret*=OFFSET_FOR_TYPEOFLOCINEDGE;
@@ -729,7 +729,7 @@ int Edge::combineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2)
  * @param direction is param that specifies if e2 and e1 have same directions (true) or opposed (false).
  * @param code is the code returned by method Edge::combineCodes.
  */
-bool Edge::splitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
+bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
                                 ComposedEdge& outVal1, ComposedEdge& outVal2)
 {
   Edge *tmp;

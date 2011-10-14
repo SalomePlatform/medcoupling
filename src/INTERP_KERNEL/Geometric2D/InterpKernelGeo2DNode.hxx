@@ -23,6 +23,7 @@
 #include "InterpKernelGeo2DPrecision.hxx"
 #include "INTERPKERNELGEOMETRIC2DDefines.hxx"
 
+#include <map>
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -83,6 +84,11 @@ namespace INTERP_KERNEL
     static bool areDoubleEqualsWP(double a, double b, double k) { return fabs(a-b) < k*QUADRATIC_PLANAR::_precision; }
     static double distanceBtw2Pt(const double *a, const double *b) { return sqrt((a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1])); }
     static double distanceBtw2PtSq(const double *a, const double *b) { return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]); }
+    //
+    void fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                           std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo, int *nodeId) const;
+    void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                            std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo, std::vector<int>& pointsOther) const;
   protected:
     ~Node();
   protected:

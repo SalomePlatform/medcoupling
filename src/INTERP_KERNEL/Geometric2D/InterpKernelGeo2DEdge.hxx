@@ -219,11 +219,11 @@ namespace INTERP_KERNEL
     bool changeEndNodeWithAndKeepTrack(Node *otherEndNode, std::vector<Node *>& track) const;
     void addSubEdgeInVector(Node *start, Node *end, ComposedEdge& vec) const;
     void getNormalVector(double *vectOutput) const;
-    static EdgeIntersector *buildIntersectorWith(const Edge *e1, const Edge *e2);
-    static Edge *buildFromXfigLine(std::istream& str);
-    static Edge *buildEdgeFrom(Node *start, Node *end);
+    static EdgeIntersector *BuildIntersectorWith(const Edge *e1, const Edge *e2);
+    static Edge *BuildFromXfigLine(std::istream& str);
+    static Edge *BuildEdgeFrom(Node *start, Node *end);
     template<TypeOfMod4QuadEdge type>
-    static Edge *buildEdgeFrom(Node *start, Node *middle, Node *end);
+    static Edge *BuildEdgeFrom(Node *start, Node *middle, Node *end);
     virtual void update(Node *m) = 0;
     //! returns area between this and axe Ox delimited along Ox by _start and _end.
     virtual double getAreaOfZone() const = 0;
@@ -250,20 +250,26 @@ namespace INTERP_KERNEL
                                  const EdgeArcCircle * &arcSeg) const = 0;
     bool intersectWith(const Edge *other, MergePoints& commonNode,
                        ComposedEdge& outVal1, ComposedEdge& outVal2) const;
-    static bool intersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
+    static bool IntersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
                                     ComposedEdge& outValForF1, ComposedEdge& outValForF2);
-    static void interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2,
+    static void Interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2,
                                  std::map<int, std::map<int,double> >& result);
     virtual void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const = 0;
     bool isEqual(const Edge& other) const;
+  public:
+    virtual void fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                   std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const = 0;
+    virtual void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                    std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const = 0;
+    virtual void sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis) = 0; 
   protected:
     Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0) { }
     virtual ~Edge();
-    static int combineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2);
-    static bool intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
+    static int CombineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2);
+    static bool Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
                           ComposedEdge& outValForF1, ComposedEdge& outValForF2);
     //! The code 'code' is built by method combineCodes
-    static bool splitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
+    static bool SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
                                      ComposedEdge& outVal1, ComposedEdge& outVal2);
     virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const = 0;
   protected:

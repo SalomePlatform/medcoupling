@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <sstream>
+#include <vector>
 #include <limits>
 
 namespace INTERP_KERNEL
@@ -33,7 +34,7 @@ namespace INTERP_KERNEL
                                             "NORM_PYRA5", "NORM_PENTA6", "", "NORM_HEXA8", "",//15->19
                                             "NORM_TETRA10", "", "NORM_HEXGP12", "NORM_PYRA13", "",//20->24
                                             "NORM_PENTA15", "", "", "", "",//25->29
-                                            "NORM_HEXA20", "NORM_POLYHED", "", "", "",//30->34
+                                            "NORM_HEXA20", "NORM_POLYHED", "NORM_QPOLYG", "", "",//30->34
                                             "", "", "", "", "",//35->39
                                             "NORM_ERROR"};
 
@@ -96,6 +97,7 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(std::make_pair(NORM_HEXA20,CellModel(NORM_HEXA20)));
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYGON,CellModel(NORM_POLYGON)));
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_QPOLYG,CellModel(NORM_QPOLYG)));
   }
 
   CellModel::CellModel(NormalizedCellType type):_type(type)
@@ -274,6 +276,11 @@ namespace INTERP_KERNEL
           _nb_of_pts=0; _nb_of_sons=0; _dim=3; _dyn=true; _is_simplex=false;
         }
         break;
+      case NORM_QPOLYG:
+        {
+          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _is_simplex=false;
+        }
+        break;
       case NORM_ERROR:
         {
           _nb_of_pts=std::numeric_limits<unsigned>::max(); _nb_of_sons=std::numeric_limits<unsigned>::max(); _dim=std::numeric_limits<unsigned>::max();
@@ -289,8 +296,13 @@ namespace INTERP_KERNEL
   {
     if(!isDynamic())
       return getNumberOfSons();
-    if(_dim==2)//polygon
-      return lgth;
+    if(_dim==2)
+      {
+        if(_type==NORM_POLYGON)
+          return lgth;
+        else
+          return lgth/2;
+      }
     else
       return std::count(conn,conn+lgth,-1)+1;
   }
@@ -302,8 +314,13 @@ namespace INTERP_KERNEL
   {
     if(!isDynamic())
       return getSonType(sonId);
-    if(_dim==2)//polygon
-      return NORM_SEG2;
+    if(_dim==2)
+      {
+        if(_type==NORM_POLYGON)
+          return NORM_SEG2;
+        else
+          return NORM_SEG3;
+      }
     //polyedron
     return NORM_POLYGON;
   }
@@ -329,9 +346,19 @@ namespace INTERP_KERNEL
       {
         if(_dim==2)//polygon
           {
-            sonNodalConn[0]=nodalConn[sonId];
-            sonNodalConn[1]=nodalConn[(sonId+1)%lgth];
-            return 2;
+            if(_type==NORM_POLYGON)
+              {
+                sonNodalConn[0]=nodalConn[sonId];
+                sonNodalConn[1]=nodalConn[(sonId+1)%lgth];
+                return 2;
+              }
+            else
+              {
+                sonNodalConn[0]=nodalConn[sonId];
+                sonNodalConn[1]=nodalConn[(sonId+1)%lgth];
+                sonNodalConn[2]=nodalConn[sonId+lgth];
+                return 3;
+              }
           }
         else
           {//polyedron
@@ -361,7 +388,10 @@ namespace INTERP_KERNEL
 
     if(_dim==2)//polygon
       {
-        return 2;
+        if(_type==NORM_POLYGON)
+          return 2;
+        else
+          return 3;
       }
     else
       {//polyedron
@@ -373,6 +403,65 @@ namespace INTERP_KERNEL
           }
         const int *where2=std::find(where,nodalConn+lgth,-1);
         return where2-where;
+      }
+  }
+
+  /*!
+   * This method retrieves if cell1 represented by 'conn1' and cell2 represented by 'conn2'
+   * are equivalent by a permutation or not. This method expects to work on 1D or 2D (only mesh dimension where it is possible to have a spaceDim) strictly higher than meshDim.
+   * If not an exception will be thrown.
+   * @return True if two cells have same orientation, false if not.
+   */
+  bool CellModel::getOrientationStatus(unsigned lgth, const int *conn1, const int *conn2) const
+  {
+    if(_dim!=1 && _dim!=2)
+      throw INTERP_KERNEL::Exception("CellModel::getOrientationStatus : invalid dimension ! Must be 1 or 2 !");
+    if(!_quadratic)
+      {
+        std::vector<int> tmp(2*lgth);
+        std::vector<int>::iterator it=std::copy(conn1,conn1+lgth,tmp.begin());
+        std::copy(conn1,conn1+lgth,it);
+        it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+lgth);
+        return it!=tmp.end();
+      }
+    else
+      {
+        if(_dim!=1)
+          {
+            std::vector<int> tmp(lgth);
+            std::vector<int>::iterator it=std::copy(conn1,conn1+lgth/2,tmp.begin());
+            std::copy(conn1,conn1+lgth/2,it);
+            it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+lgth/2);
+            int d=std::distance(tmp.begin(),it);
+            if(it==tmp.end())
+              return false;
+            it=std::copy(conn1+lgth/2,conn1+lgth,tmp.begin());
+            std::copy(conn1+lgth/2,conn1+lgth,it);
+            it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+lgth);
+            if(it==tmp.end())
+              return false;
+            int d2=std::distance(tmp.begin(),it);
+            return d==d2;
+          }
+        else
+          {
+            int p=(lgth+1)/2;
+            std::vector<int> tmp(2*p);
+            std::vector<int>::iterator it=std::copy(conn1,conn1+p,tmp.begin());
+            std::copy(conn1,conn1+p,it);
+            it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+p);
+            int d=std::distance(tmp.begin(),it);
+            if(it==tmp.end())
+              return false;
+            tmp.resize(2*p-2);
+            it=std::copy(conn1+p,conn1+lgth,tmp.begin());
+            std::copy(conn1+p,conn1+lgth,it);
+            it=std::find_first_of(tmp.begin(),tmp.end(),conn2+p,conn2+lgth);
+            if(it==tmp.end())
+              return false;
+            int d2=std::distance(tmp.begin(),it);
+            return d==d2;
+          }
       }
   }
 

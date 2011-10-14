@@ -200,3 +200,32 @@ bool ElementaryEdge::isEqual(const ElementaryEdge& other) const
 {
   return _ptr->isEqual(*other._ptr);
 }
+
+/*!
+ * Called by QuadraticPolygon::splitAbs method.
+ */
+void ElementaryEdge::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                       std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+{
+  _ptr->fillGlobalInfoAbs(_direction,mapThis,mapOther,offset1,offset2,fact,baryX,baryY,edgesThis,addCoo,mapAddCoo);
+}
+
+/*!
+ * Called by QuadraticPolygon::splitAbs method. Close to ElementaryEdge::fillGlobalInfoAbs method expect that here edgesOther (that replace edgesThis) is here an in/out parameter that only contains nodes
+ * unsorted because the "other" mesh is not subdivided yet.
+ */
+void ElementaryEdge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                        std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+{
+  _ptr->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,edgesOther,addCoo,mapAddCoo);
+}
+
+/*!
+ * This method builds from descending conn of a quadratic polygon stored in crude mode (MEDCoupling). Descending conn is in FORTRAN relative mode in order to give the
+ * orientation of edge. Called by QuadraticPolygon::buildFromCrudeDataArray.
+ */
+ElementaryEdge *ElementaryEdge::BuildEdgeFromCrudeDataArray(bool isQuad, bool direction, INTERP_KERNEL::Node *start, INTERP_KERNEL::Node *end)
+{
+  Edge *ptr=Edge::BuildEdgeFrom(start,end);
+  return new ElementaryEdge(ptr,direction);
+}

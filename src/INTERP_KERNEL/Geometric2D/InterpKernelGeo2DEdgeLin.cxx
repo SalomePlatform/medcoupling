@@ -20,6 +20,7 @@
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelGeo2DNode.hxx"
 #include "InterpKernelException.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 
 using namespace INTERP_KERNEL;
 
@@ -291,4 +292,84 @@ double EdgeLin::getCharactValueEng(const double *node) const
   double car1_1x=node[0]-(*(_start))[0]; double car1_2x=(*(_end))[0]-(*(_start))[0];
   double car1_1y=node[1]-(*(_start))[1]; double car1_2y=(*(_end))[1]-(*(_start))[1];
   return (car1_1x*car1_2x+car1_1y*car1_2y)/(car1_2x*car1_2x+car1_2y*car1_2y);
+}
+
+void EdgeLin::fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+{
+  int tmp[2];
+  _start->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp);
+  _end->fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,tmp+1);
+  if(direction)
+    {
+      edgesThis.push_back(tmp[0]);
+      edgesThis.push_back(tmp[1]);
+    }
+  else
+    {
+      edgesThis.push_back(tmp[1]);
+      edgesThis.push_back(tmp[0]);
+    }
+}
+
+void EdgeLin::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
+                                 std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+{
+  _start->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
+  _end->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
+}
+
+inline bool eqpair(const std::pair<double,Node *>& p1, const std::pair<double,Node *>& p2)
+{
+  return fabs(p1.first-p2.first)<QUADRATIC_PLANAR::_precision;
+}
+
+void EdgeLin::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis)
+{
+  Bounds b;
+  b.prepareForAggregation();
+  b.aggregate(getBounds());
+  double xBary,yBary;
+  double dimChar=b.getCaracteristicDim();
+  b.getBarycenter(xBary,yBary);
+  for(std::vector<Node *>::const_iterator iter=addNodes.begin();iter!=addNodes.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
+  _start->applySimilarity(xBary,yBary,dimChar);
+  _end->applySimilarity(xBary,yBary,dimChar);
+  std::size_t sz=addNodes.size();
+  std::vector< std::pair<double,Node *> > an2(sz);
+  for(std::size_t i=0;i<sz;i++)
+    an2[i]=std::pair<double,Node *>(getCharactValue(*addNodes[i]),addNodes[i]);
+  std::sort(an2.begin(),an2.end());
+  int startId=(*mapp1.find(_start)).second;
+  int endId=(*mapp1.find(_end)).second;
+  std::vector<int> tmpp;
+  std::vector< std::pair<double,Node *> >::const_iterator itend=std::unique(an2.begin(),an2.end(),eqpair);
+  for(std::vector< std::pair<double,Node *> >::const_iterator it=an2.begin();it!=itend;it++)
+    {
+      int idd=(*mapp2.find((*it).second)).second;
+      if((*it).first<QUADRATIC_PLANAR::_precision)
+        {
+          startId=idd;
+          continue;
+        }
+      if((*it).first>1-QUADRATIC_PLANAR::_precision)
+        {
+          endId=idd;
+          continue;
+        }
+      tmpp.push_back(idd);
+    }
+  std::vector<int> tmpp2(tmpp.size()+2);
+  tmpp2[0]=startId;
+  std::copy(tmpp.begin(),tmpp.end(),tmpp2.begin()+1);
+  tmpp2[tmpp.size()+1]=endId;
+  std::vector<int>::iterator itt=std::unique(tmpp2.begin(),tmpp2.end());
+  tmpp2.resize(std::distance(tmpp2.begin(),itt));
+  int nbOfEdges=tmpp2.size()-1;
+  for(int i=0;i<nbOfEdges;i++)
+    {
+      edgesThis.push_back(tmpp2[i]);
+      edgesThis.push_back(tmpp2[i+1]);
+    }
 }
