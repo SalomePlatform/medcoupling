@@ -7851,6 +7851,22 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f2.setArray(bary)
         self.assertRaises(InterpKernelException,f2.copyTinyAttrFrom,f1)
         pass
+
+    def testDaDSetPartOfValuesAdv1(self):
+        tab1=[3.,4.,5., 13.,14.,15., 23.,24.,25., 33.,34.,35., 43.,44.,45., 53.,54.,55.]
+        tab2=[6.,7.,8., 16.,17.,18., 26.,27.,28.]
+        tab3=[4,1, 2,2, 3,0]
+        a=DataArrayDouble.New();
+        a.setValues(tab1,6,3);
+        b=DataArrayDouble.New();
+        b.setValues(tab2,3,3);
+        c=DataArrayInt.New();
+        c.setValues(tab3,3,2);
+        #
+        a.setPartOfValuesAdv(b,c);
+        expected1=[3.,4.,5., 13.,14.,15., 26.,27.,28., 6.,7.,8., 16.,17.,18., 53.,54.,55.]
+        self.assertEqual(expected1,a.getValues());
+        pass
     
     def setUp(self):
         pass

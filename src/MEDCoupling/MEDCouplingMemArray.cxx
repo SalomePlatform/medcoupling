@@ -955,6 +955,47 @@ void DataArrayDouble::setPartOfValuesSimple3(double a, const int *bgTuples, cons
       }
 }
 
+/*!
+ * 'this', 'a' and 'tuplesSelec' are expected to be defined. If not an exception will be thrown.
+ * @param a is an array having exactly the same number of components than 'this'
+ * @param tuplesSelec is an array having exactly 2 components. The first one refers to the tuple ids of 'this' that will be set. The second one refers to the tuple ids of 'a' that will be used for setting.
+ */
+void DataArrayDouble::setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  a->checkAllocated();
+  tuplesSelec->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setPartOfValuesAdv : This and a do not have the same number of components !");
+  if(tuplesSelec->getNumberOfComponents()!=2)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setPartOfValuesAdv : Expecting to have a tuple selector DataArrayInt instance with exactly 2 components !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  double *valsToSet=getPointer();
+  const double *valsSrc=a->getConstPointer();
+  for(const int *tuple=tuplesSelec->begin();tuple!=tuplesSelec->end();tuple+=2)
+    {
+      if(tuple[1]>=0 && tuple[1]<aNt)
+        {
+          if(tuple[0]>=0 && tuple[0]<thisNt)
+            std::copy(valsSrc+nbOfComp*tuple[1],valsSrc+nbOfComp*(tuple[1]+1),valsToSet+nbOfComp*tuple[0]);
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayDouble::setPartOfValuesAdv : Tuple #" << std::distance(tuplesSelec->begin(),tuple)/2;
+              oss << " of 'tuplesSelec' request of tuple id #" << tuple[0] << " in 'this' ! It should be in [0," << thisNt << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::setPartOfValuesAdv : Tuple #" << std::distance(tuplesSelec->begin(),tuple)/2;
+          oss << " of 'tuplesSelec' request of tuple id #" << tuple[1] << " in 'a' ! It should be in [0," << aNt << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
 void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
 {
   if(newArray!=arrayToSet)
@@ -3132,6 +3173,47 @@ void DataArrayInt::setPartOfValuesSimple3(int a, const int *bgTuples, const int 
         DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
         pt[(*w)*nbComp+j*stepComp]=a;
       }
+}
+
+/*!
+ * 'this', 'a' and 'tuplesSelec' are expected to be defined. If not an exception will be thrown.
+ * @param a is an array having exactly the same number of components than 'this'
+ * @param tuplesSelec is an array having exactly 2 components. The first one refers to the tuple ids of 'this' that will be set. The second one refers to the tuple ids of 'a' that will be used for setting.
+ */
+void DataArrayInt::setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  a->checkAllocated();
+  tuplesSelec->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayInt::setPartOfValuesAdv : This and a do not have the same number of components !");
+  if(tuplesSelec->getNumberOfComponents()!=2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::setPartOfValuesAdv : Expecting to have a tuple selector DataArrayInt instance with exactly 2 components !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  int *valsToSet=getPointer();
+  const int *valsSrc=a->getConstPointer();
+  for(const int *tuple=tuplesSelec->begin();tuple!=tuplesSelec->end();tuple+=2)
+    {
+      if(tuple[1]>=0 && tuple[1]<aNt)
+        {
+          if(tuple[0]>=0 && tuple[0]<thisNt)
+            std::copy(valsSrc+nbOfComp*tuple[1],valsSrc+nbOfComp*(tuple[1]+1),valsToSet+nbOfComp*tuple[0]);
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::setPartOfValuesAdv : Tuple #" << std::distance(tuplesSelec->begin(),tuple)/2;
+              oss << " of 'tuplesSelec' request of tuple id #" << tuple[0] << " in 'this' ! It should be in [0," << thisNt << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::setPartOfValuesAdv : Tuple #" << std::distance(tuplesSelec->begin(),tuple)/2;
+          oss << " of 'tuplesSelec' request of tuple id #" << tuple[1] << " in 'a' ! It should be in [0," << aNt << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
 }
 
 void DataArrayInt::SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)

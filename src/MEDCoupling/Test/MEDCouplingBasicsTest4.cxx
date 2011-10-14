@@ -1647,3 +1647,27 @@ void MEDCouplingBasicsTest4::testNonRegressionCopyTinyStrings()
   bary->decrRef();
   f2->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testDaDSetPartOfValuesAdv1()
+{
+  const double tab1[18]={3.,4.,5., 13.,14.,15., 23.,24.,25., 33.,34.,35., 43.,44.,45., 53.,54.,55.};
+  const double tab2[9]={6.,7.,8., 16.,17.,18., 26.,27.,28.};
+  const int tab3[6]={4,1, 2,2, 3,0};
+  DataArrayDouble *a=DataArrayDouble::New();
+  a->alloc(6,3);
+  std::copy(tab1,tab1+18,a->getPointer());
+  DataArrayDouble *b=DataArrayDouble::New();
+  b->alloc(3,3);
+  std::copy(tab2,tab2+9,b->getPointer());
+  DataArrayInt *c=DataArrayInt::New();
+  c->alloc(3,2);
+  std::copy(tab3,tab3+6,c->getPointer());
+  //
+  a->setPartOfValuesAdv(b,c);
+  const double expected1[18]={3.,4.,5., 13.,14.,15., 26.,27.,28., 6.,7.,8., 16.,17.,18., 53.,54.,55.};
+  std::equal(expected1,expected1+18,a->getConstPointer());
+  //
+  a->decrRef();
+  b->decrRef();
+  c->decrRef();
+}

@@ -78,6 +78,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFindAndCorrectBadOriented3DExtrudedCells1 );
     CPPUNIT_TEST( testConvertExtrudedPolyhedra1 );
     CPPUNIT_TEST( testNonRegressionCopyTinyStrings );
+    CPPUNIT_TEST( testDaDSetPartOfValuesAdv1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testDescriptionInMeshTimeUnit1();
@@ -124,6 +125,7 @@ namespace ParaMEDMEM
     void testFindAndCorrectBadOriented3DExtrudedCells1();
     void testConvertExtrudedPolyhedra1();
     void testNonRegressionCopyTinyStrings();
+    void testDaDSetPartOfValuesAdv1();
   };
 }
 
