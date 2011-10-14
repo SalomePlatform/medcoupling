@@ -604,7 +604,7 @@ void QuadraticPlanarInterpTest::check1DInterpLin()
       ,  0.8738 ,0.8925 ,0.9113 ,0.9300 ,0.9488 ,0.9675 ,0.9863, 1.0050};
   std::vector<double> zLev2(Z_VALS_2,Z_VALS_2+NB_OF_CELL_AXIAL_2+1);
   std::map<int,std::map<int,double> > m;
-  Edge::interpolate1DLin(zLev1,zLev2,m);
+  Edge::Interpolate1DLin(zLev1,zLev2,m);
   CPPUNIT_ASSERT_EQUAL(30,(int)m.size());
   double ret=0;
   for(int i=0;i<30;i++)
@@ -621,7 +621,7 @@ void QuadraticPlanarInterpTest::check1DInterpLin()
     0.,0.01,0.05,0.10,0.15,0.20,0.25,0.30,
     0.35,0.40,0.45,0.50,0.55,0.60 };
   std::vector<double> zLev3(Z_VALS_3,Z_VALS_3+NB_OF_CELL_AXIAL_3+1);
-  Edge::interpolate1DLin(zLev3,zLev1,m);
+  Edge::Interpolate1DLin(zLev3,zLev1,m);
   CPPUNIT_ASSERT_EQUAL(13,(int)m.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,m[0][8],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.,m[1][8],1e-12);
@@ -1660,6 +1660,25 @@ void QuadraticPlanarInterpTest::checkNormalize()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.2640792652913602,e1->getCurveLength(),1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.034741420428165526,e1->getAreaOfZone(),1e-13);
   e1->decrRef();
+}
+
+void QuadraticPlanarInterpTest::checkMakePartitionAbs1()
+{
+  INTERP_KERNEL::QUADRATIC_PLANAR::setPrecision(1e-14);
+  Node *n0=new Node(0.,0.);                Node *n4=new Node(0.5,0.25);
+  Node *n1=new Node(0.,0.5);               Node *n5=new Node(0.3,1.2);
+  Node *n2=new Node(1.,0.5);               Node *n6=new Node(1.1,1.3);
+  Node *n3=new Node(1.,0.);                Node *n7=new Node(-0.1,0.9);
+  EdgeLin *e0_1=new EdgeLin(n0,n1);
+  EdgeLin *e1_2=new EdgeLin(n1,n2);        EdgeLin *e4_5=new EdgeLin(n4,n5);
+  EdgeLin *e2_3=new EdgeLin(n2,n3);        EdgeLin *e5_6=new EdgeLin(n5,n6);
+  EdgeLin *e3_0=new EdgeLin(n3,n0);        EdgeLin *e6_4=new EdgeLin(n6,n4);
+  EdgeLin *e4_7=new EdgeLin(n4,n7);        EdgeLin *e7_5=new EdgeLin(n7,n5);
+  QuadraticPolygon pol1; pol1.pushBack(e0_1); pol1.pushBack(e1_2); pol1.pushBack(e2_3); pol1.pushBack(e3_0);
+  QuadraticPolygon pol2; pol2.pushBack(e4_5); pol2.pushBack(e5_6); pol2.pushBack(e6_4);
+  pol2.pushBack(e7_5); e4_5->incrRef(); pol2.pushBack(new ElementaryEdge(e4_5,false)); pol2.pushBack(e4_7);
+  n0->decrRef(); n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef(); n5->decrRef(); n6->decrRef(); n7->decrRef();
+  pol1.dumpInXfigFileWithOther(pol2,"tony.fig");
 }
 
 }

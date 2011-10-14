@@ -106,6 +106,7 @@ namespace INTERP_TEST
     CPPUNIT_TEST ( checkNonRegressionOmar0030 );
     //
     CPPUNIT_TEST( checkNormalize );
+    CPPUNIT_TEST( checkMakePartitionAbs1 );
     CPPUNIT_TEST_SUITE_END();
   public:  
     void setUp();
@@ -193,6 +194,7 @@ namespace INTERP_TEST
     void checkNonRegressionOmar0030();
     //
     void checkNormalize();
+    void checkMakePartitionAbs1();
   private:
     QuadraticPolygon *buildQuadraticPolygonCoarseInfo(const double *coords, const int *conn, int lgth);
     EdgeArcCircle *buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd);
