@@ -143,7 +143,8 @@ If we apply the formula \ref TableNatureOfField "above" it leads to the followin
 
 \f[
     M_{Conservative Volumic}=\left[\begin{tabular}{cc}
-    $\displaystyle\frac{0.125}{0.125+0.75}$ & $\displaystyle\frac{0.75}{0.125+0.75}$ \\
+    $\displaystyle{\frac{0.125}{0.125+0.75}}$ &
+    $\displaystyle{\frac{0.75}{0.125+0.75}}$ \\
     \end{tabular}\right]=\left[\begin{tabular}{cc}
     0.14286 & 0.85714 \\
     \end{tabular}\right]
@@ -169,14 +170,14 @@ If we apply the formula \ref TableNatureOfField "above" it leads to the followin
 
 \f[
     M_{Integral}=\left[\begin{tabular}{cc}
-    $\displaystyle\frac{0.125}{9}$ & $\displaystyle\frac{0.75}{3}$ \\
+    $\displaystyle{\frac{0.125}{9}}$ & $\displaystyle{\frac{0.75}{3}}$ \\
     \end{tabular}\right]=\left[\begin{tabular}{cc}
     0.013888 & 0.25 \\
     \end{tabular}\right]
 \f]
 \f[
     FT=\left[\begin{tabular}{cc}
-    $\displaystyle\frac{0.125}{9}$ & $\displaystyle\frac{0.75}{3}$ \\
+    $\displaystyle{\frac{0.125}{9}}$ & $\displaystyle{\frac{0.75}{3}}$ \\
     \end{tabular}\right].\left[\begin{tabular}{c}
     4 \\
     100 \\
@@ -193,8 +194,8 @@ This type of interpolation is equivalent to the computation of \f$ FS_{vol} \f$ 
 
 \f[
    FS_{vol}=\left[\begin{tabular}{c}
-    $\displaystyle\frac{4}{9}$ \\
-    $\displaystyle\frac{100}{3}$ \\
+    $\displaystyle{\frac{4}{9}}$ \\
+    $\displaystyle{\frac{100}{3}}$ \\
     \end{tabular}\right]
 \f]
 
@@ -209,7 +210,7 @@ If we apply the formula \ref TableNatureOfField "above" it leads to the followin
 
 \f[
     M_{IntegralGlobConstraint}=\left[\begin{tabular}{cc}
-    \displaystyle\frac{0.125}{0.125} & \displaystyle\frac{0.75}{0.75} \\
+    $\displaystyle{\frac{0.125}{0.125}}$ & ${\displaystyle\frac{0.75}{0.75}}$ \\
     \end{tabular}\right]=\left[\begin{tabular}{cc}
     1 & 1 \\
     \end{tabular}\right]
@@ -239,14 +240,14 @@ If we apply the formula \ref TableNatureOfField "above" it leads to the followin
 
 \f[
     M_{RevIntegral}=\left[\begin{tabular}{cc}
-    $\displaystyle\frac{0.125}{1.5}$ & $\displaystyle\frac{0.75}{1.5}$ \\
+    $\displaystyle{\frac{0.125}{1.5}}$ & $\displaystyle{\frac{0.75}{1.5}}$ \\
     \end{tabular}\right]=\left[\begin{tabular}{cc}
     0.083333 & 0.5 \\
     \end{tabular}\right]
 \f]
 \f[
     FT=\left[\begin{tabular}{cc}
-    $\displaystyle\frac{0.125}{1.5}$ & $\displaystyle\frac{0.75}{1.5}$ \\
+    $\displaystyle{\frac{0.125}{1.5}}$ & $\displaystyle{\frac{0.75}{1.5}}$ \\
     \end{tabular}\right].\left[\begin{tabular}{c}
     4 \\
     100 \\
