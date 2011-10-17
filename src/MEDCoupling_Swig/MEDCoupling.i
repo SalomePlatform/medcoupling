@@ -261,6 +261,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::Build0DMeshFromCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findCellsIdsOnBoundary;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes;
+%newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
@@ -1001,6 +1002,7 @@ namespace ParaMEDMEM
     int getMeshLength() const throw(INTERP_KERNEL::Exception);
     void computeTypes() throw(INTERP_KERNEL::Exception);
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception);

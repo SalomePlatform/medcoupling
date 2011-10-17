@@ -1776,11 +1776,64 @@ std::string MEDCouplingUMesh::advancedRepr() const
   reprConnectivityOfThisLL(ret);
   return ret.str();
 }
+
 std::string MEDCouplingUMesh::reprConnectivityOfThis() const
 {
   std::ostringstream ret;
   reprConnectivityOfThisLL(ret);
   return ret.str();
+}
+
+/*!
+ * This method builds a newly allocated instance (with the same name than 'this') that the caller has the responsability to deal with.
+ * This method returns an instance with all arrays allocated (connectivity, connectivity index, coordinates)
+ * but with length of these arrays set to 0. It allows to define an "empty" mesh (with nor cells nor nodes but compliant with
+ * some algos).
+ * 
+ * This method expects that 'this' has a mesh dimension set and higher or equal to 0. If not an exception will be thrown.
+ * This method analyzes the 3 arrays of 'this'. For each the following behaviour is done : if the array is null a newly one is created
+ * with number of tuples set to 0, if not the array is taken as this in the returned instance.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception)
+{
+  int mdim=getMeshDimension();
+  if(mdim<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSetInstanceFromThis : invalid mesh dimension ! Should be >= 0 !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),mdim);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1,tmp2;
+  bool needToCpyCT=true;
+  if(!_nodal_connec)
+    {
+      tmp1=DataArrayInt::New(); tmp1->alloc(0,1);
+      needToCpyCT=false;
+    }
+  else
+    {
+      tmp1=_nodal_connec;
+      tmp1->incrRef();
+    }
+  if(!_nodal_connec_index)
+    {
+      tmp2=DataArrayInt::New(); tmp2->alloc(1,1); tmp2->setIJ(0,0,0);
+      needToCpyCT=false;
+    }
+  else
+    {
+      tmp2=_nodal_connec_index;
+      tmp2->incrRef();
+    }
+  ret->setConnectivity(tmp1,tmp2,false);
+  if(needToCpyCT)
+    ret->_types=_types;
+  if(!_coords)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=DataArrayDouble::New(); coords->alloc(0,spaceDim);
+      ret->setCoords(coords);
+    }
+  else
+    ret->setCoords(_coords);
+  ret->incrRef();
+  return ret;
 }
 
 void MEDCouplingUMesh::reprConnectivityOfThisLL(std::ostringstream& stream) const
@@ -4279,7 +4332,45 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(const MEDCouplingUMesh *mesh1, 
   return MergeUMeshes(tmp);
 }
 
+/*!
+ * This method returns in case of success a mesh constitued from union of all meshes in 'a'.
+ * There should be \b no presence of null pointer into 'a'.
+ * The returned mesh will contain aggregation of nodes in 'a' (in the same order) and aggregation of
+ * cells in meshes in 'a' (in the same order too).
+ */
 MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t sz=a.size();
+  if(sz==0)
+    return MergeUMeshesLL(a);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > bb(sz);
+  std::vector< const MEDCouplingUMesh * > aa(sz);
+  int spaceDim=-3;
+  for(std::size_t i=0;i<sz && spaceDim==-3;i++)
+    {
+      const MEDCouplingUMesh *cur=a[i];
+      if(!cur)
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshes : item #" << i << " in input array is empty !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      const DataArrayDouble *coo=cur->getCoords();
+      if(coo)
+        spaceDim=coo->getNumberOfComponents();
+    }
+  if(spaceDim==-3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::MergeUMeshes : no spaceDim specified ! unable to perform merge !");
+  for(std::size_t i=0;i<sz;i++)
+    {
+      bb[i]=a[i]->buildSetInstanceFromThis(spaceDim);
+      aa[i]=bb[i];
+    }
+  return MergeUMeshesLL(aa);
+}
+
+/// @cond INTERNAL
+
+MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesLL(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception)
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::MergeUMeshes : input array must be NON EMPTY !");
@@ -4337,6 +4428,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUM
   ret->incrRef();
   return ret;
 }
+
+/// @endcond
 
 /*!
  * Idem MergeUMeshes except that 'meshes' are expected to lyie on the same coords and 'meshes' have the same meshdim.

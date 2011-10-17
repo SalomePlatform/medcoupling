@@ -1671,3 +1671,33 @@ void MEDCouplingBasicsTest4::testDaDSetPartOfValuesAdv1()
   b->decrRef();
   c->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testUMeshBuildSetInstanceFromThis1()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=m->buildSetInstanceFromThis(3);
+  CPPUNIT_ASSERT_EQUAL(m->getNodalConnectivity(),m2->getNodalConnectivity());
+  CPPUNIT_ASSERT_EQUAL(m->getNodalConnectivityIndex(),m2->getNodalConnectivityIndex());
+  CPPUNIT_ASSERT_EQUAL(m->getCoords(),m2->getCoords());
+  m2->decrRef();
+  m->decrRef();
+  //
+  m=MEDCouplingUMesh::New("toto",2);
+  m2=m->buildSetInstanceFromThis(3);
+  CPPUNIT_ASSERT_EQUAL(0,m2->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(0,m2->getNumberOfCells());
+  m->decrRef();
+  m2->decrRef();
+}
+
+void MEDCouplingBasicsTest4::testUMeshMergeMeshesCVW1()
+{
+  MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::New("toto",2);
+  MEDCouplingUMesh *m3=MEDCouplingUMesh::MergeUMeshes(m,m2);
+  m3->setName(m->getName());
+  CPPUNIT_ASSERT(m->isEqual(m3,1e-12));
+  m3->decrRef();
+  m->decrRef();
+  m2->decrRef();
+}

@@ -7867,6 +7867,25 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected1=[3.,4.,5., 13.,14.,15., 26.,27.,28., 6.,7.,8., 16.,17.,18., 53.,54.,55.]
         self.assertEqual(expected1,a.getValues());
         pass
+
+    def testUMeshBuildSetInstanceFromThis1(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=m.buildSetInstanceFromThis(3);
+        self.assertTrue(m.isEqual(m2,1e-12));
+        #
+        m=MEDCouplingUMesh.New("toto",2);
+        m2=m.buildSetInstanceFromThis(3);
+        self.assertEqual(0,m2.getNumberOfNodes());
+        self.assertEqual(0,m2.getNumberOfCells());
+        pass
+
+    def testUMeshMergeMeshesCVW1(self):
+        m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
+        m2=MEDCouplingUMesh.New("toto",2);
+        m3=MEDCouplingUMesh.MergeUMeshes([m,m2]);
+        m3.setName(m.getName());
+        self.assertTrue(m.isEqual(m3,1e-12));
+        pass
     
     def setUp(self):
         pass

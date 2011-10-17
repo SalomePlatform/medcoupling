@@ -74,6 +74,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
     MEDCOUPLING_EXPORT std::string reprConnectivityOfThis() const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;
     MEDCOUPLING_EXPORT int getNumberOfCells() const;
     MEDCOUPLING_EXPORT int getMeshDimension() const;
@@ -206,6 +207,7 @@ namespace ParaMEDMEM
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
 /// @cond INTERNAL
+    static MEDCouplingUMesh *MergeUMeshesLL(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception);
     typedef int (*DimM1DescNbrer)(int id, unsigned nb, const INTERP_KERNEL::CellModel& cm, bool compute, const int *conn1, const int *conn2);
     MEDCouplingUMesh *buildDescendingConnectivityGen(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx, DimM1DescNbrer nbrer) const throw(INTERP_KERNEL::Exception);
     static void FillInCompact3DMode(int spaceDim, int nbOfNodesInCell, const int *conn, const double *coo, double *zipFrmt) throw(INTERP_KERNEL::Exception);
