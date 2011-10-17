@@ -210,7 +210,7 @@ namespace
   }
   //================================================================================
   /*!
-   * \brief Comparator of cells by number used for ordering cells thinin a med group
+   * \brief Comparator of cells by number used for ordering cells within a med group
    */
   struct TCellByIDCompare
   {
@@ -1899,6 +1899,7 @@ void IntermediateMED::setConnectivity( ParaMEDMEM::MEDFileUMesh*    mesh,
 
 void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
 {
+  bool isMeshNameSet = false;
   const int meshDim = mesh->getMeshDimension();
   for ( int dim = 0; dim <= meshDim; ++dim )
     {
@@ -1955,11 +1956,13 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
             *idsPrt++ = (*cell2orderIt).first->_number - 1;
 
           // try to set the mesh name
-          if ( dim == meshDim &&
+          if ( !isMeshNameSet &&
+               dim == meshDim &&
                !grp._name.empty() &&
                grp.size() == mesh->getSizeAtLevel( meshDimRelToMaxExt ))
             {
               mesh->setName( grp._name.c_str() );
+              isMeshNameSet = true;
             }
           else if ( !grp._name.empty() )
             {
