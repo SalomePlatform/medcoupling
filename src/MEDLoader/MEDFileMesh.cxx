@@ -300,6 +300,42 @@ std::vector<std::string> MEDFileMesh::getFamiliesNames() const
   return ret;
 }
 
+/*!
+ * This method scans every families and for each families shared by only one group, the corresponding family takes the same name than the group.
+ */
+void MEDFileMesh::assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception)
+{
+  std::map<std::string, std::vector<std::string> > groups(_groups);
+  std::map<std::string,int> newFams;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    {
+      std::vector<std::string> grps=getGroupsOnFamily((*it).first.c_str());
+      if(grps.size()==1 && groups[grps[0]].size()==1)
+        {
+          if(newFams.find(grps[0])!=newFams.end())
+            {
+              std::ostringstream oss; oss << "MEDFileMesh::assignFamilyNameWithGroupName : Family \"" << grps[0] << "\" already exists !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          newFams[grps[0]]=(*it).second;
+          std::vector<std::string>& grps2=groups[grps[0]];
+          std::size_t pos=std::distance(grps2.begin(),std::find(grps2.begin(),grps2.end(),(*it).first));
+          grps2[pos]=grps[0];
+        }
+      else
+        {
+          if(newFams.find((*it).first)!=newFams.end())
+            {
+              std::ostringstream oss; oss << "MEDFileMesh::assignFamilyNameWithGroupName : Family \"" << (*it).first << "\" already exists !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          newFams[(*it).first]=(*it).second;
+        }
+    }
+  _families=newFams;
+  _groups=groups;
+}
+
 void MEDFileMesh::removeGroup(const char *name) throw(INTERP_KERNEL::Exception)
 {
   std::string oname(name);
@@ -1475,16 +1511,13 @@ void MEDFileUMesh::setMeshAtLevelGen(int meshDimRelToMax, MEDCouplingUMesh *m, b
             c->incrRef();
           _coords=c;
         }
-      else
-        {
-          if(m->getCoords()!=_coords)
-            throw INTERP_KERNEL::Exception("MEDFileUMesh::setMeshAtLevel : Invalid Given Mesh ! The coordinates are not the same ! try to use tryToShareSameCoords !");
-          int sz=(-meshDimRelToMax)+1;
-          if(sz>=(int)_ms.size())
-            _ms.resize(sz);
-          checkMeshDimCoherency(m->getMeshDimension(),meshDimRelToMax);
-          _ms[sz-1]=new MEDFileUMeshSplitL1(m,newOrOld);
-        }
+      if(m->getCoords()!=_coords)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setMeshAtLevel : Invalid Given Mesh ! The coordinates are not the same ! try to use tryToShareSameCoords !");
+      int sz=(-meshDimRelToMax)+1;
+      if(sz>=(int)_ms.size())
+        _ms.resize(sz);
+      checkMeshDimCoherency(m->getMeshDimension(),meshDimRelToMax);
+      _ms[sz-1]=new MEDFileUMeshSplitL1(m,newOrOld);
     }
   else
     _ms[-meshDimRelToMax]=new MEDFileUMeshSplitL1(m,newOrOld);

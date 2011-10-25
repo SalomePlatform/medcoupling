@@ -869,6 +869,41 @@ class MEDLoaderTest(unittest.TestCase):
         d=MEDFileData.New(fname)
         self.assertEqual(('GP_MyFirstFieldOnGaussPoint0', 'GP_MyFirstFieldOnGaussPoint1', 'GP_MyFirstFieldOnGaussPoint2'),d.getFields().getFieldAtPos(0).getLocs())
         pass
+
+    def testMEDMesh8(self):
+        m=MEDLoaderDataForTest.build1DMesh_1()
+        m.convertQuadraticCellsToLinear()
+        mm=MEDFileUMesh.New()
+        mm.setMeshAtLevel(0,m)
+        g1=DataArrayInt.New() ; g1.setValues([0,2],2,1) ; g1.setName("g1")
+        g2=DataArrayInt.New() ; g2.setValues([1,3],2,1) ; g2.setName("g2")
+        g3=DataArrayInt.New() ; g3.setValues([1,2,3],3,1) ; g3.setName("g3")
+        mm.setGroupsAtLevel(0,[g1,g2],False)
+        self.assertEqual(('g1','g2'),mm.getGroupsNames())
+        self.assertEqual(('Family_2','Family_3'),mm.getFamiliesNames())
+        self.assertEqual(('Family_2',),mm.getFamiliesOnGroup('g1'))
+        self.assertEqual(('Family_3',),mm.getFamiliesOnGroup('g2'))
+        mm.assignFamilyNameWithGroupName()
+        self.assertEqual(('g1','g2'),mm.getGroupsNames())
+        self.assertEqual(('g1','g2'),mm.getFamiliesNames())
+        self.assertEqual(('g1',),mm.getFamiliesOnGroup('g1'))
+        self.assertEqual(('g2',),mm.getFamiliesOnGroup('g2'))
+        #
+        mm=MEDFileUMesh.New()
+        mm.setMeshAtLevel(0,m)
+        mm.setGroupsAtLevel(0,[g1,g2,g3],False)
+        self.assertEqual(('g1','g2','g3'),mm.getGroupsNames())
+        self.assertEqual(('Family_2', 'Family_4', 'Family_5'),mm.getFamiliesNames())
+        self.assertEqual(('Family_2', 'Family_4'),mm.getFamiliesOnGroup('g1'))
+        self.assertEqual(('Family_5',),mm.getFamiliesOnGroup('g2'))
+        self.assertEqual(('Family_4','Family_5',),mm.getFamiliesOnGroup('g3'))
+        mm.assignFamilyNameWithGroupName() # here it does nothing because no such group-family bijection found
+        self.assertEqual(('g1','g2','g3'),mm.getGroupsNames())
+        self.assertEqual(('Family_2', 'Family_4', 'Family_5'),mm.getFamiliesNames())
+        self.assertEqual(('Family_2', 'Family_4'),mm.getFamiliesOnGroup('g1'))
+        self.assertEqual(('Family_5',),mm.getFamiliesOnGroup('g2'))
+        self.assertEqual(('Family_4','Family_5',),mm.getFamiliesOnGroup('g3'))
+        pass
     pass
 
 unittest.main()

@@ -309,6 +309,7 @@ namespace ParaMEDMEM
     void setGroupsOnFamily(const char *famName, const std::vector<std::string>& grps) throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsNames() const;
     std::vector<std::string> getFamiliesNames() const;
+    void assignFamilyNameWithGroupName() throw(INTERP_KERNEL::Exception);
     void removeGroup(const char *name) throw(INTERP_KERNEL::Exception);
     void removeFamily(const char *name) throw(INTERP_KERNEL::Exception);
     void changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
