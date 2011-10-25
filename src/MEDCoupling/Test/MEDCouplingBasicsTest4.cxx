@@ -1701,3 +1701,40 @@ void MEDCouplingBasicsTest4::testUMeshMergeMeshesCVW1()
   m->decrRef();
   m2->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testChangeUnderlyingMeshWithCMesh1()
+{
+  MEDCouplingCMesh* mesh=MEDCouplingCMesh::New();
+  DataArrayDouble* coordsX=DataArrayDouble::New();
+  double arrX[4] = { -1., 1., 2., 4. };
+  coordsX->useArray(arrX,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsY=DataArrayDouble::New();
+  double arrY[4] = { -2., 2., 4., 8. };
+  coordsY->useArray(arrY,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsZ=DataArrayDouble::New();
+  double arrZ[4] = { -3., 3., 6., 12. };
+  coordsZ->useArray(arrZ,false, CPP_DEALLOC,4,1);
+  mesh->setCoords(coordsX,coordsY,coordsZ);
+  coordsX->decrRef();
+  coordsY->decrRef();
+  coordsZ->decrRef();
+  MEDCouplingMesh *mesh2=mesh->deepCpy();
+  //
+  static const int ids1[9]={0,1,2,10,11,12,20,21,22};
+  for(const int *myId=ids1;myId!=ids1+9;myId++)
+    {
+      MEDCouplingFieldDouble *f=mesh->getMeasureField(true);
+      f->changeUnderlyingMesh(mesh2,*myId,1e-12);
+      f->decrRef();
+    }
+  mesh2->setName("uuuu");
+  for(const int *myId=ids1+1;myId!=ids1+9;myId++)
+    {
+      MEDCouplingFieldDouble *f=mesh->getMeasureField(true);
+      f->changeUnderlyingMesh(mesh2,*myId,1e-12);
+      f->decrRef();
+    }
+  //
+  mesh2->decrRef();
+  mesh->decrRef();
+}

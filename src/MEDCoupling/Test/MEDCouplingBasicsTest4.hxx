@@ -130,6 +130,7 @@ namespace ParaMEDMEM
     void testDaDSetPartOfValuesAdv1();
     void testUMeshBuildSetInstanceFromThis1();
     void testUMeshMergeMeshesCVW1();
+    void testChangeUnderlyingMeshWithCMesh1();
   };
 }
 

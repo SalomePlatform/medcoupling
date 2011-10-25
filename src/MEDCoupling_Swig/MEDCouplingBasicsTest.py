@@ -7887,6 +7887,31 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(m.isEqual(m3,1e-12));
         pass
     
+    def testChangeUnderlyingMeshWithCMesh1(self):
+        mesh=MEDCouplingCMesh.New();
+        coordsX=DataArrayDouble.New();
+        arrX=[ -1., 1., 2., 4. ]
+        coordsX.setValues(arrX,4,1);
+        coordsY=DataArrayDouble.New();
+        arrY=[ -2., 2., 4., 8. ]
+        coordsY.setValues(arrY,4,1);
+        coordsZ=DataArrayDouble.New();
+        arrZ=[ -3., 3., 6., 12. ]
+        coordsZ.setValues(arrZ,4,1);
+        mesh.setCoords(coordsX,coordsY,coordsZ);
+        f=mesh.getMeasureField(True)
+        mesh2=mesh.deepCpy()
+        for myId in [0,1,2,10,11,12,20,21,22]:
+            f=mesh.getMeasureField(True)
+            f.changeUnderlyingMesh(mesh2,myId,1e-12);
+            pass
+        mesh2.setName("uuuu")
+        for myId in [1,2,10,11,12,20,21,22]:
+            f=mesh.getMeasureField(True)
+            f.changeUnderlyingMesh(mesh2,myId,1e-12);
+            pass
+        pass
+    
     def setUp(self):
         pass
     pass
