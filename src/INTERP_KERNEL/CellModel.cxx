@@ -122,7 +122,7 @@ namespace INTERP_KERNEL
         break;
       case NORM_SEG3:
         {
-          _nb_of_pts=3; _nb_of_sons=0; _dim=1; _extruded_type=NORM_QUAD8; _linear_type=NORM_SEG2; _is_simplex=false;
+          _nb_of_pts=3; _nb_of_sons=0; _dim=1; _extruded_type=NORM_QUAD8; _linear_type=NORM_SEG2; _quadratic=true; _is_simplex=false;
         }
         break;
       case NORM_TETRA4:
@@ -278,7 +278,7 @@ namespace INTERP_KERNEL
         break;
       case NORM_QPOLYG:
         {
-          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _is_simplex=false;
+          _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _is_simplex=false; _quadratic=true;
         }
         break;
       case NORM_ERROR:
