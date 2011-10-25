@@ -157,13 +157,20 @@ bool MEDCouplingCMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other
 void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                             DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception)
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  if(!isEqualWithoutConsideringStr(other,prec))
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalWith : Meshes are not the same !");
 }
 
+/*!
+ * Nothing is done here (except to check that the other is a ParaMEDMEM::MEDCouplingCMesh instance too).
+ * The user intend that the nodes are the same, so by construction of ParaMEDMEM::MEDCouplingCMesh, 'this' and 'other' are the same !
+ */
 void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                        DataArrayInt *&cellCor) const throw(INTERP_KERNEL::Exception)
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
+  if(!otherC)
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith : other is NOT a cartesian mesh ! Impossible to check equivalence !");
 }
 
 void MEDCouplingCMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
