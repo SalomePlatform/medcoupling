@@ -51,11 +51,23 @@ const char *MEDCouplingFieldDouble::getTimeUnit() const
   return _time_discr->getTimeUnit();
 }
 
+/*!
+ * This method performs a copy of 'this'. The copy is deep if 'recDeepCpy' equals to true, soft if 'recDeepCpy' equals to false.
+ * \b WARNING \b the \b underlying \b mesh of the returned field \b is \b the \b same (same pointer) \b than \b 'this'. It allows the user to perform methods
+ * MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields with 'this' and the returned field.
+ * If the user wants to duplicated deeply the underlying mesh he should call MEDCouplingFieldDouble::cloneWithMesh method or MEDCouplingFieldDouble::deepCpy instead.
+ */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
 {
   return new MEDCouplingFieldDouble(*this,recDeepCpy);
 }
 
+/*!
+ * This method behaves exactly like MEDCouplingFieldDouble::clone method \b except \b that \b here \b the \b underlying \b mesh \b is \b systematically
+ * (whatever the value of the input parameter 'recDeepCpy') \b deeply \b duplicated.
+ * So the resulting field of this call cannot be called with 'this' with following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
+ * To avoid to deep copy the underlying mesh the user should call MEDCouplingFieldDouble::clone method instead.
+ */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) const
 {
   MEDCouplingFieldDouble *ret=clone(recDeepCpy);
@@ -68,6 +80,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) c
   return ret;
 }
 
+/*!
+ * This method performs a deepCpy of 'this' \b mesh \b included !
+ * So the resulting field of this call cannot be called with 'this' with following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
+ * To avoid to deep copy the underlying mesh the user should call MEDCouplingFieldDouble::clone method instead.
+ * This method is exactly equivalent to MEDCouplingFieldDouble::cloneWithMesh called with parameter true.
+ */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
 {
   return cloneWithMesh(true);
