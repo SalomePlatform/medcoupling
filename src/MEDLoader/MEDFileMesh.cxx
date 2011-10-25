@@ -387,6 +387,20 @@ void MEDFileMesh::changeGroupName(const char *oldName, const char *newName) thro
   _groups[newName]=cpy;
 }
 
+void MEDFileMesh::changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception)
+{
+  changeFamilyIdArr(oldId,newId);
+  std::map<std::string,int> fam2;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    {
+      if((*it).second==oldId)
+        fam2[(*it).first]=newId;
+      else
+        fam2[(*it).first]=(*it).second;
+    }
+  _families=fam2;
+}
+
 void MEDFileMesh::changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
 {
   std::string oname(oldName);
@@ -1643,6 +1657,21 @@ void MEDFileUMesh::synchronizeTinyInfoOnLeaves() const
       (*it)->synchronizeTinyInfo(*this);
 }
 
+void MEDFileUMesh::changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *arr=_fam_coords;
+  if(arr)
+    arr->changeValue(oldId,newId);
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();it!=_ms.end();it++)
+    {
+      MEDFileUMeshSplitL1 *sp=(*it);
+      if(sp)
+        {
+          sp->changeFamilyIdArr(oldId,newId);
+        }
+    }
+}
+
 void MEDFileUMesh::computeRevNum() const
 {
   if((const DataArrayInt *)_num_coords)
@@ -1826,8 +1855,6 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
-
-
 void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
 {
   MEDFileCMeshL2 loaderl2;
@@ -1899,6 +1926,16 @@ void MEDFileCMesh::loadCMeshFromFile(med_idt fid, const char *mName, int dt, int
       _num_cells->alloc(nbOfElt,1);
       MEDmeshEntityNumberRd(fid,mName,dt,it,MED_CELL,geoTypeReq,_num_cells->getPointer());
     }
+}
+
+void MEDFileCMesh::changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *arr=_fam_nodes;
+  if(arr)
+    arr->changeValue(oldId,newId);
+  arr=_fam_cells;
+  if(arr)
+    arr->changeValue(oldId,newId);
 }
 
 const MEDCouplingCMesh *MEDFileCMesh::getMesh() const

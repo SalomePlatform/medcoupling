@@ -3265,6 +3265,31 @@ DataArrayInt *DataArrayInt::getIdsNotEqual(int val) const throw(INTERP_KERNEL::E
   return ret;
 }
 
+/*!
+ * This method expects that 'this' is allocated. If not an exception will be thrown.
+ * This method expect that the number of components is exactly equal to 1. If not an exception will be thrown.
+ * For each element in 'this' equal to 'oldValue' will take the value 'newValue'.
+ * @return number of elements impacted by the modification.
+ */
+int DataArrayInt::changeValue(int oldValue, int newValue) throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::changeValue : the array must have only one component, you can call 'rearrange' method before !");
+  checkAllocated();
+  int *start=getPointer();
+  int *end=start+getNbOfElems();
+  int ret=0;
+  for(int *val=start;val!=end;val++)
+    {
+      if(*val==oldValue)
+        {
+          *val=newValue;
+          ret++;
+        }
+    }
+  return ret;
+}
+
 DataArrayInt *DataArrayInt::getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)

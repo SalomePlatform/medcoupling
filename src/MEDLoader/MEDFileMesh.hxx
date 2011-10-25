@@ -83,6 +83,7 @@ namespace ParaMEDMEM
     void removeFamily(const char *name) throw(INTERP_KERNEL::Exception);
     void changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
     void changeFamilyName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
+    void changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception);
     int getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception);
     int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
@@ -111,6 +112,7 @@ namespace ParaMEDMEM
     virtual void synchronizeTinyInfoOnLeaves() const = 0;
     void getFamilyRepr(std::ostream& oss) const;
     virtual void appendFamilyEntries(const std::set<int>& famIds, const std::vector< std::vector<int> >& fidsOfGrps, const std::vector<std::string>& grpNames);
+    virtual void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception) = 0;
     static void TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
   protected:
     int _order;
@@ -192,6 +194,7 @@ namespace ParaMEDMEM
     DataArrayDouble *checkMultiMesh(const std::vector<const MEDCouplingUMesh *>& ms) const throw(INTERP_KERNEL::Exception);
     void computeRevNum() const;
     void synchronizeTinyInfoOnLeaves() const;
+    void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
   private:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> _coords;
@@ -230,6 +233,7 @@ namespace ParaMEDMEM
     void synchronizeTinyInfoOnLeaves() const;
     MEDFileCMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
     void loadCMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _fam_nodes;

@@ -366,6 +366,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int changeValue(int oldValue, int newValue) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getMaxValueInArray() const throw(INTERP_KERNEL::Exception);

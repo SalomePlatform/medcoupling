@@ -692,6 +692,13 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
     }
 }
 
+void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *arr=_fam;
+  if(arr)
+    arr->changeValue(oldId,newId);
+}
+
 void MEDFileUMeshSplitL1::setFamilyArr(DataArrayInt *famArr)
 {
   famArr->incrRef();

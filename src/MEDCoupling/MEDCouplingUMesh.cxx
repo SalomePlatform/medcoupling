@@ -4773,8 +4773,11 @@ std::string MEDCouplingUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exc
   return std::string("UnstructuredGrid");
 }
 
+/// @cond INTERNAL
+
 MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2) throw(INTERP_KERNEL::Exception)
 {
+  throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshes : functionnality not finished yet ! Will come soon !");
   std::vector< std::vector<int> > intersectEdge1, subDiv2;
   MEDCouplingUMesh *m1Desc=0,*m2Desc=0;
   DataArrayInt *desc1=0,*descIndx1=0,*revDesc1=0,*revDescIndx1=0,*desc2=0,*descIndx2=0,*revDesc2=0,*revDescIndx2=0;
@@ -4813,6 +4816,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   desc1->decrRef(); descIndx1->decrRef(); desc2->decrRef(); descIndx2->decrRef();
   return 0;
 }
+
+/// @endcond
 
 void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const std::vector<bool>& b1, const int *desc1, const int *descIndx1, const std::vector<std::vector<int> >& intesctEdges1,
                                                          const MEDCouplingUMesh *m2, const std::vector<bool>& b2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,

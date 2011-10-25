@@ -181,7 +181,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static bool IsPolygonWellOriented(bool isQuadratic, const double *vec, const int *begin, const int *end, const double *coords);
     MEDCOUPLING_EXPORT static bool IsPolyhedronWellOriented(const int *begin, const int *end, const double *coords);
     MEDCOUPLING_EXPORT static void TryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords) throw(INTERP_KERNEL::Exception);
+/// @cond INTERNAL
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2) throw(INTERP_KERNEL::Exception);
+/// @endcond
   private:
     MEDCouplingUMesh();
     MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);

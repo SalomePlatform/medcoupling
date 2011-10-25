@@ -903,6 +903,13 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(('Family_2', 'Family_4'),mm.getFamiliesOnGroup('g1'))
         self.assertEqual(('Family_5',),mm.getFamiliesOnGroup('g2'))
         self.assertEqual(('Family_4','Family_5',),mm.getFamiliesOnGroup('g3'))
+        mm.changeFamilyId(5,6)
+        g=mm.getGroupArr(0,"g3")
+        self.assertTrue(g.isEqual(g3));
+        g=mm.getGroupArr(0,"g2")
+        self.assertTrue(g.isEqual(g2));
+        g=mm.getGroupArr(0,"g1")
+        self.assertTrue(g.isEqual(g1));
         pass
     pass
 
