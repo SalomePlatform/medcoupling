@@ -636,7 +636,7 @@ namespace INTERP_KERNEL
           }
 
         checkIsStrictlyOutside(_nodes[globalNodeNum], isStrictlyOutside, precision);
-        checkIsOutside(_nodes[globalNodeNum], isOutside);
+        checkIsOutside(_nodes[globalNodeNum], isOutside, precision);
       }
 
     // halfspace filtering check
