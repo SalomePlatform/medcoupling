@@ -2575,18 +2575,21 @@ namespace ParaMEDMEM
         int eltId2=abs(*desc2)-1;
         for(std::vector<int>::const_iterator it2=intesctEdges2[eltId2].begin();it2!=intesctEdges2[eltId2].end();it2++)
           {
-            std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.find(*it2);
+            int curNodeId2=*it2;
+            std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.find(curNodeId2);
             if(it==mappRev.end())
               {
-                INTERP_KERNEL::Node *node=MEDCouplingUMeshBuildQPNode(*it2,coo1,offset1,coo2,offset2,addCoo);
-                mapp[node]=*it2;
-                mappRev[*it2]=node;
+                INTERP_KERNEL::Node *node=MEDCouplingUMeshBuildQPNode(curNodeId2,coo1,offset1,coo2,offset2,addCoo);
+                mapp[node]=curNodeId2;
+                mappRev[curNodeId2]=node;
               }
           }
       }
     //
     pol1.buildFromCrudeDataArray(mappRev,isQuad1,desc1Bg,desc1End,intesctEdges1);
     pol2.buildFromCrudeDataArray(mappRev,isQuad2,desc2Bg,desc2End,intesctEdges2);
+    for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
+      (*it).second->decrRef();
   }
 }
 
@@ -4777,7 +4780,6 @@ std::string MEDCouplingUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exc
 
 MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2) throw(INTERP_KERNEL::Exception)
 {
-  throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshes : functionnality not finished yet ! Will come soon !");
   std::vector< std::vector<int> > intersectEdge1, subDiv2;
   MEDCouplingUMesh *m1Desc=0,*m2Desc=0;
   DataArrayInt *desc1=0,*descIndx1=0,*revDesc1=0,*revDescIndx1=0,*desc2=0,*descIndx2=0,*revDesc2=0,*revDescIndx2=0;
@@ -4795,8 +4797,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   std::vector<int> cNb1,cNb2;
   BuildIntersecting2DCellsFromEdges(eps,m1,b1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,m2,b2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
                                     /* outputs -> */cr,crI,cNb1,cNb2);
-#if 0
-  //tony
+  //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addCooDa=DataArrayDouble::New();
   addCooDa->alloc(addCoo.size()/2,2);
   std::copy(addCoo.begin(),addCoo.end(),addCooDa->getPointer());
@@ -4810,11 +4811,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c2=DataArrayInt::New(); c2->alloc(cNb2.size(),1); std::copy(cNb2.begin(),cNb2.end(),c2->getPointer()); cellNb2=c2;
   ret->setConnectivity(conn,connI,true);
   ret->setCoords(coo);
-  ret->incrRef(); c1->incrRef(); c2->incrRef();
+  ret->incrRef(); c1->incrRef(); c2->incrRef(); desc1->decrRef(); descIndx1->decrRef(); desc2->decrRef(); descIndx2->decrRef();
   return ret;
-#endif
-  desc1->decrRef(); descIndx1->decrRef(); desc2->decrRef(); descIndx2->decrRef();
-  return 0;
 }
 
 /// @endcond
@@ -4867,6 +4865,8 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
   desc2=DataArrayInt::New(); descIndx2=DataArrayInt::New(); revDesc2=DataArrayInt::New(); revDescIndx2=DataArrayInt::New();
   m1Desc=m1->buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1);
   m2Desc=m2->buildDescendingConnectivity2(desc2,descIndx2,revDesc2,revDescIndx2);
+  const int *c1=m1Desc->getNodalConnectivity()->getConstPointer();
+  const int *ci1=m1Desc->getNodalConnectivityIndex()->getConstPointer();
   std::vector<double> bbox1,bbox2;
   m1Desc->getBoundingBoxForBBTree(bbox1);
   m2Desc->getBoundingBoxForBBTree(bbox2);
@@ -4886,11 +4886,14 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
         {
           std::map<INTERP_KERNEL::Node *,int> map1,map2;
           INTERP_KERNEL::QuadraticPolygon *pol2=MEDCouplingUMeshBuildQPFromMesh(m2Desc,candidates2,map2);
+          candidates1[0]=i;
           INTERP_KERNEL::QuadraticPolygon *pol1=MEDCouplingUMeshBuildQPFromMesh(m1Desc,candidates1,map1);
           pol1->splitAbs(*pol2,map1,map2,offset1,offset2,candidates2,intersectEdge1[i],subDiv2,addCoo);
           delete pol2;
           delete pol1;
         }
+      else
+        intersectEdge1[i].insert(intersectEdge1[i].end(),c1+ci1[i]+1,c1+ci1[i+1]);
     }
 }
 
@@ -4899,7 +4902,7 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
  * This method has 4 inputs :
  *  - a mesh 'm1' with meshDim==1 and a SpaceDim==2
  *  - a mesh 'm2' with meshDim==1 and a SpaceDim==2
- *  - subDiv of size 'm->getNumberOfCells()' that lists for each seg cell in 'm' the splitting node ids in randomly sorted.
+ *  - subDiv of size 'm2->getNumberOfCells()' that lists for each seg cell in 'm' the splitting node ids in randomly sorted.
  * The aim of this method is to sort the splitting nodes, if any, and to put in 'intersectEdge' output paramter based on edges of mesh 'm2'
  * @param m1 is expected to be a mesh of meshDimension equal to 1 and spaceDim equal to 2. No check of that is performed by this method. Only present for its coords in case of 'subDiv' shares some nodes of 'm1'
  * @param m2 is expected to be a mesh of meshDimension equal to 1 and spaceDim equal to 2. No check of that is performed by this method.
@@ -4907,13 +4910,13 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
  */
 void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, const std::vector<double>& addCoo, const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge) throw(INTERP_KERNEL::Exception)
 {
-  int offset1=m1->getNumberOfCells();
+  int offset1=m1->getNumberOfNodes();
   int ncell=m2->getNumberOfCells();
   const int *c=m2->getNodalConnectivity()->getConstPointer();
   const int *cI=m2->getNodalConnectivityIndex()->getConstPointer();
   const double *coo=m2->getCoords()->getConstPointer();
   const double *cooBis=m1->getCoords()->getConstPointer();
-  int offset2=offset1+ncell;
+  int offset2=offset1+m2->getNumberOfNodes();
   intersectEdge.resize(ncell);
   for(int i=0;i<ncell;i++,cI++)
     {
@@ -4926,21 +4929,21 @@ void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MED
           INTERP_KERNEL::Node *nn=new INTERP_KERNEL::Node(coo[2*c[(*cI)+j+1]],coo[2*c[(*cI)+j+1]+1]);
           int nnid=c[(*cI)+j+1];
           mapp2[nnid]=nn;
-          mapp22[nn]=nnid;
+          mapp22[nn]=nnid+offset1;
         }
       INTERP_KERNEL::Edge *e=MEDCouplingUMeshBuildQPFromEdge((INTERP_KERNEL::NormalizedCellType)c[*cI],mapp2,c+(*cI)+1);
       for(std::map<int, INTERP_KERNEL::Node *>::const_iterator it=mapp2.begin();it!=mapp2.end();it++)
         (*it).second->decrRef();
       std::vector<INTERP_KERNEL::Node *> addNodes(divs.size());
       std::map<INTERP_KERNEL::Node *,int> mapp3;
-      for(std::size_t j=0;j<divs.size();i++)
+      for(std::size_t j=0;j<divs.size();j++)
         {
           int id=divs[j];
           INTERP_KERNEL::Node *tmp=0;
           if(id<offset1)
             tmp=new INTERP_KERNEL::Node(cooBis[2*id],cooBis[2*id+1]);
           else if(id<offset2)
-            tmp=new INTERP_KERNEL::Node(coo[2*(id-offset1)],cooBis[2*(id-offset1)+1]);//if it happens, bad news mesh 'm2' is non conform.
+            tmp=new INTERP_KERNEL::Node(coo[2*(id-offset1)],coo[2*(id-offset1)+1]);//if it happens, bad news mesh 'm2' is non conform.
           else
             tmp=new INTERP_KERNEL::Node(addCoo[2*(id-offset2)],addCoo[2*(id-offset2)+1]);
           addNodes[j]=tmp;

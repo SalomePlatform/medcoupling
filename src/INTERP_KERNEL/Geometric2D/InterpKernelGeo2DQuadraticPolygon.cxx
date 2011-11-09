@@ -235,7 +235,7 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
       ElementaryEdge* curE3=it3.current();
       otherTmp.pushBack(new ElementaryEdge(curE3->getPtr(),curE3->getDirection())); curE3->getPtr()->incrRef();
       IteratorOnComposedEdge it2(&otherTmp);
-      for(it2.first();it2.finished();it2.next())
+      for(it2.first();!it2.finished();it2.next())
         {
           ElementaryEdge* curE2=it2.current();
           if(!curE2->isThereStartPoint())
@@ -297,11 +297,11 @@ void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL:
       bool direct=descBg[i]>0;
       int edgeId=abs(descBg[i])-1;
       const std::vector<int>& subEdge=intersectEdges[edgeId];
-      int nbOfSubEdges=subEdge.size()-1;
+      int nbOfSubEdges=subEdge.size()/2;
       for(int j=0;j<nbOfSubEdges;j++)
         {
-          Node *start=(*mapp.find(direct?subEdge[j]:subEdge[nbOfSubEdges-j])).second;
-          Node *end=(*mapp.find(direct?subEdge[j+1]:subEdge[nbOfSubEdges-j-1])).second;
+          Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+          Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
           ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,direct,start,end);
           pushBack(e);
         }
@@ -311,6 +311,7 @@ void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL:
 void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, std::vector<int>& conn, std::vector<int>& connI)
 {
   int nbOfNodesInPg=0,i=0;
+  conn.push_back(5);
   for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++,i++)
     {
       Node *tmp=0;
@@ -326,7 +327,7 @@ void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>
       conn.push_back((*it).second);
       nbOfNodesInPg++;
     }
-  connI.push_back(connI.back()+nbOfNodesInPg);
+  connI.push_back(connI.back()+nbOfNodesInPg+1);
 }
 
 /*!
@@ -339,8 +340,7 @@ void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, const std::ma
   normalizeExt(&other, xBaryBB, yBaryBB);
   //Locate 'this' relative to 'other'
   other.performLocatingOperation(*this);
-  dumpInXfigFileWithOther(other,"tony.fig");
-  std::vector<QuadraticPolygon *> res=other.buildIntersectionPolygons(*this,other);
+  std::vector<QuadraticPolygon *> res=buildIntersectionPolygons(other,*this);
   for(std::vector<QuadraticPolygon *>::iterator it=res.begin();it!=res.end();it++)
     {
       (*it)->appendCrudeData(mapp,conn,connI);

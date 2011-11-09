@@ -215,7 +215,7 @@ void ElementaryEdge::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>
  * unsorted because the "other" mesh is not subdivided yet.
  */
 void ElementaryEdge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                                        std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const
+                                        std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const
 {
   _ptr->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,edgesOther,addCoo,mapAddCoo);
 }

@@ -86,9 +86,9 @@ namespace INTERP_KERNEL
     static double distanceBtw2PtSq(const double *a, const double *b) { return (a[0]-b[0])*(a[0]-b[0])+(a[1]-b[1])*(a[1]-b[1]); }
     //
     void fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                           std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo, int *nodeId) const;
+                           std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo, int *nodeId) const;
     void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
-                            std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo, std::vector<int>& pointsOther) const;
+                            std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo, std::vector<int>& pointsOther) const;
   protected:
     ~Node();
   protected:
