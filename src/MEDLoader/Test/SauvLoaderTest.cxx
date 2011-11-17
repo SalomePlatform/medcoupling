@@ -228,8 +228,8 @@ std::string SauvLoaderTest::getResourceFile( const std::string& filename )
   resourceFile += filename;
 #ifdef WNT
   std::string fixedpath = resourceFile;
-  for ( int i=0; i < path.size(); ++i )
-    if (path[i] == '/')
+  for ( int i=0; i < fixedpath.length(); ++i )
+    if (fixedpath[i] == '/')
       fixedpath[i] = '\\';
   return fixedpath;
 #endif

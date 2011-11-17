@@ -20,6 +20,8 @@
 #ifndef __MEDFILEFIELD_HXX__
 #define __MEDFILEFIELD_HXX__
 
+#include "MEDLoaderDefines.hxx"
+
 #include "MEDFileUtilities.hxx"
 
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
@@ -47,22 +49,22 @@ namespace ParaMEDMEM
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
-    void simpleRepr(std::ostream& oss) const;
-    const std::string& getName() const { return _name; }
+    void MEDLOADER_EXPORT simpleRepr(std::ostream& oss) const;
+    const MEDLOADER_EXPORT std::string& getName() const { return _name; }
     static MEDFileFieldLoc *New(med_idt fid, const char *locName);
     static MEDFileFieldLoc *New(med_idt fid, int id);
     static MEDFileFieldLoc *New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
-    int getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
-    void writeLL(med_idt fid) const;
-    std::string repr() const;
-    bool isName(const char *name) const { return _name==name; }
-    int getDimension() const { return _dim; }
-    int getNumberOfGaussPoints() const { return _nb_gauss_pt; }
-    int getNumberOfPointsInCells() const { return _nb_node_per_cell; }
-    const std::vector<double>& getRefCoords() const { return _ref_coo; }
-    const std::vector<double>& getGaussCoords() const { return _gs_coo; }
-    const std::vector<double>& getGaussWeights() const { return _w; }
-    bool isEqual(const MEDFileFieldLoc& other, double eps) const;
+    int MEDLOADER_EXPORT getNbOfGaussPtPerCell() const { return _nb_gauss_pt; }
+    void MEDLOADER_EXPORT writeLL(med_idt fid) const;
+    std::string MEDLOADER_EXPORT repr() const;
+    bool MEDLOADER_EXPORT isName(const char *name) const { return _name==name; }
+    int MEDLOADER_EXPORT getDimension() const { return _dim; }
+    int MEDLOADER_EXPORT getNumberOfGaussPoints() const { return _nb_gauss_pt; }
+    int MEDLOADER_EXPORT getNumberOfPointsInCells() const { return _nb_node_per_cell; }
+    const MEDLOADER_EXPORT std::vector<double>& getRefCoords() const { return _ref_coo; }
+    const MEDLOADER_EXPORT std::vector<double>& getGaussCoords() const { return _gs_coo; }
+    const MEDLOADER_EXPORT std::vector<double>& getGaussWeights() const { return _w; }
+    bool MEDLOADER_EXPORT isEqual(const MEDFileFieldLoc& other, double eps) const;
   private:
     MEDFileFieldLoc(med_idt fid, const char *locName);
     MEDFileFieldLoc(med_idt fid, int id);

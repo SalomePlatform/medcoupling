@@ -260,7 +260,7 @@ namespace ParaMEDMEM
 
   class DataArrayDoubleTuple;
 
-  class DataArrayDoubleIterator
+  class MEDCOUPLING_EXPORT DataArrayDoubleIterator
   {
   public:
     DataArrayDoubleIterator(DataArrayDouble *da);
@@ -273,7 +273,7 @@ namespace ParaMEDMEM
     int _nb_tuple;
   };
 
-  class DataArrayDoubleTuple
+  class MEDCOUPLING_EXPORT DataArrayDoubleTuple
   {
   public:
     DataArrayDoubleTuple(DataArrayDouble *da);
@@ -423,7 +423,7 @@ namespace ParaMEDMEM
 
   class DataArrayIntTuple;
 
-  class DataArrayIntIterator
+  class MEDCOUPLING_EXPORT DataArrayIntIterator
   {
   public:
     DataArrayIntIterator(DataArrayInt *da);
@@ -436,7 +436,7 @@ namespace ParaMEDMEM
     int _nb_tuple;
   };
 
-  class DataArrayIntTuple
+  class MEDCOUPLING_EXPORT DataArrayIntTuple
   {
   public:
     DataArrayIntTuple(DataArrayInt *da);

@@ -318,13 +318,13 @@ void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>
       if(i==0)
         {
           tmp=(*it)->getStartNode();
-          std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapp.find(tmp);
-          conn.push_back((*it).second);
+          std::map<INTERP_KERNEL::Node *,int>::const_iterator it1=mapp.find(tmp);
+          conn.push_back((*it1).second);
           nbOfNodesInPg++;
         }
       tmp=(*it)->getEndNode();
-      std::map<INTERP_KERNEL::Node *,int>::const_iterator it=mapp.find(tmp);
-      conn.push_back((*it).second);
+      std::map<INTERP_KERNEL::Node *,int>::const_iterator it1=mapp.find(tmp);
+      conn.push_back((*it1).second);
       nbOfNodesInPg++;
     }
   connI.push_back(connI.back()+nbOfNodesInPg+1);
