@@ -302,7 +302,7 @@ void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL:
         {
           Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
           Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-          ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,direct,start,end);
+          ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,true,start,end);
           pushBack(e);
         }
     }
@@ -310,19 +310,12 @@ void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL:
 
 void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, std::vector<int>& conn, std::vector<int>& connI)
 {
-  int nbOfNodesInPg=0,i=0;
+  int nbOfNodesInPg=0;
   conn.push_back(5);
-  for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++,i++)
+  for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++)
     {
       Node *tmp=0;
-      if(i==0)
-        {
-          tmp=(*it)->getStartNode();
-          std::map<INTERP_KERNEL::Node *,int>::const_iterator it1=mapp.find(tmp);
-          conn.push_back((*it1).second);
-          nbOfNodesInPg++;
-        }
-      tmp=(*it)->getEndNode();
+      tmp=(*it)->getStartNode();
       std::map<INTERP_KERNEL::Node *,int>::const_iterator it1=mapp.find(tmp);
       conn.push_back((*it1).second);
       nbOfNodesInPg++;

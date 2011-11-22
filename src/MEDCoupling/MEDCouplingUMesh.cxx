@@ -551,7 +551,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *de
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception)
 {
-  return  buildDescendingConnectivityGen(desc,descIndx,revDesc,revDescIndx,MEDCouplingOrientationSensitiveNbrer);
+  return buildDescendingConnectivityGen(desc,descIndx,revDesc,revDescIndx,MEDCouplingOrientationSensitiveNbrer);
 }
 
 /// @cond INTERNAL
