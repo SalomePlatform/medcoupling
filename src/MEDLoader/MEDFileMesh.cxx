@@ -413,8 +413,8 @@ void MEDFileMesh::changeFamilyName(const char *oldName, const char *newName) thr
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   std::string nname(newName);
-  it=_families.find(nname);
-  if(it!=_families.end())
+  std::map<std::string, int >::iterator it2=_families.find(nname);
+  if(it2!=_families.end())
     {
       std::ostringstream oss; oss << "Such familyname \"" << newName << " already exists ! Kill it before !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
