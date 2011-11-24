@@ -125,23 +125,17 @@ ParaMEDMEM::MEDFileData * SauvReader::loadInMEDFileDS() throw(INTERP_KERNEL::Exc
         recordNumber = getInt();
 
       // read the record
-      switch ( recordNumber )
-        {
-        case 2:
-          readRecord2();
-          break;
-        case 4:
-          readRecord4();
-          break;
-        case 7:
-          readRecord7();
-          break;
-        case 5:
-          break;
-        default:
-          if ( !isASCII() )
-            THROW_IK_EXCEPTION("XDR : ENREGISTREMENT DE TYPE " << recordNumber << " not implemented!!!");
-        }
+      if ( recordNumber == 2 )
+        readRecord2();
+      else if (recordNumber == 4 )
+        readRecord4();
+      else if (recordNumber == 7 )
+        readRecord7();
+      else if (recordNumber == 5 )
+        break; // stop reading
+      else
+        if ( !isASCII() )
+          THROW_IK_EXCEPTION("XDR : ENREGISTREMENT DE TYPE " << recordNumber << " not implemented!!!");
     }
 
   ParaMEDMEM::MEDFileData* medFileData = iMed.convertInMEDFileDS();
@@ -245,9 +239,10 @@ int SauvReader::readPileNumber(int& nbNamedObjects, int& nbObjects)
     THROW_IK_EXCEPTION("Invalid nb of named objects: " << nbNamedObjects  << lineNb() );
   if ( nbObjects<0)
     THROW_IK_EXCEPTION("Invalid nb of objects: " << nbObjects  << lineNb() );
-  if ( nbObjects<nbNamedObjects)
-    THROW_IK_EXCEPTION("In PILE " << pileNumber <<
-                       " nb of objects is less than nb of named objects"  << lineNb() );
+  // It appears to be a valid case
+  // if ( nbObjects<nbNamedObjects)
+  //   THROW_IK_EXCEPTION("In PILE " << pileNumber <<
+  //                      " nb of objects is less than nb of named objects"  << lineNb() );
   return pileNumber;
 }
 
@@ -616,7 +611,7 @@ void SauvReader::read_PILE_COORDONNEES (const int nbObjects, std::vector<std::st
   int nbReals = getIntNext();
 
   if ( nbReals < (int)(_iMed->_nbNodes*(_iMed->_spaceDim+1)) )
-    THROW_IK_EXCEPTION("Erroor of reading PILE NUMERO  " << PILE_COORDONNEES << lineNb() );
+    THROW_IK_EXCEPTION("Error of reading PILE NUMERO  " << PILE_COORDONNEES << lineNb() );
 
   // there are coordinates + density for each node
   _iMed->_coords.resize( nbReals - nbReals/(_iMed->_spaceDim+1));
