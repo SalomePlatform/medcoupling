@@ -362,6 +362,13 @@ void MEDFileMesh::removeFamily(const char *name) throw(INTERP_KERNEL::Exception)
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   _families.erase(it);
+  for(std::map<std::string, std::vector<std::string> >::iterator it3=_groups.begin();it3!=_groups.end();it3++)
+    {
+      std::vector<std::string>& v=(*it3).second;
+      std::vector<std::string>::iterator it4=std::find(v.begin(),v.end(),oname);
+      if(it4!=v.end())
+        v.erase(it4);
+    }
 }
 
 void MEDFileMesh::changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
