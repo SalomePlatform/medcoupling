@@ -39,9 +39,9 @@
 namespace SauvUtilities
 {
   INTERP_KERNEL::NormalizedCellType MEDLOADER_EXPORT gibi2medGeom( size_t gibiType );
-  int MEDLOADER_EXPORT med2gibiGeom( INTERP_KERNEL::NormalizedCellType medGeomType );
-  const int * MEDLOADER_EXPORT getGibi2MedQuadraticInterlace( INTERP_KERNEL::NormalizedCellType type );
-  unsigned MEDLOADER_EXPORT getDimension( INTERP_KERNEL::NormalizedCellType type );
+  int med2gibiGeom( INTERP_KERNEL::NormalizedCellType medGeomType );
+  const int * getGibi2MedQuadraticInterlace( INTERP_KERNEL::NormalizedCellType type );
+  unsigned getDimension( INTERP_KERNEL::NormalizedCellType type );
 
   enum Readable_Piles
     {

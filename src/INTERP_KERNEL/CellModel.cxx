@@ -421,8 +421,12 @@ namespace INTERP_KERNEL
         std::vector<int> tmp(2*lgth);
         std::vector<int>::iterator it=std::copy(conn1,conn1+lgth,tmp.begin());
         std::copy(conn1,conn1+lgth,it);
-        it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+lgth);
-        return it!=tmp.end();
+        it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth);
+        if(it==tmp.begin())
+          return true;
+        if(it!=tmp.end())
+          return false;
+        throw INTERP_KERNEL::Exception("CellModel::getOrientationStatus : Request of orientation status of non equal connectively cells !");
       }
     else
       {
@@ -431,13 +435,13 @@ namespace INTERP_KERNEL
             std::vector<int> tmp(lgth);
             std::vector<int>::iterator it=std::copy(conn1,conn1+lgth/2,tmp.begin());
             std::copy(conn1,conn1+lgth/2,it);
-            it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+lgth/2);
+            it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth/2);
             int d=std::distance(tmp.begin(),it);
             if(it==tmp.end())
               return false;
             it=std::copy(conn1+lgth/2,conn1+lgth,tmp.begin());
             std::copy(conn1+lgth/2,conn1+lgth,it);
-            it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+lgth);
+            it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth);
             if(it==tmp.end())
               return false;
             int d2=std::distance(tmp.begin(),it);
@@ -449,14 +453,14 @@ namespace INTERP_KERNEL
             std::vector<int> tmp(2*p);
             std::vector<int>::iterator it=std::copy(conn1,conn1+p,tmp.begin());
             std::copy(conn1,conn1+p,it);
-            it=std::find_first_of(tmp.begin(),tmp.end(),conn2,conn2+p);
+            it=std::search(tmp.begin(),tmp.end(),conn2,conn2+p);
             int d=std::distance(tmp.begin(),it);
             if(it==tmp.end())
               return false;
             tmp.resize(2*p-2);
             it=std::copy(conn1+p,conn1+lgth,tmp.begin());
             std::copy(conn1+p,conn1+lgth,it);
-            it=std::find_first_of(tmp.begin(),tmp.end(),conn2+p,conn2+lgth);
+            it=std::search(tmp.begin(),tmp.end(),conn2+p,conn2+lgth);
             if(it==tmp.end())
               return false;
             int d2=std::distance(tmp.begin(),it);

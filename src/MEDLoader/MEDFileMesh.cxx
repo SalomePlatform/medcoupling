@@ -362,6 +362,13 @@ void MEDFileMesh::removeFamily(const char *name) throw(INTERP_KERNEL::Exception)
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   _families.erase(it);
+  for(std::map<std::string, std::vector<std::string> >::iterator it3=_groups.begin();it3!=_groups.end();it3++)
+    {
+      std::vector<std::string>& v=(*it3).second;
+      std::vector<std::string>::iterator it4=std::find(v.begin(),v.end(),oname);
+      if(it4!=v.end())
+        v.erase(it4);
+    }
 }
 
 void MEDFileMesh::changeGroupName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
@@ -413,8 +420,8 @@ void MEDFileMesh::changeFamilyName(const char *oldName, const char *newName) thr
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   std::string nname(newName);
-  it=_families.find(nname);
-  if(it!=_families.end())
+  std::map<std::string, int >::iterator it2=_families.find(nname);
+  if(it2!=_families.end())
     {
       std::ostringstream oss; oss << "Such familyname \"" << newName << " already exists ! Kill it before !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -422,6 +429,13 @@ void MEDFileMesh::changeFamilyName(const char *oldName, const char *newName) thr
   int cpy=(*it).second;
   _families.erase(it);
   _families[newName]=cpy;
+  for(std::map<std::string, std::vector<std::string> >::iterator it3=_groups.begin();it3!=_groups.end();it3++)
+    {
+      std::vector<std::string>& v=(*it3).second;
+      std::vector<std::string>::iterator it4=std::find(v.begin(),v.end(),oname);
+      if(it4!=v.end())
+        (*it4)=nname;
+    }
 }
 
 bool MEDFileMesh::areFamsEqual(const MEDFileMesh *other, std::string& what) const

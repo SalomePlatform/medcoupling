@@ -240,7 +240,7 @@ namespace ParaMEDMEM
 
   class MEDCouplingUMeshCell;
 
-  class MEDCouplingUMeshCellIterator
+  class MEDCOUPLING_EXPORT MEDCouplingUMeshCellIterator
   {
   public:
     MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh);
@@ -257,7 +257,7 @@ namespace ParaMEDMEM
 
   class MEDCouplingUMeshCellByTypeIterator;
 
-  class MEDCouplingUMeshCellByTypeEntry
+  class MEDCOUPLING_EXPORT MEDCouplingUMeshCellByTypeEntry
   {
   public:
     MEDCouplingUMeshCellByTypeEntry(MEDCouplingUMesh *mesh);
@@ -267,7 +267,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *_mesh;
   };
 
-  class MEDCouplingUMeshCellEntry
+  class MEDCOUPLING_EXPORT MEDCouplingUMeshCellEntry
   {
   public:
     MEDCouplingUMeshCellEntry(MEDCouplingUMesh *mesh,  INTERP_KERNEL::NormalizedCellType type, MEDCouplingUMeshCell *itc, int bg, int end);
@@ -283,7 +283,7 @@ namespace ParaMEDMEM
     int _end;
   };
 
-  class MEDCouplingUMeshCellByTypeIterator
+  class MEDCOUPLING_EXPORT MEDCouplingUMeshCellByTypeIterator
   {
   public:
     MEDCouplingUMeshCellByTypeIterator(MEDCouplingUMesh *mesh);
@@ -296,7 +296,7 @@ namespace ParaMEDMEM
     int _nb_cell;
   };
 
-  class MEDCouplingUMeshCell
+  class MEDCOUPLING_EXPORT MEDCouplingUMeshCell
   {
   public:
     MEDCouplingUMeshCell(MEDCouplingUMesh *mesh);

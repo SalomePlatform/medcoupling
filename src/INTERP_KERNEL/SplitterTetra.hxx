@@ -219,7 +219,7 @@ namespace INTERP_KERNEL
   private:
     // member functions
     inline void createAffineTransform(const double** corners);
-    inline void checkIsOutside(const double* pt, bool* isOutside) const;
+    inline void checkIsOutside(const double* pt, bool* isOutside, const double errTol = DEFAULT_ABS_TOL) const;
     inline void checkIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol = DEFAULT_ABS_TOL) const;
     inline void calculateNode(typename MyMeshType::MyConnType globalNodeNum);
     inline void calculateNode2(typename MyMeshType::MyConnType globalNodeNum, const double* node);
@@ -286,16 +286,16 @@ namespace INTERP_KERNEL
    * @param isOutside bool[8] which indicate the results of earlier checks. 
    */
   template<class MyMeshType>
-  inline void SplitterTetra<MyMeshType>::checkIsOutside(const double* pt, bool* isOutside) const
+  inline void SplitterTetra<MyMeshType>::checkIsOutside(const double* pt, bool* isOutside, const double errTol) const
   {
-    isOutside[0] = isOutside[0] && (pt[0] <= 0.0);
-    isOutside[1] = isOutside[1] && (pt[0] >= 1.0);
-    isOutside[2] = isOutside[2] && (pt[1] <= 0.0);
-    isOutside[3] = isOutside[3] && (pt[1] >= 1.0);
-    isOutside[4] = isOutside[4] && (pt[2] <= 0.0);
-    isOutside[5] = isOutside[5] && (pt[2] >= 1.0);
-    isOutside[6] = isOutside[6] && (1.0 - pt[0] - pt[1] - pt[2] <= 0.0);
-    isOutside[7] = isOutside[7] && (1.0 - pt[0] - pt[1] - pt[2] >= 1.0);
+    isOutside[0] = isOutside[0] && (pt[0] < errTol);
+    isOutside[1] = isOutside[1] && (pt[0] > (1.0-errTol) );
+    isOutside[2] = isOutside[2] && (pt[1] < errTol);
+    isOutside[3] = isOutside[3] && (pt[1] > (1.0-errTol));
+    isOutside[4] = isOutside[4] && (pt[2] < errTol);
+    isOutside[5] = isOutside[5] && (pt[2] > (1.0-errTol));
+    isOutside[6] = isOutside[6] && (1.0 - pt[0] - pt[1] - pt[2] < errTol);
+    isOutside[7] = isOutside[7] && (1.0 - pt[0] - pt[1] - pt[2] > (1.0-errTol) );
   }
   
   template<class MyMeshType>
