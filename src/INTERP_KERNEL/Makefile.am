@@ -24,12 +24,7 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-SUBDIRS = Bases Geometric2D ExprEval GaussPoints .
-
-DIST_SUBDIRS = Bases Geometric2D ExprEval GaussPoints
-
 lib_LTLIBRARIES = libinterpkernel.la
-
 
 salomeinclude_HEADERS = 		\
 BBTree.txx				\
@@ -51,8 +46,8 @@ Interpolation2D.hxx			\
 Interpolation2D.txx			\
 Interpolation3D.hxx			\
 Interpolation3D.txx			\
-Interpolation2D1D.hxx           \
-Interpolation2D1D.txx           \
+Interpolation2D1D.hxx   	        \
+Interpolation2D1D.txx           	\
 Interpolation3D2D.hxx			\
 Interpolation3D2D.txx			\
 Interpolation3DSurf.hxx			\
@@ -93,8 +88,8 @@ MeshUtils.hxx				\
 PointLocatorAlgos.txx                   \
 PlanarIntersector.hxx			\
 PlanarIntersector.txx			\
-Planar2D1DIntersectorP0P0.hxx       \
-Planar2D1DIntersectorP0P0.txx       \
+Planar2D1DIntersectorP0P0.hxx           \
+Planar2D1DIntersectorP0P0.txx           \
 PlanarIntersectorP0P0.hxx		\
 PlanarIntersectorP0P0.txx		\
 PlanarIntersectorP0P1.hxx		\
@@ -168,7 +163,35 @@ Interpolation1D.txx	                \
 Interpolation2DCurve.hxx                \
 InterpolationCurve.hxx	                \
 InterpolationCurve.txx			\
-DirectedBoundingBox.hxx
+DirectedBoundingBox.hxx			\
+Bases/INTERPKERNELBASESDefines.hxx      \
+Bases/InterpKernelException.hxx         \
+Bases/NormalizedUnstructuredMesh.hxx    \
+Bases/InterpKernelStlExt.hxx            \
+Bases/InterpKernelHashMap.hxx           \
+Bases/InterpKernelHashTable.hxx         \
+Bases/InterpKernelHashFun.hxx           \
+Bases/InterpKernelAutoPtr.hxx           \
+Geometric2D/INTERPKERNELGEOMETRIC2DDefines.hxx     \
+Geometric2D/InterpKernelGeo2DAbstractEdge.hxx      \
+Geometric2D/InterpKernelGeo2DBounds.hxx            \
+Geometric2D/InterpKernelGeo2DPrecision.hxx         \
+Geometric2D/InterpKernelGeo2DComposedEdge.hxx      \
+Geometric2D/InterpKernelGeo2DEdgeArcCircle.hxx     \
+Geometric2D/InterpKernelGeo2DEdge.hxx              \
+Geometric2D/InterpKernelGeo2DEdgeInfLin.hxx        \
+Geometric2D/InterpKernelGeo2DEdgeLin.hxx           \
+Geometric2D/InterpKernelGeo2DElementaryEdge.hxx    \
+Geometric2D/InterpKernelGeo2DNode.hxx              \
+Geometric2D/InterpKernelGeo2DQuadraticPolygon.hxx  \
+Geometric2D/InterpKernelGeo2DEdge.txx              \
+ExprEval/INTERPKERNELEXPREVALDefines.hxx         \
+ExprEval/InterpKernelExprParser.hxx              \
+ExprEval/InterpKernelFunction.hxx                \
+ExprEval/InterpKernelUnit.hxx                    \
+ExprEval/InterpKernelValue.hxx                   \
+ExprEval/InterpKernelAsmX86.hxx                  \
+GaussPoints/InterpKernelGaussCoords.hxx
 
 
 EXTRA_DIST +=			\
@@ -181,7 +204,12 @@ PlanarIntersectorP1P0.hxx	\
 PlanarIntersectorP1P0.txx	\
 VolSurfFormulae.hxx             \
 VolSurfUser.hxx                 \
-VolSurfUser.txx
+VolSurfUser.txx                 \
+ExprEval/INTERPKERNELEXPREVALDefines.hxx         \
+ExprEval/InterpKernelExprParser.hxx              \
+ExprEval/InterpKernelFunction.hxx                \
+ExprEval/InterpKernelUnit.hxx                    \
+ExprEval/InterpKernelValue.hxx
 
 # Libraries targets
 
@@ -202,15 +230,26 @@ dist_libinterpkernel_la_SOURCES = \
 	Interpolation3D2D.cxx \
 	MeshElement.cxx \
 	InterpKernelMeshQuality.cxx \
-	InterpKernelCellSimplify.cxx
+	InterpKernelCellSimplify.cxx \
+	Bases/InterpKernelException.cxx \
+	Geometric2D/InterpKernelGeo2DAbstractEdge.cxx         \
+	Geometric2D/InterpKernelGeo2DBounds.cxx               \
+	Geometric2D/InterpKernelGeo2DPrecision.cxx            \
+	Geometric2D/InterpKernelGeo2DComposedEdge.cxx         \
+	Geometric2D/InterpKernelGeo2DEdgeArcCircle.cxx        \
+	Geometric2D/InterpKernelGeo2DEdge.cxx                 \
+	Geometric2D/InterpKernelGeo2DEdgeInfLin.cxx           \
+	Geometric2D/InterpKernelGeo2DEdgeLin.cxx              \
+	Geometric2D/InterpKernelGeo2DElementaryEdge.cxx       \
+	Geometric2D/InterpKernelGeo2DNode.cxx                 \
+	Geometric2D/InterpKernelGeo2DQuadraticPolygon.cxx     \
+	ExprEval/InterpKernelExprParser.cxx        \
+	ExprEval/InterpKernelFunction.cxx          \
+	ExprEval/InterpKernelUnit.cxx              \
+	ExprEval/InterpKernelValue.cxx             \
+	ExprEval/InterpKernelAsmX86.cxx            \
+	GaussPoints/InterpKernelGaussCoords.cxx
 
-libinterpkernel_la_CPPFLAGS=-I$(srcdir)/Geometric2D -I$(srcdir)/Bases
-
-libinterpkernel_la_LDFLAGS=
-
-# the geom2D library is included in the interpkernel one
-libinterpkernel_la_LIBADD= ./Geometric2D/libInterpGeometric2DAlg.la Bases/libinterpkernelbases.la ExprEval/libinterpkernelexpreval.la \
-	GaussPoints/libinterpkernelgauss.la
+libinterpkernel_la_CPPFLAGS= -I$(srcdir)/Bases -I$(srcdir)/Geometric2D -I$(srcdir)/ExprEval -I$(srcdir)/GaussPoints
 
 AM_CPPFLAGS += $(libinterpkernel_la_CPPFLAGS)
-LDADD= $(libinterpkernel_la_LDFLAGS)

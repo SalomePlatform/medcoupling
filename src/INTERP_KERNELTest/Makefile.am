@@ -74,8 +74,7 @@ libInterpKernelTest_la_CPPFLAGS =                \
 
 libInterpKernelTest_la_LDFLAGS  =                \
 	@CPPUNIT_LIBS@                           \
-	../INTERP_KERNEL/libinterpkernel.la      \
-	../INTERP_KERNEL/Geometric2D/libInterpGeometric2DAlg.la
+	../INTERP_KERNEL/libinterpkernel.la
 
 if !MED_ENABLE_MICROMED
    libInterpKernelTest_la_SOURCES +=         \
