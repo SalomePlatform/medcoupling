@@ -44,7 +44,7 @@ _MEDLoader_la_CPPFLAGS = $(PYTHON_INCLUDES) \
 	-I$(srcdir)/.. -I$(srcdir)/../../MEDCoupling_Swig -I$(srcdir)/../../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../../MEDCoupling
 
-_MEDLoader_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) \
+_MEDLoader_la_LDFLAGS  = -module $(MED2_LIBS_C_ONLY) $(HDF5_LIBS) $(PYTHON_LIBS) \
 	../../MEDCoupling/libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la \
 	../libmedloader.la
 
