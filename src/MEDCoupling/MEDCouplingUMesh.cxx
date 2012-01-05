@@ -18,6 +18,7 @@
 //
 
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "CellModel.hxx"
 #include "VolSurfUser.txx"
@@ -373,7 +374,7 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
   bool areNodesMerged;
   int newNbOfNodes;
   int oldNbOfNodes=getNumberOfNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->buildPermArrayForMergeNode(oldNbOfNodes,prec,areNodesMerged,newNbOfNodes);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m->buildPermArrayForMergeNode(prec,oldNbOfNodes,areNodesMerged,newNbOfNodes);
   //mergeNodes
   if(!areNodesMerged)
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : Nodes are incompatible ! ");
@@ -1192,7 +1193,7 @@ bool MEDCouplingUMesh::areCellsIncludedIn(const MEDCouplingUMesh *other, int com
  */
 DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
-  DataArrayInt *ret=buildPermArrayForMergeNode(-1,precision,areNodesMerged,newNbOfNodes);
+  DataArrayInt *ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
   if(areNodesMerged)
     renumberNodes(ret->getConstPointer(),newNbOfNodes);
   return ret;
@@ -1203,7 +1204,7 @@ DataArrayInt *MEDCouplingUMesh::mergeNodes(double precision, bool& areNodesMerge
  */
 DataArrayInt *MEDCouplingUMesh::mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes)
 {
-  DataArrayInt *ret=buildPermArrayForMergeNode(-1,precision,areNodesMerged,newNbOfNodes);
+  DataArrayInt *ret=buildPermArrayForMergeNode(precision,-1,areNodesMerged,newNbOfNodes);
   if(areNodesMerged)
     renumberNodes2(ret->getConstPointer(),newNbOfNodes);
   return ret;
@@ -1229,7 +1230,7 @@ void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& ot
   setCoords(newCoords);
   bool areNodesMerged;
   int newNbOfNodes;
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=buildPermArrayForMergeNode(otherNbOfNodes,epsilon,areNodesMerged,newNbOfNodes);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=buildPermArrayForMergeNode(epsilon,otherNbOfNodes,areNodesMerged,newNbOfNodes);
   if(!areNodesMerged)
     {
       setCoords(oldCoords);

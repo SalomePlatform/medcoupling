@@ -23,6 +23,9 @@
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
+#include <sstream>
+#include <algorithm>
+
 using namespace ParaMEDMEM;
 
 MEDCouplingMultiFields *MEDCouplingMultiFields::New(const std::vector<MEDCouplingFieldDouble *>& fs) throw(INTERP_KERNEL::Exception)

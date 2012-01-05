@@ -778,7 +778,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
     def testFindCommonNodes(self):
         targetMesh=MEDCouplingDataForTest.build3DTargetMesh_1();
-        comm,commI=targetMesh.findCommonNodes(-1,1e-10);
+        comm,commI=targetMesh.findCommonNodes(1e-10,-1);
         self.assertEqual(1,commI.getNumberOfTuples());
         self.assertEqual(0,comm.getNumberOfTuples());
         o2n,newNbOfNodes=targetMesh.buildNewNumberingFromCommonNodesFormat(comm,commI);
@@ -789,7 +789,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         targetMesh=MEDCouplingDataForTest.build3DTargetMeshMergeNode_1();
         self.assertEqual(31,targetMesh.getNumberOfNodes());
-        comm,commI=targetMesh.findCommonNodes(-1,1e-10);
+        comm,commI=targetMesh.findCommonNodes(1e-10);# testing default parameter
         self.assertEqual(3,commI.getNumberOfTuples());
         self.assertEqual(6,comm.getNumberOfTuples());
         commExpected=[1,27,28,29,23,30]

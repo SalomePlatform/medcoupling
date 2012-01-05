@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <sstream>
 #include <cmath>
 #include <list>
 #include <set>

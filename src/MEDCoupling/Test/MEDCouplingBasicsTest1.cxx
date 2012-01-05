@@ -25,6 +25,7 @@
 #include "MEDCouplingMemArray.hxx"
 
 #include <cmath>
+#include <algorithm>
 #include <functional>
 
 using namespace ParaMEDMEM;
@@ -1159,7 +1160,7 @@ void MEDCouplingBasicsTest1::testFindCommonNodes()
 {
   DataArrayInt *comm,*commI;
   MEDCouplingUMesh *targetMesh=build3DTargetMesh_1();
-  targetMesh->findCommonNodes(-1,1e-10,comm,commI);
+  targetMesh->findCommonNodes(1e-10,-1,comm,commI);
   CPPUNIT_ASSERT_EQUAL(1,commI->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(0,comm->getNumberOfTuples());
   int newNbOfNodes;
@@ -1179,7 +1180,7 @@ void MEDCouplingBasicsTest1::testFindCommonNodes()
   //
   targetMesh=build3DTargetMeshMergeNode_1();
   CPPUNIT_ASSERT_EQUAL(31,targetMesh->getNumberOfNodes());
-  targetMesh->findCommonNodes(-1,1e-10,comm,commI);
+  targetMesh->findCommonNodes(1e-10,-1,comm,commI);
   CPPUNIT_ASSERT_EQUAL(3,commI->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(6,comm->getNumberOfTuples());
   const int commExpected[6]={1,27,28,29,23,30};

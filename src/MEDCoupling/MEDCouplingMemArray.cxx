@@ -33,6 +33,48 @@ typedef double (*MYFUNCPTR)(double);
 
 using namespace ParaMEDMEM;
 
+template<int SPACEDIM>
+void DataArrayDouble::findCommonTuplesAlg(std::vector<double>& bbox,
+                                          int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const
+{
+  const double *coordsPtr=getConstPointer();
+  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbNodes,-prec);
+  double bb[2*SPACEDIM];
+  double prec2=prec*prec;
+  std::vector<bool> isDone(nbNodes);
+  for(int i=0;i<nbNodes;i++)
+    {
+      if(!isDone[i])
+        {
+          for(int j=0;j<SPACEDIM;j++)
+            {
+              bb[2*j]=coordsPtr[SPACEDIM*i+j];
+              bb[2*j+1]=coordsPtr[SPACEDIM*i+j];
+            }
+          std::vector<int> intersectingElems;
+          myTree.getIntersectingElems(bb,intersectingElems);
+          if(intersectingElems.size()>1)
+            {
+              std::vector<int> commonNodes;
+              for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
+                if(*it!=i)
+                  if(*it>=limitNodeId)
+                    if(INTERP_KERNEL::distance2<SPACEDIM>(coordsPtr+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<prec2)
+                      {
+                        commonNodes.push_back(*it);
+                        isDone[*it]=true;
+                      }
+              if(!commonNodes.empty())
+                {
+                  cI.push_back(cI.back()+commonNodes.size()+1);
+                  c.push_back(i);
+                  c.insert(c.end(),commonNodes.begin(),commonNodes.end());
+                }
+            }
+        }
+    }
+}
+
 void DataArray::setName(const char *name)
 {
   _name=name;
@@ -796,6 +838,55 @@ void DataArrayDouble::meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL
   for(int i=0;i<nbOfComp2;i++)
     compIds[i]=nbOfComp1+i;
   copyPartOfStringInfoFrom2(compIds,*other);
+}
+
+/*!
+ * This methods searches for each tuple if there are any tuples in 'this' that are less far than 'prec' from n1. if any, these tuples are stored in out params
+ * comm and commIndex. The distance is computed using norm2. This method expects that 'this' is allocated and that the number of components is in [1,2,3].
+ * If not an exception will be thrown.
+ * This method is typically used by MEDCouplingPointSet::findCommonNodes and MEDCouplingUMesh::mergeNodes.
+ * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged each other.
+ * @param comm out parameter (not inout)
+ * @param commIndex out parameter (not inout)
+ */
+void DataArrayDouble::findCommonTuples(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const throw(INTERP_KERNEL::Exception)
+{
+  comm=DataArrayInt::New();
+  commIndex=DataArrayInt::New();
+  //
+  checkAllocated();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfCompo=getNumberOfComponents();
+  std::vector<double> bbox(2*nbOfTuples*nbOfCompo);
+  const double *coordsPtr=getConstPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      for(int j=0;j<nbOfCompo;j++)
+        {
+          bbox[2*nbOfCompo*i+2*j]=coordsPtr[nbOfCompo*i+j];
+          bbox[2*nbOfCompo*i+2*j+1]=coordsPtr[nbOfCompo*i+j];
+        }
+    }
+  //
+  std::vector<int> c,cI(1);
+  switch(nbOfCompo)
+    {
+    case 3:
+      findCommonTuplesAlg<3>(bbox,nbOfTuples,limitNodeId,prec,c,cI);
+      break;
+    case 2:
+      findCommonTuplesAlg<2>(bbox,nbOfTuples,limitNodeId,prec,c,cI);
+      break;
+    case 1:
+      findCommonTuplesAlg<1>(bbox,nbOfTuples,limitNodeId,prec,c,cI);
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1, 2 or 3.");
+    }
+  commIndex->alloc(cI.size(),1);
+  std::copy(cI.begin(),cI.end(),commIndex->getPointer());
+  comm->alloc(cI.back(),1);
+  std::copy(c.begin(),c.end(),comm->getPointer());
 }
 
 void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception)

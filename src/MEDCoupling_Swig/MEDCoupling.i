@@ -690,10 +690,10 @@ namespace ParaMEDMEM
              return res;
            }
            
-           PyObject *findCommonNodes(int limitNodeId, double prec) const throw(INTERP_KERNEL::Exception)
+           PyObject *findCommonNodes(double prec, int limitNodeId=-1) const throw(INTERP_KERNEL::Exception)
            {
              DataArrayInt *comm, *commIndex;
-             self->findCommonNodes(limitNodeId,prec,comm,commIndex);
+             self->findCommonNodes(prec,limitNodeId,comm,commIndex);
              PyObject *res = PyList_New(2);
              PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(comm),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
              PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(commIndex),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -2001,6 +2001,16 @@ namespace ParaMEDMEM
      std::vector<int> tmp;
      convertPyToNewIntArr3(li,tmp);
      return self->keepSelectedComponents(tmp);
+   }
+
+   PyObject *findCommonTuples(double prec, int limitNodeId=-1) const throw(INTERP_KERNEL::Exception)
+   {
+     DataArrayInt *comm, *commIndex;
+     self->findCommonTuples(prec,limitNodeId,comm,commIndex);
+     PyObject *res = PyList_New(2);
+     PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(comm),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(commIndex),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     return res;
    }
 
    void setSelectedComponents(const DataArrayDouble *a, PyObject *li) throw(INTERP_KERNEL::Exception)

@@ -159,10 +159,10 @@ bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingP
  * @param areNodesMerged output parameter that states if some nodes have been "merged" in returned array
  * @param newNbOfNodes output parameter too this is the maximal id in returned array to avoid to recompute it.
  */
-DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(int limitNodeId, double precision, bool& areNodesMerged, int& newNbOfNodes) const
+DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(double precision, int limitNodeId, bool& areNodesMerged, int& newNbOfNodes) const
 {
   DataArrayInt *comm,*commI;
-  findCommonNodes(limitNodeId,precision,comm,commI);
+  findCommonNodes(precision,limitNodeId,comm,commI);
   int oldNbOfNodes=getNumberOfNodes();
   DataArrayInt *ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
   areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
@@ -172,49 +172,17 @@ DataArrayInt *MEDCouplingPointSet::buildPermArrayForMergeNode(int limitNodeId, d
 }
 
 /*!
- * This methods searches for each node n1 nodes in _coords that are less far than 'prec' from n1. if any these nodes are stored in params
+ * This methods searches for each node if there are any nodes in _coords that are less far than 'prec' from n1. if any, these nodes are stored in out params
  * comm and commIndex.
  * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged each other.
  * @param comm out parameter (not inout)
  * @param commIndex out parameter (not inout)
  */
-void MEDCouplingPointSet::findCommonNodes(int limitNodeId, double prec, DataArrayInt *&comm, DataArrayInt *&commIndex) const
+void MEDCouplingPointSet::findCommonNodes(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const
 {
-  comm=DataArrayInt::New();
-  commIndex=DataArrayInt::New();
-  //
-  int nbNodesOld=getNumberOfNodes();
-  int spaceDim=getSpaceDimension();
-  std::vector<double> bbox(2*nbNodesOld*spaceDim);
-  const double *coordsPtr=_coords->getConstPointer();
-  for(int i=0;i<nbNodesOld;i++)
-    {
-      for(int j=0;j<spaceDim;j++)
-        {
-          bbox[2*spaceDim*i+2*j]=coordsPtr[spaceDim*i+j];
-          bbox[2*spaceDim*i+2*j+1]=coordsPtr[spaceDim*i+j];
-        }
-    }
-  //
-  std::vector<int> c,cI(1);
-  switch(spaceDim)
-    {
-    case 3:
-      findCommonNodesAlg<3>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
-      break;
-    case 2:
-      findCommonNodesAlg<2>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
-      break;
-    case 1:
-      findCommonNodesAlg<1>(bbox,nbNodesOld,limitNodeId,prec,c,cI);
-      break;
-    default:
-      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1, 2 or 3.");
-    }
-  commIndex->alloc(cI.size(),1);
-  std::copy(cI.begin(),cI.end(),commIndex->getPointer());
-  comm->alloc(cI.back(),1);
-  std::copy(c.begin(),c.end(),comm->getPointer());
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findCommonNodes : no coords specified !");
+  _coords->findCommonTuples(prec,limitNodeId,comm,commIndex);
 }
 
 std::vector<int> MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception)

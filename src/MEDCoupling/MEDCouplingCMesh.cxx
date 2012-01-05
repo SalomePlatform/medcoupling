@@ -24,6 +24,7 @@
 
 #include <functional>
 #include <algorithm>
+#include <sstream>
 #include <numeric>
 
 using namespace ParaMEDMEM;

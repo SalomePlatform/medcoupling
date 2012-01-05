@@ -26,6 +26,7 @@
 #include "MEDCouplingGaussLocalization.hxx"
 
 #include <cmath>
+#include <algorithm>
 #include <functional>
 #include <iterator>
 

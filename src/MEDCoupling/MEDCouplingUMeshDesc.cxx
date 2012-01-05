@@ -22,6 +22,7 @@
 #include "MEDCouplingMemArray.hxx"
 
 #include <limits>
+#include <sstream>
 
 using namespace ParaMEDMEM;
 

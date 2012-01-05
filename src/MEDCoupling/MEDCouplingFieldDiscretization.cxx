@@ -31,6 +31,7 @@
 #include <set>
 #include <list>
 #include <limits>
+#include <sstream>
 #include <algorithm>
 #include <functional>
 

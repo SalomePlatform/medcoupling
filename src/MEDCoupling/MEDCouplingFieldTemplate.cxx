@@ -22,6 +22,8 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 
+#include <sstream>
+
 using namespace ParaMEDMEM;
 
 MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception)
