@@ -128,7 +128,8 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFiel
 {
   if(_src_method!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(_target_method.c_str()));
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(_target_method.c_str()),srcField->getTimeDiscretization());
+  ret->copyTinyAttrFrom(srcField);
   ret->setNature(srcField->getNature());
   ret->setMesh(_target_mesh);
   transfer(srcField,ret,dftValue);
@@ -139,7 +140,8 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCoupl
 {
   if(_target_method!=targetField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(_target_method.c_str()));
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(_target_method.c_str()),targetField->getTimeDiscretization());
+  ret->copyTinyAttrFrom(targetField);
   ret->setNature(targetField->getNature());
   ret->setMesh(_src_mesh);
   reverseTransfer(ret,targetField,dftValue);
