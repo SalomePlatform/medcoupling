@@ -117,6 +117,7 @@ void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingFieldDouble *o
 
 /*!
  * Copy only times, order, iteration from other. The underlying mesh is not impacted by this method.
+ * Arrays are not impacted too.
  */
 void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
 {
