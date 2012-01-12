@@ -20,14 +20,14 @@
 #ifndef __INTERPKERNELEXCEPTION_HXX__
 #define __INTERPKERNELEXCEPTION_HXX__
 
-#include "INTERPKERNELBASESDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 
 #include <string>
 #include <exception>
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNELBASES_EXPORT Exception : public std::exception
+  class INTERPKERNEL_EXPORT Exception : public std::exception
   {
   public:
     Exception(const char *what);

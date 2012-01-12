@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELGEO2DEDGELIN_HXX__
 #define __INTERPKERNELGEO2DEDGELIN_HXX__
 
-#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
 
 namespace INTERP_KERNEL
@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
       double _matrix[4];//SPACEDIM*SPACEDIM
     };
 
-  class INTERPKERNELGEOMETRIC2D_EXPORT EdgeLin : public Edge
+  class INTERPKERNEL_EXPORT EdgeLin : public Edge
   {
     friend class SegSegIntersector;
   public:

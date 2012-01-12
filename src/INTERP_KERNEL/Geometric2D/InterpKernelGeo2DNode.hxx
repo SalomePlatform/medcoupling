@@ -21,7 +21,7 @@
 #define __INTERPKERNELGEO2DNODE_HXX__
 
 #include "InterpKernelGeo2DPrecision.hxx"
-#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 
 #include <map>
 #include <cmath>
@@ -45,7 +45,7 @@ namespace INTERP_KERNEL
   /*!
    * As nodes can be shared between edges it is dealed with ref counting.
    */
-  class INTERPKERNELGEOMETRIC2D_EXPORT Node
+  class INTERPKERNEL_EXPORT Node
   {
   public:
     Node(double x, double y);

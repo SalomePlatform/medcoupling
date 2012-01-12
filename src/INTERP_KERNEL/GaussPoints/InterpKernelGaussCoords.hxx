@@ -20,6 +20,7 @@
 #ifndef __INTERPKERNELGAUSS_HXX__
 #define __INTERPKERNELGAUSS_HXX__
 
+#include "INTERPKERNELDefines.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 
@@ -31,7 +32,7 @@ namespace INTERP_KERNEL
   typedef std::vector<int>    IndexVector;
 
   //Class to store Gauss Points information
-  class GaussInfo 
+  class INTERPKERNEL_EXPORT GaussInfo 
   {
   public:
     GaussInfo( NormalizedCellType theGeometry,
@@ -123,7 +124,7 @@ namespace INTERP_KERNEL
 
 
   //Class for calculation of the coordinates of the gauss points 
-  class GaussCoords 
+  class INTERPKERNEL_EXPORT GaussCoords 
   {
   public:
 

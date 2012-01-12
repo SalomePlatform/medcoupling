@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELEXPRPARSER_HXX__
 #define __INTERPKERNELEXPRPARSER_HXX__
 
-#include "INTERPKERNELEXPREVALDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelUnit.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelFunction.hxx"
@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
 {
   class ValueDouble;
 
-  class INTERPKERNELEXPREVAL_EXPORT LeafExpr
+  class INTERPKERNEL_EXPORT LeafExpr
   {
   public:
     virtual ~LeafExpr();
@@ -45,7 +45,7 @@ namespace INTERP_KERNEL
     static LeafExpr *buildInstanceFrom(const std::string& expr) throw(INTERP_KERNEL::Exception);
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT LeafExprVal : public LeafExpr
+  class INTERPKERNEL_EXPORT LeafExprVal : public LeafExpr
   {
   public:
     LeafExprVal(double value);
@@ -58,7 +58,7 @@ namespace INTERP_KERNEL
     double _value;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT LeafExprVar : public LeafExpr
+  class INTERPKERNEL_EXPORT LeafExprVar : public LeafExpr
   {
   public:
     LeafExprVar(const std::string& var);
@@ -78,7 +78,7 @@ namespace INTERP_KERNEL
     std::string _var_name;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT ExprParser
+  class INTERPKERNEL_EXPORT ExprParser
   {
   public:
     ExprParser(const char *expr, ExprParser *father=0);

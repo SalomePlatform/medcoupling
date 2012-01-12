@@ -20,13 +20,13 @@
 #ifndef __INTERPKERNELVALUE_HXX__
 #define __INTERPKERNELVALUE_HXX__
 
-#include "INTERPKERNELEXPREVALDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelUnit.hxx"
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNELEXPREVAL_EXPORT Value
+  class INTERPKERNEL_EXPORT Value
   {
   public:
     virtual Value *newInstance() const = 0;
@@ -58,7 +58,7 @@ namespace INTERP_KERNEL
     virtual Value *ifFunc(const Value *the, const Value *els) const throw(INTERP_KERNEL::Exception) = 0;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT ValueDouble : public Value
+  class INTERPKERNEL_EXPORT ValueDouble : public Value
   {
   public:
     ValueDouble();
@@ -96,7 +96,7 @@ namespace INTERP_KERNEL
     double _data;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT ValueUnit : public Value
+  class INTERPKERNEL_EXPORT ValueUnit : public Value
   {
   public:
     ValueUnit();
@@ -135,7 +135,7 @@ namespace INTERP_KERNEL
     DecompositionInUnitBase _data;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT ValueDoubleExpr : public Value
+  class INTERPKERNEL_EXPORT ValueDoubleExpr : public Value
   {
   public:
     ValueDoubleExpr(int szDestData, const double *srcData);

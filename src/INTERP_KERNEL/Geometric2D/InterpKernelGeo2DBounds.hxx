@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELGEO2DBOUNDS_HXX__
 #define __INTERPKERNELGEO2DBOUNDS_HXX__
 
-#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 
 #include <algorithm>
 
@@ -37,7 +37,7 @@ namespace INTERP_KERNEL
       ON_BOUNDARY_NEG = 3
     } Position;
   
-  class INTERPKERNELGEOMETRIC2D_EXPORT Bounds
+  class INTERPKERNEL_EXPORT Bounds
   {
   public:
     Bounds():_x_min(0.),_x_max(0.),_y_min(0.),_y_max(0.) { }

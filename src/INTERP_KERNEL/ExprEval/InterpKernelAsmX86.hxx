@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELASMX86_HXX__
 #define __INTERPKERNELASMX86_HXX__
 
-#include "INTERPKERNELEXPREVALDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelException.hxx"
 
 #include <vector>

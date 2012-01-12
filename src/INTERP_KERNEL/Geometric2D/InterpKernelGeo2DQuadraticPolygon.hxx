@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELGEO2DQUADRATICPOLYGON_HXX__
 #define __INTERPKERNELGEO2DQUADRATICPOLYGON_HXX__
 
-#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 
 #include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelGeo2DAbstractEdge.hxx"
@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
   class Edge;
   class MergePoints;
 
-  class INTERPKERNELGEOMETRIC2D_EXPORT QuadraticPolygon : public ComposedEdge
+  class INTERPKERNEL_EXPORT QuadraticPolygon : public ComposedEdge
   {
   public:
     QuadraticPolygon() { }

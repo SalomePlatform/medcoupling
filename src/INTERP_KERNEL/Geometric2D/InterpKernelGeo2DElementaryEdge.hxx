@@ -20,14 +20,14 @@
 #ifndef __INTERPKERNELGEO2DELEMENTARYEDGE_HXX__
 #define __INTERPKERNELGEO2DELEMENTARYEDGE_HXX__
 
-#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DAbstractEdge.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNELGEOMETRIC2D_EXPORT ElementaryEdge
+  class INTERPKERNEL_EXPORT ElementaryEdge
   {
   public:
     ElementaryEdge(Edge *ptr, bool direction):_direction(direction),_ptr(ptr) { }

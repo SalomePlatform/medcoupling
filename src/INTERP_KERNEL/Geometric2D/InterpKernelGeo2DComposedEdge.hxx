@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELGEO2DCOMPOSEDNODE_HXX__
 #define __INTERPKERNELGEO2DCOMPOSEDNODE_HXX__
 
-#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 
 #include <set>
 #include <list>
@@ -35,7 +35,7 @@ namespace INTERP_KERNEL
   class ElementaryEdge;
   class IteratorOnComposedEdge;
 
-  class INTERPKERNELGEOMETRIC2D_EXPORT ComposedEdge
+  class INTERPKERNEL_EXPORT ComposedEdge
   {
     friend class IteratorOnComposedEdge;
   public:

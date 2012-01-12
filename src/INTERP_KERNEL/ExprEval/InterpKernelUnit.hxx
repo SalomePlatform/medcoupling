@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELUNIT_HXX__
 #define __INTERPKERNELUNIT_HXX__
 
-#include "INTERPKERNELEXPREVALDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelException.hxx"
 
 #include <map>
@@ -28,7 +28,7 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNELEXPREVAL_EXPORT UnitDataBase
+  class INTERPKERNEL_EXPORT UnitDataBase
   {
   public:
     UnitDataBase();
@@ -52,7 +52,7 @@ namespace INTERP_KERNEL
     static const double ADD_COEFF[NB_OF_UNITS_RECOGN];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT DecompositionInUnitBase
+  class INTERPKERNEL_EXPORT DecompositionInUnitBase
   {
   public:
     DecompositionInUnitBase();
@@ -96,7 +96,7 @@ namespace INTERP_KERNEL
    * dimension 3 stands for elec intensity A.
    * dimension 4 stands for temperature in K.
    */
-  class INTERPKERNELEXPREVAL_EXPORT Unit
+  class INTERPKERNEL_EXPORT Unit
   {
   public:
     Unit(const char *reprC, bool tryToInterp=true);

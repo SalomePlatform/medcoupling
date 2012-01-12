@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELFUNCTION_HXX__
 #define __INTERPKERNELFUNCTION_HXX__
 
-#include "INTERPKERNELEXPREVALDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelException.hxx"
 
 #include <vector>
@@ -30,7 +30,7 @@ namespace INTERP_KERNEL
   class Value;
   class Function;
 
-  class INTERPKERNELEXPREVAL_EXPORT FunctionsFactory
+  class INTERPKERNEL_EXPORT FunctionsFactory
   {
   public:
     static Function *buildFuncFromString(const char *type, int nbOfParams) throw(INTERP_KERNEL::Exception);
@@ -41,7 +41,7 @@ namespace INTERP_KERNEL
     static Function *buildTernaryFuncFromString(const char *type) throw(INTERP_KERNEL::Exception);
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT Function
+  class INTERPKERNEL_EXPORT Function
   {
   public:
     virtual ~Function();
@@ -52,13 +52,13 @@ namespace INTERP_KERNEL
     virtual bool isACall() const = 0;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT UnaryFunction : public Function
+  class INTERPKERNEL_EXPORT UnaryFunction : public Function
   { 
   public:
     int getNbInputParams() const;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT IdentityFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT IdentityFunction : public UnaryFunction
   {
   public:
     ~IdentityFunction();
@@ -70,7 +70,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT PositiveFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT PositiveFunction : public UnaryFunction
   {
   public:
     ~PositiveFunction();
@@ -82,7 +82,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT NegateFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT NegateFunction : public UnaryFunction
   {
   public:
     ~NegateFunction();
@@ -94,7 +94,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT CosFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT CosFunction : public UnaryFunction
   {
   public:
     ~CosFunction();
@@ -106,7 +106,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT SinFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT SinFunction : public UnaryFunction
   {
   public:
     ~SinFunction();
@@ -118,7 +118,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT TanFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT TanFunction : public UnaryFunction
   {
   public:
     ~TanFunction();
@@ -130,7 +130,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT SqrtFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT SqrtFunction : public UnaryFunction
   {
   public:
     ~SqrtFunction();
@@ -142,7 +142,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT AbsFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT AbsFunction : public UnaryFunction
   {
   public:
     ~AbsFunction();
@@ -154,7 +154,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT ExpFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT ExpFunction : public UnaryFunction
   {
   public:
     ~ExpFunction();
@@ -166,7 +166,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT LnFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT LnFunction : public UnaryFunction
   {
   public:
     ~LnFunction();
@@ -178,7 +178,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT LogFunction : public UnaryFunction
+  class INTERPKERNEL_EXPORT LogFunction : public UnaryFunction
   {
   public:
     ~LogFunction();
@@ -190,7 +190,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT Log10Function : public UnaryFunction
+  class INTERPKERNEL_EXPORT Log10Function : public UnaryFunction
   {
   public:
     ~Log10Function();
@@ -202,7 +202,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT BinaryFunction : public Function
+  class INTERPKERNEL_EXPORT BinaryFunction : public Function
   {
   public:
     int getNbInputParams() const;
@@ -220,7 +220,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT MinusFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT MinusFunction : public BinaryFunction
   {
   public:
     ~MinusFunction();
@@ -232,7 +232,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT MultFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT MultFunction : public BinaryFunction
   {
   public:
     ~MultFunction();
@@ -244,7 +244,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
   
-  class INTERPKERNELEXPREVAL_EXPORT DivFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT DivFunction : public BinaryFunction
   {
   public:
     ~DivFunction();
@@ -256,7 +256,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT PowFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT PowFunction : public BinaryFunction
   {
   public:
     ~PowFunction();
@@ -268,7 +268,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT MaxFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT MaxFunction : public BinaryFunction
   {
   public:
     ~MaxFunction();
@@ -280,7 +280,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT MinFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT MinFunction : public BinaryFunction
   {
   public:
     ~MinFunction();
@@ -292,7 +292,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT GreaterThanFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT GreaterThanFunction : public BinaryFunction
   {
   public:
     ~GreaterThanFunction();
@@ -304,7 +304,7 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT LowerThanFunction : public BinaryFunction
+  class INTERPKERNEL_EXPORT LowerThanFunction : public BinaryFunction
   {
   public:
     ~LowerThanFunction();
@@ -316,13 +316,13 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT TernaryFunction : public Function
+  class INTERPKERNEL_EXPORT TernaryFunction : public Function
   {
   public:
     int getNbInputParams() const;
   };
 
-  class INTERPKERNELEXPREVAL_EXPORT IfFunction : public TernaryFunction
+  class INTERPKERNEL_EXPORT IfFunction : public TernaryFunction
   {
   public:
     ~IfFunction();

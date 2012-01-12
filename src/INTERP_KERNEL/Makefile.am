@@ -164,7 +164,6 @@ Interpolation2DCurve.hxx                \
 InterpolationCurve.hxx	                \
 InterpolationCurve.txx			\
 DirectedBoundingBox.hxx			\
-Bases/INTERPKERNELBASESDefines.hxx      \
 Bases/InterpKernelException.hxx         \
 Bases/NormalizedUnstructuredMesh.hxx    \
 Bases/InterpKernelStlExt.hxx            \
@@ -172,7 +171,6 @@ Bases/InterpKernelHashMap.hxx           \
 Bases/InterpKernelHashTable.hxx         \
 Bases/InterpKernelHashFun.hxx           \
 Bases/InterpKernelAutoPtr.hxx           \
-Geometric2D/INTERPKERNELGEOMETRIC2DDefines.hxx     \
 Geometric2D/InterpKernelGeo2DAbstractEdge.hxx      \
 Geometric2D/InterpKernelGeo2DBounds.hxx            \
 Geometric2D/InterpKernelGeo2DPrecision.hxx         \
@@ -185,7 +183,6 @@ Geometric2D/InterpKernelGeo2DElementaryEdge.hxx    \
 Geometric2D/InterpKernelGeo2DNode.hxx              \
 Geometric2D/InterpKernelGeo2DQuadraticPolygon.hxx  \
 Geometric2D/InterpKernelGeo2DEdge.txx              \
-ExprEval/INTERPKERNELEXPREVALDefines.hxx         \
 ExprEval/InterpKernelExprParser.hxx              \
 ExprEval/InterpKernelFunction.hxx                \
 ExprEval/InterpKernelUnit.hxx                    \
@@ -205,7 +202,6 @@ PlanarIntersectorP1P0.txx	\
 VolSurfFormulae.hxx             \
 VolSurfUser.hxx                 \
 VolSurfUser.txx                 \
-ExprEval/INTERPKERNELEXPREVALDefines.hxx         \
 ExprEval/InterpKernelExprParser.hxx              \
 ExprEval/InterpKernelFunction.hxx                \
 ExprEval/InterpKernelUnit.hxx                    \

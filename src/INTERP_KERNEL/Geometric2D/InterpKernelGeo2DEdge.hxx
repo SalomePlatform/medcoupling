@@ -20,7 +20,7 @@
 #ifndef __INTERPKERNELGEO2DEDGE_HXX__
 #define __INTERPKERNELGEO2DEDGE_HXX__
 
-#include "INTERPKERNELGEOMETRIC2DDefines.hxx"
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DBounds.hxx"
@@ -63,7 +63,7 @@ namespace INTERP_KERNEL
       FULL_UNKNOWN = 3
     } TypeOfEdgeLocInPolygon;
 
-  class INTERPKERNELGEOMETRIC2D_EXPORT MergePoints
+  class INTERPKERNEL_EXPORT MergePoints
   {
   public:
     MergePoints();
@@ -97,7 +97,7 @@ namespace INTERP_KERNEL
    * This class is in charge to store an intersection point as result of \b non oververlapping edge intersection.
    * This class manages the cases when intersect element is one of the extrimities of edge1 and/or edge2.
    */
-  class INTERPKERNELGEOMETRIC2D_EXPORT IntersectElement
+  class INTERPKERNEL_EXPORT IntersectElement
   {
   public:
     IntersectElement(double val1, double val2, bool start1, bool end1, bool start2, bool end2, Node *node, const Edge& e1, const Edge& e2, bool keepOrder);
@@ -138,7 +138,7 @@ namespace INTERP_KERNEL
   /*!
    * This abstract interface specifies all the methods to be overloaded of all possibilities edge-intersection.
    */
-  class INTERPKERNELGEOMETRIC2D_EXPORT EdgeIntersector
+  class INTERPKERNEL_EXPORT EdgeIntersector
   {
   protected:
     //! All non symetric methods are relative to 'e1'.
@@ -163,14 +163,14 @@ namespace INTERP_KERNEL
     const Edge& _e2;
   };
 
-  class INTERPKERNELGEOMETRIC2D_EXPORT SameTypeEdgeIntersector : public EdgeIntersector
+  class INTERPKERNEL_EXPORT SameTypeEdgeIntersector : public EdgeIntersector
   {
   protected:
     SameTypeEdgeIntersector(const Edge& e1, const Edge& e2):EdgeIntersector(e1,e2) { }
     bool keepOrder() const { return true; }
   };
 
-  class INTERPKERNELGEOMETRIC2D_EXPORT CrossTypeEdgeIntersector : public EdgeIntersector
+  class INTERPKERNEL_EXPORT CrossTypeEdgeIntersector : public EdgeIntersector
   {
   protected:
     CrossTypeEdgeIntersector(const Edge& e1, const Edge& e2, bool reverse):EdgeIntersector(e1,e2),_reverse(reverse) { }
@@ -194,7 +194,7 @@ namespace INTERP_KERNEL
    * To be exact start and end node can change (adress) but their location remain
    * the same (at precision).
    */
-  class INTERPKERNELGEOMETRIC2D_EXPORT Edge
+  class INTERPKERNEL_EXPORT Edge
   {
   public:
     Edge(Node *start, Node *end, bool direction=true):_cnt(1),_loc(FULL_UNKNOWN) { if(direction) { _start=start; _end=end; } else { _start=end; _end=start; } _start->incrRef(); _end->incrRef(); }
