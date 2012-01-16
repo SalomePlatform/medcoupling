@@ -58,6 +58,7 @@ namespace INTERP_KERNEL
 
     IntersectionType getIntersectionType() const { return _intersection_type; }
     void setIntersectionType(IntersectionType it) { _intersection_type=it; }
+    std::string getIntersectionTypeRepr() const;
 
     double getPrecision() const { return _precision; }
     void setPrecision(double p) { _precision=p; }
@@ -85,6 +86,7 @@ namespace INTERP_KERNEL
     
     SplittingPolicy getSplittingPolicy() const { return _splitting_policy; }
     void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
+    std::string getSplittingPolicyRepr() const;
 
     void setP1P0BaryMethod(bool isP1P0) { _P1P0_bary_method=isP1P0; }
     bool getP1P0BaryMethod() const { return _P1P0_bary_method; }
@@ -122,6 +124,7 @@ namespace INTERP_KERNEL
     bool setOptionDouble(const std::string& key, double value);
     bool setOptionInt(const std::string& key, int value);
     bool setOptionString(const std::string& key, const std::string& value);
+    std::string printOptions() const;
   private:
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;

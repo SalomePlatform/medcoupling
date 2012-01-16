@@ -19,6 +19,8 @@
 
 #include "InterpolationOptions.hxx"
 
+#include <sstream>
+
 const double INTERP_KERNEL::InterpolationOptions::DFT_MEDIAN_PLANE=0.5;
 
 const double INTERP_KERNEL::InterpolationOptions::DFT_SURF3D_ADJ_EPS=1.e-4;
@@ -62,6 +64,20 @@ const char INTERP_KERNEL::InterpolationOptions::PLANAR_SPLIT_FACE_6_STR[]="PLANA
 const char INTERP_KERNEL::InterpolationOptions::GENERAL_SPLIT_24_STR[]="GENERAL_24";
 
 const char INTERP_KERNEL::InterpolationOptions::GENERAL_SPLIT_48_STR[]="GENERAL_48";
+
+std::string INTERP_KERNEL::InterpolationOptions::getIntersectionTypeRepr() const
+{
+  if(_intersection_type==INTERP_KERNEL::Triangulation)
+    return std::string(TRIANGULATION_INTERSECT2D_STR);
+  else if(_intersection_type==INTERP_KERNEL::Convex)
+    return std::string(CONVEX_INTERSECT2D_STR);
+  else if(_intersection_type==INTERP_KERNEL::Geometric2D)
+    return std::string(GEOMETRIC_INTERSECT2D_STR);
+  else if(_intersection_type==INTERP_KERNEL::PointLocator)
+    return std::string(POINTLOCATOR_INTERSECT_STR);
+  else
+    return std::string("UNKNOWN_INTERSECT_TYPE");
+}
 
 bool INTERP_KERNEL::InterpolationOptions::setOptionDouble(const std::string& key, double value)
 {
@@ -174,6 +190,20 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key
   return false;
 }
 
+std::string INTERP_KERNEL::InterpolationOptions::getSplittingPolicyRepr() const
+{
+  if(_splitting_policy==INTERP_KERNEL::PLANAR_FACE_5)
+    return std::string(PLANAR_SPLIT_FACE_5_STR);
+  else if(_splitting_policy==INTERP_KERNEL::PLANAR_FACE_6)
+    return std::string(PLANAR_SPLIT_FACE_6_STR);
+  else if(_splitting_policy==INTERP_KERNEL::GENERAL_24)
+    return std::string(GENERAL_SPLIT_24_STR);
+  else if(_splitting_policy==INTERP_KERNEL::GENERAL_48)
+    return std::string(GENERAL_SPLIT_48_STR);
+  else
+    return std::string("UNKNOWN_SPLITTING_POLICY");
+}
+
 std::string INTERP_KERNEL::InterpolationOptions::filterInterpolationMethod(const std::string& meth) const
 {
   if ( _P1P0_bary_method && meth == "P1P0" )
@@ -207,3 +237,21 @@ bool INTERP_KERNEL::InterpolationOptions::setInterpolationOptions(long print_lev
   return(setOptionString(INTERSEC_TYPE_STR,intersection_type) && setOptionString(SPLITTING_POLICY_STR,splitting_policy));
 }
 
+std::string INTERP_KERNEL::InterpolationOptions::printOptions() const
+{
+  std::ostringstream oss; oss.precision(15); oss << "Interpolation Options ******" << std::endl;
+  oss << "Print level : " << _print_level << std::endl;
+  oss << "Intersection type : " << getIntersectionTypeRepr() << std::endl;
+  oss << "Precision : " << _precision << std::endl;
+  oss << "Median plane : " << _median_plane << std::endl;
+  oss << "Do Rotate status : " << std::boolalpha << _do_rotate << std::endl;
+  oss << "Bounding box adj : " << _bounding_box_adjustment << std::endl;
+  oss << "Bounding box adj abs : " << _bounding_box_adjustment_abs << std::endl;
+  oss << "Max distance for 3DSurf intersect : " << _max_distance_for_3Dsurf_intersect << std::endl;
+  oss << "Orientation : " << _orientation << std::endl;
+  oss << "Measure abs : " << _measure_abs << std::endl;
+  oss << "Splitting policy : " << getSplittingPolicyRepr() << std::endl;
+  oss << "P1P0 Barycentric method : " << _P1P0_bary_method << std::endl;
+  oss << "****************************" << std::endl;
+  return oss.str();
+}
