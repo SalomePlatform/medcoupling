@@ -205,6 +205,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromPolarToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
+%newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
 %newobject ParaMEDMEM::DataArrayDouble::__getitem__;
 %newobject ParaMEDMEM::DataArrayDouble::__add__;
 %newobject ParaMEDMEM::DataArrayDouble::__radd__;
@@ -690,10 +691,10 @@ namespace ParaMEDMEM
              return res;
            }
            
-           PyObject *findCommonNodes(double prec, int limitNodeId=-1) const throw(INTERP_KERNEL::Exception)
+           PyObject *findCommonNodes(double prec, int limitTupleId=-1) const throw(INTERP_KERNEL::Exception)
            {
              DataArrayInt *comm, *commIndex;
-             self->findCommonNodes(prec,limitNodeId,comm,commIndex);
+             self->findCommonNodes(prec,limitTupleId,comm,commIndex);
              PyObject *res = PyList_New(2);
              PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(comm),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
              PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(commIndex),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -3044,6 +3045,16 @@ namespace ParaMEDMEM
    {
      std::set<int> ret=self->getDifferentValues();
      return convertIntArrToPyList3(ret);
+   }
+
+   static PyObject *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, const DataArrayInt *arr, const DataArrayInt *arrI) throw(INTERP_KERNEL::Exception)
+   {
+     int newNbOfTuples=-1;
+     DataArrayInt *ret0=ParaMEDMEM::DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(nbOfOldTuples,arr,arrI,newNbOfTuples);
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,SWIG_NewPointerObj((void*)ret0,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
+     PyTuple_SetItem(ret,1,PyInt_FromLong(newNbOfTuples));
+     return ret;
    }
 
    void setValues(PyObject *li, int nbOfTuples, int nbOfElsPerTuple) throw(INTERP_KERNEL::Exception)

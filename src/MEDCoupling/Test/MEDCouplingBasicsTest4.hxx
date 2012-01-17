@@ -82,6 +82,10 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testUMeshBuildSetInstanceFromThis1 );
     CPPUNIT_TEST( testUMeshMergeMeshesCVW1 );
     CPPUNIT_TEST( testDADFindCommonTuples1 );
+    CPPUNIT_TEST( testDABack1 );
+    CPPUNIT_TEST( testDADGetDifferentValues1 );
+    CPPUNIT_TEST( testDAIBuildOld2NewArrayFromSurjectiveFormat2 );
+    CPPUNIT_TEST( testDADIReverse1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testDescriptionInMeshTimeUnit1();
@@ -133,6 +137,10 @@ namespace ParaMEDMEM
     void testUMeshMergeMeshesCVW1();
     void testChangeUnderlyingMeshWithCMesh1();
     void testDADFindCommonTuples1();
+    void testDABack1();
+    void testDADGetDifferentValues1();
+    void testDAIBuildOld2NewArrayFromSurjectiveFormat2();
+    void testDADIReverse1();
   };
 }
 

@@ -419,6 +419,14 @@ void DataArrayDouble::sort() throw(INTERP_KERNEL::Exception)
   _mem.sort();
 }
 
+void DataArrayDouble::reverse() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::reverse : only supported with 'this' array with ONE component !");
+  _mem.reverse();
+}
+
 void DataArrayDouble::checkMonotonic(double eps) const throw(INTERP_KERNEL::Exception)
 {
   if(!isMonotonic(eps))
@@ -582,7 +590,7 @@ void DataArrayDouble::renumberInPlaceR(const int *new2Old)
 
 /*!
  * This method does \b not change the number of tuples after this call.
- * Only a permutation is done. If a permutation reduction is needed substr, or selectByTupleId should be used.
+ * Only a permutation is done. If a permutation reduction is needed renumberAndReduce.
  */
 DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
 {
@@ -601,7 +609,7 @@ DataArrayDouble *DataArrayDouble::renumber(const int *old2New) const
 
 /*!
  * This method does \b not change the number of tuples after this call.
- * Only a permutation is done.
+ * Only a permutation is done. If a permutation reduction is needed substr, or selectByTupleId should be used.
  */
 DataArrayDouble *DataArrayDouble::renumberR(const int *new2Old) const
 {
@@ -845,11 +853,17 @@ void DataArrayDouble::meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL
  * comm and commIndex. The distance is computed using norm2. This method expects that 'this' is allocated and that the number of components is in [1,2,3].
  * If not an exception will be thrown.
  * This method is typically used by MEDCouplingPointSet::findCommonNodes and MEDCouplingUMesh::mergeNodes.
- * @param limitNodeId is the limit node id. All nodes which id is strictly lower than 'limitNodeId' will not be merged each other.
- * @param comm out parameter (not inout)
- * @param commIndex out parameter (not inout)
+ * In case of success, commIndex->getNumberOfTuples()-1 gives the number of tuples groupes that are within distance 'prec'.
+ * comm->getNumberOfTuples()==commIndex->back()
+ * The returned pair of DataArrayInt instances ('comm','commIndex') is called Surjectived Format 2 \sa DataArrayInt::BuildNew2OldArrayFromSurjectiveFormat2.
+ * This format is more compact in surjective format because only all tuple ids not in 'comm' are remain unchanged.
+ * 
+ * @param prec is an absolute precision.
+ * @param limitTupleId is the limit tuple id. All tuples which id is strictly lower than 'limiTupleId' will not be merged each other.
+ * @param comm out parameter (not inout). Number of components is equal to 1.
+ * @param commIndex out parameter (not inout). Number of components is equal to 1.
  */
-void DataArrayDouble::findCommonTuples(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const throw(INTERP_KERNEL::Exception)
+void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const throw(INTERP_KERNEL::Exception)
 {
   comm=DataArrayInt::New();
   commIndex=DataArrayInt::New();
@@ -872,13 +886,13 @@ void DataArrayDouble::findCommonTuples(double prec, int limitNodeId, DataArrayIn
   switch(nbOfCompo)
     {
     case 3:
-      findCommonTuplesAlg<3>(bbox,nbOfTuples,limitNodeId,prec,c,cI);
+      findCommonTuplesAlg<3>(bbox,nbOfTuples,limitTupleId,prec,c,cI);
       break;
     case 2:
-      findCommonTuplesAlg<2>(bbox,nbOfTuples,limitNodeId,prec,c,cI);
+      findCommonTuplesAlg<2>(bbox,nbOfTuples,limitTupleId,prec,c,cI);
       break;
     case 1:
-      findCommonTuplesAlg<1>(bbox,nbOfTuples,limitNodeId,prec,c,cI);
+      findCommonTuplesAlg<1>(bbox,nbOfTuples,limitTupleId,prec,c,cI);
       break;
     default:
       throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1, 2 or 3.");
@@ -887,6 +901,25 @@ void DataArrayDouble::findCommonTuples(double prec, int limitNodeId, DataArrayIn
   std::copy(cI.begin(),cI.end(),commIndex->getPointer());
   comm->alloc(cI.back(),1);
   std::copy(c.begin(),c.end(),comm->getPointer());
+}
+
+/*!
+ * This method returns a newly allocated object the user should deal with.
+ * This method works for arrays which have number of components into [1,2,3]. If not an exception will be thrown.
+ * This method returns the different values in 'this' using 'prec'. The different values are kept in the same
+ * order than 'this'. That is to say that returned DataArrayDouble instance is not systematically sorted.
+ *
+ * @param prec is an absolute precision.
+ * @param limitTupleId is the limit tuple id. All tuples which id is strictly lower than 'limiTupleId' will not be merged each other.
+ */
+DataArrayDouble *DataArrayDouble::getDifferentValues(double prec, int limitTupleId) const throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *c0=0,*cI0=0;
+  findCommonTuples(prec,limitTupleId,c0,cI0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c(c0),cI(cI0);
+  int newNbOfTuples=-1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(getNumberOfTuples(),c0,cI0,newNbOfTuples);
+  return renumberAndReduce(o2n->getConstPointer(),newNbOfTuples);
 }
 
 void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std::vector<int>& compoIds) throw(INTERP_KERNEL::Exception)
@@ -1085,6 +1118,22 @@ void DataArrayDouble::setPartOfValuesAdv(const DataArrayDouble *a, const DataArr
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+}
+
+/*!
+ * This method returns the last element in 'this'. So this method makes the hypothesis that 'this' is allocated.
+ * This method works only for arrays that have exactly number of components equal to 1. If not an exception is thrown.
+ * And to finish this method works for arrays that have number of tuples >= 1.
+ */
+double DataArrayDouble::back() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::back : number of components not equal to one !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::back : number of tuples must be >= 1 !");
+  return *(getConstPointer()+nbOfTuples-1);
 }
 
 void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet)
@@ -2594,6 +2643,14 @@ void DataArrayInt::sort() throw(INTERP_KERNEL::Exception)
   _mem.sort();
 }
 
+void DataArrayInt::reverse() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::reverse : only supported with 'this' array with ONE component !");
+  _mem.reverse();
+}
+
 /*!
  * This method expects that 'this' and 'other' have the same number of tuples and exactly one component both. If not an exception will be thrown.
  * This method retrieves a newly created array with same number of tuples than 'this' and 'other' with one component.
@@ -2877,6 +2934,48 @@ void DataArrayInt::changeSurjectiveFormat(int targetNb, DataArrayInt *&arr, Data
   retI->incrRef();
   arr=ret;
   arrI=retI;
+}
+
+/*!
+ * This static method computes a old 2 new format DataArrayInt instance from a zip representation of a surjective format (retrived by DataArrayDouble::findCommonTuples for example)
+ * The retrieved array minimizes the permutation.
+ * Let's take an example : 
+ * If 'nbOfOldTuples'==10 and 'arr'==[0,3, 5,7,9] and 'arrI'==[0,2,5] it returns the following array [0,1,2,0,3,4,5,4,6,4] and newNbOfTuples==7.
+ *
+ * @param nbOfOldTuples is the number of tuples in initial array.
+ * @param arr is the list of tuples ids grouped by 'arrI' array
+ * @param arrI is the entry point of 'arr' array. arrI->getNumberOfTuples()-1 is the number of common groups > 1 tuple.
+ * @param newNbOfTuples output parameter that retrieves the new number of tuples after surjection application
+ */
+DataArrayInt *DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, const DataArrayInt *arr, const DataArrayInt *arrI, int &newNbOfTuples) throw(INTERP_KERNEL::Exception)
+{
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfOldTuples,1);
+  int *pt=ret->getPointer();
+  std::fill(pt,pt+nbOfOldTuples,-1);
+  int nbOfGrps=arrI->getNumberOfTuples()-1;
+  const int *cIPtr=arrI->getConstPointer();
+  const int *cPtr=arr->getConstPointer();
+  for(int i=0;i<nbOfGrps;i++)
+    pt[cPtr[cIPtr[i]]]=-(i+2);
+  int newNb=0;
+  for(int iNode=0;iNode<nbOfOldTuples;iNode++)
+    {
+      if(pt[iNode]<0)
+        {
+          if(pt[iNode]==-1)
+            pt[iNode]=newNb++;
+          else
+            {
+              int grpId=-(pt[iNode]+2);
+              for(int j=cIPtr[grpId];j<cIPtr[grpId+1];j++)
+                pt[cPtr[j]]=newNb;
+              newNb++;
+            }
+        }
+    }
+  newNbOfTuples=newNb;
+  return ret;
 }
 
 /*!
@@ -3305,6 +3404,22 @@ void DataArrayInt::setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt 
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+}
+
+/*!
+ * This method returns the last element in 'this'. So this method makes the hypothesis that 'this' is allocated.
+ * This method works only for arrays that have exactly number of components equal to 1. If not an exception is thrown.
+ * And to finish this method works for arrays that have number of tuples >= 1.
+ */
+int DataArrayInt::back() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::back : number of components not equal to one !");
+  int nbOfTuples=getNumberOfTuples();
+  if(nbOfTuples<1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::back : number of tuples must be >= 1 !");
+  return *(getConstPointer()+nbOfTuples-1);
 }
 
 void DataArrayInt::SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet)

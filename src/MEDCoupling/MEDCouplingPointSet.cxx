@@ -18,6 +18,7 @@
 //
 
 #include "MEDCouplingPointSet.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingUMeshDesc.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -242,34 +243,9 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfNodes,
 DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
                                                                           int& newNbOfNodes) const
 {
-  DataArrayInt *ret=DataArrayInt::New();
-  int nbNodesOld=getNumberOfNodes();
-  ret->alloc(nbNodesOld,1);
-  int *pt=ret->getPointer();
-  std::fill(pt,pt+nbNodesOld,-1);
-  int nbOfGrps=commIndex->getNumberOfTuples()-1;
-  const int *cIPtr=commIndex->getConstPointer();
-  const int *cPtr=comm->getConstPointer();
-  for(int i=0;i<nbOfGrps;i++)
-    pt[cPtr[cIPtr[i]]]=-(i+2);
-  int newNb=0;
-  for(int iNode=0;iNode<nbNodesOld;iNode++)
-    {
-      if(pt[iNode]<0)
-        {
-          if(pt[iNode]==-1)
-            pt[iNode]=newNb++;
-          else
-            {
-              int grpId=-(pt[iNode]+2);
-              for(int j=cIPtr[grpId];j<cIPtr[grpId+1];j++)
-                pt[cPtr[j]]=newNb;
-              newNb++;
-            }
-        }
-    }
-  newNbOfNodes=newNb;
-  return ret;
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat : no coords specified !");
+  return DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(getNumberOfNodes(),comm,commIndex,newNbOfNodes);
 }
 
 /*
@@ -281,17 +257,10 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
  */
 void MEDCouplingPointSet::renumberNodes(const int *newNodeNumbers, int newNbOfNodes)
 {
-  DataArrayDouble *newCoords=DataArrayDouble::New();
-  int spaceDim=getSpaceDimension();
-  newCoords->alloc(newNbOfNodes,spaceDim);
-  newCoords->copyStringInfoFrom(*_coords);
-  int oldNbOfNodes=getNumberOfNodes();
-  double *ptToFill=newCoords->getPointer();
-  const double *oldCoordsPtr=_coords->getConstPointer();
-  for(int i=0;i<oldNbOfNodes;i++)
-    std::copy(oldCoordsPtr+i*spaceDim,oldCoordsPtr+(i+1)*spaceDim,ptToFill+newNodeNumbers[i]*spaceDim);
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::renumberNodes : no coords specified !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=_coords->renumberAndReduce(newNodeNumbers,newNbOfNodes);
   setCoords(newCoords);
-  newCoords->decrRef();
 }
 
 /*

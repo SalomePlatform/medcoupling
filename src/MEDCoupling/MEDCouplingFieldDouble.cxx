@@ -357,9 +357,20 @@ DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) co
 }
 
 /*!
- * Builds a newly created field, that the caller will have the responsability.
+ * Builds a newly created field, that the caller will have the responsability to deal with (decrRef).
  * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
- * This method returns a restriction of 'this' so that only tuples id specified in 'part' will be contained in returned field. 
+ * This method returns a restriction of 'this' so that only tuples id specified in 'part' will be contained in returned field.
+ * Parameter 'part' specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of 'this' (ON_CELLS, ON_NODES, ON_GAUSS_PT, ON_GAUSS_NE)
+ *
+ * If 'this' is a field on cell lying on a mesh that have 10 cells. If part contains following cellIds [3,7,6].
+ * In this case the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.
+ * Tuple#0 of return field will refer to the cell#0 of returned mesh. The cell #0 of returned mesh will be equal to the cell#3 of 'this->getMesh()'
+ * Tuple#1 of return field will refer to the cell#1 of returned mesh. The cell #1 of returned mesh will be equal to the cell#7 of 'this->getMesh()'
+ * Tuple#2 of return field will refer to the cell#2 of returned mesh. The cell #2 of returned mesh will be equal to the cell#6 of 'this->getMesh()'
+ *
+ * If 'this' is field on node lying on a mesh that have 10 cells and 11 nodes for example. If part contains following cellIds [3,7,6].
+ * 'this' is currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, the returned field,
+ * will contain 6 tuples and this field will lie on this restricted mesh. 
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception)
 {
@@ -371,9 +382,20 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
 }
 
 /*!
- * Builds a newly created field, that the caller will have the responsability.
+ * Builds a newly created field, that the caller will have the responsability to deal with (decrRef).
  * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
  * This method returns a restriction of 'this' so that only tuples id specified in ['partBg';'partEnd') will be contained in returned field. 
+ * Parameter ['partBg','partEnd') specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of 'this' (ON_CELLS, ON_NODES, ON_GAUSS_PT, ON_GAUSS_NE)
+ *
+ * If 'this' is a field on cell lying on a mesh that have 10 cells. If part contains following cellIds [3,7,6].
+ * In this case the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.
+ * Tuple#0 of return field will refer to the cell#0 of returned mesh. The cell #0 of returned mesh will be equal to the cell#3 of 'this->getMesh()'
+ * Tuple#1 of return field will refer to the cell#1 of returned mesh. The cell #1 of returned mesh will be equal to the cell#7 of 'this->getMesh()'
+ * Tuple#2 of return field will refer to the cell#2 of returned mesh. The cell #2 of returned mesh will be equal to the cell#6 of 'this->getMesh()'
+ *
+ * If 'this' is field on node lying on a mesh that have 10 cells and 11 nodes for example. If part contains following cellIds [3,7,6].
+ * 'this' is currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, the returned field,
+ * will contain 6 tuples and this field will lie on this restricted mesh.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception)
 {

@@ -217,6 +217,13 @@ namespace ParaMEDMEM
   }
 
   template<class T>
+  void MemArray<T>::reverse()
+  {
+    T *pt=_pointer.getPointer();
+    std::reverse(pt,pt+_nb_of_elem);
+  }
+
+  template<class T>
   void MemArray<T>::alloc(int nbOfElements)
   {
     destroy();

@@ -7957,6 +7957,98 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(3,cI.getNbOfElems());
         self.assertEqual(expected3,c.getValues())
         self.assertEqual(expected4,cI.getValues())
+        # nbOftuples=1, no common groups
+        array11=[2.3,1.2,1.3,2.4,2.5,0.8]
+        da.setValues(array11,6,1)
+        c,cI=da.findCommonTuples(1e-2);
+        self.assertEqual(0,c.getNbOfElems());
+        self.assertEqual(1,cI.getNbOfElems());
+        self.assertEqual([0],cI.getValues())
+        pass
+
+    def testDABack1(self):
+        da=DataArrayDouble.New();
+        array1=[2.3,1.2,1.3,2.3,2.301,0.8]
+        da.setValues(array1,6,1);
+        self.assertAlmostEqual(0.8,da.back(),14);
+        da.rearrange(2);
+        self.assertRaises(InterpKernelException,da.back);
+        da.alloc(0,1);
+        self.assertRaises(InterpKernelException,da.back);
+        #
+        da=DataArrayInt.New();
+        array2=[4,7,8,2]
+        da.setValues(array2,4,1);
+        self.assertEqual(2,da.back());
+        da.rearrange(2);
+        self.assertRaises(InterpKernelException,da.back);
+        da.alloc(0,1);
+        self.assertRaises(InterpKernelException,da.back);
+        pass
+
+    def testDADGetDifferentValues1(self):
+        da=DataArrayDouble.New();
+        array1=[2.3,1.2,1.3,2.3,2.301,0.8]
+        da.setValues(array1,6,1)
+        #
+        expected1=[2.301,1.2,1.3,0.8]
+        dv=da.getDifferentValues(1e-2);
+        self.assertEqual(4,dv.getNbOfElems());
+        for i in xrange(4):
+            self.assertAlmostEqual(expected1[i],dv.getIJ(i,0),14);
+            pass
+        #
+        dv=da.getDifferentValues(2e-1);
+        expected2=[2.301,1.3,0.8]
+        self.assertEqual(3,dv.getNbOfElems());
+        for i in xrange(3):
+            self.assertAlmostEqual(expected2[i],dv.getIJ(i,0),14);
+            pass
+        pass
+
+    def testDAIBuildOld2NewArrayFromSurjectiveFormat2(self):
+        arr=[0,3, 5,7,9]
+        arrI=[0,2,5]
+        a=DataArrayInt.New();
+        a.setValues(arr,5,1);
+        b=DataArrayInt.New();
+        b.setValues(arrI,3,1);
+        ret,newNbTuple=DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2(10,a,b);
+        expected=[0,1,2,0,3,4,5,4,6,4]
+        self.assertEqual(10,ret.getNbOfElems());
+        self.assertEqual(7,newNbTuple);
+        self.assertEqual(1,ret.getNumberOfComponents());
+        self.assertTrue(expected,ret.getValues());
+        pass
+
+    def testDADIReverse1(self):
+        arr=[0,3,5,7,9,2]
+        a=DataArrayInt.New();
+        a.setValues(arr,6,1);
+        self.assertEqual(2,a.back());
+        a.reverse();
+        for i in xrange(6):
+            self.assertEqual(arr[5-i],a.getIJ(i,0));
+            pass
+        a.setValues(arr,5,1);
+        a.reverse();
+        for i in xrange(5):
+            self.assertEqual(arr[4-i],a.getIJ(i,0));
+            pass
+        #
+        arr2=[0.,3.,5.,7.,9.,2.]
+        b=DataArrayDouble.New();
+        b.setValues(arr2,6,1);
+        b.reverse();
+        for i in xrange(6):
+            self.assertAlmostEqual(arr2[5-i],b.getIJ(i,0),14);
+            pass
+        b.setValues(arr2,5,1);
+        self.assertAlmostEqual(9.,b.back(),14)
+        b.reverse();
+        for i in xrange(5):
+            self.assertAlmostEqual(arr2[4-i],b.getIJ(i,0),14);
+            pass
         pass
     
     def setUp(self):

@@ -1805,5 +1805,119 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   c->decrRef();
   cI->decrRef();
   //
+  const double array11[6]={2.3,1.2,1.3,2.4,2.5,0.8};
+  da->alloc(6,1);
+  std::copy(array11,array11+6,da->getPointer());
+  // nbOftuples=1, no common groups
+  da->findCommonTuples(1e-2,-1,c,cI);
+  CPPUNIT_ASSERT_EQUAL(0,c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(1,cI->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(0,cI->getIJ(0,0));
+  c->decrRef();
+  cI->decrRef();
+  //
   da->decrRef();
+}
+
+void MEDCouplingBasicsTest4::testDABack1()
+{
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(6,1);
+  const double array1[6]={2.3,1.2,1.3,2.3,2.301,0.8};
+  std::copy(array1,array1+6,da->getPointer());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.8,da->back(),1e-14);
+  da->rearrange(2);
+  CPPUNIT_ASSERT_THROW(da->back(),INTERP_KERNEL::Exception);
+  da->alloc(0,1);
+  CPPUNIT_ASSERT_THROW(da->back(),INTERP_KERNEL::Exception);
+  da->decrRef();
+  //
+  DataArrayInt *da2=DataArrayInt::New();
+  da2->alloc(4,1);
+  const int array2[4]={4,7,8,2};
+  std::copy(array2,array2+4,da2->getPointer());
+  CPPUNIT_ASSERT_EQUAL(2,da2->back());
+  da2->rearrange(2);
+  CPPUNIT_ASSERT_THROW(da2->back(),INTERP_KERNEL::Exception);
+  da2->alloc(0,1);
+  CPPUNIT_ASSERT_THROW(da2->back(),INTERP_KERNEL::Exception);
+  da2->decrRef();
+}
+
+void MEDCouplingBasicsTest4::testDADGetDifferentValues1()
+{
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(6,1);
+  const double array1[6]={2.3,1.2,1.3,2.3,2.301,0.8};
+  std::copy(array1,array1+6,da->getPointer());
+  //
+  const double expected1[4]={2.301,1.2,1.3,0.8};
+  DataArrayDouble *dv=da->getDifferentValues(1e-2);
+  CPPUNIT_ASSERT_EQUAL(4,dv->getNbOfElems());
+  for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],dv->getIJ(i,0),1e-14);
+  dv->decrRef();
+  //
+  dv=da->getDifferentValues(2e-1);
+  const double expected2[3]={2.301,1.3,0.8};
+  CPPUNIT_ASSERT_EQUAL(3,dv->getNbOfElems());
+  for(int i=0;i<3;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],dv->getIJ(i,0),1e-14);
+  dv->decrRef();
+  da->decrRef();
+}
+
+void MEDCouplingBasicsTest4::testDAIBuildOld2NewArrayFromSurjectiveFormat2()
+{
+  const int arr[5]={0,3, 5,7,9};
+  const int arrI[3]={0,2,5};
+  DataArrayInt *a=DataArrayInt::New();
+  a->alloc(5,1);
+  std::copy(arr,arr+5,a->getPointer());
+  DataArrayInt *b=DataArrayInt::New();
+  b->alloc(3,1);
+  std::copy(arrI,arrI+3,b->getPointer());
+  int newNbTuple=-1;
+  DataArrayInt *ret=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(10,a,b,newNbTuple);
+  const int expected[10]={0,1,2,0,3,4,5,4,6,4};
+  CPPUNIT_ASSERT_EQUAL(10,ret->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(7,newNbTuple);
+  CPPUNIT_ASSERT_EQUAL(1,ret->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected,expected+10,ret->getConstPointer()));
+  ret->decrRef();
+  b->decrRef();
+  a->decrRef();
+}
+
+void MEDCouplingBasicsTest4::testDADIReverse1()
+{
+  const int arr[6]={0,3,5,7,9,2};
+  DataArrayInt *a=DataArrayInt::New();
+  a->alloc(6,1);
+  std::copy(arr,arr+6,a->getPointer());
+  CPPUNIT_ASSERT_EQUAL(2,a->back());
+  a->reverse();
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_EQUAL(arr[5-i],a->getIJ(i,0));
+  a->alloc(5,1);
+  std::copy(arr,arr+5,a->getPointer());
+  a->reverse();
+  for(int i=0;i<5;i++)
+    CPPUNIT_ASSERT_EQUAL(arr[4-i],a->getIJ(i,0));
+  a->decrRef();
+  //
+  const double arr2[6]={0.,3.,5.,7.,9.,2.};
+   DataArrayDouble *b=DataArrayDouble::New();
+   b->alloc(6,1);
+   std::copy(arr2,arr2+6,b->getPointer());
+   b->reverse();
+   for(int i=0;i<6;i++)
+     CPPUNIT_ASSERT_DOUBLES_EQUAL(arr2[5-i],b->getIJ(i,0),1e-14);
+   b->alloc(5,1);
+   std::copy(arr,arr+5,b->getPointer());
+   CPPUNIT_ASSERT_DOUBLES_EQUAL(9.,b->back(),1e-14);
+   b->reverse();
+   for(int i=0;i<5;i++)
+     CPPUNIT_ASSERT_DOUBLES_EQUAL(arr2[4-i],b->getIJ(i,0),1e-14);
+   b->decrRef();
 }
