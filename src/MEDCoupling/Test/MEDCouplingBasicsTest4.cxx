@@ -1738,3 +1738,72 @@ void MEDCouplingBasicsTest4::testChangeUnderlyingMeshWithCMesh1()
   mesh2->decrRef();
   mesh->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
+{
+  DataArrayDouble *da=DataArrayDouble::New();
+  da->alloc(6,1);
+  const double array1[6]={2.3,1.2,1.3,2.3,2.301,0.8};
+  std::copy(array1,array1+6,da->getPointer());
+  DataArrayInt *c=0,*cI=0;
+  // nbOftuples=1
+  da->findCommonTuples(1e-2,-1,c,cI);
+  const int expected1[3]={0,3,4};
+  const int expected2[2]={0,3};
+  CPPUNIT_ASSERT_EQUAL(3,c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(2,cI->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,c->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+2,cI->getConstPointer()));
+  c->decrRef();
+  cI->decrRef();
+  //
+  da->findCommonTuples(2e-1,-1,c,cI);
+  const int expected3[5]={0,3,4,1,2};
+  const int expected4[3]={0,3,5};
+  CPPUNIT_ASSERT_EQUAL(5,c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(3,cI->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+5,c->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+3,cI->getConstPointer()));
+  c->decrRef();
+  cI->decrRef();
+  // nbOftuples=2
+  da->alloc(6,2);
+  const double array2[12]={2.3,2.3,1.2,1.2,1.3,1.3,2.3,2.3,2.301,2.301,0.8,0.8};
+  std::copy(array2,array2+12,da->getPointer());
+  da->findCommonTuples(1e-2,-1,c,cI);
+  CPPUNIT_ASSERT_EQUAL(3,c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(2,cI->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,c->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+2,cI->getConstPointer()));
+  c->decrRef();
+  cI->decrRef();
+  //
+  da->findCommonTuples(2e-1,-1,c,cI);
+  CPPUNIT_ASSERT_EQUAL(5,c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(3,cI->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+5,c->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+3,cI->getConstPointer()));
+  c->decrRef();
+  cI->decrRef();
+  // nbOftuples=3
+  da->alloc(6,3);
+  const double array3[18]={2.3,2.3,2.3,1.2,1.2,1.2,1.3,1.3,1.3,2.3,2.3,2.3,2.301,2.301,2.301,0.8,0.8,0.8};
+  std::copy(array3,array3+18,da->getPointer());
+  da->findCommonTuples(1e-2,-1,c,cI);
+  CPPUNIT_ASSERT_EQUAL(3,c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(2,cI->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,c->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+2,cI->getConstPointer()));
+  c->decrRef();
+  cI->decrRef();
+  //
+  da->findCommonTuples(2e-1,-1,c,cI);
+  CPPUNIT_ASSERT_EQUAL(5,c->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(3,cI->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+5,c->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+3,cI->getConstPointer()));
+  c->decrRef();
+  cI->decrRef();
+  //
+  da->decrRef();
+}

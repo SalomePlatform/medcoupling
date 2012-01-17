@@ -7911,6 +7911,53 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             f.changeUnderlyingMesh(mesh2,myId,1e-12);
             pass
         pass
+
+    def testDADFindCommonTuples1(self):
+        da=DataArrayDouble.New();
+        # nbOftuples=1
+        array1=[2.3,1.2,1.3,2.3,2.301,0.8]
+        da.setValues(array1,6,1)
+        c,cI=da.findCommonTuples(1e-2);
+        expected1=[0,3,4]
+        expected2=[0,3]
+        self.assertEqual(3,c.getNbOfElems());
+        self.assertEqual(2,cI.getNbOfElems());
+        self.assertEqual(expected1,c.getValues())
+        self.assertEqual(expected2,cI.getValues())
+        c,cI=da.findCommonTuples(2e-1)
+        expected3=[0,3,4,1,2]
+        expected4=[0,3,5]
+        self.assertEqual(5,c.getNbOfElems());
+        self.assertEqual(3,cI.getNbOfElems());
+        self.assertEqual(expected3,c.getValues())
+        self.assertEqual(expected4,cI.getValues())
+        # nbOftuples=2
+        array2=[2.3,2.3,1.2,1.2,1.3,1.3,2.3,2.3,2.301,2.301,0.8,0.8]
+        da.setValues(array2,6,2)
+        c,cI=da.findCommonTuples(1e-2);
+        self.assertEqual(3,c.getNbOfElems());
+        self.assertEqual(2,cI.getNbOfElems());
+        self.assertEqual(expected1,c.getValues())
+        self.assertEqual(expected2,cI.getValues())
+        c,cI=da.findCommonTuples(2e-1)
+        self.assertEqual(5,c.getNbOfElems());
+        self.assertEqual(3,cI.getNbOfElems());
+        self.assertEqual(expected3,c.getValues())
+        self.assertEqual(expected4,cI.getValues())
+        # nbOftuples=3
+        array3=[2.3,2.3,2.3,1.2,1.2,1.2,1.3,1.3,1.3,2.3,2.3,2.3,2.301,2.301,2.301,0.8,0.8,0.8]
+        da.setValues(array3,6,3)
+        c,cI=da.findCommonTuples(1e-2);
+        self.assertEqual(3,c.getNbOfElems());
+        self.assertEqual(2,cI.getNbOfElems());
+        self.assertEqual(expected1,c.getValues())
+        self.assertEqual(expected2,cI.getValues())
+        c,cI=da.findCommonTuples(2e-1)
+        self.assertEqual(5,c.getNbOfElems());
+        self.assertEqual(3,cI.getNbOfElems());
+        self.assertEqual(expected3,c.getValues())
+        self.assertEqual(expected4,cI.getValues())
+        pass
     
     def setUp(self):
         pass
