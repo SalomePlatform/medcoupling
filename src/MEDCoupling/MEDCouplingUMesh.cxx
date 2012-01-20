@@ -887,13 +887,16 @@ void MEDCouplingUMesh::unPolyze()
 }
 
 /*!
- * Array returned is the correspondance old to new.
- * The maximum value stored in returned array is the number of nodes of 'this' minus 1 after call of this method.
- * The size of returned array is the number of nodes of the old (previous to the call of this method) number of nodes.
- * -1 values in returned array means that the corresponding old node is no more used.
+ * Array returned is the correspondance in \b old \b to \b new format (that's why 'nbrOfNodesInUse' is returned too).
+ * The returned array is newly created and should be dealt by the caller.
+ * To retrieve the new to old format the user can use DataArrayInt::invertArrayO2N2N2O method.
+ * The size of returned array is the number of nodes of 'this'.
+ * -1 values in returned array means that the corresponding node never appear in any nodal connectivity of cells constituting 'this'.
+ * @param nbrOfNodesInUse out parameter that specifies how many of nodes in 'this' is really used in nodal connectivity.
  */
-DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer() throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const throw(INTERP_KERNEL::Exception)
 {
+  nbrOfNodesInUse=-1;
   int nbOfNodes=getNumberOfNodes();
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(nbOfNodes,1);
@@ -906,16 +909,23 @@ DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer() throw(INTERP_KERNEL::Excepti
     for(int j=connIndex[i]+1;j<connIndex[i+1];j++)
       if(conn[j]>=0)
         traducer[conn[j]]=1;
-  int newNbOfNodes=std::count(traducer,traducer+nbOfNodes,1);
+  nbrOfNodesInUse=std::count(traducer,traducer+nbOfNodes,1);
   std::transform(traducer,traducer+nbOfNodes,traducer,MEDCouplingAccVisit());
-  for(int i=0;i<nbOfCells;i++)
-    for(int j=connIndex[i]+1;j<connIndex[i+1];j++)
-      if(conn[j]>=0)
-        conn[j]=traducer[conn[j]];
-  DataArrayDouble *newCoords=_coords->renumberAndReduce(traducer,newNbOfNodes);
-  setCoords(newCoords);
-  newCoords->decrRef();
   return ret;
+}
+
+/*!
+ * Array returned is the correspondance in \b old \b to \b new format. The returned array is newly created and should be dealt by the caller.
+ * The maximum value stored in returned array is the number of nodes of 'this' minus 1 after call of this method.
+ * The size of returned array is the number of nodes of the old (previous to the call of this method) number of nodes.
+ * -1 values in returned array means that the corresponding old node is no more used.
+ */
+DataArrayInt *MEDCouplingUMesh::zipCoordsTraducer() throw(INTERP_KERNEL::Exception)
+{
+  int newNbOfNodes=-1;
+  DataArrayInt *traducer=getNodeIdsInUse(newNbOfNodes);
+  renumberNodes(traducer->getConstPointer(),newNbOfNodes);
+  return traducer;
 }
 
 /*!
