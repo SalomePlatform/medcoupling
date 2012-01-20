@@ -1385,6 +1385,16 @@ namespace ParaMEDMEM
           }
       }
 
+      PyObject *getNodeIdsInUse() const throw(INTERP_KERNEL::Exception)
+      {
+        int ret1=-1;
+        DataArrayInt *ret0=self->getNodeIdsInUse(ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
+        return ret;
+      }
+
       static PyObject *Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps) throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *cellNb1=0,*cellNb2=0;
