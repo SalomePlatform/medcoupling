@@ -97,7 +97,7 @@ namespace ParaMEDMEM
                          const std::vector<std::string>& littleStrings);
   private:
     MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
-    MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& other, bool deepCpy);
+    MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& other, bool deepCopy);
     MEDCouplingExtrudedMesh();
     void computeExtrusion(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);
     void computeExtrusionAlg(const MEDCouplingUMesh *mesh3D) throw(INTERP_KERNEL::Exception);

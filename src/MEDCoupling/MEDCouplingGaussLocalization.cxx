@@ -64,7 +64,7 @@ int ParaMEDMEM::MEDCouplingGaussLocalization::getDimension() const
 {
   if(_weight.empty())
     return -1;
-  return _gauss_coord.size()/_weight.size();
+  return (int)_gauss_coord.size()/(int)_weight.size();
 }
 
 int ParaMEDMEM::MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
@@ -72,7 +72,7 @@ int ParaMEDMEM::MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
   int dim=getDimension();
   if(dim==0)
     return -1;
-  return _ref_coord.size()/dim;
+  return (int)_ref_coord.size()/dim;
 }
 
 bool ParaMEDMEM::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLocalization& other, double eps) const
@@ -205,8 +205,8 @@ int ParaMEDMEM::MEDCouplingGaussLocalization::checkCoherencyOfRequest(int gaussP
 
 bool ParaMEDMEM::MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
 {
-  int sz=v1.size();
-  if(sz!=(int)v2.size())
+  std::size_t sz=v1.size();
+  if(sz!=v2.size())
     return false;
   std::vector<double> tmp(sz);
   std::transform(v1.begin(),v1.end(),v2.begin(),tmp.begin(),std::minus<double>());

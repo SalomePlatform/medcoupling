@@ -36,7 +36,7 @@ namespace ParaMEDMEM
     MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                  const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
-    int getNumberOfGaussPt() const { return _weight.size(); }
+    int getNumberOfGaussPt() const { return (int)_weight.size(); }
     int getDimension() const;
     int getNumberOfPtsInRefCell() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);

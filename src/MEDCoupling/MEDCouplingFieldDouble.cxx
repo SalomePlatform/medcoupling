@@ -92,9 +92,9 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::deepCpy() const
   return cloneWithMesh(true);
 }
 
-MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const
 {
-  MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(td,deepCpy);
+  MEDCouplingTimeDiscretization *tdo=_time_discr->buildNewTimeReprFromThis(td,deepCopy);
   MEDCouplingFieldDouble *ret=new MEDCouplingFieldDouble(getNature(),tdo,_type->clone());
   ret->setMesh(getMesh());
   ret->setName(getName());
@@ -443,8 +443,8 @@ MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldTemplate *f
 {
 }
 
-MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy):MEDCouplingField(other),
-                                                                                                  _time_discr(other._time_discr->performCpy(deepCpy))
+MEDCouplingFieldDouble::MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy):MEDCouplingField(other),
+                                                                                                   _time_discr(other._time_discr->performCpy(deepCopy))
 {
 }
 
@@ -832,7 +832,7 @@ void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double time, dou
   std::vector<double> res2;
   for(std::vector< const DataArrayDouble *>::const_iterator iter=arrs.begin();iter!=arrs.end();iter++)
     {
-      int sz=res2.size();
+      int sz=(int)res2.size();
       res2.resize(sz+(*iter)->getNumberOfComponents());
       _type->getValueOn(*iter,_mesh,spaceLoc,&res2[sz]);
     }
@@ -1090,7 +1090,7 @@ void MEDCouplingFieldDouble::getTinySerializationIntInformation(std::vector<int>
   std::vector<int> tinyInfo2;
   _type->getTinySerializationIntInformation(tinyInfo2);
   tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
-  tinyInfo.push_back(tinyInfo2.size());
+  tinyInfo.push_back((int)tinyInfo2.size());
 }
 
 /*!
@@ -1104,7 +1104,7 @@ void MEDCouplingFieldDouble::getTinySerializationDbleInformation(std::vector<dou
   std::vector<double> tinyInfo2;
   _type->getTinySerializationDbleInformation(tinyInfo2);
   tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
-  tinyInfo.push_back(tinyInfo2.size());
+  tinyInfo.push_back((int)tinyInfo2.size());
 }
 
 /*!
@@ -1140,7 +1140,7 @@ void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyI
   _time_discr->finishUnserialization(tinyInfoI2,tmp1,tinyInfoS);
   _nature=(NatureOfField)tinyInfoI[2];
   _type->finishUnserialization(tmp2);
-  int nbOfElemS=tinyInfoS.size();
+  int nbOfElemS=(int)tinyInfoS.size();
   _name=tinyInfoS[nbOfElemS-3];
   _desc=tinyInfoS[nbOfElemS-2];
   setTimeUnit(tinyInfoS[nbOfElemS-1].c_str());
@@ -1177,7 +1177,7 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
       renumberNodesWithoutMesh(nodeCor->getConstPointer());
       nodeCor->decrRef();
     }
-  setMesh((MEDCouplingMesh *)other);
+  setMesh(const_cast<MEDCouplingMesh *>(other));
 }
 
 /*!

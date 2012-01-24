@@ -100,9 +100,9 @@ MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh():_mesh2D(0),_mesh1D(0),_mesh3D
 {
 }
 
-MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& other, bool deepCpy):MEDCouplingMesh(other),_cell_2D_id(other._cell_2D_id)
+MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingExtrudedMesh& other, bool deepCopy):MEDCouplingMesh(other),_cell_2D_id(other._cell_2D_id)
 {
-  if(deepCpy)
+  if(deepCopy)
     {
       _mesh2D=other._mesh2D->clone(true);
       _mesh1D=other._mesh1D->clone(true);
@@ -206,7 +206,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingExtrudedMesh::getTypeOfCell(int cel
   if(where==ids+nbOf3DCells)
     throw INTERP_KERNEL::Exception("Invalid cellId specified >= getNumberOfCells() !");
   int nbOfCells2D=_mesh2D->getNumberOfCells();
-  int locId=std::distance(ids,where)%nbOfCells2D;
+  int locId=((int)std::distance(ids,where))%nbOfCells2D;
   INTERP_KERNEL::NormalizedCellType tmp=_mesh2D->getTypeOfCell(locId);
   return INTERP_KERNEL::CellModel::GetCellModel(tmp).getExtrudedType();
 }
@@ -328,7 +328,7 @@ void MEDCouplingExtrudedMesh::getBoundingBox(double *bbox) const
       std::transform(nodes1D+3*i,nodes1D+3*(i+1),bbox1DMax,bbox1DMax,static_cast<const double& (*)(const double&, const double&)>(std::max<double>));
     }
   std::transform(bbox1DMax,bbox1DMax+3,bbox1DMin,tmp,std::minus<double>());
-  int id=std::max_element(tmp,tmp+3)-tmp;
+  int id=(int)std::distance(tmp,std::max_element(tmp,tmp+3));
   bbox[0]=bbox1DMin[0]; bbox[1]=bbox1DMax[0];
   bbox[2]=bbox1DMin[1]; bbox[3]=bbox1DMax[1];
   bbox[4]=bbox1DMin[2]; bbox[5]=bbox1DMax[2];
@@ -526,7 +526,7 @@ void MEDCouplingExtrudedMesh::computeBaryCenterOfFace(const std::vector<int>& no
   const double *coords=_mesh2D->getCoords()->getConstPointer();
   for(std::vector<int>::const_iterator iter=nodalConnec.begin();iter!=nodalConnec.end();iter++)
     std::transform(zoneToUpdate,zoneToUpdate+3,coords+3*(*iter),zoneToUpdate,std::plus<double>());
-  std::transform(zoneToUpdate,zoneToUpdate+3,zoneToUpdate,std::bind2nd(std::multiplies<double>(),(double)(1./nodalConnec.size())));
+  std::transform(zoneToUpdate,zoneToUpdate+3,zoneToUpdate,std::bind2nd(std::multiplies<double>(),(double)(1./(int)nodalConnec.size())));
 }
 
 int MEDCouplingExtrudedMesh::FindCorrespCellByNodalConn(const std::vector<int>& nodalConnec, const int *revNodalPtr, const int *revNodalIndxPtr) throw(INTERP_KERNEL::Exception)
@@ -746,7 +746,7 @@ void MEDCouplingExtrudedMesh::getTinySerializationInformation(std::vector<double
   tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
   littleStrings.insert(littleStrings.end(),ls2.begin(),ls2.end());
   tinyInfo.push_back(_cell_2D_id);
-  tinyInfo.push_back(tinyInfo1.size());
+  tinyInfo.push_back((int)tinyInfo1.size());
   tinyInfo.push_back(_mesh3D_ids->getNbOfElems());
   littleStrings.push_back(getName());
   littleStrings.push_back(getDescription());
@@ -754,7 +754,7 @@ void MEDCouplingExtrudedMesh::getTinySerializationInformation(std::vector<double
 
 void MEDCouplingExtrudedMesh::resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
-  int sz=tinyInfo.size();
+  std::size_t sz=tinyInfo.size();
   int sz1=tinyInfo[sz-2];
   std::vector<int> ti1(tinyInfo.begin(),tinyInfo.begin()+sz1);
   std::vector<int> ti2(tinyInfo.begin()+sz1,tinyInfo.end()-3);
@@ -803,7 +803,7 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<double>& tinyInf
 {
   setName(littleStrings[littleStrings.size()-2].c_str());
   setDescription(littleStrings.back().c_str());
-  int sz=tinyInfo.size();
+  std::size_t sz=tinyInfo.size();
   int sz1=tinyInfo[sz-2];
   _cell_2D_id=tinyInfo[sz-3];
   std::vector<int> ti1(tinyInfo.begin(),tinyInfo.begin()+sz1);
@@ -836,7 +836,7 @@ void MEDCouplingExtrudedMesh::unserialization(const std::vector<double>& tinyInf
   a1tmp->decrRef(); a2tmp->decrRef();
   //
   _mesh3D_ids=DataArrayInt::New();
-  int szIds=std::distance(a1Ptr,a1->getConstPointer()+a1->getNbOfElems());
+  int szIds=(int)std::distance(a1Ptr,a1->getConstPointer()+a1->getNbOfElems());
   _mesh3D_ids->alloc(szIds,1);
   std::copy(a1Ptr,a1Ptr+szIds,_mesh3D_ids->getPointer());
 }

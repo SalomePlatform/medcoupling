@@ -33,9 +33,9 @@ MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)
 {
 }
 
-MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):MEDCouplingMesh(other)
+MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCopy):MEDCouplingMesh(other)
 {
-  if(deepCpy)
+  if(deepCopy)
     {
       if(other._x_array)
         _x_array=other._x_array->deepCpy();
@@ -521,7 +521,7 @@ std::vector<int> MEDCouplingCMesh::getDistributionOfTypes() const throw(INTERP_K
  */
 DataArrayInt *MEDCouplingCMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
-  int sz=code.size();
+  std::size_t sz=code.size();
   if(sz!=0 && sz!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code should be of size 2 exactly !");
   if(code[0]==INTERP_KERNEL::NORM_ERROR)
@@ -696,7 +696,7 @@ int MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps) cons
       int nbOfNodes=getCoordsAt(i)->getNbOfElems();
       double ref=pos[i];
       const double *w=std::find_if(d,d+nbOfNodes,std::bind2nd(std::greater<double>(),ref));
-      int w2=std::distance(d,w);
+      int w2=(int)std::distance(d,w);
       if(w2<nbOfNodes && w2!=0)
         {
           ret+=coeff*(w2-1);
@@ -884,7 +884,7 @@ void MEDCouplingCMesh::fill3DUnstructuredMesh(MEDCouplingUMesh *m) const
       for(int i=0;i<n1;i++,pos++)
         {
           cp[9*pos]=(int)INTERP_KERNEL::NORM_HEXA8;
-          double tmp=(n1+1)*(n2+1);
+          int tmp=(n1+1)*(n2+1);
           cp[9*pos+1]=i+1+j*(n1+1)+k*tmp;
           cp[9*pos+2]=i+j*(n1+1)+k*tmp;
           cp[9*pos+3]=i+(j+1)*(n1+1)+k*tmp;

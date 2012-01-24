@@ -37,7 +37,7 @@ namespace ParaMEDMEM
     const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
     if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
       throw INTERP_KERNEL::Exception("MEDCouplingNatureOfField::getRepr : Unrecognized nature of field !");
-    int pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
+    std::size_t pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
     return REPR_OF_NATUREOFFIELD[pos2];
   }
 }

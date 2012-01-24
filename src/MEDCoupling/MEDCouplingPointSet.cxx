@@ -38,10 +38,10 @@ MEDCouplingPointSet::MEDCouplingPointSet():_coords(0)
 {
 }
 
-MEDCouplingPointSet::MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCpy):MEDCouplingMesh(other),_coords(0)
+MEDCouplingPointSet::MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCopy):MEDCouplingMesh(other),_coords(0)
 {
   if(other._coords)
-    _coords=other._coords->performCpy(deepCpy);
+    _coords=other._coords->performCpy(deepCopy);
 }
 
 MEDCouplingPointSet::~MEDCouplingPointSet()
@@ -825,7 +825,7 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
   if(spaceDim==3)
     {
       std::vector<double> cpy(res);
-      int nbNodes=endConn-startConn;
+      int nbNodes=(int)std::distance(startConn,endConn);
       INTERP_KERNEL::PlanarIntersector<DummyClsMCPS,int>::projection(&res[0],&cpy[0],nbNodes,nbNodes,1.e-12,0.,0.,true);
       res.resize(2*nbNodes);
       for(int i=0;i<nbNodes;i++)
@@ -843,9 +843,9 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
  */
 bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad)
 {
-  int nbOfNodes=res.size()/2;
+  std::size_t nbOfNodes=res.size()/2;
   std::vector<INTERP_KERNEL::Node *> nodes(nbOfNodes);
-  for(int i=0;i<nbOfNodes;i++)
+  for(std::size_t i=0;i<nbOfNodes;i++)
     {
       INTERP_KERNEL::Node *tmp=new INTERP_KERNEL::Node(res[2*i],res[2*i+1]);
       nodes[i]=tmp;

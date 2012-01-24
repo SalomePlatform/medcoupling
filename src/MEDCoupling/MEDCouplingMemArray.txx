@@ -61,7 +61,7 @@ namespace ParaMEDMEM
     _nb_of_elem=nbOfElem;
     destroy();
     if(ownership)
-      _pointer.setInternal((T *)array);
+      _pointer.setInternal(const_cast<T *>(array));
     else
       _pointer.setExternal(array);
     _ownership=ownership;
@@ -239,7 +239,7 @@ namespace ParaMEDMEM
     T *pointer=new T[newNbOfElements];
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<int>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
-      destroyPointer((T *)_pointer.getConstPointer(),_dealloc);
+      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc);//Do not use getPointer because in case of _external
     _pointer.setInternal(pointer);
     _nb_of_elem=newNbOfElements;
     _ownership=true;
@@ -272,7 +272,7 @@ namespace ParaMEDMEM
   void MemArray<T>::destroy()
   {
     if(_ownership)
-      destroyPointer((T *)_pointer.getConstPointer(),_dealloc);
+      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc);//Do not use getPointer because in case of _external
     _pointer.null();
     _ownership=false;
   }

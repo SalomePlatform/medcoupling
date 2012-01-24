@@ -102,9 +102,9 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT std::string getVarOnComponent(int i) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT int getNumberOfComponents() const { return _info_on_compo.size(); }
+    MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _nb_of_tuples; }
-    MEDCOUPLING_EXPORT int getNbOfElems() const { return _info_on_compo.size()*_nb_of_tuples; }
+    MEDCOUPLING_EXPORT int getNbOfElems() const { return ((int)_info_on_compo.size())*_nb_of_tuples; }
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -169,7 +169,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *renumberAndReduce(const int *old2New, int newNbOfTuple) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const;
     MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleIdSafe(const int *new2OldBg, const int *new2OldEnd) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId2(int bg, int end, int step) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *substr(int tupleIdBg, int tupleIdEnd=-1) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *changeNbOfComponents(int newNbOfComp, double dftValue) const throw(INTERP_KERNEL::Exception);
@@ -185,11 +185,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setPartOfValues3(const DataArrayDouble *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesSimple3(double a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
+    MEDCOUPLING_EXPORT void getTuple(int tupleId, double *res) const { std::copy(_mem.getConstPointerLoc(tupleId*((int)_info_on_compo.size())),_mem.getConstPointerLoc((tupleId+1)*((int)_info_on_compo.size())),res); }
+    MEDCOUPLING_EXPORT double getIJ(int tupleId, int compoId) const { return _mem[tupleId*((int)_info_on_compo.size())+compoId]; }
     MEDCOUPLING_EXPORT double back() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
-    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, double newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
+    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, double newVal) { _mem[tupleId*((int)_info_on_compo.size())+compoId]=newVal; declareAsNew(); }
+    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, double newVal) { _mem[tupleId*((int)_info_on_compo.size())+compoId]=newVal; }
     MEDCOUPLING_EXPORT double *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &arrayToSet);
     MEDCOUPLING_EXPORT const double *getConstPointer() const { return _mem.getConstPointer(); }
@@ -363,11 +363,11 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setPartOfValues3(const DataArrayInt *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesSimple3(int a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*_info_on_compo.size()),_mem.getConstPointerLoc((tupleId+1)*_info_on_compo.size()),res); }
-    MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*_info_on_compo.size()+compoId]; }
+    MEDCOUPLING_EXPORT void getTuple(int tupleId, int *res) const { std::copy(_mem.getConstPointerLoc(tupleId*((int)_info_on_compo.size())),_mem.getConstPointerLoc((tupleId+1)*((int)_info_on_compo.size())),res); }
+    MEDCOUPLING_EXPORT int getIJ(int tupleId, int compoId) const { return _mem[tupleId*((int)_info_on_compo.size())+compoId]; }
     MEDCOUPLING_EXPORT int back() const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; declareAsNew(); }
-    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, int newVal) { _mem[tupleId*_info_on_compo.size()+compoId]=newVal; }
+    MEDCOUPLING_EXPORT void setIJ(int tupleId, int compoId, int newVal) { _mem[tupleId*((int)_info_on_compo.size())+compoId]=newVal; declareAsNew(); }
+    MEDCOUPLING_EXPORT void setIJSilent(int tupleId, int compoId, int newVal) { _mem[tupleId*((int)_info_on_compo.size())+compoId]=newVal; }
     MEDCOUPLING_EXPORT int *getPointer() { return _mem.getPointer(); }
     MEDCOUPLING_EXPORT static void SetArrayIn(DataArrayInt *newArray, DataArrayInt* &arrayToSet);
     MEDCOUPLING_EXPORT const int *getConstPointer() const { return _mem.getConstPointer(); }

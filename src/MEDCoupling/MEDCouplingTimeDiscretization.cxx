@@ -2333,7 +2333,7 @@ bool MEDCouplingLinearTime::areCompatibleForMeld(const MEDCouplingTimeDiscretiza
 void MEDCouplingLinearTime::getValueForTime(double time, const std::vector<double>& vals, double *res) const
 {
   double alpha=(_end_time-time)/(_end_time-_start_time);
-  int nbComp=vals.size()/2;
+  std::size_t nbComp=vals.size()/2;
   std::transform(vals.begin(),vals.begin()+nbComp,res,std::bind2nd(std::multiplies<double>(),alpha));
   std::vector<double> tmp(nbComp);
   std::transform(vals.begin()+nbComp,vals.end(),tmp.begin(),std::bind2nd(std::multiplies<double>(),1-alpha));

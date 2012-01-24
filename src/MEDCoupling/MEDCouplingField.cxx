@@ -133,7 +133,7 @@ void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
   if(mesh!=_mesh)
     {
       if(_mesh)
-        ((MEDCouplingMesh *)_mesh)->decrRef();
+        _mesh->decrRef();
       _mesh=mesh;
       if(_mesh)
         {
@@ -266,7 +266,7 @@ const MEDCouplingGaussLocalization& MEDCouplingField::getGaussLocalization(int l
 MEDCouplingField::~MEDCouplingField()
 {
   if(_mesh)
-    ((MEDCouplingMesh *)_mesh)->decrRef();
+    _mesh->decrRef();
   delete _type;
 }
 
@@ -278,7 +278,7 @@ MEDCouplingField::MEDCouplingField(TypeOfField type):_nature(NoNature),_mesh(0),
 {
 }
 
-MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):_name(other._name),_desc(other._desc),_nature(other._nature),
+MEDCouplingField::MEDCouplingField(const MEDCouplingField& other):RefCountObject(other),_name(other._name),_desc(other._desc),_nature(other._nature),
                                                                   _mesh(0),_type(other._type->clone())
 {
   if(other._mesh)

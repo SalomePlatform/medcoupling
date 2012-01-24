@@ -164,7 +164,7 @@ std::vector<const MEDCouplingFieldDouble *> MEDCouplingMultiFields::getFields() 
 
 int MEDCouplingMultiFields::getNumberOfFields() const
 {
-  return _fs.size();
+  return (int)_fs.size();
 }
 
 const MEDCouplingFieldDouble *MEDCouplingMultiFields::getFieldAtPos(int id) const throw(INTERP_KERNEL::Exception)
@@ -214,14 +214,14 @@ std::vector<MEDCouplingMesh *> MEDCouplingMultiFields::getDifferentMeshes(std::v
         m=(*it)->getMesh();
       if(m)
         {
-          std::vector<MEDCouplingMesh *>::iterator it=std::find(ms.begin(),ms.end(),m);
-          if(it==ms.end())
+          std::vector<MEDCouplingMesh *>::iterator it2=std::find(ms.begin(),ms.end(),m);
+          if(it2==ms.end())
             {
               ms.push_back(const_cast<MEDCouplingMesh *>(m));
-              refs[id]=ms.size()-1;
+              refs[id]=(int)ms.size()-1;
             }
           else
-            refs[id]=std::distance(ms.begin(),it);
+            refs[id]=(int)std::distance(ms.begin(),it2);
         }
       else
         refs[id]=-1;
@@ -264,10 +264,10 @@ std::vector<DataArrayDouble *> MEDCouplingMultiFields::getDifferentArrays(std::v
               if(it3==ret.end())
                 {
                   ret.push_back(*it2);
-                  refs[id][id2]=ret.size()-1;
+                  refs[id][id2]=(int)ret.size()-1;
                 }
               else
-                refs[id][id2]=std::distance(ret.begin(),it3);
+                refs[id][id2]=(int)std::distance(ret.begin(),it3);
             }
           else
             refs[id][id2]=-1;
@@ -307,21 +307,21 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const std::vector<MEDCouplingFiel
  */
 MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& other)
 {
-  int sz=other._fs.size();
+  std::size_t sz=other._fs.size();
   _fs.resize(sz);
   std::vector<int> refs;
   std::vector< std::vector<int> > refs2;
   std::vector<MEDCouplingMesh *> ms=other.getDifferentMeshes(refs);
-  int msLgh=ms.size();
+  std::size_t msLgh=ms.size();
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> > ms2(msLgh);
-  for(int i=0;i<msLgh;i++)
+  for(std::size_t i=0;i<msLgh;i++)
     ms2[i]=ms[i]->deepCpy();
   std::vector<DataArrayDouble *> das=other.getDifferentArrays(refs2);
-  int dasLgth=das.size();
+  std::size_t dasLgth=das.size();
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > das2(dasLgth);
-  for(int i=0;i<dasLgth;i++)
+  for(std::size_t i=0;i<dasLgth;i++)
     das2[i]=das[i]->deepCpy();
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     {
       if((const MEDCouplingFieldDouble *)other._fs[i])
         {
@@ -330,9 +330,9 @@ MEDCouplingMultiFields::MEDCouplingMultiFields(const MEDCouplingMultiFields& oth
           tmp->decrRef();
           if(refs[i]!=-1)
             _fs[i]->setMesh(ms2[refs[i]]);
-          int nbOfArr=refs2[i].size();
+          std::size_t nbOfArr=refs2[i].size();
           std::vector<DataArrayDouble *> tmp2(nbOfArr);
-          for(int j=0;j<nbOfArr;j++)
+          for(std::size_t j=0;j<nbOfArr;j++)
             {
               if(refs2[i][j]!=-1)
                 tmp2[j]=das2[refs2[i][j]];
@@ -357,44 +357,44 @@ void MEDCouplingMultiFields::getTinySerializationInformation(std::vector<int>& t
 {
   std::vector<int> refs;
   std::vector<MEDCouplingMesh *> ms=getDifferentMeshes(refs);
-  nbOfDiffMeshes=ms.size();
+  nbOfDiffMeshes=(int)ms.size();
   std::vector< std::vector<int> > refs2;
   std::vector<DataArrayDouble *> fs=getDifferentArrays(refs2);
-  nbOfDiffArr=fs.size();
+  nbOfDiffArr=(int)fs.size();
   //
-  int sz=refs.size();//==_fs.size()
+  std::size_t sz=refs.size();//==_fs.size()
   int sz2=0;
-  for(int i=0;i<sz;i++)
-    sz2+=refs2[i].size();
+  for(std::size_t i=0;i<sz;i++)
+    sz2+=(int)refs2[i].size();
   //
   tinyInfo2.clear();
   std::vector<int> doubleDaInd(sz);
   std::vector<int> timeDiscrInt;
   tinyInfo.resize(sz2+5*sz+3);
-  tinyInfo[0]=sz;
+  tinyInfo[0]=(int)sz;
   tinyInfo[1]=sz2;
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     {
       std::vector<double> tmp;
       std::vector<int> tmp2;
       _fs[i]->getTimeDiscretizationUnderGround()->getTinySerializationDbleInformation2(tmp);
       _fs[i]->getTimeDiscretizationUnderGround()->getTinySerializationIntInformation2(tmp2);
-      tinyInfo[3*sz+3+i]=tmp.size();
-      tinyInfo[4*sz+3+i]=tmp2.size();
+      tinyInfo[3*sz+3+i]=(int)tmp.size();
+      tinyInfo[4*sz+3+i]=(int)tmp2.size();
       tinyInfo2.insert(tinyInfo2.end(),tmp.begin(),tmp.end());
       timeDiscrInt.insert(timeDiscrInt.end(),tmp2.begin(),tmp2.end());
     }
-  int sz3=timeDiscrInt.size();
+  int sz3=(int)timeDiscrInt.size();
   tinyInfo[2]=sz3;
   //
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     tinyInfo[i+3]=refs[i];
-  for(int i=0;i<sz;i++)
-    tinyInfo[i+sz+3]=refs2[i].size();
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
+    tinyInfo[i+sz+3]=(int)refs2[i].size();
+  for(std::size_t i=0;i<sz;i++)
     tinyInfo[i+2*sz+3]=(int)_fs[i]->getTimeDiscretization();
   int k=0;
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     for(std::vector<int>::const_iterator it=refs2[i].begin();it!=refs2[i].end();it++,k++)
       tinyInfo[5*sz+k+3]=*it;
   tinyInfo.insert(tinyInfo.end(),timeDiscrInt.begin(),timeDiscrInt.end());//tinyInfo has lgth==sz3+sz2+5*sz+3

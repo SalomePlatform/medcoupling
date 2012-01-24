@@ -439,7 +439,7 @@ MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MED
     {
       if(arrRefs.empty())
         throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime constructor : A field is null in list impossible to build a time definition !");
-      _slices[i]=MEDCouplingDefinitionTimeSlice::New(fs[i],meshRefs[i],arrRefs[i],i);
+      _slices[i]=MEDCouplingDefinitionTimeSlice::New(fs[i],meshRefs[i],arrRefs[i],(int)i);
     }
   if(sz<=1)
     return ;
@@ -512,7 +512,7 @@ void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshId
       ids.push_back(id);
   if(ids.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime::getIdsOnTime : No matching slice for such time !");
-  int sz=ids.size();
+  std::size_t sz=ids.size();
   if(sz>2)
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime::getIdsOnTime : Too many slices match this time !");
   //
@@ -520,7 +520,7 @@ void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshId
   arrIds.resize(sz);
   arrIdsInField.resize(sz);
   fieldIds.resize(sz);
-  for(int i=0;i<sz;i++)
+  for(std::size_t i=0;i<sz;i++)
     _slices[ids[i]]->getIdsOnTime(tm,_eps,meshIds[i],arrIds[i],arrIdsInField[i],fieldIds[i]);
 }
 
@@ -557,7 +557,7 @@ void MEDCouplingDefinitionTime::appendRepr(std::ostream& stream) const
 
 void MEDCouplingDefinitionTime::getTinySerializationInformation(std::vector<int>& tinyInfoI, std::vector<double>& tinyInfoD) const
 {
-  int sz=_slices.size();
+  int sz=(int)_slices.size();
   tinyInfoD.resize(1);
   tinyInfoD[0]=_eps;
   tinyInfoI.resize(3*sz+2);
@@ -569,12 +569,12 @@ void MEDCouplingDefinitionTime::getTinySerializationInformation(std::vector<int>
       std::vector<double> tmp2;
       tinyInfoI[i+2]=(int)_slices[i]->getTimeType();
       _slices[i]->getTinySerializationInformation(tmp1,tmp2);
-      tinyInfoI[i+sz+2]=tmp1.size();
-      tinyInfoI[i+2*sz+2]=tmp2.size();
+      tinyInfoI[i+sz+2]=(int)tmp1.size();
+      tinyInfoI[i+2*sz+2]=(int)tmp2.size();
       coreData.insert(coreData.end(),tmp1.begin(),tmp1.end());
       tinyInfoD.insert(tinyInfoD.end(),tmp2.begin(),tmp2.end());
     }
-  tinyInfoI[1]=coreData.size();
+  tinyInfoI[1]=(int)coreData.size();
   tinyInfoI.insert(tinyInfoI.end(),coreData.begin(),coreData.end());
 }
 

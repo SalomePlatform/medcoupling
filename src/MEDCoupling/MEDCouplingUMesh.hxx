@@ -187,7 +187,7 @@ namespace ParaMEDMEM
 /// @endcond
   private:
     MEDCouplingUMesh();
-    MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCpy);
+    MEDCouplingUMesh(const MEDCouplingUMesh& other, bool deepCopy);
     ~MEDCouplingUMesh();
     void checkFullyDefined() const throw(INTERP_KERNEL::Exception);
     void checkConnectivityFullyDefined() const throw(INTERP_KERNEL::Exception);

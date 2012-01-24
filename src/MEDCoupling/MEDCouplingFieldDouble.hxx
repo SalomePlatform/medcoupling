@@ -57,7 +57,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *deepCpy() const;
     MEDCouplingFieldDouble *clone(bool recDeepCpy) const;
     MEDCouplingFieldDouble *cloneWithMesh(bool recDeepCpy) const;
-    MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCpy) const;
+    MEDCouplingFieldDouble *buildNewTimeReprFromThis(TypeOfTimeDiscretization td, bool deepCopy) const;
     TypeOfTimeDiscretization getTimeDiscretization() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
@@ -182,7 +182,7 @@ namespace ParaMEDMEM
   private:
     MEDCouplingFieldDouble(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldDouble(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td);
-    MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCpy);
+    MEDCouplingFieldDouble(const MEDCouplingFieldDouble& other, bool deepCopy);
     MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);
     ~MEDCouplingFieldDouble();
   private:

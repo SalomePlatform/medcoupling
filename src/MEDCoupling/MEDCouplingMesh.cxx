@@ -139,7 +139,7 @@ DataArrayInt *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partB
         crest.push_back(i);
     }
   DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(crest.size(),1);
+  ret->alloc((int)crest.size(),1);
   std::copy(crest.begin(),crest.end(),ret->getPointer());
   return ret;
 }

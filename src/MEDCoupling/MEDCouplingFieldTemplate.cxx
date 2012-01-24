@@ -81,7 +81,7 @@ void MEDCouplingFieldTemplate::getTinySerializationIntInformation(std::vector<in
   std::vector<int> tinyInfo2;
   _type->getTinySerializationIntInformation(tinyInfo2);
   tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
-  tinyInfo.push_back(tinyInfo2.size());
+  tinyInfo.push_back((int)tinyInfo2.size());
 }
 
 void MEDCouplingFieldTemplate::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const

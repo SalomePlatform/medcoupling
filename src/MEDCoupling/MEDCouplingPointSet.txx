@@ -48,7 +48,7 @@ namespace ParaMEDMEM
         for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
           if(INTERP_KERNEL::distance2<SPACEDIM>(pos+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<eps2)
             commonNodes.push_back(*it);
-        cI.push_back(cI.back()+commonNodes.size());
+        cI.push_back(cI.back()+(int)commonNodes.size());
         c.insert(c.end(),commonNodes.begin(),commonNodes.end());
       }
   }

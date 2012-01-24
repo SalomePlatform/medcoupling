@@ -47,7 +47,7 @@ namespace ParaMEDMEM
   {
   protected:
     MEDCouplingPointSet();
-    MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCpy);
+    MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCopy);
     ~MEDCouplingPointSet();
   public:
     void updateTime() const;
