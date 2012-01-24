@@ -1600,7 +1600,7 @@ void DataArrayDouble::applyInv(double numerator) throw(INTERP_KERNEL::Exception)
   int nbOfElems=getNbOfElems();
   for(int i=0;i<nbOfElems;i++,ptr++)
     {
-      if(std::abs(*ptr)<std::numeric_limits<double>::min())
+      if(std::abs(*ptr)>std::numeric_limits<double>::min())
         {
           *ptr=numerator/(*ptr);
         }
