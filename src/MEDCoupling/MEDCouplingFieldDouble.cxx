@@ -1104,7 +1104,7 @@ void MEDCouplingFieldDouble::getTinySerializationDbleInformation(std::vector<dou
   std::vector<double> tinyInfo2;
   _type->getTinySerializationDbleInformation(tinyInfo2);
   tinyInfo.insert(tinyInfo.end(),tinyInfo2.begin(),tinyInfo2.end());
-  tinyInfo.push_back((int)tinyInfo2.size());
+  tinyInfo.push_back((int)tinyInfo2.size());//very bad, lack of time to improve it
 }
 
 /*!
@@ -1132,7 +1132,7 @@ void MEDCouplingFieldDouble::finishUnserialization(const std::vector<int>& tinyI
   std::vector<int> tinyInfoI2(tinyInfoI.begin()+3,tinyInfoI.end());
   //
   std::vector<double> tmp(tinyInfoD);
-  int sz=tinyInfoD.back();
+  int sz=(int)tinyInfoD.back();//very bad, lack of time to improve it
   tmp.pop_back();
   std::vector<double> tmp1(tmp.begin(),tmp.end()-sz);
   std::vector<double> tmp2(tmp.end()-sz,tmp.end());
