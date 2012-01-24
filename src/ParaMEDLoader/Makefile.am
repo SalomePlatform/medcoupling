@@ -28,7 +28,7 @@ dist_libparamedloader_la_SOURCES= \
 ParaMEDLoader.cxx
 
 #libmedmem_la_LDFLAGS= -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome 
-libparamedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+libparamedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
 	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
 	-I$(srcdir)/../INTERP_KERNEL/Bases \
@@ -39,4 +39,4 @@ libparamedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) 
 libparamedloader_la_LDFLAGS= ../ParaMEDMEM/libparamedmem.la \
 	../MEDLoader/libmedloader.la \
 	../MEDCoupling/libmedcoupling.la \
-	../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED2_LIBS) $(HDF5_LIBS)
+	../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED3_LIBS) $(HDF5_LIBS)

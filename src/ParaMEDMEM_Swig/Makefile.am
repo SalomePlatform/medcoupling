@@ -41,12 +41,12 @@ ParaMEDMEM_wrap.cxx: $(SWIG_DEF)
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
 _ParaMEDMEM_la_CPPFLAGS = $(PYTHON_INCLUDES) \
-	$(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+	$(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
 	$(MPI_INCLUDES) -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling_Swig -I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../MEDCoupling -I$(srcdir)/../ParaMEDLoader -I$(srcdir)/../MEDLoader -I$(srcdir)/../MEDLoader/Swig
 
-_ParaMEDMEM_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
+_ParaMEDMEM_la_LDFLAGS  = -module $(MED3_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
 	../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la \
 	../ParaMEDMEM/libparamedmem.la ../ParaMEDLoader/libparamedloader.la
 

@@ -39,12 +39,12 @@ MEDLoader_wrap.cxx: $(SWIG_DEF)
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
 _MEDLoader_la_CPPFLAGS = $(PYTHON_INCLUDES) \
-	$(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+	$(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../../INTERP_KERNEL \
 	-I$(srcdir)/.. -I$(srcdir)/../../MEDCoupling_Swig -I$(srcdir)/../../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../../MEDCoupling
 
-_MEDLoader_la_LDFLAGS  = -module $(MED2_LIBS_C_ONLY) $(HDF5_LIBS) $(PYTHON_LIBS) \
+_MEDLoader_la_LDFLAGS  = -module $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(PYTHON_LIBS) \
 	../../MEDCoupling/libmedcoupling.la ../../INTERP_KERNEL/libinterpkernel.la \
 	../libmedloader.la
 

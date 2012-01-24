@@ -285,7 +285,7 @@ The following options can be useful to configure MEDMEM :
 - \a --enable-splitter=yes will trigger the compilation of the MEDSPLITTER tool,
 - \a --with-metis=${METISDIR} will specify a location for the METIS library,
 - \a --with-scotch=${SCOTCHDIR} will specify a location for the SCOTCH library,
-- \a --with-med2=${MED2DIR} specifies a location for MED-file library,
+- \a --with-med3=${MED3DIR} specifies a location for MED-file library,
 - \a --with-hdf5=${HDF5DIR} specifies a location for the HDF5 library (must be the same as that used for the MED-file library)
 - \a --with-lam=${LAMDIR} specifies an install path for a LAM MPI library,
 - \a --with-mpich=${MPICHDIR} specifies an install path for a MPICH-1 library.

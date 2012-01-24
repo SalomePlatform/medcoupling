@@ -93,7 +93,7 @@ if !MED_ENABLE_MICROMED
 
    libInterpKernelTest_la_CPPFLAGS +=            \
 	-DDISABLE_MICROMED                       \
-	$(MED2_INCLUDES) $(HDF5_INCLUDES)        \
+	$(MED3_INCLUDES) $(HDF5_INCLUDES)        \
 	-I$(srcdir)/../MEDWrapper/V2_1/Core      \
 	-I$(srcdir)/../MEDMEM
 
@@ -131,7 +131,7 @@ PerfTest_SOURCES =               \
 	MeshTestToolkit.txx
 
 PerfTest_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
-PerfTest_LDADD = $(MED2_LIBS) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
+PerfTest_LDADD = $(MED3_LIBS) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
 
 if MED_ENABLE_KERNEL
      TestINTERP_KERNEL_LDADD += -lSALOMEBasics

@@ -46,11 +46,11 @@ MEDFileMesh.cxx MEDFileMeshElt.cxx MEDFileBasis.cxx       \
 MEDFileMeshLL.cxx MEDFileField.cxx MEDFileData.cxx      \
 SauvMedConvertor.cxx SauvReader.cxx SauvWriter.cxx
 
-libmedloader_la_CPPFLAGS= $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+libmedloader_la_CPPFLAGS= $(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	-I$(srcdir)/../INTERP_KERNEL \
 	-I$(srcdir)/../INTERP_KERNEL/Geometric2D \
 	-I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../MEDCoupling
 
 libmedloader_la_LDFLAGS= ../MEDCoupling/libmedcoupling.la \
-../INTERP_KERNEL/libinterpkernel.la $(MED2_LIBS_C_ONLY) $(HDF5_LIBS)
+../INTERP_KERNEL/libinterpkernel.la $(MED3_LIBS_C_ONLY) $(HDF5_LIBS)

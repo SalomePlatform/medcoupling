@@ -51,14 +51,14 @@ if BOOST_IS_OK
     dist_librenumber_la_SOURCES+= RENUMBER_BOOSTRenumbering.cxx 
 endif
 
-librenumber_la_CPPFLAGS= $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+librenumber_la_CPPFLAGS= $(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	$(BOOST_CPPFLAGS) \
 	-I$(srcdir)/../MEDMEM -I$(srcdir)/../MEDWrapper/V2_1/Core -I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../INTERP_KERNEL/GaussPoints \
 	-I$(srcdir)/../INTERP_KERNEL
 
 librenumber_la_LDFLAGS= 
-#libmedsplitter_la_LDFLAGS= $(MED2_LIBS) $(HDF5_LIBS) $(STDLIB) \
+#libmedsplitter_la_LDFLAGS= $(MED3_LIBS) $(HDF5_LIBS) $(STDLIB) \
 #	../MEDMEM/libmedmem.la ../MEDWrapper/V2_1/Core/libmed_V2_1.la
 
 if MED_ENABLE_METIS
@@ -74,7 +74,7 @@ if MED_ENABLE_KERNEL
   librenumber_la_LDFLAGS+= ${KERNEL_LDFLAGS} -lSALOMELocalTrace 
 endif
 
-librenumber_la_LDFLAGS+= $(MED2_LIBS) $(HDF5_LIBS) $(STDLIB) \
+librenumber_la_LDFLAGS+= $(MED3_LIBS) $(HDF5_LIBS) $(STDLIB) \
 	../MEDMEM/libmedmem.la ../MEDWrapper/V2_1/Core/libmed_V2_1.la  ../INTERP_KERNEL/libinterpkernel.la
 
 # Executables targets
