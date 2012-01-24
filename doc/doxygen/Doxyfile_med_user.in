@@ -129,6 +129,7 @@ FILE_PATTERNS          = MEDMEM_GMesh.* \
                          MEDCouplingRemapper.* \
                          MEDLoader.* \
                          MEDFileMesh.* \
+			 MEDFileField.* \
                          *.dox
 RECURSIVE              = NO
 EXCLUDE                = CVS
