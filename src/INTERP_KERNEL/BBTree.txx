@@ -129,11 +129,11 @@ public:
     tmp=0;
     if(!new_elems_left.empty())
       tmp=&(new_elems_left[0]);
-    _left=new BBTree(bbs, tmp, level+1, new_elems_left.size(),_epsilon);
+    _left=new BBTree(bbs, tmp, level+1, (int)new_elems_left.size(),_epsilon);
     tmp=0;
     if(!new_elems_right.empty())
       tmp=&(new_elems_right[0]);
-    _right=new BBTree(bbs, tmp, level+1, new_elems_right.size(),_epsilon);
+    _right=new BBTree(bbs, tmp, level+1, (int)new_elems_right.size(),_epsilon);
   
   }
 

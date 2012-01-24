@@ -198,8 +198,8 @@ namespace INTERP_KERNEL
         x=x+V[2*i];
         y=y+V[2*i+1];
       }
-    double A=2*x/taille;
-    double B=2*y/taille;
+    double A=2*x/((double)taille);
+    double B=2*y/((double)taille);
     Bary.push_back(A);//taille vecteur=2*nb de points.
     Bary.push_back(B);
 
@@ -725,7 +725,7 @@ namespace INTERP_KERNEL
   inline std::vector<double> reconstruct_polygon(const std::vector<double>& V)
   {
 
-    int taille=V.size();
+    std::size_t taille=V.size();
 
     //VB : why 6 ?
 
@@ -740,7 +740,7 @@ namespace INTERP_KERNEL
         COS[0]=1.0;
         SIN[0]=0.0;
         //angle[0]=0.0;
-        for(int i=0; i<taille/2-1;i++)
+        for(std::size_t i=0; i<taille/2-1;i++)
           {
             std::vector<double> Trigo=calcul_cos_et_sin(&Bary[0],&V[0],&V[2*(i+1)]);
             COS[i+1]=Trigo[0];
@@ -756,7 +756,7 @@ namespace INTERP_KERNEL
         Pt_ordonne.reserve(taille);
         //        std::multimap<double,int> Ordre;
         std::multimap<std::pair<double,double>,int, AngleLess> CosSin;
-        for(int i=0;i<taille/2;i++)       
+        for(std::size_t i=0;i<taille/2;i++)       
           {
             //  Ordre.insert(std::make_pair(angle[i],i));
             CosSin.insert(std::make_pair(std::make_pair(SIN[i],COS[i]),i));
@@ -885,7 +885,7 @@ namespace INTERP_KERNEL
     V[2]=AB[0]*AC[1]-AB[1]*AC[0];    
   }
   template<> inline
-  void crossprod<1>( const double * A, const double * B, const double * C, double * V)
+  void crossprod<1>( const double * /*A*/, const double * /*B*/, const double * /*C*/, double * /*V*/)
   {
     // just to be able to compile
   }

@@ -346,10 +346,10 @@ namespace INTERP_KERNEL
         if(!same_orientation)
           for(int idim =0; idim< SPACEDIM; idim++) normal_A[idim] *=-1;
         
-        double normB= sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
+        double normBB= sqrt(dotprod<SPACEDIM>(normal_B,normal_B));
         
         for(int idim =0; idim< SPACEDIM; idim++)
-          linear_comb[idim] = median_plane*normal_A[idim]/normA + (1-median_plane)*normal_B[idim]/normB;
+          linear_comb[idim] = median_plane*normal_A[idim]/normA + (1-median_plane)*normal_B[idim]/normBB;
         double norm= sqrt(dotprod<SPACEDIM>(linear_comb,linear_comb));
 
         //Necessarily: norm>epsilon, no need to check

@@ -421,15 +421,15 @@ namespace INTERP_KERNEL
   template<class ConnType, NumberingPolicy numPol>
   inline double calculateVolumeForPolyh2(const ConnType *connec, int lgth, const double *coords)
   {
-    int nbOfFaces=std::count(connec,connec+lgth,-1)+1;
+    std::size_t nbOfFaces=std::count(connec,connec+lgth,-1)+1;
     double volume=0.;
     const int *work=connec;
-    for(int iFace=0;iFace<nbOfFaces;iFace++)
+    for(std::size_t iFace=0;iFace<nbOfFaces;iFace++)
       {
         const int *work2=std::find(work+1,connec+lgth,-1);
-        int nbOfNodesOfCurFace=std::distance(work,work2);
+        std::size_t nbOfNodesOfCurFace=std::distance(work,work2);
         double areaVector[3]={0.,0.,0.};
-        for(int ptId=0;ptId<nbOfNodesOfCurFace;ptId++)
+        for(std::size_t ptId=0;ptId<nbOfNodesOfCurFace;ptId++)
           {
             const double *pti=coords+3*OTT<ConnType,numPol>::coo2C(work[ptId]);
             const double *pti1=coords+3*OTT<ConnType,numPol>::coo2C(work[(ptId+1)%nbOfNodesOfCurFace]);
@@ -472,13 +472,13 @@ namespace INTERP_KERNEL
   template<class ConnType, NumberingPolicy numPol>
   inline void barycenterOfPolyhedron(const ConnType *connec, int lgth, const double *coords, double *res)
   {
-    int nbOfFaces=std::count(connec,connec+lgth,-1)+1;
+    std::size_t nbOfFaces=std::count(connec,connec+lgth,-1)+1;
     res[0]=0.; res[1]=0.; res[2]=0.;
     const int *work=connec;
-    for(int i=0;i<nbOfFaces;i++)
+    for(std::size_t i=0;i<nbOfFaces;i++)
       {
         const int *work2=std::find(work+1,connec+lgth,-1);
-        int nbOfNodesOfCurFace=std::distance(work,work2);
+        int nbOfNodesOfCurFace=(int)std::distance(work,work2);
         // projection to (u,v) of each faces of polyh to compute integral(x^2/2) on each faces.
         double normal[3];
         areaVectorOfPolygon<ConnType,numPol>(work,nbOfNodesOfCurFace,coords,normal);
@@ -576,37 +576,37 @@ namespace INTERP_KERNEL
   }
 
   template<>
-  inline void calculateBarycenter<2,0>(const double **pts, double *bary)
+  inline void calculateBarycenter<2,0>(const double **/*pts*/, double */*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<3,0>(const double **pts, double *bary)
+  inline void calculateBarycenter<3,0>(const double **/*pts*/, double */*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<4,0>(const double **pts, double *bary)
+  inline void calculateBarycenter<4,0>(const double **/*pts*/, double */*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<5,0>(const double **pts, double *bary)
+  inline void calculateBarycenter<5,0>(const double **/*pts*/, double */*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<6,0>(const double **pts, double *bary)
+  inline void calculateBarycenter<6,0>(const double **/*pts*/, double */*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<7,0>(const double **pts, double *bary)
+  inline void calculateBarycenter<7,0>(const double **/*pts*/, double */*bary*/)
   {
   }
   
   template<>
-  inline void calculateBarycenter<8,0>(const double **pts, double *bary)
+  inline void calculateBarycenter<8,0>(const double **/*pts*/, double */*bary*/)
   {
   }
 

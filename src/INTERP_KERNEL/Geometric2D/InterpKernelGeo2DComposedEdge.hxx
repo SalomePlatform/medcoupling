@@ -41,11 +41,11 @@ namespace INTERP_KERNEL
   public:
     ComposedEdge() { }
     ComposedEdge(const ComposedEdge& other);
-    ComposedEdge(int size):_sub_edges(size) { }
+    ComposedEdge(int sz):_sub_edges(sz) { }
     static void Delete(ComposedEdge *pt) { delete pt; }
     static void SoftDelete(ComposedEdge *pt) { pt->_sub_edges.clear(); delete pt; }
     void reverse();
-    int recursiveSize() const { return _sub_edges.size(); }
+    int recursiveSize() const { return (int)_sub_edges.size(); }
     void initLocations() const;
     ComposedEdge *clone() const;
     bool isNodeIn(Node *n) const;
@@ -76,7 +76,7 @@ namespace INTERP_KERNEL
     void pushBack(Edge *edge, bool direction=true);
     void pushBack(ElementaryEdge *elem);
     void pushBack(ComposedEdge *elem);
-    int size() const { return _sub_edges.size(); }
+    int size() const { return (int)_sub_edges.size(); }
     ElementaryEdge *operator[](int i) const;
     Node *getEndNode() const;
     Node *getStartNode() const;
