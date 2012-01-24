@@ -461,8 +461,12 @@ class MEDLoaderTest(unittest.TestCase):
         mm1.write(fname,2)
         ff1=MEDFileField1TS.New()
         ff1.setFieldNoProfileSBT(f1)
+        nv=1456.
+        da=ff1.getUndergroundDataArray().setIJ(0,0,nv)
         ff1.write(fname,0)
         f2=MEDLoader.ReadFieldNode(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
+        self.assertTrue(not f1.isEqual(f2,1e-12,1e-12))
+        f1.getArray().setIJ(0,0,nv)
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
         #
         fname="Pyfile27.med"

@@ -445,6 +445,12 @@ void MEDFileFieldPerMeshPerTypePerDisc::getFieldAtLevel(TypeOfField type, const 
     }
 }
 
+DataArrayDouble *MEDFileFieldPerMeshPerTypePerDisc::getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *ret=_arr;
+  return const_cast<DataArrayDouble *>(ret);
+}
+
 void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   TypeOfField type=getType();
@@ -782,6 +788,15 @@ void MEDFileFieldPerMeshPerType::getFieldAtLevel(int meshDim, TypeOfField type, 
     }
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
     (*it)->getFieldAtLevel(type,glob,dads,pfls,locs,geoTypes);
+}
+
+DataArrayDouble *MEDFileFieldPerMeshPerType::getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+{
+  if(_field_pm_pt_pd.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerType::getUndergroundDataArray : splitted MEDFileField*, this method has no sense !");
+  if(_field_pm_pt_pd[0]==0)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerType::getUndergroundDataArray : no field specified !");
+  return _field_pm_pt_pd[0]->getUndergroundDataArray();
 }
 
 MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception):_father(fath),_geo_type(geoType)
@@ -1228,6 +1243,15 @@ DataArrayDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField t
     }
   //
   return 0;
+}
+
+DataArrayDouble *MEDFileFieldPerMesh::getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+{
+  if(_field_pm_pt.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getUndergroundDataArray : splitted MEDFileField*, this method has no sense !");
+  if(_field_pm_pt[0]==0)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getUndergroundDataArray : no field specified !");
+  return _field_pm_pt[0]->getUndergroundDataArray();
 }
 
 int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type)
@@ -2146,6 +2170,20 @@ DataArrayDouble *MEDFileField1TSWithoutDAS::getFieldWithProfile(TypeOfField type
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
   int meshId=getMeshIdFromMeshName(mesh->getName());
   return _field_per_mesh[meshId]->getFieldOnMeshAtLevelWithPfl(type,m,pfl,glob);
+}
+
+/*!
+ * This method retrieves direct access to the underground ParaMEDMEM::DataArrayDouble instance.
+ * This method allows to the user a direct access to the values.
+ * This method throws an exception if 'this' is composed with multiple arrays due to cell type splitting (field on cells and field on gauss points).
+ */
+DataArrayDouble *MEDFileField1TSWithoutDAS::getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+{
+  if(_field_per_mesh.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getUndergroundDataArray : splitted MEDFileField*, this method has no sense !");
+  if(_field_per_mesh[0]==0)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getUndergroundDataArray : no field specified !");
+  return _field_per_mesh[0]->getUndergroundDataArray();
 }
 
 MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order,

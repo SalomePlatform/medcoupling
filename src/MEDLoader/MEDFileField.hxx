@@ -114,6 +114,7 @@ namespace ParaMEDMEM
     int getLocId() const { return _loc_id; }
     void getFieldAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector<const DataArrayDouble *>& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs,
                          std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
+    DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
     static int ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception);
   private:
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
@@ -156,6 +157,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
     void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector<const DataArrayDouble *>& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
+    DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
   private:
     std::vector<int> addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception);
@@ -199,6 +201,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocsReallyUsed() const;
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getFieldOnMeshAtLevelWithPfl(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
   private:
     int addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type);
     MEDCouplingFieldDouble *finishField(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
@@ -316,6 +319,7 @@ namespace ParaMEDMEM
     void fillIteration(std::pair<int,int>& p) const;
     void fillTypesOfFieldAvailable(std::vector<TypeOfField>& types) const throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const { return _infos; }
+    std::vector<std::string>& getInfo() { return _infos; }
     //
     static MEDFileField1TSWithoutDAS *New(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
     void finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception);
@@ -335,6 +339,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, const char *mName, int renumPol, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
   protected:
     int addNewEntryIfNecessary(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);

@@ -89,6 +89,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtTopLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevelOld;
+%newobject ParaMEDMEM::MEDFileField1TSWithoutDAS::getUndergroundDataArray;
 %newobject ParaMEDMEM::MEDFileField1TS::New;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtTopLevel;
@@ -671,6 +672,14 @@ namespace ParaMEDMEM
                PyList_SetItem(ret2,i,elt);
              }
            return ret2;
+         }
+
+         DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception)
+         {
+           DataArrayDouble *ret=self->getUndergroundDataArray();
+           if(ret)
+             ret->incrRef();
+           return ret;
          }
        }
   };
