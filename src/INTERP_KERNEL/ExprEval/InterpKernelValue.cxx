@@ -193,9 +193,9 @@ void ValueUnit::setDouble(double val) throw(INTERP_KERNEL::Exception)
 
 void ValueUnit::setVarname(int fastPos, const std::string& var) throw(INTERP_KERNEL::Exception)
 {
-  double add,mult;
-  const short *projInBase=UnitDataBase::_uniqueMapForExpr.getInfoForUnit(var,add,mult);
-  _data.setInfo(projInBase,add,mult);
+  double add,mul;
+  const short *projInBase=UnitDataBase::_uniqueMapForExpr.getInfoForUnit(var,add,mul);
+  _data.setInfo(projInBase,add,mul);
 }
 
 void ValueUnit::positive() throw(INTERP_KERNEL::Exception)

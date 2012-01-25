@@ -386,9 +386,9 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
   EdgeInfLin *e1=new EdgeInfLin(nodeToTest,radialDistrib[i]+radialDistrib3[i]/2.);
   double ref=e1->getCharactValue(*nodeToTest);
   std::set< IntersectElement > inOutSwitch;
-  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+  for(std::list<ElementaryEdge *>::const_iterator iter4=_sub_edges.begin();iter4!=_sub_edges.end();iter4++)
     {
-      ElementaryEdge *val=(*iter);
+      ElementaryEdge *val=(*iter4);
       if(val)
         {
           Edge *e=val->getPtr();
@@ -413,11 +413,11 @@ bool ComposedEdge::isInOrOut(Node *nodeToTest) const
     }
   e1->decrRef();
   bool ret=false;
-  for(std::set< IntersectElement >::iterator iter=inOutSwitch.begin();iter!=inOutSwitch.end();iter++)
+  for(std::set< IntersectElement >::iterator iter4=inOutSwitch.begin();iter4!=inOutSwitch.end();iter4++)
     {
-      if((*iter).getVal1()<ref)
+      if((*iter4).getVal1()<ref)
         {
-          if((*iter).getNodeOnly()->getLoc()==ON_1)
+          if((*iter4).getNodeOnly()->getLoc()==ON_1)
             ret=!ret;
         }
       else

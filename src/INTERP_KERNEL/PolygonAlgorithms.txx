@@ -512,7 +512,8 @@ namespace INTERP_KERNEL
                       //std::cout<<"coucou1" << std::endl;
                       if( _is_in_intersection)
                         {
-                          for(int idim=0;idim<DIM;idim++) _Inter.push_back(Poly1[DIM*i_loc+idim]);
+                          for(int iidim=0;iidim<DIM;iidim++)
+                            _Inter.push_back(Poly1[DIM*i_loc+iidim]);
                           _End_segments.push_back(std::make_pair(i_glob,i_next_glob));
                           _End_segments.push_back(std::make_pair(i_glob,i_prev_glob));
                         }

@@ -126,8 +126,8 @@ int *CellSimplify::getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, co
   std::vector<int> faces;
   for(unsigned j=0;j<nbOfFaces;j++)
     {
-      INTERP_KERNEL::NormalizedCellType type;
-      unsigned offset=cm.fillSonCellNodalConnectivity2(j,conn,lgth,work,type);
+      INTERP_KERNEL::NormalizedCellType type2;
+      unsigned offset=cm.fillSonCellNodalConnectivity2(j,conn,lgth,work,type2);
       //
       int *tmp2=new int[offset];
       tmp2[0]=work[0];
@@ -141,15 +141,15 @@ int *CellSimplify::getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, co
           continue;
         }
       int tmp3;
-      faces.push_back(tryToUnPoly2D(CellModel::GetCellModel(type).isQuadratic(),tmp2,newPos,work,tmp3));
+      faces.push_back(tryToUnPoly2D(CellModel::GetCellModel(type2).isQuadratic(),tmp2,newPos,work,tmp3));
       delete [] tmp2;
       //
       work+=newPos;
       *work++=-1;
     }
   std::copy(faces.begin(),faces.end(),--work);
-  retNbOfFaces=faces.size();
-  retLgth=std::distance(tmp,work);
+  retNbOfFaces=(int)faces.size();
+  retLgth=(int)std::distance(tmp,work);
   return tmp;
 }
 
@@ -162,7 +162,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly3D(const int *conn, i
 {
   std::set<int> nodes(conn,conn+lgth);
   nodes.erase(-1);
-  int nbOfNodes=nodes.size();
+  int nbOfNodes=(int)nodes.size();
   int magicNumber=100*nbOfNodes+nbOfFaces;
   switch(magicNumber)
     {
@@ -215,9 +215,9 @@ bool CellSimplify::orientOppositeFace(const int *baseFace, int *retConn, const i
           sideEdges[i]=r;
         }
       //end reverse sideFace
-      std::set< std::pair<int,int> > baseEdgesS(baseEdges.begin(),baseEdges.end());
-      std::set< std::pair<int,int> > sideEdgesS(sideEdges.begin(),sideEdges.end());
-      std::set_intersection(baseEdgesS.begin(),baseEdgesS.end(),sideEdgesS.begin(),sideEdgesS.end(),std::back_insert_iterator< std::vector< std::pair<int,int> > >(tmp));
+      std::set< std::pair<int,int> > baseEdgesS2(baseEdges.begin(),baseEdges.end());
+      std::set< std::pair<int,int> > sideEdgesS2(sideEdges.begin(),sideEdges.end());
+      std::set_intersection(baseEdgesS2.begin(),baseEdgesS2.end(),sideEdgesS2.begin(),sideEdgesS2.end(),std::back_insert_iterator< std::vector< std::pair<int,int> > >(tmp));
       if(tmp.empty())
         return false;
     }
@@ -237,11 +237,11 @@ bool CellSimplify::orientOppositeFace(const int *baseFace, int *retConn, const i
     }
   if(!found)
     return false;
-  int pos=std::distance(baseEdges.begin(),std::find(baseEdges.begin(),baseEdges.end(),tmp[0]));
+  int pos=(int)std::distance(baseEdges.begin(),std::find(baseEdges.begin(),baseEdges.end(),tmp[0]));
   std::vector< std::pair<int,int> >::iterator it=std::find(oppEdges.begin(),oppEdges.end(),pInOpp);
   if(it==oppEdges.end())//the opposite edge of side face is not found opposite face ... maybe problem of orientation of polyhedron
     return false;
-  int pos2=std::distance(oppEdges.begin(),it);
+  int pos2=(int)std::distance(oppEdges.begin(),it);
   int offset=pos-pos2;
   if(offset<0)
     offset+=lgthBaseFace;
@@ -326,20 +326,20 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHex8(const int *conn,
 
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHexp12(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth)
 {
-  int nbOfHexagon=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_POLYGON);
-  int nbOfQuad=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4);
+  std::size_t nbOfHexagon=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_POLYGON);
+  std::size_t nbOfQuad=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4);
   if(nbOfQuad==6 && nbOfHexagon==2)
     {
       const int *hexag0=std::find(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_POLYGON);
-      int hexg0Id=std::distance(conn+lgth,hexag0);
+      std::size_t hexg0Id=std::distance(conn+lgth,hexag0);
       const int *hexag1=std::find(hexag0+1,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_POLYGON);
-      int hexg1Id=std::distance(conn+lgth,hexag1);
+      std::size_t hexg1Id=std::distance(conn+lgth,hexag1);
       const int *connHexag0=conn+5*hexg0Id;
-      int lgthH0=std::distance(connHexag0,std::find(connHexag0,conn+lgth,-1));
+      std::size_t lgthH0=std::distance(connHexag0,std::find(connHexag0,conn+lgth,-1));
       if(lgthH0==6)
         {
           const int *connHexag1=conn+5*hexg0Id+7+(hexg1Id-hexg0Id-1)*5;
-          int lgthH1=std::distance(connHexag1,std::find(connHexag1,conn+lgth,-1));
+          std::size_t lgthH1=std::distance(connHexag1,std::find(connHexag1,conn+lgth,-1));
           if(lgthH1==6)
             {
               std::vector<int> tmp;
@@ -371,15 +371,15 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHexp12(const int *con
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth)
 {
-  int nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3);
-  int nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4);
+  std::size_t nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3);
+  std::size_t nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4);
   if(nbOfTriFace==2 && nbOfQuadFace==3)
     {
-      int tri3_0=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3));
-      int tri3_1=std::distance(conn+lgth,std::find(conn+lgth+tri3_0+1,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3));
+      std::size_t tri3_0=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3));
+      std::size_t tri3_1=std::distance(conn+lgth,std::find(conn+lgth+tri3_0+1,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3));
       const int *tri_0=0,*tri_1=0;
       const int *w=conn;
-      for(int i=0;i<5;i++)
+      for(std::size_t i=0;i<5;i++)
         {
           if(i==tri3_0)
             tri_0=w;
@@ -415,14 +415,14 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const int *con
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPyra5(const int *conn, int nbOfFaces, int lgth, int *retConn, int& retLgth)
 {
-  int nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3);
-  int nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4);
+  std::size_t nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_TRI3);
+  std::size_t nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4);
   if(nbOfTriFace==4 && nbOfQuadFace==1)
     {
-      int quad4_pos=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4));
+      std::size_t quad4_pos=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,(int)INTERP_KERNEL::NORM_QUAD4));
       const int *quad4=0;
       const int *w=conn;
-      for(int i=0;i<5 && quad4==0;i++)
+      for(std::size_t i=0;i<5 && quad4==0;i++)
         {
           if(i==quad4_pos)
             quad4=w;
@@ -433,7 +433,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPyra5(const int *conn
       w=conn;
       bool ok=true;
       int point=-1;
-      for(int i=0;i<5 && ok;i++)
+      for(std::size_t i=0;i<5 && ok;i++)
         {
           if(i!=quad4_pos)
             {

@@ -413,12 +413,7 @@ namespace INTERP_KERNEL
     // products 1 and 2 for each edge -> first condition in Grandy [30]
     // products 3 and 4 for each edge -> third condition
     // NB : some uncertainty whether these last are correct
-    static const DoubleProduct DP_FOR_HALFSTRIP_INTERSECTION[12] =
-      {
-        C_10, C_01, C_ZH, C_10, // XY
-        C_01, C_XY, C_XH, C_01, // YZ
-        C_XY, C_10, C_YH, C_XY  // ZX
-      };
+    // DP_FOR_HALFSTRIP_INTERSECTION
     
     // facets to use in second condition (S_m)
     static const TetraFacet FACET_FOR_HALFSTRIP_INTERSECTION[3] = 

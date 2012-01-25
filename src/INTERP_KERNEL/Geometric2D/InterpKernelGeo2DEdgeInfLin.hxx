@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
     bool isIn(double characterVal) const { return true; }
     void dynCastFunction(const EdgeLin * &seg,
                          const EdgeArcCircle * &arcSeg) const { seg=this; }
-  private:
+  protected:
     ~EdgeInfLin() { }
   };
 }

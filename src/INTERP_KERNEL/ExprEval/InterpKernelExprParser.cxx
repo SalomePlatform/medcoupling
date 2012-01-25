@@ -77,7 +77,7 @@ void LeafExprVal::fillValue(Value *val) const throw(INTERP_KERNEL::Exception)
 void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception)
 {
   int pos=(int)_value;
-  int lgth=valuesInExpr.size();
+  int lgth=(int)valuesInExpr.size();
   if(pos>=lgth || pos<0)
     throw INTERP_KERNEL::Exception("LeafExprVal::replaceValues : Big Problem detected ! Send expression to Salome support with expression !");
   _value=valuesInExpr[pos];
@@ -105,7 +105,7 @@ void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars) co
         }
       return;
     }
-  _fast_pos=iter-vars.begin();
+  _fast_pos=(int)std::distance(vars.begin(),iter);
 }
 
 void LeafExprVar::prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception)
@@ -412,21 +412,21 @@ void ExprParser::parseUnaryFunc() throw(INTERP_KERNEL::Exception)
   if(pos2!=std::string::npos && pos3!=std::string::npos)
     return ;//Bracket group is not alone, can't conclude not recursively.
   std::string newExp2=_expr.substr(pos1+1,_expr.length()-pos1-2);
-  int nbOfParamsInFunc=std::count(newExp2.begin(),newExp2.end(),',')+1;
+  std::size_t nbOfParamsInFunc=std::count(newExp2.begin(),newExp2.end(),',')+1;
   if(pos3!=std::string::npos)
-    _func_btw_sub_expr.push_back(FunctionsFactory::buildFuncFromString(funcName.c_str(),nbOfParamsInFunc));
+    _func_btw_sub_expr.push_back(FunctionsFactory::buildFuncFromString(funcName.c_str(),(int)nbOfParamsInFunc));
   else
     {
-      int lgth=funcName.length();
+      std::size_t lgth=funcName.length();
       char tmp[2]; tmp[1]='\0';
-      for(int i=0;i<lgth;i++)
+      for(std::size_t i=0;i<lgth;i++)
         {
           tmp[0]=funcName[i];
-          _func_btw_sub_expr.push_back(FunctionsFactory::buildFuncFromString(tmp,nbOfParamsInFunc));
+          _func_btw_sub_expr.push_back(FunctionsFactory::buildFuncFromString(tmp,(int)nbOfParamsInFunc));
         }
     }
   std::size_t pos6=0;
-  for(int i=0;i<nbOfParamsInFunc;i++)
+  for(std::size_t i=0;i<nbOfParamsInFunc;i++)
     {
       std::size_t pos5=newExp2.find_first_of(',',pos6);
       std::size_t len=std::string::npos;
@@ -765,7 +765,7 @@ void ExprParser::checkBracketsParity() const throw(INTERP_KERNEL::Exception)
               std::ostringstream errMsg;
               char MSGTYP1[]="Error in brackets : closing brackets ')' before openning '('";
               errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1;
-              LocateError(errMsg,_expr,iter-_expr.begin());
+              LocateError(errMsg,_expr,(int)std::distance(_expr.begin(),iter));
               throw INTERP_KERNEL::Exception(errMsg.str().c_str());
             }
           curLevel--;

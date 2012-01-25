@@ -76,7 +76,7 @@ bool Node::isEqualAndKeepTrack(const Node& other, std::vector<Node *>& track) co
 {
   bool ret=isEqual(other);
   if(ret)
-    track.push_back((Node *)&other);
+    track.push_back(const_cast<Node *>(&other));
   return ret;
 }
 
@@ -155,7 +155,7 @@ void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis,
       *nodeId=(*it).second;
       return;
     }
-  int id=addCoo.size()/2;
+  int id=(int)addCoo.size()/2;
   addCoo.push_back(fact*_coords[0]+baryX);
   addCoo.push_back(fact*_coords[1]+baryY);
   *nodeId=offset2+id;

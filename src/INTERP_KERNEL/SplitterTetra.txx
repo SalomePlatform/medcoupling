@@ -460,35 +460,35 @@ namespace INTERP_KERNEL
     Vect2 save;
     Vect2 edge0;
     Vect2 edge1;
-    for (int i = 0; i < 2; ++i)
+    for (int ii = 0; ii < 2; ++ii)
       {
-        edge0[i] = projTri0[1][i] - projTri0[0][i];
-        edge1[i] = projTri0[2][i] - projTri0[0][i];
+        edge0[ii] = projTri0[1][ii] - projTri0[0][ii];
+        edge1[ii] = projTri0[2][ii] - projTri0[0][ii];
       }
     if ((edge0[0] * edge1[1] - edge0[1] * edge1[0]) < (double) 0.)
       {
         // Triangle is clockwise, reorder it.
-        for (int i = 0; i < 2; ++i)
+        for (int ii = 0; ii < 2; ++ii)
           {
-            save[i] = projTri0[1][i];
-            projTri0[1][i] = projTri0[2][i];
-            projTri0[2][i] = save[i];
+            save[ii] = projTri0[1][ii];
+            projTri0[1][ii] = projTri0[2][ii];
+            projTri0[2][ii] = save[ii];
           }
       }
 
-    for (int i = 0; i < 2; ++i)
+    for (int ii = 0; ii < 2; ++ii)
       {
-        edge0[i] = projTri1[1][i] - projTri1[0][i];
-        edge1[i] = projTri1[2][i] - projTri1[0][i];
+        edge0[ii] = projTri1[1][ii] - projTri1[0][ii];
+        edge1[ii] = projTri1[2][ii] - projTri1[0][ii];
       }
     if ((edge0[0] * edge1[1] - edge0[1] * edge1[0]) < (double) 0.)
       {
         // Triangle is clockwise, reorder it.
-      for (int i = 0; i < 2; ++i)
+      for (int ii = 0; ii < 2; ++ii)
         {
-          save[i] = projTri1[1][i];
-          projTri1[1][i] = projTri1[2][i];
-          projTri1[2][i] = save[i];
+          save[ii] = projTri1[1][ii];
+          projTri1[1][ii] = projTri1[2][ii];
+          projTri1[2][ii] = save[ii];
         }
       }
 

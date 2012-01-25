@@ -30,8 +30,8 @@ namespace INTERP_KERNEL
   class INTERPKERNEL_EXPORT Exception : public std::exception
   {
   public:
-    Exception(const char *what);
-    Exception(const char *what, const char *file, int line);
+    Exception(const char *reason);
+    Exception(const char *reason, const char *file, int line);
     ~Exception() throw ();
     const char *what() const throw();
   protected:

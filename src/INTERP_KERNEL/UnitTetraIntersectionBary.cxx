@@ -228,7 +228,7 @@ namespace INTERP_KERNEL
     baryCenter[0] = baryCenter[1] = baryCenter[2] = 0.;
 
     std::list< std::vector< double* > >::iterator f = _faces.begin(), fEnd = _faces.end();
-    double * P = f->at(0);
+    double * PP = f->at(0);
 
     for ( ++f; f != fEnd; ++f )
       {
@@ -239,12 +239,12 @@ namespace INTERP_KERNEL
         bool pBelongsToPoly = false;
         std::vector<double*>::iterator v = polygon.begin(), vEnd = polygon.end();
         for ( ; !pBelongsToPoly && v != vEnd; ++v )
-          pBelongsToPoly = samePoint( P, *v );
+          pBelongsToPoly = samePoint( PP, *v );
         if ( pBelongsToPoly )
           continue;
 
         // Compute the barycenter of the volume. Barycenter of pyramid is on line
-        // ( barycenter of polygon -> P ) with 1/4 of pyramid height from polygon.
+        // ( barycenter of polygon -> PP ) with 1/4 of pyramid height from polygon.
 
         double bary[] = { 0, 0, 0 };
 
@@ -256,9 +256,9 @@ namespace INTERP_KERNEL
             bary[1] += p[1];
             bary[2] += p[2];
           }
-        bary[0] /= polygon.size();
-        bary[1] /= polygon.size();
-        bary[2] /= polygon.size();
+        bary[0] /= (int)polygon.size();
+        bary[1] /= (int)polygon.size();
+        bary[2] /= (int)polygon.size();
 
         // pyramid volume
         double vol = 0;
@@ -266,13 +266,13 @@ namespace INTERP_KERNEL
           {
             double* p1 = polygon[i];
             double* p2 = polygon[(i+1)%polygon.size()];
-            vol += std::fabs( calculateVolumeForTetra( p1, p2, bary, P ));
+            vol += std::fabs( calculateVolumeForTetra( p1, p2, bary, PP ));
           }
 
-        // put bary on the line ( barycenter of polygon -> P ) and multiply by volume
-        baryCenter[0] += ( bary[0] * 0.75 + P[0] * 0.25 ) * vol;
-        baryCenter[1] += ( bary[1] * 0.75 + P[1] * 0.25 ) * vol;
-        baryCenter[2] += ( bary[2] * 0.75 + P[2] * 0.25 ) * vol;
+        // put bary on the line ( barycenter of polygon -> PP ) and multiply by volume
+        baryCenter[0] += ( bary[0] * 0.75 + PP[0] * 0.25 ) * vol;
+        baryCenter[1] += ( bary[1] * 0.75 + PP[1] * 0.25 ) * vol;
+        baryCenter[2] += ( bary[2] * 0.75 + PP[2] * 0.25 ) * vol;
       }
     if ( _int_volume < 0. )
       _int_volume = -_int_volume;
@@ -328,7 +328,7 @@ namespace INTERP_KERNEL
           sideAdded[j] = ++nbAddedSides != 0 ;
       }
       if ( !sideAdded[3] &&
-           ( epsilonEqual( (coordSum[0]+coordSum[1]+coordSum[2]) / polygon.size(), 1. )))
+           ( epsilonEqual( (coordSum[0]+coordSum[1]+coordSum[2]) / (int)polygon.size(), 1. )))
         sideAdded[3] = ++nbAddedSides != 0 ;
     }
     if ( nbAddedSides == NB_TETRA_SIDES )
@@ -338,7 +338,7 @@ namespace INTERP_KERNEL
     // Add segments of already added polygons to future polygonal faces on sides of tetra
     // ---------------------------------------------------------------------------------
 
-    int nbIntersectPolygs = _faces.size();
+    std::size_t nbIntersectPolygs = _faces.size();
 
     std::vector< double* > * sideFaces[ 4 ]; // future polygons on sides of tetra
     for ( int i = 0; i < NB_TETRA_SIDES; ++i )
@@ -351,10 +351,10 @@ namespace INTERP_KERNEL
       }
     }
     f = _faces.begin(), fEnd = _faces.end();
-    for ( int iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
+    for ( std::size_t iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
     {
       std::vector< double* >& polygon = *f;
-      for ( int i = 0; i < (int)polygon.size(); ++i )
+      for ( std::size_t i = 0; i < polygon.size(); ++i )
       {
         // segment ends
         double* p1 = polygon[i];
@@ -428,7 +428,7 @@ namespace INTERP_KERNEL
     for ( int ic = 0; ic < NB_TETRA_NODES; ++ic )
     {
       f = _faces.begin(), fEnd = _faces.end();
-      for ( int iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
+      for ( std::size_t iF = 0; iF < nbIntersectPolygs; ++f, ++iF ) // loop on added intersection polygons
       {
         std::vector< double* >& polygon = *f;
 
@@ -454,7 +454,7 @@ namespace INTERP_KERNEL
       if ( !sideFaces[i] ) continue;
       std::vector< double* >& sideFace = *sideFaces[i];
 
-      int nbPoints = sideFace.size();
+      std::size_t nbPoints = sideFace.size();
       if ( nbPoints == 0 )
         continue; // not intersected face at all - no cut off corners can be detected
 
@@ -462,9 +462,9 @@ namespace INTERP_KERNEL
 
       int nbCutOnSide = 0;
       bool isSegmentOnEdge=false;
-      for ( int ip = 0; ip < nbPoints; ++ip )
+      for ( std::size_t ip = 0; ip < nbPoints; ++ip )
       {
-        int isSegmentEnd = ( ip % 2 );
+        std::size_t isSegmentEnd = ( ip % 2 );
 
         double* p = sideFace[ ip ];
         double* p2 = isSegmentEnd ? 0 : sideFace[ip+1];
@@ -483,7 +483,7 @@ namespace INTERP_KERNEL
 
           if ( !isSegmentOnEdge )
           { // segment ends are on different edges
-            pCut[ind2] = isSegmentEnd; // believe that cutting triangles are well oriented
+            pCut[ind2] = (int)isSegmentEnd; // believe that cutting triangles are well oriented
             cutOffIndex = pCut[0] + 2*pCut[1] + 3*pCut[2];
           }
           if ( epsilonEqual( p[ind2], 0.) || epsilonEqual( p[ind2], 1.))
@@ -499,7 +499,7 @@ namespace INTERP_KERNEL
             isSegmentOnEdge = true;
           if ( !isSegmentEnd )
           {// segment ends are on different edges
-            pCut[ind1] = 1-isSegmentEnd;
+            pCut[ind1] = 1-(int)isSegmentEnd;
             cutOffIndex = pCut[0] + 2*pCut[1] + 3*pCut[2];
           }
           if ( epsilonEqual( p[ind1], 0.) || epsilonEqual( p[ind1], 1.))
@@ -515,8 +515,8 @@ namespace INTERP_KERNEL
             isSegmentOnEdge = true;
           if ( !isSegmentOnEdge )
           { //segment ends are on different edges
-            pCut[ind1] = isSegmentEnd;
-            pCut[ind2] = 1-isSegmentEnd;
+            pCut[ind1] = (int)isSegmentEnd;
+            pCut[ind2] = 1-(int)isSegmentEnd;
             cutOffIndex = pCut[0] + 2*pCut[1] + 3*pCut[2];
           }
         }
@@ -626,7 +626,7 @@ namespace INTERP_KERNEL
     // Sort corners of filled up faces on tetra sides and exclude equal points
     // ------------------------------------------------------------------------
 
-    int iF = 0;
+    std::size_t iF = 0;
     for ( f = _faces.begin(); f != fEnd; ++f, ++iF )
     {
       std::vector< double* >&  face = *f;
@@ -639,7 +639,7 @@ namespace INTERP_KERNEL
         if ( iF >= nbIntersectPolygs )
         { // sort points of side faces
           calculatePolygonBarycenter( A, _barycenterA );
-          setTriangleOnSide( iF - nbIntersectPolygs );
+          setTriangleOnSide( (int)(iF-nbIntersectPolygs) );
           sortIntersectionPolygon( A, _barycenterA );
         }
         // exclude equal points

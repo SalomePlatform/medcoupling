@@ -159,13 +159,13 @@ T[i2] += s * ( t1 - tau * t2);\
     __DMP( "Solved = " << solved );
     if ( _dim == 3 ) {
       __DMP( " Eigen " << __TENSOR(0,0)<<", "<<__TENSOR(1,1)<<", "<<__TENSOR(2,2) );
-      for ( int i=0; i <3; ++i )
-        __DMP( i << ": " << __AXIS(i)[0] << ", " << __AXIS(i)[1] << ", " << __AXIS(i)[2] );
+      for ( int ii=0; ii <3; ++ii )
+        __DMP( ii << ": " << __AXIS(ii)[0] << ", " << __AXIS(ii)[1] << ", " << __AXIS(ii)[2] );
     }
     else {
       __DMP( " Eigen " << __TENSOR(0,0) << ", " << __TENSOR(1,1) );
-      for ( int i=0; i <2; ++i )
-        __DMP( i << ": " << __AXIS(i)[0] << ", " << __AXIS(i)[1] );
+      for ( int ii=0; ii <2; ++ii )
+        __DMP( ii << ": " << __AXIS(ii)[0] << ", " << __AXIS(ii)[1] );
     }
 
     return solved;

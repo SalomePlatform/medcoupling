@@ -260,7 +260,7 @@ void IntersectElement::setNode(Node *node) const
     {
       if(_node)
         ((Node *)_node)->decrRef();
-      ((IntersectElement *)(this))->_node=node;
+      (const_cast<IntersectElement *>(this))->_node=node;
       if(_node)
         _node->incrRef();
     }
@@ -457,8 +457,8 @@ bool Edge::changeStartNodeWith(Node *otherStartNode) const
     return true;
   if(_start->isEqual(*otherStartNode))
     {
-      (((Edge *)this)->_start)->decrRef();//un-const cast Ok thanks to 2 lines above.
-      (((Edge *)this)->_start)=otherStartNode;
+      ((const_cast<Edge *>(this))->_start)->decrRef();//un-const cast Ok thanks to 2 lines above.
+      ((const_cast<Edge *>(this))->_start)=otherStartNode;
       _start->incrRef();
       return true;
     }
@@ -471,8 +471,8 @@ bool Edge::changeStartNodeWithAndKeepTrack(Node *otherStartNode, std::vector<Nod
     return true;
   if(_start->isEqualAndKeepTrack(*otherStartNode,track))
     {
-      (((Edge *)this)->_start)->decrRef();//un-const cast Ok thanks to 2 lines above.
-      (((Edge *)this)->_start)=otherStartNode;
+      ((const_cast<Edge *>(this))->_start)->decrRef();//un-const cast Ok thanks to 2 lines above.
+      ((const_cast<Edge *>(this))->_start)=otherStartNode;
       otherStartNode->incrRef();
       return true;
     }
@@ -485,8 +485,8 @@ bool Edge::changeEndNodeWith(Node *otherEndNode) const
     return true;
   if(_end->isEqual(*otherEndNode))
     {
-      (((Edge *)this)->_end)->decrRef();
-      (((Edge *)this)->_end)=otherEndNode;
+      ((const_cast<Edge *>(this))->_end)->decrRef();
+      ((const_cast<Edge *>(this))->_end)=otherEndNode;
       _end->incrRef();
       return true;
     }
@@ -499,8 +499,8 @@ bool Edge::changeEndNodeWithAndKeepTrack(Node *otherEndNode, std::vector<Node *>
     return true;
   if(_end->isEqualAndKeepTrack(*otherEndNode,track))
     {
-      (((Edge *)this)->_end)->decrRef();
-      (((Edge *)this)->_end)=otherEndNode;
+      ((const_cast<Edge *>(this))->_end)->decrRef();
+      ((const_cast<Edge *>(this))->_end)=otherEndNode;
       otherEndNode->incrRef();
       return true;
     }
@@ -521,7 +521,7 @@ void Edge::addSubEdgeInVector(Node *start, Node *end, ComposedEdge& vec) const
   if(start==_start && end==_end)
     {
       incrRef();
-      vec.pushBack((Edge *)this);
+      vec.pushBack(const_cast<Edge *>(this));
       return ;
     }
   vec.pushBack(buildEdgeLyingOnMe(start,end,true));
@@ -691,19 +691,19 @@ bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersecto
       std::vector<Node *>::reverse_iterator iterR=newNodes.rbegin();
       f1->addSubEdgeInVector(f1->getStartNode(),*iter,outValForF1);
       f2->addSubEdgeInVector(f2->getStartNode(),order?*iter:*iterR,outValForF2);
-      for(std::vector<Node *>::iterator iter=newNodes.begin();iter!=newNodes.end();iter++,iterR++)
+      for(std::vector<Node *>::iterator iter2=newNodes.begin();iter2!=newNodes.end();iter2++,iterR++)
         {
-          if((iter+1)==newNodes.end())
+          if((iter2+1)==newNodes.end())
             {
-              f1->addSubEdgeInVector(*iter,f1->getEndNode(),outValForF1);
-              (*iter)->decrRef();
-              f2->addSubEdgeInVector(order?*iter:*iterR,f2->getEndNode(),outValForF2);
+              f1->addSubEdgeInVector(*iter2,f1->getEndNode(),outValForF1);
+              (*iter2)->decrRef();
+              f2->addSubEdgeInVector(order?*iter2:*iterR,f2->getEndNode(),outValForF2);
             }
           else
             {
-              f1->addSubEdgeInVector(*iter,*(iter+1),outValForF1);
-              (*iter)->decrRef();
-              f2->addSubEdgeInVector(order?*iter:*iterR,order?*(iter+1):*(iterR+1),outValForF2);
+              f1->addSubEdgeInVector(*iter2,*(iter2+1),outValForF1);
+              (*iter2)->decrRef();
+              f2->addSubEdgeInVector(order?*iter2:*iterR,order?*(iter2+1):*(iterR+1),outValForF2);
             }
         }
       return true;
@@ -756,9 +756,9 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
             e2->incrRef(); e2->incrRef();
             outVal1.resize(3);
             outVal1.setValueAt(0,e1->buildEdgeLyingOnMe(e1->getStartNode(),nS));
-            outVal1.setValueAt(1,(Edge*)e2,direction);
+            outVal1.setValueAt(1,const_cast<Edge*>(e2),direction);
             outVal1.setValueAt(2,e1->buildEdgeLyingOnMe(nE,e1->getEndNode()));
-            outVal2.pushBack((Edge*)e2); e2->declareOn();
+            outVal2.pushBack(const_cast<Edge*>(e2)); e2->declareOn();
             return true;
           }
         else
@@ -785,42 +785,42 @@ bool Edge::SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *
       return true;
     case OUT_BEFORE*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_AFTER:  // OUT_BEFORE - OUT_AFTER
       e1->incrRef(); e1->incrRef();
-      outVal1.pushBack((Edge*)e1);
+      outVal1.pushBack(const_cast<Edge*>(e1));
       outVal2.resize(3);
       outVal2.setValueAt(direction?0:2,e1->buildEdgeLyingOnMe(nS,e1->getStartNode(),direction));
-      outVal2.setValueAt(1,(Edge*)e1,direction); e1->declareOn();
+      outVal2.setValueAt(1,const_cast<Edge*>(e1),direction); e1->declareOn();
       outVal2.setValueAt(direction?2:0,e1->buildEdgeLyingOnMe(e1->getEndNode(),nE,direction));
       return true;
     case START*OFFSET_FOR_TYPEOFLOCINEDGE+END:             // START - END
       e1->incrRef(); e1->incrRef();
-      outVal1.pushBack((Edge*)e1);
-      outVal2.pushBack((Edge*)e1,direction); e1->declareOn();
+      outVal1.pushBack(const_cast<Edge*>(e1));
+      outVal2.pushBack(const_cast<Edge*>(e1),direction); e1->declareOn();
       return true;
     case START*OFFSET_FOR_TYPEOFLOCINEDGE+OUT_AFTER:       // START - OUT_AFTER
       e1->incrRef(); e1->incrRef();
-      outVal1.pushBack((Edge*)e1);
+      outVal1.pushBack(const_cast<Edge*>(e1));
       outVal2.resize(2);
-      outVal2.setValueAt(direction?0:1,(Edge*)e1,direction); e1->declareOn();
+      outVal2.setValueAt(direction?0:1,const_cast<Edge*>(e1),direction); e1->declareOn();
       outVal2.setValueAt(direction?1:0,e1->buildEdgeLyingOnMe(e1->getEndNode(),nE,direction));
       return true;
     case INSIDE*OFFSET_FOR_TYPEOFLOCINEDGE+END:            // INSIDE - END
       e2->incrRef(); e2->incrRef();
       outVal1.pushBack(e1->buildEdgeLyingOnMe(e1->getStartNode(),nS,true));
-      outVal1.pushBack((Edge*)e2,direction);
-      outVal2.pushBack((Edge*)e2); e2->declareOn();
+      outVal1.pushBack(const_cast<Edge*>(e2),direction);
+      outVal2.pushBack(const_cast<Edge*>(e2)); e2->declareOn();
       return true;
     case OUT_BEFORE*OFFSET_FOR_TYPEOFLOCINEDGE+END:        // OUT_BEFORE - END
       e1->incrRef(); e1->incrRef();
-      outVal1.pushBack((Edge*)e1);
+      outVal1.pushBack(const_cast<Edge*>(e1));
       outVal2.resize(2);
       outVal2.setValueAt(direction?0:1,e1->buildEdgeLyingOnMe(nS,e1->getStartNode(),direction));
-      outVal2.setValueAt(direction?1:0,(Edge*)e1,direction); e1->declareOn();
+      outVal2.setValueAt(direction?1:0,const_cast<Edge*>(e1),direction); e1->declareOn();
       return true;
     case START*OFFSET_FOR_TYPEOFLOCINEDGE+INSIDE:          // START - INSIDE
       e2->incrRef(); e2->incrRef();
-      outVal1.pushBack((Edge*)e2,direction);
+      outVal1.pushBack(const_cast<Edge*>(e2),direction);
       outVal1.pushBack(e1->buildEdgeLyingOnMe(nE,e1->getEndNode()));
-      outVal2.pushBack((Edge*)e2); e2->declareOn();
+      outVal2.pushBack(const_cast<Edge*>(e2)); e2->declareOn();
       return true;
     case INSIDE*OFFSET_FOR_TYPEOFLOCINEDGE+START:          // INSIDE - START
       outVal1.resize(2);

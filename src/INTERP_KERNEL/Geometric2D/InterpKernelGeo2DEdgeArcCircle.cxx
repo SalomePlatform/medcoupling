@@ -356,12 +356,12 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
     {
       double x=(_cross*_dy)/_drSq+center[0];
       double y=(-_cross*_dx)/_drSq+center[1];
-      Node *intersect=new Node(x,y); intersect->declareOnTangent();
-      bool i_1S=_e1.getStartNode()->isEqual(*intersect);
-      bool i_1E=_e1.getEndNode()->isEqual(*intersect);
-      bool i_2S=_e2.getStartNode()->isEqual(*intersect);
-      bool i_2E=_e2.getEndNode()->isEqual(*intersect);
-      ret.push_back(IntersectElement(_e1.getCharactValue(*intersect),_e2.getCharactValue(*intersect),i_1S,i_1E,i_2S,i_2E,intersect,_e1,_e2,keepOrder()));
+      Node *intersect3=new Node(x,y); intersect3->declareOnTangent();
+      bool i_1S=_e1.getStartNode()->isEqual(*intersect3);
+      bool i_1E=_e1.getEndNode()->isEqual(*intersect3);
+      bool i_2S=_e2.getStartNode()->isEqual(*intersect3);
+      bool i_2E=_e2.getEndNode()->isEqual(*intersect3);
+      ret.push_back(IntersectElement(_e1.getCharactValue(*intersect3),_e2.getCharactValue(*intersect3),i_1S,i_1E,i_2S,i_2E,intersect3,_e1,_e2,keepOrder()));
     }
   return ret;
 }

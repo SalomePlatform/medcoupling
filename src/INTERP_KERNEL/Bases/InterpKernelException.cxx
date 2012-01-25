@@ -21,12 +21,12 @@
 
 #include <iostream>
 
-INTERP_KERNEL::Exception::Exception(const char *what):_reason(what)
+INTERP_KERNEL::Exception::Exception(const char *reason):_reason(reason)
 {
-  std::cerr << "AN INTERP_KERNEL::EXCEPTION HAS BEEN THROWN : " << what << "**********" << std::endl;
+  std::cerr << "AN INTERP_KERNEL::EXCEPTION HAS BEEN THROWN : " << reason << "**********" << std::endl;
 }
 
-INTERP_KERNEL::Exception::Exception(const char *what, const char *file, int line):_reason(what)
+INTERP_KERNEL::Exception::Exception(const char *reason, const char *file, int line):_reason(reason)
 {
 }
 

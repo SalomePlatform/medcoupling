@@ -69,8 +69,8 @@ QuadraticPolygon::~QuadraticPolygon()
 QuadraticPolygon *QuadraticPolygon::buildLinearPolygon(std::vector<Node *>& nodes)
 {
   QuadraticPolygon *ret=new QuadraticPolygon;
-  int size=nodes.size();
-  for(int i=0;i<size;i++)
+  std::size_t size=nodes.size();
+  for(std::size_t i=0;i<size;i++)
     {
       ret->pushBack(new EdgeLin(nodes[i],nodes[(i+1)%size]));
       nodes[i]->decrRef();
@@ -81,8 +81,8 @@ QuadraticPolygon *QuadraticPolygon::buildLinearPolygon(std::vector<Node *>& node
 QuadraticPolygon *QuadraticPolygon::buildArcCirclePolygon(std::vector<Node *>& nodes)
 {
   QuadraticPolygon *ret=new QuadraticPolygon;
-  int size=nodes.size();
-  for(int i=0;i<size/2;i++)
+  std::size_t size=nodes.size();
+  for(std::size_t i=0;i<size/2;i++)
     {
       EdgeLin *e1,*e2;
       e1=new EdgeLin(nodes[i],nodes[i+size/2]);
@@ -291,14 +291,14 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
  */
 void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
 {
-  int nbOfSeg=std::distance(descBg,descEnd);
-  for(int i=0;i<nbOfSeg;i++)
+  std::size_t nbOfSeg=std::distance(descBg,descEnd);
+  for(std::size_t i=0;i<nbOfSeg;i++)
     {
       bool direct=descBg[i]>0;
       int edgeId=abs(descBg[i])-1;
       const std::vector<int>& subEdge=intersectEdges[edgeId];
-      int nbOfSubEdges=subEdge.size()/2;
-      for(int j=0;j<nbOfSubEdges;j++)
+      std::size_t nbOfSubEdges=subEdge.size()/2;
+      for(std::size_t j=0;j<nbOfSubEdges;j++)
         {
           Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
           Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
@@ -485,7 +485,7 @@ void QuadraticPolygon::intersectForPerimeterAdvanced(const QuadraticPolygon& oth
 {
   polThis.resize(size());
   polOther.resize(other.size());
-  IteratorOnComposedEdge it1((QuadraticPolygon *)this);
+  IteratorOnComposedEdge it1(const_cast<QuadraticPolygon *>(this));
   int edgeId=0;
   for(it1.first();!it1.finished();it1.next(),edgeId++)
     {
@@ -499,7 +499,7 @@ void QuadraticPolygon::intersectForPerimeterAdvanced(const QuadraticPolygon& oth
       tmp.dispatchPerimeter(polThis[edgeId]);
     }
   //
-  IteratorOnComposedEdge it2((QuadraticPolygon *)&other);
+  IteratorOnComposedEdge it2(const_cast<QuadraticPolygon *>(&other));
   edgeId=0;
   for(it2.first();!it2.finished();it2.next(),edgeId++)
     {
@@ -524,7 +524,7 @@ void QuadraticPolygon::intersectForPerimeterAdvanced(const QuadraticPolygon& oth
 void QuadraticPolygon::intersectForPoint(const QuadraticPolygon& other, std::vector< int >& numberOfCreatedPointsPerEdge) const
 {
   numberOfCreatedPointsPerEdge.resize(size());
-  IteratorOnComposedEdge it1((QuadraticPolygon *)this);
+  IteratorOnComposedEdge it1(const_cast<QuadraticPolygon *>(this));
   int edgeId=0;
   for(it1.first();!it1.finished();it1.next(),edgeId++)
     {
@@ -721,7 +721,7 @@ void QuadraticPolygon::closePolygons(std::list<QuadraticPolygon *>& pol2Zip, con
  */
 bool QuadraticPolygon::amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted,const QuadraticPolygon& pol2NotSplitted, bool& direction)
 {
-  IteratorOnComposedEdge it((QuadraticPolygon *)&pol1Splitted);
+  IteratorOnComposedEdge it(const_cast<QuadraticPolygon *>(&pol1Splitted));
   bool found=false;
   Node *n=getEndNode();
   ElementaryEdge *cur=it.current();
@@ -770,7 +770,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
                                                                                    std::list<QuadraticPolygon *>::iterator iEnd,
                                                                                    bool direction)
 {
-  IteratorOnComposedEdge it((QuadraticPolygon *)&pol1Splitted);
+  IteratorOnComposedEdge it(const_cast<QuadraticPolygon *>(&pol1Splitted));
   bool found=false;
   Node *n=getEndNode();
   ElementaryEdge *cur;

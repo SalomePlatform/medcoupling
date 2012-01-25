@@ -255,8 +255,8 @@ namespace INTERP_KERNEL
       double barycenter[3];
       calculatePolygonBarycenter(A, barycenter);
       sortIntersectionPolygon(A, barycenter);
-      const int nbPoints = _polygonA.size();
-      for(int i = 0 ; i < nbPoints ; ++i)
+      const std::size_t nbPoints = _polygonA.size();
+      for(std::size_t i = 0 ; i < nbPoints ; ++i)
         tat->reverseApply(_polygonA[i], _polygonA[i]);
       _volume = calculateSurfacePolygon();
     }
@@ -585,11 +585,11 @@ namespace INTERP_KERNEL
      */
     double TransformedTriangle::calculateSurfacePolygon()
     {
-      const int nbPoints = _polygonA.size();
+      const std::size_t nbPoints = _polygonA.size();
       double pdt[3];
       double sum[3] = {0., 0., 0.};
 
-      for(int i = 0 ; i < nbPoints ; ++i)
+      for(std::size_t i = 0 ; i < nbPoints ; ++i)
         {
           const double *const ptCurr = _polygonA[i];  // pt "i"
           const double *const ptNext = _polygonA[(i + 1) % nbPoints]; // pt "i+1" (pt nbPoints == pt 0)
@@ -620,7 +620,7 @@ namespace INTERP_KERNEL
       std::vector<double*>& polygon = (poly == A) ? _polygonA : _polygonB;
 
       // calculate barycenter
-      const int m = polygon.size();
+      const std::size_t m = polygon.size();
 
       for(int j = 0 ; j < 3 ; ++j)
         {
@@ -629,7 +629,7 @@ namespace INTERP_KERNEL
 
       if(m != 0)
         {
-          for(int i = 0 ; i < m ; ++i)
+          for(std::size_t i = 0 ; i < m ; ++i)
             {
               const double* pt = polygon[i];
               for(int j = 0 ; j < 3 ; ++j)
@@ -719,9 +719,9 @@ namespace INTERP_KERNEL
       std::vector<double*>& polygon = (poly == A) ? _polygonA : _polygonB;
 
       double vol = 0.0;
-      const int m = polygon.size();
+      const std::size_t m = polygon.size();
 
-      for(int i = 0 ; i < m ; ++i)
+      for(std::size_t i = 0 ; i < m ; ++i)
         {
           const double* ptCurr = polygon[i];  // pt "i"
           const double* ptNext = polygon[(i + 1) % m]; // pt "i+1" (pt m == pt 0)
