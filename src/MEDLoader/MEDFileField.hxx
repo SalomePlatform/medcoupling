@@ -45,7 +45,7 @@ namespace ParaMEDMEM
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
   class MEDFileMesh;
-
+/// @cond INTERNAL
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
@@ -265,6 +265,8 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> > _locs;
     std::string _file_name;
   };
+
+/// @endcond INTERNAL
 
   class MEDLOADER_EXPORT MEDFieldFieldGlobsReal
   {
