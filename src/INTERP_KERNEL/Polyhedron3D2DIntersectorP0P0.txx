@@ -99,21 +99,20 @@ namespace INTERP_KERNEL
         std::set<TriangleFaceKey> listOfTetraFacesColinear;
 
         // calculate the coordinates of the nodes
-        const NumberingPolicy numPol=MyMeshType::My_numPol;
         typename MyMeshType::MyConnType cellSrc = *iterCellS;
         int cellSrcIdx = OTT<ConnType,numPol>::indFC(cellSrc);
         NormalizedCellType normCellType=Intersector3D<MyMeshType,MyMatrixType>::_src_mesh.getTypeOfElement(cellSrcIdx);
         const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
-        const MyMeshType& _src_mesh = Intersector3D<MyMeshType,MyMatrixType>::_src_mesh;
-        unsigned nbOfNodes4Type=cellModelCell.isDynamic() ? _src_mesh.getNumberOfNodesOfElement(cellSrcIdx) : cellModelCell.getNumberOfNodes();
+        const MyMeshType& src_mesh = Intersector3D<MyMeshType,MyMatrixType>::_src_mesh;
+        unsigned nbOfNodes4Type=cellModelCell.isDynamic() ? src_mesh.getNumberOfNodesOfElement(cellSrcIdx) : cellModelCell.getNumberOfNodes();
         int *polyNodes=new int[nbOfNodes4Type];
         double **polyCoords = new double*[nbOfNodes4Type];
         for(int i = 0;i<(int)nbOfNodes4Type;++i)
           {
             // we could store mapping local -> global numbers too, but not sure it is worth it
-            const int globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(*iterCellS), _src_mesh);
+            const int globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(*iterCellS), src_mesh);
             polyNodes[i]=globalNodeNum;
-            polyCoords[i] = (double*)_src_mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*globalNodeNum;
+            polyCoords[i] = const_cast<double*>(src_mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*globalNodeNum);
           }
 
         for(typename std::vector<SplitterTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)

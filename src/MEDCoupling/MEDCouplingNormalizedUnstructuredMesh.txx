@@ -114,7 +114,7 @@ template<int SPACEDIM,int MESHDIM>
 MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::~MEDCouplingNormalizedUnstructuredMesh()
 {
   if(_mesh)
-    ((ParaMEDMEM::MEDCouplingUMesh *)_mesh)->decrRef();
+    _mesh->decrRef();
   releaseTempArrays();
 }
 
