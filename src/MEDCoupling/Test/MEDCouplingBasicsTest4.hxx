@@ -86,6 +86,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDADGetDifferentValues1 );
     CPPUNIT_TEST( testDAIBuildOld2NewArrayFromSurjectiveFormat2 );
     CPPUNIT_TEST( testDADIReverse1 );
+    CPPUNIT_TEST( testGetNodeIdsInUse1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testDescriptionInMeshTimeUnit1();
@@ -141,6 +142,7 @@ namespace ParaMEDMEM
     void testDADGetDifferentValues1();
     void testDAIBuildOld2NewArrayFromSurjectiveFormat2();
     void testDADIReverse1();
+    void testGetNodeIdsInUse1();
   };
 }
 

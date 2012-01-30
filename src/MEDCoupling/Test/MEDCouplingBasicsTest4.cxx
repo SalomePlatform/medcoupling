@@ -1921,3 +1921,24 @@ void MEDCouplingBasicsTest4::testDADIReverse1()
      CPPUNIT_ASSERT_DOUBLES_EQUAL(arr2[4-i],b->getIJ(i,0),1e-14);
    b->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testGetNodeIdsInUse1()
+{
+  MEDCouplingUMesh *m0=build2DTargetMesh_1();
+  const int CellIds[2]={1,2};
+  MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(CellIds,CellIds+2,true));
+  int newNbOfNodes=-1;
+  DataArrayInt *arr=m1->getNodeIdsInUse(newNbOfNodes);
+  const int expected[9]={-1,0,1,-1,2,3,-1,-1,-1};
+  CPPUNIT_ASSERT_EQUAL(4,newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(9,arr->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected,expected+9,arr->getConstPointer()));
+  DataArrayInt *arr2=arr->invertArrayO2N2N2O(newNbOfNodes);
+  CPPUNIT_ASSERT_EQUAL(4,arr2->getNbOfElems());
+  const int expected2[4]={1,2,4,5};
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+4,arr2->getConstPointer()));
+  arr2->decrRef();
+  arr->decrRef();
+  m1->decrRef();
+  m0->decrRef();
+}

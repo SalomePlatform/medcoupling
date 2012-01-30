@@ -8050,6 +8050,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(arr2[4-i],b.getIJ(i,0),14);
             pass
         pass
+
+    def testGetNodeIdsInUse1(self):
+        m0=MEDCouplingDataForTest.build2DTargetMesh_1();
+        CellIds=[1,2]
+        m1=m0.buildPartOfMySelf(CellIds,True);
+        arr,newNbOfNodes=m1.getNodeIdsInUse();
+        expected=[-1,0,1,-1,2,3,-1,-1,-1]
+        self.assertEqual(4,newNbOfNodes);
+        self.assertEqual(9,arr.getNbOfElems());
+        self.assertEqual(expected,arr.getValues());
+        arr2=arr.invertArrayO2N2N2O(newNbOfNodes);
+        self.assertEqual(4,arr2.getNbOfElems());
+        expected2=[1,2,4,5]
+        self.assertEqual(expected2,arr2.getValues());
+        pass
     
     def setUp(self):
         pass
