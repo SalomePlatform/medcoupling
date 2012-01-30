@@ -308,7 +308,8 @@ namespace ParaMEDMEM
     int getDimension() const;
     int getIteration() const { return _iteration; }
     int getOrder() const { return _order; }
-    double getTime() const { return _dt; }
+    double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _dt; }
+    void setTime(double val, int iteration, int order) { _dt=val; _iteration=iteration; _order=order; }
     std::string getName() const { return _name; }
     const std::string& getDtUnit() const { return _dt_unit; }
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);

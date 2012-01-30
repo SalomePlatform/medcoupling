@@ -618,9 +618,21 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const;
     bool isDealingTS(int iteration, int order) const;
     const std::vector<std::string>& getInfo() const;
+    void setTime(double val, int iteration, int order);
     %extend
        {
-         PyObject *getDtIt() const
+          PyObject *getTime()
+         {
+           int tmp1,tmp2;
+           double tmp0=self->getTime(tmp1,tmp2);
+           PyObject *res = PyList_New(3);
+           PyList_SetItem(res,0,SWIG_From_double(tmp0));
+           PyList_SetItem(res,1,SWIG_From_int(tmp1));
+           PyList_SetItem(res,2,SWIG_From_int(tmp2));
+           return res;
+         }
+
+          PyObject *getDtIt() const
          {
            std::pair<int,int> res=self->getDtIt();
            PyObject *elt=PyTuple_New(2);

@@ -998,7 +998,8 @@ std::vector< std::vector<const DataArrayDouble *> > MEDFileFieldPerMesh::getFiel
 
 double MEDFileFieldPerMesh::getTime() const
 {
-  return _father->getTime();
+  int tmp1,tmp2;
+  return _father->getTime(tmp1,tmp2);
 }
 
 int MEDFileFieldPerMesh::getIteration() const
@@ -2495,9 +2496,7 @@ std::vector< std::pair<int,int> > MEDFileFieldMultiTSWithoutDAS::getTimeSteps(st
       const MEDFileField1TSWithoutDAS *f1ts=_time_steps[i];
       if(f1ts)
         {
-          ret[i].first=f1ts->getIteration();
-          ret[i].second=f1ts->getOrder();
-          ret1[i]=f1ts->getTime();
+          ret1[i]=f1ts->getTime(ret[i].first,ret[i].second);
         }
       else
         {

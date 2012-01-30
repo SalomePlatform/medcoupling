@@ -449,7 +449,12 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.setFieldNoProfileSBT(f1)
         ff1.write(fname,0)
         f2=MEDLoader.ReadFieldCell(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2]);
+        ti,itt,orr=ff1.getTime()
+        self.assertEqual(0,itt); self.assertEqual(1,orr); self.assertAlmostEqual(2.,ti,14);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        ff1.setTime(2.3,3,4)
+        ti,itt,orr=ff1.getTime()
+        self.assertEqual(3,itt); self.assertEqual(4,orr); self.assertAlmostEqual(2.3,ti,14);
         #
         fname="Pyfile26.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
