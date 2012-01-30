@@ -536,6 +536,18 @@ int MEDCouplingOrientationSensitiveNbrer(int id, unsigned nb, const INTERP_KERNE
 /*!
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done.
+ * Given 'this' with spacedim equal to s and meshdim equal to p, this method returns a new allocated mesh
+ * lying on the same coordinates than 'this' and having a meshdim equal to p-1.
+ * The algorithm to compute this p-1 mesh is the following :
+ * For each cell in 'this' it splits into p-1 elements.
+ *   If this p-1 element does not already exists it is appended to the returned mesh
+ *   If this p-1 element already exists, it is not appended.
+ * This method returns or 4 arrays plus the returned mesh.
+ * 'desc' and 'descIndx' are the descending connectivity. These 2 arrays tell for each cell in 'this', to wich p-1 dimension cell in returned mesh it refers.
+ * For a cell with a cellid c in 'this' it is constituted of cells in [desc+descIndx[c],desc+descIndex[c+1])
+ *
+ * Reversely 'revDesc' and 'revDescIndx' are the reverse descending connectivity. These 2 arrays tell for each cell in returned mesh, to wich cell in 'this' it refers.
+ * For a cell with a cellid d in returned p-1 mesh it is shared by the following cells in 'this' [revDesc+revDescIndx[d],revDesc+revDescIndx[d+1])
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception)
 {
@@ -1359,13 +1371,11 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelfNode(const int *begin, c
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildFacePartOfMySelfNode(const int *begin, const int *end, bool fullyIn) const
 {
-  DataArrayInt *desc,*descIndx,*revDesc,*revDescIndx;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc,descIndx,revDesc,revDescIndx;
   desc=DataArrayInt::New(); descIndx=DataArrayInt::New(); revDesc=DataArrayInt::New(); revDescIndx=DataArrayInt::New();
-  MEDCouplingUMesh *subMesh=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
-  desc->decrRef(); descIndx->decrRef(); revDesc->decrRef(); revDescIndx->decrRef();
-  MEDCouplingUMesh *ret=(MEDCouplingUMesh *)subMesh->buildPartOfMySelfNode(begin,end,fullyIn);
-  subMesh->decrRef();
-  return ret;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  desc=0; descIndx=0; revDesc=0; revDescIndx=0;
+  return subMesh->buildPartOfMySelfNode(begin,end,fullyIn);
 }
 
 /*!
