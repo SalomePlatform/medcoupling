@@ -8065,6 +8065,33 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected2=[1,2,4,5]
         self.assertEqual(expected2,arr2.getValues());
         pass
+
+    def testBuildDescendingConnec2(self):
+        mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        #
+        mesh2,desc,descIndx,revDesc,revDescIndx=mesh.buildDescendingConnectivity2();
+        mesh2.checkCoherency();
+        self.assertEqual(1,mesh2.getMeshDimension());
+        self.assertEqual(13,mesh2.getNumberOfCells());
+        self.assertEqual(14,revDescIndx.getNbOfElems()); self.assertEqual(14,revDescIndx.getNumberOfTuples());
+        self.assertEqual(6,descIndx.getNbOfElems()); self.assertEqual(6,descIndx.getNumberOfTuples());
+        self.assertEqual(18,desc.getNbOfElems()); self.assertEqual(18,desc.getNumberOfTuples());
+        self.assertEqual(18,revDesc.getNbOfElems()); self.assertEqual(18,revDesc.getNumberOfTuples());
+        expected1=[1,2,3,4,-3,5,6, 7,8,-5,9,10,-2,11, 12,13,-7,-10]
+        self.assertEqual(expected1,desc.getValues());
+        expected2=[0,4,7,10,14,18]
+        self.assertEqual(expected2,descIndx.getValues());
+        expected3=[0,1,3,5,6,8,9,11,12,13,15,16,17,18]
+        self.assertEqual(expected3,revDescIndx.getValues());
+        expected4=[0, 0,3, 0,1, 0, 1,2, 1, 2,4, 2, 3, 3,4, 3, 4, 4]
+        self.assertEqual(expected4,revDesc.getValues());
+        conn=mesh2.getNodalConnectivity();
+        connIndex=mesh2.getNodalConnectivityIndex();
+        expected5=[0,3,6,9,12,15,18,21,24,27,30,33,36,39]
+        self.assertEqual(expected5,connIndex.getValues());
+        expected6=[1, 0, 3, 1, 3, 4, 1, 4, 1, 1, 1, 0, 1, 4, 2, 1, 2, 1, 1, 4, 5, 1, 5, 2, 1, 6, 7, 1, 7, 4, 1, 3, 6, 1, 7, 8, 1, 8, 5]
+        self.assertEqual(expected6,conn.getValues());
+        pass
     
     def setUp(self):
         pass
