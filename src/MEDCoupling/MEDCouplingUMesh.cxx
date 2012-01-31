@@ -2571,12 +2571,11 @@ namespace ParaMEDMEM
     return new INTERP_KERNEL::Node(coo1[2*nodeId],coo1[2*nodeId+1]);
   }
 
-  void MEDCouplingUMeshBuildQPFromMesh2(const double *coo1, int offset1, const double *coo2, int offset2, const std::vector<double>& addCoo,
+  void MEDCouplingUMeshBuildQPFromMesh3(const double *coo1, int offset1, const double *coo2, int offset2, const std::vector<double>& addCoo,
                                         bool isQuad1, const int *desc1Bg, const int *desc1End, const std::vector<std::vector<int> >& intesctEdges1,
-                                        bool isQuad2, const int *desc2Bg, const int *desc2End, const std::vector<std::vector<int> >& intesctEdges2,
-                                        /*output*/INTERP_KERNEL::QuadraticPolygon& pol1, INTERP_KERNEL::QuadraticPolygon& pol2, std::map<INTERP_KERNEL::Node *,int>& mapp)
+                                        /*output*/INTERP_KERNEL::QuadraticPolygon& pol1, std::map<INTERP_KERNEL::Node *,int>& mapp, std::map<int,INTERP_KERNEL::Node *>& mappRev)
   {
-    std::map<int,INTERP_KERNEL::Node *> mappRev;
+    std::set<INTERP_KERNEL::Node *> nodesToKill;
     for(const int *desc1=desc1Bg;desc1!=desc1End;desc1++)
       {
         int eltId1=abs(*desc1)-1;
@@ -2588,29 +2587,11 @@ namespace ParaMEDMEM
                 INTERP_KERNEL::Node *node=MEDCouplingUMeshBuildQPNode(*it1,coo1,offset1,coo2,offset2,addCoo);
                 mapp[node]=*it1;
                 mappRev[*it1]=node;
+                nodesToKill.insert(node);
               }
           }
       }
-    for(const int *desc2=desc2Bg;desc2!=desc2End;desc2++)
-      {
-        int eltId2=abs(*desc2)-1;
-        for(std::vector<int>::const_iterator it2=intesctEdges2[eltId2].begin();it2!=intesctEdges2[eltId2].end();it2++)
-          {
-            int curNodeId2=*it2;
-            std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.find(curNodeId2);
-            if(it==mappRev.end())
-              {
-                INTERP_KERNEL::Node *node=MEDCouplingUMeshBuildQPNode(curNodeId2,coo1,offset1,coo2,offset2,addCoo);
-                mapp[node]=curNodeId2;
-                mappRev[curNodeId2]=node;
-              }
-          }
-      }
-    //
     pol1.buildFromCrudeDataArray(mappRev,isQuad1,desc1Bg,desc1End,intesctEdges1);
-    pol2.buildFromCrudeDataArray(mappRev,isQuad2,desc2Bg,desc2End,intesctEdges2);
-    for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
-      (*it).second->decrRef();
   }
 }
 
@@ -4858,16 +4839,19 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
     {
       std::vector<int> candidates2;
       myTree.getIntersectingElems(&bbox1[i*2*SPACEDIM],candidates2);
+      std::map<INTERP_KERNEL::Node *,int> mapp;
+      std::map<int,INTERP_KERNEL::Node *> mappRev;
+      INTERP_KERNEL::QuadraticPolygon pol1;
+      MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,b1[i],desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */pol1,mapp,mappRev);
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++)
         {
-          INTERP_KERNEL::QuadraticPolygon pol1,pol2;
-          std::map<INTERP_KERNEL::Node *,int> mapp;
-          MEDCouplingUMeshBuildQPFromMesh2(coo1,offset1,coo2,offset2,addCoords,
-                                           b1[i],desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,
-                                           b2[*it2],desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
-                                           /* output */pol1,pol2,mapp);
+          INTERP_KERNEL::QuadraticPolygon pol2;
+          pol1.initLocations();
+          MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,b2[*it2],desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */pol2,mapp,mappRev);
           pol1.buildPartitionsAbs(pol2,mapp,i,*it2,cr,crI,cNb1,cNb2);
         }
+      for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
+        (*it).second->decrRef();
     }
 }
 
