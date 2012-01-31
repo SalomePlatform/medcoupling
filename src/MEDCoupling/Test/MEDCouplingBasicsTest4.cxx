@@ -1981,3 +1981,58 @@ void MEDCouplingBasicsTest4::testBuildDescendingConnec2()
   mesh2->decrRef();
   mesh->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp1()
+{
+  MEDCouplingCMesh *m1c=MEDCouplingCMesh::New();
+  DataArrayDouble *coordX=DataArrayDouble::New();
+  const double arrX[4]={-1., 1., 2., 4.};
+  coordX->alloc(4,1);
+  std::copy(arrX,arrX+4,coordX->getPointer());
+  m1c->setCoordsAt(0,coordX);
+  DataArrayDouble *coordY=DataArrayDouble::New();
+  const double arrY[4]={-2., 2., 4., 8.};
+  coordY->alloc(4,1);
+  std::copy(arrY,arrY+4,coordY->getPointer());
+  m1c->setCoordsAt(1,coordY);
+  MEDCouplingUMesh *m1=m1c->buildUnstructured();
+  const int subPart1[3]={3,4,5};
+  MEDCouplingUMesh *m1bis=static_cast<MEDCouplingUMesh *>(m1->buildPartOfMySelf(subPart1,subPart1+3,false));
+  MEDCouplingUMesh *m2tmp=static_cast<MEDCouplingUMesh *>(m1->deepCpy());
+  const int subPart2[3]={0,1,2};
+  MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m2tmp->buildPartOfMySelf(subPart2,subPart2+3,false));
+  const double vec[2]={0.5,0.5};
+  m2->translate(vec);
+  // End of construction of input meshes m1bis and m2 -> start of specific part of the test
+  DataArrayInt *d1=0,*d2=0;
+  MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1bis,m2,1e-10,d1,d2);
+  const int expected1[5]={0,1,1,2,2};
+  const int expected2[5]={0,0,1,1,2};
+  CPPUNIT_ASSERT_EQUAL(5,d1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(5,d2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(5,m3->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(22,m3->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(2,m3->getSpaceDimension());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+5,d1->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+5,d2->getConstPointer()));
+  const int expected3[25]={5,17,1,16,12,5,18,1,17,13,5,19,2,18,13,5,20,2,19,14,5,21,3,20,14};
+  const int expected4[6]={0,5,10,15,20,25};
+  const double expected5[44]={-1.0,2.0,1.0,2.0,2.0,2.0,4.0,2.0,-1.0,4.0,1.0,4.0,2.0,4.0,4.0,4.0,-0.5,-1.5,1.5,-1.5,2.5,-1.5,4.5,-1.5,-0.5,2.5,1.5,2.5,2.5,2.5,4.5,2.5,-0.5,2.0,1.0,2.5,1.5,2.0,2.0,2.5,2.5,2.0,4.0,2.5};
+  CPPUNIT_ASSERT_EQUAL(25,m3->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(6,m3->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+25,m3->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+6,m3->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<44;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],m3->getCoords()->getIJ(0,i),1e-12);
+  d1->decrRef();
+  d2->decrRef();
+  m3->decrRef();
+  //
+  m2->decrRef();
+  m2tmp->decrRef();
+  m1bis->decrRef();
+  m1->decrRef();
+  coordX->decrRef();
+  coordY->decrRef();
+  m1c->decrRef();
+}

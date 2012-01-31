@@ -8092,6 +8092,44 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected6=[1, 0, 3, 1, 3, 4, 1, 4, 1, 1, 1, 0, 1, 4, 2, 1, 2, 1, 1, 4, 5, 1, 5, 2, 1, 6, 7, 1, 7, 4, 1, 3, 6, 1, 7, 8, 1, 8, 5]
         self.assertEqual(expected6,conn.getValues());
         pass
+
+    def testIntersect2DMeshesTmp1(self):
+        m1c=MEDCouplingCMesh.New();
+        coordsX=DataArrayDouble.New();
+        arrX=[ -1., 1., 2., 4. ]
+        coordsX.setValues(arrX,4,1);
+        m1c.setCoordsAt(0,coordsX);
+        coordsY=DataArrayDouble.New();
+        arrY=[ -2., 2., 4., 8. ]
+        coordsY.setValues(arrY,4,1);
+        m1c.setCoordsAt(1,coordsY);
+        m1=m1c.buildUnstructured()
+        m1bis=m1.buildPartOfMySelf([3,4,5],False)
+        m2=m1.deepCpy()
+        m2=m2.buildPartOfMySelf([0,1,2],False)
+        m2.translate([0.5,0.5])
+        #
+        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1bis,m2,1e-10)
+        expected1=[0,1,1,2,2]
+        expected2=[0,0,1,1,2]
+        self.assertEqual(5,d1.getNumberOfTuples());
+        self.assertEqual(5,d2.getNumberOfTuples());
+        self.assertEqual(5,m3.getNumberOfCells());
+        self.assertEqual(22,m3.getNumberOfNodes());
+        self.assertEqual(2,m3.getSpaceDimension());
+        self.assertEqual(expected1,d1.getValues());
+        self.assertEqual(expected2,d2.getValues());
+        expected3=[5,17,1,16,12,5,18,1,17,13,5,19,2,18,13,5,20,2,19,14,5,21,3,20,14]
+        expected4=[0,5,10,15,20,25]
+        expected5=[-1.0,2.0,1.0,2.0,2.0,2.0,4.0,2.0,-1.0,4.0,1.0,4.0,2.0,4.0,4.0,4.0,-0.5,-1.5,1.5,-1.5,2.5,-1.5,4.5,-1.5,-0.5,2.5,1.5,2.5,2.5,2.5,4.5,2.5,-0.5,2.0,1.0,2.5,1.5,2.0,2.0,2.5,2.5,2.0,4.0,2.5]
+        self.assertEqual(25,m3.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(6,m3.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected3,m3.getNodalConnectivity().getValues());
+        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues());
+        for i in xrange(44):
+            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
+            pass
+        pass
     
     def setUp(self):
         pass

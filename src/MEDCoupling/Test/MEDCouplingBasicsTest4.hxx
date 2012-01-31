@@ -88,6 +88,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDADIReverse1 );
     CPPUNIT_TEST( testGetNodeIdsInUse1 );
     CPPUNIT_TEST( testBuildDescendingConnec2 );
+    CPPUNIT_TEST( testIntersect2DMeshesTmp1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testDescriptionInMeshTimeUnit1();
@@ -145,6 +146,7 @@ namespace ParaMEDMEM
     void testDADIReverse1();
     void testGetNodeIdsInUse1();
     void testBuildDescendingConnec2();
+    void testIntersect2DMeshesTmp1();
   };
 }
 
