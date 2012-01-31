@@ -307,6 +307,8 @@ void ComposedEdge::applyGlobalSimilarity2(ComposedEdge *other, double xBary, dou
     (*iter)->applySimilarity(xBary,yBary,dimChar);
   for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
     (*iter)->applySimilarity(xBary,yBary,dimChar);
+  for(std::list<ElementaryEdge *>::iterator iter=other->_sub_edges.begin();iter!=other->_sub_edges.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
 }
 
 /*!
