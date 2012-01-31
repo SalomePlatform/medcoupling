@@ -210,7 +210,7 @@ void EdgeLin::dumpInXfigFile(std::ostream& stream, bool direction, int resolutio
 {
   stream << "2 1 0 1 ";
   fillXfigStreamForLoc(stream);
-  stream << " 7 50 -1 -1 0.000 0 0 -1 0 0 2" << std::endl;
+  stream << " 7 50 -1 -1 0.000 0 0 -1 1 0 2" << std::endl << "1 1 1.00 60.00 120.00" << std::endl;
   direction?_start->dumpInXfigFile(stream,resolution,box):_end->dumpInXfigFile(stream,resolution,box);
   direction?_end->dumpInXfigFile(stream,resolution,box):_start->dumpInXfigFile(stream,resolution,box);
   stream << std::endl;

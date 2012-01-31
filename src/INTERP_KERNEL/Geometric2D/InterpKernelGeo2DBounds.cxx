@@ -129,7 +129,7 @@ double Bounds::fitXForXFigD(double val, int res) const
 double Bounds::fitYForXFigD(double val, int res) const
 {
   double delta=std::max(_x_max-_x_min,_y_max-_y_min)/2.;
-  double ret=val-(_y_max+_y_min)/2.+delta;
+  double ret=(_y_max+_y_min)/2.-val+delta;
   delta=11.1375*res/(2.*delta);
   return ret*delta;
 }
