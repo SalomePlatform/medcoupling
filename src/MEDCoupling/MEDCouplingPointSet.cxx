@@ -496,7 +496,7 @@ void MEDCouplingPointSet::findNodesOnLine(const double *pt, const double *vec, d
   if(spaceDim!=2 && spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : Invalid spacedim to be applied on this ! Must be equal to 2 or 3 !");
   int nbOfNodes=getNumberOfNodes();
-  int den=0.;
+  double den=0.;
   for(int i=0;i<spaceDim;i++)
     den+=vec[i]*vec[i];
   double deno=sqrt(den);
