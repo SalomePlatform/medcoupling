@@ -817,6 +817,20 @@ namespace ParaMEDMEM
                  self->renumberNodes2(da2->getConstPointer(),newNbOfNodes);
                }
            }
+           PyObject *findNodesOnLine(PyObject *pt, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
+             {
+               std::vector<int> nodes;
+               int spaceDim=self->getSpaceDimension();
+               int sz1,sz2;
+               double *p=convertPyToNewDblArr2(pt,&sz1);
+               double *v=convertPyToNewDblArr2(vec,&sz2);
+               if(sz1!=spaceDim || sz2!=spaceDim)
+                 throw INTERP_KERNEL::Exception("Mismatch of spaceDimension and the length of the input array point and vector !");
+               self->findNodesOnLine(p,v,eps,nodes);
+               delete [] v;
+               delete [] p;
+               return convertIntArrToPyList2(nodes);
+             }
            PyObject *findNodesOnPlane(PyObject *pt, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
              {
                std::vector<int> nodes;

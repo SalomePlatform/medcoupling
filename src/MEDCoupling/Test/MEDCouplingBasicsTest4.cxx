@@ -2036,3 +2036,28 @@ void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp1()
   coordY->decrRef();
   m1c->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testFindNodesOnLine1()
+{
+  MEDCouplingUMesh *mesh=build2DTargetMesh_1();
+  const double pt[2]={-0.3,-0.3};
+  const double pt2[3]={0.,0.,0.};
+  const double pt3[3]={-0.3,0.,0.};
+  const double vec[2]={0.,1.};
+  const double vec2[3]={1.,0.,0.};
+  const double vec3[3]={0.,1.,1.};
+  const int expected1[3]={0,3,6};
+  std::vector<int> res;
+  mesh->findNodesOnLine(pt,vec,1e-12,res);
+  CPPUNIT_ASSERT_EQUAL(3,(int)res.size());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,res.begin()));
+  res.clear();
+  //
+  mesh->changeSpaceDimension(3);
+  mesh->rotate(pt2,vec2,M_PI/4.);
+  mesh->findNodesOnLine(pt3,vec3,1e-12,res);
+  CPPUNIT_ASSERT_EQUAL(3,(int)res.size());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,res.begin()));
+  //
+  mesh->decrRef();
+}

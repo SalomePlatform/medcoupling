@@ -4843,12 +4843,19 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       std::map<int,INTERP_KERNEL::Node *> mappRev;
       INTERP_KERNEL::QuadraticPolygon pol1;
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,b1[i],desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */pol1,mapp,mappRev);
+      std::vector<int> crTmp,crITmp;
+      crITmp.push_back(crI.back());
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++)
         {
           INTERP_KERNEL::QuadraticPolygon pol2;
           pol1.initLocations();
           MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,b2[*it2],desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */pol2,mapp,mappRev);
           pol1.buildPartitionsAbs(pol2,mapp,i,*it2,cr,crI,cNb1,cNb2);
+        }
+      if(!crTmp.empty())
+        {
+          cr.insert(cr.end(),crTmp.begin(),crTmp.end());
+          crI.insert(crI.end(),crITmp.begin()+1,crITmp.end());
         }
       for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
         (*it).second->decrRef();
@@ -4959,6 +4966,13 @@ void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MED
         (*it)->decrRef();
       e->decrRef();
     }
+}
+
+/*!
+ * Given a 2D mesh conn by (conn2D,connI2D) it returns a single polygon
+ */
+void MEDCouplingUMesh::BuildUnionOf2DMesh(const std::vector<int>& conn2D, const std::vector<int>& connI2D, std::vector<int>& polyUnion)
+{
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),

@@ -8130,6 +8130,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
             pass
         pass
+
+    def testFindNodesOnLine1(self):
+        mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+        pt=[-0.3,-0.3]
+        pt2=[0.,0.,0.]
+        pt3=[-0.3,0.,0.]
+        vec=[0.,1.]
+        vec2=[1.,0.,0.]
+        vec3=[0.,1.,1.]
+        expected1=[0,3,6]
+        res=mesh.findNodesOnLine(pt,vec,1e-12);
+        self.assertEqual(3,len(res));
+        self.assertEqual(expected1,res);
+        #
+        mesh.changeSpaceDimension(3);
+        mesh.rotate(pt2,vec2,pi/4.);
+        res=mesh.findNodesOnLine(pt3,vec3,1e-12);
+        self.assertEqual(3,len(res));
+        self.assertEqual(expected1,res);
+        pass
     
     def setUp(self):
         pass

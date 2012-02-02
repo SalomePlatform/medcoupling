@@ -225,6 +225,7 @@ namespace ParaMEDMEM
                                                   const MEDCouplingUMesh *m2, const std::vector<bool>& b2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
                                                   const std::vector<double>& addCoords,
                                                   std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2);
+    static void BuildUnionOf2DMesh(const std::vector<int>& conn2D, const std::vector<int>& connI2D, std::vector<int>& polyUnion);
 /// @endcond
   private:
     //! this iterator stores current position in _nodal_connec array.
