@@ -745,8 +745,6 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
   med_field_type typcha;
   med_int numdt=0,numo=0;
   med_float dt=0.0;
-  char pflname[MED_NAME_SIZE+1]="";
-  char locname[MED_NAME_SIZE+1]="";
   INTERP_KERNEL::AutoPtr<char> maa_ass=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> dt_unit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -762,34 +760,10 @@ std::vector< std::pair< std::pair<int,int>, double> > MEDLoader::GetAllFieldIter
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       if(curFieldName==fieldName)
         {
-          bool found=false;
-          int profilesize,nbi;
-          for(int j=0;j<MED_N_CELL_FIXED_GEO && !found;j++)
-            {
-              for(int k=0;k<nbPdt;k++)
-                {
-                  MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
-                  med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_CELL,typmai[j],1,MED_COMPACT_PFLMODE,
-                                                            pflname,&profilesize,locname,&nbi);
-                  std::string maa_ass_cpp(maa_ass);
-                  if(meshNameCpp==maa_ass_cpp && nbOfVal>0)
-                    {
-                      found=true;
-                      ret.push_back(std::make_pair(std::make_pair(numdt,numo),dt));
-                    }
-                }
-            }
           for(int k=0;k<nbPdt;k++)
             {
               MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
-              med_int nbOfVal=MEDfieldnValueWithProfile(fid,nomcha,numdt,numo,MED_NODE,MED_NONE,1,MED_COMPACT_PFLMODE,
-                                                        pflname,&profilesize,locname,&nbi);
-              std::string maa_ass_cpp(maa_ass);
-              if(meshNameCpp==maa_ass_cpp && nbOfVal>0)
-                {
-                  found=true;
-                  ret.push_back(std::make_pair(std::make_pair(numdt,numo),dt));
-                }
+              ret.push_back(std::make_pair(std::make_pair(numdt,numo),dt));
             }
         }
     }
@@ -825,16 +799,13 @@ double MEDLoader::GetTimeAttachedOnFieldIteration(const char *fileName, const ch
       if(curFieldName==fieldName)
         {
           found=true;
-          for(int j=0;j<MED_N_CELL_FIXED_GEO && !found2;j++)
+          for(int k=0;k<nbPdt;k++)
             {
-              for(int k=0;k<nbPdt;k++)
+              MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
+              if(numdt==iteration && numo==order)
                 {
-                  MEDfieldComputingStepInfo(fid,nomcha,k+1,&numdt,&numo,&dt);
-                  if(numdt==iteration && numo==order)
-                    {
-                      found2=true;
-                      ret=dt;
-                    }
+                  found2=true;
+                  ret=dt;
                 }
             }
         }
