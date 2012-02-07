@@ -106,7 +106,7 @@ dist_ParaMEDMEMTestMPI2_2_SOURCES = \
 
 endif
 
-LDADD = $(MED3_LIBS) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
+LDADD = $(MED3_LIBS_C_ONLY) $(libMEDMEMTest_la_LDFLAGS) -lm $(MPI_LIBS) \
 	libParaMEDMEMTest.la \
 	../INTERP_KERNEL/libinterpkernel.la $(CPPUNIT_LIBS) \
 	../ParaMEDMEM/libparamedmem.la \

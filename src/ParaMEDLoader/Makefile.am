@@ -39,4 +39,4 @@ libparamedloader_la_CPPFLAGS= $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES) 
 libparamedloader_la_LDFLAGS= ../ParaMEDMEM/libparamedmem.la \
 	../MEDLoader/libmedloader.la \
 	../MEDCoupling/libmedcoupling.la \
-	../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED3_LIBS) $(HDF5_LIBS)
+	../INTERP_KERNEL/libinterpkernel.la $(MPI_LIBS) $(MED3_LIBS_C_ONLY) $(HDF5_LIBS)

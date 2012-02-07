@@ -46,7 +46,7 @@ _ParaMEDMEM_la_CPPFLAGS = $(PYTHON_INCLUDES) \
 	$(MPI_INCLUDES) -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling_Swig -I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../MEDCoupling -I$(srcdir)/../ParaMEDLoader -I$(srcdir)/../MEDLoader -I$(srcdir)/../MEDLoader/Swig
 
-_ParaMEDMEM_la_LDFLAGS  = -module $(MED3_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
+_ParaMEDMEM_la_LDFLAGS  = -module $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
 	../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la \
 	../ParaMEDMEM/libparamedmem.la ../ParaMEDLoader/libparamedloader.la
 
