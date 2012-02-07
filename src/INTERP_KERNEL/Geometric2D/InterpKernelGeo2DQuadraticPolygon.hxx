@@ -55,8 +55,11 @@ namespace INTERP_KERNEL
     //! Before intersecting as intersectWith a normalization is done.
     double intersectWithAbs(QuadraticPolygon& other, double* barycenter);
     void splitAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, const std::vector<int>& otherEdgeIds,
-                  std::vector<int>& edgesThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo);
+                  std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo);
     void buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
+    void buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
+                                  const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
+                                  const std::vector< std::vector<int> >& colinear1);
     void appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, std::vector<int>& conn, std::vector<int>& connI);
     void buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
 

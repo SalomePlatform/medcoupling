@@ -108,6 +108,14 @@ void ComposedEdge::reverse()
     (*iter)->reverse();
 }
 
+bool ComposedEdge::presenceOfOn() const
+{
+  bool ret=false;
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end() && !ret;iter++)
+    ret=((*iter)->getLoc()==FULL_ON_1);
+  return ret;
+}
+
 void ComposedEdge::initLocations() const
 {
   for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)

@@ -46,6 +46,7 @@ namespace INTERP_KERNEL
     static void SoftDelete(ComposedEdge *pt) { pt->_sub_edges.clear(); delete pt; }
     void reverse();
     int recursiveSize() const { return (int)_sub_edges.size(); }
+    bool presenceOfOn() const;
     void initLocations() const;
     ComposedEdge *clone() const;
     bool isNodeIn(Node *n) const;

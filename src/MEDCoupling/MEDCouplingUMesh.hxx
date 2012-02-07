@@ -88,7 +88,6 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT std::string getVTKDataSetType() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);
     //tools
     MEDCOUPLING_EXPORT bool areCellsEqual(int cell1, int cell2, int compType) const;
     MEDCOUPLING_EXPORT bool areCellsEqual0(int cell1, int cell2) const;
@@ -216,12 +215,12 @@ namespace ParaMEDMEM
     static void FillInCompact3DMode(int spaceDim, int nbOfNodesInCell, const int *conn, const double *coo, double *zipFrmt) throw(INTERP_KERNEL::Exception);
     static void AppendExtrudedCell(const int *connBg, const int *connEnd, int nbOfNodesPerLev, bool isQuad, std::vector<int>& ret);
     static void IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,
-                                            std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& subDiv2,
+                                            std::vector< std::vector<int> >& intersectEdge1, std::vector< std::vector<int> >& colinear2, std::vector< std::vector<int> >& subDiv2,
                                             MEDCouplingUMesh *& m1Desc, DataArrayInt *&desc1, DataArrayInt *&descIndx1, DataArrayInt *&revDesc1, DataArrayInt *&revDescIndx1,
                                             MEDCouplingUMesh *& m2Desc, DataArrayInt *&desc2, DataArrayInt *&descIndx2, DataArrayInt *&revDesc2, DataArrayInt *&revDescIndx2,
                                             std::vector<double>& addCoo) throw(INTERP_KERNEL::Exception);
     static void BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, const std::vector<double>& addCoo, const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge) throw(INTERP_KERNEL::Exception);
-    static void BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const std::vector<bool>& b1, const int *desc1, const int *descIndx1, const std::vector<std::vector<int> >& intesctEdges1,
+    static void BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const std::vector<bool>& b1, const int *desc1, const int *descIndx1, const std::vector<std::vector<int> >& intesctEdges1, const std::vector< std::vector<int> >& colinear2,
                                                   const MEDCouplingUMesh *m2, const std::vector<bool>& b2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
                                                   const std::vector<double>& addCoords,
                                                   std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2);
