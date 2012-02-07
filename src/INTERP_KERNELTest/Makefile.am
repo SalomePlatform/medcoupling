@@ -131,7 +131,7 @@ PerfTest_SOURCES =               \
 	MeshTestToolkit.txx
 
 PerfTest_CPPFLAGS = $(libInterpKernelTest_la_CPPFLAGS)
-PerfTest_LDADD = $(MED3_LIBS) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
+PerfTest_LDADD = $(MED3_LIBS_C_ONLY) $(libInterpKernelTest_la_LDFLAGS) libInterpKernelTest.la
 
 if MED_ENABLE_KERNEL
      TestINTERP_KERNEL_LDADD += -lSALOMEBasics
