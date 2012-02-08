@@ -2061,3 +2061,75 @@ void MEDCouplingBasicsTest4::testFindNodesOnLine1()
   //
   mesh->decrRef();
 }
+
+void MEDCouplingBasicsTest4::testIntersect2DMeshesTmp2()
+{
+  MEDCouplingCMesh *m1c=MEDCouplingCMesh::New();
+  DataArrayDouble *coordsX1=DataArrayDouble::New();
+  const double arrX1[4]={ 0., 1., 1.5, 2. };
+  coordsX1->alloc(4,1);
+  std::copy(arrX1,arrX1+4,coordsX1->getPointer());
+  m1c->setCoordsAt(0,coordsX1);
+  DataArrayDouble *coordsY1=DataArrayDouble::New();
+  const double arrY1[3]={ 0., 1.5, 3.};
+  coordsY1->alloc(3,1);
+  std::copy(arrY1,arrY1+3,coordsY1->getPointer());
+  m1c->setCoordsAt(1,coordsY1);
+  MEDCouplingUMesh *m1=m1c->buildUnstructured();
+  //
+  MEDCouplingCMesh *m2c=MEDCouplingCMesh::New();
+  DataArrayDouble *coordsX2=DataArrayDouble::New();
+  const double arrX2[3]={ 0., 1., 2. };
+  coordsX2->alloc(3,1);
+  std::copy(arrX2,arrX2+3,coordsX2->getPointer());
+  m2c->setCoordsAt(0,coordsX2);
+  DataArrayDouble *coordsY2=DataArrayDouble::New();
+  coordsY2->alloc(3,1);
+  const double arrY2[3]={ 0., 1., 3.};
+  std::copy(arrY2,arrY2+3,coordsY2->getPointer());
+  m2c->setCoordsAt(1,coordsY2);
+  MEDCouplingUMesh *m2=m2c->buildUnstructured();
+  //
+  DataArrayInt *d1=0,*d2=0;
+  MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m1,m2,1e-10,d1,d2);
+  const int expected1[9]={0,0,1,1,2,2,3,4,5};
+  const int expected2[9]={0,2,1,3,1,3,2,3,3};
+  CPPUNIT_ASSERT_EQUAL(9,d1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(9,d2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(9,m3->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(22,m3->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(2,m3->getSpaceDimension());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+9,d1->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+9,d2->getConstPointer()));
+  const int expected3[45]={5,16,13,12,15,5,15,4,5,16,5,21,2,13,16,5,16,5,6,21,5,17,14,2,21,5,21,6,7,17,5,4,18,19,5,5,5,19,10,6,5,6,10,20,7};
+  const int expected4[10]={0,5,10,15,20,25,30,35,40,45};
+  const double expected5[44]={0.0,0.0,1.0,0.0,1.5,0.0,2.0,0.0,0.0,1.5,1.0,1.5,1.5,1.5,2.0,1.5,0.0,3.0,1.0,3.0,1.5,3.0,2.0,3.0,0.0,0.0,1.0,0.0,2.0,0.0,0.0,1.0,1.0,1.0,2.0,1.0,0.0,3.0,1.0,3.0,2.0,3.0,1.5,1.0};
+  CPPUNIT_ASSERT_EQUAL(45,m3->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(10,m3->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+45,m3->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+10,m3->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<44;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],m3->getCoords()->getIJ(0,i),1e-12);
+  d1->decrRef();
+  d2->decrRef();
+  m3->decrRef();
+  //
+  m1c->decrRef();
+  coordsX1->decrRef();
+  coordsY1->decrRef();
+  m1->decrRef();
+  m2c->decrRef();
+  coordsX2->decrRef();
+  coordsY2->decrRef();
+  m2->decrRef();
+}
+
+void MEDCouplingBasicsTest4::testBuildPartOfMySelfSafe1()
+{
+  MEDCouplingUMesh *mesh=build2DTargetMesh_1();
+  const int input1[4]={0,-1,4,2};
+  const int input2[4]={0,4,5,4};
+  CPPUNIT_ASSERT_THROW(mesh->buildPartOfMySelf(input1,input1+4,true),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(mesh->buildPartOfMySelf(input2,input2+4,true),INTERP_KERNEL::Exception);
+  mesh->decrRef();
+}

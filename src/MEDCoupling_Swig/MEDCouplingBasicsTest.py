@@ -8150,6 +8150,57 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(3,len(res));
         self.assertEqual(expected1,res);
         pass
+
+    def testIntersect2DMeshesTmp2(self):
+        m1c=MEDCouplingCMesh.New();
+        coordsX1=DataArrayDouble.New();
+        arrX1=[ 0., 1., 1.5, 2. ]
+        coordsX1.setValues(arrX1,4,1);
+        m1c.setCoordsAt(0,coordsX1);
+        coordsY1=DataArrayDouble.New();
+        arrY1=[ 0., 1.5, 3.]
+        coordsY1.setValues(arrY1,3,1);
+        m1c.setCoordsAt(1,coordsY1);
+        m1=m1c.buildUnstructured();
+        m2c=MEDCouplingCMesh.New();
+        coordsX2=DataArrayDouble.New();
+        arrX2=[ 0., 1., 2. ]
+        coordsX2.setValues(arrX2,3,1);
+        m2c.setCoordsAt(0,coordsX2);
+        coordsY2=DataArrayDouble.New();
+        arrY2=[ 0., 1., 3.]
+        coordsY2.setValues(arrY2,3,1);
+        m2c.setCoordsAt(1,coordsY2);
+        m2=m2c.buildUnstructured();
+        #
+        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
+        #
+        expected1=[0,0,1,1,2,2,3,4,5]
+        expected2=[0,2,1,3,1,3,2,3,3]
+        self.assertEqual(9,d1.getNumberOfTuples());
+        self.assertEqual(9,d2.getNumberOfTuples());
+        self.assertEqual(9,m3.getNumberOfCells());
+        self.assertEqual(22,m3.getNumberOfNodes());
+        self.assertEqual(2,m3.getSpaceDimension());
+        self.assertEqual(expected1,d1.getValues());
+        self.assertEqual(expected2,d2.getValues());
+        expected3=[5,16,13,12,15,5,15,4,5,16,5,21,2,13,16,5,16,5,6,21,5,17,14,2,21,5,21,6,7,17,5,4,18,19,5,5,5,19,10,6,5,6,10,20,7]
+        expected4=[0,5,10,15,20,25,30,35,40,45]
+        expected5=[0.0,0.0,1.0,0.0,1.5,0.0,2.0,0.0,0.0,1.5,1.0,1.5,1.5,1.5,2.0,1.5,0.0,3.0,1.0,3.0,1.5,3.0,2.0,3.0,0.0,0.0,1.0,0.0,2.0,0.0,0.0,1.0,1.0,1.0,2.0,1.0,0.0,3.0,1.0,3.0,2.0,3.0,1.5,1.0]
+        self.assertEqual(45,m3.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(10,m3.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected3,m3.getNodalConnectivity().getValues());
+        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues());
+        for i in xrange(44):
+            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
+            pass
+        pass
+    
+    def testBuildPartOfMySelfSafe1(self):
+        mesh=MEDCouplingDataForTest.build2DTargetMesh_1()
+        self.assertRaises(InterpKernelException,mesh.buildPartOfMySelf,[0,-1,4,2],True)
+        self.assertRaises(InterpKernelException,mesh.buildPartOfMySelf,[0,4,5,4],True)
+        pass
     
     def setUp(self):
         pass
