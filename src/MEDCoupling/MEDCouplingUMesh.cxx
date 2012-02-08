@@ -2084,7 +2084,8 @@ void MEDCouplingUMesh::unserialization(const std::vector<double>& tinyInfoD, con
 MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin, const int *end) const
 {
   checkFullyDefined();
-  MEDCouplingUMesh *ret=MEDCouplingUMesh::New();
+  int ncell=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New();
   ret->_mesh_dim=_mesh_dim;
   ret->setCoords(_coords);
   std::size_t nbOfElemsRet=std::distance(begin,end);
@@ -2094,7 +2095,16 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin
   const int *connIndex=_nodal_connec_index->getConstPointer();
   int newNbring=0;
   for(const int *work=begin;work!=end;work++,newNbring++)
-    connIndexRet[newNbring+1]=connIndexRet[newNbring]+connIndex[*work+1]-connIndex[*work];
+    {
+      if(*work>=0 && *work<ncell)
+        connIndexRet[newNbring+1]=connIndexRet[newNbring]+connIndex[*work+1]-connIndex[*work];
+      else
+        {
+          delete [] connIndexRet;
+          std::ostringstream oss; oss << "MEDCouplingUMesh::buildPartOfMySelfKeepCoords : On pos #" << std::distance(begin,work) << " input cell id =" << *work << " should be in [0," << ncell << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
   int *connRet=new int[connIndexRet[nbOfElemsRet]];
   int *connRetWork=connRet;
   std::set<INTERP_KERNEL::NormalizedCellType> types;
@@ -2123,6 +2133,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const int *begin
     }
   else
     ret->setName(getName());
+  ret->incrRef();
   return ret;
 }
 
