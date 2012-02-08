@@ -326,6 +326,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
       int edgeId=abs(descBg[i])-1;
       bool directos=colinear1[edgeId].empty();
       int idIn1=-1;
+      bool direct1;//store is needed the direction in 1
       int offset1=0;
       if(!directos)
         {
@@ -335,7 +336,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
             {
               int edgeId1=abs(descBg1[j])-1;
               if(std::find(c.begin(),c.end(),edgeId1)!=c.end())
-                idIn1=edgeId1;
+                { idIn1=edgeId1; direct1=descBg1[j]>0; }
               else
                 offset1+=intersectEdges1[edgeId1].size()/2;
             }
@@ -381,10 +382,10 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
                 }
               else
                 {
-                  ElementaryEdge *e=pol1[offset1+offset2];
+                  ElementaryEdge *e=pol1[offset1+(direct1?offset2:nbOfSubEdges1-offset2-1)];
                   Edge *ee=e->getPtr();
                   ee->incrRef(); ee->declareOn();
-                  pushBack(new ElementaryEdge(ee,direction11));
+                  pushBack(new ElementaryEdge(ee,!(direct1^direction11)));
                 }
             }
         }

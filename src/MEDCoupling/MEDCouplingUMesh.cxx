@@ -4808,11 +4808,13 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   IntersectDescending2DMeshes(m1,m2,eps,intersectEdge1,colinear2, subDiv2,m1Desc,desc1,descIndx1,revDesc1,revDescIndx1,
                               m2Desc,desc2,descIndx2,revDesc2,revDescIndx2,addCoo);
   revDesc1->decrRef(); revDescIndx1->decrRef(); revDesc2->decrRef(); revDescIndx2->decrRef();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dd1(desc1),dd2(descIndx1),dd3(desc2),dd4(descIndx2);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd5(m1Desc),dd6(m2Desc);
   std::vector< std::vector<int> > intersectEdge2;
   BuildIntersectEdges(m1Desc,m2Desc,addCoo,subDiv2,intersectEdge2);
   std::vector<bool> b1=m1Desc->getQuadraticStatus();
   std::vector<bool> b2=m1Desc->getQuadraticStatus();
-  subDiv2.clear(); m1Desc->decrRef(); m2Desc->decrRef();
+  subDiv2.clear(); dd5=0; dd6=0;
   std::vector<int> cr,crI;
   std::vector<int> cNb1,cNb2;
   BuildIntersecting2DCellsFromEdges(eps,m1,b1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,colinear2,m2,b2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
@@ -4831,7 +4833,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c2=DataArrayInt::New(); c2->alloc((int)cNb2.size(),1); std::copy(cNb2.begin(),cNb2.end(),c2->getPointer()); cellNb2=c2;
   ret->setConnectivity(conn,connI,true);
   ret->setCoords(coo);
-  ret->incrRef(); c1->incrRef(); c2->incrRef(); desc1->decrRef(); descIndx1->decrRef(); desc2->decrRef(); descIndx2->decrRef();
+  ret->incrRef(); c1->incrRef(); c2->incrRef();
   return ret;
 }
 
@@ -4897,9 +4899,15 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
 {
   static const int SPACEDIM=2;
   desc1=DataArrayInt::New(); descIndx1=DataArrayInt::New(); revDesc1=DataArrayInt::New(); revDescIndx1=DataArrayInt::New();
-  desc2=DataArrayInt::New(); descIndx2=DataArrayInt::New(); revDesc2=DataArrayInt::New(); revDescIndx2=DataArrayInt::New();
+  desc2=DataArrayInt::New();
+  descIndx2=DataArrayInt::New();
+  revDesc2=DataArrayInt::New();
+  revDescIndx2=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dd1(desc1),dd2(descIndx1),dd3(revDesc1),dd4(revDescIndx1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> dd5(desc2),dd6(descIndx2),dd7(revDesc2),dd8(revDescIndx2);
   m1Desc=m1->buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1);
   m2Desc=m2->buildDescendingConnectivity2(desc2,descIndx2,revDesc2,revDescIndx2);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd9(m1Desc),dd10(m2Desc);
   const int *c1=m1Desc->getNodalConnectivity()->getConstPointer();
   const int *ci1=m1Desc->getNodalConnectivityIndex()->getConstPointer();
   std::vector<double> bbox1,bbox2;
@@ -4908,7 +4916,7 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
   int ncell1=m1Desc->getNumberOfCells();
   int ncell2=m2Desc->getNumberOfCells();
   intersectEdge1.resize(ncell1);
-  colinear2.resize(ncell1);
+  colinear2.resize(ncell2);
   subDiv2.resize(ncell2);
   BBTree<SPACEDIM,int> myTree(&bbox2[0],0,0,m2Desc->getNumberOfCells(),-eps);
   std::vector<int> candidates1(1);
@@ -4931,6 +4939,8 @@ void MEDCouplingUMesh::IntersectDescending2DMeshes(const MEDCouplingUMesh *m1, c
       else
         intersectEdge1[i].insert(intersectEdge1[i].end(),c1+ci1[i]+1,c1+ci1[i+1]);
     }
+  m1Desc->incrRef(); desc1->incrRef(); descIndx1->incrRef(); revDesc1->incrRef(); revDescIndx1->incrRef();
+  m2Desc->incrRef(); desc2->incrRef(); descIndx2->incrRef(); revDesc2->incrRef(); revDescIndx2->incrRef();
 }
 
 /*!
