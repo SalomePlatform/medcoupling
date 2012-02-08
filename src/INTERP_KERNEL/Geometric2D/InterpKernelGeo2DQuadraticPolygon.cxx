@@ -320,32 +320,32 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
                                                 const std::vector< std::vector<int> >& colinear1)
 {
   std::size_t nbOfSeg=std::distance(descBg,descEnd);
-  for(std::size_t i=0;i<nbOfSeg;i++)
+  for(std::size_t i=0;i<nbOfSeg;i++)//loop over all edges of pol2
     {
       bool direct=descBg[i]>0;
-      int edgeId=abs(descBg[i])-1;
+      int edgeId=abs(descBg[i])-1;//current edge id of pol2
       bool directos=colinear1[edgeId].empty();
       int idIn1=-1;
       bool direct1;//store is needed the direction in 1
       int offset1=0;
       if(!directos)
-        {
+        {// if the current edge of pol2 has one or more colinear edges part into pol1
           const std::vector<int>& c=colinear1[edgeId];
           std::size_t nbOfEdgesIn1=std::distance(descBg1,descEnd1);
           for(std::size_t j=0;j<nbOfEdgesIn1 && idIn1==-1;j++)
             {
               int edgeId1=abs(descBg1[j])-1;
               if(std::find(c.begin(),c.end(),edgeId1)!=c.end())
-                { idIn1=edgeId1; direct1=descBg1[j]>0; }
+                { idIn1=edgeId1; direct1=descBg1[j]>0; }// it exists an edge into pol1 given by tuple (idIn1,direct1) that is colinear at edge 'edgeId' in pol2
               else
-                offset1+=intersectEdges1[edgeId1].size()/2;
+                offset1+=intersectEdges1[edgeId1].size()/2;//offset1 is used to find the INTERP_KERNEL::Edge * instance into pol1 that will be part of edge into pol2
             }
           directos=(idIn1==-1);
         }
       const std::vector<int>& subEdge=intersectEdges[edgeId];
       std::size_t nbOfSubEdges=subEdge.size()/2;
       if(directos)
-        {
+        {//no subpart of edge 'edgeId' of pol2 is in pol1 so let's operate the same thing that QuadraticPolygon::buildFromCrudeDataArray method
           for(std::size_t j=0;j<nbOfSubEdges;j++)
             {
               Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
@@ -355,7 +355,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
             }
         }
       else
-        {
+        {//there is subpart of edge 'edgeId' of pol2 inside pol1
           const std::vector<int>& subEdge1PossiblyAlreadyIn1=intersectEdges1[idIn1];
           for(std::size_t j=0;j<nbOfSubEdges;j++)
             {
@@ -365,7 +365,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
               int offset2=0;
               bool direction11,found=false;
               for(std::size_t k=0;k<nbOfSubEdges1 && !found;k++)
-                {
+                {//perform a loop on all subedges of pol1 that includes edge 'edgeId' of pol2. For the moment we iterate only on subedges of ['idIn1']... To improve
                   if(subEdge1PossiblyAlreadyIn1[2*k]==idBg && subEdge1PossiblyAlreadyIn1[2*k+1]==idEnd)
                     { direction11=true; found=true; }
                   else if(subEdge1PossiblyAlreadyIn1[2*k]==idEnd && subEdge1PossiblyAlreadyIn1[2*k+1]==idBg)
@@ -374,14 +374,14 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
                     offset2++;
                 }
               if(!found)
-                {
+                {//the current subedge of edge 'edgeId' of pol2 is not a part of the colinear edge 'idIn1' of pol1 -> build new Edge instance
                   Node *start=(*mapp.find(idBg)).second;
                   Node *end=(*mapp.find(idEnd)).second;
                   ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,true,start,end);
                   pushBack(e);
                 }
               else
-                {
+                {//the current subedge of edge 'edgeId' of pol2 is part of the colinear edge 'idIn1' of pol1 -> reuse Edge instance of pol1
                   ElementaryEdge *e=pol1[offset1+(direct1?offset2:nbOfSubEdges1-offset2-1)];
                   Edge *ee=e->getPtr();
                   ee->incrRef(); ee->declareOn();
