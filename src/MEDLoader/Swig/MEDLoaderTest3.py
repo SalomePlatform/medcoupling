@@ -165,6 +165,8 @@ class MEDLoaderTest(unittest.TestCase):
         mbis=mm.getMeshAtLevel(0)
         m.setName(mm.getName()) ; m.setDescription(mm.getDescription())
         self.assertTrue(m.isEqual(mbis,1e-12));
+        #
+        self.assertEqual(([[(3, 2), (4, 1), (5, 8)], [(1, 2), (2, 1)], [(0, 4)]], 2, 2, 9),MEDLoader.GetUMeshGlobalInfo(outFileName,"MyFirstMEDCouplingMEDmesh"))
         pass
 
     # this test is the testMEDMesh3 except that permutation is dealed here
@@ -362,6 +364,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write("Pyfile19_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
         ff.write("Pyfile19_bis.med",0)
+        self.assertEqual([('tyty', 'mm'), ('uiop', 'MW')],MEDLoader.GetComponentsNamesOfField("Pyfile19_bis.med","VFieldOnNodes"))
         pass
 
     #gauss points
@@ -455,6 +458,9 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.setTime(2.3,3,4)
         ti,itt,orr=ff1.getTime()
         self.assertEqual(3,itt); self.assertEqual(4,orr); self.assertAlmostEqual(2.3,ti,14);
+        da,infos=ff1.getUndergroundDataArrayExt()
+        self.assertTrue(da.isEqual(f2.getArray(),1e-12))
+        self.assertEqual([((3, 0), (0, 2)), ((4, 0), (2, 4)), ((6, 0), (4, 5)), ((5, 0), (5, 6))],infos)
         #
         fname="Pyfile26.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
@@ -487,6 +493,9 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.write(fname,0)
         f2=MEDLoader.ReadFieldGaussNE(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+        da,infos=ff1.getUndergroundDataArrayExt()
+        self.assertTrue(da.isEqual(f2.getArray(),1e-12))
+        self.assertEqual([((3, 0), (0, 6)), ((4, 0), (6, 14)), ((6, 0), (14, 20))],infos)
         #
         fname="Pyfile28.med"
         f1=MEDLoaderDataForTest.buildVecFieldOnGauss_2_Simpler();
@@ -509,6 +518,10 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(6,loc1.getNumberOfPointsInCells())
         self.assertEqual(3,loc1.getNumberOfGaussPoints())
         self.assertEqual(2,loc1.getDimension())
+        da,infos=ff2.getUndergroundDataArrayExt()
+        self.assertTrue(da.isEqual(f2.getArray(),1e-12))
+        self.assertEqual(53,da.getNumberOfTuples())
+        self.assertEqual([((3, 0), (0, 18)), ((3, 1), (18, 30)), ((3, 2), (30, 36)), ((4, 0), (36, 42)), ((4, 1), (42, 44)), ((6, 0), (44, 53))],infos)
         #
         pass
     
@@ -923,3 +936,4 @@ class MEDLoaderTest(unittest.TestCase):
     pass
 
 unittest.main()
+

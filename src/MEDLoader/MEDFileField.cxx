@@ -451,6 +451,15 @@ DataArrayDouble *MEDFileFieldPerMeshPerTypePerDisc::getUndergroundDataArray() co
   return const_cast<DataArrayDouble *>(ret);
 }
 
+void MEDFileFieldPerMeshPerTypePerDisc::fillValues(int discId, int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries, double *vals) const
+{
+  int endTupleId=startTupleId+_arr->getNumberOfTuples();
+  entries[startEntryId]=std::pair<std::pair<int,int> ,std::pair<int,int> >(std::pair<int,int>((int)getGeoType(),discId),std::pair<int,int>(startTupleId,endTupleId));
+  std::copy(_arr->begin(),_arr->end(),vals+startTupleId*_arr->getNumberOfComponents());
+  startEntryId++;
+  startTupleId=endTupleId;
+}
+
 void MEDFileFieldPerMeshPerTypePerDisc::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   TypeOfField type=getType();
@@ -738,6 +747,15 @@ std::string MEDFileFieldPerMeshPerType::getMeshName() const
   return _father->getMeshName();
 }
 
+void MEDFileFieldPerMeshPerType::getSizes(int& globalSz, int& nbOfEntries) const
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    {
+      globalSz+=(*it)->getUndergroundDataArray()->getNumberOfTuples();
+    }
+  nbOfEntries+=(int)_field_pm_pt_pd.size();
+}
+
 INTERP_KERNEL::NormalizedCellType MEDFileFieldPerMeshPerType::getGeoType() const
 {
   return _geo_type;
@@ -797,6 +815,15 @@ DataArrayDouble *MEDFileFieldPerMeshPerType::getUndergroundDataArray() const thr
   if(_field_pm_pt_pd[0]==0)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerType::getUndergroundDataArray : no field specified !");
   return _field_pm_pt_pd[0]->getUndergroundDataArray();
+}
+
+void MEDFileFieldPerMeshPerType::fillValues(int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries, double *vals) const
+{
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,i++)
+    {
+      (*it)->fillValues(i,startTupleId,startEntryId,entries,vals);
+    }
 }
 
 MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception):_father(fath),_geo_type(geoType)
@@ -1253,6 +1280,30 @@ DataArrayDouble *MEDFileFieldPerMesh::getUndergroundDataArray() const throw(INTE
   if(_field_pm_pt[0]==0)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getUndergroundDataArray : no field specified !");
   return _field_pm_pt[0]->getUndergroundDataArray();
+}
+
+DataArrayDouble *MEDFileFieldPerMesh::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
+{
+  int globalSz=0;
+  int nbOfEntries=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      (*it)->getSizes(globalSz,nbOfEntries);
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  int nbOfComponents=_father->getInfo().size();
+  ret->alloc(globalSz,nbOfComponents);
+  ret->setInfoOnComponents(_father->getInfo());
+  entries.resize(nbOfEntries);
+  double *pt=ret->getPointer();
+  globalSz=0;
+  nbOfEntries=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      (*it)->fillValues(globalSz,nbOfEntries,entries,pt);
+    }
+  ret->incrRef();
+  return ret;
 }
 
 int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type)
@@ -1876,7 +1927,7 @@ void MEDFileField1TSWithoutDAS::copyTinyInfoFrom(const MEDCouplingFieldDouble *f
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::copyTinyInfoFrom : no array set !");
   _dt=field->getTime(_iteration,_order);
-  _infos=arr->getInfoOnComponent();
+  _infos=arr->getInfoOnComponents();
 }
 
 std::string MEDFileField1TSWithoutDAS::getMeshName() const throw(INTERP_KERNEL::Exception)
@@ -2174,7 +2225,8 @@ DataArrayDouble *MEDFileField1TSWithoutDAS::getFieldWithProfile(TypeOfField type
 }
 
 /*!
- * This method retrieves direct access to the underground ParaMEDMEM::DataArrayDouble instance.
+ * This method retrieves direct access to the underground ParaMEDMEM::DataArrayDouble instance. The returned array is not a newly
+ * created array so it should \b not be dealed by the caller.
  * This method allows to the user a direct access to the values.
  * This method throws an exception if 'this' is composed with multiple arrays due to cell type splitting (field on cells and field on gauss points).
  */
@@ -2185,6 +2237,22 @@ DataArrayDouble *MEDFileField1TSWithoutDAS::getUndergroundDataArray() const thro
   if(_field_per_mesh[0]==0)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getUndergroundDataArray : no field specified !");
   return _field_per_mesh[0]->getUndergroundDataArray();
+}
+
+/*!
+ * This method returns an array that the caller must deal with (contrary to those returned by MEDFileField1TSWithoutDAS::getUndergroundDataArray method).
+ * The returned array is the result of the aggregation of all sub arrays stored in the MED file. So to allow the caller to select the output param
+ * 'entries' is returned. This output param is a vector of a pair of 2 pairs. The first pair of pair informs of the geometric type it refers to and the discretization
+ * id attached to it. The second pair of pair precise the range [begin,end) into the returned array.
+ * This method makes the hypothesis that the field lies only on one mesh. If it is not the case an exception will be thrown.
+ */
+DataArrayDouble *MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
+{
+  if(_field_per_mesh.size()!=1)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt : field lies on several meshes, this method has no sense !");
+  if(_field_per_mesh[0]==0)
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt : no field specified !");
+  return _field_per_mesh[0]->getUndergroundDataArrayExt(entries);
 }
 
 MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order,
@@ -2467,6 +2535,22 @@ const std::vector<std::string>& MEDFileFieldMultiTSWithoutDAS::getInfo() const t
   return _time_steps[0]->getInfo();
 }
 
+/*!
+ * See doc at MEDFileField1TSWithoutDAS::getUndergroundDataArray
+ */
+DataArrayDouble *MEDFileFieldMultiTSWithoutDAS::getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+{
+  return getTimeStepEntry(iteration,order).getUndergroundDataArray();
+}
+
+/*!
+ * See doc at MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt
+ */
+DataArrayDouble *MEDFileFieldMultiTSWithoutDAS::getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
+{
+  return getTimeStepEntry(iteration,order).getUndergroundDataArrayExt(entries);
+}
+
 std::string MEDFileFieldMultiTSWithoutDAS::getMeshName() const throw(INTERP_KERNEL::Exception)
 {
   if(_time_steps.empty())
@@ -2530,7 +2614,7 @@ void MEDFileFieldMultiTSWithoutDAS::copyTinyInfoFrom(const MEDCouplingFieldDoubl
   const DataArrayDouble *arr=field->getArray();
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTSWithoutDAS::copyTinyInfoFrom : no array set !");
-  _infos=arr->getInfoOnComponent();
+  _infos=arr->getInfoOnComponents();
 }
 
 void MEDFileFieldMultiTSWithoutDAS::checkCoherencyOfTinyInfo(const MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception)
@@ -2545,12 +2629,12 @@ void MEDFileFieldMultiTSWithoutDAS::checkCoherencyOfTinyInfo(const MEDCouplingFi
   const DataArrayDouble *arr=field->getArray();
   if(!arr)
     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTSWithoutDAS::checkCoherencyOfTinyInfo : no array set !");
-  if(_infos!=arr->getInfoOnComponent())
+  if(_infos!=arr->getInfoOnComponents())
     {
       std::ostringstream oss; oss << MSG << "components ! should be \"";
       std::copy(_infos.begin(),_infos.end(),std::ostream_iterator<std::string>(oss,", "));
       oss << " But compo in input fields are : ";
-      std::vector<std::string> tmp=arr->getInfoOnComponent();
+      std::vector<std::string> tmp=arr->getInfoOnComponents();
       std::copy(tmp.begin(),tmp.end(),std::ostream_iterator<std::string>(oss,", "));
       oss << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());

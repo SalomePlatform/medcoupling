@@ -349,6 +349,108 @@ std::vector<std::string> MEDLoader::GetMeshNames(const char *fileName) throw(INT
   return ret;
 }
 
+std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesOfField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  med_int nbFields=MEDnField(fid);
+  std::vector<std::string> fields(nbFields);
+  med_field_type typcha;
+  for(int i=0;i<nbFields;i++)
+    {
+      med_int ncomp=MEDfieldnComponent(fid,i+1);
+      INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
+      INTERP_KERNEL::AutoPtr<char> unit=new char[ncomp*MED_SNAME_SIZE+1];
+      INTERP_KERNEL::AutoPtr<char> dt_unit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
+      med_int nbPdt;
+      med_bool localmesh;
+      INTERP_KERNEL::AutoPtr<char> maa_ass=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
+      std::string meshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE);
+      std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
+      if(curFieldName==fieldName)
+        {
+          std::vector< std::pair<std::string,std::string> > ret(ncomp);
+          for(int j=0;j<ncomp;j++)
+            ret[j]=std::pair<std::string,std::string>(MEDLoaderBase::buildStringFromFortran(((char *)comp)+j*MED_SNAME_SIZE,MED_SNAME_SIZE),
+                                                      MEDLoaderBase::buildStringFromFortran(((char *)unit)+j*MED_SNAME_SIZE,MED_SNAME_SIZE));
+          return ret;
+        }
+      fields[i]=curFieldName;
+    }
+  std::ostringstream oss; oss << "MEDLoader::GetComponentsNamesOfField : no such field \"" << fieldName << "\" in file \"" << fileName << "\" !" << std::endl;
+  oss << "Possible field names are : " << std::endl;
+  std::copy(fields.begin(),fields.end(),std::ostream_iterator<std::string>(oss," "));
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+/*!
+ * Given a 'fileName' and a 'meshName' this method returns global information concerning this mesh.
+ * It returns, in this order :
+ * - number of cells sorted by dimension and by geometry type. The first entry in the vector is the maximal dimension, the 2nd in the vector is the maximal dimension-1...
+ * - the mesh dimension
+ * - the space dimension
+ * - the number of nodes
+ */
+std::vector< std::vector< std::pair<int,int> > > MEDLoader::GetUMeshGlobalInfo(const char *fileName, const char *meshName, int &meshDim, int& spaceDim, int& numberOfNodes) throw(INTERP_KERNEL::Exception)
+{
+  CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  std::set<int> poss;
+  char nommaa[MED_NAME_SIZE+1];
+  char maillage_description[MED_COMMENT_SIZE+1];
+  med_mesh_type type_maillage;
+  std::string trueMeshName;
+  med_int meshId=MEDLoaderNS::getIdFromMeshName(fid,meshName,trueMeshName);
+  INTERP_KERNEL::AutoPtr<char> dt_unit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
+  med_sorting_type sortingType;
+  med_int nstep;
+  med_axis_type axisType;
+  int naxis=MEDmeshnAxis(fid,meshId);
+  INTERP_KERNEL::AutoPtr<char> axisname=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> axisunit=MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE);
+  MEDmeshInfo(fid,meshId,nommaa,&spaceDim,&meshDim,&type_maillage,maillage_description,dt_unit,&sortingType,&nstep,&axisType,axisname,axisunit); 
+  if(type_maillage!=MED_UNSTRUCTURED_MESH)
+    {
+      std::ostringstream oss; oss << "MEDLoader::GetUMeshGlobalInfo : Mesh \""<< meshName << "\" in file \"" << fileName;
+      oss << "\" exists but it is not an unstructured mesh ! This method is not relevant for mesh types that are not unstructured !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  // limitation
+  if(nstep!=1)
+    throw INTERP_KERNEL::Exception("MEDLoader::GetUMeshGlobalInfo : multisteps on mesh not managed !");
+  med_int numdt,numit;
+  med_float dt;
+  MEDmeshComputationStepInfo(fid,nommaa,1,&numdt,&numit,&dt);
+  // endlimitation
+  std::vector<int> dims;
+  std::vector< std::pair<int,int> > geoTypes;
+  med_bool changement,transformation;
+  for(int i=0;i<MED_N_CELL_FIXED_GEO;i++)
+    {
+      med_geometry_type curMedType=typmai[i];
+      int curNbOfElemM=MEDmeshnEntity(fid,nommaa,numdt,numit,MED_CELL,curMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation);
+      if(curNbOfElemM>0)
+        {
+          INTERP_KERNEL::NormalizedCellType typp=typmai2[i];
+          int mdimCell=INTERP_KERNEL::CellModel::GetCellModel(typp).getDimension();
+          dims.push_back(mdimCell);
+          geoTypes.push_back(std::pair<int,int>((int)typp,curNbOfElemM));
+        }
+    }
+  int maxLev=*std::max_element(dims.begin(),dims.end());
+  int lowLev=*std::min_element(dims.begin(),dims.end());
+  int nbOfLevels=maxLev-lowLev+1;
+  std::vector< std::vector< std::pair<int,int> > > ret(nbOfLevels);
+  for(std::size_t i=0;i<dims.size();i++)
+    {
+      ret[maxLev-dims[i]].push_back(geoTypes[i]);
+    }
+  numberOfNodes=MEDmeshnEntity(fid,nommaa,numdt,numit,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&changement,&transformation);
+  return ret;
+}
+
 std::vector<std::string> MEDLoader::GetMeshNamesOnField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);

@@ -115,6 +115,7 @@ namespace ParaMEDMEM
     void getFieldAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector<const DataArrayDouble *>& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs,
                          std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
+    void fillValues(int discId, int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries, double *vals) const;
     static int ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception);
   private:
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
@@ -151,6 +152,7 @@ namespace ParaMEDMEM
     double getTime() const;
     std::string getName() const;
     std::string getMeshName() const;
+    void getSizes(int& globalSz, int& nbOfEntries) const;
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
     int getNumberOfComponents() const;
     const std::vector<std::string>& getInfo() const;
@@ -158,6 +160,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocsReallyUsed() const;
     void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector<const DataArrayDouble *>& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
+    void fillValues(int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries, double *vals) const;
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
   private:
     std::vector<int> addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception);
@@ -202,6 +205,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getFieldOnMeshAtLevelWithPfl(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
   private:
     int addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type);
     MEDCouplingFieldDouble *finishField(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
@@ -343,6 +347,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArray() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
   protected:
     int addNewEntryIfNecessary(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);
@@ -398,6 +403,8 @@ namespace ParaMEDMEM
     std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
   public:
     std::vector<std::string> getPflsReallyUsed2() const;
     std::vector<std::string> getLocsReallyUsed2() const;

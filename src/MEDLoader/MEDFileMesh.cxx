@@ -974,8 +974,8 @@ void MEDFileUMesh::loadUMeshFromFile(med_idt fid, const char *mName, int dt, int
   int mid=MEDFileUMeshL2::GetMeshIdFromName(fid,mName,meshType,dummy0,dummy1,dummy2);
   if(meshType!=UNSTRUCTURED)
     {
-         std::ostringstream oss; oss << "Trying to load as unstructured an existing mesh with name '" << mName << "' !";
-         throw INTERP_KERNEL::Exception(oss.str().c_str());
+      std::ostringstream oss; oss << "Trying to load as unstructured an existing mesh with name '" << mName << "' !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   loaderl2.loadAll(fid,mid,mName,dt,it);
   int lev=loaderl2.getNumberOfLevels();

@@ -95,6 +95,7 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtTopLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldOnMeshAtLevel;
 %newobject ParaMEDMEM::MEDFileField1TS::getFieldAtLevelOld;
+%newobject ParaMEDMEM::MEDFileFieldMultiTSWithoutDAS::getUndergroundDataArray;
 
 %newobject ParaMEDMEM::MEDFileData::New;
 %newobject ParaMEDMEM::MEDFileData::getMeshes;
@@ -195,6 +196,47 @@ public:
              PyTuple_SetItem(elt,1,SWIG_From_int((*iter).second));
              PyList_SetItem(ret,rk,elt);
            }
+         return ret;
+       }
+       static PyObject *GetComponentsNamesOfField(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::string,std::string> > res=MEDLoader::GetComponentsNamesOfField(fileName,fieldName);
+         PyObject *ret=PyList_New(res.size());
+         int rk=0;
+         for(std::vector< std::pair<std::string,std::string> >::const_iterator iter=res.begin();iter!=res.end();iter++,rk++)
+           {
+             PyObject *elt=PyTuple_New(2);
+             PyTuple_SetItem(elt,0,PyString_FromString((*iter).first.c_str()));
+             PyTuple_SetItem(elt,1,PyString_FromString((*iter).second.c_str()));
+             PyList_SetItem(ret,rk,elt);
+           }
+         return ret;
+       }
+       static PyObject *GetUMeshGlobalInfo(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
+       {
+         int meshDim,spaceDim,numberOfNodes;
+         std::vector< std::vector< std::pair<int,int> > > res=MEDLoader::GetUMeshGlobalInfo(fileName,meshName,meshDim,spaceDim,numberOfNodes);
+         PyObject *ret=PyTuple_New(4);
+         PyObject *elt0=PyList_New(res.size());
+         int i=0;
+         for(std::vector< std::vector< std::pair<int,int> > >::const_iterator it=res.begin();it!=res.end();it++,i++)
+           {
+             const std::vector< std::pair<int,int> >&obj2=(*it);
+             int j=0;
+             PyObject *elt1=PyList_New(obj2.size());
+             for(std::vector< std::pair<int,int> >::const_iterator it2=obj2.begin();it2!=obj2.end();it2++,j++)
+               {
+                 PyObject *elt2=PyTuple_New(2);
+                 PyTuple_SetItem(elt2,0,SWIG_From_int((*it2).first));
+                 PyTuple_SetItem(elt2,1,SWIG_From_int((*it2).second));
+                 PyList_SetItem(elt1,j,elt2);
+               }
+             PyList_SetItem(elt0,i,elt1);
+           }
+         PyTuple_SetItem(ret,0,elt0);
+         PyTuple_SetItem(ret,1,SWIG_From_int(meshDim));
+         PyTuple_SetItem(ret,2,SWIG_From_int(spaceDim));
+         PyTuple_SetItem(ret,3,SWIG_From_int(numberOfNodes));
          return ret;
        }
        static PyObject *ReadFieldsOnSameMesh(ParaMEDMEM::TypeOfField type, const char *fileName, const char *meshName, int meshDimRelToMax,
@@ -693,6 +735,31 @@ namespace ParaMEDMEM
              ret->incrRef();
            return ret;
          }
+
+         PyObject *getUndergroundDataArrayExt() const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > > elt1Cpp;
+           DataArrayDouble *elt0=self->getUndergroundDataArrayExt(elt1Cpp);
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elt0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+           std::size_t sz=elt1Cpp.size();
+           PyObject *elt=PyList_New(sz);
+           for(std::size_t i=0;i<sz;i++)
+             {
+               PyObject *elt1=PyTuple_New(2);
+               PyObject *elt2=PyTuple_New(2);
+               PyTuple_SetItem(elt2,0,SWIG_From_int(elt1Cpp[i].first.first));
+               PyTuple_SetItem(elt2,1,SWIG_From_int(elt1Cpp[i].first.second));
+               PyObject *elt3=PyTuple_New(2);
+               PyTuple_SetItem(elt3,0,SWIG_From_int(elt1Cpp[i].second.first));
+               PyTuple_SetItem(elt3,1,SWIG_From_int(elt1Cpp[i].second.second));
+               PyTuple_SetItem(elt1,0,elt2);
+               PyTuple_SetItem(elt1,1,elt3);
+               PyList_SetItem(elt,i,elt1);
+             }
+           PyTuple_SetItem(ret,1,elt);
+           return ret;
+         }
        }
   };
 
@@ -814,6 +881,37 @@ namespace ParaMEDMEM
                PyList_SetItem(ret2,i,elt);
              }
            return ret2;
+         }
+         DataArrayDouble *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+         {
+           DataArrayDouble *ret=self->getUndergroundDataArray(iteration,order);
+           if(ret)
+             ret->incrRef();
+           return ret;
+         }
+         PyObject *getUndergroundDataArrayExt(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > > elt1Cpp;
+           DataArrayDouble *elt0=self->getUndergroundDataArrayExt(iteration,order,elt1Cpp);
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elt0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+           std::size_t sz=elt1Cpp.size();
+           PyObject *elt=PyList_New(sz);
+           for(std::size_t i=0;i<sz;i++)
+             {
+               PyObject *elt1=PyTuple_New(2);
+               PyObject *elt2=PyTuple_New(2);
+               PyTuple_SetItem(elt2,0,SWIG_From_int(elt1Cpp[i].first.first));
+               PyTuple_SetItem(elt2,1,SWIG_From_int(elt1Cpp[i].first.second));
+               PyObject *elt3=PyTuple_New(2);
+               PyTuple_SetItem(elt3,0,SWIG_From_int(elt1Cpp[i].second.first));
+               PyTuple_SetItem(elt3,1,SWIG_From_int(elt1Cpp[i].second.second));
+               PyTuple_SetItem(elt1,0,elt2);
+               PyTuple_SetItem(elt1,1,elt3);
+               PyList_SetItem(elt,i,elt1);
+             }
+           PyTuple_SetItem(ret,1,elt);
+           return ret;
          }
        }
   };
