@@ -136,6 +136,16 @@ void DataArray::reprWithoutNameStream(std::ostream& stream) const
   stream << "\n";
 }
 
+void DataArray::setInfoOnComponents(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=(int)info.size())
+    {
+      std::ostringstream oss; oss << "DataArray::setInfoOnComponents : input is of size " << info.size() << " whereas number of components is equal to " << getNumberOfComponents() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  _info_on_compo=info;
+}
+
 std::vector<std::string> DataArray::getVarsOnComponent() const
 {
   int nbOfCompo=(int)_info_on_compo.size();

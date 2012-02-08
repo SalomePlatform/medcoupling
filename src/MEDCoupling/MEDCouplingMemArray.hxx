@@ -95,7 +95,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool areInfoEquals(const DataArray& other) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
-    MEDCOUPLING_EXPORT const std::vector<std::string> &getInfoOnComponent() const { return _info_on_compo; }
+    MEDCOUPLING_EXPORT const std::vector<std::string> &getInfoOnComponents() const { return _info_on_compo; }
+    MEDCOUPLING_EXPORT void setInfoOnComponents(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::vector<std::string> getVarsOnComponent() const;
     MEDCOUPLING_EXPORT std::vector<std::string> getUnitsOnComponent() const;
     MEDCOUPLING_EXPORT std::string getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exception);
