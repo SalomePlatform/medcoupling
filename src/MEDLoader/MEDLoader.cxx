@@ -1044,7 +1044,8 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
                                                double& time, std::vector<std::string>& infos)
 {
   time=0.;
-  med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
   //
   med_field_type typcha;
@@ -1055,6 +1056,7 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
   std::map<ParaMEDMEM::TypeOfField, med_geometry_type *> tabType;
   std::map<ParaMEDMEM::TypeOfField, int> tabTypeLgth;
   med_bool localmesh;
+  bool found=false;
   tabEnt[ON_CELLS]=MED_CELL;
   tabType[ON_CELLS]=typmai;
   tabTypeLgth[ON_CELLS]=MED_N_CELL_FIXED_GEO;
@@ -1068,7 +1070,7 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
   tabType[ON_GAUSS_NE]=typmai;
   tabTypeLgth[ON_GAUSS_NE]=MED_N_CELL_FIXED_GEO;
   //
-  for(int i=0;i<nbFields;i++)
+  for(int i=0;i<nbFields && !found;i++)
     {
       med_int ncomp=MEDfieldnComponent(fid,i+1);
       INTERP_KERNEL::AutoPtr<char> comp=new char[ncomp*MED_SNAME_SIZE+1];
@@ -1078,18 +1080,13 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
       med_int nbPdt;
       MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
       std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
-      if(curMeshName!=meshName)
-        {
-          MEDfileClose(fid);
-          throw INTERP_KERNEL::Exception("Invalid meshname on field !");
-        }
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
-      if(curFieldName==fieldName)
+      found=(curFieldName==fieldName) && (curMeshName==meshName);
+      if(found)
         {
           infos.resize(ncomp);
           for(int i=0;i<ncomp;i++)
             infos[i]=MEDLoaderBase::buildUnionUnit(comp+i*MED_SNAME_SIZE,MED_SNAME_SIZE,unit+i*MED_SNAME_SIZE,MED_SNAME_SIZE);
-          bool found=false;
           bool found2=false;
           med_int numdt=0,numo=0;
           med_float dt=0.0;
@@ -1104,10 +1101,9 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
             {
               std::ostringstream oss; oss << "FieldDouble in file \""<< fileName<< "\" with name \"" << fieldName << "\" on mesh \"" <<  meshName;
               oss << "\" does not have such time step : iteration=" << iteration << " order=" << order << std::endl;
-              MEDfileClose(fid);
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
-          for(int j=0;j<tabTypeLgth[typeOfOutField] && !found;j++)
+          for(int j=0;j<tabTypeLgth[typeOfOutField];j++)
             {
               if(nbPdt>0)
                 {
@@ -1137,7 +1133,11 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
             }
         }
     }
-  MEDfileClose(fid);
+  if(!found)
+    {
+      std::ostringstream oss; oss << "MEDLoaderNS::readFieldDoubleDataInMedFile : no such couple meshName=\"" << meshName << "\", fieldName=\"" << fieldName << "\" in file \"" << fileName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
 std::vector<int> MEDLoaderNS::getIdsFromFamilies(const char *fileName, const char *meshName, const std::vector<std::string>& fams)
