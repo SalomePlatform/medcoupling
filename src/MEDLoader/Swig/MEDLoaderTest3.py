@@ -933,6 +933,39 @@ class MEDLoaderTest(unittest.TestCase):
         g=mm.getGroupArr(0,"g1")
         self.assertTrue(g.isEqual(g1));
         pass
+    
+    # bug detected by gauthier
+    def testMEDLoaderMEDLoaderNSReadFieldDoubleDataInMedFile(self):
+        fname="Pyfile41.med"
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        m1=f1.getMesh()
+        mm1=MEDFileUMesh.New()
+        mm1.setCoords(m1.getCoords())
+        mm1.setMeshAtLevel(0,m1)
+        mm1.write(fname,2)
+        ff1=MEDFileField1TS.New()
+        ff1.setFieldNoProfileSBT(f1)
+        ff1.write(fname,0)
+        # writing mesh1 and field1, now creation of mesh2 and field2
+        f2=f1.deepCpy()
+        m2=f2.getMesh()
+        m2.translate([0.5,0.6,0.7])
+        m2.setName("3DSurfMesh_2")
+        f2.getArray()[:]*=2.
+        f2.setName("VectorFieldOnCells2")
+        mm2=MEDFileUMesh.New()
+        mm2.setCoords(m2.getCoords())
+        mm2.setMeshAtLevel(0,m2)
+        mm2.write(fname,0)
+        ff2=MEDFileField1TS.New()
+        ff2.setFieldNoProfileSBT(f2)
+        ff2.write(fname,0)
+        #
+        f3=MEDLoader.ReadFieldCell(fname,"3DSurfMesh_1",0,"VectorFieldOnCells",0,1)
+        self.assertTrue(f3.isEqual(f1,1e-12,1e-12))
+        f4=MEDLoader.ReadFieldCell(fname,"3DSurfMesh_2",0,"VectorFieldOnCells2",0,1)
+        self.assertTrue(f4.isEqual(f2,1e-12,1e-12))
+        pass
     pass
 
 unittest.main()
