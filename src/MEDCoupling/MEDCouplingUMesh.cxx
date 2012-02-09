@@ -4864,7 +4864,7 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
   int offset2=offset1+m2->getNumberOfNodes();
   m1->getBoundingBoxForBBTree(bbox1);
   m2->getBoundingBoxForBBTree(bbox2);
-  BBTree<SPACEDIM,int> myTree(&bbox2[0],0,0,m2->getNumberOfCells(),-eps);
+  BBTree<SPACEDIM,int> myTree(&bbox2[0],0,0,m2->getNumberOfCells(),eps);
   int ncell1=m1->getNumberOfCells();
   crI.push_back(0);
   for(int i=0;i<ncell1;i++)
