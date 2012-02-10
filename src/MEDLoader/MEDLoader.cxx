@@ -818,7 +818,6 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
       MEDfieldInfo(fid,i+1,nomcha,maa_ass,&localmesh,&typcha,comp,unit,dt_unit,&nbPdt);
       std::string curFieldName=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE+1);
       std::string curMeshName=MEDLoaderBase::buildStringFromFortran(maa_ass,MED_NAME_SIZE+1);
-      bool found=false;
       if(nbPdt>0)
         {
           int profilesize,nbi;
@@ -827,7 +826,6 @@ std::vector<std::string> MEDLoader::GetNodeFieldNamesOnMesh(const char *fileName
                                                     pflname,&profilesize,locname,&nbi);
           if(curMeshName==meshName && nbOfVal>0)
             {
-              found=true;
               ret.push_back(curFieldName);
             }
         }
