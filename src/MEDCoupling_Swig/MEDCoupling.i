@@ -268,6 +268,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::build3DUnstructuredMesh;
 %newobject ParaMEDMEM::MEDCouplingCMesh::New;
+%newobject ParaMEDMEM::MEDCouplingCMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingCMesh::getCoordsAt;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::New;
 %newobject ParaMEDMEM::MEDCouplingMultiFields::deepCpy;
@@ -1462,6 +1463,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingCMesh *New();
+    MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coordsX,
                    const DataArrayDouble *coordsY=0,
                    const DataArrayDouble *coordsZ=0) throw(INTERP_KERNEL::Exception);
@@ -4536,6 +4538,14 @@ namespace ParaMEDMEM
         self->getValueOn(spaceLoc,res);
         return convertDblArrToPyList(res,sz);
       }
+
+       PyObject *getValueOnPos(int i, int j, int k) const throw(INTERP_KERNEL::Exception)
+       {
+         int sz=self->getNumberOfComponents();
+         INTERP_KERNEL::AutoPtr<double> res=new double[sz];
+         self->getValueOnPos(i,j,k,res);
+         return convertDblArrToPyList(res,sz);
+       }
 
       DataArrayDouble *getValueOnMulti(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
