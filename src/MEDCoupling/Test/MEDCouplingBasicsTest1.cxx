@@ -24,6 +24,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 
+#include <sstream>
 #include <cmath>
 #include <algorithm>
 #include <functional>
@@ -2250,6 +2251,9 @@ void MEDCouplingBasicsTest1::testGetValueOn1()
 void MEDCouplingBasicsTest1::testCMesh0()
 {
   MEDCouplingCMesh* mesh=MEDCouplingCMesh::New();
+  MEDCouplingCMesh* meshEmpty=mesh->clone(true);
+  CPPUNIT_ASSERT(meshEmpty->isEqual(mesh,1e-12));
+  
   DataArrayDouble* coordsX=DataArrayDouble::New();
   double arrX[4] = { -1., 1., 2., 4. };
   coordsX->useArray(arrX,false, CPP_DEALLOC,4,1);
@@ -2291,7 +2295,248 @@ void MEDCouplingBasicsTest1::testCMesh0()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(6.,res,1e-12);
   fieldOnCells->decrRef();
   //
+  MEDCouplingMesh* meshDeepCopy=mesh->deepCpy();
+  MEDCouplingCMesh* meshClone=mesh->clone(false);
+  
+  CPPUNIT_ASSERT_THROW(meshEmpty->copyTinyStringsFrom(0),INTERP_KERNEL::Exception);
+  meshEmpty->copyTinyStringsFrom(mesh);
+  //no data in meshEmpty, expected false
+  CPPUNIT_ASSERT(!meshEmpty->isEqual(mesh,1e-12));
+  
+  CPPUNIT_ASSERT(meshDeepCopy->isEqual(mesh,1e-12));
+  meshDeepCopy->copyTinyStringsFrom(mesh);
+  CPPUNIT_ASSERT(meshDeepCopy->isEqual(mesh,1e-12));
+  CPPUNIT_ASSERT(meshClone->isEqual(mesh,1e-12));
+  
+  CPPUNIT_ASSERT_EQUAL(CARTESIAN,mesh->getType());
+  CPPUNIT_ASSERT_EQUAL(CARTESIAN,meshEmpty->getType());
+  CPPUNIT_ASSERT_EQUAL(CARTESIAN,meshDeepCopy->getType());
+  CPPUNIT_ASSERT_EQUAL(CARTESIAN,meshClone->getType());
+  
   mesh->decrRef();
+  meshEmpty->decrRef();
+  meshDeepCopy->decrRef();
+  meshClone->decrRef();
+}
+
+void MEDCouplingBasicsTest1::testCMesh1()
+{
+  MEDCouplingCMesh *mesh1,*mesh2,*mesh3;
+  mesh1=MEDCouplingCMesh::New();
+  DataArrayDouble* coordsX1=DataArrayDouble::New();
+  double arrX1[4] = { -1., 1., 2., 4. };
+  coordsX1->useArray(arrX1,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsY1=DataArrayDouble::New();
+  double arrY1[4] = { -2., 2., 4., 8. };
+  coordsY1->useArray(arrY1,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsZ1=DataArrayDouble::New();
+  double arrZ1[4] = { -3., 3., 6., 12. };
+  coordsZ1->useArray(arrZ1,false, CPP_DEALLOC,4,1);
+  mesh1->setCoords(coordsX1,coordsY1,coordsZ1);
+  
+  mesh2=MEDCouplingCMesh::New();
+  DataArrayDouble* coordsX2=DataArrayDouble::New();
+  double arrX2[4] = { -1., 1., 2., 4. };
+  coordsX2->useArray(arrX2,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsY2=DataArrayDouble::New();
+  double arrY2[4] = { -2., 2., 4., 8. };
+  coordsY2->useArray(arrY2,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsZ2=DataArrayDouble::New();
+  double arrZ2[4] = { -3., 3., 6., 12.+1e-6 };   //here is not equal
+  coordsZ2->useArray(arrZ2,false, CPP_DEALLOC,4,1);
+  mesh2->setCoords(coordsX2,coordsY2,coordsZ2);
+  
+  mesh3=MEDCouplingCMesh::New();
+  DataArrayDouble* coordsX3=DataArrayDouble::New();
+  double arrX3[1] = { -1.};
+  coordsX3->useArray(arrX3,false, CPP_DEALLOC,1,1);
+  DataArrayDouble* coordsY3=DataArrayDouble::New();
+  double arrY3[1] = { -2.};
+  coordsY3->useArray(arrY3,false, CPP_DEALLOC,1,1);
+  DataArrayDouble* coordsZ3=DataArrayDouble::New();
+  double arrZ3[1] = { -3.};
+  coordsZ3->useArray(arrZ3,false, CPP_DEALLOC,1,1);
+  mesh3->setCoords(coordsX3,coordsY3,coordsZ3);
+  
+  CPPUNIT_ASSERT_EQUAL(3,mesh1->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(3,mesh1->getMeshDimension());
+  
+  CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-12));
+  CPPUNIT_ASSERT(!mesh2->isEqual(mesh1,1e-12));
+  CPPUNIT_ASSERT(!mesh2->isEqualWithoutConsideringStr(mesh1,1e-12));
+  CPPUNIT_ASSERT(mesh1->isEqual(mesh2,1e-5));
+  CPPUNIT_ASSERT(!mesh1->isEqual(mesh2,1e-7));
+  
+  CPPUNIT_ASSERT_THROW(mesh3->checkCoherency1(1e-12),INTERP_KERNEL::Exception);
+  mesh1->checkCoherency2(1e-12);
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,mesh1->getTypeOfCell(1));
+  
+  CPPUNIT_ASSERT_EQUAL(INTERP_KERNEL::NORM_HEXA8,*((mesh1->getAllGeoTypes()).begin()));
+  CPPUNIT_ASSERT_EQUAL(27,mesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_THROW(mesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4),INTERP_KERNEL::Exception);
+  
+  std::vector<double> coo;
+  mesh1->getCoordinatesOfNode(0, coo);
+  CPPUNIT_ASSERT_EQUAL(3,(int) coo.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.,coo[0],1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-2.,coo[1],1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(-3.,coo[2],1e-14);
+  coo.clear();
+  mesh1->getCoordinatesOfNode(63, coo);
+  CPPUNIT_ASSERT_EQUAL(3,(int) coo.size());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.,coo[0],1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(8.,coo[1],1e-14);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(12.,coo[2],1e-14);
+  
+  std::string repr;
+  repr=mesh1->simpleRepr();
+  repr=mesh1->advancedRepr();
+  CPPUNIT_ASSERT(!(repr.find("Cartesian")==std::string::npos));
+  CPPUNIT_ASSERT(!(repr.find("Number of components : 1")==std::string::npos));
+  CPPUNIT_ASSERT(!(repr.find("Number of tuples : 4")==std::string::npos));
+  CPPUNIT_ASSERT(!(repr.find("Z Array :")==std::string::npos));
+  coordsX1->decrRef();
+  coordsY1->decrRef();
+  coordsZ1->decrRef();
+  coordsX2->decrRef();
+  coordsY2->decrRef();
+  coordsZ2->decrRef();
+  coordsX3->decrRef();
+  coordsY3->decrRef();
+  coordsZ3->decrRef();
+  mesh1->decrRef();
+  mesh2->decrRef();
+  mesh3->decrRef();
+}
+  
+void MEDCouplingBasicsTest1::testCMesh2()
+{
+  MEDCouplingCMesh *mesh1;
+  mesh1=MEDCouplingCMesh::New();
+  DataArrayDouble* coordsX1=DataArrayDouble::New();
+  double arrX1[4] = { -1., 1., 2., 4. };
+  coordsX1->useArray(arrX1,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsY1=DataArrayDouble::New();
+  double arrY1[4] = { -2., 2., 4., 8. };
+  coordsY1->useArray(arrY1,false, CPP_DEALLOC,4,1);
+  DataArrayDouble* coordsZ1=DataArrayDouble::New();
+  double arrZ1[4] = { -3., 3., 6., 12. };
+  coordsZ1->useArray(arrZ1,false, CPP_DEALLOC,4,1);
+  mesh1->setCoords(coordsX1,coordsY1,coordsZ1);
+  
+  std::vector<int> dis=mesh1->getDistributionOfTypes();
+  CPPUNIT_ASSERT_EQUAL(3,(int) dis.size());
+  CPPUNIT_ASSERT_EQUAL((int) INTERP_KERNEL::NORM_HEXA8,dis[0]);
+  CPPUNIT_ASSERT_EQUAL(27,dis[1]);
+  CPPUNIT_ASSERT_EQUAL(0,dis[2]);
+  
+  std::vector<const DataArrayInt *> idsPerType;
+  CPPUNIT_ASSERT_THROW(mesh1->checkTypeConsistencyAndContig(dis, idsPerType),INTERP_KERNEL::Exception);
+  dis[2]=-1;
+  CPPUNIT_ASSERT(!(mesh1->checkTypeConsistencyAndContig(dis, idsPerType)));
+  dis[0]=(int) INTERP_KERNEL::NORM_QUAD4;
+  CPPUNIT_ASSERT_THROW(mesh1->checkTypeConsistencyAndContig(dis, idsPerType),INTERP_KERNEL::Exception);
+  
+  dis[0]=(int) INTERP_KERNEL::NORM_HEXA8;
+  dis[2]=0;
+  DataArrayInt *ids=DataArrayInt::New();
+  ids->alloc(10,1);
+  ids->fillWithValue(111);
+  idsPerType.push_back(ids);
+  DataArrayInt* check=mesh1->checkTypeConsistencyAndContig(dis, idsPerType);
+  CPPUNIT_ASSERT(check);
+  CPPUNIT_ASSERT(check->isEqual(*ids));
+  
+  std::vector<int> code;
+  std::vector<DataArrayInt *> idsInPflPerType;
+  std::vector<DataArrayInt *> pfls;
+  mesh1->splitProfilePerType(ids,code,idsInPflPerType,pfls);
+  CPPUNIT_ASSERT_EQUAL(3,(int)code.size());
+  CPPUNIT_ASSERT_EQUAL((int) INTERP_KERNEL::NORM_HEXA8,code[0]);
+  CPPUNIT_ASSERT_EQUAL(27,code[1]);
+  CPPUNIT_ASSERT_EQUAL(0,code[2]);
+  CPPUNIT_ASSERT_EQUAL(1,(int)idsInPflPerType.size());
+  CPPUNIT_ASSERT_EQUAL(1,(int)pfls.size());
+  CPPUNIT_ASSERT(idsInPflPerType[0]->isEqual(*ids));
+  CPPUNIT_ASSERT(pfls[0]->isEqual(*ids));
+  idsInPflPerType[0]->decrRef();
+  pfls[0]->decrRef();
+
+  ids->decrRef();
+  check->decrRef();
+  int cells1[4]={0,1,25,26};
+  MEDCouplingUMesh *partMesh1=
+    dynamic_cast<MEDCouplingUMesh *>(mesh1->buildPart(cells1,cells1+4));
+  CPPUNIT_ASSERT(partMesh1);
+  CPPUNIT_ASSERT_EQUAL(4,partMesh1->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_EQUAL(64,mesh1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(64,partMesh1->getNumberOfNodes());
+  
+  int cells2[2]={25,26};
+  DataArrayInt* arr1;
+  MEDCouplingUMesh *partMesh2=
+    dynamic_cast<MEDCouplingUMesh *>(mesh1->buildPartAndReduceNodes(cells2,cells2+2,arr1));
+  CPPUNIT_ASSERT(partMesh2);
+  CPPUNIT_ASSERT_EQUAL(2,partMesh2->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_EQUAL(12,partMesh2->getNumberOfNodes());
+  
+  int cells3[2]={2,3};
+  DataArrayInt* arr2;
+  MEDCouplingUMesh *partMesh3=
+    dynamic_cast<MEDCouplingUMesh *>(partMesh1->buildPartAndReduceNodes(cells3,cells3+2,arr2));
+  CPPUNIT_ASSERT(partMesh3);
+  CPPUNIT_ASSERT_EQUAL(2,partMesh3->getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8));
+  CPPUNIT_ASSERT_EQUAL(12,partMesh3->getNumberOfNodes());
+  
+  CPPUNIT_ASSERT_THROW(mesh1->simplexize(0),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(mesh1->getMeasureFieldOnNode(true),INTERP_KERNEL::Exception);
+
+  double bbox1[6];
+  double bbox2[6];
+  mesh1->getBoundingBox(bbox1);
+  partMesh1->getBoundingBox(bbox2);
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(bbox1[i],bbox2[i],1e-12);
+  partMesh3->getBoundingBox(bbox1);
+  partMesh2->getBoundingBox(bbox2);
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(bbox1[i],bbox2[i],1e-12);
+  
+  CPPUNIT_ASSERT_THROW(mesh1->buildOrthogonalField(),INTERP_KERNEL::Exception);
+  MEDCouplingCMesh *mesh2d=MEDCouplingCMesh::New();
+  mesh2d->setCoords(coordsX1,coordsY1);
+  MEDCouplingFieldDouble *f1=mesh2d->buildOrthogonalField();
+  
+  std::vector<double> tinyInfoD;
+  std::vector<int> tinyInfo;
+  std::vector<std::string> littleStrings;
+  mesh2d->getTinySerializationInformation(tinyInfoD, tinyInfo, littleStrings);
+  CPPUNIT_ASSERT_EQUAL(5,(int)tinyInfo.size());
+  CPPUNIT_ASSERT_EQUAL(4,(int)tinyInfo[0]);   //x
+  CPPUNIT_ASSERT_EQUAL(4,(int)tinyInfo[1]);   //y
+  CPPUNIT_ASSERT_EQUAL(-1,(int)tinyInfo[2]);  //z
+  CPPUNIT_ASSERT_EQUAL(-1,(int)tinyInfo[3]);  //it
+  CPPUNIT_ASSERT_EQUAL(-1,(int)tinyInfo[4]);   //order
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,tinyInfoD[0],1e-14); //time
+  DataArrayInt* d1=DataArrayInt::New();
+  DataArrayDouble* d2=DataArrayDouble::New();
+  mesh2d->resizeForUnserialization(tinyInfo, d1, d2, littleStrings);
+  CPPUNIT_ASSERT_EQUAL(0,d1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(8,d2->getNumberOfTuples());
+ 
+  partMesh1->decrRef();
+  partMesh2->decrRef();
+  partMesh3->decrRef();
+  mesh2d->decrRef();
+  arr1->decrRef();
+  arr2->decrRef();
+  f1->decrRef();
+  d1->decrRef();
+  d2->decrRef();
+  coordsX1->decrRef();
+  coordsY1->decrRef();
+  coordsZ1->decrRef();
+  mesh1->decrRef();
 }
 
 void MEDCouplingBasicsTest1::testScale()

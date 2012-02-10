@@ -3757,8 +3757,9 @@ namespace ParaMEDMEMImpl
  * This method expects that 'this' is sorted by types. If not an exception will be thrown.
  * This method returns in the same format as code (see MEDCouplingUMesh::checkTypeConsistencyAndContig or MEDCouplingUMesh::splitProfilePerType) how
  * 'this' is composed in cell types.
- * The returned array is of size 3*n where n is the number of different types present in 'this'. For every k in [0,n] ret[3*k+2]==0 because it has no
- * sense here. This parameter is kept only for compatibility with other methode listed above.
+ * The returned array is of size 3*n where n is the number of different types present in 'this'. 
+ * For every k in [0,n] ret[3*k+2]==0 because it has no sense here. 
+ * This parameter is kept only for compatibility with other methode listed above.
  */
 std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
 {
@@ -3768,7 +3769,7 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const throw(INTERP_K
   const int *work=connI;
   int nbOfCells=getNumberOfCells();
   std::size_t n=getAllTypes().size();
-  std::vector<int> ret(3*n);
+  std::vector<int> ret(3*n,0); //ret[3*k+2]==0 because it has no sense here
   std::set<INTERP_KERNEL::NormalizedCellType> types;
   for(std::size_t i=0;work!=connI+nbOfCells;i++)
     {
@@ -3790,19 +3791,20 @@ std::vector<int> MEDCouplingUMesh::getDistributionOfTypes() const throw(INTERP_K
 
 /*!
  * This method is used to check that this has contiguous cell type in same order than described in 'code'.
+ * only for types cell, type node is not managed.
  * Format of 'code' is the following. 'code' should be of size 3*n and non empty. If not an exception is thrown.
  * foreach k in [0,n) on 3*k pos represent the geometric type and 3*k+1 number of elements of type 3*k.
  * 3*k+2 refers if different from -1 the pos in 'idsPerType' to get the corresponding array.
  * If 2 or more same geometric type is in 'code' and exception is thrown too.
  *
- * This method fistly checks
+ * This method firstly checks
  * If it exists k so that 3*k geometric type is not in geometric types of this an exception will be thrown.
  * If it exists k so that 3*k geometric type exists but the number of consecutive cell types does not match,
  * an exception is thrown too.
  * 
  * If all geometric types in 'code' are exactly those in 'this' null pointer is returned.
- * If it exists a geometric type in 'this' \b not in 'code' \b no exception is thrown and a DataArrayInt instance is returned that the user has the responsability
- * to deallocate.
+ * If it exists a geometric type in 'this' \b not in 'code' \b no exception is thrown 
+ * and a DataArrayInt instance is returned that the user has the responsability to deallocate.
  */
 DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {

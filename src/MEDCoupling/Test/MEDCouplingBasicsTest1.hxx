@@ -83,6 +83,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGetCellsContainingPoint );
     CPPUNIT_TEST( testGetValueOn1 );
     CPPUNIT_TEST( testCMesh0 );
+    CPPUNIT_TEST( testCMesh1 );
+    CPPUNIT_TEST( testCMesh2 );
     CPPUNIT_TEST( testScale );
     CPPUNIT_TEST( testTryToShareSameCoords );
     CPPUNIT_TEST( testFindNodeOnPlane );
@@ -138,6 +140,8 @@ namespace ParaMEDMEM
     void testGetCellsContainingPoint();
     void testGetValueOn1();
     void testCMesh0();
+    void testCMesh1();
+    void testCMesh2();
     void testScale();
     void testTryToShareSameCoords();
     void testFindNodeOnPlane();
