@@ -355,10 +355,13 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingCMesh::getAllGeoTypes() c
     {
     case 3:
       ret=INTERP_KERNEL::NORM_HEXA8;
+      break;
     case 2:
       ret=INTERP_KERNEL::NORM_QUAD4;
+      break;
     case 1:
       ret=INTERP_KERNEL::NORM_SEG2;
+      break;
     default:
       throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingCMesh::getAllGeoTypes !");
     }
@@ -378,7 +381,7 @@ int MEDCouplingCMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType
         return ret;
     case INTERP_KERNEL::NORM_QUAD4:
       if(dim==2)
-      return ret;
+        return ret;
     case INTERP_KERNEL::NORM_SEG2:
       if(dim==1)
         return ret;
@@ -510,9 +513,11 @@ void MEDCouplingCMesh::setCoords(const DataArrayDouble *coordsX, const DataArray
  */
 std::vector<int> MEDCouplingCMesh::getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
 {
+  //only one type of cell
   std::vector<int> ret(3);
   ret[0]=getTypeOfCell(0);
   ret[1]=getNumberOfCells();
+  ret[2]=0; //ret[3*k+2]==0 because it has no sense here
   return ret;
 }
 
@@ -521,36 +526,28 @@ std::vector<int> MEDCouplingCMesh::getDistributionOfTypes() const throw(INTERP_K
  */
 DataArrayInt *MEDCouplingCMesh::checkTypeConsistencyAndContig(const std::vector<int>& code, const std::vector<const DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
+  if(code.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code is empty, should not !");
   std::size_t sz=code.size();
-  if(sz!=0 && sz!=3)
-    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code should be of size 2 exactly !");
-  if(code[0]==INTERP_KERNEL::NORM_ERROR)
+  if(sz!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code should be of size 3 exactly !");
+
+  int nbCells=getNumberOfCellsWithType((INTERP_KERNEL::NormalizedCellType)code[0]);
+  if(code[2]==-1)
     {
-      int nbNodes=getNumberOfNodes();
-      if(code[2]==-1)
-        {
-          if(code[1]==nbNodes)
-            return 0;
-          else
-            throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : number of nodes mismatch !");
-        }
+      if(code[1]==nbCells)
+        return 0;
       else
-        idsPerType[code[2]]->deepCpy();
+        throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : number of cells mismatch !");
     }
   else
     {
-      int nbCells=getNumberOfCellsWithType((INTERP_KERNEL::NormalizedCellType)code[0]);
-      if(code[2]==-1)
-        {
-          if(code[1]==nbCells)
-            return 0;
-          else
-            throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : number of cells mismatch !");
-        }
-      else
-        idsPerType[code[2]]->deepCpy();
+      if(code[2]<-1) 
+        throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code[2]<-1 mismatch !");
+      if(code[2]>=idsPerType.size()) 
+        throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code[2]>size idsPerType !");
+      return idsPerType[code[2]]->deepCpy();
     }
-  return 0;
 }
 
 /*!
@@ -662,10 +659,13 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
   return field;
 }
 
+/*!
+ * not implemented yet !
+ */
 MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureFieldOnNode(bool isAbs) const
 {
-  //not implemented yet !
-  return 0;
+  throw INTERP_KERNEL::Exception("MEDCouplingCMesh::getMeasureFieldOnNode : not implemented yet !");
+  //return 0;
 }
 
 MEDCouplingFieldDouble *MEDCouplingCMesh::buildOrthogonalField() const
@@ -678,7 +678,7 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::buildOrthogonalField() const
   array->alloc(nbOfCells,3);
   double *vals=array->getPointer();
   for(int i=0;i<nbOfCells;i++)
-    { vals[3*i]=1.; vals[3*i+1]=1.; vals[3*i+2]=1.; }
+    { vals[3*i]=0.; vals[3*i+1]=0.; vals[3*i+2]=1.; }
   ret->setArray(array);
   array->decrRef();
   ret->setMesh(this);

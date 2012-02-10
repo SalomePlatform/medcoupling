@@ -465,7 +465,7 @@ void MEDCouplingFieldDiscretizationP0::renumberValuesOnCellsR(const MEDCouplingM
 }
 
 /*!
- * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
+ * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end].
  * @param di is an array returned that specifies entity ids (here cells ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first cell id of returned mesh has the (*di)[0] id in 'mesh'
  */
