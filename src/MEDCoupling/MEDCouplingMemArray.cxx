@@ -1387,7 +1387,7 @@ DataArrayDouble *DataArrayDouble::determinant() const throw(INTERP_KERNEL::Excep
     case 6:
       for(int i=0;i<nbOfTuple;i++,dest++,src+=6)
         *dest=src[0]*src[1]*src[2]+2.*src[4]*src[5]*src[3]-src[0]*src[4]*src[4]-src[2]*src[3]*src[3]-src[1]*src[5]*src[5];
-        return ret;
+      return ret;
     case 4:
       for(int i=0;i<nbOfTuple;i++,dest++,src+=4)
         *dest=src[0]*src[3]-src[1]*src[2];
