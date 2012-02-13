@@ -314,6 +314,13 @@ namespace INTERP_KERNEL
     Exception(const char* what);
     ~Exception() throw ();
     const char *what() const throw ();
+    %extend
+    {
+      std::string __str__() const
+        {
+          return std::string(self->what());
+        }
+    }
   };
 }
 
