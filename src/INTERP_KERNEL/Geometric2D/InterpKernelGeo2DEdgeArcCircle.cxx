@@ -497,18 +497,18 @@ void EdgeArcCircle::dumpInXfigFile(std::ostream& stream, bool direction, int res
   stream << "5 1 0 1 ";
   fillXfigStreamForLoc(stream);
   stream << " 7 50 -1 -1 0.000 0 ";
-  if( (direction && _angle>=0) || (!direction && _angle<0))
+  if( (direction && (-_angle)>=0) || (!direction && (-_angle)<0))
     stream << '0';//'0'
   else
     stream << '1';//'1'
-  stream << " 0 0 ";
+  stream << " 1 0 ";
   stream << box.fitXForXFigD(_center[0],resolution) << " " << box.fitYForXFigD(_center[1],resolution) << " ";
   direction?_start->dumpInXfigFile(stream,resolution,box):_end->dumpInXfigFile(stream,resolution,box);
   Node *middle=buildRepresentantOfMySelf();
   middle->dumpInXfigFile(stream,resolution,box);
   middle->decrRef();
   direction?_end->dumpInXfigFile(stream,resolution,box):_start->dumpInXfigFile(stream,resolution,box);
-  stream << std::endl;
+  stream << std::endl << "1 1 2.00 120.00 180.00" << std::endl;
 }
 
 void EdgeArcCircle::update(Node *m)

@@ -142,6 +142,7 @@ namespace ParaMEDMEM
     //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getMeshDimension() const throw(INTERP_KERNEL::Exception);
+    int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);

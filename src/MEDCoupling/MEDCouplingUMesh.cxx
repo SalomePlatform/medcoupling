@@ -2527,7 +2527,15 @@ namespace ParaMEDMEM
         }
       case INTERP_KERNEL::NORM_SEG3:
         {
-          ret=new INTERP_KERNEL::EdgeArcCircle(mapp2[bg[0]],mapp2[bg[2]],mapp2[bg[1]]);
+          INTERP_KERNEL::EdgeLin * e1=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]],mapp2[bg[2]]);
+          INTERP_KERNEL::EdgeLin *e2=new INTERP_KERNEL::EdgeLin(mapp2[bg[2]],mapp2[bg[1]]);
+          INTERP_KERNEL::SegSegIntersector inters(*e1,*e2);
+          bool colinearity=inters.areColinears();
+          delete e1; delete e2;
+          if(colinearity)
+            ret=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]],mapp2[bg[1]]);
+          else
+            ret=new INTERP_KERNEL::EdgeArcCircle(mapp2[bg[0]],mapp2[bg[2]],mapp2[bg[1]]);
           break;
         }
       default:
@@ -4825,12 +4833,11 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd5(m1Desc),dd6(m2Desc);
   std::vector< std::vector<int> > intersectEdge2;
   BuildIntersectEdges(m1Desc,m2Desc,addCoo,subDiv2,intersectEdge2);
-  std::vector<bool> b1=m1Desc->getQuadraticStatus();
   std::vector<bool> b2=m1Desc->getQuadraticStatus();
   subDiv2.clear(); dd5=0; dd6=0;
   std::vector<int> cr,crI;
   std::vector<int> cNb1,cNb2;
-  BuildIntersecting2DCellsFromEdges(eps,m1,b1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,colinear2,m2,b2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
+  BuildIntersecting2DCellsFromEdges(eps,m1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,colinear2,m2,b2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
                                     /* outputs -> */cr,crI,cNb1,cNb2);
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addCooDa=DataArrayDouble::New();
@@ -4852,7 +4859,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
 
 /// @endcond
 
-void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const std::vector<bool>& b1, const int *desc1, const int *descIndx1,
+void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const int *desc1, const int *descIndx1,
                                                          const std::vector<std::vector<int> >& intesctEdges1, const std::vector< std::vector<int> >& colinear2,
                                                          const MEDCouplingUMesh *m2, const std::vector<bool>& b2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
                                                          const std::vector<double>& addCoords,
@@ -4861,6 +4868,8 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
   static const int SPACEDIM=2;
   std::vector<double> bbox1,bbox2;
   const double *coo1=m1->getCoords()->getConstPointer();
+  const int *conn1=m1->getNodalConnectivity()->getConstPointer();
+  const int *connI1=m1->getNodalConnectivityIndex()->getConstPointer();
   int offset1=m1->getNumberOfNodes();
   const double *coo2=m2->getCoords()->getConstPointer();
   int offset2=offset1+m2->getNumberOfNodes();
@@ -4876,8 +4885,11 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       std::map<INTERP_KERNEL::Node *,int> mapp;
       std::map<int,INTERP_KERNEL::Node *> mappRev;
       INTERP_KERNEL::QuadraticPolygon pol1;
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)conn1[connI1[i]];
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */mapp,mappRev);
-      pol1.buildFromCrudeDataArray(mappRev,b1[i],desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
+      pol1.buildFromCrudeDataArray(mappRev,cm.isQuadratic(),conn1+connI1[i]+1,coo1,
+                                   desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
       std::vector<int> crTmp,crITmp;
       crITmp.push_back(crI.back());
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++)

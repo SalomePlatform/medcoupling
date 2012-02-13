@@ -458,6 +458,7 @@ namespace ParaMEDMEM
     static MEDFileUMesh *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileUMesh *New();
     ~MEDFileUMesh();
+    int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     //
     std::vector<int> getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getGrpNonEmptyLevelsExt(const char *grp) const throw(INTERP_KERNEL::Exception);

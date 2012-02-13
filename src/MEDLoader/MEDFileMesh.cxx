@@ -1166,6 +1166,14 @@ int MEDFileUMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
   throw INTERP_KERNEL::Exception("MEDFileUMesh::getMeshDimension : impossible to find a mesh dimension !");
 }
 
+int MEDFileUMesh::getSpaceDimension() const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *coo=_coords;
+  if(!coo)
+    throw INTERP_KERNEL::Exception(" MEDFileUMesh::getSpaceDimension : no coords set !");
+  return coo->getNumberOfComponents();
+}
+
 std::string MEDFileUMesh::simpleRepr() const
 {
   std::ostringstream oss;

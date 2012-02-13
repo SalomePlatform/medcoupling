@@ -292,21 +292,73 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
  * This method builds from descending conn of a quadratic polygon stored in crude mode (MEDCoupling). Descending conn is in FORTRAN relative mode in order to give the
  * orientation of edge.
  */
-void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
+void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
+                                               const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
 {
-  std::size_t nbOfSeg=std::distance(descBg,descEnd);
-  for(std::size_t i=0;i<nbOfSeg;i++)
+  if(!isQuad)
     {
-      bool direct=descBg[i]>0;
-      int edgeId=abs(descBg[i])-1;
-      const std::vector<int>& subEdge=intersectEdges[edgeId];
-      std::size_t nbOfSubEdges=subEdge.size()/2;
-      for(std::size_t j=0;j<nbOfSubEdges;j++)
+      std::size_t nbOfSeg=std::distance(descBg,descEnd);
+      for(std::size_t i=0;i<nbOfSeg;i++)
         {
-          Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
-          Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-          ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,true,start,end);
-          pushBack(e);
+          bool direct=descBg[i]>0;
+          int edgeId=abs(descBg[i])-1;
+          const std::vector<int>& subEdge=intersectEdges[edgeId];
+          std::size_t nbOfSubEdges=subEdge.size()/2;
+          for(std::size_t j=0;j<nbOfSubEdges;j++)
+            {
+              Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+              Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
+              ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
+              pushBack(e);
+            }
+        }
+    }
+  else
+    {
+      std::size_t nbOfSeg=std::distance(descBg,descEnd);
+      for(std::size_t i=0;i<nbOfSeg;i++)
+        {
+          const double *st=coords+2*(nodalBg[i]); 
+          INTERP_KERNEL::Node *st0=new INTERP_KERNEL::Node(st[0],st[1]);
+          const double *endd=coords+2*(nodalBg[(i+1)%nbOfSeg]);
+          INTERP_KERNEL::Node *endd0=new INTERP_KERNEL::Node(endd[0],endd[1]);
+          const double *middle=coords+2*(nodalBg[i+nbOfSeg]);
+          INTERP_KERNEL::Node *middle0=new INTERP_KERNEL::Node(middle[0],middle[1]);
+          EdgeLin *e1,*e2;
+          e1=new EdgeLin(st0,middle0);
+          e2=new EdgeLin(middle0,endd0);
+          SegSegIntersector inters(*e1,*e2);
+          bool colinearity=inters.areColinears();
+          delete e1; delete e2;
+          //
+          bool direct=descBg[i]>0;
+          int edgeId=abs(descBg[i])-1;
+          const std::vector<int>& subEdge=intersectEdges[edgeId];
+          std::size_t nbOfSubEdges=subEdge.size()/2;
+          if(colinearity)
+            {   
+              for(std::size_t j=0;j<nbOfSubEdges;j++)
+                {
+                  Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+                  Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
+                  ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
+                  pushBack(e);
+                }
+            }
+          else
+            {
+              Edge *e=new EdgeArcCircle(st0,middle0,endd0,direct);
+              for(std::size_t j=0;j<nbOfSubEdges;j++)
+                {
+                  Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+                  Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
+                  Edge *ee=e->buildEdgeLyingOnMe(start,end);
+                  ElementaryEdge *eee=new ElementaryEdge(ee,true);
+                  pushBack(eee);
+                }
+              e->decrRef();
+            }
+          st0->decrRef(); endd0->decrRef(); middle0->decrRef();
         }
     }
 }
@@ -350,7 +402,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
             {
               Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
               Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-              ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,true,start,end);
+              ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
               pushBack(e);
             }
         }
@@ -377,7 +429,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
                 {//the current subedge of edge 'edgeId' of pol2 is not a part of the colinear edge 'idIn1' of pol1 -> build new Edge instance
                   Node *start=(*mapp.find(idBg)).second;
                   Node *end=(*mapp.find(idEnd)).second;
-                  ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(isQuad,true,start,end);
+                  ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
                   pushBack(e);
                 }
               else

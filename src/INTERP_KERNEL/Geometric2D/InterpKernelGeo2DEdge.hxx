@@ -261,7 +261,8 @@ namespace INTERP_KERNEL
                                    std::vector<int>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int> mapAddCoo) const = 0;
     virtual void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,
                                     std::vector<int>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,int>& mapAddCoo) const = 0;
-    virtual void sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis) = 0; 
+    virtual void sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis) = 0;
+    virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const = 0;
   protected:
     Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0) { }
     virtual ~Edge();
@@ -271,7 +272,6 @@ namespace INTERP_KERNEL
     //! The code 'code' is built by method combineCodes
     static bool SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
                                      ComposedEdge& outVal1, ComposedEdge& outVal2);
-    virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const = 0;
   protected:
     mutable unsigned char _cnt;
     mutable TypeOfEdgeLocInPolygon _loc;

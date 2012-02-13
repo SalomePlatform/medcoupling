@@ -224,7 +224,7 @@ void ElementaryEdge::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int
  * This method builds from descending conn of a quadratic polygon stored in crude mode (MEDCoupling). Descending conn is in FORTRAN relative mode in order to give the
  * orientation of edge. Called by QuadraticPolygon::buildFromCrudeDataArray.
  */
-ElementaryEdge *ElementaryEdge::BuildEdgeFromCrudeDataArray(bool isQuad, bool direction, INTERP_KERNEL::Node *start, INTERP_KERNEL::Node *end)
+ElementaryEdge *ElementaryEdge::BuildEdgeFromCrudeDataArray(bool direction, INTERP_KERNEL::Node *start, INTERP_KERNEL::Node *end)
 {
   Edge *ptr=Edge::BuildEdgeFrom(start,end);
   return new ElementaryEdge(ptr,direction);
