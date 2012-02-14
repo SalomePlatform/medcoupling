@@ -1865,21 +1865,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh2d.setCoords(coordsX1, coordsY1);
         f1=mesh2d.buildOrthogonalField();
         
-        """Serialization tested with corba
-        tinyInfoD, tinyInfo, littleStrings=mesh2d.getTinySerializationInformation();
-        self.assertEqual(5,len(tinyInfo));
-        self.assertEqual(4,tinyInfo[0]);   #x
-        self.assertEqual(4,tinyInfo[1]);   #y
-        self.assertEqual(-1,tinyInfo[2]);  #z
-        self.assertEqual(-1,tinyInfo[3]);  #it
-        self.assertEqual(-1,tinyInfo[4]);   #order
-        self.assertAlmostEqual(0.,tinyInfoD[0],14); #time
-        d1=DataArrayInt.New();
-        d2=DataArrayDouble.New();
-        mesh2d.resizeForUnserialization(tinyInfo, d1, d2, littleStrings);
-        self.assertEqual(0,d1.getNumberOfTuples());
-        self.assertEqual(8,d2.getNumberOfTuples());
-        """
         pass
 
     def testScale(self):

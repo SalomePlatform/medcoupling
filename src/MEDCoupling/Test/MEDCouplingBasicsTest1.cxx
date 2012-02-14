@@ -2278,9 +2278,9 @@ void MEDCouplingBasicsTest1::testCMesh0()
   const double *val=fieldOnNodes->getArray()->getConstPointer();
   for(int i=0;i<64;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],val[i],1e-12);
-  double res;
-  fieldOnNodes->getValueOnPos(1,3,2,&res);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,res,1e-12);
+  double res[1];  //size fieldOnNodes->getNumberOfComponents()
+  fieldOnNodes->getValueOnPos(1,3,2,&res[0]);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(7.,res[0],1e-12);
   fieldOnNodes->decrRef();
   //
   MEDCouplingFieldDouble *fieldOnCells=mesh->fillFromAnalytic(ON_CELLS,1,"x+y/2.+z/3.");
@@ -2291,8 +2291,8 @@ void MEDCouplingBasicsTest1::testCMesh0()
                               6, 4.5, 6, 7.5, 3, 4.5, 6, 4.5, 6, 7.5, 6, 7.5, 9};
   for(int i=0;i<27;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],val[i],1e-12);
-  fieldOnCells->getValueOnPos(1,2,1,&res);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(6.,res,1e-12);
+  fieldOnCells->getValueOnPos(1,2,1,&res[0]);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(6.,res[0],1e-12);
   fieldOnCells->decrRef();
   //
   MEDCouplingMesh* meshDeepCopy=mesh->deepCpy();
