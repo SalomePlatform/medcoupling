@@ -58,12 +58,16 @@ namespace INTERP_KERNEL
                   std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo);
     void buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
                                  const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
-    void buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
+    void buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
                                   const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
                                   const std::vector< std::vector<int> >& colinear1);
-    void appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, std::vector<int>& conn, std::vector<int>& connI);
-    void buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
-
+    void appendEdgeFromCrudeDataArray(std::size_t edgeId, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
+                                      const int *descBg,  const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
+    void appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size_t j, bool direct, int edgeId, const std::vector<int>& subEdge, const std::map<int,INTERP_KERNEL::Node *>& mapp);
+    void appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, double xBary, double yBary, double fact, int offset, std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI) const;
+    void buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, int offset,
+                            std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
+    //
     double intersectWith(const QuadraticPolygon& other) const;
     double intersectWith(const QuadraticPolygon& other, double* barycenter) const;
     std::vector<QuadraticPolygon *> intersectMySelfWith(const QuadraticPolygon& other) const;

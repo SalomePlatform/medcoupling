@@ -132,6 +132,19 @@ void Node::applySimilarity(double xBary, double yBary, double dimChar)
 }
 
 /*!
+ * apply the reverse Similarity transformation on this.
+ * This method is the opposite of Node::applySimilarity method to retrieve the initial state.
+ * @param xBary is the opposite of the X translation to do.
+ * @param yBary is the opposite of the Y translation to do.
+ * @param dimChar is the reduction factor.
+ */
+void Node::unApplySimilarity(double xBary, double yBary, double dimChar)
+{
+  _coords[0]=_coords[0]*dimChar+xBary;
+  _coords[1]=_coords[1]*dimChar+yBary;
+}
+
+/*!
  * Called by QuadraticPolygon::splitAbs method.
  */
 void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,int>& mapThis, const std::map<INTERP_KERNEL::Node *,int>& mapOther, int offset1, int offset2, double fact, double baryX, double baryY,

@@ -4824,8 +4824,9 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   std::vector< std::vector<int> > intersectEdge1, colinear2, subDiv2;
   MEDCouplingUMesh *m1Desc=0,*m2Desc=0;
   DataArrayInt *desc1=0,*descIndx1=0,*revDesc1=0,*revDescIndx1=0,*desc2=0,*descIndx2=0,*revDesc2=0,*revDescIndx2=0;
-  std::vector<double> addCoo;
+  std::vector<double> addCoo,addCoordsQuadratic;
   INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
   IntersectDescending2DMeshes(m1,m2,eps,intersectEdge1,colinear2, subDiv2,m1Desc,desc1,descIndx1,revDesc1,revDescIndx1,
                               m2Desc,desc2,descIndx2,revDesc2,revDescIndx2,addCoo);
   revDesc1->decrRef(); revDescIndx1->decrRef(); revDesc2->decrRef(); revDescIndx2->decrRef();
@@ -4833,18 +4834,20 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> dd5(m1Desc),dd6(m2Desc);
   std::vector< std::vector<int> > intersectEdge2;
   BuildIntersectEdges(m1Desc,m2Desc,addCoo,subDiv2,intersectEdge2);
-  std::vector<bool> b2=m1Desc->getQuadraticStatus();
   subDiv2.clear(); dd5=0; dd6=0;
   std::vector<int> cr,crI;
   std::vector<int> cNb1,cNb2;
-  BuildIntersecting2DCellsFromEdges(eps,m1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,colinear2,m2,b2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
-                                    /* outputs -> */cr,crI,cNb1,cNb2);
+  BuildIntersecting2DCellsFromEdges(eps,m1,desc1->getConstPointer(),descIndx1->getConstPointer(),intersectEdge1,colinear2,m2,desc2->getConstPointer(),descIndx2->getConstPointer(),intersectEdge2,addCoo,
+                                    /* outputs -> */addCoordsQuadratic,cr,crI,cNb1,cNb2);
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addCooDa=DataArrayDouble::New();
   addCooDa->alloc((int)(addCoo.size())/2,2);
   std::copy(addCoo.begin(),addCoo.end(),addCooDa->getPointer());
-  std::vector<const DataArrayDouble *> coordss(3);
-  coordss[0]=m1->getCoords(); coordss[1]=m2->getCoords(); coordss[2]=addCooDa;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> addCoordsQuadraticDa=DataArrayDouble::New();
+  addCoordsQuadraticDa->alloc((int)(addCoordsQuadratic.size())/2,2);
+  std::copy(addCoordsQuadratic.begin(),addCoordsQuadratic.end(),addCoordsQuadraticDa->getPointer());
+  std::vector<const DataArrayDouble *> coordss(4);
+  coordss[0]=m1->getCoords(); coordss[1]=m2->getCoords(); coordss[2]=addCooDa; coordss[3]=addCoordsQuadraticDa;
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=DataArrayDouble::Aggregate(coordss);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New("Intersect2D",2);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> conn=DataArrayInt::New(); conn->alloc((int)cr.size(),1); std::copy(cr.begin(),cr.end(),conn->getPointer());
@@ -4861,9 +4864,9 @@ MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1
 
 void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const int *desc1, const int *descIndx1,
                                                          const std::vector<std::vector<int> >& intesctEdges1, const std::vector< std::vector<int> >& colinear2,
-                                                         const MEDCouplingUMesh *m2, const std::vector<bool>& b2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
+                                                         const MEDCouplingUMesh *m2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
                                                          const std::vector<double>& addCoords,
-                                                         std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2)
+                                                         std::vector<double>& addCoordsQuadratic, std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2)
 {
   static const int SPACEDIM=2;
   std::vector<double> bbox1,bbox2;
@@ -4872,7 +4875,10 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
   const int *connI1=m1->getNodalConnectivityIndex()->getConstPointer();
   int offset1=m1->getNumberOfNodes();
   const double *coo2=m2->getCoords()->getConstPointer();
+  const int *conn2=m2->getNodalConnectivity()->getConstPointer();
+  const int *connI2=m2->getNodalConnectivityIndex()->getConstPointer();
   int offset2=offset1+m2->getNumberOfNodes();
+  int offset3=offset2+((int)addCoords.size())/2;
   m1->getBoundingBoxForBBTree(bbox1);
   m2->getBoundingBoxForBBTree(bbox2);
   BBTree<SPACEDIM,int> myTree(&bbox2[0],0,0,m2->getNumberOfCells(),eps);
@@ -4897,10 +4903,12 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
           INTERP_KERNEL::QuadraticPolygon pol2;
           pol1.initLocations();
           MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */mapp,mappRev);
-          pol2.buildFromCrudeDataArray2(mappRev,b2[i],desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
+          INTERP_KERNEL::NormalizedCellType typ2=(INTERP_KERNEL::NormalizedCellType)conn2[connI2[*it2]];
+          const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel(typ2);
+          pol2.buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
                                         pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2);
           //MEDCouplingUMeshAssignOnLoc(pol1,pol2,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,colinear2);
-          pol1.buildPartitionsAbs(pol2,mapp,i,*it2,cr,crI,cNb1,cNb2);
+          pol1.buildPartitionsAbs(pol2,mapp,i,*it2,offset3,addCoordsQuadratic,cr,crI,cNb1,cNb2);
         }
       if(!crTmp.empty())
         {

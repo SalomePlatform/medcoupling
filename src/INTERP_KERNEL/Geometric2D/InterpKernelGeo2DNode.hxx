@@ -76,6 +76,7 @@ namespace INTERP_KERNEL
     //returns an angle in -Pi;Pi
     static double computeAngle(const double *pt1, const double *pt2);
     void applySimilarity(double xBary, double yBary, double dimChar);
+    void unApplySimilarity(double xBary, double yBary, double dimChar);
     static double dot(const double *vect1, const double *vect2) { return vect1[0]*vect2[0]+vect1[1]*vect2[1]; }
     static double sign(double val) { if(val>=0) return 1.; else return -1.; }
     static double norm(const double *vect) { return sqrt(vect[0]*vect[0]+vect[1]*vect[1]); }

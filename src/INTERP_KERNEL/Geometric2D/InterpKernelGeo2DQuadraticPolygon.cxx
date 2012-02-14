@@ -25,6 +25,8 @@
 #include "InterpKernelGeo2DBounds.hxx"
 #include "InterpKernelGeo2DEdge.txx"
 
+#include "NormalizedUnstructuredMesh.hxx"
+
 #include <fstream>
 #include <iomanip>
 #include <cstring>
@@ -295,79 +297,86 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
 void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
                                                const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
 {
-  if(!isQuad)
+  std::size_t nbOfSeg=std::distance(descBg,descEnd);
+  for(std::size_t i=0;i<nbOfSeg;i++)
     {
-      std::size_t nbOfSeg=std::distance(descBg,descEnd);
-      for(std::size_t i=0;i<nbOfSeg;i++)
-        {
-          bool direct=descBg[i]>0;
-          int edgeId=abs(descBg[i])-1;
-          const std::vector<int>& subEdge=intersectEdges[edgeId];
-          std::size_t nbOfSubEdges=subEdge.size()/2;
-          for(std::size_t j=0;j<nbOfSubEdges;j++)
-            {
-              Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
-              Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-              ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
-              pushBack(e);
-            }
-        }
+      appendEdgeFromCrudeDataArray(i,mapp,isQuad,nodalBg,coords,descBg,descEnd,intersectEdges);
     }
-  else
-    {
-      std::size_t nbOfSeg=std::distance(descBg,descEnd);
-      for(std::size_t i=0;i<nbOfSeg;i++)
-        {
-          const double *st=coords+2*(nodalBg[i]); 
-          INTERP_KERNEL::Node *st0=new INTERP_KERNEL::Node(st[0],st[1]);
-          const double *endd=coords+2*(nodalBg[(i+1)%nbOfSeg]);
-          INTERP_KERNEL::Node *endd0=new INTERP_KERNEL::Node(endd[0],endd[1]);
-          const double *middle=coords+2*(nodalBg[i+nbOfSeg]);
-          INTERP_KERNEL::Node *middle0=new INTERP_KERNEL::Node(middle[0],middle[1]);
-          EdgeLin *e1,*e2;
-          e1=new EdgeLin(st0,middle0);
-          e2=new EdgeLin(middle0,endd0);
-          SegSegIntersector inters(*e1,*e2);
-          bool colinearity=inters.areColinears();
-          delete e1; delete e2;
-          //
-          bool direct=descBg[i]>0;
-          int edgeId=abs(descBg[i])-1;
-          const std::vector<int>& subEdge=intersectEdges[edgeId];
-          std::size_t nbOfSubEdges=subEdge.size()/2;
-          if(colinearity)
-            {   
-              for(std::size_t j=0;j<nbOfSubEdges;j++)
-                {
-                  Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
-                  Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-                  ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
-                  pushBack(e);
-                }
-            }
-          else
-            {
-              Edge *e=new EdgeArcCircle(st0,middle0,endd0,direct);
-              for(std::size_t j=0;j<nbOfSubEdges;j++)
-                {
-                  Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
-                  Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-                  Edge *ee=e->buildEdgeLyingOnMe(start,end);
-                  ElementaryEdge *eee=new ElementaryEdge(ee,true);
-                  pushBack(eee);
-                }
-              e->decrRef();
-            }
-          st0->decrRef(); endd0->decrRef(); middle0->decrRef();
-        }
-    }
+}
+
+void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
+                                                    const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
+{
+   if(!isQuad)
+     {
+       bool direct=descBg[edgePos]>0;
+       int edgeId=abs(descBg[edgePos])-1;
+       const std::vector<int>& subEdge=intersectEdges[edgeId];
+       std::size_t nbOfSubEdges=subEdge.size()/2;
+       for(std::size_t j=0;j<nbOfSubEdges;j++)
+         appendSubEdgeFromCrudeDataArray(0,j,direct,edgeId,subEdge,mapp);
+     }
+   else
+     {
+       std::size_t nbOfSeg=std::distance(descBg,descEnd);
+       const double *st=coords+2*(nodalBg[edgePos]); 
+       INTERP_KERNEL::Node *st0=new INTERP_KERNEL::Node(st[0],st[1]);
+       const double *endd=coords+2*(nodalBg[(edgePos+1)%nbOfSeg]);
+       INTERP_KERNEL::Node *endd0=new INTERP_KERNEL::Node(endd[0],endd[1]);
+       const double *middle=coords+2*(nodalBg[edgePos+nbOfSeg]);
+       INTERP_KERNEL::Node *middle0=new INTERP_KERNEL::Node(middle[0],middle[1]);
+       EdgeLin *e1,*e2;
+       e1=new EdgeLin(st0,middle0);
+       e2=new EdgeLin(middle0,endd0);
+       SegSegIntersector inters(*e1,*e2);
+       bool colinearity=inters.areColinears();
+       delete e1; delete e2;
+       //
+       bool direct=descBg[edgePos]>0;
+       int edgeId=abs(descBg[edgePos])-1;
+       const std::vector<int>& subEdge=intersectEdges[edgeId];
+       std::size_t nbOfSubEdges=subEdge.size()/2;
+       if(colinearity)
+         {   
+           for(std::size_t j=0;j<nbOfSubEdges;j++)
+             appendSubEdgeFromCrudeDataArray(0,j,direct,edgeId,subEdge,mapp);
+         }
+       else
+         {
+           Edge *e=new EdgeArcCircle(st0,middle0,endd0,direct);
+           for(std::size_t j=0;j<nbOfSubEdges;j++)
+             appendSubEdgeFromCrudeDataArray(e,j,direct,edgeId,subEdge,mapp);
+           e->decrRef();
+         }
+       st0->decrRef(); endd0->decrRef(); middle0->decrRef();
+     }
+}
+
+void QuadraticPolygon::appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size_t j, bool direct, int edgeId, const std::vector<int>& subEdge, const std::map<int,INTERP_KERNEL::Node *>& mapp)
+{
+  std::size_t nbOfSubEdges=subEdge.size()/2;
+  if(!baseEdge)
+    {//it is not a quadratic subedge
+       Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+       Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
+       ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
+       pushBack(e);
+     }
+   else
+     {//it is a quadratic subedge
+       Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+       Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
+       Edge *ee=baseEdge->buildEdgeLyingOnMe(start,end);
+       ElementaryEdge *eee=new ElementaryEdge(ee,true);
+       pushBack(eee);
+     }
 }
 
 /*!
  * This method builds from descending conn of a quadratic polygon stored in crude mode (MEDCoupling). Descending conn is in FORTRAN relative mode in order to give the
  * orientation of edge.
  */
-void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
+void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
                                                 const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
                                                 const std::vector< std::vector<int> >& colinear1)
 {
@@ -377,8 +386,8 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
       bool direct=descBg[i]>0;
       int edgeId=abs(descBg[i])-1;//current edge id of pol2
       bool directos=colinear1[edgeId].empty();
-      int idIn1=-1;
-      bool direct1;//store is needed the direction in 1
+      int idIn1=-1;//store if needed the cell id in 1
+      bool direct1;//store if needed the direction in 1
       int offset1=0;
       if(!directos)
         {// if the current edge of pol2 has one or more colinear edges part into pol1
@@ -398,13 +407,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
       std::size_t nbOfSubEdges=subEdge.size()/2;
       if(directos)
         {//no subpart of edge 'edgeId' of pol2 is in pol1 so let's operate the same thing that QuadraticPolygon::buildFromCrudeDataArray method
-          for(std::size_t j=0;j<nbOfSubEdges;j++)
-            {
-              Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
-              Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-              ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
-              pushBack(e);
-            }
+          appendEdgeFromCrudeDataArray(i,mapp,isQuad,nodalBg,coords,descBg,descEnd,intersectEdges);
         }
       else
         {//there is subpart of edge 'edgeId' of pol2 inside pol1
@@ -427,6 +430,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
                 }
               if(!found)
                 {//the current subedge of edge 'edgeId' of pol2 is not a part of the colinear edge 'idIn1' of pol1 -> build new Edge instance
+                  //appendEdgeFromCrudeDataArray(j,mapp,isQuad,nodalBg,coords,descBg,descEnd,intersectEdges);
                   Node *start=(*mapp.find(idBg)).second;
                   Node *end=(*mapp.find(idEnd)).second;
                   ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
@@ -444,10 +448,11 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
     }
 }
 
-void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, std::vector<int>& conn, std::vector<int>& connI)
+void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, double xBary, double yBary, double fact, int offset, std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI) const
 {
   int nbOfNodesInPg=0;
-  conn.push_back(5);
+  bool presenceOfQuadratic=presenceOfQuadraticEdge();
+  conn.push_back(presenceOfQuadratic?NORM_QPOLYG:NORM_POLYGON);
   for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++)
     {
       Node *tmp=0;
@@ -456,6 +461,20 @@ void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>
       conn.push_back((*it1).second);
       nbOfNodesInPg++;
     }
+  if(presenceOfQuadratic)
+    {
+      int j=0;
+      int off=offset+((int)addCoordsQuadratic.size())/2;
+      for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++,j++,nbOfNodesInPg++)
+        {
+          INTERP_KERNEL::Node *node=(*it)->getPtr()->buildRepresentantOfMySelf();
+          node->unApplySimilarity(xBary,yBary,fact);
+          addCoordsQuadratic.push_back((*node)[0]);
+          addCoordsQuadratic.push_back((*node)[1]);
+          conn.push_back(off+j);
+          node->decrRef();
+        }
+    }
   connI.push_back(connI.back()+nbOfNodesInPg+1);
 }
 
@@ -463,16 +482,16 @@ void QuadraticPolygon::appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>
  * This method make the hypothesis that 'this' and 'other' are splited at the minimum into edges that are fully IN, OUT or ON.
  * This method returns newly created polygons in 'conn' and 'connI' and the corresponding ids ('idThis','idOther') are stored respectively into 'nbThis' and 'nbOther'.
  */
-void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nbThis, std::vector<int>& nbOther)
+void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, int offset, std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nbThis, std::vector<int>& nbOther)
 {
   double xBaryBB, yBaryBB;
-  normalizeExt(&other, xBaryBB, yBaryBB);
+  double fact=normalizeExt(&other, xBaryBB, yBaryBB);
   //Locate 'this' relative to 'other'
   other.performLocatingOperation(*this);
   std::vector<QuadraticPolygon *> res=buildIntersectionPolygons(other,*this);
   for(std::vector<QuadraticPolygon *>::iterator it=res.begin();it!=res.end();it++)
     {
-      (*it)->appendCrudeData(mapp,conn,connI);
+      (*it)->appendCrudeData(mapp,xBaryBB,yBaryBB,fact,offset,addCoordsQuadratic,conn,connI);
       nbThis.push_back(idThis);
       nbOther.push_back(idOther);
       delete *it;

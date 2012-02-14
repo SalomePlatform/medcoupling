@@ -221,9 +221,9 @@ namespace ParaMEDMEM
                                             std::vector<double>& addCoo) throw(INTERP_KERNEL::Exception);
     static void BuildIntersectEdges(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, const std::vector<double>& addCoo, const std::vector< std::vector<int> >& subDiv, std::vector< std::vector<int> >& intersectEdge) throw(INTERP_KERNEL::Exception);
     static void BuildIntersecting2DCellsFromEdges(double eps, const MEDCouplingUMesh *m1, const int *desc1, const int *descIndx1, const std::vector<std::vector<int> >& intesctEdges1, const std::vector< std::vector<int> >& colinear2,
-                                                  const MEDCouplingUMesh *m2, const std::vector<bool>& b2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
+                                                  const MEDCouplingUMesh *m2, const int *desc2, const int *descIndx2, const std::vector<std::vector<int> >& intesctEdges2,
                                                   const std::vector<double>& addCoords,
-                                                  std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2);
+                                                  std::vector<double>& addCoordsQuadratic, std::vector<int>& cr, std::vector<int>& crI, std::vector<int>& cNb1, std::vector<int>& cNb2);
     static void BuildUnionOf2DMesh(const std::vector<int>& conn2D, const std::vector<int>& connI2D, std::vector<int>& polyUnion);
 /// @endcond
   private:

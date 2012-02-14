@@ -47,6 +47,7 @@ namespace INTERP_KERNEL
     void reverse();
     int recursiveSize() const { return (int)_sub_edges.size(); }
     bool presenceOfOn() const;
+    bool presenceOfQuadraticEdge() const;
     void initLocations() const;
     ComposedEdge *clone() const;
     bool isNodeIn(Node *n) const;

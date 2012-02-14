@@ -19,6 +19,7 @@
 
 #include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DEdgeInfLin.hxx"
 #include "InterpKernelException.hxx"
 
@@ -113,6 +114,18 @@ bool ComposedEdge::presenceOfOn() const
   bool ret=false;
   for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end() && !ret;iter++)
     ret=((*iter)->getLoc()==FULL_ON_1);
+  return ret;
+}
+
+bool ComposedEdge::presenceOfQuadraticEdge() const
+{
+  bool ret=false;
+  for(std::list<ElementaryEdge *>::const_iterator iter=_sub_edges.begin();iter!=_sub_edges.end() && !ret;iter++)
+    {
+      Edge *e=(*iter)->getPtr();
+      if(e)
+        ret=dynamic_cast<EdgeArcCircle*>(e)!=0;
+    }
   return ret;
 }
 
