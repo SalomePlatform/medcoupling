@@ -243,6 +243,20 @@ double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary
   return dimChar;
 }
 
+/*!
+ * This method operates the opposite operation than ComposedEdge::applyGlobalSimilarity.
+ */
+void ComposedEdge::unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary, double yBary, double fact)
+{
+  std::set<Node *> allNodes;
+  getAllNodes(allNodes);
+  other.getAllNodes(allNodes);
+  for(std::set<Node *>::iterator iter=allNodes.begin();iter!=allNodes.end();iter++)
+    (*iter)->unApplySimilarity(xBary,yBary,fact);
+  for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
+    (*iter)->unApplySimilarity(xBary,yBary,fact);
+}
+
 double ComposedEdge::normalizeExt(ComposedEdge *other, double& xBary, double& yBary)
 {
   Bounds b;

@@ -435,6 +435,14 @@ void EdgeArcCircle::applySimilarity(double xBary, double yBary, double dimChar)
   _center[1]=(_center[1]-yBary)/dimChar;
 }
 
+void EdgeArcCircle::unApplySimilarity(double xBary, double yBary, double dimChar)
+{
+  Edge::applySimilarity(xBary,yBary,dimChar);
+  _radius*=dimChar;
+  _center[0]=_center[0]*dimChar+xBary;
+  _center[1]=_center[1]*dimChar+yBary;
+}
+
 /*!
  * Given an \b NON normalized vector 'vect', returns its norm 'normVect' and its
  * angle in ]-Pi,Pi] relative to Ox axe.

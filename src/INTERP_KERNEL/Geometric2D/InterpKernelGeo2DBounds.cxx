@@ -74,6 +74,17 @@ void Bounds::applySimilarity(double xBary, double yBary, double dimChar)
   _y_max=(_y_max-yBary)/dimChar;
 }
 
+/*!
+ * See Node::unApplySimilarity to see signification of params.
+ */
+void Bounds::unApplySimilarity(double xBary, double yBary, double dimChar)
+{
+  _x_min=_x_min*dimChar+xBary;
+  _x_max=_x_max*dimChar+xBary;
+  _y_min=_y_min*dimChar+yBary;
+  _y_max=_y_max*dimChar+yBary;
+}
+
 void Bounds::getBarycenter(double& xBary, double& yBary) const
 {
   xBary=(_x_min+_x_max)/2.;

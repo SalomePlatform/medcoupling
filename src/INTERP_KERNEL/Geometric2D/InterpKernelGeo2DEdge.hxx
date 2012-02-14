@@ -229,6 +229,8 @@ namespace INTERP_KERNEL
     virtual double getAreaOfZone() const = 0;
     //! apply a similiraty transformation on 'this'
     virtual void applySimilarity(double xBary, double yBary, double dimChar);
+    //! apply the inverse similiraty transformation on 'this'
+    virtual void unApplySimilarity(double xBary, double yBary, double dimChar);
     //! return the length of arc. Value is always > 0. !
     virtual double getCurveLength() const = 0;
     virtual void getBarycenter(double *bary) const = 0;

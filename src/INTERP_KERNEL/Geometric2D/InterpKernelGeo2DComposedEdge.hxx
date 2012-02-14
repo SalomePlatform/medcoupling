@@ -58,6 +58,7 @@ namespace INTERP_KERNEL
     void getBarycenterGeneral(double *bary) const;
     double normalize(ComposedEdge *other, double& xBary, double& yBary);
     double normalizeExt(ComposedEdge *other, double& xBary, double& yBary);
+    void unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary, double yBary, double fact);
     void fillBounds(Bounds& output) const;
     void applySimilarity(double xBary, double yBary, double dimChar);
     void applyGlobalSimilarity(double xBary, double yBary, double dimChar);

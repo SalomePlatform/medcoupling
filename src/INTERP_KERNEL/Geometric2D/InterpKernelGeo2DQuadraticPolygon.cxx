@@ -343,7 +343,7 @@ void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const s
          }
        else
          {
-           Edge *e=new EdgeArcCircle(st0,middle0,endd0,direct);
+           Edge *e=new EdgeArcCircle(st0,middle0,endd0,true);
            for(std::size_t j=0;j<nbOfSubEdges;j++)
              appendSubEdgeFromCrudeDataArray(e,j,direct,edgeId,subEdge,mapp);
            e->decrRef();
@@ -496,6 +496,7 @@ void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, const std::ma
       nbOther.push_back(idOther);
       delete *it;
     }
+  unApplyGlobalSimilarityExt(other,xBaryBB,yBaryBB,fact);
 }
 
 /*!

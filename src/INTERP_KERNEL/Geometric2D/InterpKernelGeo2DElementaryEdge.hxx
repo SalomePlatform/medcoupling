@@ -47,6 +47,7 @@ namespace INTERP_KERNEL
     void getBarycenterOfZone(double *bary) const;
     void fillBounds(Bounds& output) const;
     void applySimilarity(double xBary, double yBary, double dimChar) { _ptr->applySimilarity(xBary,yBary,dimChar); }
+    void unApplySimilarity(double xBary, double yBary, double dimChar) { _ptr->unApplySimilarity(xBary,yBary,dimChar); }
     void getAllNodes(std::set<Node *>& output) const;
     void getBarycenter(double *bary, double& weigh) const;
     ElementaryEdge *clone() const;

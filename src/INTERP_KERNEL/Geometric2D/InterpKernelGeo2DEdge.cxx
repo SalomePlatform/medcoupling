@@ -671,6 +671,11 @@ void Edge::applySimilarity(double xBary, double yBary, double dimChar)
   _bounds.applySimilarity(xBary,yBary,dimChar);
 }
 
+void Edge::unApplySimilarity(double xBary, double yBary, double dimChar)
+{
+  _bounds.unApplySimilarity(xBary,yBary,dimChar);
+}
+
 bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, const Bounds *whereToFind, MergePoints& commonNode,
                      ComposedEdge& outValForF1, ComposedEdge& outValForF2)
 {

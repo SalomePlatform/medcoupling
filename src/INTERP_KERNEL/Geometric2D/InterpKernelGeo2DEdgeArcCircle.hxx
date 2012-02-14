@@ -91,6 +91,7 @@ namespace INTERP_KERNEL
     void getCenter(double *center) const { center[0]=_center[0]; center[1]=_center[1]; }
     bool doIHaveSameDirectionAs(const Edge& other) const { return false; }
     void applySimilarity(double xBary, double yBary, double dimChar);
+    void unApplySimilarity(double xBary, double yBary, double dimChar);
     double getAngle0() const { return _angle0; }
     double getRadius() const { return _radius; }
     double getAngle() const { return _angle; }
