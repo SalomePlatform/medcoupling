@@ -224,7 +224,7 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
                                 std::vector<int>& edgesThis, int cellIdThis, std::vector< std::vector<int> >& edgesInOtherColinearWithThis, std::vector< std::vector<int> >& subDivOther, std::vector<double>& addCoo)
 {
   double xBaryBB, yBaryBB;
-  double fact=normalize(&other, xBaryBB, yBaryBB);
+  double fact=normalizeExt(&other, xBaryBB, yBaryBB);
   //
   IteratorOnComposedEdge it1(this),it3(&other);
   MergePoints merge;
@@ -232,21 +232,21 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
   ComposedEdge *c2=new ComposedEdge;
   int i=0;
   std::map<INTERP_KERNEL::Node *,int> mapAddCoo;
-  for(it3.first();!it3.finished();it3.next(),i++)
+  for(it3.first();!it3.finished();it3.next(),i++)//iteration over 'other' _sub_edges
     {
       QuadraticPolygon otherTmp;
       ElementaryEdge* curE3=it3.current();
       otherTmp.pushBack(new ElementaryEdge(curE3->getPtr(),curE3->getDirection())); curE3->getPtr()->incrRef();
       IteratorOnComposedEdge it2(&otherTmp);
-      for(it2.first();!it2.finished();it2.next())
+      for(it2.first();!it2.finished();it2.next())//iteration on subedges of 'other->_sub_edge'
         {
           ElementaryEdge* curE2=it2.current();
           if(!curE2->isThereStartPoint())
             it1.first();
           else
             it1=curE2->getIterator();
-          for(;!it1.finished();)
-            { 
+          for(;!it1.finished();)//iteration over 'this' _sub_edges
+            {
               ElementaryEdge* curE1=it1.current();
               merge.clear();
               if(curE1->getPtr()->intersectWith(curE2->getPtr(),merge,*c1,*c2))
@@ -307,49 +307,49 @@ void QuadraticPolygon::buildFromCrudeDataArray(const std::map<int,INTERP_KERNEL:
 void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
                                                     const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges)
 {
-   if(!isQuad)
-     {
-       bool direct=descBg[edgePos]>0;
-       int edgeId=abs(descBg[edgePos])-1;
-       const std::vector<int>& subEdge=intersectEdges[edgeId];
-       std::size_t nbOfSubEdges=subEdge.size()/2;
-       for(std::size_t j=0;j<nbOfSubEdges;j++)
-         appendSubEdgeFromCrudeDataArray(0,j,direct,edgeId,subEdge,mapp);
-     }
-   else
-     {
-       std::size_t nbOfSeg=std::distance(descBg,descEnd);
-       const double *st=coords+2*(nodalBg[edgePos]); 
-       INTERP_KERNEL::Node *st0=new INTERP_KERNEL::Node(st[0],st[1]);
-       const double *endd=coords+2*(nodalBg[(edgePos+1)%nbOfSeg]);
-       INTERP_KERNEL::Node *endd0=new INTERP_KERNEL::Node(endd[0],endd[1]);
-       const double *middle=coords+2*(nodalBg[edgePos+nbOfSeg]);
-       INTERP_KERNEL::Node *middle0=new INTERP_KERNEL::Node(middle[0],middle[1]);
-       EdgeLin *e1,*e2;
-       e1=new EdgeLin(st0,middle0);
-       e2=new EdgeLin(middle0,endd0);
-       SegSegIntersector inters(*e1,*e2);
-       bool colinearity=inters.areColinears();
-       delete e1; delete e2;
-       //
-       bool direct=descBg[edgePos]>0;
-       int edgeId=abs(descBg[edgePos])-1;
-       const std::vector<int>& subEdge=intersectEdges[edgeId];
-       std::size_t nbOfSubEdges=subEdge.size()/2;
-       if(colinearity)
-         {   
-           for(std::size_t j=0;j<nbOfSubEdges;j++)
-             appendSubEdgeFromCrudeDataArray(0,j,direct,edgeId,subEdge,mapp);
-         }
-       else
-         {
-           Edge *e=new EdgeArcCircle(st0,middle0,endd0,true);
-           for(std::size_t j=0;j<nbOfSubEdges;j++)
-             appendSubEdgeFromCrudeDataArray(e,j,direct,edgeId,subEdge,mapp);
-           e->decrRef();
-         }
-       st0->decrRef(); endd0->decrRef(); middle0->decrRef();
-     }
+  if(!isQuad)
+    {
+      bool direct=descBg[edgePos]>0;
+      int edgeId=abs(descBg[edgePos])-1;
+      const std::vector<int>& subEdge=intersectEdges[edgeId];
+      std::size_t nbOfSubEdges=subEdge.size()/2;
+      for(std::size_t j=0;j<nbOfSubEdges;j++)
+        appendSubEdgeFromCrudeDataArray(0,j,direct,edgeId,subEdge,mapp);
+    }
+  else
+    {
+      std::size_t nbOfSeg=std::distance(descBg,descEnd);
+      const double *st=coords+2*(nodalBg[edgePos]); 
+      INTERP_KERNEL::Node *st0=new INTERP_KERNEL::Node(st[0],st[1]);
+      const double *endd=coords+2*(nodalBg[(edgePos+1)%nbOfSeg]);
+      INTERP_KERNEL::Node *endd0=new INTERP_KERNEL::Node(endd[0],endd[1]);
+      const double *middle=coords+2*(nodalBg[edgePos+nbOfSeg]);
+      INTERP_KERNEL::Node *middle0=new INTERP_KERNEL::Node(middle[0],middle[1]);
+      EdgeLin *e1,*e2;
+      e1=new EdgeLin(st0,middle0);
+      e2=new EdgeLin(middle0,endd0);
+      SegSegIntersector inters(*e1,*e2);
+      bool colinearity=inters.areColinears();
+      delete e1; delete e2;
+      //
+      bool direct=descBg[edgePos]>0;
+      int edgeId=abs(descBg[edgePos])-1;
+      const std::vector<int>& subEdge=intersectEdges[edgeId];
+      std::size_t nbOfSubEdges=subEdge.size()/2;
+      if(colinearity)
+        {   
+          for(std::size_t j=0;j<nbOfSubEdges;j++)
+            appendSubEdgeFromCrudeDataArray(0,j,direct,edgeId,subEdge,mapp);
+        }
+      else
+        {
+          Edge *e=new EdgeArcCircle(st0,middle0,endd0,true);
+          for(std::size_t j=0;j<nbOfSubEdges;j++)
+            appendSubEdgeFromCrudeDataArray(e,j,direct,edgeId,subEdge,mapp);
+          e->decrRef();
+        }
+      st0->decrRef(); endd0->decrRef(); middle0->decrRef();
+    }
 }
 
 void QuadraticPolygon::appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size_t j, bool direct, int edgeId, const std::vector<int>& subEdge, const std::map<int,INTERP_KERNEL::Node *>& mapp)
@@ -357,19 +357,19 @@ void QuadraticPolygon::appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size
   std::size_t nbOfSubEdges=subEdge.size()/2;
   if(!baseEdge)
     {//it is not a quadratic subedge
-       Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
-       Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-       ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
-       pushBack(e);
-     }
-   else
-     {//it is a quadratic subedge
-       Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
-       Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
-       Edge *ee=baseEdge->buildEdgeLyingOnMe(start,end);
-       ElementaryEdge *eee=new ElementaryEdge(ee,true);
-       pushBack(eee);
-     }
+      Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+      Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
+      ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
+      pushBack(e);
+    }
+  else
+    {//it is a quadratic subedge
+      Node *start=(*mapp.find(direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1])).second;
+      Node *end=(*mapp.find(direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2])).second;
+      Edge *ee=baseEdge->buildEdgeLyingOnMe(start,end);
+      ElementaryEdge *eee=new ElementaryEdge(ee,true);
+      pushBack(eee);
+    }
 }
 
 /*!
