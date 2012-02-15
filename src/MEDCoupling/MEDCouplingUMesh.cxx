@@ -2515,27 +2515,28 @@ namespace ParaMEDMEM
     // end
   };
 
-  INTERP_KERNEL::Edge *MEDCouplingUMeshBuildQPFromEdge(INTERP_KERNEL::NormalizedCellType typ, std::map<int, INTERP_KERNEL::Node *>& mapp2, const int *bg)
+  INTERP_KERNEL::Edge *MEDCouplingUMeshBuildQPFromEdge(INTERP_KERNEL::NormalizedCellType typ, std::map<int, std::pair<INTERP_KERNEL::Node *,bool> >& mapp2, const int *bg)
   {
     INTERP_KERNEL::Edge *ret=0;
     switch(typ)
       {
       case INTERP_KERNEL::NORM_SEG2:
         {
-          ret=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]],mapp2[bg[1]]);
+          ret=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]].first,mapp2[bg[1]].first);
           break;
         }
       case INTERP_KERNEL::NORM_SEG3:
         {
-          INTERP_KERNEL::EdgeLin * e1=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]],mapp2[bg[2]]);
-          INTERP_KERNEL::EdgeLin *e2=new INTERP_KERNEL::EdgeLin(mapp2[bg[2]],mapp2[bg[1]]);
+          INTERP_KERNEL::EdgeLin *e1=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]].first,mapp2[bg[2]].first);
+          INTERP_KERNEL::EdgeLin *e2=new INTERP_KERNEL::EdgeLin(mapp2[bg[2]].first,mapp2[bg[1]].first);
           INTERP_KERNEL::SegSegIntersector inters(*e1,*e2);
           bool colinearity=inters.areColinears();
           delete e1; delete e2;
           if(colinearity)
-            ret=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]],mapp2[bg[1]]);
+            ret=new INTERP_KERNEL::EdgeLin(mapp2[bg[0]].first,mapp2[bg[1]].first);
           else
-            ret=new INTERP_KERNEL::EdgeArcCircle(mapp2[bg[0]],mapp2[bg[2]],mapp2[bg[1]]);
+            ret=new INTERP_KERNEL::EdgeArcCircle(mapp2[bg[0]].first,mapp2[bg[2]].first,mapp2[bg[1]].first);
+          mapp2[bg[2]].second=false;
           break;
         }
       default:
@@ -2552,7 +2553,7 @@ namespace ParaMEDMEM
   INTERP_KERNEL::QuadraticPolygon *MEDCouplingUMeshBuildQPFromMesh(const MEDCouplingUMesh *mDesc, const std::vector<int>& candidates, std::map<INTERP_KERNEL::Node *,int>& mapp) throw(INTERP_KERNEL::Exception)
   {
     mapp.clear();
-    std::map<int, INTERP_KERNEL::Node *> mapp2;
+    std::map<int, std::pair<INTERP_KERNEL::Node *,bool> > mapp2;//bool is for a flag specifying if node is boundary (true) or only a middle for SEG3.
     const double *coo=mDesc->getCoords()->getConstPointer();
     const int *c=mDesc->getNodalConnectivity()->getConstPointer();
     const int *cI=mDesc->getNodalConnectivityIndex()->getConstPointer();
@@ -2562,7 +2563,7 @@ namespace ParaMEDMEM
     for(std::set<int>::const_iterator it2=s.begin();it2!=s.end();it2++)
       {
         INTERP_KERNEL::Node *n=new INTERP_KERNEL::Node(coo[2*(*it2)],coo[2*(*it2)+1]);
-        mapp[n]=(*it2); mapp2[*it2]=n;
+        mapp2[*it2]=std::pair<INTERP_KERNEL::Node *,bool>(n,true);
       }
     INTERP_KERNEL::QuadraticPolygon *ret=new INTERP_KERNEL::QuadraticPolygon;
     for(std::vector<int>::const_iterator it=candidates.begin();it!=candidates.end();it++)
@@ -2570,8 +2571,12 @@ namespace ParaMEDMEM
         INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)c[cI[*it]];
         ret->pushBack(MEDCouplingUMeshBuildQPFromEdge(typ,mapp2,c+cI[*it]+1));
       }
-    for(std::set<int>::const_iterator it2=s.begin();it2!=s.end();it2++)
-      mapp2[*it2]->decrRef();
+    for(std::map<int, std::pair<INTERP_KERNEL::Node *,bool> >::const_iterator it2=mapp2.begin();it2!=mapp2.end();it2++)
+      {
+        if((*it2).second.second)
+          mapp[(*it2).second.first]=(*it2).first;
+        ((*it2).second.first)->decrRef();
+      }
     return ret;
   }
 
@@ -5001,18 +5006,18 @@ void MEDCouplingUMesh::BuildIntersectEdges(const MEDCouplingUMesh *m1, const MED
     {
       const std::vector<int>& divs=subDiv[i];
       int nnode=cI[1]-cI[0]-1;
-      std::map<int, INTERP_KERNEL::Node *> mapp2;
+      std::map<int, std::pair<INTERP_KERNEL::Node *,bool> > mapp2;
       std::map<INTERP_KERNEL::Node *, int> mapp22;
       for(int j=0;j<nnode;j++)
         {
           INTERP_KERNEL::Node *nn=new INTERP_KERNEL::Node(coo[2*c[(*cI)+j+1]],coo[2*c[(*cI)+j+1]+1]);
           int nnid=c[(*cI)+j+1];
-          mapp2[nnid]=nn;
+          mapp2[nnid]=std::pair<INTERP_KERNEL::Node *,bool>(nn,true);
           mapp22[nn]=nnid+offset1;
         }
       INTERP_KERNEL::Edge *e=MEDCouplingUMeshBuildQPFromEdge((INTERP_KERNEL::NormalizedCellType)c[*cI],mapp2,c+(*cI)+1);
-      for(std::map<int, INTERP_KERNEL::Node *>::const_iterator it=mapp2.begin();it!=mapp2.end();it++)
-        (*it).second->decrRef();
+      for(std::map<int, std::pair<INTERP_KERNEL::Node *,bool> >::const_iterator it=mapp2.begin();it!=mapp2.end();it++)
+        ((*it).second.first)->decrRef();
       std::vector<INTERP_KERNEL::Node *> addNodes(divs.size());
       std::map<INTERP_KERNEL::Node *,int> mapp3;
       for(std::size_t j=0;j<divs.size();j++)
