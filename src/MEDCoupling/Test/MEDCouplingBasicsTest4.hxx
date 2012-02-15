@@ -92,6 +92,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testFindNodesOnLine1 );
     CPPUNIT_TEST( testIntersect2DMeshesTmp2 );
     CPPUNIT_TEST( testBuildPartOfMySelfSafe1 );
+    CPPUNIT_TEST( testIntersect2DMeshesTmp3 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testDescriptionInMeshTimeUnit1();
@@ -153,6 +154,7 @@ namespace ParaMEDMEM
     void testFindNodesOnLine1();
     void testIntersect2DMeshesTmp2();
     void testBuildPartOfMySelfSafe1();
+    void testIntersect2DMeshesTmp3();
   };
 }
 
