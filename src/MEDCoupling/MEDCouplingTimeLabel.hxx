@@ -34,7 +34,7 @@ namespace ParaMEDMEM
     TimeLabel& operator=(const TimeLabel& other);
     //! This method should be called when write access has been done on this.
     void declareAsNew() const;
-    //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggragates objects.
+    //! This method should be called on high level classes as Field or Mesh to take into acount modifications done in aggregates objects.
     virtual void updateTime() const = 0;
     unsigned int getTimeOfThis() const { return _time; }
   protected:
