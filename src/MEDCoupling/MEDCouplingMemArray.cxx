@@ -1647,6 +1647,10 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate fun
   return newArr;
 }
 
+/*!
+ * This method returns a newly allocated array the caller should deal with.
+ * The returned array will have 'nbOfComp' components (that can be different from this->getNumberOfComponents()) contrary to the other DataArrayDouble::applyFunc overload method.
+ */
 DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
