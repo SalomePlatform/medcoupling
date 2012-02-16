@@ -1567,6 +1567,9 @@ void MEDCouplingBasicsTest1::testApplyFunc2()
   CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
   //
   MEDCouplingFieldDouble *f2=f1->clone(true);
+  CPPUNIT_ASSERT_THROW(f2->applyFunc(1,"a+b+c+d"),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(f2->applyFunc(1,"a/0"),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(f2->applyFunc("a/0"),INTERP_KERNEL::Exception);
   f2->applyFunc("abs(u)^2.4+2*u");
   CPPUNIT_ASSERT(f1->getTypeOfField()==ON_NODES);
   CPPUNIT_ASSERT(f1->getTimeDiscretization()==NO_TIME);
