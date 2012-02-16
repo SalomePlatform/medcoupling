@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDataArrayIntInvertO2NNO21 );
     CPPUNIT_TEST( testKeepSetSelectedComponent1 );
     CPPUNIT_TEST( testKeepSetSelectedComponent2 );
+    CPPUNIT_TEST( testElementaryDAThrowAndSpecialCases );
     CPPUNIT_TEST( testDAIGetIdsEqual1 );
     CPPUNIT_TEST( testDAIGetIdsEqualList1 );
     CPPUNIT_TEST( testDAFromNoInterlace1 );
@@ -110,6 +111,7 @@ namespace ParaMEDMEM
     void testDataArrayIntInvertO2NNO21();
     void testKeepSetSelectedComponent1();
     void testKeepSetSelectedComponent2();
+    void testElementaryDAThrowAndSpecialCases();
     void testDAIGetIdsEqual1();
     void testDAIGetIdsEqualList1();
     void testDAFromNoInterlace1();
