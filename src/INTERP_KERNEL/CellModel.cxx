@@ -34,7 +34,7 @@ namespace INTERP_KERNEL
                                             "NORM_PYRA5", "NORM_PENTA6", "", "NORM_HEXA8", "",//15->19
                                             "NORM_TETRA10", "", "NORM_HEXGP12", "NORM_PYRA13", "",//20->24
                                             "NORM_PENTA15", "", "", "", "",//25->29
-                                            "NORM_HEXA20", "NORM_POLYHED", "NORM_QPOLYG", "", "",//30->34
+                                            "NORM_HEXA20", "NORM_POLYHED", "NORM_QPOLYG", "NORM_POLYL", "",//30->34
                                             "", "", "", "", "",//35->39
                                             "NORM_ERROR"};
 
@@ -98,6 +98,7 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYGON,CellModel(NORM_POLYGON)));
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
     _map_of_unique_instance.insert(std::make_pair(NORM_QPOLYG,CellModel(NORM_QPOLYG)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_POLYL,CellModel(NORM_POLYL)));
   }
 
   CellModel::CellModel(NormalizedCellType type):_type(type)
@@ -281,6 +282,10 @@ namespace INTERP_KERNEL
           _nb_of_pts=0; _nb_of_sons=0; _dim=2; _dyn=true; _is_simplex=false; _quadratic=true;
         }
         break;
+      case NORM_POLYL:
+        {
+          _nb_of_pts=0; _nb_of_sons=0; _dim=1; _dyn=true; _extruded_type=NORM_POLYGON; _is_simplex=false;
+        }
       case NORM_ERROR:
         {
           _nb_of_pts=std::numeric_limits<unsigned>::max(); _nb_of_sons=std::numeric_limits<unsigned>::max(); _dim=std::numeric_limits<unsigned>::max();
@@ -303,6 +308,8 @@ namespace INTERP_KERNEL
         else
           return lgth/2;
       }
+    else if(_dim==1)
+      return lgth;//NORM_POLYL
     else
       return std::count(conn,conn+lgth,-1)+1;
   }
@@ -321,6 +328,8 @@ namespace INTERP_KERNEL
         else
           return NORM_SEG3;
       }
+    else if(_dim==1)
+      return NORM_ERROR;//NORM_POLYL
     //polyedron
     return NORM_POLYGON;
   }
@@ -360,7 +369,7 @@ namespace INTERP_KERNEL
                 return 3;
               }
           }
-        else
+        else if(_dim==3)
           {//polyedron
             const int *where=nodalConn;
             for(int i=0;i<sonId;i++)
@@ -372,6 +381,8 @@ namespace INTERP_KERNEL
             std::copy(where,where2,sonNodalConn);
             return where2-where;
           }
+        else
+          throw INTERP_KERNEL::Exception("CellModel::fillSonCellNodalConnectivity2 : no sons on NORM_POLYL !");
       }
   }
 
@@ -393,7 +404,7 @@ namespace INTERP_KERNEL
         else
           return 3;
       }
-    else
+    else if(_dim==3)
       {//polyedron
         const int *where=nodalConn;
         for(unsigned int i=0;i<sonId;i++)
@@ -404,6 +415,8 @@ namespace INTERP_KERNEL
         const int *where2=std::find(where,nodalConn+lgth,-1);
         return where2-where;
       }
+    else
+      throw INTERP_KERNEL::Exception("CellModel::getNumberOfNodesConstituentTheSon2 : no sons on NORM_POLYL !");
   }
 
   /*!

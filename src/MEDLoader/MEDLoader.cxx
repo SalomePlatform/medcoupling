@@ -91,7 +91,7 @@ INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO] = { INTERP_KERNE
                                                                     INTERP_KERNEL::NORM_POLYGON,
                                                                     INTERP_KERNEL::NORM_POLYHED };
 
-med_geometry_type typmai3[32] = { MED_POINT1,//0
+med_geometry_type typmai3[34] = { MED_POINT1,//0
                                   MED_SEG2,//1
                                   MED_SEG3,//2
                                   MED_TRIA3,//3
@@ -122,7 +122,9 @@ med_geometry_type typmai3[32] = { MED_POINT1,//0
                                   MED_NONE,//28
                                   MED_NONE,//29
                                   MED_HEXA20,//30
-                                  MED_POLYHEDRON//31
+                                  MED_POLYHEDRON,//31
+                                  MED_NONE,//32
+                                  MED_NONE//33
 };
 
 double MEDLoader::_EPS_FOR_NODE_COMP=1.e-12;
