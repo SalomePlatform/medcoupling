@@ -395,7 +395,7 @@ std::vector< std::pair<std::string,std::string> > MEDLoader::GetComponentsNamesO
  * - the space dimension
  * - the number of nodes
  */
-std::vector< std::vector< std::pair<int,int> > > MEDLoader::GetUMeshGlobalInfo(const char *fileName, const char *meshName, int &meshDim, int& spaceDim, int& numberOfNodes) throw(INTERP_KERNEL::Exception)
+std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > MEDLoader::GetUMeshGlobalInfo(const char *fileName, const char *meshName, int &meshDim, int& spaceDim, int& numberOfNodes) throw(INTERP_KERNEL::Exception)
 {
   CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -427,7 +427,7 @@ std::vector< std::vector< std::pair<int,int> > > MEDLoader::GetUMeshGlobalInfo(c
   MEDmeshComputationStepInfo(fid,nommaa,1,&numdt,&numit,&dt);
   // endlimitation
   std::vector<int> dims;
-  std::vector< std::pair<int,int> > geoTypes;
+  std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > geoTypes;
   med_bool changement,transformation;
   for(int i=0;i<MED_N_CELL_FIXED_GEO;i++)
     {
@@ -438,13 +438,13 @@ std::vector< std::vector< std::pair<int,int> > > MEDLoader::GetUMeshGlobalInfo(c
           INTERP_KERNEL::NormalizedCellType typp=typmai2[i];
           int mdimCell=INTERP_KERNEL::CellModel::GetCellModel(typp).getDimension();
           dims.push_back(mdimCell);
-          geoTypes.push_back(std::pair<int,int>((int)typp,curNbOfElemM));
+          geoTypes.push_back(std::pair<INTERP_KERNEL::NormalizedCellType,int>(typp,curNbOfElemM));
         }
     }
   int maxLev=*std::max_element(dims.begin(),dims.end());
   int lowLev=*std::min_element(dims.begin(),dims.end());
   int nbOfLevels=maxLev-lowLev+1;
-  std::vector< std::vector< std::pair<int,int> > > ret(nbOfLevels);
+  std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > ret(nbOfLevels);
   for(std::size_t i=0;i<dims.size();i++)
     {
       ret[maxLev-dims[i]].push_back(geoTypes[i]);

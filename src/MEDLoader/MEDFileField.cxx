@@ -451,10 +451,10 @@ DataArrayDouble *MEDFileFieldPerMeshPerTypePerDisc::getUndergroundDataArray() co
   return const_cast<DataArrayDouble *>(ret);
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::fillValues(int discId, int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries, double *vals) const
+void MEDFileFieldPerMeshPerTypePerDisc::fillValues(int discId, int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries, double *vals) const
 {
   int endTupleId=startTupleId+_arr->getNumberOfTuples();
-  entries[startEntryId]=std::pair<std::pair<int,int> ,std::pair<int,int> >(std::pair<int,int>((int)getGeoType(),discId),std::pair<int,int>(startTupleId,endTupleId));
+  entries[startEntryId]=std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int> ,std::pair<int,int> >(std::pair<INTERP_KERNEL::NormalizedCellType,int>(getGeoType(),discId),std::pair<int,int>(startTupleId,endTupleId));
   std::copy(_arr->begin(),_arr->end(),vals+startTupleId*_arr->getNumberOfComponents());
   startEntryId++;
   startTupleId=endTupleId;
@@ -817,7 +817,7 @@ DataArrayDouble *MEDFileFieldPerMeshPerType::getUndergroundDataArray() const thr
   return _field_pm_pt_pd[0]->getUndergroundDataArray();
 }
 
-void MEDFileFieldPerMeshPerType::fillValues(int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries, double *vals) const
+void MEDFileFieldPerMeshPerType::fillValues(int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries, double *vals) const
 {
   int i=0;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,i++)
@@ -1282,7 +1282,7 @@ DataArrayDouble *MEDFileFieldPerMesh::getUndergroundDataArray() const throw(INTE
   return _field_pm_pt[0]->getUndergroundDataArray();
 }
 
-DataArrayDouble *MEDFileFieldPerMesh::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDFileFieldPerMesh::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
 {
   int globalSz=0;
   int nbOfEntries=0;
@@ -2246,7 +2246,7 @@ DataArrayDouble *MEDFileField1TSWithoutDAS::getUndergroundDataArray() const thro
  * id attached to it. The second pair of pair precise the range [begin,end) into the returned array.
  * This method makes the hypothesis that the field lies only on one mesh. If it is not the case an exception will be thrown.
  */
-DataArrayDouble *MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_per_mesh.size()!=1)
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt : field lies on several meshes, this method has no sense !");
@@ -2546,7 +2546,7 @@ DataArrayDouble *MEDFileFieldMultiTSWithoutDAS::getUndergroundDataArray(int iter
 /*!
  * See doc at MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt
  */
-DataArrayDouble *MEDFileFieldMultiTSWithoutDAS::getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDFileFieldMultiTSWithoutDAS::getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
 {
   return getTimeStepEntry(iteration,order).getUndergroundDataArrayExt(entries);
 }

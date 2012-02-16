@@ -215,19 +215,19 @@ public:
        static PyObject *GetUMeshGlobalInfo(const char *fileName, const char *meshName) throw(INTERP_KERNEL::Exception)
        {
          int meshDim,spaceDim,numberOfNodes;
-         std::vector< std::vector< std::pair<int,int> > > res=MEDLoader::GetUMeshGlobalInfo(fileName,meshName,meshDim,spaceDim,numberOfNodes);
+         std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > > res=MEDLoader::GetUMeshGlobalInfo(fileName,meshName,meshDim,spaceDim,numberOfNodes);
          PyObject *ret=PyTuple_New(4);
          PyObject *elt0=PyList_New(res.size());
          int i=0;
-         for(std::vector< std::vector< std::pair<int,int> > >::const_iterator it=res.begin();it!=res.end();it++,i++)
+         for(std::vector< std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> > >::const_iterator it=res.begin();it!=res.end();it++,i++)
            {
-             const std::vector< std::pair<int,int> >&obj2=(*it);
+             const std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >&obj2=(*it);
              int j=0;
              PyObject *elt1=PyList_New(obj2.size());
-             for(std::vector< std::pair<int,int> >::const_iterator it2=obj2.begin();it2!=obj2.end();it2++,j++)
+             for(std::vector< std::pair<INTERP_KERNEL::NormalizedCellType,int> >::const_iterator it2=obj2.begin();it2!=obj2.end();it2++,j++)
                {
                  PyObject *elt2=PyTuple_New(2);
-                 PyTuple_SetItem(elt2,0,SWIG_From_int((*it2).first));
+                 PyTuple_SetItem(elt2,0,SWIG_From_int((int)(*it2).first));
                  PyTuple_SetItem(elt2,1,SWIG_From_int((*it2).second));
                  PyList_SetItem(elt1,j,elt2);
                }
@@ -739,7 +739,7 @@ namespace ParaMEDMEM
 
          PyObject *getUndergroundDataArrayExt() const throw(INTERP_KERNEL::Exception)
          {
-           std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > > elt1Cpp;
+           std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > elt1Cpp;
            DataArrayDouble *elt0=self->getUndergroundDataArrayExt(elt1Cpp);
            PyObject *ret=PyTuple_New(2);
            PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elt0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
@@ -749,7 +749,7 @@ namespace ParaMEDMEM
              {
                PyObject *elt1=PyTuple_New(2);
                PyObject *elt2=PyTuple_New(2);
-               PyTuple_SetItem(elt2,0,SWIG_From_int(elt1Cpp[i].first.first));
+               PyTuple_SetItem(elt2,0,SWIG_From_int((int)elt1Cpp[i].first.first));
                PyTuple_SetItem(elt2,1,SWIG_From_int(elt1Cpp[i].first.second));
                PyObject *elt3=PyTuple_New(2);
                PyTuple_SetItem(elt3,0,SWIG_From_int(elt1Cpp[i].second.first));
@@ -892,7 +892,7 @@ namespace ParaMEDMEM
          }
          PyObject *getUndergroundDataArrayExt(int iteration, int order) const throw(INTERP_KERNEL::Exception)
          {
-           std::vector< std::pair<std::pair<int,int>,std::pair<int,int> > > elt1Cpp;
+           std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > elt1Cpp;
            DataArrayDouble *elt0=self->getUndergroundDataArrayExt(iteration,order,elt1Cpp);
            PyObject *ret=PyTuple_New(2);
            PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elt0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
