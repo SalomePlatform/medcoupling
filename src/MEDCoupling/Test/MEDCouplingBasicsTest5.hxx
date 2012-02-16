@@ -17,18 +17,29 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDCouplingBasicsTest1.hxx"
-#include "MEDCouplingBasicsTest2.hxx"
-#include "MEDCouplingBasicsTest3.hxx"
-#include "MEDCouplingBasicsTest4.hxx"
-#include "MEDCouplingBasicsTest5.hxx"
-#include "MEDCouplingBasicsTestInterp.hxx"
+#ifndef __MEDCOUPLINGBASICSTEST5_HXX__
+#define __MEDCOUPLINGBASICSTEST5_HXX__
 
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest1 );
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest2 );
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest3 );
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest4 );
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTest5 );
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEM::MEDCouplingBasicsTestInterp );
+#include "MEDCouplingBasicsTest.hxx"
 
-#include "BasicMainTest.hxx"
+#include <map>
+#include <vector>
+
+namespace ParaMEDMEM
+{
+  class DataArrayDouble;
+  class MEDCouplingUMesh;
+  class MEDCouplingFieldDouble;
+  class MEDCouplingMultiFields;
+
+  class MEDCouplingBasicsTest5 : public MEDCouplingBasicsTest
+  {
+    CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest5);
+    CPPUNIT_TEST( testUMeshTessellate2D1 );
+    CPPUNIT_TEST_SUITE_END();
+  public:
+    void testUMeshTessellate2D1();
+  };
+}
+
+#endif
