@@ -1040,6 +1040,8 @@ namespace ParaMEDMEM
     bool isPresenceOfQuadratic() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildDirectionVectorField() const throw(INTERP_KERNEL::Exception);
     bool isContiguous1D() const throw(INTERP_KERNEL::Exception);
+    void tessellate2D(double eps) throw(INTERP_KERNEL::Exception);
+    void tessellate2DCurve(double eps) throw(INTERP_KERNEL::Exception);
     void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
     void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);
     bool areOnlySimplexCells() const throw(INTERP_KERNEL::Exception);

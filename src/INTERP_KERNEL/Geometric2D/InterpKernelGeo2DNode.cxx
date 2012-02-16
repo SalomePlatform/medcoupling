@@ -100,7 +100,7 @@ double Node::computeSlope(const double *pt1, const double *pt2)
   double x=pt2[0]-pt1[0];
   double y=pt2[1]-pt1[1];
   double norm=sqrt(x*x+y*y);
-  double ret=EdgeArcCircle::safeAcos(fabs(x)/norm);
+  double ret=EdgeArcCircle::SafeAcos(fabs(x)/norm);
   if( (x>=0. && y>=0.) || (x<0. && y<0.) )
     return ret;
   else
@@ -116,7 +116,7 @@ double Node::computeAngle(const double *pt1, const double *pt2)
   double x=pt2[0]-pt1[0];
   double y=pt2[1]-pt1[1];
   double norm=sqrt(x*x+y*y);
-  return EdgeArcCircle::getAbsoluteAngleOfNormalizedVect(x/norm,y/norm);
+  return EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(x/norm,y/norm);
 }
 
 /*!

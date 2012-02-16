@@ -40,9 +40,9 @@ namespace INTERP_KERNEL
     QuadraticPolygon() { }
     QuadraticPolygon(const QuadraticPolygon& other):ComposedEdge(other) { }
     QuadraticPolygon(const char *fileName);
-    static QuadraticPolygon *buildLinearPolygon(std::vector<Node *>& nodes);
-    static QuadraticPolygon *buildArcCirclePolygon(std::vector<Node *>& nodes);
-    static void buildDbgFile(const std::vector<Node *>& nodes, const char *fileName);
+    static QuadraticPolygon *BuildLinearPolygon(std::vector<Node *>& nodes);
+    static QuadraticPolygon *BuildArcCirclePolygon(std::vector<Node *>& nodes);
+    static void BuildDbgFile(const std::vector<Node *>& nodes, const char *fileName);
     ~QuadraticPolygon();
     void closeMe() const;
     void circularPermute();
@@ -76,7 +76,7 @@ namespace INTERP_KERNEL
     void intersectForPoint(const QuadraticPolygon& other, std::vector< int >& numberOfCreatedPointsPerEdge) const;
   public://Only public for tests reasons
     void performLocatingOperation(QuadraticPolygon& pol2) const;
-    static void splitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits);
+    static void SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits);
     std::vector<QuadraticPolygon *> buildIntersectionPolygons(const QuadraticPolygon& pol1, const QuadraticPolygon& pol2) const;
     bool amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted, const QuadraticPolygon& pol2NotSplitted, bool& direction);
   protected:
@@ -84,13 +84,13 @@ namespace INTERP_KERNEL
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
     void closePolygons(std::list<QuadraticPolygon *>& pol2Zip, const QuadraticPolygon& pol1, std::vector<QuadraticPolygon *>& results) const;
     template<class EDGES>
-      static void updateNeighbours(const MergePoints& merger, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
-                                   const EDGES *e1, const EDGES *e2);
+    static void UpdateNeighbours(const MergePoints& merger, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
+                                 const EDGES *e1, const EDGES *e2);
     std::list<QuadraticPolygon *>::iterator fillAsMuchAsPossibleWith(const QuadraticPolygon& pol1Splitted,
                                                                      std::list<QuadraticPolygon *>::iterator iStart,
                                                                      std::list<QuadraticPolygon *>::iterator iEnd,
                                                                      bool direction);
-    static std::list<QuadraticPolygon *>::iterator checkInList(Node *n, std::list<QuadraticPolygon *>::iterator iStart,
+    static std::list<QuadraticPolygon *>::iterator CheckInList(Node *n, std::list<QuadraticPolygon *>::iterator iStart,
                                                                std::list<QuadraticPolygon *>::iterator iEnd);
   };
 }
@@ -98,7 +98,7 @@ namespace INTERP_KERNEL
 namespace INTERP_KERNEL
 {
   template<class EDGES>
-  void QuadraticPolygon::updateNeighbours(const MergePoints& merger, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
+  void QuadraticPolygon::UpdateNeighbours(const MergePoints& merger, IteratorOnComposedEdge it1, IteratorOnComposedEdge it2,
                                           const EDGES *e1, const EDGES *e2)
   {
     it1.previousLoop(); it2.previousLoop();

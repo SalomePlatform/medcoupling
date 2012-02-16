@@ -95,20 +95,22 @@ namespace INTERP_KERNEL
     double getAngle0() const { return _angle0; }
     double getRadius() const { return _radius; }
     double getAngle() const { return _angle; }
-    static double getAbsoluteAngle(const double *vect, double& normVect);
-    static double getAbsoluteAngleOfNormalizedVect(double ux, double uy);
-    static void getArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
+    void tesselate(const int *conn, int offset, double eps, std::vector<int>& newConn, std::vector<double>& addCoo) const;
+    static EdgeArcCircle *BuildFromNodes(Node *start, Node *middle, Node *end);
+    static double GetAbsoluteAngle(const double *vect, double& normVect);
+    static double GetAbsoluteAngleOfNormalizedVect(double ux, double uy);
+    static void GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
                                           double *center, double& radius, double& angleInRad, double& angleInRad0);
     //! To avoid in aggressive optimizations nan.
-    static double safeSqrt(double val) { double ret=std::max(val,0.); return sqrt(ret); }
-    static double safeAcos(double cosAngle) { double ret=std::min(cosAngle,1.); ret=std::max(ret,-1.); return acos(ret); }
-    static double safeAsin(double sinAngle) { double ret=std::min(sinAngle,1.); ret=std::max(ret,-1.); return asin(ret); }
+    static double SafeSqrt(double val) { double ret=std::max(val,0.); return sqrt(ret); }
+    static double SafeAcos(double cosAngle) { double ret=std::min(cosAngle,1.); ret=std::max(ret,-1.); return acos(ret); }
+    static double SafeAsin(double sinAngle) { double ret=std::min(sinAngle,1.); ret=std::max(ret,-1.); return asin(ret); }
     //! @param start and @param angleIn in ]-Pi;Pi] and @param delta in ]-2*Pi,2*Pi[
-    static bool isIn2Pi(double start, double delta, double angleIn);
+    static bool IsIn2Pi(double start, double delta, double angleIn);
     //! 'delta' 'start' in ]-Pi;Pi[
-    static bool isAngleNotIn(double start, double delta, double angleIn);
+    static bool IsAngleNotIn(double start, double delta, double angleIn);
     //! for an angle 'angle' in ]-3*Pi;3*Pi[ returns angle in ]-Pi;Pi[
-    static double normalizeAngle(double angle) { if(angle>M_PI) return angle-2.*M_PI; if(angle<-M_PI) return angle+2.*M_PI; return angle; }
+    static double NormalizeAngle(double angle) { if(angle>M_PI) return angle-2.*M_PI; if(angle<-M_PI) return angle+2.*M_PI; return angle; }
   protected:
     void updateBounds();
     Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const;

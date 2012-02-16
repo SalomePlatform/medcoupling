@@ -72,9 +72,9 @@ namespace INTERP_KERNEL
       nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
     QuadraticPolygon *p2;
     if(!isSourceQuad)
-      p2=QuadraticPolygon::buildLinearPolygon(nodes2);
+      p2=QuadraticPolygon::BuildLinearPolygon(nodes2);
     else
-      p2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+      p2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
     double bary[SPACEDIM];
     p2->getBarycenter(bary);
     delete p2;
@@ -92,7 +92,7 @@ namespace INTERP_KERNEL
     std::vector<Node *> nodes2(nbOfSourceNodes);
     for(int i=0;i<nbOfSourceNodes;i++)
       nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
-    QuadraticPolygon *p=QuadraticPolygon::buildLinearPolygon(nodes2);
+    QuadraticPolygon *p=QuadraticPolygon::BuildLinearPolygon(nodes2);
     double bary[SPACEDIM];
     p->getBarycenterGeneral(bary);
     delete p;
@@ -129,9 +129,9 @@ namespace INTERP_KERNEL
     for(int i=0;i<nbNodes;i++)
       nodes[i]=new Node(coords[i*SPACEDIM],coords[i*SPACEDIM+1]);
     if(!CellModel::GetCellModel(type).isQuadratic())
-      return QuadraticPolygon::buildLinearPolygon(nodes);
+      return QuadraticPolygon::BuildLinearPolygon(nodes);
     else
-      return QuadraticPolygon::buildArcCirclePolygon(nodes);
+      return QuadraticPolygon::BuildArcCirclePolygon(nodes);
   }
 
   INTERSECTOR_TEMPLATE
@@ -142,9 +142,9 @@ namespace INTERP_KERNEL
     for(int i=0;i<nbOfPoints;i++)
       nodes[i]=new Node(PlanarIntersector<MyMeshType,MyMatrix>::_coordsT+OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[i])*SPACEDIM);
     if(CellModel::GetCellModel(type).isQuadratic())
-      return QuadraticPolygon::buildLinearPolygon(nodes);
+      return QuadraticPolygon::BuildLinearPolygon(nodes);
     else
-      return QuadraticPolygon::buildArcCirclePolygon(nodes);
+      return QuadraticPolygon::BuildArcCirclePolygon(nodes);
   }
 
   INTERSECTOR_TEMPLATE
@@ -155,9 +155,9 @@ namespace INTERP_KERNEL
     for(int i=0;i<nbOfPoints;i++)
       nodes[i]=new Node(PlanarIntersector<MyMeshType,MyMatrix>::_coordsS+OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[i])*SPACEDIM);
     if(type!=NORM_TRI6 && type!=NORM_QUAD8)
-      return QuadraticPolygon::buildLinearPolygon(nodes);
+      return QuadraticPolygon::BuildLinearPolygon(nodes);
     else
-      return QuadraticPolygon::buildArcCirclePolygon(nodes);
+      return QuadraticPolygon::BuildArcCirclePolygon(nodes);
   }
 }
 

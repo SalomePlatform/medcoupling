@@ -113,18 +113,18 @@ void Bounds::getInterceptedArc(const double *center, double radius, double& intr
       double v1[2],v2[2],w1[2],w2[2];
       v1[0]=_x_min-center[0]; v1[1]=_y_max-center[1]; v2[0]=_x_max-center[0]; v2[1]=_y_min-center[1];
       w1[0]=v1[0]; w1[1]=_y_min-center[1];           w2[0]=v2[0]; w2[1]=_y_max-center[1];
-      double delta1=EdgeArcCircle::safeAsin(v1[0]*v2[1]-v1[1]*v2[0]);
-      double delta2=EdgeArcCircle::safeAsin(w1[0]*w2[1]-w1[1]*w2[0]);
+      double delta1=EdgeArcCircle::SafeAsin(v1[0]*v2[1]-v1[1]*v2[0]);
+      double delta2=EdgeArcCircle::SafeAsin(w1[0]*w2[1]-w1[1]*w2[0]);
       double tmp;
       if(fabs(delta1)>fabs(delta2))
         {
           intrcptArcDelta=delta1;
-          intrcptArcAngle0=EdgeArcCircle::getAbsoluteAngle(v1,tmp);
+          intrcptArcAngle0=EdgeArcCircle::GetAbsoluteAngle(v1,tmp);
         }
       else
         {
           intrcptArcDelta=delta2;
-          intrcptArcAngle0=EdgeArcCircle::getAbsoluteAngle(w1,tmp);
+          intrcptArcAngle0=EdgeArcCircle::GetAbsoluteAngle(w1,tmp);
         }
     }
 }

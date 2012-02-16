@@ -2614,27 +2614,6 @@ namespace ParaMEDMEM
           }
       }
   }
-
-  /*void MEDCouplingUMeshAssignOnLoc(const INTERP_KERNEL::QuadraticPolygon& pol1, INTERP_KERNEL::QuadraticPolygon& pol2,
-                                   const int *desc1Bg, const int *desc1End,const std::vector<std::vector<int> >& intesctEdges1,
-                                   const int *desc2Bg, const int *desc2End,const std::vector<std::vector<int> >& intesctEdges2,
-                                   const std::vector<std::vector<int> >& colinear1)
-  {
-    for(const int *desc1=desc1Bg;desc1!=desc1End;desc1++)
-      {
-        int eltId1=abs(*desc1)-1;
-        for(std::vector<int>::const_iterator it1=intesctEdges1[eltId1].begin();it1!=intesctEdges1[eltId1].end();it1++)
-          {
-            std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.find(*it1);
-            if(it==mappRev.end())
-              {
-                INTERP_KERNEL::Node *node=MEDCouplingUMeshBuildQPNode(*it1,coo1,offset1,coo2,offset2,addCoo);
-                mapp[node]=*it1;
-                mappRev[*it1]=node;
-              }
-          }
-      }
-      }*/
 }
 
 /// @endcond
@@ -2944,7 +2923,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D(con
       const double *p0=i+1<nbOfLevsInVec?begin:third;
       const double *p1=i+1<nbOfLevsInVec?end:begin;
       const double *p2=i+1<nbOfLevsInVec?third:end;
-      INTERP_KERNEL::EdgeArcCircle::getArcOfCirclePassingThru(p0,p1,p2,tmp3,radius,alpha,alpha0);
+      INTERP_KERNEL::EdgeArcCircle::GetArcOfCirclePassingThru(p0,p1,p2,tmp3,radius,alpha,alpha0);
       double cosangle=i+1<nbOfLevsInVec?(p0[0]-tmp3[0])*(p1[0]-tmp3[0])+(p0[1]-tmp3[1])*(p1[1]-tmp3[1]):(p2[0]-tmp3[0])*(p1[0]-tmp3[0])+(p2[1]-tmp3[1])*(p1[1]-tmp3[1]);
       double angle=acos(cosangle/(radius*radius));
       tmp->rotate(end,0,angle);
@@ -3011,7 +2990,7 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
           double p0r[3]={m[0][0]*p0[0]+m[0][1]*p0[1]+m[0][2]*p0[2], m[1][0]*p0[0]+m[1][1]*p0[1]+m[1][2]*p0[2], m[2][0]*p0[0]+m[2][1]*p0[1]+m[2][2]*p0[2]};
           double p1r[3]={m[0][0]*p1[0]+m[0][1]*p1[1]+m[0][2]*p1[2], m[1][0]*p1[0]+m[1][1]*p1[1]+m[1][2]*p1[2], m[2][0]*p1[0]+m[2][1]*p1[1]+m[2][2]*p1[2]};
           double p2r[3]={m[0][0]*p2[0]+m[0][1]*p2[1]+m[0][2]*p2[2], m[1][0]*p2[0]+m[1][1]*p2[1]+m[1][2]*p2[2], m[2][0]*p2[0]+m[2][1]*p2[1]+m[2][2]*p2[2]};
-          INTERP_KERNEL::EdgeArcCircle::getArcOfCirclePassingThru(p0r,p1r,p2r,tmp3,radius,alpha,alpha0);
+          INTERP_KERNEL::EdgeArcCircle::GetArcOfCirclePassingThru(p0r,p1r,p2r,tmp3,radius,alpha,alpha0);
           double cosangle=i+1<nbOfLevsInVec?(p0r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p0r[1]-tmp3[1])*(p1r[1]-tmp3[1]):(p2r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p2r[1]-tmp3[1])*(p1r[1]-tmp3[1]);
           double angle=acos(cosangle/(radius*radius));
           tmp->rotate(end,vecPlane,angle);
@@ -3168,6 +3147,112 @@ void MEDCouplingUMesh::convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exce
 }
 
 /*!
+ * This method tessallates 'this' so that the number of cells remains the same.
+ * This method works only for meshes with spaceDim equal to 2 and meshDim equal to 2.
+ * If no cells are quadratic in 'this' (INTERP_KERNEL::NORM_QUAD8, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QPOLYG ) this method will remain unchanged.
+ * 
+ * \b WARNING this method can lead to a uge amount of nodes if eps is very low.
+ * @param eps specifies the maximal angle (in radian) between 2 subedges of polylinized edge constituting the input polygon.
+ */
+void MEDCouplingUMesh::tessellate2D(double eps) throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=2 || getSpaceDimension()!=2)  
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2D works on umeshes with meshdim equal to 2 and spaceDim equal to 2 too!");
+  double epsa=fabs(eps);
+  if(epsa<std::numeric_limits<double>::min())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurve : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mDesc=buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1);
+  revDesc1=0; revDescIndx1=0;
+  mDesc->tessellate2DCurve(eps);
+  subDivide2DMesh(mDesc->_nodal_connec->getConstPointer(),mDesc->_nodal_connec_index->getConstPointer(),desc1->getConstPointer(),descIndx1->getConstPointer());
+  setCoords(mDesc->getCoords());
+}
+
+/*!
+ * This method tessallates 'this' so that the number of cells remains the same.
+ * This method works only for meshes with spaceDim equal to 2 and meshDim equal to 1.
+ * If no cells are quadratic in 'this' (INTERP_KERNEL::NORM_QUAD8, INTERP_KERNEL::NORM_TRI6, INTERP_KERNEL::NORM_QPOLYG ) this method will remain unchanged.
+ * 
+ * \b WARNING this method can lead to a uge amount of nodes if eps is very low.
+ * @param eps specifies the maximal angle (in radian) between 2 subedges of polylinized edge constituting the input polygon.
+ */
+void MEDCouplingUMesh::tessellate2DCurve(double eps) throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=1 || getSpaceDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurve works on umeshes with meshdim equal to 1 and spaceDim equal to 2 too!");
+  double epsa=fabs(eps);
+  if(epsa<std::numeric_limits<double>::min())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurve : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=1.e-10;
+  int nbCells=getNumberOfCells();
+  int nbNodes=getNumberOfNodes();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const double *coords=_coords->getConstPointer();
+  std::vector<double> addCoo;
+  std::vector<int> newConn;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New();
+  newConnI->alloc(nbCells+1,1);
+  int *newConnIPtr=newConnI->getPointer();
+  *newConnIPtr=0;
+  int tmp1[3];
+  INTERP_KERNEL::Node *tmp2[3];
+  std::set<INTERP_KERNEL::NormalizedCellType> types;
+  for(int i=0;i<nbCells;i++,newConnIPtr++)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
+      if(cm.isQuadratic())
+        {//assert(connI[i+1]-connI[i]-1==3)
+          tmp1[0]=conn[connI[i]+1+0]; tmp1[1]=conn[connI[i]+1+1]; tmp1[2]=conn[connI[i]+1+2];
+          tmp2[0]=new INTERP_KERNEL::Node(coords[2*tmp1[0]],coords[2*tmp1[0]+1]);
+          tmp2[1]=new INTERP_KERNEL::Node(coords[2*tmp1[1]],coords[2*tmp1[1]+1]);
+          tmp2[2]=new INTERP_KERNEL::Node(coords[2*tmp1[2]],coords[2*tmp1[2]+1]);
+          INTERP_KERNEL::EdgeArcCircle *eac=INTERP_KERNEL::EdgeArcCircle::BuildFromNodes(tmp2[0],tmp2[2],tmp2[1]);
+          if(eac)
+            {
+              eac->tesselate(tmp1,nbNodes,epsa,newConn,addCoo);
+              types.insert((INTERP_KERNEL::NormalizedCellType)newConn[newConnIPtr[0]]);
+              delete eac;
+              newConnIPtr[1]=(int)newConn.size();
+            }
+          else
+            {
+              types.insert(INTERP_KERNEL::NORM_SEG2);
+              newConn.push_back(INTERP_KERNEL::NORM_SEG2);
+              newConn.insert(newConn.end(),conn+connI[i]+1,conn+connI[i]+3);
+              newConnIPtr[1]=newConnIPtr[0]+3;
+            }
+        }
+      else
+        {
+          types.insert((INTERP_KERNEL::NormalizedCellType)conn[connI[i]]);
+          newConn.insert(newConn.end(),conn+connI[i],conn+connI[i+1]);
+          newConnIPtr[1]=newConnIPtr[0]+3;
+        }
+    }
+  if(addCoo.empty() && newConn.size()==_nodal_connec->getNumberOfTuples())//nothing happens during tasselation : no update needed
+    return ;
+  _types=types;
+  DataArrayInt::SetArrayIn(newConnI,_nodal_connec_index);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnArr=DataArrayInt::New();
+  newConnArr->alloc((int)newConn.size(),1);
+  std::copy(newConn.begin(),newConn.end(),newConnArr->getPointer());
+  DataArrayInt::SetArrayIn(newConnArr,_nodal_connec);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=DataArrayDouble::New();
+  newCoords->alloc(nbNodes+((int)addCoo.size())/2,2);
+  double *work=std::copy(_coords->begin(),_coords->end(),newCoords->getPointer());
+  std::copy(addCoo.begin(),addCoo.end(),work);
+  DataArrayDouble::SetArrayIn(newCoords,_coords);
+  updateTime();
+}
+
+/*!
  * This methods modify this by converting each cells into simplex cell, that is too say triangle for meshdim==2 or tetra for meshdim==3.
  * This cut into simplex is performed following the parameter 'policy'. This method so typically increases the number of cells of this.
  * This method returns new2old array that specifies a each cell of 'this' after the call what was its id it comes.
@@ -3318,6 +3403,87 @@ DataArrayInt *MEDCouplingUMesh::simplexizePol1() throw(INTERP_KERNEL::Exception)
   return ret;
 }
 
+/*!
+ * This private method is used to subdivide edges of a mesh with meshdim==2. If 'this' has no a meshdim equal to 2 an exception will be thrown.
+ * This method completly ignore coordinates.
+ * @param nodeSubdived is the nodal connectivity of subdivision of edges
+ * @param nodeIndxSubdived is the nodal connectivity index of subdivision of edges
+ * @param desc is descending connectivity in format specified in MEDCouplingUMesh::buildDescendingConnectivity2
+ * @param descIndex is descending connectivity index in format specified in MEDCouplingUMesh::buildDescendingConnectivity2
+ */
+void MEDCouplingUMesh::subDivide2DMesh(const int *nodeSubdived, const int *nodeIndxSubdived, const int *desc, const int *descIndex) throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::subDivide2DMesh : works only on umesh with meshdim==2 !");
+  int nbOfCells=getNumberOfCells();
+  int *connI=_nodal_connec_index->getPointer();
+  int newConnLgth=0;
+  for(int i=0;i<nbOfCells;i++,connI++)
+    {
+      int offset=descIndex[i];
+      int nbOfEdges=descIndex[i+1]-offset;
+      //
+      bool ddirect=desc[offset+nbOfEdges-1]>0;
+      int eedgeId=std::abs(desc[offset+nbOfEdges-1])-1;
+      int ref=ddirect?nodeSubdived[nodeIndxSubdived[eedgeId+1]-1]:nodeSubdived[nodeIndxSubdived[eedgeId]+1];
+      for(int j=0;j<nbOfEdges;j++)
+        {
+          bool direct=desc[offset+j]>0;
+          int edgeId=std::abs(desc[offset+j])-1;
+          if(!INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)nodeSubdived[nodeIndxSubdived[edgeId]]).isQuadratic())
+            {
+              int id1=nodeSubdived[nodeIndxSubdived[edgeId]+1];
+              int id2=nodeSubdived[nodeIndxSubdived[edgeId+1]-1];
+              int ref2=direct?id1:id2;
+              if(ref==ref2)
+                {
+                  int nbOfSubNodes=nodeIndxSubdived[edgeId+1]-nodeIndxSubdived[edgeId]-1;
+                  newConnLgth+=nbOfSubNodes-1;
+                  ref=direct?id2:id1;
+                }
+              else
+                {
+                  std::ostringstream oss; oss << "MEDCouplingUMesh::subDivide2DMesh : On polygon #" << i << " edgeid #" << j << " subedges mismatch : end subedge k!=start subedge k+1 !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+          else
+            {
+              throw INTERP_KERNEL::Exception("MEDCouplingUMesh::subDivide2DMesh : this method only subdivides into linear edges !");
+            }
+        }
+      newConnLgth++;//+1 is for cell type
+      connI[1]=newConnLgth;
+    }
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
+  newConn->alloc(newConnLgth,1);
+  int *work=newConn->getPointer();
+  for(int i=0;i<nbOfCells;i++)
+    {
+      *work++=INTERP_KERNEL::NORM_POLYGON;
+      int offset=descIndex[i];
+      int nbOfEdges=descIndex[i+1]-offset;
+      for(int j=0;j<nbOfEdges;j++)
+        {
+          bool direct=desc[offset+j]>0;
+          int edgeId=std::abs(desc[offset+j])-1;
+          if(direct)
+            work=std::copy(nodeSubdived+nodeIndxSubdived[edgeId]+1,nodeSubdived+nodeIndxSubdived[edgeId+1]-1,work);
+          else
+            {
+              int nbOfSubNodes=nodeIndxSubdived[edgeId+1]-nodeIndxSubdived[edgeId]-1;
+              std::reverse_iterator<const int *> it(nodeSubdived+nodeIndxSubdived[edgeId+1]);
+              work=std::copy(it,it+nbOfSubNodes-1,work);
+            }
+        }
+    }
+  DataArrayInt::SetArrayIn(newConn,_nodal_connec);
+  _types.clear();
+  if(nbOfCells>0)
+    _types.insert(INTERP_KERNEL::NORM_POLYGON);
+}
 
 /*!
  * This method converts all degenerated cells to simpler cells. For example a NORM_QUAD4 cell consituted from 2 same node id in its
@@ -4784,7 +4950,7 @@ void MEDCouplingUMesh::FillInCompact3DMode(int spaceDim, int nbOfNodesInCell, co
 
 void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
 {
-  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,-1,23,-1,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,-1,-1,-1,25,42,-1};
+  static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,-1,23,-1,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,-1,-1,-1,25,42,-1,4};
   ofs << "  <" << getVTKDataSetType() << ">\n";
   ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << getNumberOfCells() << "\">\n";
   ofs << "      <PointData>\n" << pointData << std::endl;
@@ -4826,6 +4992,10 @@ std::string MEDCouplingUMesh::getVTKDataSetType() const throw(INTERP_KERNEL::Exc
 
 MEDCouplingUMesh *MEDCouplingUMesh::Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2) throw(INTERP_KERNEL::Exception)
 {
+  m1->checkFullyDefined();
+  m2->checkFullyDefined();
+  if(m1->getMeshDimension()!=2 || m1->getSpaceDimension()!=2 || m2->getMeshDimension()!=2 || m2->getSpaceDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshes works on umeshes m1 AND m2  with meshdim equal to 2 and spaceDim equal to 2 too!");
   std::vector< std::vector<int> > intersectEdge1, colinear2, subDiv2;
   MEDCouplingUMesh *m1Desc=0,*m2Desc=0;
   DataArrayInt *desc1=0,*descIndx1=0,*revDesc1=0,*revDescIndx1=0,*desc2=0,*descIndx2=0,*revDesc2=0,*revDescIndx2=0;

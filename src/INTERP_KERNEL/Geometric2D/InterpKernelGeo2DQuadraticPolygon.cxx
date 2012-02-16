@@ -68,7 +68,7 @@ QuadraticPolygon::~QuadraticPolygon()
 {
 }
 
-QuadraticPolygon *QuadraticPolygon::buildLinearPolygon(std::vector<Node *>& nodes)
+QuadraticPolygon *QuadraticPolygon::BuildLinearPolygon(std::vector<Node *>& nodes)
 {
   QuadraticPolygon *ret=new QuadraticPolygon;
   std::size_t size=nodes.size();
@@ -80,7 +80,7 @@ QuadraticPolygon *QuadraticPolygon::buildLinearPolygon(std::vector<Node *>& node
   return ret;
 }
 
-QuadraticPolygon *QuadraticPolygon::buildArcCirclePolygon(std::vector<Node *>& nodes)
+QuadraticPolygon *QuadraticPolygon::BuildArcCirclePolygon(std::vector<Node *>& nodes)
 {
   QuadraticPolygon *ret=new QuadraticPolygon;
   std::size_t size=nodes.size();
@@ -101,7 +101,7 @@ QuadraticPolygon *QuadraticPolygon::buildArcCirclePolygon(std::vector<Node *>& n
   return ret;
 }
 
-void QuadraticPolygon::buildDbgFile(const std::vector<Node *>& nodes, const char *fileName)
+void QuadraticPolygon::BuildDbgFile(const std::vector<Node *>& nodes, const char *fileName)
 {
   std::ofstream file(fileName);
   file << std::setprecision(16);
@@ -253,7 +253,7 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
                 {
                   if(!curE1->getDirection()) c1->reverse();
                   if(!curE2->getDirection()) c2->reverse();
-                  updateNeighbours(merge,it1,it2,c1,c2);
+                  UpdateNeighbours(merge,it1,it2,c1,c2);
                   //Substitution of simple edge by sub-edges.
                   delete curE1; // <-- destroying simple edge coming from pol1
                   delete curE2; // <-- destroying simple edge coming from pol2
@@ -269,7 +269,7 @@ void QuadraticPolygon::splitAbs(QuadraticPolygon& other, const std::map<INTERP_K
                 }
               else
                 {
-                  updateNeighbours(merge,it1,it2,curE1,curE2);
+                  UpdateNeighbours(merge,it1,it2,curE1,curE2);
                   it1.next();
                 }
             }
@@ -511,7 +511,7 @@ double QuadraticPolygon::intersectWithAbs1D(QuadraticPolygon& other, bool& isCol
   QuadraticPolygon cpyOfThis(*this);
   QuadraticPolygon cpyOfOther(other);
   int nbOfSplits = 0;
-  splitPolygonsEachOther(cpyOfThis, cpyOfOther, nbOfSplits);
+  SplitPolygonsEachOther(cpyOfThis, cpyOfOther, nbOfSplits);
   //At this point cpyOfThis and cpyOfOther have been splited at maximum edge so that in/out can been done.
   performLocatingOperation(cpyOfOther);
   isColinear = false;
@@ -619,7 +619,7 @@ void QuadraticPolygon::intersectForPerimeter(const QuadraticPolygon& other, doub
   perimeterThisPart=0.; perimeterOtherPart=0.; perimeterCommonPart=0.;
   QuadraticPolygon cpyOfThis(*this);
   QuadraticPolygon cpyOfOther(other); int nbOfSplits=0;
-  splitPolygonsEachOther(cpyOfThis,cpyOfOther,nbOfSplits);
+  SplitPolygonsEachOther(cpyOfThis,cpyOfOther,nbOfSplits);
   performLocatingOperation(cpyOfOther);
   other.performLocatingOperation(cpyOfThis);
   cpyOfThis.dispatchPerimeterExcl(perimeterThisPart,perimeterCommonPart);
@@ -650,7 +650,7 @@ void QuadraticPolygon::intersectForPerimeterAdvanced(const QuadraticPolygon& oth
       QuadraticPolygon tmp;
       tmp.pushBack(curE1->clone());
       int tmp2;
-      splitPolygonsEachOther(tmp,cpyOfOther,tmp2);
+      SplitPolygonsEachOther(tmp,cpyOfOther,tmp2);
       other.performLocatingOperation(tmp);
       tmp.dispatchPerimeter(polThis[edgeId]);
     }
@@ -664,7 +664,7 @@ void QuadraticPolygon::intersectForPerimeterAdvanced(const QuadraticPolygon& oth
       QuadraticPolygon tmp;
       tmp.pushBack(curE2->clone());
       int tmp2;
-      splitPolygonsEachOther(tmp,cpyOfThis,tmp2);
+      SplitPolygonsEachOther(tmp,cpyOfThis,tmp2);
       performLocatingOperation(tmp);
       tmp.dispatchPerimeter(polOther[edgeId]);
     }
@@ -689,7 +689,7 @@ void QuadraticPolygon::intersectForPoint(const QuadraticPolygon& other, std::vec
       QuadraticPolygon tmp;
       tmp.pushBack(curE1->clone());
       int tmp2;
-      splitPolygonsEachOther(tmp,cpyOfOther,tmp2);
+      SplitPolygonsEachOther(tmp,cpyOfOther,tmp2);
       numberOfCreatedPointsPerEdge[edgeId]=tmp.recursiveSize()-1;
     }
 }
@@ -703,7 +703,7 @@ std::vector<QuadraticPolygon *> QuadraticPolygon::intersectMySelfWith(const Quad
 {
   QuadraticPolygon cpyOfThis(*this);
   QuadraticPolygon cpyOfOther(other); int nbOfSplits=0;
-  splitPolygonsEachOther(cpyOfThis,cpyOfOther,nbOfSplits);
+  SplitPolygonsEachOther(cpyOfThis,cpyOfOther,nbOfSplits);
   //At this point cpyOfThis and cpyOfOther have been splited at maximum edge so that in/out can been done.
   performLocatingOperation(cpyOfOther);
   return other.buildIntersectionPolygons(cpyOfThis,cpyOfOther);
@@ -714,7 +714,7 @@ std::vector<QuadraticPolygon *> QuadraticPolygon::intersectMySelfWith(const Quad
  * This method perform the minimal splitting so that at the end each edges constituting pol1 are fully either IN or OUT or ON.
  * @param pol1 IN/OUT param that is equal to 'this' when called.
  */
-void QuadraticPolygon::splitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits)
+void QuadraticPolygon::SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits)
 {
   IteratorOnComposedEdge it1(&pol1),it2(&pol2);
   MergePoints merge;
@@ -736,7 +736,7 @@ void QuadraticPolygon::splitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticP
             {
               if(!curE1->getDirection()) c1->reverse();
               if(!curE2->getDirection()) c2->reverse();
-              updateNeighbours(merge,it1,it2,c1,c2);
+              UpdateNeighbours(merge,it1,it2,c1,c2);
               //Substitution of simple edge by sub-edges.
               delete curE1; // <-- destroying simple edge coming from pol1
               delete curE2; // <-- destroying simple edge coming from pol2
@@ -752,7 +752,7 @@ void QuadraticPolygon::splitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticP
             }
           else
             {
-              updateNeighbours(merge,it1,it2,curE1,curE2);
+              UpdateNeighbours(merge,it1,it2,curE1,curE2);
               it1.next();
             }
         }
@@ -950,7 +950,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
       pushBack(tmp);
       nodeToTest=tmp->getEndNode();
       direction?it.nextLoop():it.previousLoop();
-      ret=checkInList(nodeToTest,iStart,iEnd);
+      ret=CheckInList(nodeToTest,iStart,iEnd);
       if(completed())
         return iEnd;
     }
@@ -958,7 +958,7 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::fillAsMuchAsPossibleWi
   return ret;
 }
 
-std::list<QuadraticPolygon *>::iterator QuadraticPolygon::checkInList(Node *n, std::list<QuadraticPolygon *>::iterator iStart,
+std::list<QuadraticPolygon *>::iterator QuadraticPolygon::CheckInList(Node *n, std::list<QuadraticPolygon *>::iterator iStart,
                                                                       std::list<QuadraticPolygon *>::iterator iEnd)
 {
   for(std::list<QuadraticPolygon *>::iterator iter=iStart;iter!=iEnd;iter++)

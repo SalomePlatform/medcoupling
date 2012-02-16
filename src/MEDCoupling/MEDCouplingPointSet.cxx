@@ -902,9 +902,9 @@ bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool
     }
   INTERP_KERNEL::QuadraticPolygon *pol=0;
   if(isQuad)
-    pol=INTERP_KERNEL::QuadraticPolygon::buildArcCirclePolygon(nodes);
+    pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
   else
-    pol=INTERP_KERNEL::QuadraticPolygon::buildLinearPolygon(nodes);
+    pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
   bool ret=pol->isButterfly();
   delete pol;
   return ret;
