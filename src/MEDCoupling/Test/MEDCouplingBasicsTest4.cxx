@@ -324,6 +324,11 @@ void MEDCouplingBasicsTest4::testApplyFuncTwo1()
   da->setInfoOnComponent(0,"x [m]");
   da->setInfoOnComponent(1,"y [mm]");
   da->setInfoOnComponent(2,"z [km]");
+  
+  CPPUNIT_ASSERT_THROW(da->applyFunc2(1,"x+y+zz+zzz"),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(da->applyFunc2(1,"toto(x+y)"),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(da->applyFunc2(1,"x/0"),INTERP_KERNEL::Exception);
+  
   DataArrayDouble *da2=da->applyFunc2(1,"y+z");
   CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(5,da2->getNumberOfTuples());
@@ -365,6 +370,8 @@ void MEDCouplingBasicsTest4::testApplyFuncThree1()
   std::vector<std::string> vs(3);
   vs[0]="x"; vs[1]="Y"; vs[2]="z";
   CPPUNIT_ASSERT_THROW(da->applyFunc3(1,vs,"y+z"),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(da->applyFunc3(1,vs,"x+Y+z+zz+zzz"),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(da->applyFunc3(1,vs,"x/0."),INTERP_KERNEL::Exception);
   vs[1]="y";
   DataArrayDouble *da2=da->applyFunc3(1,vs,"y+z");
   const double expected1[5]={32.,34.,36.,38.,40.};
@@ -866,16 +873,17 @@ void MEDCouplingBasicsTest4::testDADCheckIsMonotonic()
   const double vals[4]={-1.,1.01,2.03,6.};
   da->alloc(2,2);
   std::copy(vals,vals+4,da->getPointer());
-  CPPUNIT_ASSERT_THROW(da->isMonotonic(1e-12),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(da->isMonotonic(true, 1e-12),INTERP_KERNEL::Exception);
   da->rearrange(1);
-  CPPUNIT_ASSERT(da->isMonotonic(1e-12));
-  da->checkMonotonic(1e-12);
+  CPPUNIT_ASSERT(da->isMonotonic(true, 1e-12));
+  da->checkMonotonic(true, 1e-12);
   da->setIJ(2,0,6.1);
-  CPPUNIT_ASSERT(!da->isMonotonic(1e-12));
-  CPPUNIT_ASSERT_THROW(da->checkMonotonic(1e-12),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT(!da->isMonotonic(true, 1e-12));
+  CPPUNIT_ASSERT_THROW(da->checkMonotonic(true, 1e-12),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(da->checkMonotonic(false, 1e-12),INTERP_KERNEL::Exception);
   da->setIJ(2,0,5.99);
-  CPPUNIT_ASSERT(da->isMonotonic(1e-12));
-  CPPUNIT_ASSERT(!da->isMonotonic(1e-1));
+  CPPUNIT_ASSERT(da->isMonotonic(true, 1e-12));
+  CPPUNIT_ASSERT(!da->isMonotonic(true, 1e-1));
   da->decrRef();
 }
 
@@ -1813,9 +1821,12 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   CPPUNIT_ASSERT_EQUAL(0,c->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(1,cI->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(0,cI->getIJ(0,0));
+  
+  da->alloc(6,4);  //bad NumberOfComponents
+  CPPUNIT_ASSERT_THROW(da->findCommonTuples(1e-2,-1,c,cI),INTERP_KERNEL::Exception);
+  
   c->decrRef();
   cI->decrRef();
-  //
   da->decrRef();
 }
 

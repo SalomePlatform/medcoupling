@@ -1106,6 +1106,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(9,f1.getNumberOfTuples());
         #
         f2=f1.clone(True);
+        self.assertRaises(InterpKernelException, f2.applyFunc, 1, "a+b+c+d");
+        self.assertRaises(InterpKernelException, f2.applyFunc, 1, "a/0");
+        self.assertRaises(InterpKernelException, f2.applyFunc, "a/0");
         f2.applyFunc("abs(u)^2.4+2*u");
         self.assertEqual(f1.getTypeOfField(),ON_NODES);
         self.assertEqual(f1.getTimeDiscretization(),NO_TIME);
@@ -6968,6 +6971,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setInfoOnComponent(0,"x [m]");
         da.setInfoOnComponent(1,"y [mm]");
         da.setInfoOnComponent(2,"z [km]");
+        
+        self.assertRaises(InterpKernelException, da.applyFunc2, 1, "x+y+zz+zzz");
+        self.assertRaises(InterpKernelException, da.applyFunc2, 1, "toto(x+y)");
+        self.assertRaises(InterpKernelException, da.applyFunc2, 1, "x/0");
+        
         da2=da.applyFunc2(1,"y+z");
         self.assertEqual(1,da2.getNumberOfComponents());
         self.assertEqual(5,da2.getNumberOfTuples());
@@ -7004,7 +7012,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         vs=3*[None];
         vs[0]="x"; vs[1]="Y"; vs[2]="z";
-        self.assertRaises(InterpKernelException,da.applyFunc3,1,vs,"y+z");
+        self.assertRaises(InterpKernelException, da.applyFunc3, 1, vs, "y+z");
+        self.assertRaises(InterpKernelException, da.applyFunc3, 1, vs, "x+Y+z+zz+zzz");
+        self.assertRaises(InterpKernelException, da.applyFunc3, 1, vs, "x/0");
         vs[1]="y";
         da2=da.applyFunc3(1,vs,"y+z");
         expected1=[32.,34.,36.,38.,40.]
@@ -7418,16 +7428,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testDADCheckIsMonotonic(self):
         da=DataArrayDouble.New();
         da.setValues([-1.,1.01,2.03,6.],2,2);
-        self.assertRaises(InterpKernelException,da.isMonotonic,1e-12);
+        self.assertRaises(InterpKernelException,da.isMonotonic,True,1e-12);
         da.rearrange(1);
-        self.assertTrue(da.isMonotonic(1e-12));
-        da.checkMonotonic(1e-12);
+        self.assertTrue(da.isMonotonic(True,1e-12));
+        da.checkMonotonic(True,1e-12);
         da.setIJ(2,0,6.1);
-        self.assertTrue(not da.isMonotonic(1e-12));
-        self.assertRaises(InterpKernelException,da.checkMonotonic,1e-12);
+        self.assertTrue(not da.isMonotonic(True,1e-12));
+        self.assertRaises(InterpKernelException,da.checkMonotonic,True,1e-12);
         da.setIJ(2,0,5.99);
-        self.assertTrue(da.isMonotonic(1e-12));
-        self.assertTrue(not da.isMonotonic(1e-1));
+        self.assertTrue(da.isMonotonic(True,1e-12));
+        self.assertTrue(not da.isMonotonic(True,1e-1));
         pass
 
     def testCheckCoherencyDeeper1(self):
@@ -8186,6 +8196,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(0,c.getNbOfElems());
         self.assertEqual(1,cI.getNbOfElems());
         self.assertEqual([0],cI.getValues())
+        
+        array12=[0]*(6*4)
+        da.setValues(array12,6,4) #bad NumberOfComponents
+        self.assertRaises(InterpKernelException, da.findCommonTuples, 1e-2);
         pass
 
     def testDABack1(self):
