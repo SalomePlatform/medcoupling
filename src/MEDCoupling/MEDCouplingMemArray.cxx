@@ -93,9 +93,9 @@ void DataArray::copyPartOfStringInfoFrom(const DataArray& other, const std::vect
   int nbOfCompoOth=other.getNumberOfComponents();
   std::size_t newNbOfCompo=compoIds.size();
   for(std::size_t i=0;i<newNbOfCompo;i++)
-    if(compoIds[i]>=nbOfCompoOth)
+    if(compoIds[i]>=nbOfCompoOth || compoIds[i]<0)
       {
-        std::ostringstream oss; oss << "Specified component ids is to high (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompoOth << ")";
+        std::ostringstream oss; oss << "Specified component id is out of range (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompoOth << ")";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   for(std::size_t i=0;i<newNbOfCompo;i++)
@@ -109,9 +109,9 @@ void DataArray::copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, cons
   if((int)partOfCompoToSet!=other.getNumberOfComponents())
     throw INTERP_KERNEL::Exception("Given compoIds has not the same size as number of components of given array !");
   for(std::size_t i=0;i<partOfCompoToSet;i++)
-    if(compoIds[i]>=nbOfCompo)
+    if(compoIds[i]>=nbOfCompo || compoIds[i]<0)
       {
-        std::ostringstream oss; oss << "Specified component ids is to high (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompo << ")";
+        std::ostringstream oss; oss << "Specified component id is out of range (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompo << ")";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   for(std::size_t i=0;i<partOfCompoToSet;i++)
@@ -166,11 +166,11 @@ std::vector<std::string> DataArray::getUnitsOnComponent() const
 
 std::string DataArray::getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exception)
 {
-  if(i<(int)_info_on_compo.size())
+  if(i<(int)_info_on_compo.size() && i>=0)
     return _info_on_compo[i];
   else
     {
-      std::ostringstream oss; oss << "getInfoOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      std::ostringstream oss; oss << "DataArray::getInfoOnComponent : Specified component id is out of range (" << i << ") compared with nb of actual components (" << (int) _info_on_compo.size();
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -181,13 +181,13 @@ std::string DataArray::getInfoOnComponent(int i) const throw(INTERP_KERNEL::Exce
  */
 std::string DataArray::getVarOnComponent(int i) const throw(INTERP_KERNEL::Exception)
 {
-  if(i<(int)_info_on_compo.size())
+  if(i<(int)_info_on_compo.size() && i>=0)
     {
       return GetVarNameFromInfo(_info_on_compo[i]);
     }
   else
     {
-      std::ostringstream oss; oss << "getVarOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      std::ostringstream oss; oss << "DataArray::getVarOnComponent : Specified component id is out of range  (" << i << ") compared with nb of actual components (" << (int) _info_on_compo.size();
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -198,13 +198,13 @@ std::string DataArray::getVarOnComponent(int i) const throw(INTERP_KERNEL::Excep
  */
 std::string DataArray::getUnitOnComponent(int i) const throw(INTERP_KERNEL::Exception)
 {
-  if(i<(int)_info_on_compo.size())
+  if(i<(int)_info_on_compo.size() && i>=0)
     {
       return GetUnitFromInfo(_info_on_compo[i]);
     }
   else
     {
-      std::ostringstream oss; oss << "getUnitOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      std::ostringstream oss; oss << "DataArray::getUnitOnComponent : Specified component id is out of range  (" << i << ") compared with nb of actual components (" << (int) _info_on_compo.size();
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -236,11 +236,11 @@ std::string DataArray::GetUnitFromInfo(const std::string& info) throw(INTERP_KER
 
 void DataArray::setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL::Exception)
 {
-  if(i<(int)_info_on_compo.size())
+  if(i<(int)_info_on_compo.size() && i>=0)
     _info_on_compo[i]=info;
   else
     {
-      std::ostringstream oss; oss << "setInfoOnComponent : Invalid component id transmitted (" << i << ") >= " << (int) _info_on_compo.size();
+      std::ostringstream oss; oss << "DataArray::setInfoOnComponent : Specified component id is out of range  (" << i << ") compared with nb of actual components (" << (int) _info_on_compo.size();
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -286,7 +286,7 @@ void DataArray::CheckValueInRange(int ref, int value, const char *msg) throw(INT
 {
   if(value<0 || value>=ref)
     {
-      std::ostringstream oss; oss << "DataArray::CheckValueInRange : " << msg  << " ! Expected in range [0," << ref << ") having " << value << " !";
+      std::ostringstream oss; oss << "DataArray::CheckValueInRange : " << msg  << " ! Expected in range [0," << ref << "[ having " << value << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -295,7 +295,7 @@ void DataArray::CheckClosingParInRange(int ref, int value, const char *msg) thro
 {
   if(value<0 || value>ref)
     {
-      std::ostringstream oss; oss << "DataArray::CheckClosingParInRange : " << msg  << " ! Expected a range in [0," << ref << ") having closing open parenthesis " << value << " !";
+      std::ostringstream oss; oss << "DataArray::CheckClosingParInRange : " << msg  << " ! Expected a range in [0," << ref << "] having closing open parenthesis " << value << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -382,24 +382,24 @@ void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
 
 void DataArrayDouble::fillWithZero() throw(INTERP_KERNEL::Exception)
 {
-  fillWithValue(0.);
+  checkAllocated();
+  _mem.fillWithValue(0.);
+  declareAsNew();
 }
 
 void DataArrayDouble::fillWithValue(double val) throw(INTERP_KERNEL::Exception)
 {
-   if(!getPointer())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fillWithValue : allocate first !");
-   _mem.fillWithValue(val);
+  checkAllocated();
+  _mem.fillWithValue(val);
   declareAsNew();
 }
 
 void DataArrayDouble::iota(double init) throw(INTERP_KERNEL::Exception)
 {
-  double *ptr=getPointer();
-  if(!ptr)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::iota : allocate first !");
+  checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
+  double *ptr=getPointer();
   int ntuples=getNumberOfTuples();
   for(int i=0;i<ntuples;i++)
     ptr[i]=init+double(i);
@@ -408,6 +408,7 @@ void DataArrayDouble::iota(double init) throw(INTERP_KERNEL::Exception)
 
 bool DataArrayDouble::isUniform(double val, double eps) const
 {
+  checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::isUniform : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
@@ -437,13 +438,29 @@ void DataArrayDouble::reverse() throw(INTERP_KERNEL::Exception)
   _mem.reverse();
 }
 
-void DataArrayDouble::checkMonotonic(double eps) const throw(INTERP_KERNEL::Exception)
+/*!
+ * This method check that (Maths) array consistently INCREASING or DECREASING in value,
+ * with at least absolute difference value of |eps| at each step.
+ * if not an exception will be thrown.
+ */
+ void DataArrayDouble::checkMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception)
 {
-  if(!isMonotonic(eps))
-    throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not monotonic !");
+  if(!isMonotonic(increasing, eps))
+    if (increasing)
+      {
+        throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not INCREASING monotonic !");
+      }
+    else
+      {
+        throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not DECREASING monotonic !");
+      }
 }
 
-bool DataArrayDouble::isMonotonic(double eps) const throw(INTERP_KERNEL::Exception)
+/*!
+ * This method check that (Maths) array consistently INCREASING or DECREASING in value,
+ * with at least absolute difference value of |eps| at each step.
+ */
+bool DataArrayDouble::isMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -453,13 +470,25 @@ bool DataArrayDouble::isMonotonic(double eps) const throw(INTERP_KERNEL::Excepti
   if(nbOfElements==0)
     return true;
   double ref=ptr[0];
-  for(int i=1;i<nbOfElements;i++)
+  double absEps=fabs(eps);
+  if (increasing)
     {
-      if(ptr[i]<ref+eps)
-        return false;
-      ref=ptr[i];
+      for(int i=1;i<nbOfElements;i++)
+        {
+          if(ptr[i]<(ref+absEps)) return false;
+          ref=ptr[i];
+        }
+      return true;
     }
-  return true;
+  else
+    {
+      for(int i=1;i<nbOfElements;i++)
+        {
+          if(ptr[i]>(ref-absEps)) return false;
+          ref=ptr[i];
+        }
+      return true;
+    }
 }
 
 std::string DataArrayDouble::repr() const
@@ -662,7 +691,7 @@ DataArrayDouble *DataArrayDouble::renumberAndReduce(const int *old2New, int newN
 
 /*!
  * This method is a generalization of DataArrayDouble::substr method because a not contigous range can be specified here.
- * This method is equavalent to DataArrayDouble::renumberAndReduce except that convention in input is new2old and \b not old2new.
+ * This method is equivalent to DataArrayDouble::renumberAndReduce except that convention in input is new2old and \b not old2new.
  */
 DataArrayDouble *DataArrayDouble::selectByTupleId(const int *new2OldBg, const int *new2OldEnd) const
 {
@@ -875,12 +904,15 @@ void DataArrayDouble::meldWith(const DataArrayDouble *other) throw(INTERP_KERNEL
  */
 void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayInt *&comm, DataArrayInt *&commIndex) const throw(INTERP_KERNEL::Exception)
 {
+  checkAllocated();
+  int nbOfCompo=getNumberOfComponents();
+  if ((nbOfCompo<1) || (nbOfCompo>3)) //test before work
+    throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : Unexpected spacedim of coords. Must be 1, 2 or 3.");
+  
+  int nbOfTuples=getNumberOfTuples();
   comm=DataArrayInt::New();
   commIndex=DataArrayInt::New();
   //
-  checkAllocated();
-  int nbOfTuples=getNumberOfTuples();
-  int nbOfCompo=getNumberOfComponents();
   std::vector<double> bbox(2*nbOfTuples*nbOfCompo);
   const double *coordsPtr=getConstPointer();
   for(int i=0;i<nbOfTuples;i++)
@@ -904,8 +936,7 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
     case 1:
       findCommonTuplesAlg<1>(bbox,nbOfTuples,limitTupleId,prec,c,cI);
       break;
-    default:
-      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords. Must be 1, 2 or 3.");
+    //default: test yet
     }
   commIndex->alloc((int)cI.size(),1);
   std::copy(cI.begin(),cI.end(),commIndex->getPointer());
@@ -2399,23 +2430,24 @@ void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
 
 void DataArrayInt::fillWithZero()
 {
+  checkAllocated();
   _mem.fillWithValue(0);
   declareAsNew();
 }
 
 void DataArrayInt::fillWithValue(int val)
 {
+  checkAllocated();
   _mem.fillWithValue(val);
   declareAsNew();
 }
 
 void DataArrayInt::iota(int init) throw(INTERP_KERNEL::Exception)
 {
-  int *ptr=getPointer();
-  if(!ptr)
-    throw INTERP_KERNEL::Exception("DataArrayInt::iota : allocate first !");
+  checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::iota : works only for arrays with only one component, you can call 'rearrange' method before !");
+  int *ptr=getPointer();
   int ntuples=getNumberOfTuples();
   for(int i=0;i<ntuples;i++)
     ptr[i]=init+i;
@@ -3051,6 +3083,7 @@ DataArrayInt *DataArrayInt::buildPermArrPerLevel() const throw(INTERP_KERNEL::Ex
  */
 bool DataArrayInt::isIdentity() const
 {
+  checkAllocated();
   if(getNumberOfComponents()!=1)
     return false;
   int nbOfTuples=getNumberOfTuples();
@@ -3063,6 +3096,7 @@ bool DataArrayInt::isIdentity() const
 
 bool DataArrayInt::isUniform(int val) const
 {
+  checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::isUniform : must be applied on DataArrayInt with only one component, you can call 'rearrange' method before !");
   int nbOfTuples=getNumberOfTuples();
@@ -3076,6 +3110,7 @@ bool DataArrayInt::isUniform(int val) const
 
 DataArrayDouble *DataArrayInt::convertToDblArr() const
 {
+  checkAllocated();
   DataArrayDouble *ret=DataArrayDouble::New();
   ret->alloc(getNumberOfTuples(),getNumberOfComponents());
   int nbOfVals=getNbOfElems();
