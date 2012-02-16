@@ -225,11 +225,11 @@ void MEDCouplingCMesh::checkCoherency1(double eps) const throw(INTERP_KERNEL::Ex
 {
   checkCoherency();
   if(_x_array)
-    _x_array->checkMonotonic(eps);
+    _x_array->checkMonotonic(true, eps);
   if(_y_array)
-    _y_array->checkMonotonic(eps);
+    _y_array->checkMonotonic(true, eps);
   if(_z_array)
-    _z_array->checkMonotonic(eps);
+    _z_array->checkMonotonic(true, eps);
 }
 
 void MEDCouplingCMesh::checkCoherency2(double eps) const throw(INTERP_KERNEL::Exception)

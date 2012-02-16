@@ -147,8 +147,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isUniform(double val, double eps) const;
     MEDCOUPLING_EXPORT void sort() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reverse() throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void checkMonotonic(double eps) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT bool isMonotonic(double eps) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string repr() const;
     MEDCOUPLING_EXPORT std::string reprZip() const;
     MEDCOUPLING_EXPORT void writeVTK(std::ostream& ofs, int indent, const char *nameInFile) const throw(INTERP_KERNEL::Exception);
