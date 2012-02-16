@@ -1157,6 +1157,22 @@ std::vector<int> MEDFileUMesh::getFamsNonEmptyLevelsExt(const std::vector<std::s
     return ret0;
 }
 
+/*!
+ * This method retrives all groups that partly or fully appear on the level 'meshDimRelToMaxExt'.
+ */
+std::vector<std::string> MEDFileUMesh::getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> ret;
+  std::vector<std::string> allGrps=getGroupsNames();
+  for(std::vector<std::string>::const_iterator it=allGrps.begin();it!=allGrps.end();it++)
+    {
+      std::vector<int> levs=getGrpNonEmptyLevelsExt((*it).c_str());
+      if(std::find(levs.begin(),levs.end(),meshDimRelToMaxExt)!=levs.end())
+        ret.push_back(*it);
+    }
+  return ret;
+}
+
 int MEDFileUMesh::getMeshDimension() const throw(INTERP_KERNEL::Exception)
 {
   int lev=0;
@@ -2299,10 +2315,14 @@ MEDFileMeshes *MEDFileMeshes::New(const char *fileName) throw(INTERP_KERNEL::Exc
 void MEDFileMeshes::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
 {
   checkCoherency();
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++)
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++,i++)
     {
+      int mode2=mode;
+      if(mode==2 && i>0)
+        mode2=0;
       (*it)->copyOptionsFrom(*this);
-      (*it)->write(fileName,mode);
+      (*it)->write(fileName,mode2);
     }
 }
 

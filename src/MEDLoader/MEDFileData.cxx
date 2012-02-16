@@ -116,7 +116,8 @@ void MEDFileData::write(const char *fileName, int mode) const throw(INTERP_KERNE
   const MEDFileMeshes *ms=_meshes;
   if(ms)
     ms->write(fileName,mode);
+  int mode2=mode==2?0:mode;
   const MEDFileFields *fs=_fields;
   if(fs)
-    fs->write(fileName,mode);
+    fs->write(fileName,mode2);
 }

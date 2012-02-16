@@ -346,6 +346,8 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual((-1,),m.getFamNonEmptyLevels('A4A3____________________________'))
         self.assertEqual((0,),m.getFamNonEmptyLevels('MESH____DALT3___DALLE___________'))
         self.assertEqual((0,-1,),m.getFamsNonEmptyLevels(['MESH____DALT3___DALLE___________','A4A3____________________________']))
+        self.assertEqual(('A1A2','A2A4','A3A1','A3C5','A4A3','B1C1','B2B4','B3B1','B4C3','C1C4','C2B2','C3C2','C4B3','C5A4'),m.getGroupsOnSpecifiedLev(-1))
+        self.assertEqual(('DALLE','DALQ1','DALQ2','DALT3','MESH'),m.getGroupsOnSpecifiedLev(0))
         #
         m.write(fileName,2)
         pass
@@ -364,7 +366,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write("Pyfile19_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile19.med","VFieldOnNodes")
         ff.write("Pyfile19_bis.med",0)
-        self.assertEqual([('tyty', 'mm'), ('uiop', 'MW')],MEDLoader.GetComponentsNamesOfField("Pyfile19_bis.med","VFieldOnNodes"))
+        self.assertEqual([('tyty','mm'),('uiop','MW')],MEDLoader.GetComponentsNamesOfField("Pyfile19_bis.med","VFieldOnNodes"))
         pass
 
     #gauss points
@@ -557,9 +559,10 @@ class MEDLoaderTest(unittest.TestCase):
         fs.pushField(ff1) ; fs.pushField(ff21) ; fs.pushField(ff22)
         d.setFields(fs)
         #
-        d.write(fname,0)
+        fname2="Pyfile29_2.med"
+        d.write(fname2,2)
         #
-        d2=MEDFileData.New(fname)
+        d2=MEDFileData.New(fname2)
         self.assertEqual(2,d2.getNumberOfMeshes())
         self.assertEqual(3,d2.getNumberOfFields())
         self.assertTrue(isinstance(d2.getMeshes().getMeshAtPos(0),MEDFileUMesh))
