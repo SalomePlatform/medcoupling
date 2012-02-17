@@ -645,7 +645,7 @@ QuadraticPolygon *QuadraticPlanarInterpTest::buildQuadraticPolygonCoarseInfo(con
   std::vector<INTERP_KERNEL::Node *> nodes;
   for(int i=0;i<lgth;i++)
     nodes.push_back(new INTERP_KERNEL::Node(coords[2*conn[i]],coords[2*conn[i]+1]));
-  return INTERP_KERNEL::QuadraticPolygon::buildArcCirclePolygon(nodes);
+  return INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
 }
 
 EdgeArcCircle *QuadraticPlanarInterpTest::buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd)

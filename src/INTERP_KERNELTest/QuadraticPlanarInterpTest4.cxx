@@ -511,7 +511,7 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   nodes.push_back(new Node(coords+6));
   nodes.push_back(new Node(coords+8));
   nodes.push_back(new Node(coords+10));
-  QuadraticPolygon *pol=QuadraticPolygon::buildArcCirclePolygon(nodes);
+  QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-1.04719755,pol->getArea(),1e-5);
   CPPUNIT_ASSERT_EQUAL(3,pol->size());
   ElementaryEdge *e0=dynamic_cast<ElementaryEdge *>((*pol)[0]);
@@ -529,7 +529,7 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   nodes.push_back(new Node(coords+10));
   nodes.push_back(new Node(coords+8));
   nodes.push_back(new Node(coords+6));
-  pol=QuadraticPolygon::buildArcCirclePolygon(nodes);
+  pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.04719755,pol->getArea(),1e-5);
   CPPUNIT_ASSERT_EQUAL(3,pol->size());
   e0=dynamic_cast<ElementaryEdge *>((*pol)[0]);
@@ -551,7 +551,7 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   nodes.push_back(new Node(coords2+2));
   nodes.push_back(new Node(coords2+4));
   nodes.push_back(new Node(coords2+6));
-  pol=QuadraticPolygon::buildLinearPolygon(nodes);
+  pol=QuadraticPolygon::BuildLinearPolygon(nodes);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.5,pol->getArea(),1e-12);
   double tmp[2],tmp2;
   pol->getBarycenter(tmp,tmp2);
@@ -577,7 +577,7 @@ void QuadraticPlanarInterpTest::checkHighLevelFunctionTest1()
   nodes.push_back(new Node(coords3+10));
   nodes.push_back(new Node(coords3+12));
   nodes.push_back(new Node(coords3+14));
-  pol=QuadraticPolygon::buildArcCirclePolygon(nodes);
+  pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
   pol->getBarycenter(tmp,tmp2);
   delete pol;
   QUADRATIC_PLANAR::setPrecision(1e-14);
@@ -741,7 +741,7 @@ void QuadraticPlanarInterpTest::checkNonRegression2()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -751,7 +751,7 @@ void QuadraticPlanarInterpTest::checkNonRegression2()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(1,(int)v.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.00173945,v[0]->getArea(),1e-7);
@@ -834,7 +834,7 @@ void QuadraticPlanarInterpTest::checkNonRegression4()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -844,7 +844,7 @@ void QuadraticPlanarInterpTest::checkNonRegression4()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(1,(int)v.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.00164773941455998,v[0]->getArea(),1e-7);
@@ -890,7 +890,7 @@ void QuadraticPlanarInterpTest::checkNonRegression5()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -900,7 +900,7 @@ void QuadraticPlanarInterpTest::checkNonRegression5()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(0,(int)v.size());
   //CPPUNIT_ASSERT_DOUBLES_EQUAL(0.00164773941455998,v[0]->getArea(),1e-7);
@@ -943,7 +943,7 @@ void QuadraticPlanarInterpTest::checkNonRegression6()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -953,7 +953,7 @@ void QuadraticPlanarInterpTest::checkNonRegression6()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(1,(int)v.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(v[0]->getArea(),0.0150659,1e-7);
@@ -995,7 +995,7 @@ void QuadraticPlanarInterpTest::checkNonRegression7()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -1005,7 +1005,7 @@ void QuadraticPlanarInterpTest::checkNonRegression7()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(1,(int)v.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.121795,v[0]->getArea(),1.e-6);
@@ -1046,7 +1046,7 @@ void QuadraticPlanarInterpTest::checkNonRegression8()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -1056,7 +1056,7 @@ void QuadraticPlanarInterpTest::checkNonRegression8()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(1,(int)v.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.598232,v[0]->getArea(),1.e-6);
@@ -1099,7 +1099,7 @@ void QuadraticPlanarInterpTest::checkNonRegression9()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -1109,7 +1109,7 @@ void QuadraticPlanarInterpTest::checkNonRegression9()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(0,(int)v.size());
   delete pol1;
@@ -1178,7 +1178,7 @@ void QuadraticPlanarInterpTest::checkNonRegression11()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -1188,7 +1188,7 @@ void QuadraticPlanarInterpTest::checkNonRegression11()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(1,(int)v.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(2.28973e-06,v[0]->getArea(),1.e-11);
@@ -1230,7 +1230,7 @@ void QuadraticPlanarInterpTest::checkNonRegression12()
   nodes1.push_back(new Node(coords1+10));
   nodes1.push_back(new Node(coords1+12));
   nodes1.push_back(new Node(coords1+14));
-  QuadraticPolygon *pol1=QuadraticPolygon::buildArcCirclePolygon(nodes1);
+  QuadraticPolygon *pol1=QuadraticPolygon::BuildArcCirclePolygon(nodes1);
   std::vector<Node *> nodes2;
   nodes2.push_back(new Node(coords2));
   nodes2.push_back(new Node(coords2+2));
@@ -1240,7 +1240,7 @@ void QuadraticPlanarInterpTest::checkNonRegression12()
   nodes2.push_back(new Node(coords2+10));
   nodes2.push_back(new Node(coords2+12));
   nodes2.push_back(new Node(coords2+14));
-  QuadraticPolygon *pol2=QuadraticPolygon::buildArcCirclePolygon(nodes2);
+  QuadraticPolygon *pol2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
   std::vector<QuadraticPolygon *> v=pol1->intersectMySelfWith(*pol2);
   CPPUNIT_ASSERT_EQUAL(1,(int)v.size());
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.,v[0]->getArea(),1.e-6);
