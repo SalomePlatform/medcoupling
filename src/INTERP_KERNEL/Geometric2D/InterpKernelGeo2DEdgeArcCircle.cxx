@@ -674,6 +674,20 @@ double EdgeArcCircle::getCharactValue(const Node& node) const
   return GetAbsoluteAngleOfNormalizedVect(dx,dy);
 }
 
+double EdgeArcCircle::getCharactValueBtw0And1(const Node& node) const
+{
+  double dx=(node[0]-_center[0])/_radius;
+  double dy=(node[1]-_center[1])/_radius;
+  double angle=GetAbsoluteAngleOfNormalizedVect(dx,dy);
+  //
+  double myDelta=angle-_angle0;
+  if(_angle>0.)
+    myDelta=myDelta>=0.?myDelta:myDelta+2.*M_PI;
+  else
+    myDelta=myDelta<=0.?myDelta:myDelta-2.*M_PI;
+  return myDelta/_angle;
+}
+
 double EdgeArcCircle::getDistanceToPoint(const double *pt) const
 {
   double angle=Node::computeAngle(_center,pt);

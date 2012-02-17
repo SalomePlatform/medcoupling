@@ -243,6 +243,8 @@ namespace INTERP_KERNEL
     virtual bool isLower(double val1, double val2) const = 0;
     //! node is expected to lay on 'this'. It returns a characteristic magnitude usable by isIn method.
     virtual double getCharactValue(const Node& node) const = 0;
+    //! node is expected to lay on 'this'. It returns a characteristic magnitude between 0 and 1.
+    virtual double getCharactValueBtw0And1(const Node& node) const = 0;
     //! retrieves the distance to this : The min distance from pt and any point of this.
     virtual double getDistanceToPoint(const double *pt) const = 0;
     //! return if node with coords 'coordOfNode' is on this (with precision).

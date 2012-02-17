@@ -82,6 +82,7 @@ namespace INTERP_KERNEL
     Node *buildRepresentantOfMySelf() const;
     bool isLower(double val1, double val2) const;
     double getCharactValue(const Node& node) const;
+    double getCharactValueBtw0And1(const Node& node) const;
     double getDistanceToPoint(const double *pt) const;
     bool isNodeLyingOn(const double *coordOfNode) const;
     TypeOfFunction getTypeOfFunc() const { return ARC_CIRCLE; }

@@ -870,12 +870,13 @@ void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const 
   b.getBarycenter(xBary,yBary);
   for(std::vector<Node *>::const_iterator iter=addNodes.begin();iter!=addNodes.end();iter++)
     (*iter)->applySimilarity(xBary,yBary,dimChar);
+  applySimilarity(xBary,yBary,dimChar);
   _start->applySimilarity(xBary,yBary,dimChar);
   _end->applySimilarity(xBary,yBary,dimChar);
   std::size_t sz=addNodes.size();
   std::vector< std::pair<double,Node *> > an2(sz);
   for(std::size_t i=0;i<sz;i++)
-    an2[i]=std::pair<double,Node *>(getCharactValue(*addNodes[i]),addNodes[i]);
+    an2[i]=std::pair<double,Node *>(getCharactValueBtw0And1(*addNodes[i]),addNodes[i]);
   std::sort(an2.begin(),an2.end());
   int startId=(*mapp1.find(_start)).second;
   int endId=(*mapp1.find(_end)).second;

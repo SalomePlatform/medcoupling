@@ -180,6 +180,11 @@ double EdgeLin::getCharactValue(const Node& node) const
   return getCharactValueEng(node);
 }
 
+double EdgeLin::getCharactValueBtw0And1(const Node& node) const
+{
+  return getCharactValueEng(node);
+}
+
 double EdgeLin::getDistanceToPoint(const double *pt) const
 {
   double loc=getCharactValueEng(pt);

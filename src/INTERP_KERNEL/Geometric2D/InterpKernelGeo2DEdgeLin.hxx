@@ -63,6 +63,7 @@ namespace INTERP_KERNEL
     bool isIn(double characterVal) const;
     Node *buildRepresentantOfMySelf() const;
     double getCharactValue(const Node& node) const;
+    double getCharactValueBtw0And1(const Node& node) const;
     double getDistanceToPoint(const double *pt) const;
     bool isNodeLyingOn(const double *coordOfNode) const;
     bool isLower(double val1, double val2) const { return val1<val2; }
