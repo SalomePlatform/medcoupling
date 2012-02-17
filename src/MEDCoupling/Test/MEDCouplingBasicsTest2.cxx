@@ -375,7 +375,7 @@ void MEDCouplingBasicsTest2::testNormL12Integ1D()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected4[i],res[i],1e-12);
   //normL1
   f1->normL1(res);
-  double expected5[3]={11.3068,27.3621,43.7881};
+  double expected5[3]={6.979506172839505, 16.89018518518518, 27.02969135802469};
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],res[i],1e-12);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[0],f1->normL1(0),1e-12);
@@ -383,7 +383,7 @@ void MEDCouplingBasicsTest2::testNormL12Integ1D()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[2],f1->normL1(2),1e-12);
   //normL2
   f1->normL2(res);
-  double expected7[3]={9.0252562290496776, 21.545259176904789, 34.433193070059595};
+  double expected7[3]={7.090910979452395, 16.9275542960123, 27.053271464160858};
   for(int i=0;i<3;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[i],res[i],1e-9);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[0],f1->normL2(0),1e-9);
@@ -440,10 +440,10 @@ void MEDCouplingBasicsTest2::testNormL12Integ1D()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(2.)*expected4[i],res[i],1e-12);
   f1->normL1(res);
   for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(2.)*expected5[i],res[i],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],res[i],1e-12);
   f1->normL2(res);
   for(int i=0;i<3;i++)
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(sqrt(sqrt(2.))*expected7[i],res[i],1e-12);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[i],res[i],1e-12);
   //
   f1->decrRef();
   m1->decrRef();

@@ -2265,7 +2265,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #normL1
         res=f1.normL1();
         self.assertTrue(3,len(res))
-        expected5=[11.3068,27.3621,43.7881]
+        expected5=[6.979506172839505, 16.89018518518518, 27.02969135802469]
         for i in xrange(3):
             self.assertTrue(abs(expected5[i]-res[i])<1e-12);
             pass
@@ -2275,7 +2275,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #normL2
         res=f1.normL2();
         self.assertTrue(3,len(res))
-        expected7=[9.0252562290496776, 21.545259176904789, 34.433193070059595]
+        expected7=[7.090910979452395, 16.9275542960123, 27.053271464160858]
         for i in xrange(3):
             self.assertTrue(abs(expected7[i]-res[i])<1e-9);
             pass
@@ -2328,11 +2328,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         res=f1.normL1();
         for i in xrange(3):
-            self.assertTrue(abs(sqrt(2.)*expected5[i]-res[i])<1e-12);
+            self.assertTrue(abs(expected5[i]-res[i])<1e-12);
             pass
         res=f1.normL2();
         for i in xrange(3):
-            self.assertTrue(abs(sqrt(sqrt(2.))*expected7[i]-res[i])<1e-12);
+            self.assertTrue(abs(expected7[i]-res[i])<1e-12);
             pass
         pass
 

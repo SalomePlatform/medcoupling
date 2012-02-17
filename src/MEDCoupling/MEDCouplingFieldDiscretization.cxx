@@ -117,11 +117,15 @@ void MEDCouplingFieldDiscretization::normL1(const MEDCouplingMesh *mesh, const D
   std::fill(res,res+nbOfCompo,0.);
   const double *arrPtr=arr->getConstPointer();
   const double *volPtr=vol->getArray()->getConstPointer();
+  double deno=0.;
   for(int i=0;i<nbOfElems;i++)
     {
+      double v=fabs(volPtr[i]);
       for(int j=0;j<nbOfCompo;j++)
-        res[j]+=fabs(arrPtr[i*nbOfCompo+j])*volPtr[i];
+        res[j]+=fabs(arrPtr[i*nbOfCompo+j])*v;
+      deno+=v;
     }
+  std::transform(res,res+nbOfCompo,res,std::bind2nd(std::multiplies<double>(),1./deno));
   vol->decrRef();
 }
 
@@ -138,11 +142,15 @@ void MEDCouplingFieldDiscretization::normL2(const MEDCouplingMesh *mesh, const D
   std::fill(res,res+nbOfCompo,0.);
   const double *arrPtr=arr->getConstPointer();
   const double *volPtr=vol->getArray()->getConstPointer();
+  double deno=0.;
   for(int i=0;i<nbOfElems;i++)
     {
+      double v=fabs(volPtr[i]);
       for(int j=0;j<nbOfCompo;j++)
-        res[j]+=arrPtr[i*nbOfCompo+j]*arrPtr[i*nbOfCompo+j]*fabs(volPtr[i]);
+        res[j]+=arrPtr[i*nbOfCompo+j]*arrPtr[i*nbOfCompo+j]*v;
+      deno+=v;
     }
+  std::transform(res,res+nbOfCompo,res,std::bind2nd(std::multiplies<double>(),1./deno));
   std::transform(res,res+nbOfCompo,res,std::ptr_fun<double,double>(std::sqrt));
   vol->decrRef();
 }
