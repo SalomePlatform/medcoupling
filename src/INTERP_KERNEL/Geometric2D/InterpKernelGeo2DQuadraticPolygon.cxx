@@ -403,14 +403,14 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
             }
           directos=(idIn1==-1);
         }
-      const std::vector<int>& subEdge=intersectEdges[edgeId];
-      std::size_t nbOfSubEdges=subEdge.size()/2;
       if(directos)
         {//no subpart of edge 'edgeId' of pol2 is in pol1 so let's operate the same thing that QuadraticPolygon::buildFromCrudeDataArray method
           appendEdgeFromCrudeDataArray(i,mapp,isQuad,nodalBg,coords,descBg,descEnd,intersectEdges);
         }
       else
         {//there is subpart of edge 'edgeId' of pol2 inside pol1
+          const std::vector<int>& subEdge=intersectEdges[edgeId];
+          std::size_t nbOfSubEdges=subEdge.size()/2;
           const std::vector<int>& subEdge1PossiblyAlreadyIn1=intersectEdges1[idIn1];
           for(std::size_t j=0;j<nbOfSubEdges;j++)
             {

@@ -774,18 +774,3 @@ void EdgeArcCircle::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,int>
   _start->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
   _end->fillGlobalInfoAbs2(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,edgesOther);
 }
-
-void EdgeArcCircle::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, int>& mapp1, const std::map<INTERP_KERNEL::Node *, int>& mapp2, std::vector<int>& edgesThis)
-{
-  Bounds b;
-  b.prepareForAggregation();
-  b.aggregate(getBounds());
-  double xBary,yBary;
-  double dimChar=b.getCaracteristicDim();
-  b.getBarycenter(xBary,yBary);
-  applySimilarity(xBary,yBary,dimChar);
-  for(std::vector<Node *>::const_iterator iter=addNodes.begin();iter!=addNodes.end();iter++)
-    (*iter)->applySimilarity(xBary,yBary,dimChar);
-  _start->applySimilarity(xBary,yBary,dimChar);
-  _end->applySimilarity(xBary,yBary,dimChar);
-}
