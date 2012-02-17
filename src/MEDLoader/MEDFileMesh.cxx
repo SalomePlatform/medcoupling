@@ -1301,7 +1301,6 @@ DataArrayDouble *MEDFileUMesh::getCoords() const
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(_coords);
   if((DataArrayDouble *)tmp)
     {
-      tmp->incrRef();
       return tmp;
     }
   return 0;

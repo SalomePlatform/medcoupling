@@ -469,7 +469,6 @@ namespace ParaMEDMEM
     std::vector<int> getFamsNonEmptyLevels(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamsNonEmptyLevelsExt(const std::vector<std::string>& fams) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
-    DataArrayDouble *getCoords() const;
     MEDCouplingUMesh *getGroup(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getGroupArr(int meshDimRelToMaxExt, const char *grp, bool renum=false) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getGroups(int meshDimRelToMaxExt, const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
@@ -514,6 +513,14 @@ namespace ParaMEDMEM
            std::vector<const DataArrayInt *> grps;
            convertPyObjToVecDataArrayIntCst(li,grps);
            self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
+         }
+
+         DataArrayDouble *getCoords() const
+         {
+           DataArrayDouble *ret=self->getCoords();
+           if(ret)
+             ret->incrRef();
+           return ret;
          }
        }
   };
