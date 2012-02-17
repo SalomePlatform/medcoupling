@@ -119,7 +119,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems);
+    MEDCOUPLING_EXPORT void getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) const;
     MEDCOUPLING_EXPORT void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool isAbs) const;
     MEDCOUPLING_EXPORT DataArrayDouble *getPartMeasureField(bool isAbs, const int *begin, const int *end) const;
@@ -127,6 +127,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildOrthogonalField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildPartOrthogonalField(const int *begin, const int *end) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *buildDirectionVectorField() const;
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSlice3D(const double *origin, const double *vec, double eps, DataArrayInt *&cellIds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getCellIdsCrossingPlane(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isContiguous1D() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void project1D(const double *pt, const double *v, double eps, double *res) const;
     MEDCOUPLING_EXPORT int getCellContainingPoint(const double *pos, double eps) const;

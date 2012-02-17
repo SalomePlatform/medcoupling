@@ -1595,7 +1595,7 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INT
  * Warning 'elems' is incremented during the call so if elems is not empty before call returned elements will be
  * added in 'elems' parameter.
  */
-void MEDCouplingUMesh::getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems)
+void MEDCouplingUMesh::getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) const
 {
   if(getMeshDimension()==-1)
     {
@@ -2397,6 +2397,70 @@ MEDCouplingFieldDouble *MEDCouplingUMesh::buildDirectionVectorField() const
    array->decrRef();
    ret->setMesh(this);
    return ret;   
+}
+
+/*!
+ * This method expects that 'this' is fully defined and has a spaceDim==3 and a meshDim==3. If it is not the case an exception will be thrown.
+ * This method returns 2 objects : 
+ * - a newly created mesh instance containing the result of the slice lying on the same coords than 'this' and with a meshdim == 2
+ * - a newly created dataarray having number of tuples equal to the number of cells in returned mesh that tells for each 2D cell in returned
+ *   mesh the 3D cell id is 'this' it comes from.
+ * @param origin is the origin of the plane. It should be an array of length 3.
+ * @param vec is the direction vector of the plane. It should be an array of length 3. Norm of 'vec' should be > 1e-6.
+ * @param eps is the precision. It is used by called method MEDCouplingUMesh::getCellIdsCrossingPlane for the first 3D cell selection. 'eps' is
+ * also used to state if the plane shares 2 3D cells. In this case an exception will be thrown.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3D(const double *origin, const double *vec, double eps, DataArrayInt *&cellIds) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates=getCellIdsCrossingPlane(origin,vec,eps);
+  throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : not implemented yet !");
+  cellIds=0;
+  return 0;
+}
+
+/*!
+ * This method expects that 'this' is fully defined and has a spaceDim==3 and a meshDim==3. If it is not the case an exception will be thrown.
+ * This method returns a newly created dataarray containing cellsids in 'this' that potentially crosses the plane specified by 'origin' and 'vec'.
+ * @param origin is the origin of the plane. It should be an array of length 3.
+ * @param vec is the direction vector of the plane. It should be an array of length 3. Norm of 'vec' should be > 1e-6.
+ */
+DataArrayInt *MEDCouplingUMesh::getCellIdsCrossingPlane(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
+  double normm=sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
+  if(normm<1e-6)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellIdsCrossingPlane : parameter 'vec' should have a norm2 greater than 1e-6 !");
+  double vec2[3];
+  vec2[0]=vec[1]; vec2[1]=-vec[0]; vec2[2]=0.;//vec2 is the result of cross product of vec with (0,0,1)
+  double angle=acos(vec[2]/normm);
+  std::vector<int> cellIds;
+  double bbox[6];
+  if(angle>eps)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coo=_coords->deepCpy();
+      MEDCouplingPointSet::Rotate3DAlg(origin,vec2,angle,coo->getNumberOfTuples(),coo->getPointer());
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mw=clone(false);//false -> shallow copy
+      mw->setCoords(coo);
+      mw->getBoundingBox(bbox);
+      bbox[4]=origin[2]-eps; bbox[5]=origin[2]+eps;
+      mw->getCellsInBoundingBox(bbox,-eps,cellIds);
+    }
+  else
+    {
+      getBoundingBox(bbox);
+      bbox[4]=origin[2]-eps; bbox[5]=origin[2]+eps;
+      getCellsInBoundingBox(bbox,-eps,cellIds);
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc((int)cellIds.size(),1);
+  std::copy(cellIds.begin(),cellIds.end(),ret->getPointer());
+  ret->incrRef();
+  return ret;
 }
 
 /*!

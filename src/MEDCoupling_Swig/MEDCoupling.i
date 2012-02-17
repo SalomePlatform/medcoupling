@@ -263,6 +263,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findCellsIdsOnBoundary;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
+%newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsCrossingPlane;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
@@ -882,7 +883,7 @@ namespace ParaMEDMEM
              return ret;
            }
 
-           PyObject *getCellsInBoundingBox(PyObject *bbox, double eps) throw(INTERP_KERNEL::Exception)
+           PyObject *getCellsInBoundingBox(PyObject *bbox, double eps) const throw(INTERP_KERNEL::Exception)
            {
              std::vector<int> elems;
              int size;
@@ -1428,6 +1429,35 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellNb1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(cellNb2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
+      }
+
+      PyObject *buildSlice3D(PyObject *origin, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        int sz;
+        INTERP_KERNEL::AutoPtr<double> orig=convertPyToNewDblArr2(origin,&sz);
+        if(!orig || sz!=3)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : in parameter 1 expecting origin of type list of float of size 3 !");
+        INTERP_KERNEL::AutoPtr<double> vect=convertPyToNewDblArr2(vec,&sz);
+        if(!vec || sz!=3)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : in parameter 2 expecting vector of type list of float of size 3 !");
+        DataArrayInt *cellIds=0;
+        MEDCouplingUMesh *ret0=self->buildSlice3D(orig,vect,eps,cellIds);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellIds),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      DataArrayInt *getCellIdsCrossingPlane(PyObject *origin, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        int sz;
+        INTERP_KERNEL::AutoPtr<double> orig=convertPyToNewDblArr2(origin,&sz);
+        if(!orig || sz!=3)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellIdsCrossingPlane : in parameter 1 expecting origin of type list of float of size 3 !");
+        INTERP_KERNEL::AutoPtr<double> vect=convertPyToNewDblArr2(vec,&sz);
+        if(!vec || sz!=3)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellIdsCrossingPlane : in parameter 2 expecting vector of type list of float of size 3 !");
+        return self->getCellIdsCrossingPlane(orig,vect,eps);
       }
     }
     void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);
