@@ -330,7 +330,7 @@ namespace ParaMEDMEM
     //
     static MEDFileField1TSWithoutDAS *New(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
     void finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception);
-    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
+    virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed2() const;
     std::vector<std::string> getLocsReallyUsed2() const;
     static void CheckMeshDimRel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
@@ -384,6 +384,7 @@ namespace ParaMEDMEM
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
   private:
+    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
     MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -398,7 +399,7 @@ namespace ParaMEDMEM
     std::vector< std::pair<int,int> > getIterations() const;
     std::vector< std::vector<TypeOfField> > getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception);
     std::vector< std::vector<const DataArrayDouble *> > getFieldSplitedByType(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
-    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
+    virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::string getName() const;
     std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
@@ -435,6 +436,7 @@ namespace ParaMEDMEM
     static MEDFileFieldMultiTS *New(const MEDFileFieldMultiTSWithoutDAS& other);
     std::string simpleRepr() const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -462,6 +464,7 @@ namespace ParaMEDMEM
     static MEDFileFields *New();
     static MEDFileFields *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;

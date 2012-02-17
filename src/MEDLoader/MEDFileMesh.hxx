@@ -53,7 +53,8 @@ namespace ParaMEDMEM
     const char *getTimeUnit() const { return _dt_unit.c_str(); }
     virtual std::vector<int> getNonEmptyLevels() const = 0;
     virtual std::vector<int> getNonEmptyLevelsExt() const = 0;
-    virtual void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    virtual void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
     virtual int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception) = 0;
     virtual MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception) = 0;
     //
@@ -62,7 +63,7 @@ namespace ParaMEDMEM
     bool existsFamily(int famId) const;
     bool existsFamily(const char *familyName) const;
     void setFamilyId(const char *familyName, int id);
-    void addFamily(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
+    virtual void addFamily(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
     void addGrpOnFamily(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception);
     void setFamilyInfo(const std::map<std::string,int>& info);
     void setGroupInfo(const std::map<std::string, std::vector<std::string> >&info);
@@ -108,6 +109,7 @@ namespace ParaMEDMEM
     virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
   protected:
     MEDFileMesh();
+    virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception) = 0;
     void dealWithTinyInfo(const MEDCouplingMesh *m) throw(INTERP_KERNEL::Exception);
     virtual void synchronizeTinyInfoOnLeaves() const = 0;
     void getFamilyRepr(std::ostream& oss) const;
@@ -140,7 +142,6 @@ namespace ParaMEDMEM
     void clearNonDiscrAttributes() const;
     ~MEDFileUMesh();
     //
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getMeshDimension() const throw(INTERP_KERNEL::Exception);
     int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
@@ -187,6 +188,7 @@ namespace ParaMEDMEM
     void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
   private:
+    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDFileUMesh();
     MEDFileUMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
     void loadUMeshFromFile(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
@@ -220,7 +222,6 @@ namespace ParaMEDMEM
     const MEDCouplingCMesh *getMesh() const;
     MEDCouplingMesh *getGenMeshAtLevel(int meshDimRelToMax, bool renum=false) const throw(INTERP_KERNEL::Exception);
     void setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception);
-    void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
@@ -231,6 +232,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
   private:
+    void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDFileCMesh();
     void synchronizeTinyInfoOnLeaves() const;
     MEDFileCMesh(med_idt fid, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
@@ -254,6 +256,7 @@ namespace ParaMEDMEM
     static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
     const char *getName() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception);
+    void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP_KERNEL::Exception);
   private:
@@ -273,6 +276,7 @@ namespace ParaMEDMEM
     std::string simpleRepr() const;
     void simpleReprWithoutHeader(std::ostream& oss) const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
+    void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception);

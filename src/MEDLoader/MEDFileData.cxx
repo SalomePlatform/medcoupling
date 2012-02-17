@@ -113,11 +113,12 @@ catch(INTERP_KERNEL::Exception& e)
 
 void MEDFileData::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
 {
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
   const MEDFileMeshes *ms=_meshes;
   if(ms)
-    ms->write(fileName,mode);
-  int mode2=mode==2?0:mode;
+    ms->write(fid);
   const MEDFileFields *fs=_fields;
   if(fs)
-    fs->write(fileName,mode2);
+    fs->writeLL(fid);
 }

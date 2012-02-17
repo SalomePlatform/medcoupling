@@ -107,6 +107,24 @@ MEDFileMesh *MEDFileMesh::New(const char *fileName, const char *mName, int dt, i
     }
 }
 
+void MEDFileMesh::write(med_idt fid) const throw(INTERP_KERNEL::Exception)
+{
+  if(!existsFamily(0))
+    const_cast<MEDFileMesh *>(this)->addFamily(DFT_FAM_NAME,0);
+  if(_name.empty())
+    throw INTERP_KERNEL::Exception("MEDFileMesh : name is empty. MED file ask for a NON EMPTY name !");
+  writeLL(fid);
+}
+
+void MEDFileMesh::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  std::ostringstream oss; oss << "MEDFileMesh : error on attempt to write in file : \"" << fileName << "\""; 
+  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str().c_str());
+  write(fid);
+}
+
 bool MEDFileMesh::isEqual(const MEDFileMesh *other, double eps, std::string& what) const
 {
   if(_order!=other->_order)
@@ -1005,16 +1023,8 @@ MEDFileUMesh::~MEDFileUMesh()
 {
 }
 
-void MEDFileUMesh::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+void MEDFileUMesh::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
-  if(_name.empty())
-    throw INTERP_KERNEL::Exception("MEDFileUMesh : name is empty. MED file ask for a NON EMPTY name !");
-  if(!existsFamily(0))
-    (const_cast<MEDFileUMesh *>(this))->addFamily(DFT_FAM_NAME,0);
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
-  std::ostringstream oss; oss << "MEDFileUMesh : error on attempt to write in file : \"" << fileName << "\""; 
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str().c_str());
   const DataArrayDouble *coo=_coords;
   INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> desc=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
@@ -2002,16 +2012,8 @@ void MEDFileCMesh::setMesh(MEDCouplingCMesh *m) throw(INTERP_KERNEL::Exception)
   _cmesh=m;
 }
 
-void MEDFileCMesh::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+void MEDFileCMesh::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
-  if(_name.empty())
-    throw INTERP_KERNEL::Exception("MEDFileCMesh : name is empty. MED file ask for a NON EMPTY name !");
-  if(!existsFamily(0))
-    (const_cast<MEDFileCMesh *>(this))->addFamily(DFT_FAM_NAME,0);
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
-  std::ostringstream oss; oss << "MEDFileCMesh : error on attempt to write in file : \"" << fileName << "\""; 
-  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str().c_str());
   INTERP_KERNEL::AutoPtr<char> maa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> desc=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
   INTERP_KERNEL::AutoPtr<char> dtunit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
@@ -2251,13 +2253,22 @@ void MEDFileMeshMultiTS::setOneTimeStep(MEDFileMesh *mesh1TimeStep) throw(INTERP
   _mesh_one_ts[0]=mesh1TimeStep;
 }
 
-void MEDFileMeshMultiTS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+void MEDFileMeshMultiTS::write(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::const_iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
     {
       (*it)->copyOptionsFrom(*this);
-      (*it)->write(fileName,mode);
+      (*it)->write(fid);
     }
+}
+
+void MEDFileMeshMultiTS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  std::ostringstream oss; oss << "MEDFileMesh : error on attempt to write in file : \"" << fileName << "\""; 
+  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str().c_str());
+  write(fid);
 }
 
 void MEDFileMeshMultiTS::loadFromFile(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception)
@@ -2312,18 +2323,24 @@ MEDFileMeshes *MEDFileMeshes::New(const char *fileName) throw(INTERP_KERNEL::Exc
   return new MEDFileMeshes(fileName);
 }
 
-void MEDFileMeshes::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+void MEDFileMeshes::write(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   checkCoherency();
-  int i=0;
-  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++,i++)
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::const_iterator it=_meshes.begin();it!=_meshes.end();it++)
     {
-      int mode2=mode;
-      if(mode==2 && i>0)
-        mode2=0;
       (*it)->copyOptionsFrom(*this);
-      (*it)->write(fileName,mode2);
+      (*it)->write(fid);
     }
+}
+
+void MEDFileMeshes::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  std::ostringstream oss; oss << "MEDFileMesh : error on attempt to write in file : \"" << fileName << "\""; 
+  MEDFileUtilities::CheckMEDCode(fid,fid,oss.str().c_str());
+  checkCoherency();
+  write(fid);
 }
 
 int MEDFileMeshes::getNumberOfMeshes() const throw(INTERP_KERNEL::Exception)

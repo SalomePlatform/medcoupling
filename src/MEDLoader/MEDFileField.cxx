@@ -2311,10 +2311,8 @@ MEDFileField1TS *MEDFileField1TS::New()
   return new MEDFileField1TS;
 }
 
-void MEDFileField1TS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+void MEDFileField1TS::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
   int nbComp=_infos.size();
   INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(nbComp*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(nbComp*MED_SNAME_SIZE);
@@ -2330,6 +2328,13 @@ void MEDFileField1TS::write(const char *fileName, int mode) const throw(INTERP_K
     throw INTERP_KERNEL::Exception("MEDFileField1TS::write : MED file does not accept field with empty name !");
   MEDfieldCr(fid,_name.c_str(),MED_FLOAT64,nbComp,comp,unit,getDtUnit().c_str(),getMeshName().c_str());
   writeGlobals(fid,*this);
+  MEDFileField1TSWithoutDAS::writeLL(fid);
+}
+
+void MEDFileField1TS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
   writeLL(fid);
 }
 
@@ -2798,11 +2803,16 @@ std::string MEDFileFieldMultiTS::simpleRepr() const
   return oss.str();
 }
 
+void MEDFileFieldMultiTS::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
+{
+  writeGlobals(fid,*this);
+  MEDFileFieldMultiTSWithoutDAS::writeLL(fid);
+}
+
 void MEDFileFieldMultiTS::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
 {
   med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
-  writeGlobals(fid,*this);
   writeLL(fid);
 }
 
@@ -3047,11 +3057,9 @@ catch(INTERP_KERNEL::Exception& e)
     throw e;
   }
 
-void MEDFileFields::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+void MEDFileFields::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   int i=0;
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
   writeGlobals(fid,*this);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
@@ -3064,6 +3072,13 @@ void MEDFileFields::write(const char *fileName, int mode) const throw(INTERP_KER
       elt->copyOptionsFrom(*this);
       elt->writeLL(fid);
     }
+}
+
+void MEDFileFields::write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception)
+{
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,medmod);
+  writeLL(fid);
 }
 
 std::vector<std::string> MEDFileFields::getPflsReallyUsed() const
