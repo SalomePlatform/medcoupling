@@ -150,3 +150,25 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp4()
   m1->decrRef();
   m2->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testGetCellIdsCrossingPlane1()
+{
+  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
+  const double vec[3]={-0.07,1.,0.07};
+  const double origin[3]={1.524,1.4552,1.74768};
+  DataArrayInt *ids1=mesh3D->getCellIdsCrossingPlane(origin,vec,1e-10);
+  CPPUNIT_ASSERT_EQUAL(9,ids1->getNumberOfTuples());
+  const int expected1[9]={1,3,4,7,9,10,13,15,16};
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+9,ids1->getConstPointer()));
+  const double vec2[3]={0.,0.,1.};
+  DataArrayInt *ids2=mesh3D->getCellIdsCrossingPlane(origin,vec2,1e-10);
+  const int expected2[6]={6,7,8,9,10,11};
+  CPPUNIT_ASSERT_EQUAL(6,ids2->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+6,ids2->getConstPointer()));
+  ids1->decrRef();
+  ids2->decrRef();
+  mesh3D->decrRef();
+  mesh2D->decrRef();
+}
+
