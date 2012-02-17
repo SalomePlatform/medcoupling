@@ -8593,6 +8593,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
             pass
         pass
+
+    def testGetCellIdsCrossingPlane1(self):
+        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        vec=[-0.07,1.,0.07]
+        origin=[1.524,1.4552,1.74768]
+        ids1=mesh3D.getCellIdsCrossingPlane(origin,vec,1e-10)
+        self.assertEqual([1,3,4,7,9,10,13,15,16],ids1.getValues())
+        vec2=[0.,0.,1.]
+        ids2=mesh3D.getCellIdsCrossingPlane(origin,vec2,1e-10)
+        self.assertEqual([6,7,8,9,10,11],ids2.getValues())
+        pass
     
     def setUp(self):
         pass
