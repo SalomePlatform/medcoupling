@@ -36,9 +36,11 @@ namespace ParaMEDMEM
   {
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest5);
     CPPUNIT_TEST( testUMeshTessellate2D1 );
+    CPPUNIT_TEST( testIntersect2DMeshesTmp4 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
+    void testIntersect2DMeshesTmp4();
   };
 }
 

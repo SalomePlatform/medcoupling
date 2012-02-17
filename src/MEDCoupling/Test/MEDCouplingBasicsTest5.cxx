@@ -82,3 +82,71 @@ void MEDCouplingBasicsTest5::testUMeshTessellate2D1()
   //
   m1->decrRef();
 }
+
+/*!
+ * idem MEDCouplingBasicsTest4::testIntersect2DMeshesTmp3 except that m1 and m2 are permuted on call to MEDCouplingUMesh::Intersect2DMeshes
+ */
+void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp4()
+{
+  double m1Coords[50]={0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214};
+  int m1Conn[56]={0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23};
+  MEDCouplingUMesh *m1=MEDCouplingUMesh::New();
+  m1->setMeshDimension(2);
+  m1->allocateCells(8);
+  m1->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,m1Conn);
+  m1->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8,m1Conn+6);
+  m1->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,m1Conn+14);
+  m1->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8,m1Conn+20);
+  m1->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,m1Conn+28);
+  m1->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8,m1Conn+34);
+  m1->insertNextCell(INTERP_KERNEL::NORM_TRI6,6,m1Conn+42);
+  m1->insertNextCell(INTERP_KERNEL::NORM_QUAD8,8,m1Conn+48);
+  m1->finishInsertingCells();
+  DataArrayDouble *myCoords1=DataArrayDouble::New();
+  myCoords1->alloc(25,2);
+  std::copy(m1Coords,m1Coords+50,myCoords1->getPointer());
+  m1->setCoords(myCoords1);
+  myCoords1->decrRef();
+  //
+  double m2Coords[30]={0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1,-1.1,-1.,0.,-1.,1.1,-1,1.7,-1.};
+  int m2Conn[32]={0,3,2,1, 1,2,5,4, 7,6,3,0, 8,9,6,7, 7,0,12,11, 8,7,11,10, 0,1,13,12, 1,4,14,13};
+  MEDCouplingUMesh *m2=MEDCouplingUMesh::New();
+  m2->setMeshDimension(2);
+  m2->allocateCells(8);
+  for(int i=0;i<8;i++)
+    m2->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,m2Conn+4*i);
+  m2->finishInsertingCells();
+  DataArrayDouble *myCoords2=DataArrayDouble::New();
+  myCoords2->alloc(15,2);
+  std::copy(m2Coords,m2Coords+30,myCoords2->getPointer());
+  m2->setCoords(myCoords2);
+  myCoords2->decrRef();
+  //
+  DataArrayInt *d1=0,*d2=0;
+  MEDCouplingUMesh *m3=MEDCouplingUMesh::Intersect2DMeshes(m2,m1,1e-10,d1,d2);
+  m3->unPolyze();
+  const int expected1[12]={0,0,1,2,2,3,4,4,5,6,6,7};
+  const int expected2[12]={0,1,1,2,3,3,4,5,5,6,7,7};
+  CPPUNIT_ASSERT_EQUAL(12,d1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(12,d2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(12,m3->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(88,m3->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(2,m3->getSpaceDimension());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+12,d1->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+12,d2->getConstPointer()));
+  const int expected3[100]={6,16,15,18,44,45,46,8,18,2,1,16,47,48,49,50,8,17,1,2,40,51,52,53,54,6,18,15,20,55,56,57,8,20,7,6,18,58,59,60,61,8,41,6,7,21,62,63,64,65,6,20,15,22,66,67,68,8,22,11,7,20,69,70,71,72,8,21,7,11,42,73,74,75,76,6,22,15,16,77,78,79,8,16,1,13,22,80,81,82,83,8,43,13,1,17,84,85,86,87};
+  const int expected4[13]={0,7,16,25,32,41,50,57,66,75,82,91,100};
+  const double expected5[176]={0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1.,-1.1,-1.,0.,-1.,1.1,-1.,1.7,-1.,0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1.,0.,-1.5,0.5,0.,1.25,0.,0.7071067811865476,0.7071067811865476,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.7071067811865476,0.7071067811865476,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.7071067811865476,-0.7071067811865476,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.7071067811865476,-0.7071067811865476,1.0606601717798214,-1.0606601717798214,1.1180339887498951,1.,-1.1180339887498951,1.,-1.1180339887498951,-1.,1.1180339887498951,-1.,0.5,0.,0.,0.5,0.7071067811865477,0.7071067811865476,0.55,1.,1.1,0.5,1.05,0.,0.7071067811865477,0.7071067811865477,1.3,0.,1.1,0.5,1.1090169943749475,1.,1.4012585384440737,0.535233134659635,0.,0.5,-0.5,0.,-0.7071067811865477,0.7071067811865476,-1.05,0.,-1.1,0.5,-0.55,1.,-0.7071067811865477,0.7071067811865477,-1.1090169943749475,1.,-1.1,0.5,-1.3,0.,-1.4012585384440737,0.5352331346596344,-0.5,0.,0.,-0.5,-0.7071067811865475,-0.7071067811865477,-0.55,-1.,-1.1,-0.5,-1.05,0.,-0.7071067811865479,-0.7071067811865476,-1.3,0.,-1.1,-0.5,-1.1090169943749475,-1.,-1.4012585384440734,-0.5352331346596354,0.,-0.5,0.5,0.,0.7071067811865475,-0.7071067811865477,1.05,0.,1.1,-0.5,0.55,-1.,0.7071067811865477,-0.7071067811865476,1.1090169943749475,-1.,1.1,-0.5,1.3,0.,1.4012585384440737,-0.535233134659635};
+  CPPUNIT_ASSERT_EQUAL(100,m3->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(13,m3->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+100,m3->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+13,m3->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<176;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],m3->getCoords()->getIJ(0,i),1e-12);
+  d1->decrRef();
+  d2->decrRef();
+  m3->decrRef();
+  //
+  m1->decrRef();
+  m2->decrRef();
+}
