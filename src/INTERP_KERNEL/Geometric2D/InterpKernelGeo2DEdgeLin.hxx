@@ -25,7 +25,7 @@
 
 namespace INTERP_KERNEL
 {
-  class SegSegIntersector : SameTypeEdgeIntersector
+  class INTERPKERNEL_EXPORT SegSegIntersector : SameTypeEdgeIntersector
     {
       friend class Edge;
     public:
