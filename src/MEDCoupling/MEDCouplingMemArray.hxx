@@ -136,6 +136,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayDouble *New();
     MEDCOUPLING_EXPORT bool isAllocated() const;
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool empty() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
@@ -305,6 +306,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static DataArrayInt *New();
     MEDCOUPLING_EXPORT bool isAllocated() const;
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT bool empty() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);

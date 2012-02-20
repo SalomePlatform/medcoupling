@@ -331,6 +331,16 @@ void DataArrayDouble::checkAllocated() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("DataArrayDouble::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
 }
 
+/*!
+ * This method should be called on an allocated DataArrayDouble instance. If not an exception will be throw !
+ * This method checks the number of tupes. If it is equal to 0, it returns true, if not false is returned.
+ */
+bool DataArrayDouble::empty() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  return getNumberOfTuples()==0;
+}
+
 DataArrayDouble *DataArrayDouble::deepCpy() const
 {
   return new DataArrayDouble(*this);
@@ -2377,6 +2387,16 @@ void DataArrayInt::checkAllocated() const throw(INTERP_KERNEL::Exception)
 {
   if(!isAllocated())
     throw INTERP_KERNEL::Exception("DataArrayInt::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
+}
+
+/*!
+ * This method should be called on an allocated DataArrayInt instance. If not an exception will be throw !
+ * This method checks the number of tupes. If it is equal to 0, it returns true, if not false is returned.
+ */
+bool DataArrayInt::empty() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  return getNumberOfTuples()==0;
 }
 
 DataArrayInt *DataArrayInt::deepCpy() const
