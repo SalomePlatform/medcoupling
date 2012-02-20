@@ -619,8 +619,8 @@ void MEDCouplingBasicsTest1::testBuildPartOfMySelf()
 void MEDCouplingBasicsTest1::testBuildPartOfMySelfNode()
 {
   MEDCouplingUMesh *mesh=build2DTargetMesh_1();
-  const int tab1[2]={5,7};
-  MEDCouplingPointSet *subMeshSimple=mesh->buildPartOfMySelfNode(tab1,tab1+2,true);
+  const int tab1[4]={5,7,8,4};
+  MEDCouplingPointSet *subMeshSimple=mesh->buildPartOfMySelfNode(tab1,tab1+4,true);
   MEDCouplingUMesh *subMesh=dynamic_cast<MEDCouplingUMesh *>(subMeshSimple);
   CPPUNIT_ASSERT(subMesh);
   CPPUNIT_ASSERT_EQUAL(1,(int)subMesh->getAllTypes().size());

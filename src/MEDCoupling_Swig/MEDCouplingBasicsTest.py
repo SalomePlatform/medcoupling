@@ -405,8 +405,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     
     def testBuildPartOfMySelfNode(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
-        tab1=[5,7]
-        subMesh=mesh.buildPartOfMySelfNode(tab1[0:2],True);
+        tab1=[5,7,8,4]
+        subMesh=mesh.buildPartOfMySelfNode(tab1[0:4],True);
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
         self.assertEqual(1,len(subMesh.getAllTypes()));
         self.assertEqual(NORM_QUAD4,subMesh.getAllTypes()[0]);
