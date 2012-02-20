@@ -438,6 +438,9 @@ namespace INTERP_KERNEL
         if(it==tmp.begin())
           return true;
         if(it!=tmp.end())
+          return _dim!=1;
+        std::vector<int>::reverse_iterator it2=std::search(tmp.rbegin(),tmp.rend(),conn2,conn2+lgth);
+        if(it2!=tmp.rend())
           return false;
         throw INTERP_KERNEL::Exception("CellModel::getOrientationStatus : Request of orientation status of non equal connectively cells !");
       }
