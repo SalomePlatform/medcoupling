@@ -54,7 +54,9 @@ namespace ParaMEDMEM
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     void setCoords(const DataArrayDouble *coords);
+    //! This method returns directly the array in 'this' \b without incrementing ref counter. The pointer is dealed by the mesh. The caller should not deal (decrRef) with this pointer
     const DataArrayDouble *getCoords() const { return _coords; }
+    //! This method returns directly the array in 'this' \b without incrementing ref counter. The pointer is dealed by the mesh. The caller should not deal (decrRef) with this pointer
     DataArrayDouble *getCoords() { return _coords; }
     DataArrayDouble *getCoordinatesAndOwner() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
