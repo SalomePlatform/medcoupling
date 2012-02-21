@@ -297,9 +297,9 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignNodeFieldNoProfile(const MEDCoupli
   _nval=field->getArray()->getNumberOfTuples();
 }
 
-MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception)
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt, int ft) throw(INTERP_KERNEL::Exception)
 {
-  return new MEDFileFieldPerMeshPerTypePerDisc(fath,fid,type,profileIt);
+  return new MEDFileFieldPerMeshPerTypePerDisc(fath,fid,type,profileIt,ft);
 }
 
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId)
@@ -307,7 +307,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFil
   return new MEDFileFieldPerMeshPerTypePerDisc(fath,type,locId);
 }
 
-MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField atype, int profileIt) throw(INTERP_KERNEL::Exception)
+MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField atype, int profileIt, int ft) throw(INTERP_KERNEL::Exception)
 try:_type(atype),_father(fath),_profile_it(profileIt)
 {
   INTERP_KERNEL::AutoPtr<char> locname=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -326,8 +326,25 @@ try:_type(atype),_father(fath),_profile_it(profileIt)
                                   pflname,&profilesize,locname,&nbi);
   _arr=DataArrayDouble::New();
   _arr->alloc(_nval*nbi,infos.size());
-  MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,
-                             pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>(_arr->getPointer()));
+  switch(ft)
+    {
+    case 0:
+      {
+        MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,
+                                   pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>(_arr->getPointer()));
+        break;
+      }
+    case 1:
+      {
+        INTERP_KERNEL::AutoPtr<int> tmpp=new int[_nval*nbi*infos.size()];
+        MEDfieldValueWithProfileRd(fid,fieldName.c_str(),iteration,order,menti,mgeoti,MED_COMPACT_PFLMODE,
+                                   pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,reinterpret_cast<unsigned char*>((int *)tmpp));
+        std::copy((const int *)tmpp,(const int *)tmpp+_nval*nbi*infos.size(),_arr->getPointer());
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("Error on array reading ! Unrecognized type of field ! Should be in FLOAT64 or INT32 !");
+    }
   _profile=MEDLoaderBase::buildStringFromFortran(pflname,MED_NAME_SIZE);
   _localization=MEDLoaderBase::buildStringFromFortran(locname,MED_NAME_SIZE);
   if(type==ON_CELLS && !_localization.empty())
@@ -830,7 +847,7 @@ MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath
 {
 }
 
-void MEDFileFieldPerMeshPerType::finishLoading(med_idt fid, TypeOfField type) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerType::finishLoading(med_idt fid, TypeOfField type, int ft) throw(INTERP_KERNEL::Exception)
 {
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
   INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -841,7 +858,7 @@ void MEDFileFieldPerMeshPerType::finishLoading(med_idt fid, TypeOfField type) th
   _field_pm_pt_pd.resize(nbProfiles);
   for(int i=0;i<nbProfiles;i++)
     {
-      _field_pm_pt_pd[i]=MEDFileFieldPerMeshPerTypePerDisc::New(this,fid,type,i+1);
+      _field_pm_pt_pd[i]=MEDFileFieldPerMeshPerTypePerDisc::New(this,fid,type,i+1,ft);
     }
 }
 
@@ -953,7 +970,7 @@ void MEDFileFieldPerMesh::assignNodeFieldProfile(const DataArrayInt *pfl, const 
   _field_pm_pt[pos]->assignNodeFieldProfile(pfl,field,glob);
 }
 
-void MEDFileFieldPerMesh::finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::finishLoading(med_idt fid, int ft) throw(INTERP_KERNEL::Exception)
 {
   INTERP_KERNEL::AutoPtr<char> meshName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -967,7 +984,7 @@ void MEDFileFieldPerMesh::finishLoading(med_idt fid) throw(INTERP_KERNEL::Except
           _field_pm_pt.resize(_field_pm_pt.size()+1);
           _field_pm_pt.back()=MEDFileFieldPerMeshPerType::New(this,typmai2[i]);
           _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
-          _field_pm_pt.back()->finishLoading(fid,ON_CELLS);
+          _field_pm_pt.back()->finishLoading(fid,ON_CELLS,ft);
         }
       nbProfile=MEDfield23nProfile(fid,getName().c_str(),getIteration(),getOrder(),MED_NODE_ELEMENT,typmai[i],_mesh_csit,meshName,pflName,locName);
       if(nbProfile>0)
@@ -975,7 +992,7 @@ void MEDFileFieldPerMesh::finishLoading(med_idt fid) throw(INTERP_KERNEL::Except
           _field_pm_pt.resize(_field_pm_pt.size()+1);
           _field_pm_pt.back()=MEDFileFieldPerMeshPerType::New(this,typmai2[i]);
           _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
-          _field_pm_pt.back()->finishLoading(fid,ON_GAUSS_NE);
+          _field_pm_pt.back()->finishLoading(fid,ON_GAUSS_NE,ft);
         }
     }
   int nbProfile=MEDfield23nProfile(fid,getName().c_str(),getIteration(),getOrder(),MED_NODE,MED_NONE,_mesh_csit,meshName,pflName,locName);
@@ -984,7 +1001,7 @@ void MEDFileFieldPerMesh::finishLoading(med_idt fid) throw(INTERP_KERNEL::Except
       _field_pm_pt.resize(_field_pm_pt.size()+1);
       _field_pm_pt.back()=MEDFileFieldPerMeshPerType::New(this,INTERP_KERNEL::NORM_ERROR);
       _mesh_name=MEDLoaderBase::buildStringFromFortran(meshName,MED_NAME_SIZE+1);
-      _field_pm_pt.back()->finishLoading(fid,ON_NODES);
+      _field_pm_pt.back()->finishLoading(fid,ON_NODES,ft);
     }
 }
 
@@ -1913,9 +1930,9 @@ std::vector<int> MEDFileField1TSWithoutDAS::CheckSBTMesh(const MEDCouplingMesh *
   return code;
 }
 
-MEDFileField1TSWithoutDAS *MEDFileField1TSWithoutDAS::New(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos)
+MEDFileField1TSWithoutDAS *MEDFileField1TSWithoutDAS::New(const char *fieldName, int csit, int fieldtype, int iteration, int order, const std::vector<std::string>& infos)
 {
-  return new MEDFileField1TSWithoutDAS(fieldName,csit,iteration,order,infos);
+  return new MEDFileField1TSWithoutDAS(fieldName,csit,fieldtype,iteration,order,infos);
 }
 
 void MEDFileField1TSWithoutDAS::copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception)
@@ -2022,7 +2039,7 @@ void MEDFileField1TSWithoutDAS::finishLoading(med_idt fid) throw(INTERP_KERNEL::
   for(int i=0;i<nmesh;i++)
     _field_per_mesh[i]=MEDFileFieldPerMesh::New(this,i+1,meshnumdt,meshnumit);
   for(int i=0;i<nmesh;i++)
-    _field_per_mesh[i]->finishLoading(fid);
+    _field_per_mesh[i]->finishLoading(fid,_field_type);
 }
 
 std::vector<std::string> MEDFileField1TSWithoutDAS::getPflsReallyUsed2() const
@@ -2255,12 +2272,12 @@ DataArrayDouble *MEDFileField1TSWithoutDAS::getUndergroundDataArrayExt(std::vect
   return _field_per_mesh[0]->getUndergroundDataArrayExt(entries);
 }
 
-MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order,
-                                                     const std::vector<std::string>& infos):_name(fieldName),_infos(infos),_csit(csit),_iteration(iteration),_order(order)
+MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int fieldtype, int iteration, int order,
+                                                     const std::vector<std::string>& infos):_name(fieldName),_infos(infos),_csit(csit),_field_type(fieldtype),_iteration(iteration),_order(order)
 {
 }
 
-MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS()
+MEDFileField1TSWithoutDAS::MEDFileField1TSWithoutDAS():_csit(-1),_field_type(-1)
 {
 }
 
@@ -2339,7 +2356,7 @@ void MEDFileField1TS::write(const char *fileName, int mode) const throw(INTERP_K
 }
 
 MEDFileField1TS::MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
-try:MEDFileField1TSWithoutDAS(fieldName,-1,iteration,order,std::vector<std::string>()),MEDFieldFieldGlobsReal(fileName)
+try:MEDFileField1TSWithoutDAS(fieldName,-1,-1,iteration,order,std::vector<std::string>()),MEDFieldFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -2388,6 +2405,7 @@ try:MEDFileField1TSWithoutDAS(fieldName,-1,iteration,order,std::vector<std::stri
         {
           found=true;
           _csit=i+1;
+          _field_type=MEDFileUtilities::TraduceFieldType(typcha);
         }
       else
         dtits[i]=std::pair<int,int>(numdt,numit);
@@ -2510,21 +2528,21 @@ void MEDFileField1TS::setFieldProfile(const MEDCouplingFieldDouble *field, const
   MEDFileField1TSWithoutDAS::setFieldProfile(field,mesh,meshDimRelToMax,profile,*this);
 }
 
-MEDFileFieldMultiTSWithoutDAS *MEDFileFieldMultiTSWithoutDAS::New(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
+MEDFileFieldMultiTSWithoutDAS *MEDFileFieldMultiTSWithoutDAS::New(med_idt fid, const char *fieldName, int id, int ft, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
 {
-  return new MEDFileFieldMultiTSWithoutDAS(fid,fieldName,id,infos,nbOfStep);
+  return new MEDFileFieldMultiTSWithoutDAS(fid,fieldName,id,ft,infos,nbOfStep);
 }
 
-MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS()
-{
-}
-
-MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS(const char *fieldName):_name(fieldName)
+MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS():_field_type(-1)
 {
 }
 
-MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
-try:_name(fieldName),_infos(infos)
+MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS(const char *fieldName):_name(fieldName),_field_type(-1)
+{
+}
+
+MEDFileFieldMultiTSWithoutDAS::MEDFileFieldMultiTSWithoutDAS(med_idt fid, const char *fieldName, int id, int ft, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
+try:_name(fieldName),_infos(infos),_field_type(ft)
 {
   finishLoading(fid,nbOfStep);
 }
@@ -2606,7 +2624,7 @@ void MEDFileFieldMultiTSWithoutDAS::finishLoading(med_idt fid, int nbPdt) throw(
       med_int meshIt=0,meshOrder=0;
       med_float dt=0.0;
       MEDfieldComputingStepMeshInfo(fid,_name.c_str(),i+1,&numdt,&numo,&dt,&meshIt,&meshOrder);
-      _time_steps[i]=MEDFileField1TSWithoutDAS::New(_name.c_str(),i+1,numdt,numo,_infos);
+      _time_steps[i]=MEDFileField1TSWithoutDAS::New(_name.c_str(),i+1,_field_type,numdt,numo,_infos);
       _time_steps[i]->finishLoading(fid);
     }
 }
@@ -2936,6 +2954,7 @@ try:MEDFileFieldMultiTSWithoutDAS(fieldName),MEDFieldFieldGlobsReal(fileName)
       if(found)
         {
           nbstep2=nbOfStep;
+          _field_type=_field_type=MEDFileUtilities::TraduceFieldType(typcha);
           _infos.resize(ncomp);
           for(int j=0;j<ncomp;j++)
             _infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+j*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+j*MED_SNAME_SIZE,MED_SNAME_SIZE);
@@ -3045,10 +3064,11 @@ try:MEDFieldFieldGlobsReal(fileName)
         med_bool localMesh;
         int nbOfStep;
         MEDfieldInfo(fid,i+1,nomcha,nomMaa,&localMesh,&typcha,comp,unit,dtunit,&nbOfStep);
+        int ft=MEDFileUtilities::TraduceFieldType(typcha);
         std::vector<std::string> infos(ncomp);
         for(int j=0;j<ncomp;j++)
           infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+j*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+j*MED_SNAME_SIZE,MED_SNAME_SIZE);
-        _fields[i]=MEDFileFieldMultiTSWithoutDAS::New(fid,nomcha,i+1,infos,nbOfStep);
+        _fields[i]=MEDFileFieldMultiTSWithoutDAS::New(fid,nomcha,i+1,ft,infos,nbOfStep);
       }
     loadAllGlobals(fid);
   }

@@ -88,7 +88,7 @@ namespace ParaMEDMEM
   class MEDFileFieldPerMeshPerTypePerDisc : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
+    static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt, int ft) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId);
     void assignFieldNoProfile(int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignFieldProfile(const char *pflName, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
@@ -118,7 +118,7 @@ namespace ParaMEDMEM
     void fillValues(int discId, int& startTupleId, int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries, double *vals) const;
     static int ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception);
   private:
-    MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
+    MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, med_idt fid, TypeOfField type, int profileIt, int ft) throw(INTERP_KERNEL::Exception);
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt);
   private:
     TypeOfField _type;
@@ -142,7 +142,7 @@ namespace ParaMEDMEM
     void assignNodeFieldNoProfile(const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldProfile(const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     const MEDFileFieldPerMesh *getFather() const;
-    void finishLoading(med_idt fid, TypeOfField type) throw(INTERP_KERNEL::Exception);
+    void finishLoading(med_idt fid, TypeOfField type, int ft) throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     void getDimension(int& dim) const;
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const throw(INTERP_KERNEL::Exception);
@@ -185,7 +185,7 @@ namespace ParaMEDMEM
     void assignFieldNoProfileNoRenum(const std::vector<int>& code, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldNoProfile(const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldProfile(const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
-    void finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception);
+    void finishLoading(med_idt fid, int ft) throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const throw(INTERP_KERNEL::Exception);
     std::vector< std::vector<const DataArrayDouble *> > getFieldSplitedByType(std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
@@ -328,7 +328,7 @@ namespace ParaMEDMEM
     const std::vector<std::string>& getInfo() const { return _infos; }
     std::vector<std::string>& getInfo() { return _infos; }
     //
-    static MEDFileField1TSWithoutDAS *New(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
+    static MEDFileField1TSWithoutDAS *New(const char *fieldName, int csit, int fieldtype, int iteration, int order, const std::vector<std::string>& infos);
     void finishLoading(med_idt fid) throw(INTERP_KERNEL::Exception);
     virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed2() const;
@@ -351,7 +351,7 @@ namespace ParaMEDMEM
   protected:
     int addNewEntryIfNecessary(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);
-    MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int iteration, int order, const std::vector<std::string>& infos);
+    MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int fieldtype, int iteration, int order, const std::vector<std::string>& infos);
   public:
     MEDFileField1TSWithoutDAS();
   protected:
@@ -359,7 +359,10 @@ namespace ParaMEDMEM
     std::string _dt_unit;
     std::vector<std::string> _infos;
     std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > > _field_per_mesh;
-    int _csit;
+    //! only useable on reading
+    mutable int _csit;
+    //! only useable on reading. 0 is for float, 1 for int32, 2 for int64
+    mutable int _field_type;
     int _iteration;
     int _order;
     double _dt;
@@ -394,7 +397,7 @@ namespace ParaMEDMEM
   class MEDLOADER_EXPORT MEDFileFieldMultiTSWithoutDAS : public RefCountObject, public MEDFileWritable
   {
   public:
-    static MEDFileFieldMultiTSWithoutDAS *New(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception);
+    static MEDFileFieldMultiTSWithoutDAS *New(med_idt fid, const char *fieldName, int id, int ft, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception);
     int getNumberOfTS() const;
     std::vector< std::pair<int,int> > getIterations() const;
     std::vector< std::vector<TypeOfField> > getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception);
@@ -415,13 +418,15 @@ namespace ParaMEDMEM
     std::string getDtUnit() const throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTSWithoutDAS();
     MEDFileFieldMultiTSWithoutDAS(const char *fieldName);
-    MEDFileFieldMultiTSWithoutDAS(med_idt fid, const char *fieldName, int id, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception);
+    MEDFileFieldMultiTSWithoutDAS(med_idt fid, const char *fieldName, int id, int ft, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception);
     void finishLoading(med_idt fid, int nbPdt) throw(INTERP_KERNEL::Exception);
     void copyTinyInfoFrom(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void checkCoherencyOfTinyInfo(const MEDCouplingFieldDouble *field) const throw(INTERP_KERNEL::Exception);
   protected:
     std::string _name;
     std::vector<std::string> _infos;
+    //! only useable on reading. 0 is for float, 1 for int32, 2 for int64
+    mutable int _field_type;
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  > _time_steps;
   };
 

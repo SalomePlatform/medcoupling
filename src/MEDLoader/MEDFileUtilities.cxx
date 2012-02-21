@@ -37,6 +37,21 @@ med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode) throw
     }
 }
 
+int MEDFileUtilities::TraduceFieldType(med_field_type ft) throw(INTERP_KERNEL::Exception)
+{
+  switch(ft)
+    {
+    case MED_FLOAT64:
+      return 0;
+    case MED_INT32:
+      return 1;
+    case MED_INT64:
+      return 2;
+    default:
+      throw INTERP_KERNEL::Exception("Non supported field type ! Should be FLOAT64, INT32 or INT64 !");
+    }
+}
+
 void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const char *msg) throw(INTERP_KERNEL::Exception)
 {
   if(code<0)
