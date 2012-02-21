@@ -58,7 +58,7 @@ void SauvLoaderTest::testMed2Sauv()
   // add 3 faces to pointeMed
   MEDFileUMesh* pointeMedMesh = static_cast<MEDFileUMesh*>(pointeMed->getMeshes()->getMeshAtPos(0));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> pointeM1D = MEDCouplingUMesh::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble>     coords = pointeMedMesh->getCoords();
+  DataArrayDouble     *coords = pointeMedMesh->getCoords();
   pointeM1D->setCoords( coords );
   pointeM1D->setMeshDimension( 2 );
   pointeM1D->allocateCells( 3 );
@@ -140,8 +140,8 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT_EQUAL(2, um1->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> pointeUM0 =
     static_cast<MEDCouplingUMesh*>( pointeMedMesh->getGenMeshAtLevel(0));
-  MEDCouplingAutoRefCountObjectPtr< DataArrayDouble > coo = m->getCoords();
-  MEDCouplingAutoRefCountObjectPtr< DataArrayDouble > pointeCoo = pointeMedMesh->getCoords();
+  DataArrayDouble *coo = m->getCoords();
+  DataArrayDouble *pointeCoo = pointeMedMesh->getCoords();
   CPPUNIT_ASSERT(coo->isEqualWithoutConsideringStr(*pointeCoo,1e-12));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> vol = um0->getMeasureField(0);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> pointeVol = pointeUM0->getMeasureField(0);
