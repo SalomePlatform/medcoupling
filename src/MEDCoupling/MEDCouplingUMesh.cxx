@@ -2431,8 +2431,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3D(const double *origin, const dou
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc1=DataArrayInt::New(),revDesc2=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx1=DataArrayInt::New(),revDescIndx2=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mDesc2=subMesh->buildDescendingConnectivity(desc2,descIndx2,revDesc2,revDescIndx2);//meshDim==2 spaceDim==3
+  revDesc2=0; revDescIndx2=0;
   mDesc2->fillCellIdsToKeepFromNodeIds(&nodes[0],&nodes[0]+nodes.size(),true,cellIds2D);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mDesc1=mDesc2->buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1);//meshDim==1 spaceDim==3
+  revDesc1=0; revDescIndx1=0;
   mDesc1->fillCellIdsToKeepFromNodeIds(&nodes[0],&nodes[0]+nodes.size(),true,cellIds1D);
   //
   std::vector<int> cut3DCurve(mDesc1->getNumberOfCells(),-2);
@@ -2461,7 +2463,91 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3D(const double *origin, const dou
 }
 
 /*!
- * This method expects that 'this' is fully defined and has a spaceDim==3 and a meshDim==3. If it is not the case an exception will be thrown.
+ * This method expects that 'this' is fully defined and has a spaceDim==3 and a meshDim==2. If it is not the case an exception will be thrown.
+ * This method returns 2 objects : 
+ * - a newly created mesh instance containing the result of the slice lying on different coords than 'this' and with a meshdim == 1
+ * - a newly created dataarray having number of tuples equal to the number of cells in returned mesh that tells for each 2D cell in returned
+ *   mesh the 3DSurf cell id is 'this' it comes from.
+ * This method works only for linear meshes (non quadratic).
+ * If plane crosses within 'eps' a face in 'this' shared by more than 1 cell, 2 output faces will be generated. The 2 faces having the same geometry than intersecting
+ * face. Only 'cellIds' parameter can distinguish the 2.
+ * @param origin is the origin of the plane. It should be an array of length 3.
+ * @param vec is the direction vector of the plane. It should be an array of length 3. Norm of 'vec' should be > 1e-6.
+ * @param eps is the precision. It is used by called method MEDCouplingUMesh::getCellIdsCrossingPlane for the first 3DSurf cell selection (in absolute). 'eps' is
+ * also used to state if new points should be created or already existing points are reused. 'eps' is also used to tells if plane overlaps a face, edge or nodes (in absolute).
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3DSurf(const double *origin, const double *vec, double eps, DataArrayInt *&cellIds) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=2 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D works on umeshes with meshdim equal to 2 and spaceDim equal to 3 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates=getCellIdsCrossingPlane(origin,vec,eps);
+  if(candidates->empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : No 3D cells in this intercepts the specified plane considering bounding boxes !");
+  std::vector<int> nodes;
+  std::vector<int> cellIds1D;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=static_cast<MEDCouplingUMesh*>(buildPartOfMySelf(candidates->begin(),candidates->end(),false));
+  int nbNodes1=subMesh->getNumberOfNodes();
+  subMesh->findNodesOnPlane(origin,vec,eps,nodes);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx1=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mDesc1=subMesh->buildDescendingConnectivity(desc1,descIndx1,revDesc1,revDescIndx1);//meshDim==1 spaceDim==3
+  mDesc1->fillCellIdsToKeepFromNodeIds(&nodes[0],&nodes[0]+nodes.size(),true,cellIds1D);
+  //
+  std::vector<int> cut3DCurve(mDesc1->getNumberOfCells(),-2);
+  for(std::vector<int>::const_iterator it=cellIds1D.begin();it!=cellIds1D.end();it++)
+    cut3DCurve[*it]=-1;
+  mDesc1->split3DCurveWithPlane(origin,vec,eps,cut3DCurve);
+  int ncellsSub=subMesh->getNumberOfCells();
+  std::vector< std::pair<int,int> > cut3DSurf(ncellsSub);
+  AssemblyForSplitFrom3DCurve(cut3DCurve,nodes,subMesh->getNodalConnectivity()->getConstPointer(),subMesh->getNodalConnectivityIndex()->getConstPointer(),
+                              mDesc1->getNodalConnectivity()->getConstPointer(),mDesc1->getNodalConnectivityIndex()->getConstPointer(),
+                              desc1->getConstPointer(),descIndx1->getConstPointer(),cut3DSurf);
+  std::vector<int> conn,connI,cellIds2; connI.push_back(0);
+  const int *nodal=subMesh->getNodalConnectivity()->getConstPointer();
+  const int *nodalI=subMesh->getNodalConnectivityIndex()->getConstPointer();
+  for(int i=0;i<ncellsSub;i++)
+    {
+      if(cut3DSurf[i].first!=-1 && cut3DSurf[i].second!=-1)
+        {
+          if(cut3DSurf[i].first!=-2)
+            {
+              conn.push_back((int)INTERP_KERNEL::NORM_SEG2); conn.push_back(cut3DSurf[i].first); conn.push_back(cut3DSurf[i].second);
+              connI.push_back((int)conn.size());
+              cellIds2.push_back(i);
+            }
+          else
+            {
+              int cellId3DSurf=cut3DSurf[i].second;
+              int offset=nodalI[cellId3DSurf]+1;
+              int nbOfEdges=nodalI[cellId3DSurf+1]-offset;
+              for(int j=0;j<nbOfEdges;j++)
+                {
+                  conn.push_back((int)INTERP_KERNEL::NORM_SEG2); conn.push_back(nodal[offset+j]); conn.push_back(nodal[offset+(j+1)%nbOfEdges]);
+                  connI.push_back((int)conn.size());
+                  cellIds2.push_back(cellId3DSurf);
+                }
+            }
+        }
+    }
+  if(cellIds2.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf : No 3DSurf cells in this intercepts the specified plane !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New("Slice3DSurf",1);
+  ret->setCoords(mDesc1->getCoords());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c=DataArrayInt::New();
+  c->alloc((int)conn.size(),1); std::copy(conn.begin(),conn.end(),c->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cI=DataArrayInt::New();
+  cI->alloc((int)connI.size(),1); std::copy(connI.begin(),connI.end(),cI->getPointer());
+  ret->setConnectivity(c,cI,true);
+  cellIds=candidates->selectByTupleId(&cellIds2[0],&cellIds2[0]+cellIds2.size());
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * This method expects that 'this' is fully defined and has a spaceDim==3. If it is not the case an exception will be thrown.
  * This method returns a newly created dataarray containing cellsids in 'this' that potentially crosses the plane specified by 'origin' and 'vec'.
  * @param origin is the origin of the plane. It should be an array of length 3.
  * @param vec is the direction vector of the plane. It should be an array of length 3. Norm of 'vec' should be > 1e-6.
@@ -2469,8 +2555,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3D(const double *origin, const dou
 DataArrayInt *MEDCouplingUMesh::getCellIdsCrossingPlane(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception)
 {
   checkFullyDefined();
-  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
+  if(getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D works on umeshes with spaceDim equal to 3 !");
   double normm=sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
   if(normm<1e-6)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellIdsCrossingPlane : parameter 'vec' should have a norm2 greater than 1e-6 !");
@@ -5447,7 +5533,7 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3D
           {// case when plane is on a multi colinear edge of a polyhedron
             if(res.size()==2*nbOfSeg)
               {
-                cut3DSurf[i].first=-2; cut3DSurf[i].first=i;
+                cut3DSurf[i].first=-2; cut3DSurf[i].second=i;
               }
             else
               throw INTERP_KERNEL::Exception("MEDCouplingUMesh::AssemblyPointsFrom3DCurve : unexpected situation !");

@@ -1448,6 +1448,23 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      PyObject *buildSlice3DSurf(PyObject *origin, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        int sz;
+        INTERP_KERNEL::AutoPtr<double> orig=convertPyToNewDblArr2(origin,&sz);
+        if(!orig || sz!=3)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : in parameter 1 expecting origin of type list of float of size 3 !");
+        INTERP_KERNEL::AutoPtr<double> vect=convertPyToNewDblArr2(vec,&sz);
+        if(!vec || sz!=3)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : in parameter 2 expecting vector of type list of float of size 3 !");
+        DataArrayInt *cellIds=0;
+        MEDCouplingUMesh *ret0=self->buildSlice3DSurf(orig,vect,eps,cellIds);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(cellIds),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       DataArrayInt *getCellIdsCrossingPlane(PyObject *origin, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
       {
         int sz;

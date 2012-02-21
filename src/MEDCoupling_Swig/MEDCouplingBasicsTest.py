@@ -8604,6 +8604,117 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         ids2=mesh3D.getCellIdsCrossingPlane(origin,vec2,1e-10)
         self.assertEqual([6,7,8,9,10,11],ids2.getValues())
         pass
+
+    def testBuildSlice3D1(self):
+        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        vec1=[-0.07,1.,0.07]
+        origin1=[1.524,1.4552,1.74768]
+        slice1,ids=mesh3D.buildSlice3D(origin1,vec1,1e-10);
+        expected1=[1,3,4,7,9,10,13,15,16]
+        expected2=[5,42,41,40,43,44,5,42,46,45,41,5,44,43,40,47,48,5,49,42,44,50,5,49,51,46,42,5,50,44,48,52,5,53,49,50,54,5,53,55,51,49,5,54,50,52,56]
+        expected3=[0,6,11,17,22,27,32,37,42,47]
+        expected4=[1.,1.,0.,1.,1.25,0.,1.,1.5,0.,2.,1.,0.,1.,2.,0.,0.,2.,0.,3.,1.,0.,3.,2.,0.,0.,1.,0.,2.,2.,0.,1.,1.,1.,1.,1.25,1.,1.,1.5,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,2.,2.,1.,1.,1.,2.,1.,1.25,2.,1.,1.5,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,2.,2.,2.,1.,1.,3.,1.,1.25,3.,1.,1.5,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,2.,2.,3.,1.,1.5408576,0.,2.,1.6108576000000001,0.,2.,1.5408576,1.,1.,1.5,0.5836800000000008,1.,1.4708576,1.,3.,1.6808576,0.,3.,1.6108576000000001,1.,0.,1.4708576,0.,0.,1.4008576,1.,2.,1.4708576,2.,1.,1.4008576000000001,2.,3.,1.5408575999999998,2.,0.,1.3308575999999999,2.,2.,1.4008576,3.,1.,1.3308576,3.,3.,1.4708576,3.,0.,1.2608576,3.]
+        self.assertEqual(2,slice1.getMeshDimension());
+        self.assertEqual(3,slice1.getSpaceDimension());
+        self.assertEqual(57,slice1.getNumberOfNodes());
+        self.assertEqual(9,slice1.getNumberOfCells());
+        self.assertEqual(9,ids.getNumberOfTuples());
+        self.assertEqual(47,slice1.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(10,slice1.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected1,ids.getValues());
+        self.assertEqual(expected2,slice1.getNodalConnectivity().getValues());
+        self.assertEqual(expected3,slice1.getNodalConnectivityIndex().getValues());
+        for i in xrange(171):
+            self.assertAlmostEqual(expected4[i],slice1.getCoords().getIJ(0,i),12);
+            pass
+        # 2nd slice based on already existing nodes of mesh3D.
+        vec2=[0.,3.,1.]
+        origin2=[2.5,1.,3.]
+        slice1,ids=mesh3D.buildSlice3D(origin2,vec2,1e-10);
+        expected5=[5,50,10,4,51,5,50,52,7,10,5,51,4,5,53,5,54,50,51,55,56,5,54,57,52,50,5,56,55,51,53,58,5,38,59,56,54,43,5,54,57,46,43,5,38,59,56,58,48]
+        expected6=[0,5,10,15,21,26,32,38,43,49]
+        expected7=[1.,1.,0.,1.,1.25,0.,1.,1.5,0.,2.,1.,0.,1.,2.,0.,0.,2.,0.,3.,1.,0.,3.,2.,0.,0.,1.,0.,1.,3.,0.,2.,2.,0.,2.,3.,0.,1.,1.,1.,1.,1.25,1.,1.,1.5,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,1.,3.,1.,2.,2.,1.,2.,3.,1.,0.,0.,2.,1.,1.,2.,1.,1.25,2.,1.,0.,2.,1.,1.5,2.,2.,0.,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,2.,2.,2.,0.,0.,3.,1.,1.,3.,1.,1.25,3.,1.,0.,3.,1.,1.5,3.,2.,0.,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,2.,2.,3.,2.,1.6666666666666667,1.,1.,1.6666666666666667,1.,3.,1.6666666666666667,1.,0.,1.6666666666666667,1.,2.,1.3333333333333335,2.,1.,1.5,1.5,1.,1.3333333333333333,2.,3.,1.3333333333333335,2.,0.,1.3333333333333335,2.,1.,1.25,2.25]
+        self.assertEqual(2,slice1.getMeshDimension());
+        self.assertEqual(3,slice1.getSpaceDimension());
+        self.assertEqual(60,slice1.getNumberOfNodes());
+        self.assertEqual(9,slice1.getNumberOfCells());
+        self.assertEqual(9,ids.getNumberOfTuples());
+        self.assertEqual(49,slice1.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(10,slice1.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected1,ids.getValues());
+        self.assertEqual(expected5,slice1.getNodalConnectivity().getValues());
+        self.assertEqual(expected6,slice1.getNodalConnectivityIndex().getValues());
+        for i in xrange(180):
+            self.assertAlmostEqual(expected7[i],slice1.getCoords().getIJ(0,i),12);
+            pass
+        # 3rd slice based on shared face of mesh3D.
+        vec3=[0.,0.,1.]
+        origin3=[2.5,1.,2.]
+        slice1,ids=mesh3D.buildSlice3D(origin3,vec3,1e-10);
+        expected8=[6,7,8,9,10,11,12,13,14,15,16,17]
+        expected9=[5,15,26,16,18,5,16,21,28,22,19,17,5,18,20,21,16,5,21,24,25,28,5,26,16,17,19,22,23,5,22,27,29,28,5,15,26,16,18,5,16,21,28,22,19,17,5,18,20,21,16,5,21,24,25,28,5,26,16,17,19,22,23,5,22,27,29,28]
+        expected10=[0,5,12,17,22,29,34,39,46,51,56,63,68]
+        expected11=[0.,0.,1.,1.,1.,1.,1.,1.25,1.,1.,0.,1.,1.,1.5,1.,2.,0.,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,1.,3.,1.,2.,2.,1.,2.,3.,1.,0.,0.,2.,1.,1.,2.,1.,1.25,2.,1.,0.,2.,1.,1.5,2.,2.,0.,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,1.,3.,2.,2.,2.,2.,2.,3.,2.,0.,0.,3.,1.,1.,3.,1.,1.25,3.,1.,0.,3.,1.,1.5,3.,2.,0.,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,1.,3.,3.,2.,2.,3.,2.,3.,3.]
+        self.assertEqual(2,slice1.getMeshDimension());
+        self.assertEqual(3,slice1.getSpaceDimension());
+        self.assertEqual(45,slice1.getNumberOfNodes());
+        self.assertEqual(12,slice1.getNumberOfCells());
+        self.assertEqual(12,ids.getNumberOfTuples());
+        self.assertEqual(68,slice1.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(13,slice1.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected8,ids.getValues());
+        self.assertEqual(expected9,slice1.getNodalConnectivity().getValues());
+        self.assertEqual(expected10,slice1.getNodalConnectivityIndex().getValues());
+        for i in xrange(135):
+            self.assertAlmostEqual(expected11[i],slice1.getCoords().getIJ(0,i),12);
+            pass
+        pass
+
+    def testBuildSlice3DSurf1(self):
+        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        mesh2D=mesh3D.buildDescendingConnectivity()[0];
+        vec1=[-0.07,1.,0.07]
+        origin1=[1.524,1.4552,1.74768]
+        slice1,ids=mesh2D.buildSlice3DSurf(origin1,vec1,1e-10);
+        expected1=[6,8,10,11,13,18,19,21,23,25,26,38,41,43,47,49,52,53,64,67,69,73,75,78,79]
+        expected2=[1,40,41,1,42,41,1,40,43,1,44,43,1,42,44,1,45,41,1,42,46,1,46,45,1,47,40,1,47,48,1,44,48,1,49,42,1,44,50,1,49,50,1,49,51,1,51,46,1,48,52,1,50,52,1,53,49,1,50,54,1,53,54,1,53,55,1,55,51,1,52,56,1,54,56]
+        expected3=[0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75];
+        expected4=[1.,1.,0.,1.,1.25,0.,1.,1.5,0.,2.,1.,0.,1.,2.,0.,0.,2.,0.,3.,1.,0.,3.,2.,0.,0.,1.,0.,2.,2.,0.,1.,1.,1.,1.,1.25,1.,1.,1.5,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,2.,2.,1.,1.,1.,2.,1.,1.25,2.,1.,1.5,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,2.,2.,2.,1.,1.,3.,1.,1.25,3.,1.,1.5,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,2.,2.,3.,1.,1.5408576,0.,2.,1.6108576000000001,0.,2.,1.5408576,1.,1.,1.5,0.5836800000000008,1.,1.4708576,1.,3.,1.6808576,0.,3.,1.6108576000000001,1.,0.,1.4708576,0.,0.,1.4008576,1.,2.,1.4708576,2.,1.,1.4008576000000001,2.,3.,1.5408575999999998,2.,0.,1.3308575999999999,2.,2.,1.4008576,3.,1.,1.3308576,3.,3.,1.4708576,3.,0.,1.2608576,3.]
+        self.assertEqual(1,slice1.getMeshDimension());
+        self.assertEqual(3,slice1.getSpaceDimension());
+        self.assertEqual(57,slice1.getNumberOfNodes());
+        self.assertEqual(25,slice1.getNumberOfCells());
+        self.assertEqual(25,ids.getNumberOfTuples());
+        self.assertEqual(75,slice1.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(26,slice1.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected1,ids.getValues());
+        self.assertEqual(expected2,slice1.getNodalConnectivity().getValues());
+        self.assertEqual(expected3,slice1.getNodalConnectivityIndex().getValues());
+        for i in xrange(171):
+            self.assertAlmostEqual(expected4[i],slice1.getCoords().getIJ(0,i),12);
+            pass
+        #
+        vec2=[0.,0.,1.]
+        origin2=[2.5,1.,2.]
+        slice1,ids=mesh2D.buildSlice3DSurf(origin2,vec2,1e-10);
+        expected5=[32,32,32,32,33,34,35,36,37,38,39,40,41,42,43,43,43,43,43,43,44,44,44,44,45,46,47,47,47,47,48,49,50,51,52,53,53,53,53,53,53,54,54,54,54,55,56,57,59,60,61,62,63,64,65,66,67,68,71,72,74,75,76,77,78,81,82,83]
+        expected6=[1,15,18,1,18,16,1,16,26,1,26,15,1,26,15,1,16,26,1,18,16,1,15,18,1,16,21,1,21,28,1,22,28,1,19,22,1,17,19,1,16,17,1,16,21,1,21,28,1,28,22,1,22,19,1,19,17,1,17,16,1,16,18,1,18,20,1,20,21,1,21,16,1,20,21,1,18,20,1,28,21,1,21,24,1,24,25,1,25,28,1,25,28,1,24,25,1,21,24,1,23,22,1,26,23,1,26,16,1,16,17,1,17,19,1,19,22,1,22,23,1,23,26,1,22,28,1,28,29,1,29,27,1,27,22,1,27,22,1,29,27,1,28,29,1,26,15,1,16,26,1,18,16,1,15,18,1,16,21,1,21,28,1,22,28,1,19,22,1,17,19,1,16,17,1,20,21,1,18,20,1,25,28,1,24,25,1,21,24,1,23,22,1,26,23,1,27,22,1,29,27,1,28,29]
+        expected7=[0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99,102,105,108,111,114,117,120,123,126,129,132,135,138,141,144,147,150,153,156,159,162,165,168,171,174,177,180,183,186,189,192,195,198,201,204];
+        expected8=[0.,0.,1.,1.,1.,1.,1.,1.25, 1.,1.,0.,1.,1.,1.5, 1.,2.,0.,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,1.,3.,1.,2.,2.,1.,2.,3.,1.,0.,0.,2.,1.,1.,2.,1.,1.25, 2.,1.,0.,2.,1.,1.5, 2.,2.,0.,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,1.,3.,2.,2.,2.,2.,2.,3.,2.,0.,0.,3.,1.,1.,3.,1.,1.25, 3.,1.,0.,3.,1.,1.5, 3.,2.,0.,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,1.,3.,3.,2.,2.,3.,2.,3.,3.]
+        self.assertEqual(1,slice1.getMeshDimension());
+        self.assertEqual(3,slice1.getSpaceDimension());
+        self.assertEqual(45,slice1.getNumberOfNodes());
+        self.assertEqual(68,slice1.getNumberOfCells());
+        self.assertEqual(68,ids.getNumberOfTuples());
+        self.assertEqual(204,slice1.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(69,slice1.getNodalConnectivityIndex().getNumberOfTuples());
+        self.assertEqual(expected5,ids.getValues());
+        self.assertEqual(expected6,slice1.getNodalConnectivity().getValues());
+        self.assertEqual(expected7,slice1.getNodalConnectivityIndex().getValues());
+        for i in xrange(135):
+            self.assertAlmostEqual(expected8[i],slice1.getCoords().getIJ(0,i),12);
+            pass
+        pass
     
     def setUp(self):
         pass

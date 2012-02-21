@@ -172,3 +172,135 @@ void MEDCouplingBasicsTest5::testGetCellIdsCrossingPlane1()
   mesh2D->decrRef();
 }
 
+void MEDCouplingBasicsTest5::testBuildSlice3D1()
+{
+  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
+  mesh2D->decrRef();
+  // First slice in the middle of 3D cells
+  const double vec1[3]={-0.07,1.,0.07};
+  const double origin1[3]={1.524,1.4552,1.74768};
+  DataArrayInt *ids=0;
+  MEDCouplingUMesh *slice1=mesh3D->buildSlice3D(origin1,vec1,1e-10,ids);
+  const int expected1[9]={1,3,4,7,9,10,13,15,16};
+  const int expected2[47]={5,42,41,40,43,44,5,42,46,45,41,5,44,43,40,47,48,5,49,42,44,50,5,49,51,46,42,5,50,44,48,52,5,53,49,50,54,5,53,55,51,49,5,54,50,52,56};
+  const int expected3[10]={0,6,11,17,22,27,32,37,42,47};
+  const double expected4[171]={1.,1.,0.,1.,1.25,0.,1.,1.5,0.,2.,1.,0.,1.,2.,0.,0.,2.,0.,3.,1.,0.,3.,2.,0.,0.,1.,0.,2.,2.,0.,1.,1.,1.,1.,1.25,1.,1.,1.5,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,2.,2.,1.,1.,1.,2.,1.,1.25,2.,1.,1.5,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,2.,2.,2.,1.,1.,3.,1.,1.25,3.,1.,1.5,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,2.,2.,3.,1.,1.5408576,0.,2.,1.6108576000000001,0.,2.,1.5408576,1.,1.,1.5,0.5836800000000008,1.,1.4708576,1.,3.,1.6808576,0.,3.,1.6108576000000001,1.,0.,1.4708576,0.,0.,1.4008576,1.,2.,1.4708576,2.,1.,1.4008576000000001,2.,3.,1.5408575999999998,2.,0.,1.3308575999999999,2.,2.,1.4008576,3.,1.,1.3308576,3.,3.,1.4708576,3.,0.,1.2608576,3.};
+  CPPUNIT_ASSERT_EQUAL(2,slice1->getMeshDimension());
+  CPPUNIT_ASSERT_EQUAL(3,slice1->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(57,slice1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(9,slice1->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(9,ids->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(47,slice1->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(10,slice1->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+9,ids->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+47,slice1->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+10,slice1->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<171;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected4[i],slice1->getCoords()->getIJ(0,i),1e-12);
+  ids->decrRef();
+  slice1->decrRef();
+  // 2nd slice based on already existing nodes of mesh3D.
+  const double vec2[3]={0.,3.,1.};
+  const double origin2[3]={2.5,1.,3.};
+  slice1=mesh3D->buildSlice3D(origin2,vec2,1e-10,ids);
+  const int expected5[49]={5,50,10,4,51,5,50,52,7,10,5,51,4,5,53,5,54,50,51,55,56,5,54,57,52,50,5,56,55,51,53,58,5,38,59,56,54,43,5,54,57,46,43,5,38,59,56,58,48};
+  const int expected6[10]={0,5,10,15,21,26,32,38,43,49};
+  const double expected7[180]={1.,1.,0.,1.,1.25,0.,1.,1.5,0.,2.,1.,0.,1.,2.,0.,0.,2.,0.,3.,1.,0.,3.,2.,0.,0.,1.,0.,1.,3.,0.,2.,2.,0.,2.,3.,0.,1.,1.,1.,1.,1.25,1.,1.,1.5,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,1.,3.,1.,2.,2.,1.,2.,3.,1.,0.,0.,2.,1.,1.,2.,1.,1.25,2.,1.,0.,2.,1.,1.5,2.,2.,0.,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,2.,2.,2.,0.,0.,3.,1.,1.,3.,1.,1.25,3.,1.,0.,3.,1.,1.5,3.,2.,0.,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,2.,2.,3.,2.,1.6666666666666667,1.,1.,1.6666666666666667,1.,3.,1.6666666666666667,1.,0.,1.6666666666666667,1.,2.,1.3333333333333335,2.,1.,1.5,1.5,1.,1.3333333333333333,2.,3.,1.3333333333333335,2.,0.,1.3333333333333335,2.,1.,1.25,2.25};
+  CPPUNIT_ASSERT_EQUAL(2,slice1->getMeshDimension());
+  CPPUNIT_ASSERT_EQUAL(3,slice1->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(60,slice1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(9,slice1->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(9,ids->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(49,slice1->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(10,slice1->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+9,ids->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected5,expected5+49,slice1->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected6,expected6+10,slice1->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<180;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected7[i],slice1->getCoords()->getIJ(0,i),1e-12);
+  ids->decrRef();
+  slice1->decrRef();
+  // 3rd slice based on shared face of mesh3D.
+  const double vec3[3]={0.,0.,1.};
+  const double origin3[3]={2.5,1.,2.};
+  slice1=mesh3D->buildSlice3D(origin3,vec3,1e-10,ids);
+  const int expected8[12]={6,7,8,9,10,11,12,13,14,15,16,17};
+  const int expected9[68]={5,15,26,16,18,5,16,21,28,22,19,17,5,18,20,21,16,5,21,24,25,28,5,26,16,17,19,22,23,5,22,27,29,28,5,15,26,16,18,5,16,21,28,22,19,17,5,18,20,21,16,5,21,24,25,28,5,26,16,17,19,22,23,5,22,27,29,28};
+  const int expected10[13]={0,5,12,17,22,29,34,39,46,51,56,63,68};
+  const double expected11[135]={0.,0.,1.,1.,1.,1.,1.,1.25, 1.,1.,0.,1.,1.,1.5, 1.,2.,0.,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,1.,3.,1.,2.,2.,1.,2.,3.,1.,0.,0.,2.,1.,1.,2.,1.,1.25, 2.,1.,0.,2.,1.,1.5, 2.,2.,0.,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,1.,3.,2.,2.,2.,2.,2.,3.,2.,0.,0.,3.,1.,1.,3.,1.,1.25, 3.,1.,0.,3.,1.,1.5, 3.,2.,0.,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,1.,3.,3.,2.,2.,3.,2.,3.,3.};
+  CPPUNIT_ASSERT_EQUAL(2,slice1->getMeshDimension());
+  CPPUNIT_ASSERT_EQUAL(3,slice1->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(45,slice1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(12,slice1->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(12,ids->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(68,slice1->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(13,slice1->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected8,expected8+12,ids->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected9,expected9+68,slice1->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected10,expected10+13,slice1->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<135;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected11[i],slice1->getCoords()->getIJ(0,i),1e-12);
+  ids->decrRef();
+  slice1->decrRef();
+  //
+  mesh3D->decrRef();
+}
+
+void MEDCouplingBasicsTest5::testBuildSlice3DSurf1()
+{
+  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
+  mesh2D->decrRef();
+  DataArrayInt *a=DataArrayInt::New(),*b=DataArrayInt::New(),*c=DataArrayInt::New(),*d=DataArrayInt::New();
+  mesh2D=mesh3D->buildDescendingConnectivity(a,b,c,d);
+  a->decrRef(); b->decrRef(); c->decrRef(); d->decrRef();
+  mesh3D->decrRef();
+  //
+  const double vec1[3]={-0.07,1.,0.07};
+  const double origin1[3]={1.524,1.4552,1.74768};
+  DataArrayInt *ids=0;
+  MEDCouplingUMesh *slice1=mesh2D->buildSlice3DSurf(origin1,vec1,1e-10,ids);
+  const int expected1[25]={6,8,10,11,13,18,19,21,23,25,26,38,41,43,47,49,52,53,64,67,69,73,75,78,79};
+  const int expected2[75]={1,40,41,1,42,41,1,40,43,1,44,43,1,42,44,1,45,41,1,42,46,1,46,45,1,47,40,1,47,48,1,44,48,1,49,42,1,44,50,1,49,50,1,49,51,1,51,46,1,48,52,1,50,52,1,53,49,1,50,54,1,53,54,1,53,55,1,55,51,1,52,56,1,54,56};
+  const int expected3[26]={0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75};
+  const double expected4[171]={1.,1.,0.,1.,1.25,0.,1.,1.5,0.,2.,1.,0.,1.,2.,0.,0.,2.,0.,3.,1.,0.,3.,2.,0.,0.,1.,0.,2.,2.,0.,1.,1.,1.,1.,1.25,1.,1.,1.5,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,2.,2.,1.,1.,1.,2.,1.,1.25,2.,1.,1.5,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,2.,2.,2.,1.,1.,3.,1.,1.25,3.,1.,1.5,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,2.,2.,3.,1.,1.5408576,0.,2.,1.6108576000000001,0.,2.,1.5408576,1.,1.,1.5,0.5836800000000008,1.,1.4708576,1.,3.,1.6808576,0.,3.,1.6108576000000001,1.,0.,1.4708576,0.,0.,1.4008576,1.,2.,1.4708576,2.,1.,1.4008576000000001,2.,3.,1.5408575999999998,2.,0.,1.3308575999999999,2.,2.,1.4008576,3.,1.,1.3308576,3.,3.,1.4708576,3.,0.,1.2608576,3.};
+  CPPUNIT_ASSERT_EQUAL(1,slice1->getMeshDimension());
+  CPPUNIT_ASSERT_EQUAL(3,slice1->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(57,slice1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(25,slice1->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(25,ids->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(75,slice1->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(26,slice1->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+25,ids->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+47,slice1->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+26,slice1->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<171;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected4[i],slice1->getCoords()->getIJ(0,i),1e-12);
+  ids->decrRef();
+  slice1->decrRef();
+  //
+  const double vec2[3]={0.,0.,1.};
+  const double origin2[3]={2.5,1.,2.};
+  slice1=mesh2D->buildSlice3DSurf(origin2,vec2,1e-10,ids);
+  const int expected5[68]={32,32,32,32,33,34,35,36,37,38,39,40,41,42,43,43,43,43,43,43,44,44,44,44,45,46,47,47,47,47,48,49,50,51,52,53,53,53,53,53,53,54,54,54,54,55,56,57,59,60,61,62,63,64,65,66,67,68,71,72,74,75,76,77,78,81,82,83};
+  const int expected6[204]={1,15,18,1,18,16,1,16,26,1,26,15,1,26,15,1,16,26,1,18,16,1,15,18,1,16,21,1,21,28,1,22,28,1,19,22,1,17,19,1,16,17,1,16,21,1,21,28,1,28,22,1,22,19,1,19,17,1,17,16,1,16,18,1,18,20,1,20,21,1,21,16,1,20,21,1,18,20,1,28,21,1,21,24,1,24,25,1,25,28,1,25,28,1,24,25,1,21,24,1,23,22,1,26,23,1,26,16,1,16,17,1,17,19,1,19,22,1,22,23,1,23,26,1,22,28,1,28,29,1,29,27,1,27,22,1,27,22,1,29,27,1,28,29,1,26,15,1,16,26,1,18,16,1,15,18,1,16,21,1,21,28,1,22,28,1,19,22,1,17,19,1,16,17,1,20,21,1,18,20,1,25,28,1,24,25,1,21,24,1,23,22,1,26,23,1,27,22,1,29,27,1,28,29};
+  const int expected7[69]={0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54,57,60,63,66,69,72,75,78,81,84,87,90,93,96,99,102,105,108,111,114,117,120,123,126,129,132,135,138,141,144,147,150,153,156,159,162,165,168,171,174,177,180,183,186,189,192,195,198,201,204};
+  const double expected8[135]={0.,0.,1.,1.,1.,1.,1.,1.25, 1.,1.,0.,1.,1.,1.5, 1.,2.,0.,1.,2.,1.,1.,1.,2.,1.,0.,2.,1.,3.,1.,1.,3.,2.,1.,0.,1.,1.,1.,3.,1.,2.,2.,1.,2.,3.,1.,0.,0.,2.,1.,1.,2.,1.,1.25, 2.,1.,0.,2.,1.,1.5, 2.,2.,0.,2.,2.,1.,2.,1.,2.,2.,0.,2.,2.,3.,1.,2.,3.,2.,2.,0.,1.,2.,1.,3.,2.,2.,2.,2.,2.,3.,2.,0.,0.,3.,1.,1.,3.,1.,1.25, 3.,1.,0.,3.,1.,1.5, 3.,2.,0.,3.,2.,1.,3.,1.,2.,3.,0.,2.,3.,3.,1.,3.,3.,2.,3.,0.,1.,3.,1.,3.,3.,2.,2.,3.,2.,3.,3.};
+  CPPUNIT_ASSERT_EQUAL(1,slice1->getMeshDimension());
+  CPPUNIT_ASSERT_EQUAL(3,slice1->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(45,slice1->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(68,slice1->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(68,ids->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(204,slice1->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(69,slice1->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected5,expected5+68,ids->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected6,expected6+171,slice1->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected7,expected7+69,slice1->getNodalConnectivityIndex()->getConstPointer()));
+  for(int i=0;i<135;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected8[i],slice1->getCoords()->getIJ(0,i),1e-12);
+  ids->decrRef();
+  slice1->decrRef();
+  //
+  mesh2D->decrRef();
+}

@@ -38,11 +38,15 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testUMeshTessellate2D1 );
     CPPUNIT_TEST( testIntersect2DMeshesTmp4 );
     CPPUNIT_TEST( testGetCellIdsCrossingPlane1 );
+    CPPUNIT_TEST( testBuildSlice3D1 );
+    CPPUNIT_TEST( testBuildSlice3DSurf1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
     void testIntersect2DMeshesTmp4();
     void testGetCellIdsCrossingPlane1();
+    void testBuildSlice3D1();
+    void testBuildSlice3DSurf1();
   };
 }
 
