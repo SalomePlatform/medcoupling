@@ -1296,6 +1296,9 @@ const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
   return l1->getRevNumberField();
 }
 
+/*!
+ * This method returns coordinates in 'this'. The returned array reference counter is \b not incremented by this method (as MEDCouplingPointSet::getCoords does).
+ */
 DataArrayDouble *MEDFileUMesh::getCoords() const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp(_coords);
