@@ -749,6 +749,8 @@ namespace ParaMEDMEM
          {
            std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > elt1Cpp;
            DataArrayDouble *elt0=self->getUndergroundDataArrayExt(elt1Cpp);
+           if(elt0)
+             elt0->incrRef();
            PyObject *ret=PyTuple_New(2);
            PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(elt0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
            std::size_t sz=elt1Cpp.size();

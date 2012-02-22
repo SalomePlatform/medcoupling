@@ -332,6 +332,28 @@ void DataArrayDouble::checkAllocated() const throw(INTERP_KERNEL::Exception)
 }
 
 /*!
+ * This method differs from DataArray::setInfoOnComponents in the sense that if 'this->getNumberOfComponents()!=info.size()'
+ * and if 'this' is not allocated it will change the number of components of 'this'.
+ * If 'this->getNumberOfComponents()==info.size()' the behaviour is the same than DataArray::setInfoOnComponents method.
+ * If 'this->getNumberOfComponents()!=info.size()' and the 'this' is already allocated an exception will be thrown.
+ */
+void DataArrayDouble::setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=(int)info.size())
+    {
+      if(!isAllocated())
+        _info_on_compo=info;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::setInfoAndChangeNbOfCompo : input is of size " << info.size() << " whereas number of components is equal to " << getNumberOfComponents() << "  and this is already allocated !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  else
+    _info_on_compo=info;
+}
+
+/*!
  * This method should be called on an allocated DataArrayDouble instance. If not an exception will be throw !
  * This method checks the number of tupes. If it is equal to 0, it returns true, if not false is returned.
  */
@@ -766,6 +788,66 @@ DataArrayDouble *DataArrayDouble::selectByTupleId2(int bg, int end2, int step) c
 }
 
 /*!
+ * This method returns a newly allocated array that is the concatenation of all tuples ranges in param 'ranges'.
+ * Each pair in input 'ranges' is in [begin,end) format. If there is a range in 'ranges' so that end is before begin an exception
+ * will be thrown. If there is a range in 'ranges' so that end is greater than number of tuples of 'this', an exception will be thrown too.
+ */
+DataArrayDouble *DataArrayDouble::selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuplesThis=getNumberOfTuples();
+  if(ranges.empty())
+    {
+      DataArrayDouble *ret=DataArrayDouble::New();
+      ret->alloc(0,nbOfComp);
+      ret->copyStringInfoFrom(*this);
+      return ret;
+    }
+  int st=ranges.front().first;
+  int endd=ranges.back().second;
+  int ref=st;
+  int nbOfTuples=0;
+  bool isIncreasing=true;
+  for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+    {
+      if((*it).first<=(*it).second)
+        {
+          if((*it).second<=nbOfTuplesThis)
+            {
+              nbOfTuples+=(*it).second-(*it).first;
+              if(isIncreasing)
+                isIncreasing=ref<=(*it).first;
+              ref=(*it).second;
+            }
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayDouble::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+              oss << " (" << (*it).first << "," << (*it).second << ") is greater than number of tuples of this :" << nbOfTuples << " !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+          oss << " (" << (*it).first << "," << (*it).second << ") end is before begin !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(isIncreasing && nbOfTuplesThis==nbOfTuples)
+    return deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuples,nbOfComp);
+  ret->copyStringInfoFrom(*this);
+  const double *src=getConstPointer();
+  double *work=ret->getPointer();
+  for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+    work=std::copy(src+(*it).first*nbOfComp,src+(*it).second*nbOfComp,work);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This methods has a similar behaviour than std::string::substr. This method returns a newly created DataArrayInt that is part of this with same number of components.
  * The intervall is specified by [tupleIdBg,tupleIdEnd) except if tupleIdEnd ==-1 in this case the [tupleIdBg,this->end()) will be kept.
  * This method check that interval is valid regarding this, if not an exception will be thrown.
@@ -1168,6 +1250,71 @@ void DataArrayDouble::setPartOfValuesAdv(const DataArrayDouble *a, const DataArr
           oss << " of 'tuplesSelec' request of tuple id #" << tuple[1] << " in 'a' ! It should be in [0," << aNt << ") !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
+    }
+}
+
+/*!
+ * 'this', 'a' and 'tuplesSelec' are expected to be defined. If not an exception will be thrown.
+ * This is a method that is a specialization to DataArrayDouble::setPartOfValuesAdv method, except that here the tuple selection of 'a' is given by a range ('bg','end2' and 'step')
+ * rather than an explicite array of tuple ids (given by the 2nd component) and the feeding is done in 'this' contiguously starting from 'tupleIdStart'.
+ * @param a is an array having exactly the same number of components than 'this'
+ */
+void DataArrayDouble::setContigPartOfSelectedValues(int tupleIdStart, const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  a->checkAllocated();
+  tuplesSelec->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues : This and a do not have the same number of components !");
+  if(tuplesSelec->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues : Expecting to have a tuple selector DataArrayInt instance with exactly 1 component !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  int nbOfTupleToWrite=tuplesSelec->getNumberOfTuples();
+  double *valsToSet=getPointer()+tupleIdStart*nbOfComp;
+  if(tupleIdStart+nbOfTupleToWrite>thisNt)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues : invalid number range of values to write !");
+  const double *valsSrc=a->getConstPointer();
+  for(const int *tuple=tuplesSelec->begin();tuple!=tuplesSelec->end();tuple++,valsToSet+=nbOfComp)
+    {
+      if(*tuple>=0 && *tuple<aNt)
+        {
+          std::copy(valsSrc+nbOfComp*(*tuple),valsSrc+nbOfComp*(*tuple+1),valsToSet);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayDouble::setContigPartOfSelectedValues : Tuple #" << std::distance(tuplesSelec->begin(),tuple);
+          oss << " of 'tuplesSelec' request of tuple id #" << *tuple << " in 'a' ! It should be in [0," << aNt << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+/*!
+ * 'this' and 'a' are expected to be defined. If not an exception will be thrown.
+ * This is a method that is a specialization to DataArrayDouble::setContigPartOfSelectedValues method, except that here the tuple selection is givenin a is done by a range ('bg','end2' and 'step')
+ * rather than an explicite array of tuple ids.
+ * @param a is an array having exactly the same number of components than 'this'
+ */
+void DataArrayDouble::setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayDouble *a, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  a->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  const char msg[]="DataArrayDouble::setContigPartOfSelectedValues2";
+  int nbOfTupleToWrite=DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg);
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues : This and a do not have the same number of components !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  double *valsToSet=getPointer()+tupleIdStart*nbOfComp;
+  if(tupleIdStart+nbOfTupleToWrite>thisNt)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues : invalid number range of values to write !");
+  const double *valsSrc=a->getConstPointer()+bg*nbOfComp;
+  for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
+    {
+      std::copy(valsSrc,valsSrc+nbOfComp,valsToSet);
     }
 }
 
@@ -2387,6 +2534,28 @@ void DataArrayInt::checkAllocated() const throw(INTERP_KERNEL::Exception)
 {
   if(!isAllocated())
     throw INTERP_KERNEL::Exception("DataArrayInt::checkAllocated : Array is defined but not allocated ! Call alloc or setValues method first !");
+}
+
+/*!
+ * This method differs from DataArray::setInfoOnComponents in the sense that if 'this->getNumberOfComponents()!=info.size()'
+ * and if 'this' is not allocated it will change the number of components of 'this'.
+ * If 'this->getNumberOfComponents()==info.size()' the behaviour is the same than DataArray::setInfoOnComponents method.
+ * If 'this->getNumberOfComponents()!=info.size()' and the 'this' is already allocated an exception will be thrown.
+ */
+void DataArrayInt::setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=(int)info.size())
+    {
+      if(!isAllocated())
+        _info_on_compo=info;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::setInfoAndChangeNbOfCompo : input is of size " << info.size() << " whereas number of components is equal to " << getNumberOfComponents() << "  and this is already allocated !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  else
+    _info_on_compo=info;
 }
 
 /*!

@@ -185,6 +185,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleId2;
+%newobject ParaMEDMEM::DataArrayDouble::selectByTupleRanges;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
