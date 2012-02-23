@@ -461,6 +461,7 @@ class MEDLoaderTest(unittest.TestCase):
         ti,itt,orr=ff1.getTime()
         self.assertEqual(3,itt); self.assertEqual(4,orr); self.assertAlmostEqual(2.3,ti,14);
         da,infos=ff1.getUndergroundDataArrayExt()
+        f2.getArray().setName(da.getName())#da has the same name than f2
         self.assertTrue(da.isEqual(f2.getArray(),1e-12))
         self.assertEqual([((3, 0), (0, 2)), ((4, 0), (2, 4)), ((6, 0), (4, 5)), ((5, 0), (5, 6))],infos)
         #
@@ -496,6 +497,7 @@ class MEDLoaderTest(unittest.TestCase):
         f2=MEDLoader.ReadFieldGaussNE(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
         da,infos=ff1.getUndergroundDataArrayExt()
+        f2.getArray().setName(da.getName())#da has the same name than f2
         self.assertTrue(da.isEqual(f2.getArray(),1e-12))
         self.assertEqual([((3, 0), (0, 6)), ((4, 0), (6, 14)), ((6, 0), (14, 20))],infos)
         #
@@ -521,6 +523,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(3,loc1.getNumberOfGaussPoints())
         self.assertEqual(2,loc1.getDimension())
         da,infos=ff2.getUndergroundDataArrayExt()
+        f2.getArray().setName(da.getName())#da has the same name than f2
         self.assertTrue(da.isEqual(f2.getArray(),1e-12))
         self.assertEqual(53,da.getNumberOfTuples())
         self.assertEqual([((3, 0), (0, 18)), ((3, 1), (18, 30)), ((3, 2), (30, 36)), ((4, 0), (36, 42)), ((4, 1), (42, 44)), ((6, 0), (44, 53))],infos)
@@ -588,7 +591,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.setFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
-        vals,pfl=ff1.getFieldWithProfile(ON_CELLS,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_CELLS,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))# profiles names cannot be contracted in pfl array name
         self.assertTrue(vals.isEqual(d,1e-14))
         #
@@ -603,7 +606,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual("sup1_NORM_QUAD4",sbt[1][1][0][2])# profile For QUAD4
         self.assertEqual([19, 20, 21, 22, 23, 24],sbt[1][1][0][1].getValues())# values for QUAD4
         self.assertEqual([0],ff2.getTypesOfFieldAvailable())
-        vals,pfl=ff2.getFieldWithProfile(ON_CELLS,0,mm1)
+        vals,pfl=ff2.getFieldWithProfile(ON_CELLS,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
@@ -625,19 +628,19 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.appendFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
-        vals,pfl=ff1.getFieldWithProfile(ON_CELLS,1,2,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_CELLS,1,2,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
-        vals,pfl=ff1.getFieldWithProfile(ON_CELLS,-1,-1,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_CELLS,-1,-1,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileFieldMultiTS.New(fname,f1.getName())
         self.assertEqual([(-1, -1, 0.0), (1, 2, 1.2)],ff2.getTimeSteps())
-        vals,pfl=ff2.getFieldWithProfile(ON_CELLS,1,2,0,mm1)
+        vals,pfl=ff2.getFieldWithProfile(ON_CELLS,1,2,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
-        vals,pfl=ff2.getFieldWithProfile(ON_CELLS,-1,-1,0,mm1)
+        vals,pfl=ff2.getFieldWithProfile(ON_CELLS,-1,-1,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
@@ -658,12 +661,12 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.setFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
-        vals,pfl=ff1.getFieldWithProfile(ON_NODES,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_NODES,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         ## #
         ff2=MEDFileField1TS.New(fname,f1.getName(),-1,-1)
-        vals,pfl=ff2.getFieldWithProfile(ON_NODES,0,mm1)
+        vals,pfl=ff2.getFieldWithProfile(ON_NODES,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
@@ -685,18 +688,18 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.appendFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
-        vals,pfl=ff1.getFieldWithProfile(ON_NODES,1,2,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_NODES,1,2,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
-        vals,pfl=ff1.getFieldWithProfile(ON_NODES,-1,-1,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_NODES,-1,-1,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileFieldMultiTS.New(fname,f1.getName())
-        vals,pfl=ff2.getFieldWithProfile(ON_NODES,1,2,0,mm1)
+        vals,pfl=ff2.getFieldWithProfile(ON_NODES,1,2,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
-        vals,pfl=ff2.getFieldWithProfile(ON_NODES,-1,-1,0,mm1)
+        vals,pfl=ff2.getFieldWithProfile(ON_NODES,-1,-1,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
@@ -718,12 +721,12 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.setFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
-        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileField1TS.New(fname,f1.getName(),-1,-1)
-        vals,pfl=ff2.getFieldWithProfile(ON_GAUSS_NE,0,mm1)
+        vals,pfl=ff2.getFieldWithProfile(ON_GAUSS_NE,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
         pass
@@ -747,19 +750,19 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.appendFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
-        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,-1,-1,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,-1,-1,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
-        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,1,2,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,1,2,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
         self.assertEqual([[3],[3]],ff1.getTypesOfFieldAvailable())
         #
         ff2=MEDFileFieldMultiTS.New(fname,f1.getName())
-        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,-1,-1,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,-1,-1,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(d,1e-14))
-        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,1,2,0,mm1)
+        vals,pfl=ff1.getFieldWithProfile(ON_GAUSS_NE,1,2,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
         pass
@@ -784,7 +787,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm1.write(fname,2)
         ff1.write(fname,0)
         f1=ff1.getFieldOnMeshAtLevel(ON_GAUSS_NE,m1,0)
-        f2,p1=ff1.getFieldWithProfile(ON_GAUSS_NE,0,mm1)
+        f2,p1=ff1.getFieldWithProfile(ON_GAUSS_NE,0,mm1) ; f2.setName("")
         self.assertTrue(p1.isIdentity())
         self.assertEqual(5,p1.getNumberOfTuples())
         self.assertTrue(f1.getArray().isEqual(f2,1e-12))
