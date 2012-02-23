@@ -39,6 +39,7 @@ namespace ParaMEDMEM
     int getNumberOfGaussPt() const { return (int)_weight.size(); }
     int getDimension() const;
     int getNumberOfPtsInRefCell() const;
+    std::string getStringRepr() const;
     void checkCoherency() const throw(INTERP_KERNEL::Exception);
     bool isEqual(const MEDCouplingGaussLocalization& other, double eps) const;
     void pushTinySerializationIntInfo(std::vector<int>& tinyInfo) const;

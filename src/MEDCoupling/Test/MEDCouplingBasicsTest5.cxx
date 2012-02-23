@@ -492,3 +492,42 @@ void MEDCouplingBasicsTest5::testDataArrayIntAdvSetting1()
   da2->decrRef();
   da->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testBuildDescendingConnec2Of3DMesh1()
+{
+  MEDCouplingUMesh *mesh=build3DSourceMesh_1();
+  DataArrayInt *desc=DataArrayInt::New();
+  DataArrayInt *descIndx=DataArrayInt::New();
+  DataArrayInt *revDesc=DataArrayInt::New();
+  DataArrayInt *revDescIndx=DataArrayInt::New();
+  //
+  MEDCouplingUMesh *mesh2=mesh->buildDescendingConnectivity2(desc,descIndx,revDesc,revDescIndx);
+  mesh2->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(2,mesh2->getMeshDimension());
+  CPPUNIT_ASSERT_EQUAL(30,mesh2->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(31,revDescIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(31,revDescIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(13,descIndx->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(13,descIndx->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(48,desc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,desc->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(48,revDesc->getNbOfElems()); CPPUNIT_ASSERT_EQUAL(48,revDesc->getNumberOfTuples());
+  const int expected1[48]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,-10,15,-5,-13,16,17,-14,18,-4,19,-2,20,21,22,23,24,25,-11,26,-1,-12,-25,-22,27,28,-7,-20,-24,29,-16,-18,30,-8,-28};
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+48,desc->getConstPointer()));
+  const int expected2[13]={0,4,8,12,16,20,24,28,32,36,40,44,48};
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+13,descIndx->getConstPointer()));
+  const int expected3[31]={0,2,4,5,7,9,10,12,14,15,17,19,21,23,25,26,28,29,31,32,34,35,37,38,40,42,43,44,46,47,48};
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+31,revDescIndx->getConstPointer()));
+  const int expected4[48]={0,8,0,6,0,0,5,1,4,1,1,9,1,11,2,2,3,2,7,2,8,3,4,3,5,3,4,10,4,5,11,5,6,10,6,6,9,7,7,10,7,8,8,9,9,11,10,11};
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+48,revDesc->getConstPointer()));
+  DataArrayInt *conn=mesh2->getNodalConnectivity();
+  DataArrayInt *connIndex=mesh2->getNodalConnectivityIndex();
+  const int expected5[31]={0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120};
+  CPPUNIT_ASSERT(std::equal(expected5,expected5+31,connIndex->getConstPointer()));
+  const int expected6[120]={3,8,1,7,3,8,3,1,3,1,3,7,3,7,3,8,3,6,0,8,3,6,2,0,3,0,2,8,3,8,2,6,3,7,4,5,3,7,8,4,3,4,8,5,3,5,8,7,3,6,8,4,3,6,7,8,3,4,7,6,3,8,4,0,3,0,4,6,3,6,3,8,3,7,3,6,3,8,0,1,3,1,0,3,3,3,0,8,3,4,1,5,3,4,8,1,3,1,8,5,3,1,7,5,3,0,2,3,3,3,2,8,3,1,4,0,3,3,2,6};
+  CPPUNIT_ASSERT(std::equal(expected6,expected6+120,conn->getConstPointer()));
+  //
+  desc->decrRef();
+  descIndx->decrRef();
+  revDesc->decrRef();
+  revDescIndx->decrRef();
+  mesh2->decrRef();
+  mesh->decrRef();
+}

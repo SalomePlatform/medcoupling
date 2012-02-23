@@ -23,6 +23,7 @@
 #include <cmath>
 #include <numeric>
 #include <sstream>
+#include <iterator>
 #include <algorithm>
 
 ParaMEDMEM::MEDCouplingGaussLocalization::MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
@@ -73,6 +74,16 @@ int ParaMEDMEM::MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
   if(dim==0)
     return -1;
   return (int)_ref_coord.size()/dim;
+}
+
+std::string ParaMEDMEM::MEDCouplingGaussLocalization::getStringRepr() const
+{
+  std::ostringstream oss;
+  oss << "CellType : " << INTERP_KERNEL::CellModel::GetCellModel(_type).getRepr() << std::endl;
+  oss << "Ref coords : "; std::copy(_ref_coord.begin(),_ref_coord.end(),std::ostream_iterator<double>(oss,", ")); oss << std::endl;
+  oss << "Localization coords : "; std::copy(_gauss_coord.begin(),_gauss_coord.end(),std::ostream_iterator<double>(oss,", ")); oss << std::endl;
+  oss << "Weight : "; std::copy(_weight.begin(),_weight.end(),std::ostream_iterator<double>(oss,", ")); oss << std::endl;
+  return oss.str();
 }
 
 bool ParaMEDMEM::MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLocalization& other, double eps) const

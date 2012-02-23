@@ -337,9 +337,9 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationP0::clone() const
   return new MEDCouplingFieldDiscretizationP0;
 }
 
-const char *MEDCouplingFieldDiscretizationP0::getStringRepr() const
+std::string MEDCouplingFieldDiscretizationP0::getStringRepr() const
 {
-  return REPR;
+  return std::string(REPR);
 }
 
 bool MEDCouplingFieldDiscretizationP0::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
@@ -497,9 +497,9 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationP1::clone() const
   return new MEDCouplingFieldDiscretizationP1;
 }
 
-const char *MEDCouplingFieldDiscretizationP1::getStringRepr() const
+std::string MEDCouplingFieldDiscretizationP1::getStringRepr() const
 {
-  return REPR;
+  return std::string(REPR);
 }
 
 bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
@@ -824,9 +824,27 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGauss::clone() con
   return new MEDCouplingFieldDiscretizationGauss(*this);
 }
 
-const char *MEDCouplingFieldDiscretizationGauss::getStringRepr() const
+std::string MEDCouplingFieldDiscretizationGauss::getStringRepr() const
 {
-  return REPR;
+  std::ostringstream oss; oss << REPR << "." << std::endl;
+  if(_discr_per_cell)
+    {
+      if(_discr_per_cell->isAllocated())
+        {
+          oss << "Discretization per cell : ";
+          std::copy(_discr_per_cell->begin(),_discr_per_cell->end(),std::ostream_iterator<int>(oss,", "));
+          oss << std::endl;
+        }
+    }
+  oss << "Presence of " << _loc.size() << " localizations." << std::endl;
+  int i=0;
+  for(std::vector<MEDCouplingGaussLocalization>::const_iterator it=_loc.begin();it!=_loc.end();it++,i++)
+    {
+      oss << "+++++ Localization #" << i << " +++++" << std::endl;
+      oss << (*it).getStringRepr();
+      oss << "++++++++++" << std::endl;
+    }
+  return oss.str();
 }
 
 int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const
@@ -1350,9 +1368,9 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGaussNE::clone() c
   return new MEDCouplingFieldDiscretizationGaussNE(*this);
 }
 
-const char *MEDCouplingFieldDiscretizationGaussNE::getStringRepr() const
+std::string MEDCouplingFieldDiscretizationGaussNE::getStringRepr() const
 {
-  return REPR;
+  return std::string(REPR);
 }
 
 bool MEDCouplingFieldDiscretizationGaussNE::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const

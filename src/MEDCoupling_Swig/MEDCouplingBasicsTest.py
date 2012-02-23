@@ -8881,6 +8881,33 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(expected6[i],dac.getIJ(0,i));
             pass
         pass
+
+    def testBuildDescendingConnec2Of3DMesh1(self):
+        mesh=MEDCouplingDataForTest.build3DSourceMesh_1();
+        #
+        mesh2,desc,descIndx,revDesc,revDescIndx=mesh.buildDescendingConnectivity2();
+        mesh2.checkCoherency();
+        self.assertEqual(2,mesh2.getMeshDimension());
+        self.assertEqual(30,mesh2.getNumberOfCells());
+        self.assertEqual(31,revDescIndx.getNbOfElems()); self.assertEqual(31,revDescIndx.getNumberOfTuples());
+        self.assertEqual(13,descIndx.getNbOfElems()); self.assertEqual(13,descIndx.getNumberOfTuples());
+        self.assertEqual(48,desc.getNbOfElems()); self.assertEqual(48,desc.getNumberOfTuples());
+        self.assertEqual(48,revDesc.getNbOfElems()); self.assertEqual(48,revDesc.getNumberOfTuples());
+        expected1=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,-10,15,-5,-13,16,17,-14,18,-4,19,-2,20,21,22,23,24,25,-11,26,-1,-12,-25,-22,27,28,-7,-20,-24,29,-16,-18,30,-8,-28]
+        self.assertEqual(expected1,desc.getValues());
+        expected2=[0,4,8,12,16,20,24,28,32,36,40,44,48]
+        self.assertEqual(expected2,descIndx.getValues());
+        expected3=[0,2,4,5,7,9,10,12,14,15,17,19,21,23,25,26,28,29,31,32,34,35,37,38,40,42,43,44,46,47,48]
+        self.assertEqual(expected3,revDescIndx.getValues());
+        expected4=[0,8,0,6,0,0,5,1,4,1,1,9,1,11,2,2,3,2,7,2,8,3,4,3,5,3,4,10,4,5,11,5,6,10,6,6,9,7,7,10,7,8,8,9,9,11,10,11]
+        self.assertEqual(expected4,revDesc.getValues());
+        conn=mesh2.getNodalConnectivity();
+        connIndex=mesh2.getNodalConnectivityIndex();
+        expected5=[0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120]
+        self.assertEqual(expected5,connIndex.getValues());
+        expected6=[3,8,1,7,3,8,3,1,3,1,3,7,3,7,3,8,3,6,0,8,3,6,2,0,3,0,2,8,3,8,2,6,3,7,4,5,3,7,8,4,3,4,8,5,3,5,8,7,3,6,8,4,3,6,7,8,3,4,7,6,3,8,4,0,3,0,4,6,3,6,3,8,3,7,3,6,3,8,0,1,3,1,0,3,3,3,0,8,3,4,1,5,3,4,8,1,3,1,8,5,3,1,7,5,3,0,2,3,3,3,2,8,3,1,4,0,3,3,2,6]
+        self.assertEqual(expected6,conn.getValues());
+        pass
     
     def setUp(self):
         pass

@@ -48,7 +48,7 @@ namespace ParaMEDMEM
     virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const = 0;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
-    virtual const char *getStringRepr() const = 0;
+    virtual std::string getStringRepr() const = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
     virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
     virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
@@ -103,7 +103,7 @@ namespace ParaMEDMEM
   public:
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
-    const char *getStringRepr() const;
+    std::string getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
@@ -133,7 +133,7 @@ namespace ParaMEDMEM
   public:
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
-    const char *getStringRepr() const;
+    std::string getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
@@ -193,7 +193,7 @@ namespace ParaMEDMEM
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCouplingFieldDiscretization *clone() const;
-    const char *getStringRepr() const;
+    std::string getStringRepr() const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -252,7 +252,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretizationGaussNE();
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
-    const char *getStringRepr() const;
+    std::string getStringRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
