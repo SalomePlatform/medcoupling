@@ -2114,7 +2114,22 @@ std::vector<TypeOfField> MEDFileField1TSWithoutDAS::getTypesOfFieldAvailable() c
 /*!
  * entry point for users that want to iterate into MEDFile DataStructure without any overhead.
  */
-std::vector< std::vector<const DataArrayDouble *> > MEDFileField1TSWithoutDAS::getFieldSplitedByType(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
+std::vector< std::vector< std::pair<int,int> > > MEDFileField1TSWithoutDAS::getFieldSplitedByType(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
+{
+  int meshId=0;
+  if(mname)
+    meshId=getMeshIdFromMeshName(mname);
+  else
+    if(_field_per_mesh.empty())
+      throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getFieldSplitedByType : This is empty !");
+  return _field_per_mesh[meshId]->getFieldSplitedByType(types,typesF,pfls,locs);
+}
+
+/*!
+ * entry point for users that want to iterate into MEDFile DataStructure with a reduced overhead because output arrays are extracted (created) specially
+ * for the call of this method. That's why the DataArrayDouble instance in returned vector of vector should be dealed by the caller.
+ */
+std::vector< std::vector<DataArrayDouble *> > MEDFileField1TSWithoutDAS::getFieldSplitedByType2(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
 {
   int meshId=0;
   if(mname)
@@ -2124,7 +2139,7 @@ std::vector< std::vector<const DataArrayDouble *> > MEDFileField1TSWithoutDAS::g
       throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getFieldSplitedByType : This is empty !");
   std::vector< std::vector< std::pair<int,int> > > ret0=_field_per_mesh[meshId]->getFieldSplitedByType(types,typesF,pfls,locs);
   int nbOfRet=ret0.size();
-  std::vector< std::vector<const DataArrayDouble *> > ret(nbOfRet);
+  std::vector< std::vector<DataArrayDouble *> > ret(nbOfRet);
   for(int i=0;i<nbOfRet;i++)
     {
       const std::vector< std::pair<int,int> >& p=ret0[i];
@@ -2136,7 +2151,6 @@ std::vector< std::vector<const DataArrayDouble *> > MEDFileField1TSWithoutDAS::g
           ret[i][j]=tmp;
         }
     }
-  //anthony.geay@cea.fr
   return ret;
 }
 
@@ -2862,9 +2876,21 @@ std::vector< std::vector<TypeOfField> > MEDFileFieldMultiTSWithoutDAS::getTypesO
   return ret;
 }
 
-std::vector< std::vector<const DataArrayDouble *> > MEDFileFieldMultiTSWithoutDAS::getFieldSplitedByType(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
+/*!
+ * entry point for users that want to iterate into MEDFile DataStructure without any overhead.
+ */
+std::vector< std::vector< std::pair<int,int> > > MEDFileFieldMultiTSWithoutDAS::getFieldSplitedByType(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
 {
   return getTimeStepEntry(iteration,order).getFieldSplitedByType(mname,types,typesF,pfls,locs);
+}
+
+/*!
+ * entry point for users that want to iterate into MEDFile DataStructure with a reduced overhead because output arrays are extracted (created) specially
+ * for the call of this method. That's why the DataArrayDouble instance in returned vector of vector should be dealed by the caller.
+ */
+std::vector< std::vector<DataArrayDouble *> > MEDFileFieldMultiTSWithoutDAS::getFieldSplitedByType2(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception)
+{
+  return getTimeStepEntry(iteration,order).getFieldSplitedByType2(mname,types,typesF,pfls,locs);
 }
 
 const MEDFileField1TSWithoutDAS& MEDFileFieldMultiTSWithoutDAS::getTimeStepEntry(int iteration, int order) const throw(INTERP_KERNEL::Exception)

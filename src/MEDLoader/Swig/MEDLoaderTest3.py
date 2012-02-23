@@ -515,7 +515,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff2=MEDFileField1TS.New(fname,f1.getName(),f1.getTime()[1],f1.getTime()[2])
         f2=ff2.getFieldAtLevel(ON_GAUSS_PT,0)
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
-        sbt=ff2.getFieldSplitedByType()
+        sbt=ff2.getFieldSplitedByType2()
         loc1=ff2.getLocalization("Loc_MyFirstFieldOnGaussPoint_NORM_TRI6_5")
         self.assertEqual("Loc_MyFirstFieldOnGaussPoint_NORM_TRI6_5",loc1.getName())
         self.assertEqual((-1, 1,-1,-1,1,-1,-1,0,0,-1,0,0),loc1.getRefCoords())
@@ -596,7 +596,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileField1TS.New(fname,f1.getName(),-1,-1)
-        sbt=ff2.getFieldSplitedByType()
+        sbt=ff2.getFieldSplitedByType2()
         self.assertEqual(3,sbt[0][0])#TRI3
         self.assertEqual(0,sbt[0][1][0][0])#CELL For TRI3
         self.assertEqual("",sbt[0][1][0][2])#no profile For TRI3

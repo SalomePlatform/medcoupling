@@ -1049,9 +1049,9 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
-          vector< vector<const DataArrayDouble *> > valsVec;
-          valsVec = _nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
-                                                            types, typesF, pfls, locs);
+          vector< vector< std::pair<int,int> > > valsVec;
+          valsVec=_nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
+                                                          types, typesF, pfls, locs);
           // believe that there can be only one type in a nodal field,
           // so do not use a loop on types
           if ( pfls[0][0].empty() ) pfls[0][0] = noProfileName( types[0] );
@@ -1060,7 +1060,7 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
             THROW_IK_EXCEPTION( "SauvWriter::writeNodalFields(): no sub-mesh for profile |"
                                 << pfls[0][0] << "|");
           vals[0] = -pfl2Sub->second->_id;
-          vals[1] = valsVec[0][0]->getNumberOfTuples() / nbComp;
+          vals[1] = (valsVec[0][0].second-valsVec[0][0].first);
           vals[2] = compInfo.size();
           for ( size_t i = 0; i < vals.size(); ++i, fcount++ )
             *_sauvFile << setw(8) << vals[i];
@@ -1098,15 +1098,15 @@ void SauvWriter::writeNodalFields(map<string,int>& fldNamePrefixMap)
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
-          vector< vector<const DataArrayDouble *> > valsVec;
+          vector< vector< std::pair<int,int> > > valsVec;
           valsVec = _nodeFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
                                                             types, typesF, pfls, locs);
           // believe that there can be only one type in a nodal field,
           // so do not perform a loop on types
-          const DataArrayDouble* valsArray = valsVec[0][0];
+          const DataArrayDouble* valsArray = _nodeFields[iF]->getUndergroundDataArray(it.first, it.second);
           for ( size_t j = 0; j < compInfo.size(); ++j )
             {
-              for ( size_t i = 0; i < (std::size_t)valsArray->getNumberOfTuples(); ++i, fcount++ )
+              for ( size_t i = valsVec[0][0].first; i < (std::size_t)valsVec[0][0].second; ++i, fcount++ )
                 *_sauvFile << setw(22) << valsArray->getIJ( i, j );
               fcount.stop();
             }
@@ -1159,7 +1159,7 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
-          vector< vector<const DataArrayDouble *> > valsVec;
+          vector< vector< std::pair<int,int> > > valsVec;
           valsVec = _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
                                                             types, typesF, pfls, locs);
           for ( size_t i = 0; i < valsVec.size(); ++i )
@@ -1187,9 +1187,8 @@ void SauvWriter::writeElemFields(map<string,int>& fldNamePrefixMap)
           vector<INTERP_KERNEL::NormalizedCellType> types;
           vector< vector<TypeOfField> > typesF;
           vector< vector<string> > pfls, locs;
-          vector< vector<const DataArrayDouble *> > valsVec;
-          valsVec = _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
-                                                            types, typesF, pfls, locs);
+          _cellFields[iF]->getFieldSplitedByType( it.first, it.second, _fileMesh->getName(),
+                                                  types, typesF, pfls, locs);
           for ( size_t iType = 0; iType < pfls.size(); ++iType )
             for ( size_t iP = 0; iP < pfls[iType].size(); ++iP )
               {
@@ -1253,7 +1252,7 @@ void SauvWriter::writeElemTimeStamp(int iF, int iter, int order)
   vector<INTERP_KERNEL::NormalizedCellType> types;
   vector< vector<TypeOfField> > typesF;
   vector< vector<string> > pfls, locs;
-  vector< vector<const DataArrayDouble *> > valsVec;
+  vector< vector< std::pair<int,int> > > valsVec;
   valsVec = _cellFields[iF]->getFieldSplitedByType( iter, order, _fileMesh->getName(),
                                                     types, typesF, pfls, locs);
   for ( size_t iType = 0; iType < pfls.size(); ++iType )
@@ -1294,16 +1293,17 @@ void SauvWriter::writeElemTimeStamp(int iF, int iter, int order)
           }
 
         // (10) values
-        const DataArrayDouble* valArray = valsVec[iType][iP];
+        const std::pair<int,int>& bgEnd = valsVec[iType][iP];
+        const DataArrayDouble* valArray = _cellFields[iF]->getUndergroundDataArray(iter, order);
         for ( iComp = 0; iComp < nbComp; ++iComp )
           {
             *_sauvFile << setw(8) << nbPntPerCell
-                       << setw(8) << valArray->getNbOfElems() / nbPntPerCell / nbComp
+                       << setw(8) << (bgEnd.second-bgEnd.first) / nbPntPerCell
                        << setw(8) << 0
                        << setw(8) << 0
                        << endl;
             fcount.init(3);
-            for ( size_t i = 0; i < (size_t) valArray->getNumberOfTuples(); ++i, fcount++ )
+            for ( size_t i = bgEnd.first; i < (size_t) bgEnd.second; ++i, fcount++ )
               *_sauvFile << setw(22) << valArray->getIJ( i, iComp );
             fcount.stop();
           }
