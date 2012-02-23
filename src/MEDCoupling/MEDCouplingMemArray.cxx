@@ -813,7 +813,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleRanges(const std::vector<std::pai
     {
       if((*it).first<=(*it).second)
         {
-          if((*it).second<=nbOfTuplesThis)
+          if((*it).first>=0 && (*it).second<=nbOfTuplesThis)
             {
               nbOfTuples+=(*it).second-(*it).first;
               if(isIncreasing)
@@ -1305,12 +1305,14 @@ void DataArrayDouble::setContigPartOfSelectedValues2(int tupleIdStart, const Dat
   const char msg[]="DataArrayDouble::setContigPartOfSelectedValues2";
   int nbOfTupleToWrite=DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg);
   if(nbOfComp!=a->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues : This and a do not have the same number of components !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : This and a do not have the same number of components !");
   int thisNt=getNumberOfTuples();
   int aNt=a->getNumberOfTuples();
   double *valsToSet=getPointer()+tupleIdStart*nbOfComp;
   if(tupleIdStart+nbOfTupleToWrite>thisNt)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues : invalid number range of values to write !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : invalid number range of values to write !");
+  if(end2>aNt)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::setContigPartOfSelectedValues2 : invalid range of values to read !");
   const double *valsSrc=a->getConstPointer()+bg*nbOfComp;
   for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
     {
@@ -3103,6 +3105,66 @@ DataArrayInt *DataArrayInt::selectByTupleId2(int bg, int end2, int step) const t
 }
 
 /*!
+ * This method returns a newly allocated array that is the concatenation of all tuples ranges in param 'ranges'.
+ * Each pair in input 'ranges' is in [begin,end) format. If there is a range in 'ranges' so that end is before begin an exception
+ * will be thrown. If there is a range in 'ranges' so that end is greater than number of tuples of 'this', an exception will be thrown too.
+ */
+DataArrayInt *DataArrayInt::selectByTupleRanges(const std::vector<std::pair<int,int> >& ranges) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuplesThis=getNumberOfTuples();
+  if(ranges.empty())
+    {
+      DataArrayInt *ret=DataArrayInt::New();
+      ret->alloc(0,nbOfComp);
+      ret->copyStringInfoFrom(*this);
+      return ret;
+    }
+  int st=ranges.front().first;
+  int endd=ranges.back().second;
+  int ref=st;
+  int nbOfTuples=0;
+  bool isIncreasing=true;
+  for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+    {
+      if((*it).first<=(*it).second)
+        {
+          if((*it).first>=0 && (*it).second<=nbOfTuplesThis)
+            {
+              nbOfTuples+=(*it).second-(*it).first;
+              if(isIncreasing)
+                isIncreasing=ref<=(*it).first;
+              ref=(*it).second;
+            }
+          else
+            {
+              std::ostringstream oss; oss << "DataArrayInt::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+              oss << " (" << (*it).first << "," << (*it).second << ") is greater than number of tuples of this :" << nbOfTuples << " !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::selectByTupleRanges : on range #" << std::distance(ranges.begin(),it);
+          oss << " (" << (*it).first << "," << (*it).second << ") end is before begin !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(isIncreasing && nbOfTuplesThis==nbOfTuples)
+    return deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples,nbOfComp);
+  ret->copyStringInfoFrom(*this);
+  const int *src=getConstPointer();
+  int *work=ret->getPointer();
+  for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
+    work=std::copy(src+(*it).first*nbOfComp,src+(*it).second*nbOfComp,work);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This method works only for arrays having single component.
  * If this contains the array a1 containing [9,10,0,6,4,11,3,7] this method returns an array a2 [5,6,0,3,2,7,1,4].
  * By doing a1.renumber(a2) the user will obtain array a3 equal to a1 sorted.
@@ -3645,6 +3707,73 @@ void DataArrayInt::setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt 
 }
 
 /*!
+ * 'this', 'a' and 'tuplesSelec' are expected to be defined. If not an exception will be thrown.
+ * This is a method that is a specialization to DataArrayInt::setPartOfValuesAdv method, except that here the tuple selection of 'a' is given by a range ('bg','end2' and 'step')
+ * rather than an explicite array of tuple ids (given by the 2nd component) and the feeding is done in 'this' contiguously starting from 'tupleIdStart'.
+ * @param a is an array having exactly the same number of components than 'this'
+ */
+void DataArrayInt::setContigPartOfSelectedValues(int tupleIdStart, const DataArrayInt*a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  a->checkAllocated();
+  tuplesSelec->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues : This and a do not have the same number of components !");
+  if(tuplesSelec->getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues : Expecting to have a tuple selector DataArrayInt instance with exactly 1 component !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  int nbOfTupleToWrite=tuplesSelec->getNumberOfTuples();
+  int *valsToSet=getPointer()+tupleIdStart*nbOfComp;
+  if(tupleIdStart+nbOfTupleToWrite>thisNt)
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues : invalid number range of values to write !");
+  const int *valsSrc=a->getConstPointer();
+  for(const int *tuple=tuplesSelec->begin();tuple!=tuplesSelec->end();tuple++,valsToSet+=nbOfComp)
+    {
+      if(*tuple>=0 && *tuple<aNt)
+        {
+          std::copy(valsSrc+nbOfComp*(*tuple),valsSrc+nbOfComp*(*tuple+1),valsToSet);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::setContigPartOfSelectedValues : Tuple #" << std::distance(tuplesSelec->begin(),tuple);
+          oss << " of 'tuplesSelec' request of tuple id #" << *tuple << " in 'a' ! It should be in [0," << aNt << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+/*!
+ * 'this' and 'a' are expected to be defined. If not an exception will be thrown.
+ * This is a method that is a specialization to DataArrayInt::setContigPartOfSelectedValues method, except that here the tuple selection is givenin a is done by a range ('bg','end2' and 'step')
+ * rather than an explicite array of tuple ids.
+ * @param a is an array having exactly the same number of components than 'this'
+ */
+void DataArrayInt::setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayInt *a, int bg, int end2, int step) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  a->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  const char msg[]="DataArrayInt::setContigPartOfSelectedValues2";
+  int nbOfTupleToWrite=DataArray::GetNumberOfItemGivenBES(bg,end2,step,msg);
+  if(nbOfComp!=a->getNumberOfComponents())
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : This and a do not have the same number of components !");
+  int thisNt=getNumberOfTuples();
+  int aNt=a->getNumberOfTuples();
+  int *valsToSet=getPointer()+tupleIdStart*nbOfComp;
+  if(tupleIdStart+nbOfTupleToWrite>thisNt)
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : invalid number range of values to write !");
+  if(end2>aNt)
+    throw INTERP_KERNEL::Exception("DataArrayInt::setContigPartOfSelectedValues2 : invalid range of values to read !");
+  const int *valsSrc=a->getConstPointer()+bg*nbOfComp;
+  for(int i=0;i<nbOfTupleToWrite;i++,valsToSet+=nbOfComp,valsSrc+=step*nbOfComp)
+    {
+      std::copy(valsSrc,valsSrc+nbOfComp,valsToSet);
+    }
+}
+
+/*!
  * This method returns the last element in 'this'. So this method makes the hypothesis that 'this' is allocated.
  * This method works only for arrays that have exactly number of components equal to 1. If not an exception is thrown.
  * And to finish this method works for arrays that have number of tuples >= 1.
@@ -3826,10 +3955,10 @@ DataArrayInt *DataArrayInt::Aggregate(const std::vector<const DataArrayInt *>& a
 int DataArrayInt::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getMaxValue : must be applied on DataArrayInt with only one component !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getMaxValue : array exists but number of tuples must be > 0 !");
   const int *vals=getConstPointer();
   const int *loc=std::max_element(vals,vals+nbOfTuples);
   tupleId=(int)std::distance(vals,loc);
@@ -3849,10 +3978,10 @@ int DataArrayInt::getMaxValueInArray() const throw(INTERP_KERNEL::Exception)
 int DataArrayInt::getMinValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : must be applied on DataArrayDouble with only one component !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getMaxValue : must be applied on DataArrayInt with only one component !");
   int nbOfTuples=getNumberOfTuples();
   if(nbOfTuples<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getMaxValue : array exists but number of tuples must be > 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayInt::getMaxValue : array exists but number of tuples must be > 0 !");
   const int *vals=getConstPointer();
   const int *loc=std::min_element(vals,vals+nbOfTuples);
   tupleId=(int)std::distance(vals,loc);

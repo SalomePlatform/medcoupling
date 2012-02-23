@@ -8715,6 +8715,172 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected8[i],slice1.getCoords().getIJ(0,i),12);
             pass
         pass
+
+    def testDataArrayDoubleAdvSetting1(self):
+        data1=[1.,11.,2.,12.,3.,13.,4.,14.,5.,15.,6.,16.,7.,17.]
+        data2=[8.,38.,9.,39.,0.,30.,11.,41.,12.,42.]
+        compsCpp=["comp1","comp2"]
+        da=DataArrayDouble.New();
+        da.setInfoAndChangeNbOfCompo(compsCpp);
+        da.setName("da");
+        da.alloc(7,2);
+        compsCpp=compsCpp[:-1]
+        self.assertRaises(InterpKernelException,da.setInfoAndChangeNbOfCompo,compsCpp);
+        da.setValues(data1,7,2)
+        #
+        p=[(0,3),(3,5),(5,7)]
+        tmp=da.selectByTupleRanges(p);
+        self.assertTrue(tmp.isEqual(da,1e-14));
+        p=[(0,2),(3,4),(5,7)]
+        tmp=da.selectByTupleRanges(p);
+        expected1=[1.,11.,2.,12.,4.,14.,6.,16.,7.,17.]
+        self.assertEqual(5,tmp.getNumberOfTuples());
+        self.assertEqual(2,tmp.getNumberOfComponents());
+        for i in xrange(10):
+            self.assertAlmostEqual(expected1[i],tmp.getIJ(0,i),14);
+            pass
+        p=[(0,2),(0,2),(5,6)]
+        tmp=da.selectByTupleRanges(p);
+        expected2=[1.,11.,2.,12.,1.,11.,2.,12.,6.,16.]
+        self.assertEqual(5,tmp.getNumberOfTuples());
+        self.assertEqual(2,tmp.getNumberOfComponents());
+        for i in xrange(10):
+            self.assertAlmostEqual(expected2[i],tmp.getIJ(0,i),14);
+            pass
+        p=[(0,2),(-1,2),(5,6)]
+        self.assertRaises(InterpKernelException,da.selectByTupleRanges,p);
+        p=[(0,2),(0,2),(5,8)]
+        self.assertRaises(InterpKernelException,da.selectByTupleRanges,p);
+        #
+        da2=DataArrayDouble.New();
+        da2.setValues(data2,5,2);
+        #
+        dac=da.deepCpy();
+        dac.setContigPartOfSelectedValues2(1,da2,2,4,1);
+        expected3=[1.,11.,0.,30.,11.,41.,4.,14.,5.,15.,6.,16.,7.,17.]
+        for i in xrange(14):
+            self.assertAlmostEqual(expected3[i],dac.getIJ(0,i),14);
+            pass
+        #
+        dac=da.deepCpy();
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues2,3,da2,0,5,1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues2,0,da2,4,6,1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues2,3,da2,5,0,1);
+        dac.setContigPartOfSelectedValues2(3,da2,1,5,1);
+        expected4=[1.,11.,2.,12.,3.,13.,9.,39.,0.,30.,11.,41.,12.,42.]
+        for i in xrange(14):
+            self.assertAlmostEqual(expected4[i],dac.getIJ(0,i),14);
+            pass
+        #
+        ids=DataArrayInt.New();
+        ids.alloc(3,1);
+        dac=da.deepCpy();
+        ids.setIJ(0,0,2); ids.setIJ(1,0,0); ids.setIJ(2,0,4);
+        dac.setContigPartOfSelectedValues(2,da2,ids);
+        expected5=[1.,11.,2.,12.,0.,30.,8.,38.,12.,42.,6.,16.,7.,17.]
+        for i in xrange(14):
+            self.assertAlmostEqual(expected5[i],dac.getIJ(0,i),14);
+            pass
+        #
+        dac=da.deepCpy();
+        ids.setIJ(0,0,2); ids.setIJ(1,0,5); ids.setIJ(2,0,4);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues,1,da2,ids);
+        ids.setIJ(0,0,2); ids.setIJ(1,0,2); ids.setIJ(2,0,-1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues,1,da2,ids);
+        ids.setIJ(0,0,2); ids.setIJ(1,0,2); ids.setIJ(2,0,1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues,5,da2,ids);
+        #
+        ids.setIJ(0,0,2); ids.setIJ(1,0,2); ids.setIJ(2,0,1);
+        dac=da.deepCpy();
+        dac.setContigPartOfSelectedValues(4,da2,ids);
+        expected6=[1.,11.,2.,12.,3.,13.,4.,14.,0.,30.,0.,30.,9.,39.]
+        for i in xrange(14):
+            self.assertAlmostEqual(expected6[i],dac.getIJ(0,i),14);
+            pass
+        pass
+
+    def testDataArrayIntAdvSetting1(self):
+        data1=[1,11,2,12,3,13,4,14,5,15,6,16,7,17]
+        data2=[8,38,9,39,0,30,11,41,12,42]
+        compsCpp=["comp1","comp2"]
+        da=DataArrayInt.New();
+        da.setInfoAndChangeNbOfCompo(compsCpp);
+        da.setName("da");
+        da.alloc(7,2);
+        compsCpp=compsCpp[:-1]
+        self.assertRaises(InterpKernelException,da.setInfoAndChangeNbOfCompo,compsCpp);
+        da.setValues(data1,7,2)
+        #
+        p=[(0,3),(3,5),(5,7)]
+        tmp=da.selectByTupleRanges(p);
+        self.assertTrue(tmp.isEqual(da));
+        p=[(0,2),(3,4),(5,7)]
+        tmp=da.selectByTupleRanges(p);
+        expected1=[1,11,2,12,4,14,6,16,7,17]
+        self.assertEqual(5,tmp.getNumberOfTuples());
+        self.assertEqual(2,tmp.getNumberOfComponents());
+        for i in xrange(10):
+            self.assertEqual(expected1[i],tmp.getIJ(0,i));
+            pass
+        p=[(0,2),(0,2),(5,6)]
+        tmp=da.selectByTupleRanges(p);
+        expected2=[1,11,2,12,1,11,2,12,6,16]
+        self.assertEqual(5,tmp.getNumberOfTuples());
+        self.assertEqual(2,tmp.getNumberOfComponents());
+        for i in xrange(10):
+            self.assertEqual(expected2[i],tmp.getIJ(0,i));
+            pass
+        p=[(0,2),(-1,2),(5,6)]
+        self.assertRaises(InterpKernelException,da.selectByTupleRanges,p);
+        p=[(0,2),(0,2),(5,8)]
+        self.assertRaises(InterpKernelException,da.selectByTupleRanges,p);
+        #
+        da2=DataArrayInt.New();
+        da2.setValues(data2,5,2);
+        #
+        dac=da.deepCpy();
+        dac.setContigPartOfSelectedValues2(1,da2,2,4,1);
+        expected3=[1,11,0,30,11,41,4,14,5,15,6,16,7,17]
+        for i in xrange(14):
+            self.assertEqual(expected3[i],dac.getIJ(0,i));
+            pass
+        #
+        dac=da.deepCpy();
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues2,3,da2,0,5,1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues2,0,da2,4,6,1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues2,3,da2,5,0,1);
+        dac.setContigPartOfSelectedValues2(3,da2,1,5,1);
+        expected4=[1,11,2,12,3,13,9,39,0,30,11,41,12,42]
+        for i in xrange(14):
+            self.assertEqual(expected4[i],dac.getIJ(0,i));
+            pass
+        #
+        ids=DataArrayInt.New();
+        ids.alloc(3,1);
+        dac=da.deepCpy();
+        ids.setIJ(0,0,2); ids.setIJ(1,0,0); ids.setIJ(2,0,4);
+        dac.setContigPartOfSelectedValues(2,da2,ids);
+        expected5=[1,11,2,12,0,30,8,38,12,42,6,16,7,17]
+        for i in xrange(14):
+            self.assertEqual(expected5[i],dac.getIJ(0,i));
+            pass
+        #
+        dac=da.deepCpy();
+        ids.setIJ(0,0,2); ids.setIJ(1,0,5); ids.setIJ(2,0,4);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues,1,da2,ids);
+        ids.setIJ(0,0,2); ids.setIJ(1,0,2); ids.setIJ(2,0,-1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues,1,da2,ids);
+        ids.setIJ(0,0,2); ids.setIJ(1,0,2); ids.setIJ(2,0,1);
+        self.assertRaises(InterpKernelException,dac.setContigPartOfSelectedValues,5,da2,ids);
+        #
+        ids.setIJ(0,0,2); ids.setIJ(1,0,2); ids.setIJ(2,0,1);
+        dac=da.deepCpy();
+        dac.setContigPartOfSelectedValues(4,da2,ids);
+        expected6=[1,11,2,12,3,13,4,14,0,30,0,30,9,39]
+        for i in xrange(14):
+            self.assertEqual(expected6[i],dac.getIJ(0,i));
+            pass
+        pass
     
     def setUp(self):
         pass

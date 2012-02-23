@@ -173,6 +173,63 @@ static int *convertPyToNewIntArr2(PyObject *pyLi, int *size) throw(INTERP_KERNEL
     }
 }
 
+static void convertPyToVectorPairInt(PyObject *pyLi, std::vector< std::pair<int,int> >& arr) throw(INTERP_KERNEL::Exception)
+{
+  const char msg[]="list must contain tuples of 2 integers only or tuple must contain tuples of 2 integers only !";
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      arr.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyTuple_Check(o))
+            {
+              int sz2=PyTuple_Size(o);
+              if(sz2!=2)
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_0=PyTuple_GetItem(o,0);
+              if(!PyInt_Check(o_0))
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_1=PyTuple_GetItem(o,1);
+              if(!PyInt_Check(o_1))
+                throw INTERP_KERNEL::Exception(msg);
+              arr[i].first=(int)PyInt_AS_LONG(o_0);
+              arr[i].second=(int)PyInt_AS_LONG(o_1);
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      arr.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyTuple_Check(o))
+            {
+              int sz2=PyTuple_Size(o);
+              if(sz2!=2)
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_0=PyTuple_GetItem(o,0);
+              if(!PyInt_Check(o_0))
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o_1=PyTuple_GetItem(o,1);
+              if(!PyInt_Check(o_1))
+                throw INTERP_KERNEL::Exception(msg);
+              arr[i].first=(int)PyInt_AS_LONG(o_0);
+              arr[i].second=(int)PyInt_AS_LONG(o_1);
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
+}
+
 static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))

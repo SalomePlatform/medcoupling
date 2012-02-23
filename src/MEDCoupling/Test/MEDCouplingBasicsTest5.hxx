@@ -40,6 +40,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGetCellIdsCrossingPlane1 );
     CPPUNIT_TEST( testBuildSlice3D1 );
     CPPUNIT_TEST( testBuildSlice3DSurf1 );
+    CPPUNIT_TEST( testDataArrayDoubleAdvSetting1 );
+    CPPUNIT_TEST( testDataArrayIntAdvSetting1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -47,6 +49,8 @@ namespace ParaMEDMEM
     void testGetCellIdsCrossingPlane1();
     void testBuildSlice3D1();
     void testBuildSlice3DSurf1();
+    void testDataArrayDoubleAdvSetting1();
+    void testDataArrayIntAdvSetting1();
   };
 }
 

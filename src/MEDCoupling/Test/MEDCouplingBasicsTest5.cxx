@@ -304,3 +304,191 @@ void MEDCouplingBasicsTest5::testBuildSlice3DSurf1()
   //
   mesh2D->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testDataArrayDoubleAdvSetting1()
+{
+  const double data1[14]={1.,11.,2.,12.,3.,13.,4.,14.,5.,15.,6.,16.,7.,17.};
+  const double data2[10]={8.,38.,9.,39.,0.,30.,11.,41.,12.,42.};
+  const char *comps[2]={"comp1","comp2"};
+  std::vector<std::string> compsCpp(comps,comps+2);
+  DataArrayDouble *da=DataArrayDouble::New();
+  DataArrayDouble *tmp=0;
+  da->setInfoAndChangeNbOfCompo(compsCpp);
+  da->setName("da");
+  da->alloc(7,2);
+  compsCpp.pop_back();
+  CPPUNIT_ASSERT_THROW(da->setInfoAndChangeNbOfCompo(compsCpp),INTERP_KERNEL::Exception);
+  std::copy(data1,data1+14,da->getPointer());
+  //
+  std::vector<std::pair<int,int> > p(3);
+  p[0].first=0; p[0].second=3; p[1].first=3; p[1].second=5; p[2].first=5; p[2].second=7;
+  tmp=da->selectByTupleRanges(p);
+  CPPUNIT_ASSERT(tmp->isEqual(*da,1e-14));
+  tmp->decrRef();
+  p[0].first=0; p[0].second=2; p[1].first=3; p[1].second=4; p[2].first=5; p[2].second=7;
+  tmp=da->selectByTupleRanges(p);
+  const double expected1[10]={1.,11.,2.,12.,4.,14.,6.,16.,7.,17.};
+  CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],tmp->getIJ(0,i),1e-14);
+  tmp->decrRef();
+  p[0].first=0; p[0].second=2; p[1].first=0; p[1].second=2; p[2].first=5; p[2].second=6;
+  tmp=da->selectByTupleRanges(p);
+  const double expected2[10]={1.,11.,2.,12.,1.,11.,2.,12.,6.,16.};
+  CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],tmp->getIJ(0,i),1e-14);
+  tmp->decrRef();
+  p[0].first=0; p[0].second=2; p[1].first=-1; p[1].second=2; p[2].first=5; p[2].second=6;
+  CPPUNIT_ASSERT_THROW(da->selectByTupleRanges(p),INTERP_KERNEL::Exception);
+  p[0].first=0; p[0].second=2; p[1].first=0; p[1].second=2; p[2].first=5; p[2].second=8;
+  CPPUNIT_ASSERT_THROW(da->selectByTupleRanges(p),INTERP_KERNEL::Exception);
+  //
+  DataArrayDouble *da2=DataArrayDouble::New();
+  da2->alloc(5,2);
+  std::copy(data2,data2+10,da2->getPointer());
+  //
+  DataArrayDouble *dac=da->deepCpy();
+  dac->setContigPartOfSelectedValues2(1,da2,2,4,1);
+  const double expected3[14]={1.,11.,0.,30.,11.,41.,4.,14.,5.,15.,6.,16.,7.,17.};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],dac->getIJ(0,i),1e-14);
+  dac->decrRef();
+  //
+  dac=da->deepCpy();
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues2(3,da2,0,5,1),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues2(0,da2,4,6,1),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues2(3,da2,5,0,1),INTERP_KERNEL::Exception);
+  dac->setContigPartOfSelectedValues2(3,da2,1,5,1);
+  const double expected4[14]={1.,11.,2.,12.,3.,13.,9.,39.,0.,30.,11.,41.,12.,42.};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected4[i],dac->getIJ(0,i),1e-14);
+  dac->decrRef();
+  //
+  DataArrayInt *ids=DataArrayInt::New();
+  ids->alloc(3,1);
+  dac=da->deepCpy();
+  ids->setIJ(0,0,2); ids->setIJ(1,0,0); ids->setIJ(2,0,4);
+  dac->setContigPartOfSelectedValues(2,da2,ids);
+  const double expected5[14]={1.,11.,2.,12.,0.,30.,8.,38.,12.,42.,6.,16.,7.,17.};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],dac->getIJ(0,i),1e-14);
+  dac->decrRef();
+  //
+  dac=da->deepCpy();
+  ids->setIJ(0,0,2); ids->setIJ(1,0,5); ids->setIJ(2,0,4);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues(1,da2,ids),INTERP_KERNEL::Exception);
+  ids->setIJ(0,0,2); ids->setIJ(1,0,2); ids->setIJ(2,0,-1);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues(1,da2,ids),INTERP_KERNEL::Exception);
+  ids->setIJ(0,0,2); ids->setIJ(1,0,2); ids->setIJ(2,0,1);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues(5,da2,ids),INTERP_KERNEL::Exception);
+  dac->decrRef();
+  //
+  ids->setIJ(0,0,2); ids->setIJ(1,0,2); ids->setIJ(2,0,1);
+  dac=da->deepCpy();
+  dac->setContigPartOfSelectedValues(4,da2,ids);
+  const double expected6[14]={1.,11.,2.,12.,3.,13.,4.,14.,0.,30.,0.,30.,9.,39.};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected6[i],dac->getIJ(0,i),1e-14);
+  dac->decrRef();
+  ids->decrRef();
+  //
+  da2->decrRef();
+  da->decrRef();
+}
+
+void MEDCouplingBasicsTest5::testDataArrayIntAdvSetting1()
+{
+  const int data1[14]={1,11,2,12,3,13,4,14,5,15,6,16,7,17};
+  const int data2[10]={8,38,9,39,0,30,11,41,12,42};
+  const char *comps[2]={"comp1","comp2"};
+  std::vector<std::string> compsCpp(comps,comps+2);
+  DataArrayInt *da=DataArrayInt::New();
+  DataArrayInt *tmp=0;
+  da->setInfoAndChangeNbOfCompo(compsCpp);
+  da->setName("da");
+  da->alloc(7,2);
+  compsCpp.pop_back();
+  CPPUNIT_ASSERT_THROW(da->setInfoAndChangeNbOfCompo(compsCpp),INTERP_KERNEL::Exception);
+  std::copy(data1,data1+14,da->getPointer());
+  //
+  std::vector<std::pair<int,int> > p(3);
+  p[0].first=0; p[0].second=3; p[1].first=3; p[1].second=5; p[2].first=5; p[2].second=7;
+  tmp=da->selectByTupleRanges(p);
+  CPPUNIT_ASSERT(tmp->isEqual(*da));
+  tmp->decrRef();
+  p[0].first=0; p[0].second=2; p[1].first=3; p[1].second=4; p[2].first=5; p[2].second=7;
+  tmp=da->selectByTupleRanges(p);
+  const int expected1[10]={1,11,2,12,4,14,6,16,7,17};
+  CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],tmp->getIJ(0,i));
+  tmp->decrRef();
+  p[0].first=0; p[0].second=2; p[1].first=0; p[1].second=2; p[2].first=5; p[2].second=6;
+  tmp=da->selectByTupleRanges(p);
+  const int expected2[10]={1,11,2,12,1,11,2,12,6,16};
+  CPPUNIT_ASSERT_EQUAL(5,tmp->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(2,tmp->getNumberOfComponents());
+  for(int i=0;i<10;i++)
+    CPPUNIT_ASSERT_EQUAL(expected2[i],tmp->getIJ(0,i));
+  tmp->decrRef();
+  p[0].first=0; p[0].second=2; p[1].first=-1; p[1].second=2; p[2].first=5; p[2].second=6;
+  CPPUNIT_ASSERT_THROW(da->selectByTupleRanges(p),INTERP_KERNEL::Exception);
+  p[0].first=0; p[0].second=2; p[1].first=0; p[1].second=2; p[2].first=5; p[2].second=8;
+  CPPUNIT_ASSERT_THROW(da->selectByTupleRanges(p),INTERP_KERNEL::Exception);
+  //
+  DataArrayInt *da2=DataArrayInt::New();
+  da2->alloc(5,2);
+  std::copy(data2,data2+10,da2->getPointer());
+  //
+  DataArrayInt *dac=da->deepCpy();
+  dac->setContigPartOfSelectedValues2(1,da2,2,4,1);
+  const int expected3[14]={1,11,0,30,11,41,4,14,5,15,6,16,7,17};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_EQUAL(expected3[i],dac->getIJ(0,i));
+  dac->decrRef();
+  //
+  dac=da->deepCpy();
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues2(3,da2,0,5,1),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues2(0,da2,4,6,1),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues2(3,da2,5,0,1),INTERP_KERNEL::Exception);
+  dac->setContigPartOfSelectedValues2(3,da2,1,5,1);
+  const int expected4[14]={1,11,2,12,3,13,9,39,0,30,11,41,12,42};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_EQUAL(expected4[i],dac->getIJ(0,i));
+  dac->decrRef();
+  //
+  DataArrayInt *ids=DataArrayInt::New();
+  ids->alloc(3,1);
+  dac=da->deepCpy();
+  ids->setIJ(0,0,2); ids->setIJ(1,0,0); ids->setIJ(2,0,4);
+  dac->setContigPartOfSelectedValues(2,da2,ids);
+  const int expected5[14]={1,11,2,12,0,30,8,38,12,42,6,16,7,17};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_EQUAL(expected5[i],dac->getIJ(0,i));
+  dac->decrRef();
+  //
+  dac=da->deepCpy();
+  ids->setIJ(0,0,2); ids->setIJ(1,0,5); ids->setIJ(2,0,4);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues(1,da2,ids),INTERP_KERNEL::Exception);
+  ids->setIJ(0,0,2); ids->setIJ(1,0,2); ids->setIJ(2,0,-1);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues(1,da2,ids),INTERP_KERNEL::Exception);
+  ids->setIJ(0,0,2); ids->setIJ(1,0,2); ids->setIJ(2,0,1);
+  CPPUNIT_ASSERT_THROW(dac->setContigPartOfSelectedValues(5,da2,ids),INTERP_KERNEL::Exception);
+  dac->decrRef();
+  //
+  ids->setIJ(0,0,2); ids->setIJ(1,0,2); ids->setIJ(2,0,1);
+  dac=da->deepCpy();
+  dac->setContigPartOfSelectedValues(4,da2,ids);
+  const int expected6[14]={1,11,2,12,3,13,4,14,0,30,0,30,9,39};
+  for(int i=0;i<14;i++)
+    CPPUNIT_ASSERT_EQUAL(expected6[i],dac->getIJ(0,i));
+  dac->decrRef();
+  ids->decrRef();
+  //
+  da2->decrRef();
+  da->decrRef();
+}

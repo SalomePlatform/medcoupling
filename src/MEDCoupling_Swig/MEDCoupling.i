@@ -125,6 +125,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayInt::selectByTupleId2;
+%newobject ParaMEDMEM::DataArrayInt::selectByTupleRanges;
 %newobject ParaMEDMEM::DataArrayInt::checkAndPreparePermutation;
 %newobject ParaMEDMEM::DataArrayInt::transformWithIndArrR;
 %newobject ParaMEDMEM::DataArrayInt::renumber;
@@ -2126,6 +2127,13 @@ namespace ParaMEDMEM
      return DataArrayDouble::Meld(tmp);
    }
 
+   DataArrayDouble *selectByTupleRanges(PyObject *li) const throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<std::pair<int,int> > ranges;
+     convertPyToVectorPairInt(li,ranges);
+     return self->selectByTupleRanges(ranges);
+   }
+
    DataArrayDouble *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __getitem__ !";
@@ -3462,6 +3470,13 @@ namespace ParaMEDMEM
      PyList_SetItem(res,0,SWIG_NewPointerObj((void*)arr,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
      PyList_SetItem(res,1,SWIG_NewPointerObj((void*)arrI,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,SWIG_POINTER_OWN | 0));
      return res;
+   }
+
+   DataArrayInt *selectByTupleRanges(PyObject *li) const throw(INTERP_KERNEL::Exception)
+   {
+     std::vector<std::pair<int,int> > ranges;
+     convertPyToVectorPairInt(li,ranges);
+     return self->selectByTupleRanges(ranges);
    }
 
    static DataArrayInt *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
