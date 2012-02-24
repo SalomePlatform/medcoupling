@@ -386,22 +386,23 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
       bool direct=descBg[i]>0;
       int edgeId=abs(descBg[i])-1;//current edge id of pol2
       bool directos=colinear1[edgeId].empty();
-      int idIn1=-1;//store if needed the cell id in 1
-      bool direct1;//store if needed the direction in 1
+      std::vector<std::pair<int,std::pair<bool,int> > > idIns1;
       int offset1=0;
       if(!directos)
         {// if the current edge of pol2 has one or more colinear edges part into pol1
           const std::vector<int>& c=colinear1[edgeId];
           std::size_t nbOfEdgesIn1=std::distance(descBg1,descEnd1);
-          for(std::size_t j=0;j<nbOfEdgesIn1 && idIn1==-1;j++)
+          for(std::size_t j=0;j<nbOfEdgesIn1;j++)
             {
               int edgeId1=abs(descBg1[j])-1;
               if(std::find(c.begin(),c.end(),edgeId1)!=c.end())
-                { idIn1=edgeId1; direct1=descBg1[j]>0; }// it exists an edge into pol1 given by tuple (idIn1,direct1) that is colinear at edge 'edgeId' in pol2
-              else
-                offset1+=intersectEdges1[edgeId1].size()/2;//offset1 is used to find the INTERP_KERNEL::Edge * instance into pol1 that will be part of edge into pol2
+                {
+                  idIns1.push_back(std::pair<int,std::pair<bool,int> >(edgeId1,std::pair<bool,int>(descBg1[j]>0,offset1)));// it exists an edge into pol1 given by tuple (idIn1,direct1) that is colinear at edge 'edgeId' in pol2
+                  //std::pair<edgeId1); direct1=descBg1[j]>0;
+                }
+              offset1+=intersectEdges1[edgeId1].size()/2;//offset1 is used to find the INTERP_KERNEL::Edge * instance into pol1 that will be part of edge into pol2
             }
-          directos=(idIn1==-1);
+          directos=idIns1.empty();
         }
       if(directos)
         {//no subpart of edge 'edgeId' of pol2 is in pol1 so let's operate the same thing that QuadraticPolygon::buildFromCrudeDataArray method
@@ -411,22 +412,31 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
         {//there is subpart of edge 'edgeId' of pol2 inside pol1
           const std::vector<int>& subEdge=intersectEdges[edgeId];
           std::size_t nbOfSubEdges=subEdge.size()/2;
-          const std::vector<int>& subEdge1PossiblyAlreadyIn1=intersectEdges1[idIn1];
           for(std::size_t j=0;j<nbOfSubEdges;j++)
             {
               int idBg=direct?subEdge[2*j]:subEdge[2*nbOfSubEdges-2*j-1];
               int idEnd=direct?subEdge[2*j+1]:subEdge[2*nbOfSubEdges-2*j-2];
-              std::size_t nbOfSubEdges1=subEdge1PossiblyAlreadyIn1.size()/2;
-              int offset2=0;
               bool direction11,found=false;
-              for(std::size_t k=0;k<nbOfSubEdges1 && !found;k++)
-                {//perform a loop on all subedges of pol1 that includes edge 'edgeId' of pol2. For the moment we iterate only on subedges of ['idIn1']... To improve
-                  if(subEdge1PossiblyAlreadyIn1[2*k]==idBg && subEdge1PossiblyAlreadyIn1[2*k+1]==idEnd)
-                    { direction11=true; found=true; }
-                  else if(subEdge1PossiblyAlreadyIn1[2*k]==idEnd && subEdge1PossiblyAlreadyIn1[2*k+1]==idBg)
-                    { direction11=false; found=true; }
-                  else
-                    offset2++;
+              bool direct1;//store if needed the direction in 1
+              int offset2;
+              std::size_t nbOfSubEdges1;
+              for(std::vector<std::pair<int,std::pair<bool,int> > >::const_iterator it=idIns1.begin();it!=idIns1.end();it++)
+                {
+                  int idIn1=(*it).first;//store if needed the cell id in 1
+                  direct1=(*it).second.first;
+                  offset1=(*it).second.second;
+                  const std::vector<int>& subEdge1PossiblyAlreadyIn1=intersectEdges1[idIn1];
+                  nbOfSubEdges1=subEdge1PossiblyAlreadyIn1.size()/2;
+                  offset2=0;
+                  for(std::size_t k=0;k<nbOfSubEdges1 && !found;k++)
+                    {//perform a loop on all subedges of pol1 that includes edge 'edgeId' of pol2. For the moment we iterate only on subedges of ['idIn1']... To improve
+                      if(subEdge1PossiblyAlreadyIn1[2*k]==idBg && subEdge1PossiblyAlreadyIn1[2*k+1]==idEnd)
+                        { direction11=true; found=true; }
+                      else if(subEdge1PossiblyAlreadyIn1[2*k]==idEnd && subEdge1PossiblyAlreadyIn1[2*k+1]==idBg)
+                        { direction11=false; found=true; }
+                      else
+                        offset2++;
+                    }
                 }
               if(!found)
                 {//the current subedge of edge 'edgeId' of pol2 is not a part of the colinear edge 'idIn1' of pol1 -> build new Edge instance
