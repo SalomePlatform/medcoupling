@@ -252,8 +252,8 @@ void MEDFileMesh::setFamiliesIdsOnGroup(const char *name, const std::vector<int>
   int i=0;
   for(std::vector<int>::const_iterator it1=famIds.begin();it1!=famIds.end();it1++,i++)
     {
-      std::string name=getFamilyNameGivenId(*it1);
-      fams[i]=name;
+      std::string name2=getFamilyNameGivenId(*it1);
+      fams[i]=name2;
     }
   _groups[oname]=fams;
 }
@@ -287,15 +287,15 @@ void MEDFileMesh::setGroupsOnFamily(const char *famName, const std::vector<std::
       std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  for(std::vector<std::string>::const_iterator it=grps.begin();it!=grps.end();it++)
+  for(std::vector<std::string>::const_iterator it3=grps.begin();it3!=grps.end();it3++)
     {
-      std::map< std::string, std::vector<std::string> >::iterator it2=_groups.find(*it);
+      std::map< std::string, std::vector<std::string> >::iterator it2=_groups.find(*it3);
       if(it2!=_groups.end())
         (*it2).second.push_back(fName);
       else
         {
-          std::vector<std::string> grps(1,fName);
-          _groups[*it]=grps;
+          std::vector<std::string> grps2(1,fName);
+          _groups[*it3]=grps2;
         }
     }
 }
@@ -747,10 +747,10 @@ void MEDFileMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<con
   else
     {
       std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > grps2(grps.size());
-      for(unsigned int i=0;i<grps.size();i++)
+      for(unsigned int ii=0;ii<grps.size();ii++)
         {
-          grps2[i]=MEDFileUMeshSplitL1::Renumber(getRevNumberFieldAtLevel(meshDimRelToMaxExt),grps[i]);
-          grps2[i]->setName(grps[i]->getName().c_str());
+          grps2[ii]=MEDFileUMeshSplitL1::Renumber(getRevNumberFieldAtLevel(meshDimRelToMaxExt),grps[ii]);
+          grps2[ii]->setName(grps[ii]->getName().c_str());
         }
       std::vector<const DataArrayInt *> grps3(grps2.begin(),grps2.end());
       fam=DataArrayInt::MakePartition(grps3,sz,fidsOfGroups);
@@ -945,7 +945,7 @@ bool MEDFileUMesh::isEqual(const MEDFileMesh *other, double eps, std::string& wh
             return false;
         }
     }
-  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
+  //std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> > _ms;
   return true;
 }
 
@@ -954,13 +954,13 @@ void MEDFileUMesh::clearNonDiscrAttributes() const
   MEDFileMesh::clearNonDiscrAttributes();
   const DataArrayDouble *coo1=_coords;
   if(coo1)
-    ((DataArrayDouble *)coo1)->setName("");//This parameter is not discriminant for comparison
+    (const_cast<DataArrayDouble *>(coo1))->setName("");//This parameter is not discriminant for comparison
   const DataArrayInt *famc1=_fam_coords;
   if(famc1)
-    ((DataArrayInt *)famc1)->setName("");//This parameter is not discriminant for comparison
+    (const_cast<DataArrayInt *>(famc1))->setName("");//This parameter is not discriminant for comparison
   const DataArrayInt *numc1=_num_coords;
   if(numc1)
-    ((DataArrayInt *)numc1)->setName("");//This parameter is not discriminant for comparison
+    (const_cast<DataArrayInt *>(numc1))->setName("");//This parameter is not discriminant for comparison
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> >::const_iterator it=_ms.begin();it!=_ms.end();it++)
     {
       const MEDFileUMeshSplitL1 *tmp=(*it);

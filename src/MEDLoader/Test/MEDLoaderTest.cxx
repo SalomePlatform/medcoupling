@@ -182,7 +182,7 @@ void MEDLoaderTest::testFieldRW3()
   const char name1[]="AField";
   const char name3[]="AMesh1";
   MEDCouplingFieldDouble *f1=buildVecFieldOnCells_1();
-  ((MEDCouplingMesh *)f1->getMesh())->setName(name3);
+  (const_cast<MEDCouplingMesh *>(f1->getMesh()))->setName(name3);
   f1->setName(name1);
   f1->setTime(10.,8,9);
   double *tmp=f1->getArray()->getPointer();
@@ -204,7 +204,7 @@ void MEDLoaderTest::testFieldRW3()
   f1->decrRef();
   f1=buildVecFieldOnNodes_1();
   f1->setName(name1);
-   ((MEDCouplingMesh *)f1->getMesh())->setName(name3);
+  (const_cast<MEDCouplingMesh *>(f1->getMesh()))->setName(name3);
   f1->setTime(110.,8,9);
   MEDLoader::WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
   f1->setTime(110.,108,109);
@@ -409,7 +409,7 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   f1->checkCoherency();
   const int arr2[6]={2,4,5,3,6,7};
   MEDCouplingFieldDouble *f2=f1->buildSubPart(arr2,arr2+6);
-  ((MEDCouplingMesh *)f2->getMesh())->setName(f1->getMesh()->getName());
+  (const_cast<MEDCouplingMesh *>(f2->getMesh()))->setName(f1->getMesh()->getName());
   MEDLoader::WriteField(fileName,f2,false);//<- false important for the test
   //
   MEDCouplingFieldDouble *f3=MEDLoader::ReadFieldNode(fileName,f2->getMesh()->getName(),0,f2->getName(),2,7);

@@ -270,7 +270,7 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
           int *bt=bigtab;
           for(int i=0;i<nbOfCells;i++,w1++)
             {
-              int nbOfFaces=0;
+              int nbOfFaces2=0;
               for(const int *w=conn+connI[i]+1;w!=conn+connI[i+1];w2++)
                 {
                   const int *wend=std::find(w,conn+connI[i+1],-1);
@@ -281,9 +281,9 @@ void MEDFileUMeshPerType::write(med_idt fid, const char *mname, int mdim, const 
                     w=wend+1;
                   else
                     w=wend;
-                  nbOfFaces++;
+                  nbOfFaces2++;
                 }
-              w1[1]=w1[0]+nbOfFaces;
+              w1[1]=w1[0]+nbOfFaces2;
             }
           MEDmeshPolyhedronWr(fid,mname,dt,it,timm,MED_CELL,MED_NODAL,nbOfCells+1,tab1,nbOfFaces+1,tab2,bigtab);
         }

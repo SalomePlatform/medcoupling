@@ -101,7 +101,7 @@ namespace
   {
     if ( const int * conn = getGibi2MedQuadraticInterlace( type ))
       {
-        Cell* ma = (Cell*) & aCell;
+        Cell* ma = const_cast<Cell*>(&aCell);
         //cout << "###### BEFORE ConvertQuadratic() " << *ma << endl;
         vector< Node* > new_nodes( ma->_nodes.size() );
         for ( size_t i = 0; i < new_nodes.size(); ++i )
@@ -199,7 +199,7 @@ namespace
 
   inline void reverse(const Cell & aCell, const vector<pair<int,int> > & swapVec )
   {
-    Cell* ma = (Cell*) & aCell;
+    Cell* ma = const_cast<Cell*>(&aCell);
     for ( unsigned i = 0; i < swapVec.size(); ++i )
       std::swap( ma->_nodes[ swapVec[i].first ],
                  ma->_nodes[ swapVec[i].second ]);
@@ -392,17 +392,17 @@ std::ostream& SauvUtilities::operator<< (std::ostream& os, const SauvUtilities::
 
 int Group::size() const
 {
-  int size = 0;
+  int sizze = 0;
   if ( !_relocTable.empty() )
-    size =  _relocTable.size();
+    sizze =  _relocTable.size();
   else if ( _medGroup )
-    size = _medGroup->getNumberOfTuples();
+    sizze = _medGroup->getNumberOfTuples();
   else if ( !_cells.empty() )
-    size = _cells.size();
+    sizze = _cells.size();
   else
     for ( size_t i = 0; i < _groups.size(); ++i )
-      size += _groups[i]->size();
-  return size;
+      sizze += _groups[i]->size();
+  return sizze;
 }
 
 //================================================================================
@@ -1601,10 +1601,10 @@ void IntermediateMED::orientFaces3D()
                 {
                   if ( manifold )
                     {
-                      list<const Cell*>::iterator i = ml.begin();
+                      list<const Cell*>::iterator ii = ml.begin();
                       cout << nbFaceByLink << " faces by 1 link:";
-                      for( ; i!= ml.end(); i++ )
-                        cout << "in sub-mesh " << fgm[ *i ]->_name << endl << **i;
+                      for( ; ii!= ml.end(); ii++ )
+                        cout << "in sub-mesh " << fgm[ *ii ]->_name << endl << **ii;
                     }
                   manifold = false;
                 }
@@ -2401,19 +2401,19 @@ IntermediateMED::~IntermediateMED()
 /*!
  * \brief CellsByDimIterator constructor
  */
-CellsByDimIterator::CellsByDimIterator( const IntermediateMED & medi, int dim)
+CellsByDimIterator::CellsByDimIterator( const IntermediateMED & medi, int dimm)
 {
   myImed = & medi;
-  init( dim );
+  init( dimm );
 }
 /*!
  * \brief Initialize iteration on cells of given dimention
  */
-void CellsByDimIterator::init(const int  dim)
+void CellsByDimIterator::init(const int  dimm)
 {
   myCurType = -1;
   myTypeEnd = INTERP_KERNEL::NORM_HEXA20 + 1;
-  myDim = dim;
+  myDim = dimm;
 }
 /*!
  * \brief return next set of Cell's of required dimension
@@ -2430,11 +2430,11 @@ const std::set< Cell > * CellsByDimIterator::nextType()
  */
 int CellsByDimIterator::dim(const bool last) const
 {
-  int type = myCurType;
+  int typp = myCurType;
   if ( !last )
-    while ( type < myTypeEnd && myImed->_cellsByType[type].empty() )
-      ++type;
-  return type < myTypeEnd ? getDimension( TCellType( type )) : 4;
+    while ( typp < myTypeEnd && myImed->_cellsByType[typp].empty() )
+      ++typp;
+  return typp < myTypeEnd ? getDimension( TCellType( typp )) : 4;
 }
 // END CellsByDimIterator ========================================================
 

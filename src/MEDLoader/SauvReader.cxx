@@ -1069,7 +1069,7 @@ void SauvReader::read_PILE_TABLES (const int                 nbObjects,
           else
             {
               // pass table
-              for ( int i = 0; i < 4; ++i ) next();
+              for ( int ii = 0; ii < 4; ++ii ) next();
             }
         }
     } // for (int itable = 0; itable < nbObjects; itable++)

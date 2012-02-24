@@ -378,7 +378,6 @@ void MEDFileFieldPerMeshPerTypePerDisc::finishLoading(med_idt fid, int profileIt
   int order=getOrder();
   TypeOfField type=getType();
   INTERP_KERNEL::NormalizedCellType geoType=getGeoType();
-  int profilesize;
   med_geometry_type mgeoti;
   med_entity_type menti=MEDFileFieldPerMeshPerType::ConvertIntoMEDFileType(type,geoType,mgeoti);
   DataArrayDouble *arr=getArray();
@@ -1839,6 +1838,10 @@ void MEDFieldFieldGlobsReal::simpleRepr(std::ostream& oss) const
     oss << "NO GLOBAL INFORMATION !\n";
 }
 
+MEDFieldFieldGlobsReal::~MEDFieldFieldGlobsReal()
+{
+}
+
 void MEDFieldFieldGlobsReal::shallowCpyGlobs(const MEDFieldFieldGlobsReal& other)
 {
   _globals=other._globals;
@@ -3223,7 +3226,7 @@ try:MEDFileFieldMultiTSWithoutDAS(fieldName),MEDFieldFieldGlobsReal(fileName)
       if(found)
         {
           nbstep2=nbOfStep;
-          _field_type=_field_type=MEDFileUtilities::TraduceFieldType(typcha);
+          _field_type=MEDFileUtilities::TraduceFieldType(typcha);
           _infos.resize(ncomp);
           for(int j=0;j<ncomp;j++)
             _infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+j*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+j*MED_SNAME_SIZE,MED_SNAME_SIZE);
