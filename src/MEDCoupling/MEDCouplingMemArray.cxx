@@ -478,14 +478,16 @@ void DataArrayDouble::reverse() throw(INTERP_KERNEL::Exception)
  void DataArrayDouble::checkMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception)
 {
   if(!isMonotonic(increasing, eps))
-    if (increasing)
-      {
-        throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not INCREASING monotonic !");
-      }
-    else
-      {
-        throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not DECREASING monotonic !");
-      }
+    {
+      if (increasing)
+        {
+          throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not INCREASING monotonic !");
+        }
+      else
+        {
+          throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not DECREASING monotonic !");
+        }
+    }
 }
 
 /*!
@@ -804,9 +806,7 @@ DataArrayDouble *DataArrayDouble::selectByTupleRanges(const std::vector<std::pai
       ret->copyStringInfoFrom(*this);
       return ret;
     }
-  int st=ranges.front().first;
-  int endd=ranges.back().second;
-  int ref=st;
+  int ref=ranges.front().first;
   int nbOfTuples=0;
   bool isIncreasing=true;
   for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)
@@ -3121,9 +3121,7 @@ DataArrayInt *DataArrayInt::selectByTupleRanges(const std::vector<std::pair<int,
       ret->copyStringInfoFrom(*this);
       return ret;
     }
-  int st=ranges.front().first;
-  int endd=ranges.back().second;
-  int ref=st;
+  int ref=ranges.front().first;
   int nbOfTuples=0;
   bool isIncreasing=true;
   for(std::vector<std::pair<int,int> >::const_iterator it=ranges.begin();it!=ranges.end();it++)

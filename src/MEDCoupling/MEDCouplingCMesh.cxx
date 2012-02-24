@@ -544,7 +544,7 @@ DataArrayInt *MEDCouplingCMesh::checkTypeConsistencyAndContig(const std::vector<
     {
       if(code[2]<-1) 
         throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code[2]<-1 mismatch !");
-      if(code[2]>=idsPerType.size()) 
+      if(code[2]>=(int)idsPerType.size()) 
         throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkTypeConsistencyAndContig : code[2]>size idsPerType !");
       return idsPerType[code[2]]->deepCpy();
     }

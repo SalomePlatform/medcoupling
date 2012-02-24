@@ -2424,7 +2424,6 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3D(const double *origin, const dou
   std::vector<int> nodes;
   std::vector<int> cellIds2D,cellIds1D;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=static_cast<MEDCouplingUMesh*>(buildPartOfMySelf(candidates->begin(),candidates->end(),false));
-  int nbNodes1=subMesh->getNumberOfNodes();
   subMesh->findNodesOnPlane(origin,vec,eps,nodes);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1=DataArrayInt::New(),desc2=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx1=DataArrayInt::New(),descIndx2=DataArrayInt::New();
@@ -2487,7 +2486,6 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3DSurf(const double *origin, const
   std::vector<int> nodes;
   std::vector<int> cellIds1D;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=static_cast<MEDCouplingUMesh*>(buildPartOfMySelf(candidates->begin(),candidates->end(),false));
-  int nbNodes1=subMesh->getNumberOfNodes();
   subMesh->findNodesOnPlane(origin,vec,eps,nodes);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc1=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx1=DataArrayInt::New();
@@ -3492,7 +3490,7 @@ void MEDCouplingUMesh::tessellate2DCurve(double eps) throw(INTERP_KERNEL::Except
           newConnIPtr[1]=newConnIPtr[0]+3;
         }
     }
-  if(addCoo.empty() && newConn.size()==_nodal_connec->getNumberOfTuples())//nothing happens during tasselation : no update needed
+  if(addCoo.empty() && ((int)newConn.size())==_nodal_connec->getNumberOfTuples())//nothing happens during tasselation : no update needed
     return ;
   _types=types;
   DataArrayInt::SetArrayIn(newConnI,_nodal_connec_index);
@@ -5531,7 +5529,7 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<int>& cut3D
           }
         default:
           {// case when plane is on a multi colinear edge of a polyhedron
-            if(res.size()==2*nbOfSeg)
+            if((int)res.size()==2*nbOfSeg)
               {
                 cut3DSurf[i].first=-2; cut3DSurf[i].second=i;
               }
@@ -5583,7 +5581,6 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<i
                 {
                   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)nodal3D[nodalIndx3D[i]]);
                   int sz=nodalIndx3D[i+1]-nodalIndx3D[i]-1;
-                  unsigned nbOfSons=cm.getNumberOfSons2(nodal3D+nodalIndx3D[i]+1,sz);
                   INTERP_KERNEL::AutoPtr<int> tmp=new int[sz];
                   INTERP_KERNEL::NormalizedCellType cmsId;
                   unsigned nbOfNodesSon=cm.fillSonCellNodalConnectivity2(j,nodal3D+nodalIndx3D[i]+1,sz,tmp,cmsId);

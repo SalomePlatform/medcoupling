@@ -1286,10 +1286,10 @@ void MEDCouplingBasicsTest4::testDAISplitByValueRange1()
   DataArrayInt *d=DataArrayInt::New();
   d->alloc(9,1);
   std::copy(val1,val1+9,d->getPointer());
-  DataArrayInt *e=0,*f=0,*g=0;
-  d->splitByValueRange(val2,val2+3,e,f,g);
-  CPPUNIT_ASSERT_EQUAL(9,e->getNumberOfTuples());
-  CPPUNIT_ASSERT_EQUAL(1,e->getNumberOfComponents());
+  DataArrayInt *ee=0,*f=0,*g=0;
+  d->splitByValueRange(val2,val2+3,ee,f,g);
+  CPPUNIT_ASSERT_EQUAL(9,ee->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,ee->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(9,f->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,f->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(2,g->getNumberOfTuples());
@@ -1299,18 +1299,18 @@ void MEDCouplingBasicsTest4::testDAISplitByValueRange1()
   const int expected2[9]={2,1,0,3,2,3,4,1,0};
   for(int i=0;i<9;i++)
     {
-      CPPUNIT_ASSERT_EQUAL(expected1[i],e->getIJ(i,0));
+      CPPUNIT_ASSERT_EQUAL(expected1[i],ee->getIJ(i,0));
       CPPUNIT_ASSERT_EQUAL(expected2[i],f->getIJ(i,0));
     }
   CPPUNIT_ASSERT_EQUAL(0,g->getIJ(0,0));
   CPPUNIT_ASSERT_EQUAL(1,g->getIJ(1,0));
   //
-  e->decrRef();
+  ee->decrRef();
   f->decrRef();
   g->decrRef();
   //
   d->setIJ(6,0,9);
-  CPPUNIT_ASSERT_THROW(d->splitByValueRange(val2,val2+3,e,f,g),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(d->splitByValueRange(val2,val2+3,ee,f,g),INTERP_KERNEL::Exception);
   //
   d->decrRef();
 }
