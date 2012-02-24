@@ -2104,6 +2104,63 @@ std::vector<std::string>& MEDFileField1TSWithoutDAS::getInfo()
   return arr->getInfoOnComponents();
 }
 
+/*!
+ * This method has one input 'mname'. It can be null if the user is the general case where there is only one meshName lying on 'this'
+ * This method returns two things.
+ * - The absolute dimension of 'this' in first parameter. 
+ * - The available ext levels relative to the absolute dimension returned in first parameter. These relative levels are relative
+ *   to the first output parameter. The values in 'levs' will be returned in decreasing order.
+ *
+ * This method is designed for MEDFileField1TS instances that have a discritization ON_CELLS, ON_GAUSS_NE and ON_GAUSS.
+ * Only these 3 discretizations will be taken into account here.
+ *
+ * If 'this' is empty this method will throw an INTERP_KERNEL::Exception.
+ * If there is \b only node fields defined in 'this' -1 is returned and 'levs' output parameter will be empty. In this
+ * case the caller has to know the underlying mesh it refers to. By defaut it is the level 0 of the corresponding mesh.
+ *
+ * This method is usefull to make the link between meshDimension of the underlying mesh in 'this' and the levels on 'this'.
+ * It is possible (even if it is not common) that the highest level in 'this' were not equal to the meshDimension of the underlying mesh in 'this'.
+ * 
+ * Let's consider the typical following case :
+ * - a mesh 'm1' has a meshDimension 3 and has the following non empty levels
+ * [0,-1,-2] for example 'm1' lies on TETRA4, HEXA8 TRI3 and SEG2
+ * - 'f1' lies on 'm1' and is defined on 3D and 1D cells for example
+ *   TETRA4 and SEG2
+ * - 'f2' lies on 'm1' too and is defined on 2D and 1D cells for example TRI3 and SEG2
+ *
+ * In this case f1->getNonEmptyLevelsExt will return (3,[0,-2]) and f2->getNonEmptyLevelsExt will return (2,[0,-1])
+ * 
+ * To retrieve the highest level of f1 it should be done, f1->getFieldAtLevel(ON_CELLS,3-3+0);//absDim-meshDim+relativeLev
+ * To retrieve the lowest level of f1 it should be done, f1->getFieldAtLevel(ON_CELLS,3-3+(-2));//absDim-meshDim+relativeLev
+ * To retrieve the highest level of f2 it should be done, f1->getFieldAtLevel(ON_CELLS,2-3+0);//absDim-meshDim+relativeLev
+ * To retrieve the lowest level of f2 it should be done, f1->getFieldAtLevel(ON_CELLS,2-3+(-1));//absDim-meshDim+relativeLev
+ */
+int MEDFileField1TSWithoutDAS::getNonEmptyLevels(const char *mname, std::vector<int>& levs) const throw(INTERP_KERNEL::Exception)
+{
+  levs.clear();
+  int meshId=getMeshIdFromMeshName(mname);
+  std::vector<INTERP_KERNEL::NormalizedCellType> types;
+  std::vector< std::vector<TypeOfField> > typesF;
+  std::vector< std::vector<std::string> > pfls, locs;
+  _field_per_mesh[meshId]->getFieldSplitedByType(types,typesF,pfls,locs);
+  if(types.empty())
+    throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getNonEmptyLevels : 'this' is empty !");
+  std::set<INTERP_KERNEL::NormalizedCellType> st(types.begin(),types.end());
+  if(st.size()==1 && (*st.begin())==INTERP_KERNEL::NORM_ERROR)
+    return -1;
+  st.erase(INTERP_KERNEL::NORM_ERROR);
+  std::set<int> ret1;
+  for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator it=st.begin();it!=st.end();it++)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(*it);
+      ret1.insert((int)cm.getDimension());
+    }
+  int ret=*std::max_element(ret1.begin(),ret1.end());
+  std::copy(ret1.rbegin(),ret1.rend(),std::back_insert_iterator<std::vector<int> >(levs));
+  std::transform(levs.begin(),levs.end(),levs.begin(),std::bind2nd(std::plus<int>(),-ret));
+  return ret;
+}
+
 std::vector<TypeOfField> MEDFileField1TSWithoutDAS::getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)
 {
   std::vector<TypeOfField> ret;
@@ -2445,6 +2502,8 @@ int MEDFileField1TSWithoutDAS::getMeshIdFromMeshName(const char *mName) const th
 {
   if(_field_per_mesh.empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TSWithoutDAS::getMeshIdFromMeshName : No field set !");
+  if(mName==0)
+    return 0;
   std::string mName2(mName);
   int ret=0;
   std::vector<std::string> msg;
@@ -2865,6 +2924,42 @@ std::vector< std::pair<int,int> > MEDFileFieldMultiTSWithoutDAS::getIterations()
   for(int i=0;i<lgth;i++)
     _time_steps[i]->fillIteration(ret[i]);
   return ret;
+}
+
+/*!
+ * This method has 3 inputs 'iteration' 'order' 'mname'. 'mname' can be null if the user is the general case where there is only one meshName lying on 'this'
+ * This method returns two things.
+ * - The absolute dimension of 'this' in first parameter. 
+ * - The available ext levels relative to the absolute dimension returned in first parameter. These relative levels are relative
+ *   to the first output parameter. The values in 'levs' will be returned in decreasing order.
+ *
+ * This method is designed for MEDFileFieldMultiTS instances that have a discritization ON_CELLS, ON_GAUSS_NE and ON_GAUSS.
+ * Only these 3 discretizations will be taken into account here.
+ *
+ * If 'this' is empty this method will throw an INTERP_KERNEL::Exception.
+ * If there is \b only node fields defined in 'this' -1 is returned and 'levs' output parameter will be empty. In this
+ * case the caller has to know the underlying mesh it refers to. By defaut it is the level 0 of the corresponding mesh.
+ *
+ * This method is usefull to make the link between meshDimension of the underlying mesh in 'this' and the levels on 'this'.
+ * It is possible (even if it is not common) that the highest level in 'this' were not equal to the meshDimension of the underlying mesh in 'this'.
+ * 
+ * Let's consider the typical following case :
+ * - a mesh 'm1' has a meshDimension 3 and has the following non empty levels
+ * [0,-1,-2] for example 'm1' lies on TETRA4, HEXA8 TRI3 and SEG2
+ * - 'f1' lies on 'm1' and is defined on 3D and 1D cells for example
+ *   TETRA4 and SEG2
+ * - 'f2' lies on 'm1' too and is defined on 2D and 1D cells for example TRI3 and SEG2
+ *
+ * In this case f1->getNonEmptyLevelsExt will return (3,[0,-2]) and f2->getNonEmptyLevelsExt will return (2,[0,-1])
+ * 
+ * To retrieve the highest level of f1 it should be done, f1->getFieldAtLevel(ON_CELLS,3-3+0);//absDim-meshDim+relativeLev
+ * To retrieve the lowest level of f1 it should be done, f1->getFieldAtLevel(ON_CELLS,3-3+(-2));//absDim-meshDim+relativeLev
+ * To retrieve the highest level of f2 it should be done, f1->getFieldAtLevel(ON_CELLS,2-3+0);//absDim-meshDim+relativeLev
+ * To retrieve the lowest level of f2 it should be done, f1->getFieldAtLevel(ON_CELLS,2-3+(-1));//absDim-meshDim+relativeLev
+ */
+int MEDFileFieldMultiTSWithoutDAS::getNonEmptyLevels(int iteration, int order, const char *mname, std::vector<int>& levs) const throw(INTERP_KERNEL::Exception)
+{
+  return getTimeStepEntry(iteration,order).getNonEmptyLevels(mname,levs);
 }
 
 std::vector< std::vector<TypeOfField> > MEDFileFieldMultiTSWithoutDAS::getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception)

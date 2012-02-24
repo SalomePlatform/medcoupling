@@ -701,6 +701,16 @@ namespace ParaMEDMEM
            return ret2;
          }
 
+         PyObject *getNonEmptyLevels(const char *mname=0) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<int> ret1;
+           int ret0=self->getNonEmptyLevels(mname,ret1);
+           PyObject *elt=PyTuple_New(2);
+           PyTuple_SetItem(elt,0,SWIG_From_int(ret0));
+           PyTuple_SetItem(elt,1,convertIntArrToPyList2(ret1));
+           return elt;
+         }
+
          PyObject *getFieldSplitedByType(const char *mname=0) const throw(INTERP_KERNEL::Exception)
          {
            std::vector<INTERP_KERNEL::NormalizedCellType> types;
@@ -889,6 +899,16 @@ namespace ParaMEDMEM
                PyList_SetItem(ret2,i,ret3);
              }
            return ret2;
+         }
+
+         PyObject *getNonEmptyLevels(int iteration, int order, const char *mname=0) const throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<int> ret1;
+           int ret0=self->getNonEmptyLevels(iteration,order,mname,ret1);
+           PyObject *elt=PyTuple_New(2);
+           PyTuple_SetItem(elt,0,SWIG_From_int(ret0));
+           PyTuple_SetItem(elt,1,convertIntArrToPyList2(ret1));
+           return elt;
          }
 
          PyObject *getFieldSplitedByType(int iteration, int order, const char *mname=0) const throw(INTERP_KERNEL::Exception)

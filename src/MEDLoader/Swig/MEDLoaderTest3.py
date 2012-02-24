@@ -659,6 +659,7 @@ class MEDLoaderTest(unittest.TestCase):
         da=DataArrayInt.New(); da.setValues([1,2,4,5,7,8],6,1) ; da.setName("sup1Node")
         #
         ff1.setFieldProfile(f1,mm1,0,da)
+        self.assertEqual(ff1.getNonEmptyLevels(),(-1, []))
         ff1.write(fname,0)
         #
         vals,pfl=ff1.getFieldWithProfile(ON_NODES,0,mm1) ; vals.setName("")
@@ -971,6 +972,76 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(f3.isEqual(f1,1e-12,1e-12))
         f4=MEDLoader.ReadFieldCell(fname,"3DSurfMesh_2",0,"VectorFieldOnCells2",0,1)
         self.assertTrue(f4.isEqual(f2,1e-12,1e-12))
+        pass
+
+    def testMEDLoaderMultiLevelCellField1(self):
+        fname="Pyfile42.med"
+        m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
+        m=MEDFileUMesh.New()
+        m.setCoords(m2.getCoords())
+        m.setMeshAtLevel(0,m2)
+        m.setMeshAtLevel(-1,m1)
+        m.setMeshAtLevel(-2,m0)
+        m.write(fname,2)
+        #
+        FieldName1="Field1"
+        compNames1=["comp1","comp2","comp3"]
+        ff1=MEDFileField1TS.New()
+        da2=DataArrayDouble.New()
+        da2.alloc(m2.getNumberOfCells()*len(compNames1),1)
+        da2.iota(7.)
+        da2.rearrange(len(compNames1))
+        da2.setInfoOnComponents(compNames1)
+        f2=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f2.setName(FieldName1) ; f2.setArray(da2) ; f2.setMesh(m2) ; f2.checkCoherency()
+        ff1.setFieldNoProfileSBT(f2)
+        self.assertEqual(ff1.getNonEmptyLevels(),(2, [0]))
+        da0=DataArrayDouble.New()
+        da0.alloc(m0.getNumberOfCells()*len(compNames1),1)
+        da0.iota(190.)
+        da0.rearrange(len(compNames1))
+        da0.setInfoOnComponents(compNames1)
+        f0=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f0.setName(FieldName1) ; f0.setArray(da0) ; f0.setMesh(m0) ; f0.checkCoherency()
+        ff1.setFieldNoProfileSBT(f0)
+        self.assertEqual(ff1.getNonEmptyLevels(),(2, [0,-2]))
+        da1=DataArrayDouble.New()
+        da1.alloc(m1.getNumberOfCells()*len(compNames1),1)
+        da1.iota(90.)
+        da1.rearrange(len(compNames1))
+        da1.setInfoOnComponents(compNames1)
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f1.setName(FieldName1) ; f1.setArray(da1) ; f1.setMesh(m1) ; f1.checkCoherency()
+        ff1.setFieldNoProfileSBT(f1)
+        self.assertEqual(ff1.getNonEmptyLevels(),(2, [0,-1,-2]))
+        #
+        ff1.write(fname,0)
+        #
+        FieldName2="Field2"
+        compNames2=["comp11","comp22"]
+        ff2=MEDFileField1TS.New()
+        da0=DataArrayDouble.New()
+        da0.alloc(m0.getNumberOfCells()*2,1)
+        da0.iota(-190.)
+        da0.rearrange(2)
+        da0.setInfoOnComponents(compNames2)
+        f0=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f0.setName(FieldName2) ; f0.setArray(da0) ; f0.setMesh(m0) ; f0.checkCoherency()
+        ff2.setFieldNoProfileSBT(f0)
+        self.assertEqual(ff2.getNonEmptyLevels(),(0, [0]))
+        da1=DataArrayDouble.New()
+        da1.alloc(m1.getNumberOfCells()*len(compNames2),1)
+        da1.iota(-90.)
+        da1.rearrange(len(compNames2))
+        da1.setInfoOnComponents(compNames2)
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f1.setName(FieldName2) ; f1.setArray(da1) ; f1.setMesh(m1) ; f1.checkCoherency()
+        ff2.setFieldNoProfileSBT(f1)
+        self.assertEqual(ff2.getNonEmptyLevels(),(1, [0,-1]))
+        #
+        ff2.write(fname,0)
+        #
+        ff1=MEDFileField1TS.New(fname,FieldName1,-1,-1)
+        self.assertEqual(ff1.getNonEmptyLevels(),(2, [0,-1,-2]))
+        self.assertEqual(ff1.getFieldSplitedByType(),[(0, [(0, (0, 4), '', '')]), (1, [(0, (4, 84), '', '')]), (3, [(0, (84, 148), '', '')]), (4, [(0, (148, 212), '', '')])])
+        ff2=MEDFileField1TS.New(fname,FieldName2,-1,-1)
+        self.assertEqual(ff2.getNonEmptyLevels(),(1, [0,-1]))
+        self.assertEqual(ff2.getFieldSplitedByType(),[(0, [(0, (0, 4), '', '')]), (1, [(0, (4, 84), '', '')])])
         pass
     pass
 
