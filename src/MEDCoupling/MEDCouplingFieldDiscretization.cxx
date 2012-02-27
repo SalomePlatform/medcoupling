@@ -342,6 +342,11 @@ std::string MEDCouplingFieldDiscretizationP0::getStringRepr() const
   return std::string(REPR);
 }
 
+const char *MEDCouplingFieldDiscretizationP0::getRepr() const
+{
+  return REPR;
+}
+
 bool MEDCouplingFieldDiscretizationP0::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
 {
   const MEDCouplingFieldDiscretizationP0 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP0 *>(other);
@@ -500,6 +505,11 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationP1::clone() const
 std::string MEDCouplingFieldDiscretizationP1::getStringRepr() const
 {
   return std::string(REPR);
+}
+
+const char *MEDCouplingFieldDiscretizationP1::getRepr() const
+{
+  return REPR;
 }
 
 bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
@@ -845,6 +855,11 @@ std::string MEDCouplingFieldDiscretizationGauss::getStringRepr() const
       oss << "++++++++++" << std::endl;
     }
   return oss.str();
+}
+
+const char *MEDCouplingFieldDiscretizationGauss::getRepr() const
+{
+  return REPR;
 }
 
 int MEDCouplingFieldDiscretizationGauss::getNumberOfTuples(const MEDCouplingMesh *) const
@@ -1371,6 +1386,11 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGaussNE::clone() c
 std::string MEDCouplingFieldDiscretizationGaussNE::getStringRepr() const
 {
   return std::string(REPR);
+}
+
+const char *MEDCouplingFieldDiscretizationGaussNE::getRepr() const
+{
+  return REPR;
 }
 
 bool MEDCouplingFieldDiscretizationGaussNE::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const

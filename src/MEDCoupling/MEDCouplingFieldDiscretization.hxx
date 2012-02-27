@@ -49,6 +49,7 @@ namespace ParaMEDMEM
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
     virtual std::string getStringRepr() const = 0;
+    virtual const char *getRepr() const = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
     virtual int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const = 0;
     virtual DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const = 0;
@@ -104,6 +105,7 @@ namespace ParaMEDMEM
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
+    const char *getRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
@@ -134,6 +136,7 @@ namespace ParaMEDMEM
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
+    const char *getRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
@@ -194,6 +197,7 @@ namespace ParaMEDMEM
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
+    const char *getRepr() const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -253,6 +257,7 @@ namespace ParaMEDMEM
     TypeOfField getEnum() const;
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
+    const char *getRepr() const;
     bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
