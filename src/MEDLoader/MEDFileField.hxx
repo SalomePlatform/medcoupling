@@ -93,7 +93,6 @@ namespace ParaMEDMEM
     void assignFieldNoProfile(int& start, int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignFieldProfile(int& start, const char *pflName, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
-    //void assignNodeFieldProfile(int& start, const char *pflName, const DataArrayInt *idsInPfl, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception); tony
     void getCoarseData(TypeOfField& type, std::pair<int,int>& dad, std::string& pfl, std::string& loc) const throw(INTERP_KERNEL::Exception);
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     const MEDFileFieldPerMeshPerType *getFather() const;
@@ -105,6 +104,7 @@ namespace ParaMEDMEM
     std::string getName() const;
     std::string getMeshName() const;
     TypeOfField getType() const;
+    void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     void fillTypesOfFieldAvailable(std::set<TypeOfField>& types) const throw(INTERP_KERNEL::Exception);
     void setType(TypeOfField newType);
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
@@ -159,6 +159,7 @@ namespace ParaMEDMEM
     double getTime() const;
     std::string getName() const;
     std::string getMeshName() const;
+    void simpleRepr(int bkOffset, std::ostream& oss, int id) const;
     void getSizes(int& globalSz, int& nbOfEntries) const;
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
     int getNumberOfComponents() const;
@@ -188,6 +189,7 @@ namespace ParaMEDMEM
   public:
     static MEDFileFieldPerMesh *New(MEDFileField1TSWithoutDAS *fath, const MEDCouplingMesh *mesh);
     static MEDFileFieldPerMesh *NewOnRead(med_idt fid, MEDFileField1TSWithoutDAS *fath, int meshCsit, int meshIteration, int meshOrder) throw(INTERP_KERNEL::Exception);
+    void simpleRepr(int bkOffset,std::ostream& oss, int id) const;
     void copyTinyInfoFrom(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     void assignFieldProfile(int& start, const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignFieldProfileGeneral(int& start, const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
@@ -327,6 +329,7 @@ namespace ParaMEDMEM
     double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _dt; }
     void setTime(double val, int iteration, int order) { _dt=val; _iteration=iteration; _order=order; }
     std::string getName() const;
+    void simpleRepr(int bkOffset, std::ostream& oss, int f1tsId) const;
     const std::string& getDtUnit() const { return _dt_unit; }
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     int getMeshIteration() const throw(INTERP_KERNEL::Exception);
@@ -391,6 +394,7 @@ namespace ParaMEDMEM
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
     static MEDFileField1TS *New();
+    std::string simpleRepr() const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -421,6 +425,7 @@ namespace ParaMEDMEM
     std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
     virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::string getName() const;
+    void simpleRepr(int bkOffset, std::ostream& oss, int fmtsId) const;
     std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
@@ -490,7 +495,7 @@ namespace ParaMEDMEM
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
-    void simpleReprWithoutHeader(std::ostream& oss) const;
+    void simpleRepr(int bkOffset, std::ostream& oss) const;
     //
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
     void pushField(MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);

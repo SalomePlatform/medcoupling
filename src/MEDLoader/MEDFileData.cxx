@@ -80,7 +80,7 @@ std::string MEDFileData::simpleRepr() const
   const MEDFileFields *tmp=_fields;
   if(tmp)
     {
-      tmp->simpleReprWithoutHeader(oss);
+      tmp->simpleRepr(0,oss);
       oss << std::endl;
     }
   else

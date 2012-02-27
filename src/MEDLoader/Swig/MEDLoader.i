@@ -833,6 +833,11 @@ namespace ParaMEDMEM
     void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
     %extend
        {
+         std::string __str__() const
+           {
+             return self->simpleRepr();
+           }
+
          PyObject *getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
            {
              DataArrayInt *ret1=0;

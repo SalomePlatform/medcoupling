@@ -428,6 +428,20 @@ std::string MEDFileFieldPerMeshPerTypePerDisc::getMeshName() const
   return _father->getMeshName();
 }
 
+void MEDFileFieldPerMeshPerTypePerDisc::simpleRepr(int bkOffset, std::ostream& oss, int id) const
+{
+  const char startLine[]="    ## ";
+  std::string startLine2(bkOffset,' ');
+  startLine2+=startLine;
+  MEDCouplingFieldDiscretization *tmp=MEDCouplingFieldDiscretization::New(_type);
+  oss << startLine2 << "Localization #" << id << "." << std::endl;
+  oss << startLine2 << "  Type=" << tmp->getRepr() << "." << std::endl;
+  delete tmp;
+  oss << startLine2 << "  This type discretization lies on profile : \"" << _profile << "\" and on the following localization : \"" << _localization << "\"." << std::endl;
+  oss << startLine2 << "  This type discretization has " << _end-_start << " tuples (start=" << _start << ", end=" << _end << ")." << std::endl;
+  oss << startLine2 << "  This type discretization has " << (_end-_start)/_nval << " integration points." << std::endl;
+}
+
 TypeOfField MEDFileFieldPerMeshPerTypePerDisc::getType() const
 {
   return _type;
@@ -804,6 +818,33 @@ std::string MEDFileFieldPerMeshPerType::getMeshName() const
   return _father->getMeshName();
 }
 
+void MEDFileFieldPerMeshPerType::simpleRepr(int bkOffset, std::ostream& oss, int id) const
+{
+  const char startLine[]="  ## ";
+  std::string startLine2(bkOffset,' ');
+  std::string startLine3(startLine2);
+  startLine3+=startLine;
+  if(_geo_type!=INTERP_KERNEL::NORM_ERROR)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+      oss << startLine3 << "Entry geometry type #" << id << " is lying on geometry types " << cm.getRepr() << "." << std::endl;
+    }
+  else
+    oss << startLine3 << "Entry geometry type #" << id << " is lying on NODES." << std::endl;
+  oss << startLine3 << "Entry is defined on " <<  _field_pm_pt_pd.size() << " localizations." << std::endl;
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++,i++)
+    {
+      const MEDFileFieldPerMeshPerTypePerDisc *cur=(*it);
+      if(cur)
+        cur->simpleRepr(bkOffset,oss,i);
+      else
+        {
+          oss << startLine2 << "    ## " << "Localization #" << i << " is empty !" << std::endl;
+        }
+    }
+}
+
 void MEDFileFieldPerMeshPerType::getSizes(int& globalSz, int& nbOfEntries) const
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
@@ -960,6 +1001,24 @@ MEDFileFieldPerMesh *MEDFileFieldPerMesh::NewOnRead(med_idt fid, MEDFileField1TS
 MEDFileFieldPerMesh *MEDFileFieldPerMesh::New(MEDFileField1TSWithoutDAS *fath, const MEDCouplingMesh *mesh)
 {
   return new MEDFileFieldPerMesh(fath,mesh);
+}
+
+void MEDFileFieldPerMesh::simpleRepr(int bkOffset, std::ostream& oss, int id) const
+{
+  std::string startLine(bkOffset,' ');
+  oss << startLine << "## Field part (" << id << ") lying on mesh \"" << _mesh_name << "\", Mesh iteration=" << _mesh_iteration << ". Mesh order=" << _mesh_order << "." << std::endl;
+  oss << startLine << "## Field is defined on " << _field_pm_pt.size() << " types." << std::endl;
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++,i++)
+    {
+      const MEDFileFieldPerMeshPerType *cur=*it;
+      if(cur)
+        cur->simpleRepr(bkOffset,oss,i);
+      else
+        {
+          oss << startLine << "  ## Entry geometry type #" << i << " is empty !" << std::endl;
+        }
+    }
 }
 
 void MEDFileFieldPerMesh::copyTinyInfoFrom(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
@@ -2035,6 +2094,56 @@ std::string MEDFileField1TSWithoutDAS::getName() const
   return arr->getName();
 }
 
+void MEDFileField1TSWithoutDAS::simpleRepr(int bkOffset, std::ostream& oss, int f1tsId) const
+{
+  std::string startOfLine(bkOffset,' ');
+  oss << startOfLine << "Field on One time Step ";
+  if(f1tsId>=0)
+    oss << "(" << f1tsId << ") ";
+  oss << "on iteration=" << _iteration << " order=" << _order << "." << std::endl;
+  oss << startOfLine << "Time attached is : " << _dt << " [" << _dt_unit << "]." << std::endl;
+  const DataArrayDouble *arr=_arr;
+  if(arr)
+    {
+      const std::vector<std::string> &comps=arr->getInfoOnComponents();
+      if(f1tsId<0)
+        {
+          oss << startOfLine << "Field Name : \"" << arr->getName() << "\"." << std::endl;
+          oss << startOfLine << "Field has " << comps.size() << " components with the following infos :" << std::endl;
+          for(std::vector<std::string>::const_iterator it=comps.begin();it!=comps.end();it++)
+            oss << startOfLine << "  -  \"" << (*it) << "\"" << std::endl;
+        }
+      if(arr->isAllocated())
+        {
+          oss << startOfLine << "Whole field contains " << arr->getNumberOfTuples() << " tuples." << std::endl;
+        }
+      else
+        oss << startOfLine << "The array of the current field has not allocated yet !" << std::endl;
+    }
+  else
+    {
+      oss << startOfLine << "Field infos are empty ! Not defined yet !" << std::endl;
+    }
+  oss << startOfLine << "----------------------" << std::endl;
+  if(!_field_per_mesh.empty())
+    {
+      int i=0;
+      for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it2=_field_per_mesh.begin();it2!=_field_per_mesh.end();it2++,i++)
+        {
+          const MEDFileFieldPerMesh *cur=(*it2);
+          if(cur)
+            cur->simpleRepr(bkOffset,oss,i);
+          else
+            oss << startOfLine << "Field per mesh #" << i << " is not defined !" << std::endl;
+        }
+    }
+  else
+    {
+      oss << startOfLine << "Field is not defined on any meshes !" << std::endl;
+    }
+  oss << startOfLine << "----------------------" << std::endl;
+}
+
 std::string MEDFileField1TSWithoutDAS::getMeshName() const throw(INTERP_KERNEL::Exception)
 {
   if(_field_per_mesh.empty())
@@ -2064,11 +2173,6 @@ int MEDFileField1TSWithoutDAS::getNumberOfComponents() const
 bool MEDFileField1TSWithoutDAS::isDealingTS(int iteration, int order) const
 {
   return iteration==_iteration && order==_order;
-}
-
-void MEDFileField1TSWithoutDAS::simpleReprWithoutHeader(std::ostream& oss) const
-{
-  oss << "Iteration=" << _iteration << " Order=" << _order << " Time=" << _dt << " Time Unit=\"" << _dt_unit << "\"";
 }
 
 std::pair<int,int> MEDFileField1TSWithoutDAS::getDtIt() const
@@ -2551,6 +2655,14 @@ MEDFileField1TS *MEDFileField1TS::New()
   return new MEDFileField1TS;
 }
 
+std::string MEDFileField1TS::simpleRepr() const
+{
+  std::ostringstream oss;
+  MEDFileField1TSWithoutDAS::simpleRepr(0,oss,-1);
+  MEDFieldFieldGlobsReal::simpleRepr(oss);
+  return oss.str();
+}
+
 void MEDFileField1TS::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   int nbComp=getNumberOfComponents();
@@ -2817,6 +2929,32 @@ std::string MEDFileFieldMultiTSWithoutDAS::getName() const
   return _name;
 }
 
+void MEDFileFieldMultiTSWithoutDAS::simpleRepr(int bkOffset, std::ostream& oss, int fmtsId) const
+{
+  std::string startLine(bkOffset,' ');
+  oss << startLine << "Field multi time steps";
+  if(fmtsId>=0)
+    oss << " (" << fmtsId << ")";
+  oss << " has the following name: \"" << _name << "\"." << std::endl;
+  oss << startLine << "Field multi time steps has " << _infos.size() << " components with the following infos :" << std::endl;
+  for(std::vector<std::string>::const_iterator it=_infos.begin();it!=_infos.end();it++)
+    {
+      oss << startLine << "  -  \"" << *it << "\"" << std::endl;
+    }
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,i++)
+    {
+      std::string chapter(17,'0'+i);
+      oss << startLine << chapter << std::endl;
+      const MEDFileField1TSWithoutDAS *cur=(*it);
+      if(cur)
+        cur->simpleRepr(bkOffset+2,oss,i);
+      else
+        oss << startLine << "  Field on one time step #" << i << " is not defined !" << std::endl;
+      oss << startLine << chapter << std::endl;
+    }
+}
+
 std::vector< std::pair<int,int> > MEDFileFieldMultiTSWithoutDAS::getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception)
 {
   std::size_t sz=_time_steps.size();
@@ -3067,28 +3205,7 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const MEDFileFieldMultiTSWithoutDA
 std::string MEDFileFieldMultiTS::simpleRepr() const
 {
   std::ostringstream oss;
-  oss << "(***********************)\n" << "(* MEDFileFieldMultiTS *)\n" << "(***********************)\n";
-  oss << "Field with name \"" << _name << "\"\n\n";
-  oss << "Infos attached : \n";
-  std::size_t nis=_infos.size();
-  for(std::size_t i=0;i<nis;i++)
-    oss << "  - " << _infos[i] << std::endl;
-  nis=_time_steps.size();
-  oss << std::endl << "There are " << nis << " time steps on this field :\n";
-  for(std::size_t i=0;i<nis;i++)
-    {
-      const MEDFileField1TSWithoutDAS *ftmp=_time_steps[i];
-      oss << "  - #" << i << " ";
-      if(ftmp)
-        {
-          ftmp->simpleReprWithoutHeader(oss);
-          oss << "\n\n";
-        }
-      else
-        {
-          oss << "NOT DEFINED !!!\n\n";
-        }
-    }
+  MEDFileFieldMultiTSWithoutDAS::simpleRepr(0,oss,-1);
   MEDFieldFieldGlobsReal::simpleRepr(oss);
   return oss.str();
 }
@@ -3299,18 +3416,45 @@ std::string MEDFileFields::simpleRepr() const
 {
   std::ostringstream oss;
   oss << "(*****************)\n(* MEDFileFields *)\n(*****************)\n\n";
-  simpleReprWithoutHeader(oss);
-  MEDFieldFieldGlobsReal::simpleRepr(oss);
+  simpleRepr(0,oss);
   return oss.str();
 }
 
-void MEDFileFields::simpleReprWithoutHeader(std::ostream& oss) const
+void MEDFileFields::simpleRepr(int bkOffset, std::ostream& oss) const
 {
   int nbOfFields=getNumberOfFields();
-  oss << "There are " << nbOfFields << " fields with the following names : \n";
-  std::vector<std::string> fns=getFieldsNames();
-  for(int i=0;i<nbOfFields;i++)
-    oss << "  - #" << i << " \"" << fns[i] << "\"\n";
+  std::string startLine(bkOffset,' ');
+  oss << startLine << "There are " << nbOfFields << " fields in this :" << std::endl;
+  int i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
+    {
+      const MEDFileFieldMultiTSWithoutDAS *cur=(*it);
+      if(cur)
+        {
+          oss << startLine << "  - # "<< i << " has the following name : \"" << cur->getName() << "\"." << std::endl;
+        }
+      else
+        {
+          oss << startLine << "  - not defined !" << std::endl;
+        }
+    }
+  i=0;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
+    {
+      const MEDFileFieldMultiTSWithoutDAS *cur=(*it);
+      std::string chapter(17,'0'+i);
+      oss << startLine << chapter << std::endl;
+      if(cur)
+        {
+          cur->simpleRepr(bkOffset+2,oss,i);
+        }
+      else
+        {
+          oss << startLine << "  - not defined !" << std::endl;
+        }
+      oss << startLine << chapter << std::endl;
+    }
+  MEDFieldFieldGlobsReal::simpleRepr(oss);
 }
 
 MEDFileFields::MEDFileFields()
