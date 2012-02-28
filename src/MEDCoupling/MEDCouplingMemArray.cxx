@@ -1131,17 +1131,42 @@ void DataArrayDouble::setPartOfValues2(const DataArrayDouble *a, const int *bgTu
     DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
   int newNbOfTuples=(int)std::distance(bgTuples,endTuples);
   int newNbOfComp=(int)std::distance(bgComp,endComp);
-  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
-  if(strictCompoCompare)
-    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  bool assignTech=true;
+  if(a->getNbOfElems()==newNbOfTuples*newNbOfComp)
+    {
+      if(strictCompoCompare)
+        a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+    }
+  else
+    {
+      a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+      assignTech=false;
+    }
   double *pt=getPointer();
   const double *srcPt=a->getConstPointer();
-  for(const int *w=bgTuples;w!=endTuples;w++)
-    for(const int *z=bgComp;z!=endComp;z++,srcPt++)
-      {
-        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
-        pt[(*w)*nbComp+(*z)]=*srcPt;
-      }
+  if(assignTech)
+    {    
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        {
+          DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+          for(const int *z=bgComp;z!=endComp;z++,srcPt++)
+            {    
+              pt[(*w)*nbComp+(*z)]=*srcPt;
+            }
+        }
+    }
+  else
+    {
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        {
+          const double *srcPt2=srcPt;
+          DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+          for(const int *z=bgComp;z!=endComp;z++,srcPt2++)
+            {    
+              pt[(*w)*nbComp+(*z)]=*srcPt2;
+            }
+        }
+    }
 }
 
 /*!
@@ -1178,17 +1203,40 @@ void DataArrayDouble::setPartOfValues3(const DataArrayDouble *a, const int *bgTu
   DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
   DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
   int newNbOfTuples=(int)std::distance(bgTuples,endTuples);
-  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
-  if(strictCompoCompare)
-    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  bool assignTech=true;
+  if(a->getNbOfElems()==newNbOfTuples*newNbOfComp)
+    {
+      if(strictCompoCompare)
+        a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+    }
+  else
+    {
+      a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+      assignTech=false;
+    }
   double *pt=getPointer()+bgComp;
   const double *srcPt=a->getConstPointer();
-  for(const int *w=bgTuples;w!=endTuples;w++)
-    for(int j=0;j<newNbOfComp;j++,srcPt++)
-      {
-        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
-        pt[(*w)*nbComp+j*stepComp]=*srcPt;
-      }
+  if(assignTech)
+    {
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        for(int j=0;j<newNbOfComp;j++,srcPt++)
+          {
+            DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+            pt[(*w)*nbComp+j*stepComp]=*srcPt;
+          }
+    }
+  else
+    {
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        {
+          const double *srcPt2=srcPt;
+          for(int j=0;j<newNbOfComp;j++,srcPt2++)
+            {
+              DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+              pt[(*w)*nbComp+j*stepComp]=*srcPt2;
+            }
+        }
+    }
 }
 
 /*!
@@ -3582,17 +3630,42 @@ void DataArrayInt::setPartOfValues2(const DataArrayInt *a, const int *bgTuples, 
     DataArray::CheckValueInRange(nbComp,*z,"invalid component id");
   int newNbOfTuples=(int)std::distance(bgTuples,endTuples);
   int newNbOfComp=(int)std::distance(bgComp,endComp);
-  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
-  if(strictCompoCompare)
-    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  bool assignTech=true;
+  if(a->getNbOfElems()==newNbOfTuples*newNbOfComp)
+    {
+      if(strictCompoCompare)
+        a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+    }
+  else
+    {
+      a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+      assignTech=false;
+    }
   int *pt=getPointer();
   const int *srcPt=a->getConstPointer();
-  for(const int *w=bgTuples;w!=endTuples;w++)
-    for(const int *z=bgComp;z!=endComp;z++,srcPt++)
-      {
-        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
-        pt[(*w)*nbComp+(*z)]=*srcPt;
-      }
+  if(assignTech)
+    {    
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        {
+          DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+          for(const int *z=bgComp;z!=endComp;z++,srcPt++)
+            {    
+              pt[(*w)*nbComp+(*z)]=*srcPt;
+            }
+        }
+    }
+  else
+    {
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        {
+          const int *srcPt2=srcPt;
+          DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+          for(const int *z=bgComp;z!=endComp;z++,srcPt2++)
+            {    
+              pt[(*w)*nbComp+(*z)]=*srcPt2;
+            }
+        }
+    }
 }
 
 /*!
@@ -3629,17 +3702,40 @@ void DataArrayInt::setPartOfValues3(const DataArrayInt *a, const int *bgTuples, 
   DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
   DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
   int newNbOfTuples=(int)std::distance(bgTuples,endTuples);
-  a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
-  if(strictCompoCompare)
-    a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+  bool assignTech=true;
+  if(a->getNbOfElems()==newNbOfTuples*newNbOfComp)
+    {
+      if(strictCompoCompare)
+        a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
+    }
+  else
+    {
+      a->checkNbOfTuplesAndComp(1,newNbOfComp,msg);
+      assignTech=false;
+    }
   int *pt=getPointer()+bgComp;
   const int *srcPt=a->getConstPointer();
-  for(const int *w=bgTuples;w!=endTuples;w++)
-    for(int j=0;j<newNbOfComp;j++,srcPt++)
-      {
-        DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
-        pt[(*w)*nbComp+j*stepComp]=*srcPt;
-      }
+  if(assignTech)
+    {
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        for(int j=0;j<newNbOfComp;j++,srcPt++)
+          {
+            DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+            pt[(*w)*nbComp+j*stepComp]=*srcPt;
+          }
+    }
+  else
+    {
+      for(const int *w=bgTuples;w!=endTuples;w++)
+        {
+          const int *srcPt2=srcPt;
+          for(int j=0;j<newNbOfComp;j++,srcPt2++)
+            {
+              DataArray::CheckValueInRange(nbOfTuples,*w,"invalid tuple id");
+              pt[(*w)*nbComp+j*stepComp]=*srcPt2;
+            }
+        }
+    }
 }
 
 /*!

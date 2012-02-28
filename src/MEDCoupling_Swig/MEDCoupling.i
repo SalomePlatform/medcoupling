@@ -2290,7 +2290,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -2330,7 +2330,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -2370,7 +2370,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -2410,7 +2410,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -2430,7 +2430,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -2450,7 +2450,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -2479,7 +2479,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -2499,7 +2499,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -2539,7 +2539,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second,false);
                return self;
              case 3:
@@ -2579,7 +2579,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second,false);
                return self;
              case 3:
@@ -3683,7 +3683,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -3723,7 +3723,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -3763,7 +3763,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -3803,7 +3803,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -3823,7 +3823,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -3843,7 +3843,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -3872,7 +3872,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -3892,7 +3892,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
@@ -3932,7 +3932,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second,false);
                return self;
              case 3:
@@ -3972,7 +3972,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second,false);
                return self;
              case 3:

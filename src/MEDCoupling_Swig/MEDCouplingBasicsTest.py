@@ -6419,6 +6419,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         st2=da.getHiddenCppPointer()
         self.assertEqual(st1,st2)
         self.assertEqual([10.0, 12.5, 15.0, 14.0, 16.0, 18.0, 15.0, 16.5, 18.0, 13.0, 14.0, 15.0],da.getValues())
+        #
+        da.alloc(30,1)
+        da.iota(7.)
+        da.rearrange(3)
+        ids=DataArrayInt.New()
+        ids.setValues([3,4,7],3,1)
+        da[ids,:]=[5.,8.,9.]
+        self.assertEqual([7.,8.,9.,10.,11.,12.,13.,14.,15.,5.,8.,9.,5.,8.,9.,22.,23.,24.,25.,26.,27.,5.,8.,9.,31.,32.,33.,34.,35.,36.0],da.getValues())
+        #
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(3)
+        da[ids,[1,2]]=[5,8]
+        self.assertEqual([7.,8.,9.,10.,11.,12.,13.,14.,15.,16.,5.,8.,19.,5.,8.,22.,23.,24.,25.,26.,27.,28.,5.,8.,31.,32.,33.,34.,35.,36.],da.getValues())
         pass
 
     def testSwigDAIOp(self):
@@ -6487,6 +6499,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         st2=da.getHiddenCppPointer()
         self.assertEqual(st1,st2)
         self.assertEqual([4,4,3,0,4,4,3,3,0,0,2,2],da.getValues())
+        #
+        da.alloc(30,1)
+        da.iota(7)
+        da.rearrange(3)
+        ids=DataArrayInt.New()
+        ids.setValues([3,4,7],3,1)
+        da[ids,:]=[5,8,9]
+        self.assertEqual([7,8,9,10,11,12,13,14,15,5,8,9,5,8,9,22,23,24,25,26,27,5,8,9,31,32,33,34,35,36],da.getValues())
+        #
+        da.rearrange(1) ; da.iota(7) ; da.rearrange(3)
+        da[ids,[1,2]]=[5,8]
+        self.assertEqual([7,8,9,10,11,12,13,14,15,16,5,8,19,5,8,22,23,24,25,26,27,28,5,8,31,32,33,34,35,36],da.getValues())
         pass
 
     def testSwigDAIOp2(self):
