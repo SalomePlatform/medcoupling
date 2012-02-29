@@ -199,7 +199,7 @@ void MEDCouplingBasicsTest2::testCellOrientation2()
   CPPUNIT_ASSERT_EQUAL(18,m2->getNumberOfCells());
   int cellIds[3]={0,6,12};
   std::vector<int> cellIds2(cellIds,cellIds+3);
-  m2->convertToPolyTypes(cellIds2);
+  m2->convertToPolyTypes(&cellIds2[0],&cellIds2[0]+cellIds2.size());
   m2->orientCorrectlyPolyhedrons();
   res1.clear();
   m2->arePolyhedronsNotCorrectlyOriented(res1);
@@ -211,7 +211,7 @@ void MEDCouplingBasicsTest2::testCellOrientation2()
   m3->changeSpaceDimension(3);
   const int ids1[5]={0,1,2,3,4};
   std::vector<int> ids2(ids1,ids1+5);
-  m3->convertToPolyTypes(ids2);
+  m3->convertToPolyTypes(&ids2[0],&ids2[0]+ids2.size());
   m3->orientCorrectly2DCells(vec,false);
   MEDCouplingUMesh *m4=buildCU1DMesh_U();
   m4->changeSpaceDimension(3);

@@ -373,7 +373,7 @@ void MEDCouplingBasicsTest1::testConvertToPolyTypes()
   //
   const int elts[2]={1,3};
   std::vector<int> eltsV(elts,elts+2);
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(5,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(23,mesh->getNodalConnectivity()->getNumberOfTuples());
@@ -384,11 +384,11 @@ void MEDCouplingBasicsTest1::testConvertToPolyTypes()
   mesh->decrRef();
   ////// 3D
   mesh=build3DTargetMesh_1();
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(8,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(114,mesh->getNodalConnectivity()->getNumberOfTuples());
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(8,mesh->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(114,mesh->getNodalConnectivity()->getNumberOfTuples());
@@ -435,7 +435,7 @@ void MEDCouplingBasicsTest1::testDescConn2D()
   //
   const int elts[2]={1,3};
   std::vector<int> eltsV(elts,elts+2);
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->checkCoherency();
   //
   desc=DataArrayInt::New();
@@ -513,7 +513,7 @@ void MEDCouplingBasicsTest1::testDescConn3D()
   //
   const int elts[2]={1,3};
   std::vector<int> eltsV(elts,elts+2);
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->checkCoherency();
   desc=DataArrayInt::New();
   descIndx=DataArrayInt::New();
@@ -1086,7 +1086,7 @@ void MEDCouplingBasicsTest1::testExtrudedMesh3()
   m3->decrRef();
   //play with polygons and polyedrons
   std::vector<int> cells(2); cells[0]=2; cells[1]=3;
-  m1->convertToPolyTypes(cells);
+  m1->convertToPolyTypes(&cells[0],&cells[0]+cells.size());
   m3=m1->buildExtrudedMesh(m2,0);
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_HEXA8,(int)m3->getTypeOfCell(0));
   CPPUNIT_ASSERT_EQUAL((int)INTERP_KERNEL::NORM_PENTA6,(int)m3->getTypeOfCell(1));
@@ -1116,7 +1116,7 @@ void MEDCouplingBasicsTest1::testExtrudedMesh4()
 {
   MEDCouplingUMesh *m1=build2DTargetMesh_1();
   std::vector<int> cells(2); cells[0]=2; cells[1]=4;
-  m1->convertToPolyTypes(cells);
+  m1->convertToPolyTypes(&cells[0],&cells[0]+cells.size());
   m1->changeSpaceDimension(3);
   MEDCouplingUMesh *m2=buildCU1DMesh_U();
   m2->changeSpaceDimension(3);
@@ -1317,7 +1317,7 @@ void MEDCouplingBasicsTest1::testMergeMeshOnSameCoords1()
   std::vector<int> cells(5);
   for(int i=0;i<5;i++)
     cells[i]=i;
-  m2->convertToPolyTypes(cells);
+  m2->convertToPolyTypes(&cells[0],&cells[0]+cells.size());
   m1->tryToShareSameCoords(*m2,1e-12);
   MEDCouplingUMesh *m3=build2DTargetMesh_1();
   m3->tryToShareSameCoords(*m2,1e-12);

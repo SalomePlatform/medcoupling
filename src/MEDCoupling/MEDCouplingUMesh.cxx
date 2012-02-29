@@ -685,30 +685,43 @@ struct MEDCouplingAccVisit
 
 
 /*!
- * This method convert this into dynamic types without changing geometry.
+ * This method convert cell with ids in ['cellIdsToConvertBg','cellIdsToConvertEnd') into 'this' into dynamic types without changing geometry.
  * That is to say if 'this' is a 2D, mesh after the invocation of this method it will contain only polygons.
  * If 'this' is a 3D mesh after the invocation of this method it will contain only polyhedra.
  * If mesh dimension is not in [2,3] an exception is thrown.
  * Of course pay attention that the resulting mesh is slower than previous one.
+ * If in ['cellIdsToConvertBg','cellIdsToConvertEnd') there is a cell id not in [0,'this->getNumberOfCells()') an exception will be thrown.
+ * In this case if meshDim==2 the mesh is still valid and only cells treated before throw will be converted into polygon.
+ * If mesh==3, after throw the mesh is \b unconsistent !
  * This method is above all designed to test more extensively algorithms able to deal with polygons/polyhedra.
  */
-void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConvert)
+void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const int *cellIdsToConvertEnd)
 {
   checkFullyDefined();
   int dim=getMeshDimension();
   if(dim<2 || dim>3)
     throw INTERP_KERNEL::Exception("Invalid mesh dimension : must be 2 or 3 !");
+  int nbOfCells=getNumberOfCells();
   if(dim==2)
     {
       const int *connIndex=_nodal_connec_index->getConstPointer();
       int *conn=_nodal_connec->getPointer();
-      for(std::vector<int>::const_iterator iter=cellIdsToConvert.begin();iter!=cellIdsToConvert.end();iter++)
+      for(const int *iter=cellIdsToConvertBg;iter!=cellIdsToConvertEnd;iter++)
         {
-          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connIndex[*iter]]);
-          if(!cm.isDynamic())
-            conn[connIndex[*iter]]=INTERP_KERNEL::NORM_POLYGON;
+          if(*iter>=0 && *iter<nbOfCells)
+            {
+              const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connIndex[*iter]]);
+              if(!cm.isDynamic())
+                conn[connIndex[*iter]]=INTERP_KERNEL::NORM_POLYGON;
+              else
+                conn[connIndex[*iter]]=INTERP_KERNEL::NORM_QPOLYG;
+            }
           else
-            conn[connIndex[*iter]]=INTERP_KERNEL::NORM_QPOLYG;
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::convertToPolyTypes : On rank #" << std::distance(cellIdsToConvertBg,iter) << " value is " << *iter << " which is not";
+              oss << " in range [0," << nbOfCells << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
     }
   else
@@ -718,29 +731,38 @@ void MEDCouplingUMesh::convertToPolyTypes(const std::vector<int>& cellIdsToConve
       const int *connOld=_nodal_connec->getConstPointer();
       int connOldLgth=_nodal_connec->getNbOfElems();
       std::vector<int> connNew(connOld,connOld+connOldLgth);
-      for(std::vector<int>::const_iterator iter=cellIdsToConvert.begin();iter!=cellIdsToConvert.end();iter++)
+      for(const int *iter=cellIdsToConvertBg;iter!=cellIdsToConvertEnd;iter++)
         {
-          int pos=connIndex[*iter];
-          int posP1=connIndex[(*iter)+1];
-          int lgthOld=posP1-pos-1;
-          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connNew[pos]);
-          connNew[pos]=INTERP_KERNEL::NORM_POLYHED;
-          unsigned nbOfFaces=cm.getNumberOfSons2(&connNew[pos+1],lgthOld);
-          int *tmp=new int[nbOfFaces*lgthOld];
-          int *work=tmp;
-          for(int j=0;j<(int)nbOfFaces;j++)
+          if(*iter>=0 && *iter<nbOfCells)
             {
-              INTERP_KERNEL::NormalizedCellType type;
-              unsigned offset=cm.fillSonCellNodalConnectivity2(j,&connNew[pos+1],lgthOld,work,type);
-              work+=offset;
-              *work++=-1;
+              int pos=connIndex[*iter];
+              int posP1=connIndex[(*iter)+1];
+              int lgthOld=posP1-pos-1;
+              const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)connNew[pos]);
+              connNew[pos]=INTERP_KERNEL::NORM_POLYHED;
+              unsigned nbOfFaces=cm.getNumberOfSons2(&connNew[pos+1],lgthOld);
+              int *tmp=new int[nbOfFaces*lgthOld];
+              int *work=tmp;
+              for(int j=0;j<(int)nbOfFaces;j++)
+                {
+                  INTERP_KERNEL::NormalizedCellType type;
+                  unsigned offset=cm.fillSonCellNodalConnectivity2(j,&connNew[pos+1],lgthOld,work,type);
+                  work+=offset;
+                  *work++=-1;
+                }
+              std::size_t newLgth=std::distance(tmp,work)-1;
+              std::size_t delta=newLgth-lgthOld;
+              std::transform(connIndex+(*iter)+1,connIndex+connIndexLgth,connIndex+(*iter)+1,std::bind2nd(std::plus<int>(),delta));
+              connNew.insert(connNew.begin()+posP1,tmp+lgthOld,tmp+newLgth);
+              std::copy(tmp,tmp+lgthOld,connNew.begin()+pos+1);
+              delete [] tmp;
             }
-          std::size_t newLgth=std::distance(tmp,work)-1;
-          std::size_t delta=newLgth-lgthOld;
-          std::transform(connIndex+(*iter)+1,connIndex+connIndexLgth,connIndex+(*iter)+1,std::bind2nd(std::plus<int>(),delta));
-          connNew.insert(connNew.begin()+posP1,tmp+lgthOld,tmp+newLgth);
-          std::copy(tmp,tmp+lgthOld,connNew.begin()+pos+1);
-          delete [] tmp;
+          else
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::convertToPolyTypes : On rank #" << std::distance(cellIdsToConvertBg,iter) << " value is " << *iter << " which is not";
+              oss << " in range [0," << nbOfCells << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
         }
       _nodal_connec->alloc((int)connNew.size(),1);
       int *newConnPtr=_nodal_connec->getPointer();
@@ -760,7 +782,7 @@ void MEDCouplingUMesh::convertAllToPoly()
   std::vector<int> cellIds(nbOfCells);
   for(int i=0;i<nbOfCells;i++)
     cellIds[i]=i;
-  convertToPolyTypes(cellIds);
+  convertToPolyTypes(&cellIds[0],&cellIds[0]+cellIds.size());
 }
 
 /*!

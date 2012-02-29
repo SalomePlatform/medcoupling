@@ -94,7 +94,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool areCellsEqual1(int cell1, int cell2) const;
     MEDCOUPLING_EXPORT bool areCellsEqual2(int cell1, int cell2) const;
     MEDCOUPLING_EXPORT bool areCellsFrom2MeshEqual(const MEDCouplingUMesh *other, int cellId, double prec) const;
-    MEDCOUPLING_EXPORT void convertToPolyTypes(const std::vector<int>& cellIdsToConvert);
+    MEDCOUPLING_EXPORT void convertToPolyTypes(const int *cellIdsToConvertBg, const int *cellIdsToConvertEnd);
     MEDCOUPLING_EXPORT void convertAllToPoly();
     MEDCOUPLING_EXPORT void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void unPolyze();

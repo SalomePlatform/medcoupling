@@ -107,7 +107,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_2()
   std::vector<int> cellsIds(targetMesh->getNumberOfCells());
   for(int i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  targetMesh->convertToPolyTypes(cellsIds);
+  targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
@@ -138,7 +138,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_3()
   std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  sourceMesh->convertToPolyTypes(cellsIds);
+  sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
@@ -169,11 +169,11 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P0PL_4()
   std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  sourceMesh->convertToPolyTypes(cellsIds);
+  sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   cellsIds.resize(targetMesh->getNumberOfCells());
   for(int i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  targetMesh->convertToPolyTypes(cellsIds);
+  targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
@@ -272,12 +272,12 @@ void MEDCouplingBasicsTestInterp::test2DInterpP0P1PL_2()
   std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  sourceMesh->convertToPolyTypes(cellsIds);
+  sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   cellsIds.resize(targetMesh->getNumberOfCells());
   for(int i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  targetMesh->convertToPolyTypes(cellsIds);
+  targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
@@ -384,7 +384,7 @@ void MEDCouplingBasicsTestInterp::test2DInterpP1P0PL_2()
   std::vector<int >cellsIds(targetMesh->getNumberOfCells());
   for(int i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  targetMesh->convertToPolyTypes(cellsIds);
+  targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(targetMesh);
@@ -1039,7 +1039,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_2()
   std::vector<int> cellsIds(targetMesh->getNumberOfCells());
   for(int i=0;i<targetMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  targetMesh->convertToPolyTypes(cellsIds);
+  targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
@@ -1089,7 +1089,7 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_3()
   std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  sourceMesh->convertToPolyTypes(cellsIds);
+  sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);
@@ -1139,11 +1139,11 @@ void MEDCouplingBasicsTestInterp::test3DInterpP0P0PL_4()
   std::vector<int> cellsIds(sourceMesh->getNumberOfCells());
   for(int i=0;i<sourceMesh->getNumberOfCells();i++)
     cellsIds[i]=i;
-  sourceMesh->convertToPolyTypes(cellsIds);
+  sourceMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   cellsIds.resize(targetMesh->getNumberOfCells());
   for(int j=0;j<targetMesh->getNumberOfCells();j++)
     cellsIds[j]=j;
-  targetMesh->convertToPolyTypes(cellsIds);
+  targetMesh->convertToPolyTypes(&cellsIds[0],&cellsIds[0]+cellsIds.size());
   //
   MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(sourceMesh);
   MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(targetMesh);

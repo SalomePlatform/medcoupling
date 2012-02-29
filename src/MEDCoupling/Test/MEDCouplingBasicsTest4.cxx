@@ -906,7 +906,7 @@ void MEDCouplingBasicsTest4::testCheckCoherencyDeeper1()
   m->checkCoherency1();
   const int elts[2]={1,5};
   std::vector<int> eltsV(elts,elts+2);
-  m->convertToPolyTypes(eltsV);
+  m->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   m->checkCoherency();
   m->checkCoherency1();
   m->getNodalConnectivity()->setIJ(2,0,9);//9>=NbOfNodes
@@ -948,7 +948,7 @@ void MEDCouplingBasicsTest4::testUnPolyze2()
   std::vector<const MEDCouplingUMesh *> ms(4,m);
   MEDCouplingUMesh *m2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms);
   std::vector<int> temp(1,2);
-  m2->convertToPolyTypes(temp);
+  m2->convertToPolyTypes(&temp[0],&temp[0]+temp.size());
   m2->unPolyze();
   CPPUNIT_ASSERT(INTERP_KERNEL::NORM_TETRA4==m2->getTypeOfCell(2));
   CPPUNIT_ASSERT_EQUAL(40,m2->getMeshLength());

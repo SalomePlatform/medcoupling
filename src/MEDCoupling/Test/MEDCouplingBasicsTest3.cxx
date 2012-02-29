@@ -1169,12 +1169,12 @@ void MEDCouplingBasicsTest3::testUnPolyze1()
   const int elts[8]={0,1,2,3,4,5,6,7};
   std::vector<int> eltsV(elts,elts+8);
   MEDCouplingUMesh *mesh=build3DTargetMesh_1();
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->unPolyze();
   MEDCouplingUMesh *mesh2=build3DTargetMesh_1();
   mesh->checkCoherency();
   CPPUNIT_ASSERT(mesh->isEqual(mesh2,1e-12));
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   CPPUNIT_ASSERT(!mesh->isEqual(mesh2,1e-12));
   mesh->getNodalConnectivity()->setIJ(0,6,10);
   mesh->getNodalConnectivity()->setIJ(0,7,9);
@@ -1182,14 +1182,14 @@ void MEDCouplingBasicsTest3::testUnPolyze1()
   mesh->getNodalConnectivity()->setIJ(0,9,13);
   mesh->unPolyze();
   CPPUNIT_ASSERT(mesh->isEqual(mesh2,1e-12));
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->getNodalConnectivity()->setIJ(0,6,12);
   mesh->getNodalConnectivity()->setIJ(0,7,13);
   mesh->getNodalConnectivity()->setIJ(0,8,10);
   mesh->getNodalConnectivity()->setIJ(0,9,9);
   mesh->unPolyze();
   CPPUNIT_ASSERT(mesh->isEqual(mesh2,1e-12));
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   mesh->getNodalConnectivity()->setIJ(0,6,12);
   mesh->getNodalConnectivity()->setIJ(0,7,10);
   mesh->getNodalConnectivity()->setIJ(0,8,13);
@@ -1202,7 +1202,7 @@ void MEDCouplingBasicsTest3::testUnPolyze1()
   mesh=build2DTargetMesh_1();
   mesh2=build2DTargetMesh_1();
   eltsV.resize(5);
-  mesh->convertToPolyTypes(eltsV);
+  mesh->convertToPolyTypes(&eltsV[0],&eltsV[0]+eltsV.size());
   CPPUNIT_ASSERT(!mesh->isEqual(mesh2,1e-12));
   mesh->unPolyze();
   CPPUNIT_ASSERT(mesh->isEqual(mesh2,1e-12));
@@ -1550,7 +1550,7 @@ void MEDCouplingBasicsTest3::testSimplexize1()
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   std::vector<int> v(1);
   v[0]=3;
-  m->convertToPolyTypes(v);
+  m->convertToPolyTypes(&v[0],&v[0]+v.size());
   DataArrayInt *da=m->simplexize(0);
   CPPUNIT_ASSERT_EQUAL(7,da->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
@@ -1580,7 +1580,7 @@ void MEDCouplingBasicsTest3::testSimplexize1()
   //
   m=build3DSurfTargetMesh_1();
   v[0]=3;
-  m->convertToPolyTypes(v);
+  m->convertToPolyTypes(&v[0],&v[0]+v.size());
   da=m->simplexize(1);
   CPPUNIT_ASSERT_EQUAL(7,da->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
@@ -1612,7 +1612,7 @@ void MEDCouplingBasicsTest3::testSimplexize2()
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
   std::vector<int> v(1);
   v[0]=3;
-  m->convertToPolyTypes(v);
+  m->convertToPolyTypes(&v[0],&v[0]+v.size());
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   f1->setMesh(m);
   DataArrayDouble *arr=DataArrayDouble::New();
