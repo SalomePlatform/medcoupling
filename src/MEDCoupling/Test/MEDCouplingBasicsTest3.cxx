@@ -823,7 +823,7 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
 {
   DataArrayInt *da=DataArrayInt::New();
   CPPUNIT_ASSERT_THROW(da->checkAllocated(),INTERP_KERNEL::Exception);
-  CPPUNIT_ASSERT_THROW(da->fillWithValue(1.),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(da->fillWithValue(1),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(da->iota(1),INTERP_KERNEL::Exception);
   da->alloc(7,1);
   da->fillWithValue(11); //11,11,11,11...
