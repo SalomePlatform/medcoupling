@@ -1885,27 +1885,27 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     def testTryToShareSameCoords(self):
         m1=MEDCouplingDataForTest.build2DTargetMesh_1();
         m2=MEDCouplingDataForTest.build2DTargetMesh_1();
-        #self.assertEqual(m1.getCoords()!=m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()!=m2.getCoords().getHiddenCppPointer());
         m1.tryToShareSameCoords(m2,1e-12);
-        #self.assertEqual(m1.getCoords()==m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()==m2.getCoords().getHiddenCppPointer());
         m1.tryToShareSameCoords(m2,1e-12);
-        #self.assertEqual(m1.getCoords()==m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()==m2.getCoords().getHiddenCppPointer());
         m2.tryToShareSameCoords(m1,1e-12);
-        #self.assertEqual(m1.getCoords()==m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()==m2.getCoords().getHiddenCppPointer());
         #
         m1=MEDCouplingDataForTest.build2DTargetMesh_1();
         m2=MEDCouplingDataForTest.build2DTargetMesh_2();
-        #self.assertEqual(m1.getCoords()!=m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()!=m2.getCoords().getHiddenCppPointer());
         m1.tryToShareSameCoords(m2,1e-12);
-        #self.assertEqual(m1.getCoords()==m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()==m2.getCoords().getHiddenCppPointer());
         m1.tryToShareSameCoords(m2,1e-12);
-        #self.assertEqual(m1.getCoords()==m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()==m2.getCoords().getHiddenCppPointer());
         m2.tryToShareSameCoords(m1,1e-12);
-        #self.assertEqual(m1.getCoords()==m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()==m2.getCoords().getHiddenCppPointer());
         #
         m1=MEDCouplingDataForTest.build2DTargetMesh_1();
         m2=MEDCouplingDataForTest.build2DSourceMesh_1();
-        #self.assertEqual(m1.getCoords()!=m2.getCoords());
+        self.assertTrue(m1.getCoords().getHiddenCppPointer()!=m2.getCoords().getHiddenCppPointer());
         self.assertRaises(InterpKernelException,m1.tryToShareSameCoords,m2,1e-12)
         pass
 
