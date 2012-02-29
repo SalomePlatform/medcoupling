@@ -20,7 +20,7 @@
 
 from MEDCoupling import *
 import unittest
-from math import pi,e,sqrt
+from math import pi,e,sqrt,cos,sin
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 
 class MEDCouplingBasicsTest(unittest.TestCase):
@@ -2079,16 +2079,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
     def testCellOrientation1(self):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
-        vec=[0.,0.,1.]
+        vec=[0.,0.,-1.]
         self.assertRaises(InterpKernelException,m.are2DCellsNotCorrectlyOriented,vec,False);
         m.changeSpaceDimension(3);
         res1=m.are2DCellsNotCorrectlyOriented(vec,False);
         self.assertTrue(len(res1)==0);
-        vec[2]=-1.;
+        vec[2]=1.;
         res1=m.are2DCellsNotCorrectlyOriented(vec,False);
         self.assertEqual(5,len(res1));
         #
-        vec[2]=1.;
+        vec[2]=-1.;
         # connectivity inversion
         conn=m.getNodalConnectivity().getValues();
         tmp=conn[11];
@@ -2124,7 +2124,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f2Ptr=f2.getArray().getValues();
         #Test to check global reverse in MEDCouplingUMesh::tryToCorrectPolyhedronOrientation
         m3=MEDCouplingDataForTest.build2DTargetMesh_1();
-        vec=[0.,0.,-1.]
+        vec=[0.,0.,1.]
         m3.changeSpaceDimension(3);
         ids2=[0,1,2,3,4]
         m3.convertToPolyTypes(ids2);
@@ -8931,6 +8931,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected5,connIndex.getValues());
         expected6=[3,8,1,7,3,8,3,1,3,1,3,7,3,7,3,8,3,6,0,8,3,6,2,0,3,0,2,8,3,8,2,6,3,7,4,5,3,7,8,4,3,4,8,5,3,5,8,7,3,6,8,4,3,6,7,8,3,4,7,6,3,8,4,0,3,0,4,6,3,6,3,8,3,7,3,6,3,8,0,1,3,1,0,3,3,3,0,8,3,4,1,5,3,4,8,1,3,1,8,5,3,1,7,5,3,0,2,3,3,3,2,8,3,1,4,0,3,3,2,6]
         self.assertEqual(expected6,conn.getValues());
+        pass
+
+    def testAre2DCellsNotCorrectlyOriented1(self):
+        m1Coords=[1.,1.,-1.,-1.,-1.,-1.,1.,-1.]
+        m1Conn=[0,3,1,2]
+        m1=MEDCouplingUMesh.New();
+        m1.setMeshDimension(2);
+        m1.allocateCells(1);
+        m1.insertNextCell(NORM_QUAD4,4,m1Conn[0:4])
+        m1.finishInsertingCells();
+        myCoords1=DataArrayDouble.New();
+        myCoords1.setValues(m1Coords,4,2);
+        m1.setCoords(myCoords1);
+        #
+        vec1=[0.,0.,1.]
+        for i in xrange(18):
+            vec2=[3.*cos(pi/9.*i),3.*sin(pi/9.*i)];
+            m1Cpy=m1.deepCpy();
+            m1Cpy.translate(vec2);
+            self.assertRaises(InterpKernelException,m1Cpy.are2DCellsNotCorrectlyOriented,vec1,False);
+            m1Cpy.changeSpaceDimension(3);
+            res=m1Cpy.are2DCellsNotCorrectlyOriented(vec1,False)
+            self.assertEqual([0],res);
+            pass
         pass
     
     def setUp(self):

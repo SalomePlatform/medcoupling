@@ -43,6 +43,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDataArrayDoubleAdvSetting1 );
     CPPUNIT_TEST( testDataArrayIntAdvSetting1 );
     CPPUNIT_TEST( testBuildDescendingConnec2Of3DMesh1 );
+    CPPUNIT_TEST( testAre2DCellsNotCorrectlyOriented1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -53,6 +54,7 @@ namespace ParaMEDMEM
     void testDataArrayDoubleAdvSetting1();
     void testDataArrayIntAdvSetting1();
     void testBuildDescendingConnec2Of3DMesh1();
+    void testAre2DCellsNotCorrectlyOriented1();
   };
 }
 

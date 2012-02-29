@@ -150,19 +150,19 @@ void MEDCouplingBasicsTest2::testGaussPointNEField1()
 void MEDCouplingBasicsTest2::testCellOrientation1()
 {
   MEDCouplingUMesh *m=build2DTargetMesh_1();
-  double vec[3]={0.,0.,1.};
+  double vec[3]={0.,0.,-1.};
   std::vector<int> res1;
   CPPUNIT_ASSERT_THROW(m->are2DCellsNotCorrectlyOriented(vec,false,res1),INTERP_KERNEL::Exception);
   m->changeSpaceDimension(3);
   res1.clear();
   m->are2DCellsNotCorrectlyOriented(vec,false,res1);
   CPPUNIT_ASSERT(res1.empty());
-  vec[2]=-1;
+  vec[2]=1;
   m->are2DCellsNotCorrectlyOriented(vec,false,res1);
   CPPUNIT_ASSERT_EQUAL(5,(int)res1.size());
   res1.clear();
   //
-  vec[2]=1.;
+  vec[2]=-1.;
   // connectivity inversion
   int *conn=m->getNodalConnectivity()->getPointer();
   int tmp=conn[11];
@@ -207,7 +207,7 @@ void MEDCouplingBasicsTest2::testCellOrientation2()
   MEDCouplingFieldDouble *f2=m2->getMeasureField(false);
   //Test to check global reverse in MEDCouplingUMesh::tryToCorrectPolyhedronOrientation
   MEDCouplingUMesh *m3=build2DTargetMesh_1();
-  double vec[3]={0.,0.,-1.};//<- important for the test
+  double vec[3]={0.,0.,1.};
   m3->changeSpaceDimension(3);
   const int ids1[5]={0,1,2,3,4};
   std::vector<int> ids2(ids1,ids1+5);

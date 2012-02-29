@@ -531,3 +531,40 @@ void MEDCouplingBasicsTest5::testBuildDescendingConnec2Of3DMesh1()
   mesh2->decrRef();
   mesh->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testAre2DCellsNotCorrectlyOriented1()
+{
+  double m1Coords[8]={1.,1.,-1.,-1.,-1.,-1.,1.,-1.};
+  int m1Conn[4]={0,3,1,2};
+  MEDCouplingUMesh *m1=MEDCouplingUMesh::New();
+  m1->setMeshDimension(2);
+  m1->allocateCells(1);
+  m1->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,m1Conn);
+  m1->finishInsertingCells();
+  DataArrayDouble *myCoords1=DataArrayDouble::New();
+  myCoords1->alloc(4,2);
+  std::copy(m1Coords,m1Coords+8,myCoords1->getPointer());
+  m1->setCoords(myCoords1);
+  myCoords1->decrRef();
+  //
+  double vec1[3]={0.,0.,1.};
+  double *vec2=new double[2];
+  for(int i=0;i<18;i++)
+    {
+      vec2[0]=3.*cos(M_PI/9.*i);
+      vec2[1]=3.*sin(M_PI/9.*i);
+      MEDCouplingUMesh *m1Cpy=static_cast<MEDCouplingUMesh *>(m1->deepCpy());
+      m1Cpy->translate(vec2);
+      std::vector<int> res;
+      CPPUNIT_ASSERT_THROW(m1Cpy->are2DCellsNotCorrectlyOriented(vec1,false,res),INTERP_KERNEL::Exception);
+      res.clear();
+      m1Cpy->changeSpaceDimension(3);
+      m1Cpy->are2DCellsNotCorrectlyOriented(vec1,false,res);
+      CPPUNIT_ASSERT_EQUAL(1,(int)res.size());
+      CPPUNIT_ASSERT_EQUAL(0,res[0]);
+      m1Cpy->decrRef();
+    }
+  delete [] vec2;
+  //
+  m1->decrRef();
+}

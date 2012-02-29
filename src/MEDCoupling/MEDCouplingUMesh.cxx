@@ -5096,7 +5096,7 @@ bool MEDCouplingUMesh::IsPolygonWellOriented(bool isQuadratic, const double *vec
       v[1]+=coords[3*begin[i]+2]*coords[3*begin[(i+1)%sz]]-coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+2];
       v[2]+=coords[3*begin[i]]*coords[3*begin[(i+1)%sz]+1]-coords[3*begin[i]+1]*coords[3*begin[(i+1)%sz]];
     }
-  return vec[0]*v[0]+vec[1]*v[1]+vec[2]*v[2]<0.;
+  return vec[0]*v[0]+vec[1]*v[1]+vec[2]*v[2]>0.;
 }
 
 /*!
