@@ -304,6 +304,10 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::DataArrayDoubleIterator::nextt;
 %ignore ParaMEDMEM::DataArrayDoubleTuple::next;
 %ignore ParaMEDMEM::DataArrayDoubleTuple::repr;
+%ignore ParaMEDMEM::DataArrayDouble::writeVTK;
+%ignore ParaMEDMEM::DataArrayInt::writeVTK;
+%ignore ParaMEDMEM::DataArrayDouble::SetArrayIn;
+%ignore ParaMEDMEM::DataArrayInt::SetArrayIn;
 
 %nodefaultctor;
 
@@ -450,7 +454,10 @@ namespace ParaMEDMEM
            INTERP_KERNEL::AutoPtr<double> pos=convertPyToNewDblArr2(p,&sz);
            std::vector<int> elts;
            self->getCellsContainingPoint(pos,eps,elts);
-           return convertIntArrToPyList2(elts);
+           DataArrayInt *ret=DataArrayInt::New();
+           ret->alloc((int)elts.size(),1);
+           std::copy(elts.begin(),elts.end(),ret->getPointer());
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
          
          void renumberCells(PyObject *li, bool check) throw(INTERP_KERNEL::Exception)
@@ -788,7 +795,10 @@ namespace ParaMEDMEM
            {
              std::vector<int> nodes;
              self->findBoundaryNodes(nodes);
-             return convertIntArrToPyList2(nodes);
+             DataArrayInt *ret=DataArrayInt::New();
+             ret->alloc((int)nodes.size(),1);
+             std::copy(nodes.begin(),nodes.end(),ret->getPointer());
+             return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
            }
            void renumberNodes(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
            {
@@ -840,7 +850,10 @@ namespace ParaMEDMEM
                self->findNodesOnLine(p,v,eps,nodes);
                delete [] v;
                delete [] p;
-               return convertIntArrToPyList2(nodes);
+               DataArrayInt *ret=DataArrayInt::New();
+               ret->alloc((int)nodes.size(),1);
+               std::copy(nodes.begin(),nodes.end(),ret->getPointer());
+               return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
              }
            PyObject *findNodesOnPlane(PyObject *pt, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
              {
@@ -851,7 +864,10 @@ namespace ParaMEDMEM
                self->findNodesOnPlane(p,v,eps,nodes);
                delete [] v;
                delete [] p;
-               return convertIntArrToPyList2(nodes);
+               DataArrayInt *ret=DataArrayInt::New();
+               ret->alloc((int)nodes.size(),1);
+               std::copy(nodes.begin(),nodes.end(),ret->getPointer());
+               return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
              }
            PyObject *getNodeIdsNearPoint(PyObject *pt, double eps) const throw(INTERP_KERNEL::Exception)
            {
@@ -860,7 +876,10 @@ namespace ParaMEDMEM
              if(size<self->getSpaceDimension())
                throw INTERP_KERNEL::Exception("getNodeIdsNearPoint : to tiny array ! must be at least of size SpaceDim !");
              std::vector<int> tmp=self->getNodeIdsNearPoint(pos,eps);
-             return convertIntArrToPyList2(tmp);
+             DataArrayInt *ret=DataArrayInt::New();
+             ret->alloc((int)tmp.size(),1);
+             std::copy(tmp.begin(),tmp.end(),ret->getPointer());
+             return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
            }
 
            PyObject *getNodeIdsNearPoints(PyObject *pt, int nbOfNodes, double eps) const throw(INTERP_KERNEL::Exception)
@@ -892,7 +911,10 @@ namespace ParaMEDMEM
              double *tmp=convertPyToNewDblArr2(bbox,&size);
              self->getCellsInBoundingBox(tmp,eps,elems);
              delete [] tmp;
-             return convertIntArrToPyList2(elems);
+             DataArrayInt *ret=DataArrayInt::New();
+             ret->alloc((int)elems.size(),1);
+             std::copy(elems.begin(),elems.end(),ret->getPointer());
+             return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
            }
 
            static void Rotate2DAlg(PyObject *center, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
@@ -1121,7 +1143,10 @@ namespace ParaMEDMEM
       {
         std::vector<int> cells;
         self->checkButterflyCells(cells);
-        return convertIntArrToPyList2(cells);
+        DataArrayInt *ret=DataArrayInt::New();
+        ret->alloc((int)cells.size(),1);
+        std::copy(cells.begin(),cells.end(),ret->getPointer());
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
       }
 
       PyObject *splitByType() const throw(INTERP_KERNEL::Exception)
@@ -1210,7 +1235,10 @@ namespace ParaMEDMEM
             throw e;
           }
         delete [] v;
-        return convertIntArrToPyList2(cells);
+        DataArrayInt *ret=DataArrayInt::New();
+        ret->alloc((int)cells.size(),1);
+        std::copy(cells.begin(),cells.end(),ret->getPointer());
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
       }
 
       void orientCorrectly2DCells(PyObject *vec, bool polyOnly) throw(INTERP_KERNEL::Exception)
@@ -1233,14 +1261,20 @@ namespace ParaMEDMEM
       {
         std::vector<int> cells;
         self->arePolyhedronsNotCorrectlyOriented(cells);
-        return convertIntArrToPyList2(cells);
+        DataArrayInt *ret=DataArrayInt::New();
+        ret->alloc((int)cells.size(),1);
+        std::copy(cells.begin(),cells.end(),ret->getPointer());
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
       }
 
       PyObject *findAndCorrectBadOriented3DExtrudedCells() throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> cells;
         self->findAndCorrectBadOriented3DExtrudedCells(cells);
-        return convertIntArrToPyList2(cells);
+        DataArrayInt *ret=DataArrayInt::New();
+        ret->alloc((int)cells.size(),1);
+        std::copy(cells.begin(),cells.end(),ret->getPointer());
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
       }
 
       PyObject *getFastAveragePlaneOfThis() const throw(INTERP_KERNEL::Exception)
@@ -1478,8 +1512,38 @@ namespace ParaMEDMEM
           throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellIdsCrossingPlane : in parameter 2 expecting vector of type list of float of size 3 !");
         return self->getCellIdsCrossingPlane(orig,vect,eps);
       }
+
+      void convertToPolyTypes(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int pos1;
+        std::vector<int> pos2;
+        DataArrayInt *pos3=0;
+        convertObjToPossibleCpp1(li,sw,pos1,pos2,pos3);
+        switch(sw)
+          {
+          case 1:
+            {
+              self->convertToPolyTypes(&pos1,&pos1+1);
+              return;
+            }
+          case 2:
+            {
+              if(pos2.empty())
+                return;
+              self->convertToPolyTypes(&pos2[0],&pos2[0]+pos2.size());
+              return ;
+            }
+          case 3:
+            {
+              self->convertToPolyTypes(pos3->begin(),pos3->end());
+              return ;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convertToPolyTypes : unexpected input array type recognized !");
+          }
+      }
     }
-    void convertToPolyTypes(const std::vector<int>& cellIdsToConvert) throw(INTERP_KERNEL::Exception);
     void convertAllToPoly();
     void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);
     void unPolyze() throw(INTERP_KERNEL::Exception);
@@ -3127,6 +3191,20 @@ namespace ParaMEDMEM
      return self->repr();
    }
 
+   int __len__() const throw(INTERP_KERNEL::Exception)
+   {
+     if(self->isAllocated())
+       {
+         if(self->getNumberOfComponents()==1)
+           return self->getNumberOfTuples();
+         throw INTERP_KERNEL::Exception("DataArrayInt::__len__ : len is not defined here because number of components is not equal to 1 !");
+       }
+     else
+       {
+         throw INTERP_KERNEL::Exception("DataArrayInt::__len__ : Instance is NOT allocated !");
+       }
+   }
+
    DataArrayIntIterator *__iter__()
    {
      return self->iterator();
@@ -4448,7 +4526,10 @@ namespace ParaMEDMEM
       {
         std::vector<int> tmp;
         self->getCellIdsHavingGaussLocalization(locId,tmp);
-        return convertIntArrToPyList2(tmp);
+        DataArrayInt *ret=DataArrayInt::New();
+        ret->alloc((int)tmp.size(),1);
+        std::copy(tmp.begin(),tmp.end(),ret->getPointer());
+        return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
       }
     }
   };

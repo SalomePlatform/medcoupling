@@ -157,7 +157,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(targetMesh.getNumberOfNodes(),9)
         self.assertEqual(targetMesh.getMeshDimension(),0)
         pass
-    
+
     def testMeshM1D(self):
         meshM1D=MEDCouplingUMesh.New();
         self.assertRaises(InterpKernelException,meshM1D.getMeshDimension);
@@ -226,7 +226,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(8,mesh.getNumberOfCells());
         self.assertEqual(114,mesh.getNodalConnectivity().getNumberOfTuples());
         pass
-    
+
     def testDescConn2D(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         desc=DataArrayInt.New();
@@ -341,21 +341,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected5,list(mesh2.getNodalConnectivityIndex().getValues()));
         self.assertEqual(expected7,list(mesh2.getNodalConnectivity().getValues()));
         pass
-    
+
     def testFindBoundaryNodes(self):
         mesh=MEDCouplingDataForTest.build3DTargetMesh_1();
         boundaryNodes=mesh.findBoundaryNodes();
         expected1=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26];
-        self.assertEqual(expected1,list(boundaryNodes));
+        self.assertEqual(expected1,boundaryNodes.getValues());
         pass
-    
+
     def testBoundaryMesh(self):
         mesh=MEDCouplingDataForTest.build3DTargetMesh_1();
         mesh2=mesh.buildBoundaryMesh(False);
         self.assertEqual(24,mesh2.getNumberOfCells());
         self.assertEqual(26,mesh2.getNumberOfNodes());
         pass
-    
+
     def testBuildPartOfMySelf(self):
         mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
         mesh.setName("Toto");
@@ -873,7 +873,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         conn.setIJ(16,0,tmp)
         cells=sourceMesh.checkButterflyCells();
         self.assertEqual(1,len(cells));
-        self.assertEqual(3,cells[0]);
+        self.assertEqual([3],cells.getValues());
         tmp=conn.getIJ(15,0)
         conn.setIJ(15,0,conn.getIJ(16,0))
         conn.setIJ(16,0,tmp)
@@ -889,7 +889,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         conn.setIJ(16,0,tmp)
         cells=sourceMesh.checkButterflyCells();
         self.assertEqual(1,len(cells));
-        self.assertEqual(3,cells[0]);
+        self.assertEqual([3],cells.getValues());
         tmp=conn.getIJ(15,0)
         conn.setIJ(15,0,conn.getIJ(16,0))
         conn.setIJ(16,0,tmp)
@@ -1568,13 +1568,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         t1=targetMesh.getCellsContainingPoint(pos2,1e-12)
         self.assertEqual(2,len(t1));
         expectedValues3=[0,1]
-        self.assertEqual(list(t1),expectedValues3);
+        self.assertEqual(list(t1.getValues()),expectedValues3);
         pos3=[0.2,0.2]
         t1=None
         t1=targetMesh.getCellsContainingPoint(pos3,1e-12);
         self.assertEqual(5,len(t1));
         expectedValues4=[0,1,2,3,4]
-        self.assertEqual(list(t1),expectedValues4);
+        self.assertEqual(list(t1.getValues()),expectedValues4);
         self.assertEqual(0,targetMesh.getCellContainingPoint(pos3,1e-12));
         #3D
         targetMesh=MEDCouplingDataForTest.build3DTargetMesh_1();
@@ -1585,13 +1585,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         t1=targetMesh.getCellsContainingPoint(pos5,1e-12);
         self.assertEqual(8,len(t1));
         expectedValues5=[0,1,2,3,4,5,6,7]
-        self.assertEqual(list(t1),expectedValues5);
+        self.assertEqual(list(t1.getValues()),expectedValues5);
         pos6=[0., 50., 0.]
         t1=None
         t1=targetMesh.getCellsContainingPoint(pos6,1e-12);
         self.assertEqual(2,len(t1));
         expectedValues6=[0,2]
-        self.assertEqual(list(t1),expectedValues6);
+        self.assertEqual(list(t1.getValues()),expectedValues6);
         #3D outside
         pos7=[-1.0,-1.0,0.]
         self.assertEqual(-1,targetMesh.getCellContainingPoint(pos7,1e-12));
@@ -1924,9 +1924,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         val=da.getValues();
         self.assertEqual(expected,list(val));
         #
-        ddd=DataArrayInt.New()
-        ddd.setValues(n,len(n),1)
-        m3dSurf=mesh.buildFacePartOfMySelfNode(ddd,True);
+        m3dSurf=mesh.buildFacePartOfMySelfNode(n,True);
         self.assertTrue(isinstance(m3dSurf,MEDCouplingUMesh))
         me=MEDCouplingExtrudedMesh.New(mesh,m3dSurf,0);
         da=me.getMesh3DIds();
@@ -2036,7 +2034,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f.setGaussLocalizationOnCells(ids4,_refCoo2,_gsCoo2,_wg2);
         self.assertEqual(3,f.getNbOfGaussLocalization());
         tmpIds=f.getCellIdsHavingGaussLocalization(0);
-        self.assertEqual(ids2,list(tmpIds));
+        self.assertEqual(ids2,list(tmpIds.getValues()));
         self.assertRaises(InterpKernelException,f.checkCoherency);#<- it's always not ok because undelying array not with the good size.
         array2=f.getArray().substr(0,10);
         f.setArray(array2);
@@ -2096,7 +2094,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m.getNodalConnectivity().setValues(conn,len(conn),1)
         res1=m.are2DCellsNotCorrectlyOriented(vec,False);
         self.assertEqual(1,len(res1));
-        self.assertEqual(2,res1[0]);
+        self.assertEqual(2,res1.getValues()[0]);
         m.orientCorrectly2DCells(vec,False);
         res1=m.are2DCellsNotCorrectlyOriented(vec,False);
         self.assertTrue(len(res1)==0);
@@ -4340,7 +4338,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(16,m.getCellContainingPoint(pos1,1e-12));
         #
         elems=m2.getCellsInBoundingBox([3.5,6.,12.2,25.,0.,1.5],1e-7)
-        self.assertEqual([1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17],elems)
+        self.assertEqual([1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17],elems.getValues())
         #
         pt=[2.4,12.7,-3.4]
         m.scale(pt,3.7);
@@ -4941,7 +4939,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
     
     def testElementaryDAThrowAndSpecialCases(self):
-        return
         da=DataArrayInt.New();
         self.assertRaises(InterpKernelException, da.checkAllocated);
         self.assertRaises(InterpKernelException, da.fillWithValue, 1);
@@ -5046,7 +5043,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(5,db.GetNumberOfItemGivenBES(0,10,2,"theMessageInThrow"));
         self.assertEqual(6,db.GetNumberOfItemGivenBES(0,11,2,"theMessageInThrow"));
         
-        #std::cout<<"\n!!!!!!!!!\n"<<dd.repr()<<"\n!!!!!!!!!\n";
         self.assertTrue(not ((da.repr().find("Number of components : 1"))==-1));
         self.assertTrue(not ((dd.repr().find("Number of components : 1"))==-1));
         self.assertTrue(not ((dbl.repr().find("Number of components : 1"))==-1));
@@ -5054,14 +5050,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(not ((da.reprZip().find("Number of components : 1"))==-1));
         self.assertTrue(not ((dd.reprZip().find("Number of components : 1"))==-1));
         self.assertTrue(not ((dbl.reprZip().find("Number of components : 1"))==-1));
-        
-        ret=io.StringIO("hello")
-        print "\n***",ret.str(),"\n***"
-        dbl.writeVTK("file.tmp",ret,2);
-        print "\n***",ret.str(),"\n***"
-        self.assertTrue(not ((ret.str().find("<DataArray"))==-1));
-        self.assertTrue(not ((ret.str().find("Float32"))==-1));
-        self.assertTrue(not ((ret.str().find("16 15 14 13 12 11 10"))==-1));
         
         self.assertRaises(InterpKernelException, dbl.selectByTupleId2, 0, 1, -1);
         self.assertRaises(InterpKernelException, dbl.substr, -1, 1);
@@ -5075,12 +5063,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         dbl3=DataArrayDouble.New();
         dbl3.alloc(6,2);
         dbl3.fillWithValue(11.);
-        #int tupleId;
         #bad number of components
-        self.assertRaises(InterpKernelException, dbl3.getMaxValue, tupleId);
-        self.assertRaises(InterpKernelException, dd.getMaxValue, tupleId);
-        self.assertRaises(InterpKernelException, dbl3.getMinValue, tupleId);
-        self.assertRaises(InterpKernelException, dd.getMinValue, tupleId);
+        self.assertRaises(InterpKernelException, dbl3.getMaxValue);
+        self.assertRaises(InterpKernelException, dd.getMaxValue);
+        self.assertRaises(InterpKernelException, dbl3.getMinValue);
+        self.assertRaises(InterpKernelException, dd.getMinValue);
         self.assertRaises(InterpKernelException, dbl3.getAverageValue);
         self.assertRaises(InterpKernelException, dd.getAverageValue);
         self.assertRaises(InterpKernelException, dd.accumulate, 100);
@@ -5106,19 +5093,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         db.fillWithValue(6); #bad Ids for dbl3
         self.assertRaises(InterpKernelException, dbl3.setPartOfValuesAdv, dbl2, db);
         
-        DataArrayDouble_SetArrayIn(dbl,dbl3); #dbl.dbl3 memLeaks?
         dbl3.checkNoNullValues();
-        dbl3.setIJ(6,0,0.);
+        dbl3.setIJ(5,0,0.);
         self.assertRaises(InterpKernelException, dbl3.checkNoNullValues);
         self.assertRaises(InterpKernelException, dbl3.applyInv, 1.);  #div by zero
         self.assertRaises(InterpKernelException, dbl2.getIdsInRange, 1., 2.);
-        #std::vector<const DataArrayDouble *> a(0); #input list must be NON EMPTY
         a=[]
         self.assertRaises(InterpKernelException, DataArrayDouble_Aggregate, a);
         self.assertRaises(InterpKernelException, DataArrayDouble_Meld, a);
         
-        a.push_back(dbl2);
-        a.push_back(dbl); #Nb of components mismatch
+        a=[dbl2,dbl]; #Nb of components mismatch
         self.assertRaises(InterpKernelException, DataArrayDouble_Aggregate, a);
         
         self.assertRaises(InterpKernelException, DataArrayDouble_Dot, dbl2, dbl);
@@ -5325,7 +5309,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setCoords(tmp2);
         pts=[0.2,0.2,0.1,0.3,-0.3,0.7]
         c=mesh.getNodeIdsNearPoint(pts,1e-7);
-        self.assertEqual([4,9,11],c);
+        self.assertEqual([4,9,11],c.getValues());
         c,cI=mesh.getNodeIdsNearPoints(pts,3,1e-7);
         self.assertEqual([0,3,3,4],cI.getValues());
         self.assertEqual([4,9,11,6],c.getValues());
@@ -8249,7 +8233,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         v=m.findAndCorrectBadOriented3DExtrudedCells();
         self.assertEqual(4,len(v));
-        self.assertEqual(v,invalidCells);
+        self.assertEqual(v.getValues(),invalidCells);
         self.assertEqual(connExp,m.getNodalConnectivity().getValues());
         #
         pass
@@ -8598,13 +8582,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected1=[0,3,6]
         res=mesh.findNodesOnLine(pt,vec,1e-12);
         self.assertEqual(3,len(res));
-        self.assertEqual(expected1,res);
+        self.assertEqual(expected1,res.getValues());
         #
         mesh.changeSpaceDimension(3);
         mesh.rotate(pt2,vec2,pi/4.);
         res=mesh.findNodesOnLine(pt3,vec3,1e-12);
         self.assertEqual(3,len(res));
-        self.assertEqual(expected1,res);
+        self.assertEqual(expected1,res.getValues());
         pass
 
     def testIntersect2DMeshesTmp2(self):
@@ -9149,7 +9133,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertRaises(InterpKernelException,m1Cpy.are2DCellsNotCorrectlyOriented,vec1,False);
             m1Cpy.changeSpaceDimension(3);
             res=m1Cpy.are2DCellsNotCorrectlyOriented(vec1,False)
-            self.assertEqual([0],res);
+            self.assertEqual([0],res.getValues());
             pass
         pass
     
