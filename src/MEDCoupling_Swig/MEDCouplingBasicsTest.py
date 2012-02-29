@@ -1695,7 +1695,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         meshDeepCopy=mesh.deepCpy();
         meshClone=mesh.clone(False);
         
-        #self.assertRaises(meshEmpty.copyTinyStringsFrom(None),Exception);
         meshEmpty.copyTinyStringsFrom(mesh);
         #no data in meshEmpty, expected False
         self.assertTrue(not meshEmpty.isEqual(mesh, 1e-12));
@@ -4939,6 +4938,203 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected2[i],f2.getIJ(0,i),14);
             pass
         #
+        pass
+    
+    def testElementaryDAThrowAndSpecialCases(self):
+        return
+        da=DataArrayInt.New();
+        self.assertRaises(InterpKernelException, da.checkAllocated);
+        self.assertRaises(InterpKernelException, da.fillWithValue, 1);
+        self.assertRaises(InterpKernelException, da.iota, 1);
+        da.alloc(7,1);
+        da.fillWithValue(11); #11,11,11,11...
+        da.iota(10); #10,11,12,13...
+        
+        db=DataArrayInt.New();
+        db.alloc(7,2);
+        
+        dbl2=DataArrayDouble.New();
+        dbl2.alloc(7,2);
+        self.assertRaises(InterpKernelException, dbl2.isUniform, 10., 1e-15);
+        self.assertRaises(InterpKernelException, dbl2.sort);
+        self.assertRaises(InterpKernelException, dbl2.reverse);
+        self.assertRaises(InterpKernelException, dbl2.iota, 10.);
+        
+        dbl=DataArrayDouble.New();
+        #DataArrayDouble not allocated yet
+        self.assertRaises(InterpKernelException, dbl.iota, 10.);
+        self.assertRaises(InterpKernelException, dbl.isUniform, 10., 1e-15);
+        self.assertRaises(InterpKernelException, dbl.sort);
+        self.assertRaises(InterpKernelException, dbl.reverse);
+        self.assertRaises(InterpKernelException, dbl.fromNoInterlace);
+        self.assertRaises(InterpKernelException, dbl.toNoInterlace);
+        
+        dbl.alloc(7,1);
+        dbl.iota(10.);
+        self.assertTrue(not dbl.isUniform(10.,1e-15));
+        dbl.sort();
+        self.assertTrue(dbl.isMonotonic(True, .99));
+        self.assertTrue(dbl.isMonotonic(True, -.99));
+        self.assertTrue(not dbl.isMonotonic(True, 1.1));
+        self.assertTrue(not dbl.isMonotonic(True, -1.1));
+        dbl.reverse();
+        self.assertTrue(dbl.isMonotonic(False, .99));
+        self.assertTrue(not dbl.isMonotonic(False, 1.1));
+        self.assertTrue(not dbl.isMonotonic(False, -1.1));
+        
+        dc=DataArrayInt.New();
+        dc.alloc(14,1);
+        
+        dd=DataArrayDouble.New();
+        self.assertRaises(InterpKernelException, dd.checkAllocated);
+        self.assertRaises(InterpKernelException, dd.fillWithValue, 1.);
+        self.assertRaises(InterpKernelException, dd.iota, 1.);
+        self.assertTrue(not ((dd.repr().find("No data"))==-1));
+        
+        dd.alloc(0,1); #Allocated but nbOfElements==0!
+        self.assertTrue(not ((dd.repr().find("Number of tuples : 0"))==-1));
+        self.assertTrue(not ((dd.repr().find("Empty Data"))==-1));
+        dd.fillWithValue(11); #?!...ok
+        dd.iota(10); #?!...ok
+        self.assertTrue(dd.isMonotonic(True, 1.));  #nothing is monotonic
+        self.assertTrue(dd.isMonotonic(False, 1.));
+        
+        self.assertRaises(InterpKernelException, db.copyStringInfoFrom, da);
+        self.assertRaises(InterpKernelException, db.copyStringInfoFrom, da);
+        cIds=[2,2]
+        self.assertRaises(InterpKernelException, da.copyPartOfStringInfoFrom, db, cIds);
+        cIds[0]=1;
+        cIds[0]=-1;
+        self.assertRaises(InterpKernelException, da.copyPartOfStringInfoFrom, db, cIds);
+        
+        info=["infoOfOneComponent"]*2;
+        self.assertRaises(InterpKernelException, da.setInfoOnComponents, info);
+        self.assertRaises(InterpKernelException, da.setInfoOnComponent, 1, info[0]);
+        db.setInfoOnComponents(info);
+        
+        self.assertRaises(InterpKernelException, da.getInfoOnComponent, -1);
+        self.assertRaises(InterpKernelException, da.getInfoOnComponent, 2);
+        self.assertTrue(db.getInfoOnComponent(1)==db.getInfoOnComponent(0));
+        self.assertRaises(InterpKernelException, db.getVarOnComponent, -1);
+        self.assertRaises(InterpKernelException, db.getVarOnComponent, 2);
+        self.assertRaises(InterpKernelException, db.getUnitOnComponent, -1);
+        self.assertRaises(InterpKernelException, db.getUnitOnComponent, 2);
+        
+        self.assertTrue(da.GetVarNameFromInfo("varname unit ")=="varname unit ");
+        self.assertTrue(da.GetVarNameFromInfo("varname]unit[")=="varname]unit[");
+        self.assertTrue(da.GetVarNameFromInfo("[unit]")=="");
+        self.assertTrue(da.GetVarNameFromInfo("varname [unit]")=="varname");
+        
+        self.assertTrue(da.GetUnitFromInfo("varname unit ")=="");
+        self.assertTrue(da.GetUnitFromInfo("varname]unit[")=="");
+        self.assertTrue(da.GetUnitFromInfo("[unit]")=="unit");
+        self.assertTrue(da.GetUnitFromInfo("varname [unit]")=="unit");
+        
+        self.assertRaises(InterpKernelException, da.checkNbOfTuplesAndComp, db, "theMessageInThrow");
+        self.assertRaises(InterpKernelException, da.checkNbOfTuplesAndComp, dc, "theMessageInThrow");
+        self.assertRaises(InterpKernelException, db.checkNbOfTuplesAndComp, dc, "theMessageInThrow");
+        
+        self.assertRaises(InterpKernelException, da.checkNbOfTuplesAndComp, 7, 2, "theMessageInThrow");
+        da.checkNbOfTuplesAndComp(7,1,"theMessageInThrow");
+        
+        self.assertRaises(InterpKernelException, db.checkNbOfElems, 7*2+1, "theMessageInThrow");
+        db.checkNbOfElems(7*2,"theMessageInThrow");
+        
+        self.assertRaises(InterpKernelException, db.GetNumberOfItemGivenBES, 10, 9, 1, "theMessageInThrow");
+        self.assertRaises(InterpKernelException, db.GetNumberOfItemGivenBES, 0, 1, -1, "theMessageInThrow");
+        self.assertEqual(10,db.GetNumberOfItemGivenBES(0,10,1,"theMessageInThrow"));
+        self.assertEqual(5,db.GetNumberOfItemGivenBES(0,10,2,"theMessageInThrow"));
+        self.assertEqual(6,db.GetNumberOfItemGivenBES(0,11,2,"theMessageInThrow"));
+        
+        #std::cout<<"\n!!!!!!!!!\n"<<dd.repr()<<"\n!!!!!!!!!\n";
+        self.assertTrue(not ((da.repr().find("Number of components : 1"))==-1));
+        self.assertTrue(not ((dd.repr().find("Number of components : 1"))==-1));
+        self.assertTrue(not ((dbl.repr().find("Number of components : 1"))==-1));
+        
+        self.assertTrue(not ((da.reprZip().find("Number of components : 1"))==-1));
+        self.assertTrue(not ((dd.reprZip().find("Number of components : 1"))==-1));
+        self.assertTrue(not ((dbl.reprZip().find("Number of components : 1"))==-1));
+        
+        ret=io.StringIO("hello")
+        print "\n***",ret.str(),"\n***"
+        dbl.writeVTK("file.tmp",ret,2);
+        print "\n***",ret.str(),"\n***"
+        self.assertTrue(not ((ret.str().find("<DataArray"))==-1));
+        self.assertTrue(not ((ret.str().find("Float32"))==-1));
+        self.assertTrue(not ((ret.str().find("16 15 14 13 12 11 10"))==-1));
+        
+        self.assertRaises(InterpKernelException, dbl.selectByTupleId2, 0, 1, -1);
+        self.assertRaises(InterpKernelException, dbl.substr, -1, 1);
+        self.assertRaises(InterpKernelException, dbl.substr, 8, 1);
+        self.assertRaises(InterpKernelException, dbl.substr, 0, 8);
+        self.assertRaises(InterpKernelException, dbl.meldWith, dd);
+        
+        self.assertRaises(InterpKernelException, dbl.setPartOfValuesAdv, dbl2, da); #dbl dbl2 not have the same number of components
+        self.assertRaises(InterpKernelException, dbl.setPartOfValuesAdv, dd, da);  #da tuple selector DataArrayInt instance not have exactly 2 components
+        
+        dbl3=DataArrayDouble.New();
+        dbl3.alloc(6,2);
+        dbl3.fillWithValue(11.);
+        #int tupleId;
+        #bad number of components
+        self.assertRaises(InterpKernelException, dbl3.getMaxValue, tupleId);
+        self.assertRaises(InterpKernelException, dd.getMaxValue, tupleId);
+        self.assertRaises(InterpKernelException, dbl3.getMinValue, tupleId);
+        self.assertRaises(InterpKernelException, dd.getMinValue, tupleId);
+        self.assertRaises(InterpKernelException, dbl3.getAverageValue);
+        self.assertRaises(InterpKernelException, dd.getAverageValue);
+        self.assertRaises(InterpKernelException, dd.accumulate, 100);
+        self.assertRaises(InterpKernelException, dbl.fromPolarToCart);
+        self.assertRaises(InterpKernelException, dbl3.fromCylToCart);
+        self.assertRaises(InterpKernelException, dbl3.fromSpherToCart);
+        self.assertRaises(InterpKernelException, dbl3.doublyContractedProduct);
+        self.assertRaises(InterpKernelException, dbl3.determinant);
+        self.assertRaises(InterpKernelException, dbl3.eigenValues);
+        self.assertRaises(InterpKernelException, dbl3.eigenVectors);
+        self.assertRaises(InterpKernelException, dbl3.inverse);
+        self.assertRaises(InterpKernelException, dbl3.trace);
+        self.assertRaises(InterpKernelException, dbl3.deviator);
+        
+        dbl3.setIJ(5,1,12.);
+        self.assertTrue(dbl3.getMaxValueInArray()==12.);
+        self.assertTrue(dbl3.getMinValueInArray()==11.);
+        
+        db.fillWithValue(100); #bad Ids
+        self.assertRaises(InterpKernelException, dbl3.setPartOfValuesAdv, dbl2, db);
+        db.fillWithValue(-1); #bad Ids
+        self.assertRaises(InterpKernelException, dbl3.setPartOfValuesAdv, dbl2, db);
+        db.fillWithValue(6); #bad Ids for dbl3
+        self.assertRaises(InterpKernelException, dbl3.setPartOfValuesAdv, dbl2, db);
+        
+        DataArrayDouble_SetArrayIn(dbl,dbl3); #dbl.dbl3 memLeaks?
+        dbl3.checkNoNullValues();
+        dbl3.setIJ(6,0,0.);
+        self.assertRaises(InterpKernelException, dbl3.checkNoNullValues);
+        self.assertRaises(InterpKernelException, dbl3.applyInv, 1.);  #div by zero
+        self.assertRaises(InterpKernelException, dbl2.getIdsInRange, 1., 2.);
+        #std::vector<const DataArrayDouble *> a(0); #input list must be NON EMPTY
+        a=[]
+        self.assertRaises(InterpKernelException, DataArrayDouble_Aggregate, a);
+        self.assertRaises(InterpKernelException, DataArrayDouble_Meld, a);
+        
+        a.push_back(dbl2);
+        a.push_back(dbl); #Nb of components mismatch
+        self.assertRaises(InterpKernelException, DataArrayDouble_Aggregate, a);
+        
+        self.assertRaises(InterpKernelException, DataArrayDouble_Dot, dbl2, dbl);
+        
+        self.assertRaises(InterpKernelException, DataArrayDouble_CrossProduct, dbl2, dbl); #Nb of components mismatch
+        self.assertRaises(InterpKernelException, DataArrayDouble_CrossProduct, dbl2, dbl2); #Nb of components must be equal to 3
+        dbl4=DataArrayDouble.New();
+        dbl4.alloc(6,3);
+        dbl5=DataArrayDouble.New();
+        dbl5.alloc(7,3);
+        self.assertRaises(InterpKernelException, DataArrayDouble_CrossProduct, dbl4, dbl5); #Nb of tuples mismatch
+        
+        a[0]=dbl4; #Nb of tuple mismatch
+        a[1]=dbl5; #Nb of tuple mismatch
+        self.assertRaises(InterpKernelException, DataArrayDouble_Meld, a);
+        self.assertRaises(InterpKernelException, DataArrayDouble_Dot, dbl4, dbl5);
         pass
 
     def testDAIGetIdsEqual1(self):
@@ -8221,7 +8417,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1,cI.getNbOfElems());
         self.assertEqual([0],cI.getValues())
         
-        array12=[0]*(6*4)
+        array12=[0.]*(6*4)
         da.setValues(array12,6,4) #bad NumberOfComponents
         self.assertRaises(InterpKernelException, da.findCommonTuples, 1e-2);
         pass
