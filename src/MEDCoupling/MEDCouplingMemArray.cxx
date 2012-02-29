@@ -438,7 +438,7 @@ void DataArrayDouble::iota(double init) throw(INTERP_KERNEL::Exception)
   declareAsNew();
 }
 
-bool DataArrayDouble::isUniform(double val, double eps) const
+bool DataArrayDouble::isUniform(double val, double eps) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -2667,14 +2667,14 @@ void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
   declareAsNew();
 }
 
-void DataArrayInt::fillWithZero()
+void DataArrayInt::fillWithZero() throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   _mem.fillWithValue(0);
   declareAsNew();
 }
 
-void DataArrayInt::fillWithValue(int val)
+void DataArrayInt::fillWithValue(int val) throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   _mem.fillWithValue(val);
@@ -3378,7 +3378,7 @@ DataArrayInt *DataArrayInt::buildPermArrPerLevel() const throw(INTERP_KERNEL::Ex
  * stdext::iota() of size getNumberOfTuples. This method is particalary usefull for DataArrayInt instances
  * that represents a renumbering array to check the real need in renumbering. 
  */
-bool DataArrayInt::isIdentity() const
+bool DataArrayInt::isIdentity() const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
@@ -3391,7 +3391,7 @@ bool DataArrayInt::isIdentity() const
   return true;
 }
 
-bool DataArrayInt::isUniform(int val) const
+bool DataArrayInt::isUniform(int val) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
