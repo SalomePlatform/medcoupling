@@ -1,4 +1,4 @@
-  #  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -73,7 +73,7 @@ if MED_ENABLE_SCOTCH
     dist_libmedpartitioner_la_SOURCES+= MEDPARTITIONER_SCOTCHGraph.cxx
 endif
 
-libmedpartitioner_la_CPPFLAGS= $(MPI_INCLUDES) $(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+libmedpartitioner_la_CPPFLAGS= $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
 	$(BOOST_CPPFLAGS) $(LIBXML_INCLUDES) \
 	-I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
   -I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL
