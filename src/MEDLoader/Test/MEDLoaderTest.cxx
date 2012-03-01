@@ -572,7 +572,7 @@ void MEDLoaderTest::testMultiFieldShuffleRW1()
   CPPUNIT_ASSERT_EQUAL(45,m->getNumberOfNodes());
   const int polys[3]={1,4,6};
   std::vector<int> poly2(polys,polys+3);
-  m->convertToPolyTypes(poly2);
+  m->convertToPolyTypes(&poly2[0],&poly2[0]+poly2.size());
   const int renum[20]={1,3,2,8,9,12,13,16,19,0,4,7,5,15,14,17,10,18,6,11};
   m->renumberCells(renum,false);
   m->orientCorrectlyPolyhedrons();
