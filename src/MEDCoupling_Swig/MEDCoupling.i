@@ -1900,7 +1900,7 @@ namespace ParaMEDMEM
      double *tmp=new double[nbOfTuples*nbOfElsPerTuple];
      try
        {
-         fillArrayWithPyListDbl(li,tmp,nbOfTuples*nbOfElsPerTuple,0);
+         fillArrayWithPyListDbl(li,tmp,nbOfTuples*nbOfElsPerTuple,0.);
        }
      catch(INTERP_KERNEL::Exception& e)
        {
@@ -3261,7 +3261,7 @@ namespace ParaMEDMEM
      int *tmp=new int[nbOfTuples*nbOfElsPerTuple];
      try
        {
-         fillArrayWithPyListInt(li,tmp,nbOfTuples*nbOfElsPerTuple,0.);
+         fillArrayWithPyListInt(li,tmp,nbOfTuples*nbOfElsPerTuple,0);
        }
      catch(INTERP_KERNEL::Exception& e)
        {
@@ -4230,7 +4230,7 @@ namespace ParaMEDMEM
        {
        case 1:
          {
-           self->applyLin(1.,-val);
+           self->applyLin(1,-val);
            return self;
          }
        case 3:
