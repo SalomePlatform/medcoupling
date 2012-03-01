@@ -299,11 +299,11 @@ using namespace INTERP_KERNEL;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::fillWithValues;
 %ignore ParaMEDMEM::MEDCouplingGaussLocalization::buildNewInstanceFromTinyInfo;
 %ignore ParaMEDMEM::DataArrayIntIterator::nextt;
-%ignore ParaMEDMEM::DataArrayIntTuple::next;
 %ignore ParaMEDMEM::DataArrayIntTuple::repr;
+%ignore ParaMEDMEM::DataArrayIntTuple::intValue;
 %ignore ParaMEDMEM::DataArrayDoubleIterator::nextt;
-%ignore ParaMEDMEM::DataArrayDoubleTuple::next;
 %ignore ParaMEDMEM::DataArrayDoubleTuple::repr;
+%ignore ParaMEDMEM::DataArrayDoubleTuple::doubleValue;
 %ignore ParaMEDMEM::DataArrayDouble::writeVTK;
 %ignore ParaMEDMEM::DataArrayInt::writeVTK;
 %ignore ParaMEDMEM::DataArrayDouble::SetArrayIn;
@@ -1629,7 +1629,7 @@ namespace ParaMEDMEM
   {
     DataArrayDoubleTuple *ret=self->nextt();
     if(ret)
-      return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+      return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,SWIG_POINTER_OWN|0);
     else
       {
         PyErr_SetString(PyExc_StopIteration,"No more data.");
@@ -1643,6 +1643,11 @@ namespace ParaMEDMEM
   std::string __str__() const
   {
     return self->repr();
+  }
+
+  double __float__() const throw(INTERP_KERNEL::Exception)
+  {
+    return self->doubleValue();
   }
   
   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
@@ -1866,6 +1871,23 @@ namespace ParaMEDMEM
    std::string __str__() const
    {
      return self->repr();
+   }
+
+   double __float__() const throw(INTERP_KERNEL::Exception)
+   {
+     return self->doubleValue();
+   }
+
+   int __len__() const throw(INTERP_KERNEL::Exception)
+   {
+     if(self->isAllocated())
+       {
+         return self->getNumberOfTuples();
+       }
+     else
+       {
+         throw INTERP_KERNEL::Exception("DataArrayDouble::__len__ : Instance is NOT allocated !");
+       }
    }
 
    DataArrayDoubleIterator *__iter__()
@@ -2951,6 +2973,11 @@ namespace ParaMEDMEM
   {
     return self->repr();
   }
+
+  int __int__() const throw(INTERP_KERNEL::Exception)
+  {
+    return self->intValue();
+  }
   
   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
   {
@@ -3175,7 +3202,7 @@ namespace ParaMEDMEM
   {
     DataArrayIntTuple *ret=self->nextt();
     if(ret)
-      return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+      return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,SWIG_POINTER_OWN | 0);
     else
       {
         PyErr_SetString(PyExc_StopIteration,"No more data.");
@@ -3195,14 +3222,17 @@ namespace ParaMEDMEM
    {
      if(self->isAllocated())
        {
-         if(self->getNumberOfComponents()==1)
-           return self->getNumberOfTuples();
-         throw INTERP_KERNEL::Exception("DataArrayInt::__len__ : len is not defined here because number of components is not equal to 1 !");
+         return self->getNumberOfTuples();
        }
      else
        {
          throw INTERP_KERNEL::Exception("DataArrayInt::__len__ : Instance is NOT allocated !");
        }
+   }
+
+   int __int__() const throw(INTERP_KERNEL::Exception)
+   {
+     return self->intValue();
    }
 
    DataArrayIntIterator *__iter__()

@@ -354,6 +354,25 @@ void DataArrayDouble::setInfoAndChangeNbOfCompo(const std::vector<std::string>& 
 }
 
 /*!
+ * This method returns the only one value in 'this', if and only if number of elements (nb of tuples * nb of components) is equal to 1, and that 'this' is allocated.
+ * If one or more conditions is not fulfilled an exception will be thrown.
+ */
+double DataArrayDouble::doubleValue() const throw(INTERP_KERNEL::Exception)
+{
+  if(isAllocated())
+    {
+      if(getNbOfElems()==1)
+        {
+          return *getConstPointer();
+        }
+      else
+        throw INTERP_KERNEL::Exception("DataArrayDouble::doubleValue : DataArrayDouble instance is allocated but number of elements is not equal to 1 !");
+    }
+  else
+    throw INTERP_KERNEL::Exception("DataArrayDouble::doubleValue : DataArrayDouble instance is not allocated !");
+}
+
+/*!
  * This method should be called on an allocated DataArrayDouble instance. If not an exception will be throw !
  * This method checks the number of tupes. If it is equal to 0, it returns true, if not false is returned.
  */
@@ -2519,12 +2538,17 @@ void DataArrayDouble::finishUnserialization(const std::vector<int>& tinyInfoI, c
     }
 }
 
-DataArrayDoubleIterator::DataArrayDoubleIterator(DataArrayDouble *da):_da(da),_tuple(new DataArrayDoubleTuple(da)),_tuple_id(0),_nb_tuple(0)
+DataArrayDoubleIterator::DataArrayDoubleIterator(DataArrayDouble *da):_da(da),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
 {
   if(_da)
     {
       _da->incrRef();
-      _nb_tuple=da->getNumberOfTuples();
+      if(_da->isAllocated())
+        {
+          _nb_comp=da->getNumberOfComponents();
+          _nb_tuple=da->getNumberOfTuples();
+          _pt=da->getPointer();
+        }
     }
 }
 
@@ -2532,7 +2556,6 @@ DataArrayDoubleIterator::~DataArrayDoubleIterator()
 {
   if(_da)
     _da->decrRef();
-  delete _tuple;
 }
 
 DataArrayDoubleTuple *DataArrayDoubleIterator::nextt()
@@ -2540,26 +2563,18 @@ DataArrayDoubleTuple *DataArrayDoubleIterator::nextt()
   if(_tuple_id<_nb_tuple)
     {
       _tuple_id++;
-      _tuple->next();
-      return _tuple;
+      DataArrayDoubleTuple *ret=new DataArrayDoubleTuple(_pt,_nb_comp);
+      _pt+=_nb_comp;
+      return ret;
     }
   else
     return 0;
 }
 
-DataArrayDoubleTuple::DataArrayDoubleTuple(DataArrayDouble *da):_pt(0),_nb_of_compo(0)
+DataArrayDoubleTuple::DataArrayDoubleTuple(double *pt, int nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)
 {
-  if(da)
-    {
-      _nb_of_compo=da->getNumberOfComponents();
-      _pt=da->getPointer()-_nb_of_compo;
-    }
 }
 
-void DataArrayDoubleTuple::next()
-{
-  _pt+=_nb_of_compo;
-}
 
 std::string DataArrayDoubleTuple::repr() const
 {
@@ -2568,6 +2583,13 @@ std::string DataArrayDoubleTuple::repr() const
     oss << _pt[i] << ", ";
   oss << _pt[_nb_of_compo-1] << ")";
   return oss.str();
+}
+
+double DataArrayDoubleTuple::doubleValue() const throw(INTERP_KERNEL::Exception)
+{
+  if(_nb_of_compo==1)
+    return *_pt;
+  throw INTERP_KERNEL::Exception("DataArrayDoubleTuple::doubleValue : DataArrayDoubleTuple instance has not exactly 1 component -> Not possible to convert it into a double precision float !");
 }
 
 DataArrayInt *DataArrayInt::New()
@@ -2606,6 +2628,25 @@ void DataArrayInt::setInfoAndChangeNbOfCompo(const std::vector<std::string>& inf
     }
   else
     _info_on_compo=info;
+}
+
+/*!
+ * This method returns the only one value in 'this', if and only if number of elements (nb of tuples * nb of components) is equal to 1, and that 'this' is allocated.
+ * If one or more conditions is not fulfilled an exception will be thrown.
+ */
+int DataArrayInt::intValue() const throw(INTERP_KERNEL::Exception)
+{
+  if(isAllocated())
+    {
+      if(getNbOfElems()==1)
+        {
+          return *getConstPointer();
+        }
+      else
+        throw INTERP_KERNEL::Exception("DataArrayInt::intValue : DataArrayInt instance is allocated but number of elements is not equal to 1 !");
+    }
+  else
+    throw INTERP_KERNEL::Exception("DataArrayInt::intValue : DataArrayInt instance is not allocated !");
 }
 
 /*!
@@ -4834,12 +4875,17 @@ void DataArrayInt::finishUnserialization(const std::vector<int>& tinyInfoI, cons
     }
 }
 
-DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):_da(da),_tuple(new DataArrayIntTuple(da)),_tuple_id(0),_nb_tuple(0)
+DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):_da(da),_tuple_id(0),_nb_comp(0),_nb_tuple(0),_pt(0)
 {
   if(_da)
     {
       _da->incrRef();
-      _nb_tuple=da->getNumberOfTuples();
+      if(_da->isAllocated())
+        {
+          _nb_comp=da->getNumberOfComponents();
+          _nb_tuple=da->getNumberOfTuples();
+          _pt=da->getPointer();
+        }
     }
 }
 
@@ -4847,7 +4893,6 @@ DataArrayIntIterator::~DataArrayIntIterator()
 {
   if(_da)
     _da->decrRef();
-  delete _tuple;
 }
 
 DataArrayIntTuple *DataArrayIntIterator::nextt()
@@ -4855,25 +4900,16 @@ DataArrayIntTuple *DataArrayIntIterator::nextt()
   if(_tuple_id<_nb_tuple)
     {
       _tuple_id++;
-      _tuple->next();
-      return _tuple;
+      DataArrayIntTuple *ret=new DataArrayIntTuple(_pt,_nb_comp);
+      _pt+=_nb_comp;
+      return ret;
     }
   else
     return 0;
 }
 
-DataArrayIntTuple::DataArrayIntTuple(DataArrayInt *da):_pt(0),_nb_of_compo(0)
+DataArrayIntTuple::DataArrayIntTuple(int *pt, int nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)
 {
-  if(da)
-    {
-      _nb_of_compo=da->getNumberOfComponents();
-      _pt=da->getPointer()-_nb_of_compo;
-    }
-}
-
-void DataArrayIntTuple::next()
-{
-  _pt+=_nb_of_compo;
 }
 
 std::string DataArrayIntTuple::repr() const
@@ -4883,4 +4919,11 @@ std::string DataArrayIntTuple::repr() const
     oss << _pt[i] << ", ";
   oss << _pt[_nb_of_compo-1] << ")";
   return oss.str();
+}
+
+int DataArrayIntTuple::intValue() const throw(INTERP_KERNEL::Exception)
+{
+  if(_nb_of_compo==1)
+    return *_pt;
+  throw INTERP_KERNEL::Exception("DataArrayIntTuple::intValue : DataArrayIntTuple instance has not exactly 1 component -> Not possible to convert it into an integer !");
 }

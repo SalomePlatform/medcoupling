@@ -6709,6 +6709,60 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(da.getValues(),[7,7,7,3,8,8,7,7,7,9,14,20,12,17,26,7,7,7,18,23,38,21,26,44,24,29,70,27,32,76])
         pass
 
+    def testSwigDAIOp3(self):
+        da=DataArrayInt.New()
+        self.assertRaises(InterpKernelException,da.__len__)
+        self.assertRaises(InterpKernelException,da.__int__)
+        for elt in da:
+            self.assertTrue(False)
+            pass
+        da.alloc(12,3)
+        da.rearrange(1) ; da.fillWithZero()
+        l1=list(da)
+        self.assertEqual(36,len(da));
+        da.rearrange(3)
+        tmp=da[0]
+        self.assertRaises(InterpKernelException,tmp.__int__)
+        self.assertEqual(12,len(da));
+        l=list(da)
+        for elt in enumerate(l):
+            elt[1][2]=elt[0]
+            pass
+        ref=[0,0,0,0,0,1,0,0,2,0,0,3,0,0,4,0,0,5,0,0,6,0,0,7,0,0,8,0,0,9,0,0,10,0,0,11]
+        self.assertEqual(ref,da.getValues());
+        da.rearrange(1)
+        l=[int(elt) for elt in l1]
+        self.assertEqual(ref,da.getValues());
+        self.assertEqual(11,int(da[-1:]))
+        pass
+
+    def testSwigDADOp3(self):
+        da=DataArrayDouble.New()
+        self.assertRaises(InterpKernelException,da.__len__)
+        self.assertRaises(InterpKernelException,da.__float__)
+        for elt in da:
+            self.assertTrue(False)
+            pass
+        da.alloc(12,3)
+        da.rearrange(1) ; da.fillWithZero()
+        l1=list(da)
+        self.assertEqual(36,len(da));
+        da.rearrange(3)
+        tmp=da[0]
+        self.assertRaises(InterpKernelException,tmp.__float__)
+        self.assertEqual(12,len(da));
+        l=list(da)
+        for elt in enumerate(l):
+            elt[1][2]=elt[0]
+            pass
+        ref=[0.,0.,0.,0.,0.,1.,0.,0.,2.,0.,0.,3.,0.,0.,4.,0.,0.,5.,0.,0.,6.,0.,0.,7.,0.,0.,8.,0.,0.,9.,0.,0.,10.,0.,0.,11.]
+        self.assertEqual(ref,da.getValues());
+        da.rearrange(1)
+        l=[float(elt) for elt in l1]
+        self.assertEqual(ref,da.getValues());
+        self.assertEqual(11.,float(da[-1:]))
+        pass
+
     def testSwigDataArrayIntIterator1(self):
         da=DataArrayInt.New()
         da.alloc(12,1)

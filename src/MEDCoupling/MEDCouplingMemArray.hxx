@@ -138,6 +138,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isAllocated() const;
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT double doubleValue() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool empty() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
@@ -284,20 +285,21 @@ namespace ParaMEDMEM
      DataArrayDoubleTuple *nextt();
   private:
     DataArrayDouble *_da;
-    DataArrayDoubleTuple *_tuple;
+    double *_pt;
     int _tuple_id;
+    int _nb_comp;
     int _nb_tuple;
   };
 
   class MEDCOUPLING_EXPORT DataArrayDoubleTuple
   {
   public:
-    DataArrayDoubleTuple(DataArrayDouble *da);
-    void next();
+    DataArrayDoubleTuple(double *pt, int nbOfComp);
     std::string repr() const;
     int getNumberOfCompo() const { return _nb_of_compo; }
     const double *getConstPointer() const { return  _pt; }
     double *getPointer() { return _pt; }
+    double doubleValue() const throw(INTERP_KERNEL::Exception);
   private:
     double *_pt;
     int _nb_of_compo;
@@ -312,6 +314,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isAllocated() const;
     MEDCOUPLING_EXPORT void checkAllocated() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setInfoAndChangeNbOfCompo(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT int intValue() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool empty() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
@@ -455,20 +458,21 @@ namespace ParaMEDMEM
      DataArrayIntTuple *nextt();
   private:
     DataArrayInt *_da;
-    DataArrayIntTuple *_tuple;
+    int *_pt;
     int _tuple_id;
+    int _nb_comp;
     int _nb_tuple;
   };
 
   class MEDCOUPLING_EXPORT DataArrayIntTuple
   {
   public:
-    DataArrayIntTuple(DataArrayInt *da);
-    void next();
+    DataArrayIntTuple(int *pt, int nbOfComp);
     std::string repr() const;
     int getNumberOfCompo() const { return _nb_of_compo; }
     const int *getConstPointer() const { return  _pt; }
     int *getPointer() { return _pt; }
+    int intValue() const throw(INTERP_KERNEL::Exception);
   private:
     int *_pt;
     int _nb_of_compo;
