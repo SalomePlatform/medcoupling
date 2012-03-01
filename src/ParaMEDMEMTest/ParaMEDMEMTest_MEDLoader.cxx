@@ -18,10 +18,11 @@
 //
 
 #include "ParaMEDMEMTest.hxx"
-#include <cppunit/TestAssert.h>
 #include "MEDLoader.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+
+#include <cppunit/TestAssert.h>
 
 #include <algorithm>
 #include <numeric>
@@ -394,75 +395,5 @@ void ParaMEDMEMTest::testMEDLoaderPolyhedronRead()
   CPPUNIT_ASSERT_EQUAL(19,mesh->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(3,mesh->getMeshDimension());
   CPPUNIT_ASSERT_EQUAL(0,(int)mesh->getAllTypes().size());
-  mesh->decrRef();
-}
-
-void ParaMEDMEMTest::testMEDLoaderWrite1()
-{
-  const char meshName[]="MEDLoaderWrite1";
-  string outFileName=makeTmpFile("toto22137.med");
-  double targetCoords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
-  int targetConn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
-  mesh->setMeshDimension(2);
-  mesh->allocateCells(5);
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn);
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+4);
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,targetConn+7);
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+10);
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,targetConn+14);
-  mesh->finishInsertingCells();
-  DataArrayDouble *myCoords=DataArrayDouble::New();
-  myCoords->alloc(9,2);
-  std::copy(targetCoords,targetCoords+18,myCoords->getPointer());
-  mesh->setCoords(myCoords);
-  myCoords->decrRef();
-  mesh->checkCoherency();
-  CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
-  CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(5,mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(9,mesh->getNumberOfNodes());
-  bool normalThrow=false;
-  try
-    {
-      MEDLoader::WriteUMesh(outFileName.c_str(),mesh,true);
-    }
-  catch(INTERP_KERNEL::Exception& e)
-    {
-      normalThrow=true;
-    }
-  CPPUNIT_ASSERT(normalThrow);
-  mesh->setName(meshName);
-  MEDLoader::WriteUMesh(outFileName.c_str(),mesh,true);
-  mesh->decrRef();
-  //
-  mesh=MEDLoader::ReadUMeshFromFile(outFileName.c_str(),meshName,0);
-  CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
-  CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
-  CPPUNIT_ASSERT_EQUAL(5,mesh->getNumberOfCells());
-  CPPUNIT_ASSERT_EQUAL(9,mesh->getNumberOfNodes());
-  CPPUNIT_ASSERT_EQUAL(2,(int)mesh->getAllTypes().size());
-  for(int i=0;i<2;i++)
-    CPPUNIT_ASSERT_EQUAL(NORM_TRI3,mesh->getTypeOfCell(i));
-  for(int i=2;i<5;i++)
-    CPPUNIT_ASSERT_EQUAL(NORM_QUAD4,mesh->getTypeOfCell(i));
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.6,std::accumulate(mesh->getCoords()->getPointer(),mesh->getCoords()->getPointer()+18,0.),1.e-12);
-  mesh->decrRef();
-}
-
-void ParaMEDMEMTest::testMEDLoaderPolygonWrite()
-{
-  string fileName=getResourceFile("polygones.med");
-  vector<string> meshNames=MEDLoader::GetMeshNames(fileName.c_str());
-  CPPUNIT_ASSERT_EQUAL(1,(int)meshNames.size());
-  CPPUNIT_ASSERT(meshNames[0]=="Bord");
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(fileName.c_str(),meshNames[0].c_str(),0);
-  mesh->checkCoherency();
-  string outFileName=makeTmpFile("toto22138.med");
-  MEDLoader::WriteUMesh(outFileName.c_str(),mesh,true);
-  //
-  MEDCouplingUMesh *mesh2=MEDLoader::ReadUMeshFromFile(outFileName.c_str(),meshNames[0].c_str(),0);
-  //
-  mesh2->decrRef();
   mesh->decrRef();
 }

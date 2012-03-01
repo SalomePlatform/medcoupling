@@ -77,8 +77,6 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testMEDLoaderRead1);
   CPPUNIT_TEST(testMEDLoaderPolygonRead);
   CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
-  //CPPUNIT_TEST(testMEDLoaderWrite1);
-  //CPPUNIT_TEST(testMEDLoaderPolygonWrite);
   CPPUNIT_TEST_SUITE_END();
   
 
