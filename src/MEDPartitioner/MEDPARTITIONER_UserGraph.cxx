@@ -1,25 +1,28 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_UserGraph.hxx"
+
 #include <iostream>
 #include <vector>
+
 using namespace MEDPARTITIONER;
 
 /*! constructor that allows to specify the desired partition
@@ -27,19 +30,19 @@ using namespace MEDPARTITIONER;
  *        (domain numbers range from 0 to ndomain-1
  * \param n number of cells in the mesh
  */
-UserGraph::UserGraph(MEDPARTITIONER::MEDSKYLINEARRAY* array, const int* partition, int n):Graph(array,0)
+UserGraph::UserGraph(MEDPARTITIONER::SkyLineArray* array, const int* partition, int n):Graph(array,0)
 {
 
   std::vector<int> index(n+1),value(n);
 
   index[0]=0;
   for (int i=0; i<n; i++)
-  {
-    index[i+1]=index[i]+1;
-    value[i]=partition[i];
-  }
+    {
+      index[i+1]=index[i]+1;
+      value[i]=partition[i];
+    }
 
-  _partition = new MEDPARTITIONER::MEDSKYLINEARRAY(index,value);
+  _partition = new MEDPARTITIONER::SkyLineArray(index,value);
 
 }
 
