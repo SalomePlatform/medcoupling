@@ -412,6 +412,10 @@ void MEDFileMesh::changeGroupName(const char *oldName, const char *newName) thro
   _groups[newName]=cpy;
 }
 
+/*!
+ * This method changes the family ids in 'this'. It leads to a modification into '_families' attributes \b and in
+ * ids stored in arrays. This method calls MEDFileMesh::changeFamilyIdArr method.
+ */
 void MEDFileMesh::changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception)
 {
   changeFamilyIdArr(oldId,newId);
@@ -523,6 +527,12 @@ bool MEDFileMesh::areGrpsEqual(const MEDFileMesh *other, std::string& what) cons
   return ret;
 }
 
+bool MEDFileMesh::existsGroup(const char *groupName) const
+{
+  std::string grpName(groupName);
+  return _groups.find(grpName)!=_groups.end();
+}
+
 bool MEDFileMesh::existsFamily(int famId) const
 {
   for(std::map<std::string,int>::const_iterator it2=_families.begin();it2!=_families.end();it2++)
@@ -573,12 +583,109 @@ void MEDFileMesh::addFamily(const char *familyName, int famId) throw(INTERP_KERN
     }
 }
 
-void MEDFileMesh::addGrpOnFamily(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception)
+/*!
+ * This method creates a new group called 'groupName' in 'this'. If it exists a group with the same name an INTERP_KERNEL::Exception will be thrown.
+ * If the 'meshDimRelToMaxExt' is not existing an INTERP_KERNEL::Exception will be thrown too.
+ * \b WARNING : This method does \b not garantee that 'groupName' lies only on a single level specified by 'meshDimRelToMaxExt'.
+ * in the case of a presence of one or more family id in family field at 'meshDimRelToMaxExt' level that appears in another level.
+ * If there is a risk of such case call MEDFileMesh::keepFamIdsOnlyOnLevs method \b before calling this method. 
+ * (call to MEDFileMesh::keepFamIdsOnlyOnLevs should be done with MEDFileMesh::getFamiliesIdsOnGroup('groupName' as first input ).
+ */
+void MEDFileMesh::createGroupOnAll(int meshDimRelToMaxExt, const char *groupName) throw(INTERP_KERNEL::Exception)
+{
+  std::string grpName(groupName);
+  std::vector<int> levs=getNonEmptyLevelsExt();
+  if(std::find(levs.begin(),levs.end(),meshDimRelToMaxExt)==levs.end())
+    {
+      std::ostringstream oss; oss << "MEDFileMesh::createGroupOnAll : The relative ext dimension " << meshDimRelToMaxExt << " is not available !" << std::endl;
+      oss << "Available relative ext levels are : ";
+      std::copy(levs.begin(),levs.end(),std::ostream_iterator<int>(oss," "));
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(existsGroup(groupName))
+    {
+      std::ostringstream oss; oss << "MEDFileMesh::createGroupOnAll : The groups \"" << grpName << "\" already exists in this !" << std::endl;
+      oss << "Already existing groups are : ";
+      std::copy(levs.begin(),levs.end(),std::ostream_iterator<int>(oss," "));
+      oss << std::endl << "Please choose an another group name or call removeGroup(\"" << grpName << "\") method !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const DataArrayInt *fieldFamIds=getFamilyFieldAtLevel(meshDimRelToMaxExt);
+  if(fieldFamIds==0)
+    throw INTERP_KERNEL::Exception("MEDFileMesh::createGroupOnAll : Family field arr ids is not defined for this level !");
+  std::set<int> famIds=fieldFamIds->getDifferentValues();
+  std::vector<std::string> familiesOnWholeGroup;
+  for(std::set<int>::const_iterator it=famIds.begin();it!=famIds.end();it++)
+    {
+      bool tmp;
+      familiesOnWholeGroup.push_back(findOrCreateAndGiveFamilyWithId(*it,tmp));
+    }
+  _groups[grpName]=familiesOnWholeGroup;
+}
+
+/*!
+ * This method checks that family Ids in 'famIds' are not present in levels \b not in 'vMeshDimRelToMaxExt'.
+ * If it is the case true is returned and 'this' is not modified.
+ * If there is some levels not in 'vMeshDimRelToMaxExt' where one or more family ids in 'famIds' appear
+ * new families are created and groups are updated in consequence.
+ */
+bool MEDFileMesh::keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& vMeshDimRelToMaxExt) throw(INTERP_KERNEL::Exception)
+{
+  std::set<int> levsInput(vMeshDimRelToMaxExt.begin(),vMeshDimRelToMaxExt.end());
+  std::vector<int> levs=getNonEmptyLevelsExt();
+  std::set<int> levs2(levs.begin(),levs.end());
+  std::vector<int> levsToTest;
+  std::set_difference(levs2.begin(),levs2.end(),levsInput.begin(),levsInput.end(),std::back_insert_iterator< std::vector<int> >(levsToTest));
+  std::set<int> famIds2(famIds.begin(),famIds.end());
+  bool ret=true;
+  int maxFamId=1;
+  if(!_families.empty())
+    maxFamId=getMaxFamilyId()+1;
+  std::vector<std::string> allFams=getFamiliesNames();
+  for(std::vector<int>::const_iterator it=levsToTest.begin();it!=levsToTest.end();it++)
+    {
+      const DataArrayInt *fieldFamIds=getFamilyFieldAtLevel(*it);
+      if(fieldFamIds)
+        {
+          std::set<int> famIds3=fieldFamIds->getDifferentValues();
+          std::vector<int> tmp;
+          std::set_intersection(famIds3.begin(),famIds3.end(),famIds2.begin(),famIds2.end(),std::back_insert_iterator< std::vector<int> >(tmp));
+          for(std::vector<int>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
+            {
+              ret=false;
+              std::string famName=getFamilyNameGivenId(*it2);
+              std::ostringstream oss; oss << "Family_" << maxFamId;
+              std::string zeName=CreateNameNotIn(oss.str(),allFams);
+              addFamilyOnAllGroupsHaving(famName.c_str(),zeName.c_str());
+              _families[zeName]=maxFamId;
+              (const_cast<DataArrayInt *>(fieldFamIds))->changeValue(*it2,maxFamId);
+              maxFamId++;
+            }
+        }
+    }
+  return ret;
+}
+
+/*!
+ * This method add into the family list of a group 'grpName' the family with name 'famName'.
+ * If the group 'grpName' does not exist it is created and 'famName' is added to the list.
+ * If the group 'grpName' already exists, 'famName' will be added into family list of the existing group.
+ * This method throws an INTERP_KERNEL::Exception if 'famName' does not exit.
+ */
+void MEDFileMesh::addFamilyOnGrp(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception)
 {
   std::string grpn(grpName);
   std::string famn(famName);
   if(grpn.empty() || famn.empty())
-    throw INTERP_KERNEL::Exception("MEDFileMesh::addGrpOnFamily : input strings must be non null !");
+    throw INTERP_KERNEL::Exception("MEDFileMesh::addFamilyOnGrp : input strings must be non null !");
+  std::vector<std::string> fams=getFamiliesNames();
+  if(std::find(fams.begin(),fams.end(),famn)==fams.end())
+    {
+      std::ostringstream oss; oss << "MEDFileMesh::addFamilyOnGrp : Family \"" << famn << "\" does not exist !" << std::endl;
+      oss << "Create this family or choose an existing one ! Existing fams are : ";
+      std::copy(fams.begin(),fams.end(),std::ostream_iterator<std::string>(oss," ")); oss << ".";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   std::map<std::string, std::vector<std::string> >::iterator it=_groups.find(grpn);
   if(it==_groups.end())
     {
@@ -590,6 +697,56 @@ void MEDFileMesh::addGrpOnFamily(const char *grpName, const char *famName) throw
       if(it2==(*it).second.end())
         (*it).second.push_back(famn);
     }
+}
+
+/*!
+ * This method adds to all groups lying on family with name 'famName' the other family name 'otherFamName'.
+ * This method is quite underground because it can lead to unconsistency because family 'otherFamName' is \b not added into _families.
+ * This method is used by MEDFileMesh::keepFamIdsOnlyOnLevs method.
+ */
+void MEDFileMesh::addFamilyOnAllGroupsHaving(const char *famName, const char *otherFamName) throw(INTERP_KERNEL::Exception)
+{
+  std::string famNameCpp(famName);
+  std::string otherCpp(otherFamName);
+  for(std::map<std::string, std::vector<std::string> >::iterator it=_groups.begin();it!=_groups.end();it++)
+    {
+      std::vector<std::string>& v=(*it).second;
+      if(std::find(v.begin(),v.end(),famNameCpp)!=v.end())
+        {
+          v.push_back(otherCpp);
+        }
+    }
+}
+
+/*!
+ * If it exists a family whose family id is equal to 'id' this method behaves as MEDFileMesh::getFamilyNameGivenId.
+ * In this case, 'this' internal states remains unchanged and 'created' out parameter will be set to false.
+ * If there is no family whose family id is equal to 'id' a family is created with a name different from those
+ * already existing. In this case 'created' will be returned with a value set to true, and internal state
+ * will be modified.
+ * This method will throws an exception if it is not possible to create a unique family name.
+ */
+std::string MEDFileMesh::findOrCreateAndGiveFamilyWithId(int id, bool& created) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> famAlreadyExisting(_families.size());
+  int ii=0;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++,ii++)
+    {
+      if((*it).second!=id)
+        {
+          famAlreadyExisting[ii]=(*it).first;
+        }
+      else
+        {
+          created=false;
+          return (*it).first;
+        }
+    }
+  created=true;
+  std::ostringstream oss; oss << "Family_" << id;
+  std::string ret=CreateNameNotIn(oss.str(),famAlreadyExisting);
+  _families[ret]=id;
+  return ret;
 }
 
 void MEDFileMesh::setFamilyInfo(const std::map<std::string,int>& info)
@@ -794,6 +951,44 @@ void MEDFileMesh::TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vect
   famArr->applyLin(1,offset,0);
   for(std::vector< std::vector<int> >::iterator it1=famIdsPerGrp.begin();it1!=famIdsPerGrp.end();it1++)
     std::transform((*it1).begin(),(*it1).end(),(*it1).begin(),std::bind2nd(std::plus<int>(),offset));
+}
+
+/*!
+ * Warning no check is done on 'nameTry' in parameter. It should be non empty.
+ * This method returns a name close to 'nameTry' so that it is not already into 'namesToAvoid'.
+ * If this method fails to find such a name it will throw an exception.
+ */
+std::string MEDFileMesh::CreateNameNotIn(const std::string& nameTry, const std::vector<std::string>& namesToAvoid) throw(INTERP_KERNEL::Exception)
+{
+  //attempt #0
+  if(std::find(namesToAvoid.begin(),namesToAvoid.end(),nameTry)==namesToAvoid.end())
+    return nameTry;
+  //attempt #1
+  std::size_t len=nameTry.length();
+  for(std::size_t ii=1;ii<len;ii++)
+    {
+      std::string tmp=nameTry.substr(ii,len-ii);
+      if(std::find(namesToAvoid.begin(),namesToAvoid.end(),tmp)==namesToAvoid.end())
+        return tmp;
+    }
+  //attempt #2
+  if(len>=1)
+    {
+      for(std::size_t i=1;i<30;i++)
+        {
+          std::string tmp1(nameTry.at(0),i);
+          tmp1+=nameTry;
+          if(std::find(namesToAvoid.begin(),namesToAvoid.end(),tmp1)==namesToAvoid.end())
+            return tmp1;
+        }
+    }
+  //attempt #3
+  std::string tmp2;
+  for(std::vector<std::string>::const_iterator it2=namesToAvoid.begin();it2!=namesToAvoid.end();it2++)
+    tmp2+=(*it2);
+  if(std::find(namesToAvoid.begin(),namesToAvoid.end(),tmp2)==namesToAvoid.end())
+    return tmp2;
+  throw INTERP_KERNEL::Exception("MEDFileMesh::CreateNameNotIn : impossible to find a not already used name !");
 }
 
 /*!
@@ -1525,11 +1720,6 @@ void MEDFileUMesh::optimizeFamilies() throw(INTERP_KERNEL::Exception)
     _groups.erase(*it);
 }
 
-void MEDFileUMesh::setFamilyField(DataArrayInt *arr, const std::vector< std::vector< int > > &userfids, const std::vector<std::string>& grpNames, bool renum) throw(INTERP_KERNEL::Exception)
-{
-  
-}
-
 void MEDFileUMesh::addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *coords=_coords;
@@ -1707,6 +1897,9 @@ void MEDFileUMesh::synchronizeTinyInfoOnLeaves() const
       (*it)->synchronizeTinyInfo(*this);
 }
 
+/*!
+ * This method is called by MEDFileMesh::changeFamilyId. It performs only one part of the family id modification.
+ */
 void MEDFileUMesh::changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception)
 {
   DataArrayInt *arr=_fam_coords;

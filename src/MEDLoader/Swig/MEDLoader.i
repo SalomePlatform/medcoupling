@@ -335,11 +335,14 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     //
+    bool existsGroup(const char *groupName) const;
     bool existsFamily(int famId) const;
     bool existsFamily(const char *familyName) const;
     void setFamilyId(const char *familyName, int id);
     void addFamily(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
-    void addGrpOnFamily(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception);
+    void addFamilyOnGrp(const char *grpName, const char *famName) throw(INTERP_KERNEL::Exception);
+    virtual void createGroupOnAll(int meshDimRelToMaxExt, const char *groupName) throw(INTERP_KERNEL::Exception);
+    virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
     void copyFamGrpMapsFrom(const MEDFileMesh& other);
     const std::map<std::string,int>& getFamilyInfo() const;
     const std::map<std::string, std::vector<std::string> >& getGroupInfo() const;
@@ -448,6 +451,16 @@ namespace ParaMEDMEM
              tmp->incrRef();
            return SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
+
+         PyObject *findOrCreateAndGiveFamilyWithId(int id, bool& created) throw(INTERP_KERNEL::Exception)
+         {
+           bool ret1;
+           std::string ret0=self->findOrCreateAndGiveFamilyWithId(id,ret1);
+           PyObject *ret=PyTuple_New(2);
+           PyTuple_SetItem(ret,0,PyString_FromString(ret0.c_str()));
+           PyTuple_SetItem(ret,1,SWIG_From_bool(ret1));
+           return ret;
+         }
        }
   };
 
@@ -490,7 +503,6 @@ namespace ParaMEDMEM
     void setFamilyNameAttachedOnId(int id, const std::string& newFamName) throw(INTERP_KERNEL::Exception);
     void setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception);
     void eraseGroupsAtLevel(int meshDimRelToMaxExt) throw(INTERP_KERNEL::Exception);
-    void setFamilyField(DataArrayInt *arr, const std::vector< std::vector< int > > &userfids, const std::vector<std::string>& grpNames, bool renum=false) throw(INTERP_KERNEL::Exception);
     void addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception);
     void removeMeshAtLevel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false) throw(INTERP_KERNEL::Exception);

@@ -145,6 +145,7 @@ class MEDLoaderTest(unittest.TestCase):
         g2_N.setValues(range(9),9,1)
         g2_N.setName("G2")
         mm.setGroupsAtLevel(1,[g1_N,g2_N],False)
+        mm.createGroupOnAll(0,"GrpOnAllCell")
         # check content of mm
         t=mm.getGroupArr(0,"G1",False)
         self.assertTrue(g1_2.isEqual(t));
@@ -158,6 +159,9 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(g1_N.isEqual(t));
         t=mm.getGroupArr(1,"G2",False)
         self.assertTrue(g2_N.isEqual(t));
+        self.assertTrue(mm.existsGroup("GrpOnAllCell"));
+        t=mm.getGroupArr(0,"GrpOnAllCell")
+        self.assertTrue(t.getValues()==range(5))
         #
         mm.write(outFileName,2);
         #
@@ -252,11 +256,28 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(g1_1.isEqual(t));
         t=mm.getGroupArr(-1,"G2",True)
         self.assertTrue(g2_1.isEqual(t));
+        self.assertTrue(not mm.existsGroup("GrpOnAllCell"));
         #
         mm.write(outFileName,2);
         mm2=MEDFileMesh.New(outFileName)
         res=mm.isEqual(mm2,1e-12)
         self.assertTrue(res[0])
+        l=list(mm2.getFamiliesOnGroup("G2")) ; l.sort()
+        self.assertEqual(['Family_10','Family_11','Family_3','Family_4','Family_7'],l)
+        mm2.keepFamIdsOnlyOnLevs([3],[-1])
+        for lev in mm.getGrpNonEmptyLevelsExt("G2"):
+            self.assertEqual(mm.getGroupArr(lev,"G2").getValues(),mm2.getGroupArr(lev,"G2").getValues())
+            pass
+        l=list(mm2.getFamiliesOnGroup("G2")) ; l.sort()
+        self.assertEqual(['Family_10','Family_11','Family_12','Family_3','Family_4','Family_7'],l)
+        #
+        self.assertEqual([7,7,6],mm2.getFamilyFieldAtLevel(-1).getValues())
+        mm2.getFamilyFieldAtLevel(-1).setIJ(1,0,8)
+        self.assertEqual([7,8,6],mm2.getFamilyFieldAtLevel(-1).getValues())
+        self.assertTrue(not mm2.existsFamily("Family_8"))
+        mm2.createGroupOnAll(-1,"GrpOnAllFace")
+        self.assertTrue(mm2.existsFamily("Family_8"))
+        self.assertEqual(range(3),mm2.getGroupArr(-1,"GrpOnAllFace").getValues())
         pass
 
     #testing persistence of retrieved arrays
