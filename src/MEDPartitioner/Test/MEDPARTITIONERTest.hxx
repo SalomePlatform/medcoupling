@@ -17,8 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef _MEDPARTITIONERTEST_HXX_
-#define _MEDPARTITIONERTEST_HXX_
+#ifndef __MEDPARTITIONERTEST_HXX__
+#define __MEDPARTITIONERTEST_HXX__
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -32,10 +32,6 @@
 
 namespace MEDPARTITIONER {
   class MESH;
-  /*class DataArrayDouble;
-  class MEDCouplingUMesh;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingMultiFields;*/
 };
 
 class MEDPARTITIONERTest : public CppUnit::TestFixture

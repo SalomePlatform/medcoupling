@@ -17,11 +17,25 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//include all MEDPARTITIONER Test
-#include "MEDPARTITIONERTest.hxx"
+#ifndef __MEDPARTITIONER_MESHCOLLECTIONMEDASCIIDRIVER_HXX__
+#define __MEDPARTITIONER_MESHCOLLECTIONMEDASCIIDRIVER_HXX__
 
-//Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDPARTITIONERTest );
+#include "MEDPARTITIONER_MeshCollectionDriver.hxx"
 
-//generic Main program from KERNEL_SRC/src/Basics/Test
-#include "BasicMainTest.hxx"
+namespace MEDPARTITIONER
+{
+  class MeshCollection;
+  class MeshCollectionMedAsciiDriver : public MeshCollectionDriver
+  {
+  public:
+    MeshCollectionMedAsciiDriver(MeshCollection*);
+    virtual ~MeshCollectionMedAsciiDriver()
+    {
+    }
+    int read(const char*, ParaDomainSelector* sel=0);
+    void write(const char*, ParaDomainSelector* sel=0);
+  private :
+    std::string _master_filename;
+  };
+}
+#endif

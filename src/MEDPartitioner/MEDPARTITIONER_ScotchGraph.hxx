@@ -17,11 +17,22 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//include all MEDPARTITIONER Test
-#include "MEDPARTITIONERTest.hxx"
+#ifndef __MEDPARTITIONER_SCOTCHGRAPH_HXX__
+#define __MEDPARTITIONER_SCOTCHGRAPH_HXX__
 
-//Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDPARTITIONERTest );
+#include "MEDPARTITIONER.hxx"
 
-//generic Main program from KERNEL_SRC/src/Basics/Test
-#include "BasicMainTest.hxx"
+#include <string>
+
+namespace MEDPARTITIONER {
+  class SkyLineArray;
+  class MEDPARTITIONER_EXPORT SCOTCHGraph : public Graph
+  {
+  public:
+    SCOTCHGraph();
+    SCOTCHGraph(MEDPARTITIONER::SkyLineArray*, int* edgeweight=0);
+    virtual ~SCOTCHGraph();
+    void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
+  };
+}
+#endif

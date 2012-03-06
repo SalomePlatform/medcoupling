@@ -17,7 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-
 #include <sstream>
 #include <cmath>
 #include <list>
@@ -27,8 +26,6 @@
 
 //#include "MEDPARTITIONERTest.hxx"
 #include <cppunit/TestAssert.h>
-
-//#include "MEDMEM_STRING.hxx"
 
 #include "MEDPARTITIONERTest.hxx"
 
@@ -42,28 +39,19 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingMultiFields.hxx"
 
-#include "MEDPARTITIONER_MESHCollection.hxx"
-//#include "MEDPARTITIONER_Topology.hxx"
+#include "MEDPARTITIONER_MeshCollection.hxx"
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 
-#include "MEDPARTITIONER_utils.hxx"
+#include "MEDPARTITIONER_Utils.hxx"
 
 #ifdef HAVE_MPI2
 #include <mpi.h>
 #endif
 
 using namespace std;
-//using namespace MEDPARTITIONER;
 using namespace ParaMEDMEM;
 using namespace MEDPARTITIONER;
-
-/*string intToStr(int i)
-{
-  ostringstream oss;
-  oss<<i;
-  return oss.str();
-}*/
 
 void MEDPARTITIONERTest::setSize(int ni, int nj, int nk)
 {
@@ -71,10 +59,10 @@ void MEDPARTITIONERTest::setSize(int ni, int nj, int nk)
   this->_nj=nj;
   this->_nk=nk;
   this->_ntot=_ni*_nj*_nk;
-  string ijk=intToStr(ni)+"x"+intToStr(nj)+"x"+intToStr(nk);
+  string ijk=IntToStr(ni)+"x"+IntToStr(nj)+"x"+IntToStr(nk);
   this->_fileName="tmp_testMesh_"+ijk+".med";
   this->_fileNameWithFaces="tmp_testMeshWithFaces_"+ijk+".med";
-  string ij=intToStr(ni)+"x"+intToStr(nj);
+  string ij=IntToStr(ni)+"x"+IntToStr(nj);
   this->_fileName2="tmp_testMesh_"+ij+".med";
   this->_meshName="testMesh";
 }
@@ -102,7 +90,7 @@ void MEDPARTITIONERTest::setbigSize()
 // ============================================================================
 void MEDPARTITIONERTest::setUp()
 {
-  this->_verbose=0;
+  this->_verbose=100;
 }
 
 // ============================================================================
@@ -120,46 +108,46 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
   vector<int> conn;
   vector<double> coor;
   for (int k=0; k<=_nk; k++)
-  for (int j=0; j<=_nj; j++)
-  for (int i=0; i<=_ni; i++)
-  {
-    coor.push_back(i+.1);
-    coor.push_back(j+.2);
-    coor.push_back(k+.3);
-  }
+    for (int j=0; j<=_nj; j++)
+      for (int i=0; i<=_ni; i++)
+        {
+          coor.push_back(i+.1);
+          coor.push_back(j+.2);
+          coor.push_back(k+.3);
+        }
   int ii;
   for (int k=0; k<_nk; k++)
-  for (int j=0; j<_nj; j++)
-  for (int i=0; i<_ni; i++)
-  {
-    ii=i + j*(_ni+1) + k*(_ni+1)*(_nj+1);
-    conn.push_back(ii);
-    conn.push_back(ii+1);
-    ii=ii + _ni + 2 ;
-    conn.push_back(ii);
-    conn.push_back(ii-1);
+    for (int j=0; j<_nj; j++)
+      for (int i=0; i<_ni; i++)
+        {
+          ii=i + j*(_ni+1) + k*(_ni+1)*(_nj+1);
+          conn.push_back(ii);
+          conn.push_back(ii+1);
+          ii=ii + _ni + 2 ;
+          conn.push_back(ii);
+          conn.push_back(ii-1);
     
-    ii=i + j*(_ni+1) + (k+1)*(_ni+1)*(_nj+1);
-    conn.push_back(ii);
-    conn.push_back(ii+1);
-    ii=ii + _ni + 2 ;
-    conn.push_back(ii);
-    conn.push_back(ii-1);
-  }
+          ii=i + j*(_ni+1) + (k+1)*(_ni+1)*(_nj+1);
+          conn.push_back(ii);
+          conn.push_back(ii+1);
+          ii=ii + _ni + 2 ;
+          conn.push_back(ii);
+          conn.push_back(ii-1);
+        }
 
   if (false) //(_verbose)
-  {
-    cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*(_nk+1)*3<<" "<<coor.size()<<endl;
-    for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
-    cout<<endl;
-    cout<<"\nnb conn "<<(_ni)*(_nj)*(_nk)*8<<" "<<conn.size()<<endl;
-    for (int i=0; i<conn.size(); i=i+8)
-    { 
-      for (int j=0; j<8; j++) cout<<conn[i+j]<<" ";
+    {
+      cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*(_nk+1)*3<<" "<<coor.size()<<endl;
+      for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
+      cout<<endl;
+      cout<<"\nnb conn "<<(_ni)*(_nj)*(_nk)*8<<" "<<conn.size()<<endl;
+      for (int i=0; i<conn.size(); i=i+8)
+        { 
+          for (int j=0; j<8; j++) cout<<conn[i+j]<<" ";
+          cout<<endl;
+        }
       cout<<endl;
     }
-    cout<<endl;
-  }
   
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(3);
@@ -167,16 +155,16 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
   int nbv=coor.size()/3; //nb of vertices
   mesh->allocateCells(nbc);
   for(int i=0; i<nbc; i++)
-  {
-    int onehexa[8];
-    std::copy(conn.begin()+i*8,conn.begin()+(i+1)*8,onehexa);
-    if (false) //(_verbose)
     {
-      for (int j=0; j<8; j++) cout<<onehexa[j]<<" ";
-      cout<<endl;
+      int onehexa[8];
+      std::copy(conn.begin()+i*8,conn.begin()+(i+1)*8,onehexa);
+      if (false) //(_verbose)
+        {
+          for (int j=0; j<8; j++) cout<<onehexa[j]<<" ";
+          cout<<endl;
+        }
+      mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,onehexa);
     }
-    mesh->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,onehexa);
-  }
   mesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(nbv,3);
@@ -194,39 +182,39 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
   vector<int> conn;
   vector<double> coor;
   for (int j=0; j<=_nj; j++)
-  for (int i=0; i<=_ni; i++)
-  {
-    int k=j;
-    coor.push_back(i+.1);
-    coor.push_back(j+.2);
-    coor.push_back(k+.3);
-  }
+    for (int i=0; i<=_ni; i++)
+      {
+        int k=j;
+        coor.push_back(i+.1);
+        coor.push_back(j+.2);
+        coor.push_back(k+.3);
+      }
   int ii;
   int k=0;
   for (int j=0; j<_nj; j++)
-  for (int i=0; i<_ni; i++)
-  {
-    ii=i + j*(_ni+1) + k*(_ni+1)*(_nj+1);
-    conn.push_back(ii);
-    conn.push_back(ii+1);
-    ii=ii + _ni + 2 ;
-    conn.push_back(ii);
-    conn.push_back(ii-1);
-   }
+    for (int i=0; i<_ni; i++)
+      {
+        ii=i + j*(_ni+1) + k*(_ni+1)*(_nj+1);
+        conn.push_back(ii);
+        conn.push_back(ii+1);
+        ii=ii + _ni + 2 ;
+        conn.push_back(ii);
+        conn.push_back(ii-1);
+      }
 
   if (false) //(_verbose)
-  {
-    cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*3<<" "<<coor.size()<<endl;
-    for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
-    cout<<endl;
-    cout<<"\nnb conn "<<(_ni)*(_nj)*4<<" "<<conn.size()<<endl;
-    for (int i=0; i<conn.size(); i=i+4)
-    { 
-      for (int j=0; j<4; j++) cout<<conn[i+j]<<" ";
+    {
+      cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*3<<" "<<coor.size()<<endl;
+      for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
+      cout<<endl;
+      cout<<"\nnb conn "<<(_ni)*(_nj)*4<<" "<<conn.size()<<endl;
+      for (int i=0; i<conn.size(); i=i+4)
+        { 
+          for (int j=0; j<4; j++) cout<<conn[i+j]<<" ";
+          cout<<endl;
+        }
       cout<<endl;
     }
-    cout<<endl;
-  }
   
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
@@ -234,16 +222,16 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
   int nbv=coor.size()/3; //nb of vertices
   mesh->allocateCells(nbc);
   for(int i=0; i<nbc; i++)
-  {
-    int onequa[4];
-    std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
-    if (false) //(_verbose)
     {
-      for (int j=0; j<4; j++) cout<<onequa[j]<<" ";
-      cout<<endl;
+      int onequa[4];
+      std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
+      if (false) //(_verbose)
+        {
+          for (int j=0; j<4; j++) cout<<onequa[j]<<" ";
+          cout<<endl;
+        }
+      mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,onequa);
     }
-    mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,onequa);
-  }
   mesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(nbv,3);
@@ -261,39 +249,39 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildFACE3DMesh()
   vector<int> conn;
   vector<double> coor;
   for (int j=0; j<=_nj; j++)
-  for (int i=0; i<=_ni; i++)
-  {
-    int k=0;
-    coor.push_back(i+.1);
-    coor.push_back(j+.2);
-    coor.push_back(k+.3);
-  }
+    for (int i=0; i<=_ni; i++)
+      {
+        int k=0;
+        coor.push_back(i+.1);
+        coor.push_back(j+.2);
+        coor.push_back(k+.3);
+      }
   int ii;
   int k=0;
   for (int j=0; j<_nj; j++)
-  for (int i=0; i<_ni; i++)
-  {
-    ii=i + j*(_ni+1) + k*(_ni+1)*(_nj+1);
-    conn.push_back(ii);
-    conn.push_back(ii+1);
-    ii=ii + _ni + 2 ;
-    conn.push_back(ii);
-    conn.push_back(ii-1);
-   }
+    for (int i=0; i<_ni; i++)
+      {
+        ii=i + j*(_ni+1) + k*(_ni+1)*(_nj+1);
+        conn.push_back(ii);
+        conn.push_back(ii+1);
+        ii=ii + _ni + 2 ;
+        conn.push_back(ii);
+        conn.push_back(ii-1);
+      }
 
   if (false) //(_verbose)
-  {
-    cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*3<<" "<<coor.size()<<endl;
-    for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
-    cout<<endl;
-    cout<<"\nnb conn "<<(_ni)*(_nj)*4<<" "<<conn.size()<<endl;
-    for (int i=0; i<conn.size(); i=i+4)
-    { 
-      for (int j=0; j<4; j++) cout<<conn[i+j]<<" ";
+    {
+      cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*3<<" "<<coor.size()<<endl;
+      for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
+      cout<<endl;
+      cout<<"\nnb conn "<<(_ni)*(_nj)*4<<" "<<conn.size()<<endl;
+      for (int i=0; i<conn.size(); i=i+4)
+        { 
+          for (int j=0; j<4; j++) cout<<conn[i+j]<<" ";
+          cout<<endl;
+        }
       cout<<endl;
     }
-    cout<<endl;
-  }
   
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(2);
@@ -301,16 +289,16 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildFACE3DMesh()
   int nbv=coor.size()/3; //nb of vertices
   mesh->allocateCells(nbc);
   for(int i=0; i<nbc; i++)
-  {
-    int onequa[4];
-    std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
-    if (false) //(_verbose)
     {
-      for (int j=0; j<4; j++) cout<<onequa[j]<<" ";
-      cout<<endl;
+      int onequa[4];
+      std::copy(conn.begin()+i*4,conn.begin()+(i+1)*4,onequa);
+      if (false) //(_verbose)
+        {
+          for (int j=0; j<4; j++) cout<<onequa[j]<<" ";
+          cout<<endl;
+        }
+      mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,onequa);
     }
-    mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,onequa);
-  }
   mesh->finishInsertingCells();
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(nbv,3);
@@ -327,13 +315,13 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnCells(string myfileN
   //int ni=2,nj=3,nk=5; //nb of hexa9
   vector<double> field;
   for (int k=0; k<_nk; k++)
-  for (int j=0; j<_nj; j++)
-  for (int i=0; i<_ni; i++)
-  {
-    field.push_back(i+.1);
-    field.push_back(j+.2);
-    field.push_back(k+.3);
-  }
+    for (int j=0; j<_nj; j++)
+      for (int i=0; i<_ni; i++)
+        {
+          field.push_back(i+.1);
+          field.push_back(j+.2);
+          field.push_back(k+.3);
+        }
   //cvwat
   MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(myfileName.c_str(),_meshName.c_str(),0);
   int nbOfCells=mesh->getNumberOfCells();
@@ -360,13 +348,13 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnNodes()
   //int ni=2,nj=3,nk=5; //nb of hexa9
   vector<double> field;
   for (int k=0; k<=_nk; k++)
-  for (int j=0; j<=_nj; j++)
-  for (int i=0; i<=_ni; i++)
-  {
-    field.push_back(i+.1);
-    field.push_back(j+.2);
-    field.push_back(k+.3);
-  }
+    for (int j=0; j<=_nj; j++)
+      for (int i=0; i<=_ni; i++)
+        {
+          field.push_back(i+.1);
+          field.push_back(j+.2);
+          field.push_back(k+.3);
+        }
   
   MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(_fileName.c_str(),_meshName.c_str(),0);
   int nbOfNodes=mesh->getNumberOfNodes();
@@ -392,83 +380,83 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnNodes()
 void MEDPARTITIONERTest::createTestMeshWithoutField()
 {
   {
-  MEDCouplingUMesh * mesh = buildCUBE3DMesh();
-  MEDLoader::WriteUMesh(_fileName.c_str(),mesh,true);
-  if (_verbose) cout<<endl<<_fileName<<" created"<<endl;
-  if (_ntot<1000000) //too long
-  {
-    MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_fileName.c_str(),mesh->getName(),0);
-    if (_verbose) cout<<_fileName<<" reread"<<endl;
-    CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
-    mesh_rw->decrRef();
+    MEDCouplingUMesh * mesh = buildCUBE3DMesh();
+    MEDLoader::WriteUMesh(_fileName.c_str(),mesh,true);
+    if (_verbose) cout<<endl<<_fileName<<" created"<<endl;
+    if (_ntot<1000000) //too long
+      {
+        MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_fileName.c_str(),mesh->getName(),0);
+        if (_verbose) cout<<_fileName<<" reread"<<endl;
+        CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
+        mesh_rw->decrRef();
+      }
+    mesh->decrRef();
   }
-  mesh->decrRef();
-  }
   
   {
-  vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
-  MEDCouplingUMesh * mesh1 = buildCUBE3DMesh();
-  MEDCouplingUMesh * mesh2 = buildFACE3DMesh();
-  mesh1->setName("testMesh");
-  mesh2->setName("theFaces");
-  mesh2->tryToShareSameCoordsPermute(*mesh1, 1e-9);
-  mesh2->checkCoherency();
-  mesh1->checkCoherency();
-  meshes.push_back(mesh1);
-  meshes.push_back(mesh2);
-  MEDLoader::WriteUMeshes(_fileNameWithFaces.c_str(), meshes, true);
+    vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
+    MEDCouplingUMesh * mesh1 = buildCUBE3DMesh();
+    MEDCouplingUMesh * mesh2 = buildFACE3DMesh();
+    mesh1->setName("testMesh");
+    mesh2->setName("theFaces");
+    mesh2->tryToShareSameCoordsPermute(*mesh1, 1e-9);
+    mesh2->checkCoherency();
+    mesh1->checkCoherency();
+    meshes.push_back(mesh1);
+    meshes.push_back(mesh2);
+    MEDLoader::WriteUMeshes(_fileNameWithFaces.c_str(), meshes, true);
   
-  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(_fileNameWithFaces.c_str(), mesh1->getName());
-  DataArrayInt* FacesFam=DataArrayInt::New();
-  FacesFam->alloc(mfm->getSizeAtLevel(-1),1);
-  FacesFam->fillWithValue(-1);
-  DataArrayInt* CellsFam=DataArrayInt::New();
-  CellsFam->alloc(mfm->getSizeAtLevel(0),1);
-  CellsFam->fillWithValue(1);
-  mfm->setFamilyFieldArr(-1,FacesFam);
-  mfm->setFamilyFieldArr(0,CellsFam);
-  map<string,int> theFamilies;
-  theFamilies["FAMILLE_ZERO"]=0;
-  theFamilies["FamilyFaces"]=-1;
-  theFamilies["FamilyCells"]=1;
-  map<string, vector<string> > theGroups;
-  theGroups["GroupFaces"].push_back("FamilyFaces");
-  theGroups["GroupCells"].push_back("FamilyCells");
-  mfm->setFamilyInfo(theFamilies);
-  mfm->setGroupInfo(theGroups);
-  mfm->write(_fileNameWithFaces.c_str(),0);
-  FacesFam->decrRef();
-  CellsFam->decrRef();
+    ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(_fileNameWithFaces.c_str(), mesh1->getName());
+    DataArrayInt* FacesFam=DataArrayInt::New();
+    FacesFam->alloc(mfm->getSizeAtLevel(-1),1);
+    FacesFam->fillWithValue(-1);
+    DataArrayInt* CellsFam=DataArrayInt::New();
+    CellsFam->alloc(mfm->getSizeAtLevel(0),1);
+    CellsFam->fillWithValue(1);
+    mfm->setFamilyFieldArr(-1,FacesFam);
+    mfm->setFamilyFieldArr(0,CellsFam);
+    map<string,int> theFamilies;
+    theFamilies["FAMILLE_ZERO"]=0;
+    theFamilies["FamilyFaces"]=-1;
+    theFamilies["FamilyCells"]=1;
+    map<string, vector<string> > theGroups;
+    theGroups["GroupFaces"].push_back("FamilyFaces");
+    theGroups["GroupCells"].push_back("FamilyCells");
+    mfm->setFamilyInfo(theFamilies);
+    mfm->setGroupInfo(theGroups);
+    mfm->write(_fileNameWithFaces.c_str(),0);
+    FacesFam->decrRef();
+    CellsFam->decrRef();
   
-  /*ce truc marche pas!
-  ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(_fileNameWithFaces.c_str(), mesh1->getName());
-  vector<const ParaMEDMEM::MEDCouplingUMesh*> ms;
-  ms.push_back(mesh2);
-  mfm->setGroupsFromScratch(-1, ms);
-  mfm->write(_fileNameWithFaces.c_str(),0);
-  */
+    /*ce truc marche pas!
+      ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(_fileNameWithFaces.c_str(), mesh1->getName());
+      vector<const ParaMEDMEM::MEDCouplingUMesh*> ms;
+      ms.push_back(mesh2);
+      mfm->setGroupsFromScratch(-1, ms);
+      mfm->write(_fileNameWithFaces.c_str(),0);
+    */
   
-  if (_verbose) cout<<endl<<_fileNameWithFaces<<" created"<<endl;
-  if (_ntot<1000000) //too long
-  {
-    MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_fileNameWithFaces.c_str(),mesh1->getName(),0);
-    if (_verbose) cout<<_fileNameWithFaces<<" reread"<<endl;
-    CPPUNIT_ASSERT(mesh1->isEqual(mesh_rw,1e-12));
-    mesh_rw->decrRef();
-  }
-  mesh1->decrRef();
-  mesh2->decrRef();
+    if (_verbose) cout<<endl<<_fileNameWithFaces<<" created"<<endl;
+    if (_ntot<1000000) //too long
+      {
+        MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_fileNameWithFaces.c_str(),mesh1->getName(),0);
+        if (_verbose) cout<<_fileNameWithFaces<<" reread"<<endl;
+        CPPUNIT_ASSERT(mesh1->isEqual(mesh_rw,1e-12));
+        mesh_rw->decrRef();
+      }
+    mesh1->decrRef();
+    mesh2->decrRef();
   }
    
   {
-  MEDCouplingUMesh * mesh = buildCARRE3DMesh();
-  MEDLoader::WriteUMesh(_fileName2.c_str(),mesh,true);
-  if (_verbose) cout<<endl<<_fileName2<<" created"<<endl;
-  MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_fileName2.c_str(),mesh->getName(),0);
-  if (_verbose) cout<<_fileName2<<" reread"<<endl;
-  CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
-  mesh_rw->decrRef();
-  mesh->decrRef();
+    MEDCouplingUMesh * mesh = buildCARRE3DMesh();
+    MEDLoader::WriteUMesh(_fileName2.c_str(),mesh,true);
+    if (_verbose) cout<<endl<<_fileName2<<" created"<<endl;
+    MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_fileName2.c_str(),mesh->getName(),0);
+    if (_verbose) cout<<_fileName2<<" reread"<<endl;
+    CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
+    mesh_rw->decrRef();
+    mesh->decrRef();
   }
 }
 
@@ -524,44 +512,44 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
   
   double dz=0.;
   for (int z=0; z<nbz; z++)
-  {
-    double dy=0.;
-    for (int y=0; y<nby; y++)
     {
-      double dx=0.;
-      for (int x=0; x<nbx; x++)
-      {
-        string fileName;
-        sxyz=intToStr(xyz);
-        fileName="tmp_testMeshHuge_"+intToStr(_ni)+"x"+intToStr(_nj)+"x"+intToStr(_nk)+"_"+sxyz+".med";
-        
-        DataArrayDouble* coords=mesh->getCoords();
-        //int nbOfComp=coords->getNumberOfComponents();  //be 3D
-        int nbOfTuple=coords->getNumberOfTuples();
-        double* ptr=coords->getPointer();
-        double* ptrini=ptrInit;
-        for (int i=0; i<nbOfTuple; i++)
+      double dy=0.;
+      for (int y=0; y<nby; y++)
         {
-          *ptr=(*ptrini)+dx; ptr++; ptrini++; //be 3D
-          *ptr=(*ptrini)+dy; ptr++; ptrini++;
-          *ptr=(*ptrini)+dz; ptr++; ptrini++;
-        }
+          double dx=0.;
+          for (int x=0; x<nbx; x++)
+            {
+              string fileName;
+              sxyz=IntToStr(xyz);
+              fileName="tmp_testMeshHuge_"+IntToStr(_ni)+"x"+IntToStr(_nj)+"x"+IntToStr(_nk)+"_"+sxyz+".med";
+        
+              DataArrayDouble* coords=mesh->getCoords();
+              //int nbOfComp=coords->getNumberOfComponents();  //be 3D
+              int nbOfTuple=coords->getNumberOfTuples();
+              double* ptr=coords->getPointer();
+              double* ptrini=ptrInit;
+              for (int i=0; i<nbOfTuple; i++)
+                {
+                  *ptr=(*ptrini)+dx; ptr++; ptrini++; //be 3D
+                  *ptr=(*ptrini)+dy; ptr++; ptrini++;
+                  *ptr=(*ptrini)+dz; ptr++; ptrini++;
+                }
 
-        MEDLoader::WriteUMesh(fileName.c_str(),mesh,true);
+              MEDLoader::WriteUMesh(fileName.c_str(),mesh,true);
         
-        tagSubfiles+=tagSubfile;
-        tagSubfiles.replace(tagSubfiles.find("$xyz"),4,sxyz);
-        tagSubfiles.replace(tagSubfiles.find("$fileName"),9,fileName);
+              tagSubfiles+=tagSubfile;
+              tagSubfiles.replace(tagSubfiles.find("$xyz"),4,sxyz);
+              tagSubfiles.replace(tagSubfiles.find("$fileName"),9,fileName);
         
-        tagMeshes+=tagMesh;
-        tagMeshes.replace(tagMeshes.find("$xyz"),4,sxyz);
-        xyz++;
-        dx+=deltax;
-      }
-      dy+=deltay;
+              tagMeshes+=tagMesh;
+              tagMeshes.replace(tagMeshes.find("$xyz"),4,sxyz);
+              xyz++;
+              dx+=deltax;
+            }
+          dy+=deltay;
+        }
+      dz+=deltaz;
     }
-    dz+=deltaz;
-  }
   coordsInit->decrRef();
   
   tagXml.replace(tagXml.find("$subdomainNumber"),16,sxyz);
@@ -569,7 +557,7 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
   tagXml.replace(tagXml.find("$tagMesh"),8,tagMeshes);
 
   string nameFileXml;
-  _fileNameHugeXml="tmp_testMeshHuge_"+intToStr(_ni)+"x"+intToStr(_nj)+"x"+intToStr(_nk)+"_"+sxyz+".xml";
+  _fileNameHugeXml="tmp_testMeshHuge_"+IntToStr(_ni)+"x"+IntToStr(_nj)+"x"+IntToStr(_nk)+"_"+sxyz+".xml";
   std::ofstream f(_fileNameHugeXml.c_str());
   f<<tagXml;
   f.close();
@@ -581,95 +569,95 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
 void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
 {
   {
-  string name=_fileName;
-  MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
-  name.replace(name.find(".med"),4,"_WithVecFieldOnCells.med");
-  MEDLoader::WriteField(name.c_str(),f1,true);
-  f1->setTime(3.,1,1);  //time,it,order
-  f1->applyFunc("x/2.");
-  MEDLoader::WriteField(name.c_str(),f1,false);
-  if (_verbose) cout<<endl<<name<<" created"<<endl;
-  if (_ntot<1000000) //too long
-  {
-     MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name.c_str(),f1->getMesh()->getName(),0,f1->getName(),0,1);
-    //DataArrayDouble *res=f2->getArray();
-    if (_verbose) cout<<name<<" reread"<<endl;
-    //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
-    f2->decrRef();
-  }
-  f1->decrRef();
-  }
-  {
-  string name=_fileName;
-  MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
-  name.replace(name.find(".med"),4,"_WithVecFieldOnGaussNe.med");
-  MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
-  f3->setMesh(f1->getMesh());
-  //cout<<"\nNumberOfMeshPlacesExpected "<<f3->getNumberOfMeshPlacesExpected()<<" "
-  //                                     /*<<getNumberOfTuples(f1->getMesh())<<" "*/
-  //                                     <<f3->getMesh()->getNumberOfNodes()<<" "
-  //                                     <<f3->getMesh()->getNumberOfCells()<<endl;
-  f3->setName("MyFieldOnGaussNE");
-  f3->setDescription("MyDescriptionNE");
-  DataArrayDouble *array=DataArrayDouble::New();
-  //int nb=f1->getMesh()->getNumberOfNodes();
-  
-  /*8 pt de gauss by cell
-  int nb=f3->getMesh()->getNumberOfCells()*8;
-  array->alloc(nb,2);
-  double *ptr=array->getPointer();
-  for (int i=0; i<nb*2; i=i+2) {ptr[i]=(double)(i/8) ; ptr[i]=2.*(double)(i/8);}
-  */
-  
-  //more nbptgauss=8 by default needs set MEDCouplingFieldDiscretizationPerCell
-  //theory: (may be) http://www.code-aster.org/V2/doc/v9/fr/man_r/r3/r3.06.03.pdf
-  int nbptgauss=8; //nb pt de gauss by cell 
-  int nbcell=f3->getMesh()->getNumberOfCells();
-  int nb=nbcell*nbptgauss;
-  int nbcomp=2;
-  array->alloc(nb,nbcomp);
-  double *ptr=array->getPointer();
-  int ii=0;
-  for (int i=0; i<nbcell; i++)
-    for (int j=0; j<nbptgauss; j++)
-      for (int k=0; k<nbcomp; k++)
+    string name=_fileName;
+    MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
+    name.replace(name.find(".med"),4,"_WithVecFieldOnCells.med");
+    MEDLoader::WriteField(name.c_str(),f1,true);
+    f1->setTime(3.,1,1);  //time,it,order
+    f1->applyFunc("x/2.");
+    MEDLoader::WriteField(name.c_str(),f1,false);
+    if (_verbose) cout<<endl<<name<<" created"<<endl;
+    if (_ntot<1000000) //too long
       {
-        //123.4 for 12th cell,3rd component, 4th gausspoint
-        ptr[ii]=(double)((i+1)*10+(k+1))+((double)(j+1))/10.;
-        ii++;
+        MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name.c_str(),f1->getMesh()->getName(),0,f1->getName(),0,1);
+        //DataArrayDouble *res=f2->getArray();
+        if (_verbose) cout<<name<<" reread"<<endl;
+        //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12));
+        f2->decrRef();
       }
-  array->setInfoOnComponent(0,"vGx");
-  array->setInfoOnComponent(1,"vGy");
-  f3->setTime(4.,5,6);
-  f3->setArray(array);
-  array->decrRef();
-  MEDLoader::WriteField(name.c_str(),f3,true);
-  if (_verbose) cout<<endl<<name<<" created"<<endl;
-  f3->checkCoherency();
-  f1->decrRef();
-  if (_ntot<1000000) //too long
-  {
-    MEDCouplingFieldDouble* f4=MEDLoader::ReadField(ON_GAUSS_NE,
-           name.c_str(), f3->getMesh()->getName(), 0, "MyFieldOnGaussNE", 5, 6);
-    if (_verbose) cout<<"MyFieldOnGaussNE reread"<<endl;
-    f4->decrRef();
-  }
-  f3->decrRef();
+    f1->decrRef();
   }
   {
-  string name=_fileNameWithFaces;
-  MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
-  name.replace(name.find(".med"),4,"_WithVecFieldOnCells.med");
-  MEDLoader::WriteField(name.c_str(),f1,true);
-  if (_verbose) cout<<endl<<name<<" created"<<endl;
-  if (_ntot<1000000) //too long
-  {
-    MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name.c_str(),f1->getMesh()->getName(),0,f1->getName(),0,1);
-    if (_verbose) cout<<name<<" reread"<<endl;
-    //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
-    f2->decrRef();
+    string name=_fileName;
+    MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
+    name.replace(name.find(".med"),4,"_WithVecFieldOnGaussNe.med");
+    MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
+    f3->setMesh(f1->getMesh());
+    //cout<<"\nNumberOfMeshPlacesExpected "<<f3->getNumberOfMeshPlacesExpected()<<" "
+    //                                     /*<<getNumberOfTuples(f1->getMesh())<<" "*/
+    //                                     <<f3->getMesh()->getNumberOfNodes()<<" "
+    //                                     <<f3->getMesh()->getNumberOfCells()<<endl;
+    f3->setName("MyFieldOnGaussNE");
+    f3->setDescription("MyDescriptionNE");
+    DataArrayDouble *array=DataArrayDouble::New();
+    //int nb=f1->getMesh()->getNumberOfNodes();
+  
+    /*8 pt de gauss by cell
+      int nb=f3->getMesh()->getNumberOfCells()*8;
+      array->alloc(nb,2);
+      double *ptr=array->getPointer();
+      for (int i=0; i<nb*2; i=i+2) {ptr[i]=(double)(i/8) ; ptr[i]=2.*(double)(i/8);}
+    */
+  
+    //more nbptgauss=8 by default needs set MEDCouplingFieldDiscretizationPerCell
+    //theory: (may be) http://www.code-aster.org/V2/doc/v9/fr/man_r/r3/r3.06.03.pdf
+    int nbptgauss=8; //nb pt de gauss by cell 
+    int nbcell=f3->getMesh()->getNumberOfCells();
+    int nb=nbcell*nbptgauss;
+    int nbcomp=2;
+    array->alloc(nb,nbcomp);
+    double *ptr=array->getPointer();
+    int ii=0;
+    for (int i=0; i<nbcell; i++)
+      for (int j=0; j<nbptgauss; j++)
+        for (int k=0; k<nbcomp; k++)
+          {
+            //123.4 for 12th cell,3rd component, 4th gausspoint
+            ptr[ii]=(double)((i+1)*10+(k+1))+((double)(j+1))/10.;
+            ii++;
+          }
+    array->setInfoOnComponent(0,"vGx");
+    array->setInfoOnComponent(1,"vGy");
+    f3->setTime(4.,5,6);
+    f3->setArray(array);
+    array->decrRef();
+    MEDLoader::WriteField(name.c_str(),f3,true);
+    if (_verbose) cout<<endl<<name<<" created"<<endl;
+    f3->checkCoherency();
+    f1->decrRef();
+    if (_ntot<1000000) //too long
+      {
+        MEDCouplingFieldDouble* f4=MEDLoader::ReadField(ON_GAUSS_NE,
+                                                        name.c_str(), f3->getMesh()->getName(), 0, "MyFieldOnGaussNE", 5, 6);
+        if (_verbose) cout<<"MyFieldOnGaussNE reread"<<endl;
+        f4->decrRef();
+      }
+    f3->decrRef();
   }
-  f1->decrRef();
+  {
+    string name=_fileNameWithFaces;
+    MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
+    name.replace(name.find(".med"),4,"_WithVecFieldOnCells.med");
+    MEDLoader::WriteField(name.c_str(),f1,true);
+    if (_verbose) cout<<endl<<name<<" created"<<endl;
+    if (_ntot<1000000) //too long
+      {
+        MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldCell(name.c_str(),f1->getMesh()->getName(),0,f1->getName(),0,1);
+        if (_verbose) cout<<name<<" reread"<<endl;
+        //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
+        f2->decrRef();
+      }
+    f1->decrRef();
   }
 }
 
@@ -681,12 +669,12 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnNodes()
   MEDLoader::WriteField(name.c_str(),f1,true);
   if (_verbose) cout<<endl<<name<<" created"<<endl;
   if (_ntot<1000000) //too long
-  {
-    MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldNode(name.c_str(),f1->getMesh()->getName(),0,f1->getName(),0,1);
-    if (_verbose) cout<<name<<" reread"<<endl;
-    //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
-    f2->decrRef();
-  }
+    {
+      MEDCouplingFieldDouble *f2=MEDLoader::ReadFieldNode(name.c_str(),f1->getMesh()->getName(),0,f1->getName(),0,1);
+      if (_verbose) cout<<name<<" reread"<<endl;
+      //CPPUNIT_ASSERT(f1->isEqual(f2,1e-12,1e-12)); assertion failed!!
+      f2->decrRef();
+    }
   f1->decrRef();
 }
 
@@ -697,16 +685,16 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
   MEDCouplingUMesh * m=MEDLoader::ReadUMeshFromFile(name.c_str(),_meshName.c_str(),0);
   const std::set<INTERP_KERNEL::NormalizedCellType>& types=m->getAllTypes();
   if (_verbose)
-  {
-    cout<<"\n types in "<<name<<" : ";
-    //for (std::set<INTERP_KERNEL::NormalizedCellType>::iterator t=types.begin(); t!=types.end(); ++t) cout<<" "<<*t;
-    for (std::set<INTERP_KERNEL::NormalizedCellType>::iterator t=types.begin(); t!=types.end(); ++t) 
     {
-      //INTERP_KERNEL::CellModel essai=INTERP_KERNEL::CellModel::GetCellModel(*t);
-      cout<<" "<<(INTERP_KERNEL::CellModel::GetCellModel(*t)).getRepr();
+      cout<<"\n types in "<<name<<" : ";
+      //for (std::set<INTERP_KERNEL::NormalizedCellType>::iterator t=types.begin(); t!=types.end(); ++t) cout<<" "<<*t;
+      for (std::set<INTERP_KERNEL::NormalizedCellType>::iterator t=types.begin(); t!=types.end(); ++t) 
+        {
+          //INTERP_KERNEL::CellModel essai=INTERP_KERNEL::CellModel::GetCellModel(*t);
+          cout<<" "<<(INTERP_KERNEL::CellModel::GetCellModel(*t)).getRepr();
+        }
+      cout<<endl;
     }
-    cout<<endl;
-  }
   m->decrRef();
   
   MEDFileUMesh * mf;
@@ -714,11 +702,11 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
   vector<int> lev;
   lev=mf->getNonEmptyLevels();
   if (_verbose)
-  {
-    cout<<" levels in "<<name<<" : ";
-    for (vector<int>::iterator l=lev.begin(); l!=lev.end(); ++l) cout<<" "<<*l;
-    cout<<endl;
-  }
+    {
+      cout<<" levels in "<<name<<" : ";
+      for (vector<int>::iterator l=lev.begin(); l!=lev.end(); ++l) cout<<" "<<*l;
+      cout<<endl;
+    }
   mf->decrRef();
 }
 
@@ -738,18 +726,18 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   sourceName=fileName;
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
   input=targetName+".xml";
   
   MPI_Init(0,0);
-  MPI_Comm_size(MPI_COMM_WORLD, &MyGlobals::_world_size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &MyGlobals::_rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &MyGlobals::_World_Size);
+  MPI_Comm_rank(MPI_COMM_WORLD, &MyGlobals::_Rank);
 
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
-  MEDPARTITIONER::MESHCollection collection(input,parallelizer); //cvwat01
+  MEDPARTITIONER::MeshCollection collection(input,parallelizer); //cvwat01
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
   std::vector<ParaMEDMEM::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
@@ -768,7 +756,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   sourceName=targetName+".xml";
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -782,13 +770,13 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), refusedFaceMesh->getNumberOfCells());
   
   /*not the good job
-  ParaMEDMEM::MEDCouplingMesh* mergeCell=cellMesh->mergeMyselfWith(refusedCellMesh);
-  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), mergeCell->getNumberOfCells());
+    ParaMEDMEM::MEDCouplingMesh* mergeCell=cellMesh->mergeMyselfWith(refusedCellMesh);
+    CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), mergeCell->getNumberOfCells());
   
-  ParaMEDMEM::MEDCouplingMesh* mergeFace=faceMesh->mergeMyselfWith(refusedFaceMesh);
-  CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), mergeFace->getNumberOfCells());
+    ParaMEDMEM::MEDCouplingMesh* mergeFace=faceMesh->mergeMyselfWith(refusedFaceMesh);
+    CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), mergeFace->getNumberOfCells());
   
-  CPPUNIT_ASSERT(faceMesh->isEqual(refusedFaceMesh,1e-12));
+    CPPUNIT_ASSERT(faceMesh->isEqual(refusedFaceMesh,1e-12));
   */
   
   std::vector<const MEDCouplingUMesh *> meshes;
@@ -836,7 +824,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   sourceName=fileName;
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -847,7 +835,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   sourceName=targetName+".xml";
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -875,27 +863,27 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();
   if (_verbose) 
-  {
-    cout<<"\nf1 : "<<f1->reprZip();
-    cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
-    for (int i = 0; i < corr.size(); i++) cout<<"\ncorr "<<i<<" : "<<corr[i]->reprZip();
+    {
+      cout<<"\nf1 : "<<f1->reprZip();
+      cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
+      for (int i = 0; i < corr.size(); i++) cout<<"\ncorr "<<i<<" : "<<corr[i]->reprZip();
     
-  }
+    }
   int nbequal=0;
   int nbcomp=field1->getNumberOfComponents();
   double* p1=f1->getPointer();
   double* p2=f2->getPointer();
   int* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
-  {
-    int i1=pc[i]*nbcomp;
-    int i2=i*nbcomp;
-    for (int j = 0; j < nbcomp; j++)
     {
-      if (p1[i1+j]==p2[i2+j]) nbequal++;
-      //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
+      int i1=pc[i]*nbcomp;
+      int i2=i*nbcomp;
+      for (int j = 0; j < nbcomp; j++)
+        {
+          if (p1[i1+j]==p2[i2+j]) nbequal++;
+          //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
+        }
     }
-  }
   CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp, nbequal);
   
   for (int i = 0; i < corr.size(); i++) corr[i]->decrRef();
@@ -922,7 +910,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   sourceName=fileName;
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -933,7 +921,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   sourceName=targetName+".xml";
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -961,12 +949,12 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   DataArrayDouble* f1=field1->getArray();
   DataArrayDouble* f2=field2->getArray();
   if (_verbose) 
-  {
-    cout<<"\nf1 : "<<f1->reprZip(); //123.4 for 12th cell,3rd component, 4th gausspoint
-    cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
-    for (int i = 0; i < corr.size(); i++) cout<<"\ncorr "<<i<<" : "<<corr[i]->reprZip();
+    {
+      cout<<"\nf1 : "<<f1->reprZip(); //123.4 for 12th cell,3rd component, 4th gausspoint
+      cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
+      for (int i = 0; i < corr.size(); i++) cout<<"\ncorr "<<i<<" : "<<corr[i]->reprZip();
     
-  }
+    }
   int nbequal=0;
   int nbptgauss=8;
   int nbcomp=field1->getNumberOfComponents();
@@ -974,15 +962,15 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   double* p2=f2->getPointer();
   int* pc=corr[1]->getPointer();
   for (int i = 0; i < nbcells; i++)
-  {
-    int i1=pc[i]*nbcomp*nbptgauss;
-    int i2=i*nbcomp*nbptgauss;
-    for (int j = 0; j < nbcomp*nbptgauss; j++)
     {
-      if (p1[i1+j]==p2[i2+j]) nbequal++;
-      //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
+      int i1=pc[i]*nbcomp*nbptgauss;
+      int i2=i*nbcomp*nbptgauss;
+      for (int j = 0; j < nbcomp*nbptgauss; j++)
+        {
+          if (p1[i1+j]==p2[i2+j]) nbequal++;
+          //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
+        }
     }
-  }
   CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp*nbptgauss, nbequal);
   
   for (int i = 0; i < corr.size(); i++) corr[i]->decrRef();
@@ -1012,13 +1000,13 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
 {
   
   /* examples 
-  export INFI=/home/vb144235/resources/blade.med
-  //no need export MESH=Fuse_1
-  export INFI=tmp_testMeshxxx.med
-  //no need export MESH=testMesh
-  mpirun -np 2 medpartitioner_para --input-file=$INFI --output-file=ttmp1_ --ndomains=4
-  mpirun -np 5 medpartitioner_para --input-file=ttmp1_.xml --output-file=ttmp2_ --ndomains=5
-  mpirun -np 2 valgrind  medpartitioner_para --input-file=tmp_testMesh_20x30x50.med  --output-file=ttmp1petit_ --ndomains=4  --dump-cpu-memory --verbose=111
+     export INFI=/home/vb144235/resources/blade.med
+     //no need export MESH=Fuse_1
+     export INFI=tmp_testMeshxxx.med
+     //no need export MESH=testMesh
+     mpirun -np 2 medpartitioner_para --input-file=$INFI --output-file=ttmp1_ --ndomains=4
+     mpirun -np 5 medpartitioner_para --input-file=ttmp1_.xml --output-file=ttmp2_ --ndomains=5
+     mpirun -np 2 valgrind  medpartitioner_para --input-file=tmp_testMesh_20x30x50.med  --output-file=ttmp1petit_ --ndomains=4  --dump-cpu-memory --verbose=111
   */
   int res;
   string cmd,execName,sourceName,targetName;
@@ -1037,7 +1025,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   sourceName=_fileName;
   targetName=_fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo2_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -1046,7 +1034,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   sourceName=_fileName;
   targetName=_fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -1055,7 +1043,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   sourceName=targetName+".xml";
   targetName=_fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -1064,7 +1052,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   //sourceName=targetName+".xml";
   targetName=_fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
@@ -1077,13 +1065,13 @@ void MEDPARTITIONERTest::launchMedpartitionerOnHugeTestMeshes()
   execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
   execName+="/bin/salome/medpartitioner_para";
 
-  string snbTarget=intToStr(_nbTargetHuge);
+  string snbTarget=IntToStr(_nbTargetHuge);
   cmd="mpirun -np "+snbTarget+" "+execName+" --ndomains="+snbTarget+" --split-method=metis";  //on same proc
   sourceName=_fileNameHugeXml;
   targetName=_fileNameHugeXml;
   string tmp="_partitionedTo"+snbTarget+"_";
   targetName.replace(targetName.find(".xml"),4,tmp);
-  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+intToStr(_verbose);
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);

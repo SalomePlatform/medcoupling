@@ -1,28 +1,31 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
+#include "MEDPARTITIONER_Graph.hxx"
+#include "MEDPARTITIONER_ScotchGraph.hxx"
+
 #include <cstdio>
+
 extern "C" {
 #define restrict
 #include "scotch.h"
 }
-#include "MEDPARTITIONER_Graph.hxx"
-#include "MEDPARTITIONER_SCOTCHGraph.hxx"
 
 using namespace MEDPARTITIONER;
   
@@ -30,7 +33,7 @@ SCOTCHGraph::SCOTCHGraph():Graph()
 {
 }
 
-SCOTCHGraph::SCOTCHGraph(MEDPARTITIONER::MEDSKYLINEARRAY* graph, int* edgeweight):Graph(graph,edgeweight)
+SCOTCHGraph::SCOTCHGraph(MEDPARTITIONER::SkyLineArray* graph, int* edgeweight):Graph(graph,edgeweight)
 {
 }
 
@@ -87,19 +90,19 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   SCOTCH_stratExit(&scotch_strategy);
   SCOTCH_graphExit(&scotch_graph);
 
-    std::vector<int> index(n+1);
+  std::vector<int> index(n+1);
   std::vector<int> value(n);
   index[0]=0;
   for (int i=0; i<n; i++)
-  {
-    index[i+1]=index[i]+1;
-    value[i]=partition[i];
-  }
+    {
+      index[i+1]=index[i]+1;
+      value[i]=partition[i];
+    }
 
   //creating a skylinearray with no copy of the index and partition array
   // the fifth argument true specifies that only the pointers are passed 
   //to the object
   
-  _partition = new MEDPARTITIONER::MEDSKYLINEARRAY(index,value);
+  _partition = new MEDPARTITIONER::SkyLineArray(index,value);
 
 }
