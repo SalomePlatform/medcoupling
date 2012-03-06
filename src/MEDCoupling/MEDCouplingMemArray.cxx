@@ -4875,7 +4875,7 @@ void DataArrayInt::finishUnserialization(const std::vector<int>& tinyInfoI, cons
     }
 }
 
-DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):_da(da),_tuple_id(0),_nb_comp(0),_nb_tuple(0),_pt(0)
+DataArrayIntIterator::DataArrayIntIterator(DataArrayInt *da):_da(da),_pt(0),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
 {
   if(_da)
     {
