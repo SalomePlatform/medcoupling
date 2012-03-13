@@ -69,9 +69,9 @@ void METISGraph::partGraph(int ndomain,
   int * xadj=const_cast<int*>(_graph->getIndex());
   int * adjncy=const_cast<int*>(_graph->getValue());
   //constraints
-  int * vwgt=_cellweight;
-  int * adjwgt=_edgeweight;
-  int wgtflag=(_edgeweight!=0)?1:0+(_cellweight!=0)?2:0;
+  int * vwgt=_cell_weight;
+  int * adjwgt=_edge_weight;
+  int wgtflag=(_edge_weight!=0)?1:0+(_cell_weight!=0)?2:0;
   //base 0 or 1
   int base=0;
   //ndomain

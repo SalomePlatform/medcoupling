@@ -19,29 +19,12 @@
 
 #include "MEDPARTITIONER_Graph.hxx"
 
-using namespace MEDPARTITIONER;
-
-Graph::Graph(MEDPARTITIONER::SkyLineArray* array, int* edgeweight):_graph(array),_partition(0),_edgeweight(edgeweight),_cellweight(0)
+MEDPARTITIONER::Graph::Graph(MEDPARTITIONER::SkyLineArray *array, int *edgeweight):_graph(array),_partition(0),_edge_weight(edgeweight),_cell_weight(0)
 {
 }
 
-//================================================================================
-/*!
- * \brief Destructor
- */
-//================================================================================
-
-Graph::~Graph()
+MEDPARTITIONER::Graph::~Graph()
 {
-  if (_partition)
-    {
-      delete _partition;
-      _partition=0;
-    }
-  if (_graph)
-    {
-      delete _graph;
-      _graph=0;
-    }
+  delete _partition;
+  delete _graph;
 }
-

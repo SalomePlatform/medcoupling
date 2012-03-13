@@ -70,11 +70,11 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
                     n, // nb of graph nodes
                     xadj,
                     0,
-                    _cellweight, //graph vertices loads
+                    _cell_weight, //graph vertices loads
                     0,
                     xadj[n], // number of edges
                     adjncy,
-                    _edgeweight);
+                    _edge_weight);
 
   SCOTCH_Strat scotch_strategy;           
   SCOTCH_stratInit(&scotch_strategy);

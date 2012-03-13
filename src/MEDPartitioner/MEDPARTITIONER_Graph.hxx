@@ -33,32 +33,30 @@ namespace MEDPARTITIONER
   public:
     typedef enum {METIS,SCOTCH} splitter_type;
 
-    Graph()
-    {
-    }
+    Graph() { }
     //creates a graph from a SKYLINEARRAY
     Graph(MEDPARTITIONER::SkyLineArray* graph, int* edgeweight=0);
     virtual ~Graph();
 
-    void setEdgesWeights(int* edgeweight){_edgeweight=edgeweight;}
-    void setVerticesWeights(int* cellweight){_cellweight=cellweight;}
+    void setEdgesWeights(int *edgeweight) { _edge_weight=edgeweight; }
+    void setVerticesWeights(int *cellweight) { _cell_weight=cellweight; }
     
     //computes partitioning of the graph
-    virtual void partGraph(int ndomain, const std::string&, ParaDomainSelector* sel=0) = 0;
+    virtual void partGraph(int ndomain, const std::string&, ParaDomainSelector *sel=0) = 0;
     
     //returns the partitioning
-    const int* getPart() const {return _partition->getValue();}
+    const int *getPart() const { return _partition->getValue(); }
     
     //returns the number of graph vertices (which can correspond to the cells in the mesh!)
-    int nbVertices() const {return _graph->getNumberOf();}
+    int nbVertices() const { return _graph->getNumberOf(); }
     
-    const MEDPARTITIONER::SkyLineArray* getGraph() const {return _graph;}
+    const SkyLineArray *getGraph() const { return _graph; }
 
   protected:
-    MEDPARTITIONER::SkyLineArray* _graph;
-    MEDPARTITIONER::SkyLineArray* _partition;
-    int* _edgeweight;  
-    int* _cellweight;
+    SkyLineArray* _graph;
+    SkyLineArray* _partition;
+    int* _edge_weight;  
+    int* _cell_weight;
   };
 }
 #endif
