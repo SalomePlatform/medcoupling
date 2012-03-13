@@ -31,20 +31,6 @@ namespace MEDPARTITIONER
 {
   class MEDPARTITIONER_EXPORT ConnectZone
   {
-  private :
-    std::string _name;
-    std::string _description;
-    int _localDomainNumber;
-    int _distantDomainNumber;
-
-    ParaMEDMEM::MEDCouplingUMesh * _localMesh;
-    ParaMEDMEM::MEDCouplingUMesh * _distantMesh;
-
-    MEDPARTITIONER::SkyLineArray * _nodeCorresp;
-    MEDPARTITIONER::SkyLineArray * _faceCorresp;
-  
-    std::map < std::pair <int,int>, MEDPARTITIONER::SkyLineArray * > _entityCorresp;
-
   public :
     ConnectZone();
     ~ConnectZone();
@@ -54,26 +40,26 @@ namespace MEDPARTITIONER
     std::string getDescription() const ;
     int getDistantDomainNumber() const ;
     int getLocalDomainNumber() const ;
-    ParaMEDMEM::MEDCouplingUMesh * getLocalMesh() const ;
-    ParaMEDMEM::MEDCouplingUMesh * getDistantMesh() const ;
+    ParaMEDMEM::MEDCouplingUMesh *getLocalMesh() const ;
+    ParaMEDMEM::MEDCouplingUMesh *getDistantMesh() const ;
 
     bool isEntityCorrespPresent(int localEntity,int distantEntity) const;
-    const int * getNodeCorrespIndex() const;
-    const int * getNodeCorrespValue() const;
+    const int *getNodeCorrespIndex() const;
+    const int *getNodeCorrespValue() const;
     int getNodeNumber() const;
-    const int * getFaceCorrespIndex() const;
-    const int * getFaceCorrespValue() const;
+    const int *getFaceCorrespIndex() const;
+    const int *getFaceCorrespValue() const;
     int getFaceNumber() const;
-    const int * getEntityCorrespIndex(int localEntity,
-                                      int distantEntity) const;
-    const int * getEntityCorrespValue(int localEntity,
-                                      int distantEntity) const;
+    const int *getEntityCorrespIndex(int localEntity,
+                                     int distantEntity) const;
+    const int *getEntityCorrespValue(int localEntity,
+                                     int distantEntity) const;
     int getEntityCorrespNumber(int localEntity,
                                int distantEntity) const;
     int getEntityCorrespLength(int localEntity,
                                int distantEntity) const;
-    void setName(std::string name) ;
-    void setDescription(std::string description) ;
+    void setName(const std::string& name) ;
+    void setDescription(const std::string& description) ;
     void setDistantDomainNumber(int distantDomainNumber) ;
     void setLocalDomainNumber(int distantDomainNumber) ;
     void setLocalMesh(ParaMEDMEM::MEDCouplingUMesh * localMesh) ;
@@ -83,12 +69,23 @@ namespace MEDPARTITIONER
     void setNodeCorresp(MEDPARTITIONER::SkyLineArray* array);
     void setFaceCorresp(int * faceCorresp, int nbface);
     void setFaceCorresp(MEDPARTITIONER::SkyLineArray* array);
-    void setEntityCorresp(int localEntity,
-                          int distantEntity,
+    void setEntityCorresp(int localEntity, int distantEntity,
                           int * entityCorresp, int nbentity);
-    void setEntityCorresp(int localEntity,
-                          int distantEntity,
-                          MEDPARTITIONER::SkyLineArray* array);
+    void setEntityCorresp(int localEntity, int distantEntity,
+                          MEDPARTITIONER::SkyLineArray *array);
+  private :
+    std::string _name;
+    std::string _description;
+    int _local_domain_number;
+    int _distant_domain_number;
+
+    ParaMEDMEM::MEDCouplingUMesh * _local_mesh;
+    ParaMEDMEM::MEDCouplingUMesh * _distant_mesh;
+
+    SkyLineArray * _node_corresp;
+    SkyLineArray * _face_corresp;
+  
+    std::map < std::pair <int,int>, SkyLineArray * > _entity_corresp;
   };
 }
 # endif
