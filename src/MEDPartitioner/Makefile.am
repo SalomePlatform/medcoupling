@@ -103,7 +103,8 @@ libmedpartitioner_la_LDFLAGS += $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(STDLIB) $(LIB
 if MPI_IS_OK
   bin_PROGRAMS = medpartitioner_para
   dist_medpartitioner_para_SOURCES = medpartitioner_para.cxx
-  medpartitioner_para_CPPFLAGS = $(MPI_INCLUDES) $(PARMETIS_CPPFLAGS) $(SCOTCH_CPPFLAGS)
+  medpartitioner_para_CPPFLAGS = -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL $(MPI_INCLUDES) $(PARMETIS_CPPFLAGS)
   medpartitioner_para_LDADD = libmedpartitioner.la
 endif
 
