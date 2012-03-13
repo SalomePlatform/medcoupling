@@ -72,8 +72,7 @@ libmedpartitioner_la_LDFLAGS =
 if MPI_IS_OK
   dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_ParaDomainSelector.cxx \
                                        MEDPARTITIONER_Utils.cxx \
-                                       MEDPARTITIONER_ParallelTopology.cxx \
-                                       MEDPARTITIONER_ParaDomainSelector.cxx
+                                       MEDPARTITIONER_ParallelTopology.cxx
 
 if MED_ENABLE_PARMETIS
     dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_MetisGraph.cxx
