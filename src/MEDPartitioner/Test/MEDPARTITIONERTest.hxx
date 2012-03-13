@@ -30,10 +30,6 @@
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
-namespace MEDPARTITIONER {
-  class MESH;
-};
-
 class MEDPARTITIONERTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( MEDPARTITIONERTest );

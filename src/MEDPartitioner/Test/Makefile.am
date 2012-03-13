@@ -23,89 +23,48 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 lib_LTLIBRARIES = libMEDPARTITIONERTest.la
 
-dist_libMEDPARTITIONERTest_la_SOURCES= \
+dist_libMEDPARTITIONERTest_la_SOURCES = \
 	MEDPARTITIONERTest.cxx
-#	MEDPARTITIONERTest_Utils.cxx
 
-#if MED_ENABLE_PARMETIS
-#  dist_libMEDPARTITIONERTest_la_SOURCES+= \
-#	ParaMEDPARTITIONERTest.hxx
-#endif
+if MPI_IS_OK
+  dist_libMEDPARTITIONERTest_la_SOURCES += MEDPARTITIONERTestPara.cxx
+endif
 
 salomeinclude_HEADERS = \
 	MEDPARTITIONERTest.hxx
-#	MEDPARTITIONERTest_Utils.hxx
 
-libMEDPARTITIONERTest_la_CPPFLAGS= \
+libMEDPARTITIONERTest_la_CPPFLAGS = \
 	@CPPUNIT_INCLUDES@ \
-	$(MED2_INCLUDES) \
+	$(MED3_INCLUDES) \
 	$(HDF5_INCLUDES) \
-	@CXXTMPDPTHFLAGS@ \
-	$(BOOST_CPPFLAGS) \
 	$(LIBXML_CXXFLAGS) \
+	$(MPI_INCLUDES) \
 	-I$(srcdir)/.. \
-	-I$(srcdir)/../../MEDWrapper/V2_1/Core \
-	-I$(srcdir)/../../MEDMEM \
-	-I$(srcdir)/../../MEDMEMCppTest \
 	-I$(srcdir)/../../MEDCoupling \
 	-I$(srcdir)/../../MEDLoader \
 	-I$(srcdir)/../../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../../INTERP_KERNEL/GaussPoints \
 	-I$(srcdir)/../../INTERP_KERNEL
 
-libMEDPARTITIONERTest_la_LDFLAGS= $(MED2_LIBS) @CPPUNIT_LIBS@
-
-if MED_ENABLE_KERNEL
-    libMEDPARTITIONERTest_la_CPPFLAGS+= ${KERNEL_CXXFLAGS}
-    libMEDPARTITIONERTest_la_LDFLAGS+= ${KERNEL_LDFLAGS} -lSALOMELocalTrace 
-endif
-
-if MED_ENABLE_PARMETIS
-  libMEDPARTITIONERTest_la_CPPFLAGS+= $(PARMETIS_CPPFLAGS)
-  libMEDPARTITIONERTest_la_LDFLAGS+= $(PARMETIS_LIBS)
-endif
-if MED_ENABLE_METIS
-  libMEDPARTITIONERTest_la_CPPFLAGS+= $(METIS_CPPFLAGS)
-  libMEDPARTITIONERTest_la_LDFLAGS+= $(METIS_LIBS)
-endif
-if MED_ENABLE_SCOTCH
-  libMEDPARTITIONERTest_la_CPPFLAGS+= $(SCOTCH_CPPFLAGS)
-  libMEDPARTITIONERTest_la_LDFLAGS+= $(SCOTCH_LIBS)
-endif
+libMEDPARTITIONERTest_la_LDFLAGS = $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(MPI_LIBS) @CPPUNIT_LIBS@
 
 # Executables targets
-bin_PROGRAMS= TestMEDPARTITIONER
-
-TestMEDPARTITIONER_SOURCES= TestMEDPARTITIONER.cxx
-
-TestMEDPARTITIONER_CPPFLAGS= $(libMEDPARTITIONERTest_la_CPPFLAGS) 
-TestMEDPARTITIONER_LDADD= \
-	$(MED2_LIBS) \
-	$(libMEDPARTITIONERTest_la_LDFLAGS) -lm \
-	libMEDPARTITIONERTest.la \
-	../../MEDWrapper/V2_1/Core/libmed_V2_1.la \
-	../../MEDMEM/libmedmem.la \
-	../../INTERP_KERNEL/libinterpkernel.la \
-	../libmedpartitioner.la
-
-if MED_ENABLE_KERNEL
-     TestMEDPARTITIONER_LDADD+= -lSALOMEBasics
-endif
 
 dist_salomescript_DATA = 
-#testMEDPARTITIONER.py
+UNIT_TEST_PROG =
 
-UNIT_TEST_PROG = TestMEDPARTITIONER
+if MPI_IS_OK
+  bin_PROGRAMS = TestMEDPARTITIONER
 
-# parallel exe
+  TestMEDPARTITIONER_SOURCES = TestMEDPARTITIONER.cxx
 
-if MED_ENABLE_PARMETIS
-#  bin_PROGRAMS+= TestParaMEDPARTITIONER
-#  TestParaMEDPARTITIONER_SOURCES= TestParaMEDPARTITIONER.cxx
-#  TestParaMEDPARTITIONER_CPPFLAGS = $(TestMEDPARTITIONER_CPPFLAGS)
-#  TestParaMEDPARTITIONER_LDADD = $(TestMEDPARTITIONER_LDADD) $(HDF5_LIBS)
-#  dist_salomescript_DATA += testParaMEDPARTITIONER.py
-#  TESTS = TestParaMEDPARTITIONER
+  TestMEDPARTITIONER_CPPFLAGS = $(libMEDPARTITIONERTest_la_CPPFLAGS) 
+  TestMEDPARTITIONER_LDADD = \
+	$(libMEDPARTITIONERTest_la_LDFLAGS) -lm \
+	libMEDPARTITIONERTest.la \
+	../../INTERP_KERNEL/libinterpkernel.la \
+	../libmedpartitioner.la
+  UNIT_TEST_PROG += TestMEDPARTITIONER
 endif
 
 check: tests
