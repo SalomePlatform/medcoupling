@@ -75,17 +75,20 @@ if MPI_IS_OK
                                        MEDPARTITIONER_ParallelTopology.cxx \
                                        MEDPARTITIONER_ParaDomainSelector.cxx
 
-  if MED_ENABLE_PARMETIS
+if MED_ENABLE_PARMETIS
     dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_MetisGraph.cxx
     libmedpartitioner_la_CPPFLAGS += $(PARMETIS_CPPFLAGS)
     libmedpartitioner_la_LDFLAGS += $(PARMETIS_LIBS)
-  endif
+endif
+
 else !MPI_IS_OK
-  if MED_ENABLE_METIS
+
+if MED_ENABLE_METIS
     dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_MetisGraph.cxx
     libmedpartitioner_la_CPPFLAGS += $(METIS_CPPFLAGS)
     libmedpartitioner_la_LDFLAGS += $(METIS_LIBS)
-  endif
+endif
+
 endif
 
 if MED_ENABLE_SCOTCH
