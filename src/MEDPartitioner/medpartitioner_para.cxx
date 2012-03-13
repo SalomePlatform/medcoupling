@@ -61,8 +61,8 @@ using namespace MEDPARTITIONER;
 
 int main(int argc, char** argv)
 {
-#ifndef ENABLE_PARMETIS
-#ifndef ENABLE_PTSCOTCH
+#ifndef MED_ENABLE_PARMETIS
+#ifndef MED_ENABLE_SCOTCH
   cout << "Sorry, no one split method is available. Please, compile with ParMETIS or PT-SCOTCH."<<endl;
   return 1;
 #endif
@@ -98,8 +98,8 @@ int main(int argc, char** argv)
                "\t--input-file=<string>    : name of the input .med file or .xml master file\n"
                "\t--output-file=<string>   : name of the resulting file (without exension)\n"
                "\t--ndomains=<number>      : number of subdomains in the output file, default is 1\n"
-#ifdef ENABLE_PARMETIS
-#ifdef ENABLE_PTSCOTCH
+#ifdef MED_MED_ENABLE_PARMETIS
+#ifdef MED_MED_ENABLE_SCOTCH
                "\t--split-method=<string>  : name of the splitting library (metis/scotch), default is metis\n"
 #endif
 #endif
@@ -148,8 +148,8 @@ int main(int argc, char** argv)
       MyGlobals::_Randomize=0;
     }
   
-#ifdef ENABLE_PARMETIS
-#ifndef ENABLE_PTSCOTCH
+#ifdef MED_ENABLE_PARMETIS
+#ifndef MED_ENABLE_SCOTCH
   library = "metis";
 #endif
 #else

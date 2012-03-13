@@ -22,10 +22,13 @@
 
 #include <cstdio>
 
-extern "C" {
+#ifdef MED_ENABLE_SCOTCH
+extern "C"
+{
 #define restrict
 #include "scotch.h"
 }
+#endif
 
 using namespace MEDPARTITIONER;
   
@@ -43,6 +46,7 @@ SCOTCHGraph::~SCOTCHGraph()
 
 void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, ParaDomainSelector* sel)
 {
+#ifdef MED_ENABLE_SCOTCH
   // number of graph vertices
   int n = _graph->getNumberOf();
 
@@ -104,5 +108,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   //to the object
   
   _partition = new MEDPARTITIONER::SkyLineArray(index,value);
-
+#else
+  throw INTERP_KERNEL::Exception(LOCALIZED("SCOTCH is not available. Check your products, please."));
+#endif
 }

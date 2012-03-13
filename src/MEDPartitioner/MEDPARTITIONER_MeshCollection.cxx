@@ -40,10 +40,10 @@
 #include <mpi.h>
 #endif
 
-#ifdef ENABLE_METIS
+#ifdef MED_ENABLE_PARMETIS
 #include "MEDPARTITIONER_MetisGraph.hxx"
 #endif
-#ifdef ENABLE_SCOTCH
+#ifdef MED_ENABLE_SCOTCH
 #include "MEDPARTITIONER_ScotchGraph.hxx"
 #endif
 
@@ -1443,7 +1443,7 @@ Topology* MeshCollection::createPartition(int nbdomain, //cvwat06
   switch (split)
     {
     case Graph::METIS:
-#ifdef ENABLE_METIS
+#ifdef MED_ENABLE_PARMETIS
       if (MyGlobals::_Verbose>10) cout<<"METISGraph"<<endl;
       cellGraph=(Graph*)(new METISGraph(array,edgeweights));
 #else
@@ -1451,7 +1451,7 @@ Topology* MeshCollection::createPartition(int nbdomain, //cvwat06
 #endif
       break;
     case Graph::SCOTCH:
-#ifdef ENABLE_SCOTCH
+#ifdef MED_ENABLE_SCOTCH
       if (MyGlobals::_Verbose>10) cout<<"SCOTCHGraph"<<endl;
       cellGraph=(Graph*)(new SCOTCHGraph(array,edgeweights));
 #else

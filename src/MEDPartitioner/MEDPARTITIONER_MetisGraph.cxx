@@ -25,14 +25,18 @@
 
 #include <iostream>
 
-#ifdef ENABLE_PARMETIS
-#include <parmetis.h>
+#ifdef MED_ENABLE_PARMETIS
+#include <mpi.h>
+#include "parmetis.h"
 #endif
-extern "C" {
-#include <metis.h>
-}
 
-using namespace std;
+#ifdef MED_ENABLE_METIS
+extern "C"
+{
+#include "metis.h"
+}
+#endif
+
 using namespace ParaMEDMEM;
 using namespace MEDPARTITIONER;
 
@@ -51,12 +55,13 @@ METISGraph::~METISGraph()
 
 void METISGraph::partGraph(int ndomain,
                            const std::string& options_string,
-                           ParaDomainSelector* parallelizer)
+                           ParaDomainSelector *parallelizer)
 {
   using std::vector;
   vector<int> ran,vx,va; //for randomize
   
-  if (MyGlobals::_Verbose>10) cout<<"proc "<<MyGlobals::_Rank<<" : METISGraph::partGraph"<<endl;
+  if (MyGlobals::_Verbose>10)
+    std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph" << std::endl;
   
   // number of graph vertices
   int n=_graph->getNumberOf();
@@ -85,57 +90,46 @@ void METISGraph::partGraph(int ndomain,
   int edgecut;
   int* partition=new int[n];
 
-  //if (MyGlobals::_Verbose>10) cout<<"proc "<<MyGlobals::_Rank<<" : METISGraph::partGraph n="<<n<<endl;
-  if (nparts >1)
+  if(nparts >1)
     {
-      if ( parallelizer )
+      if(parallelizer)
         {
-#ifdef ENABLE_PARMETIS
+#ifdef MED_ENABLE_PARMETIS
           // distribution of vertices of the graph among the processors
           if (MyGlobals::_Verbose>100) 
-            cout<<"proc "<<MyGlobals::_Rank
-                <<" : METISGraph::partGraph ParMETIS_PartKway"<<endl;
+            std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph ParMETIS_PartKway" << std::endl;
           int * vtxdist=parallelizer->getProcVtxdist();
           MPI_Comm comm=MPI_COMM_WORLD;
           try
             {
               if (MyGlobals::_Verbose>200) 
                 {
-                  cout<<"proc "<<MyGlobals::_Rank<<" : vtxdist :";
-                  for (int i=0; i<MyGlobals::_World_Size+1; ++i) cout<<vtxdist[i]<<" ";
-                  cout<<endl;
+                  std::cout << "proc " << MyGlobals::_Rank << " : vtxdist :";
+                  for (int i=0; i<MyGlobals::_World_Size+1; ++i)
+                    std::cout << vtxdist[i] <<" ";
+                  std::cout << std::endl;
           
                   int lgxadj=vtxdist[MyGlobals::_Rank+1]-vtxdist[MyGlobals::_Rank];
-                  //cout<<"lgxadj "<<lgxadj<<" "<<n<<endl;
           
                   if (lgxadj>0)
                     {
-                      cout<<"\nproc "<<MyGlobals::_Rank<<" : lgxadj "<<lgxadj<<" lgadj "<<xadj[lgxadj+1]<<endl;
-                      for (int i=0; i<10; ++i) cout<<xadj[i]<<" ";
-                      cout<<"... "<<xadj[lgxadj]<<endl;
-                      for (int i=0; i<15; ++i) cout<<adjncy[i]<<" ";
+                      std::cout<< "\nproc " << MyGlobals::_Rank << " : lgxadj " << lgxadj << " lgadj " << xadj[lgxadj+1] << std::endl;
+                      for (int i=0; i<10; ++i)
+                        std::cout << xadj[i] << " ";
+                      std::cout << "... " << xadj[lgxadj] << std::endl;
+                      for (int i=0; i<15; ++i)
+                        std::cout << adjncy[i] << " ";
                       int ll=xadj[lgxadj]-1;
-                      cout<<"... ["<<ll<<"] "<<adjncy[ll-1]<<" "<<adjncy[ll]<<endl;
-                      /*for (int i=0; i<=ll; ++i) {
-                        if (adjncy[i]<0) cout<<"***cvw00 error: adjncy[i]<0 "<<i<<endl;
-                        }*/
+                      std::cout << "... [" << ll << "] " << adjncy[ll-1] << " " << adjncy[ll] << std::endl;
                       int imaxx=0;
-                      //for (int ilgxadj=0; ilgxadj<lgxadj; ilgxadj++)
                       for (int ilgxadj=0; ilgxadj<lgxadj; ilgxadj++)
                         {
                           int ilg=xadj[ilgxadj+1]-xadj[ilgxadj];
-                          /*if (ilg<0) cout<<"***cvw01 error: ilg<0 in xadj "<<ilgxadj<<endl;
-                            if (MyGlobals::_Is0verbose>1000) 
-                            {
-                            cout<<"\n -cell "<<ilgxadj<<" "<<ilg<<" :";
-                            for (int i=0; i<ilg; i++) cout<<" "<<adjncy[xadj[ilgxadj]+i];
-                            }*/
-                          if (ilg>imaxx) imaxx=ilg;
+                          if(ilg>imaxx)
+                            imaxx=ilg;
                         }
-                      cout<<"\nproc "<<MyGlobals::_Rank
-                          <<" : on "<<lgxadj<<" cells, max neighbourg number (...for one cell) is "<<imaxx<<endl;
+                      std::cout<< "\nproc " << MyGlobals::_Rank << " : on " << lgxadj << " cells, max neighbourg number (...for one cell) is " << imaxx << std::endl;
                     }
-          
                 }
               if ((MyGlobals::_Randomize!=0 || MyGlobals::_Atomize!=0) && MyGlobals::_World_Size==1)
                 {
@@ -152,7 +146,6 @@ void METISGraph::partGraph(int ndomain,
               else
                 {
                   //MPI_Barrier(MPI_COMM_WORLD);
-                  //cout<<"proc "<<MyGlobals::_Rank<<" : barrier ParMETIS_PartKway done"<<endl;
                   ParMETIS_PartKway( //cvwat11
                                     vtxdist, xadj, adjncy, vwgt, 
                                     adjwgt, &wgtflag, &base, &nparts, options, 
@@ -180,29 +173,33 @@ void METISGraph::partGraph(int ndomain,
             }
           if (n<8 && nparts==3)
             {
-              for (int i=0; i<n; i++) partition[i]=i%3;
+              for (int i=0; i<n; i++)
+                partition[i]=i%3;
             }
 #else
           throw INTERP_KERNEL::Exception(LOCALIZED("ParMETIS is not available. Check your products, please."));
 #endif
-          //throw INTERP_KERNEL::Exception(LOCALIZED("ParMETIS is not available. Check your products, please."));
         }
       else
         {
+#ifdef MED_ENABLE_METIS
           if (MyGlobals::_Verbose>10) 
-            cout<<"proc "<<MyGlobals::_Rank
-                <<" : METISGraph::partGraph METIS_PartGraph Recursive or Kway"<<endl;
+            std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph METIS_PartGraph Recursive or Kway" << std::endl;
           if (options_string != "k")
             METIS_PartGraphRecursive(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
                                      &base, &nparts, options, &edgecut, partition);
           else
             METIS_PartGraphKway(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
                                 &base, &nparts, options, &edgecut, partition);
+#else
+          throw INTERP_KERNEL::Exception(LOCALIZED("METIS is not available. Check your products, please."));
+#endif
         }
     }
   else
     {
-      for (int i=0; i<n; i++) partition[i]=0;
+      for (int i=0; i<n; i++)
+        partition[i]=0;
     }
   
   vector<int> index(n+1);
@@ -210,7 +207,8 @@ void METISGraph::partGraph(int ndomain,
   index[0]=0;
   if (ran.size()>0 && MyGlobals::_Atomize==0) //there is randomize
     {
-      if (MyGlobals::_Is0verbose>100) cout<<"randomize"<<endl;
+      if (MyGlobals::_Is0verbose>100)
+        std::cout << "randomize" << std::endl;
       for (int i=0; i<n; i++)
         {
           index[i+1]=index[i]+1;
@@ -225,7 +223,7 @@ void METISGraph::partGraph(int ndomain,
           value[i]=partition[i];
         }
     }
-  delete[]partition;
+  delete [] partition;
 
   //creating a skylinearray with no copy of the index and partition array
   //the fifth argument true specifies that only the pointers are passed 
