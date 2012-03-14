@@ -19,7 +19,7 @@
 
 #include "RenumberingFactory.hxx"
 #include "RENUMBER_Renumbering.hxx"
-#ifdef ENABLE_METIS
+#ifdef MED_ENABLE_METIS
 #include "RENUMBER_METISRenumbering.hxx"
 #endif
 #ifdef ENABLE_BOOST
@@ -34,7 +34,7 @@ namespace MED_RENUMBER
 {
   Renumbering* RenumberingFactory(const string &s)
   {
-#ifdef ENABLE_METIS
+#ifdef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
     if (s=="METIS")
       {
@@ -62,7 +62,7 @@ namespace MED_RENUMBER
       }
 #endif
 #endif
-#ifndef ENABLE_METIS
+#ifndef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
     if (s=="BOOST")
       {
