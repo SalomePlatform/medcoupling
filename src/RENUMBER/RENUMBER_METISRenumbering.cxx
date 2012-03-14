@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifdef ENABLE_PARMETIS
+#ifdef MED_ENABLE_PARMETIS
 // include parmetis.h even if it is not needed here
 // to avoid inclusion of c++ definitions within extern "C"
 // from metis.h from parmetis.h from mpi.h(openmpi) from mpicxx.h
