@@ -30,17 +30,10 @@
 #include <mpi.h>
 #endif
 
-#ifndef WIN32
-#include <sys/sysinfo.h>
-#endif
-
-using namespace std;
-using namespace MEDPARTITIONER;
-
 /*!
  * \brief Constructor. Find out my rank and world size
  */
-ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
+MEDPARTITIONER::ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
   :_rank(0),_world_size(1), _nb_result_domains(-1), _mesure_memory(mesure_memory),
    _init_time(0.0), _init_memory(0), _max_memory(0)
 {
@@ -52,14 +45,14 @@ ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
   evaluateMemory();
 }
 
-ParaDomainSelector::~ParaDomainSelector()
+MEDPARTITIONER::ParaDomainSelector::~ParaDomainSelector()
 {
 }
 
 /*!
  * \brief Return true if is running on different hosts
  */
-bool ParaDomainSelector::isOnDifferentHosts() const
+bool MEDPARTITIONER::ParaDomainSelector::isOnDifferentHosts() const
 {
   evaluateMemory();
   if ( _world_size < 2 ) return false;
@@ -78,16 +71,14 @@ bool ParaDomainSelector::isOnDifferentHosts() const
                (void*)&name_there[0], MPI_MAX_PROCESSOR_NAME, MPI_CHAR, prev_proc, tag,
                MPI_COMM_WORLD, &status);
                
-  //cout<<"proc "<<rank()<<" : names "<<name_here<<" "<<name_there<<endl;
   //bug: (isOnDifferentHosts here and there) is not (isOnDifferentHosts somewhere)
   //return string(name_here) != string(name_there);
   
   int sum_same = -1;
   int same = 1;
-  if (string(name_here) != string(name_there)) same=0;
+  if (std::string(name_here) != std::string(name_there))
+    same=0;
   MPI_Allreduce( &same, &sum_same, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
-  //cout<<"proc "<<rank()<<" : sum_same "<<sum_same<<endl;
-  
   return (sum_same != nbProcs());
 #endif
 }
@@ -97,7 +88,7 @@ bool ParaDomainSelector::isOnDifferentHosts() const
  *  \param domainIndex - index of mesh domain
  *  \retval bool - to load or not
  */
-bool ParaDomainSelector::isMyDomain(int domainIndex) const
+bool MEDPARTITIONER::ParaDomainSelector::isMyDomain(int domainIndex) const
 {
   evaluateMemory();
   return (_rank == getProcessorID( domainIndex ));
@@ -108,7 +99,7 @@ bool ParaDomainSelector::isMyDomain(int domainIndex) const
  *  \param domainIndex - index of mesh domain
  *  \retval int - processor id
  */
-int ParaDomainSelector::getProcessorID(int domainIndex) const
+int MEDPARTITIONER::ParaDomainSelector::getProcessorID(int domainIndex) const
 {
   evaluateMemory();
   return ( domainIndex % _world_size );
@@ -121,13 +112,12 @@ int ParaDomainSelector::getProcessorID(int domainIndex) const
  * 1) for MED_CELL to know global id shift for domains at graph construction;
  * 2) for sub-entity to know total nb of sub-entities before creating those of joints
  */
-void ParaDomainSelector::gatherNbOf(const vector<ParaMEDMEM::MEDCouplingUMesh*>& domain_meshes)
+void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>& domain_meshes)
 {
   evaluateMemory();
   // get nb of elems of each domain mesh
   int nb_domains=domain_meshes.size();
-  //cout<<"proc "<<MyGlobals::_Rank<<" : gatherNbOf "<<nb_domains<<endl;
-  vector<int> nb_elems(nb_domains*2, 0); //NumberOfCells & NumberOfNodes
+  std::vector<int> nb_elems(nb_domains*2, 0); //NumberOfCells & NumberOfNodes
   for (int i=0; i<nb_domains; ++i)
     if ( domain_meshes[i] )
       {
@@ -135,7 +125,7 @@ void ParaDomainSelector::gatherNbOf(const vector<ParaMEDMEM::MEDCouplingUMesh*>&
         nb_elems[i*2+1] = domain_meshes[i]->getNumberOfNodes();
       }
   // receive nb of elems from other procs
-  vector<int> all_nb_elems( nb_domains*2 );
+  std::vector<int> all_nb_elems( nb_domains*2 );
 #ifdef HAVE_MPI2
   MPI_Allreduce((void*)&nb_elems[0], (void*)&all_nb_elems[0], nb_domains*2,
                 MPI_INT, MPI_SUM, MPI_COMM_WORLD);
@@ -148,13 +138,13 @@ void ParaDomainSelector::gatherNbOf(const vector<ParaMEDMEM::MEDCouplingUMesh*>&
     }
   
   if (MyGlobals::_Is0verbose>10)
-    cout<<"totalNbCells "<<total_nb_cells<<" totalNbNodes "<<total_nb_nodes<<endl;
+    std::cout << "totalNbCells " << total_nb_cells << " totalNbNodes " << total_nb_nodes << std::endl;
   
-  vector<int>& cell_shift_by_domain=_cell_shift_by_domain;
-  vector<int>& node_shift_by_domain=_node_shift_by_domain;
-  vector<int>& face_shift_by_domain=_face_shift_by_domain;
+  std::vector<int>& cell_shift_by_domain=_cell_shift_by_domain;
+  std::vector<int>& node_shift_by_domain=_node_shift_by_domain;
+  std::vector<int>& face_shift_by_domain=_face_shift_by_domain;
  
-  vector< int > ordered_nbs_cell, ordered_nbs_node, domain_order(nb_domains);
+  std::vector< int > ordered_nbs_cell, ordered_nbs_node, domain_order(nb_domains);
   ordered_nbs_cell.push_back(0);
   ordered_nbs_node.push_back(0);
   for (int iproc=0; iproc<nbProcs(); ++iproc)
@@ -178,12 +168,14 @@ void ParaDomainSelector::gatherNbOf(const vector<ParaMEDMEM::MEDCouplingUMesh*>&
   
   if (MyGlobals::_Is0verbose>300)
     {
-      cout<<"proc "<<MyGlobals::_Rank<<" : cellShiftByDomain ";
-      for (int i=0; i<=nb_domains; ++i) cout<<cell_shift_by_domain[i]<<"|";
-      cout<<endl;
-      cout<<"proc "<<MyGlobals::_Rank<<" : nodeShiftBy_domain ";
-      for (int i=0; i<=nb_domains; ++i) cout<<node_shift_by_domain[i]<<"|";
-      cout<<endl;
+      std::cout << "proc " << MyGlobals::_Rank << " : cellShiftByDomain ";
+      for (int i=0; i<=nb_domains; ++i)
+        std::cout << cell_shift_by_domain[i] << "|";
+      std::cout << std::endl;
+      std::cout << "proc " << MyGlobals::_Rank << " : nodeShiftBy_domain ";
+      for (int i=0; i<=nb_domains; ++i)
+        std::cout << node_shift_by_domain[i] << "|";
+      std::cout << std::endl;
     }
   // fill _nb_vert_of_procs (is Vtxdist)
   _nb_vert_of_procs.resize(_world_size+1);
@@ -198,9 +190,10 @@ void ParaDomainSelector::gatherNbOf(const vector<ParaMEDMEM::MEDCouplingUMesh*>&
   
   if (MyGlobals::_Is0verbose>200)
     {
-      cout<<"proc "<<MyGlobals::_Rank<<" : gatherNbOf : vtxdist is ";
-      for (int i = 0; i <= _world_size; ++i) cout<<_nb_vert_of_procs[i]<<" ";
-      cout<<endl;
+      std::cout << "proc " << MyGlobals::_Rank << " : gatherNbOf : vtxdist is ";
+      for (int i = 0; i <= _world_size; ++i)
+        std::cout << _nb_vert_of_procs[i] << " ";
+      std::cout << std::endl;
     }
   
   evaluateMemory();
@@ -215,10 +208,11 @@ void ParaDomainSelector::gatherNbOf(const vector<ParaMEDMEM::MEDCouplingUMesh*>&
  * The result array is to be used as the first arg of ParMETIS_V3_PartKway() and
  * is freed by ParaDomainSelector.
  */
-int* ParaDomainSelector::getProcVtxdist() const
+int *MEDPARTITIONER::ParaDomainSelector::getProcVtxdist() const
 {
   evaluateMemory();
-  if (_nb_vert_of_procs.empty()) throw INTERP_KERNEL::Exception(LOCALIZED("_nb_vert_of_procs not set"));
+  if (_nb_vert_of_procs.empty())
+    throw INTERP_KERNEL::Exception("_nb_vert_of_procs not set");
   return (int*) & _nb_vert_of_procs[0];
 }
 
@@ -228,17 +222,19 @@ int* ParaDomainSelector::getProcVtxdist() const
  * gatherNbOf() must be called before.
  * Result added to local id on given domain gives id in the whole distributed mesh
  */
-int ParaDomainSelector::getDomainCellShift(int domainIndex) const
+int MEDPARTITIONER::ParaDomainSelector::getDomainCellShift(int domainIndex) const
 {
   evaluateMemory();
-  if (_cell_shift_by_domain.empty()) throw INTERP_KERNEL::Exception(LOCALIZED("_cell_shift_by_domain not set"));
+  if (_cell_shift_by_domain.empty())
+    throw INTERP_KERNEL::Exception("_cell_shift_by_domain not set");
   return _cell_shift_by_domain[domainIndex];
 }
 
-int ParaDomainSelector::getDomainNodeShift(int domainIndex) const
+int MEDPARTITIONER::ParaDomainSelector::getDomainNodeShift(int domainIndex) const
 {
   evaluateMemory();
-  if (_node_shift_by_domain.empty()) throw INTERP_KERNEL::Exception(LOCALIZED("_node_shift_by_domain not set"));
+  if (_node_shift_by_domain.empty())
+    throw INTERP_KERNEL::Exception("_node_shift_by_domain not set");
   return _node_shift_by_domain[domainIndex];
 }
 
@@ -248,18 +244,18 @@ int ParaDomainSelector::getDomainNodeShift(int domainIndex) const
  * gatherNbOf() must be called before.
  * Result added to global id on this processor gives id in the whole distributed mesh
  */
-int ParaDomainSelector::getProcNodeShift() const
+int MEDPARTITIONER::ParaDomainSelector::getProcNodeShift() const
 {
   evaluateMemory();
-  if (_nb_vert_of_procs.empty()) throw INTERP_KERNEL::Exception(LOCALIZED("_nb_vert_of_procs not set"));
-  //cout<<"_nb_vert_of_procs "<<_nb_vert_of_procs[0]<<" "<<_nb_vert_of_procs[1]<<endl;
+  if (_nb_vert_of_procs.empty())
+    throw INTERP_KERNEL::Exception("_nb_vert_of_procs not set");
   return _nb_vert_of_procs[_rank];
 }
 
 /*!
  * \brief Gather graphs from all processors into one
  */
-auto_ptr<Graph> ParaDomainSelector::gatherGraph(const Graph* graph) const
+std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherGraph(const Graph* graph) const
 {
   Graph* glob_graph = 0;
 
@@ -270,14 +266,14 @@ auto_ptr<Graph> ParaDomainSelector::gatherGraph(const Graph* graph) const
   // Gather indices
   // ---------------
 
-  vector<int> index_size_of_proc( nbProcs() ); // index sizes - 1
+  std::vector<int> index_size_of_proc( nbProcs() ); // index sizes - 1
   for ( int i = 1; i < _nb_vert_of_procs.size(); ++i )
     index_size_of_proc[i-1] = _nb_vert_of_procs[ i ] - _nb_vert_of_procs[ i-1 ];
 
   int index_size = 1 + _cell_shift_by_domain.back();
-  int* graph_index = new int[ index_size ];
-  const int* index = graph->getGraph()->getIndex();
-  int* proc_index_displacement = (int*) & _nb_vert_of_procs[0];
+  int *graph_index = new int[ index_size ];
+  const int *index = graph->getGraph()->getIndex();
+  int *proc_index_displacement = (int*) & _nb_vert_of_procs[0];
 
   MPI_Allgatherv((void*) (index+1),         // send local index except first 0 (or 1)
                  index_size_of_proc[_rank], // index size on this proc
@@ -290,7 +286,7 @@ auto_ptr<Graph> ParaDomainSelector::gatherGraph(const Graph* graph) const
   graph_index[0] = index[0]; // it is not overwritten thanks to proc_index_displacement[0]==1
 
   // get sizes of graph values on each proc by the got indices of graphs
-  vector< int > value_size_of_proc( nbProcs() ), proc_value_displacement(1,0);
+  std::vector< int > value_size_of_proc( nbProcs() ), proc_value_displacement(1,0);
   for ( int i = 0; i < nbProcs(); ++i )
     {
       if ( index_size_of_proc[i] > 0 )
@@ -313,8 +309,8 @@ auto_ptr<Graph> ParaDomainSelector::gatherGraph(const Graph* graph) const
   // --------------
 
   int value_size = graph_index[ index_size-1 ] - graph_index[ 0 ];
-  int* graph_value = new int[ value_size ];
-  const int* value = graph->getGraph()->getValue();
+  int *graph_value = new int[ value_size ];
+  const int *value = graph->getGraph()->getValue();
 
   MPI_Allgatherv((void*) value,                // send local value
                  value_size_of_proc[_rank],    // value size on this proc
@@ -356,14 +352,14 @@ auto_ptr<Graph> ParaDomainSelector::gatherGraph(const Graph* graph) const
 
 #endif // HAVE_MPI2
 
-  return auto_ptr<Graph>( glob_graph );
+  return std::auto_ptr<Graph>( glob_graph );
 }
 
 
 /*!
  * \brief Set nb of cell/cell pairs in a joint between domains
  */
-void ParaDomainSelector::setNbCellPairs( int nb_cell_pairs, int dist_domain, int loc_domain )
+void MEDPARTITIONER::ParaDomainSelector::setNbCellPairs( int nb_cell_pairs, int dist_domain, int loc_domain )
 {
   // This method is needed for further computing global numbers of faces in joint.
   // Store if both domains are on this proc else on one of procs only
@@ -384,7 +380,7 @@ void ParaDomainSelector::setNbCellPairs( int nb_cell_pairs, int dist_domain, int
  */
 //================================================================================
 
-int ParaDomainSelector::getNbCellPairs( int dist_domain, int loc_domain ) const
+int MEDPARTITIONER::ParaDomainSelector::getNbCellPairs( int dist_domain, int loc_domain ) const
 {
   evaluateMemory();
 
@@ -398,13 +394,13 @@ int ParaDomainSelector::getNbCellPairs( int dist_domain, int loc_domain ) const
  */
 //================================================================================
 
-void ParaDomainSelector::gatherNbCellPairs()
+void MEDPARTITIONER::ParaDomainSelector::gatherNbCellPairs()
 {
   if ( _nb_cell_pairs_by_joint.empty() )
     _nb_cell_pairs_by_joint.resize( _nb_result_domains*(_nb_result_domains+1), 0);
   evaluateMemory();
 
-  vector< int > send_buf = _nb_cell_pairs_by_joint;
+  std::vector< int > send_buf = _nb_cell_pairs_by_joint;
 #ifdef HAVE_MPI2
   MPI_Allreduce((void*)&send_buf[0],
                 (void*)&_nb_cell_pairs_by_joint[0],
@@ -415,7 +411,7 @@ void ParaDomainSelector::gatherNbCellPairs()
   // namely that each joint is treated on one proc only
   for ( int j = 0; j < _nb_cell_pairs_by_joint.size(); ++j )
     if ( _nb_cell_pairs_by_joint[j] != send_buf[j] && send_buf[j]>0 )
-      throw INTERP_KERNEL::Exception(LOCALIZED("invalid nb of cell pairs"));
+      throw INTERP_KERNEL::Exception("invalid nb of cell pairs");
 }
 
 //================================================================================
@@ -424,7 +420,7 @@ void ParaDomainSelector::gatherNbCellPairs()
  */
 //================================================================================
 
-int ParaDomainSelector::getFisrtGlobalIdOfSubentity( int loc_domain, int dist_domain ) const
+int MEDPARTITIONER::ParaDomainSelector::getFisrtGlobalIdOfSubentity( int loc_domain, int dist_domain ) const
 {
   // total_nb_faces includes faces existing before creation of joint faces
   // (got in gatherNbOf( MED_FACE )).
@@ -434,7 +430,7 @@ int ParaDomainSelector::getFisrtGlobalIdOfSubentity( int loc_domain, int dist_do
   int id = total_nb_faces + 1;
 
   if ( _nb_cell_pairs_by_joint.empty() )
-    throw INTERP_KERNEL::Exception(LOCALIZED("gatherNbCellPairs() must be called before"));
+    throw INTERP_KERNEL::Exception("gatherNbCellPairs() must be called before");
   int joint_id = jointId( loc_domain, dist_domain );
   for ( int j = 0; j < joint_id; ++j )
     id += _nb_cell_pairs_by_joint[ j ];
@@ -448,8 +444,8 @@ int ParaDomainSelector::getFisrtGlobalIdOfSubentity( int loc_domain, int dist_do
  */
 //================================================================================
 
-int* ParaDomainSelector::exchangeSubentityIds( int loc_domain, int dist_domain,
-                                               const vector<int>& loc_ids_here ) const
+int *MEDPARTITIONER::ParaDomainSelector::exchangeSubentityIds( int loc_domain, int dist_domain,
+                                               const std::vector<int>& loc_ids_here ) const
 {
   int* loc_ids_dist = new int[ loc_ids_here.size()];
   int dest = getProcessorID( dist_domain );
@@ -471,14 +467,14 @@ int* ParaDomainSelector::exchangeSubentityIds( int loc_domain, int dist_domain,
  */
 //================================================================================
 
-int ParaDomainSelector::jointId( int local_domain, int distant_domain ) const
+int MEDPARTITIONER::ParaDomainSelector::jointId( int local_domain, int distant_domain ) const
 {
   evaluateMemory();
   if (_nb_result_domains < 0)
-    throw INTERP_KERNEL::Exception(LOCALIZED("setNbDomains() must be called before"));
+    throw INTERP_KERNEL::Exception("setNbDomains() must be called before");
 
   if ( local_domain < distant_domain )
-    swap( local_domain, distant_domain );
+    std::swap( local_domain, distant_domain );
   return local_domain * _nb_result_domains + distant_domain;
 }
 
@@ -489,7 +485,7 @@ int ParaDomainSelector::jointId( int local_domain, int distant_domain ) const
  */
 //================================================================================
 
-double ParaDomainSelector::getPassedTime() const
+double MEDPARTITIONER::ParaDomainSelector::getPassedTime() const
 {
 #ifdef HAVE_MPI2
   return MPI_Wtime() - _init_time;
@@ -499,53 +495,27 @@ double ParaDomainSelector::getPassedTime() const
 }
 
 /*!
- * \brief Evaluate current memory usage and return the maximal one in KB
- */
-int ParaDomainSelector::evaluateMemory() const
-{
-  if ( _mesure_memory )
-    {
-      int used_memory = 0;
-#ifndef WIN32
-      struct sysinfo si;
-      int err = sysinfo( &si );
-      if ( !err )
-        used_memory =
-          (( si.totalram - si.freeram + si.totalswap - si.freeswap ) * si.mem_unit ) / 1024;
-#endif
-      if ( used_memory > _max_memory )
-        ((ParaDomainSelector*) this)->_max_memory = used_memory;
-
-      if ( !_init_memory )
-        ((ParaDomainSelector*) this)->_init_memory = used_memory;
-    }
-  return _max_memory - _init_memory;
-}
-
-/*!
   Sends content of \a mesh to processor \a target. To be used with \a recvMesh method.
   \param mesh mesh to be sent
   \param target processor id of the target
 */
 
-void ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int target) const
+void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int target) const
 {
-  if (MyGlobals::_Verbose>600) cout<<"proc "<<_rank<<" : sendMesh '"<<mesh.getName()<<"' size "<<mesh.getNumberOfCells()<<" to "<<target<<endl;
+  if (MyGlobals::_Verbose>600)
+    std::cout << "proc " << _rank << " : sendMesh '" << mesh.getName() << "' size " << mesh.getNumberOfCells() << " to " << target << std::endl;
   // First stage : sending sizes
   // ------------------------------
-  vector<int> tinyInfoLocal;
-  vector<string> tinyInfoLocalS;
-  vector<double> tinyInfoLocalD;
+  std::vector<int> tinyInfoLocal;
+  std::vector<std::string> tinyInfoLocalS;
+  std::vector<double> tinyInfoLocalD;
   //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
   //the transmitted mesh.
   mesh.getTinySerializationInformation(tinyInfoLocalD,tinyInfoLocal,tinyInfoLocalS);
-  //cout<<"sendMesh getTinySerializationInformation "<<mesh.getName()<<endl;
   tinyInfoLocal.push_back(mesh.getNumberOfCells());
 #ifdef        HAVE_MPI2
   int tinySize=tinyInfoLocal.size();
-  //cout<<"MPI_Send cvw11 "<<tinySize<<endl;
   MPI_Send(&tinySize, 1, MPI_INT, target, 1113, MPI_COMM_WORLD);
-  //cout<<"MPI_Send cvw22 "<<tinyInfoLocal.size()<<endl;
   MPI_Send(&tinyInfoLocal[0], tinyInfoLocal.size(), MPI_INT, target, 1112, MPI_COMM_WORLD);
 #endif
 
@@ -557,17 +527,17 @@ void ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int 
       mesh.serialize(v1Local,v2Local);
       int nbLocalElems=0;
       int* ptLocal=0;
-      if(v1Local) //cvw if empty getNbOfElems() is 1!
+      if(v1Local) //if empty getNbOfElems() is 1!
         {
-          nbLocalElems=v1Local->getNbOfElems(); //cvw if empty be 1!
+          nbLocalElems=v1Local->getNbOfElems(); // if empty be 1!
           ptLocal=v1Local->getPointer();
         }
-#ifdef        HAVE_MPI2
+#ifdef HAVE_MPI2
       MPI_Send(ptLocal, nbLocalElems, MPI_INT, target, 1111, MPI_COMM_WORLD);
 #endif
       int nbLocalElems2=0;
       double *ptLocal2=0;
-      if(v2Local) //cvw if empty be 0!
+      if(v2Local) //if empty be 0!
         {
           nbLocalElems2=v2Local->getNbOfElems();
           ptLocal2=v2Local->getPointer();
@@ -578,11 +548,6 @@ void ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int 
       if(v1Local) v1Local->decrRef();
       if(v2Local) v2Local->decrRef();
     }
-  else
-    {
-      //cout<<"sendMesh empty Mesh cvw3344 "<<endl;
-    }
-  //cout<<"end sendMesh "<<mesh.getName()<<endl;
 }
 
 /*! Receives messages from proc \a source to fill mesh \a mesh.
@@ -590,13 +555,13 @@ void ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int 
   \param mesh  pointer to mesh that is filled
   \param source processor id of the incoming messages
 */
-void ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int source)const
+void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int source)const
 {
   // First stage : exchanging sizes
   // ------------------------------
-  vector<int> tinyInfoDistant;
-  vector<string> tinyInfoLocalS;
-  vector<double> tinyInfoDistantD(1);
+  std::vector<int> tinyInfoDistant;
+  std::vector<std::string> tinyInfoLocalS;
+  std::vector<double> tinyInfoDistantD(1);
   //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
   //the transmitted mesh.
 #ifdef HAVE_MPI2
@@ -612,7 +577,6 @@ void ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int sourc
 #endif
   //there was tinyInfoLocal.push_back(mesh.getNumberOfCells());
   int NumberOfCells=tinyInfoDistant[tinyVecSize-1];
-  //cout<<"recvMesh NumberOfCells "<<NumberOfCells<<endl;
   if (NumberOfCells>0)
     {
       ParaMEDMEM::DataArrayInt *v1Distant=ParaMEDMEM::DataArrayInt::New();
@@ -654,6 +618,33 @@ void ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int sourc
     {
       mesh=CreateEmptyMEDCouplingUMesh();
     }
-  if (MyGlobals::_Verbose>600) cout<<"proc "<<_rank<<" : recvMesh '"<<mesh->getName()<<"' size "<<mesh->getNumberOfCells()<<" from "<<source<<endl;
+  if (MyGlobals::_Verbose>600)
+    std::cout << "proc " << _rank << " : recvMesh '" << mesh->getName() << "' size " << mesh->getNumberOfCells() << " from " << source << std::endl;
 }
 
+#ifndef WIN32
+#include <sys/sysinfo.h>
+#endif
+
+/*!
+ * \brief Evaluate current memory usage and return the maximal one in KB
+ */
+int MEDPARTITIONER::ParaDomainSelector::evaluateMemory() const
+{
+  if ( _mesure_memory )
+    {
+      int used_memory = 0;
+#ifndef WIN32
+      struct sysinfo si;
+      int err = sysinfo( &si );
+      if ( !err )
+        used_memory = (( si.totalram - si.freeram + si.totalswap - si.freeswap ) * si.mem_unit ) / 1024;
+#endif
+      if ( used_memory > _max_memory )
+        ((ParaDomainSelector*) this)->_max_memory = used_memory;
+
+      if ( !_init_memory )
+        ((ParaDomainSelector*) this)->_init_memory = used_memory;
+    }
+  return _max_memory - _init_memory;
+}

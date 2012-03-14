@@ -25,8 +25,8 @@
 
 #include "MEDCouplingUMesh.hxx"
 
-#include <vector>
 #include <map>
+#include <vector>
 #include <string>
 
 namespace ParaMEDMEM
@@ -67,9 +67,9 @@ namespace MEDPARTITIONER
     void write(const std::string& filename);
     
     //getting the driver
-    MeshCollectionDriver* retrieveDriver();
-    MeshCollectionDriver* getDriver() const;
-    void setDriverType(MEDPARTITIONER::DriverType type) {_driver_type=type;}
+    MeshCollectionDriver *retrieveDriver();
+    MeshCollectionDriver *getDriver() const;
+    void setDriverType(MEDPARTITIONER::DriverType type) { _driver_type=type; }
 
     //creation of the cell graph
     void buildCellGraph(MEDPARTITIONER::SkyLineArray* & array,int *& edgeweights );
@@ -81,7 +81,7 @@ namespace MEDPARTITIONER
     Topology* createPartition(const int* partition);
 
     //getting mesh dimension
-    int getMeshDimension() const ;
+    int getMeshDimension() const;
     //getting a reference to mesh vector
     std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getMesh();
     std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getFaceMesh();
@@ -91,17 +91,17 @@ namespace MEDPARTITIONER
     ParaMEDMEM::MEDCouplingUMesh* getFaceMesh(int idomain);
     std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getGroupMeshes(int idomain);
 
-    std::vector<ParaMEDMEM::DataArrayInt*>& getCellFamilyIds() {return _cellFamilyIds;}
-    std::vector<ParaMEDMEM::DataArrayInt*>& getFaceFamilyIds() {return _faceFamilyIds;}
+    std::vector<ParaMEDMEM::DataArrayInt*>& getCellFamilyIds() { return _cell_family_ids; }
+    std::vector<ParaMEDMEM::DataArrayInt*>& getFaceFamilyIds() { return _face_family_ids; }
     
-    std::map<std::string, ParaMEDMEM::DataArrayInt*>& getMapDataArrayInt() {return _mapDataArrayInt;}
-    std::map<std::string, ParaMEDMEM::DataArrayDouble*>& getMapDataArrayDouble() {return _mapDataArrayDouble;}
+    std::map<std::string, ParaMEDMEM::DataArrayInt*>& getMapDataArrayInt() { return _map_dataarray_int; }
+    std::map<std::string, ParaMEDMEM::DataArrayDouble*>& getMapDataArrayDouble() { return _map_dataarray_double; }
 
-    std::map<std::string,int>& getFamilyInfo() {return _familyInfo;}
-    std::map<std::string, std::vector<std::string> >& getGroupInfo() {return _groupInfo;}
+    std::map<std::string,int>& getFamilyInfo() { return _family_info; }
+    std::map<std::string, std::vector<std::string> >& getGroupInfo() { return _group_info; }
 
     ParaMEDMEM::DataArrayDouble* getField(std::string descriptionField, int iold);
-    std::vector<std::string>&  getFieldDescriptions() {return _fieldDescriptions;}
+    std::vector<std::string>&  getFieldDescriptions() { return _field_descriptions; }
     void prepareFieldDescriptions();
     void filterFaceOnCell();
      
@@ -110,19 +110,19 @@ namespace MEDPARTITIONER
 
     //getting a pointer to topology
     Topology* getTopology() const ;
-    ParaDomainSelector* getParaDomainSelector() const{return _domain_selector;}
+    ParaDomainSelector* getParaDomainSelector() const { return _domain_selector; }
     //setting a new topology
     void setTopology(Topology* topology);
 
     //getting/setting the name of the global mesh (as opposed 
     //to the name of a subdomain \a nn, which is name_nn) 
-    std::string getName() const {return _name;}
-    void setName(const std::string& name){_name=name;}
+    std::string getName() const { return _name; }
+    void setName(const std::string& name) { _name=name; }
     void setDomainNames(const std::string& name);
 
     //getting/setting the description of the global mesh
-    std::string getDescription() const {return _description;}
-    void setDescription(const std::string& name) { _description=name;}
+    std::string getDescription() const { return _description; }
+    void setDescription(const std::string& name) { _description=name; }
 
     //creates the node mapping between an old collection and the present one
     void createNodeMapping(MeshCollection& initialCollection, 
@@ -177,7 +177,7 @@ namespace MEDPARTITIONER
     
     //links to meshes
     std::vector<ParaMEDMEM::MEDCouplingUMesh*> _mesh;
-    std::vector<ParaMEDMEM::MEDCouplingUMesh*> _faceMesh;
+    std::vector<ParaMEDMEM::MEDCouplingUMesh*> _face_mesh;
     
     //index of a non empty mesh within _mesh (in parallel mode all of meshes can be empty)
     int _i_non_empty_mesh;
@@ -186,20 +186,20 @@ namespace MEDPARTITIONER
     std::vector<MEDPARTITIONER::ConnectZone*> _connect_zones;
 
     //family ids storages
-    std::vector<ParaMEDMEM::DataArrayInt*> _cellFamilyIds;
-    std::vector<ParaMEDMEM::DataArrayInt*> _faceFamilyIds;
+    std::vector<ParaMEDMEM::DataArrayInt*> _cell_family_ids;
+    std::vector<ParaMEDMEM::DataArrayInt*> _face_family_ids;
     
     //DataArrayInt* storages
-    std::map<std::string, ParaMEDMEM::DataArrayInt*> _mapDataArrayInt;
+    std::map<std::string, ParaMEDMEM::DataArrayInt*> _map_dataarray_int;
     //DataArrayDouble* storages
-    std::map<std::string, ParaMEDMEM::DataArrayDouble*> _mapDataArrayDouble;
+    std::map<std::string, ParaMEDMEM::DataArrayDouble*> _map_dataarray_double;
     
     //fields to be partitioned
-    std::vector<std::string> _fieldDescriptions;
+    std::vector<std::string> _field_descriptions;
     
     //group family conversion
-    std::map<std::string, int> _familyInfo;
-    std::map<std::string, std::vector<std::string> > _groupInfo;
+    std::map<std::string, int> _family_info;
+    std::map<std::string, std::vector<std::string> > _group_info;
   
     //list of groups that are not to be splitted
     std::vector<std::string> _indivisible_regions;

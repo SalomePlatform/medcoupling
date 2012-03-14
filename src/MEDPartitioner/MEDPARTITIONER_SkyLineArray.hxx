@@ -28,35 +28,20 @@ namespace MEDPARTITIONER
 {
   class MEDPARTITIONER_EXPORT SkyLineArray
   {
-  private :
+  private:
     std::vector<int> _index;
     std::vector<int> _value;
-
-  public :
-    SkyLineArray(); //if used SkyLineArray will keep empty
+  public:
+    /*! if used SkyLineArray will keep empty */
+    SkyLineArray();
     SkyLineArray( const SkyLineArray &myArray );
     SkyLineArray( const std::vector<int>& index, const std::vector<int>& value );
     ~SkyLineArray();
   
-    inline int getNumberOf() const
-    {
-      return _index.size()-1;
-    }
-  
-    inline int getLength() const
-    {
-      return _value.size() ;
-    }
-  
-    inline const int* getIndex() const
-    {
-      return (const int*)(&_index[0]) ;
-    }
-  
-    inline const int* getValue() const
-    {
-      return (const int*)(&_value[0]) ;
-    }
+    int getNumberOf() const { return _index.size()-1; }
+    int getLength() const { return _value.size() ; }
+    const int* getIndex() const { return (const int*)(&_index[0]); }
+    const int* getValue() const { return (const int*)(&_value[0]); }
   };
 }
 # endif

@@ -29,11 +29,9 @@ namespace MEDPARTITIONER
   {
   public:
     MeshCollectionMedXmlDriver(MeshCollection*);
-    virtual ~MeshCollectionMedXmlDriver()
-    {
-    }
+    virtual ~MeshCollectionMedXmlDriver() { }
     int read(const char*, ParaDomainSelector* sel=0);
-    void write(const char*, ParaDomainSelector* sel=0);
+    void write(const char*, ParaDomainSelector* sel=0) const;
   private :
     std::string _master_filename;
   };

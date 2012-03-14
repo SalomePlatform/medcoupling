@@ -34,20 +34,17 @@ namespace MEDPARTITIONER
   {
   public:
     MeshCollectionDriver(MeshCollection*);
-    virtual ~MeshCollectionDriver()
-    {
-    }
+    virtual ~MeshCollectionDriver() { }
     virtual int read(const char*, ParaDomainSelector* sel=0) = 0;
     int readSeq(const char*,const char*);
-    virtual void write(const char*, ParaDomainSelector* sel=0) = 0;
-
+    virtual void write(const char*, ParaDomainSelector* sel=0) const = 0;
   protected:
     void readSubdomain(std::vector<int*>& cellglobal,
                        std::vector<int*>& faceglobal,
                        std::vector<int*>& nodeglobal, int idomain);
     void readSubdomain(int idomain);
-    void writeMedFile(int idomain, const std::string& distfilename);
-
+    void writeMedFile(int idomain, const std::string& distfilename) const;
+  protected:
     MeshCollection* _collection;
   };
 }

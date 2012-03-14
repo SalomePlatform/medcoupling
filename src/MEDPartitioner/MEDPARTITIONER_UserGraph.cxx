@@ -30,7 +30,7 @@ using namespace MEDPARTITIONER;
  *        (domain numbers range from 0 to ndomain-1
  * \param n number of cells in the mesh
  */
-UserGraph::UserGraph(MEDPARTITIONER::SkyLineArray* array, const int* partition, int n):Graph(array,0)
+UserGraph::UserGraph(MEDPARTITIONER::SkyLineArray *array, const int *partition, int n):Graph(array,0)
 {
 
   std::vector<int> index(n+1),value(n);
@@ -52,6 +52,6 @@ UserGraph::~UserGraph()
 
 void UserGraph::partGraph(int ndomain, const std::string& options, ParaDomainSelector* sel)
 {
-  std::cerr<<"MEDPARTITIONER::UserGraph::partGraph() should not have to be used"<<std::endl;
+  std::cerr << "MEDPARTITIONER::UserGraph::partGraph() should not have to be used" << std::endl;
 }
 

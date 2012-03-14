@@ -28,24 +28,21 @@
 #include "MEDLoader.hxx"
 #include "MEDFileMesh.hxx"
 
-#include <vector>
-#include <string>
 #include <map>
 #include <set>
+#include <vector>
+#include <string>
 #include <cstring>
-#include <iostream>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
-#include <sys/time.h>
-
 using namespace MEDPARTITIONER;
-using namespace std;
 
 /*!\class MeshCollectionMedXmlDriver
  *
@@ -85,13 +82,13 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       xmlDocPtr master_doc=xmlParseFile(filename);
 
       if (!master_doc)
-        throw INTERP_KERNEL::Exception(LOCALIZED("Xml Master File does not exist or is not compliant with Xml scheme"));
+        throw INTERP_KERNEL::Exception("Xml Master File does not exist or is not compliant with Xml scheme");
 
       //number of domains
       xmlXPathContextPtr xpathCtx = xmlXPathNewContext(master_doc);
       xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(BAD_CAST "//splitting/subdomain", xpathCtx);
       if (xpathObj==0 || xpathObj->nodesetval->nodeNr ==0)
-        throw INTERP_KERNEL::Exception(LOCALIZED("Xml Master File does not contain /MED/splitting/subdomain node"));
+        throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/splitting/subdomain node");
 
       //as subdomain has only one property which is "number"
       //it suffices to take the content of its first child 
@@ -102,7 +99,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       xmlXPathFreeObject(xpathObj);
       xpathObj = xmlXPathEvalExpression(BAD_CAST "//content/mesh", xpathCtx);
       if (xpathObj==0 || xpathObj->nodesetval->nodeNr ==0)
-        throw INTERP_KERNEL::Exception(LOCALIZED("Xml Master File does not contain /MED/content/mesh node"));
+        throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/content/mesh node");
       _collection->setName( (const char*)xpathObj->nodesetval->nodeTab[0]->properties->children->content);
 
       //cout << "nb domain " << nbdomain << endl;
@@ -118,29 +115,29 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       xmlXPathFreeObject(xpathObj);
       xpathObj = xmlXPathEvalExpression(BAD_CAST filechar, xpathCtx);
       if (xpathObj==0 || xpathObj->nodesetval->nodeNr ==0)
-        throw INTERP_KERNEL::Exception(LOCALIZED("Xml Master File does not contain /MED/files/subfile nodes"));
+        throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/files/subfile nodes");
       int nbfiles = xpathObj->nodesetval ->nodeNr;
     
       for (int i=0; i<nbfiles;i++)
         {
           //reading information about the domain
-          string host;
+          std::string host;
           //reading file names 
           std::ostringstream name_search_string;
           name_search_string<<"//files/subfile[@id=\""<<i+1<<"\"]/name";
           xmlXPathObjectPtr xpathObjfilename =
             xmlXPathEvalExpression(BAD_CAST name_search_string.str().c_str(),xpathCtx);
           if (xpathObjfilename->nodesetval ==0)
-            throw INTERP_KERNEL::Exception(LOCALIZED("Error retrieving a file name from subfile of Xml Master File"));
+            throw INTERP_KERNEL::Exception("Error retrieving a file name from subfile of Xml Master File");
           MyGlobals::_File_Names[i]=(const char*)xpathObjfilename->nodesetval->nodeTab[0]->children->content;
 
           //reading the local mesh names
-          ostringstream mesh_search_string;
+          std::ostringstream mesh_search_string;
           mesh_search_string<<"//mapping/mesh/chunk[@subdomain=\""<<i+1<<"\"]/name";
 
           xmlXPathObjectPtr xpathMeshObj = xmlXPathEvalExpression(BAD_CAST mesh_search_string.str().c_str(),xpathCtx);
           if (xpathMeshObj->nodesetval ==0)
-            throw INTERP_KERNEL::Exception(LOCALIZED("Error retrieving mesh name from chunk of Xml Master File"));
+            throw INTERP_KERNEL::Exception("Error retrieving mesh name from chunk of Xml Master File");
           MyGlobals::_Mesh_Names[i]=(const char*)xpathMeshObj->nodesetval->nodeTab[0]->children->content;
 
           if ( !domainSelector || domainSelector->isMyDomain(i))
@@ -157,7 +154,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
     } //of try
   catch(...)
     {
-      throw INTERP_KERNEL::Exception(LOCALIZED("I/O error reading parallel MED file"));
+      throw INTERP_KERNEL::Exception("I/O error reading parallel MED file");
     }
 
 
@@ -179,7 +176,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
  * with the connect zones being written as joints
  * \param filename name of the Xml file containing the meshes description
  */
-void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector* domainSelector)
+void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector* domainSelector) const
 {
   xmlDocPtr master_doc = 0;
   xmlNodePtr root_node = 0, node, node2;
@@ -235,22 +232,23 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
   int nbdomains= _collection->getMesh().size();
 
   //loop on the domains
-  string finalMeshName=ExtractFromDescription(MyGlobals::_General_Informations[0], "finalMeshName=");
+  std::string finalMeshName=ExtractFromDescription(MyGlobals::_General_Informations[0], "finalMeshName=");
   for (int idomain=nbdomains-1; idomain>=0;idomain--)
     {
-      string distfilename;
-      ostringstream suffix;
+      std::string distfilename;
+      std::ostringstream suffix;
       suffix<<filename<<idomain+1<<".med";
       distfilename=suffix.str();
 
       if ( !domainSelector || domainSelector->isMyDomain( idomain ) )
         {
-          if ( (_collection->getMesh())[idomain]->getNumberOfCells()==0 ) continue; //empty domain
+          if ( (_collection->getMesh())[idomain]->getNumberOfCells()==0 )
+            continue; //empty domain
           if (MyGlobals::_Verbose>1)
-            cout<<"proc "<<domainSelector->rank()<<" : writeMedFile "<<distfilename
-                << " "<<(_collection->getMesh())[idomain]->getNumberOfCells()<<" cells"
-                << " "<<(_collection->getFaceMesh())[idomain]->getNumberOfCells()<<" faces"
-                << " "<<(_collection->getMesh())[idomain]->getNumberOfNodes()<<" nodes"<<endl;
+            std::cout << "proc "<< domainSelector->rank() << " : writeMedFile " << distfilename
+                      << " "<< (_collection->getMesh())[idomain]->getNumberOfCells() << " cells"
+                      << " " << (_collection->getFaceMesh())[idomain]->getNumberOfCells() << " faces"
+                      << " " << (_collection->getMesh())[idomain]->getNumberOfNodes()<<" nodes" << std::endl;
           writeMedFile(idomain,distfilename);
         }
 
@@ -273,9 +271,8 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
   //create the ascii description file
   if (domainSelector->rank()==0)
     {
-      string myfile(filename);
+      std::string myfile(filename);
       myfile.append(".xml");
-      _master_filename=myfile;
       if ( !domainSelector || domainSelector->rank() == 0 )
         xmlSaveFormatFileEnc(myfile.c_str(), master_doc, "UTF-8", 1);
     }

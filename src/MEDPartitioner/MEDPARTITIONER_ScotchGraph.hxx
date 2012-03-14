@@ -24,7 +24,8 @@
 
 #include <string>
 
-namespace MEDPARTITIONER {
+namespace MEDPARTITIONER
+{
   class SkyLineArray;
   class MEDPARTITIONER_EXPORT SCOTCHGraph : public Graph
   {
@@ -35,4 +36,5 @@ namespace MEDPARTITIONER {
     void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
   };
 }
+
 #endif

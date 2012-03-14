@@ -37,21 +37,21 @@
 #endif
 
 using namespace MEDPARTITIONER;
-using namespace std;
 
 ParallelTopology::ParallelTopology():_nb_domain(0),_mesh_dimension(0)
 {
 }
 
 //constructing topology according to mesh collection without global numerotation (use setGlobalNumerotation later)
-ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& meshes)
+ParallelTopology::ParallelTopology(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshes)
 {
   _nb_domain=meshes.size();
   _nb_cells.resize(_nb_domain);
   _nb_nodes.resize(_nb_domain);
   //  _nb_faces.resize(_nb_domain);
   
-  if (MyGlobals::_Is0verbose>100) cout<<"new ParallelTopology\n";
+  if (MyGlobals::_Is0verbose>100)
+    std::cout << "new ParallelTopology\n";
   _loc_to_glob.resize(0);      //precaution, need gatherNbOf() setGlobalNumerotation()
   _node_loc_to_glob.resize(0); //precaution, need gatherNbOf() setGlobalNumerotation()
   //_face_loc_to_glob.resize(_nb_domain);
@@ -60,7 +60,8 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
   for (int idomain=0; !parallel_mode && idomain<_nb_domain; idomain++)
     parallel_mode = (!meshes[idomain]);
 
-  if (MyGlobals::_Is0verbose>20 && !parallel_mode) cout<<"WARNING : ParallelTopology contructor without parallel_mode"<<endl;
+  if (MyGlobals::_Is0verbose>20 && !parallel_mode)
+    std::cout << "WARNING : ParallelTopology contructor without parallel_mode" << std::endl;
   for (int idomain=0; idomain<_nb_domain; idomain++)
     {
       if ( !meshes[idomain] ) continue;
@@ -71,7 +72,7 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
       else
         {
           if (_mesh_dimension!=meshes[idomain]->getMeshDimension())
-            throw INTERP_KERNEL::Exception(LOCALIZED("meshes dimensions incompatible"));
+            throw INTERP_KERNEL::Exception("meshes dimensions incompatible");
         }
       _nb_cells[idomain]=meshes[idomain]->getNumberOfCells();
       _nb_nodes[idomain]=meshes[idomain]->getNumberOfNodes();
@@ -82,14 +83,16 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
 //constructing _loc_to_glob etc by default, needs gatherNbOf() done
 void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSelector)
 {
-  if (MyGlobals::_Is0verbose>100) cout<<"setGlobalNumerotationDefault on "<<_nb_domain<<" domains\n";
-  if (_loc_to_glob.size()!=0) throw INTERP_KERNEL::Exception(LOCALIZED("a global numerotation is done yet"));
+  if (MyGlobals::_Is0verbose>100)
+    std::cout<< "setGlobalNumerotationDefault on " << _nb_domain << " domains\n";
+  if (_loc_to_glob.size()!=0) throw INTERP_KERNEL::Exception("a global numerotation is done yet");
   _loc_to_glob.resize(_nb_domain);
   _node_loc_to_glob.resize(_nb_domain);
   
   //warning because _nb_cells[idomain] is 0 if not my domain(s)
   //we set loc_to_glob etc.. only for my domain(s)
-  if (MyGlobals::_Is0verbose>500) cout<<"(c)idomain|ilocalCell|iglobalCell"<<endl;
+  if (MyGlobals::_Is0verbose>500)
+    std::cout << "(c)idomain|ilocalCell|iglobalCell" << std::endl;
   for (int idomain=0; idomain<_nb_domain; idomain++)
     {
       _loc_to_glob[idomain].resize(_nb_cells[idomain]);
@@ -97,15 +100,16 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
       for (int i=0; i<_nb_cells[idomain]; i++)
         {
           int global=domainCellShift+i ;
-          _glob_to_loc.insert(make_pair(global,make_pair(idomain,i)));
+          _glob_to_loc.insert(std::make_pair(global,std::make_pair(idomain,i)));
           _loc_to_glob[idomain][i]=global;
-          if (MyGlobals::_Verbose>500) cout<<"c"<<idomain<<"|"<<i<<"|"<<global<<" ";
+          if (MyGlobals::_Verbose>500)
+            std::cout << "c" << idomain << "|" << i << "|" << global << " ";
         }
     }
   if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD);
-  if (MyGlobals::_Is0verbose>500) cout<<endl;
+  if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
   
-  if (MyGlobals::_Is0verbose>500) cout<<"(n)idomain|ilocalNode|iglobalNode"<<endl;
+  if (MyGlobals::_Is0verbose>500) std::cout << "(n)idomain|ilocalNode|iglobalNode" << std::endl;
   for (int idomain=0; idomain<_nb_domain; idomain++)
     {
       _node_loc_to_glob[idomain].resize(_nb_nodes[idomain]);
@@ -113,26 +117,28 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
       for (int i=0; i<_nb_nodes[idomain]; i++)
         {
           int global=domainNodeShift+i ;
-          _node_glob_to_loc.insert(make_pair(global,make_pair(idomain,i)));
+          _node_glob_to_loc.insert(std::make_pair(global,std::make_pair(idomain,i)));
           _node_loc_to_glob[idomain][i]=global;
-          if (MyGlobals::_Verbose>500) cout<<"n"<<idomain<<"|"<<i<<"|"<<global<<" ";
+          if (MyGlobals::_Verbose>500)
+            std::cout << "n" << idomain << "|" << i << "|" << global << " ";
         }
     }
   if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD);
-  if (MyGlobals::_Is0verbose>500) cout<<endl;
+  if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
   
   _nb_total_cells=domainSelector->getNbTotalCells();
   _nb_total_nodes=domainSelector->getNbTotalNodes();
   _nb_total_faces=domainSelector->getNbTotalFaces();
-  if (MyGlobals::_Is0verbose>200) cout<<"globalNumerotation default done meshDimension "<<_mesh_dimension<<" nbTotalCells "<<_nb_total_cells<<" nbTotalNodes "<<_nb_total_nodes<<endl;
+  if (MyGlobals::_Is0verbose>200)
+    std::cout << "globalNumerotation default done meshDimension " << _mesh_dimension << " nbTotalCells " << _nb_total_cells << " nbTotalNodes " << _nb_total_nodes << std::endl;
 }
 
 //constructing topology according to mesh collection
-ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& meshes, 
-                                   const vector<MEDPARTITIONER::ConnectZone*>& cz,
-                                   vector<int*>& cellglobal,
-                                   vector<int*>& nodeglobal,
-                                   vector<int*>& faceglobal)
+ParallelTopology::ParallelTopology(const std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshes, 
+                                   const std::vector<MEDPARTITIONER::ConnectZone*>& cz,
+                                   std::vector<int*>& cellglobal,
+                                   std::vector<int*>& nodeglobal,
+                                   std::vector<int*>& faceglobal)
 {
   _nb_domain=meshes.size();
   int index_global=0;
@@ -168,9 +174,8 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
           for (int i=0; i<_nb_cells[idomain]; i++)
             {
               int global=i ;//cellDomainShift+i;
-              _glob_to_loc.insert(make_pair(global,make_pair(idomain,i)));
+              _glob_to_loc.insert(std::make_pair(global,std::make_pair(idomain,i)));
               _loc_to_glob[idomain][i]=global;
-              //cvw cout<<idomain<<"|"<<i<<"|"<<global<<" ";
               index_global++;
             }
         }
@@ -180,11 +185,10 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
           for (int i=0; i<_nb_cells[idomain]; i++)
             {
               int global=cellglobal[idomain][i];
-              _glob_to_loc.insert(make_pair(global,make_pair(idomain,i)));
+              _glob_to_loc.insert(std::make_pair(global,std::make_pair(idomain,i)));
               //_loc_to_glob[make_pair(idomain,i+1)]=global;
               _loc_to_glob[idomain][i]=global;
               index_global++;
-              //        cout<<"glob:"<<global<<" --> ("<<idomain<<","<<i+1<<")"<<endl;
             }
         }
 
@@ -196,7 +200,7 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
           _node_loc_to_glob[idomain].resize(meshes[idomain]->getNumberOfNodes());
           for (int i=0; i<meshes[idomain]->getNumberOfNodes(); i++)
             {
-              _node_glob_to_loc.insert(make_pair(i,make_pair(0,i)));
+              _node_glob_to_loc.insert(std::make_pair(i,std::make_pair(0,i)));
               _node_loc_to_glob[0][i]=i;
             }
           _nb_total_nodes=meshes[idomain]->getNumberOfNodes();   
@@ -206,7 +210,7 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
 
       //creating node maps
       _nb_nodes[idomain]=meshes[idomain]->getNumberOfNodes();
-      INTERP_KERNEL::HashMap <int,pair<int,int> > local2distant;
+      INTERP_KERNEL::HashMap <int,std::pair<int,int> > local2distant;
       _node_loc_to_glob[idomain].resize(_nb_nodes[idomain]);
       for (int icz=0; icz<cz.size(); icz++)
         {
@@ -220,7 +224,7 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
                 {
                   int local= node_corresp[i*2];
                   int distant = node_corresp[i*2+1];
-                  local2distant.insert(make_pair(local, make_pair(distant_ip,distant)));    
+                  local2distant.insert(std::make_pair(local, std::make_pair(distant_ip,distant)));    
                 }
             }
         }
@@ -232,7 +236,7 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
               if (local2distant.find(inode)==local2distant.end())
                 {
                   index_node_global++;
-                  _node_glob_to_loc.insert(make_pair(index_node_global,make_pair(idomain,inode)));
+                  _node_glob_to_loc.insert(std::make_pair(index_node_global,std::make_pair(idomain,inode)));
                   //_node_loc_to_glob[make_pair(idomain,inode+1)]=index_node_global;
                   _node_loc_to_glob[idomain][inode]=index_node_global;
                 }   
@@ -241,7 +245,7 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
                   int ip = (local2distant.find(inode)->second).first;
                   int distant = (local2distant.find(inode)->second).second;
                   int global_number=_loc_to_glob[ip][distant];
-                  _node_glob_to_loc.insert(make_pair(global_number,make_pair(idomain,inode)));
+                  _node_glob_to_loc.insert(std::make_pair(global_number,std::make_pair(idomain,inode)));
                   _node_loc_to_glob[idomain][inode]=global_number;
                 } 
             }
@@ -252,7 +256,7 @@ ParallelTopology::ParallelTopology(const vector<ParaMEDMEM::MEDCouplingUMesh*>& 
           for (int inode=0; inode<_nb_nodes[idomain]; inode++)
             {
               int global_number=nodeglobal[idomain][inode];
-              _node_glob_to_loc.insert(make_pair(global_number,make_pair(idomain,inode)));
+              _node_glob_to_loc.insert(std::make_pair(global_number,std::make_pair(idomain,inode)));
               _node_loc_to_glob[idomain][inode]=global_number;
             }
         }
@@ -273,8 +277,8 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
   _mesh_dimension=mesh_dimension;
   
   if (MyGlobals::_Verbose>200)
-    cout<<"proc "<<MyGlobals::_Rank<<" : new topology oldNbDomain "<<
-      oldTopology->nbDomain()<<" newNbDomain "<<_nb_domain<<endl;
+    std::cout << "proc " << MyGlobals::_Rank << " : new topology oldNbDomain " <<
+      oldTopology->nbDomain() << " newNbDomain " << _nb_domain << std::endl;
   _nb_cells.resize(_nb_domain,0);
   _nb_nodes.resize(_nb_domain,0);
   _nb_faces.resize(_nb_domain,0);
@@ -286,7 +290,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
   const int* part=graph->getPart(); //all cells for this proc (may be more domains)
   _nb_total_cells=graph->nbVertices(); //all cells for this proc (may be more domains)
   if (MyGlobals::_Verbose>300)
-    cout<<"proc "<<MyGlobals::_Rank<<" : topology from partition, nbTotalCells "<<_nb_total_cells<<endl;
+    std::cout << "proc " << MyGlobals::_Rank << " : topology from partition, nbTotalCells " << _nb_total_cells << std::endl;
   
   int icellProc=0; //all cells of my domains are concatenated in part
   for (int iold=0; iold<oldTopology->nbDomain(); iold++)
@@ -303,13 +307,13 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
           icellProc++;
           int iGlobalCell=globalids[icell];
           _loc_to_glob[idomain].push_back(iGlobalCell);
-          _glob_to_loc.insert(make_pair(iGlobalCell, make_pair(idomain, _nb_cells[idomain])));
+          _glob_to_loc.insert(std::make_pair(iGlobalCell, std::make_pair(idomain, _nb_cells[idomain])));
         }
     }
 
   if (MyGlobals::_Verbose>300)
     for (int idomain=0; idomain<_nb_domain; idomain++)
-      cout<<"proc "<<MyGlobals::_Rank<<" : nbCells in new domain "<<idomain<<" : "<<_nb_cells[idomain]<<endl; 
+      std::cout << "proc " << MyGlobals::_Rank << " : nbCells in new domain " << idomain << " : " << _nb_cells[idomain] << std::endl; 
 }
 
 ParallelTopology::~ParallelTopology()
@@ -325,10 +329,10 @@ ParallelTopology::~ParallelTopology()
 void ParallelTopology::convertGlobalNodeList(const int* node_list, int nbnode, int* local, int* ip)
 {
   if (_node_glob_to_loc.empty()) 
-    throw INTERP_KERNEL::Exception(LOCALIZED("Node mapping has not yet been built"));
+    throw INTERP_KERNEL::Exception("Node mapping has not yet been built");
   for (int i=0; i< nbnode; i++)
     {
-      pair<int,int> local_node = _node_glob_to_loc.find(node_list[i])->second;
+      std::pair<int,int> local_node = _node_glob_to_loc.find(node_list[i])->second;
       ip[i]=local_node.first;
       local[i]=local_node.second;
     }
@@ -344,12 +348,12 @@ void ParallelTopology::convertGlobalNodeList(const int* node_list, int nbnode, i
 void ParallelTopology::convertGlobalNodeList(const int* node_list, int nbnode, int* local, int ip)
 {
   if (_node_glob_to_loc.empty()) 
-    throw INTERP_KERNEL::Exception(LOCALIZED("Node mapping has not yet been built"));
+    throw INTERP_KERNEL::Exception("Node mapping has not yet been built");
 
   for (int i=0; i< nbnode; i++)
     {
-      typedef INTERP_KERNEL::HashMultiMap<int,pair<int,int> >::iterator mmiter;
-      pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(node_list[i]);
+      typedef INTERP_KERNEL::HashMultiMap<int,std::pair<int,int> >::iterator mmiter;
+      std::pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(node_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
         { 
           int ipfound=(it->second).first;
@@ -368,14 +372,12 @@ void ParallelTopology::convertGlobalNodeList(const int* node_list, int nbnode, i
 void ParallelTopology::convertGlobalNodeListWithTwins(const int* node_list, int nbnode, int*& local, int*& ip,int*& full_array, int& size)
 {
   if (_node_glob_to_loc.empty()) 
-    throw INTERP_KERNEL::Exception(LOCALIZED("Node mapping has not yet been built"));
+    throw INTERP_KERNEL::Exception("Node mapping has not yet been built");
 
   size=0;
   for (int i=0; i< nbnode; i++)
     {
       int count= _node_glob_to_loc.count(node_list[i]);
-      //      if (count > 1) 
-      //        cout << "noeud " << node_list[i]<< " doublon d'ordre " << count<<endl;
       size+=count;
     }
   int index=0;
@@ -384,8 +386,8 @@ void ParallelTopology::convertGlobalNodeListWithTwins(const int* node_list, int 
   full_array=new int[size];
   for (int i=0; i< nbnode; i++)
     {
-      typedef INTERP_KERNEL::HashMultiMap<int,pair<int,int> >::iterator mmiter;
-      pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(node_list[i]);
+      typedef INTERP_KERNEL::HashMultiMap<int,std::pair<int,int> >::iterator mmiter;
+      std::pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(node_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
         { 
           ip[index]=(it->second).first;
@@ -418,8 +420,8 @@ void ParallelTopology::convertGlobalFaceListWithTwins(const int* face_list, int 
   full_array=new int[size];
   for (int i=0; i< nbface; i++)
     {
-      typedef INTERP_KERNEL::HashMultiMap<int,pair<int,int> >::iterator mmiter;
-      pair<mmiter,mmiter> range=_face_glob_to_loc.equal_range(face_list[i]);
+      typedef INTERP_KERNEL::HashMultiMap<int,std::pair<int,int> >::iterator mmiter;
+      std::pair<mmiter,mmiter> range=_face_glob_to_loc.equal_range(face_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
         { 
           ip[index]=(it->second).first;
@@ -437,18 +439,16 @@ void ParallelTopology::convertGlobalCellList(const int* cell_list, int nbcell, i
 {
   for (int i=0; i<nbcell; i++)
     {
-      //cvw INTERP_KERNEL::HashMap<int, pair<int,int> >::const_iterator iter = _glob_to_loc.find(cell_list[i]);
-      INTERP_KERNEL::HashMap<int, pair<int,int> >::const_iterator iter = _glob_to_loc.find(cell_list[i]);
+      INTERP_KERNEL::HashMap<int, std::pair<int,int> >::const_iterator iter = _glob_to_loc.find(cell_list[i]);
       if (iter == _glob_to_loc.end())
         {
-          cerr<<"proc "<<MyGlobals::_Rank<<" : KO cell_list["<<i<<"] : "<<cell_list[i]<<endl;
-          throw INTERP_KERNEL::Exception(LOCALIZED("ParallelTopology::convertGlobalCellList : Cell not found"));
+          std::cerr << "proc " << MyGlobals::_Rank << " : KO cell_list[" << i << "] : " << cell_list[i] << std::endl;
+          throw INTERP_KERNEL::Exception("ParallelTopology::convertGlobalCellList : Cell not found");
         }
       else
         {
           ip[i]=(iter->second).first;     //no domain
           local[i]=(iter->second).second; //no local cell
-          //cout<<"proc "<<MyGlobals::_Rank<<" : OK cell_list["<<i<<"] : "<<cell_list[i]<<" "<<ip[i]<<" "<<local[i]<<endl;
         }
     }
 }
@@ -460,14 +460,13 @@ void ParallelTopology::convertGlobalFaceList(const int* face_list, int nbface, i
 {
   for (int i=0; i< nbface; i++)
     {
-      INTERP_KERNEL::HashMap<int, pair<int,int> >::const_iterator iter = _face_glob_to_loc.find(face_list[i]);
+      INTERP_KERNEL::HashMap<int, std::pair<int,int> >::const_iterator iter = _face_glob_to_loc.find(face_list[i]);
       if (iter == _face_glob_to_loc.end())
         {
-          throw INTERP_KERNEL::Exception(LOCALIZED("ParallelTopology::convertGlobalFaceList : Face not found"));
+          throw INTERP_KERNEL::Exception("ParallelTopology::convertGlobalFaceList : Face not found");
         }
       ip[i]=(iter->second).first;
       local[i]=(iter->second).second;
-      //    cout << " in convertGlobalFAceList face global "<<face_list[i]<<" -> ("<<ip[i]<<","<<local[i]<<")"<<endl;
     }
 }
 
@@ -482,8 +481,8 @@ void ParallelTopology::convertGlobalFaceList(const int* face_list, int nbface, i
 {
   for (int i=0; i< nbface; i++)
     {
-      typedef INTERP_KERNEL::HashMultiMap<int,pair<int,int> >::iterator mmiter;
-      pair<mmiter,mmiter> range=_face_glob_to_loc.equal_range(face_list[i]);
+      typedef INTERP_KERNEL::HashMultiMap<int,std::pair<int,int> >::iterator mmiter;
+      std::pair<mmiter,mmiter> range=_face_glob_to_loc.equal_range(face_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
         { 
           int ipfound=(it->second).first;
@@ -503,8 +502,8 @@ void ParallelTopology::convertToLocal2ndVersion(int* nodes, int nbnodes, int ido
     {
       //      cout <<" inode :"<<inode<< " global = "<<type_connectivity[type][inode];
       int global = nodes[inode];
-      typedef INTERP_KERNEL::HashMultiMap<int,pair<int,int> >::iterator mmiter;
-      pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(global);
+      typedef INTERP_KERNEL::HashMultiMap<int,std::pair<int,int> >::iterator mmiter;
+      std::pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(global);
       for (mmiter it=range.first; it !=range.second; it++)
         {
           if ((it->second).first==idomain)
@@ -526,3 +525,83 @@ int ParallelTopology::getMaxGlobalFace() const
   return max;
 }
 
+int ParallelTopology::getNodeNumber() const
+{
+  if (_node_glob_to_loc.empty()) return 0;
+  std::set <int> keys;
+  for (INTERP_KERNEL::HashMultiMap<int, std::pair<int,int> >::const_iterator iter= _node_glob_to_loc.begin(); iter!=_node_glob_to_loc.end(); iter++)
+    {
+      keys.insert(iter->first);
+    }
+  return keys.size();
+}
+
+/*!
+ * retrieving list of nodes in global numbers
+ */
+void ParallelTopology::getNodeList(int idomain, int *list) const
+{
+  for (int i=0; i<_nb_nodes[idomain]; i++) 
+    list[i]=_node_loc_to_glob[idomain][i];
+}
+
+/*!
+ * retrieving list of nodes in global numbers
+ */
+void ParallelTopology::getCellList(int idomain, int *list) const
+{
+  for (int i=0; i<_nb_cells[idomain];i++)
+    list[i]=_loc_to_glob[idomain][i];
+}
+
+int ParallelTopology::getFaceNumber() const
+{
+  if (_face_glob_to_loc.empty())
+    return 0;
+  std::set <int> keys;
+  for (INTERP_KERNEL::HashMultiMap<int, std::pair<int,int> >::const_iterator iter= _face_glob_to_loc.begin(); iter!=_face_glob_to_loc.end(); iter++)
+    {
+      keys.insert(iter->first);
+    }
+  return keys.size();
+}
+
+/*!
+ * retrieving list of faces in global numbers
+ */
+void ParallelTopology::getFaceList(int idomain, int *list) const
+{
+  for (int i=0; i<_nb_faces[idomain];i++)   
+    list[i]=_face_loc_to_glob[idomain][i];
+}
+
+int ParallelTopology::convertGlobalFace(int iglobal, int idomain)
+{
+  typedef INTERP_KERNEL::HashMultiMap<int, std::pair<int,int> >::const_iterator MMiter;
+  std::pair<MMiter,MMiter> eq = _face_glob_to_loc.equal_range(iglobal);
+  for (MMiter it=eq.first; it != eq.second; it++) 
+    if (it->second.first == idomain)
+      return it->second.second;   
+  return -1;
+}
+
+int ParallelTopology::convertGlobalNode(int iglobal, int idomain)
+{
+  typedef INTERP_KERNEL::HashMultiMap<int, std::pair<int,int> >::const_iterator MMiter;
+  std::pair<MMiter,MMiter> eq = _node_glob_to_loc.equal_range(iglobal);
+  for (MMiter it=eq.first; it != eq.second; it++)
+    {
+      if (it->second.first == idomain)
+        return it->second.second;
+    }
+  return -1;
+}
+
+/*!
+ * adding a face to the topology
+ */
+void ParallelTopology::appendFace(int idomain, int ilocal, int iglobal)
+{
+  _face_loc_to_glob[idomain].push_back(iglobal);
+  _face_glob_to_loc.insert(std::make_pair(iglobal,std::make_pair(idomain,ilocal)));
+}

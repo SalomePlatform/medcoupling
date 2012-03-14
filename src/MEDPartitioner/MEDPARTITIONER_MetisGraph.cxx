@@ -37,7 +37,6 @@ extern "C"
 }
 #endif
 
-using namespace ParaMEDMEM;
 using namespace MEDPARTITIONER;
 
 METISGraph::METISGraph():Graph()
@@ -169,7 +168,7 @@ void METISGraph::partGraph(int ndomain,
           catch(...)
             {
               //shit ParMETIS "Error! Key -2 not found!" not catched...
-              throw INTERP_KERNEL::Exception(LOCALIZED("Problem in ParMETIS_PartKway"));
+              throw INTERP_KERNEL::Exception("Problem in ParMETIS_PartKway");
             }
           if (n<8 && nparts==3)
             {
@@ -177,7 +176,7 @@ void METISGraph::partGraph(int ndomain,
                 partition[i]=i%3;
             }
 #else
-          throw INTERP_KERNEL::Exception(LOCALIZED("ParMETIS is not available. Check your products, please."));
+          throw INTERP_KERNEL::Exception("ParMETIS is not available. Check your products, please.");
 #endif
         }
       else
@@ -192,7 +191,7 @@ void METISGraph::partGraph(int ndomain,
             METIS_PartGraphKway(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
                                 &base, &nparts, options, &edgecut, partition);
 #else
-          throw INTERP_KERNEL::Exception(LOCALIZED("METIS is not available. Check your products, please."));
+          throw INTERP_KERNEL::Exception("METIS is not available. Check your products, please.");
 #endif
         }
     }

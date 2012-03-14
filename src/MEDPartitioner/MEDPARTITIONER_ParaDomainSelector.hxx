@@ -30,7 +30,6 @@ namespace ParaMEDMEM
   class MEDCouplingUMesh;
 }
 
-
 namespace MEDPARTITIONER
 {
   class Graph;
@@ -41,9 +40,7 @@ namespace MEDPARTITIONER
    */
   class MEDPARTITIONER_EXPORT ParaDomainSelector
   {
-
   public:
-
     ParaDomainSelector(bool mesure_memory=false);
     ~ParaDomainSelector();
 
@@ -102,9 +99,9 @@ namespace MEDPARTITIONER
 
     void sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int target) const;
     void recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int source) const;
-  
   private:
-    int _rank, _world_size; //my rank and nb of processors
+    int _rank; //my rank
+    int _world_size; //nb of processors
     int _nb_result_domains; //required nb of domains
 
     std::vector< int > _nb_cell_pairs_by_joint;
@@ -114,8 +111,9 @@ namespace MEDPARTITIONER
     std::vector< int > _face_shift_by_domain;
 
     double _init_time;
-    bool   _mesure_memory;
-    int    _init_memory, _max_memory;
+    bool _mesure_memory;
+    int _init_memory;
+    int _max_memory;
   };
 }
 #endif

@@ -28,26 +28,23 @@
 #include "MEDLoader.hxx"
 #include "MEDFileMesh.hxx"
 
-#include <vector>
-#include <string>
 #include <map>
 #include <set>
-#include <iostream>
+#include <vector>
+#include <string>
 #include <fstream>
+#include <iostream>
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
-#include <sys/time.h>
-
-extern "C" {
+extern "C"
+{
 #include "med.h"
 }
 
-using namespace std;
-using namespace ParaMEDMEM;
 using namespace MEDPARTITIONER;
 
 MeshCollectionDriver::MeshCollectionDriver(MeshCollection* collection):_collection(collection)
@@ -61,9 +58,9 @@ MeshCollectionDriver::MeshCollectionDriver(MeshCollection* collection):_collecti
  * */
 int MeshCollectionDriver::readSeq(const char* filename, const char* meshname)
 {
-  cout<<"readSeq"<<endl;
+  std::cout << "readSeq" << std::endl;
   MyGlobals::_File_Names.resize(1);
-  MyGlobals::_File_Names[0]=string(filename);
+  MyGlobals::_File_Names[0]=std::string(filename);
 
   ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(filename,meshname);
   //puts the only mesh in the mesh vector
@@ -96,16 +93,15 @@ int MeshCollectionDriver::readSeq(const char* filename, const char* meshname)
  */
 //================================================================================
 
-void MeshCollectionDriver::readSubdomain(vector<int*>& cellglobal, //cvwat03
-                                         vector<int*>& faceglobal,
-                                         vector<int*>& nodeglobal, int idomain)
+void MeshCollectionDriver::readSubdomain(std::vector<int*>& cellglobal,
+                                         std::vector<int*>& faceglobal,
+                                         std::vector<int*>& nodeglobal, int idomain)
 {
-  string meshname=MyGlobals::_Mesh_Names[idomain];
-  string file=MyGlobals::_File_Names[idomain];
-  //cout << "Reading "<<meshname<<" in "<<file<<endl; //cvw
+  std::string meshname=MyGlobals::_Mesh_Names[idomain];
+  std::string file=MyGlobals::_File_Names[idomain];
 
   ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(file.c_str(),meshname.c_str());
-  vector<int> nonEmpty=mfm->getNonEmptyLevels();
+  std::vector<int> nonEmpty=mfm->getNonEmptyLevels();
   
   try 
     { 
@@ -120,7 +116,7 @@ void MeshCollectionDriver::readSubdomain(vector<int*>& cellglobal, //cvwat03
       ParaMEDMEM::DataArrayInt* empty=ParaMEDMEM::DataArrayInt::New();
       empty->alloc(0,1);
       (_collection->getCellFamilyIds())[idomain]=empty;
-      cout<<"\nNO Level0Mesh (Cells)\n";
+      std::cout << "\nNO Level0Mesh (Cells)\n";
     }
   try 
     { 
@@ -133,7 +129,7 @@ void MeshCollectionDriver::readSubdomain(vector<int*>& cellglobal, //cvwat03
         }
       else
         {
-          throw "no faces";
+          throw INTERP_KERNEL::Exception("no faces");
         }
     }
   catch(...)
@@ -141,7 +137,8 @@ void MeshCollectionDriver::readSubdomain(vector<int*>& cellglobal, //cvwat03
       (_collection->getFaceMesh())[idomain]=CreateEmptyMEDCouplingUMesh(); // or 0 if you want test;
       ParaMEDMEM::DataArrayInt* empty=ParaMEDMEM::DataArrayInt::New();
       (_collection->getFaceFamilyIds())[idomain]=empty;
-      if (MyGlobals::_Verbose>10) cout<<"proc "<<MyGlobals::_Rank<<" : NO LevelM1Mesh (Faces)\n";
+      if (MyGlobals::_Verbose>10)
+        std::cout << "proc " << MyGlobals::_Rank << " : NO LevelM1Mesh (Faces)\n";
     }
   
   //reading groups
@@ -150,12 +147,12 @@ void MeshCollectionDriver::readSubdomain(vector<int*>& cellglobal, //cvwat03
 
   mfm->decrRef();
   
-  vector<string> localInformation;
-  string str;
+  std::vector<std::string> localInformation;
+  std::string str;
   localInformation.push_back(str+"ioldDomain="+IntToStr(idomain));
   localInformation.push_back(str+"meshName="+meshname);
   MyGlobals::_General_Informations.push_back(SerializeFromVectorOfString(localInformation));
-  vector<string> localFields=BrowseAllFieldsOnMesh(file, meshname, idomain); //cvwat07
+  std::vector<std::string> localFields=BrowseAllFieldsOnMesh(file, meshname, idomain);
   if (localFields.size()>0) 
     MyGlobals::_Field_Descriptions.push_back(SerializeFromVectorOfString(localFields));
 }
@@ -163,12 +160,11 @@ void MeshCollectionDriver::readSubdomain(vector<int*>& cellglobal, //cvwat03
 
 void MeshCollectionDriver::readSubdomain(int idomain)
 {
-  string meshname=MyGlobals::_Mesh_Names[idomain];
-  string file=MyGlobals::_File_Names[idomain];
-  //cout << "Reading "<<meshname<<" in "<<file<<endl; //cvw
+  std::string meshname=MyGlobals::_Mesh_Names[idomain];
+  std::string file=MyGlobals::_File_Names[idomain];
 
   ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(file.c_str(),meshname.c_str());
-  vector<int> nonEmpty=mfm->getNonEmptyLevels();
+  std::vector<int> nonEmpty=mfm->getNonEmptyLevels();
   
   try 
     { 
@@ -183,7 +179,7 @@ void MeshCollectionDriver::readSubdomain(int idomain)
       ParaMEDMEM::DataArrayInt* empty=ParaMEDMEM::DataArrayInt::New();
       empty->alloc(0,1);
       (_collection->getCellFamilyIds())[idomain]=empty;
-      cout<<"\nNO Level0Mesh (Cells)\n";
+      std::cout<<"\nNO Level0Mesh (Cells)\n";
     }
   try 
     { 
@@ -196,7 +192,7 @@ void MeshCollectionDriver::readSubdomain(int idomain)
         }
       else
         {
-          throw "no faces";
+          throw INTERP_KERNEL::Exception("no faces");
         }
     }
   catch(...)
@@ -204,7 +200,8 @@ void MeshCollectionDriver::readSubdomain(int idomain)
       (_collection->getFaceMesh())[idomain]=CreateEmptyMEDCouplingUMesh(); // or 0 if you want test;
       ParaMEDMEM::DataArrayInt* empty=ParaMEDMEM::DataArrayInt::New();
       (_collection->getFaceFamilyIds())[idomain]=empty;
-      if (MyGlobals::_Verbose>10) cout<<"proc "<<MyGlobals::_Rank<<" : NO LevelM1Mesh (Faces)\n";
+      if (MyGlobals::_Verbose>10)
+        std::cout << "proc " << MyGlobals::_Rank << " : NO LevelM1Mesh (Faces)\n";
     }
   
   //reading groups
@@ -213,38 +210,36 @@ void MeshCollectionDriver::readSubdomain(int idomain)
 
   mfm->decrRef();
   
-  vector<string> localInformation;
-  string str;
+  std::vector<std::string> localInformation;
+  std::string str;
   localInformation.push_back(str+"ioldDomain="+IntToStr(idomain));
   localInformation.push_back(str+"meshName="+meshname);
   MyGlobals::_General_Informations.push_back(SerializeFromVectorOfString(localInformation));
-  vector<string> localFields=BrowseAllFieldsOnMesh(file, meshname, idomain); //cvwat07
+  std::vector<std::string> localFields=BrowseAllFieldsOnMesh(file, meshname, idomain);
   if (localFields.size()>0) 
     MyGlobals::_Field_Descriptions.push_back(SerializeFromVectorOfString(localFields));
 }
 
 
-void MeshCollectionDriver::writeMedFile(int idomain, const string& distfilename)
+void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfilename) const
 {
-  vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
+  std::vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
   ParaMEDMEM::MEDCouplingUMesh* cellMesh=_collection->getMesh(idomain);
   ParaMEDMEM::MEDCouplingUMesh* faceMesh=_collection->getFaceMesh(idomain);
   ParaMEDMEM::MEDCouplingUMesh* faceMeshFilter=0;
   
-  string finalMeshName=ExtractFromDescription(MyGlobals::_General_Informations[0], "finalMeshName=");
-  string cleFilter=Cle1ToStr("filterFaceOnCell",idomain);
-  DataArrayInt* filter=0;
+  std::string finalMeshName=ExtractFromDescription(MyGlobals::_General_Informations[0], "finalMeshName=");
+  std::string cleFilter=Cle1ToStr("filterFaceOnCell",idomain);
+  ParaMEDMEM::DataArrayInt* filter=0;
   if (_collection->getMapDataArrayInt().find(cleFilter)!=_collection->getMapDataArrayInt().end())
     {
       filter=_collection->getMapDataArrayInt().find(cleFilter)->second;
       int* index=filter->getPointer();
-      faceMeshFilter=(MEDCouplingUMesh *) faceMesh->buildPartOfMySelf(index,index+filter->getNbOfElems(),true);
+      faceMeshFilter=(ParaMEDMEM::MEDCouplingUMesh *) faceMesh->buildPartOfMySelf(index,index+filter->getNbOfElems(),true);
       faceMesh=faceMeshFilter;
     }
   cellMesh->setName(finalMeshName.c_str());
   meshes.push_back(cellMesh);
-  //cellMesh->zipCoords();
-  //faceMesh->zipCoords();
   
   faceMesh->checkCoherency();
   if (faceMesh->getNumberOfCells()>0)
@@ -253,62 +248,18 @@ void MeshCollectionDriver::writeMedFile(int idomain, const string& distfilename)
       meshes.push_back(faceMesh);
     }
   
-  /*do not work
-    ParaMEDMEM::MEDFileUMesh* mfm2=ParaMEDMEM::MEDFileUMesh::New();
-    MEDFileUMesh* mfm2 = static_cast<MEDFileUMesh*>(cellMesh->getMeshes()->getMeshAtPos(0));
-    MEDFileUMesh* mfm2 = ParaMEDMEM::MEDFileUMesh::New(cellMesh);
-    string fname="FUM_"+distfilename;
-    mfm2->setMeshAtLevel(0, cellMesh );
-    mfm2->setMeshAtLevel(-1, faceMesh );
-    mfm2->write(fname.c_str(),0);
-    mfm2->decrRef();
-  */
-  
   ParaMEDMEM::MEDCouplingUMesh* boundaryMesh=0;
-  //ParaMEDMEM::MEDCouplingUMesh* boundaryMesh1=0;
-  //ParaMEDMEM::MEDCouplingUMesh* finalboundaryMesh=0;
   if (MyGlobals::_Creates_Boundary_Faces>0)
     {
       //try to write Boundary meshes
       bool keepCoords=false; //TODO or true
-      boundaryMesh=(MEDCouplingUMesh *) cellMesh->buildBoundaryMesh(keepCoords);
+      boundaryMesh=(ParaMEDMEM::MEDCouplingUMesh *) cellMesh->buildBoundaryMesh(keepCoords);
       boundaryMesh->setName("boundaryMesh");
-      //cout<<"boundaryMesh "<<boundaryMesh->getNumberOfCells()<<endl;
-      //do not work if faceMesh present yet //The mesh dimension of meshes must be different each other!
-      //boundaryMesh->checkCoherency();
-      //boundaryMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-10);
-      //meshes.push_back(boundaryMesh);
-      //string boundary="boundary_"+distfilename;
-    
-      /*try to find joint do no work
-        int rang=MyGlobals::_Rank;
-        if (rang==1) (_collection->getParaDomainSelector())->sendMesh(*(boundaryMesh),0);
-        if (rang==0) 
-        {
-        (_collection->getParaDomainSelector())->recvMesh(boundaryMesh1,1);
-        //vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
-        //vector<DataArrayInt* > corr;
-        //meshes.push_back(boundaryMesh);
-        //meshes.push_back(boundaryMesh1);
-        //need share the same coords
-        //boundaryMesh1->tryToShareSameCoordsPermute(*boundaryMesh, 1e-10);
-        //finalboundaryMesh=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,2, corr);
-        //boundaryMesh=finalboundaryMesh;
-      
-        boundaryMesh->zipCoords();
-        boundaryMesh1->zipCoords();
-        finalboundaryMesh=MEDCouplingUMesh::MergeUMeshes(boundaryMesh,boundaryMesh1);
-        DataArrayInt* commonNodes=0;
-        commonNodes=finalboundaryMesh->zipCoordsTraducer();
-        boundaryMesh=finalboundaryMesh;
-        cout<<"zipcoords"<<commonNodes->repr()<<endl;
-        }
-      */
     }
   
   MEDLoader::WriteUMeshes(distfilename.c_str(), meshes, true);
-  if (faceMeshFilter!=0) faceMeshFilter->decrRef();
-  
+  if (faceMeshFilter!=0)
+    faceMeshFilter->decrRef();
   
   if (boundaryMesh!=0)
     {
@@ -316,122 +267,91 @@ void MeshCollectionDriver::writeMedFile(int idomain, const string& distfilename)
       MEDLoader::WriteUMesh(distfilename.c_str(), boundaryMesh, false);
       boundaryMesh->decrRef();
     }
-
-  //cout<<"familyInfo :\n"<<ReprMapOfStringInt(_collection->getFamilyInfo())<<endl;
-  //cout<<"groupInfo :\n"<<ReprMapOfStringVectorOfString(_collection->getGroupInfo())<<endl;
   ParaMEDMEM::MEDFileUMesh* mfm=ParaMEDMEM::MEDFileUMesh::New(distfilename.c_str(), _collection->getMesh(idomain)->getName());
-        
-  /*example of adding new family
-    (_collection->getFamilyInfo())["FaceNotOnCell"]=-500;
-    vector<string> FaceNotOnCell;
-    FaceNotOnCell.push_back("FaceNotOnCell");
-    (_collection->getGroupInfo())["FaceNotOnCell"]=FaceNotOnCell;
-  */
   
   mfm->setFamilyInfo(_collection->getFamilyInfo());
   mfm->setGroupInfo(_collection->getGroupInfo());
   
-  //without filter mfm->setFamilyFieldArr(-1,(_collection->getFaceFamilyIds())[idomain]);
-  
-  string cle=Cle1ToStr("faceFamily_toArray",idomain);
-  if (_collection->getMapDataArrayInt().find(cle)!=_collection->getMapDataArrayInt().end())
+  std::string key=Cle1ToStr("faceFamily_toArray",idomain);
+  if (_collection->getMapDataArrayInt().find(key)!=_collection->getMapDataArrayInt().end())
     {
-      DataArrayInt* fam=_collection->getMapDataArrayInt().find(cle)->second;
-      DataArrayInt* famFilter=0;
+      ParaMEDMEM::DataArrayInt *fam=_collection->getMapDataArrayInt().find(key)->second;
+      ParaMEDMEM::DataArrayInt *famFilter=0;
       if (filter!=0)
         {
           int* index=filter->getPointer();
           int nbTuples=filter->getNbOfElems();
           //not the good one...buildPartOfMySelf do not exist for DataArray 
           //Filter=fam->renumberAndReduce(index, filter->getNbOfElems());
-          famFilter=DataArrayInt::New();
+          famFilter=ParaMEDMEM::DataArrayInt::New();
           famFilter->alloc(nbTuples,1);
           int* pfamFilter=famFilter->getPointer();
           int* pfam=fam->getPointer();
-          for (int i=0; i<nbTuples; i++) pfamFilter[i]=pfam[index[i]];
+          for (int i=0; i<nbTuples; i++)
+            pfamFilter[i]=pfam[index[i]];
           fam=famFilter;
           mfm->setFamilyFieldArr(-1,fam);
           famFilter->decrRef();
         }
-      //cout<<"proc "<<MyGlobals::_Rank<<"cvw111 "<<nbTuples<<endl;
-      //mfm->setFamilyFieldArr(-1,fam);
-      //if (famFilter!=0) famFilter->decrRef();
     }
   
-  /*example visualisation of filter
-    if (_collection->getMapDataArrayInt().find(cle)!=_collection->getMapDataArrayInt().end())
-    {
-    DataArrayInt* fam=_collection->getMapDataArrayInt().find(cle)->second;
-    string cle2=Cle1ToStr("filterNotFaceOnCell",idomain);
-    if (_collection->getMapDataArrayInt().find(cle2)!=_collection->getMapDataArrayInt().end())
-    {
-    DataArrayInt* filter=_collection->getMapDataArrayInt().find(cle2)->second;
-    int* index=filter->getPointer();
-    int* pfam=fam->getPointer();
-    for (int i=0; i<filter->getNbOfElems(); i++) pfam[index[i]]=-500;
-    }
-    mfm->setFamilyFieldArr(-1,fam);
-    //mfm->setFamilyFieldArr(-1,_collection->getMapDataArrayInt().find(cle)->second);
-    }
-  */
-  
-  cle=Cle1ToStr("cellFamily_toArray",idomain);
-  if (_collection->getMapDataArrayInt().find(cle)!=_collection->getMapDataArrayInt().end())
-    mfm->setFamilyFieldArr(0,_collection->getMapDataArrayInt().find(cle)->second);
+  key=Cle1ToStr("cellFamily_toArray",idomain);
+  if (_collection->getMapDataArrayInt().find(key)!=_collection->getMapDataArrayInt().end())
+    mfm->setFamilyFieldArr(0,_collection->getMapDataArrayInt().find(key)->second);
   
   mfm->write(distfilename.c_str(),0);
-  cle="/inewFieldDouble="+IntToStr(idomain)+"/";
+  key="/inewFieldDouble="+IntToStr(idomain)+"/";
     
-  map<string,ParaMEDMEM::DataArrayDouble*>::iterator it;
+  std::map<std::string,ParaMEDMEM::DataArrayDouble*>::iterator it;
   int nbfFieldFound=0;
   for (it=_collection->getMapDataArrayDouble().begin() ; it!=_collection->getMapDataArrayDouble().end(); it++)
     {
-      string desc=(*it).first;
-      size_t found=desc.find(cle);
-      if (found==string::npos) continue;
-      if (MyGlobals::_Verbose>20) cout<<"proc "<<MyGlobals::_Rank<<" : write field "<<desc<<endl;
-      string meshName, fieldName;
+      std::string desc=(*it).first;
+      size_t found=desc.find(key);
+      if (found==std::string::npos)
+        continue;
+      if (MyGlobals::_Verbose>20)
+        std::cout << "proc " << MyGlobals::_Rank << " : write field " << desc << std::endl;
+      std::string meshName, fieldName;
       int typeField, DT, IT, entity;
       FieldShortDescriptionToData(desc, fieldName, typeField, entity, DT, IT);
       double time=StrToDouble(ExtractFromDescription(desc, "time="));
       int typeData=StrToInt(ExtractFromDescription(desc, "typeData="));
-      //int nbPtGauss=StrToInt(ExtractFromDescription(desc, "nbPtGauss="));
-      string entityName=ExtractFromDescription(desc, "entityName=");
-      MEDCouplingFieldDouble* field=0;
+      std::string entityName=ExtractFromDescription(desc, "entityName=");
+      ParaMEDMEM::MEDCouplingFieldDouble* field=0;
       if (typeData!=6)
         {
-          cout<<"WARNING : writeMedFile : typeData "<<typeData<<" not implemented for fields\n";
+          std::cout << "WARNING : writeMedFile : typeData " << typeData << " not implemented for fields\n";
           continue;
         }
       if (entityName=="MED_CELL")
         {
           //there is a field of idomain to write
-          field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+          field=ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME);
         }
       if (entityName=="MED_NODE_ELEMENT")
         {
           //there is a field of idomain to write
-          field=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
+          field=ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_GAUSS_NE,ParaMEDMEM::ONE_TIME);
         }
       if (!field)
         {
-          cout<<"WARNING : writeMedFile : entityName "<<entityName<<" not implemented for fields\n";
+          std::cout << "WARNING : writeMedFile : entityName " << entityName << " not implemented for fields\n";
           continue;
         }
       nbfFieldFound++;
       field->setName(fieldName.c_str());
       field->setMesh(mfm->getLevel0Mesh(false));
-      DataArrayDouble* da=(*it).second;
+      ParaMEDMEM::DataArrayDouble *da=(*it).second;
     
       //get information for components etc..
-      vector<string> r1;
+      std::vector<std::string> r1;
       r1=SelectTagsInVectorOfString(MyGlobals::_General_Informations,"fieldName="+fieldName);
       r1=SelectTagsInVectorOfString(r1,"typeField="+IntToStr(typeField));
       r1=SelectTagsInVectorOfString(r1,"DT="+IntToStr(DT));
       r1=SelectTagsInVectorOfString(r1,"IT="+IntToStr(IT));
       //not saved in file? field->setDescription(ExtractFromDescription(r1[0], "fieldDescription=").c_str());
       int nbc=StrToInt(ExtractFromDescription(r1[0], "nbComponents="));
-      //double time=StrToDouble(ExtractFromDescription(r1[0], "time="));
       if (nbc==da->getNumberOfComponents())
         {
           for (int i=0; i<nbc; i++) 
@@ -439,7 +359,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const string& distfilename)
         }
       else
         {
-          cerr<<"Problem On field "<<fieldName<<" : number of components unexpected "<<da->getNumberOfComponents()<<endl;
+          std::cerr << "Problem On field " << fieldName << " : number of components unexpected " << da->getNumberOfComponents() << std::endl;
         }
     
       field->setArray(da);
@@ -448,20 +368,16 @@ void MeshCollectionDriver::writeMedFile(int idomain, const string& distfilename)
       try
         {
           MEDLoader::WriteField(distfilename.c_str(),field,false);
-          //if entityName=="MED_NODE_ELEMENT"
-          //AN INTERP_KERNEL::EXCEPTION HAS BEEN THROWN : Not implemented other profile fitting from already written mesh for fields than on NODES and on CELLS.**********
-          //modification MEDLoader.cxx done
         }
       catch(INTERP_KERNEL::Exception& e)
         {
           //cout trying rewrite all data, only one field defined
-          string tmp,newName=distfilename;
+          std::string tmp,newName=distfilename;
           tmp+="_"+fieldName+"_"+IntToStr(nbfFieldFound)+".med";
           newName.replace(newName.find(".med"),4,tmp);
-          cout<<"WARNING : writeMedFile : new file name with only one field :"<<newName<<endl;
+          std::cout << "WARNING : writeMedFile : new file name with only one field :" << newName << std::endl;
           MEDLoader::WriteField(newName.c_str(),field,true);
         }
-      //cout<<"proc "<<MyGlobals::_Rank<<" : write field "<<cle<<" done"<<endl;
     }
   mfm->decrRef();
 }

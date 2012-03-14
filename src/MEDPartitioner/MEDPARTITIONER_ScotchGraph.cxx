@@ -66,7 +66,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
 
 
   SCOTCH_graphBuild(&scotch_graph,
-                    1, //premier indice 1
+                    1, //first indice 1
                     n, // nb of graph nodes
                     xadj,
                     0,

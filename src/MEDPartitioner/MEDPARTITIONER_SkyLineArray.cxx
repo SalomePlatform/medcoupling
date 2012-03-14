@@ -21,24 +21,22 @@
 
 #include <vector>
 
-using namespace MEDPARTITIONER;
-
-SkyLineArray::SkyLineArray()
+MEDPARTITIONER::SkyLineArray::SkyLineArray()
 {
 }
 
-SkyLineArray::SkyLineArray(const SkyLineArray &myArray)
+MEDPARTITIONER::SkyLineArray::SkyLineArray(const SkyLineArray &myArray)
 {
   _index=myArray._index;
   _value=myArray._value;
 }
 
-SkyLineArray::~SkyLineArray()
+MEDPARTITIONER::SkyLineArray::~SkyLineArray()
 {
 }
 
 
-SkyLineArray::SkyLineArray(const std::vector<int>& index, const std::vector<int>& value)
+MEDPARTITIONER::SkyLineArray::SkyLineArray(const std::vector<int>& index, const std::vector<int>& value)
 {
   _value=value;
   _index=index;

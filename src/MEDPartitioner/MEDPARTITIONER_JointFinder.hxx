@@ -20,13 +20,15 @@
 #ifndef __MEDPARTITIONER_JOINTFINDER_HXX__
 #define __MEDPARTITIONER_JOINTFINDER_HXX__
 
-#include <vector>
 #include <map>
+#include <vector>
 
-namespace MEDPARTITIONER {
+namespace MEDPARTITIONER
+{
+  class Topology;
   class MeshCollection;
   class ParaDomainSelector;
-  class Topology;
+  
   class JointFinder
   {
   public:
@@ -36,13 +38,13 @@ namespace MEDPARTITIONER {
     void print();
     std::vector<std::vector<std::multimap<int,int> > >& getDistantNodeCell();
     std::vector<std::vector<std::vector<std::pair<int,int> > > >& getNodeNode();
-  
-    std::vector<std::vector<std::multimap<int,int> > > _distant_node_cell;
   private:
     const MeshCollection& _mesh_collection;
-    const ParaDomainSelector* _domain_selector;
-    const Topology* _topology;
+    const ParaDomainSelector *_domain_selector;
+    const Topology *_topology;
+    std::vector<std::vector<std::multimap<int,int> > > _distant_node_cell;
     std::vector<std::vector<std::vector<std::pair<int,int> > > > _node_node;
+   
   };
 }
 #endif

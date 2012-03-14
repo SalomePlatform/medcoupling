@@ -26,23 +26,18 @@
 #include "MEDCouplingUMesh.hxx"
 #include "BBTree.txx"
 
-using namespace std;
-using namespace ParaMEDMEM;
-using namespace MEDPARTITIONER;
-
-/*! Method contributing to the distant cell graph
+/*!
+ * Method contributing to the distant cell graph
  */
-
-JointFinder::JointFinder(const MeshCollection& mc):_mesh_collection(mc), _topology(mc.getTopology()),_domain_selector(mc.getParaDomainSelector()) 
+MEDPARTITIONER::JointFinder::JointFinder(const MeshCollection& mc):_mesh_collection(mc), _topology(mc.getTopology()),_domain_selector(mc.getParaDomainSelector()) 
 {
 }
 
-JointFinder::~JointFinder()
+MEDPARTITIONER::JointFinder::~JointFinder()
 {
-  //if (MyGlobals::_Is0verbose>100) cout<<"TODO ~JointFinder"<<endl;
 }
 
-void JointFinder::findCommonDistantNodes()
+void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
 {
   int nbdomain=_topology->nbDomain();
   _distant_node_cell.resize(nbdomain);
@@ -54,15 +49,16 @@ void JointFinder::findCommonDistantNodes()
     }
   int nbproc=_domain_selector->nbProcs();
   std::vector<BBTree<3>* > bbtree(nbdomain,(BBTree<3>*) 0); 
-  std::vector<ParaMEDMEM::DataArrayInt*> rev(nbdomain,(DataArrayInt*) 0);
-  std::vector<ParaMEDMEM::DataArrayInt*> revIndx(nbdomain,(DataArrayInt*) 0);
+  std::vector<ParaMEDMEM::DataArrayInt*> rev(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
+  std::vector<ParaMEDMEM::DataArrayInt*> revIndx(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
   int meshDim;
   int spaceDim;
   
   //init rev and revIndx and bbtree for my domain (of me:proc n)
   for (int mydomain=0; mydomain<nbdomain; mydomain++)
     {
-      if(!_domain_selector->isMyDomain(mydomain)) continue;
+      if(!_domain_selector->isMyDomain(mydomain))
+        continue;
       const ParaMEDMEM::MEDCouplingUMesh* myMesh=_mesh_collection.getMesh(mydomain);
       meshDim=myMesh->getMeshDimension();
       spaceDim= myMesh->getSpaceDimension();
@@ -77,7 +73,7 @@ void JointFinder::findCommonDistantNodes()
           bbx[2*i+1]=bbx[2*i]+2e-12;
         }
       bbtree[mydomain]=new BBTree<3> (bbx,0,0,myMesh->getNumberOfNodes(),-1e-12);
-      delete[] bbx;
+      delete [] bbx;
     }
 
   //send my domains to other proc an receive other domains from other proc
@@ -86,25 +82,23 @@ void JointFinder::findCommonDistantNodes()
       for (int itarget=0; itarget<nbdomain; itarget++)
         {
           const ParaMEDMEM::MEDCouplingUMesh* sourceMesh=_mesh_collection.getMesh(isource);
-          if (_domain_selector->isMyDomain(isource)&&_domain_selector->isMyDomain(itarget)) continue;
+          if (_domain_selector->isMyDomain(isource)&&_domain_selector->isMyDomain(itarget))
+            continue;
           if (_domain_selector->isMyDomain(isource))
             {
               //preparing data for treatment on target proc
               int targetProc = _domain_selector->getProcessorID(itarget);
     
               std::vector<double> vec(spaceDim*sourceMesh->getNumberOfNodes());
-              //cvw cout<<"\nproc "<<_domain_selector->rank()<<" : numberOfNodes "<<sourceMesh->getNumberOfNodes()<<endl;
               std::copy(sourceMesh->getCoords()->getConstPointer(),sourceMesh->getCoords()->getConstPointer()+sourceMesh->getNumberOfNodes()*spaceDim,&vec[0]);
               SendDoubleVec(vec,targetProc);
     
               //retrieving target data for storage in commonDistantNodes array
               std::vector<int> localCorrespondency;
               RecvIntVec(localCorrespondency, targetProc);
-              //cvw cout<<"\nproc "<<_domain_selector->rank()<<" : nodeCellCorrespondency ";
               for (int i=0; i<localCorrespondency.size()/2; i++)
                 {
                   _distant_node_cell[isource][itarget].insert(std::make_pair(localCorrespondency[2*i],localCorrespondency[2*i+1]));
-                  //cvw cout<<" "<<localCorrespondency[2*i]<<"/"<<localCorrespondency[2*i+1];
                 }
     
             }
@@ -115,7 +109,6 @@ void JointFinder::findCommonDistantNodes()
               std::vector<double> recvVec;
               RecvDoubleVec(recvVec,sourceProc);
               std::map<int,int> commonNodes; // (local nodes, distant nodes) list
-              //cvw cout<<"\nproc "<<_domain_selector->rank()<<" : commonNodes ";
               for (int inode=0; inode<(recvVec.size()/meshDim); inode++)
                 {
                   double* bbox=new double[2*spaceDim];
@@ -126,12 +119,11 @@ void JointFinder::findCommonDistantNodes()
                     }
                   std::vector<int> inodes;
                   bbtree[itarget]->getIntersectingElems(bbox,inodes);
-                  delete[] bbox;
+                  delete [] bbox;
       
                   if (inodes.size()>0) 
                     {
                       commonNodes.insert(std::make_pair(inodes[0],inode));
-                      //cvw cout<<" "<<inodes[0]<<"/"<<inode;
                     }
           
                 }
@@ -146,12 +138,8 @@ void JointFinder::findCommonDistantNodes()
                       nodeCellCorrespondency.push_back(iter->second); //
                       int globalCell=_topology->convertCellToGlobal(itarget,revPtr[icell]);
                       nodeCellCorrespondency.push_back(globalCell);
-                      //nodeCellCorrespondency.push_back(revPtr[icell]); //need to set at global numerotation 
-                      //cout<<"processor "<<MyGlobals::_Rank<<" : isource "<<isource<<" itarget "<<itarget<<
-                      //      " node "<<iter->second<<" cellLoc "<<revPtr[icell]<<" cellGlob "<<globalCell<<endl;
                     }
                 }
-              //std::cout<<"proc "<<_domain_selector->rank()<<" : JointFinder SendIntVec "<<_domain_selector->rank()<<std::endl;  //cvwdebug
               SendIntVec(nodeCellCorrespondency, sourceProc); //itarget proc send to other (otherLocalNode-itargetGlobalCell)
             }
         }
@@ -159,47 +147,48 @@ void JointFinder::findCommonDistantNodes()
   //free  rev(nbdomain) revIndx(nbdomain) bbtree(nbdomain)
   for (int i=0; i<nbdomain; i++)
     {
-      if (rev[i]!=0) rev[i]->decrRef();
-      if (revIndx[i]!=0) revIndx[i]->decrRef();
-      if (bbtree[i]!=0) delete bbtree[i];
+      if (rev[i]!=0)
+        rev[i]->decrRef();
+      if (revIndx[i]!=0)
+        revIndx[i]->decrRef();
+      if (bbtree[i]!=0)
+        delete bbtree[i];
     }
 
   if (MyGlobals::_Verbose>100) 
-    std::cout<<"proc "<<_domain_selector->rank()<<" : end JointFinder::findCommonDistantNodes"<<std::endl;
+    std::cout << "proc " << _domain_selector->rank() << " : end JointFinder::findCommonDistantNodes" << std::endl;
 }
 
-std::vector<std::vector<std::multimap<int,int> > > & JointFinder::getDistantNodeCell()
+std::vector<std::vector<std::multimap<int,int> > >& MEDPARTITIONER::JointFinder::getDistantNodeCell()
 {
   return _distant_node_cell;
 }
 
-std::vector<std::vector<std::vector<std::pair<int,int> > > >& JointFinder::getNodeNode()
+std::vector<std::vector<std::vector<std::pair<int,int> > > >& MEDPARTITIONER::JointFinder::getNodeNode()
 {
   return _node_node;
 }
 
-void JointFinder::print()
+void MEDPARTITIONER::JointFinder::print()
 //it is for debug on small arrays under mpi 2,3 cpus
 {
   int nbdomain=_topology->nbDomain();
   //MPI_Barrier(MPI_COMM_WORLD);
   if (MyGlobals::_Is0verbose>0) 
-    cout<<"\nJointFinder print node-node (nn)iproc|itarget|isource|i|inodefirst-inodesecond\n\n"<<
+    std::cout << "\nJointFinder print node-node (nn)iproc|itarget|isource|i|inodefirst-inodesecond\n\n" <<
       "JointFinder print distantNode=cell (nc)iproc|itarget|isource|inode=icell\n\n";
   for (int isource=0; isource<nbdomain; isource++)
     {
       for (int itarget=0; itarget<nbdomain; itarget++)
         {
           for (int i=0; i<_node_node[itarget][isource].size(); i++)
-            cout<<" nn"<<_domain_selector->rank()<<itarget<<"|"<<isource<<"|"<<i<<"|"<<
-              _node_node[itarget][isource][i].first<<"-"<<
+            std::cout << " nn" << _domain_selector->rank() << itarget << "|" << isource << "|" << i << "|" <<
+              _node_node[itarget][isource][i].first << "-" <<
               _node_node[itarget][isource][i].second;
         }
     }
-  cout<<endl;
+  std::cout<<std::endl;
   //MPI_Barrier(MPI_COMM_WORLD);
-   
-  //cout<<"proc "<<_domain_selector->rank()<<" : JointFinder _distant_node_cell itarget/isource/inode=icell"<<endl;
   for (int isource=0; isource<nbdomain; isource++)
     {
       for (int itarget=0; itarget<nbdomain; itarget++)
@@ -207,10 +196,10 @@ void JointFinder::print()
           std::multimap<int,int>::iterator it;
           for (it=_distant_node_cell[isource][itarget].begin() ; it!=_distant_node_cell[isource][itarget].end(); it++)
             {
-              cout<<" nc"<<_domain_selector->rank()<<"|"<<itarget<<"|"<<isource<<"|"<<(*it).first<<"="<<(*it).second;
+              std::cout << " nc" << _domain_selector->rank() << "|" << itarget << "|" << isource << "|" << (*it).first << "=" << (*it).second;
             }
         }
     }
-  cout<<endl;
+  std::cout << std::endl;
   //MPI_Barrier(MPI_COMM_WORLD);
 }

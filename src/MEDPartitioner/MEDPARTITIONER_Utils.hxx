@@ -26,16 +26,7 @@
 #include <vector>
 #include <map>
 
-#ifdef LOCALIZED
-#undef LOCALIZED
-#endif
-
-#if defined(_DEBUG_) || defined(_DEBUG)
-//only for  debug # define LOCALIZED(message) #message , __FILE__ , __FUNCTION__ , __LINE__
-# define LOCALIZED(message) #message , __FUNCTION__ , __LINE__
-#else
-# define LOCALIZED(message) #message
-#endif
+//# define LOCALIZED(message) #message , __FILE__ , __FUNCTION__ , __LINE__
 
 namespace MEDPARTITIONER
 {
@@ -83,11 +74,11 @@ namespace MEDPARTITIONER
   void FieldShortDescriptionToData(const std::string& description,
                                    std::string& fieldName, int& typeField, int& entity, int& DT, int& IT);
   
-  ParaMEDMEM::DataArrayInt* CreateDataArrayIntFromVector(const std::vector<int>& v);
-  ParaMEDMEM::DataArrayInt* CreateDataArrayIntFromVector(const std::vector<int>& v, const int nbComponents);
-  ParaMEDMEM::DataArrayDouble* CreateDataArrayDoubleFromVector(const std::vector<double>& v);
+  ParaMEDMEM::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v);
+  ParaMEDMEM::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v, const int nbComponents);
+  ParaMEDMEM::DataArrayDouble *CreateDataArrayDoubleFromVector(const std::vector<double>& v);
 
-  //non conseille, interblocages, utiliser sendAndReceive
+  //not adviced, interblocking, use sendAndReceive
   //void SendVectorOfString(const std::vector<std::string>& vec, const int target);
   //std::vector<std::string> RecvVectorOfString(const int source);
   //TODO void sendRecvVectorOfString(const std::vector<std::string>& vec, const int source, const int target);
@@ -100,7 +91,7 @@ namespace MEDPARTITIONER
   std::vector<std::string> GetInfosOfField(const char *fileName, const char *meshName, const int idomain );
 
   void SendDoubleVec(const std::vector<double>& vec, const int target);
-  std::vector<double>* RecvDoubleVec(const int source);
+  std::vector<double> *RecvDoubleVec(const int source);
   void RecvDoubleVec(std::vector<double>& vec, const int source);
     
   void SendIntVec(const std::vector<int>& vec, const int target);
@@ -108,11 +99,11 @@ namespace MEDPARTITIONER
   void RecvIntVec(std::vector<int>& vec, const int source);
   
   void SendDataArrayInt(const ParaMEDMEM::DataArrayInt* da, const int target);
-  ParaMEDMEM::DataArrayInt* RecvDataArrayInt(const int source);
+  ParaMEDMEM::DataArrayInt *RecvDataArrayInt(const int source);
   void SendDataArrayDouble(const ParaMEDMEM::DataArrayDouble* da, const int target);
-  ParaMEDMEM::DataArrayDouble* RecvDataArrayDouble(const int source);
+  ParaMEDMEM::DataArrayDouble *RecvDataArrayDouble(const int source);
   
-  ParaMEDMEM::MEDCouplingUMesh* CreateEmptyMEDCouplingUMesh();
+  ParaMEDMEM::MEDCouplingUMesh *CreateEmptyMEDCouplingUMesh();
   
   void TestVectorOfStringMpi();
   void TestMapOfStringIntMpi();
@@ -124,18 +115,19 @@ namespace MEDPARTITIONER
 
   class MyGlobals
   {
-  public : static int _Verbose;  //0 to 1000 over 200 is debug
-  public : static int _Rank;
-  public : static int _World_Size;
-  public : static int _Randomize;
-  public : static int _Atomize;
-  public : static int _Creates_Boundary_Faces;
-  public : static int _Is0verbose; //trace cout if rank 0 and verbose
-  public : static std::vector<std::string> _File_Names;    //on [iold]
-  public : static std::vector<std::string> _Mesh_Names;    //on [iold]
-  public : static std::vector<std::string> _Field_Descriptions;
-    //used for descriptions of components of fields for example...
-  public : static std::vector<std::string> _General_Informations;
+  public :
+    static int _Verbose;  //0 to 1000 over 200 is debug
+    static int _Rank;
+    static int _World_Size;
+    static int _Randomize;
+    static int _Atomize;
+    static int _Creates_Boundary_Faces;
+    static int _Is0verbose; //trace cout if rank 0 and verbose
+    static std::vector<std::string> _File_Names;    //on [iold]
+    static std::vector<std::string> _Mesh_Names;    //on [iold]
+    static std::vector<std::string> _Field_Descriptions;
+    /*! used for descriptions of components of fields for example...*/
+    static std::vector<std::string> _General_Informations;
   };
 }
 #endif
