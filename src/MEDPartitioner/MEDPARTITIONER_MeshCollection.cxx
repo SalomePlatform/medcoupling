@@ -21,9 +21,12 @@
 #include "MEDPARTITIONER_MeshCollectionDriver.hxx"
 #include "MEDPARTITIONER_MeshCollectionMedXmlDriver.hxx"
 #include "MEDPARTITIONER_MeshCollectionMedAsciiDriver.hxx"
-#include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
+#include "MEDPARTITIONER_Topology.hxx"
+#ifdef HAVE_MPI2
 #include "MEDPARTITIONER_JointFinder.hxx"
+#include "MEDPARTITIONER_ParallelTopology.hxx"
+#endif
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_UserGraph.hxx"
 #include "MEDPARTITIONER_Utils.hxx" 
@@ -204,7 +207,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
             }
         }
     }
-
+#ifdef HAVE_MPI2
   if (isParallelMode())
     {
       //if (MyGlobals::_Verbose>300) std::cout<<"proc "<<rank<<" : castCellMeshes send/receive"<<std::endl;
@@ -222,7 +225,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
 
           }
     }
-  
+#endif
   //fusing the split meshes
   if (MyGlobals::_Verbose>200)
     std::cout << "proc " << rank << " : castCellMeshes fusing" << std::endl;
@@ -292,6 +295,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
 
       for (int inew=0; inew<_topology->nbDomain(); inew++) //cvwat12
         {
+#ifdef HAVE_MPI2
           //sending meshes for parallel computation
           if (isParallelMode() && _domain_selector->isMyDomain(inew) && !_domain_selector->isMyDomain(iold))  
             _domain_selector->sendMesh(*(getMesh(inew)), _domain_selector->getProcessorID(iold));
@@ -311,6 +315,9 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
               mesh->decrRef();
             }
           else if (!isParallelMode() || (_domain_selector->isMyDomain(inew) && _domain_selector->isMyDomain(iold)))
+#else
+          if (!isParallelMode() || (_domain_selector->isMyDomain(inew) && _domain_selector->isMyDomain(iold)))
+#endif
             {
               ParaMEDMEM::DataArrayDouble* coords = getMesh(inew)->getCoords();
               for (int inode=0; inode<_mesh[inew]->getNumberOfNodes();inode++)
@@ -479,6 +486,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
     }
   
   // send/receive stuff
+#ifdef HAVE_MP2
   if (isParallelMode())
     {
       ParaMEDMEM::MEDCouplingUMesh *empty=CreateEmptyMEDCouplingUMesh();
@@ -501,7 +509,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
           }
       empty->decrRef();
     }
-  
+#endif
   //recollecting the bits of splitMeshes to fuse them into one
   if (MyGlobals::_Verbose>300) std::cout<<"proc "<<MyGlobals::_Rank<<" : fuse splitMeshes"<<std::endl;
   meshesCastTo.resize(newSize);
@@ -573,6 +581,7 @@ void MEDPARTITIONER::MeshCollection::castIntField2(std::vector<ParaMEDMEM::MEDCo
   int ioldMax=meshesCastFrom.size();
   int inewMax=meshesCastTo.size();
   // send-recv operations
+#ifdef HAVE_MPI2
   for (int inew=0; inew<inewMax; inew++)
     {
       for (int iold=0; iold<ioldMax; iold++)
@@ -596,7 +605,6 @@ void MEDPARTITIONER::MeshCollection::castIntField2(std::vector<ParaMEDMEM::MEDCo
                   size=0;
                   sendIds.resize(size);
                 }
-              //std::cout<<"proc "<<_domain_selector->rank()<<" : castIntField SendIntVec "<<size<<std::endl;
               SendIntVec(sendIds, _domain_selector->getProcessorID(inew));
             }
           //receiving arrays from distant domains
@@ -614,6 +622,7 @@ void MEDPARTITIONER::MeshCollection::castIntField2(std::vector<ParaMEDMEM::MEDCo
             }
         }
     }
+#endif
   
   //local contributions and aggregation
   for (int inew=0; inew<inewMax; inew++)    
@@ -704,6 +713,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
       std::string descriptionField=initialCollection.getFieldDescriptions()[ifield];
       if (descriptionField.find(nameTo)==std::string::npos)
         continue; //only nameTo accepted in Fields name description
+#ifdef HAVE_MPI2
       for (int inew=0; inew<inewMax; inew++)
         {
           for (int iold=0; iold<ioldMax; iold++)
@@ -729,7 +739,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
                 }
             }
         }
-  
+#endif
       //local contributions and aggregation
       for (int inew=0; inew<inewMax; inew++)
         {
@@ -995,15 +1005,18 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
   try
     {
       //check for all proc/file compatibility of _field_descriptions
-      //*MyGlobals::_File_Names=AllgathervVectorOfString(*MyGlobals::_File_Names);
+#ifdef HAVE_MPI2
       _field_descriptions=AllgathervVectorOfString(MyGlobals::_Field_Descriptions);
+#else
+      _field_descriptions=MyGlobals::_Field_Descriptions;
+#endif
     }
   catch(INTERP_KERNEL::Exception& e)
     {
       std::cerr << "proc " << MyGlobals::_Rank << " : INTERP_KERNEL_Exception : " << e.what() << std::endl;
       throw INTERP_KERNEL::Exception("Something wrong verifying coherency of files med ands fields");
     }
-  
+#ifdef HAVE_MPI2
   try
     {
       //check for all proc/file compatibility of _family_info
@@ -1027,6 +1040,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
       std::cerr << "proc " << MyGlobals::_Rank << " : INTERP_KERNEL_Exception : " << e.what() << std::endl;
       throw INTERP_KERNEL::Exception("Something wrong merging all groupInfo");
     }
+#endif
 }
 
 /*! constructing the MESH collection from a sequential MED-file
@@ -1089,8 +1103,9 @@ MEDPARTITIONER::MeshCollection::~MeshCollection()
   delete _driver;
   if (_topology!=0 && _owns_topology)
     delete _topology;
-  
+#ifdef HAVE_MPI2  
   delete _joint_finder;
+#endif
 }
 
 /*! constructing the MESH collection from a file
@@ -1211,6 +1226,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
 
   std::vector<std::vector<std::multimap<int,int> > > commonDistantNodes;
   int nbdomain=_topology->nbDomain();
+#ifdef HAVE_MPI2
   if (isParallelMode())
     {
       _joint_finder=new JointFinder(*this);
@@ -1218,8 +1234,9 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
       commonDistantNodes=_joint_finder->getDistantNodeCell();
     }
 
-  if (MyGlobals::_Verbose>500) _joint_finder->print();
-  
+  if (MyGlobals::_Verbose>500)
+    _joint_finder->print();
+#endif
   //looking for reverse nodal connectivity i global numbering
   for (int idomain=0; idomain<nbdomain; idomain++)
     {
@@ -1247,6 +1264,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
         }
       revConn->decrRef();
       index->decrRef();
+#ifdef HAVE_MPI2
       for (int iother=0; iother<nbdomain; iother++)
         {
           std::multimap<int,int>::iterator it;
@@ -1261,6 +1279,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
               cell2node.insert(make_pair(globalCell, globalNode));
             }
         }
+#endif
     }  //endfor idomain
 
   //creating graph arcs (cell to cell relations)
@@ -1423,7 +1442,10 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
   if (MyGlobals::_Is0verbose>10)
     std::cout << "building new topology" << std::endl;
   //cellGraph is a shared pointer 
-  Topology* topology=new ParallelTopology (cellGraph, getTopology(), nbdomain, getMeshDimension());
+  Topology *topology=0;
+#ifdef HAVE_MPI2
+  topology=new ParallelTopology (cellGraph, getTopology(), nbdomain, getMeshDimension());
+#endif
   //cleaning
   delete [] edgeweights;
   delete cellGraph;
@@ -1455,8 +1477,10 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(const 
   cellGraph=new UserGraph(array, partition, _topology->nbCells());
   
   //cellGraph is a shared pointer 
-  Topology* topology = new ParallelTopology (cellGraph, getTopology(), nbdomain, getMeshDimension());
-  
+  Topology *topology=0;
+#ifdef HAVE_MPI2
+  topology=new ParallelTopology (cellGraph, getTopology(), nbdomain, getMeshDimension());
+#endif
   //  if (array!=0) delete array;
   delete cellGraph;
   return topology;

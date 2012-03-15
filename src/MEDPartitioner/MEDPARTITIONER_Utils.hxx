@@ -77,7 +77,15 @@ namespace MEDPARTITIONER
   ParaMEDMEM::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v);
   ParaMEDMEM::DataArrayInt *CreateDataArrayIntFromVector(const std::vector<int>& v, const int nbComponents);
   ParaMEDMEM::DataArrayDouble *CreateDataArrayDoubleFromVector(const std::vector<double>& v);
+  
+  ParaMEDMEM::MEDCouplingUMesh *CreateEmptyMEDCouplingUMesh();
 
+  std::vector<std::string> BrowseFieldDouble(const ParaMEDMEM::MEDCouplingFieldDouble* fd);
+  std::vector<std::string> BrowseAllFields(const std::string& myfile);
+  std::vector<std::string> BrowseAllFieldsOnMesh(const std::string& myfile, const std::string& mymesh, const int idomain);
+  std::vector<std::string> GetInfosOfField(const char *fileName, const char *meshName, const int idomain );
+
+#ifdef HAVE_MPI2
   //not adviced, interblocking, use sendAndReceive
   //void SendVectorOfString(const std::vector<std::string>& vec, const int target);
   //std::vector<std::string> RecvVectorOfString(const int source);
@@ -85,11 +93,6 @@ namespace MEDPARTITIONER
   std::vector<std::string> SendAndReceiveVectorOfString(const std::vector<std::string>& vec, const int source, const int target);
   std::vector<std::string> AllgathervVectorOfString(const std::vector<std::string>& vec);
   
-  std::vector<std::string> BrowseFieldDouble(const ParaMEDMEM::MEDCouplingFieldDouble* fd);
-  std::vector<std::string> BrowseAllFields(const std::string& myfile);
-  std::vector<std::string> BrowseAllFieldsOnMesh(const std::string& myfile, const std::string& mymesh, const int idomain);
-  std::vector<std::string> GetInfosOfField(const char *fileName, const char *meshName, const int idomain );
-
   void SendDoubleVec(const std::vector<double>& vec, const int target);
   std::vector<double> *RecvDoubleVec(const int source);
   void RecvDoubleVec(std::vector<double>& vec, const int source);
@@ -102,9 +105,7 @@ namespace MEDPARTITIONER
   ParaMEDMEM::DataArrayInt *RecvDataArrayInt(const int source);
   void SendDataArrayDouble(const ParaMEDMEM::DataArrayDouble* da, const int target);
   ParaMEDMEM::DataArrayDouble *RecvDataArrayDouble(const int source);
-  
-  ParaMEDMEM::MEDCouplingUMesh *CreateEmptyMEDCouplingUMesh();
-  
+
   void TestVectorOfStringMpi();
   void TestMapOfStringIntMpi();
   void TestMapOfStringVectorOfStringMpi();
@@ -112,6 +113,7 @@ namespace MEDPARTITIONER
   void TestPersistantMpi0To1(int taille, int nb);
   void TestPersistantMpiRing(int taille, int nb);
   void TestPersistantMpiRingOnCommSplit(int taille, int nb);
+#endif
 
   class MyGlobals
   {

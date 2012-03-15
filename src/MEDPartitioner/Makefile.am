@@ -59,9 +59,9 @@ MEDPARTITIONER_MeshCollectionMedXmlDriver.cxx \
 MEDPARTITIONER_MeshCollectionMedAsciiDriver.cxx \
 MEDPARTITIONER_Graph.cxx\
 MEDPARTITIONER_UserGraph.cxx\
-MEDPARTITIONER_JointFinder.cxx \
 MEDPARTITIONER_SkyLineArray.cxx \
-MEDPARTITIONER_ConnectZone.cxx
+MEDPARTITIONER_ConnectZone.cxx \
+MEDPARTITIONER_Utils.cxx
 
 libmedpartitioner_la_CPPFLAGS = $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES) \
 	$(LIBXML_INCLUDES) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
@@ -71,8 +71,9 @@ libmedpartitioner_la_LDFLAGS =
 
 if MPI_IS_OK
   dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_ParaDomainSelector.cxx \
-                                       MEDPARTITIONER_Utils.cxx \
-                                       MEDPARTITIONER_ParallelTopology.cxx
+                                       MEDPARTITIONER_UtilsPara.cxx \
+                                       MEDPARTITIONER_ParallelTopology.cxx \
+                                       MEDPARTITIONER_JointFinder.cxx
 
 if MED_ENABLE_PARMETIS
     dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_MetisGraph.cxx
@@ -106,6 +107,12 @@ if MPI_IS_OK
   medpartitioner_para_CPPFLAGS = -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
 	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL $(MPI_INCLUDES) $(PARMETIS_CPPFLAGS)
   medpartitioner_para_LDADD = libmedpartitioner.la
+else !MPI_IS_OK
+  bin_PROGRAMS = medpartitioner
+  dist_medpartitioner_SOURCES = medpartitioner.cxx
+  medpartitioner_CPPFLAGS = -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL $(METIS_CPPFLAGS) $(SCOTCH_CPPFLAGS)
+  medpartitioner_LDADD = libmedpartitioner.la
 endif
 
 OBSOLETE_FILES =
