@@ -109,6 +109,6 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
   
   _partition = new MEDPARTITIONER::SkyLineArray(index,value);
 #else
-  throw INTERP_KERNEL::Exception(LOCALIZED("SCOTCH is not available. Check your products, please."));
+  throw INTERP_KERNEL::Exception("SCOTCH is not available. Check your products, please.");
 #endif
 }

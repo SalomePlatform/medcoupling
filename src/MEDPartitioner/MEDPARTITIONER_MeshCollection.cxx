@@ -239,7 +239,6 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
           if (meshes.size()==0) 
             {
               _mesh[inew]=CreateEmptyMEDCouplingUMesh();
-              //throw INTERP_KERNEL::Exception(LOCALIZED("castCellMeshes fusing : no meshes"));
               std::cout << "WARNING : castCellMeshes fusing : no meshes try another number of processors" << std::endl;
             }
           else
@@ -1393,7 +1392,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
         std::cout << "METISGraph" << std::endl;
       cellGraph=new METISGraph(array,edgeweights);
 #else
-      throw INTERP_KERNEL::Exception(LOCALIZED("METIS Graph is not available. Check your products, please."));
+      throw INTERP_KERNEL::Exception("METIS Graph is not available. Check your products, please.");
 #endif
       break;
     case Graph::SCOTCH:
@@ -1402,7 +1401,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
         std::cout << "SCOTCHGraph" << std::endl;
       cellGraph=new SCOTCHGraph(array,edgeweights);
 #else
-      throw INTERP_KERNEL::Exception(LOCALIZED("SCOTCH Graph is not available. Check your products, please."));
+      throw INTERP_KERNEL::Exception("SCOTCH Graph is not available. Check your products, please.");
 #endif
       break;
     }
