@@ -197,6 +197,7 @@ namespace MEDLoaderNS
   void appendFieldDirectly(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f);
   void appendNodeProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshNodeIds);
   void appendCellProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIds);
+  void appendNodeElementProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIds);
   void prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *cellIds, std::list<MEDLoader::MEDFieldDoublePerCellType>& split);
   void fillGaussDataOnField(const char *fileName, const std::list<MEDLoader::MEDFieldDoublePerCellType>& data, MEDCouplingFieldDouble *f);
   void writeUMeshesDirectly(const char *fileName, const std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& mesh, const std::vector<const DataArrayInt *>& families, bool forceFromScratch, bool &isRenumbering);
@@ -2388,6 +2389,40 @@ void MEDLoaderNS::appendCellProfileField(const char *fileName, const ParaMEDMEM:
   MEDfileClose(fid);
 }
 
+void MEDLoaderNS::appendNodeElementProfileField(const char *fileName, const ParaMEDMEM::MEDCouplingFieldDouble *f, const int *thisMeshCellIdsPerType)
+{
+  med_int numdt,numo;
+  med_float dt;
+  int nbComp=f->getNumberOfComponents();
+  med_idt fid=appendFieldSimpleAtt(fileName,f,numdt,numo,dt);
+  std::list<MEDLoader::MEDFieldDoublePerCellType> split;
+  prepareCellFieldDoubleForWriting(f,thisMeshCellIdsPerType,split);
+  const double *pt=f->getArray()->getConstPointer();
+  int number=0;
+  for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=split.begin();iter!=split.end();iter++)
+    {
+      INTERP_KERNEL::AutoPtr<char> nommaa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      MEDLoaderBase::safeStrCpy(f->getMesh()->getName(),MED_NAME_SIZE,nommaa,MEDLoader::_TOO_LONG_STR);
+      INTERP_KERNEL::AutoPtr<char> profileName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+      std::ostringstream oss; oss << "Pfl" << f->getName() << "_" << number++;
+      MEDLoaderBase::safeStrCpy(oss.str().c_str(),MED_NAME_SIZE,profileName,MEDLoader::_TOO_LONG_STR);
+      const std::vector<int>& ids=(*iter).getCellIdPerType();
+      int *profile=new int [ids.size()];
+      std::transform(ids.begin(),ids.end(),profile,std::bind2nd(std::plus<int>(),1));
+      MEDprofileWr(fid,profileName,ids.size(),profile);
+      delete [] profile;
+      int nbPtPerCell=(int)INTERP_KERNEL::CellModel::GetCellModel((*iter).getType()).getNumberOfNodes();
+      int nbOfEntity=f->getMesh()->getNumberOfCellsWithType((*iter).getType());
+      int nbOfValues=nbPtPerCell*nbOfEntity;
+      MEDfieldValueWithProfileWr(fid,f->getName(),numdt,numo,dt,MED_NODE_ELEMENT,typmai3[(int)(*iter).getType()],
+                                 MED_COMPACT_PFLMODE,profileName,
+                                 MED_NO_LOCALIZATION,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,
+                                 nbOfEntity,(const unsigned char*)pt);
+      pt+=nbOfValues*nbComp;
+    }
+  MEDfileClose(fid);
+}
+
 /*!
  * This method performs the classical job for fields before any values setting.
  */
@@ -2627,6 +2662,20 @@ void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, const 
         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da3=da->substr(m2->getNumberOfCells());
         da2=m2->convertCellArrayPerGeoType(da3);
         appendCellProfileField(fileName,f,da2->getConstPointer());
+        break;
+      }
+    case ParaMEDMEM::ON_GAUSS_NE:
+      {
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da2=m2->zipConnectivityTraducer(MEDLoader::_COMP_FOR_CELL);
+        if(m2->getNumberOfCells()!=m->getNumberOfCells())
+          {
+            std::ostringstream oss1; oss1 << "Cells in already written mesh \"" << f->getMesh()->getName() << "\" in file \"" << fileName << "\" does not fit connectivity of unstructured grid f->getMesh() !";
+            throw INTERP_KERNEL::Exception(oss1.str().c_str());
+          }
+        da=m2->convertCellArrayPerGeoType(da2);
+        MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da3=da->substr(m2->getNumberOfCells());
+        da2=m2->convertCellArrayPerGeoType(da3);
+        appendNodeElementProfileField(fileName,f,da2->getConstPointer());
         break;
       }
     case ParaMEDMEM::ON_NODES:
