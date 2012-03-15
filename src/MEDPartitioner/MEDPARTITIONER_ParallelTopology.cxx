@@ -212,7 +212,7 @@ ParallelTopology::ParallelTopology(const std::vector<ParaMEDMEM::MEDCouplingUMes
       _nb_nodes[idomain]=meshes[idomain]->getNumberOfNodes();
       INTERP_KERNEL::HashMap <int,std::pair<int,int> > local2distant;
       _node_loc_to_glob[idomain].resize(_nb_nodes[idomain]);
-      for (int icz=0; icz<cz.size(); icz++)
+      for (std::size_t icz=0; icz<cz.size(); icz++)
         {
           if (cz[icz]->getLocalDomainNumber() == idomain && 
               cz[icz]->getLocalDomainNumber()>cz[icz]->getDistantDomainNumber())

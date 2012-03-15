@@ -81,13 +81,15 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   std::vector<ParaMEDMEM::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
   int nbcells=0;
-  for (int i = 0; i < cellMeshes.size(); i++) nbcells+=cellMeshes[i]->getNumberOfCells();
+  for (std::size_t i = 0; i < cellMeshes.size(); i++)
+    nbcells+=cellMeshes[i]->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
   
   std::vector<ParaMEDMEM::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) faceMeshes.size());
   int nbfaces=0;
-  for (int i = 0; i < faceMeshes.size(); i++) nbfaces+=faceMeshes[i]->getNumberOfCells();
+  for (std::size_t i=0; i < faceMeshes.size(); i++)
+    nbfaces+=faceMeshes[i]->getNumberOfCells();
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), nbfaces);
   
   //merge split meshes and test equality
@@ -127,7 +129,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
   
   meshes.resize(0);
-  for (int i = 0; i < corr.size(); i++) corr[i]->decrRef();
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
   corr.resize(0);
   meshes.push_back(faceMesh);
   refusedFaceMesh->tryToShareSameCoordsPermute(*faceMesh, 1e-9);
@@ -135,7 +138,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   MEDCouplingUMesh* fusedFace=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), fusedFace->getNumberOfCells());
   
-  for (int i = 0; i < corr.size(); i++) corr[i]->decrRef();
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
   fusedFace->decrRef();
   refusedFaceMesh->decrRef();
   faceMesh->decrRef();
@@ -205,7 +209,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
     {
       cout<<"\nf1 : "<<f1->reprZip();
       cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
-      for (int i = 0; i < corr.size(); i++) cout<<"\ncorr "<<i<<" : "<<corr[i]->reprZip();
+      for (std::size_t i = 0; i < corr.size(); i++)
+        cout << "\ncorr " << i << " : " << corr[i]->reprZip();
     
     }
   int nbequal=0;
@@ -225,7 +230,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
     }
   CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp, nbequal);
   
-  for (int i = 0; i < corr.size(); i++) corr[i]->decrRef();
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
   field1->decrRef();
   field2->decrRef();
   fusedCell->decrRef();
@@ -289,9 +295,10 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   DataArrayDouble* f2=field2->getArray();
   if (_verbose) 
     {
-      cout<<"\nf1 : "<<f1->reprZip(); //123.4 for 12th cell,3rd component, 4th gausspoint
-      cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
-      for (int i = 0; i < corr.size(); i++) cout<<"\ncorr "<<i<<" : "<<corr[i]->reprZip();
+      cout << "\nf1 : " << f1->reprZip(); //123.4 for 12th cell,3rd component, 4th gausspoint
+      cout << "\nf2 : " << f2->reprZip(); //field2->advancedRepradvancedRepr();
+      for (std::size_t i = 0; i < corr.size(); i++)
+        cout << "\ncorr " << i << " : " << corr[i]->reprZip();
     
     }
   int nbequal=0;
@@ -312,7 +319,8 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
     }
   CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp*nbptgauss, nbequal);
   
-  for (int i = 0; i < corr.size(); i++) corr[i]->decrRef();
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
   field1->decrRef();
   field2->decrRef();
   fusedCell->decrRef();

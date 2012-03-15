@@ -24,8 +24,8 @@
 MEDPARTITIONER::ConnectZone::ConnectZone():
   _name("")
   ,_description("")
-  ,_distant_domain_number(0)
   ,_local_domain_number(0)
+  ,_distant_domain_number(0)
   ,_node_corresp(0)
   ,_face_corresp(0)
 {
@@ -44,8 +44,8 @@ MEDPARTITIONER::ConnectZone::~ConnectZone()
 MEDPARTITIONER::ConnectZone::ConnectZone(const ConnectZone & myConnectZone):
   _name(myConnectZone._name)
   ,_description(myConnectZone._description)
-  ,_distant_domain_number(myConnectZone._distant_domain_number)
   ,_local_domain_number(myConnectZone._local_domain_number)
+  ,_distant_domain_number(myConnectZone._distant_domain_number)
   ,_node_corresp(myConnectZone._node_corresp)
   ,_face_corresp(myConnectZone._face_corresp)
   ,_entity_corresp(myConnectZone._entity_corresp)

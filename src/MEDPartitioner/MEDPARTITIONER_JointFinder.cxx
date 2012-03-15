@@ -29,7 +29,7 @@
 /*!
  * Method contributing to the distant cell graph
  */
-MEDPARTITIONER::JointFinder::JointFinder(const MeshCollection& mc):_mesh_collection(mc), _topology(mc.getTopology()),_domain_selector(mc.getParaDomainSelector()) 
+MEDPARTITIONER::JointFinder::JointFinder(const MeshCollection& mc):_mesh_collection(mc),_domain_selector(mc.getParaDomainSelector()),_topology(mc.getTopology())
 {
 }
 
@@ -96,7 +96,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
               //retrieving target data for storage in commonDistantNodes array
               std::vector<int> localCorrespondency;
               RecvIntVec(localCorrespondency, targetProc);
-              for (int i=0; i<localCorrespondency.size()/2; i++)
+              for (std::size_t i=0; i<localCorrespondency.size()/2; i++)
                 {
                   _distant_node_cell[isource][itarget].insert(std::make_pair(localCorrespondency[2*i],localCorrespondency[2*i+1]));
                 }
@@ -181,7 +181,7 @@ void MEDPARTITIONER::JointFinder::print()
     {
       for (int itarget=0; itarget<nbdomain; itarget++)
         {
-          for (int i=0; i<_node_node[itarget][isource].size(); i++)
+          for (std::size_t i=0; i<_node_node[itarget][isource].size(); i++)
             std::cout << " nn" << _domain_selector->rank() << itarget << "|" << isource << "|" << i << "|" <<
               _node_node[itarget][isource][i].first << "-" <<
               _node_node[itarget][isource][i].second;

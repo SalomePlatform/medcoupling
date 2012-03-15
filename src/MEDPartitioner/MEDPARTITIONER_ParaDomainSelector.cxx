@@ -34,8 +34,8 @@
  * \brief Constructor. Find out my rank and world size
  */
 MEDPARTITIONER::ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
-  :_rank(0),_world_size(1), _nb_result_domains(-1), _mesure_memory(mesure_memory),
-   _init_time(0.0), _init_memory(0), _max_memory(0)
+  :_rank(0),_world_size(1), _nb_result_domains(-1), _init_time(0.0),
+   _mesure_memory(mesure_memory), _init_memory(0), _max_memory(0)
 {
 #ifdef HAVE_MPI2
   MPI_Comm_size(MPI_COMM_WORLD,&_world_size) ;
@@ -182,10 +182,10 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<ParaMEDMEM
   _nb_vert_of_procs[0] = 0; // base = 0
   for (int i=0; i<nb_domains; ++i)
     {
-      int rank = getProcessorID(i);
-      _nb_vert_of_procs[rank+1] += all_nb_elems[i*2];
+      int rankk = getProcessorID(i);
+      _nb_vert_of_procs[rankk+1] += all_nb_elems[i*2];
     }
-  for (int i=1; i<_nb_vert_of_procs.size(); ++i)
+  for (std::size_t i=1; i<_nb_vert_of_procs.size(); ++i)
     _nb_vert_of_procs[i] += _nb_vert_of_procs[i-1]; // to CSR format : cumulated
   
   if (MyGlobals::_Is0verbose>200)
@@ -213,7 +213,7 @@ int *MEDPARTITIONER::ParaDomainSelector::getProcVtxdist() const
   evaluateMemory();
   if (_nb_vert_of_procs.empty())
     throw INTERP_KERNEL::Exception("_nb_vert_of_procs not set");
-  return (int*) & _nb_vert_of_procs[0];
+  return const_cast<int*>(& _nb_vert_of_procs[0]);
 }
 
 /*!
@@ -267,13 +267,13 @@ std::auto_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherG
   // ---------------
 
   std::vector<int> index_size_of_proc( nbProcs() ); // index sizes - 1
-  for ( int i = 1; i < _nb_vert_of_procs.size(); ++i )
+  for ( std::size_t i = 1; i < _nb_vert_of_procs.size(); ++i )
     index_size_of_proc[i-1] = _nb_vert_of_procs[ i ] - _nb_vert_of_procs[ i-1 ];
 
   int index_size = 1 + _cell_shift_by_domain.back();
   int *graph_index = new int[ index_size ];
   const int *index = graph->getGraph()->getIndex();
-  int *proc_index_displacement = (int*) & _nb_vert_of_procs[0];
+  int *proc_index_displacement = const_cast<int*>( & _nb_vert_of_procs[0] );
 
   MPI_Allgatherv((void*) (index+1),         // send local index except first 0 (or 1)
                  index_size_of_proc[_rank], // index size on this proc
@@ -409,7 +409,7 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbCellPairs()
 #endif
   // check that the set nbs of cell pairs are correct,
   // namely that each joint is treated on one proc only
-  for ( int j = 0; j < _nb_cell_pairs_by_joint.size(); ++j )
+  for ( std::size_t j = 0; j < _nb_cell_pairs_by_joint.size(); ++j )
     if ( _nb_cell_pairs_by_joint[j] != send_buf[j] && send_buf[j]>0 )
       throw INTERP_KERNEL::Exception("invalid nb of cell pairs");
 }
@@ -641,10 +641,10 @@ int MEDPARTITIONER::ParaDomainSelector::evaluateMemory() const
         used_memory = (( si.totalram - si.freeram + si.totalswap - si.freeswap ) * si.mem_unit ) / 1024;
 #endif
       if ( used_memory > _max_memory )
-        ((ParaDomainSelector*) this)->_max_memory = used_memory;
+        _max_memory = used_memory;
 
       if ( !_init_memory )
-        ((ParaDomainSelector*) this)->_init_memory = used_memory;
+        _init_memory = used_memory;
     }
   return _max_memory - _init_memory;
 }

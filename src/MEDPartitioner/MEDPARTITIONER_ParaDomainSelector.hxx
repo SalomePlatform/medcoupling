@@ -112,8 +112,8 @@ namespace MEDPARTITIONER
 
     double _init_time;
     bool _mesure_memory;
-    int _init_memory;
-    int _max_memory;
+    mutable int _init_memory;
+    mutable int _max_memory;
   };
 }
 #endif

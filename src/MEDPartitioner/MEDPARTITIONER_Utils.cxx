@@ -93,7 +93,7 @@ double MEDPARTITIONER::StrToDouble(const std::string& s)
 bool MEDPARTITIONER::TestArg(const char *arg, const char *argExpected, std::string& argValue)
 {
   argValue="";
-  int i;
+  std::size_t i;
   for (i=0; i<strlen(arg); i++)
     {
       if (arg[i]=='=')
@@ -101,7 +101,7 @@ bool MEDPARTITIONER::TestArg(const char *arg, const char *argExpected, std::stri
       if (arg[i]!=argExpected[i])
         return false;
     }
-  for (int j=i+1; j<strlen(arg); j++)
+  for (std::size_t j=i+1; j<strlen(arg); j++)
     argValue+=arg[j];
   return true;
 }
@@ -275,7 +275,7 @@ std::string MEDPARTITIONER::EraseTagSerialized(const std::string& fromStr, const
 {
   std::vector<std::string> vec=DeserializeToVectorOfString(fromStr);
   std::vector<std::string> res;
-  for (int i=0; i<vec.size(); i++)
+  for (std::size_t i=0; i<vec.size(); i++)
     {
       if (vec[i].find(tag)==std::string::npos)
         res.push_back(vec[i]);
@@ -365,8 +365,8 @@ std::map< std::string,std::vector<std::string> > MEDPARTITIONER::DevectorizeToMa
       std::istringstream iss(enTete.substr(foundSizeVector+1,posmax-foundSizeVector));
       iss >> sizeVector;
       std::string keymap=enTete.substr(foundKey+7,foundSizeVector-foundKey-7);
-      for (int i=1; i<=sizeVector; i++)
-        res[keymap].push_back(vs[i]); //add unconditionnaly,so merge duplicates in second vector
+      for (int ii=1; ii<=sizeVector; ii++)
+        res[keymap].push_back(vs[ii]); //add unconditionnaly,so merge duplicates in second vector
     }
   return res;
 }
@@ -627,21 +627,21 @@ std::vector<std::string> MEDPARTITIONER::BrowseAllFields(const std::string& myfi
   std::vector<std::string> res;
   std::vector<std::string> meshNames=MEDLoader::GetMeshNames(myfile.c_str());
   
-  for (int i=0; i<meshNames.size(); i++)
+  for (std::size_t i=0; i<meshNames.size(); i++)
     {
       std::vector<std::string> fieldNames=
         MEDLoader::GetAllFieldNamesOnMesh(myfile.c_str(),meshNames[i].c_str());
-      for (int j = 0; j < fieldNames.size(); j++)
+      for (std::size_t j = 0; j < fieldNames.size(); j++)
         {
           std::vector< ParaMEDMEM::TypeOfField > typeFields=
             MEDLoader::GetTypesOfField(myfile.c_str(), meshNames[i].c_str(), fieldNames[j].c_str());
-          for (int k = 0; k < typeFields.size(); k++)
+          for (std::size_t k = 0; k < typeFields.size(); k++)
             {
               std::vector< std::pair< int, int > > its=
                 MEDLoader::GetFieldIterations(typeFields[k], myfile.c_str(), meshNames[i].c_str(), fieldNames[j].c_str());
               if (MyGlobals::_Is0verbose>100)
                 std::cout<< "fieldName " << fieldNames[j] << " typeField " << typeFields[k] << " its.size() " << its.size() << std::endl;
-              for (int m = 0; m < its.size(); m++)
+              for (std::size_t m = 0; m < its.size(); m++)
                 {
                   std::vector<std::string> resi;
                   resi.push_back("fileName="); resi.back()+=myfile;
@@ -1112,7 +1112,7 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
       std::vector<std::string> res=DeserializeToVectorOfString(s0);
       if (res.size()!=myVector.size()) 
         throw INTERP_KERNEL::Exception("Problem in (de)serialise VectorOfString incoherent sizes");
-      for (int i=0; i<myVector.size(); i++)
+      for (std::size_t i=0; i<myVector.size(); i++)
         if (res[i]!=myVector[i])
           throw INTERP_KERNEL::Exception("Problem in (de)serialise VectorOfString incoherent elements");
     }
@@ -1128,8 +1128,8 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
             {
               if (res.size()!=myVector.size()) 
                 throw INTERP_KERNEL::Exception("Problem in SendAndReceiveVectorOfString incoherent sizes");
-              for (int i=1; i<myVector.size(); i++) //first is different
-                if (res[i]!=myVector[i])
+              for (std::size_t ii=1; ii<myVector.size(); ii++) //first is different
+                if (res[i]!=myVector[ii])
                   throw INTERP_KERNEL::Exception("Problem in SendAndReceiveVectorOfString incoherent elements");
             }
           else 
@@ -1150,7 +1150,7 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
   int jj=-1;
   for (int j=0; j<world_size; j++)
     {
-      for (int i=0; i<myVector.size(); i++)
+      for (int i=0; i<(int)myVector.size(); i++)
         {
           jj=jj+1;
           if (i==0)
@@ -1345,14 +1345,16 @@ void MEDPARTITIONER::TestPersistantMpi0To1(int taille, int nb)
           MPI_Wait(&requete1, &statut);
           //Traitement sequentiel dependant de "y"
           //...=f(y)
-          int nb=0;
+          int nbb=0;
           for (int i=0; i<taille; ++i)
-            if (y[i]==k) nb++;
-          if (nb==taille) ok++;
+            if (y[i]==k)
+              nbb++;
+          if (nbb==taille)
+            ok++;
           if (MyGlobals::_Verbose>9)
             {
               res="0K";
-              if (nb!=taille)
+              if (nbb!=taille)
                 res="KO";
               std::cout << res << k << " ";
             }
@@ -1403,13 +1405,17 @@ void MEDPARTITIONER::TestPersistantMpiRing(int taille, int nb)
         MPI_Wait(&requete1, &statut1);
         //Traitement sequentiel dependant de "y"
         //...=f(y)
-        int nb=0;
+        int nbb=0;
         for (int i=0; i<taille; ++i)
-          if (y[i]==k+befo) nb++;
-        if (nb==taille) ok++;
+          if (y[i]==k+befo)
+            nbb++;
+        if (nbb==taille)
+          ok++;
         if (MyGlobals::_Verbose>9)
           {
-            res="0K"+IntToStr(rank); if (nb!=taille) res="KO"+IntToStr(rank);
+            res="0K"+IntToStr(rank);
+            if (nbb!=taille)
+              res="KO"+IntToStr(rank);
             std::cout << res << k << " ";
           }
         MPI_Wait(&requete0, &statut2);
@@ -1480,14 +1486,16 @@ void MEDPARTITIONER::TestPersistantMpiRingOnCommSplit(int size, int nb)
           MPI_Wait(&requete1, &statut1);
           //Traitement sequentiel dependant de "y"
           //...=f(y)
-          int nb=0;
+          int nbb=0;
           for (int i=0; i<size; ++i)
-            if (y[i]==k+befo) nb++;
-          if (nb==size) ok++;
+            if (y[i]==k+befo)
+              nbb++;
+          if (nbb==size)
+            ok++;
           if (MyGlobals::_Verbose>9)
             {
               res="0K"+IntToStr(rank);
-              if (nb!=size)
+              if (nbb!=size)
                 res="KO"+IntToStr(rank);
               std::cout << res << k << " ";
             }

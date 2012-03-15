@@ -162,6 +162,7 @@ namespace MEDPARTITIONER
                            ParaMEDMEM::DataArrayDouble* fromArray,
                            std::string nameArrayTo,
                            std::string descriptionField);
+  private:
 
     //link to mesh_collection topology
     Topology* _topology;

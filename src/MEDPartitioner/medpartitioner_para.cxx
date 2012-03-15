@@ -266,7 +266,8 @@ int main(int argc, char** argv)
       r2=SelectTagsInVectorOfString(r2,"meshName=");
       if (r2.size()==(collection.getMesh()).size())
         {
-          for (int i=0; i<r2.size(); i++) r2[i]=EraseTagSerialized(r2[i],"ioldDomain=");
+          for (std::size_t i=0; i<r2.size(); i++)
+            r2[i]=EraseTagSerialized(r2[i],"ioldDomain=");
           r2=DeleteDuplicatesInVectorOfString(r2);
           if (r2.size()==1)
             {
@@ -285,9 +286,11 @@ int main(int argc, char** argv)
       r2=SelectTagsInVectorOfString(r1,"fieldName=");
       r2=SelectTagsInVectorOfString(r2,"nbComponents=");
       //may be yes? or not?
-      for (int i=0; i<r2.size(); i++) r2[i]=EraseTagSerialized(r2[i],"ioldFieldDouble=");
+      for (std::size_t i=0; i<r2.size(); i++)
+        r2[i]=EraseTagSerialized(r2[i],"ioldFieldDouble=");
       r2=DeleteDuplicatesInVectorOfString(r2);
-      for (int i=0; i<r2.size(); i++) finalInformations.push_back(r2[i]);
+      for (std::size_t i=0; i<r2.size(); i++)
+        finalInformations.push_back(r2[i]);
     
       MyGlobals::_General_Informations=finalInformations;
       if (MyGlobals::_Is0verbose) 

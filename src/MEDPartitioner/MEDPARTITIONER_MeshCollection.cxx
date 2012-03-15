@@ -83,12 +83,12 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
                                                Topology* topology, 
                                                bool family_splitting, 
                                                bool create_empty_groups)
-  : _name(initialCollection._name),
-    _topology(topology),
+  : _topology(topology),
     _owns_topology(false),
     _driver(0),
     _domain_selector( initialCollection._domain_selector ),
     _i_non_empty_mesh(-1),
+    _name(initialCollection._name),
     _driver_type(MEDPARTITIONER::MedXml),
     _subdomain_boundary_creates(false),
     _family_splitting(family_splitting),
@@ -120,12 +120,13 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   //treating families
   ////////////////////
 
-  if (MyGlobals::_Is0verbose) 
-    if (isParallelMode())
-      std::cout << "ParallelMode on " << topology->nbDomain() << " Domains" << std::endl;
-    else
-      std::cout << "NOT ParallelMode on " << topology->nbDomain() << " Domains" << std::endl;
-    
+  if (MyGlobals::_Is0verbose)
+    {
+      if (isParallelMode())
+        std::cout << "ParallelMode on " << topology->nbDomain() << " Domains" << std::endl;
+      else
+        std::cout << "NOT ParallelMode on " << topology->nbDomain() << " Domains" << std::endl;
+    }
   if (MyGlobals::_Is0verbose>10)
     std::cout<<"treating cell and face families"<<std::endl;
   
@@ -187,7 +188,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
           _topology->convertGlobalCellList(&globalids[0],size,&ilocalnew[0],&ipnew[0]);
       
           new2oldIds[iold].resize(nbNewDomain);
-          for (int i=0; i<ilocalnew.size(); i++)
+          for (int i=0; i<(int)ilocalnew.size(); i++)
             {
               new2oldIds[iold][ipnew[i]].push_back(i);
             }
@@ -229,7 +230,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
     {
       std::vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
     
-      for (int i=0; i< splitMeshes[inew].size();i++)
+      for (int i=0;i<(int)splitMeshes[inew].size();i++)
         if (splitMeshes[inew][i]!=0) 
           if (splitMeshes[inew][i]->getNumberOfCells()>0)
             meshes.push_back(splitMeshes[inew][i]);
@@ -251,8 +252,9 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
               _mesh[inew]->zipCoords();
             }
         }
-      for (int i=0; i< splitMeshes[inew].size(); i++)
-        if (splitMeshes[inew][i]!=0) splitMeshes[inew][i]->decrRef();
+      for (int i=0;i<(int)splitMeshes[inew].size();i++)
+        if (splitMeshes[inew][i]!=0)
+          splitMeshes[inew][i]->decrRef();
     }  
   if (MyGlobals::_Verbose>300)
     std::cout << "proc " << rank << " : castCellMeshes end fusing" << std::endl;
@@ -352,9 +354,9 @@ void getNodeIds(ParaMEDMEM::MEDCouplingUMesh& meshOne, ParaMEDMEM::MEDCouplingUM
   coords=meshTwo.getCoords();
   for (int inode=0; inode<nv2; inode++)
     {
-      double* coordsPtr=coords->getPointer()+inode*3;
+      double* coordsPtr2=coords->getPointer()+inode*3;
       vector<int> elems;
-      tree->getElementsAroundPoint(coordsPtr,elems);
+      tree->getElementsAroundPoint(coordsPtr2,elems);
       if (elems.size()==0) continue;
       nodeIds[inode]=elems[0];
     }
@@ -425,7 +427,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
               //are incremented for each target node
               //the face is considered as going to target domains if the counter of the domain 
               //is equal to the number of nodes
-              for (int inode=0; inode<nodes.size(); inode++)
+              for (int inode=0; inode<(int)nodes.size(); inode++)
                 {
                   typedef multimap<pair<int,int>,pair<int,int> >::const_iterator MI;
                   int mynode=nodes[inode];
@@ -443,7 +445,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
           
               for (map<int,int>::iterator iter=faces.begin(); iter!=faces.end(); iter++)
                 {
-                  if (iter->second==nodes.size())
+                  if (iter->second==(int)nodes.size())
                     //cvw eligible but may be have to be face of a cell of this->getMesh()[inew]?
                     //it is not sure here...
                     //done before writeMedfile on option?... see filterFaceOnCell()
@@ -484,14 +486,16 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
         for (int inew=0; inew<newSize; inew++)
           {
             if (_domain_selector->isMyDomain(iold) && !_domain_selector->isMyDomain(inew))
-              if (splitMeshes[inew][iold] != 0)
-                {
-                  _domain_selector->sendMesh(*(splitMeshes[inew][iold]), _domain_selector->getProcessorID(inew));
-                }
-              else
-                {
-                  _domain_selector->sendMesh(*(empty), _domain_selector->getProcessorID(inew));
-                }
+              {
+                if (splitMeshes[inew][iold] != 0)
+                  {
+                    _domain_selector->sendMesh(*(splitMeshes[inew][iold]), _domain_selector->getProcessorID(inew));
+                  }
+                else
+                  {
+                    _domain_selector->sendMesh(*(empty), _domain_selector->getProcessorID(inew));
+                  }
+              }
             if (!_domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew))
               _domain_selector->recvMesh(splitMeshes[inew][iold], _domain_selector->getProcessorID(iold));
           }
@@ -545,7 +549,7 @@ void MEDPARTITIONER::MeshCollection::remapIntField(const ParaMEDMEM::MEDCoupling
   vector<int> c;
   vector<int> cI;
   tmpMesh->getNodeIdsNearPoints(targetCoords->getConstPointer(),targetMesh.getNumberOfCells(),1e-10,c,cI);
-  if (cI.size()!= targetMesh.getNumberOfCells()+1) 
+  if ((int)cI.size()!= targetMesh.getNumberOfCells()+1) 
     throw INTERP_KERNEL::Exception("Error in source/target projection");
   for (int itargetnode=0; itargetnode<targetMesh.getNumberOfCells();itargetnode++)    
     {
@@ -659,7 +663,7 @@ void MEDPARTITIONER::MeshCollection::remapIntField2(int inew, int iold,
       toArray=_map_dataarray_int.find(cle)->second->getPointer();
     }
   tmpMesh->getNodeIdsNearPoints(targetCoords->getConstPointer(),targetSize,1e-10,c,cI);
-  if (cI.size()!=targetSize+1) 
+  if ((int)cI.size()!=targetSize+1) 
     throw INTERP_KERNEL::Exception("Error in source/target projection");
   for (int itargetnode=0; itargetnode<targetSize; itargetnode++)    
     {
@@ -867,7 +871,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename)
           throw INTERP_KERNEL::Exception("file does not comply with any recognized format");
         }
     }
-  for ( int idomain = 0; idomain < _mesh.size(); ++idomain )
+  for ( int idomain = 0; idomain < (int)_mesh.size(); ++idomain )
     if ( _mesh[idomain] && _mesh[idomain]->getNumberOfNodes() > 0 )
       _i_non_empty_mesh = idomain;
 }
@@ -896,13 +900,13 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
     {
       try
         {
-          _driver=new MeshCollectionMedXmlDriver(this); //cvwat02
-          _driver->read ( (char*)filename.c_str(), _domain_selector );
+          _driver=new MeshCollectionMedXmlDriver(this);
+          _driver->read ( filename.c_str(), _domain_selector );
           _driver_type = MedXml;
         }
       catch(...)
         {  // Handle all exceptions
-          if ( _driver ) delete _driver; _driver=0;
+          delete _driver;
           throw INTERP_KERNEL::Exception("file .xml does not comply with any recognized format");
         }
     }
@@ -958,7 +962,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
           try
             {
               _driver=new MeshCollectionMedXmlDriver(this);
-              _driver->read ( (char*)nameFileXml.c_str(), _domain_selector );
+              _driver->read ( nameFileXml.c_str(), _domain_selector );
               _driver_type = MedXml;
             }
           catch(...)
@@ -972,7 +976,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
           try
             {
               _driver=new MeshCollectionMedAsciiDriver(this);
-              _driver->read ( (char*)filename.c_str(), _domain_selector );
+              _driver->read ( filename.c_str(), _domain_selector );
               _driver_type=MedAscii;
             }
           catch(...)
@@ -984,7 +988,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
         }
     }
   // find non-empty domain mesh
-  for ( int idomain = 0; idomain < _mesh.size(); ++idomain )
+  for ( int idomain = 0; idomain < (int)_mesh.size(); ++idomain )
     if ( _mesh[idomain] && _mesh[idomain]->getNumberOfNodes() > 0 )
       _i_non_empty_mesh = idomain;
   
@@ -1031,12 +1035,12 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
  * \param meshname name of the mesh that is to be read
  */
 MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, const std::string& meshname)
-  : _name(meshname),
-    _topology(0),
+  : _topology(0),
     _owns_topology(true),
     _driver(0),
     _domain_selector( 0 ),
     _i_non_empty_mesh(-1),
+    _name(meshname),
     _driver_type(MEDPARTITIONER::MedXml),
     _subdomain_boundary_creates(false),
     _family_splitting(false),
@@ -1059,18 +1063,18 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, cons
 
 MEDPARTITIONER::MeshCollection::~MeshCollection()
 {
-  for (int i=0; i<_mesh.size();i++)
+  for (int i=0; i<(int)_mesh.size();i++)
     if (_mesh[i]!=0) _mesh[i]->decrRef(); 
   
-  for (int i=0; i<_cell_family_ids.size();i++)
+  for (int i=0; i<(int)_cell_family_ids.size();i++)
     if (_cell_family_ids[i]!=0)
       _cell_family_ids[i]->decrRef();
   
-  for (int i=0; i<_face_mesh.size();i++)
+  for (int i=0; i<(int)_face_mesh.size();i++)
     if (_face_mesh[i]!=0)
       _face_mesh[i]->decrRef();
   
-  for (int i=0; i<_face_family_ids.size();i++)
+  for (int i=0; i<(int)_face_family_ids.size();i++)
     if (_face_family_ids[i]!=0)
       _face_family_ids[i]->decrRef();
   
@@ -1486,8 +1490,7 @@ ParaMEDMEM::DataArrayDouble *MEDPARTITIONER::MeshCollection::getField(std::strin
   if (MyGlobals::_Verbose>200)
     std::cout << "proc " << rank << " : TO BE READ getField : " << descriptionIold << std::endl;
   std::string description, fileName, meshName, fieldName;
-  int idomain, typeField, DT, IT, entity;
-  idomain=iold;
+  int typeField, DT, IT, entity;
   fileName=MyGlobals::_File_Names[iold];
   if (MyGlobals::_Verbose>10) 
     std::cout << "proc " << MyGlobals::_Rank << " : in " << fileName << " " << iold << " " << descriptionIold << std::endl;
@@ -1517,11 +1520,11 @@ void MEDPARTITIONER::MeshCollection::prepareFieldDescriptions()
   int nbfiles=MyGlobals::_File_Names.size(); //nb domains
   std::vector<std::string> r2;
   //from allgatherv then vector(procs) of serialised vector(fields) of vector(description) data
-  for (int i=0; i<_field_descriptions.size(); i++)
+  for (int i=0; i<(int)_field_descriptions.size(); i++)
     {
       std::vector<std::string> r1=DeserializeToVectorOfString(_field_descriptions[i]);
-      for (int i=0; i<r1.size(); i++)
-        r2.push_back(r1[i]);
+      for (int ii=0; ii<(int)r1.size(); ii++)
+        r2.push_back(r1[ii]);
     }
   //here vector(procs*fields) of serialised vector(description) data
   _field_descriptions=r2;
@@ -1539,7 +1542,7 @@ void MEDPARTITIONER::MeshCollection::prepareFieldDescriptions()
       throw INTERP_KERNEL::Exception("incoherent number of fields references in all files .med\n");
     }
   _field_descriptions.resize(nbfields/nbfiles);
-  for (int i=0; i<_field_descriptions.size(); i++)
+  for (int i=0; i<(int)_field_descriptions.size(); i++)
     {
       std::string str=_field_descriptions[i];
       str=EraseTagSerialized(str,"idomain=");
@@ -1558,7 +1561,7 @@ bool isFaceOncell(std::vector< int >& inodesFace, std::vector< int >&  inodesCel
       int ii=inodesFace[i];
       if (ii<0)
         std::cout << "isFaceOncell problem inodeface<0" << std::endl;
-      for (int j=0; j<inodesCell.size(); j++)
+      for (int j=0; j<(int)inodesCell.size(); j++)
         {
           if (ii==inodesCell[j])
             {

@@ -135,16 +135,18 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
 
   if (false) //(_verbose)
     {
-      cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*(_nk+1)*3<<" "<<coor.size()<<endl;
-      for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
-      cout<<endl;
-      cout<<"\nnb conn "<<(_ni)*(_nj)*(_nk)*8<<" "<<conn.size()<<endl;
-      for (int i=0; i<conn.size(); i=i+8)
+      cout<< "\nnb coor " << (_ni+1)*(_nj+1)*(_nk+1)*3 << " " << coor.size() << endl;
+      for (int i=0; i<(int)coor.size(); i++)
+        cout << coor[i] << " ";
+      cout << endl;
+      cout << "\nnb conn " << (_ni)*(_nj)*(_nk)*8 << " " << conn.size() << endl;
+      for (int i=0; i<(int)conn.size(); i=i+8)
         { 
-          for (int j=0; j<8; j++) cout<<conn[i+j]<<" ";
-          cout<<endl;
+          for (int j=0; j<8; j++)
+            cout << conn[i+j] << " ";
+          cout << endl;
         }
-      cout<<endl;
+      cout << endl;
     }
   
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
@@ -203,10 +205,11 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCARRE3DMesh()
   if (false) //(_verbose)
     {
       cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*3<<" "<<coor.size()<<endl;
-      for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
+      for (int i=0; i<(int)coor.size(); i++)
+        cout << coor[i] << " ";
       cout<<endl;
       cout<<"\nnb conn "<<(_ni)*(_nj)*4<<" "<<conn.size()<<endl;
-      for (int i=0; i<conn.size(); i=i+4)
+      for (int i=0; i<(int)conn.size(); i=i+4)
         { 
           for (int j=0; j<4; j++) cout<<conn[i+j]<<" ";
           cout<<endl;
@@ -270,15 +273,17 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildFACE3DMesh()
   if (false) //(_verbose)
     {
       cout<<"\nnb coor "<<(_ni+1)*(_nj+1)*3<<" "<<coor.size()<<endl;
-      for (int i=0; i<coor.size(); i++) cout<<coor[i]<<" ";
+      for (int i=0; i<(int)coor.size(); i++)
+        cout << coor[i] << " ";
       cout<<endl;
       cout<<"\nnb conn "<<(_ni)*(_nj)*4<<" "<<conn.size()<<endl;
-      for (int i=0; i<conn.size(); i=i+4)
+      for (int i=0; i<(int)conn.size(); i=i+4)
         { 
-          for (int j=0; j<4; j++) cout<<conn[i+j]<<" ";
-          cout<<endl;
+          for (int j=0; j<4; j++)
+            cout << conn[i+j] << " ";
+          cout << endl;
         }
-      cout<<endl;
+      cout << endl;
     }
   
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
@@ -695,8 +700,7 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
     }
   m->decrRef();
   
-  MEDFileUMesh * mf;
-  mf->New(_fileName.c_str(),_meshName.c_str(),-1,-1);
+  MEDFileUMesh * mf = MEDFileUMesh::New(_fileName.c_str(),_meshName.c_str(),-1,-1);
   vector<int> lev;
   lev=mf->getNonEmptyLevels();
   if (_verbose)
