@@ -35,6 +35,7 @@ class MEDPARTITIONERTest : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE( MEDPARTITIONERTest );
   CPPUNIT_TEST( testSmallSize );
   CPPUNIT_TEST( testMedianSize );
+  CPPUNIT_TEST( testHugeSize );
   //CPPUNIT_TEST( deleteTestMeshes );
   CPPUNIT_TEST_SUITE_END();
 
@@ -46,11 +47,11 @@ public:
   int _nk;
   int _ntot;
   std::string _fileName; //initial test mesh file med CUBE3D
-  std::string _fileNameWithFaces; //initial test mesh file med CUBE3D plus a set of faces
-  std::string _fileName2; //initial test mesh file med CARRE3D
-  std::string _fileNameHugeXml;
-  int _nbTargetHuge;
-  std::string _meshName; //initial test mesh file med
+  std::string _file_name_with_faces; //initial test mesh file med CUBE3D plus a set of faces
+  std::string _file_name2; //initial test mesh file med CARRE3D
+  std::string _file_name_huge_xml;
+  int _nb_target_huge;
+  std::string _mesh_name; //initial test mesh file med
   int _verbose;
   
   //for utils
@@ -81,6 +82,7 @@ public:
   void tearDown();
   void testSmallSize();
   void testMedianSize();
+  void testHugeSize();
 };
 
 #endif
