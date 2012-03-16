@@ -141,7 +141,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
           MyGlobals::_Mesh_Names[i]=(const char*)xpathMeshObj->nodesetval->nodeTab[0]->children->content;
 
           if ( !domainSelector || domainSelector->isMyDomain(i))
-            readSubdomain(i);  //cvwat03
+            readSubdomain(i);
           xmlXPathFreeObject(xpathObjfilename);
           xmlXPathFreeObject(xpathMeshObj);
         } //loop on domains

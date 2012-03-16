@@ -137,16 +137,13 @@ void METISGraph::partGraph(int ndomain,
                   //it was keeped
                   ran=CreateRandomSize(n);
                   RandomizeAdj(&xadj[0],&adjncy[0],ran,vx,va);
-                  ParMETIS_PartKway( //cvwat11
-                                    vtxdist, &vx[0], &va[0], vwgt, 
+                  ParMETIS_PartKway(vtxdist, &vx[0], &va[0], vwgt, 
                                     adjwgt, &wgtflag, &base, &nparts, options, 
                                     &edgecut, partition, &comm );
                 }
               else
                 {
-                  //MPI_Barrier(MPI_COMM_WORLD);
-                  ParMETIS_PartKway( //cvwat11
-                                    vtxdist, xadj, adjncy, vwgt, 
+                  ParMETIS_PartKway(vtxdist, xadj, adjncy, vwgt, 
                                     adjwgt, &wgtflag, &base, &nparts, options, 
                                     &edgecut, partition, &comm );
                 }
@@ -169,11 +166,6 @@ void METISGraph::partGraph(int ndomain,
             {
               //shit ParMETIS "Error! Key -2 not found!" not catched...
               throw INTERP_KERNEL::Exception("Problem in ParMETIS_PartKway");
-            }
-          if (n<8 && nparts==3)
-            {
-              for (int i=0; i<n; i++)
-                partition[i]=i%3;
             }
 #else
           throw INTERP_KERNEL::Exception("ParMETIS is not available. Check your products, please.");

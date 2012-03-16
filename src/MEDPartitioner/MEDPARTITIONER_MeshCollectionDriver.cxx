@@ -375,7 +375,7 @@ void MeshCollectionDriver::writeMedFile(int idomain, const std::string& distfile
           std::string tmp,newName=distfilename;
           tmp+="_"+fieldName+"_"+IntToStr(nbfFieldFound)+".med";
           newName.replace(newName.find(".med"),4,tmp);
-          std::cout << "WARNING : writeMedFile : new file name with only one field :" << newName << std::endl;
+          std::cout << "WARNING : writeMedFile : create a new file name with only one field because MEDLoader::WriteField throw:" << newName << std::endl;
           MEDLoader::WriteField(newName.c_str(),field,true);
         }
     }
