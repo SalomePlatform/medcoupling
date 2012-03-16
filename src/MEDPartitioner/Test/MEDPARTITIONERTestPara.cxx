@@ -157,7 +157,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnCells()
   string fileName,cmd,execName,sourceName,targetName,input;
   execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
   execName+="/bin/salome/medpartitioner_para";
-  fileName=_fileName;
+  fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnCells.med");
   
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
@@ -245,7 +245,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   string fileName,cmd,execName,sourceName,targetName,input;
   execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
   execName+="/bin/salome/medpartitioner_para";
-  fileName=_fileName;
+  fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnGaussNe.med");
   
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
@@ -369,8 +369,8 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   CPPUNIT_ASSERT_EQUAL(0, res);
   
   cmd="mpirun -np 2 "+execName+" --ndomains=2 --split-method=metis";  //on same proc
-  sourceName=_fileName;
-  targetName=_fileName;
+  sourceName=_file_name;
+  targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo2_");
   cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
@@ -378,8 +378,8 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   CPPUNIT_ASSERT_EQUAL(0, res);
   
   cmd="mpirun -np 3 "+execName+" --ndomains=5 --split-method=metis"; //on less proc
-  sourceName=_fileName;
-  targetName=_fileName;
+  sourceName=_file_name;
+  targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
   cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
@@ -388,7 +388,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
   
   cmd="mpirun -np 1 "+execName+" --ndomains=1 --split-method=metis";  //on 1 proc
   sourceName=targetName+".xml";
-  targetName=_fileName;
+  targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
   cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;
@@ -397,7 +397,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
 
   cmd="mpirun -np 8 "+execName+" --ndomains=1 --split-method=metis";  //on more proc
   //sourceName=targetName+".xml";
-  targetName=_fileName;
+  targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
   cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
   if (_verbose) cout<<endl<<cmd<<endl;

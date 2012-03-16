@@ -46,7 +46,7 @@ public:
   int _nj;
   int _nk;
   int _ntot;
-  std::string _fileName; //initial test mesh file med CUBE3D
+  std::string _file_name; //initial test mesh file med CUBE3D
   std::string _file_name_with_faces; //initial test mesh file med CUBE3D plus a set of faces
   std::string _file_name2; //initial test mesh file med CARRE3D
   std::string _file_name_huge_xml;

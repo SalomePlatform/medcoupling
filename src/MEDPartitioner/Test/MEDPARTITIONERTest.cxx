@@ -703,7 +703,7 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
     }
   m->decrRef();
   
-  MEDFileUMesh * mf = MEDFileUMesh::New(_file_name.c_str(),_meshName.c_str(),-1,-1);
+  MEDFileUMesh * mf = MEDFileUMesh::New(_file_name.c_str(),_mesh_name.c_str(),-1,-1);
   vector<int> lev;
   lev=mf->getNonEmptyLevels();
   if (_verbose)
