@@ -58,7 +58,7 @@ void MEDPARTITIONERTest::setSize(int ni, int nj, int nk)
   this->_nk=nk;
   this->_ntot=_ni*_nj*_nk;
   string ijk=IntToStr(ni)+"x"+IntToStr(nj)+"x"+IntToStr(nk);
-  this->_fileName="tmp_testMesh_"+ijk+".med";
+  this->_file_name="tmp_testMesh_"+ijk+".med";
   this->_file_name_with_faces="tmp_testMeshWithFaces_"+ijk+".med";
   string ij=IntToStr(ni)+"x"+IntToStr(nj);
   this->_file_name2="tmp_testMesh_"+ij+".med";
@@ -325,7 +325,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnCells(string myfileN
           field.push_back(j+.2);
           field.push_back(k+.3);
         }
-  //cvwat
+
   MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(myfileName.c_str(),_mesh_name.c_str(),0);
   int nbOfCells=mesh->getNumberOfCells();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
@@ -359,7 +359,7 @@ MEDCouplingFieldDouble * MEDPARTITIONERTest::buildVecFieldOnNodes()
           field.push_back(k+.3);
         }
   
-  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(_fileName.c_str(),_mesh_name.c_str(),0);
+  MEDCouplingUMesh *mesh=MEDLoader::ReadUMeshFromFile(_file_name.c_str(),_mesh_name.c_str(),0);
   int nbOfNodes=mesh->getNumberOfNodes();
   MEDCouplingFieldDouble *f1=MEDCouplingFieldDouble::New(ON_NODES,ONE_TIME);
   f1->setName("VectorFieldOnNodes");
@@ -384,12 +384,12 @@ void MEDPARTITIONERTest::createTestMeshWithoutField()
 {
   {
     MEDCouplingUMesh * mesh = buildCUBE3DMesh();
-    MEDLoader::WriteUMesh(_fileName.c_str(),mesh,true);
-    if (_verbose) cout<<endl<<_fileName<<" created"<<endl;
+    MEDLoader::WriteUMesh(_file_name.c_str(),mesh,true);
+    if (_verbose) cout<<endl<<_file_name<<" created"<<endl;
     if (_ntot<1000000) //too long
       {
-        MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_fileName.c_str(),mesh->getName(),0);
-        if (_verbose) cout<<_fileName<<" reread"<<endl;
+        MEDCouplingUMesh *mesh_rw=MEDLoader::ReadUMeshFromFile(_file_name.c_str(),mesh->getName(),0);
+        if (_verbose) cout<<_file_name<<" reread"<<endl;
         CPPUNIT_ASSERT(mesh->isEqual(mesh_rw,1e-12));
         mesh_rw->decrRef();
       }
@@ -575,7 +575,7 @@ void MEDPARTITIONERTest::createHugeTestMesh(int ni, int nj, int nk, int nbx, int
 void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
 {
   {
-    string name=_fileName;
+    string name=_file_name;
     MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
     name.replace(name.find(".med"),4,"_WithVecFieldOnCells.med");
     MEDLoader::WriteField(name.c_str(),f1,true);
@@ -594,7 +594,7 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
     f1->decrRef();
   }
   {
-    string name=_fileName;
+    string name=_file_name;
     MEDCouplingFieldDouble *f1=buildVecFieldOnCells(name);
     name.replace(name.find(".med"),4,"_WithVecFieldOnGaussNe.med");
     MEDCouplingFieldDouble *f3=MEDCouplingFieldDouble::New(ON_GAUSS_NE,ONE_TIME);
@@ -670,7 +670,7 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnCells()
 void MEDPARTITIONERTest::createTestMeshWithVecFieldOnNodes()
 {
   MEDCouplingFieldDouble *f1=buildVecFieldOnNodes();
-  string name=_fileName;
+  string name=_file_name;
   name.replace(name.find(".med"),4,"_WithVecFieldOnNodes.med");
   MEDLoader::WriteField(name.c_str(),f1,true);
   if (_verbose) cout<<endl<<name<<" created"<<endl;
@@ -686,7 +686,7 @@ void MEDPARTITIONERTest::createTestMeshWithVecFieldOnNodes()
 
 void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
 {
-  string name=_fileName;
+  string name=_file_name;
   name.replace(name.find(".med"),4,"_WithVecFieldOnNodes.med");
   MEDCouplingUMesh * m=MEDLoader::ReadUMeshFromFile(name.c_str(),_mesh_name.c_str(),0);
   const std::set<INTERP_KERNEL::NormalizedCellType>& types=m->getAllTypes();
@@ -703,7 +703,7 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
     }
   m->decrRef();
   
-  MEDFileUMesh * mf = MEDFileUMesh::New(_fileName.c_str(),_meshName.c_str(),-1,-1);
+  MEDFileUMesh * mf = MEDFileUMesh::New(_file_name.c_str(),_meshName.c_str(),-1,-1);
   vector<int> lev;
   lev=mf->getNonEmptyLevels();
   if (_verbose)
