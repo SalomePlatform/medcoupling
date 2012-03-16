@@ -293,7 +293,7 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
           tree=new BBTree<3>(bbox,0,0,nvertices,1e-9);
         }
 
-      for (int inew=0; inew<_topology->nbDomain(); inew++) //cvwat12
+      for (int inew=0; inew<_topology->nbDomain(); inew++)
         {
 #ifdef HAVE_MPI2
           //sending meshes for parallel computation
@@ -463,7 +463,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
           //creating the splitMeshes from the face ids
           for (int inew=0;inew<_topology->nbDomain();inew++)
             {
-              if (meshesCastFrom[iold]->getNumberOfCells() > 0) //cvw
+              if (meshesCastFrom[iold]->getNumberOfCells() > 0)
                 {
                   splitMeshes[inew][iold]=
                     (ParaMEDMEM::MEDCouplingUMesh*) 
@@ -695,7 +695,7 @@ void MEDPARTITIONER::MeshCollection::remapIntField2(int inew, int iold,
   tmpMesh->decrRef();
 }
 
-void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollection, std::string nameArrayTo) //cvwat08
+void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollection, std::string nameArrayTo)
 {
   if (nameArrayTo!="cellFieldDouble") 
     throw INTERP_KERNEL::Exception("Error castAllField only on cellFieldDouble");
@@ -891,11 +891,10 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename)
  * \param filename  - name of the master file containing the list of all the MED files
  * \param domainSelector - selector of domains to load
  */
-MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, ParaDomainSelector& domainSelector) //cvwat01
+MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, ParaDomainSelector& domainSelector)
   : _topology(0),
     _owns_topology(true),
     _driver(0),
-    //cvw _domain_selector( domainSelector.nbProcs() > 1 ? & domainSelector : 0 ),
     _domain_selector( &domainSelector ),
     _i_non_empty_mesh(-1),
     _driver_type(MEDPARTITIONER::Undefined),
@@ -1405,7 +1404,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
   MEDPARTITIONER::SkyLineArray* array=0;
   int* edgeweights=0;
   buildCellGraph(array,edgeweights);
-  //MPI_Barrier(MPI_COMM_WORLD);
+  
   Graph* cellGraph;
   switch (split)
     {

@@ -273,7 +273,6 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
 {
 
   _nb_domain=nb_domain;
-  //cvw !!whatisit! _nb_cells=graph->nbVertices();
   _mesh_dimension=mesh_dimension;
   
   if (MyGlobals::_Verbose>200)
