@@ -48,7 +48,8 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
       _node_node[i].resize(nbdomain);
     }
   int nbproc=_domain_selector->nbProcs();
-  std::vector<BBTree<3>* > bbtree(nbdomain,(BBTree<3>*) 0); 
+  std::vector<BBTree<3>* > bbtree(nbdomain,(BBTree<3>*) 0);
+  std::vector<double* > bbxi(nbdomain,(double*) 0);
   std::vector<ParaMEDMEM::DataArrayInt*> rev(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
   std::vector<ParaMEDMEM::DataArrayInt*> revIndx(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
   int meshDim;
@@ -60,7 +61,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
       if(!_domain_selector->isMyDomain(mydomain))
         continue;
       const ParaMEDMEM::MEDCouplingUMesh* myMesh=_mesh_collection.getMesh(mydomain);
-      meshDim=myMesh->getMeshDimension();
+      meshDim = myMesh->getMeshDimension();
       spaceDim= myMesh->getSpaceDimension();
       rev[mydomain] = ParaMEDMEM::DataArrayInt::New();
       revIndx[mydomain] = ParaMEDMEM::DataArrayInt::New();
@@ -73,9 +74,11 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
           bbx[2*i+1]=bbx[2*i]+2e-12;
         }
       bbtree[mydomain]=new BBTree<3> (bbx,0,0,myMesh->getNumberOfNodes(),-1e-12);
-      delete [] bbx;
+      //keep bbx because need it in getIntersectingElems
+      //no delete [] bbx yet
+      bbxi[mydomain]=bbx;
     }
-
+  
   //send my domains to other proc an receive other domains from other proc
   for (int isource=0; isource<nbdomain; isource++)
     {
@@ -109,7 +112,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
               std::vector<double> recvVec;
               RecvDoubleVec(recvVec,sourceProc);
               std::map<int,int> commonNodes; // (local nodes, distant nodes) list
-              for (int inode=0; inode<(recvVec.size()/meshDim); inode++)
+              for (int inode=0; inode<(recvVec.size()/spaceDim); inode++)
                 {
                   double* bbox=new double[2*spaceDim];
                   for (int i=0; i<spaceDim; i++)
@@ -144,7 +147,8 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
             }
         }
     }
-  //free  rev(nbdomain) revIndx(nbdomain) bbtree(nbdomain)
+    
+  //free  rev(nbdomain) revIndx(nbdomain) bbtree(nbdomain) bbxi(nbdomain)
   for (int i=0; i<nbdomain; i++)
     {
       if (rev[i]!=0)
@@ -153,6 +157,8 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
         revIndx[i]->decrRef();
       if (bbtree[i]!=0)
         delete bbtree[i];
+      if (bbxi[i]!=0)
+        delete [] bbxi[i];
     }
 
   if (MyGlobals::_Verbose>100) 

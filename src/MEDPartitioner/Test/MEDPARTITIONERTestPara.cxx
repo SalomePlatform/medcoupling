@@ -76,7 +76,7 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   MPI_Comm_rank(MPI_COMM_WORLD, &MyGlobals::_Rank);
 
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
-  MEDPARTITIONER::MeshCollection collection(input,parallelizer); //cvwat01
+  MEDPARTITIONER::MeshCollection collection(input,parallelizer);
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
   std::vector<ParaMEDMEM::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
   CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
