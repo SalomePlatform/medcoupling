@@ -126,6 +126,9 @@ void MeshCollectionDriver::readSubdomain(std::vector<int*>& cellglobal,
           //reading families groups
           ParaMEDMEM::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCpy());
           (_collection->getFaceFamilyIds())[idomain]=faceIds;
+          if (MyGlobals::_Verbose>10)
+            std::cout << "proc " << MyGlobals::_Rank << " : WITH Faces\n";
+
         }
       else
         {
@@ -138,7 +141,7 @@ void MeshCollectionDriver::readSubdomain(std::vector<int*>& cellglobal,
       ParaMEDMEM::DataArrayInt* empty=ParaMEDMEM::DataArrayInt::New();
       (_collection->getFaceFamilyIds())[idomain]=empty;
       if (MyGlobals::_Verbose>10)
-        std::cout << "proc " << MyGlobals::_Rank << " : NO LevelM1Mesh (Faces)\n";
+        std::cout << "proc " << MyGlobals::_Rank << " : WITHOUT Faces\n";
     }
   
   //reading groups
@@ -189,6 +192,8 @@ void MeshCollectionDriver::readSubdomain(int idomain)
           //reading families groups
           ParaMEDMEM::DataArrayInt* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCpy());
           (_collection->getFaceFamilyIds())[idomain]=faceIds;
+          if (MyGlobals::_Verbose>10)
+            std::cout << "proc " << MyGlobals::_Rank << " : WITH Faces\n";
         }
       else
         {
@@ -201,7 +206,7 @@ void MeshCollectionDriver::readSubdomain(int idomain)
       ParaMEDMEM::DataArrayInt* empty=ParaMEDMEM::DataArrayInt::New();
       (_collection->getFaceFamilyIds())[idomain]=empty;
       if (MyGlobals::_Verbose>10)
-        std::cout << "proc " << MyGlobals::_Rank << " : NO LevelM1Mesh (Faces)\n";
+        std::cout << "proc " << MyGlobals::_Rank << " : WITHOUT Faces\n";
     }
   
   //reading groups

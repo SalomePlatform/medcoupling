@@ -52,8 +52,8 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
   std::vector<double* > bbxi(nbdomain,(double*) 0);
   std::vector<ParaMEDMEM::DataArrayInt*> rev(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
   std::vector<ParaMEDMEM::DataArrayInt*> revIndx(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
-  int meshDim;
-  int spaceDim;
+  int meshDim=-1;
+  int spaceDim=-1;
   
   //init rev and revIndx and bbtree for my domain (of me:proc n)
   for (int mydomain=0; mydomain<nbdomain; mydomain++)
@@ -105,6 +105,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
                 }
     
             }
+
           if (_domain_selector->isMyDomain(itarget))
             {
               //receiving data from source proc
