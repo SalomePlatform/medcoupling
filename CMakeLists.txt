@@ -23,6 +23,8 @@ IF(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 ENDIF(COMMAND cmake_policy)
 
+ENABLE_TESTING()
+
 SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
 
 IF(KERNEL_ROOT_DIR)
@@ -65,6 +67,8 @@ INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
 IF(WINDOWS)
   INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
 ENDIF(WINDOWS)
+
+SET(MED_salomebin_BINS bin/salome)
 
 SET(MED_salomelib_LIBS lib/salome)
 

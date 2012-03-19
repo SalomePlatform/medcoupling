@@ -69,4 +69,4 @@ INSTALL(TARGETS interpkernel DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB_RECURSE interpkernel_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 FILE(GLOB_RECURSE interpkernel_HEADERS_TXX "${CMAKE_CURRENT_SOURCE_DIR}/*.txx")
-INSTALL( FILES ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX} DESTINATION ${MED_salomeinclude_HEADERS} )
+INSTALL(FILES ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX} DESTINATION ${MED_salomeinclude_HEADERS})
