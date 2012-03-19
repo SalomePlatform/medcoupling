@@ -18,8 +18,11 @@
 #
 
 INCLUDE_DIRECTORIES(
-  $(CPPUNIT_INCLUDES_DIR)
+  ${CPPUNIT_INCLUDES_DIR}
+  ${HDF5_INCLUDES_DIR}
+  ${MED3_INCLUDES_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/..
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDCoupling
   ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL
   ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL/Bases
   ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL/Geometric2D
@@ -28,31 +31,24 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNELTest
   )
 
-SET(TestMEDCoupling_SOURCES
-  MEDCouplingBasicsTestInterp.cxx
-  TestMEDCoupling.cxx
-  MEDCouplingBasicsTest0.cxx
-  MEDCouplingBasicsTest1.cxx
-  MEDCouplingBasicsTest2.cxx
-  MEDCouplingBasicsTest3.cxx
-  MEDCouplingBasicsTest4.cxx
-  MEDCouplingBasicsTest5.cxx
+SET(TestMEDLoader_SOURCES
+  TestMEDLoader.cxx
+  MEDLoaderTest.cxx
   )
 
-SET(TestMEDCouplingRemapper_SOURCES
-  TestMEDCouplingRemapper.cxx
-  MEDCouplingRemapperTest.cxx
-  MEDCouplingBasicsTest0.cxx
+SET(TestSauvLoader_SOURCES
+  TestSauvLoader.cxx
+  SauvLoaderTest.cxx
   )
 
-ADD_EXECUTABLE(TestMEDCoupling ${TestMEDCoupling_SOURCES})
-SET_TARGET_PROPERTIES(TestMEDCoupling PROPERTIES COMPILE_FLAGS "${CPPUNIT_FLAGS}")
-TARGET_LINK_LIBRARIES(TestMEDCoupling medcoupling ${CPPUNIT_LIBS})
-ADD_TEST(TestMEDCoupling TestMEDCoupling)
+ADD_EXECUTABLE(TestMEDLoader ${TestMEDLoader_SOURCES})
+SET_TARGET_PROPERTIES(TestMEDLoader PROPERTIES COMPILE_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS} ${CPPUNIT_FLAGS}")
+TARGET_LINK_LIBRARIES(TestMEDLoader medloader ${CPPUNIT_LIBS})
+ADD_TEST(TestMEDLoader TestMEDLoader)
 
-ADD_EXECUTABLE(TestMEDCouplingRemapper ${TestMEDCouplingRemapper_SOURCES})
-SET_TARGET_PROPERTIES(TestMEDCouplingRemapper PROPERTIES COMPILE_FLAGS "${CPPUNIT_FLAGS}")
-TARGET_LINK_LIBRARIES(TestMEDCouplingRemapper medcouplingremapper ${CPPUNIT_LIBS})
-ADD_TEST(TestMEDCouplingRemapper TestMEDCouplingRemapper)
+ADD_EXECUTABLE(TestSauvLoader ${TestSauvLoader_SOURCES})
+SET_TARGET_PROPERTIES(TestSauvLoader PROPERTIES COMPILE_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS} ${CPPUNIT_FLAGS}")
+TARGET_LINK_LIBRARIES(TestSauvLoader medloader ${CPPUNIT_LIBS})
+ADD_TEST(TestSauvLoader TestSauvLoader)
 
-INSTALL(TARGETS TestMEDCoupling TestMEDCouplingRemapper DESTINATION ${MED_salomebin_BINS})
+INSTALL(TARGETS TestMEDLoader TestSauvLoader DESTINATION ${MED_salomebin_BINS})
