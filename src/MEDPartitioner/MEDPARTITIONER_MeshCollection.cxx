@@ -99,8 +99,6 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
     _joint_finder(0)
 {
   std::vector<std::vector<std::vector<int> > > new2oldIds(initialCollection.getTopology()->nbDomain());
-  if (MyGlobals::_Verbose>10)
-    std::cout << "proc " << MyGlobals::_Rank << " : castCellMeshes" << std::endl;
   castCellMeshes(initialCollection, new2oldIds);
 
   //defining the name for the collection and the underlying meshes
@@ -110,6 +108,8 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   //treating faces
   /////////////////
 
+  if (MyGlobals::_Verbose>0)
+    MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
   if (MyGlobals::_Is0verbose)
     std::cout<<"treating faces"<<std::endl;
   NodeMapping nodeMapping;
@@ -122,7 +122,8 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   ////////////////////
   //treating families
   ////////////////////
-
+  if (MyGlobals::_Verbose>0)
+    MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
   if (MyGlobals::_Is0verbose)
     {
       if (isParallelMode())
@@ -143,12 +144,15 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
                 "faceFamily");
 
   //treating groups
+  if (MyGlobals::_Verbose>0)
+    MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
   if (MyGlobals::_Is0verbose)
     std::cout << "treating groups" << std::endl;
   _family_info=initialCollection.getFamilyInfo();
   _group_info=initialCollection.getGroupInfo();
   
-  //treating fields
+  if (MyGlobals::_Verbose>0)
+    MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
   if (MyGlobals::_Is0verbose)
     std::cout << "treating fields" << std::endl;
   castAllFields(initialCollection,"cellFieldDouble");
@@ -163,6 +167,8 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
 void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialCollection,
                                                     std::vector<std::vector<std::vector<int> > >& new2oldIds)
 {
+  if (MyGlobals::_Verbose>10)
+    std::cout << "proc " << MyGlobals::_Rank << " : castCellMeshes" << std::endl;
   if (_topology==0)
     throw INTERP_KERNEL::Exception("Topology has not been defined on call to castCellMeshes");
   
@@ -178,7 +184,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
     {
       splitMeshes[inew].resize(nbOldDomain, (ParaMEDMEM::MEDCouplingUMesh*)0);
     }
-  
+
   for (int iold=0; iold<nbOldDomain; iold++)
     {
       if (!isParallelMode() || initialCollection._domain_selector->isMyDomain(iold))
@@ -226,6 +232,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
           }
     }
 #endif
+
   //fusing the split meshes
   if (MyGlobals::_Verbose>200)
     std::cout << "proc " << rank << " : castCellMeshes fusing" << std::endl;
@@ -233,7 +240,7 @@ void MEDPARTITIONER::MeshCollection::castCellMeshes(MeshCollection& initialColle
     {
       std::vector<const ParaMEDMEM::MEDCouplingUMesh*> meshes;
     
-      for (int i=0;i<(int)splitMeshes[inew].size();i++)
+      for (int i=0; i<(int)splitMeshes[inew].size(); i++)
         if (splitMeshes[inew][i]!=0) 
           if (splitMeshes[inew][i]->getNumberOfCells()>0)
             meshes.push_back(splitMeshes[inew][i]);
@@ -391,22 +398,31 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
   using std::pair;
   using std::make_pair;
   
+  if (MyGlobals::_Verbose>10)
+    std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes" << std::endl;
+  if (_topology==0)
+    throw INTERP_KERNEL::Exception("Topology has not been defined on call to castFaceMeshes");
+  
+  int nbNewDomain=_topology->nbDomain();
+  int nbOldDomain=initialCollection.getTopology()->nbDomain();
+  
   vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom=initialCollection.getFaceMesh();
   vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastTo=this->getFaceMesh();
   
   vector< vector<ParaMEDMEM::MEDCouplingUMesh*> > splitMeshes;
-  int newSize=_topology->nbDomain();
-  int fromSize=meshesCastFrom.size();
   
-  splitMeshes.resize(newSize);
-  for (int inew=0;inew<newSize;inew++) splitMeshes[inew].resize(fromSize);
-  new2oldIds.resize(fromSize);
-  for (int iold=0;iold<fromSize;iold++) new2oldIds[iold].resize(newSize);
+  splitMeshes.resize(nbNewDomain);
+  for (int inew=0; inew<nbNewDomain; inew++)
+    {
+      splitMeshes[inew].resize(nbOldDomain, (ParaMEDMEM::MEDCouplingUMesh*)0);
+    }
+  new2oldIds.resize(nbOldDomain);
+  for (int iold=0; iold<nbOldDomain; iold++) new2oldIds[iold].resize(nbNewDomain);
   
   //init null pointer for empty meshes
-  for (int inew=0;inew<newSize;inew++)
+  for (int inew=0; inew<nbNewDomain; inew++)
     {
-      for (int iold=0;iold<fromSize;iold++)
+      for (int iold=0; iold<nbOldDomain; iold++)
         {
           splitMeshes[inew][iold]=0; //null for empty meshes
           new2oldIds[iold][inew].clear();
@@ -415,10 +431,12 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
 
   //loop over the old domains to analyse the faces and decide 
   //on which new domain they belong
-  
-  for (int iold=0; iold<fromSize;iold++)
+  for (int iold=0; iold<nbOldDomain; iold++)
     {
-      if (isParallelMode() && !_domain_selector->isMyDomain(iold)) continue;
+      if (isParallelMode() && !initialCollection._domain_selector->isMyDomain(iold)) continue;
+      if (MyGlobals::_Verbose>400)
+        std::cout<<"proc "<<MyGlobals::_Rank<<" : castFaceMeshes iodDomain "<<iold<<std::endl;
+      //initial face mesh known : in my domain
       if (meshesCastFrom[iold] != 0)
         {
           for (int ielem=0; ielem<meshesCastFrom[iold]->getNumberOfCells(); ielem++)
@@ -461,7 +479,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
             }
       
           //creating the splitMeshes from the face ids
-          for (int inew=0;inew<_topology->nbDomain();inew++)
+          for (int inew=0; inew<nbNewDomain; inew++)
             {
               if (meshesCastFrom[iold]->getNumberOfCells() > 0)
                 {
@@ -485,45 +503,51 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
         }
     }
   
-  // send/receive stuff
-#ifdef HAVE_MP2
+#ifdef HAVE_MPI2
+  //send/receive stuff
   if (isParallelMode())
     {
       ParaMEDMEM::MEDCouplingUMesh *empty=CreateEmptyMEDCouplingUMesh();
-      for (int iold=0; iold<fromSize; iold++)
-        for (int inew=0; inew<newSize; inew++)
+      for (int iold=0; iold<nbOldDomain; iold++)
+        for (int inew=0; inew<nbNewDomain; inew++)
           {
-            if (_domain_selector->isMyDomain(iold) && !_domain_selector->isMyDomain(inew))
+            if (initialCollection._domain_selector->isMyDomain(iold) && !_domain_selector->isMyDomain(inew))
               {
                 if (splitMeshes[inew][iold] != 0)
                   {
                     _domain_selector->sendMesh(*(splitMeshes[inew][iold]), _domain_selector->getProcessorID(inew));
+                    //std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes send " <<inew<<" "<<iold<<" "<<splitMeshes[inew][iold]->getNumberOfCells()<<std::endl;
                   }
                 else
                   {
                     _domain_selector->sendMesh(*(empty), _domain_selector->getProcessorID(inew));
+                    //std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes sen0 " <<inew<<" "<<iold<<std::endl;
                   }
               }
-            if (!_domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew))
+            if (!initialCollection._domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew))
               _domain_selector->recvMesh(splitMeshes[inew][iold], _domain_selector->getProcessorID(iold));
+              int nb=0;
+              if (splitMeshes[inew][iold])
+                nb=splitMeshes[inew][iold]->getNumberOfCells();
+              //std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes recv "<<inew<<" "<<iold<<" "<<nb<<std::endl;//" "<<splitMeshes[inew][iold]->getNumberOfCells()<<std::endl;
           }
       empty->decrRef();
     }
 #endif
-  //recollecting the bits of splitMeshes to fuse them into one
-  if (MyGlobals::_Verbose>300) std::cout<<"proc "<<MyGlobals::_Rank<<" : fuse splitMeshes"<<std::endl;
-  meshesCastTo.resize(newSize);
-  for (int inew=0; inew < newSize; inew++)
+
+  //fusing the split meshes
+  if (MyGlobals::_Verbose>200)
+    std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes fusing" << std::endl;
+  meshesCastTo.resize(nbNewDomain);
+  for (int inew=0; inew<nbNewDomain; inew++)
     {
       vector<const ParaMEDMEM::MEDCouplingUMesh*> myMeshes;
-      for (int iold=0; iold<fromSize; iold++)
+      for (int iold=0; iold<nbOldDomain; iold++)
         {
           ParaMEDMEM::MEDCouplingUMesh *umesh=splitMeshes[inew][iold];
           if (umesh!=0)
-            if (umesh->getNumberOfCells()>0) 
-              {
+            if (umesh->getNumberOfCells()>0)
                 myMeshes.push_back(umesh);
-              }
         }
       
       if (myMeshes.size()>0)
@@ -535,10 +559,12 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
           ParaMEDMEM::MEDCouplingUMesh *empty=CreateEmptyMEDCouplingUMesh();
           meshesCastTo[inew]=empty;
         }
-      for (int iold=0; iold<fromSize; iold++)
+      for (int iold=0; iold<nbOldDomain; iold++)
         if (splitMeshes[inew][iold]!=0)
           splitMeshes[inew][iold]->decrRef();
     }
+  if (MyGlobals::_Verbose>300)
+    std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes end fusing" << std::endl;
 }
 
 void MEDPARTITIONER::MeshCollection::remapIntField(const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
