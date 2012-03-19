@@ -112,7 +112,7 @@ void METISGraph::partGraph(int ndomain,
           
                   if (lgxadj>0)
                     {
-                      std::cout<< "\nproc " << MyGlobals::_Rank << " : lgxadj " << lgxadj << " lgadj " << xadj[lgxadj+1] << std::endl;
+                      std::cout<< "\nproc " << MyGlobals::_Rank << " : lgxadj " << lgxadj << " lgadj " << xadj[lgxadj] << std::endl;
                       for (int i=0; i<10; ++i)
                         std::cout << xadj[i] << " ";
                       std::cout << "... " << xadj[lgxadj] << std::endl;
