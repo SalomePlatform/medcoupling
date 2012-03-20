@@ -28,6 +28,7 @@ ENABLE_TESTING()
 SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
 
 IF(KERNEL_ROOT_DIR)
+  SET(MED_ENABLE_KERNEL ON)
   INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
   INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
   INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
