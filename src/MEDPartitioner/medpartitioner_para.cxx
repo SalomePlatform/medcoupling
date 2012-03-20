@@ -61,12 +61,10 @@ using namespace MEDPARTITIONER;
 
 int main(int argc, char** argv)
 {
-#ifndef MED_ENABLE_PARMETIS
-#ifndef MED_ENABLE_SCOTCH
+#if !defined(MED_ENABLE_PARMETIS) && !defined(MED_ENABLE_SCOTCH)
   cout << "Sorry, no one split method is available. Please, compile with ParMETIS or PT-SCOTCH."<<endl;
   return 1;
-#endif
-#endif
+#else
 
   // Defining options
   // by parsing the command line
@@ -79,7 +77,7 @@ int main(int argc, char** argv)
   string input;
   string output;
   string meshname;
-  string library;
+  string library="metis";  //default
   int ndomains;
   int help=0;
   int test=0;
@@ -87,26 +85,25 @@ int main(int argc, char** argv)
   MPI_Comm_size(MPI_COMM_WORLD, &MyGlobals::_World_Size);
   MPI_Comm_rank(MPI_COMM_WORLD, &MyGlobals::_Rank);
   
-  //cout<<"proc "<<MyGlobals::_Rank<<" of "<<MyGlobals::_World_Size<<endl; //cvw for debug
+  //cout<<"proc "<<MyGlobals::_Rank<<" of "<<MyGlobals::_World_Size<<endl; //for debug
   //TestVectorOfStringMpi(); //cvw
   //TestRandomize();
   
-  // Primitive parsing of command-line options
+  //Primitive parsing of command-line options
   string desc ("Available options of medpartitioner_para V1.0.3:\n"
                "\t--help                   : produces this help message\n"
                "\t--verbose                : echoes arguments\n"
                "\t--input-file=<string>    : name of the input .med file or .xml master file\n"
-               "\t--output-file=<string>   : name of the resulting file (without exension)\n"
+               "\t--output-file=<string>   : name of the resulting file (without extension)\n"
                "\t--ndomains=<number>      : number of subdomains in the output file, default is 1\n"
-#ifdef MED_MED_ENABLE_PARMETIS
-#ifdef MED_MED_ENABLE_SCOTCH
+#if defined(MED_ENABLE_PARMETIS) && defined(MED_ENABLE_SCOTCH)
+  //user can choose!
                "\t--split-method=<string>  : name of the splitting library (metis/scotch), default is metis\n"
-#endif
 #endif
                "\t--creates-boundary-faces : creates boundary faces mesh in the output files\n"
                "\t--dump-cpu-memory        : dumps passed CPU time and maximal increase of used memory\n"
                //"\t--randomize=<number>     : random seed for other partitionning (only on one proc)\n"
-               //"\t--atomize              : do the opposite of a good partitionner (only on one proc)\n"
+               //"\t--atomize                : do the opposite of a good partitionner (only on one proc)\n"
                );
 
   if (argc<=1) help=1;
@@ -147,13 +144,21 @@ int main(int argc, char** argv)
       if (MyGlobals::_Rank==0) cerr << "randomize only available on 1 proc (mpirun -np 1)" << endl;
       MyGlobals::_Randomize=0;
     }
-  
-#ifdef MED_ENABLE_PARMETIS
-#ifndef MED_ENABLE_SCOTCH
+
+//no choice
+#if defined(MED_ENABLE_PARMETIS) && !defined(MED_ENABLE_SCOTCH)
   library = "metis";
 #endif
-#else
+#if !defined(MED_ENABLE_PARMETIS) && defined(MED_ENABLE_SCOTCH)
   library = "scotch";
+#endif
+//user choice
+#if defined(MED_ENABLE_PARMETIS) && defined(MED_ENABLE_SCOTCH)
+  if ((library!="metis") && (library!="scotch"))
+    {
+      if (MyGlobals::_Rank==0) cerr << "split-method only available : metis, scotch" << endl;
+      MPI_Finalize(); return 1;
+    }
 #endif
  
   if (help==1)
@@ -215,7 +220,7 @@ int main(int argc, char** argv)
   try
     {
       MEDPARTITIONER::ParaDomainSelector parallelizer(mesure_memory);
-      MEDPARTITIONER::MeshCollection collection(input,parallelizer); //cvwat01
+      MEDPARTITIONER::MeshCollection collection(input,parallelizer);
       MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
       aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
       //int nbfiles=MyGlobals::_fileMedNames->size(); //nb domains
@@ -229,25 +234,25 @@ int main(int argc, char** argv)
           cout<<"fileNames :"<<endl
               <<ReprVectorOfString(MyGlobals::_File_Names);
           cout<<"fieldDescriptions :"<<endl
-              <<ReprFieldDescriptions(collection.getFieldDescriptions()," "); //cvwat07
+              <<ReprFieldDescriptions(collection.getFieldDescriptions()," ");
           cout<<"familyInfo :\n"
               <<ReprMapOfStringInt(collection.getFamilyInfo())<<endl;
           cout<<"groupInfo :\n"
               <<ReprMapOfStringVectorOfString(collection.getGroupInfo())<<endl;
         }
     
-      // Creating the graph and partitioning it   
-      if (MyGlobals::_Is0verbose) cout << "Computing partition "<<endl; //cvw
+      //Creating the graph and partitioning it
+      if (MyGlobals::_Is0verbose) cout << "Computing partition "<< endl;
   
       auto_ptr< MEDPARTITIONER::Topology > new_topo;
-      if (library == "metis") //cvwat06
+      if (library == "metis")
         new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS));
       else
         new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH));
       parallelizer.evaluateMemory();
   
-      // Creating a new mesh collection from the partitioning
-      if (MyGlobals::_Is0verbose)  cout << "Creating new meshes"<<endl; //cvwat04
+      //Creating a new mesh collection from the partitioning
+      if (MyGlobals::_Is0verbose)  cout << "Creating new meshes"<< endl;
       MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
       //cout<<"proc "<<MyGlobals::_Rank<<" : new_collection done"<<endl;
       parallelizer.evaluateMemory();
@@ -340,4 +345,5 @@ int main(int argc, char** argv)
       MPI_Finalize();
       return 1;
     }
+#endif
 }

@@ -157,7 +157,6 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       throw INTERP_KERNEL::Exception("I/O error reading parallel MED file");
     }
 
-
   ParallelTopology* aPT = new ParallelTopology(_collection->getMesh());
   //creation of topology from mesh and connect zones
   if ( _collection->isParallelMode() )

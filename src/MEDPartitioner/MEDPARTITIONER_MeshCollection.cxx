@@ -23,10 +23,12 @@
 #include "MEDPARTITIONER_MeshCollectionMedAsciiDriver.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
+#include "MEDPARTITIONER_ParallelTopology.hxx"
+
 #ifdef HAVE_MPI2
 #include "MEDPARTITIONER_JointFinder.hxx"
-#include "MEDPARTITIONER_ParallelTopology.hxx"
 #endif
+
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_UserGraph.hxx"
 #include "MEDPARTITIONER_Utils.hxx" 
@@ -43,9 +45,10 @@
 #include <mpi.h>
 #endif
 
-#ifdef MED_ENABLE_PARMETIS
+#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
 #include "MEDPARTITIONER_MetisGraph.hxx"
 #endif
+
 #ifdef MED_ENABLE_SCOTCH
 #include "MEDPARTITIONER_ScotchGraph.hxx"
 #endif
@@ -108,8 +111,10 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   //treating faces
   /////////////////
 
+#ifdef HAVE_MPI2
   if (MyGlobals::_Verbose>0)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
+#endif
   if (MyGlobals::_Is0verbose)
     std::cout<<"treating faces"<<std::endl;
   NodeMapping nodeMapping;
@@ -122,8 +127,10 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   ////////////////////
   //treating families
   ////////////////////
+#ifdef HAVE_MPI2
   if (MyGlobals::_Verbose>0)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
+#endif
   if (MyGlobals::_Is0verbose)
     {
       if (isParallelMode())
@@ -144,15 +151,19 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
                 "faceFamily");
 
   //treating groups
+#ifdef HAVE_MPI2
   if (MyGlobals::_Verbose>0)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
+#endif
   if (MyGlobals::_Is0verbose)
     std::cout << "treating groups" << std::endl;
   _family_info=initialCollection.getFamilyInfo();
   _group_info=initialCollection.getGroupInfo();
   
+#ifdef HAVE_MPI2
   if (MyGlobals::_Verbose>0)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
+#endif
   if (MyGlobals::_Is0verbose)
     std::cout << "treating fields" << std::endl;
   castAllFields(initialCollection,"cellFieldDouble");
@@ -1274,7 +1285,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
       _mesh[idomain]->getReverseNodalConnectivity(revConn,index);
       //problem saturation over 1 000 000 nodes for 1 proc
       if (MyGlobals::_Verbose>100)
-        std::cout << "proc " << MyGlobals::_Rank << " getReverseNodalConnectivity done on " << nbNodes << " nodes" << std::endl;
+        std::cout << "proc " << MyGlobals::_Rank << " : getReverseNodalConnectivity done on " << nbNodes << " nodes" << std::endl;
       int* index_ptr=index->getPointer();
       int* revConnPtr=revConn->getPointer();
       for (int i=0; i<nbNodes; i++)
@@ -1318,7 +1329,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
   //but cell could have more than effective nodes
   //because other equals nodes in other domain (with other global inode)
   if (MyGlobals::_Verbose>100)
-    std::cout<< "proc " << MyGlobals::_Rank << " creating graph arcs on nbNodes " << _topology->nbNodes() << std::endl;
+    std::cout<< "proc " << MyGlobals::_Rank << " : creating graph arcs on nbNodes " << _topology->nbNodes() << std::endl;
   for (int inode=0; inode<_topology->nbNodes(); inode++)  //on all nodes
     {
       typedef multimap<int,int>::const_iterator MI;
@@ -1351,7 +1362,7 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
     }
   
   if (MyGlobals::_Verbose>100)
-    std::cout << "proc " << MyGlobals::_Rank << " create skylinearray" << std::endl;
+    std::cout << "proc " << MyGlobals::_Rank << " : create skylinearray" << std::endl;
   //filling up index and value to create skylinearray structure
   std::vector <int> index,value;
   index.push_back(0);
@@ -1435,12 +1446,12 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
   switch (split)
     {
     case Graph::METIS:
-#ifdef MED_ENABLE_PARMETIS
+#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
       if (MyGlobals::_Verbose>10)
         std::cout << "METISGraph" << std::endl;
       cellGraph=new METISGraph(array,edgeweights);
 #else
-      throw INTERP_KERNEL::Exception("METIS Graph is not available. Check your products, please.");
+      throw INTERP_KERNEL::Exception("MeshCollection::createPartition : PARMETIS/METIS is not available. Check your products, please.");
 #endif
       break;
     case Graph::SCOTCH:
@@ -1449,7 +1460,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
         std::cout << "SCOTCHGraph" << std::endl;
       cellGraph=new SCOTCHGraph(array,edgeweights);
 #else
-      throw INTERP_KERNEL::Exception("SCOTCH Graph is not available. Check your products, please.");
+      throw INTERP_KERNEL::Exception("MeshCollection::createPartition : SCOTCH is not available. Check your products, please.");
 #endif
       break;
     }
@@ -1468,9 +1479,7 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(int nb
     std::cout << "building new topology" << std::endl;
   //cellGraph is a shared pointer 
   Topology *topology=0;
-#ifdef HAVE_MPI2
   topology=new ParallelTopology (cellGraph, getTopology(), nbdomain, getMeshDimension());
-#endif
   //cleaning
   delete [] edgeweights;
   delete cellGraph;
@@ -1497,15 +1506,12 @@ MEDPARTITIONER::Topology* MEDPARTITIONER::MeshCollection::createPartition(const 
     {
       domains.insert(partition[i]);
     }
-  int nbdomain=domains.size();
-  
   cellGraph=new UserGraph(array, partition, _topology->nbCells());
   
   //cellGraph is a shared pointer 
   Topology *topology=0;
-#ifdef HAVE_MPI2
+  int nbdomain=domains.size();
   topology=new ParallelTopology (cellGraph, getTopology(), nbdomain, getMeshDimension());
-#endif
   //  if (array!=0) delete array;
   delete cellGraph;
   return topology;
@@ -1677,7 +1683,7 @@ void MEDPARTITIONER::MeshCollection::filterFaceOnCell()
               else
                 {
                   faceNotOnCell.push_back(iface);
-                  if (MyGlobals::_Is0verbose)
+                  if (MyGlobals::_Is0verbose>300)
                     std::cout << "face NOT on cell " << iface << " " << faceOnCell.size()-1 << std::endl;
                 }
             }

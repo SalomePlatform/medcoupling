@@ -168,7 +168,20 @@ void METISGraph::partGraph(int ndomain,
               throw INTERP_KERNEL::Exception("Problem in ParMETIS_PartKway");
             }
 #else
-          throw INTERP_KERNEL::Exception("ParMETIS is not available. Check your products, please.");
+
+#ifdef MED_ENABLE_METIS
+          if (MyGlobals::_Verbose>10) 
+            std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph METIS_PartGraph Recursive/Kway" << std::endl;
+          if (options_string != "k")
+            METIS_PartGraphRecursive(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
+                                     &base, &nparts, options, &edgecut, partition);
+          else
+            METIS_PartGraphKway(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
+                                &base, &nparts, options, &edgecut, partition);
+#else
+          throw INTERP_KERNEL::Exception("ParMETIS or METIS is not available. Check your products, please.");
+#endif
+
 #endif
         }
       else

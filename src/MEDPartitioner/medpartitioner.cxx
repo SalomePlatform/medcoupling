@@ -1,36 +1,42 @@
-//  Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//  MED medsplitter : tool to split n MED files into p separate 
-//                    MED files with a partitioning specified 
-//                    by an external tool
-//  File   : medsplitter.cxx
-//  Author : Vincent BERGEAUD (CEA-DEN/DANS/DM2S/SFME/LGLS)
-//  Module : MED
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+/*
+  examples of launch
+  export verb=1
+  medpartitioner --input-file=blade.med --output-file=ttmp1_ --ndomains=2 --dump-cpu-memory --verbose=$verb
+  medpartitioner --input-file=medpartitioner_blade.xml --output-file=ttmp1_ --ndomains=2 --dump-cpu-memory --verbose=$verb
+  medpartitioner --input-file=ttmp1_.xml --output-file=tttmp1_ --ndomains=4 --dump-cpu-memory --verbose=$verb
+*/
+
+/*
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
+#include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_MeshCollection.hxx"
+#include "MEDPARTITIONER_Utils.hxx"
+*/
 
-#ifdef BOOST_PROGRAM_OPTIONS_LIB
-#include <boost/program_options.hpp>
-#endif
+#include "MEDPARTITIONER_MeshCollection.hxx"
+#include "MEDPARTITIONER_ParallelTopology.hxx"
+#include "MEDPARTITIONER_ParaDomainSelector.hxx"
+#include "MEDPARTITIONER_Utils.hxx"
 
 #include <string>
 #include <fstream>
@@ -38,297 +44,262 @@
 #include <cstdlib>
 #include <iostream>
 
-#ifdef BOOST_PROGRAM_OPTIONS_LIB
-namespace po=boost::program_options;
-#endif
+using namespace std;
+using namespace MEDPARTITIONER;
 
 int main(int argc, char** argv)
 {
-#ifndef ENABLE_METIS
-#ifndef ENABLE_SCOTCH
+#if !defined(MED_ENABLE_METIS) && !defined(MED_ENABLE_SCOTCH)
   std::cout << "Sorry, no one split method is available. Please, compile with METIS or SCOTCH." << std::endl;
   return 1;
-#endif
-#endif
+#else
 
   // Defining options
   // by parsing the command line
-  bool mesh_only = false;
-  bool is_sequential = true;
-  bool xml_output_master=true;
-  bool creates_boundary_faces=false;  
-  bool split_families=false;
+  
+  bool split_family=false;
   bool empty_groups=false;
+  bool mesure_memory=false;
+  bool filter_face=true;
 
-  std::string input;
-  std::string output;
-  std::string meshname;
-  std::string library;
+  string input;
+  string output;
+  string meshname;
+  string library="metis";  //default
   int ndomains;
-
-#ifdef BOOST_PROGRAM_OPTIONS_LIB
-  // Use boost::program_options for command-line options parsing
-  po::options_description desc("Available options of medpartitioner V1.0");
-  desc.add_options()
-    ("help","produces this help message")
-    ("mesh-only","prevents the splitter from creating the fields contained in the original file(s)")
-    ("distributed","specifies that the input file is distributed")
-    ("input-file",po::value<std::string>(),"name of the input MED file")
-    ("output-file",po::value<std::string>(),"name of the resulting file")
-    ("meshname",po::value<std::string>(),"name of the input mesh")
-#ifdef ENABLE_METIS
-#ifdef ENABLE_SCOTCH
-    ("split-method",po::value<std::string>(&library)->default_value("metis"),"name of the splitting library (metis,scotch)")
-#endif
-#endif
-    ("ndomains",po::value<int>(&ndomains)->default_value(1),"number of subdomains in the output file")
-    ("plain-master","creates a plain masterfile instead of an XML file")
-    ("creates-boundary-faces","creates the necessary faces so that faces joints are created in the output files")
-    ("family-splitting","preserves the family names instead of focusing on the groups")
-    ("empty-groups","creates empty groups in zones that do not contain a group from the original domain");
-
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc,argv,desc),vm);
-  po::notify(vm);
-
-  if (vm.count("help"))
-    {
-      std::cout << desc << "\n";
-      return 1;
-    }
-
-  if (!vm.count("ndomains"))
-    {
-      std::cout << "ndomains must be specified !"<< std::endl;
-      return 1;
-    }
-
-  ndomains = vm["ndomains"].as<int>();
-  if (!vm.count("input-file") || !vm.count("output-file"))
-    {
-      std::cout << "input-file and output-file names must be specified" << std::endl;
-      return 1;
-    }
-
-  if (!vm.count("distributed") && !vm.count("meshname") )
-    {
-      std::cout << "for a serial MED file, mesh name must be selected with --meshname=..." << std::endl;
-      return 1;
-    }
-
-  input = vm["input-file"].as<std::string>();
-  output = vm["output-file"].as<std::string>();
-
-  if (vm.count("mesh-only"))
-    mesh_only=true;
-
-  if (vm.count("distributed"))
-    is_sequential=false;
-
-  if (is_sequential)
-    meshname = vm["meshname"].as<std::string>();
-
-  if (vm.count("plain-master"))
-    xml_output_master=false;
-
-  if (vm.count("creates-boundary-faces"))
-    creates_boundary_faces=true;
-
-  if (vm.count("split-families"))
-    split_families=true;
-
-  if (vm.count("empty-groups"))
-    empty_groups=true;
-
-#else // BOOST_PROGRAM_OPTIONS_LIB
+  int help=0;
+  
+  //sequential : no MPI
+  MyGlobals::_World_Size=1;
+  MyGlobals::_Rank=0;
 
   // Primitive parsing of command-line options
-
-  std::string desc ("Available options of medpartitioner V1.0:\n"
-                    "\t--help                 : produces this help message\n"
-                    "\t--mesh-only            : do not create the fields contained in the original file(s)\n"
-                    "\t--distributed          : specifies that the input file is distributed\n"
-                    "\t--input-file=<string>  : name of the input MED file\n"
-                    "\t--output-file=<string> : name of the resulting file\n"
-                    "\t--meshname=<string>    : name of the input mesh (not used with --distributed option)\n"
-                    "\t--ndomains=<number>    : number of subdomains in the output file, default is 1\n"
-#ifdef ENABLE_METIS
-#ifdef ENABLE_SCOTCH
-               "\t--split-method=<string>: name of the splitting library (metis/scotch), default is metis\n"
+  string desc ("Available options of medpartitioner V1.0:\n"
+               "\t--help                   : produces this help message\n"
+               "\t--verbose                : echoes arguments\n"
+               "\t--input-file=<string>    : name of the input .med file or .xml master file\n"
+               "\t--output-file=<string>   : name of the resulting file (without extension)\n"
+               "\t--ndomains=<number>      : number of subdomains in the output file, default is 1\n"
+#if defined(MED_ENABLE_METIS) && defined(MED_ENABLE_SCOTCH)
+  //user can choose!
+               "\t--split-method=<string>  : name of the splitting library (metis/scotch), default is metis\n"
 #endif
-#endif
-               "\t--plain-master         : creates a plain masterfile instead of an XML file\n"
-               "\t--creates-boundary-faces: creates the necessary faces so that faces joints are created in the output files\n"
-               "\t--family-splitting     : preserves the family names instead of focusing on the groups\n"
-               "\t--empty-groups         : creates empty groups in zones that do not contain a group from the original domain"
+//               "\t--creates-boundary-faces : creates boundary faces mesh in the output files\n"
+               "\t--dump-cpu-memory        : dumps passed CPU time and maximal increase of used memory\n"
                );
 
-  if (argc < 4)
-    {
-      std::cout << desc.c_str() << std::endl;
-      return 1;
-    }
-
+  if (argc<=1) help=1;
+  string value;
   for (int i = 1; i < argc; i++)
     {
-      if (strlen(argv[i]) < 3)
+      if (strlen(argv[i]) < 3) 
         {
-          std::cout << desc.c_str() << std::endl;
+          cerr << "bad argument : "<< argv[i] << endl;
           return 1;
         }
-      
-      if (strncmp(argv[i],"--m",3) == 0)
+    
+      if (TestArg(argv[i],"--verbose",value)) 
         {
-          if (strcmp(argv[i],"--mesh-only") == 0)
-            {
-              mesh_only = true;
-              std::cout << "\tmesh-only = " << mesh_only << std::endl; // tmp
-            }
-          else if (strlen(argv[i]) > 11)
-            { // "--meshname="
-              meshname = (argv[i] + 11);
-              std::cout << "\tmeshname = " << meshname << std::endl; // tmp
-            }
+          MyGlobals::_Verbose=1;
+          if (value!="") MyGlobals::_Verbose = atoi(value.c_str());
         }
-      else if (strncmp(argv[i],"--d",3) == 0)
+      else if (TestArg(argv[i],"--help",value)) help=1;
+//      else if (TestArg(argv[i],"--test",value)) test=1;
+      else if (TestArg(argv[i],"--input-file",value)) input=value;
+      else if (TestArg(argv[i],"--output-file",value)) output=value;
+      else if (TestArg(argv[i],"--split-method",value)) library=value;
+      else if (TestArg(argv[i],"--ndomains",value)) ndomains=atoi(value.c_str());
+//      else if (TestArg(argv[i],"--creates-boundary-faces",value)) MyGlobals::_Creates_Boundary_Faces=1;
+      else if (TestArg(argv[i],"--dump-cpu-memory",value)) mesure_memory=true;
+      else 
         {
-          is_sequential = false;
-          std::cout << "\tis_sequential = " << is_sequential << std::endl; // tmp
+          cerr << "unknown argument : "<< argv[i] << endl;
+          return 1;
         }
-      else if (strncmp(argv[i],"--i",3) == 0)
-        {
-          if (strlen(argv[i]) > 13)
-            { // "--input-file="
-              input = (argv[i] + 13);
-              std::cout << "\tinput-file = " << input << std::endl; // tmp
-            }
-        }
-      else if (strncmp(argv[i],"--o",3) == 0)
-        {
-          if (strlen(argv[i]) > 14)
-            { // "--output-file="
-              output = (argv[i] + 14);
-              std::cout << "\toutput-file = " << output << std::endl; // tmp
-            }
-        }
-      else if (strncmp(argv[i],"--s",3) == 0)
-        {
-          if (strlen(argv[i]) > 15)
-            { // "--split-method="
-              library = (argv[i] + 15);
-              std::cout << "\tsplit-method = " << library << std::endl; // tmp
-            }
-        }
-      else if (strncmp(argv[i],"--f",3) == 0)
-        { //"--family-splitting"
-          split_families=true;
-          std::cout << "\tfamily-splitting true" << std::endl; // tmp
-        }
-      else if (strncmp(argv[i],"--n",3) == 0)
-        {
-          if (strlen(argv[i]) > 11)
-            { // "--ndomains="
-              ndomains = atoi(argv[i] + 11);
-              std::cout << "\tndomains = " << ndomains << std::endl; // tmp
-            }
-        }
-      else if (strncmp(argv[i],"--p",3) == 0)
-        { // "--plain-master"
-          xml_output_master = false;
-          std::cout << "\txml_output_master = " << xml_output_master << std::endl; // tmp
-        }
-      else if (strncmp(argv[i],"--c",3) == 0)
-        { // "--creates-boundary-faces"
-          creates_boundary_faces = true;
-          std::cout << "\tcreates_boundary_faces = " << creates_boundary_faces << std::endl; // tmp
-        }
-    else if (strncmp(argv[i],"--e",3) == 0)
-      { // "--empty-groups"
-        empty_groups = true;
-        std::cout << "\tempty_groups = true" << std::endl; // tmp
-      }
-    else
-      {
-        std::cout << desc.c_str() << std::endl;
-        return 1;
-      }
     }
+
+  MyGlobals::_Is0verbose=MyGlobals::_Verbose;
   
-  if (is_sequential && meshname.empty())
+//no choice
+#if defined(MED_ENABLE_METIS) && !defined(MED_ENABLE_SCOTCH)
+  library = "metis";
+#endif
+#if !defined(MED_ENABLE_METIS) && defined(MED_ENABLE_SCOTCH)
+  library = "scotch";
+#endif
+//user choice
+#if defined(MED_ENABLE_METIS) && defined(MED_ENABLE_SCOTCH)
+  if ((library!="metis") && (library!="scotch"))
     {
-      std::cout << "Mesh name must be given for sequential(not distributed) input file." << std::endl;
-      std::cout << desc << std::endl;
+      cerr << "split-method only available : metis, scotch" << endl;
       return 1;
     }
+#endif
+ 
+  if (help==1)
+    {
+      cout<<desc<<"\n";
+      return 0;
+    }
   
-#endif // BOOST_PROGRAM_OPTIONS_LIB
-
-
+  if (MyGlobals::_Is0verbose)
+    {
+      cout << "medpartitioner V1.0 :" << endl;
+      cout << "  input-file = " << input << endl;
+      cout << "  output-file = " << output << endl;
+      cout << "  split-method = " << library << endl;
+      cout << "  ndomains = " << ndomains << endl;
+//      cout << "  creates_boundary_faces = " << MyGlobals::_Creates_Boundary_Faces << endl;
+      cout << "  dump-cpu-memory = " << mesure_memory<< endl;
+      cout << "  verbose = " << MyGlobals::_Verbose << endl;
+    }
   //testing whether it is possible to write a file at the specified location
-  std::string outputtest = output + ".testioms.";
-  std::ofstream testfile (outputtest.c_str());
-  if (testfile.fail())
-    { 
-      std::cout << "MEDPARTITIONER : output-file directory does not exist or is in read-only access" << std::endl;
-      return 1;
-    };
-  //deletes test file
-  remove(outputtest.c_str());
-
+  if (MyGlobals::_Rank==0)
+    {
+      string outputtest = output + ".testioms.";
+      ofstream testfile (outputtest.c_str());
+      if (testfile.fail())
+        { 
+          cerr << "output-file directory does not exist or is in read-only access" << endl;
+          return 1;
+        }
+      //deletes test file
+      remove(outputtest.c_str());
+    }
+  
   // Beginning of the computation
 
   // Loading the mesh collection
-  MEDPARTITIONER::MeshCollection* collection;
-  std::cout << "MEDPARTITIONER : reading input files "<< std::endl;
-  if (is_sequential)
-    collection = new MEDPARTITIONER::MeshCollection(input,meshname);
-  else
-    collection = new MEDPARTITIONER::MeshCollection(input);
-
-  std::cout << "MEDPARTITIONER : computing partition "<< std::endl;
-
-  // Creating the graph and partitioning it   
-#ifdef ENABLE_METIS
-#ifndef ENABLE_SCOTCH
-  library = "metis";
-#endif
-#else
-  library = "scotch";
-#endif
-  std::cout << "\tsplit-method = " << library << std::endl; // tmp
-
-  MEDPARTITIONER::Topology* new_topo;
-  if (library == "metis")
-    new_topo = collection->createPartition(ndomains,MEDPARTITIONER::Graph::METIS);
-  else
-    new_topo = collection->createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH);
-
-  std::cout << "MEDPARTITIONER : creating new meshes"<< std::endl;
-
-  // Creating a new mesh collection from the partitioning
-  MEDPARTITIONER::MeshCollection new_collection(*collection, new_topo, split_families, empty_groups);
-  if (mesh_only)
+  if (MyGlobals::_Is0verbose) cout << "Reading input files "<<endl;
+  
+  try
     {
-      delete collection;
-      collection=0;
+      /*MEDPARTITIONER::ParaDomainSelector parallelizer(mesure_memory);
+      MEDPARTITIONER::MeshCollection collection(input,parallelizer);
+      MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+      aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
+      //int nbfiles=MyGlobals::_fileMedNames->size(); //nb domains
+      //to have unique valid fields names/pointers/descriptions for partitionning
+      collection.prepareFieldDescriptions();
+      //int nbfields=collection.getFieldDescriptions().size(); //on all domains
+      //cout<<ReprVectorOfString(collection.getFieldDescriptions());
+    
+      if (MyGlobals::_Is0verbose)
+        {
+          cout<<"fileNames :"<<endl
+              <<ReprVectorOfString(MyGlobals::_File_Names);
+          cout<<"fieldDescriptions :"<<endl
+              <<ReprFieldDescriptions(collection.getFieldDescriptions()," "); //cvwat07
+          cout<<"familyInfo :\n"
+              <<ReprMapOfStringInt(collection.getFamilyInfo())<<endl;
+          cout<<"groupInfo :\n"
+              <<ReprMapOfStringVectorOfString(collection.getGroupInfo())<<endl;
+        }*/
+      MEDPARTITIONER::ParaDomainSelector parallelizer(mesure_memory);
+      MEDPARTITIONER::MeshCollection collection(input,parallelizer);
+      MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+      aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
+      //to have unique valid fields names/pointers/descriptions for partitionning
+      collection.prepareFieldDescriptions();
+      
+      //MEDPARTITIONER::MeshCollection collection(input);
+
+      //Creating the graph and partitioning it
+      if (MyGlobals::_Is0verbose) cout << "Computing partition with " << library << endl;
+  
+      auto_ptr< MEDPARTITIONER::Topology > new_topo;
+      if (library == "metis")
+        new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS));
+      else
+        new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH));
+      parallelizer.evaluateMemory();
+  
+      //Creating a new mesh collection from the partitioning
+      if (MyGlobals::_Is0verbose)  cout << "Creating new meshes"<< endl;
+      MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
+  
+      if (filter_face) new_collection.filterFaceOnCell();
+    
+      //to get infos on all procs
+    
+      //see meshName
+      vector<string> finalInformations;
+      vector<string> r1,r2;
+      //r1=AllgathervVectorOfString(MyGlobals::_General_Informations);
+      r1=MyGlobals::_General_Informations;
+      //if (MyGlobals::_Is0verbose>1000) cout << "generalInformations : \n"<<ReprVectorOfString(r1);
+      r2=SelectTagsInVectorOfString(r1,"ioldDomain=");
+      r2=SelectTagsInVectorOfString(r2,"meshName=");
+      if (r2.size()==(collection.getMesh()).size())
+        {
+          for (std::size_t i=0; i<r2.size(); i++)
+            r2[i]=EraseTagSerialized(r2[i],"ioldDomain=");
+          r2=DeleteDuplicatesInVectorOfString(r2);
+          if (r2.size()==1)
+            {
+              string finalMesh="finalMeshName="+ExtractFromDescription(r2[0], "meshName=");
+              finalInformations.push_back(SerializeFromString(finalMesh));
+            }
+        }
+      if (finalInformations.size()==0)
+        {
+          if (MyGlobals::_Rank==0)
+            cerr<<"Problem on final meshName : set at 'Merge'"<<endl;
+          finalInformations.push_back("finalMeshName=Merge");
+        }
+    
+      //see field info nbComponents & componentInfo (if fields present)
+      r2=SelectTagsInVectorOfString(r1,"fieldName=");
+      r2=SelectTagsInVectorOfString(r2,"nbComponents=");
+      //may be yes? or not?
+      for (std::size_t i=0; i<r2.size(); i++)
+        r2[i]=EraseTagSerialized(r2[i],"ioldFieldDouble=");
+      r2=DeleteDuplicatesInVectorOfString(r2);
+      for (std::size_t i=0; i<r2.size(); i++)
+        finalInformations.push_back(r2[i]);
+    
+      MyGlobals::_General_Informations=finalInformations;
+      if (MyGlobals::_Is0verbose) 
+        cout << "generalInformations : \n"<<ReprVectorOfString(finalInformations);
+    
+      //new_collection.setSubdomainBoundaryCreates(creates_boundary_faces);
+      if (MyGlobals::_Is0verbose) cout << "Writing "<<ndomains<<" output files "<<output<<"xx.med"<<" and "<<output<<".xml"<<endl;
+      new_collection.write(output);
+  
+      /*if ( mesure_memory )
+        if ( parallelizer.isOnDifferentHosts() || MyGlobals::_Rank==0 )
+          {
+            cout << "Elapsed time = " << parallelizer.getPassedTime()
+                 << ", max memory usage = " << parallelizer.evaluateMemory() << " KB"
+                 << endl;
+          }*/
+      
+      if (MyGlobals::_Is0verbose>0) cout<<"OK END"<< endl;
+      return 0;
     }
-
-  if (!xml_output_master)
-    new_collection.setDriverType(MEDPARTITIONER::MedAscii);
-
-  //  new_collection.setSubdomainBoundaryCreates(creates_boundary_faces);
-
-  std::cout << "MEDPARTITIONER : writing output files "<< std::endl;
-  new_collection.write(output);
-
-  // Casting the fields on the new collection
-  //   if (!mesh_only)
-  //     new_collection.castAllFields(*collection);
-
-
-  // Cleaning memory
-  delete collection;
-  delete new_topo;
-
-  return 0;
+  catch(const char *mess)
+    {
+      cerr<<mess<<endl;
+      fflush(stderr);
+      return 1;
+    }
+  catch(INTERP_KERNEL::Exception& e)
+    {
+      cerr<<"INTERP_KERNEL_Exception : "<<e.what()<<endl;
+      fflush(stderr);
+      return 1;
+    }
+  catch(std::exception& e)
+    {
+      cerr<<"std_Exception : "<<e.what()<<endl;
+      fflush(stderr);
+      return 1;
+    }
+  catch(...)
+    {
+      cerr<<"an unknown type exception error was occured"<<endl;
+      fflush(stderr);
+      return 1;
+    }
+#endif
 }

@@ -106,7 +106,9 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
             std::cout << "c" << idomain << "|" << i << "|" << global << " ";
         }
     }
-  if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD);
+#ifdef HAVE_MPI2
+  if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
+#endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
   
   if (MyGlobals::_Is0verbose>500) std::cout << "(n)idomain|ilocalNode|iglobalNode" << std::endl;
@@ -123,7 +125,9 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
             std::cout << "n" << idomain << "|" << i << "|" << global << " ";
         }
     }
-  if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD);
+#ifdef HAVE_MPI2
+  if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
+#endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
   
   _nb_total_cells=domainSelector->getNbTotalCells();

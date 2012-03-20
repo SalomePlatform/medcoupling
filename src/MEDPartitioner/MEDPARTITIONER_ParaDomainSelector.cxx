@@ -125,10 +125,12 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<ParaMEDMEM
         nb_elems[i*2+1] = domain_meshes[i]->getNumberOfNodes();
       }
   // receive nb of elems from other procs
-  std::vector<int> all_nb_elems( nb_domains*2 );
 #ifdef HAVE_MPI2
+  std::vector<int> all_nb_elems( nb_domains*2 );
   MPI_Allreduce((void*)&nb_elems[0], (void*)&all_nb_elems[0], nb_domains*2,
                 MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+#else
+  std::vector<int> all_nb_elems=nb_elems;
 #endif
   int total_nb_cells=0, total_nb_nodes=0;
   for (int i=0; i<nb_domains; ++i)
@@ -448,9 +450,9 @@ int *MEDPARTITIONER::ParaDomainSelector::exchangeSubentityIds( int loc_domain, i
                                                const std::vector<int>& loc_ids_here ) const
 {
   int* loc_ids_dist = new int[ loc_ids_here.size()];
+#ifdef HAVE_MPI2
   int dest = getProcessorID( dist_domain );
   int tag  = 2002 + jointId( loc_domain, dist_domain );
-#ifdef HAVE_MPI2
   MPI_Status status;
   MPI_Sendrecv((void*)&loc_ids_here[0], loc_ids_here.size(), MPI_INT, dest, tag,
                (void*) loc_ids_dist,    loc_ids_here.size(), MPI_INT, dest, tag,
@@ -502,6 +504,9 @@ double MEDPARTITIONER::ParaDomainSelector::getPassedTime() const
 
 void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingUMesh& mesh, int target) const
 {
+#ifndef HAVE_MPI2
+  throw INTERP_KERNEL::Exception("ParaDomainSelector::sendMesh : incoherent call in non_MPI mode");
+#else
   if (MyGlobals::_Verbose>600)
     std::cout << "proc " << _rank << " : sendMesh '" << mesh.getName() << "' size " << mesh.getNumberOfCells() << " to " << target << std::endl;
   // First stage : sending sizes
@@ -513,11 +518,9 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingU
   //the transmitted mesh.
   mesh.getTinySerializationInformation(tinyInfoLocalD,tinyInfoLocal,tinyInfoLocalS);
   tinyInfoLocal.push_back(mesh.getNumberOfCells());
-#ifdef        HAVE_MPI2
   int tinySize=tinyInfoLocal.size();
   MPI_Send(&tinySize, 1, MPI_INT, target, 1113, MPI_COMM_WORLD);
   MPI_Send(&tinyInfoLocal[0], tinyInfoLocal.size(), MPI_INT, target, 1112, MPI_COMM_WORLD);
-#endif
 
   if (mesh.getNumberOfCells()>0) //no sends if empty
     {
@@ -532,9 +535,7 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingU
           nbLocalElems=v1Local->getNbOfElems(); // if empty be 1!
           ptLocal=v1Local->getPointer();
         }
-#ifdef HAVE_MPI2
       MPI_Send(ptLocal, nbLocalElems, MPI_INT, target, 1111, MPI_COMM_WORLD);
-#endif
       int nbLocalElems2=0;
       double *ptLocal2=0;
       if(v2Local) //if empty be 0!
@@ -542,12 +543,11 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingU
           nbLocalElems2=v2Local->getNbOfElems();
           ptLocal2=v2Local->getPointer();
         }
-#ifdef HAVE_MPI2
       MPI_Send(ptLocal2, nbLocalElems2, MPI_DOUBLE, target, 1110, MPI_COMM_WORLD);
-#endif
       if(v1Local) v1Local->decrRef();
       if(v2Local) v2Local->decrRef();
     }
+#endif
 }
 
 /*! Receives messages from proc \a source to fill mesh \a mesh.
@@ -557,6 +557,9 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const ParaMEDMEM::MEDCouplingU
 */
 void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*& mesh, int source)const
 {
+#ifndef HAVE_MPI2
+  throw INTERP_KERNEL::Exception("ParaDomainSelector::recvMesh : incoherent call in non_MPI mode");
+#else
   // First stage : exchanging sizes
   // ------------------------------
   std::vector<int> tinyInfoDistant;
@@ -564,17 +567,13 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*&
   std::vector<double> tinyInfoDistantD(1);
   //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
   //the transmitted mesh.
-#ifdef HAVE_MPI2
   MPI_Status status; 
   int tinyVecSize;
   MPI_Recv(&tinyVecSize, 1, MPI_INT, source, 1113, MPI_COMM_WORLD, &status);
   tinyInfoDistant.resize(tinyVecSize);
-#endif
   std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
 
-#ifdef HAVE_MPI2
   MPI_Recv(&tinyInfoDistant[0], tinyVecSize, MPI_INT,source,1112,MPI_COMM_WORLD, &status);
-#endif
   //there was tinyInfoLocal.push_back(mesh.getNumberOfCells());
   int NumberOfCells=tinyInfoDistant[tinyVecSize-1];
   if (NumberOfCells>0)
@@ -596,9 +595,7 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*&
           nbDistElem=v1Distant->getNbOfElems();
           ptDist=v1Distant->getPointer();
         }
-#ifdef HAVE_MPI2
       MPI_Recv(ptDist, nbDistElem, MPI_INT, source,1111, MPI_COMM_WORLD, &status);
-#endif
       double *ptDist2=0;
       nbDistElem=0;
       if(v2Distant)
@@ -606,9 +603,7 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*&
           nbDistElem=v2Distant->getNbOfElems();
           ptDist2=v2Distant->getPointer();
         }
-#ifdef HAVE_MPI2
       MPI_Recv(ptDist2, nbDistElem, MPI_DOUBLE,source, 1110, MPI_COMM_WORLD, &status);
-#endif
       //finish unserialization
       mesh->unserialization(tinyInfoDistantD,tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
       if(v1Distant) v1Distant->decrRef();
@@ -620,6 +615,7 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(ParaMEDMEM::MEDCouplingUMesh*&
     }
   if (MyGlobals::_Verbose>600)
     std::cout << "proc " << _rank << " : recvMesh '" << mesh->getName() << "' size " << mesh->getNumberOfCells() << " from " << source << std::endl;
+#endif
 }
 
 #ifndef WIN32

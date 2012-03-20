@@ -34,13 +34,14 @@ MEDPARTITIONER_MeshCollectionMedXmlDriver.hxx \
 MEDPARTITIONER_MeshCollectionMedAsciiDriver.hxx \
 MEDPARTITIONER_ParallelTopology.hxx \
 MEDPARTITIONER_JointFinder.hxx \
-MEDPARTITIONER_Graph.hxx\
+MEDPARTITIONER_Graph.hxx \
 MEDPARTITIONER_UserGraph.hxx\
 MEDPARTITIONER_Utils.hxx \
 MEDPARTITIONER.hxx \
 MEDPARTITIONER_ParaDomainSelector.hxx \
 MEDPARTITIONER_ConnectZone.hxx \
-MEDPARTITIONER_SkyLineArray.hxx
+MEDPARTITIONER_SkyLineArray.hxx 
+
 
 if MED_ENABLE_PARMETIS
     salomeinclude_HEADERS += MEDPARTITIONER_MetisGraph.hxx
@@ -57,11 +58,13 @@ MEDPARTITIONER_MeshCollection.cxx \
 MEDPARTITIONER_MeshCollectionDriver.cxx \
 MEDPARTITIONER_MeshCollectionMedXmlDriver.cxx \
 MEDPARTITIONER_MeshCollectionMedAsciiDriver.cxx \
+MEDPARTITIONER_ParallelTopology.cxx \
 MEDPARTITIONER_Graph.cxx\
 MEDPARTITIONER_UserGraph.cxx\
-MEDPARTITIONER_SkyLineArray.cxx \
+MEDPARTITIONER_Utils.cxx \
+MEDPARTITIONER_ParaDomainSelector.cxx \
 MEDPARTITIONER_ConnectZone.cxx \
-MEDPARTITIONER_Utils.cxx
+MEDPARTITIONER_SkyLineArray.cxx
 
 libmedpartitioner_la_CPPFLAGS = $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES) \
 	$(LIBXML_INCLUDES) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
@@ -70,9 +73,7 @@ libmedpartitioner_la_CPPFLAGS = $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES
 libmedpartitioner_la_LDFLAGS = 
 
 if MPI_IS_OK
-  dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_ParaDomainSelector.cxx \
-                                       MEDPARTITIONER_UtilsPara.cxx \
-                                       MEDPARTITIONER_ParallelTopology.cxx \
+  dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_UtilsPara.cxx \
                                        MEDPARTITIONER_JointFinder.cxx
 
 if MED_ENABLE_PARMETIS
@@ -111,7 +112,15 @@ else !MPI_IS_OK
   bin_PROGRAMS = medpartitioner
   dist_medpartitioner_SOURCES = medpartitioner.cxx
   medpartitioner_CPPFLAGS = -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL $(METIS_CPPFLAGS) $(SCOTCH_CPPFLAGS)
+	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL
+
+if MED_ENABLE_METIS
+  medpartitioner_CPPFLAGS += $(METIS_CPPFLAGS)
+endif
+if MED_ENABLE_SCOTCH
+  medpartitioner_CPPFLAGS += $(SCOTCH_CPPFLAGS)
+endif
+
   medpartitioner_LDADD = libmedpartitioner.la
 endif
 
