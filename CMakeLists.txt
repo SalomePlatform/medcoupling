@@ -76,6 +76,7 @@ SET(MED_salomebin_BINS bin/salome)
 SET(MED_salomelib_LIBS lib/salome)
 
 SET(MED_salomeidl_IDLS idl/salome)
+SET(KERNEL_salomeidl_IDLS ${MED_salomeidl_IDLS})
 
 SET(MED_salomeinclude_HEADERS include/salome)
 
@@ -88,6 +89,7 @@ SET(MED_salomescript_SCRIPTS bin/salome)
 SET(MED_salomescript_DATA bin/salome)
 
 SET(MED_salomescript_PYTHON bin/salome)
+SET(KERNEL_salomescript_PYTHON ${MED_salomescript_PYTHON})
 
 SET(MED_appliskel_SCRIPTS bin/salome/appliskel)
 
@@ -96,6 +98,7 @@ SET(MED_appliskel_PYTHON bin/salome/appliskel)
 SET(MED_pythondir lib/python${PYTHON_VERSION}/site-packages)
 
 SET(MED_salomepythondir ${MED_pythondir}/salome)
+SET(KERNEL_salomepythondir ${MED_salomepythondir})
 
 SET(MED_sharedpkgpython_PYTHON ${MED_salomepythondir}/shared_modules)
 
