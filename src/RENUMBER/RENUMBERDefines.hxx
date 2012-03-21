@@ -17,16 +17,18 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef METISRENUMBERING_HXX_
-#define METISRENUMBERING_HXX_
+#ifndef __RENUMBERDEFINES_HXX__
+#define __RENUMBERDEFINES_HXX__
 
-#include "RENUMBERDefines.hxx"
-#include "RENUMBER_Renumbering.hxx"
+//export symbols
+#ifdef WIN32
+# if defined RENUMBER_EXPORTS || defined renumber_EXPORTS
+#  define RENUMBER_EXPORT __declspec(dllexport)
+# else
+#  define RENUMBER_EXPORT __declspec(dllimport)
+# endif
+#else
+# define RENUMBER_EXPORT
+#endif 
 
-class RENUMBER_EXPORT METISRenumbering:public Renumbering
-{
-public:
-  virtual void renumber(const int* graph,const int* index_graph,int nb_cell,std::vector<int>& iperm,std::vector<int>& perm);
-};
-
-#endif /*METISRENUMBERING_HXX_*/
+#endif // __RENUMBERDEFINES_HXX__

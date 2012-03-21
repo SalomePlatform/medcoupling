@@ -21,11 +21,12 @@
 #define RENUMBERINGFACTORY_HXX_
 
 #include <string>
+#include "RENUMBERDefines.hxx"
 #include "RENUMBER_Renumbering.hxx"
 
 namespace MED_RENUMBER
 {
-  Renumbering* RenumberingFactory(const std::string& s);
+  RENUMBER_EXPORT Renumbering* RenumberingFactory(const std::string& s);
 }
 
 #endif /*RENUMBERINGFACTORY_HXX_*/
