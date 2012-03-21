@@ -82,6 +82,11 @@ namespace MEDPARTITIONER
 
     //getting mesh dimension
     int getMeshDimension() const;
+    int getNbOfLocalMeshes() const;
+    int getNbOfGlobalMeshes() const { return _mesh.size(); }
+    int getNbOfLocalCells() const;
+    int getNbOfLocalFaces() const;
+    
     //getting a reference to mesh vector
     std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getMesh();
     std::vector<ParaMEDMEM::MEDCouplingUMesh*>& getFaceMesh();

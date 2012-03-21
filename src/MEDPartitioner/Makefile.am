@@ -66,9 +66,15 @@ MEDPARTITIONER_ParaDomainSelector.cxx \
 MEDPARTITIONER_ConnectZone.cxx \
 MEDPARTITIONER_SkyLineArray.cxx
 
-libmedpartitioner_la_CPPFLAGS = $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES) \
-	$(LIBXML_INCLUDES) -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL
+libmedpartitioner_la_CPPFLAGS = \
+	$(MPI_INCLUDES) \
+	$(MED3_INCLUDES) \
+	$(HDF5_INCLUDES) \
+	$(LIBXML_INCLUDES) \
+	-I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader \
+	-I$(srcdir)/../INTERP_KERNEL
 
 libmedpartitioner_la_LDFLAGS = 
 
@@ -98,21 +104,40 @@ if MED_ENABLE_SCOTCH
     libmedpartitioner_la_LDFLAGS += $(SCOTCH_LIBS)
 endif
 
-libmedpartitioner_la_LDFLAGS += $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(STDLIB) $(LIBXML_LIBS) $(MPI_LIBS) \
-	../INTERP_KERNEL/libinterpkernel.la ../MEDCoupling/libmedcoupling.la ../MEDLoader/libmedloader.la
+libmedpartitioner_la_LDFLAGS += \
+	$(MED3_LIBS_C_ONLY) \
+	$(HDF5_LIBS) \
+	$(STDLIB) \
+	$(LIBXML_LIBS) \
+	$(MPI_LIBS) \
+	../INTERP_KERNEL/libinterpkernel.la \
+	../MEDCoupling/libmedcoupling.la \
+	../MEDLoader/libmedloader.la
 
 # Executables targets
 if MPI_IS_OK
+ 
   bin_PROGRAMS = medpartitioner_para
   dist_medpartitioner_para_SOURCES = medpartitioner_para.cxx
-  medpartitioner_para_CPPFLAGS = -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL $(MPI_INCLUDES) $(PARMETIS_CPPFLAGS)
+  medpartitioner_para_CPPFLAGS = \
+	-I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader \
+	-I$(srcdir)/../INTERP_KERNEL \
+	$(MPI_INCLUDES) \
+	$(PARMETIS_CPPFLAGS)
+
   medpartitioner_para_LDADD = libmedpartitioner.la
+
 else !MPI_IS_OK
+
   bin_PROGRAMS = medpartitioner
   dist_medpartitioner_SOURCES = medpartitioner.cxx
-  medpartitioner_CPPFLAGS = -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader -I$(srcdir)/../INTERP_KERNEL
+  medpartitioner_CPPFLAGS = \
+	-I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader \
+	-I$(srcdir)/../INTERP_KERNEL
 
 if MED_ENABLE_METIS
   medpartitioner_CPPFLAGS += $(METIS_CPPFLAGS)

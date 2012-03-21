@@ -167,6 +167,18 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   if (MyGlobals::_Is0verbose)
     std::cout << "treating fields" << std::endl;
   castAllFields(initialCollection,"cellFieldDouble");
+  if (_i_non_empty_mesh<0)
+    {
+      for (int i=0; i<_mesh.size(); i++)
+        {
+          if (_mesh[i])
+            {
+              _i_non_empty_mesh=i; //first existing one local
+              break;
+            }
+        }
+    }
+
 }
 
 /*!
@@ -1139,7 +1151,7 @@ MEDPARTITIONER::MeshCollection::~MeshCollection()
   delete _driver;
   if (_topology!=0 && _owns_topology)
     delete _topology;
-#ifdef HAVE_MPI2  
+#ifdef HAVE_MPI2
   delete _joint_finder;
 #endif
 }
@@ -1201,6 +1213,36 @@ MEDPARTITIONER::MeshCollectionDriver* MEDPARTITIONER::MeshCollection::getDriver(
 int MEDPARTITIONER::MeshCollection::getMeshDimension() const
 {
   return _i_non_empty_mesh < 0 ? -1 : _mesh[_i_non_empty_mesh]->getMeshDimension();
+}
+
+int MEDPARTITIONER::MeshCollection::getNbOfLocalMeshes() const
+{
+  int nb=0;
+  for (int i=0; i<_mesh.size(); i++)
+    {
+      if (_mesh[i]) nb++;
+    }
+  return nb;
+}
+
+int MEDPARTITIONER::MeshCollection::getNbOfLocalCells() const
+{
+  int nb=0;
+  for (int i=0; i<_mesh.size(); i++)
+    {
+      if (_mesh[i]) nb=nb+_mesh[i]->getNumberOfCells();
+    }
+  return nb;
+}
+
+int MEDPARTITIONER::MeshCollection::getNbOfLocalFaces() const
+{
+  int nb=0;
+  for (int i=0; i<_face_mesh.size(); i++)
+    {
+      if (_face_mesh[i]) nb=nb+_face_mesh[i]->getNumberOfCells();
+    }
+  return nb;
 }
 
 std::vector<ParaMEDMEM::MEDCouplingUMesh*>& MEDPARTITIONER::MeshCollection::getMesh()

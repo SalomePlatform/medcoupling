@@ -284,7 +284,7 @@ int main(int argc, char** argv)
         {
           if (MyGlobals::_Rank==0)
             cerr<<"Problem on final meshName : set at 'Merge'"<<endl;
-          finalInformations.push_back("finalMeshName=Merge");
+          finalInformations.push_back(SerializeFromString("finalMeshName=Merge"));
         }
     
       //see field info nbComponents & componentInfo (if fields present)
