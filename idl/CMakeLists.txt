@@ -34,6 +34,9 @@ SET(SalomeIDLMED_IDLSOURCES
   MEDCouplingCorbaServant.idl
   ParaMEDCouplingCorbaServant.idl
   )
+IF(MPI_IS_OK)
+  SET(SalomeIDLMED_IDLSOURCES ${SalomeIDLMED_IDLSOURCES} ParaMEDMEMComponent.idl)
+ENDIF(MPI_IS_OK)
 
 SET(SalomeIDLMEDTests_IDLSOURCES
   MEDCouplingCorbaServantTest.idl
