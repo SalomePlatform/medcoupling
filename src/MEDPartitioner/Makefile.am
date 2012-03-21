@@ -115,25 +115,9 @@ libmedpartitioner_la_LDFLAGS += \
 	../MEDLoader/libmedloader.la
 
 # Executables targets
-if MPI_IS_OK
- 
-  bin_PROGRAMS = medpartitioner_para
-  dist_medpartitioner_para_SOURCES = medpartitioner_para.cxx
-  medpartitioner_para_CPPFLAGS = \
-	-I$(srcdir)/../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader \
-	-I$(srcdir)/../INTERP_KERNEL \
-	$(MPI_INCLUDES) \
-	$(PARMETIS_CPPFLAGS)
-
-  medpartitioner_para_LDADD = libmedpartitioner.la
-
-else !MPI_IS_OK
-
-  bin_PROGRAMS = medpartitioner
-  dist_medpartitioner_SOURCES = medpartitioner.cxx
-  medpartitioner_CPPFLAGS = \
+bin_PROGRAMS = medpartitioner
+dist_medpartitioner_SOURCES = medpartitioner.cxx
+medpartitioner_CPPFLAGS = \
 	-I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../MEDCoupling \
 	-I$(srcdir)/../MEDLoader \
@@ -146,7 +130,22 @@ if MED_ENABLE_SCOTCH
   medpartitioner_CPPFLAGS += $(SCOTCH_CPPFLAGS)
 endif
 
-  medpartitioner_LDADD = libmedpartitioner.la
+medpartitioner_LDADD = libmedpartitioner.la
+
+if MPI_IS_OK
+ 
+  bin_PROGRAMS += medpartitioner_para
+  dist_medpartitioner_para_SOURCES = medpartitioner_para.cxx
+  medpartitioner_para_CPPFLAGS = \
+	-I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../MEDCoupling \
+	-I$(srcdir)/../MEDLoader \
+	-I$(srcdir)/../INTERP_KERNEL \
+	$(MPI_INCLUDES) \
+	$(PARMETIS_CPPFLAGS)
+
+  medpartitioner_para_LDADD = libmedpartitioner.la
+
 endif
 
 OBSOLETE_FILES =
