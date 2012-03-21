@@ -27,6 +27,8 @@ ENABLE_TESTING()
 
 SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
 
+STRING(REPLACE "\\" "/" KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
+
 IF(KERNEL_ROOT_DIR)
   SET(MED_ENABLE_KERNEL ON)
   INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
@@ -72,6 +74,8 @@ ENDIF(WINDOWS)
 SET(MED_salomebin_BINS bin/salome)
 
 SET(MED_salomelib_LIBS lib/salome)
+
+SET(MED_salomeidl_IDLS idl/salome)
 
 SET(MED_salomeinclude_HEADERS include/salome)
 
