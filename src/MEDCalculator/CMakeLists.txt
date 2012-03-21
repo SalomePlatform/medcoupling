@@ -17,30 +17,39 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(Client)
-
-FIND_PACKAGE(SWIG REQUIRED)
-INCLUDE(${SWIG_USE_FILE})
-
-SET_SOURCE_FILES_PROPERTIES(MEDCouplingCorba.i PROPERTIES CPLUSPLUS ON)
-SET_SOURCE_FILES_PROPERTIES(MEDCouplingCorba.i PROPERTIES SWIG_FLAGS "-shadow")
+ADD_SUBDIRECTORY(Swig)
+ADD_SUBDIRECTORY(Test)
 
 INCLUDE_DIRECTORIES(
-  ${PYTHON_INCLUDE_PATH}
+  ${MED3_INCLUDES_DIR}
+  ${HDF5_INCLUDES_DIR}
   ${OMNIORB_INCLUDES_DIR}
   ${KERNEL_ROOT_DIR}/include/salome
   ${CMAKE_CURRENT_BINARY_DIR}/../../idl
-  ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCouplingCorba
-  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling_Swig
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
   )
 
-SWIG_ADD_MODULE(MEDCouplingCorba python MEDCouplingCorba.i)
-SWIG_LINK_LIBRARIES(MEDCouplingCorba ${PYTHON_LIBRARIES} medcouplingcorba)
-SET_TARGET_PROPERTIES(_MEDCouplingCorba PROPERTIES COMPILE_FLAGS "${OMNIORB_FLAGS}")
+SET(medcalculator_SOURCES
+  MEDCalculatorBrowserMesh.cxx
+  MEDCalculatorBrowserField.cxx
+  MEDCalculatorBrowserStep.cxx
+  MEDCalculatorBrowserLiteStruct.cxx
+  MEDCalculatorDBRangeSelection.cxx
+  MEDCalculatorDBSliceField.cxx
+  MEDCalculatorDBField.cxx
+)
 
-INSTALL(TARGETS _MEDCouplingCorba DESTINATION ${MED_salomepythondir})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingCorba.py DESTINATION ${MED_salomescript_PYTHON})
+ADD_LIBRARY(medcalculator SHARED ${medcalculator_SOURCES})
+SET_TARGET_PROPERTIES(medcalculator PROPERTIES COMPILE_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS}")
+TARGET_LINK_LIBRARIES(medcalculator medloader medcouplingcorba ${KERNEL_LDFLAGS} ${SALOMELocalTrace} ${SalomeNS} ${OpUtil})
+INSTALL(TARGETS medcalculator DESTINATION ${MED_salomelib_LIBS})
+
+FILE(GLOB medcalculator_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+INSTALL(FILES ${medcalculator_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
