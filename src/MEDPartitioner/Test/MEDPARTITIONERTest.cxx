@@ -714,3 +714,461 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
     }
   mf->decrRef();
 }
+
+void MEDPARTITIONERTest::createTestMeshes()
+{
+  createTestMeshWithoutField();
+  createTestMeshWithVecFieldOnCells();
+  createTestMeshWithVecFieldOnNodes();
+}
+
+void MEDPARTITIONERTest::deleteTestMeshes()
+{
+  string cmd="rm *tmp_testMesh*";
+  if (_verbose) cout<<endl<<cmd<<endl;
+  system(cmd.c_str());  //may be not if debug
+}
+
+void MEDPARTITIONERTest::testMeshCollectionSingle()
+{
+  setSmallSize();
+  createTestMeshes();
+  MyGlobals::_World_Size=1;
+  MyGlobals::_Rank=0;
+  string fileName=_file_name_with_faces;
+  MEDPARTITIONER::ParaDomainSelector parallelizer(false);
+  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  CPPUNIT_ASSERT(collection.isParallelMode());
+  CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
+  CPPUNIT_ASSERT(collection.getName()=="testMesh");
+  CPPUNIT_ASSERT_EQUAL(1,collection.getNbOfLocalMeshes());
+  CPPUNIT_ASSERT_EQUAL(1,collection.getNbOfGlobalMeshes());
+  CPPUNIT_ASSERT_EQUAL(_ni*_nj*_nk,collection.getNbOfLocalCells());
+  CPPUNIT_ASSERT_EQUAL(_ni*_nj,collection.getNbOfLocalFaces());
+}
+
+void MEDPARTITIONERTest::testMeshCollectionXml()
+{
+  setSmallSize();
+  createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml but not so huge
+  MyGlobals::_World_Size=1;
+  MyGlobals::_Rank=0;
+  string fileName=_file_name_huge_xml;
+  MEDPARTITIONER::ParaDomainSelector parallelizer(false);
+  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  CPPUNIT_ASSERT(collection.isParallelMode());
+  CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
+  CPPUNIT_ASSERT(collection.getName()=="testMesh");
+  CPPUNIT_ASSERT_EQUAL(8,collection.getNbOfLocalMeshes());
+  CPPUNIT_ASSERT_EQUAL(8,collection.getNbOfGlobalMeshes());
+  CPPUNIT_ASSERT_EQUAL(_ni*_nj*_nk*8,collection.getNbOfLocalCells());
+  CPPUNIT_ASSERT_EQUAL(0,collection.getNbOfLocalFaces());
+}
+
+void MEDPARTITIONERTest::testMeshCollectionSinglePartitionMetis()
+{
+//#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
+  setSmallSize();
+  createTestMeshes();
+  MyGlobals::_World_Size=1;
+  MyGlobals::_Rank=0;
+  //MyGlobals::_Verbose=500;
+  string fileName=_file_name_with_faces;
+  int ndomains=2;
+  bool split_family=false;
+  bool empty_groups=false;
+  MEDPARTITIONER::ParaDomainSelector parallelizer(false);
+  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  
+  MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+  aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
+  //Creating the graph and partitioning it
+  auto_ptr< MEDPARTITIONER::Topology > new_topo;
+  new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS) );
+  //Creating a new mesh collection from the partitioning
+  MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
+  
+  //example to create files
+  //MyGlobals::_General_Informations.clear();
+  //MyGlobals::_General_Informations.push_back(SerializeFromString("finalMeshName=Merge"));
+  //if (MyGlobals::_Verbose>100) cout << "generalInformations : \n"<<ReprVectorOfString(MyGlobals::_General_Informations);
+  //new_collection.write("ttmp")
+  
+  CPPUNIT_ASSERT(new_collection.isParallelMode());
+  CPPUNIT_ASSERT_EQUAL(3, new_collection.getMeshDimension());
+  CPPUNIT_ASSERT(new_collection.getName()==collection.getName());
+  CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfLocalMeshes());
+  CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfGlobalMeshes());
+  CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
+  CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalFaces(),new_collection.getNbOfLocalFaces());
+//#endif
+}
+
+void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
+{
+//#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
+  setSmallSize();
+  createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml on 2*2*2 meshes but not so huge
+  MyGlobals::_World_Size=1;
+  MyGlobals::_Rank=0;
+  string fileName=_file_name_huge_xml;
+  bool split_family=false;
+  bool empty_groups=false;
+  MEDPARTITIONER::ParaDomainSelector parallelizer(false);
+  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  
+  MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+  aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
+  
+  for (int ndomains=1 ; ndomains<=16 ; ndomains++)
+    {
+      //Creating the graph and partitioning it
+      auto_ptr< MEDPARTITIONER::Topology > new_topo;
+      new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS) );
+      //Creating a new mesh collection from the partitioning
+      MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
+      
+      CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfLocalMeshes());
+      CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfGlobalMeshes());
+      CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
+      CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalFaces(),new_collection.getNbOfLocalFaces());
+    }
+//#endif
+}
+
+void MEDPARTITIONERTest::testMetisSmallSize()
+{
+//#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
+  setSmallSize();
+  createTestMeshes();
+  launchMetisMedpartitionerOnTestMeshes();
+  verifyMetisMedpartitionerOnSmallSizeForMesh();
+  verifyMetisMedpartitionerOnSmallSizeForFieldOnCells();
+  verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe();
+//#endif
+}
+
+void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
+{
+  int res;
+  string cmd,execName,sourceName,targetName;
+  
+  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
+  execName+="/bin/salome/medpartitioner";
+  
+  cmd="which "+execName+" 2>/dev/null 1>/dev/null";  //no trace
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  
+  cmd=execName+" --ndomains=2 --split-method=metis";  //on same proc
+  sourceName=_file_name;
+  targetName=_file_name;
+  targetName.replace(targetName.find(".med"),4,"_partitionedTo2_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  
+  cmd=execName+" --ndomains=5 --split-method=metis"; //on less proc
+  sourceName=_file_name;
+  targetName=_file_name;
+  targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  
+  cmd=execName+" --ndomains=1 --split-method=metis";  //on 1 proc
+  sourceName=targetName+".xml";
+  targetName=_file_name;
+  targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+
+  cmd=execName+" --ndomains=1 --split-method=metis";  //on more proc
+  //sourceName=targetName+".xml";
+  targetName=_file_name;
+  targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+}  
+
+void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForMesh()
+{
+  int res;
+  string fileName,cmd,execName,sourceName,targetName,input;
+  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
+  execName+="/bin/salome/medpartitioner";
+  fileName=_file_name_with_faces;
+  
+  ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
+  ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
+  ParaMEDMEM::MEDCouplingUMesh* faceMesh=initialMesh->getLevelM1Mesh(false);
+  
+  cmd=execName+" --ndomains=5 --split-method=metis";  //on same proc
+  sourceName=fileName;
+  targetName=fileName;
+  targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  input=targetName+".xml";
+  
+  MEDPARTITIONER::ParaDomainSelector parallelizer(false);
+  MEDPARTITIONER::MeshCollection collection(input,parallelizer);
+  CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
+  std::vector<ParaMEDMEM::MEDCouplingUMesh*>cellMeshes=collection.getMesh();
+  CPPUNIT_ASSERT_EQUAL(5, (int) cellMeshes.size());
+  int nbcells=0;
+  for (std::size_t i = 0; i < cellMeshes.size(); i++)
+    nbcells+=cellMeshes[i]->getNumberOfCells();
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
+  
+  std::vector<ParaMEDMEM::MEDCouplingUMesh*>faceMeshes=collection.getFaceMesh();
+  CPPUNIT_ASSERT_EQUAL(5, (int) faceMeshes.size());
+  int nbfaces=0;
+  for (std::size_t i=0; i < faceMeshes.size(); i++)
+    nbfaces+=faceMeshes[i]->getNumberOfCells();
+  CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), nbfaces);
+  
+  //merge split meshes and test equality
+  cmd=execName+" --ndomains=1 --split-method=metis";  //on same proc
+  sourceName=targetName+".xml";
+  targetName=fileName;
+  targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  
+  string refusedName=targetName+"1.med";
+  ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
+  ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
+  ParaMEDMEM::MEDCouplingUMesh* refusedFaceMesh=refusedMesh->getLevelM1Mesh(false);
+  
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), refusedFaceMesh->getNumberOfCells());
+  
+  /*not the good job
+    ParaMEDMEM::MEDCouplingMesh* mergeCell=cellMesh->mergeMyselfWith(refusedCellMesh);
+    CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), mergeCell->getNumberOfCells());
+  
+    ParaMEDMEM::MEDCouplingMesh* mergeFace=faceMesh->mergeMyselfWith(refusedFaceMesh);
+    CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), mergeFace->getNumberOfCells());
+  
+    CPPUNIT_ASSERT(faceMesh->isEqual(refusedFaceMesh,1e-12));
+  */
+  
+  std::vector<const MEDCouplingUMesh *> meshes;
+  std::vector<DataArrayInt *> corr;
+  meshes.push_back(cellMesh);
+  refusedCellMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-9);
+  meshes.push_back(refusedCellMesh);
+  MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
+  
+  meshes.resize(0);
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
+  corr.resize(0);
+  meshes.push_back(faceMesh);
+  refusedFaceMesh->tryToShareSameCoordsPermute(*faceMesh, 1e-9);
+  meshes.push_back(refusedFaceMesh);
+  MEDCouplingUMesh* fusedFace=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
+  CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), fusedFace->getNumberOfCells());
+  
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
+  fusedFace->decrRef();
+  refusedFaceMesh->decrRef();
+  faceMesh->decrRef();
+  fusedCell->decrRef();
+  refusedCellMesh->decrRef();
+  cellMesh->decrRef();
+  //done in ~collection
+  //for (int i = 0; i < faceMeshes.size(); i++) faceMeshes[i]->decrRef();
+  //for (int i = 0; i < cellMeshes.size(); i++) cellMeshes[i]->decrRef();
+}
+
+void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnCells()
+{
+  int res;
+  string fileName,cmd,execName,sourceName,targetName,input;
+  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
+  execName+="/bin/salome/medpartitioner";
+  fileName=_file_name;
+  fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnCells.med");
+  
+  ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
+  ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
+  
+  cmd=execName+" --ndomains=5 --split-method=metis";  //on same proc
+  sourceName=fileName;
+  targetName=fileName;
+  targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  input=targetName+".xml";
+  
+  //merge split meshes and test equality
+  cmd=execName+" --ndomains=1 --split-method=metis";  //on same proc
+  sourceName=targetName+".xml";
+  targetName=fileName;
+  targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  
+  string refusedName=targetName+"1.med";
+  ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
+  ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
+  
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
+  
+  std::vector<const MEDCouplingUMesh *> meshes;
+  std::vector<DataArrayInt *> corr;
+  meshes.push_back(cellMesh);
+  refusedCellMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-9);
+  meshes.push_back(refusedCellMesh);
+  MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
+  
+  MEDCouplingFieldDouble* field1=MEDLoader::ReadFieldCell(fileName.c_str(),initialMesh->getName(),0,"VectorFieldOnCells",0,1);
+  MEDCouplingFieldDouble* field2=MEDLoader::ReadFieldCell(refusedName.c_str(),refusedCellMesh->getName(),0,"VectorFieldOnCells",0,1);
+  
+  int nbcells=corr[1]->getNumberOfTuples();
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
+  //use corr to test equality of field
+  DataArrayDouble* f1=field1->getArray();
+  DataArrayDouble* f2=field2->getArray();
+  if (_verbose>300) 
+    {
+      cout<<"\nf1 : "<<f1->reprZip();
+      cout<<"\nf2 : "<<f2->reprZip(); //field2->advancedRepradvancedRepr();
+      for (std::size_t i = 0; i < corr.size(); i++)
+        cout << "\ncorr " << i << " : " << corr[i]->reprZip();
+    
+    }
+  int nbequal=0;
+  int nbcomp=field1->getNumberOfComponents();
+  double* p1=f1->getPointer();
+  double* p2=f2->getPointer();
+  int* pc=corr[1]->getPointer();
+  for (int i = 0; i < nbcells; i++)
+    {
+      int i1=pc[i]*nbcomp;
+      int i2=i*nbcomp;
+      for (int j = 0; j < nbcomp; j++)
+        {
+          if (p1[i1+j]==p2[i2+j]) nbequal++;
+          //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
+        }
+    }
+  CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp, nbequal);
+  
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
+  field1->decrRef();
+  field2->decrRef();
+  fusedCell->decrRef();
+  refusedCellMesh->decrRef();
+  cellMesh->decrRef();
+}
+
+void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe()
+{
+  int res;
+  string fileName,cmd,execName,sourceName,targetName,input;
+  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
+  execName+="/bin/salome/medpartitioner";
+  fileName=_file_name;
+  fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnGaussNe.med");
+  
+  ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
+  ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
+  
+  cmd=execName+" --ndomains=5 --split-method=metis";  //on same proc
+  sourceName=fileName;
+  targetName=fileName;
+  targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  input=targetName+".xml";
+  
+  //merge split meshes and test equality
+  cmd=execName+" --ndomains=1 --split-method=metis";  //on same proc
+  sourceName=targetName+".xml";
+  targetName=fileName;
+  targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
+  cmd+=" --input-file="+sourceName+" --output-file="+targetName+" --verbose="+IntToStr(_verbose);
+  if (_verbose) cout<<endl<<cmd<<endl;
+  res=system(cmd.c_str());
+  CPPUNIT_ASSERT_EQUAL(0, res);
+  
+  string refusedName=targetName+"1.med";
+  ParaMEDMEM::MEDFileUMesh* refusedMesh=ParaMEDMEM::MEDFileUMesh::New(refusedName.c_str(),_mesh_name.c_str());
+  ParaMEDMEM::MEDCouplingUMesh* refusedCellMesh=refusedMesh->getLevel0Mesh(false);
+  
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), refusedCellMesh->getNumberOfCells());
+  
+  std::vector<const MEDCouplingUMesh *> meshes;
+  std::vector<DataArrayInt *> corr;
+  meshes.push_back(cellMesh);
+  refusedCellMesh->tryToShareSameCoordsPermute(*cellMesh, 1e-9);
+  meshes.push_back(refusedCellMesh);
+  MEDCouplingUMesh* fusedCell=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,0,corr);
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), fusedCell->getNumberOfCells());
+  
+  MEDCouplingFieldDouble* field1=MEDLoader::ReadField(ON_GAUSS_NE,fileName.c_str(),initialMesh->getName(),0,"MyFieldOnGaussNE",5,6);
+  MEDCouplingFieldDouble* field2=MEDLoader::ReadField(ON_GAUSS_NE,refusedName.c_str(),refusedCellMesh->getName(),0,"MyFieldOnGaussNE",5,6);
+  
+  int nbcells=corr[1]->getNumberOfTuples();
+  CPPUNIT_ASSERT_EQUAL(cellMesh->getNumberOfCells(), nbcells);
+  //use corr to test equality of field
+  DataArrayDouble* f1=field1->getArray();
+  DataArrayDouble* f2=field2->getArray();
+  if (_verbose>300) 
+    {
+      cout << "\nf1 : " << f1->reprZip(); //123.4 for 12th cell,3rd component, 4th gausspoint
+      cout << "\nf2 : " << f2->reprZip(); //field2->advancedRepradvancedRepr();
+      for (std::size_t i = 0; i < corr.size(); i++)
+        cout << "\ncorr " << i << " : " << corr[i]->reprZip();
+    
+    }
+  int nbequal=0;
+  int nbptgauss=8;
+  int nbcomp=field1->getNumberOfComponents();
+  double* p1=f1->getPointer();
+  double* p2=f2->getPointer();
+  int* pc=corr[1]->getPointer();
+  for (int i = 0; i < nbcells; i++)
+    {
+      int i1=pc[i]*nbcomp*nbptgauss;
+      int i2=i*nbcomp*nbptgauss;
+      for (int j = 0; j < nbcomp*nbptgauss; j++)
+        {
+          if (p1[i1+j]==p2[i2+j]) nbequal++;
+          //cout<<" "<<p1[i1+j]<<"="<<p2[i2+j];
+        }
+    }
+  CPPUNIT_ASSERT_EQUAL(nbcells*nbcomp*nbptgauss, nbequal);
+  
+  for (std::size_t i = 0; i < corr.size(); i++)
+    corr[i]->decrRef();
+  field1->decrRef();
+  field2->decrRef();
+  fusedCell->decrRef();
+  refusedCellMesh->decrRef();
+  cellMesh->decrRef();
+}
+

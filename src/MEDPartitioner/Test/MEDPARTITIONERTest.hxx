@@ -33,9 +33,19 @@
 class MEDPARTITIONERTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( MEDPARTITIONERTest );
-  CPPUNIT_TEST( testSmallSize );
-  CPPUNIT_TEST( testMedianSize );
-  CPPUNIT_TEST( testHugeSize );
+  CPPUNIT_TEST( testMeshCollectionSingle );
+  CPPUNIT_TEST( testMeshCollectionXml );
+  CPPUNIT_TEST( testMeshCollectionSinglePartitionMetis );
+  CPPUNIT_TEST( testMeshCollectionComplexPartitionMetis );
+  CPPUNIT_TEST( testMetisSmallSize );
+  
+#if defined(HAVE_MPI2) && defined(MED_ENABLE_PARMETIS)
+  //test with mpi on system
+  CPPUNIT_TEST( testMpirunSmallSize );
+  CPPUNIT_TEST( testMpirunMedianSize );
+  CPPUNIT_TEST( testMpirunHugeSize );
+#endif
+
   //CPPUNIT_TEST( deleteTestMeshes );
   CPPUNIT_TEST_SUITE_END();
 
@@ -68,11 +78,15 @@ public:
   void createTestMeshWithVecFieldOnCells();
   void createTestMeshWithVecFieldOnNodes();
   void verifyTestMeshWithVecFieldOnNodes();
+  void verifyMetisMedpartitionerOnSmallSizeForMesh();
+  void verifyMetisMedpartitionerOnSmallSizeForFieldOnCells();
+  void verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe();
   void verifyMedpartitionerOnSmallSizeForMesh();
   void verifyMedpartitionerOnSmallSizeForFieldOnCells();
   void verifyMedpartitionerOnSmallSizeForFieldOnGaussNe();
   void createTestMeshes();
   void createHugeTestMesh(int ni, int nj, int nk, int nbx, int nby, int nbz, int nbTarget);
+  void launchMetisMedpartitionerOnTestMeshes();
   void launchMedpartitionerOnTestMeshes();
   void launchMedpartitionerOnHugeTestMeshes();
   void deleteTestMeshes();
@@ -80,9 +94,17 @@ public:
   //for CPPUNIT_TEST
   void setUp();
   void tearDown();
-  void testSmallSize();
-  void testMedianSize();
-  void testHugeSize();
+  void testMeshCollectionSingle();
+  void testMeshCollectionXml();
+  void testMeshCollectionSinglePartitionMetis();
+  void testMeshCollectionComplexPartitionMetis();
+  void testMetisSmallSize();
+  
+#if defined(HAVE_MPI2) && defined(MED_ENABLE_PARMETIS)
+  void testMpirunSmallSize();
+  void testMpirunMedianSize();
+  void testMpirunHugeSize();
+#endif
 };
 
 #endif

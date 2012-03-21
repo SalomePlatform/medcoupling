@@ -328,21 +328,6 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForFieldOnGaussNe()
   cellMesh->decrRef();
 }
 
-void MEDPARTITIONERTest::createTestMeshes()
-{
-  createTestMeshWithoutField();
-  createTestMeshWithVecFieldOnCells();
-  createTestMeshWithVecFieldOnNodes();
-}
-
-
-void MEDPARTITIONERTest::deleteTestMeshes()
-{
-  string cmd="rm *tmp_testMesh*";
-  if (_verbose) cout<<endl<<cmd<<endl;
-  system(cmd.c_str());  //may be not if debug
-}  
-
 void MEDPARTITIONERTest::launchMedpartitionerOnTestMeshes()
 {
   
@@ -424,7 +409,7 @@ void MEDPARTITIONERTest::launchMedpartitionerOnHugeTestMeshes()
   CPPUNIT_ASSERT_EQUAL(0, res);
 }  
 
-void MEDPARTITIONERTest::testSmallSize()
+void MEDPARTITIONERTest::testMpirunSmallSize()
 {
   setSmallSize();
   createTestMeshes();
@@ -434,14 +419,14 @@ void MEDPARTITIONERTest::testSmallSize()
   verifyMedpartitionerOnSmallSizeForFieldOnGaussNe();
 }
 
-void MEDPARTITIONERTest::testMedianSize()
+void MEDPARTITIONERTest::testMpirunMedianSize()
 {
   setMedianSize();
   createTestMeshes();
   launchMedpartitionerOnTestMeshes();
 }
 
-void MEDPARTITIONERTest::testHugeSize()
+void MEDPARTITIONERTest::testMpirunHugeSize()
 {
   //setBigSize(); //may be a lot for now
   setMedianSize();
