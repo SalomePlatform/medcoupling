@@ -19,6 +19,8 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
+EXTRA_DIST += CMakeLists.txt
+
 bin_PROGRAMS= TestMEDCoupling TestMEDCouplingRemapper
 
 TestMEDCoupling_CPPFLAGS=@CPPUNIT_INCLUDES@ @PTHREAD_CFLAGS@ -I$(srcdir)/.. -I$(srcdir)/../../INTERP_KERNEL/Bases -I$(srcdir)/../../INTERP_KERNELTest -I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Geometric2D

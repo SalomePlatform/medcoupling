@@ -21,6 +21,8 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
+EXTRA_DIST += CMakeLists.txt
+
 lib_LTLIBRARIES = _MEDCoupling.la _MEDCouplingRemapper.la
 
 salomeinclude_HEADERS =  \
