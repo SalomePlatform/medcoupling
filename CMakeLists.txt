@@ -213,10 +213,6 @@ SET(EXTRA_DIST
     build_cmake.bat
 )
 
-SET(input ${CMAKE_CURRENT_SOURCE_DIR}/Makefile.in)
-SET(output ${CMAKE_CURRENT_BINARY_DIR}/Makefile)
-MESSAGE(STATUS "Creation of ${output}")
-CONFIGURE_FILE(${input} ${output})
 SET(input ${CMAKE_CURRENT_SOURCE_DIR}/MED_version.h.in)
 SET(output ${CMAKE_CURRENT_BINARY_DIR}/MED_version.h)
 MESSAGE(STATUS "Creation of ${output}")
