@@ -88,11 +88,14 @@ void MEDPARTITIONERTest::setbigSize()
 // ============================================================================
 void MEDPARTITIONERTest::setUp()
 {
-  this->_verbose=0;
+  this->_verbose=1;
 #if defined(HAVE_MPI2)
-  MPI_Init(0,0)
-  MPI_Comm_size(MPI_COMM_WORLD, &MyGlobals::_World_Size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &MyGlobals::_Rank);
+  if (MyGlobals::_Rank==-1)  //do once only
+    {
+      MPI_Init(0,0);
+      MPI_Comm_size(MPI_COMM_WORLD, &MyGlobals::_World_Size);
+      MPI_Comm_rank(MPI_COMM_WORLD, &MyGlobals::_Rank);
+    }
 #else
   //sequential : no MPI
   MyGlobals::_World_Size=1;
