@@ -85,3 +85,6 @@ UNIT_TEST_PROG += TestMEDPARTITIONER
 check: tests
 
 CLEANFILES = UnitTestsResult
+
+clean-local:
+        rm -rf *.med *.xml
