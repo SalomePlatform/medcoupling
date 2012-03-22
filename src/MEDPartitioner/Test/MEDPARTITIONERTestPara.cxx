@@ -71,10 +71,6 @@ void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
   CPPUNIT_ASSERT_EQUAL(0, res);
   input=targetName+".xml";
   
-  MPI_Init(0,0);
-  MPI_Comm_size(MPI_COMM_WORLD, &MyGlobals::_World_Size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &MyGlobals::_Rank);
-
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
   MEDPARTITIONER::MeshCollection collection(input,parallelizer);
   CPPUNIT_ASSERT_EQUAL(3, collection.getMeshDimension());
