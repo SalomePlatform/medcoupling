@@ -31,7 +31,8 @@ lib_LTLIBRARIES= librenumber.la
 
 salomeinclude_HEADERS= \
 RENUMBER_Renumbering.hxx \
-RenumberingFactory.hxx
+RenumberingFactory.hxx \
+RENUMBERDefines.hxx
 
 if MED_ENABLE_METIS
     salomeinclude_HEADERS+= RENUMBER_METISRenumbering.hxx
