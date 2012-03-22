@@ -703,7 +703,7 @@ void MEDPARTITIONERTest::verifyTestMeshWithVecFieldOnNodes()
     {
       cout<<"\n types in "<<name<<" : ";
       //for (std::set<INTERP_KERNEL::NormalizedCellType>::iterator t=types.begin(); t!=types.end(); ++t) cout<<" "<<*t;
-      for (std::set<INTERP_KERNEL::NormalizedCellType>::iterator t=types.begin(); t!=types.end(); ++t) 
+      for (std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator t=types.begin(); t!=types.end(); ++t) 
         {
           //INTERP_KERNEL::CellModel essai=INTERP_KERNEL::CellModel::GetCellModel(*t);
           cout<<" "<<(INTERP_KERNEL::CellModel::GetCellModel(*t)).getRepr();

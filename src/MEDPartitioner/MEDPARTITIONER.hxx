@@ -20,8 +20,8 @@
 #ifndef __MEDPARTITIONER_HXX__
 #define __MEDPARTITIONER_HXX__
 
-#ifdef WNT
-# if defined MEDPARTITIONER_EXPORTS || defined medsplitter_EXPORTS
+#ifdef WIN32
+# if defined MEDPARTITIONER_EXPORTS || defined medpartitioner_EXPORTS
 #  define MEDPARTITIONER_EXPORT __declspec( dllexport )
 # else
 #  define MEDPARTITIONER_EXPORT __declspec( dllimport )

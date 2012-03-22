@@ -25,7 +25,7 @@
 namespace MEDPARTITIONER
 {
   class MeshCollection;
-  class MeshCollectionMedXmlDriver : public MeshCollectionDriver
+  class MEDPARTITIONER_EXPORT MeshCollectionMedXmlDriver : public MeshCollectionDriver
   {
   public:
     MeshCollectionMedXmlDriver(MeshCollection*);

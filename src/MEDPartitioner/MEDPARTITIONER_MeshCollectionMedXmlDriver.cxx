@@ -42,6 +42,11 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
+#ifdef WIN32
+#include <windows.h>
+#include <time.h>
+#endif
+
 using namespace MEDPARTITIONER;
 
 /*!\class MeshCollectionMedXmlDriver
@@ -194,13 +199,22 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
   xmlNewProp(node, BAD_CAST "ver", BAD_CAST "1");
 
   //Description tag
+  char date[6];
+#ifndef WIN32
   time_t present;
   time( &present);
   struct tm *time_asc = localtime(&present);
-  char date[6];
   sprintf(date,"%02d%02d%02d",time_asc->tm_year
           ,time_asc->tm_mon+1
           ,time_asc->tm_mday);
+#else
+  SYSTEMTIME    st;
+  GetLocalTime ( &st );
+  sprintf(date,"%02d%02d%02d",
+          st.wYear
+          ,st.wMonth
+          ,st.wDay);
+#endif
 
   node = xmlNewChild(root_node,0, BAD_CAST "description",0);
 
