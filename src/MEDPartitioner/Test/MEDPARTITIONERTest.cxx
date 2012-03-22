@@ -760,8 +760,6 @@ void MEDPARTITIONERTest::testMeshCollectionXml()
 {
   setSmallSize();
   createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml but not so huge
-  MyGlobals::_World_Size=1;
-  MyGlobals::_Rank=0;
   string fileName=_file_name_huge_xml;
   MEDPARTITIONER::ParaDomainSelector parallelizer(false);
   MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
@@ -779,8 +777,6 @@ void MEDPARTITIONERTest::testMeshCollectionSinglePartitionMetis()
 //#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
   setSmallSize();
   createTestMeshes();
-  MyGlobals::_World_Size=1;
-  MyGlobals::_Rank=0;
   //MyGlobals::_Verbose=500;
   string fileName=_file_name_with_faces;
   int ndomains=2;
@@ -818,8 +814,6 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
 //#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
   setSmallSize();
   createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml on 2*2*2 meshes but not so huge
-  MyGlobals::_World_Size=1;
-  MyGlobals::_Rank=0;
   string fileName=_file_name_huge_xml;
   bool split_family=false;
   bool empty_groups=false;
