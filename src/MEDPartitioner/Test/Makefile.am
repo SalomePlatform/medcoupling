@@ -90,4 +90,4 @@ check: tests
 CLEANFILES = UnitTestsResult
 
 clean-local:
-        rm -rf *.med *.xml
+	rm -rf *.med *.xml
