@@ -40,7 +40,8 @@ MEDPARTITIONER_Utils.hxx \
 MEDPARTITIONER.hxx \
 MEDPARTITIONER_ParaDomainSelector.hxx \
 MEDPARTITIONER_ConnectZone.hxx \
-MEDPARTITIONER_SkyLineArray.hxx 
+MEDPARTITIONER_SkyLineArray.hxx \
+MEDPARTITIONER_Topology.hxx
 
 
 if MED_ENABLE_PARMETIS
