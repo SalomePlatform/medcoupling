@@ -100,7 +100,7 @@ public:
   void testMeshCollectionComplexPartitionMetis();
   void testMetisSmallSize();
   
-#if defined(HAVE_MPI2) && defined(MED_ENABLE_PARMETIS)
+#if defined(HAVE_MPI2)
   void testMpirunSmallSize();
   void testMpirunMedianSize();
   void testMpirunHugeSize();
