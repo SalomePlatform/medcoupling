@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
   // ---  Print test in a compiler compatible format.
 
   std::ostringstream testFileName;
-  testFileName<<"UnitTestResult"<<rank;
+  testFileName<<"UnitTestsResult"<<rank;
   std::ofstream testFile;
   testFile.open(testFileName.str().c_str(), std::ios::out |  std::ios::trunc);
   //CPPUNIT_NS::CompilerOutputter outputter( &result, std::cerr );
