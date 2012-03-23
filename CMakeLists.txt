@@ -52,6 +52,7 @@ ENDIF(KERNEL_ROOT_DIR)
 SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
 
 IF(GUI_ROOT_DIR)
+  SET(MED_ENABLE_GUI ON)
   INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
   INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQT4.cmake)
   INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
