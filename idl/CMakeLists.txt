@@ -17,8 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-
-
 INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/UseOMNIORB.cmake)
 
 INCLUDE_DIRECTORIES(
