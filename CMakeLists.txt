@@ -51,6 +51,8 @@ ENDIF(KERNEL_ROOT_DIR)
 
 SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
 
+STRING(REPLACE "\\" "/" GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
+
 IF(GUI_ROOT_DIR)
   SET(MED_ENABLE_GUI ON)
   INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
@@ -81,9 +83,9 @@ SET(KERNEL_salomeidl_IDLS ${MED_salomeidl_IDLS})
 
 SET(MED_salomeinclude_HEADERS include/salome)
 
-SET(MED_salomeres_DATA share/salome/resources/MED)
+SET(MED_salomeres_DATA share/salome/resources/med)
 
-SET(MED_salomeres_SCRIPTS share/salome/resources/MED)
+SET(MED_salomeres_SCRIPTS share/salome/resources/med)
 
 SET(MED_salomescript_SCRIPTS bin/salome)
 
