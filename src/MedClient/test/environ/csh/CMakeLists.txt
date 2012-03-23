@@ -23,7 +23,7 @@ FOREACH(MedClientTestConfigCsh ${MedClientTestsConfigCsh})
   SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${MedClientTestConfigCsh}.in)
   SET(output ${CMAKE_CURRENT_BINARY_DIR}/${MedClientTestConfigCsh})
   MESSAGE(STATUS "Creation of ${output}")
-  CONFIGURE_FILE(${input} ${output})
+  CONFIGURE_FILE(${input} ${output} @ONLY)
   INSTALL(FILES ${output}
     PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
     DESTINATION Tests/environ/csh)
