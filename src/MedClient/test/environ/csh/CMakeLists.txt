@@ -17,14 +17,14 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(csh)
+SET(MedClientTestsConfigCsh init1 init2 init3 runContainer runEnvironTests stopContainer)
 
-SET(MedClientTestsConfig runTestMedCorba runContainer)
-
-FOREACH(MedClientTestConfig ${MedClientTestsConfig})
-  SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${MedClientTestConfig}.in)
-  SET(output ${CMAKE_CURRENT_BINARY_DIR}/${MedClientTestConfig})
+FOREACH(MedClientTestConfigCsh ${MedClientTestsConfigCsh})
+  SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${MedClientTestConfigCsh}.in)
+  SET(output ${CMAKE_CURRENT_BINARY_DIR}/${MedClientTestConfigCsh})
   MESSAGE(STATUS "Creation of ${output}")
   CONFIGURE_FILE(${input} ${output})
-  INSTALL(FILES ${output} PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION Tests/environ/csh)
-ENDFOREACH(MedClientTestConfig ${MedClientTestsConfig})
+  INSTALL(FILES ${output}
+    PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ
+    DESTINATION Tests/environ/csh)
+ENDFOREACH(MedClientTestConfigCsh ${MedClientTestsConfigCsh})
