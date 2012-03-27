@@ -38,10 +38,29 @@ MEDPARTITIONER::ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
    _mesure_memory(mesure_memory), _init_memory(0), _max_memory(0)
 {
 #ifdef HAVE_MPI2
-  MPI_Comm_size(MPI_COMM_WORLD,&_world_size) ;
-  MPI_Comm_rank(MPI_COMM_WORLD,&_rank) ;
+  if (MyGlobals::_Rank==-1)
+    {
+      MPI_Init(0,0);  //do once only
+      MPI_Comm_size(MPI_COMM_WORLD,&_world_size) ;
+      MPI_Comm_rank(MPI_COMM_WORLD,&_rank) ;
+    }
+  else
+    {
+      _world_size=MyGlobals::_World_Size;
+      _rank=MyGlobals::_Rank;
+    }
   _init_time = MPI_Wtime();
+#else
+  //sequential : no MPI
+  _world_size=1;
+  _rank=0;
+  if (MyGlobals::_Verbose>10)
+    std::cout << "WARNING : ParaDomainSelector contructor without parallel_mode World_Size=1 by default" << std::endl;
 #endif
+  MyGlobals::_World_Size=_world_size;
+  MyGlobals::_Rank=_rank;
+  
+  if (MyGlobals::_Verbose>200) std::cout << "proc " << MyGlobals::_Rank << " of " << MyGlobals::_World_Size << std::endl;
   evaluateMemory();
 }
 
@@ -125,13 +144,20 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<ParaMEDMEM
         nb_elems[i*2+1] = domain_meshes[i]->getNumberOfNodes();
       }
   // receive nb of elems from other procs
+  std::vector<int> all_nb_elems;
+  if (MyGlobals::_World_Size==1)
+    {
+      all_nb_elems=nb_elems;
+    }
+  else
+    {
 #ifdef HAVE_MPI2
-  std::vector<int> all_nb_elems( nb_domains*2 );
-  MPI_Allreduce((void*)&nb_elems[0], (void*)&all_nb_elems[0], nb_domains*2,
-                MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+      all_nb_elems.resize( nb_domains*2 );
+      MPI_Allreduce((void*)&nb_elems[0], (void*)&all_nb_elems[0], nb_domains*2, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
 #else
-  std::vector<int> all_nb_elems=nb_elems;
+      throw INTERP_KERNEL::Exception("not(HAVE_MPI2) incompatible with MPI_World_Size>1");
 #endif
+   }
   int total_nb_cells=0, total_nb_nodes=0;
   for (int i=0; i<nb_domains; ++i)
     {

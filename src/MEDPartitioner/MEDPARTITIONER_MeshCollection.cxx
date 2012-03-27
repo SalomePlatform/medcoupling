@@ -112,7 +112,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   /////////////////
 
 #ifdef HAVE_MPI2
-  if (MyGlobals::_Verbose>0)
+  if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
   if (MyGlobals::_Is0verbose)
@@ -128,7 +128,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   //treating families
   ////////////////////
 #ifdef HAVE_MPI2
-  if (MyGlobals::_Verbose>0)
+  if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
   if (MyGlobals::_Is0verbose)
@@ -152,7 +152,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
 
   //treating groups
 #ifdef HAVE_MPI2
-  if (MyGlobals::_Verbose>0)
+  if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
   if (MyGlobals::_Is0verbose)
@@ -161,7 +161,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(MeshCollection& initialCollection
   _group_info=initialCollection.getGroupInfo();
   
 #ifdef HAVE_MPI2
-  if (MyGlobals::_Verbose>0)
+  if (MyGlobals::_Verbose>0 && MyGlobals::_World_Size>1)
     MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose messages
 #endif
   if (MyGlobals::_Is0verbose)
@@ -1015,7 +1015,8 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
               f.close();
             }
 #ifdef HAVE_MPI2
-          MPI_Barrier(MPI_COMM_WORLD); //wait for creation of nameFileXml
+           if (MyGlobals::_World_Size>1)
+             MPI_Barrier(MPI_COMM_WORLD); //wait for creation of nameFileXml
 #endif
           try
             {
