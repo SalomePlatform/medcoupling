@@ -29,7 +29,7 @@ namespace MEDPARTITIONER
 {
   class SkyLineArray;
   class ParaDomainSelector;
-  class MEDPARTITIONER_EXPORT MEDPARTITIONER_EXPORT UserGraph : public Graph
+  class MEDPARTITIONER_EXPORT UserGraph : public Graph
   {
   public:
     UserGraph(MEDPARTITIONER::SkyLineArray*, const int*, int);

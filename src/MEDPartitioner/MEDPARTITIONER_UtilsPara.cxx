@@ -76,6 +76,9 @@ std::vector<std::string> MEDPARTITIONER::SendAndReceiveVectorOfString(const std:
  */
 std::vector<std::string> MEDPARTITIONER::AllgathervVectorOfString(const std::vector<std::string>& vec)
 {
+  if (MyGlobals::_World_Size==1) //nothing to do
+    return vec;
+
   int world_size=MyGlobals::_World_Size;
   std::string str=SerializeFromVectorOfString(vec);
   

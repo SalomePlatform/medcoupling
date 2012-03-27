@@ -107,7 +107,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
         }
     }
 #ifdef HAVE_MPI2
-  if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
+  if (MyGlobals::_Verbose>500 && MyGlobals::_World_Size>1) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
 #endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
   
@@ -126,7 +126,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
         }
     }
 #ifdef HAVE_MPI2
-  if (MyGlobals::_Verbose>500) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
+  if (MyGlobals::_Verbose>500 && MyGlobals::_World_Size>1) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
 #endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
   
@@ -299,7 +299,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
   for (int iold=0; iold<oldTopology->nbDomain(); iold++)
     {
       int ioldNbCell=oldTopology->getCellNumber(iold);
-      //cout<<"proc "<<MyGlobals::_Rank<<" : cell number old domain "<<iold<<" : "<<ioldNbCell<<endl;
+      //std::cout<<"proc "<<MyGlobals::_Rank<<" : cell number old domain "<<iold<<" : "<<ioldNbCell<<std::endl;
       //if not my old domains getCellNumber is 0
       std::vector<int> globalids(ioldNbCell);
       oldTopology->getCellList(iold, &globalids[0]); //unique global numerotation

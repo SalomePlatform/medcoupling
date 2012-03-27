@@ -20,8 +20,6 @@
 #ifndef __MEDPARTITIONER_PARALLELTOPOLOGY_HXX__
 #define __MEDPARTITIONER_PARALLELTOPOLOGY_HXX__
 
-#include "MEDPARTITIONER.hxx"
-
 #include "MEDPARTITIONER_Topology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 
