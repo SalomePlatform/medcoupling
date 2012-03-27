@@ -20,7 +20,6 @@
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 # this directory must be recompiled before Test folder
-
 if CPPUNIT_IS_OK
  SUBDIRS=. Test
 endif
@@ -43,18 +42,19 @@ MEDPARTITIONER_ConnectZone.hxx \
 MEDPARTITIONER_SkyLineArray.hxx \
 MEDPARTITIONER_Topology.hxx
 
-
+#compilation of medpartitioner_para OR EXCLUSIVE medpartitioner
 if MED_ENABLE_PARMETIS
-    salomeinclude_HEADERS += MEDPARTITIONER_MetisGraph.hxx
-endif
+    salomeinclude_HEADERS+= MEDPARTITIONER_MetisGraph.hxx
+else
 if MED_ENABLE_METIS
     salomeinclude_HEADERS += MEDPARTITIONER_MetisGraph.hxx
 endif
 if MED_ENABLE_SCOTCH
     salomeinclude_HEADERS += MEDPARTITIONER_ScotchGraph.hxx
 endif
+endif
 
-dist_libmedpartitioner_la_SOURCES = \
+dist_libmedpartitioner_la_SOURCES= \
 MEDPARTITIONER_MeshCollection.cxx \
 MEDPARTITIONER_MeshCollectionDriver.cxx \
 MEDPARTITIONER_MeshCollectionMedXmlDriver.cxx \
@@ -67,88 +67,65 @@ MEDPARTITIONER_ParaDomainSelector.cxx \
 MEDPARTITIONER_ConnectZone.cxx \
 MEDPARTITIONER_SkyLineArray.cxx
 
-libmedpartitioner_la_CPPFLAGS = \
-	$(MPI_INCLUDES) \
-	$(MED3_INCLUDES) \
-	$(HDF5_INCLUDES) \
-	$(LIBXML_INCLUDES) \
-	-I$(srcdir)/../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader \
-	-I$(srcdir)/../INTERP_KERNEL
-
-libmedpartitioner_la_LDFLAGS = 
-
-if MPI_IS_OK
-  dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_UtilsPara.cxx \
-                                       MEDPARTITIONER_JointFinder.cxx
-
 if MED_ENABLE_PARMETIS
-    dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_MetisGraph.cxx
-    libmedpartitioner_la_CPPFLAGS += $(PARMETIS_CPPFLAGS)
-    libmedpartitioner_la_LDFLAGS += $(PARMETIS_LIBS)
-endif
-
-else !MPI_IS_OK
-
+    dist_libmedpartitioner_la_SOURCES+= \
+    MEDPARTITIONER_ParMetisGraph.cxx \
+    MEDPARTITIONER_UtilsPara.cxx \
+    MEDPARTITIONER_JointFinder.cxx
+else
 if MED_ENABLE_METIS
     dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_MetisGraph.cxx
-    libmedpartitioner_la_CPPFLAGS += $(METIS_CPPFLAGS)
-    libmedpartitioner_la_LDFLAGS += $(METIS_LIBS)
 endif
-
-endif
-
 if MED_ENABLE_SCOTCH
     dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_ScotchGraph.cxx
-    libmedpartitioner_la_CPPFLAGS += $(SCOTCH_CPPFLAGS)
-    libmedpartitioner_la_LDFLAGS += $(SCOTCH_LIBS)
+endif
 endif
 
-libmedpartitioner_la_LDFLAGS += \
-	$(MED3_LIBS_C_ONLY) \
-	$(HDF5_LIBS) \
-	$(STDLIB) \
-	$(LIBXML_LIBS) \
-	$(MPI_LIBS) \
-	../INTERP_KERNEL/libinterpkernel.la \
-	../MEDCoupling/libmedcoupling.la \
-	../MEDLoader/libmedloader.la
+libmedpartitioner_la_CPPFLAGS= $(MPI_INCLUDES) $(MED3_INCLUDES) $(HDF5_INCLUDES) \
+  $(LIBXML_INCLUDES) \
+  -I$(srcdir)/../INTERP_KERNEL \
+  -I$(srcdir)/../INTERP_KERNEL/Bases \
+  -I$(srcdir)/../MEDCoupling \
+  -I$(srcdir)/../MEDLoader \
+  -I$(srcdir)/../INTERP_KERNEL/GaussPoints
 
-# Executables targets
-bin_PROGRAMS = medpartitioner
-dist_medpartitioner_SOURCES = medpartitioner.cxx
-medpartitioner_CPPFLAGS = \
-	-I$(srcdir)/../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader \
-	-I$(srcdir)/../INTERP_KERNEL
+libmedpartitioner_la_LDFLAGS=  
 
+if MED_ENABLE_PARMETIS
+  libmedpartitioner_la_CPPFLAGS+= $(PARMETIS_CPPFLAGS)
+  libmedpartitioner_la_LDFLAGS+= $(PARMETIS_LIBS)
+else
 if MED_ENABLE_METIS
-  medpartitioner_CPPFLAGS += $(METIS_CPPFLAGS)
+  libmedpartitioner_la_CPPFLAGS += $(METIS_CPPFLAGS)
+  libmedpartitioner_la_LDFLAGS += $(METIS_LIBS)
 endif
 if MED_ENABLE_SCOTCH
-  medpartitioner_CPPFLAGS += $(SCOTCH_CPPFLAGS)
+  libmedpartitioner_la_CPPFLAGS += $(SCOTCH_CPPFLAGS)
+  libmedpartitioner_la_LDFLAGS += $(SCOTCH_LIBS)
+endif
 endif
 
-medpartitioner_LDADD = libmedpartitioner.la
+libmedpartitioner_la_CXXFLAGS = @CXXTMPDPTHFLAGS@
 
-if MPI_IS_OK
- 
-  bin_PROGRAMS += medpartitioner_para
-  dist_medpartitioner_para_SOURCES = medpartitioner_para.cxx
-  medpartitioner_para_CPPFLAGS = \
-	-I$(srcdir)/../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../MEDCoupling \
-	-I$(srcdir)/../MEDLoader \
-	-I$(srcdir)/../INTERP_KERNEL \
-	$(MPI_INCLUDES) \
-	$(PARMETIS_CPPFLAGS)
+libmedpartitioner_la_LDFLAGS+= $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(STDLIB) $(LIBXML_LIBS) $(MPI_LIBS) ../INTERP_KERNEL/libinterpkernel.la ../MEDCoupling/libmedcoupling.la ../MEDLoader/libmedloader.la
 
-  medpartitioner_para_LDADD = libmedpartitioner.la
-
+# Executables targets
+if MED_ENABLE_PARMETIS
+  bin_PROGRAMS=medpartitioner_para
+  dist_medpartitioner_para_SOURCES= medpartitioner_para.cxx
+  medpartitioner_para_CPPFLAGS= $(libmedpartitioner_la_CPPFLAGS)
+  medpartitioner_para_LDADD= $(libmedpartitioner_la_LDFLAGS) -lm libmedpartitioner.la
+  medpartitioner_para_CXXFLAGS=@CXXTMPDPTHFLAGS@
+else
+  bin_PROGRAMS= medpartitioner
+  dist_medpartitioner_SOURCES= medpartitioner.cxx
+  medpartitioner_CPPFLAGS= $(libmedpartitioner_la_CPPFLAGS)
+  medpartitioner_LDADD= $(libmedpartitioner_la_LDFLAGS) -lm libmedpartitioner.la
+  medpartitioner_CXXFLAGS = @CXXTMPDPTHFLAGS@
 endif
 
-OBSOLETE_FILES =
+
+OBSOLETE_FILES = 
 
 EXTRA_DIST += $(OBSOLETE_FILES)
+
