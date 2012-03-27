@@ -35,11 +35,13 @@ class MEDPARTITIONERTest : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE( MEDPARTITIONERTest );
   CPPUNIT_TEST( testMeshCollectionSingle );
   CPPUNIT_TEST( testMeshCollectionXml );
+#if defined(MED_ENABLE_METIS)
   CPPUNIT_TEST( testMeshCollectionSinglePartitionMetis );
   CPPUNIT_TEST( testMeshCollectionComplexPartitionMetis );
   CPPUNIT_TEST( testMetisSmallSize );
+#endif
   
-#if defined(HAVE_MPI2) && defined(MED_ENABLE_PARMETIS)
+#if defined(HAVE_MPI2)
   //test with mpi on system
   CPPUNIT_TEST( testMpirunSmallSize );
   CPPUNIT_TEST( testMpirunMedianSize );
@@ -96,9 +98,11 @@ public:
   void tearDown();
   void testMeshCollectionSingle();
   void testMeshCollectionXml();
+#if defined(MED_ENABLE_METIS)
   void testMeshCollectionSinglePartitionMetis();
   void testMeshCollectionComplexPartitionMetis();
   void testMetisSmallSize();
+#endif
   
 #if defined(HAVE_MPI2)
   void testMpirunSmallSize();

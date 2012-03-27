@@ -88,7 +88,7 @@ void MEDPARTITIONERTest::setbigSize()
 // ============================================================================
 void MEDPARTITIONERTest::setUp()
 {
-  this->_verbose=1;
+  this->_verbose=0;
 #if defined(HAVE_MPI2)
   if (MyGlobals::_Rank==-1)  //do once only
     {
@@ -101,6 +101,30 @@ void MEDPARTITIONERTest::setUp()
   MyGlobals::_World_Size=1;
   MyGlobals::_Rank=0;
 #endif
+
+  if (_verbose>10)
+    {
+#if defined(HAVE_MPI2)
+      cout<<"\ndefined(HAVE_MPI2)"<<endl;
+#else
+      cout<<"\nNOT defined(HAVE_MPI2)"<<endl;
+#endif
+#if defined(MED_ENABLE_PARMETIS)
+      cout<<"defined(MED_ENABLE_PARMETIS)"<<endl;
+#else
+      cout<<"NOT defined(MED_ENABLE_PARMETIS)"<<endl;
+#endif
+#if defined(MED_ENABLE_METIS)
+      cout<<"defined(MED_ENABLE_METIS)"<<endl;
+#else
+      cout<<"NOT defined(MED_ENABLE_METIS)"<<endl;
+#endif
+#if defined(MED_ENABLE_SCOTCH)
+      cout<<"defined(MED_ENABLE_SCOTCH)"<<endl;
+#else
+      cout<<"NOT defined(MED_ENABLE_SCOTCH)"<<endl;
+#endif
+    }
 }
 
 // ============================================================================
@@ -145,7 +169,8 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
           conn.push_back(ii-1);
         }
 
-  if (false) //(_verbose)
+  /*
+  if (_verbose)  //only for debug
     {
       cout<< "\nnb coor " << (_ni+1)*(_nj+1)*(_nk+1)*3 << " " << coor.size() << endl;
       for (int i=0; i<(int)coor.size(); i++)
@@ -160,6 +185,7 @@ ParaMEDMEM::MEDCouplingUMesh * MEDPARTITIONERTest::buildCUBE3DMesh()
         }
       cout << endl;
     }
+  */
   
   MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
   mesh->setMeshDimension(3);
@@ -775,9 +801,9 @@ void MEDPARTITIONERTest::testMeshCollectionXml()
   CPPUNIT_ASSERT_EQUAL(0,collection.getNbOfLocalFaces());
 }
 
+#if defined(MED_ENABLE_METIS)
 void MEDPARTITIONERTest::testMeshCollectionSinglePartitionMetis()
 {
-//#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
   setSmallSize();
   createTestMeshes();
   //MyGlobals::_Verbose=500;
@@ -809,12 +835,10 @@ void MEDPARTITIONERTest::testMeshCollectionSinglePartitionMetis()
   CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfGlobalMeshes());
   CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
   CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalFaces(),new_collection.getNbOfLocalFaces());
-//#endif
 }
 
 void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
 {
-//#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
   setSmallSize();
   createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml on 2*2*2 meshes but not so huge
   string fileName=_file_name_huge_xml;
@@ -826,7 +850,7 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
   MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
   aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
   
-  for (int ndomains=1 ; ndomains<=16 ; ndomains++)
+  for (int ndomains=2 ; ndomains<=16 ; ndomains++)
     {
       //Creating the graph and partitioning it
       auto_ptr< MEDPARTITIONER::Topology > new_topo;
@@ -839,20 +863,20 @@ void MEDPARTITIONERTest::testMeshCollectionComplexPartitionMetis()
       CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
       CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalFaces(),new_collection.getNbOfLocalFaces());
     }
-//#endif
 }
 
 void MEDPARTITIONERTest::testMetisSmallSize()
 {
-//#if defined(MED_ENABLE_PARMETIS) || defined(MED_ENABLE_METIS)
+#if !defined(HAVE_MPI2)
   setSmallSize();
   createTestMeshes();
   launchMetisMedpartitionerOnTestMeshes();
   verifyMetisMedpartitionerOnSmallSizeForMesh();
   verifyMetisMedpartitionerOnSmallSizeForFieldOnCells();
   verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe();
-//#endif
+#endif
 }
+#endif
 
 void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
 {

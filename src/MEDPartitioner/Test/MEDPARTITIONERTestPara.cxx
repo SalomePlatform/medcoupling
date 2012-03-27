@@ -49,6 +49,7 @@ using namespace std;
 using namespace ParaMEDMEM;
 using namespace MEDPARTITIONER;
 
+#if defined(HAVE_MPI2)
 void MEDPARTITIONERTest::verifyMedpartitionerOnSmallSizeForMesh()
 {
   int res;
@@ -431,4 +432,4 @@ void MEDPARTITIONERTest::testMpirunHugeSize()
   createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //it is now to know how far we are going to test
   launchMedpartitionerOnHugeTestMeshes();
 }
-
+#endif
