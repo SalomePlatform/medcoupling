@@ -61,8 +61,8 @@ using namespace MEDPARTITIONER;
 
 int main(int argc, char** argv)
 {
-#if !defined(MED_ENABLE_PARMETIS) && !defined(MED_ENABLE_SCOTCH)
-  cout << "Sorry, no one split method is available. Please, compile with ParMETIS or PT-SCOTCH."<<endl;
+#if !defined(MED_ENABLE_PARMETIS)
+  cout << "Sorry, no one split method is available. Please, compile with ParMETIS."<<endl;
   return 1;
 #else
 
@@ -96,8 +96,9 @@ int main(int argc, char** argv)
                "\t--input-file=<string>    : name of the input .med file or .xml master file\n"
                "\t--output-file=<string>   : name of the resulting file (without extension)\n"
                "\t--ndomains=<number>      : number of subdomains in the output file, default is 1\n"
-#if defined(MED_ENABLE_PARMETIS) && defined(MED_ENABLE_SCOTCH)
-  //user can choose!
+#if defined(MED_ENABLE_PARMETIS) 
+// || defined(MED_ENABLE_PTSCOTCH)
+//user can choose! (not yet)
                "\t--split-method=<string>  : name of the splitting library (metis/scotch), default is metis\n"
 #endif
                "\t--creates-boundary-faces : creates boundary faces mesh in the output files\n"
@@ -312,7 +313,8 @@ int main(int argc, char** argv)
                  << ", max memory usage = " << parallelizer.evaluateMemory() << " KB"
                  << endl;
           }
-      MPI_Barrier(MPI_COMM_WORLD);
+      if(MyGlobals::_World_Size>1)
+        MPI_Barrier(MPI_COMM_WORLD);
       if (MyGlobals::_Is0verbose>0) cout<<"OK END"<< endl;
       MPI_Finalize();
       return 0;
@@ -347,3 +349,4 @@ int main(int argc, char** argv)
     }
 #endif
 }
+
