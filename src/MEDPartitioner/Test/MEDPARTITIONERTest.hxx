@@ -93,7 +93,7 @@ public:
   void verifyMedpartitionerOnSmallSizeForFieldOnGaussNe();
   void createTestMeshes();
   void createHugeTestMesh(int ni, int nj, int nk, int nbx, int nby, int nbz, int nbTarget);
-  void launchMetisOrScotchMedpartitionerOnTestMeshes();
+  void launchMetisOrScotchMedpartitionerOnTestMeshes(std::string MetisOrScotch);
   void launchMedpartitionerOnTestMeshes();
   void launchMedpartitionerOnHugeTestMeshes();
   void deleteTestMeshes();
