@@ -55,7 +55,7 @@ void METISGraph::partGraph(int ndomain,
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph" << std::endl;
   
-  // number of graph vertices
+  //number of graph vertices
   int n=_graph->getNumberOf();
   //graph
   int * xadj=const_cast<int*>(_graph->getIndex());
@@ -78,17 +78,17 @@ void METISGraph::partGraph(int ndomain,
     seems no changes int options[4]={1,0,33,0}; //test for a random seed of 33
   */
   int options[4]={0,0,0,0};
-  // output parameters
-  int edgecut;
-  int* partition=new int[n];
-
 #if !defined(MED_ENABLE_METIS)
   throw INTERP_KERNEL::Exception("METISGraph::partGraph : METIS is not available. Check your products, please.");
 #else
+  //output parameters
+  int edgecut;
+  int* partition=new int[n];
+
   if(nparts >1)
     {
       if (MyGlobals::_Verbose>10) 
-        std::cout << "METISGraph::partGraph METIS_PartGraph METIS_PartGraph(RecursiveOrKway) newww" << std::endl;
+        std::cout << "METISGraph::partGraph METIS_PartGraph METIS_PartGraph(RecursiveOrKway)" << std::endl;
       if (options_string != "k")
         METIS_PartGraphRecursive(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
                                   &base, &nparts, options, &edgecut, partition);

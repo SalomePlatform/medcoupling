@@ -19,6 +19,7 @@
 
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_ScotchGraph.hxx"
+#include "MEDPARTITIONER_Utils.hxx"
 
 #include <cstdio>
 
@@ -46,51 +47,53 @@ SCOTCHGraph::~SCOTCHGraph()
 
 void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, ParaDomainSelector* sel)
 {
-#ifdef MED_ENABLE_SCOTCH
-  // number of graph vertices
+  if (MyGlobals::_Verbose>10)
+    std::cout << "proc " << MyGlobals::_Rank << " : SCOTCHGraph::partGraph" << std::endl;
+  
+  //number of graph vertices
   int n = _graph->getNumberOf();
-
   //graph
   int * xadj=const_cast<int*>(_graph->getIndex());
-  int * adjncy = const_cast<int*>(_graph->getValue());
-
+  int * adjncy=const_cast<int*>(_graph->getValue());
   //ndomain
-  int nparts = ndomain;
+  int nparts=ndomain;
 
-  // output parameters
+#if !defined(MED_ENABLE_SCOTCH)
+  throw INTERP_KERNEL::Exception("SCOTCHGraph::partGraph : SCOTCH is not available. Check your products, please.");
+#else
+  //output parameters
   int* partition = new int[n+1];
-
+  
   SCOTCH_Graph scotch_graph;
-
   SCOTCH_graphInit(&scotch_graph);
-
-
   SCOTCH_graphBuild(&scotch_graph,
-                    1, //first indice 1
-                    n, // nb of graph nodes
+                    0, //base first indice 0
+                    n, //nb of graph nodes
                     xadj,
                     0,
                     _cell_weight, //graph vertices loads
                     0,
-                    xadj[n], // number of edges
+                    xadj[n], //number of edges
                     adjncy,
                     _edge_weight);
-
-  SCOTCH_Strat scotch_strategy;           
+  SCOTCH_Strat scotch_strategy;
   SCOTCH_stratInit(&scotch_strategy);
-
+  
   //!user-defined options for the strategy
   if (options_string!="")
     SCOTCH_stratGraphMap(&scotch_strategy,options_string.c_str());
 
-
-  if (nparts>1)           
-    SCOTCH_graphPart(&scotch_graph,nparts,&scotch_strategy,partition);
-  else
-    // partition for 1 subdomain
+  if (nparts>1)
+    {
+      if (MyGlobals::_Verbose>10) std::cout << "SCOTCHGraph::graphPart SCOTCH_graphPart" << std::endl;
+      SCOTCH_graphPart(&scotch_graph,nparts,&scotch_strategy,partition);
+    }
+  else  //partition for 1 subdomain
+    {
     for (int i=0; i<n+1; i++)
       partition[i]=0;
-
+    }
+  
   SCOTCH_stratExit(&scotch_strategy);
   SCOTCH_graphExit(&scotch_graph);
 
@@ -102,13 +105,11 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
       index[i+1]=index[i]+1;
       value[i]=partition[i];
     }
-
-  //creating a skylinearray with no copy of the index and partition array
-  // the fifth argument true specifies that only the pointers are passed 
-  //to the object
+  delete [] partition;
   
+  //creating a skylinearray with no copy of the index and partition array
+  //the fifth argument true specifies that only the pointers are passed 
+  //to the object
   _partition = new MEDPARTITIONER::SkyLineArray(index,value);
-#else
-  throw INTERP_KERNEL::Exception("SCOTCH is not available. Check your products, please.");
 #endif
 }

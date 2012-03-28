@@ -80,12 +80,11 @@ void METISGraph::partGraph(int ndomain,
   int options[4]={0,0,0,0};
   // output parameters
   int edgecut;
-  int* partition=new int[n];
-
 #if !defined(MED_ENABLE_PARMETIS)
   throw INTERP_KERNEL::Exception("METISGraph::partGraph : PARMETIS is not available. Check your products, please.");
 #else
-
+  int* partition=new int[n];
+  
   if (MyGlobals::_Verbose>10) 
     std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph ParMETIS_PartKway new" << std::endl;
   int * vtxdist=parallelizer->getProcVtxdist();
