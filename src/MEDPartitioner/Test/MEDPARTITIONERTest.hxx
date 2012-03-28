@@ -40,6 +40,11 @@ class MEDPARTITIONERTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testMeshCollectionComplexPartitionMetis );
   CPPUNIT_TEST( testMetisSmallSize );
 #endif
+#if defined(MED_ENABLE_SCOTCH)
+  CPPUNIT_TEST( testMeshCollectionSinglePartitionScotch );
+  CPPUNIT_TEST( testMeshCollectionComplexPartitionScotch );
+  CPPUNIT_TEST( testScotchSmallSize );
+#endif
   
 #if defined(HAVE_MPI2)
   //test with mpi on system
@@ -80,15 +85,15 @@ public:
   void createTestMeshWithVecFieldOnCells();
   void createTestMeshWithVecFieldOnNodes();
   void verifyTestMeshWithVecFieldOnNodes();
-  void verifyMetisMedpartitionerOnSmallSizeForMesh();
-  void verifyMetisMedpartitionerOnSmallSizeForFieldOnCells();
-  void verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe();
+  void verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std::string MetisOrScotch);
+  void verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnCells(std::string MetisOrScotch);
+  void verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnGaussNe(std::string MetisOrScotch);
   void verifyMedpartitionerOnSmallSizeForMesh();
   void verifyMedpartitionerOnSmallSizeForFieldOnCells();
   void verifyMedpartitionerOnSmallSizeForFieldOnGaussNe();
   void createTestMeshes();
   void createHugeTestMesh(int ni, int nj, int nk, int nbx, int nby, int nbz, int nbTarget);
-  void launchMetisMedpartitionerOnTestMeshes();
+  void launchMetisOrScotchMedpartitionerOnTestMeshes();
   void launchMedpartitionerOnTestMeshes();
   void launchMedpartitionerOnHugeTestMeshes();
   void deleteTestMeshes();
@@ -102,6 +107,11 @@ public:
   void testMeshCollectionSinglePartitionMetis();
   void testMeshCollectionComplexPartitionMetis();
   void testMetisSmallSize();
+#endif
+#if defined(MED_ENABLE_SCOTCH)
+  void testMeshCollectionSinglePartitionScotch();
+  void testMeshCollectionComplexPartitionScotch();
+  void testScotchSmallSize();
 #endif
   
 #if defined(HAVE_MPI2)

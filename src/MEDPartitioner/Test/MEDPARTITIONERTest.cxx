@@ -801,6 +801,11 @@ void MEDPARTITIONERTest::testMeshCollectionXml()
   CPPUNIT_ASSERT_EQUAL(0,collection.getNbOfLocalFaces());
 }
 
+
+//#################for metis
+
+
+
 #if defined(MED_ENABLE_METIS)
 void MEDPARTITIONERTest::testMeshCollectionSinglePartitionMetis()
 {
@@ -870,15 +875,98 @@ void MEDPARTITIONERTest::testMetisSmallSize()
 #if !defined(HAVE_MPI2)
   setSmallSize();
   createTestMeshes();
-  launchMetisMedpartitionerOnTestMeshes();
-  verifyMetisMedpartitionerOnSmallSizeForMesh();
-  verifyMetisMedpartitionerOnSmallSizeForFieldOnCells();
-  verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe();
+  std::string MetisOrScotch("metis");
+  launchMetisOrScotchMedpartitionerOnTestMeshes(MetisOrScotch);
+  verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(MetisOrScotch);
+  verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnCells(MetisOrScotch);
+  verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnGaussNe(MetisOrScotch);
 #endif
 }
 #endif
 
-void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
+
+//#################for scotch
+
+
+#if defined(MED_ENABLE_SCOTCH)
+void MEDPARTITIONERTest::testMeshCollectionSinglePartitionScotch()
+{
+  setSmallSize();
+  createTestMeshes();
+  //MyGlobals::_Verbose=500;
+  string fileName=_file_name_with_faces;
+  int ndomains=2;
+  bool split_family=false;
+  bool empty_groups=false;
+  MEDPARTITIONER::ParaDomainSelector parallelizer(false);
+  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  
+  MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+  aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
+  //Creating the graph and partitioning it
+  auto_ptr< MEDPARTITIONER::Topology > new_topo;
+  new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH) );
+  //Creating a new mesh collection from the partitioning
+  MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
+  
+  //example to create files
+  //MyGlobals::_General_Informations.clear();
+  //MyGlobals::_General_Informations.push_back(SerializeFromString("finalMeshName=Merge"));
+  //if (MyGlobals::_Verbose>100) cout << "generalInformations : \n"<<ReprVectorOfString(MyGlobals::_General_Informations);
+  //new_collection.write("ttmp")
+  
+  CPPUNIT_ASSERT(new_collection.isParallelMode());
+  CPPUNIT_ASSERT_EQUAL(3, new_collection.getMeshDimension());
+  CPPUNIT_ASSERT(new_collection.getName()==collection.getName());
+  CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfLocalMeshes());
+  CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfGlobalMeshes());
+  CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
+  CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalFaces(),new_collection.getNbOfLocalFaces());
+}
+
+void MEDPARTITIONERTest::testMeshCollectionComplexPartitionScotch()
+{
+  setSmallSize();
+  createHugeTestMesh(_ni, _nj, _nk, 2, 2, 2, 32); //xml on 2*2*2 meshes but not so huge
+  string fileName=_file_name_huge_xml;
+  bool split_family=false;
+  bool empty_groups=false;
+  MEDPARTITIONER::ParaDomainSelector parallelizer(false);
+  MEDPARTITIONER::MeshCollection collection(fileName,parallelizer);
+  
+  MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+  aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
+  
+  for (int ndomains=2 ; ndomains<=16 ; ndomains++)
+    {
+      //Creating the graph and partitioning it
+      auto_ptr< MEDPARTITIONER::Topology > new_topo;
+      new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH) );
+      //Creating a new mesh collection from the partitioning
+      MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
+      
+      CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfLocalMeshes());
+      CPPUNIT_ASSERT_EQUAL(ndomains,new_collection.getNbOfGlobalMeshes());
+      CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalCells(),new_collection.getNbOfLocalCells());
+      CPPUNIT_ASSERT_EQUAL(collection.getNbOfLocalFaces(),new_collection.getNbOfLocalFaces());
+    }
+}
+
+void MEDPARTITIONERTest::testScotchSmallSize()
+{
+#if !defined(HAVE_MPI2)
+  setSmallSize();
+  createTestMeshes();
+  std::string MetisOrScotch("scotch");
+  launchMetisOrScotchMedpartitionerOnTestMeshes(MetisOrScotch);
+  verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(MetisOrScotch);
+  verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnCells(MetisOrScotch);
+  verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnGaussNe(MetisOrScotch);
+#endif
+}
+#endif
+
+void MEDPARTITIONERTest::launchMetisOrScotchMedpartitionerOnTestMeshes(std::string MetisOrScotch)
 {
   int res;
   string cmd,execName,sourceName,targetName;
@@ -890,7 +978,7 @@ void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
   
-  cmd=execName+" --ndomains=2 --split-method=metis";  //on same proc
+  cmd=execName+" --ndomains=2 --split-method="+MetisOrScotch;  //on same proc
   sourceName=_file_name;
   targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo2_");
@@ -899,7 +987,7 @@ void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
   
-  cmd=execName+" --ndomains=5 --split-method=metis"; //on less proc
+  cmd=execName+" --ndomains=5 --split-method="+MetisOrScotch; //on less proc
   sourceName=_file_name;
   targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
@@ -908,7 +996,7 @@ void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
   
-  cmd=execName+" --ndomains=1 --split-method=metis";  //on 1 proc
+  cmd=execName+" --ndomains=1 --split-method="+MetisOrScotch;  //on 1 proc
   sourceName=targetName+".xml";
   targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
@@ -917,7 +1005,7 @@ void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
   res=system(cmd.c_str());
   CPPUNIT_ASSERT_EQUAL(0, res);
 
-  cmd=execName+" --ndomains=1 --split-method=metis";  //on more proc
+  cmd=execName+" --ndomains=1 --split-method="+MetisOrScotch;  //on more proc
   //sourceName=targetName+".xml";
   targetName=_file_name;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
@@ -927,7 +1015,7 @@ void MEDPARTITIONERTest::launchMetisMedpartitionerOnTestMeshes()
   CPPUNIT_ASSERT_EQUAL(0, res);
 }  
 
-void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForMesh()
+void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std::string MetisOrScotch)
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
@@ -939,7 +1027,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForMesh()
   ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
   ParaMEDMEM::MEDCouplingUMesh* faceMesh=initialMesh->getLevelM1Mesh(false);
   
-  cmd=execName+" --ndomains=5 --split-method=metis";  //on same proc
+  cmd=execName+" --ndomains=5 --split-method="+MetisOrScotch;  //on same proc
   sourceName=fileName;
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
@@ -967,7 +1055,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForMesh()
   CPPUNIT_ASSERT_EQUAL(faceMesh->getNumberOfCells(), nbfaces);
   
   //merge split meshes and test equality
-  cmd=execName+" --ndomains=1 --split-method=metis";  //on same proc
+  cmd=execName+" --ndomains=1 --split-method="+MetisOrScotch;  //on same proc
   sourceName=targetName+".xml";
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
@@ -1025,7 +1113,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForMesh()
   //for (int i = 0; i < cellMeshes.size(); i++) cellMeshes[i]->decrRef();
 }
 
-void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnCells()
+void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnCells(std::string MetisOrScotch)
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
@@ -1037,7 +1125,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnCells()
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
   
-  cmd=execName+" --ndomains=5 --split-method=metis";  //on same proc
+  cmd=execName+" --ndomains=5 --split-method="+MetisOrScotch;  //on same proc
   sourceName=fileName;
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
@@ -1048,7 +1136,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnCells()
   input=targetName+".xml";
   
   //merge split meshes and test equality
-  cmd=execName+" --ndomains=1 --split-method=metis";  //on same proc
+  cmd=execName+" --ndomains=1 --split-method="+MetisOrScotch;  //on same proc
   sourceName=targetName+".xml";
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
@@ -1113,7 +1201,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnCells()
   cellMesh->decrRef();
 }
 
-void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe()
+void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnGaussNe(std::string MetisOrScotch)
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
@@ -1125,7 +1213,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe()
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
   ParaMEDMEM::MEDCouplingUMesh* cellMesh=initialMesh->getLevel0Mesh(false);
   
-  cmd=execName+" --ndomains=5 --split-method=metis";  //on same proc
+  cmd=execName+" --ndomains=5 --split-method="+MetisOrScotch;  //on same proc
   sourceName=fileName;
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_partitionedTo5_");
@@ -1136,7 +1224,7 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe()
   input=targetName+".xml";
   
   //merge split meshes and test equality
-  cmd=execName+" --ndomains=1 --split-method=metis";  //on same proc
+  cmd=execName+" --ndomains=1 --split-method="+MetisOrScotch;  //on same proc
   sourceName=targetName+".xml";
   targetName=fileName;
   targetName.replace(targetName.find(".med"),4,"_remergedFrom5_");
@@ -1201,4 +1289,3 @@ void MEDPARTITIONERTest::verifyMetisMedpartitionerOnSmallSizeForFieldOnGaussNe()
   refusedCellMesh->decrRef();
   cellMesh->decrRef();
 }
-
