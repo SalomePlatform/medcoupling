@@ -1,0 +1,119 @@
+# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+ADD_SUBDIRECTORY(Test)
+
+INCLUDE_DIRECTORIES(
+  ${PARMETIS_INCLUDES_DIR}
+  ${METIS_INCLUDES_DIR}
+  ${SCOTCH_INCLUDES_DIR}
+  ${BOOST_INCLUDES_DIR}
+  ${METIS_INCLUDES_DIR}
+  ${LIBXML_INCLUDES_DIR}
+  ${MED3_INCLUDES_DIR}
+  ${HDF5_INCLUDES_DIR}
+  ${MPI_INCLUDES_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
+  ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
+  )
+
+SET(medpartitionercpp_HEADERS_HXX
+  MEDPARTITIONER_MeshCollection.hxx
+  MEDPARTITIONER_MeshCollectionDriver.hxx
+  MEDPARTITIONER_MeshCollectionMedXmlDriver.hxx
+  MEDPARTITIONER_MeshCollectionMedAsciiDriver.hxx
+  MEDPARTITIONER_ParallelTopology.hxx
+  MEDPARTITIONER_JointFinder.hxx
+  MEDPARTITIONER_Graph.hxx
+  MEDPARTITIONER_UserGraph.hxx
+  MEDPARTITIONER_Utils.hxx
+  MEDPARTITIONER.hxx
+  MEDPARTITIONER_ParaDomainSelector.hxx
+  MEDPARTITIONER_ConnectZone.hxx
+  MEDPARTITIONER_SkyLineArray.hxx
+  MEDPARTITIONER_Topology.hxx
+  )
+
+SET(medpartitionercpp_SOURCES
+  MEDPARTITIONER_MeshCollection.cxx
+  MEDPARTITIONER_MeshCollectionDriver.cxx
+  MEDPARTITIONER_MeshCollectionMedXmlDriver.cxx
+  MEDPARTITIONER_MeshCollectionMedAsciiDriver.cxx
+  MEDPARTITIONER_ParallelTopology.cxx
+  MEDPARTITIONER_Graph.cxx
+  MEDPARTITIONER_UserGraph.cxx
+  MEDPARTITIONER_Utils.cxx
+  MEDPARTITIONER_ParaDomainSelector.cxx
+  MEDPARTITIONER_ConnectZone.cxx
+  MEDPARTITIONER_SkyLineArray.cxx
+  )
+
+SET(medpartitionercpp_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS} ${BOOST_FLAGS} ${LIBXML_FLAGS}")
+SET(medpartitionercpp_LDFLAGS medloader ${LIBXML_LIBS})
+
+IF(MED_ENABLE_SCOTCH)
+  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ScotchGraph.cxx)
+  SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_ScotchGraph.hxx)
+  SET(medpartitionercpp_FLAGS "${medpartitionercpp_FLAGS} ${SCOTCH_FLAGS}")
+  SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${SCOTCH_LIBS})
+ENDIF(MED_ENABLE_SCOTCH)
+
+IF(MPI_IS_OK)
+  IF(MED_ENABLE_PARMETIS)
+    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ParMetisGraph.cxx
+      MEDPARTITIONER_UtilsPara.cxx
+      MEDPARTITIONER_JointFinder.cxx
+      )
+    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_JointFinder.hxx)
+    SET(medpartitionercpp_FLAGS "${medpartitionercpp_FLAGS} ${MPI_FLAGS} ${PARMETIS_FLAGS}")
+    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${PARMETIS_LIBS} ${MPI_LIBS})
+  ENDIF(MED_ENABLE_PARMETIS)
+ELSE(MPI_IS_OK)
+  IF(MED_ENABLE_METIS)
+    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_MetisGraph.cxx)
+    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_MetisGraph.hxx)
+    SET(medpartitionercpp_FLAGS "${medpartitionercpp_FLAGS} ${METIS_FLAGS}")
+    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${METIS_LIBS})
+  ENDIF(MED_ENABLE_METIS)
+ENDIF(MPI_IS_OK)
+
+
+IF(MPI_IS_OK)
+  ADD_EXECUTABLE(medpartitioner_para medpartitioner_para.cxx)
+  SET_TARGET_PROPERTIES(medpartitioner_para PROPERTIES COMPILE_FLAGS "${medpartitionercpp_FLAGS}")
+  TARGET_LINK_LIBRARIES(medpartitioner_para medpartitionercpp)
+  INSTALL(TARGETS medpartitioner_para DESTINATION ${MED_salomebin_BINS})
+ELSE(MPI_IS_OK)
+  ADD_EXECUTABLE(medpartitioner medpartitioner.cxx)
+  SET_TARGET_PROPERTIES(medpartitioner PROPERTIES COMPILE_FLAGS "${medpartitionercpp_FLAGS}")
+  TARGET_LINK_LIBRARIES(medpartitioner medpartitionercpp)
+  INSTALL(TARGETS medpartitionerr DESTINATION ${MED_salomebin_BINS})
+ENDIF(MPI_IS_OK)
+
+ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
+SET_TARGET_PROPERTIES(medpartitionercpp PROPERTIES COMPILE_FLAGS "${medpartitionercpp_FLAGS}")
+TARGET_LINK_LIBRARIES(medpartitionercpp ${medpartitionercpp_LDFLAGS})
+INSTALL(TARGETS medpartitionercpp DESTINATION ${MED_salomelib_LIBS})
+
+INSTALL(FILES ${medpartitionercpp_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
