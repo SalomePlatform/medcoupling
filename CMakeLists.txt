@@ -160,7 +160,6 @@ SET(SUBDIRS
 IF(NOT MED_ENABLE_KERNEL)
 SET(SUBDIRS
     ${SUBDIRS}
-    adm_local_without_kernel
 )
 ENDIF(NOT MED_ENABLE_KERNEL)
 
@@ -175,7 +174,6 @@ SET(SUBDIRS
 
 SET(DIST_SUBDIRS
     adm_local
-    adm_local_without_kernel
     idl
     src
     doc
