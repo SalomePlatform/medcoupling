@@ -24,10 +24,11 @@ IF(COMMAND cmake_policy)
 ENDIF(COMMAND cmake_policy)
 
 ENABLE_TESTING()
+SET(VERSION "6.4.0")
+SET(VERSION_DEV "1")
 
 SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
-
-STRING(REPLACE "\\" "/" KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
+FILE(TO_CMAKE_PATH $ENV{KERNEL_ROOT_DIR} KERNEL_ROOT_DIR)
 
 IF(KERNEL_ROOT_DIR)
   SET(MED_ENABLE_KERNEL ON)
@@ -50,8 +51,7 @@ ELSE(KERNEL_ROOT_DIR)
 ENDIF(KERNEL_ROOT_DIR)
 
 SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
-
-STRING(REPLACE "\\" "/" GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
+FILE(TO_CMAKE_PATH $ENV{GUI_ROOT_DIR} GUI_ROOT_DIR)
 
 IF(GUI_ROOT_DIR)
   SET(MED_ENABLE_GUI ON)
@@ -73,6 +73,9 @@ INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
 IF(WINDOWS)
   INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
 ENDIF(WINDOWS)
+
+EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${VERSION}
+  OUTPUT_VARIABLE XVERSION)
 
 SET(MED_salomebin_BINS bin/salome)
 
@@ -107,169 +110,17 @@ SET(MED_sharedpkgpython_PYTHON ${MED_salomepythondir}/shared_modules)
 
 SET(MED_admlocalcmake adm_local/cmake)
 
-###############################################
-
 IF(MED_ENABLE_KERNEL)
-IF(MED_ENABLE_GUI)
-  SET(ACLOCAL_AMFLAGS
-      -I
-      adm_local/unix/config_files
-      -I
-      ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files
-      -I
-      ${GUI_ROOT_DIR}/adm_local/unix/config_files
-  )
-ELSE(MED_ENABLE_GUI)
-  SET(ACLOCAL_AMFLAGS
-      -I
-      adm_local/unix/config_files
-      -I
-      ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files
-  )
-ENDIF(MED_ENABLE_GUI)
-ELSE(MED_ENABLE_KERNEL)
-IF(MED_ENABLE_GUI)
-  SET(ACLOCAL_AMFLAGS
-      -I
-      adm_local/unix/config_files
-      -I
-      adm_local_without_kernel/unix/config_files
-      -I
-      ${GUI_ROOT_DIR}/adm_local/unix/config_files
-  )
-ELSE(MED_ENABLE_GUI)
-  SET(ACLOCAL_AMFLAGS
-      -I
-      adm_local/unix/config_files
-      -I
-      adm_local_without_kernel/unix/config_files
-  )
-ENDIF(MED_ENABLE_GUI)
+  ADD_SUBDIRECTORY(idl)
 ENDIF(MED_ENABLE_KERNEL)
-
-IF(MED_ENABLE_KERNEL)
-  SET(IDLDIR
-      idl
-  )
-ENDIF(MED_ENABLE_KERNEL)
-
-SET(SUBDIRS
-    adm_local
-)
-
-IF(NOT MED_ENABLE_KERNEL)
-SET(SUBDIRS
-    ${SUBDIRS}
-)
-ENDIF(NOT MED_ENABLE_KERNEL)
-
-SET(SUBDIRS
-    ${SUBDIRS}
-    ${IDLDIR}
-    src
-    doc
-    resources
-    bin
-)
-
-SET(DIST_SUBDIRS
-    adm_local
-    idl
-    src
-    doc
-    resources
-    bin
-)
-
-SET(DISTCLEANFILES
-    a.out
-    aclocal.m4
-    configure
-    local-install.sh
-    hack_libtool
-    adm_local/unix/config_files/config.guess
-    adm_local/unix/config_files/config.sub
-    adm_local/unix/config_files/depcomp
-    adm_local/unix/config_files/install-sh
-    adm_local/unix/config_files/libtool.m4
-    adm_local/unix/config_files/ltmain.sh
-    adm_local/unix/config_files/ltoptions.m4
-    adm_local/unix/config_files/ltsugar.m4
-    adm_local/unix/config_files/ltversion.m4
-    adm_local/unix/config_files/lt~obsolete.m4
-    adm_local/unix/config_files/missing
-    adm_local/unix/config_files/py-compile
-)
-
-SET(salomeinclude_DATA
-    MED_version.h
-)
-
-SET(EXTRA_DIST
-    ${EXTRA_DIST}
-    build_configure
-    clean_configure
-    LICENCE
-    INSTALL
-    README
-    build_cmake
-    build_cmake.bat
-)
+ADD_SUBDIRECTORY(adm_local)
+ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(doc)
+ADD_SUBDIRECTORY(resources)
+ADD_SUBDIRECTORY(bin)
 
 SET(input ${CMAKE_CURRENT_SOURCE_DIR}/MED_version.h.in)
 SET(output ${CMAKE_CURRENT_BINARY_DIR}/MED_version.h)
 MESSAGE(STATUS "Creation of ${output}")
-CONFIGURE_FILE(${input} ${output})
-
-FOREACH(dir ${SUBDIRS})
-  IF(NOT dir STREQUAL .)
-    ADD_SUBDIRECTORY(${dir})
-  ENDIF(NOT dir STREQUAL .)
-ENDFOREACH(dir ${SUBDIRS})
-            
-FOREACH(f ${salomeinclude_DATA})
-  SET(DEST include/salome)
-  STRING(COMPARE EQUAL ${f} SALOMEconfig.h.in test_SALOMEconfig.h.in)
-  IF(test_SALOMEconfig.h.in)
-    INSTALL(FILES SALOMEconfig.ref.in DESTINATION ${DEST} RENAME SALOMEconfig.h.in)
-  ELSE(test_SALOMEconfig.h.in)
-    SET(dummy dummy-NOTFOUND)
-    MARK_AS_ADVANCED(dummy)
-    FIND_FILE(dummy ${f} PATHS ${CMAKE_CURRENT_SOURCE_DIR} NO_DEFAULT_PATH)
-    IF(dummy)
-      GET_FILENAME_COMPONENT(ext ${f} EXT)
-      IF(ext STREQUAL .py)
-        IF(DEST STREQUAL bin/salome)
-          SET(PERMS)
-          SET(PERMS ${PERMS} OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-          SET(PERMS ${PERMS} GROUP_READ GROUP_EXECUTE)
-          SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
-          INSTALL(FILES ${f} DESTINATION ${DEST} PERMISSIONS ${PERMS})
-        ELSE(DEST STREQUAL bin/salome)
-          INSTALL(FILES ${f} DESTINATION ${DEST})
-        ENDIF(DEST STREQUAL bin/salome)
-      ELSE(ext STREQUAL .py)
-        INSTALL(FILES ${f} DESTINATION ${DEST})
-      ENDIF(ext STREQUAL .py)  
-    ELSE(dummy)
-      GET_FILENAME_COMPONENT(ext ${f} EXT)
-      IF(ext STREQUAL .qm)
-        STRING(REGEX REPLACE .qm .ts input ${f})
-        SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
-        SET(output ${CMAKE_CURRENT_BINARY_DIR}/${f})
-        EXECUTE_PROCESS(COMMAND ${QT_LRELEASE_EXECUTABLE} ${input} -qm ${output})
-      ENDIF(ext STREQUAL .qm)
-      INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${f} DESTINATION ${DEST})
-    ENDIF(dummy)
-  ENDIF(test_SALOMEconfig.h.in)
-  GET_FILENAME_COMPONENT(ext ${f} EXT)
-  IF(ext STREQUAL .py)
-    INSTALL(CODE "SET(PYTHON_FILE ${f})")
-    INSTALL(CODE "SET(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})")
-    INSTALL(CODE "SET(DEST ${DEST})")
-    INSTALL(CODE "SET(PYTHON_EXECUTABLE ${PYTHON_EXECUTABLE})")
-    #
-    STRING(REPLACE "\\" "/" KERNEL_ROOT_DIR ${KERNEL_ROOT_DIR})
-    INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/install_and_compile_python_file.cmake)
-  ENDIF(ext STREQUAL .py)
-ENDFOREACH(f ${salomeinclude_DATA})
+CONFIGURE_FILE(${input} ${output} @ONLY)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MED_version.h DESTINATION ${MED_salomeinclude_HEADERS})
