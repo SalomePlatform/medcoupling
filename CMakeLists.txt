@@ -108,7 +108,7 @@ SET(KERNEL_salomepythondir ${MED_salomepythondir})
 
 SET(MED_sharedpkgpython_PYTHON ${MED_salomepythondir}/shared_modules)
 
-SET(MED_admlocalcmake adm_local/cmake)
+SET(MED_admlocalcmake adm_local/cmake_files)
 
 IF(MED_ENABLE_KERNEL)
   ADD_SUBDIRECTORY(idl)
