@@ -85,7 +85,7 @@ IF(MPI_IS_OK)
       MEDPARTITIONER_UtilsPara.cxx
       MEDPARTITIONER_JointFinder.cxx
       )
-    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_JointFinder.hxx)
+    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_JointFinder.hxx MEDPARTITIONER_MetisGraph.hxx)
     SET(medpartitionercpp_FLAGS "${medpartitionercpp_FLAGS} ${MPI_FLAGS} ${PARMETIS_FLAGS}")
     SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${PARMETIS_LIBS} ${MPI_LIBS})
   ENDIF(MED_ENABLE_PARMETIS)

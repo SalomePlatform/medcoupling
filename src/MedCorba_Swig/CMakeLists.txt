@@ -49,5 +49,6 @@ SET(MED_MedCorba_Swig_salomescript_DATA
   )
 
 INSTALL(TARGETS _libMedCorba_Swig DESTINATION ${MED_salomepythondir})
+INSTALL(FILES libMedCorba_Swig.i DESTINATION ${MED_salomeinclude_HEADERS})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libMedCorba_Swig.py DESTINATION ${MED_salomescript_PYTHON})
 INSTALL(FILES ${MED_MedCorba_Swig_salomescript_DATA} DESTINATION ${MED_salomescript_DATA})
