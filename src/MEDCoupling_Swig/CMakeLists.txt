@@ -17,6 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
+
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 #INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/UseSWIG.cmake)
@@ -44,8 +46,9 @@ SET_SOURCE_FILES_PROPERTIES(MEDCouplingRemapper.i PROPERTIES SWIG_FLAGS "-shadow
 SWIG_ADD_MODULE(MEDCouplingRemapper python MEDCouplingRemapper.i)
 SWIG_LINK_LIBRARIES(MEDCouplingRemapper ${PYTHON_LIBRARIES} medcouplingremapper)
 
+SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py)
 INSTALL(TARGETS _MEDCoupling _MEDCouplingRemapper DESTINATION ${MED_salomepythondir})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py DESTINATION ${MED_salomescript_PYTHON})
+INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomescript_PYTHON})
 
 ADD_TEST(MEDCouplingBasicsTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingBasicsTest.py)
 ADD_TEST(MEDCouplingRemapperTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDCouplingRemapperTest.py)
