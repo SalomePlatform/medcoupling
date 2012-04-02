@@ -17,6 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -43,3 +44,5 @@ SWIG_LINK_LIBRARIES(libMEDSPLITTER_Swig ${PYTHON_LIBRARIES} medsplittercpp)
 
 INSTALL(TARGETS _libMEDSPLITTER_Swig DESTINATION ${MED_salomepythondir})
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libMEDSPLITTER_Swig.py MEDSPLITTER.py test_MEDSPLITTER.py DESTINATION ${MED_salomescript_PYTHON})
+INSTALL_AND_COMPILE_PYTHON_FILE(${CMAKE_CURRENT_SOURCE_DIR}/MEDSPLITTER.py ${MED_salomescript_PYTHON})
+

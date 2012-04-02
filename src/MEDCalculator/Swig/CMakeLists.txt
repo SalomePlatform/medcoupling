@@ -17,6 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -52,4 +53,4 @@ SWIG_LINK_LIBRARIES(MEDCalculator ${PYTHON_LIBRARIES} medcalculator)
 FILE(GLOB medcalculatorspython_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${medcalculatorspython_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
 INSTALL(TARGETS _MEDCalculator DESTINATION ${MED_salomepythondir})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCalculator.py DESTINATION ${MED_salomescript_PYTHON})
+INSTALL_AND_COMPILE_PYTHON_FILE(${CMAKE_CURRENT_BINARY_DIR}/MEDCalculator.py ${MED_salomescript_PYTHON})

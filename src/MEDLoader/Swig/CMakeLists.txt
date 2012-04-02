@@ -17,6 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
+
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -47,7 +49,8 @@ INCLUDE_DIRECTORIES(
   )
 
 INSTALL(TARGETS _MEDLoader DESTINATION ${MED_salomepythondir})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py DESTINATION ${MED_salomescript_PYTHON})
+SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py ${CMAKE_CURRENT_SOURCE_DIR}/libMEDLoader_Swig.py)
+INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomescript_PYTHON})
 
 ADD_TEST(MEDLoaderTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDLoaderTest.py)
 ADD_TEST(MEDLoaderTest2 ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDLoaderTest2.py)

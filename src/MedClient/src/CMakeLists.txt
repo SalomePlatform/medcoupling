@@ -17,6 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -61,7 +62,7 @@ SWIG_ADD_MODULE(libMEDClient python libMEDClient.i)
 SWIG_LINK_LIBRARIES(libMEDClient ${PYTHON_LIBRARIES} MEDClientcmodule)
 SET_TARGET_PROPERTIES(_libMEDClient PROPERTIES COMPILE_FLAGS "${OMNIORB_FLAGS} ${HDF5_FLAGS} ${MED3_FLAGS} ${XDR_FLAGS}")
 INSTALL(TARGETS _libMEDClient DESTINATION ${MED_salomepythondir})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/libMEDClient.py DESTINATION ${MED_salomescript_PYTHON})
+INSTALL_AND_COMPILE_PYTHON_FILE(${CMAKE_CURRENT_BINARY_DIR}/libMEDClient.py ${MED_salomescript_PYTHON})
 
 FILE(GLOB libMEDClient_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${libMEDClient_HEADERS_HXX} FIELDClient.cxx DESTINATION ${MED_salomeinclude_HEADERS})

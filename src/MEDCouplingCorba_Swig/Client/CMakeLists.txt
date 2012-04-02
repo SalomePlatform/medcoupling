@@ -17,6 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -41,4 +42,5 @@ SWIG_LINK_LIBRARIES(MEDCouplingClient ${PYTHON_LIBRARIES} medcouplingclient)
 SET_TARGET_PROPERTIES(_MEDCouplingClient PROPERTIES COMPILE_FLAGS "${OMNIORB_FLAGS}")
 
 INSTALL(TARGETS _MEDCouplingClient DESTINATION ${MED_salomepythondir})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingClient.py DESTINATION ${MED_salomescript_PYTHON})
+SET(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingClient.py)
+INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomescript_PYTHON})
