@@ -1529,7 +1529,14 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFieldFieldGlo
       return ret;
     }
   else
-    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::finishField3 : not implemented yet !");
+    {
+      std::ostringstream oss; oss << "MEDFileFieldPerMesh::finishField3 : The field on nodes lies on a node profile so that it is impossible to find a submesh having exactly the same nodes of that profile !!!";
+      oss << "So it is impossible to return a well definied MEDCouplingFieldDouble instance on specified mesh on a specified meshDim !" << std::endl;
+      oss << "To retrieve correctly such a field you have 2 possibilities :" << std::endl;
+      oss << " - use an another meshDim compatible with the field on nodes (MED file does not have such information)" << std::endl;
+      oss << " - if definitely the node profile has no link with mesh connectivity use MEDFileField1TS::getFieldWithProfile or MEDFileFieldMultiTS::getFieldWithProfile methods instead !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
   return 0;
 }
 
