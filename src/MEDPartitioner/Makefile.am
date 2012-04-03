@@ -67,11 +67,15 @@ MEDPARTITIONER_ParaDomainSelector.cxx \
 MEDPARTITIONER_ConnectZone.cxx \
 MEDPARTITIONER_SkyLineArray.cxx
 
-if MED_ENABLE_PARMETIS
+if MPI_IS_OK
     dist_libmedpartitioner_la_SOURCES+= \
-    MEDPARTITIONER_ParMetisGraph.cxx \
     MEDPARTITIONER_UtilsPara.cxx \
     MEDPARTITIONER_JointFinder.cxx
+endif
+
+if MED_ENABLE_PARMETIS
+    dist_libmedpartitioner_la_SOURCES+= \
+    MEDPARTITIONER_ParMetisGraph.cxx
 else
 if MED_ENABLE_METIS
     dist_libmedpartitioner_la_SOURCES += MEDPARTITIONER_MetisGraph.cxx

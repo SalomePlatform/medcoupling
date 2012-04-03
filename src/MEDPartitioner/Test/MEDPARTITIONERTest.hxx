@@ -47,10 +47,12 @@ class MEDPARTITIONERTest : public CppUnit::TestFixture
 #endif
   
 #if defined(HAVE_MPI2)
+#if defined(MED_ENABLE_PARMETIS)
   //test with mpi on system
   CPPUNIT_TEST( testMpirunSmallSize );
   CPPUNIT_TEST( testMpirunMedianSize );
   CPPUNIT_TEST( testMpirunHugeSize );
+#endif
 #endif
 
   //CPPUNIT_TEST( deleteTestMeshes );
