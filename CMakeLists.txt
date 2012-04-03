@@ -70,9 +70,9 @@ INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSCOTCH.cmake)
 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindSPLITTER.cmake)
 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindRENUMBER.cmake)
 INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
-IF(WINDOWS)
+IF(WIN32)
   INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindXDR.cmake)
-ENDIF(WINDOWS)
+ENDIF(WIN32)
 
 EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${VERSION}
   OUTPUT_VARIABLE XVERSION)
