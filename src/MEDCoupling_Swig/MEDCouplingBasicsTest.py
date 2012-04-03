@@ -9190,6 +9190,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual([0],res.getValues());
             pass
         pass
+
+    def testDataArrayAbs1(self):
+        d1=DataArrayDouble.New();
+        val1=[2.,-3.,-5.,6.,-7.,-8.,9.,10.,-11.,-12.,-13.,-15.]
+        expected1=[2.,3.,5.,6.,7.,8.,9.,10.,11.,12.,13.,15.]
+        d1.setValues(val1,6,2);
+        d2=d1.convertToIntArr();
+        #
+        d1.abs();
+        for i in xrange(12):
+            self.assertAlmostEqual(expected1[i],d1.getIJ(0,i),14);
+            pass
+        #
+        expected2=[2,3,5,6,7,8,9,10,11,12,13,15]
+        d2.abs();
+        for i in xrange(12):
+            self.assertEqual(expected2[i],d2.getIJ(0,i));
+            pass
+        #
+        pass
     
     def setUp(self):
         pass
