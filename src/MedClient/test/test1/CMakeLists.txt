@@ -20,3 +20,4 @@
 SET(MedClientTestsTest1 Compo1.py Compo1Py.py TestMedCorba1.py TestMedCorba2.py TestMedCorba3.py TestMedCorba4.py TestMedCorba5.py)
 
 INSTALL(FILES ${MedClientTestsTest1} DESTINATION ${MED_salomescript_PYTHON})
+INSTALL(FILES resources/Compo1PyCatalog.xml DESTINATION ${MED_salomeres_DATA})
