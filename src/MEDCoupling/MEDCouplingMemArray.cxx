@@ -1834,6 +1834,14 @@ void DataArrayDouble::sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception)
   declareAsNew();
 }
 
+void DataArrayDouble::abs() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  double *ptr=getPointer();
+  int nbOfElems=getNbOfElems();
+  std::transform(ptr,ptr+nbOfElems,ptr,std::ptr_fun<double,double>(fabs));
+}
+
 void DataArrayDouble::applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
@@ -4131,6 +4139,14 @@ int DataArrayInt::getMinValueInArray() const throw(INTERP_KERNEL::Exception)
   checkAllocated();
   const int *loc=std::min_element(begin(),end());
   return *loc;
+}
+
+void DataArrayInt::abs() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int *ptr=getPointer();
+  int nbOfElems=getNbOfElems();
+  std::transform(ptr,ptr+nbOfElems,ptr,std::ptr_fun<int,int>(std::abs));
 }
 
 void DataArrayInt::applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception)

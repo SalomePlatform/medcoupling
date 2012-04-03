@@ -568,3 +568,25 @@ void MEDCouplingBasicsTest5::testAre2DCellsNotCorrectlyOriented1()
   //
   m1->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testDataArrayAbs1()
+{
+  DataArrayDouble *d1=DataArrayDouble::New();
+  const double val1[12]={2.,-3.,-5.,6.,-7.,-8.,9.,10.,-11.,-12.};
+  const double expected1[12]={2.,3.,5.,6.,7.,8.,9.,10.,11.,12.};
+  d1->alloc(6,2);
+  std::copy(val1,val1+12,d1->getPointer());
+  DataArrayInt *d2=d1->convertToIntArr();
+  //
+  d1->abs();
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],d1->getIJ(0,i),1e-14);
+  //
+  const int expected2[12]={2,3,5,6,7,8,9,10,11,12};
+  d2->abs();
+  for(int i=0;i<12;i++)
+    CPPUNIT_ASSERT_EQUAL(expected2[i],d2->getIJ(0,i));
+  //
+  d2->decrRef();
+  d1->decrRef();
+}
