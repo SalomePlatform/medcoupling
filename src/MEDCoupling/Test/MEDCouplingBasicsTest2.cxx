@@ -1334,8 +1334,8 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   std::copy(arr2,arr2+18,array->getPointer());  
   f1->setArray(array);
   array->decrRef();
-  const int part2[4]={1,4,2,5};
-  f2=f1->buildSubPart(part2,part2+4);
+  const int part2[2]={1,2};
+  f2=f1->buildSubPart(part2,part2+2);
   CPPUNIT_ASSERT_EQUAL(4,f2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,f2->getNumberOfComponents());
   const double expected5[8]={4.,104.,5.,105.,7.,107.,8.,108.};
@@ -1354,10 +1354,10 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   CPPUNIT_ASSERT(std::equal(expected4,expected4+3,m2C->getNodalConnectivityIndex()->getConstPointer()));
   f2->decrRef();
   //idem previous because nodes of cell#4 are not fully present in part3 
-  const int part3[5]={1,4,2,5,7};
+  const int part3[2]={1,2};
   DataArrayInt *arrr=DataArrayInt::New();
-  arrr->alloc(5,1);
-  std::copy(part3,part3+5,arrr->getPointer());
+  arrr->alloc(2,1);
+  std::copy(part3,part3+2,arrr->getPointer());
   f2=f1->buildSubPart(arrr);
   arrr->decrRef();
   CPPUNIT_ASSERT_EQUAL(4,f2->getNumberOfTuples());
@@ -1377,8 +1377,8 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   CPPUNIT_ASSERT(std::equal(expected4,expected4+3,m2C->getNodalConnectivityIndex()->getConstPointer()));
   f2->decrRef();
   //
-  const int part4[6]={1,4,2,5,7,8};
-  f2=f1->buildSubPart(part4,part4+6);
+  const int part4[3]={1,2,4};
+  f2=f1->buildSubPart(part4,part4+3);
   CPPUNIT_ASSERT_EQUAL(6,f2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,f2->getNumberOfComponents());
   const double expected6[12]={4.,104.,5.,105.,7.,107.,8.,108.,10.,110.,11.,111.};
