@@ -39,6 +39,6 @@ SET(TestMEDCalculator_SOURCES
 ADD_EXECUTABLE(TestMEDCalculator ${TestMEDCalculator_SOURCES})
 SET_TARGET_PROPERTIES(TestMEDCalculator PROPERTIES COMPILE_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS} ${CPPUNIT_FLAGS}")
 TARGET_LINK_LIBRARIES(TestMEDCalculator medcalculatorspython medcalculator ${CPPUNIT_LIBS})
-#ADD_TEST(TestMEDCalculator TestMEDCalculator)
+ADD_TEST(TestMEDCalculator TestMEDCalculator)
 
 INSTALL(TARGETS TestMEDCalculator DESTINATION ${MED_salomebin_BINS})
