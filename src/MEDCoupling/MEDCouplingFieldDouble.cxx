@@ -396,15 +396,14 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * If 'this' is field on node lying on a mesh that have 10 cells and 11 nodes for example. If part contains following cellIds [3,7,6].
  * 'this' is currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, the returned field,
  * will contain 6 tuples and this field will lie on this restricted mesh.
+ * 
+ * \ref cpp_mcfielddouble_subpart1 "Here a C++ example."
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception)
 {
-  DataArrayInt *cellRest;
-  _type->computeMeshRestrictionFromTupleIds(_mesh,partBg,partEnd,cellRest);
   DataArrayInt *arrSelect;
-  MEDCouplingMesh *m=_type->buildSubMeshData(_mesh,cellRest->getConstPointer(),cellRest->getConstPointer()+cellRest->getNbOfElems(),arrSelect);
-  if(cellRest)
-    cellRest->decrRef();
+  MEDCouplingMesh *m=_type->buildSubMeshData(_mesh,partBg,partEnd,arrSelect);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrSelect2(arrSelect);
   MEDCouplingFieldDouble *ret=clone(false);//quick shallow copy.
   ret->setMesh(m);
   m->decrRef();
@@ -424,7 +423,6 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, 
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrs.begin();iter!=arrs.end();iter++)
     if(*iter)
       (*iter)->decrRef();
-  arrSelect->decrRef();
   return ret;
 }
 

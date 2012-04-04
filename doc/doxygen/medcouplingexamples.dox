@@ -1,0 +1,41 @@
+/*!
+\page medcouplingcppexamples <br><h1> MEDCoupling C++ examples </h1>
+
+\anchor cpp_mcfielddouble_subpart1
+<br><h2>Creation of a sub part of a field</h2>
+<br><h3>Creation of a sub part of a field on cells</h3>
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_1
+The field on cells \b f1 lies on a mesh containg 5 cells and 9 nodes.		
+So this field \b f1 contains 5 tuples of 2 components each (10 values).
+Now let's create a subfield on cells \b f2 from \b f1.
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_2
+
+\b f1 is a field on cells, \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on cells too.
+
+So the array \b part1 lists ids on cells.
+
+- cell #0 of \b f2 is the same cell of cell #2 of \b f1
+- cell #1 of \b f2 is the same cell of cell #1 of \b f1
+- cell #2 of \b f2 is the same cell of cell #4 of \b f1
+
+So \b f2 contains 3 tuples with 2 components.
+
+The underlying mesh of \b f2 contains a newly created mesh with 3 cells (not as \b mesh1 in \b f1) and 9 nodes (as \b mesh1 in \b f1).
+\n For fields on cells the number of tuples of the returned field is always equal to the number of ids given in input (here \b part1).
+\nOnly fields on cells have this particular behaviour.
+
+<br><h3>Creation of a sub part of a field on nodes</h3>
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_3
+The field on nodes \b f1 lies on a mesh containg 5 cells and 9 nodes.
+So this field \b f1 contains 9 tuples of 2 components each (18 values).
+Now let's create a subfield on nodes \b f2 from \b f1.
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_4
+
+\b f1 is a field on nodes, but \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on \b cells.
+
+After the call of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" on node field \b f1, f1 will be reduced on a
+submesh of \b mesh1 containing cells whoses ids are in \b part2.
+So contrary to fields on cells, it is normal for fields on nodes that number of tuples of the returned field of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" 
+method does not match the size of the input array (here \b part2).
+
+*/

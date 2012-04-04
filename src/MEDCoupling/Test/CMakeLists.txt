@@ -45,6 +45,11 @@ SET(TestMEDCouplingRemapper_SOURCES
   MEDCouplingBasicsTest0.cxx
   )
 
+SET(TestMEDCouplingExamples_SOURCES
+  MEDCouplingExamplesTest.cxx
+  MEDCouplingBasicsTest0.cxx
+  )
+
 ADD_EXECUTABLE(TestMEDCoupling ${TestMEDCoupling_SOURCES})
 SET_TARGET_PROPERTIES(TestMEDCoupling PROPERTIES COMPILE_FLAGS "${CPPUNIT_FLAGS}")
 TARGET_LINK_LIBRARIES(TestMEDCoupling medcoupling ${CPPUNIT_LIBS})
@@ -54,5 +59,10 @@ ADD_EXECUTABLE(TestMEDCouplingRemapper ${TestMEDCouplingRemapper_SOURCES})
 SET_TARGET_PROPERTIES(TestMEDCouplingRemapper PROPERTIES COMPILE_FLAGS "${CPPUNIT_FLAGS}")
 TARGET_LINK_LIBRARIES(TestMEDCouplingRemapper medcouplingremapper ${CPPUNIT_LIBS})
 ADD_TEST(TestMEDCouplingRemapper TestMEDCouplingRemapper)
+
+ADD_EXECUTABLE(TestMEDCouplingExamples ${TestMEDCouplingExamples_SOURCES})
+SET_TARGET_PROPERTIES(TestMEDCouplingExamples PROPERTIES COMPILE_FLAGS "${CPPUNIT_FLAGS}")
+TARGET_LINK_LIBRARIES(TestMEDCouplingExamples medcoupling ${CPPUNIT_LIBS})
+ADD_TEST(TestMEDCouplingExamples TestMEDCouplingExamples)
 
 INSTALL(TARGETS TestMEDCoupling TestMEDCouplingRemapper DESTINATION ${MED_salomebin_BINS})

@@ -407,8 +407,8 @@ void MEDLoaderTest::testFieldNodeProfilRW1()
   array->decrRef();
   f1->setTime(3.14,2,7);
   f1->checkCoherency();
-  const int arr2[6]={2,4,5,3,6,7};
-  MEDCouplingFieldDouble *f2=f1->buildSubPart(arr2,arr2+6);
+  const int arr2[2]={1,4};//node ids are 2,4,5,3,6,7
+  MEDCouplingFieldDouble *f2=f1->buildSubPart(arr2,arr2+2);
   (const_cast<MEDCouplingMesh *>(f2->getMesh()))->setName(f1->getMesh()->getName());
   MEDLoader::WriteField(fileName,f2,false);//<- false important for the test
   //

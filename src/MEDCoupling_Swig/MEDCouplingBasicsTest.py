@@ -3080,7 +3080,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr2=[3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.]
         array.setValues(arr2,mesh1.getNumberOfNodes(),2);
         f1.setArray(array);
-        part2=[1,4,2,5]
+        part2=[1,2]
         f2=f1.buildSubPart(part2);
         self.failUnlessEqual(4,f2.getNumberOfTuples());
         self.failUnlessEqual(2,f2.getNumberOfComponents());
@@ -3101,9 +3101,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.failUnlessEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4]);
         self.failUnlessEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()));
         #idem previous because nodes of cell#4 are not fully present in part3
-        part3=[1,4,2,5,7]
+        part3=[1,2]
         arrr=DataArrayInt.New();
-        arrr.setValues(part3,5,1);
+        arrr.setValues(part3,2,1);
         f2=f1.buildSubPart(arrr);
         self.failUnlessEqual(4,f2.getNumberOfTuples());
         self.failUnlessEqual(2,f2.getNumberOfComponents());
@@ -3123,7 +3123,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.failUnlessEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4]);
         self.failUnlessEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()));
         #
-        part4=[1,4,2,5,7,8]
+        part4=[1,2,4]
         f2=f1.buildSubPart(part4);
         self.failUnlessEqual(6,f2.getNumberOfTuples());
         self.failUnlessEqual(2,f2.getNumberOfComponents());

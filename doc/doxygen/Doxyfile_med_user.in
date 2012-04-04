@@ -134,7 +134,8 @@ FILE_PATTERNS          = MEDMEM_GMesh.* \
 RECURSIVE              = NO
 EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
-EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM/ \
+EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM \
+		         @srcdir@/../../src/MEDCoupling/Test \
                          @srcdir@/../../doc/MEDMEM \
                          @srcdir@/../../src/MEDMEMBinTest \
                          @srcdir@/../../src/MEDMEM
