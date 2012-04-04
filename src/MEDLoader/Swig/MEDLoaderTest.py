@@ -416,7 +416,7 @@ class MEDLoaderTest(unittest.TestCase):
         array.setInfoOnComponent(1,"uiop [MW]");
         f1.setTime(3.14,2,7);
         f1.checkCoherency();
-        arr2=[2,4,5,3,6,7]
+        arr2=[1,4]
         f2=f1.buildSubPart(arr2);
         f2.getMesh().setName(f1.getMesh().getName());
         MEDLoader.MEDLoader.WriteField(fileName,f2,False);#<- False important for the test
