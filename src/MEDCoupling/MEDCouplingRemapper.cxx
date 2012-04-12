@@ -87,7 +87,7 @@ void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCo
  * This method requires that \b targetField was fully defined and allocated. If the array is not allocated an exception will be thrown.
  * 
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
- * \param [inout] targetField the destination field with the allocated array in which only tuples whose entities are fetched by interpolation will be overwritten only.
+ * \param [in,out] targetField the destination field with the allocated array in which only tuples whose entities are fetched by interpolation will be overwritten only.
  */
 void MEDCouplingRemapper::partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField) throw(INTERP_KERNEL::Exception)
 {

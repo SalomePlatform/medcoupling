@@ -1234,3 +1234,40 @@ MEDCouplingUMesh *MEDCouplingRemapperTest::build3DExtrudedUMesh_1(MEDCouplingUMe
   myCoords->decrRef();
   return ret;
 }
+
+void MEDCouplingRemapperTest::testPartialTransfer1()
+{
+  MEDCouplingRemapper remapper;
+  MEDCouplingUMesh *sourceMesh=build1DTargetMesh_2();
+  MEDCouplingUMesh *targetMesh=MEDCouplingBasicsTest::build2DTargetMesh_1();
+  remapper.setIntersectionType(INTERP_KERNEL::PointLocator);
+  CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
+  MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
+  srcField->setNature(ConservativeVolumic);
+  srcField->setMesh(sourceMesh);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(sourceMesh->getNumberOfCells(),1);
+  srcField->setArray(array);
+  double *ptr=array->getPointer();
+  for(int i=0;i<sourceMesh->getNumberOfCells();i++)
+    ptr[i]=(double)(i+7);
+  array->decrRef();
+  MEDCouplingFieldDouble *trgField=MEDCouplingFieldDouble::New(ON_CELLS);
+  trgField->setNature(ConservativeVolumic);
+  trgField->setMesh(targetMesh);
+  array=DataArrayDouble::New();
+  array->alloc(targetMesh->getNumberOfCells(),1);
+  ptr=array->getPointer();
+  std::fill(ptr,ptr+targetMesh->getNumberOfCells(),96.3);
+  trgField->setArray(array);
+  array->decrRef();
+  remapper.partialTransfer(srcField,trgField);
+  const double valuesExpected9[5]={10.,8.,7.,96.3,10.};
+  const double *values=trgField->getArray()->getConstPointer();
+  for(int i0=0;i0<5;i0++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(valuesExpected9[i0],values[i0],1e-12);
+  trgField->decrRef();
+  srcField->decrRef();
+  sourceMesh->decrRef();
+  targetMesh->decrRef();
+}
