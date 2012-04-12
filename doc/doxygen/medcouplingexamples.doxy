@@ -33,9 +33,9 @@ Now let's create a subfield on nodes \b f2 from \b f1.
 
 \b f1 is a field on nodes, but \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on \b cells.
 
-After the call of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" on node field \b f1, f1 will be reduced on a
-submesh of \b mesh1 containing cells whoses ids are in \b part2.
-So contrary to fields on cells, it is normal for fields on nodes that number of tuples of the returned field of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" 
+After the call of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" on node field \b f1, \b f1 will be reduced on a
+submesh of \b mesh1 containing cells whoses ids are in \b part2. So here the number of cells of \b f2 is 2 and the number of nodes is 4.
+\nSo contrary to fields on cells, it is normal for fields on nodes that number of tuples of the returned field of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" 
 method does not match the size of the input array (here \b part2).
 
 */

@@ -68,7 +68,8 @@ WARN_LOGFILE           = log_user
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @srcdir@ \
+INPUT                  = @builddir@ \
+		         @srcdir@ \
                          @srcdir@/../../src/ParaMEDMEM \
                          @srcdir@/../../src/INTERP_KERNEL \
 			 @srcdir@/../../src/INTERP_KERNEL/Bases \
@@ -136,6 +137,7 @@ EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
 EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM \
 		         @srcdir@/../../src/MEDCoupling/Test \
+			 @srcdir@/../../src//MEDCoupling_Swig \
                          @srcdir@/../../doc/MEDMEM \
                          @srcdir@/../../src/MEDMEMBinTest \
                          @srcdir@/../../src/MEDMEM

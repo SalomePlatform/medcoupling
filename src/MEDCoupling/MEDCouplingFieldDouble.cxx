@@ -398,6 +398,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * will contain 6 tuples and this field will lie on this restricted mesh.
  * 
  * \ref cpp_mcfielddouble_subpart1 "Here a C++ example."
+ *
+ * \ref py_mcfielddouble_subpart1 "Here a Python example."
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception)
 {
