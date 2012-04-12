@@ -33,11 +33,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr1=[3.,103.,4.,104.,5.,105.,6.,106.,7.,107.]
         array.setValues(arr1,mesh1.getNumberOfCells(),2)
         f1.setArray(array)
-## ! [PySnippetFieldDoubleBuildSubPart1_1]
-## ! [PySnippetFieldDoubleBuildSubPart1_2]
+# ! [PySnippetFieldDoubleBuildSubPart1_1]
+# ! [PySnippetFieldDoubleBuildSubPart1_2]
         part1=[2,1,4]
         f2=f1.buildSubPart(part1)
-## ! [PySnippetFieldDoubleBuildSubPart1_2]
+# ! [PySnippetFieldDoubleBuildSubPart1_2]
         f2.zipCoords()
         self.failUnlessEqual(3,f2.getNumberOfTuples())
         self.failUnlessEqual(2,f2.getNumberOfComponents())
@@ -60,7 +60,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected4=[0,4,8,13]
         self.failUnlessEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
         # Test with field on nodes.
-## ! [PySnippetFieldDoubleBuildSubPart1_3]
+# ! [PySnippetFieldDoubleBuildSubPart1_3]
         f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME)
         f1.setTime(2.3,5,6)
         f1.setMesh(mesh1)
@@ -68,11 +68,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr2=[3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.]
         array.setValues(arr2,mesh1.getNumberOfNodes(),2)
         f1.setArray(array)
-## ! [PySnippetFieldDoubleBuildSubPart1_3]
-## ! [PySnippetFieldDoubleBuildSubPart1_4]
+# ! [PySnippetFieldDoubleBuildSubPart1_3]
+# ! [PySnippetFieldDoubleBuildSubPart1_4]
         part2=[1,2]
         f2=f1.buildSubPart(part2)
-## ! [PySnippetFieldDoubleBuildSubPart1_4]
+# ! [PySnippetFieldDoubleBuildSubPart1_4]
         self.failUnlessEqual(4,f2.getNumberOfTuples())
         self.failUnlessEqual(2,f2.getNumberOfComponents())
         expected5=[4.,104.,5.,105.,7.,107.,8.,108.]
