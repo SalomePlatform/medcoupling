@@ -33,6 +33,13 @@ namespace INTERP_KERNEL
   /// that result from the split.
   typedef enum  { PLANAR_FACE_5 = 5, PLANAR_FACE_6 = 6, GENERAL_24 = 24, GENERAL_48 = 48 } SplittingPolicy;
   
+  /*!
+   * \class InterpolationOptions
+   * Class defining the options for all interpolation algorithms.
+   * 
+   * List of options, possible values and default values can be found on this page:
+   * \ref InterpKerIntersectors
+   */
   class INTERPKERNEL_EXPORT InterpolationOptions
   {
   private:
