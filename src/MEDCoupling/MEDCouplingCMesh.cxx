@@ -718,10 +718,17 @@ int MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps) cons
       const double *d=getCoordsAt(i)->getConstPointer();
       int nbOfNodes=getCoordsAt(i)->getNbOfElems();
       double ref=pos[i];
-      const double *w=std::find_if(d,d+nbOfNodes,std::bind2nd(std::greater<double>(),ref));
+      const double *w=std::find_if(d,d+nbOfNodes,std::bind2nd(std::greater_equal<double>(),ref));
       int w2=(int)std::distance(d,w);
-      if(w2<nbOfNodes && w2!=0)
+      if(w2<nbOfNodes)
         {
+          if(w2==0)
+            {
+              if(ref>d[0]-eps)
+                w2=1;
+              else
+                return -1;
+            }
           ret+=coeff*(w2-1);
           coeff*=nbOfNodes-1;
         }

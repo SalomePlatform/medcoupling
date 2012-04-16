@@ -4285,11 +4285,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da.setValues(discX,4,1);
         m.setCoordsAt(0,da);
         m.checkCoherency();
-        self.assertEqual(0,m.getCellContainingPoint([2.4],12));
-        self.assertEqual(1,m.getCellContainingPoint([3.7],12));
-        self.assertEqual(2,m.getCellContainingPoint([5.9],12));
-        self.assertEqual(-1,m.getCellContainingPoint([10.3],12));
-        self.assertEqual(-1,m.getCellContainingPoint([1.3],12));
+        self.assertEqual(0,m.getCellContainingPoint([2.4],1e-12));
+        self.assertEqual(1,m.getCellContainingPoint([3.7],1e-12));
+        self.assertEqual(2,m.getCellContainingPoint([5.9],1e-12));
+        self.assertEqual(-1,m.getCellContainingPoint([10.3],1e-12));
+        self.assertEqual(-1,m.getCellContainingPoint([1.3],1e-12));
         #
         m2=m.buildUnstructured();
         m2.checkCoherency();
