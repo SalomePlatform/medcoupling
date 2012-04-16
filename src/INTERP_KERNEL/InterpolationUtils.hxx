@@ -422,6 +422,13 @@ namespace INTERP_KERNEL
     enum { _X, _Y, _Z };
     switch(n.size())
       {
+      case 2:
+        {// SEG 2
+          double delta=n[0][0]-n[1][0];
+          bc[0]=fabs((*p-n[1][0])/delta);
+          bc[1]=fabs((*p-n[0][0])/delta);
+          break;
+        }
       case 3:
         { // TRIA3
           // matrix 2x2
