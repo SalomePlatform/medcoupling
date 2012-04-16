@@ -623,6 +623,7 @@ void MEDCouplingBasicsTest5::testGetValueOn3()
   const double expected1[15]={5.7,57.,570.,6.5,65.,650.,5.,50.,500.,8.,80.,800.,7.,70.,700.};
   for(int i=0;i<15;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],arr1->getIJ(0,i),1e-14);
+  arr1->decrRef();
   f->decrRef();
   m->decrRef();
 }

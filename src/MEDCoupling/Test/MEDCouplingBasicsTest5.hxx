@@ -45,6 +45,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testBuildDescendingConnec2Of3DMesh1 );
     CPPUNIT_TEST( testAre2DCellsNotCorrectlyOriented1 );
     CPPUNIT_TEST( testDataArrayAbs1 );
+    CPPUNIT_TEST( testGetValueOn3 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
