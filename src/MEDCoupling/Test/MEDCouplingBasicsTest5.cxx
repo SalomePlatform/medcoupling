@@ -590,3 +590,39 @@ void MEDCouplingBasicsTest5::testDataArrayAbs1()
   d2->decrRef();
   d1->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testGetValueOn3()
+{
+  const double v[4]={0.,1.,1.5,2.};
+  const double v2[5]={0.7,1.25,0.,2.,1.5};
+  const double disp[12]={5.,50.,500.,6.,60.,600.,7.,70.,700.,8.,80.,800.};
+  MEDCouplingUMesh *m=MEDCouplingUMesh::New("myMesh",1);
+  const int nbNodes=4;
+  const int nbCells=nbNodes-1;
+  m->allocateCells(nbCells);
+  DataArrayDouble *coords=DataArrayDouble::New();
+  coords->alloc(nbNodes,1);
+  std::copy(v,v+nbNodes,coords->getPointer());
+  m->setCoords(coords);
+  coords->decrRef();
+  const int conn[6]={0,1,2,1,2,3};
+  m->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn);
+  m->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+2);
+  m->insertNextCell(INTERP_KERNEL::NORM_SEG2,2,conn+4);
+  m->finishInsertingCells();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_NODES);
+  f->setMesh(m);
+  DataArrayDouble *array=DataArrayDouble::New();
+  array->alloc(m->getNumberOfNodes(),3);
+  std::copy(disp,disp+12,array->getPointer());
+  f->setArray(array);
+  array->decrRef();
+  DataArrayDouble *arr1=f->getValueOnMulti(v2,5);
+  CPPUNIT_ASSERT_EQUAL(5,arr1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(3,arr1->getNumberOfComponents());
+  const double expected1[15]={5.7,57.,570.,6.5,65.,650.,5.,50.,500.,8.,80.,800.,7.,70.,700.};
+  for(int i=0;i<15;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],arr1->getIJ(0,i),1e-14);
+  f->decrRef();
+  m->decrRef();
+}

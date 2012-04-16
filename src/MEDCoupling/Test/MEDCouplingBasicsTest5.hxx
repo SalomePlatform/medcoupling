@@ -57,6 +57,7 @@ namespace ParaMEDMEM
     void testBuildDescendingConnec2Of3DMesh1();
     void testAre2DCellsNotCorrectlyOriented1();
     void testDataArrayAbs1();
+    void testGetValueOn3();
   };
 }
 
