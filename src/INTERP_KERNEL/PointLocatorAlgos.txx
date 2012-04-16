@@ -188,6 +188,15 @@ namespace INTERP_KERNEL
         {
           return isElementContainsPointAlg3D(ptToTest,conn_elem,conn_elem_sz,coords,cmType,eps);
         }
+
+      if(SPACEDIM==1)
+        {
+          double p1=coords[(OTT<ConnType,numPol>::ind2C(conn_elem[0]))];
+          double p2=coords[(OTT<ConnType,numPol>::ind2C(conn_elem[1]))];
+          double delta=fabs(p1-p2)+eps;
+          double val=*ptToTest-std::min(p1,p2);
+          return val>-eps && val<delta;
+        }
       throw INTERP_KERNEL::Exception("Invalid spacedim detected ! Managed spaceDim are 2 and 3 !");
     }
         

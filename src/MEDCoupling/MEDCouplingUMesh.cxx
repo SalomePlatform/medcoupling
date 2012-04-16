@@ -2903,6 +2903,18 @@ void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoint
       else
         throw INTERP_KERNEL::Exception("For spaceDim==2 only meshDim==2 implemented for getelementscontainingpoints !");
     }
+  else if(spaceDim==1)
+    {
+      if(mDim==1)
+        {
+          const double *coords=_coords->getConstPointer();
+          getCellsContainingPointsAlg<1>(coords,pos,nbOfPoints,eps,elts,eltsIndex);
+        }
+      else
+        throw INTERP_KERNEL::Exception("For spaceDim==1 only meshDim==1 implemented for getelementscontainingpoints !");
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::getCellsContainingPoints : not managed for mdim not in [1,2,3] !");
 }
 
 /*!

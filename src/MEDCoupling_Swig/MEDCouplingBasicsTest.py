@@ -9210,6 +9210,34 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         #
         pass
+
+    # test on 1D
+    def testGetValueOn3(self):
+        v=[0.,1.,1.5,2.]
+        v2=[0.7,1.25,0.,2.,1.5]
+        disp=[5.,50.,500.,6.,60.,600.,7.,70.,700.,8.,80.,800.]
+        m=MEDCouplingUMesh.New("myMesh",1)
+        nbNodes=len(v)
+        nbCells=nbNodes-1
+        m.allocateCells(nbCells)
+        coords=DataArrayDouble.New() ; coords.setValues(v,nbNodes,1)
+        m.setCoords(coords)
+        m.insertNextCell(NORM_SEG2,2,[0,1])
+        m.insertNextCell(NORM_SEG2,2,[2,1])
+        m.insertNextCell(NORM_SEG2,2,[2,3])
+        m.finishInsertingCells()
+        f=MEDCouplingFieldDouble.New(ON_NODES)
+        f.setMesh(m)
+        array=DataArrayDouble.New(); array.setValues(disp,m.getNumberOfNodes(),3)
+        f.setArray(array)
+        arr1=f.getValueOnMulti(v2)
+        self.assertEqual(5,arr1.getNumberOfTuples());
+        self.assertEqual(3,arr1.getNumberOfComponents());
+        expected1=[5.7,57.,570.,6.5,65.,650.,5.,50.,500.,8.,80.,800.,7.,70.,700.]
+        for i in xrange(15):
+            self.assertAlmostEqual(expected1[i],arr1.getIJ(0,i),14);
+            pass
+        pass
     
     def setUp(self):
         pass
