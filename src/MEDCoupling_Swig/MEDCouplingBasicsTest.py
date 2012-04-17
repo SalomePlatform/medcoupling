@@ -5509,7 +5509,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(tmp2);
         self.assertEqual(37,tmp3);
         i.convertDegeneratedCells();
-        vec1=[10.,0.,0.]
+        vec1=[10.,0]
         i.translate(vec1);
         g2=h.applyFunc(3,"13.5/3.5*x*IVec+0*JVec+13.5/3.5*y*KVec");
         f.setCoords(g2);

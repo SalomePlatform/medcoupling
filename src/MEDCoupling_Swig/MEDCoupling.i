@@ -631,6 +631,12 @@ namespace ParaMEDMEM
          {
            int sz;
            INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vector,&sz);
+           if(sz!=self->getSpaceDimension())
+             {
+               std::ostringstream oss; oss << "Python wrap of MEDCouplingPointSet::translate : the space dimension is " << self->getSpaceDimension() << " and the input array size is " << sz;
+               oss << " ! The size of the input list or tuple must be equal to " << self->getSpaceDimension() << " !";
+               throw INTERP_KERNEL::Exception(oss.str().c_str());
+             }
            self->translate(v);
          }
 
