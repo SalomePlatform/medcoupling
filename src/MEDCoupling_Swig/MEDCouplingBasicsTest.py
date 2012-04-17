@@ -9238,6 +9238,40 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected1[i],arr1.getIJ(0,i),14);
             pass
         pass
+
+    def testGetNodeIdsOfCell2(self):
+        m1c=MEDCouplingCMesh.New();
+        coordsX=DataArrayDouble.New();
+        arrX=[ -1., 1., 2., 4., 4.5 ]
+        coordsX.setValues(arrX,5,1);
+        coordsY=DataArrayDouble.New();
+        arrY=[ -2., 2., 4., 8.]
+        coordsY.setValues(arrY,4,1);
+        coordsZ=DataArrayDouble.New();
+        arrZ=[ -2., 2., 4.]
+        coordsZ.setValues(arrZ,3,1);
+        # test in 1D
+        m1c.setCoordsAt(0,coordsX);
+        expected1=[[0,1],[1,2],[2,3],[3,4]]
+        self.assertEqual(4,m1c.getNumberOfCells())
+        for i in xrange(m1c.getNumberOfCells()):
+            self.assertEqual(expected1[i],m1c.getNodeIdsOfCell(i))
+            pass
+        # test in 2D
+        m1c.setCoordsAt(1,coordsY);
+        self.assertEqual(12,m1c.getNumberOfCells())
+        expected2=[[0,1,6,5],[1,2,7,6],[2,3,8,7],[3,4,9,8],[4,5,11,10],[5,6,12,11],[6,7,13,12],[7,8,14,13],[8,9,16,15],[9,10,17,16],[10,11,18,17],[11,12,19,18]]
+        for i in xrange(m1c.getNumberOfCells()):
+            self.assertEqual(expected2[i],m1c.getNodeIdsOfCell(i))
+            pass
+        # test in 3D
+        m1c.setCoordsAt(2,coordsZ);
+        expected3=[[0,1,6,5,20,21,26,25],[1,2,7,6,21,22,27,26],[2,3,8,7,22,23,28,27],[3,4,9,8,23,24,29,28],[4,5,11,10,24,25,31,30],[5,6,12,11,25,26,32,31],[6,7,13,12,26,27,33,32],[7,8,14,13,27,28,34,33],[8,9,16,15,28,29,36,35],[9,10,17,16,29,30,37,36],[10,11,18,17,30,31,38,37],[11,12,19,18,31,32,39,38],[20,21,26,25,40,41,46,45],[21,22,27,26,41,42,47,46],[22,23,28,27,42,43,48,47],[23,24,29,28,43,44,49,48],[24,25,31,30,44,45,51,50],[25,26,32,31,45,46,52,51],[26,27,33,32,46,47,53,52],[27,28,34,33,47,48,54,53],[28,29,36,35,48,49,56,55],[29,30,37,36,49,50,57,56],[30,31,38,37,50,51,58,57],[31,32,39,38,51,52,59,58]]
+        self.assertEqual(24,m1c.getNumberOfCells())
+        for i in xrange(m1c.getNumberOfCells()):
+            self.assertEqual(expected3[i],m1c.getNodeIdsOfCell(i))
+            pass
+        pass
     
     def setUp(self):
         pass
