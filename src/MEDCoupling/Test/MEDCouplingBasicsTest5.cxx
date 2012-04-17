@@ -627,3 +627,55 @@ void MEDCouplingBasicsTest5::testGetValueOn3()
   f->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testGetNodeIdsOfCell2()
+{
+  MEDCouplingCMesh *m1c=MEDCouplingCMesh::New();
+  DataArrayDouble *coordsX=DataArrayDouble::New();
+  double arrX[5] = { -1., 1., 2., 4., 4.5 };
+  coordsX->useArray(arrX,false, CPP_DEALLOC,5,1);
+  DataArrayDouble *coordsY=DataArrayDouble::New();
+  double arrY[4] = { -2., 2., 4., 8. };
+  coordsY->useArray(arrY,false, CPP_DEALLOC,4,1);
+  DataArrayDouble *coordsZ=DataArrayDouble::New();
+  double arrZ[3] = { -2., 2., 4. };
+  coordsZ->useArray(arrZ,false, CPP_DEALLOC,3,1);  
+  // test in 1D
+  m1c->setCoordsAt(0,coordsX);
+  CPPUNIT_ASSERT_EQUAL(4,m1c->getNumberOfCells());
+  const int expected1[4][2]={{0,1},{1,2},{2,3},{3,4}};
+  for(int i=0;i<4;i++)
+    {
+      std::vector<int> v;
+      m1c->getNodeIdsOfCell(i,v);
+      CPPUNIT_ASSERT((int)v.size()==2);
+      std::equal(v.begin(),v.end(),expected1[i]);
+    }
+  // test in 2D
+  m1c->setCoordsAt(1,coordsY);
+  CPPUNIT_ASSERT_EQUAL(12,m1c->getNumberOfCells());
+  const int expected2[12][4]={{0,1,6,5},{1,2,7,6},{2,3,8,7},{3,4,9,8},{4,5,11,10},{5,6,12,11},{6,7,13,12},{7,8,14,13},{8,9,16,15},{9,10,17,16},{10,11,18,17},{11,12,19,18}};
+  for(int i=0;i<12;i++)
+    {
+      std::vector<int> v;
+      m1c->getNodeIdsOfCell(i,v);
+      CPPUNIT_ASSERT((int)v.size()==4);
+      std::equal(v.begin(),v.end(),expected2[i]);
+    }
+  // test in 3D
+  m1c->setCoordsAt(2,coordsZ);
+  CPPUNIT_ASSERT_EQUAL(24,m1c->getNumberOfCells());
+  const int expected3[24][8]={{0,1,6,5,20,21,26,25},{1,2,7,6,21,22,27,26},{2,3,8,7,22,23,28,27},{3,4,9,8,23,24,29,28},{4,5,11,10,24,25,31,30},{5,6,12,11,25,26,32,31},{6,7,13,12,26,27,33,32},{7,8,14,13,27,28,34,33},{8,9,16,15,28,29,36,35},{9,10,17,16,29,30,37,36},{10,11,18,17,30,31,38,37},{11,12,19,18,31,32,39,38},{20,21,26,25,40,41,46,45},{21,22,27,26,41,42,47,46},{22,23,28,27,42,43,48,47},{23,24,29,28,43,44,49,48},{24,25,31,30,44,45,51,50},{25,26,32,31,45,46,52,51},{26,27,33,32,46,47,53,52},{27,28,34,33,47,48,54,53},{28,29,36,35,48,49,56,55},{29,30,37,36,49,50,57,56},{30,31,38,37,50,51,58,57},{31,32,39,38,51,52,59,58}};
+  for(int i=0;i<12;i++)
+    {
+      std::vector<int> v;
+      m1c->getNodeIdsOfCell(i,v);
+      CPPUNIT_ASSERT((int)v.size()==8);
+      std::equal(v.begin(),v.end(),expected3[i]);
+    }
+  //
+  coordsX->decrRef();
+  coordsY->decrRef();
+  coordsZ->decrRef();
+  m1c->decrRef();
+}

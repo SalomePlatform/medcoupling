@@ -46,6 +46,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testAre2DCellsNotCorrectlyOriented1 );
     CPPUNIT_TEST( testDataArrayAbs1 );
     CPPUNIT_TEST( testGetValueOn3 );
+    CPPUNIT_TEST( testGetNodeIdsOfCell2 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -59,6 +60,7 @@ namespace ParaMEDMEM
     void testAre2DCellsNotCorrectlyOriented1();
     void testDataArrayAbs1();
     void testGetValueOn3();
+    void testGetNodeIdsOfCell2();
   };
 }
 
