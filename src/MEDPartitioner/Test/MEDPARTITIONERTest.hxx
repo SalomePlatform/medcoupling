@@ -89,6 +89,7 @@ public:
   void setSmallSize();
   void setMedianSize();
   void setbigSize();
+  std::string getPartitionerExe() const;
   ParaMEDMEM::MEDCouplingUMesh * buildCUBE3DMesh();
   ParaMEDMEM::MEDCouplingUMesh * buildFACE3DMesh();
   ParaMEDMEM::MEDCouplingUMesh * buildCARRE3DMesh();
