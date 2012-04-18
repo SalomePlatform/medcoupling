@@ -128,8 +128,7 @@ namespace ParaMEDMEM
     MEDFileFieldPerMeshPerType *_father;
     int _start;
     int _end;
-    //MEDCouplingAutoRefCountObjectPtr< DataArrayDouble > _arr;
-    //! _nval is different than end-start in case of ON_GAUSS_PT and ON_GAUSS_NE ! (_nval=(end-start)/nbi)
+    //! _nval is different than end-start in case of ON_GAUSS_PT and ON_GAUSS_NE ! (_nval=(_end-_start)/nbi)
     int _nval;
     int _profile_it;
     std::string _profile;
