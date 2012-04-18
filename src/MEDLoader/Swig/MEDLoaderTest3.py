@@ -1064,7 +1064,91 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(ff2.getNonEmptyLevels(),(1, [0,-1]))
         self.assertEqual(ff2.getFieldSplitedByType(),[(0, [(0, (0, 4), '', '')]), (1, [(0, (4, 84), '', '')])])
         pass
+
+    def testFieldOnPflRetrieveOnMdimRelMax1(self):
+        fname="Pyfile43.med"
+        m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp=MEDLoaderDataForTest.buildMultiLevelMesh_1()
+        m=MEDFileUMesh.New()
+        m.setMeshAtLevel(0,m2)
+        m.setMeshAtLevel(-1,m1)
+        m.setMeshAtLevel(-2,m0)
+        f=MEDFileField1TS.New()
+        ff=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME)
+        ff.setName("NodeFieldPfl")
+        arr=DataArrayDouble.New() ; arr.setValues([1.,10.,100.,2.,20.,200.],2,3)
+        ff.setArray(arr)
+        pfl=DataArrayInt.New() ; pfl.setValues([2,3],2,1) ; pfl.setName("PflNode")
+        f.setFieldProfile(ff,m,-2,pfl)
+        tes0=f.getFieldOnMeshAtLevel(ON_NODES,-1,m)
+        self.assertEqual(ON_NODES,tes0.getTypeOfField())
+        self.assertEqual(1,tes0.getMesh().getMeshDimension())
+        self.assertEqual(1,tes0.getMesh().getNumberOfCells())
+        self.assertEqual(2,tes0.getMesh().getNumberOfNodes())
+        self.assertEqual([1,0,1],tes0.getMesh().getNodalConnectivity().getValues())
+        self.assertEqual([0,3],tes0.getMesh().getNodalConnectivityIndex().getValues())
+        self.assertEqual(2,tes0.getArray().getNumberOfTuples())
+        self.assertEqual(3,tes0.getArray().getNumberOfComponents())
+        expected1=[1.,10.,100.,2.,20.,200.]
+        nodeCoordsWithValue1=[10.,2.5,0.]
+        nodeCoordsWithValue2=[10.,3.75,0.]
+        for i in xrange(3):
+            self.assertAlmostEqual(nodeCoordsWithValue1[i],tes0.getMesh().getCoordinatesOfNode(0)[i],13);
+            self.assertAlmostEqual(nodeCoordsWithValue2[i],tes0.getMesh().getCoordinatesOfNode(1)[i],13);
+            pass
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],tes0.getArray().getIJ(0,i),13);
+            pass
+        del tes0
+        #
+        tes1=f.getFieldOnMeshAtLevel(ON_NODES,1,m)
+        self.assertEqual(ON_CELLS,tes1.getTypeOfField())# it is not a bug even if ON_NODES has been sepecified
+        self.assertEqual(0,tes1.getMesh().getMeshDimension())
+        self.assertEqual(2,tes1.getMesh().getNumberOfCells())
+        self.assertEqual(135,tes1.getMesh().getNumberOfNodes())
+        self.assertEqual([0,2,0,3],tes1.getMesh().getNodalConnectivity().getValues())
+        self.assertEqual([0,2,4],tes1.getMesh().getNodalConnectivityIndex().getValues())
+        self.assertEqual(2,tes1.getArray().getNumberOfTuples())
+        self.assertEqual(3,tes1.getArray().getNumberOfComponents())
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],tes1.getArray().getIJ(0,i),13);
+            pass
+        m.write(fname,2)
+        f.write(fname,0)
+        #
+        pfl=DataArrayInt.New() ; pfl.setValues([3,2],2,1) ; pfl.setName("PflNode")
+        f=MEDFileField1TS.New()
+        f.setFieldProfile(ff,m,-2,pfl)
+        tes2=f.getFieldOnMeshAtLevel(ON_NODES,-1,m)
+        self.assertEqual(ON_NODES,tes2.getTypeOfField())
+        self.assertEqual(1,tes2.getMesh().getMeshDimension())
+        self.assertEqual(1,tes2.getMesh().getNumberOfCells())
+        self.assertEqual(2,tes2.getMesh().getNumberOfNodes())
+        self.assertEqual([1,0,1],tes2.getMesh().getNodalConnectivity().getValues())
+        self.assertEqual([0,3],tes2.getMesh().getNodalConnectivityIndex().getValues())
+        self.assertEqual(2,tes2.getArray().getNumberOfTuples())
+        self.assertEqual(3,tes2.getArray().getNumberOfComponents())
+        expected2=[2.,20.,200.,1.,10.,100.]
+        for i in xrange(3):
+            self.assertAlmostEqual(nodeCoordsWithValue1[i],tes2.getMesh().getCoordinatesOfNode(0)[i],13);
+            self.assertAlmostEqual(nodeCoordsWithValue2[i],tes2.getMesh().getCoordinatesOfNode(1)[i],13);
+            pass
+        for i in xrange(6):
+            self.assertAlmostEqual(expected2[i],tes2.getArray().getIJ(0,i),13);#compare tes2 and tes3
+            pass
+        #
+        tes3=f.getFieldOnMeshAtLevel(ON_NODES,1,m)
+        self.assertEqual(ON_CELLS,tes3.getTypeOfField())# it is not a bug even if ON_NODES has been sepecified
+        self.assertEqual(0,tes3.getMesh().getMeshDimension())
+        self.assertEqual(2,tes3.getMesh().getNumberOfCells())
+        self.assertEqual(135,tes3.getMesh().getNumberOfNodes())
+        self.assertEqual([0,3,0,2],tes3.getMesh().getNodalConnectivity().getValues())
+        self.assertEqual([0,2,4],tes3.getMesh().getNodalConnectivityIndex().getValues())
+        self.assertEqual(2,tes3.getArray().getNumberOfTuples())
+        self.assertEqual(3,tes3.getArray().getNumberOfComponents())
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],tes3.getArray().getIJ(0,i),13);
+            pass
+        pass
     pass
 
 unittest.main()
-

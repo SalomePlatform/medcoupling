@@ -1512,6 +1512,27 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFieldFieldGlo
       if(nbOfTuples==ComputeNbOfElems(glob,ON_NODES,geoTypes2,dads,locs))//No problem for NORM_ERROR because it is in context of node
         return finishField(ON_NODES,glob,dads,locs,mesh,isPfl);
     }
+  // Treatment of particular case where nodal field on pfl is requested with a meshDimRelToMax=1.
+  const MEDCouplingUMesh *meshu=dynamic_cast<const MEDCouplingUMesh *>(mesh);
+  if(meshu)
+    {
+      if(meshu->getNodalConnectivity()==0)
+        {
+          MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=finishField(ON_CELLS,glob,dads,locs,mesh,isPfl);
+          int nb=da->getNbOfElems();
+          const int *ptr=da->getConstPointer();
+          MEDCouplingUMesh *meshuc=const_cast<MEDCouplingUMesh *>(meshu);
+          meshuc->allocateCells(nb);
+          for(int i=0;i<nb;i++)
+            meshuc->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,ptr+i);
+          meshuc->finishInsertingCells();
+          ret->setMesh(meshuc);
+          ret->checkCoherency();
+          ret->incrRef();
+          return ret;
+        }
+    }
+  //
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=finishField(ON_NODES,glob,dads,locs,mesh,isPfl);
   isPfl=true;
   DataArrayInt *arr2=0;
@@ -1532,8 +1553,9 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFieldFieldGlo
     {
       std::ostringstream oss; oss << "MEDFileFieldPerMesh::finishField3 : The field on nodes lies on a node profile so that it is impossible to find a submesh having exactly the same nodes of that profile !!!";
       oss << "So it is impossible to return a well definied MEDCouplingFieldDouble instance on specified mesh on a specified meshDim !" << std::endl;
-      oss << "To retrieve correctly such a field you have 2 possibilities :" << std::endl;
+      oss << "To retrieve correctly such a field you have 3 possibilities :" << std::endl;
       oss << " - use an another meshDim compatible with the field on nodes (MED file does not have such information)" << std::endl;
+      oss << " - use an another a meshDimRelToMax equal to 1 -> it will return a mesh with artificial cell POINT1 containing the profile !" << std::endl;
       oss << " - if definitely the node profile has no link with mesh connectivity use MEDFileField1TS::getFieldWithProfile or MEDFileFieldMultiTS::getFieldWithProfile methods instead !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
@@ -2465,10 +2487,11 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(TypeOfField t
 
 MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFieldFieldGlobsReal *glob, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
 {
-  CheckMeshDimRel(meshDimRelToMax);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax,false);
   const DataArrayInt *d=mesh->getNumberFieldAtLevel(meshDimRelToMax);
   const DataArrayInt *e=mesh->getNumberFieldAtLevel(1);
+  if(meshDimRelToMax==1)
+    (static_cast<MEDCouplingUMesh *>((MEDCouplingMesh *)m))->setMeshDimension(0);
   return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,renumPol,glob,m,d,e);
 }
 

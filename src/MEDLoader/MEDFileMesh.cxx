@@ -1582,6 +1582,7 @@ MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renu
           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> cc=_coords->deepCpy();
           umesh->setCoords(cc);
           MEDFileUMeshSplitL1::ClearNonDiscrAttributes(umesh);
+          umesh->setName(getName());
           return umesh;
         }
     }
