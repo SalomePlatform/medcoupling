@@ -57,7 +57,7 @@ namespace ParaMEDMEM
     std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const;
     int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const;
-    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const;
+    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     const DataArrayDouble *getCoordsAt(int i) const throw(INTERP_KERNEL::Exception);

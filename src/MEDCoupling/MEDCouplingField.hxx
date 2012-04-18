@@ -54,7 +54,7 @@ namespace ParaMEDMEM
     void setDescription(const char *desc) { _desc=desc; }
     const char *getName() const { return _name.c_str(); }
     TypeOfField getTypeOfField() const;
-    NatureOfField getNature() const { return _nature; }
+    NatureOfField getNature() const;
     virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);

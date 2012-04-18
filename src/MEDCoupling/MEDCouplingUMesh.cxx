@@ -1755,16 +1755,6 @@ void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) cons
       conn.push_back(*w);
 }
 
-/*!
- * Returns coordinates of node with id 'nodeId' and append it in 'coo'.
- */
-void MEDCouplingUMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
-{
-  const double *cooPtr=_coords->getConstPointer();
-  int spaceDim=getSpaceDimension();
-  coo.insert(coo.end(),cooPtr+spaceDim*nodeId,cooPtr+spaceDim*(nodeId+1));
-}
-
 std::string MEDCouplingUMesh::simpleRepr() const
 {
   static const char msg0[]="No coordinates specified !";

@@ -66,6 +66,7 @@ namespace ParaMEDMEM
     bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
     virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
+    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermArrayForMergeNode(double precision, int limitNodeId, bool& areNodesMerged, int& newNbOfNodes) const;
     std::vector<int> getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception);
     void getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception);

@@ -154,6 +154,27 @@ bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingP
 }
 
 /*!
+ * Returns coordinates of node with id 'nodeId' and append it in 'coo'.
+ */
+void MEDCouplingPointSet::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getCoordinatesOfNode : no coordinates array set !");
+  int nbNodes=getNumberOfNodes();
+  if(nodeId>=0 && nodeId<nbNodes)
+    {
+      const double *cooPtr=_coords->getConstPointer();
+      int spaceDim=getSpaceDimension();
+      coo.insert(coo.end(),cooPtr+spaceDim*nodeId,cooPtr+spaceDim*(nodeId+1));
+    }
+  else
+    {
+      std::ostringstream oss; oss << "MEDCouplingPointSet::getCoordinatesOfNode : request of nodeId \"" << nodeId << "\" but it should be in [0,"<< nbNodes << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+/*!
  * This method is typically the base method used for implementation of mergeNodes. This method computes this permutation array using as input,
  * This method is const ! So this method simply computes the array, no permutation of nodes is done.
  * a precision 'precision' and a 'limitNodeId' that is the node id so that every nodes which id is strictly lower than 'limitNodeId' will not be merged.

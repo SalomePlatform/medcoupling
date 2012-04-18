@@ -419,7 +419,7 @@ void MEDCouplingCMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) cons
     };
 }
 
-void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
 {
   int tmp[3];
   int spaceDim=getSpaceDimension();

@@ -248,7 +248,7 @@ void MEDCouplingExtrudedMesh::getNodeIdsOfCell(int cellId, std::vector<int>& con
   conn.insert(conn.end(),tmp2.begin(),tmp2.end());
 }
 
-void MEDCouplingExtrudedMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+void MEDCouplingExtrudedMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
 {
   int nbOfNodes2D=_mesh2D->getNumberOfNodes();
   int locId=nodeId%nbOfNodes2D;
