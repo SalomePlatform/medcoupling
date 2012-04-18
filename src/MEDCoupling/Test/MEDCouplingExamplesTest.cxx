@@ -43,7 +43,6 @@ void CppExampleFieldDoubleBuildSubPart1()
   ParaMEDMEM::MEDCouplingFieldDouble *f2=f1->buildSubPart(part1,part1+3);
   //! [CppSnippetFieldDoubleBuildSubPart1_2]
   f2->zipCoords();
-  const double expected1[6]={5.,105.,4.,104.,7.,107.};
   CPPUNIT_ASSERT_EQUAL(3,f2->getMesh()->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(6,f2->getMesh()->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(2,f2->getMesh()->getSpaceDimension());
