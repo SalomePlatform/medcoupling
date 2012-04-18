@@ -102,7 +102,7 @@ TypeOfField MEDCouplingField::getTypeOfField() const
 /*!
  * This method returns the nature of field. This information is very important during interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
  * In other context than the two mentioned before this attribute of the field is not sensitive. This attribute is not store in MED file in MEDLoader.
- * More information of the semantic, and the behaviour of the interpolation, is explained \ref NatureOfField "here".
+ * More information of the semantic, and the consequence of this attribute in the result of the interpolation, is available \ref NatureOfField "here".
  */
 NatureOfField MEDCouplingField::getNature() const
 {
@@ -112,7 +112,7 @@ NatureOfField MEDCouplingField::getNature() const
 /*!
  * This method set the nature of field in \b this.This  information is very important during interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
  * In other context than the two mentioned before this attribute of the field is not sensitive. This attribute is not store in MED file in MEDLoader.
- * More information of the semantic, and the behaviour of the interpolation, is explained \ref TableNatureOfField "here".
+ * More information of the semantic, and the consequence of this attribute in the result of the interpolation, is available \ref TableNatureOfField "here".
  */
 void MEDCouplingField::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
 {
