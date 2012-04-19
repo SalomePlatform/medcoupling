@@ -644,7 +644,7 @@ namespace ParaMEDMEM
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
   %extend
      {
-       PyObject *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception)
+       PyObject *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
        {
          const DataArrayInt *ret=self->getProfile(pflName);
          if(ret)

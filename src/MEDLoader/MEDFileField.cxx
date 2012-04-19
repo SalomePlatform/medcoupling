@@ -1841,12 +1841,13 @@ int MEDFieldFieldGlobs::getLocalizationId(const char *loc) const throw(INTERP_KE
   return std::distance(_locs.begin(),it);
 }
 
-const DataArrayInt *MEDFieldFieldGlobs::getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception)
+const DataArrayInt *MEDFieldFieldGlobs::getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
 {
-  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflName));
+  std::string pflNameCpp(pflName);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
   if(it==_pfls.end())
     {
-      std::ostringstream oss; oss << "MEDFieldFieldGlobs::getProfile: no such profile name : \"" << pflName << "\" Possible profiles are : ";
+      std::ostringstream oss; oss << "MEDFieldFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
       for(it=_pfls.begin();it!=_pfls.end();it++)
         oss << "\"" << (*it)->getName() << "\", ";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -2010,7 +2011,7 @@ const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalizationFromId(int locId) 
   return _globals->getLocalizationFromId(locId);
 }
 
-const DataArrayInt *MEDFieldFieldGlobsReal::getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception)
+const DataArrayInt *MEDFieldFieldGlobsReal::getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
 {
   return _globals->getProfile(pflName);
 }

@@ -268,7 +268,7 @@ namespace ParaMEDMEM
     std::string getFileName2() const { return _file_name; }
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception);
     const MEDFileFieldLoc& getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception); 
+    const DataArrayInt *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception); 
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
     void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
@@ -310,7 +310,7 @@ namespace ParaMEDMEM
     std::string getFileName2() const;
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception);
     const MEDFileFieldLoc& getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception);
+    const DataArrayInt *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception);
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
     void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);

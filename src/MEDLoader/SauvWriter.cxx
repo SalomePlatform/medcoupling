@@ -469,7 +469,7 @@ void SauvWriter::fillProfileSubMeshes()
                   if ( !pfl2sm->second )
                     {
                       SubMesh* sm = pfl2sm->second = addSubMesh( "", dimRelExt ); // no names for profiles
-                      const DataArrayInt * pfl = isOnAll ? 0 : fields[i]->getProfile( pfls[iType][iPfl] );
+                      const DataArrayInt * pfl = isOnAll ? 0 : fields[i]->getProfile( pfls[iType][iPfl].c_str() );
                       makeProfileIDs( sm, types[iType], pfl );
                     }
                 }
