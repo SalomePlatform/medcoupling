@@ -112,6 +112,11 @@ void MEDFileFieldLoc::simpleRepr(std::ostream& oss) const
   oss << "GaussPtsCoords="; std::copy(_gs_coo.begin(),_gs_coo.end(),std::ostream_iterator<double>(oss," ")); oss << std::endl;
 }
 
+void MEDFileFieldLoc::setName(const char *name)
+{
+  _name=name;
+}
+
 bool MEDFileFieldLoc::isEqual(const MEDFileFieldLoc& other, double eps) const
 {
   if(_name!=other._name)
@@ -493,9 +498,19 @@ std::string MEDFileFieldPerMeshPerTypePerDisc::getProfile() const
   return _profile;
 }
 
+void MEDFileFieldPerMeshPerTypePerDisc::setProfile(const char *newPflName)
+{
+  _profile=newPflName;
+}
+
 std::string MEDFileFieldPerMeshPerTypePerDisc::getLocalization() const
 {
   return _localization;
+}
+
+void MEDFileFieldPerMeshPerTypePerDisc::setLocalization(const char *newLocName)
+{
+  _localization=newLocName;
 }
 
 void MEDFileFieldPerMeshPerTypePerDisc::getFieldAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
@@ -884,6 +899,41 @@ const std::vector<std::string>& MEDFileFieldPerMeshPerType::getInfo() const
 std::vector<std::string> MEDFileFieldPerMeshPerType::getPflsReallyUsed() const
 {
   std::vector<std::string> ret;
+  std::set<std::string> ret2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it1=_field_pm_pt_pd.begin();it1!=_field_pm_pt_pd.end();it1++)
+    {
+      std::string tmp=(*it1)->getProfile();
+      if(!tmp.empty())
+        if(ret2.find(tmp)==ret2.end())
+          {
+            ret.push_back(tmp);
+            ret2.insert(tmp);
+          }
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileFieldPerMeshPerType::getLocsReallyUsed() const
+{
+  std::vector<std::string> ret;
+  std::set<std::string> ret2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it1=_field_pm_pt_pd.begin();it1!=_field_pm_pt_pd.end();it1++)
+    {
+      std::string tmp=(*it1)->getLocalization();
+      if(!tmp.empty() && tmp!=MED_GAUSS_ELNO)
+        if(ret2.find(tmp)==ret2.end())
+          {
+            ret.push_back(tmp);
+            ret2.insert(tmp);
+          }
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileFieldPerMeshPerType::getPflsReallyUsedMulti() const
+{
+  std::vector<std::string> ret;
+  std::set<std::string> ret2;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it1=_field_pm_pt_pd.begin();it1!=_field_pm_pt_pd.end();it1++)
     {
       std::string tmp=(*it1)->getProfile();
@@ -893,7 +943,7 @@ std::vector<std::string> MEDFileFieldPerMeshPerType::getPflsReallyUsed() const
   return ret;
 }
 
-std::vector<std::string> MEDFileFieldPerMeshPerType::getLocsReallyUsed() const
+std::vector<std::string> MEDFileFieldPerMeshPerType::getLocsReallyUsedMulti() const
 {
   std::vector<std::string> ret;
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::const_iterator it1=_field_pm_pt_pd.begin();it1!=_field_pm_pt_pd.end();it1++)
@@ -903,6 +953,34 @@ std::vector<std::string> MEDFileFieldPerMeshPerType::getLocsReallyUsed() const
         ret.push_back(tmp);
     }
   return ret;
+}
+
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerType::getLeafGivenLocId(int locId) throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  if(_field_pm_pt_pd.empty())
+    {
+      std::ostringstream oss; oss << "MEDFileFieldPerMeshPerType::getLeafGivenLocId : no localizations for geotype \"" << cm.getRepr() << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(locId>=0 && locId<(int)_field_pm_pt_pd.size())
+    return _field_pm_pt_pd[locId];
+  std::ostringstream oss2; oss2 << "MEDFileFieldPerMeshPerType::getLeafGivenLocId : no such locId available (" << locId;
+  oss2 << ") for geometric type \"" << cm.getRepr() << "\" It should be in [0," << _field_pm_pt_pd.size() << ") !";
+}
+
+const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerType::getLeafGivenLocId(int locId) const throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_geo_type);
+  if(_field_pm_pt_pd.empty())
+    {
+      std::ostringstream oss; oss << "MEDFileFieldPerMeshPerType::getLeafGivenLocId : no localizations for geotype \"" << cm.getRepr() << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(locId>=0 && locId<(int)_field_pm_pt_pd.size())
+    return _field_pm_pt_pd[locId];
+  std::ostringstream oss2; oss2 << "MEDFileFieldPerMeshPerType::getLeafGivenLocId : no such locId available (" << locId;
+  oss2 << ") for geometric type \"" << cm.getRepr() << "\" It should be in [0," << _field_pm_pt_pd.size() << ") !";
 }
 
 void MEDFileFieldPerMeshPerType::getFieldAtLevel(int meshDim, TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
@@ -1280,6 +1358,17 @@ std::vector<std::string> MEDFileFieldPerMesh::getPflsReallyUsed() const
   return ret;
 }
 
+std::vector<std::string> MEDFileFieldPerMesh::getPflsReallyUsedMulti() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getPflsReallyUsedMulti();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
+    }
+  return ret;
+}
+
 std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsed() const
 {
   std::vector<std::string> ret;
@@ -1293,6 +1382,17 @@ std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsed() const
             ret.push_back(*it2);
             ret2.insert(*it2);
           }
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsedMulti() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getLocsReallyUsedMulti();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
     }
   return ret;
 }
@@ -1411,6 +1511,42 @@ DataArrayDouble *MEDFileFieldPerMesh::getUndergroundDataArrayExt(std::vector< st
       (*it)->fillValues(nbOfEntries,entries);
     }
   return _father->getUndergroundDataArray();
+}
+
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId(INTERP_KERNEL::NormalizedCellType typ, int locId) throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      if((*it)->getGeoType()==typ)
+        return (*it)->getLeafGivenLocId(locId);
+    }
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
+  std::ostringstream oss; oss << "MEDFileFieldPerMesh::getLeafGivenTypeAndLocId : no such geometric type \"" << cm.getRepr() << "\" in this !" << std::endl;
+  oss << "Possiblities are : ";
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());
+      oss << "\"" << cm2.getRepr() << "\", ";
+    }
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMesh::getLeafGivenTypeAndLocId(INTERP_KERNEL::NormalizedCellType typ, int locId) const throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      if((*it)->getGeoType()==typ)
+        return (*it)->getLeafGivenLocId(locId);
+    }
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
+  std::ostringstream oss; oss << "MEDFileFieldPerMesh::getLeafGivenTypeAndLocId : no such geometric type \"" << cm.getRepr() << "\" in this !" << std::endl;
+  oss << "Possiblities are : ";
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::const_iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
+    {
+      const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel((*it)->getGeoType());
+      oss << "\"" << cm2.getRepr() << "\", ";
+    }
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
 int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type)
@@ -1795,9 +1931,9 @@ int MEDFieldFieldGlobs::getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERN
   return _locs[locId]->getNbOfGaussPtPerCell();
 }
 
-const MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception)
+const MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
 {
-  return getLocalizationFromId(getLocalizationId(pflName));
+  return getLocalizationFromId(getLocalizationId(locName));
 }
 
 const MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
@@ -1855,6 +1991,32 @@ const DataArrayInt *MEDFieldFieldGlobs::getProfile(const char *pflName) const th
   return *it;
 }
 
+MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception)
+{
+  if(locId<0 || locId>=(int)_locs.size())
+    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::getLocalizationFromId : Invalid localization id !");
+  return *_locs[locId];
+}
+
+MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalization(const char *locName) throw(INTERP_KERNEL::Exception)
+{
+  return getLocalizationFromId(getLocalizationId(locName));
+}
+
+DataArrayInt *MEDFieldFieldGlobs::getProfile(const char *pflName) throw(INTERP_KERNEL::Exception)
+{
+  std::string pflNameCpp(pflName);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
+  if(it==_pfls.end())
+    {
+      std::ostringstream oss; oss << "MEDFieldFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
+      for(it=_pfls.begin();it!=_pfls.end();it++)
+        oss << "\"" << (*it)->getName() << "\", ";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return *it;
+}
+
 std::vector<std::string> MEDFieldFieldGlobs::getPfls() const
 {
   int sz=_pfls.size();
@@ -1871,6 +2033,20 @@ std::vector<std::string> MEDFieldFieldGlobs::getLocs() const
   for(int i=0;i<sz;i++)
     ret[i]=_locs[i]->getName();
   return ret;
+}
+
+bool MEDFieldFieldGlobs::existsPfl(const char *pflName) const
+{
+  std::vector<std::string> v=getPfls();
+  std::string s(pflName);
+  return std::find(v.begin(),v.end(),s)!=v.end();
+}
+
+bool MEDFieldFieldGlobs::existsLoc(const char *locName) const
+{
+  std::vector<std::string> v=getLocs();
+  std::string s(locName);
+  return std::find(v.begin(),v.end(),s)!=v.end();
 }
 
 void MEDFieldFieldGlobs::appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception)
@@ -1976,6 +2152,16 @@ std::vector<std::string> MEDFieldFieldGlobsReal::getLocs() const
   return _globals->getLocs();
 }
 
+bool MEDFieldFieldGlobsReal::existsPfl(const char *pflName) const
+{
+  return _globals->existsPfl(pflName);
+}
+
+bool MEDFieldFieldGlobsReal::existsLoc(const char *locName) const
+{
+  return _globals->existsLoc(locName);
+}
+
 void MEDFieldFieldGlobsReal::setFileName(const char *fileName)
 {
   _globals->setFileName(fileName);
@@ -2001,9 +2187,9 @@ std::string MEDFieldFieldGlobsReal::getFileName2() const
   return _globals->getFileName2();
 }
 
-const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception)
+const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
 {
-  return _globals->getLocalization(pflName);
+  return _globals->getLocalization(locName);
 }
 
 const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
@@ -2012,6 +2198,21 @@ const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalizationFromId(int locId) 
 }
 
 const DataArrayInt *MEDFieldFieldGlobsReal::getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
+{
+  return _globals->getProfile(pflName);
+}
+
+MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception)
+{
+  return _globals->getLocalizationFromId(locId);
+}
+
+MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalization(const char *locName) throw(INTERP_KERNEL::Exception)
+{
+  return _globals->getLocalization(locName);
+}
+
+DataArrayInt *MEDFieldFieldGlobsReal::getProfile(const char *pflName) throw(INTERP_KERNEL::Exception)
 {
   return _globals->getProfile(pflName);
 }
@@ -2409,6 +2610,30 @@ std::vector<std::string> MEDFileField1TSWithoutDAS::getLocsReallyUsed2() const
   return ret;
 }
 
+std::vector<std::string> MEDFileField1TSWithoutDAS::getPflsReallyUsedMulti2() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getPflsReallyUsedMulti();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileField1TSWithoutDAS::getLocsReallyUsedMulti2() const
+{
+  std::vector<std::string> ret;
+  std::set<std::string> ret2;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::const_iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getLocsReallyUsedMulti();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
+    }
+  return ret;
+}
+
+
 void MEDFileField1TSWithoutDAS::writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_per_mesh.empty())
@@ -2636,6 +2861,9 @@ int MEDFileField1TSWithoutDAS::addNewEntryIfNecessary(const MEDCouplingMesh *mes
   return sz;
 }
 
+/*!
+ * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
+ */
 int MEDFileField1TSWithoutDAS::getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_per_mesh.empty())
@@ -2655,6 +2883,30 @@ int MEDFileField1TSWithoutDAS::getMeshIdFromMeshName(const char *mName) const th
   for(std::vector<std::string>::const_iterator it2=msg.begin();it2!=msg.end();it2++)
     oss << "\"" << (*it2) << "\" ";
   throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+/*!
+ * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
+ * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutDAS::getFieldSplitedByType. For non gausspoints field users, the value is 0.
+ */
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileField1TSWithoutDAS::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) throw(INTERP_KERNEL::Exception)
+{
+  int mid=getMeshIdFromMeshName(mName);
+  return _field_per_mesh[mid]->getLeafGivenTypeAndLocId(typ,locId);
+}
+
+/*!
+ * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
+ * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutDAS::getFieldSplitedByType. For non gausspoints field users, the value is 0.
+ */
+const MEDFileFieldPerMeshPerTypePerDisc *MEDFileField1TSWithoutDAS::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const throw(INTERP_KERNEL::Exception)
+{
+  int mid=getMeshIdFromMeshName(mName);
+  return _field_per_mesh[mid]->getLeafGivenTypeAndLocId(typ,locId);
 }
 
 DataArrayDouble *MEDFileField1TSWithoutDAS::getOrCreateAndGetArray()
@@ -2797,14 +3049,41 @@ MEDFileField1TS::MEDFileField1TS()
 {
 }
 
+/*!
+ * This method returns all profiles whose name is non empty used.
+ * \b WARNING If profile is used several times it will be reported \b only \b once.
+ * To get non empty name profiles as time as they appear in \b this call MEDFileField1TS::getPflsReallyUsedMulti instead.
+ */
 std::vector<std::string> MEDFileField1TS::getPflsReallyUsed() const
 {
   return getPflsReallyUsed2();
 }
 
+/*!
+ * This method returns all localizations whose name is non empty used.
+ * \b WARNING If localization is used several times it will be reported \b only \b once.
+ */
 std::vector<std::string> MEDFileField1TS::getLocsReallyUsed() const
 {
   return getLocsReallyUsed2();
+}
+
+/*!
+ * This method returns all profiles whose name is non empty used.
+ * \b WARNING contrary to MEDFileField1TS::getPflsReallyUsed, if profile is used several times it will be reported as time as it appears.
+ */
+std::vector<std::string> MEDFileField1TS::getPflsReallyUsedMulti() const
+{
+  return getPflsReallyUsedMulti2();
+}
+
+/*!
+ * This method returns all localizations whose name is non empty used.
+ * \b WARNING contrary to MEDFileField1TS::getLocsReallyUsed if localization is used several times it will be reported as time as it appears.
+ */
+std::vector<std::string> MEDFileField1TS::getLocsReallyUsedMulti() const
+{
+  return getLocsReallyUsedMulti2();
 }
 
 /*!
@@ -2893,6 +3172,81 @@ void MEDFileField1TS::setFieldProfile(const MEDCouplingFieldDouble *field, const
 {
   setFileName("");
   MEDFileField1TSWithoutDAS::setFieldProfile(field,mesh,meshDimRelToMax,profile,*this);
+}
+
+/*!
+ * This method as MEDFileField1TSW::setLocNameOnLeaf, is dedicated for advanced user that a want a very fine control on their data structure
+ * without overhead. This method can be called only regarding information returned by MEDFileField1TSWithoutDAS::getFieldSplitedByType or MEDFileField1TSWithoutDAS::getFieldSplitedByType2.
+ * This method changes the attribute (here it's profile name) of the leaf datastructure (MEDFileFieldPerMeshPerTypePerDisc instance).
+ * It is the responsability of the caller to invoke MEDFieldFieldGlobs::appendProfile or MEDFieldFieldGlobs::getProfile
+ * to keep a valid instance.
+ * If \b this do not have any leaf that correspond to the request of the input parameter (\b mName, \b typ, \b locId) an INTERP_KERNEL::Exception will be thrown.
+ * If \b newPflName profile name does not already exist the profile with old name will be renamed with name \b newPflName.
+ * If \b newPflName already exists and that \b forceRenameOnGlob is false (the default) an INTERP_KERNEL::Exception will be thrown to avoid big confusion. In this case the called should rename before the profile name with name \b newPflName.
+ *
+ * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
+ * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutDAS::getFieldSplitedByType. For non gausspoints field users, the value is 0.
+ * \param [in] newLocName is the new localization name.
+ * \param [in] forceRenameOnGlob specifies the behaviour in case of profile \b newPflName already exists. If true, the renaming is done without check. It can lead to major bug.
+ *             If false, an exception will be thrown to force user to change previously the name of the profile with name \b newPflName
+ */
+void MEDFileField1TS::setProfileNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newPflName, bool forceRenameOnGlob) throw(INTERP_KERNEL::Exception)
+{
+  MEDFileFieldPerMeshPerTypePerDisc *disc=getLeafGivenMeshAndTypeAndLocId(mName,typ,locId);
+  std::string oldPflName=disc->getProfile();
+  std::vector<std::string> vv=getPflsReallyUsedMulti();
+  int nbOfOcc=std::count(vv.begin(),vv.end(),oldPflName);
+  if(forceRenameOnGlob || (!existsPfl(newPflName) && nbOfOcc==1))
+    {
+      disc->setProfile(newPflName);
+      DataArrayInt *pfl=getProfile(oldPflName.c_str());
+      pfl->setName(newPflName);
+    }
+  else
+    {
+      std::ostringstream oss; oss << "MEDFileField1TS::setProfileNameOnLeaf : Profile \"" << newPflName << "\" already exists or referenced more than one !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+/*!
+ * This method as MEDFileField1TSW::setProfileNameOnLeaf, is dedicated for advanced user that a want a very fine control on their data structure
+ * without overhead. This method can be called only regarding information returned by MEDFileField1TSWithoutDAS::getFieldSplitedByType or MEDFileField1TSWithoutDAS::getFieldSplitedByType2.
+ * This method changes the attribute (here it's localization name) of the leaf datastructure (MEDFileFieldPerMeshPerTypePerDisc instance).
+ * It is the responsability of the caller to invoke MEDFieldFieldGlobs::appendProfile or MEDFieldFieldGlobs::getProfile
+ * to keep a valid instance.
+ * If \b this do not have any leaf that correspond to the request of the input parameter (\b mName, \b typ, \b locId) an INTERP_KERNEL::Exception will be thrown.
+ * This method is an extension of MEDFileField1TSWithoutDAS::setProfileNameOnLeafExt method because it performs a modification of global info.
+ * If \b newLocName profile name does not already exist the localization with old name will be renamed with name \b newLocName.
+ * If \b newLocName already exists an INTERP_KERNEL::Exception will be thrown to avoid big confusion. In this case the called should rename before the profile name with name \b newLocName.
+ *
+ * \param [in] mName specifies the underlying mesh name. This value can be pointer 0 for users that do not deal with fields on multi mesh.
+ * \param [in] typ is for the geometric cell type (or INTERP_KERNEL::NORM_ERROR for node field) entry to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set.
+ * \param [in] locId is the localization id to find the right MEDFileFieldPerMeshPerTypePerDisc instance to set. It corresponds to the position of 
+ *             \c pfls[std::distance(types.begin(),std::find(types.begin(),typ)] vector in MEDFileField1TSWithoutDAS::getFieldSplitedByType. For non gausspoints field users, the value is 0.
+ * \param [in] newLocName is the new localization name.
+ * \param [in] forceRenameOnGlob specifies the behaviour in case of profile \b newLocName already exists. If true, the renaming is done without check. It can lead to major bug.
+ *             If false, an exception will be thrown to force user to change previously the name of the profile with name \b newLocName
+ */
+void MEDFileField1TS::setLocNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob) throw(INTERP_KERNEL::Exception)
+{
+  MEDFileFieldPerMeshPerTypePerDisc *disc=getLeafGivenMeshAndTypeAndLocId(mName,typ,locId);
+  std::string oldLocName=disc->getLocalization();
+  std::vector<std::string> vv=getLocsReallyUsedMulti();
+  int nbOfOcc=std::count(vv.begin(),vv.end(),oldLocName);
+  if(forceRenameOnGlob || (!existsLoc(newLocName) && nbOfOcc==1))
+    {
+      disc->setLocalization(newLocName);
+      MEDFileFieldLoc& loc=getLocalization(oldLocName.c_str());
+      loc.setName(newLocName);
+    }
+  else
+    {
+      std::ostringstream oss; oss << "MEDFileField1TS::setLocNameOnLeaf : Localization \"" << newLocName << "\" already exists or referenced more than one !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
 MEDFileFieldMultiTSWithoutDAS *MEDFileFieldMultiTSWithoutDAS::New(med_idt fid, const char *fieldName, int id, int ft, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception)
@@ -3218,6 +3572,28 @@ std::vector<std::string> MEDFileFieldMultiTSWithoutDAS::getLocsReallyUsed2() con
   return ret;
 }
 
+std::vector<std::string> MEDFileFieldMultiTSWithoutDAS::getPflsReallyUsedMulti2() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileField1TSWithoutDAS > >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getPflsReallyUsedMulti2();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileFieldMultiTSWithoutDAS::getLocsReallyUsedMulti2() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileField1TSWithoutDAS > >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getLocsReallyUsedMulti2();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
+    }
+  return ret;
+}
+
 MEDFileFieldMultiTS *MEDFileFieldMultiTS::New()
 {
   return new MEDFileFieldMultiTS;
@@ -3408,6 +3784,16 @@ std::vector<std::string> MEDFileFieldMultiTS::getLocsReallyUsed() const
   return getLocsReallyUsed2();
 }
 
+std::vector<std::string> MEDFileFieldMultiTS::getPflsReallyUsedMulti() const
+{
+  return getPflsReallyUsedMulti2();
+}
+
+std::vector<std::string> MEDFileFieldMultiTS::getLocsReallyUsedMulti() const
+{
+  return getLocsReallyUsedMulti2();
+}
+
 MEDFileFields *MEDFileFields::New()
 {
   return new MEDFileFields;
@@ -3578,6 +3964,28 @@ std::vector<std::string> MEDFileFields::getLocsReallyUsed() const
             ret.push_back(*it2);
             ret2.insert(*it2);
           }
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileFields::getPflsReallyUsedMulti() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTSWithoutDAS > >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getPflsReallyUsedMulti2();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
+    }
+  return ret;
+}
+
+std::vector<std::string> MEDFileFields::getLocsReallyUsedMulti() const
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldMultiTSWithoutDAS > >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      std::vector<std::string> tmp=(*it)->getLocsReallyUsed2();
+      ret.insert(ret.end(),tmp.begin(),tmp.end());
     }
   return ret;
 }

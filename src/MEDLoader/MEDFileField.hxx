@@ -51,6 +51,7 @@ namespace ParaMEDMEM
   public:
     void MEDLOADER_EXPORT simpleRepr(std::ostream& oss) const;
     const MEDLOADER_EXPORT std::string& getName() const { return _name; }
+    void MEDLOADER_EXPORT setName(const char *name);
     static MEDFileFieldLoc *New(med_idt fid, const char *locName);
     static MEDFileFieldLoc *New(med_idt fid, int id);
     static MEDFileFieldLoc *New(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
@@ -114,7 +115,9 @@ namespace ParaMEDMEM
     const DataArrayDouble *getArray() const;
     const std::vector<std::string>& getInfo() const;
     std::string getProfile() const;
+    void setProfile(const char *newPflName);
     std::string getLocalization() const;
+    void setLocalization(const char *newLocName);
     int getLocId() const { return _loc_id; }
     void getFieldAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs,
                          std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
@@ -167,6 +170,10 @@ namespace ParaMEDMEM
     const std::vector<std::string>& getInfo() const;
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
+    std::vector<std::string> getPflsReallyUsedMulti() const;
+    std::vector<std::string> getLocsReallyUsedMulti() const;
+    MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenLocId(int locId) throw(INTERP_KERNEL::Exception);
+    const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenLocId(int locId) const throw(INTERP_KERNEL::Exception);
     void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     void fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
@@ -215,9 +222,13 @@ namespace ParaMEDMEM
     const std::vector<std::string>& getInfo() const;
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
+    std::vector<std::string> getPflsReallyUsedMulti() const;
+    std::vector<std::string> getLocsReallyUsedMulti() const;
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getFieldOnMeshAtLevelWithPfl(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenTypeAndLocId(INTERP_KERNEL::NormalizedCellType typ, int locId) throw(INTERP_KERNEL::Exception);
+    const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenTypeAndLocId(INTERP_KERNEL::NormalizedCellType typ, int locId) const throw(INTERP_KERNEL::Exception);
   private:
     int addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellType type);
     MEDCouplingFieldDouble *finishField(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
@@ -261,14 +272,19 @@ namespace ParaMEDMEM
     void writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
+    bool existsPfl(const char *pflName) const;
+    bool existsLoc(const char *locName) const;
     void setFileName(const char *fileName);
     int getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception);
     int getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception);
     const char *getFileName() const { return _file_name.c_str(); }
     std::string getFileName2() const { return _file_name; }
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception);
-    const MEDFileFieldLoc& getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception);
-    const DataArrayInt *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception); 
+    const MEDFileFieldLoc& getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception);
+    const DataArrayInt *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldLoc& getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception);
+    MEDFileFieldLoc& getLocalization(const char *locName) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getProfile(const char *pflName) throw(INTERP_KERNEL::Exception);
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
     void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
@@ -294,6 +310,8 @@ namespace ParaMEDMEM
     void appendGlobs(const MEDFieldFieldGlobsReal& other, double eps) throw(INTERP_KERNEL::Exception);
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
+    virtual std::vector<std::string> getPflsReallyUsedMulti() const = 0;
+    virtual std::vector<std::string> getLocsReallyUsedMulti() const = 0;
     virtual ~MEDFieldFieldGlobsReal();
     //
     void loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception);
@@ -303,14 +321,19 @@ namespace ParaMEDMEM
     void writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
+    bool existsPfl(const char *pflName) const;
+    bool existsLoc(const char *locName) const;
     void setFileName(const char *fileName);
     int getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception);
     int getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception);
     const char *getFileName() const;
     std::string getFileName2() const;
     const MEDFileFieldLoc& getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception);
-    const MEDFileFieldLoc& getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception);
+    const MEDFileFieldLoc& getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldLoc& getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception);
+    MEDFileFieldLoc& getLocalization(const char *locName) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getProfile(const char *pflName) throw(INTERP_KERNEL::Exception);
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
     void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
@@ -318,6 +341,9 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr< MEDFieldFieldGlobs > _globals;
   };
 
+  /*!
+   * DAS is for Shared Data Arrays such as profiles.
+   */
   class MEDLOADER_EXPORT MEDFileField1TSWithoutDAS : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -347,6 +373,8 @@ namespace ParaMEDMEM
     virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed2() const;
     std::vector<std::string> getLocsReallyUsed2() const;
+    std::vector<std::string> getPflsReallyUsedMulti2() const;
+    std::vector<std::string> getLocsReallyUsedMulti2() const;
     static void CheckMeshDimRel(int meshDimRelToMax) throw(INTERP_KERNEL::Exception);
     static std::vector<int> CheckSBTMesh(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     //
@@ -367,6 +395,8 @@ namespace ParaMEDMEM
   protected:
     int addNewEntryIfNecessary(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     int getMeshIdFromMeshName(const char *mName) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) throw(INTERP_KERNEL::Exception);
+    const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TSWithoutDAS(const char *fieldName, int csit, int fieldtype, int iteration, int order, const std::vector<std::string>& infos);
   public:
     MEDFileField1TSWithoutDAS();
@@ -404,10 +434,17 @@ namespace ParaMEDMEM
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+  public:
+    //! underground method see MEDFileField1TSWithoutDAS::setProfileNameOnLeaf
+    void setProfileNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newPflName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
+    //! underground method see MEDFileField1TSWithoutDAS::setLocNameOnLeaf
+    void setLocNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
   private:
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
+    std::vector<std::string> getPflsReallyUsedMulti() const;
+    std::vector<std::string> getLocsReallyUsedMulti() const;
     MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
     MEDFileField1TS();
   };
@@ -433,6 +470,8 @@ namespace ParaMEDMEM
   public:
     std::vector<std::string> getPflsReallyUsed2() const;
     std::vector<std::string> getLocsReallyUsed2() const;
+    std::vector<std::string> getPflsReallyUsedMulti2() const;
+    std::vector<std::string> getLocsReallyUsedMulti2() const;
   protected:
     const MEDFileField1TSWithoutDAS& getTimeStepEntry(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TSWithoutDAS& getTimeStepEntry(int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -475,6 +514,8 @@ namespace ParaMEDMEM
   private:
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
+    std::vector<std::string> getPflsReallyUsedMulti() const;
+    std::vector<std::string> getLocsReallyUsedMulti() const;
   private:
     MEDFileFieldMultiTS();
     MEDFileFieldMultiTS(const MEDFileFieldMultiTSWithoutDAS& other);
@@ -506,6 +547,8 @@ namespace ParaMEDMEM
     int getPosFromFieldName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed() const;
     std::vector<std::string> getLocsReallyUsed() const;
+    std::vector<std::string> getPflsReallyUsedMulti() const;
+    std::vector<std::string> getLocsReallyUsedMulti() const;
   private:
     MEDFileFields();
     MEDFileFields(const char *fileName) throw(INTERP_KERNEL::Exception);

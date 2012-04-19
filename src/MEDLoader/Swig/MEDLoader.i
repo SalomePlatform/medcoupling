@@ -642,6 +642,8 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocs() const;
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
+    virtual std::vector<std::string> getPflsReallyUsedMulti() const = 0;
+    virtual std::vector<std::string> getLocsReallyUsedMulti() const = 0;
   %extend
      {
        PyObject *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
@@ -659,9 +661,9 @@ namespace ParaMEDMEM
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
        
-       PyObject *getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception)
+       PyObject *getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
        {
-         const MEDFileFieldLoc *loc=&self->getLocalization(pflName);
+         const MEDFileFieldLoc *loc=&self->getLocalization(locName);
          loc->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
@@ -843,6 +845,8 @@ namespace ParaMEDMEM
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    void setProfileNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newPflName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
+    void setLocNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const
@@ -858,6 +862,16 @@ namespace ParaMEDMEM
              PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
              PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
              return ret;
+           }
+
+         void setProfileNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newPflName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception)
+           {
+             self->setProfileNameOnLeaf(0,typ,locId,newPflName,forceRenameOnGlob);
+           }
+         
+         void setLocNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception)
+           {
+             self->setLocNameOnLeaf(0,typ,locId,newLocName,forceRenameOnGlob);
            }
        }
   };
