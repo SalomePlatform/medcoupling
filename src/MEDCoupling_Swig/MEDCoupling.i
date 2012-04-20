@@ -1098,8 +1098,21 @@ namespace ParaMEDMEM
       {
         int sz;
         INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&sz);
+        if(size>sz)
+          {
+            std::ostringstream oss; oss << "Wrap of MEDCouplingUMesh::insertNextCell : request of connectivity with length " << size << " whereas the length of input is " << sz << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
         self->insertNextCell(type,size,tmp);
       }
+
+      void insertNextCell(INTERP_KERNEL::NormalizedCellType type, PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        int sz;
+        INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&sz);
+        self->insertNextCell(type,sz,tmp);
+      }
+      
       DataArrayInt *getNodalConnectivity() throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *ret=self->getNodalConnectivity();

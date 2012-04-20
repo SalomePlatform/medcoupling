@@ -1520,7 +1520,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         targetMesh=MEDCouplingUMesh.New();
         targetMesh.setMeshDimension(2);
         targetMesh.allocateCells(1);
-        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        targetMesh.insertNextCell(NORM_QUAD4,targetConn[0:4])
         targetMesh.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(targetCoords,4,3);
@@ -2796,7 +2796,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         m2=MEDCouplingUMesh.New();
         m2.setMeshDimension(2);
         m2.allocateCells(1);
-        m2.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        m2.insertNextCell(NORM_QUAD4,targetConn[0:4])
         m2.finishInsertingCells();
         myCoords=DataArrayDouble.New();
         myCoords.setValues(targetCoords,4,2);
@@ -3813,7 +3813,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         tmpConn=[0,1,2,3,4,5,6,7]
         mesh.allocateCells(3);
-        mesh.insertNextCell(NORM_HEXA8,8,tmpConn[0:8])
+        self.assertRaises(InterpKernelException,mesh.insertNextCell,NORM_HEXA8,9,tmpConn[0:8])
+        mesh.insertNextCell(NORM_HEXA8,tmpConn[0:8])
         mesh.insertNextCell(NORM_PENTA6,6,[i+8 for i in tmpConn])
         mesh.insertNextCell(NORM_PYRA5,5,[i+14 for i in tmpConn])
         mesh.finishInsertingCells();
