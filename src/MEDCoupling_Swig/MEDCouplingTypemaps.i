@@ -1056,8 +1056,10 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
  * if value double -> cpp val sw=1
  * if value DataArrayDouble -> cpp DataArrayDouble sw=2
  * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
+ * if value list[int,double] -> cpp std::vector<double> sw=4
+ * if value tuple[int,double] -> cpp std::vector<double> sw=4
  */
-static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e)
+static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e, std::vector<double>& f)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1070,6 +1072,46 @@ static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, Para
     {
       val=(double)PyInt_AS_LONG(value);
       sw=1;
+      return;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
       return;
     }
   void *argp;

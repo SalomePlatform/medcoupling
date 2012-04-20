@@ -2715,8 +2715,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2746,8 +2747,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2773,8 +2775,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2793,6 +2796,12 @@ namespace ParaMEDMEM
            self->addEqual(aaa);
            return self;
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           self->addEqual(aaa);
+           return self;
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2804,8 +2813,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2824,6 +2834,11 @@ namespace ParaMEDMEM
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
            return DataArrayDouble::Substract(self,aaa);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           return DataArrayDouble::Substract(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2835,8 +2850,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2851,6 +2867,11 @@ namespace ParaMEDMEM
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
            return DataArrayDouble::Substract(aaa,self);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           return DataArrayDouble::Substract(aaa,self);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2862,8 +2883,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2882,6 +2904,12 @@ namespace ParaMEDMEM
            self->substractEqual(aaa);
            return self;
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           self->substractEqual(aaa);
+           return self;
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2893,8 +2921,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2913,6 +2942,11 @@ namespace ParaMEDMEM
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
            return DataArrayDouble::Multiply(self,aaa);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           return DataArrayDouble::Multiply(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2924,8 +2958,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2940,6 +2975,11 @@ namespace ParaMEDMEM
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
            return DataArrayDouble::Multiply(self,aaa);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           return DataArrayDouble::Multiply(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2951,8 +2991,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -2971,6 +3012,12 @@ namespace ParaMEDMEM
            self->multiplyEqual(aaa);
            return self;
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           self->multiplyEqual(aaa);
+           return self;
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2982,8 +3029,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -3004,6 +3052,11 @@ namespace ParaMEDMEM
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
            return DataArrayDouble::Divide(self,aaa);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           return DataArrayDouble::Divide(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -3015,8 +3068,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -3031,6 +3085,11 @@ namespace ParaMEDMEM
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
            return DataArrayDouble::Divide(aaa,self);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           return DataArrayDouble::Divide(aaa,self);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -3042,8 +3101,9 @@ namespace ParaMEDMEM
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a,aa);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa,bb);
      switch(sw)
        {
        case 1:
@@ -3061,6 +3121,12 @@ namespace ParaMEDMEM
        case 3:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->divideEqual(aaa);
+           return self;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
            self->divideEqual(aaa);
            return self;
          }

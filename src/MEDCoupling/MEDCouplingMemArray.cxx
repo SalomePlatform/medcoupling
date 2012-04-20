@@ -2324,10 +2324,36 @@ DataArrayDouble *DataArrayDouble::Add(const DataArrayDouble *a1, const DataArray
 
 void DataArrayDouble::addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfTuple=other->getNumberOfTuples();
-  int nbOfComp=other->getNumberOfComponents();
-  checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array add equal !");
-  std::transform(begin(),end(),other->begin(),getPointer(),std::plus<double>());
+  const char *msg="Nb of tuples mismatch for DataArrayDouble::addEqual  !";
+  int nbOfTuple=getNumberOfTuples();
+  int nbOfTuple2=other->getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfComp2=other->getNumberOfComponents();
+  if(nbOfTuple==nbOfTuple2)
+    {
+      if(nbOfComp==nbOfComp2)
+        {
+          std::transform(begin(),end(),other->begin(),getPointer(),std::plus<double>());
+        }
+      else if(nbOfComp2==1)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::plus<double>(),*ptrc++));
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
+    }
+  else if(nbOfTuple2==1)
+    {
+      double *ptr=getPointer();
+      const double *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::plus<double>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -2345,10 +2371,36 @@ DataArrayDouble *DataArrayDouble::Substract(const DataArrayDouble *a1, const Dat
 
 void DataArrayDouble::substractEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfTuple=other->getNumberOfTuples();
-  int nbOfComp=other->getNumberOfComponents();
-  checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array substract equal !");
-  std::transform(begin(),end(),other->begin(),getPointer(),std::minus<double>());
+  const char *msg="Nb of tuples mismatch for DataArrayDouble::substractEqual  !";
+  int nbOfTuple=getNumberOfTuples();
+  int nbOfTuple2=other->getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfComp2=other->getNumberOfComponents();
+  if(nbOfTuple==nbOfTuple2)
+    {
+      if(nbOfComp==nbOfComp2)
+        {
+          std::transform(begin(),end(),other->begin(),getPointer(),std::minus<double>());
+        }
+      else if(nbOfComp2==1)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::minus<double>(),*ptrc++));
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
+    }
+  else if(nbOfTuple2==1)
+    {
+      double *ptr=getPointer();
+      const double *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::minus<double>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -2401,28 +2453,36 @@ DataArrayDouble *DataArrayDouble::Multiply(const DataArrayDouble *a1, const Data
 
 void DataArrayDouble::multiplyEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
+  const char *msg="Nb of tuples mismatch for DataArrayDouble::multiplyEqual !";
   int nbOfTuple=getNumberOfTuples();
   int nbOfTuple2=other->getNumberOfTuples();
   int nbOfComp=getNumberOfComponents();
   int nbOfComp2=other->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiplyEqual !");
-  if(nbOfComp==nbOfComp2)
+  if(nbOfTuple==nbOfTuple2)
     {
-      std::transform(begin(),end(),other->begin(),getPointer(),std::multiplies<double>());
-    }
-  else
-    {
-      if(nbOfComp2==1)
+      if(nbOfComp==nbOfComp2)
         {
-          const double *ptr=other->getConstPointer();
-          double *myPtr=getPointer();
+          std::transform(begin(),end(),other->begin(),getPointer(),std::multiplies<double>());
+        }
+      else if(nbOfComp2==1)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
           for(int i=0;i<nbOfTuple;i++)
-            myPtr=std::transform(myPtr,myPtr+nbOfComp,myPtr,std::bind2nd(std::multiplies<double>(),ptr[i]));
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::multiplies<double>(),*ptrc++));
         }
       else
-        throw INTERP_KERNEL::Exception("Nb of components mismatch for array multiplyEqual !");
+        throw INTERP_KERNEL::Exception(msg);
     }
+  else if(nbOfTuple2==1)
+    {
+      double *ptr=getPointer();
+      const double *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::multiplies<double>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -2463,28 +2523,36 @@ DataArrayDouble *DataArrayDouble::Divide(const DataArrayDouble *a1, const DataAr
 
 void DataArrayDouble::divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
 {
+  const char *msg="Nb of tuples mismatch for DataArrayDouble::divideEqual !";
   int nbOfTuple=getNumberOfTuples();
   int nbOfTuple2=other->getNumberOfTuples();
   int nbOfComp=getNumberOfComponents();
   int nbOfComp2=other->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divideEqual !");
-  if(nbOfComp==nbOfComp2)
+  if(nbOfTuple==nbOfTuple2)
     {
-      std::transform(begin(),end(),other->begin(),getPointer(),std::divides<double>());
-    }
-  else
-    {
-      if(nbOfComp2==1)
+      if(nbOfComp==nbOfComp2)
         {
-          const double *ptr=other->getConstPointer();
-          double *myPtr=getPointer();
+          std::transform(begin(),end(),other->begin(),getPointer(),std::divides<double>());
+        }
+      else if(nbOfComp2==1)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
           for(int i=0;i<nbOfTuple;i++)
-            myPtr=std::transform(myPtr,myPtr+nbOfComp,myPtr,std::bind2nd(std::divides<double>(),ptr[i]));
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::divides<double>(),*ptrc++));
         }
       else
-        throw INTERP_KERNEL::Exception("Nb of components mismatch for array divideEqual !");
+        throw INTERP_KERNEL::Exception(msg);
     }
+  else if(nbOfTuple2==1)
+    {
+      double *ptr=getPointer();
+      const double *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::divides<double>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -4661,10 +4729,36 @@ DataArrayInt *DataArrayInt::Add(const DataArrayInt *a1, const DataArrayInt *a2) 
 
 void DataArrayInt::addEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfTuple=other->getNumberOfTuples();
-  int nbOfComp=other->getNumberOfComponents();
-  checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array add equal !");
-  std::transform(begin(),end(),other->begin(),getPointer(),std::plus<int>());
+  const char *msg="Nb of tuples mismatch for DataArrayInt::addEqual  !";
+  int nbOfTuple=getNumberOfTuples();
+  int nbOfTuple2=other->getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfComp2=other->getNumberOfComponents();
+  if(nbOfTuple==nbOfTuple2)
+    {
+      if(nbOfComp==nbOfComp2)
+        {
+          std::transform(begin(),end(),other->begin(),getPointer(),std::plus<int>());
+        }
+      else if(nbOfComp2==1)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::plus<int>(),*ptrc++));
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
+    }
+  else if(nbOfTuple2==1)
+    {
+      int *ptr=getPointer();
+      const int *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::plus<int>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -4682,10 +4776,36 @@ DataArrayInt *DataArrayInt::Substract(const DataArrayInt *a1, const DataArrayInt
 
 void DataArrayInt::substractEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfTuple=other->getNumberOfTuples();
-  int nbOfComp=other->getNumberOfComponents();
-  checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array substract equal !");
-  std::transform(begin(),end(),other->begin(),getPointer(),std::minus<int>());
+  const char *msg="Nb of tuples mismatch for DataArrayInt::substractEqual  !";
+  int nbOfTuple=getNumberOfTuples();
+  int nbOfTuple2=other->getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfComp2=other->getNumberOfComponents();
+  if(nbOfTuple==nbOfTuple2)
+    {
+      if(nbOfComp==nbOfComp2)
+        {
+          std::transform(begin(),end(),other->begin(),getPointer(),std::minus<int>());
+        }
+      else if(nbOfComp2==1)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::minus<int>(),*ptrc++));
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
+    }
+  else if(nbOfTuple2==1)
+    {
+      int *ptr=getPointer();
+      const int *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::minus<int>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -4738,28 +4858,36 @@ DataArrayInt *DataArrayInt::Multiply(const DataArrayInt *a1, const DataArrayInt 
 
 void DataArrayInt::multiplyEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)
 {
+  const char *msg="Nb of tuples mismatch for DataArrayInt::multiplyEqual !";
   int nbOfTuple=getNumberOfTuples();
   int nbOfTuple2=other->getNumberOfTuples();
   int nbOfComp=getNumberOfComponents();
   int nbOfComp2=other->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array multiplyEqual !");
-  if(nbOfComp==nbOfComp2)
+  if(nbOfTuple==nbOfTuple2)
     {
-      std::transform(begin(),end(),other->begin(),getPointer(),std::multiplies<int>());
-    }
-  else
-    {
-      if(nbOfComp2==1)
+      if(nbOfComp==nbOfComp2)
         {
-          const int *ptr=other->getConstPointer();
-          int *myPtr=getPointer();
+          std::transform(begin(),end(),other->begin(),getPointer(),std::multiplies<int>());
+        }
+      else if(nbOfComp2==1)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
           for(int i=0;i<nbOfTuple;i++)
-            myPtr=std::transform(myPtr,myPtr+nbOfComp,myPtr,std::bind2nd(std::multiplies<int>(),ptr[i]));
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::multiplies<int>(),*ptrc++));
         }
       else
-        throw INTERP_KERNEL::Exception("Nb of components mismatch for array multiplyEqual !");
+        throw INTERP_KERNEL::Exception(msg);
     }
+  else if(nbOfTuple2==1)
+    {
+      int *ptr=getPointer();
+      const int *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::multiplies<int>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -4800,28 +4928,36 @@ DataArrayInt *DataArrayInt::Divide(const DataArrayInt *a1, const DataArrayInt *a
 
 void DataArrayInt::divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)
 {
+  const char *msg="Nb of tuples mismatch for DataArrayInt::divideEqual !";
   int nbOfTuple=getNumberOfTuples();
   int nbOfTuple2=other->getNumberOfTuples();
   int nbOfComp=getNumberOfComponents();
   int nbOfComp2=other->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array divideEqual !");
-  if(nbOfComp==nbOfComp2)
+  if(nbOfTuple==nbOfTuple2)
     {
-      std::transform(begin(),end(),other->begin(),getPointer(),std::divides<int>());
-    }
-  else
-    {
-      if(nbOfComp2==1)
+      if(nbOfComp==nbOfComp2)
         {
-          const int *ptr=other->getConstPointer();
-          int *myPtr=getPointer();
+          std::transform(begin(),end(),other->begin(),getPointer(),std::divides<int>());
+        }
+      else if(nbOfComp2==1)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
           for(int i=0;i<nbOfTuple;i++)
-            myPtr=std::transform(myPtr,myPtr+nbOfComp,myPtr,std::bind2nd(std::divides<int>(),ptr[i]));
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::divides<int>(),*ptrc++));
         }
       else
-        throw INTERP_KERNEL::Exception("Nb of components mismatch for array divideEqual !");
+        throw INTERP_KERNEL::Exception(msg);
     }
+  else if(nbOfTuple2==1)
+    {
+      int *ptr=getPointer();
+      const int *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::divides<int>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
@@ -4839,10 +4975,36 @@ DataArrayInt *DataArrayInt::Modulus(const DataArrayInt *a1, const DataArrayInt *
 
 void DataArrayInt::modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfTuple=other->getNumberOfTuples();
-  int nbOfComp=other->getNumberOfComponents();
-  checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array modulus equal");
-  std::transform(begin(),end(),other->begin(),getPointer(),std::modulus<int>());
+  const char *msg="Nb of tuples mismatch for DataArrayInt::modulusEqual !";
+  int nbOfTuple=getNumberOfTuples();
+  int nbOfTuple2=other->getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfComp2=other->getNumberOfComponents();
+  if(nbOfTuple==nbOfTuple2)
+    {
+      if(nbOfComp==nbOfComp2)
+        {
+          std::transform(begin(),end(),other->begin(),getPointer(),std::modulus<int>());
+        }
+      else if(nbOfComp2==1)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::modulus<int>(),*ptrc++));
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
+    }
+  else if(nbOfTuple2==1)
+    {
+      int *ptr=getPointer();
+      const int *ptrc=other->getConstPointer();
+      for(int i=0;i<nbOfTuple;i++)
+        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::modulus<int>());
+    }
+  else
+    throw INTERP_KERNEL::Exception(msg);
   declareAsNew();
 }
 
