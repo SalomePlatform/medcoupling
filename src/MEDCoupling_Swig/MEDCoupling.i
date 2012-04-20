@@ -1671,6 +1671,11 @@ namespace ParaMEDMEM
   {
     return self->doubleValue();
   }
+
+  DataArrayDouble *buildDADouble()
+  {
+    return self->buildDADouble(1,self->getNumberOfCompo());
+  }
   
   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
   {
@@ -3075,6 +3080,11 @@ namespace ParaMEDMEM
   int __int__() const throw(INTERP_KERNEL::Exception)
   {
     return self->intValue();
+  }
+
+  DataArrayInt *buildDAInt()
+  {
+    return self->buildDAInt(1,self->getNumberOfCompo());
   }
   
   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
