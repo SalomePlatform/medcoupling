@@ -943,6 +943,18 @@ void DataArrayDouble::rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception
   declareAsNew();
 }
 
+/*!
+ * This method makes the assumption that \b this is allocated. If not an INTERP_KERNEL::Exception will be raised.
+ * This method does not echange the values stored in \b this. Simply, the number of components before the call becomes the number of
+ * tuples and inversely the number of tuples becomes the number of components. \b WARNING the info on components can be alterated by this method.
+ */
+void DataArrayDouble::transpose() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfTuples=getNumberOfTuples();
+  rearrange(nbOfTuples);
+}
+
 DataArrayDouble *DataArrayDouble::keepSelectedComponents(const std::vector<int>& compoIds) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
@@ -3534,6 +3546,18 @@ void DataArrayInt::rearrange(int newNbOfCompo) throw(INTERP_KERNEL::Exception)
   _info_on_compo.clear();
   _info_on_compo.resize(newNbOfCompo);
   declareAsNew();
+}
+
+/*!
+ * This method makes the assumption that \b this is allocated. If not an INTERP_KERNEL::Exception will be raised.
+ * This method does not echange the values stored in \b this. Simply, the number of components before the call becomes the number of
+ * tuples and inversely the number of tuples becomes the number of components. \b WARNING the info on components can be alterated by this method.
+ */
+void DataArrayInt::transpose() throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfTuples=getNumberOfTuples();
+  rearrange(nbOfTuples);
 }
 
 /*!
