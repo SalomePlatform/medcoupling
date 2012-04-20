@@ -301,6 +301,7 @@ namespace ParaMEDMEM
     const double *getConstPointer() const { return  _pt; }
     double *getPointer() { return _pt; }
     double doubleValue() const throw(INTERP_KERNEL::Exception);
+    DataArrayDouble *buildDADouble(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
   private:
     double *_pt;
     int _nb_of_compo;
@@ -475,6 +476,7 @@ namespace ParaMEDMEM
     const int *getConstPointer() const { return  _pt; }
     int *getPointer() { return _pt; }
     int intValue() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *buildDAInt(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception);
   private:
     int *_pt;
     int _nb_of_compo;

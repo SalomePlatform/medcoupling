@@ -2600,6 +2600,28 @@ double DataArrayDoubleTuple::doubleValue() const throw(INTERP_KERNEL::Exception)
   throw INTERP_KERNEL::Exception("DataArrayDoubleTuple::doubleValue : DataArrayDoubleTuple instance has not exactly 1 component -> Not possible to convert it into a double precision float !");
 }
 
+/*!
+ * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayDouble::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayDouble::useArray with ownership set to \b false.
+ * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
+ * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
+ */
+DataArrayDouble *DataArrayDoubleTuple::buildDADouble(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception)
+{
+  if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
+    {
+      DataArrayDouble *ret=DataArrayDouble::New();
+      ret->useArray(_pt,false,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+      return ret;
+    }
+  else
+    {
+      std::ostringstream oss; oss << "DataArrayDoubleTuple::buildDADouble : unable to build a requested DataArrayDouble instance with nbofTuple=" << nbOfTuples << " and nbOfCompo=" << nbOfCompo;
+      oss << ".\nBecause the number of elements in this is " << _nb_of_compo << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
 DataArrayInt *DataArrayInt::New()
 {
   return new DataArrayInt;
@@ -4942,4 +4964,26 @@ int DataArrayIntTuple::intValue() const throw(INTERP_KERNEL::Exception)
   if(_nb_of_compo==1)
     return *_pt;
   throw INTERP_KERNEL::Exception("DataArrayIntTuple::intValue : DataArrayIntTuple instance has not exactly 1 component -> Not possible to convert it into an integer !");
+}
+
+/*!
+ * This method returns a newly allocated instance the caller should dealed with by a ParaMEDMEM::DataArrayInt::decrRef.
+ * This method performs \b no copy of data. The content is only referenced using ParaMEDMEM::DataArrayInt::useArray with ownership set to \b false.
+ * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
+ * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
+ */
+DataArrayInt *DataArrayIntTuple::buildDAInt(int nbOfTuples, int nbOfCompo) const throw(INTERP_KERNEL::Exception)
+{
+  if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
+    {
+      DataArrayInt *ret=DataArrayInt::New();
+      ret->useArray(_pt,false,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+      return ret;
+    }
+  else
+    {
+      std::ostringstream oss; oss << "DataArrayIntTuple::buildDAInt : unable to build a requested DataArrayInt instance with nbofTuple=" << nbOfTuples << " and nbOfCompo=" << nbOfCompo;
+      oss << ".\nBecause the number of elements in this is " << _nb_of_compo << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }

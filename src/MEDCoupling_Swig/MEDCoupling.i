@@ -166,6 +166,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::__rdiv__;
 %newobject ParaMEDMEM::DataArrayInt::__mod__;
 %newobject ParaMEDMEM::DataArrayInt::__rmod__;
+%newobject ParaMEDMEM::DataArrayIntTuple::buildDAInt;
 %newobject ParaMEDMEM::DataArrayDouble::New;
 %newobject ParaMEDMEM::DataArrayDouble::__iter__;
 %newobject ParaMEDMEM::DataArrayDouble::convertToIntArr;
@@ -217,6 +218,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::__rmul__;
 %newobject ParaMEDMEM::DataArrayDouble::__div__;
 %newobject ParaMEDMEM::DataArrayDouble::__rdiv__;
+%newobject ParaMEDMEM::DataArrayDoubleTuple::buildDADouble;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkTypeConsistencyAndContig;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
@@ -1538,7 +1540,8 @@ namespace ParaMEDMEM
         int pos1;
         std::vector<int> pos2;
         DataArrayInt *pos3=0;
-        convertObjToPossibleCpp1(li,sw,pos1,pos2,pos3);
+        DataArrayIntTuple *pos4=0;
+        convertObjToPossibleCpp1(li,sw,pos1,pos2,pos3,pos4);
         switch(sw)
           {
           case 1:
@@ -2706,8 +2709,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __add__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2721,6 +2725,11 @@ namespace ParaMEDMEM
          {
            return DataArrayDouble::Add(self,a);
          }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Add(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2731,8 +2740,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __radd__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2741,6 +2751,11 @@ namespace ParaMEDMEM
            ret->applyLin(1.,val);
            ret->incrRef();
            return ret;
+         }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Add(self,aaa);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -2752,8 +2767,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __iadd__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2766,6 +2782,12 @@ namespace ParaMEDMEM
            self->addEqual(a);
            return self;
          }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->addEqual(aaa);
+           return self;
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2776,8 +2798,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __sub__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2791,6 +2814,11 @@ namespace ParaMEDMEM
          {
            return DataArrayDouble::Substract(self,a);
          }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Substract(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2801,8 +2829,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __rsub__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2811,6 +2840,11 @@ namespace ParaMEDMEM
            ret->applyLin(-1.,val);
            ret->incrRef();
            return ret;
+         }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Substract(aaa,self);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -2822,8 +2856,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __isub__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2836,6 +2871,12 @@ namespace ParaMEDMEM
            self->substractEqual(a);
            return self;
          }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->substractEqual(aaa);
+           return self;
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2846,8 +2887,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __mul__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2861,6 +2903,11 @@ namespace ParaMEDMEM
          {
            return DataArrayDouble::Multiply(self,a);
          }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Multiply(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2871,8 +2918,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __rmul__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2881,6 +2929,11 @@ namespace ParaMEDMEM
            ret->applyLin(val,0.);
            ret->incrRef();
            return ret;
+         }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Multiply(self,aaa);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -2892,8 +2945,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __imul__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2906,6 +2960,12 @@ namespace ParaMEDMEM
            self->multiplyEqual(a);
            return self;
          }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->multiplyEqual(aaa);
+           return self;
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2916,8 +2976,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __div__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2933,6 +2994,11 @@ namespace ParaMEDMEM
          {
            return DataArrayDouble::Divide(self,a);
          }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Divide(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -2943,8 +3009,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __rdiv__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2953,6 +3020,11 @@ namespace ParaMEDMEM
            ret->applyInv(val);
            ret->incrRef();
            return ret;
+         }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayDouble::Divide(aaa,self);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -2964,8 +3036,9 @@ namespace ParaMEDMEM
      const char msg[]="Unexpected situation in __imul__ !";
      double val;
      DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
      int sw;
-     convertObjToPossibleCpp5(obj,sw,val,a);
+     convertObjToPossibleCpp5(obj,sw,val,a,aa);
      switch(sw)
        {
        case 1:
@@ -2978,6 +3051,12 @@ namespace ParaMEDMEM
        case 2:
          {
            self->divideEqual(a);
+           return self;
+         }
+       case 3:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->divideEqual(aaa);
            return self;
          }
        default:
@@ -3772,7 +3851,8 @@ namespace ParaMEDMEM
      int i1;
      std::vector<int> v1;
      DataArrayInt *d1=0;
-     convertObjToPossibleCpp1(value,sw1,i1,v1,d1);
+     DataArrayIntTuple *dd1=0;
+     convertObjToPossibleCpp1(value,sw1,i1,v1,d1,dd1);
      int it1,ic1;
      std::vector<int> vt1,vc1;
      std::pair<int, std::pair<int,int> > pt1,pc1;
@@ -3796,6 +3876,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues1(d1,it1,it1+1,1,0,nbOfComponents,1);
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1);
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -3815,6 +3899,10 @@ namespace ParaMEDMEM
                return self;
              case 3:
                self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
+               return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -3836,6 +3924,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -3855,6 +3947,10 @@ namespace ParaMEDMEM
                return self;
              case 3:
                self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
+               return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -3876,6 +3972,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues1(d1,it1,it1+1,1,ic1,ic1+1,1);
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1);
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -3895,6 +3995,10 @@ namespace ParaMEDMEM
                return self;
              case 3:
                self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
+               return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -3916,6 +4020,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -3935,6 +4043,10 @@ namespace ParaMEDMEM
                return self;
              case 3:
                self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
+               return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -3956,6 +4068,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues2(d1,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -3975,6 +4091,10 @@ namespace ParaMEDMEM
                return self;
              case 3:
                self->setPartOfValues2(d1,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
+               return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -4005,6 +4125,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues2(d1,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues2(tmp,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -4024,6 +4148,10 @@ namespace ParaMEDMEM
                return self;
              case 3:
                self->setPartOfValues2(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
+               return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -4045,6 +4173,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues1(d1,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -4064,6 +4196,10 @@ namespace ParaMEDMEM
                return self;
              case 3:
                self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
+               return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -4085,6 +4221,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -4105,6 +4245,10 @@ namespace ParaMEDMEM
              case 3:
                self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
                return self;
+             case 4:
+               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
+               return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
              }
@@ -4122,8 +4266,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4137,6 +4282,11 @@ namespace ParaMEDMEM
          {
            return DataArrayInt::Add(self,a);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Add(self,aaaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -4148,8 +4298,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4158,6 +4309,11 @@ namespace ParaMEDMEM
            ret->applyLin(1,val);
            ret->incrRef();
            return ret;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Add(self,aaaa);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4170,8 +4326,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4182,6 +4339,12 @@ namespace ParaMEDMEM
        case 3:
          {
            self->addEqual(a);
+           return self;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->addEqual(aaaa);
            return self;
          }
        default:
@@ -4195,8 +4358,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4210,6 +4374,11 @@ namespace ParaMEDMEM
          {
            return DataArrayInt::Substract(self,a);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Substract(self,aaaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -4221,8 +4390,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4231,6 +4401,11 @@ namespace ParaMEDMEM
            ret->applyLin(-1,val);
            ret->incrRef();
            return ret;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Substract(aaaa,self);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4243,8 +4418,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4255,6 +4431,12 @@ namespace ParaMEDMEM
        case 3:
          {
            self->substractEqual(a);
+           return self;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->substractEqual(aaaa);
            return self;
          }
        default:
@@ -4268,8 +4450,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4283,6 +4466,11 @@ namespace ParaMEDMEM
          {
            return DataArrayInt::Multiply(self,a);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Multiply(self,aaaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -4294,8 +4482,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4304,6 +4493,11 @@ namespace ParaMEDMEM
            ret->applyLin(val,0);
            ret->incrRef();
            return ret;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Multiply(self,aaaa);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4316,8 +4510,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4328,6 +4523,12 @@ namespace ParaMEDMEM
        case 3:
          {
            self->multiplyEqual(a);
+           return self;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->multiplyEqual(aaaa);
            return self;
          }
        default:
@@ -4341,8 +4542,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4356,6 +4558,11 @@ namespace ParaMEDMEM
          {
            return DataArrayInt::Divide(self,a);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Divide(self,aaaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -4367,8 +4574,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4377,6 +4585,11 @@ namespace ParaMEDMEM
            ret->applyInv(val);
            ret->incrRef();
            return ret;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Divide(aaaa,self);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4389,8 +4602,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4401,6 +4615,12 @@ namespace ParaMEDMEM
        case 3:
          {
            self->divideEqual(a);
+           return self;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->divideEqual(aaaa);
            return self;
          }
        default:
@@ -4414,8 +4634,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4429,6 +4650,11 @@ namespace ParaMEDMEM
          {
            return DataArrayInt::Modulus(self,a);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Modulus(self,aaaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -4440,8 +4666,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4453,7 +4680,12 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           return DataArrayInt::Modulus(self,a);
+           return DataArrayInt::Modulus(a,self);
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           return DataArrayInt::Modulus(aaaa,self);
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4466,8 +4698,9 @@ namespace ParaMEDMEM
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
+     DataArrayIntTuple *aaa;
      int sw;
-     convertObjToPossibleCpp1(obj,sw,val,aa,a);
+     convertObjToPossibleCpp1(obj,sw,val,aa,a,aaa);
      switch(sw)
        {
        case 1:
@@ -4478,6 +4711,12 @@ namespace ParaMEDMEM
        case 3:
          {
            self->modulusEqual(a);
+           return self;
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           self->modulusEqual(aaaa);
            return self;
          }
        default:

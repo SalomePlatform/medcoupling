@@ -639,10 +639,11 @@ void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM
  * if python list[int] -> cpp vector<int> sw=2
  * if python tuple[int] -> cpp vector<int> sw=2
  * if python DataArrayInt -> cpp DataArrayInt sw=3
+ * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, ParaMEDMEM::DataArrayInt *& daIntTyypp, ParaMEDMEM::DataArrayIntTuple *&daIntTuple) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyInt_Check(value))
@@ -689,10 +690,20 @@ static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std:
     }
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
-  if(!SWIG_IsOK(status))
-    throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, DataArrayInt");
-  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
-  sw=3;
+  if(SWIG_IsOK(status))
+    {
+      daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      sw=3;
+      return;
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      daIntTuple=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      sw=4;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("5 types accepted : integer, tuple of integer, list of integer, DataArrayInt, DataArrayIntTuple");
 }
 
 /*!
@@ -1044,8 +1055,9 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
  * if value int -> cpp val sw=1
  * if value double -> cpp val sw=1
  * if value DataArrayDouble -> cpp DataArrayDouble sw=2
+ * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
  */
-static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d)
+static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1062,8 +1074,18 @@ static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, Para
     }
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
-  if(!SWIG_IsOK(status))
-    throw INTERP_KERNEL::Exception("3 types accepted : integer, double, DataArrayDouble");
-  d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
-  sw=2;
+  if(SWIG_IsOK(status))
+    {  
+      d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+      sw=2;
+      return ;
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      e=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+      sw=3;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
 }
