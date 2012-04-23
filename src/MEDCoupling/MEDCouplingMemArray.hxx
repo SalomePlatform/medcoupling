@@ -70,8 +70,8 @@ namespace ParaMEDMEM
     T *toNoInterlace(int nbOfComp) const;
     void sort();
     void reverse();
-    void alloc(int nbOfElements);
-    void reAlloc(int newNbOfElements);
+    void alloc(int nbOfElements) throw(INTERP_KERNEL::Exception);
+    void reAlloc(int newNbOfElements) throw(INTERP_KERNEL::Exception);
     void useArray(const T *array, bool ownership, DeallocType type, int nbOfElem);
     void writeOnPlace(int id, T element0, const T *others, int sizeOfOthers);
     ~MemArray() { destroy(); }
@@ -143,7 +143,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayDouble *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void fillWithZero() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void fillWithValue(double val) throw(INTERP_KERNEL::Exception);
@@ -236,6 +236,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(double a, double b) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyInv(double numerator) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *negate() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *applyFunc(const char *func) const throw(INTERP_KERNEL::Exception);
@@ -322,7 +323,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *deepCpy() const;
     MEDCOUPLING_EXPORT DataArrayInt *performCpy(bool deepCpy) const;
     MEDCOUPLING_EXPORT void cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void alloc(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void allocIfNecessary(int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
@@ -407,6 +408,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void applyLin(int a, int b, int compoId) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(int a, int b) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyInv(int numerator) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *negate() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyDivideBy(int val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyModulus(int val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyRModulus(int val) throw(INTERP_KERNEL::Exception);

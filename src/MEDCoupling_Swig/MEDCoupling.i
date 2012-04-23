@@ -137,6 +137,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqual;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
+%newobject ParaMEDMEM::DataArrayInt::negate;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
 %newobject ParaMEDMEM::DataArrayInt::Add;
@@ -156,6 +157,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
 %newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
 %newobject ParaMEDMEM::DataArrayInt::__getitem__;
+%newobject ParaMEDMEM::DataArrayInt::__neg__;
 %newobject ParaMEDMEM::DataArrayInt::__add__;
 %newobject ParaMEDMEM::DataArrayInt::__radd__;
 %newobject ParaMEDMEM::DataArrayInt::__sub__;
@@ -188,6 +190,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleIdSafe;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleId2;
 %newobject ParaMEDMEM::DataArrayDouble::selectByTupleRanges;
+%newobject ParaMEDMEM::DataArrayDouble::negate;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc2;
 %newobject ParaMEDMEM::DataArrayDouble::applyFunc3;
@@ -210,6 +213,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
 %newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
 %newobject ParaMEDMEM::DataArrayDouble::__getitem__;
+%newobject ParaMEDMEM::DataArrayDouble::__neg__;
 %newobject ParaMEDMEM::DataArrayDouble::__add__;
 %newobject ParaMEDMEM::DataArrayDouble::__radd__;
 %newobject ParaMEDMEM::DataArrayDouble::__sub__;
@@ -1895,6 +1899,34 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::DataArrayDouble
  {
+   static DataArrayDouble *New(int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
+   {
+     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+     ret->alloc(nbOfTuples,nbOfComp);
+     ret->incrRef();
+     return ret;
+   }
+
+   static DataArrayDouble *New(PyObject *li, int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
+   {
+     if(nbOfTuples<0 || nbOfComp<0)
+       throw INTERP_KERNEL::Exception("DataArrayDouble::New(PyList,nbOfTuples,nbOfComponents) : should be a positive set of allocated memory !");
+     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+     double *tmp=new double[nbOfTuples*nbOfComp];
+     try
+       {
+         fillArrayWithPyListDbl(li,tmp,nbOfTuples*nbOfComp,0.);
+       }
+     catch(INTERP_KERNEL::Exception& e)
+       {
+         delete [] tmp;
+         throw e;
+       }
+     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfComp);
+     ret->incrRef();
+     return ret;
+   }
+
    std::string __str__() const
    {
      return self->repr();
@@ -2709,6 +2741,11 @@ namespace ParaMEDMEM
      return self;
    }
 
+   DataArrayDouble *__neg__() const throw(INTERP_KERNEL::Exception)
+   {
+     return self->negate();
+   }
+
    DataArrayDouble *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __add__ !";
@@ -3387,6 +3424,34 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::DataArrayInt
  {
+   static DataArrayInt *New(int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
+   {
+     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+     ret->alloc(nbOfTuples,nbOfComp);
+     ret->incrRef();
+     return ret;
+   }
+
+   static DataArrayInt *New(PyObject *li, int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
+   {
+     if(nbOfTuples<0 || nbOfComp<0)
+       throw INTERP_KERNEL::Exception("DataArrayDouble::New(PyList,nbOfTuples,nbOfComponents) : should be a positive set of allocated memory !");
+     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+     int *tmp=new int[nbOfTuples*nbOfComp];
+     try
+       {
+         fillArrayWithPyListInt(li,tmp,nbOfTuples*nbOfComp,0);
+       }
+     catch(INTERP_KERNEL::Exception& e)
+       {
+         delete [] tmp;
+         throw e;
+       }
+     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfComp);
+     ret->incrRef();
+     return ret;
+   }
+
    std::string __str__() const
    {
      return self->repr();
@@ -4336,6 +4401,11 @@ namespace ParaMEDMEM
      return self;
    }
 
+   DataArrayInt *__neg__() const throw(INTERP_KERNEL::Exception)
+   {
+     return self->negate();
+   }
+ 
    DataArrayInt *__add__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __add__ !";

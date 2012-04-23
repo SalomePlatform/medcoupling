@@ -224,9 +224,11 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  void MemArray<T>::alloc(int nbOfElements)
+  void MemArray<T>::alloc(int nbOfElements) throw(INTERP_KERNEL::Exception)
   {
     destroy();
+    if(nbOfElements<0)
+      throw INTERP_KERNEL::Exception("MemArray::alloc : request for negative length of data !");
     _nb_of_elem=nbOfElements;
     _pointer.setInternal(new T[_nb_of_elem]);
     _ownership=true;
@@ -234,8 +236,10 @@ namespace ParaMEDMEM
   }
   
   template<class T>
-  void MemArray<T>::reAlloc(int newNbOfElements)
+  void MemArray<T>::reAlloc(int newNbOfElements) throw(INTERP_KERNEL::Exception)
   {
+    if(newNbOfElements<0)
+      throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
     T *pointer=new T[newNbOfElements];
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<int>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)

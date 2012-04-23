@@ -423,8 +423,10 @@ void DataArrayDouble::allocIfNecessary(int nbOfTuple, int nbOfCompo)
     alloc(nbOfTuple,nbOfCompo);
 }
 
-void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo)
+void DataArrayDouble::alloc(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception)
 {
+  if(nbOfTuple<0 || nbOfCompo<0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::alloc : request for negative length of data !");
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
   _mem.alloc(nbOfCompo*_nb_of_tuples);
@@ -1901,6 +1903,23 @@ void DataArrayDouble::applyInv(double numerator) throw(INTERP_KERNEL::Exception)
   declareAsNew();
 }
 
+/*!
+ * This method returns a newly allocated array containing the application of negate on \b this.
+ * This method throws an INTERP_KERNEL::Exception if \b this is not allocated.
+ */
+DataArrayDouble *DataArrayDouble::negate() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  DataArrayDouble *newArr=DataArrayDouble::New();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const double *cptr=getConstPointer();
+  std::transform(cptr,cptr+nbOfTuples*nbOfComp,newArr->getPointer(),std::negate<double>());
+  newArr->copyStringInfoFrom(*this);
+  return newArr;
+}
+
 DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate func) const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
@@ -2810,8 +2829,10 @@ void DataArrayInt::allocIfNecessary(int nbOfTuple, int nbOfCompo)
     alloc(nbOfTuple,nbOfCompo);
 }
 
-void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo)
+void DataArrayInt::alloc(int nbOfTuple, int nbOfCompo) throw(INTERP_KERNEL::Exception)
 {
+  if(nbOfTuple<0 || nbOfCompo<0)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::alloc : request for negative length of data !");
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
   _mem.alloc(nbOfCompo*_nb_of_tuples);
@@ -4282,6 +4303,23 @@ void DataArrayInt::applyLin(int a, int b) throw(INTERP_KERNEL::Exception)
   for(int i=0;i<nbOfElems;i++,ptr++)
     *ptr=a*(*ptr)+b;
   declareAsNew();
+}
+
+/*!
+ * This method returns a newly allocated array containing the application of negate on \b this.
+ * This method throws an INTERP_KERNEL::Exception if \b this is not allocated.
+ */
+DataArrayInt *DataArrayInt::negate() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  DataArrayInt *newArr=DataArrayInt::New();
+  int nbOfTuples=getNumberOfTuples();
+  int nbOfComp=getNumberOfComponents();
+  newArr->alloc(nbOfTuples,nbOfComp);
+  const int *cptr=getConstPointer();
+  std::transform(cptr,cptr+nbOfTuples*nbOfComp,newArr->getPointer(),std::negate<int>());
+  newArr->copyStringInfoFrom(*this);
+  return newArr;
 }
 
 /*!
