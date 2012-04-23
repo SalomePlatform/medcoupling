@@ -1899,32 +1899,101 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::DataArrayDouble
  {
-   static DataArrayDouble *New(int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
+   static DataArrayDouble *New(PyObject *elt0, PyObject *elt1=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
    {
-     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
-     ret->alloc(nbOfTuples,nbOfComp);
-     ret->incrRef();
-     return ret;
-   }
-
-   static DataArrayDouble *New(PyObject *li, int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
-   {
-     if(nbOfTuples<0 || nbOfComp<0)
-       throw INTERP_KERNEL::Exception("DataArrayDouble::New(PyList,nbOfTuples,nbOfComponents) : should be a positive set of allocated memory !");
-     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
-     double *tmp=new double[nbOfTuples*nbOfComp];
-     try
+     const char *msg="ParaMEDMEM::DataArrayDouble::New : Available API are : \n-DataArrayDouble.New()\n--DataArrayDouble.New([1.,3.,4.])\n-DataArrayDouble.New([1.,3.,4.],3)\n-DataArrayDouble.New([1.,3.,4.,5.],2,2)\n-DataArrayDouble.New(5)\n-DataArrayDouble.New(5,2) !";
+     if(PyList_Check(elt0) || PyTuple_Check(elt0))
        {
-         fillArrayWithPyListDbl(li,tmp,nbOfTuples*nbOfComp,0.);
+         if(elt1)
+           {
+             if(PyInt_Check(elt1))
+               {
+                 int nbOfTuples=PyInt_AS_LONG(elt1);
+                 if(nbOfTuples<0)
+                   throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive set of allocated memory !");
+                 if(elt2)
+                   {
+                     if(PyInt_Check(elt2))
+                       {//DataArrayDouble.New([1.,3.,4.,5.],2,2)
+                         int nbOfCompo=PyInt_AS_LONG(elt2);
+                         if(nbOfCompo<0)
+                           throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
+                         MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                         double *tmp=new double[nbOfTuples*nbOfCompo];
+                         try { fillArrayWithPyListDbl(elt0,tmp,nbOfTuples*nbOfCompo,0.,true); }
+                         catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
+                         ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+                         ret->incrRef();
+                         return ret;
+                       }
+                     else
+                       throw INTERP_KERNEL::Exception(msg);
+                   }
+                 else
+                   {//DataArrayDouble.New([1.,3.,4.],3)
+                     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                     double *tmp=new double[nbOfTuples];
+                     try { fillArrayWithPyListDbl(elt0,tmp,nbOfTuples,0.,true); }
+                     catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
+                     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,1);
+                     ret->incrRef();
+                     return ret;
+                   }
+               }
+             else
+               throw INTERP_KERNEL::Exception(msg);
+           }
+         else
+           {// DataArrayDouble.New([1.,3.,4.])
+             int szz=-1;
+             if(PyList_Check(elt0))
+               szz=PyList_Size(elt0);
+             else
+               szz=PyTuple_Size(elt0);
+             MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+             double *tmp=new double[szz];
+             try { fillArrayWithPyListDbl(elt0,tmp,szz,0.,true); }
+             catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
+             ret->useArray(tmp,true,CPP_DEALLOC,szz,1);
+             ret->incrRef();
+             return ret;
+           }
        }
-     catch(INTERP_KERNEL::Exception& e)
+     else if(PyInt_Check(elt0))
        {
-         delete [] tmp;
-         throw e;
+         int nbOfTuples=PyInt_AS_LONG(elt0);
+         if(nbOfTuples<0)
+           throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive set of allocated memory !");
+         if(elt1)
+           {
+             if(!elt2)
+               {
+                 if(PyInt_Check(elt1))
+                   {//DataArrayDouble.New(5,2)
+                     int nbOfCompo=PyInt_AS_LONG(elt1);
+                     if(nbOfCompo<0)
+                       throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
+                     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+                     ret->alloc(nbOfTuples,nbOfCompo);
+                     ret->incrRef();
+                     return ret;
+                   }
+                 else
+                   throw INTERP_KERNEL::Exception(msg);
+               }
+             else
+               throw INTERP_KERNEL::Exception(msg);
+           }
+         else
+           {//DataArrayDouble.New(5)
+             MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+             ret->alloc(nbOfTuples,1);
+             ret->incrRef();
+             return ret;
+           }
        }
-     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfComp);
-     ret->incrRef();
-     return ret;
+     else
+       throw INTERP_KERNEL::Exception(msg);
    }
 
    std::string __str__() const
@@ -1959,7 +2028,7 @@ namespace ParaMEDMEM
      double *tmp=new double[nbOfTuples*nbOfElsPerTuple];
      try
        {
-         fillArrayWithPyListDbl(li,tmp,nbOfTuples*nbOfElsPerTuple,0.);
+         fillArrayWithPyListDbl(li,tmp,nbOfTuples*nbOfElsPerTuple,0.,false);
        }
      catch(INTERP_KERNEL::Exception& e)
        {
@@ -3424,32 +3493,101 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::DataArrayInt
  {
-   static DataArrayInt *New(int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
+   static DataArrayInt *New(PyObject *elt0, PyObject *elt1=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
    {
-     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
-     ret->alloc(nbOfTuples,nbOfComp);
-     ret->incrRef();
-     return ret;
-   }
-
-   static DataArrayInt *New(PyObject *li, int nbOfTuples, int nbOfComp) throw(INTERP_KERNEL::Exception)
-   {
-     if(nbOfTuples<0 || nbOfComp<0)
-       throw INTERP_KERNEL::Exception("DataArrayDouble::New(PyList,nbOfTuples,nbOfComponents) : should be a positive set of allocated memory !");
-     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
-     int *tmp=new int[nbOfTuples*nbOfComp];
-     try
+     const char *msg="ParaMEDMEM::DataArrayInt::New : Available API are : \n-DataArrayInt.New()\n--DataArrayInt.New([1,3,4])\n-DataArrayInt.New([1,3,4],3)\n-DataArrayInt.New([1,3,4,5],2,2)\n-DataArrayInt.New(5)\n-DataArrayInt.New(5,2) !";
+     if(PyList_Check(elt0) || PyTuple_Check(elt0))
        {
-         fillArrayWithPyListInt(li,tmp,nbOfTuples*nbOfComp,0);
+         if(elt1)
+           {
+             if(PyInt_Check(elt1))
+               {
+                 int nbOfTuples=PyInt_AS_LONG(elt1);
+                 if(nbOfTuples<0)
+                   throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive set of allocated memory !");
+                 if(elt2)
+                   {
+                     if(PyInt_Check(elt2))
+                       {//DataArrayInt.New([1,3,4,5],2,2)
+                         int nbOfCompo=PyInt_AS_LONG(elt2);
+                         if(nbOfCompo<0)
+                           throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive number of components !");
+                         MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                         int *tmp=new int[nbOfTuples*nbOfCompo];
+                         try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples*nbOfCompo,0.,true); }
+                         catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
+                         ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+                         ret->incrRef();
+                         return ret;
+                       }
+                     else
+                       throw INTERP_KERNEL::Exception(msg);
+                   }
+                 else
+                   {//DataArrayInt.New([1,3,4],3)
+                     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                     int *tmp=new int[nbOfTuples];
+                     try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples,0.,true); }
+                     catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
+                     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,1);
+                     ret->incrRef();
+                     return ret;
+                   }
+               }
+             else
+               throw INTERP_KERNEL::Exception(msg);
+           }
+         else
+           {// DataArrayInt.New([1,3,4])
+             int szz=-1;
+             if(PyList_Check(elt0))
+               szz=PyList_Size(elt0);
+             else
+               szz=PyTuple_Size(elt0);
+             MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+             int *tmp=new int[szz];
+             try { fillArrayWithPyListInt(elt0,tmp,szz,0.,true); }
+             catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
+             ret->useArray(tmp,true,CPP_DEALLOC,szz,1);
+             ret->incrRef();
+             return ret;
+           }
        }
-     catch(INTERP_KERNEL::Exception& e)
+     else if(PyInt_Check(elt0))
        {
-         delete [] tmp;
-         throw e;
+         int nbOfTuples=PyInt_AS_LONG(elt0);
+         if(nbOfTuples<0)
+           throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive set of allocated memory !");
+         if(elt1)
+           {
+             if(!elt2)
+               {
+                 if(PyInt_Check(elt1))
+                   {//DataArrayInt.New(5,2)
+                     int nbOfCompo=PyInt_AS_LONG(elt1);
+                     if(nbOfCompo<0)
+                       throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive number of components !");
+                     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+                     ret->alloc(nbOfTuples,nbOfCompo);
+                     ret->incrRef();
+                     return ret;
+                   }
+                 else
+                   throw INTERP_KERNEL::Exception(msg);
+               }
+             else
+               throw INTERP_KERNEL::Exception(msg);
+           }
+         else
+           {//DataArrayInt.New(5)
+             MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+             ret->alloc(nbOfTuples,1);
+             ret->incrRef();
+             return ret;
+           }
        }
-     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfComp);
-     ret->incrRef();
-     return ret;
+     else
+       throw INTERP_KERNEL::Exception(msg);
    }
 
    std::string __str__() const
@@ -3500,7 +3638,7 @@ namespace ParaMEDMEM
      int *tmp=new int[nbOfTuples*nbOfElsPerTuple];
      try
        {
-         fillArrayWithPyListInt(li,tmp,nbOfTuples*nbOfElsPerTuple,0);
+         fillArrayWithPyListInt(li,tmp,nbOfTuples*nbOfElsPerTuple,0,false);
        }
      catch(INTERP_KERNEL::Exception& e)
        {

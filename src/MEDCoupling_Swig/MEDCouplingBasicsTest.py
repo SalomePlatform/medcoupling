@@ -8525,7 +8525,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(6):
             self.assertEqual(arr[5-i],a.getIJ(i,0));
             pass
-        a.setValues(arr,5,1);
+        a.setValues(arr[:-1],5,1);
         a.reverse();
         for i in xrange(5):
             self.assertEqual(arr[4-i],a.getIJ(i,0));
@@ -9506,12 +9506,54 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(da.getIJ(0,i),expected1[i])
             pass
         da=-dabis
-        da/=[2,3]
+        da/=DataArrayInt.New([2,3],1,2)
         self.assertEqual(12,da.getNumberOfTuples());
         self.assertEqual(2,da.getNumberOfComponents());
         expected2=[3,2,4,3,5,3,6,4,7,5,8,5,9,6,10,7,11,7,12,8,13,9,14,9]
         for i in xrange(24):
             self.assertEqual(da.getIJ(0,i),expected2[i])
+            pass
+        pass
+
+    def testSwigDADOp5(self):
+        da=DataArrayDouble.New([5,6,7,8,9,6,7,-2,3,9,8,10])
+        da.rearrange(3)
+        da2=DataArrayDouble.New([5.,8.,10.,12])
+        self.assertEqual(4,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        da3=da+da2
+        self.assertEqual(4,da3.getNumberOfTuples());
+        self.assertEqual(3,da3.getNumberOfComponents());
+        expected1=[10.,11.,12.,16.,17.,14.,17.,8.,13.,21.,20.,22.]
+        for i in xrange(12):
+            self.assertAlmostEqual(da3.getIJ(0,i),expected1[i],13)
+            pass
+        da3=da2+da
+        self.assertEqual(4,da3.getNumberOfTuples());
+        self.assertEqual(3,da3.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertAlmostEqual(da3.getIJ(0,i),expected1[i],13)
+            pass
+        pass
+
+    def testSwigDADOp6(self):
+        da=DataArrayInt.New([5,6,7,8,9,6,7,-2,3,9,8,10])
+        da.rearrange(3)
+        da2=DataArrayInt.New([5,8,10,12])
+        self.assertEqual(4,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        da3=da+da2
+        self.assertEqual(4,da3.getNumberOfTuples());
+        self.assertEqual(3,da3.getNumberOfComponents());
+        expected1=[10,11,12,16,17,14,17,8,13,21,20,22]
+        for i in xrange(12):
+            self.assertEqual(da3.getIJ(0,i),expected1[i])
+            pass
+        da3=da2+da
+        self.assertEqual(4,da3.getNumberOfTuples());
+        self.assertEqual(3,da3.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(da3.getIJ(0,i),expected1[i])
             pass
         pass
 

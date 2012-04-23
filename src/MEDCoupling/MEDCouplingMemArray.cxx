@@ -2331,13 +2331,48 @@ DataArrayDouble *DataArrayDouble::Min(const DataArrayDouble *a1, const DataArray
 
 DataArrayDouble *DataArrayDouble::Add(const DataArrayDouble *a1, const DataArrayDouble *a2) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfTuple=a2->getNumberOfTuples();
-  int nbOfComp=a2->getNumberOfComponents();
-  a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Add !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<double>());
-  ret->copyStringInfoFrom(*a1);
+  int nbOfTuple=a1->getNumberOfTuples();
+  int nbOfTuple2=a2->getNumberOfTuples();
+  int nbOfComp=a1->getNumberOfComponents();
+  int nbOfComp2=a2->getNumberOfComponents();
+  if(nbOfTuple!=nbOfTuple2)
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Add !");
+  DataArrayDouble *ret=0;
+  if(nbOfComp==nbOfComp2)
+    {
+      ret=DataArrayDouble::New();
+      ret->alloc(nbOfTuple,nbOfComp);
+      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<double>());
+      ret->copyStringInfoFrom(*a1);
+    }
+  else
+    {
+      int nbOfCompMin,nbOfCompMax;
+      const DataArrayDouble *aMin, *aMax;
+      if(nbOfComp>nbOfComp2)
+        {
+          nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+          aMin=a2; aMax=a1;
+        }
+      else
+        {
+          nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+          aMin=a1; aMax=a2;
+        }
+      if(nbOfCompMin==1)
+        {
+          ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple,nbOfCompMax);
+          const double *aMinPtr=aMin->getConstPointer();
+          const double *aMaxPtr=aMax->getConstPointer();
+          double *res=ret->getPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::plus<double>(),aMinPtr[i]));
+          ret->copyStringInfoFrom(*aMax);
+        }
+      else
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array Add !");
+    }
   return ret;
 }
 
@@ -4775,13 +4810,48 @@ std::set<int> DataArrayInt::getDifferentValues() const throw(INTERP_KERNEL::Exce
 
 DataArrayInt *DataArrayInt::Add(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception)
 {
-  int nbOfTuple=a2->getNumberOfTuples();
-  int nbOfComp=a2->getNumberOfComponents();
-  a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Add !");
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<int>());
-  ret->copyStringInfoFrom(*a1);
+  int nbOfTuple=a1->getNumberOfTuples();
+  int nbOfTuple2=a2->getNumberOfTuples();
+  int nbOfComp=a1->getNumberOfComponents();
+  int nbOfComp2=a2->getNumberOfComponents();
+  if(nbOfTuple!=nbOfTuple2)
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Add !");
+  DataArrayInt *ret=0;
+  if(nbOfComp==nbOfComp2)
+    {
+      ret=DataArrayInt::New();
+      ret->alloc(nbOfTuple,nbOfComp);
+      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<int>());
+      ret->copyStringInfoFrom(*a1);
+    }
+  else
+    {
+      int nbOfCompMin,nbOfCompMax;
+      const DataArrayInt *aMin, *aMax;
+      if(nbOfComp>nbOfComp2)
+        {
+          nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+          aMin=a2; aMax=a1;
+        }
+      else
+        {
+          nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+          aMin=a1; aMax=a2;
+        }
+      if(nbOfCompMin==1)
+        {
+          ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple,nbOfCompMax);
+          const int *aMinPtr=aMin->getConstPointer();
+          const int *aMaxPtr=aMax->getConstPointer();
+          int *res=ret->getPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::plus<int>(),aMinPtr[i]));
+          ret->copyStringInfoFrom(*aMax);
+        }
+      else
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array Add !");
+    }
   return ret;
 }
 

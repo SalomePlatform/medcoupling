@@ -297,11 +297,17 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
     }
 }
 
-static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal) throw(INTERP_KERNEL::Exception)
+static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
     {
       int size=PyList_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListInt : List expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
@@ -312,11 +318,7 @@ static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArr
                 arrToFill[i]=val;
             }
           else
-            {
-              const char msg[]="list must contain integers only";
-              PyErr_SetString(PyExc_TypeError,msg);
-              throw INTERP_KERNEL::Exception(msg);
-            }
+            throw INTERP_KERNEL::Exception("fillArrayWithPyListInt : List must contain integers only !");
         }
       for(int i=size;i<sizeOfArray;i++)
         arrToFill[i]=dftVal;
@@ -326,6 +328,12 @@ static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArr
   else if(PyTuple_Check(pyLi))
     {
       int size=PyTuple_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListInt : Tuple expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyTuple_GetItem(pyLi,i);
@@ -450,11 +458,17 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
     }
 }
 
-static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOfArray, double dftVal) throw(INTERP_KERNEL::Exception)
+static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOfArray, double dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
     {
       int size=PyList_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListDbl : List expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
@@ -485,6 +499,12 @@ static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOf
   else if(PyTuple_Check(pyLi))
     {
       int size=PyTuple_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListDbl : Tuple expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyTuple_GetItem(pyLi,i);
