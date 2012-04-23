@@ -4482,6 +4482,12 @@ namespace ParaMEDMEM
            self->applyLin(1,val);
            return self;
          }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           self->addEqual(bb);
+           return self;
+         }
        case 3:
          {
            self->addEqual(a);
@@ -4572,6 +4578,12 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyLin(1,-val);
+           return self;
+         }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           self->substractEqual(bb);
            return self;
          }
        case 3:
@@ -4666,6 +4678,12 @@ namespace ParaMEDMEM
            self->applyLin(val,0);
            return self;
          }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           self->multiplyEqual(bb);
+           return self;
+         }
        case 3:
          {
            self->multiplyEqual(a);
@@ -4756,6 +4774,12 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyDivideBy(val);
+           return self;
+         }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           self->divideEqual(bb);
            return self;
          }
        case 3:

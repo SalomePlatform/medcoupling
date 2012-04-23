@@ -2366,10 +2366,15 @@ void DataArrayDouble::addEqual(const DataArrayDouble *other) throw(INTERP_KERNEL
     }
   else if(nbOfTuple2==1)
     {
-      double *ptr=getPointer();
-      const double *ptrc=other->getConstPointer();
-      for(int i=0;i<nbOfTuple;i++)
-        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::plus<double>());
+      if(nbOfComp2==nbOfComp)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::plus<double>());
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
     }
   else
     throw INTERP_KERNEL::Exception(msg);
@@ -2406,17 +2411,22 @@ void DataArrayDouble::substractEqual(const DataArrayDouble *other) throw(INTERP_
           double *ptr=getPointer();
           const double *ptrc=other->getConstPointer();
           for(int i=0;i<nbOfTuple;i++)
-            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::minus<double>(),*ptrc++));
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::minus<double>(),*ptrc++)); 
         }
       else
         throw INTERP_KERNEL::Exception(msg);
     }
   else if(nbOfTuple2==1)
     {
-      double *ptr=getPointer();
-      const double *ptrc=other->getConstPointer();
-      for(int i=0;i<nbOfTuple;i++)
-        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::minus<double>());
+      if(nbOfComp2==nbOfComp)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::minus<double>());
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
     }
   else
     throw INTERP_KERNEL::Exception(msg);
@@ -2495,10 +2505,15 @@ void DataArrayDouble::multiplyEqual(const DataArrayDouble *other) throw(INTERP_K
     }
   else if(nbOfTuple2==1)
     {
-      double *ptr=getPointer();
-      const double *ptrc=other->getConstPointer();
-      for(int i=0;i<nbOfTuple;i++)
-        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::multiplies<double>());
+      if(nbOfComp2==nbOfComp)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::multiplies<double>());
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
     }
   else
     throw INTERP_KERNEL::Exception(msg);
@@ -2565,10 +2580,15 @@ void DataArrayDouble::divideEqual(const DataArrayDouble *other) throw(INTERP_KER
     }
   else if(nbOfTuple2==1)
     {
-      double *ptr=getPointer();
-      const double *ptrc=other->getConstPointer();
-      for(int i=0;i<nbOfTuple;i++)
-        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::divides<double>());
+      if(nbOfComp2==nbOfComp)
+        {
+          double *ptr=getPointer();
+          const double *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::divides<double>());
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
     }
   else
     throw INTERP_KERNEL::Exception(msg);
@@ -4790,10 +4810,15 @@ void DataArrayInt::addEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exce
     }
   else if(nbOfTuple2==1)
     {
-      int *ptr=getPointer();
-      const int *ptrc=other->getConstPointer();
-      for(int i=0;i<nbOfTuple;i++)
-        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::plus<int>());
+      if(nbOfComp2==nbOfComp)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::plus<int>());
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
     }
   else
     throw INTERP_KERNEL::Exception(msg);
@@ -4912,17 +4937,22 @@ void DataArrayInt::multiplyEqual(const DataArrayInt *other) throw(INTERP_KERNEL:
           int *ptr=getPointer();
           const int *ptrc=other->getConstPointer();
           for(int i=0;i<nbOfTuple;i++)
-            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::multiplies<int>(),*ptrc++));
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::multiplies<int>(),*ptrc++));    
         }
       else
         throw INTERP_KERNEL::Exception(msg);
     }
   else if(nbOfTuple2==1)
     {
-      int *ptr=getPointer();
-      const int *ptrc=other->getConstPointer();
-      for(int i=0;i<nbOfTuple;i++)
-        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::multiplies<int>());
+      if(nbOfComp2==nbOfComp)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::multiplies<int>());
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
     }
   else
     throw INTERP_KERNEL::Exception(msg);
@@ -4989,10 +5019,15 @@ void DataArrayInt::divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::E
     }
   else if(nbOfTuple2==1)
     {
-      int *ptr=getPointer();
-      const int *ptrc=other->getConstPointer();
-      for(int i=0;i<nbOfTuple;i++)
-        std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::divides<int>());
+      if(nbOfComp2==nbOfComp)
+        {
+          int *ptr=getPointer();
+          const int *ptrc=other->getConstPointer();
+          for(int i=0;i<nbOfTuple;i++)
+            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptrc,ptr+i*nbOfComp,std::divides<int>());
+        }
+      else
+        throw INTERP_KERNEL::Exception(msg);
     }
   else
     throw INTERP_KERNEL::Exception(msg);
@@ -5026,10 +5061,15 @@ void DataArrayInt::modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::
         }
       else if(nbOfComp2==1)
         {
-          int *ptr=getPointer();
-          const int *ptrc=other->getConstPointer();
-          for(int i=0;i<nbOfTuple;i++)
-            std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::modulus<int>(),*ptrc++));
+          if(nbOfComp2==nbOfComp)
+            {
+              int *ptr=getPointer();
+              const int *ptrc=other->getConstPointer();
+              for(int i=0;i<nbOfTuple;i++)
+                std::transform(ptr+i*nbOfComp,ptr+(i+1)*nbOfComp,ptr+i*nbOfComp,std::bind2nd(std::modulus<int>(),*ptrc++));
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
         }
       else
         throw INTERP_KERNEL::Exception(msg);

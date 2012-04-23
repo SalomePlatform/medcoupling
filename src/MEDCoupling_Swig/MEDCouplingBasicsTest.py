@@ -9274,6 +9274,247 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
     
+    def testSwigDADOp4(self):
+        da=DataArrayDouble.New(range(6,30),12,2)
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),float(i+6),13)
+            pass
+        # operator transpose
+        da.transpose()
+        self.assertEqual(2,da.getNumberOfTuples());
+        self.assertEqual(12,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),float(i+6),13)
+            pass
+        da.transpose()
+        # operator __neg__
+        da2=DataArrayDouble.New(12,1)
+        da2.iota(0.)
+        dabis=-da
+        for i in xrange(24):
+            self.assertAlmostEqual(dabis.getIJ(0,i),-float(i+6),13)
+            pass
+        # operator+=
+        da+=da2
+        expected1=[6.,7.,9.,10.,12.,13.,15.,16.,18.,19.,21.,22.,24.,25.,27.,28.,30.,31.,33.,34.,36.,37.,39.,40.]
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected1[i],13)
+            pass
+        da=-dabis
+        da+=[100.,101.]
+        expected2=[106.,108.,108.,110.,110.,112.,112.,114.,114.,116.,116.,118.,118.,120.,120.,122.,122.,124.,124.,126.,126.,128.,128.,130.]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
+            pass
+        for pos,elt in enumerate(dabis):
+            da[pos]+=elt
+            pass
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for elt in da:
+            li=elt[:]
+            self.assertAlmostEqual(li[0],100.,13) ; self.assertAlmostEqual(li[1],101.,13)
+            pass
+        # operator-=
+        da=DataArrayDouble.New(range(6,30),12,2)
+        da2=DataArrayDouble.New(range(12),12,1)
+        dabis=-da
+        da-=da2
+        expected1=[6.,7.,7.,8.,8.,9.,9.,10.,10.,11.,11.,12.,12.,13.,13.,14.,14.,15.,15.,16.,16.,17.,17.,18.]
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected1[i],13)
+            pass
+        da=-dabis
+        da-=[100.,101.]
+        expected2=[-94.,-94.,-92.,-92.,-90.,-90.,-88.,-88.,-86.,-86.,-84.,-84.,-82.,-82.,-80.,-80.,-78.,-78.,-76.,-76.,-74.,-74.,-72.,-72.]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
+            pass
+        for pos,elt in enumerate(dabis):
+            da[pos]-=elt
+            pass
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        expected3=[-88.,-87.,-84.,-83.,-80.,-79.,-76.,-75.,-72.,-71.,-68.,-67.,-64.,-63.,-60.,-59.,-56.,-55.,-52.,-51.,-48.,-47.,-44.,-43.]
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected3[i],13)
+            pass
+        # operator*=
+        da=DataArrayDouble.New(range(6,30),12,2)
+        da2=DataArrayDouble.New(range(12),12,1)
+        dabis=-da
+        da*=da2
+        expected1=[0.,0.,8.,9.,20.,22.,36.,39.,56.,60.,80.,85.,108.,114.,140.,147.,176.,184.,216.,225.,260.,270.,308.,319.]
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected1[i],13)
+            pass
+        da=-dabis
+        da*=[100.,101.]
+        expected2=[600.,707.,800.,909.,1000.,1111.,1200.,1313.,1400.,1515.,1600.,1717.,1800.,1919.,2000.,2121.,2200.,2323.,2400.,2525.,2600.,2727.,2800.,2929.]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
+            pass
+        for pos,elt in enumerate(dabis):
+            da[pos]*=elt
+            pass
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        expected3=[-3600.,-4949.,-6400.,-8181.,-10000.,-12221.,-14400.,-17069.,-19600.,-22725.,-25600.,-29189.,-32400.,-36461.,-40000.,-44541.,-48400.,-53429.,-57600.,-63125.,-67600.,-73629.,-78400.,-84941.0]
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected3[i],13)
+            pass
+        # operator/=
+        da=DataArrayDouble.New(range(6,30),12,2)
+        da2=DataArrayDouble.New(range(1,13),12,1)
+        dabis=-da
+        da/=da2
+        expected1=[6.0,7.0,4.0,4.5,3.3333333333333335,3.6666666666666665,3.0,3.25,2.8,3.0,2.6666666666666665,2.8333333333333335,2.5714285714285716,2.7142857142857144,2.5,2.625,2.4444444444444446,2.5555555555555554,2.4,2.5,2.3636363636363638,2.4545454545454546,2.3333333333333335,2.4166666666666665]
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected1[i],13)
+            pass
+        da=-dabis
+        da/=[100.,101.]
+        expected2=[0.06,0.06930693069306931,0.08,0.0891089108910891,0.1,0.10891089108910891,0.12,0.12871287128712872,0.14,0.1485148514851485,0.16,0.16831683168316833,0.18,0.18811881188118812,0.2,0.2079207920792079,0.22,0.22772277227722773,0.24,0.24752475247524752,0.26,0.26732673267326734,0.28,0.2871287128712871]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
+            pass
+        for pos,elt in enumerate(dabis):
+            da[pos]/=elt
+            pass
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        expected3=[-0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.0099009900990099]
+        for i in xrange(24):
+            self.assertAlmostEqual(da.getIJ(0,i),expected3[i],13)
+            pass
+        pass
+
+    def testSwigDAIOp4(self):
+        da=DataArrayInt.New(range(6,30),12,2)
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),i+6)
+            pass
+        # operator transpose
+        da.transpose()
+        self.assertEqual(2,da.getNumberOfTuples());
+        self.assertEqual(12,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),i+6)
+            pass
+        da.transpose()
+        # operator __neg__
+        da2=DataArrayInt.New(12,1)
+        da2.iota(0)
+        dabis=-da
+        for i in xrange(24):
+            self.assertEqual(dabis.getIJ(0,i),-(i+6))
+            pass
+        # operator+=
+        da+=da2
+        expected1=[6,7,9,10,12,13,15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40]
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected1[i])
+            pass
+        da=-dabis
+        da+=[100,101]
+        expected2=[106,108,108,110,110,112,112,114,114,116,116,118,118,120,120,122,122,124,124,126,126,128,128,130]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected2[i])
+            pass
+        for pos,elt in enumerate(dabis):
+            da[pos]+=elt
+            pass
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for elt in da:
+            li=elt[:]
+            self.assertEqual(li[0],100) ; self.assertEqual(li[1],101)
+            pass
+        # operator-=
+        da=DataArrayInt.New(range(6,30),12,2)
+        da2=DataArrayInt.New(range(12),12,1)
+        dabis=-da
+        da-=da2
+        expected1=[6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15,16,16,17,17,18]
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected1[i])
+            pass
+        da=-dabis
+        da-=[100,101]
+        expected2=[-94,-94,-92,-92,-90,-90,-88,-88,-86,-86,-84,-84,-82,-82,-80,-80,-78,-78,-76,-76,-74,-74,-72,-72]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected2[i])
+            pass
+        for pos,elt in enumerate(dabis):
+            da[pos]-=elt
+            pass
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        expected3=[-88,-87,-84,-83,-80,-79,-76,-75,-72,-71,-68,-67,-64,-63,-60,-59,-56,-55,-52,-51,-48,-47,-44,-43]
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected3[i])
+            pass
+        # operator*=
+        da=DataArrayInt.New(range(6,30),12,2)
+        da2=DataArrayInt.New(range(12),12,1)
+        dabis=-da
+        da*=da2
+        expected1=[0,0,8,9,20,22,36,39,56,60,80,85,108,114,140,147,176,184,216,225,260,270,308,319]
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected1[i])
+            pass
+        da=-dabis
+        da*=[100,101]
+        expected2=[600,707,800,909,1000,1111,1200,1313,1400,1515,1600,1717,1800,1919,2000,2121,2200,2323,2400,2525,2600,2727,2800,2929]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected2[i])
+            pass
+        for pos,elt in enumerate(dabis):
+            da[pos]*=elt
+            pass
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        expected3=[-3600,-4949,-6400,-8181,-10000,-12221,-14400,-17069,-19600,-22725,-25600,-29189,-32400,-36461,-40000,-44541,-48400,-53429,-57600,-63125,-67600,-73629,-78400,-84941.0]
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected3[i])
+            pass
+        # operator/=
+        da=DataArrayInt.New(range(6,30),12,2)
+        da2=DataArrayInt.New(range(1,13),12,1)
+        dabis=-da
+        da/=da2
+        expected1=[6,7,4,4,3,3,3,3,2,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected1[i])
+            pass
+        da=-dabis
+        da/=[2,3]
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        expected2=[3,2,4,3,5,3,6,4,7,5,8,5,9,6,10,7,11,7,12,8,13,9,14,9]
+        for i in xrange(24):
+            self.assertEqual(da.getIJ(0,i),expected2[i])
+            pass
+        pass
+
     def setUp(self):
         pass
     pass
