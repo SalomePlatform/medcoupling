@@ -40,10 +40,7 @@
 #include <libxml/xpath.h>
 #include <libxml/xpathInternals.h>
 
-extern "C"
-{
 #include "med.h"
-}
 
 using namespace MEDPARTITIONER;
 
