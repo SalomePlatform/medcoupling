@@ -9662,16 +9662,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         mesh3D_2=mesh3D.deepCpy();
         mesh2D_2=mesh2D.deepCpy();
+        oldNbOf3DNodes=mesh3D.getNumberOfNodes();
         renumNodes=DataArrayInt.New();
         renumNodes.alloc(mesh2D.getNumberOfNodes(),1);
-        renumNodes.iota(mesh3D.getNumberOfNodes());
+        renumNodes.iota(oldNbOf3DNodes);
         coo=DataArrayDouble.Aggregate(mesh3D.getCoords(),mesh2D.getCoords());
         mesh3D.setCoords(coo);
         mesh2D.setCoords(coo);
         mesh2DCpy=mesh2D.deepCpy()
+        mesh2D_3=mesh2D.deepCpy();
+        mesh2D_3.shiftNodeNumbersInConn(oldNbOf3DNodes);
         mesh2D.renumberNodesInConn(renumNodes);
         mesh2DCpy.renumberNodesInConn(renumNodes.getValues());
         self.assertTrue(mesh2D.isEqual(mesh2DCpy,1e-12))
+        self.assertTrue(mesh2D.isEqual(mesh2D_3,1e-12))
         #
         da1,da2=mesh3D.checkGeoEquivalWith(mesh3D_2,10,1e-12);
         self.assertTrue(da1==None);

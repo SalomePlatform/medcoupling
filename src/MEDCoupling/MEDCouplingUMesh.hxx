@@ -118,6 +118,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
+    MEDCOUPLING_EXPORT void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) const;
     MEDCOUPLING_EXPORT void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems);

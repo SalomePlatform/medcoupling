@@ -1538,12 +1538,14 @@ void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNode
 }
 
 /*!
- * This method renumbers nodes in connectivity only without any reference with coords.
- * Use it with care !
- * @param 'newNodeNumbers' in old2New convention
+ * This method renumbers nodes \b in \b connectivity \b only \b without \b any \b reference \b to \b coords.
+ * This method performs no check on the fact that new coordinate ids are valid. \b Use \b it \b with \b care !
+ * This method is an generalization of \ref ParaMEDMEM::MEDCouplingUMesh::shiftNodeNumbersInConn "shiftNodeNumbersInConn method".
+ * @param [in] newNodeNumbers in old2New convention
  */
 void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
+  checkConnectivityFullyDefined();
   int *conn=getNodalConnectivity()->getPointer();
   const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
   int nbOfCells=getNumberOfCells();
@@ -1554,6 +1556,32 @@ void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
         if(node>=0)//avoid polyhedron separator
           {
             node=newNodeNumbersO2N[node];
+          }
+      }
+  _nodal_connec->declareAsNew();
+  updateTime();
+}
+
+/*!
+ * This method renumbers nodes \b in \b connectivity \b only \b without \b any \b reference \b to \b coords.
+ * This method performs no check on the fact that new coordinate ids are valid. \b Use \b it \b with \b care !
+ * This method is an specialization of \ref ParaMEDMEM::MEDCouplingUMesh::renumberNodesInConn "renumberNodesInConn method".
+ * 
+ * @param [in] delta specifies the shift size applied to nodeId in nodal connectivity in \b this.
+ */
+void MEDCouplingUMesh::shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  int *conn=getNodalConnectivity()->getPointer();
+  const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  for(int i=0;i<nbOfCells;i++)
+    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
+      {
+        int& node=conn[iconn];
+        if(node>=0)//avoid polyhedron separator
+          {
+            node+=delta;
           }
       }
   _nodal_connec->declareAsNew();

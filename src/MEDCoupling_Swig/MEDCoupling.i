@@ -1071,6 +1071,7 @@ namespace ParaMEDMEM
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools
+    void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
     bool checkConsecutiveCellTypes() const throw(INTERP_KERNEL::Exception);
