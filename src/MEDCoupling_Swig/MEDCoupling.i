@@ -1273,6 +1273,13 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      static void PutUMeshesOnSameAggregatedCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<MEDCouplingUMesh *> meshes;
+        convertPyObjToVecUMeshes(ms,meshes);
+        MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(meshes);
+      }
+
       PyObject *are2DCellsNotCorrectlyOriented(PyObject *vec, bool polyOnly) const throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> cells;

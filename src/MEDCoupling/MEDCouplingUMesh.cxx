@@ -5058,6 +5058,59 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
 }
 
 /*!
+ * This method takes in input meshes \b meshes containing no null reference. If any an INTERP_KERNEL::Exception will be thrown.
+ * \b meshes should have a good coherency (connectivity and coordinates well defined).
+ * All mesh in \b meshes must have the same space dimension. If not an INTERP_KERNEL:Exception will be thrown.
+ * But mesh in \b meshes can have different mesh dimension each other.
+ *
+ * This method performs nothing if size of \b meshes is in [0,1].
+ * This method is particulary usefull in MEDLoader context to build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
+ * coordinates DataArrayDouble instance.
+ *
+ * \param [in,out] meshes
+ */
+void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCouplingUMesh *>& meshes) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t sz=meshes.size();
+  if(sz==0 || sz==1)
+    return;
+  std::vector< const DataArrayDouble * > coords(meshes.size());
+  std::vector< const DataArrayDouble * >::iterator it2=coords.begin();
+  for(std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++,it2++)
+    {
+      if((*it))
+        {
+          (*it)->checkConnectivityFullyDefined();
+          const DataArrayDouble *coo=(*it)->getCoords();
+          if(coo)
+            *it2=coo;
+          else
+            {
+              std::ostringstream oss; oss << " MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords : Item #" << std::distance(meshes.begin(),it) << " inside the vector of length " << meshes.size();
+              oss << " has no coordinate array defined !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << " MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords : Item #" << std::distance(meshes.begin(),it) << " inside the vector of length " << meshes.size();
+          oss << " is null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> res=DataArrayDouble::Aggregate(coords);
+  std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();
+  (*it)->setCoords(res);
+  int offset=(*it++)->getNumberOfNodes();
+  for(;it!=meshes.end();it++)
+    {
+      (*it)->setCoords(res);
+      (*it)->shiftNodeNumbersInConn(offset);
+      offset+=(*it)->getNumberOfNodes();
+    }
+}
+
+/*!
  * This method takes in input a cell defined by its MEDcouplingUMesh connectivity [connBg,connEnd) and returns its extruded cell by inserting the result at the end of ret.
  * @param nbOfNodesPerLev in parameter that specifies the number of nodes of one slice of global dataset
  * @param isQuad specifies the policy of connectivity.

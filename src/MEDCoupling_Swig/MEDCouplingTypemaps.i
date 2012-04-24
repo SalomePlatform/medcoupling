@@ -567,6 +567,35 @@ void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MED
     }
 }
 
+void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingUMesh *>& v) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(ms))
+    {
+      int size=PyList_Size(ms);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *obj=PyList_GetItem(ms,i);
+          void *argp;
+          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
+          if(!SWIG_IsOK(status))
+            {
+              const char msg[]="list must contain only instance of MEDCouplingUMesh";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+          ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
+          v[i]=arg;
+        }
+    }
+  else
+    {
+      const char msg[]="convertPyObjToVecUMeshes : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
 void convertPyObjToVecMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingMesh *>& v) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(ms))
