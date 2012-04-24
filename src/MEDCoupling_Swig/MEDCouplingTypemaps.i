@@ -551,11 +551,40 @@ void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MED
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
           if(!SWIG_IsOK(status))
             {
-              const char msg[]="list must contain only MEDCouplingUMesh";
+              const char msg[]="list must contain only instance of MEDCouplingUMesh";
               PyErr_SetString(PyExc_TypeError,msg);
               throw INTERP_KERNEL::Exception(msg);
             }
           const ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingUMesh * >(argp);
+          v[i]=arg;
+        }
+    }
+  else
+    {
+      const char msg[]="convertPyObjToVecUMeshesCst : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+void convertPyObjToVecMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingMesh *>& v) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(ms))
+    {
+      int size=PyList_Size(ms);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *obj=PyList_GetItem(ms,i);
+          void *argp;
+          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingMesh,0|0);
+          if(!SWIG_IsOK(status))
+            {
+              const char msg[]="list must contain only instance of MEDCouplingMesh";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+          const ParaMEDMEM::MEDCouplingMesh *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingMesh * >(argp);
           v[i]=arg;
         }
     }
@@ -609,7 +638,7 @@ void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::ME
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0);
           if(!SWIG_IsOK(status))
             {
-              const char msg[]="list must contain only MEDCouplingFieldDouble";
+              const char msg[]="list must contain only instance of MEDCouplingFieldDouble";
               PyErr_SetString(PyExc_TypeError,msg);
               throw INTERP_KERNEL::Exception(msg);
             }
@@ -638,7 +667,7 @@ void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
           if(!SWIG_IsOK(status))
             {
-              const char msg[]="list must contain only DataArrayInt";
+              const char msg[]="list must contain only instance of DataArrayInt";
               PyErr_SetString(PyExc_TypeError,msg);
               throw INTERP_KERNEL::Exception(msg);
             }

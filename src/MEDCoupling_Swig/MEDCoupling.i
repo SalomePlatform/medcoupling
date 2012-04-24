@@ -667,6 +667,13 @@ namespace ParaMEDMEM
              PyList_SetItem(res,i,PyInt_FromLong(*iL));
            return res;
          }
+         
+         static MEDCouplingMesh *MergeMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
+         {
+            std::vector<const ParaMEDMEM::MEDCouplingMesh *> tmp;
+            convertPyObjToVecMeshesCst(li,tmp);
+            return MEDCouplingMesh::MergeMeshes(tmp);
+         }
        }
   };
 }

@@ -6948,6 +6948,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(10,m4.getNumberOfCells());
         self.assertEqual(20,m4.getNumberOfNodes());
         self.assertEqual(45,m4.getMeshLength());
+        m4bis=MEDCouplingMesh.MergeMeshes(ms);
+        self.assertTrue(m4.isEqual(m4bis,1e-12))
+        del m4bis
         #
         vec3=[0,1,2,3,4]
         m4_1=m4.buildPartOfMySelf(vec3,False);

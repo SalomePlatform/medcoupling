@@ -18,6 +18,7 @@
 //
 
 #include "MEDCouplingMesh.hxx"
+#include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
@@ -295,11 +296,43 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nb
 
 /*!
  * retruns a newly created mesh with counter=1 
- * that is the union of mesh1 and mesh2 if possible. The cells of mesh2 will appear after cells of 'mesh1'. Idem for nodes.
+ * that is the union of \b mesh1 and \b mesh2 if possible. The cells of \b mesh2 will appear after cells of \b mesh1. Idem for nodes.
+ * The only contraint is that \b mesh1 an \b mesh2 have the same mesh types. If it is not the case please use the other API of MEDCouplingMesh::MergeMeshes,
+ * with input vector of meshes.
  */
-MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
+MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception)
 {
+  if(!mesh1)
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh::MergeMeshes : first parameter is an empty mesh !");
+  if(!mesh2)
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh::MergeMeshes : second parameter is an empty mesh !");
   return mesh1->mergeMyselfWith(mesh2);
+}
+
+/*!
+ * retruns a newly created mesh with counter=1 
+ * that is the union of meshes if possible. The cells of \b meshes[1] will appear after cells of \b meshes[0]. Idem for nodes.
+ * This method performs a systematic conversion to unstructured meshes before performing aggregation contrary to the other ParaMEDMEM::MEDCouplingMesh::MergeMeshes with
+ * two parameters that work only on the same type of meshes. So here it is possible to mix different type of meshes.
+ */
+MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) throw(INTERP_KERNEL::Exception)
+{
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > ms1(meshes.size());
+  std::vector< const MEDCouplingUMesh * > ms2(meshes.size());
+  for(std::size_t i=0;i<meshes.size();i++)
+    {
+      if(meshes[i])
+        {
+          MEDCouplingUMesh *cur=meshes[i]->buildUnstructured();
+          ms1[i]=cur;  ms2[i]=cur;
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) : mesh at pos #" << i << " of input vector of size " << meshes.size() << " is empty !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  return MEDCouplingUMesh::MergeUMeshes(ms2);
 }
 
 void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
