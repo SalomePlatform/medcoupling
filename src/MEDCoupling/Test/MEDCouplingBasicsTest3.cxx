@@ -2386,13 +2386,19 @@ void MEDCouplingBasicsTest3::testMergeUMeshes2()
   MEDCouplingUMesh *m3_2=(MEDCouplingUMesh *)m3->buildPartOfMySelf(vec2,vec2+2,false);
   //
   std::vector<const MEDCouplingUMesh *> ms(3);
+  std::vector<const MEDCouplingMesh *> ms2(3);
   ms[0]=m1; ms[1]=m2_2; ms[2]=m3_2;
+  ms2[0]=m1; ms2[1]=m2_2; ms2[2]=m3_2;
   //
   MEDCouplingUMesh *m4=MEDCouplingUMesh::MergeUMeshes(ms);
   m4->checkCoherency();
   CPPUNIT_ASSERT_EQUAL(10,m4->getNumberOfCells());
   CPPUNIT_ASSERT_EQUAL(20,m4->getNumberOfNodes());
   CPPUNIT_ASSERT_EQUAL(45,m4->getMeshLength());
+  //
+  MEDCouplingMesh *m4bis=MEDCouplingMesh::MergeMeshes(ms2);
+  CPPUNIT_ASSERT(m4->isEqual(m4bis,1e-12));
+  m4bis->decrRef();
   //
   const int vec3[5]={0,1,2,3,4};
   MEDCouplingUMesh *m4_1=(MEDCouplingUMesh *)m4->buildPartOfMySelf(vec3,vec3+5,false);
