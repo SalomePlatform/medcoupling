@@ -4827,7 +4827,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(const MEDCouplingUMesh *mesh1, 
 
 /*!
  * This method returns in case of success a mesh constitued from union of all meshes in 'a'.
- * There should be \b no presence of null pointer into 'a'.
+ * There should be \b no presence of null pointer into 'a'. If any an INTERP_KERNEL::Exception will be thrown.
  * The returned mesh will contain aggregation of nodes in 'a' (in the same order) and aggregation of
  * cells in meshes in 'a' (in the same order too).
  */
@@ -4836,17 +4836,18 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUM
   std::size_t sz=a.size();
   if(sz==0)
     return MergeUMeshesLL(a);
+  for(std::size_t ii=0;ii<sz;ii++)
+    if(!a[ii])
+      {
+        std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshes : item #" << ii << " in input array of size "<< sz << " is empty !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > bb(sz);
   std::vector< const MEDCouplingUMesh * > aa(sz);
   int spaceDim=-3;
   for(std::size_t i=0;i<sz && spaceDim==-3;i++)
     {
       const MEDCouplingUMesh *cur=a[i];
-      if(!cur)
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshes : item #" << i << " in input array is empty !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
       const DataArrayDouble *coo=cur->getCoords();
       if(coo)
         spaceDim=coo->getNumberOfComponents();
@@ -4943,6 +4944,12 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<c
 {
   if(meshes.empty())
     throw INTERP_KERNEL::Exception("meshes input parameter is expected to be non empty.");
+  for(std::size_t ii=0;ii<meshes.size();ii++)
+    if(!meshes[ii])
+      {
+        std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshesOnSameCoords : item #" << ii << " in input array of size "<< meshes.size() << " is empty !";;
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   const DataArrayDouble *coords=meshes.front()->getCoords();
   int meshDim=meshes.front()->getMeshDimension();
   std::vector<const MEDCouplingUMesh *>::const_iterator iter=meshes.begin();

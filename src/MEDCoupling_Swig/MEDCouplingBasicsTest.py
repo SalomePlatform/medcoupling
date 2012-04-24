@@ -6941,6 +6941,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         ms=[m1,m2_2,m3_2];
         #
+        self.assertRaises(InterpKernelException,MEDCouplingUMesh.MergeUMeshes,ms+[None]);
+        self.assertRaises(InterpKernelException,MEDCouplingUMesh.MergeUMeshes,ms+[3.4])
         m4=MEDCouplingUMesh.MergeUMeshes(ms);
         m4.checkCoherency();
         self.assertEqual(10,m4.getNumberOfCells());
