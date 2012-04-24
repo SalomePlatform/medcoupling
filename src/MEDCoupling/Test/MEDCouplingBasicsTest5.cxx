@@ -679,3 +679,72 @@ void MEDCouplingBasicsTest5::testGetNodeIdsOfCell2()
   coordsZ->decrRef();
   m1c->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
+{
+  double mesh2DCoords[27]={-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. };
+  int mesh2DConn[18]={1,4,2, 4,5,2, 0,3,4,1, 6,7,4,3, 7,8,5,4};
+  MEDCouplingUMesh *mesh2D=MEDCouplingUMesh::New("mesh",2);
+  mesh2D->allocateCells(5);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,mesh2DConn);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,mesh2DConn+3);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,mesh2DConn+6);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,mesh2DConn+10);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,mesh2DConn+14);
+  mesh2D->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(9,3);
+  std::copy(mesh2DCoords,mesh2DCoords+27,myCoords->getPointer());
+  mesh2D->setCoords(myCoords);
+  myCoords->decrRef();
+  mesh2D->checkCoherency();
+  //
+  double mesh3DCoords[24]={-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1. };
+  int mesh3DConn[18]={0,1,2,3,4,5,6,7,8};
+  MEDCouplingUMesh *mesh3D=MEDCouplingUMesh::New("mesh",3);
+  mesh3D->allocateCells(1);
+  mesh3D->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,mesh3DConn);
+  mesh3D->finishInsertingCells();
+  DataArrayDouble *myCoords3D=DataArrayDouble::New();
+  myCoords3D->alloc(8,3);
+  std::copy(mesh3DCoords,mesh3DCoords+24,myCoords3D->getPointer());
+  mesh3D->setCoords(myCoords3D);
+  myCoords3D->decrRef();
+  mesh3D->checkCoherency();
+  //
+  MEDCouplingUMesh *mesh3D_2=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCpy());
+  MEDCouplingUMesh *mesh2D_2=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCpy());
+  DataArrayInt *renumNodes=DataArrayInt::New();
+  renumNodes->alloc(mesh2D->getNumberOfNodes(),1);
+  renumNodes->iota(mesh3D->getNumberOfNodes());
+  DataArrayDouble *coo=DataArrayDouble::Aggregate(mesh3D->getCoords(),mesh2D->getCoords());
+  mesh3D->setCoords(coo);
+  mesh2D->setCoords(coo);
+  coo->decrRef();
+  mesh2D->renumberNodesInConn(renumNodes->getConstPointer());
+  renumNodes->decrRef();
+  //
+  DataArrayInt *da1,*da2;
+  mesh3D->checkGeoEquivalWith(mesh3D_2,10,1e-12,da1,da2);
+  CPPUNIT_ASSERT(da1==0);
+  CPPUNIT_ASSERT_EQUAL(8,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  const int expected1[8]={8,11,12,9,4,5,6,7};
+  for(int i=0;i<8;i++)
+    CPPUNIT_ASSERT_EQUAL(expected1[i],da2->getIJ(i,0));
+  da2->decrRef();
+  //
+  mesh2D->checkGeoEquivalWith(mesh2D_2,10,1e-12,da1,da2);
+  CPPUNIT_ASSERT(da1==0);
+  CPPUNIT_ASSERT_EQUAL(9,da2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
+  for(int i=0;i<9;i++)
+    CPPUNIT_ASSERT_EQUAL(8+i,da2->getIJ(i,0));
+  da2->decrRef();
+  //
+  mesh3D_2->decrRef();
+  mesh2D_2->decrRef();
+  //
+  mesh3D->decrRef();
+  mesh2D->decrRef();
+}

@@ -9635,6 +9635,62 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2);
         pass
 
+    def testRenumberNodesInConn1(self):
+        mesh2DCoords=[-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. ]
+        mesh2DConn=[1,4,2, 4,5,2, 0,3,4,1, 6,7,4,3, 7,8,5,4]
+        mesh2D=MEDCouplingUMesh.New("mesh",2);
+        mesh2D.allocateCells(5);
+        mesh2D.insertNextCell(NORM_TRI3,3,mesh2DConn[0:3])
+        mesh2D.insertNextCell(NORM_TRI3,3,mesh2DConn[3:6])
+        mesh2D.insertNextCell(NORM_QUAD4,4,mesh2DConn[6:10])
+        mesh2D.insertNextCell(NORM_QUAD4,4,mesh2DConn[10:14])
+        mesh2D.insertNextCell(NORM_QUAD4,4,mesh2DConn[14:18])
+        mesh2D.finishInsertingCells();
+        myCoords=DataArrayDouble.New(mesh2DCoords,9,3);
+        mesh2D.setCoords(myCoords);
+        mesh2D.checkCoherency();
+        #
+        mesh3DCoords=[-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1. ]
+        mesh3DConn=[0,1,2,3,4,5,6,7,8]
+        mesh3D=MEDCouplingUMesh.New("mesh",3);
+        mesh3D.allocateCells(1);
+        mesh3D.insertNextCell(NORM_HEXA8,8,mesh3DConn[0:8])
+        mesh3D.finishInsertingCells();
+        myCoords3D=DataArrayDouble.New(mesh3DCoords,8,3);
+        mesh3D.setCoords(myCoords3D);
+        mesh3D.checkCoherency();
+        #
+        mesh3D_2=mesh3D.deepCpy();
+        mesh2D_2=mesh2D.deepCpy();
+        renumNodes=DataArrayInt.New();
+        renumNodes.alloc(mesh2D.getNumberOfNodes(),1);
+        renumNodes.iota(mesh3D.getNumberOfNodes());
+        coo=DataArrayDouble.Aggregate(mesh3D.getCoords(),mesh2D.getCoords());
+        mesh3D.setCoords(coo);
+        mesh2D.setCoords(coo);
+        mesh2DCpy=mesh2D.deepCpy()
+        mesh2D.renumberNodesInConn(renumNodes);
+        mesh2DCpy.renumberNodesInConn(renumNodes.getValues());
+        self.assertTrue(mesh2D.isEqual(mesh2DCpy,1e-12))
+        #
+        da1,da2=mesh3D.checkGeoEquivalWith(mesh3D_2,10,1e-12);
+        self.assertTrue(da1==None);
+        self.assertEqual(8,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        expected1=[8,11,12,9,4,5,6,7]
+        for i in xrange(8):
+            self.assertEqual(expected1[i],da2.getIJ(i,0));
+            pass
+        #
+        da1,da2=mesh2D.checkGeoEquivalWith(mesh2D_2,10,1e-12);
+        self.assertTrue(da1==None);
+        self.assertEqual(9,da2.getNumberOfTuples());
+        self.assertEqual(1,da2.getNumberOfComponents());
+        for i in xrange(9):
+            self.assertEqual(8+i,da2.getIJ(i,0));
+            pass
+        pass
+
     def setUp(self):
         pass
     pass
