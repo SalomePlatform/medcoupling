@@ -9534,6 +9534,42 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(12):
             self.assertAlmostEqual(da3.getIJ(0,i),expected1[i],13)
             pass
+        # Test new API of classmethod DataArrayDouble.New
+        vals=[5,6,7,8,9,6,7,-2,3,9,8,10]
+        da=DataArrayDouble.New(vals)
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
+            pass
+        da=DataArrayDouble.New(vals,12)
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
+            pass
+        da=DataArrayDouble.New(vals,1,12)
+        self.assertEqual(1,da.getNumberOfTuples());
+        self.assertEqual(12,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
+            pass
+        da=DataArrayDouble.New(vals,6,2)
+        self.assertEqual(6,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
+            pass
+        da=DataArrayDouble.New(vals,4,3)
+        self.assertEqual(4,da.getNumberOfTuples());
+        self.assertEqual(3,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
+            pass
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,11);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,13);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,5,2);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2);
         pass
 
     def testSwigDADOp6(self):
@@ -9555,6 +9591,43 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(12):
             self.assertEqual(da3.getIJ(0,i),expected1[i])
             pass
+        da3=da+DataArrayInt.New(da2.getValues())
+        # Test new API of classmethod DataArrayInt.New
+        vals=[5,6,7,8,9,6,7,-2,3,9,8,10]
+        da=DataArrayDouble.New(vals)
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(da.getIJ(0,i),vals[i])
+            pass
+        da=DataArrayDouble.New(vals,12)
+        self.assertEqual(12,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(da.getIJ(0,i),vals[i])
+            pass
+        da=DataArrayDouble.New(vals,1,12)
+        self.assertEqual(1,da.getNumberOfTuples());
+        self.assertEqual(12,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(da.getIJ(0,i),vals[i])
+            pass
+        da=DataArrayDouble.New(vals,6,2)
+        self.assertEqual(6,da.getNumberOfTuples());
+        self.assertEqual(2,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(da.getIJ(0,i),vals[i])
+            pass
+        da=DataArrayDouble.New(vals,4,3)
+        self.assertEqual(4,da.getNumberOfTuples());
+        self.assertEqual(3,da.getNumberOfComponents());
+        for i in xrange(12):
+            self.assertEqual(da.getIJ(0,i),vals[i])
+            pass
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,11);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,13);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,5,2);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2);
         pass
 
     def setUp(self):
