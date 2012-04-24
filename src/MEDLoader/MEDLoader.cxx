@@ -29,10 +29,7 @@
 
 #include "InterpKernelAutoPtr.hxx"
 
-extern "C"
-{
 #include "med.h"
-}
 
 #include <string>
 #include <limits>

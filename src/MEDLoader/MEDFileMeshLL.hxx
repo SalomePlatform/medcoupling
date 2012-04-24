@@ -27,10 +27,7 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
-extern "C"
-{
 #include "med.h"
-}
 
 #include <map>
 

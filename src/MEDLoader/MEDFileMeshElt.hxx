@@ -25,10 +25,7 @@
 
 #include "NormalizedUnstructuredMesh.hxx"
 
-extern "C"
-{
 #include "med.h"
-}
 
 namespace ParaMEDMEM
 {

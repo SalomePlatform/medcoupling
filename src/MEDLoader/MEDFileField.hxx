@@ -34,10 +34,7 @@
 #include <vector>
 #include <string>
 
-extern "C"
-{
 #include "med.h"
-}
 
 namespace ParaMEDMEM
 {

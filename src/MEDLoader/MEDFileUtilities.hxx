@@ -23,10 +23,7 @@
 #include "InterpKernelException.hxx"
 #include "MEDLoaderDefines.hxx"
 
-extern "C"
-{
 #include "med.h"
-}
 
 namespace MEDFileUtilities
 {
