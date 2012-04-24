@@ -117,6 +117,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
+    MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) const;
     MEDCOUPLING_EXPORT void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems);
@@ -199,7 +200,6 @@ namespace ParaMEDMEM
     DataArrayInt *simplexizePol0() throw(INTERP_KERNEL::Exception);
     DataArrayInt *simplexizePol1() throw(INTERP_KERNEL::Exception);
     void subDivide2DMesh(const int *nodeSubdived, const int *nodeIndxSubdived, const int *desc, const int *descIndex) throw(INTERP_KERNEL::Exception);
-    void renumberNodesInConn(const int *newNodeNumbers);
     void fillCellIdsToKeepFromNodeIds(const int *begin, const int *end, bool fullyIn, std::vector<int>& cellIdsKept) const;
     void split3DCurveWithPlane(const double *origin, const double *vec, double eps, std::vector<int>& cut3DCurve) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildExtrudedMeshFromThisLowLev(int nbOfNodesOf1Lev, bool isQuad) const;

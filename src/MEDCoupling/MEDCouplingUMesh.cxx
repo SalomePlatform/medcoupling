@@ -1542,7 +1542,7 @@ void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNode
  * Use it with care !
  * @param 'newNodeNumbers' in old2New convention
  */
-void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbers)
+void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
   int *conn=getNodalConnectivity()->getPointer();
   const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
@@ -1553,7 +1553,7 @@ void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbers)
         int& node=conn[iconn];
         if(node>=0)//avoid polyhedron separator
           {
-            node=newNodeNumbers[node];
+            node=newNodeNumbersO2N[node];
           }
       }
   _nodal_connec->declareAsNew();

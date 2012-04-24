@@ -822,7 +822,7 @@ namespace ParaMEDMEM
            void renumberNodes(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
            {
              void *da=0;
-             int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+             int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 | 0 );
              if (!SWIG_IsOK(res1))
                {
                  int size;
@@ -841,7 +841,7 @@ namespace ParaMEDMEM
            void renumberNodes2(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
            {
              void *da=0;
-             int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
+             int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 | 0 );
              if (!SWIG_IsOK(res1))
                {
                  int size;
@@ -1213,6 +1213,26 @@ namespace ParaMEDMEM
         INTERP_KERNEL::AutoPtr<INTERP_KERNEL::NormalizedCellType> order=(INTERP_KERNEL::NormalizedCellType *)convertPyToNewIntArr2(li,&sz);
         DataArrayInt *ret=self->getRenumArrForConsecutiveCellTypesSpec(order,(INTERP_KERNEL::NormalizedCellType *)order+sz);
         return ret;
+      }
+
+      void renumberNodesInConn(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        void *da=0;
+        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 | 0 );
+        if (!SWIG_IsOK(res1))
+          {
+            int size;
+            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
+            self->renumberNodesInConn(tmp);
+          }
+        else
+          {
+            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
+            if(!da2)
+              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
+            da2->checkAllocated();
+            self->renumberNodesInConn(da2->getConstPointer());
+          }
       }
 
       PyObject *getLevArrPerCellTypes(PyObject *li) const throw(INTERP_KERNEL::Exception)
