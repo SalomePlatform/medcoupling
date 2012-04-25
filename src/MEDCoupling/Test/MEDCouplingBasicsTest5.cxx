@@ -835,7 +835,6 @@ void MEDCouplingBasicsTest5::testCheckButterflyCellsBug1()
   myCoords->decrRef();
   mesh2D->checkCoherency();
   //
-  mesh2D->writeVTK("pupu.vtu");
   std::vector<int> v;
   mesh2D->checkButterflyCells(v);
   CPPUNIT_ASSERT_EQUAL(0,(int)v.size());
