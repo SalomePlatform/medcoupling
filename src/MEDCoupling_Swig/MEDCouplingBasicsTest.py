@@ -9742,6 +9742,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         #
         pass
+    
+    def testComputeNeighborsOfCells1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        d1,d2=m.computeNeighborsOfCells();
+        self.assertEqual(6,d2.getNumberOfTuples());
+        self.assertEqual(10,d1.getNumberOfTuples());
+        expected1=[0,2,4,6,8,10]
+        expected2=[3,1,0,2,4,1,4,0,2,3]
+        self.assertEqual(expected1,d2.getValues());
+        self.assertEqual(expected2,d1.getValues());
+        pass
 
     def setUp(self):
         pass

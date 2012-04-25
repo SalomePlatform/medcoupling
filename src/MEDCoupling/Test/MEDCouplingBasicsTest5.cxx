@@ -803,3 +803,19 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   mesh3D->decrRef();
   mesh2D->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testComputeNeighborsOfCells1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  DataArrayInt *d1=0,*d2=0;
+  m->computeNeighborsOfCells(d1,d2);
+  CPPUNIT_ASSERT_EQUAL(6,d2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(10,d1->getNumberOfTuples());
+  const int expected1[6]={0,2,4,6,8,10};
+  const int expected2[10]={3,1,0,2,4,1,4,0,2,3};
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+6,d2->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+10,d1->getConstPointer()));
+  d1->decrRef();
+  d2->decrRef();
+  m->decrRef();
+}

@@ -48,6 +48,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGetValueOn3 );
     CPPUNIT_TEST( testGetNodeIdsOfCell2 );
     CPPUNIT_TEST( testRenumberNodesInConn1 );
+    CPPUNIT_TEST( testComputeNeighborsOfCells1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -63,6 +64,7 @@ namespace ParaMEDMEM
     void testGetValueOn3();
     void testGetNodeIdsOfCell2();
     void testRenumberNodesInConn1();
+    void testComputeNeighborsOfCells1();
   };
 }
 
