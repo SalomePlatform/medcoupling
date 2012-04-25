@@ -9651,10 +9651,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh2D.checkCoherency();
         #
         mesh3DCoords=[-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1. ]
-        mesh3DConn=[0,1,2,3,4,5,6,7,8]
+        mesh3DConn=[0,1,2,3,4,5,6,7]
         mesh3D=MEDCouplingUMesh.New("mesh",3);
         mesh3D.allocateCells(1);
-        mesh3D.insertNextCell(NORM_HEXA8,8,mesh3DConn[0:8])
+        mesh3D.insertNextCell(NORM_HEXA8,8,mesh3DConn[:])
         mesh3D.finishInsertingCells();
         myCoords3D=DataArrayDouble.New(mesh3DCoords,8,3);
         mesh3D.setCoords(myCoords3D);
@@ -9662,6 +9662,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         mesh3D_2=mesh3D.deepCpy();
         mesh2D_2=mesh2D.deepCpy();
+        mesh3D_4=mesh3D.deepCpy();
+        mesh2D_4=mesh2D.deepCpy();
         oldNbOf3DNodes=mesh3D.getNumberOfNodes();
         renumNodes=DataArrayInt.New();
         renumNodes.alloc(mesh2D.getNumberOfNodes(),1);
@@ -9693,6 +9695,52 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(9):
             self.assertEqual(8+i,da2.getIJ(i,0));
             pass
+        #
+        mesh2D_5=mesh2D_4.deepCpy();
+        mesh2D_5.translate([1.,0.,0.]);
+        meshes=[mesh3D_4,mesh2D_4,mesh2D_5];
+        MEDCouplingUMesh.PutUMeshesOnSameAggregatedCoords(meshes);
+        self.assertTrue(mesh3D_4.getCoords().getHiddenCppPointer()==mesh2D_4.getCoords().getHiddenCppPointer());
+        self.assertTrue(mesh2D_4.getCoords().getHiddenCppPointer()==mesh2D_5.getCoords().getHiddenCppPointer());
+        mesh3D_4.checkCoherency(); mesh2D_4.checkCoherency(); mesh2D_5.checkCoherency();
+        self.assertEqual(26,mesh3D_4.getNumberOfNodes());
+        self.assertEqual(3,mesh3D_4.getSpaceDimension());
+        self.assertEqual(9,mesh3D_4.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(23,mesh2D_4.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(23,mesh2D_5.getNodalConnectivity().getNumberOfTuples());
+        expected2=[18,0,1,2,3,4,5,6,7]
+        expected3=[3,9,12,10, 3,12,13,10, 4,8,11,12,9, 4,14,15,12,11, 4,15,16,13,12]
+        expected4=[3,18,21,19, 3,21,22,19, 4,17,20,21,18, 4,23,24,21,20, 4,24,25,22,21]
+        expected5=[-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1., -0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0., 0.7, -0.3, 0.0, 1.2, -0.3, 0.0, 1.7, -0.3, 0.0, 0.7, 0.2, 0.0, 1.2, 0.2, 0.0, 1.7, 0.2, 0.0, 0.7, 0.7, 0.0, 1.2, 0.7, 0.0, 1.7, 0.7, 0.0]
+        self.assertEqual(expected2,mesh3D_4.getNodalConnectivity().getValues());
+        self.assertEqual(expected3,mesh2D_4.getNodalConnectivity().getValues());
+        self.assertEqual(expected4,mesh2D_5.getNodalConnectivity().getValues());
+        for i in xrange(78):
+            self.assertAlmostEqual(expected5[i],mesh3D_4.getCoords().getIJ(0,i),12);
+            pass
+        #
+        MEDCouplingUMesh.MergeNodesOnUMeshesSharingSameCoords(meshes,1e-12);
+        mesh3D_4.checkCoherency(); mesh2D_4.checkCoherency(); mesh2D_5.checkCoherency();
+        self.assertTrue(mesh3D_4.getCoords().getHiddenCppPointer()==mesh2D_4.getCoords().getHiddenCppPointer());
+        self.assertTrue(mesh2D_4.getCoords().getHiddenCppPointer()==mesh2D_5.getCoords().getHiddenCppPointer());
+        self.assertEqual(19,mesh3D_4.getNumberOfNodes());
+        self.assertEqual(3,mesh3D_4.getSpaceDimension());
+        self.assertEqual(9,mesh3D_4.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(23,mesh2D_4.getNodalConnectivity().getNumberOfTuples());
+        self.assertEqual(23,mesh2D_5.getNodalConnectivity().getNumberOfTuples());
+        expected6=[18,0,1,2,3,4,5,6,7]
+        expected7=[3,3,2,8, 3,2,9,8, 4,0,1,2,3, 4,10,11,2,1, 4,11,12,9,2]
+        expected8=[3,13,15,14, 3,15,16,14, 4,8,9,15,13, 4,12,17,15,9, 4,17,18,16,15]
+        expected9=[-0.3, -0.3, 0., -0.3, 0.2, 0., 0.2, 0.2, 0., 0.2, -0.3, 0., -0.3, -0.3, 1., -0.3, 0.2, 1.,
+                    0.2, 0.2, 1., 0.2, -0.3, 1., 0.7, -0.3, 0., 0.7, 0.2, 0., -0.3, 0.7, 0., 0.2, 0.7, 0.,
+                    0.7, 0.7, 0., 1.2, -0.3, 0., 1.7, -0.3, 0., 1.2, 0.2, 0., 1.7, 0.2, 0., 1.2, 0.7, 0., 1.7, 0.7, 0.]
+        self.assertEqual(expected6,mesh3D_4.getNodalConnectivity().getValues());
+        self.assertEqual(expected7,mesh2D_4.getNodalConnectivity().getValues());
+        self.assertEqual(expected8,mesh2D_5.getNodalConnectivity().getValues());
+        for i in xrange(57):
+            self.assertAlmostEqual(expected9[i],mesh3D_4.getCoords().getIJ(0,i),1e-12);
+            pass
+        #
         pass
 
     def setUp(self):
