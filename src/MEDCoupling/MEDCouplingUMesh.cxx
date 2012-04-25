@@ -567,6 +567,52 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *d
   return buildDescendingConnectivityGen(desc,descIndx,revDesc,revDescIndx,MEDCouplingOrientationSensitiveNbrer);
 }
 
+/*!
+ * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
+ * For speed reasons no check of this will be done. This method calls MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
+ * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
+ * The a cell with id 'cellId' its neighbors are neighbors[neighborsIdx[cellId]:neighborsIdx[cellId+1]].
+ *
+ * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIdx 2nd output
+ *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIdx.
+ * \param [out] neighborsIdx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ */
+void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  meshDM1=0;
+  const int *descPtr=desc->getConstPointer();
+  const int *descIPtr=descIndx->getConstPointer();
+  const int *revDescPtr=revDesc->getConstPointer();
+  const int *revDescIPtr=revDescIndx->getConstPointer();
+  //
+  int nbCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out0=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out1=DataArrayInt::New(); out1->alloc(nbCells+1,1);
+  int *out1Ptr=out1->getPointer();
+  *out1Ptr++=0;
+  std::vector<int> out0v;
+  out0v.reserve(desc->getNumberOfTuples());
+  for(int i=0;i<nbCells;i++,descIPtr++,out1Ptr++)
+    {
+      for(const int *w1=descPtr+descIPtr[0];w1!=descPtr+descIPtr[1];w1++)
+        {
+          std::set<int> s(revDescPtr+revDescIPtr[*w1],revDescPtr+revDescIPtr[(*w1)+1]);
+          s.erase(i);
+          out0v.insert(out0v.end(),s.begin(),s.end());
+        }
+      *out1Ptr=out0v.size();
+    }
+  out0->alloc((int)out0v.size(),1);
+  std::copy(out0v.begin(),out0v.end(),out0->getPointer());
+  neighbors=out0; out0->incrRef();
+  neighborsIdx=out1; out1->incrRef();
+}
+
 /// @cond INTERNAL
 
 /*!
