@@ -819,3 +819,26 @@ void MEDCouplingBasicsTest5::testComputeNeighborsOfCells1()
   d2->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testCheckButterflyCellsBug1()
+{
+  double mesh2DCoords[10]={323.85,120.983748908684,317.5,131.982271536747,336.55,120.983748908686,330.2,131.982271536751,323.85,142.98079416481};
+  int mesh2DConn[5]={4,1,0,2,3};
+  MEDCouplingUMesh *mesh2D=MEDCouplingUMesh::New("mesh",2);
+  mesh2D->allocateCells(1);
+  mesh2D->insertNextCell(INTERP_KERNEL::NORM_POLYGON,5,mesh2DConn);
+  mesh2D->finishInsertingCells();
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(5,2);
+  std::copy(mesh2DCoords,mesh2DCoords+10,myCoords->getPointer());
+  mesh2D->setCoords(myCoords);
+  myCoords->decrRef();
+  mesh2D->checkCoherency();
+  //
+  mesh2D->writeVTK("pupu.vtu");
+  std::vector<int> v;
+  mesh2D->checkButterflyCells(v);
+  CPPUNIT_ASSERT_EQUAL(0,(int)v.size());
+  //
+  mesh2D->decrRef();
+}

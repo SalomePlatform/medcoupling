@@ -9754,6 +9754,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected2,d1.getValues());
         pass
 
+    def testCheckButterflyCellsBug1(self):
+        mesh2DCoords=[323.85,120.983748908684,317.5,131.982271536747,336.55,120.983748908686,330.2,131.982271536751,323.85,142.98079416481]
+        mesh2DConn=[4,1,0,2,3]
+        mesh2D=MEDCouplingUMesh.New("mesh",2);
+        mesh2D.allocateCells(1);
+        mesh2D.insertNextCell(NORM_POLYGON,5,mesh2DConn[0:5])
+        mesh2D.finishInsertingCells();
+        myCoords=DataArrayDouble.New(mesh2DCoords,5,2);
+        mesh2D.setCoords(myCoords);
+        mesh2D.checkCoherency();
+        #
+        v=mesh2D.checkButterflyCells();
+        self.assertTrue(v.empty());
+        pass
+
     def setUp(self):
         pass
     pass

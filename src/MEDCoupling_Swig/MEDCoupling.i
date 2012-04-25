@@ -1172,10 +1172,10 @@ namespace ParaMEDMEM
         PyList_SetItem(res,2,SWIG_From_int(ret2));
         return res;
       }
-      PyObject *checkButterflyCells() throw(INTERP_KERNEL::Exception)
+      PyObject *checkButterflyCells(double eps=1e-12) throw(INTERP_KERNEL::Exception)
       {
         std::vector<int> cells;
-        self->checkButterflyCells(cells);
+        self->checkButterflyCells(cells,eps);
         DataArrayInt *ret=DataArrayInt::New();
         ret->alloc((int)cells.size(),1);
         std::copy(cells.begin(),cells.end(),ret->getPointer());

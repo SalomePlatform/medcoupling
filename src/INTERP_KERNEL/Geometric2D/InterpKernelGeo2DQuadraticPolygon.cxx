@@ -131,6 +131,19 @@ void QuadraticPolygon::circularPermute()
     }
 }
 
+bool QuadraticPolygon::isButterflyAbs()
+{
+  INTERP_KERNEL::Bounds b;
+  double xBary,yBary;
+  b.prepareForAggregation();
+  fillBounds(b); 
+  double dimChar=b.getCaracteristicDim();
+  b.getBarycenter(xBary,yBary);
+  applyGlobalSimilarity(xBary,yBary,dimChar);
+  //
+  return isButterfly();
+}
+
 bool QuadraticPolygon::isButterfly() const
 {
   for(std::list<ElementaryEdge *>::const_iterator it=_sub_edges.begin();it!=_sub_edges.end();it++)
