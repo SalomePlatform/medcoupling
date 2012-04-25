@@ -715,14 +715,19 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   MEDCouplingUMesh *mesh3D_2=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCpy());
   MEDCouplingUMesh *mesh2D_2=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCpy());
   DataArrayInt *renumNodes=DataArrayInt::New();
+  int oldNbOf3DNodes=mesh3D->getNumberOfNodes();
   renumNodes->alloc(mesh2D->getNumberOfNodes(),1);
-  renumNodes->iota(mesh3D->getNumberOfNodes());
+  renumNodes->iota(oldNbOf3DNodes);
   DataArrayDouble *coo=DataArrayDouble::Aggregate(mesh3D->getCoords(),mesh2D->getCoords());
   mesh3D->setCoords(coo);
   mesh2D->setCoords(coo);
   coo->decrRef();
+  MEDCouplingUMesh *mesh2D_3=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCpy());
+  mesh2D_3->shiftNodeNumbersInConn(oldNbOf3DNodes);
   mesh2D->renumberNodesInConn(renumNodes->getConstPointer());
   renumNodes->decrRef();
+  CPPUNIT_ASSERT(mesh2D_3->isEqual(mesh2D,1e-12));
+  mesh2D_3->decrRef();
   //
   DataArrayInt *da1,*da2;
   mesh3D->checkGeoEquivalWith(mesh3D_2,10,1e-12,da1,da2);

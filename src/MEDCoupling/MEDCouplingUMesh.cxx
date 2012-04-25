@@ -5061,13 +5061,13 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
  * This method takes in input meshes \b meshes containing no null reference. If any an INTERP_KERNEL::Exception will be thrown.
  * \b meshes should have a good coherency (connectivity and coordinates well defined).
  * All mesh in \b meshes must have the same space dimension. If not an INTERP_KERNEL:Exception will be thrown.
- * But mesh in \b meshes can have different mesh dimension each other.
+ * But mesh in \b meshes \b can \b have \b different \b mesh \b dimension \b each \b other.
  *
  * This method performs nothing if size of \b meshes is in [0,1].
  * This method is particulary usefull in MEDLoader context to build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
  * coordinates DataArrayDouble instance.
  *
- * \param [in,out] meshes
+ * \param [in,out] meshes : vector containing no null instance of MEDCouplingUMesh that in case of success of this method will be modified.
  */
 void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCouplingUMesh *>& meshes) throw(INTERP_KERNEL::Exception)
 {
@@ -5100,14 +5100,69 @@ void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCou
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> res=DataArrayDouble::Aggregate(coords);
   std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();
-  (*it)->setCoords(res);
-  int offset=(*it++)->getNumberOfNodes();
+  int offset=(*it)->getNumberOfNodes();
+  (*it++)->setCoords(res);
   for(;it!=meshes.end();it++)
     {
+      int oldNumberOfNodes=(*it)->getNumberOfNodes();
       (*it)->setCoords(res);
       (*it)->shiftNodeNumbersInConn(offset);
-      offset+=(*it)->getNumberOfNodes();
+      offset+=oldNumberOfNodes;
     }
+}
+
+/*!
+ * This method takes in input meshes \b meshes containing no null reference. If any an INTERP_KERNEL::Exception will be thrown.
+ * \b meshes should have a good coherency (connectivity and coordinates well defined).
+ * All mesh in \b meshes must have the same space dimension. If not an INTERP_KERNEL:Exception will be thrown.
+ * But mesh in \b meshes \b can \b have \b different \b mesh \b dimension \b each \b other.
+ * If \b meshes share the same instance of DataArrayDouble as coordinates and that this instance is null, this method do nothing and no exception will be thrown.
+ *
+ * This method performs nothing if size of \b meshes is empty.
+ * This method is particulary usefull in MEDLoader context to perform a treatment of a MEDFileUMesh instance on different levels.
+ * coordinates DataArrayDouble instance.
+ *
+ * \param [in,out] meshes :vector containing no null instance of MEDCouplingUMesh sharing the same DataArrayDouble instance of coordinates, that in case of success of this method will be modified.
+ * \param [in] eps is the distance in absolute (that should be positive !), so that 2 or more points within a distance of eps will be merged into a single point.
+ */
+void MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, double eps) throw(INTERP_KERNEL::Exception)
+{
+  if(meshes.empty())
+    return ;
+  std::set<const DataArrayDouble *> s;
+  for(std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++)
+    {
+      if(*it)
+        s.insert((*it)->getCoords());
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords : In input vector of unstructured meshes of size " << meshes.size() << " the element #" << std::distance(meshes.begin(),it) << " is null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(s.size()!=1)
+    {
+      std::ostringstream oss; oss << "MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords : In input vector of unstructured meshes of size " << meshes.size() << ", it appears that they do not share the same instance of DataArrayDouble for coordiantes ! tryToShareSameCoordsPermute method can help to reach that !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const DataArrayDouble *coo=*(s.begin());
+  if(!coo)
+    return;
+  //
+  DataArrayInt *comm,*commI;
+  coo->findCommonTuples(eps,-1,comm,commI);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1(comm),tmp2(commI);
+  int oldNbOfNodes=coo->getNumberOfTuples();
+  int newNbOfNodes;
+  DataArrayInt *o2n=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfNodes,comm,commI,newNbOfNodes);
+  if(oldNbOfNodes==newNbOfNodes)
+    return ;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=coo->renumberAndReduce(o2n->getConstPointer(),newNbOfNodes);
+  for(std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++)
+    {
+      (*it)->renumberNodesInConn(o2n->getConstPointer());
+      (*it)->setCoords(newCoords);
+    } 
 }
 
 /*!
