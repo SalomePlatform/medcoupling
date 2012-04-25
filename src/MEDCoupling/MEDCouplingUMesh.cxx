@@ -2987,7 +2987,7 @@ void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoint
  * A 2D cell is considered to be butterfly if it exists at least one pair of distinct edges of it that intersect each other
  * anywhere excepted their extremities. An INTERP_KERNEL::NORM_NORI3 could \b not be butterfly.
  */
-void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
+void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells, double eps) const
 {
   const char msg[]="Butterfly detection work only for 2D cells with spaceDim==2 or 3!";
   if(getMeshDimension()!=2)
@@ -3007,7 +3007,7 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
         continue;
       bool isQuad=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[offset]).isQuadratic();
       project2DCellOnXY(conn+offset+1,conn+connI[i+1],cell2DinS2);
-      if(isButterfly2DCell(cell2DinS2,isQuad))
+      if(isButterfly2DCell(cell2DinS2,isQuad,eps))
         cells.push_back(i);
       cell2DinS2.clear();
     }

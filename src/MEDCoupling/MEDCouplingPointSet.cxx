@@ -912,7 +912,7 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
 /*!
  * low level method that checks that the 2D cell is not a butterfly cell.
  */
-bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad)
+bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad, double eps)
 {
   std::size_t nbOfNodes=res.size()/2;
   std::vector<INTERP_KERNEL::Node *> nodes(nbOfNodes);
@@ -921,12 +921,14 @@ bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool
       INTERP_KERNEL::Node *tmp=new INTERP_KERNEL::Node(res[2*i],res[2*i+1]);
       nodes[i]=tmp;
     }
+  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
   INTERP_KERNEL::QuadraticPolygon *pol=0;
   if(isQuad)
     pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
   else
     pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
-  bool ret=pol->isButterfly();
+  bool ret=pol->isButterflyAbs();
   delete pol;
   return ret;
 }
