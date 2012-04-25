@@ -700,7 +700,7 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   mesh2D->checkCoherency();
   //
   double mesh3DCoords[24]={-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1. };
-  int mesh3DConn[18]={0,1,2,3,4,5,6,7,8};
+  int mesh3DConn[8]={0,1,2,3,4,5,6,7};
   MEDCouplingUMesh *mesh3D=MEDCouplingUMesh::New("mesh",3);
   mesh3D->allocateCells(1);
   mesh3D->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,mesh3DConn);
@@ -714,6 +714,8 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   //
   MEDCouplingUMesh *mesh3D_2=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCpy());
   MEDCouplingUMesh *mesh2D_2=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCpy());
+  MEDCouplingUMesh *mesh3D_4=dynamic_cast<MEDCouplingUMesh *>(mesh3D->deepCpy());
+  MEDCouplingUMesh *mesh2D_4=dynamic_cast<MEDCouplingUMesh *>(mesh2D->deepCpy());
   DataArrayInt *renumNodes=DataArrayInt::New();
   int oldNbOf3DNodes=mesh3D->getNumberOfNodes();
   renumNodes->alloc(mesh2D->getNumberOfNodes(),1);
@@ -747,6 +749,54 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
     CPPUNIT_ASSERT_EQUAL(8+i,da2->getIJ(i,0));
   da2->decrRef();
   //
+  const double vect[3]={1.,0.,0.};
+  MEDCouplingUMesh *mesh2D_5=dynamic_cast<MEDCouplingUMesh *>(mesh2D_4->deepCpy());
+  mesh2D_5->translate(vect);
+  std::vector<MEDCouplingUMesh *> meshes(3);
+  meshes[0]=mesh3D_4; meshes[1]=mesh2D_4; meshes[2]=mesh2D_5;
+  MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(meshes);
+  CPPUNIT_ASSERT(mesh3D_4->getCoords()==mesh2D_4->getCoords());
+  CPPUNIT_ASSERT(mesh2D_4->getCoords()==mesh2D_5->getCoords());
+  mesh3D_4->checkCoherency(); mesh2D_4->checkCoherency(); mesh2D_5->checkCoherency();
+  CPPUNIT_ASSERT_EQUAL(26,mesh3D_4->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(3,mesh3D_4->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(9,mesh3D_4->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(23,mesh2D_4->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(23,mesh2D_5->getNodalConnectivity()->getNumberOfTuples());
+  const int expected2[9]={18,0,1,2,3,4,5,6,7};
+  const int expected3[23]={3,9,12,10, 3,12,13,10, 4,8,11,12,9, 4,14,15,12,11, 4,15,16,13,12};
+  const int expected4[23]={3,18,21,19, 3,21,22,19, 4,17,20,21,18, 4,23,24,21,20, 4,24,25,22,21};
+  const double expected5[78]={-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1., -0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0., 0.7, -0.3, 0.0, 1.2, -0.3, 0.0, 1.7, -0.3, 0.0, 0.7, 0.2, 0.0, 1.2, 0.2, 0.0, 1.7, 0.2, 0.0, 0.7, 0.7, 0.0, 1.2, 0.7, 0.0, 1.7, 0.7, 0.0};
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+9,mesh3D_4->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+23,mesh2D_4->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+23,mesh2D_5->getNodalConnectivity()->getConstPointer()));
+  for(int i=0;i<78;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected5[i],mesh3D_4->getCoords()->getIJ(0,i),1e-12);
+  //
+  MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(meshes,1e-12);
+  mesh3D_4->checkCoherency(); mesh2D_4->checkCoherency(); mesh2D_5->checkCoherency();
+  CPPUNIT_ASSERT(mesh3D_4->getCoords()==mesh2D_4->getCoords());
+  CPPUNIT_ASSERT(mesh2D_4->getCoords()==mesh2D_5->getCoords());
+  CPPUNIT_ASSERT_EQUAL(19,mesh3D_4->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(3,mesh3D_4->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(9,mesh3D_4->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(23,mesh2D_4->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(23,mesh2D_5->getNodalConnectivity()->getNumberOfTuples());
+  const int expected6[9]={18,0,1,2,3,4,5,6,7};
+  const int expected7[23]={3,3,2,8, 3,2,9,8, 4,0,1,2,3, 4,10,11,2,1, 4,11,12,9,2};
+  const int expected8[23]={3,13,15,14, 3,15,16,14, 4,8,9,15,13, 4,12,17,15,9, 4,17,18,16,15};
+  const double expected9[57]={-0.3, -0.3, 0., -0.3, 0.2, 0., 0.2, 0.2, 0., 0.2, -0.3, 0., -0.3, -0.3, 1., -0.3, 0.2, 1., 
+                              0.2, 0.2, 1., 0.2, -0.3, 1., 0.7, -0.3, 0., 0.7, 0.2, 0., -0.3, 0.7, 0., 0.2, 0.7, 0., 
+                              0.7, 0.7, 0., 1.2, -0.3, 0., 1.7, -0.3, 0., 1.2, 0.2, 0., 1.7, 0.2, 0., 1.2, 0.7, 0., 1.7, 0.7, 0.};
+  CPPUNIT_ASSERT(std::equal(expected6,expected6+9,mesh3D_4->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected7,expected7+23,mesh2D_4->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected8,expected8+23,mesh2D_5->getNodalConnectivity()->getConstPointer()));
+  for(int i=0;i<57;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected9[i],mesh3D_4->getCoords()->getIJ(0,i),1e-12);
+  mesh2D_5->decrRef();
+  //
+  mesh3D_4->decrRef();
+  mesh2D_4->decrRef();
   mesh3D_2->decrRef();
   mesh2D_2->decrRef();
   //

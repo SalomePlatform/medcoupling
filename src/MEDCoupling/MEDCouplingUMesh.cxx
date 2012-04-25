@@ -5154,7 +5154,7 @@ void MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(const std::vector<ME
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1(comm),tmp2(commI);
   int oldNbOfNodes=coo->getNumberOfTuples();
   int newNbOfNodes;
-  DataArrayInt *o2n=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfNodes,comm,commI,newNbOfNodes);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfNodes,comm,commI,newNbOfNodes);
   if(oldNbOfNodes==newNbOfNodes)
     return ;
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=coo->renumberAndReduce(o2n->getConstPointer(),newNbOfNodes);
