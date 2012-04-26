@@ -3621,7 +3621,7 @@ namespace ParaMEDMEM
                            throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive number of components !");
                          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
                          int *tmp=new int[nbOfTuples*nbOfCompo];
-                         try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples*nbOfCompo,0.,true); }
+                         try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples*nbOfCompo,0,true); }
                          catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
                          ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfCompo);
                          ret->incrRef();
@@ -3634,7 +3634,7 @@ namespace ParaMEDMEM
                    {//DataArrayInt.New([1,3,4],3)
                      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
                      int *tmp=new int[nbOfTuples];
-                     try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples,0.,true); }
+                     try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples,0,true); }
                      catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
                      ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,1);
                      ret->incrRef();
@@ -3653,7 +3653,7 @@ namespace ParaMEDMEM
                szz=PyTuple_Size(elt0);
              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
              int *tmp=new int[szz];
-             try { fillArrayWithPyListInt(elt0,tmp,szz,0.,true); }
+             try { fillArrayWithPyListInt(elt0,tmp,szz,0,true); }
              catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
              ret->useArray(tmp,true,CPP_DEALLOC,szz,1);
              ret->incrRef();
