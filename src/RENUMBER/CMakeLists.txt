@@ -45,17 +45,20 @@ SET(renumber_SOURCES
   renumbering.cxx
   )
 
+SET(renumbercpp_LDFLAGS medmem)
 SET(renumber_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS} ${BOOST_FLAGS}")
 
 IF(MED_ENABLE_METIS)
   SET(renumbercpp_SOURCES ${renumbercpp_SOURCES} RENUMBER_METISRenumbering.cxx)
   SET(renumbercpp_HEADERS_HXX ${renumbercpp_HEADERS_HXX} RENUMBER_METISRenumbering.hxx)
+  SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${METIS_LIBS})
   SET(renumber_FLAGS "${renumber_FLAGS} ${METIS_FLAGS}")
 ENDIF(MED_ENABLE_METIS)
 
 IF(BOOST_STATUS)
   SET(renumbercpp_SOURCES ${renumbercpp_SOURCES} RENUMBER_BOOSTRenumbering.cxx)
   SET(renumbercpp_HEADERS_HXX ${renumbercpp_HEADERS_HXX} RENUMBER_BOOSTRenumbering.hxx)
+  SET(renumbercpp_LDFLAGS ${renumbercpp_LDFLAGS} ${BOOST_LIBS})
   SET(renumber_FLAGS "${renumber_FLAGS} ${BOOST_FLAGS} -DENABLE_BOOST")
 ENDIF(BOOST_STATUS)
 
@@ -66,7 +69,7 @@ INSTALL(TARGETS renumber DESTINATION ${MED_salomebin_BINS})
 
 ADD_LIBRARY(renumbercpp SHARED ${renumbercpp_SOURCES})
 SET_TARGET_PROPERTIES(renumbercpp PROPERTIES COMPILE_FLAGS "${renumber_FLAGS}")
-TARGET_LINK_LIBRARIES(renumbercpp medmem)
+TARGET_LINK_LIBRARIES(renumbercpp ${renumbercpp_LDFLAGS})
 INSTALL(TARGETS renumbercpp DESTINATION ${MED_salomelib_LIBS})
 
 INSTALL(FILES ${renumbercpp_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
