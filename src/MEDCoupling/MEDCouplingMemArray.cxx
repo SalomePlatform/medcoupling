@@ -1422,6 +1422,27 @@ void DataArrayDouble::setContigPartOfSelectedValues2(int tupleIdStart, const Dat
 }
 
 /*!
+ * This method is equivalent to DataArrayDouble::getIJ except that here \b tupleId is checked to be in [0,this->getNumberOfTuples()) and compoId to be in [0,this->getNumberOfComponents()).
+ * If one of these check fails an INTERP_KERNEL::Exception will be thrown.
+ * So this method is safe but expensive if used to go through all data of \b this.
+ */
+double DataArrayDouble::getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(tupleId<0 || tupleId>=getNumberOfTuples())
+    {
+      std::ostringstream oss; oss << "DataArrayDouble::getIJSafe : request for tupleId " << tupleId << " should be in [0," << getNumberOfTuples() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(compoId<0 || compoId>=getNumberOfComponents())
+    {
+      std::ostringstream oss; oss << "DataArrayDouble::getIJSafe : request for compoId " << compoId << " should be in [0," << getNumberOfComponents() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return _mem[tupleId*((int)_info_on_compo.size())+compoId];
+}
+
+/*!
  * This method returns the last element in 'this'. So this method makes the hypothesis that 'this' is allocated.
  * This method works only for arrays that have exactly number of components equal to 1. If not an exception is thrown.
  * And to finish this method works for arrays that have number of tuples >= 1.
@@ -4124,6 +4145,27 @@ void DataArrayInt::setContigPartOfSelectedValues2(int tupleIdStart, const DataAr
     {
       std::copy(valsSrc,valsSrc+nbOfComp,valsToSet);
     }
+}
+
+/*!
+ * This method is equivalent to DataArrayInt::getIJ except that here \b tupleId is checked to be in [0,this->getNumberOfTuples()) and compoId to be in [0,this->getNumberOfComponents()).
+ * If one of these check fails an INTERP_KERNEL::Exception will be thrown.
+ * So this method is safe but expensive if used to go through all data of \b this.
+ */
+int DataArrayInt::getIJSafe(int tupleId, int compoId) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(tupleId<0 || tupleId>=getNumberOfTuples())
+    {
+      std::ostringstream oss; oss << "DataArrayInt::getIJSafe : request for tupleId " << tupleId << " should be in [0," << getNumberOfTuples() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(compoId<0 || compoId>=getNumberOfComponents())
+    {
+      std::ostringstream oss; oss << "DataArrayInt::getIJSafe : request for compoId " << compoId << " should be in [0," << getNumberOfComponents() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  return _mem[tupleId*((int)_info_on_compo.size())+compoId];
 }
 
 /*!
