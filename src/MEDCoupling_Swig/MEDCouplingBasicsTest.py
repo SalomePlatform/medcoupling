@@ -9848,6 +9848,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(subMesh.isEqual(m5,1e-12))
         self.assertRaises(InterpKernelException,m.buildPartOfMySelf,[1,5],True);
         pass
+    
+    def testSwigGetItem3(self):
+        da=DataArrayInt.New([4,5,6])
+        self.assertEqual(5,da[1])
+        self.assertRaises(InterpKernelException,da.__getitem__,-1)
+        self.assertRaises(InterpKernelException,da.__getitem__,3)
+        da=DataArrayInt.New([4,5,6,7,8,9],2,3)
+        self.assertEqual(9,da[1,2])
+        da=DataArrayDouble.New([4.1,5.2,6.3])
+        self.assertAlmostEqual(5.2,da[1],12)
+        self.assertRaises(InterpKernelException,da.__getitem__,-1)
+        self.assertRaises(InterpKernelException,da.__getitem__,3)
+        da=DataArrayDouble.New([4.12,5.12,6.12,7.12,8.12,9.12],2,3)
+        self.assertAlmostEqual(9.12,da[1,2],12)
+        pass
 
     def setUp(self):
         pass

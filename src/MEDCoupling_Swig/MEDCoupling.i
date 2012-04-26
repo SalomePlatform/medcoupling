@@ -157,7 +157,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
 %newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
 %newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
-%newobject ParaMEDMEM::DataArrayInt::__getitem__;
 %newobject ParaMEDMEM::DataArrayInt::__neg__;
 %newobject ParaMEDMEM::DataArrayInt::__add__;
 %newobject ParaMEDMEM::DataArrayInt::__radd__;
@@ -213,7 +212,6 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
 %newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
-%newobject ParaMEDMEM::DataArrayDouble::__getitem__;
 %newobject ParaMEDMEM::DataArrayDouble::__neg__;
 %newobject ParaMEDMEM::DataArrayDouble::__add__;
 %newobject ParaMEDMEM::DataArrayDouble::__radd__;
@@ -2459,9 +2457,9 @@ namespace ParaMEDMEM
      return self->selectByTupleRanges(ranges);
    }
 
-   DataArrayDouble *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
-     const char msg[]="Unexpected situation in __getitem__ !";
+     const char msg[]="Unexpected situation in DataArrayDouble::__getitem__ !";
      self->checkAllocated();
      int nbOfTuples=self->getNumberOfTuples();
      int nbOfComponents=self->getNumberOfComponents();
@@ -2475,56 +2473,54 @@ namespace ParaMEDMEM
      switch(sw)
        {
        case 1:
-         return self->selectByTupleIdSafe(&it1,&it1+1);
+         if(nbOfComponents==1)
+           return PyFloat_FromDouble(self->getIJSafe(it1,0));
+         return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
        case 2:
-         return self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
+         return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
        case 3:
-         return self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
+         return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
        case 4:
-         return self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
+         return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
        case 5:
-         {
-           ret=self->selectByTupleIdSafe(&it1,&it1+1);
-           std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
-         }
+         return PyFloat_FromDouble(self->getIJSafe(it1,ic1));
        case 6:
          {
            ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
            std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 7:
          {
            ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
            std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 8:
          {
            ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
            std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 9:
          {
            ret=self->selectByTupleIdSafe(&it1,&it1+1);
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 10:
          {
            ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 11:
          {
            ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 12:
          {
            ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 13:
          {
@@ -2533,7 +2529,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 14:
          {
@@ -2542,7 +2538,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 15:
          {
@@ -2551,7 +2547,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        case 16:
          {
@@ -2560,7 +2556,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 );
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4123,9 +4119,9 @@ namespace ParaMEDMEM
      return ret;
    }
 
-   DataArrayInt *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
-     const char msg[]="Unexpected situation in __getitem__ !";
+     const char msg[]="Unexpected situation in DataArrayInt::__getitem__ !";
      self->checkAllocated();
      int nbOfTuples=self->getNumberOfTuples();
      int nbOfComponents=self->getNumberOfComponents();
@@ -4139,56 +4135,56 @@ namespace ParaMEDMEM
      switch(sw)
        {
        case 1:
-         return self->selectByTupleIdSafe(&it1,&it1+1);
-       case 2:
-         return self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-       case 3:
-         return self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
-       case 4:
-         return self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-       case 5:
          {
-           ret=self->selectByTupleIdSafe(&it1,&it1+1);
-           std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
+           if(nbOfComponents==1)
+             return PyInt_FromLong(self->getIJSafe(it1,0));
+           return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&it1,&it1+1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
+       case 2:
+         return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size())),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+       case 3:
+         return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+       case 4:
+         return SWIG_NewPointerObj(SWIG_as_voidptr(self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems())),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+       case 5:
+         return PyInt_FromLong(self->getIJSafe(it1,ic1));
        case 6:
          {
            ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
            std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 7:
          {
            ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
            std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 8:
          {
            ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
            std::vector<int> v2(1,ic1);
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 9:
          {
            ret=self->selectByTupleIdSafe(&it1,&it1+1);
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 10:
          {
            ret=self->selectByTupleIdSafe(&vt1[0],&vt1[0]+vt1.size());
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 11:
          {
            ret=self->selectByTupleId2(pt1.first,pt1.second.first,pt1.second.second);
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 12:
          {
            ret=self->selectByTupleIdSafe(dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems());
-           return ret->keepSelectedComponents(vc1);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(vc1)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 13:
          {
@@ -4197,7 +4193,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 14:
          {
@@ -4206,7 +4202,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 15:
          {
@@ -4215,7 +4211,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        case 16:
          {
@@ -4224,7 +4220,7 @@ namespace ParaMEDMEM
            std::vector<int> v2(nbOfComp);
            for(int i=0;i<nbOfComp;i++)
              v2[i]=pc1.first+i*pc1.second.second;
-           return ret->keepSelectedComponents(v2);
+           return SWIG_NewPointerObj(SWIG_as_voidptr(ret->keepSelectedComponents(v2)),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
