@@ -841,3 +841,67 @@ void MEDCouplingBasicsTest5::testCheckButterflyCellsBug1()
   //
   mesh2D->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testDataArrayIntRange1()
+{
+  DataArrayInt *d=DataArrayInt::Range(2,17,7);
+  const int expected1[3]={2,9,16};
+  CPPUNIT_ASSERT_EQUAL(3,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,d->getConstPointer()));
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(2,23,7);
+  CPPUNIT_ASSERT_EQUAL(3,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,d->getConstPointer()));
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(2,24,7);
+  const int expected2[4]={2,9,16,23};
+  CPPUNIT_ASSERT_EQUAL(4,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+4,d->getConstPointer()));
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(24,2,-7);
+  const int expected3[4]={24,17,10,3};
+  CPPUNIT_ASSERT_EQUAL(4,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+4,d->getConstPointer()));
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(23,2,-7);
+  const int expected4[3]={23,16,9};
+  CPPUNIT_ASSERT_EQUAL(3,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+3,d->getConstPointer()));
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(23,22,-7);
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(23,d->getIJ(0,0));
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(22,23,7);
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(22,d->getIJ(0,0));
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(22,22,7);
+  CPPUNIT_ASSERT_EQUAL(0,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  d->decrRef();
+  //
+  d=DataArrayInt::Range(22,22,-7);
+  CPPUNIT_ASSERT_EQUAL(0,d->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,d->getNumberOfComponents());
+  d->decrRef();
+  //
+  CPPUNIT_ASSERT_THROW(DataArrayInt::Range(22,23,-7),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(DataArrayInt::Range(23,22,7),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(DataArrayInt::Range(23,22,0),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(DataArrayInt::Range(22,23,0),INTERP_KERNEL::Exception);
+}

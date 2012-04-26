@@ -146,6 +146,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::Divide;
 %newobject ParaMEDMEM::DataArrayInt::BuildUnion;
 %newobject ParaMEDMEM::DataArrayInt::BuildIntersection;
+%newobject ParaMEDMEM::DataArrayInt::Range;
 %newobject ParaMEDMEM::DataArrayInt::fromNoInterlace;
 %newobject ParaMEDMEM::DataArrayInt::toNoInterlace;
 %newobject ParaMEDMEM::DataArrayInt::buildComplement;

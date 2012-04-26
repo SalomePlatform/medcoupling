@@ -9769,6 +9769,60 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(v.empty());
         pass
 
+    def testDataArrayIntRange1(self):
+        d=DataArrayInt.Range(2,17,7);
+        expected1=[2,9,16]
+        self.assertEqual(3,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertTrue(expected1,d.getValues());
+        #
+        d=DataArrayInt.Range(2,23,7);
+        self.assertEqual(3,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertTrue(expected1,d.getValues());
+        #
+        d=DataArrayInt.Range(2,24,7);
+        expected2=[2,9,16,23]
+        self.assertEqual(4,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertTrue(expected2,d.getValues());
+        #
+        d=DataArrayInt.Range(24,2,-7);
+        expected3=[24,17,10,3]
+        self.assertEqual(4,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertTrue(expected3,d.getValues());
+        #
+        d=DataArrayInt.Range(23,2,-7);
+        expected4=[23,16,9]
+        self.assertEqual(3,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertTrue(expected4,d.getValues());
+        #
+        d=DataArrayInt.Range(23,22,-7);
+        self.assertEqual(1,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertEqual(23,d.getIJ(0,0));
+        #
+        d=DataArrayInt.Range(22,23,7);
+        self.assertEqual(1,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertEqual(22,d.getIJ(0,0));
+        #
+        d=DataArrayInt.Range(22,22,7);
+        self.assertEqual(0,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        #
+        d=DataArrayInt.Range(22,22,-7);
+        self.assertEqual(0,d.getNumberOfTuples());
+        self.assertEqual(1,d.getNumberOfComponents());
+        #
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,22,23,-7);
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,7);
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,0);
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,22,23,0);
+        pass
+
     def setUp(self):
         pass
     pass

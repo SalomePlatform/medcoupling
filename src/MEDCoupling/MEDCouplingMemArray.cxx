@@ -315,6 +315,26 @@ int DataArray::GetNumberOfItemGivenBES(int begin, int end, int step, const char 
   return (end-1-begin)/step+1;
 }
 
+int DataArray::GetNumberOfItemGivenBESRelative(int begin, int end, int step, const char *msg) throw(INTERP_KERNEL::Exception)
+{
+  if(step==0)
+    throw INTERP_KERNEL::Exception("DataArray::GetNumberOfItemGivenBES : step=0 is not allowed !");
+  if(end<begin && step>0)
+    {
+      std::ostringstream oss; oss << msg << " : end before begin whereas step is positive !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(begin<end && step<0)
+    {
+      std::ostringstream oss; oss << msg << " : invalid step should be > 0 !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(begin!=end)
+    return (std::max(begin,end)-1-std::min(begin,end))/std::abs(step)+1;
+  else
+    return 0;
+}
+
 DataArrayDouble *DataArrayDouble::New()
 {
   return new DataArrayDouble;
@@ -5173,6 +5193,26 @@ int *DataArrayInt::CheckAndPreparePermutation(const int *start, const int *end)
   for(const int *iter=start;iter!=end;iter++,iter2++)
     *iter2=(int)std::distance(work,std::find(work,work+sz,*iter));
   delete [] work;
+  return ret;
+}
+
+DataArrayInt *DataArrayInt::Range(int begin, int end, int step) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfTuples=GetNumberOfItemGivenBESRelative(begin,end,step,"DataArrayInt::Range");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples,1);
+  int *ptr=ret->getPointer();
+  if(step>0)
+    {
+      for(int i=begin;i<end;i+=step,ptr++)
+        *ptr=i;
+    }
+  else
+    {
+      for(int i=begin;i>end;i+=step,ptr++)
+        *ptr=i;
+    }
+  ret->incrRef();
   return ret;
 }
 
