@@ -247,6 +247,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex;
 %newobject ParaMEDMEM::MEDCouplingUMesh::clone;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__iter__;
+%newobject ParaMEDMEM::MEDCouplingUMesh::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::cellsByType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
@@ -1107,6 +1108,63 @@ namespace ParaMEDMEM
       MEDCouplingUMeshCellIterator *__iter__()
       {
         return self->cellIterator();
+      }
+
+      MEDCouplingPointSet *__getitem__(PyObject *listOrDataArrI) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        int nbc=self->getNumberOfCells();
+        convertObjToPossibleCpp2(listOrDataArrI,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            {
+              if(singleVal>=nbc)
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+              if(singleVal>=0)
+                return self->buildPartOfMySelf(&singleVal,&singleVal+1,true);
+              else
+                {
+                  if(nbc+singleVal>0)
+                    {
+                      int tmp=nbc+singleVal;
+                      return self->buildPartOfMySelf(&tmp,&tmp+1,true);
+                    }
+                  else
+                    {
+                      std::ostringstream oss;
+                      oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                }
+            }
+          case 2:
+            {
+              return static_cast<MEDCouplingUMesh *>(self->buildPartOfMySelf(&multiVal[0],&multiVal[0]+multiVal.size(),true));
+            }
+          case 3:
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::Range(slic.first,slic.second.first,slic.second.second);
+              return self->buildPartOfMySelf(d0->begin(),d0->end(),true);
+            }
+          case 4:
+            {
+              if(!daIntTyypp)
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : null instance has been given in input !");
+              daIntTyypp->checkAllocated();
+              return self->buildPartOfMySelf(daIntTyypp->begin(),daIntTyypp->end(),true);
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
+          }
       }
 
       void insertNextCell(INTERP_KERNEL::NormalizedCellType type, int size, PyObject *li) throw(INTERP_KERNEL::Exception)

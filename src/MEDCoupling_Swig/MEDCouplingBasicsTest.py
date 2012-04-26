@@ -1421,7 +1421,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected1=[0,1]
         self.assertEqual(2,arr1.getNumberOfTuples());
         self.assertEqual(1,arr1.getNumberOfComponents());
-        self.assertTrue(expected1,arr1.getValues());
+        self.assertEqual(expected1,arr1.getValues());
         expected2=[0,3,4,1,2]
         arr1=m2_1.rearrange2ConsecutiveCellTypes();
         self.assertEqual(5,arr1.getNumberOfTuples());
@@ -2596,7 +2596,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(5,len(types));
         expected1=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4, NORM_TRI6, NORM_QUAD8]
         expected1.sort()
-        self.assertTrue(expected1==types);
+        self.assertEqual(expected1,types);
         self.assertTrue(mesh.isPresenceOfQuadratic());
         self.assertEqual(62,mesh.getMeshLength());
         f1=mesh.getMeasureField(False);
@@ -2613,7 +2613,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(3,len(types2));
         expected2=[NORM_POLYGON, NORM_TRI3, NORM_QUAD4]
         expected2.sort()
-        self.assertTrue(expected2==types2);
+        self.assertEqual(expected2,types2);
         pass
 
     def testCheckGeoEquivalWith(self):
@@ -8518,7 +8518,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(10,ret.getNbOfElems());
         self.assertEqual(7,newNbTuple);
         self.assertEqual(1,ret.getNumberOfComponents());
-        self.assertTrue(expected,ret.getValues());
+        self.assertEqual(expected,ret.getValues());
         pass
 
     def testDADIReverse1(self):
@@ -8798,8 +8798,8 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         self.assertEqual(60,m12.getNodalConnectivity().getNumberOfTuples());
         self.assertEqual(9,m12.getNodalConnectivityIndex().getNumberOfTuples());
-        self.assertTrue(expected3,m12.getNodalConnectivity().getValues());
-        self.assertTrue(expected4,m12.getNodalConnectivityIndex().getValues());
+        self.assertEqual(expected3,m12.getNodalConnectivity().getValues());
+        self.assertEqual(expected4,m12.getNodalConnectivityIndex().getValues());
         pass
 
     def testIntersect2DMeshesTmp4(self):
@@ -9774,30 +9774,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected1=[2,9,16]
         self.assertEqual(3,d.getNumberOfTuples());
         self.assertEqual(1,d.getNumberOfComponents());
-        self.assertTrue(expected1,d.getValues());
+        self.assertEqual(expected1,d.getValues());
         #
         d=DataArrayInt.Range(2,23,7);
         self.assertEqual(3,d.getNumberOfTuples());
         self.assertEqual(1,d.getNumberOfComponents());
-        self.assertTrue(expected1,d.getValues());
+        self.assertEqual(expected1,d.getValues());
         #
         d=DataArrayInt.Range(2,24,7);
         expected2=[2,9,16,23]
         self.assertEqual(4,d.getNumberOfTuples());
         self.assertEqual(1,d.getNumberOfComponents());
-        self.assertTrue(expected2,d.getValues());
+        self.assertEqual(expected2,d.getValues());
         #
         d=DataArrayInt.Range(24,2,-7);
         expected3=[24,17,10,3]
         self.assertEqual(4,d.getNumberOfTuples());
         self.assertEqual(1,d.getNumberOfComponents());
-        self.assertTrue(expected3,d.getValues());
+        self.assertEqual(expected3,d.getValues());
         #
         d=DataArrayInt.Range(23,2,-7);
         expected4=[23,16,9]
         self.assertEqual(3,d.getNumberOfTuples());
         self.assertEqual(1,d.getNumberOfComponents());
-        self.assertTrue(expected4,d.getValues());
+        self.assertEqual(expected4,d.getValues());
         #
         d=DataArrayInt.Range(23,22,-7);
         self.assertEqual(1,d.getNumberOfTuples());
@@ -9821,6 +9821,32 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,7);
         self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,0);
         self.assertRaises(InterpKernelException,DataArrayInt.Range,22,23,0);
+        pass
+
+    def testSwigUMeshGetItem1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        subMesh=m.buildPartOfMySelf([1,3],True);
+        self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
+        m1=m[[1,3]]
+        self.assertTrue(isinstance(m1,MEDCouplingUMesh))
+        m2=m[(1,3)]
+        self.assertTrue(isinstance(m2,MEDCouplingUMesh))
+        m3=m[1::2]
+        self.assertTrue(isinstance(m3,MEDCouplingUMesh))
+        m4=m[DataArrayInt.New([1,3])]
+        m5_1=m[1]
+        self.assertTrue(isinstance(m5_1,MEDCouplingUMesh))
+        m5_2=m[3]
+        self.assertTrue(isinstance(m5_2,MEDCouplingUMesh))
+        m5=MEDCouplingUMesh.MergeUMeshesOnSameCoords([m5_1,m5_2]);
+        m5.setName(subMesh.getName())
+        self.assertTrue(isinstance(m4,MEDCouplingUMesh))
+        self.assertTrue(subMesh.isEqual(m1,1e-12))
+        self.assertTrue(subMesh.isEqual(m2,1e-12))
+        self.assertTrue(subMesh.isEqual(m3,1e-12))
+        self.assertTrue(subMesh.isEqual(m4,1e-12))
+        self.assertTrue(subMesh.isEqual(m5,1e-12))
+        self.assertRaises(InterpKernelException,m.buildPartOfMySelf,[1,5],True);
         pass
 
     def setUp(self):
