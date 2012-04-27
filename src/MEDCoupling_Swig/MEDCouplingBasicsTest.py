@@ -9897,6 +9897,35 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected4[pos][0],bary2.accumulate()[0],12);
             self.assertAlmostEqual(expected4[pos][1],bary2.accumulate()[1],12);
             pass
+        #
+        d=DataArrayInt.New([1,2,0,1,0,2],3,2)
+        e=DataArrayInt.New([1,11,101,2,12,102,3,13,103,4,14,104],4,3)
+        expected5=[[1,11,101,77,77,77,77,77,77,4,14,104],[77,77,77,77,77,77,3,13,103,4,14,104],[77,77,77,2,12,102,77,77,77,4,14,104]]
+        expected6=[[1,77,77,2,77,77,3,77,77,4,77,77],[77,77,101,77,77,102,77,77,103,77,77,104],[77,11,77,77,12,77,77,13,77,77,14,77]]
+        for pos,tup in enumerate(d):
+            f=e[:]
+            self.assertTrue(isinstance(f,DataArrayInt))
+            f[tup]=77
+            self.assertEqual(expected5[pos],f.getValues())
+            self.assertEqual(6*[77],f[tup].getValues())
+            f=e[:]
+            f[:,tup]=77
+            self.assertEqual(expected6[pos],f.getValues())
+            self.assertEqual(8*[77],f[:,tup].getValues())
+            pass
+        #
+        e=e.convertToDblArr()
+        for pos,tup in enumerate(d):
+            f=e[:]
+            self.assertTrue(isinstance(f,DataArrayDouble))
+            f[tup]=77.
+            self.assertEqual(expected5[pos],f.convertToIntArr().getValues())
+            self.assertEqual(6*[77],f[tup].convertToIntArr().getValues())
+            f=e[:]
+            f[:,tup]=77.
+            self.assertEqual(expected6[pos],f.convertToIntArr().getValues())
+            self.assertEqual(8*[77],f[:,tup].convertToIntArr().getValues())
+            pass
         pass
         
     def setUp(self):
