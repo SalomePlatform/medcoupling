@@ -943,6 +943,7 @@ static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, 
  */
 static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
+  const char *msg="5 types accepted : integer, tuple of integer, list of integer, slice, DataArrayInt, DataArrayIntTuple";
   sw=-1;
   if(PyInt_Check(value))
     {
@@ -1003,10 +1004,32 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
     }
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
-  if(!SWIG_IsOK(status))
-    throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, slice, DataArrayInt");
-  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
-  sw=4;
+  if(SWIG_IsOK(status))
+    {
+      daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      if(!daIntTyypp)
+        {
+          std::ostringstream oss; oss << msg << " Instance in null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      sw=4;
+      return ;
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);;
+  if(SWIG_IsOK(status))
+    {
+      ParaMEDMEM::DataArrayIntTuple *tmp=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      if(!tmp)
+        {
+          std::ostringstream oss; oss << msg << " Instance in null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      stdvecTyypp.resize(tmp->getNumberOfCompo());
+      std::copy(tmp->getConstPointer(),tmp->getConstPointer()+tmp->getNumberOfCompo(),stdvecTyypp.begin());
+      sw=2;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception(msg);
 }
 
 static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayIntTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
