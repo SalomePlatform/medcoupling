@@ -9864,6 +9864,41 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(9.12,da[1,2],12)
         pass
 
+    def testSwigDADISub1(self):
+        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        bary=mesh3D.getBarycenterAndOwner()
+        bary=bary[:,:2]
+        pts=bary.getDifferentValues(1e-12)
+        expected=[[0,6,12],[1,7,13],[2,8,14],[3,9,15],[4,10,16],[5,11,17]]
+        for pos,pt in enumerate(pts):
+            bary2=bary[:,:2]
+            bary2[:]-=pt
+            norm=bary2.magnitude()
+            self.assertEqual(expected[pos],norm.getIdsInRange(-1.,1e-5).getValues())
+            pass
+        expected2=[[3.,54.],[-141.,180.],[21.,54.],[39.,72.],[-15.,90.],[21.,90.]]
+        for pos,pt in enumerate(pts):
+            bary2=bary[:,:2]
+            bary2[:]+=pt
+            self.assertAlmostEqual(expected2[pos][0],bary2.accumulate()[0],12);
+            self.assertAlmostEqual(expected2[pos][1],bary2.accumulate()[1],12);
+            pass
+        expected3=[[-3.,22.5],[45.,337.5],[-9., 22.5],[-15.,67.5],[3.,112.5],[-9.,112.5]]
+        for pos,pt in enumerate(pts):
+            bary2=bary[:,:2]
+            bary2[:]*=pt
+            self.assertAlmostEqual(expected3[pos][0],bary2.accumulate()[0],12);
+            self.assertAlmostEqual(expected3[pos][1],bary2.accumulate()[1],12);
+            pass
+        expected4=[[-12.,90.],[0.8,6.],[-4,90.],[-2.4,30.],[12.,18],[-4,18.]]
+        for pos,pt in enumerate(pts):
+            bary2=bary[:,:2]
+            bary2[:]/=pt
+            self.assertAlmostEqual(expected4[pos][0],bary2.accumulate()[0],12);
+            self.assertAlmostEqual(expected4[pos][1],bary2.accumulate()[1],12);
+            pass
+        pass
+        
     def setUp(self):
         pass
     pass

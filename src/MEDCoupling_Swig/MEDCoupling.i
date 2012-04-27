@@ -2946,7 +2946,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Add(self,aaa);
          }
        default:
@@ -2974,7 +2974,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Add(self,aaa);
          }
        default:
@@ -3005,7 +3005,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->addEqual(aaa);
            return self;
          }
@@ -3044,7 +3044,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Substract(self,aaa);
          }
        case 4:
@@ -3077,7 +3077,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Substract(aaa,self);
          }
        case 4:
@@ -3113,7 +3113,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->substractEqual(aaa);
            return self;
          }
@@ -3152,7 +3152,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Multiply(self,aaa);
          }
        case 4:
@@ -3185,7 +3185,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Multiply(self,aaa);
          }
        case 4:
@@ -3221,7 +3221,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->multiplyEqual(aaa);
            return self;
          }
@@ -3262,7 +3262,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Divide(self,aaa);
          }
        case 4:
@@ -3295,7 +3295,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Divide(aaa,self);
          }
        case 4:
@@ -3333,7 +3333,7 @@ namespace ParaMEDMEM
          }
        case 3:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->divideEqual(aaa);
            return self;
          }
@@ -4263,7 +4263,7 @@ namespace ParaMEDMEM
                self->setPartOfValues1(d1,it1,it1+1,1,0,nbOfComponents,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1);
                return self;
              default:
@@ -4287,7 +4287,7 @@ namespace ParaMEDMEM
                self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),0,nbOfComponents,1);
                return self;
              default:
@@ -4311,7 +4311,7 @@ namespace ParaMEDMEM
                self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1);
                return self;
              default:
@@ -4335,7 +4335,7 @@ namespace ParaMEDMEM
                self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),0,nbOfComponents,1);
                return self;
              default:
@@ -4359,7 +4359,7 @@ namespace ParaMEDMEM
                self->setPartOfValues1(d1,it1,it1+1,1,ic1,ic1+1,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1);
                return self;
              default:
@@ -4383,7 +4383,7 @@ namespace ParaMEDMEM
                self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),ic1,ic1+1,1);
                return self;
              default:
@@ -4407,7 +4407,7 @@ namespace ParaMEDMEM
                self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1);
                return self;
              default:
@@ -4431,7 +4431,7 @@ namespace ParaMEDMEM
                self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),ic1,ic1+1,1);
                return self;
              default:
@@ -4455,7 +4455,7 @@ namespace ParaMEDMEM
                self->setPartOfValues2(d1,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues2(tmp,&it1,&it1+1,&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
@@ -4479,7 +4479,7 @@ namespace ParaMEDMEM
                self->setPartOfValues2(d1,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues2(tmp,&vt1[0],&vt1[0]+vt1.size(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
@@ -4512,7 +4512,7 @@ namespace ParaMEDMEM
                self->setPartOfValues2(d1,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues2(tmp,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
@@ -4536,7 +4536,7 @@ namespace ParaMEDMEM
                self->setPartOfValues2(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues2(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
@@ -4560,7 +4560,7 @@ namespace ParaMEDMEM
                self->setPartOfValues1(d1,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second);
                return self;
              default:
@@ -4584,7 +4584,7 @@ namespace ParaMEDMEM
                self->setPartOfValues3(d1,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues3(tmp,&vt1[0],&vt1[0]+vt1.size(),pc1.first,pc1.second.first,pc1.second.second);
                return self;
              default:
@@ -4608,7 +4608,7 @@ namespace ParaMEDMEM
                self->setPartOfValues1(d1,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second);
                return self;
              default:
@@ -4632,7 +4632,7 @@ namespace ParaMEDMEM
                self->setPartOfValues3(d1,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
                return self;
              case 4:
-               tmp=dd1->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+               tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
                self->setPartOfValues3(tmp,dt1->getConstPointer(),dt1->getConstPointer()+dt1->getNbOfElems(),pc1.first,pc1.second.first,pc1.second.second);
                return self;
              default:
@@ -4675,7 +4675,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Add(self,aaaa);
          }
        default:
@@ -4703,7 +4703,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Add(self,aaaa);
          }
        default:
@@ -4740,7 +4740,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->addEqual(aaaa);
            return self;
          }
@@ -4773,7 +4773,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Substract(self,aaaa);
          }
        default:
@@ -4801,7 +4801,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Substract(aaaa,self);
          }
        default:
@@ -4838,7 +4838,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->substractEqual(aaaa);
            return self;
          }
@@ -4871,7 +4871,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Multiply(self,aaaa);
          }
        default:
@@ -4899,7 +4899,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Multiply(self,aaaa);
          }
        default:
@@ -4936,7 +4936,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->multiplyEqual(aaaa);
            return self;
          }
@@ -4969,7 +4969,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Divide(self,aaaa);
          }
        default:
@@ -4997,7 +4997,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Divide(aaaa,self);
          }
        default:
@@ -5034,7 +5034,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->divideEqual(aaaa);
            return self;
          }
@@ -5067,7 +5067,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Modulus(self,aaaa);
          }
        default:
@@ -5099,7 +5099,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            return DataArrayInt::Modulus(aaaa,self);
          }
        default:
@@ -5130,7 +5130,7 @@ namespace ParaMEDMEM
          }
        case 4:
          {
-           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(self->getNumberOfTuples(),self->getNumberOfComponents());
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->modulusEqual(aaaa);
            return self;
          }
