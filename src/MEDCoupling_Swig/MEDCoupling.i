@@ -428,10 +428,8 @@ namespace ParaMEDMEM
          int getCellContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
          {
            int sz;
-           double *pos=convertPyToNewDblArr2(p,&sz);
-           int ret=self->getCellContainingPoint(pos,eps);
-           delete [] pos;
-           return ret;
+           INTERP_KERNEL::AutoPtr<double> pos=convertPyToNewDblArr2(p,&sz);
+           return self->getCellContainingPoint(pos,eps);
          }
 
          PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const throw(INTERP_KERNEL::Exception)
@@ -531,9 +529,8 @@ namespace ParaMEDMEM
          void scale(PyObject *point, double factor) throw(INTERP_KERNEL::Exception)
          {
            int sz;
-           double *p=convertPyToNewDblArr2(point,&sz);
+           INTERP_KERNEL::AutoPtr<double> p=convertPyToNewDblArr2(point,&sz);
            self->scale(p,factor);
-           delete [] p;
          }
 
          PyObject *getBoundingBox() const throw(INTERP_KERNEL::Exception)
@@ -861,13 +858,11 @@ namespace ParaMEDMEM
                std::vector<int> nodes;
                int spaceDim=self->getSpaceDimension();
                int sz1,sz2;
-               double *p=convertPyToNewDblArr2(pt,&sz1);
-               double *v=convertPyToNewDblArr2(vec,&sz2);
+               INTERP_KERNEL::AutoPtr<double> p=convertPyToNewDblArr2(pt,&sz1);
+               INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vec,&sz2);
                if(sz1!=spaceDim || sz2!=spaceDim)
                  throw INTERP_KERNEL::Exception("Mismatch of spaceDimension and the length of the input array point and vector !");
                self->findNodesOnLine(p,v,eps,nodes);
-               delete [] v;
-               delete [] p;
                DataArrayInt *ret=DataArrayInt::New();
                ret->alloc((int)nodes.size(),1);
                std::copy(nodes.begin(),nodes.end(),ret->getPointer());
@@ -877,11 +872,9 @@ namespace ParaMEDMEM
              {
                std::vector<int> nodes;
                int sz;
-               double *p=convertPyToNewDblArr2(pt,&sz);
-               double *v=convertPyToNewDblArr2(vec,&sz);
+               INTERP_KERNEL::AutoPtr<double> p=convertPyToNewDblArr2(pt,&sz);
+               INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vec,&sz);
                self->findNodesOnPlane(p,v,eps,nodes);
-               delete [] v;
-               delete [] p;
                DataArrayInt *ret=DataArrayInt::New();
                ret->alloc((int)nodes.size(),1);
                std::copy(nodes.begin(),nodes.end(),ret->getPointer());
@@ -926,9 +919,8 @@ namespace ParaMEDMEM
            {
              std::vector<int> elems;
              int size;
-             double *tmp=convertPyToNewDblArr2(bbox,&size);
+             INTERP_KERNEL::AutoPtr<double> tmp=convertPyToNewDblArr2(bbox,&size);
              self->getCellsInBoundingBox(tmp,eps,elems);
-             delete [] tmp;
              DataArrayInt *ret=DataArrayInt::New();
              ret->alloc((int)elems.size(),1);
              std::copy(elems.begin(),elems.end(),ret->getPointer());
@@ -938,25 +930,21 @@ namespace ParaMEDMEM
            static void Rotate2DAlg(PyObject *center, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
            {
              int sz;
-             double *c=convertPyToNewDblArr2(center,&sz);
-             double *coo=convertPyToNewDblArr2(coords,&sz);
+             INTERP_KERNEL::AutoPtr<double> c=convertPyToNewDblArr2(center,&sz);
+             INTERP_KERNEL::AutoPtr<double> coo=convertPyToNewDblArr2(coords,&sz);
              ParaMEDMEM::MEDCouplingPointSet::Rotate2DAlg(c,angle,nbNodes,coo);
              for(int i=0;i<sz;i++)
                PyList_SetItem(coords,i,PyFloat_FromDouble(coo[i]));
-             delete [] coo;
-             delete [] c;
            }
            static void Rotate3DAlg(PyObject *center, PyObject *vect, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
            {
              int sz,sz2;
-             double *c=convertPyToNewDblArr2(center,&sz);
-             double *coo=convertPyToNewDblArr2(coords,&sz);
+             INTERP_KERNEL::AutoPtr<double> c=convertPyToNewDblArr2(center,&sz);
+             INTERP_KERNEL::AutoPtr<double> coo=convertPyToNewDblArr2(coords,&sz);
              double *v=convertPyToNewDblArr2(vect,&sz2);
              ParaMEDMEM::MEDCouplingPointSet::Rotate3DAlg(c,v,angle,nbNodes,coo);
              for(int i=0;i<sz;i++)
                PyList_SetItem(coords,i,PyFloat_FromDouble(coo[i]));
-             delete [] coo;
-             delete [] c;
            }
          }
     };
@@ -1347,17 +1335,8 @@ namespace ParaMEDMEM
       {
         std::vector<int> cells;
         int sz;
-        double *v=convertPyToNewDblArr2(vec,&sz);
-        try
-          {
-            self->are2DCellsNotCorrectlyOriented(v,polyOnly,cells);
-          }
-        catch(INTERP_KERNEL::Exception& e)
-          {
-            delete [] v;
-            throw e;
-          }
-        delete [] v;
+        INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vec,&sz);
+        self->are2DCellsNotCorrectlyOriented(v,polyOnly,cells);
         DataArrayInt *ret=DataArrayInt::New();
         ret->alloc((int)cells.size(),1);
         std::copy(cells.begin(),cells.end(),ret->getPointer());
@@ -1367,17 +1346,8 @@ namespace ParaMEDMEM
       void orientCorrectly2DCells(PyObject *vec, bool polyOnly) throw(INTERP_KERNEL::Exception)
       {
         int sz;
-        double *v=convertPyToNewDblArr2(vec,&sz);
-        try
-          {
-            self->orientCorrectly2DCells(v,polyOnly);
-          }
-        catch(INTERP_KERNEL::Exception& e)
-          {
-            delete [] v;
-            throw e;
-          }
-        delete [] v;
+        INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vec,&sz);
+        self->orientCorrectly2DCells(v,polyOnly);
       }
       
       PyObject *arePolyhedronsNotCorrectlyOriented() const throw(INTERP_KERNEL::Exception)
@@ -2397,19 +2367,9 @@ namespace ParaMEDMEM
    PyObject *accumulate() const throw(INTERP_KERNEL::Exception)
    {
      int sz=self->getNumberOfComponents();
-     double *tmp=new double[sz];
-     try
-       {
-         self->accumulate(tmp);
-       }
-     catch(INTERP_KERNEL::Exception& e)
-       {
-         delete [] tmp;
-         throw e;
-       }
-     PyObject *ret=convertDblArrToPyList(tmp,sz);
-     delete [] tmp;
-     return ret;
+     INTERP_KERNEL::AutoPtr<double> tmp=new double[sz];
+     self->accumulate(tmp);
+     return convertDblArrToPyList(tmp,sz);
    }
    
    DataArrayDouble *keepSelectedComponents(PyObject *li) const throw(INTERP_KERNEL::Exception)
