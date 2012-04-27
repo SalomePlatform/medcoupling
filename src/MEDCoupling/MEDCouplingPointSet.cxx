@@ -322,30 +322,11 @@ void MEDCouplingPointSet::renumberNodes2(const int *newNodeNumbers, int newNbOfN
  * The returned bounding box is arranged along trihedron.
  * @param bbox out array of size 2*this->getSpaceDimension().
  */
-void MEDCouplingPointSet::getBoundingBox(double *bbox) const
+void MEDCouplingPointSet::getBoundingBox(double *bbox) const throw(INTERP_KERNEL::Exception)
 {
-  int dim=getSpaceDimension();
-  for (int idim=0; idim<dim; idim++)
-    {
-      bbox[idim*2]=std::numeric_limits<double>::max();
-      bbox[idim*2+1]=-std::numeric_limits<double>::max();
-    } 
-  const double *coords=_coords->getConstPointer();
-  int nbnodes=getNumberOfNodes();
-  for (int i=0; i<nbnodes; i++)
-    {
-      for (int idim=0; idim<dim;idim++)
-        {
-          if ( bbox[idim*2] > coords[i*dim+idim] )
-            {
-              bbox[idim*2] = coords[i*dim+idim] ;
-            }
-          if ( bbox[idim*2+1] < coords[i*dim+idim] )
-            {
-              bbox[idim*2+1] = coords[i*dim+idim] ;
-            }
-        }
-    }
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getBoundingBox : Coordinates not set !");
+  _coords->getMinMaxPerComponent(bbox);
 }
 
 /*!

@@ -1487,6 +1487,41 @@ void DataArrayDouble::checkNoNullValues() const throw(INTERP_KERNEL::Exception)
     throw INTERP_KERNEL::Exception("A value 0.0 have been detected !");
 }
 
+/*!
+ * This method assume that \b this is allocated. If not an INTERP_KERNEL::Exception will be thrown.
+ * This method fills \b bounds params like that : \b bounds[0]=XMin, \b bounds[1]=XMax, \b bounds[2]=YMin, \b bounds[3]=YMax...
+ * Where X refers to component #0, and Y to component #1...
+ * This method set 2*this->getNumberOfComponents() elements in \b bounds, so it is up to the caller to allocated enough space before calling this method.
+ *
+ * @param [out] bounds array of size 2*this->getNumberOfComponents().
+ */
+void DataArrayDouble::getMinMaxPerComponent(double *bounds) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int dim=getNumberOfComponents();
+  for (int idim=0; idim<dim; idim++)
+    {
+      bounds[idim*2]=std::numeric_limits<double>::max();
+      bounds[idim*2+1]=-std::numeric_limits<double>::max();
+    } 
+  const double *ptr=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      for(int idim=0;idim<dim;idim++)
+        {
+          if(bounds[idim*2]>ptr[i*dim+idim])
+            {
+              bounds[idim*2]=ptr[i*dim+idim];
+            }
+          if(bounds[idim*2+1]<ptr[i*dim+idim])
+            {
+              bounds[idim*2+1]=ptr[i*dim+idim];
+            }
+        }
+    }
+}
+
 double DataArrayDouble::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)

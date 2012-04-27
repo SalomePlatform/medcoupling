@@ -73,7 +73,7 @@ namespace ParaMEDMEM
     void findCommonNodes(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
     DataArrayInt *buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
                                                          int& newNbOfNodes) const;
-    void getBoundingBox(double *bbox) const;
+    void getBoundingBox(double *bbox) const throw(INTERP_KERNEL::Exception);
     void zipCoords();
     double getCaracteristicDimension() const;
     void rotate(const double *center, const double *vector, double angle);

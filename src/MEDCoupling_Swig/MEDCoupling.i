@@ -539,10 +539,9 @@ namespace ParaMEDMEM
          PyObject *getBoundingBox() const throw(INTERP_KERNEL::Exception)
          {
            int spaceDim=self->getSpaceDimension();
-           double *tmp=new double[2*spaceDim];
+           INTERP_KERNEL::AutoPtr<double> tmp=new double[2*spaceDim];
            self->getBoundingBox(tmp);
            PyObject *ret=convertDblArrToPyListOfTuple(tmp,2,spaceDim);
-           delete [] tmp;
            return ret;
          }
 
@@ -2383,6 +2382,15 @@ namespace ParaMEDMEM
      PyObject *ret=PyTuple_New(2);
      PyTuple_SetItem(ret,0,PyFloat_FromDouble(r1));
      PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     return ret;
+   }
+
+   PyObject *getMinMaxPerComponent() const throw(INTERP_KERNEL::Exception)
+   {
+     int nbOfCompo=self->getNumberOfComponents();
+     INTERP_KERNEL::AutoPtr<double> tmp=new double[2*nbOfCompo];
+     self->getMinMaxPerComponent(tmp);
+     PyObject *ret=convertDblArrToPyListOfTuple(tmp,2,nbOfCompo);
      return ret;
    }
 
