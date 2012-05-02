@@ -266,7 +266,7 @@ namespace ParaMEDMEM
           return ;
         }
       default:
-        std::stringstream stream;
+        std::ostringstream stream;
         stream << "Invalid deallocation requested for pointer " << pt;
         throw INTERP_KERNEL::Exception(stream.str().c_str());
       }
