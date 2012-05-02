@@ -9927,6 +9927,50 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertEqual(8*[77],f[:,tup].convertToIntArr().getValues())
             pass
         pass
+
+    def testDataArrayDoubleGetMinMaxPerComponent1(self):
+        values1=[1.,2.,3.,-0.9,2.1,3.,1.3,1.7,3.,1.,1.8,3.]
+        d1=DataArrayDouble.New();
+        self.assertRaises(InterpKernelException,d1.getMinMaxPerComponent)
+        d1=DataArrayDouble.New(values1,4,3);
+        res=d1.getMinMaxPerComponent();
+        self.assertTrue(isinstance(res,list))
+        self.assertEqual(3,len(res))
+        for i in xrange(3):
+            self.assertTrue(isinstance(res[i],tuple))
+            self.assertEqual(2,len(res[i]))
+            pass
+        expected1=[-0.9,1.3,1.7,2.1,3.,3.]
+        for i in xrange(6):
+            self.assertAlmostEqual(expected1[i],res[i/2][i%2],14)
+            pass
+        #
+        d1.rearrange(2);
+        res=d1.getMinMaxPerComponent();
+        self.assertTrue(isinstance(res,list))
+        self.assertEqual(2,len(res))
+        for i in xrange(2):
+            self.assertTrue(isinstance(res[i],tuple))
+            self.assertEqual(2,len(res[i]))
+            pass
+        expected2=[1.,3.,-0.9,3.]
+        for i in xrange(4):
+            self.assertAlmostEqual(expected2[i],res[i/2][i%2],14)
+            pass
+        #
+        d1.rearrange(1);
+        res=d1.getMinMaxPerComponent();
+        self.assertTrue(isinstance(res,list))
+        self.assertEqual(1,len(res))
+        for i in xrange(1):
+            self.assertTrue(isinstance(res[i],tuple))
+            self.assertEqual(2,len(res[i]))
+            pass
+        expected3=[-0.9,3.]
+        for i in xrange(2):
+            self.assertAlmostEqual(expected3[i],res[i/2][i%2],14)
+            pass
+        pass
         
     def setUp(self):
         pass

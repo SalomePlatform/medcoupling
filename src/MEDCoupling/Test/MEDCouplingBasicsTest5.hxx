@@ -51,6 +51,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testComputeNeighborsOfCells1 );
     CPPUNIT_TEST( testCheckButterflyCellsBug1 );
     CPPUNIT_TEST( testDataArrayIntRange1 );
+    CPPUNIT_TEST( testDataArrayDoubleGetMinMaxPerComponent1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -69,6 +70,7 @@ namespace ParaMEDMEM
     void testComputeNeighborsOfCells1();
     void testCheckButterflyCellsBug1();
     void testDataArrayIntRange1();
+    void testDataArrayDoubleGetMinMaxPerComponent1();
   };
 }
 

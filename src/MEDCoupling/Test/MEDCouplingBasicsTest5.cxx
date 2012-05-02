@@ -905,3 +905,35 @@ void MEDCouplingBasicsTest5::testDataArrayIntRange1()
   CPPUNIT_ASSERT_THROW(DataArrayInt::Range(23,22,0),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(DataArrayInt::Range(22,23,0),INTERP_KERNEL::Exception);
 }
+
+void MEDCouplingBasicsTest5::testDataArrayDoubleGetMinMaxPerComponent1()
+{
+  const double values1[12]={1.,2.,3.,-0.9,2.1,3.,1.3,1.7,3.,1.,1.8,3.};
+  DataArrayDouble *d1=DataArrayDouble::New();
+  double *res=new double[2*3];
+  CPPUNIT_ASSERT_THROW(d1->getMinMaxPerComponent(res),INTERP_KERNEL::Exception);
+  d1->alloc(4,3);
+  std::copy(values1,values1+12,d1->getPointer());
+  d1->getMinMaxPerComponent(res);
+  const double expected1[6]={-0.9,1.3,1.7,2.1,3.,3.};
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],res[i],1e-14);
+  delete [] res;
+  //
+  d1->rearrange(2);
+  res=new double[2*2];
+  d1->getMinMaxPerComponent(res);
+  const double expected2[4]={1.,3.,-0.9,3.};
+  for(int i=0;i<4;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected2[i],res[i],1e-14);
+  delete [] res;
+  //
+  d1->rearrange(1);
+  res=new double[2*1];
+  d1->getMinMaxPerComponent(res);
+  const double expected3[2]={-0.9,3.};
+  for(int i=0;i<2;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],res[i],1e-14);
+  delete [] res;
+  d1->decrRef();
+}
