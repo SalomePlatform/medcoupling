@@ -1657,7 +1657,7 @@ namespace ParaMEDMEM
   class MEDCouplingExtrudedMesh : public ParaMEDMEM::MEDCouplingMesh
   {
   public:
-    static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *build3DUnstructuredMesh() const throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const

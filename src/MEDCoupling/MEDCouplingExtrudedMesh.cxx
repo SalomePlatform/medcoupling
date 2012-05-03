@@ -44,7 +44,7 @@ using namespace ParaMEDMEM;
  * because the mesh is aggregated and potentially modified by rotate or translate method.
  * @param cell2DId Id of cell in mesh2D mesh where the computation of 1D mesh will be done.
  */
-MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
+MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
 {
   return new MEDCouplingExtrudedMesh(mesh3D,mesh2D,cell2DId);
 }
@@ -77,8 +77,8 @@ void MEDCouplingExtrudedMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) 
   _mesh1D->copyTinyStringsFrom(otherC->_mesh1D);
 }
 
-MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
-try:_mesh2D(mesh2D),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(cell2DId)
+MEDCouplingExtrudedMesh::MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
+try:_mesh2D(const_cast<MEDCouplingUMesh *>(mesh2D)),_mesh1D(MEDCouplingUMesh::New()),_mesh3D_ids(0),_cell_2D_id(cell2DId)
 {
   if(_mesh2D!=0)
     _mesh2D->incrRef();
