@@ -937,3 +937,17 @@ void MEDCouplingBasicsTest5::testDataArrayDoubleGetMinMaxPerComponent1()
   delete [] res;
   d1->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testDataArrayIntGetHashCode1()
+{
+  DataArrayInt *d1=DataArrayInt::New(); d1->alloc(3545,1); d1->iota(0);
+  DataArrayInt *d2=DataArrayInt::New(); d2->alloc(3545,1); d2->iota(0);
+  //
+  CPPUNIT_ASSERT_EQUAL(d1->getHashCode(),d2->getHashCode());
+  CPPUNIT_ASSERT_EQUAL(232341068,d1->getHashCode());
+  d1->setIJ(886,0,6);
+  CPPUNIT_ASSERT_EQUAL(232340188,d1->getHashCode());
+  //
+  d1->decrRef();
+  d2->decrRef();
+}

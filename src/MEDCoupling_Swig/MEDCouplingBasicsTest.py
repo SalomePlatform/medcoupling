@@ -9971,6 +9971,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected3[i],res[i/2][i%2],14)
             pass
         pass
+
+    def testDataArrayIntGetHashCode1(self):
+        d1=DataArrayInt.New(range(3545))
+        d2=DataArrayInt.New(range(3545))
+        self.assertEqual(d2.getHashCode(),d1.getHashCode())
+        self.assertEqual(232341068,d1.getHashCode())
+        d1[886]=6
+        self.assertEqual(232340188,d1.getHashCode())
+        pass
         
     def setUp(self):
         pass
