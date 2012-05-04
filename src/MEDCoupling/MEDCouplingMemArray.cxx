@@ -2910,6 +2910,24 @@ int DataArrayInt::intValue() const throw(INTERP_KERNEL::Exception)
 }
 
 /*!
+ * This method expects that \b this is well allocated. If not an INTERP_KERNEL::Exception will be thrown. This method is useful for a quick comparison of many instances of DataArrayInt.
+ */
+int DataArrayInt::getHashCode() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfElems=getNbOfElems();
+  int ret=nbOfElems*65536;
+  int delta=3;
+  if(nbOfElems>48)
+    delta=nbOfElems/8;
+  int ret0=0;
+  const int *pt=begin();
+  for(int i=0;i<nbOfElems;i+=delta)
+    ret0+=pt[i] & 0x1FFF;
+  return ret+ret0;
+}
+
+/*!
  * This method should be called on an allocated DataArrayInt instance. If not an exception will be throw !
  * This method checks the number of tupes. If it is equal to 0, it returns true, if not false is returned.
  */
