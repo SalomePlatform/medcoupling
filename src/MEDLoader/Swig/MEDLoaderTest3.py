@@ -610,6 +610,7 @@ class MEDLoaderTest(unittest.TestCase):
         da=DataArrayInt.New(); da.alloc(9,1) ; da.iota(0) ; da.setName("sup1")
         #
         ff1.setFieldProfile(f1,mm1,0,da)
+        ff1.changePflsNames([(["sup1_NORM_QUAD4"],"ForV650")])
         ff1.write(fname,0)
         #
         vals,pfl=ff1.getFieldWithProfile(ON_CELLS,0,mm1) ; vals.setName("")
@@ -624,7 +625,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual([7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],sbt[0][1][0][1].getValues())# values for TRI3
         self.assertEqual(4,sbt[1][0])#QUAD4
         self.assertEqual(0,sbt[1][1][0][0])#CELL For QUAD4
-        self.assertEqual("sup1_NORM_QUAD4",sbt[1][1][0][2])# profile For QUAD4
+        self.assertEqual("ForV650",sbt[1][1][0][2])# profile For QUAD4
         self.assertEqual([19, 20, 21, 22, 23, 24],sbt[1][1][0][1].getValues())# values for QUAD4
         self.assertEqual([0],ff2.getTypesOfFieldAvailable())
         vals,pfl=ff2.getFieldWithProfile(ON_CELLS,0,mm1) ; vals.setName("")

@@ -229,7 +229,7 @@ std::vector< std::pair<std::vector<std::string>, std::string > > convertVecPairV
                   p.first.resize(size2);
                   for(int j=0;j<size2;j++)
                     {
-                      PyObject *o0j=PyTuple_GetItem(o0,j);
+                      PyObject *o0j=PyList_GetItem(o0,j);
                       if(PyString_Check(o0j))
                         {
                           p.first[j]=std::string(PyString_AsString(o0j));
