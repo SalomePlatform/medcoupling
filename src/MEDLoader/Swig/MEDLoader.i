@@ -644,11 +644,23 @@ namespace ParaMEDMEM
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
     virtual std::vector<std::string> getPflsReallyUsedMulti() const = 0;
     virtual std::vector<std::string> getLocsReallyUsedMulti() const = 0;
+    void killProfileIds(const std::vector<int>& pflIds) throw(INTERP_KERNEL::Exception);
+    void killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception);
+    void changePflName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
+    void changeLocName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
   %extend
      {
        PyObject *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
        {
          const DataArrayInt *ret=self->getProfile(pflName);
+         if(ret)
+           ret->incrRef();
+         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+       }
+
+       PyObject *getProfileFromId(int pflId) const throw(INTERP_KERNEL::Exception)
+       {
+         const DataArrayInt *ret=self->getProfileFromId(pflId);
          if(ret)
            ret->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
@@ -667,6 +679,23 @@ namespace ParaMEDMEM
          loc->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
+       
+       PyObject *zipPflsNames() throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > ret=self->zipPflsNames();
+         return convertVecPairVecStToPy(ret);
+       }
+
+       PyObject *zipLocsNames(double eps) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > ret=self->zipLocsNames(eps);
+         return convertVecPairVecStToPy(ret);
+       }
+
+       //void changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
+       //void changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
+       //void changePflsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
+       //void changeLocsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
      }
   };
 

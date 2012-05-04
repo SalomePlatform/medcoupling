@@ -186,3 +186,21 @@ static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(P
     }
   return ret;
 }
+
+PyObject *convertVecPairVecStToPy(const std::vector< std::pair<std::vector<std::string>, std::string > >& vec)
+{
+  int sz=(int)vec.size();
+  PyObject *ret=PyList_New(sz);
+  for(int i=0;i<sz;i++)
+    {
+      PyObject *t=PyTuple_New(2);
+      int sz2=(int)vec[i].first.size();
+      PyObject *ll=PyList_New(sz2);
+      for(int j=0;j<sz2;j++)
+        PyList_SetItem(ll,j,PyString_FromString(vec[i].first[j].c_str()));
+      PyTuple_SetItem(t,0,ll);
+      PyTuple_SetItem(t,1,PyString_FromString(vec[i].second.c_str()));
+      PyList_SetItem(ret,i,t);
+    }
+  return ret;
+}
