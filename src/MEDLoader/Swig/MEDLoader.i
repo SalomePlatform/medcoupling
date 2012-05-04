@@ -692,10 +692,41 @@ namespace ParaMEDMEM
          return convertVecPairVecStToPy(ret);
        }
 
-       //void changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
-       //void changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
-       //void changePflsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
-       //void changeLocsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
+       void changePflsNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changePflsNames(v);
+       }
+
+       void changePflsRefsNamesGen(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changePflsRefsNamesGen(v);
+       }
+
+       void changePflsNamesInStruct(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changePflsNamesInStruct(v);
+       }
+
+       void changeLocsNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changeLocsNames(v);
+       }
+
+       void changeLocsRefsNamesGen(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changeLocsRefsNamesGen(v);
+       }
+       
+       void changeLocsNamesInStruct(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changeLocsNamesInStruct(v);
+       }
      }
   };
 
