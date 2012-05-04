@@ -53,10 +53,19 @@ const char *MEDCouplingFieldDouble::getTimeUnit() const
 }
 
 /*!
- * This method performs a copy of 'this'. The copy is deep if 'recDeepCpy' equals to true, soft if 'recDeepCpy' equals to false.
- * \b WARNING \b the \b underlying \b mesh of the returned field \b is \b the \b same (same pointer) \b than \b 'this'. It allows the user to perform methods
- * MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields with 'this' and the returned field.
+ * This method performs a copy of \b this \b without \b any \b copy \b of \b the \b underlying \b mesh ( see warning section of this method).
+ * The copy of arrays is deep if \b recDeepCpy equals to true, no copy of arrays is done if \b recDeepCpy equals to false.
+ *
+ * \c clone(false) is rather dedicated for advanced users that want to limit the amount of memory.
+ * 
+ * It allows the user to perform methods
+ * MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields with \b this and the returned field.
+ * 
+ * \warning The \b underlying \b mesh of the returned field is \b always the same (same pointer) than \b this \b whatever \b the \b value \b of \b recDeepCpy \b parameter.
  * If the user wants to duplicated deeply the underlying mesh he should call MEDCouplingFieldDouble::cloneWithMesh method or MEDCouplingFieldDouble::deepCpy instead.
+ *
+ * \param [in] recDeepCpy specifies if underlying arrays in \b this should be copied of only attached to the returned field.
+ * \return a newly allocated MEDCouplingFieldDouble instance that the caller should deal with.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
 {
@@ -65,8 +74,10 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
 
 /*!
  * This method behaves exactly like MEDCouplingFieldDouble::clone method \b except \b that \b here \b the \b underlying \b mesh \b is \b systematically
- * (whatever the value of the input parameter 'recDeepCpy') \b deeply \b duplicated.
- * So the resulting field of this call cannot be called with 'this' with following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
+ * (whatever the value of the input parameter 'recDeepCpy') \b deeply \b duplicated.\n \n
+ * The result of \c cloneWithMesh(true) is exactly the same than calling \ref MEDCouplingFieldDouble::deepCpy "deepCpy".
+ * 
+ * So the resulting field of this call cannot be called with \b this with the following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
  * To avoid to deep copy the underlying mesh the user should call MEDCouplingFieldDouble::clone method instead.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) const
