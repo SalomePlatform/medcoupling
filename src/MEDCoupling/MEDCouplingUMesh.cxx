@@ -1033,7 +1033,9 @@ bool MEDCouplingUMesh::areCellsEqual0(int cell1, int cell2) const
 {
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
-  return std::equal(conn+connI[cell1],conn+connI[cell1+1],conn+connI[cell2]);
+  if(connI[cell1+1]-connI[cell1]==connI[cell2+1]-connI[cell2])
+    return std::equal(conn+connI[cell1]+1,conn+connI[cell1+1],conn+connI[cell2]+1);
+  return false;
 }
 
 /*!
@@ -1041,7 +1043,35 @@ bool MEDCouplingUMesh::areCellsEqual0(int cell1, int cell2) const
  */
 bool MEDCouplingUMesh::areCellsEqual1(int cell1, int cell2) const
 {
-  throw INTERP_KERNEL::Exception("Policy comparison, not implemented yet !");
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connI=getNodalConnectivityIndex()->getConstPointer();
+  int sz=connI[cell1+1]-connI[cell1];
+  if(sz==connI[cell2+1]-connI[cell2])
+    {
+      if(conn[connI[cell1]]==conn[connI[cell2]])
+        {
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[cell1]]);
+          unsigned dim=cm.getDimension();
+          if(dim!=3)
+            {
+              if(dim!=1)
+                {
+                  int sz1=2*(sz-1);
+                  int *tmp=new int[sz1];
+                  int *work=std::copy(conn+connI[cell1]+1,conn+connI[cell1+1],tmp);
+                  std::copy(conn+connI[cell1]+1,conn+connI[cell1+1],work);
+                  work=std::search(tmp,tmp+2*sz1,conn+connI[cell2]+1,conn+connI[cell2+1]);
+                  delete [] tmp;
+                  return work!=tmp+2*sz1;
+                }
+              else
+                return std::equal(conn+connI[cell1]+1,conn+connI[cell1+1],conn+connI[cell2]+1);//case of SEG2 and SEG3
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::areCellsEqual1 : not implemented yet for meshdim == 3 !");
+        }
+    }
+  return false;
 }
 
 /*!
@@ -1051,9 +1081,16 @@ bool MEDCouplingUMesh::areCellsEqual2(int cell1, int cell2) const
 {
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
-  std::set<int> s1(conn+connI[cell1],conn+connI[cell1+1]);
-  std::set<int> s2(conn+connI[cell2],conn+connI[cell2+1]);
-  return s1==s2;
+  if(connI[cell1+1]-connI[cell1]==connI[cell2+1]-connI[cell2])
+    {
+      if(conn[connI[cell1]]==conn[connI[cell2]])
+        {
+          std::set<int> s1(conn+connI[cell1]+1,conn+connI[cell1+1]);
+          std::set<int> s2(conn+connI[cell2]+1,conn+connI[cell2+1]);
+          return s1==s2;
+        }
+    }
+  return false;
 }
 
 /*!
@@ -1180,9 +1217,11 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
  * This method keeps the coordiantes of 'this'.
  *
  * @param compType input specifying the technique used to compare cells each other.
- *                 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without permutation and types same too. This is the strongest policy.
- *                 1 : permutation. cell1 and cell2 are equal if and the connectivity of cell2 can be deduced by those of cell1 by direct permutation and their type equal.
- *                 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy.
+ *   - 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without permutation and types same too. This is the strongest policy.
+ *   - 1 : permutation same orientation. cell1 and cell2 are considered equal if the connectivity of cell2 can be deduced by those of cell1 by direct permutation (with exactly the same orientation)
+ * and their type equal. For 1D mesh the policy 1 is equivalent to 0.
+ *   - 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy. This policy
+ * can be used for users not sensitive to orientation of cell
  * @return the correspondance array old to new.
  */
 DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception)
