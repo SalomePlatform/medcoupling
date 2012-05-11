@@ -1060,9 +1060,9 @@ bool MEDCouplingUMesh::areCellsEqual1(int cell1, int cell2) const
                   int *tmp=new int[sz1];
                   int *work=std::copy(conn+connI[cell1]+1,conn+connI[cell1+1],tmp);
                   std::copy(conn+connI[cell1]+1,conn+connI[cell1+1],work);
-                  work=std::search(tmp,tmp+2*sz1,conn+connI[cell2]+1,conn+connI[cell2+1]);
+                  work=std::search(tmp,tmp+sz1,conn+connI[cell2]+1,conn+connI[cell2+1]);
                   delete [] tmp;
-                  return work!=tmp+2*sz1;
+                  return work!=tmp+sz1;
                 }
               else
                 return std::equal(conn+connI[cell1]+1,conn+connI[cell1+1],conn+connI[cell2]+1);//case of SEG2 and SEG3
