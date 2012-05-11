@@ -53,6 +53,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDataArrayIntRange1 );
     CPPUNIT_TEST( testDataArrayDoubleGetMinMaxPerComponent1 );
     CPPUNIT_TEST( testDataArrayIntGetHashCode1 );
+    CPPUNIT_TEST( testZipConnectivityPol1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -73,6 +74,7 @@ namespace ParaMEDMEM
     void testDataArrayIntRange1();
     void testDataArrayDoubleGetMinMaxPerComponent1();
     void testDataArrayIntGetHashCode1();
+    void testZipConnectivityPol1();
   };
 }
 

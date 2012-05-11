@@ -9980,6 +9980,121 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         d1[886]=6
         self.assertEqual(232340188,d1.getHashCode())
         pass
+
+    def testZipConnectivityPol1(self):
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        cells1=[2,3,4]
+        m2_1=m1.buildPartOfMySelf(cells1,True);
+        m2=m2_1
+        self.assertTrue(isinstance(m2,MEDCouplingUMesh))
+        # no permutation policy 0
+        isOk,arr=m1.areCellsIncludedIn(m2,0)
+        self.assertTrue(isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells1,arr.getValues())
+        # no permutation policy 1
+        isOk,arr=m1.areCellsIncludedIn(m2,1)
+        self.assertTrue(isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells1,arr.getValues())
+        # no permutation policy 2
+        isOk,arr=m1.areCellsIncludedIn(m2,2)
+        self.assertTrue(isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells1,arr.getValues())
+        # some modification into m2
+        modif1=[2,4,5]
+        m2.getNodalConnectivity()[1:4]=modif1
+        #policy 0 fails because cell0 in m2 has same orientation be not same connectivity
+        expected1=[5,3,4]
+        isOk,arr=m1.areCellsIncludedIn(m2,0)
+        self.assertTrue(not isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(expected1,arr.getValues())
+        #policy 1 succeeds because cell0 in m2 has not exactly the same conn
+        isOk,arr=m1.areCellsIncludedIn(m2,1)
+        self.assertTrue(isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells1,arr.getValues())
+        #policy 2 succeeds because cell0 in m2 has same nodes in connectivity
+        isOk,arr=m1.areCellsIncludedIn(m2,2)
+        self.assertTrue(isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells1,arr.getValues())
+        #some new modification into m2
+        modif2=[2,5,4]
+        m2.getNodalConnectivity()[1:4]=modif2
+        #policy 0 fails because cell0 in m2 has not exactly the same conn
+        isOk,arr=m1.areCellsIncludedIn(m2,0)
+        self.assertTrue(not isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(expected1,arr.getValues())
+        #policy 1 fails too because cell0 in m2 has not same orientation
+        isOk,arr=m1.areCellsIncludedIn(m2,1)
+        self.assertTrue(not isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(expected1,arr.getValues())
+        #policy 2 succeeds because cell0 in m2 has same nodes in connectivity
+        isOk,arr=m1.areCellsIncludedIn(m2,2)
+        self.assertTrue(isOk);
+        self.assertEqual(3,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells1,arr.getValues())
+        # Now 1D
+        cells2=[3,2]
+        m1=MEDCouplingDataForTest.build1DSourceMesh_2();
+        m2_1=m1.buildPartOfMySelf(cells2,True);
+        m2=m2_1
+        self.assertTrue(isinstance(m2,MEDCouplingUMesh))
+        # no permutation policy 0
+        isOk,arr=m1.areCellsIncludedIn(m2,0)
+        self.assertTrue(isOk);
+        self.assertEqual(2,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells2,arr.getValues())
+        # no permutation policy 1
+        isOk,arr=m1.areCellsIncludedIn(m2,1)
+        self.assertTrue(isOk);
+        self.assertEqual(2,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells2,arr.getValues())
+        # no permutation policy 2
+        isOk,arr=m1.areCellsIncludedIn(m2,2)
+        self.assertTrue(isOk);
+        self.assertEqual(2,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells2,arr.getValues())
+        # some modification into m2
+        modif3=[4,3]
+        m2.getNodalConnectivity()[1:3]=modif3
+        #policy 0 fails because cell0 in m2 has not exactly the same conn
+        expected2=[4,2]
+        isOk,arr=m1.areCellsIncludedIn(m2,0)
+        self.assertTrue(not isOk);
+        self.assertEqual(2,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(expected2,arr.getValues())
+        #policy 1 fails too because cell0 in m2 has not same orientation
+        isOk,arr=m1.areCellsIncludedIn(m2,1)
+        self.assertTrue(not isOk);
+        self.assertEqual(2,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(expected2,arr.getValues())
+        #policy 2 succeeds because cell0 in m2 has same nodes in connectivity
+        isOk,arr=m1.areCellsIncludedIn(m2,2)
+        self.assertTrue(isOk);
+        self.assertEqual(2,arr.getNumberOfTuples());
+        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertEqual(cells2,arr.getValues())
+        pass
         
     def setUp(self):
         pass

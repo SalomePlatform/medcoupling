@@ -951,3 +951,125 @@ void MEDCouplingBasicsTest5::testDataArrayIntGetHashCode1()
   d1->decrRef();
   d2->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testZipConnectivityPol1()
+{
+  MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  const int cells1[3]={2,3,4};
+  MEDCouplingPointSet *m2_1=m1->buildPartOfMySelf(cells1,cells1+3,true);
+  MEDCouplingUMesh *m2=dynamic_cast<MEDCouplingUMesh *>(m2_1);
+  DataArrayInt *arr=0;
+  CPPUNIT_ASSERT(m2);
+  // no permutation policy 0
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,0,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells1,cells1+3,arr->getConstPointer()));
+  arr->decrRef();
+  // no permutation policy 1
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,1,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells1,cells1+3,arr->getConstPointer()));
+  arr->decrRef();
+  // no permutation policy 2
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,2,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells1,cells1+3,arr->getConstPointer()));
+  arr->decrRef();
+  // some modification into m2
+  const int modif1[3]={2,4,5};
+  std::copy(modif1,modif1+3,m2->getNodalConnectivity()->getPointer()+1);
+  //policy 0 fails because cell0 in m2 has same orientation be not same connectivity
+  const int expected1[3]={5,3,4};
+  CPPUNIT_ASSERT(!m1->areCellsIncludedIn(m2,0,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,arr->getConstPointer()));
+  arr->decrRef();
+  //policy 1 succeeds because cell0 in m2 has not exactly the same conn
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,1,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells1,cells1+3,arr->getConstPointer()));
+  arr->decrRef();
+  //policy 2 succeeds because cell0 in m2 has same nodes in connectivity
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,2,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells1,cells1+3,arr->getConstPointer()));
+  arr->decrRef();
+  //some new modification into m2
+  const int modif2[3]={2,5,4};
+  std::copy(modif2,modif2+3,m2->getNodalConnectivity()->getPointer()+1);
+  //policy 0 fails because cell0 in m2 has not exactly the same conn
+  CPPUNIT_ASSERT(!m1->areCellsIncludedIn(m2,0,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,arr->getConstPointer()));
+  arr->decrRef();
+  //policy 1 fails too because cell0 in m2 has not same orientation
+  CPPUNIT_ASSERT(!m1->areCellsIncludedIn(m2,1,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,arr->getConstPointer()));
+  arr->decrRef();
+  //policy 2 succeeds because cell0 in m2 has same nodes in connectivity
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,2,arr));
+  CPPUNIT_ASSERT_EQUAL(3,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells1,cells1+3,arr->getConstPointer()));
+  arr->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+  // Now 1D
+  const int cells2[2]={3,2};
+  m1=build1DSourceMesh_2();
+  m2_1=m1->buildPartOfMySelf(cells2,cells2+2,true);
+  m2=dynamic_cast<MEDCouplingUMesh *>(m2_1);
+  CPPUNIT_ASSERT(m2);
+  arr=0;
+  // no permutation policy 0
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,0,arr));
+  CPPUNIT_ASSERT_EQUAL(2,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells2,cells2+2,arr->getConstPointer()));
+  arr->decrRef();
+  // no permutation policy 1
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,1,arr));
+  CPPUNIT_ASSERT_EQUAL(2,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells2,cells2+2,arr->getConstPointer()));
+  arr->decrRef();
+  // no permutation policy 2
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,2,arr));
+  CPPUNIT_ASSERT_EQUAL(2,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells2,cells2+2,arr->getConstPointer()));
+  arr->decrRef();
+  // some modification into m2
+  const int modif3[2]={4,3};
+  std::copy(modif3,modif3+2,m2->getNodalConnectivity()->getPointer()+1);
+  //policy 0 fails because cell0 in m2 has not exactly the same conn
+  const int expected2[2]={4,2};
+  CPPUNIT_ASSERT(!m1->areCellsIncludedIn(m2,0,arr));
+  CPPUNIT_ASSERT_EQUAL(2,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+2,arr->getConstPointer()));
+  arr->decrRef();
+  //policy 1 fails too because cell0 in m2 has not same orientation
+  CPPUNIT_ASSERT(!m1->areCellsIncludedIn(m2,1,arr));
+  CPPUNIT_ASSERT_EQUAL(2,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+2,arr->getConstPointer()));
+  arr->decrRef();
+  //policy 2 succeeds because cell0 in m2 has same nodes in connectivity
+  CPPUNIT_ASSERT(m1->areCellsIncludedIn(m2,2,arr));
+  CPPUNIT_ASSERT_EQUAL(2,arr->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(cells2,cells2+2,arr->getConstPointer()));
+  arr->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+}
