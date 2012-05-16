@@ -5261,6 +5261,8 @@ namespace ParaMEDMEM
     void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble &operator=(double value) throw(INTERP_KERNEL::Exception);
     void fillFromAnalytic(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
+    void fillFromAnalytic3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc2(int nbOfComp, const char *func) throw(INTERP_KERNEL::Exception);
     void applyFunc3(int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) throw(INTERP_KERNEL::Exception);
