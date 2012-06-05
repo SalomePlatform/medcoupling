@@ -272,6 +272,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsCrossingPlane;
+%newobject ParaMEDMEM::MEDCouplingUMesh::convexEnvelop2D;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
@@ -1081,6 +1082,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getAspectRatioField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getWarpField() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getSkewField() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convexEnvelop2D() throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);

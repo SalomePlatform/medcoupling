@@ -3053,6 +3053,56 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells, double eps) 
 }
 
 /*!
+ * This method is typically requested to unbutterfly 2D linear cells in \b this.
+ *
+ * This method expects that space dimension is equal to 2 and mesh dimension is equal to 2 too. If it is not the case an INTERP_KERNEL::Exception will be thrown.
+ * This method works only for linear 2D cells. If there is any of non linear cells (INTERP_KERNEL::NORM_QUAD8 for example) an INTERP_KERNEL::Exception will be thrown too.
+ * 
+ * For each 2D linear cell in \b this, this method builds the convex envelop (or the convex hull) of the current cell.
+ * This convex envelop is computed using Jarvis march algorithm.
+ * The coordinates and the number of cells of \b this remain unchanged on invocation of this method.
+ * Only connectivity of some cells could be modified if those cells were not representing a convex envelop. If a cell already equals its convex envelop (regardless orientation)
+ * its connectivity will remain unchanged. If the computation leads to a modification of nodal connectivity of a cell its geometric type will be modified to INTERP_KERNEL::NORM_POLYGON.
+ *
+ * @return a newly allocated array containing cellIds that have been modified if any. If no cells have been impacted by this method NULL is returned.
+ */
+DataArrayInt *MEDCouplingUMesh::convexEnvelop2D() throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=2 || getSpaceDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::convexEnvelop2D  works only for meshDim=2 and spaceDim=2 !");
+  checkFullyDefined();
+  const double *coords=getCoords()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodalConnecIndexOut=DataArrayInt::New();
+  nodalConnecIndexOut->alloc(nbOfCells+1,1);
+  std::vector<int> nodalConnecOut;
+  int *workIndexOut=nodalConnecIndexOut->getPointer();
+  *workIndexOut=0;
+  const int *nodalConnecIn=_nodal_connec->getConstPointer();
+  const int *nodalConnecIndexIn=_nodal_connec_index->getConstPointer();
+  std::set<INTERP_KERNEL::NormalizedCellType> types;
+  std::vector<int> isChanged;
+  for(int i=0;i<nbOfCells;i++,workIndexOut++)
+    {
+      std::size_t pos=nodalConnecOut.size()+1;
+      if(BuildConvecEnvelopOf2DCellJarvis(coords,nodalConnecIn+nodalConnecIndexIn[i],nodalConnecIn+nodalConnecIndexIn[i+1],nodalConnecOut))
+        isChanged.push_back(i);
+      types.insert((INTERP_KERNEL::NormalizedCellType)nodalConnecOut[pos]);
+      workIndexOut[1]=(int)nodalConnecOut.size();
+    }
+  if(isChanged.empty())
+    return 0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodalConnecOut2=DataArrayInt::New();
+  nodalConnecOut2->alloc((int)nodalConnecOut.size(),1);
+  std::copy(nodalConnecOut.begin(),nodalConnecOut.end(),nodalConnecOut2->getPointer());
+  setConnectivity(nodalConnecOut2,nodalConnecIndexOut,false);
+  _types=types;
+  DataArrayInt *ret=DataArrayInt::New(); ret->alloc((int)isChanged.size(),1);
+  std::copy(isChanged.begin(),isChanged.end(),ret->getPointer());
+  return ret;
+}
+
+/*!
  * This method is expected to be applied on a mesh with spaceDim==3 and meshDim==3. If not an exception will be thrown.
  * This method analyzes only linear extruded 3D cells (NORM_HEXA8,NORM_PENTA6,NORM_HEXGP12...)
  * If some extruded cells does not fulfill the MED norm for extruded cells (first face of 3D cell should be oriented to the exterior of the 3D cell).
@@ -5876,6 +5926,101 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<i
           cellIds.push_back(i);
         }
     }
+}
+
+/*!
+ * This method compute the convex hull of a single 2D cell. This method tries to conserve at maximum the given input connectivity. In particular, if the orientation of cell is not clockwise
+ * as in MED format norm. If definitely the result of Jarvis algorithm is not matchable with the input connectivity, the result will be copied into \b nodalConnecOut parameter and
+ * the geometric cell type set to INTERP_KERNEL::NORM_POLYGON.
+ * This method excepts that \b coords parameter is expected to be in dimension 2. [\b nodalConnBg, \b nodalConnEnd) is the nodal connectivity of the input
+ * cell (geometric cell type included at the position 0). If the meshdimension of the input cell is not equal to 2 an INTERP_KERNEL::Exception will be thrown.
+ * 
+ * @return false if the input connectivity represents already the convex hull, true if the input cell needs to be reordered.
+ */
+bool MEDCouplingUMesh::BuildConvecEnvelopOf2DCellJarvis(const double *coords, const int *nodalConnBg, const int *nodalConnEnd, std::vector<int>& nodalConnecOut) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t sz=std::distance(nodalConnBg,nodalConnEnd);
+  if(sz>=4)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)*nodalConnBg);
+      if(cm.getDimension()==2)
+        {
+          const int *node=nodalConnBg+1;
+          int startNode=*node++;
+          double refX=coords[2*startNode];
+          for(;node!=nodalConnEnd;node++)
+            {
+              if(coords[2*(*node)]<refX)
+                {
+                  startNode=*node;
+                  refX=coords[2*startNode];
+                }
+            }
+          std::vector<int> tmpOut; tmpOut.reserve(sz); tmpOut.push_back(startNode);
+          refX=1e300;
+          double tmp1;
+          double tmp2[2];
+          double angle0=-M_PI/2;
+          //
+          int nextNode=-1;
+          int prevNode=-1;
+          double resRef;
+          double angleNext;
+          while(nextNode!=startNode)
+            {
+              nextNode=-1;
+              resRef=1e300;
+              for(node=nodalConnBg+1;node!=nodalConnEnd;node++)
+                {
+                  if(*node!=tmpOut.back() && *node!=prevNode)
+                    {
+                      tmp2[0]=coords[2*(*node)]-coords[2*tmpOut.back()]; tmp2[1]=coords[2*(*node)+1]-coords[2*tmpOut.back()+1];
+                      double angleM=INTERP_KERNEL::EdgeArcCircle::GetAbsoluteAngle(tmp2,tmp1);
+                      double res;
+                      if(angleM<=angle0)
+                        res=angle0-angleM;
+                      else
+                        res=angle0-angleM+2.*M_PI;
+                      if(res<resRef)
+                        {
+                          nextNode=*node;
+                          resRef=res;
+                          angleNext=angleM;
+                        }
+                    }
+                }
+              if(nextNode!=startNode)
+                {
+                  angle0=angleNext-M_PI;
+                  if(angle0<-M_PI)
+                    angle0+=2*M_PI;
+                  prevNode=tmpOut.back();
+                  tmpOut.push_back(nextNode);
+                }
+            }
+          std::vector<int> tmp3(2*(sz-1));
+          std::vector<int>::iterator it=std::copy(nodalConnBg+1,nodalConnEnd,tmp3.begin());
+          std::copy(nodalConnBg+1,nodalConnEnd,it);
+          if(std::search(tmp3.begin(),tmp3.end(),tmpOut.begin(),tmpOut.end())!=tmp3.end())
+            {
+              nodalConnecOut.insert(nodalConnecOut.end(),nodalConnBg,nodalConnEnd);
+              return false;
+            }
+          if(std::search(tmp3.rbegin(),tmp3.rend(),tmpOut.begin(),tmpOut.end())!=tmp3.rend())
+            {
+              nodalConnecOut.insert(nodalConnecOut.end(),nodalConnBg,nodalConnEnd);
+              return false;
+            }
+          else
+            {
+              nodalConnecOut.push_back((int)INTERP_KERNEL::NORM_POLYGON);
+              nodalConnecOut.insert(nodalConnecOut.end(),tmpOut.begin(),tmpOut.end());
+              return true;
+            }
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::BuildConvecEnvelopOf2DCellJarvis : invalid 2D cell connectivity !");
 }
 
 /*!
