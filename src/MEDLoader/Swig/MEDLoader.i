@@ -634,10 +634,10 @@ namespace ParaMEDMEM
     }
   };
 
-  class MEDFieldFieldGlobsReal
+  class MEDFileFieldGlobsReal
   {
   public:
-    void shallowCpyGlobs(const MEDFieldFieldGlobsReal& other);
+    void shallowCpyGlobs(const MEDFileFieldGlobsReal& other);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
@@ -891,7 +891,7 @@ namespace ParaMEDMEM
        }
   };
 
-  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFieldFieldGlobsReal, public MEDFileWritable
+  class MEDFileField1TS : public MEDFileField1TSWithoutDAS, public MEDFileFieldGlobsReal, public MEDFileWritable
   {
   public:
     static MEDFileField1TS *New(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception);
@@ -1104,7 +1104,7 @@ namespace ParaMEDMEM
        }
   };
 
-  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFieldFieldGlobsReal, public MEDFileWritable
+  class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFileFieldGlobsReal, public MEDFileWritable
   {
   public:
     static MEDFileFieldMultiTS *New();
@@ -1137,7 +1137,7 @@ namespace ParaMEDMEM
        }
   };
 
-  class MEDFileFields : public RefCountObject, public MEDFieldFieldGlobsReal, public MEDFileWritable
+  class MEDFileFields : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritable
   {
   public:
     static MEDFileFields *New();

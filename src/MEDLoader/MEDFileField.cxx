@@ -185,7 +185,7 @@ std::string MEDFileFieldLoc::repr() const
   return oss.str();
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int& start, int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int& start, int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   _type=field->getTypeOfField();
   const DataArrayDouble *da=field->getArray();
@@ -258,7 +258,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldNoProfile(int& start, int off
  * @param multiTypePfl input containing the profile array \b including \b all \b types. This array is usefull only for GAUSS_NE.
  * @param idsInPfl input containing the ids in the profile 'multiTypePfl' concerning the current geo type.
  */
-void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(int& start, const char *pflName, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(int& start, const char *pflName, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   if(pflName)
     _profile=pflName;
@@ -306,7 +306,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::assignFieldProfile(int& start, const cha
   start=_end;
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerTypePerDisc::assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   _start=start;
   _nval=field->getArray()->getNumberOfTuples();
@@ -537,7 +537,7 @@ void MEDFileFieldPerMeshPerTypePerDisc::changeLocsRefsNamesGen(const std::vector
     }
 }
 
-void MEDFileFieldPerMeshPerTypePerDisc::getFieldAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
+void MEDFileFieldPerMeshPerTypePerDisc::getFieldAtLevel(TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
 {
   if(type!=_type)
     return ;
@@ -609,14 +609,14 @@ MEDFileFieldPerMeshPerType *MEDFileFieldPerMeshPerType::New(MEDFileFieldPerMesh 
   return new MEDFileFieldPerMeshPerType(fath,geoType);
 }
 
-void MEDFileFieldPerMeshPerType::assignFieldNoProfile(int& start, int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerType::assignFieldNoProfile(int& start, int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> pos=addNewEntryIfNecessary(field,offset,nbOfCells);
   for(std::vector<int>::const_iterator it=pos.begin();it!=pos.end();it++)
     _field_pm_pt_pd[*it]->assignFieldNoProfile(start,offset,nbOfCells,field,glob);
 }
 
-void MEDFileFieldPerMeshPerType::assignFieldProfile(int& start, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, DataArrayInt *locIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerType::assignFieldProfile(int& start, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, DataArrayInt *locIds, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> pos=addNewEntryIfNecessary(field,idsInPfl);
   if(locIds)
@@ -640,14 +640,14 @@ void MEDFileFieldPerMeshPerType::assignFieldProfile(int& start, const DataArrayI
     }
 }
 
-void MEDFileFieldPerMeshPerType::assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerType::assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   _field_pm_pt_pd.resize(1);
   _field_pm_pt_pd[0]=MEDFileFieldPerMeshPerTypePerDisc::New(this,ON_NODES,-3);
   _field_pm_pt_pd[0]->assignNodeFieldNoProfile(start,field,glob);
 }
 
-void MEDFileFieldPerMeshPerType::assignNodeFieldProfile(int& start, const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMeshPerType::assignNodeFieldProfile(int& start, const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   std::string pflName(pfl->getName());
   if(pflName.empty())
@@ -1025,7 +1025,7 @@ const MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerType::getLeafGive
   return static_cast<const MEDFileFieldPerMeshPerTypePerDisc*>(0);
 }
 
-void MEDFileFieldPerMeshPerType::getFieldAtLevel(int meshDim, TypeOfField type, const MEDFieldFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
+void MEDFileFieldPerMeshPerType::getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const
 {
   if(_geo_type!=INTERP_KERNEL::NORM_ERROR)
     {
@@ -1147,7 +1147,7 @@ void MEDFileFieldPerMesh::copyTinyInfoFrom(const MEDCouplingMesh *mesh) throw(IN
   mesh->getTime(_mesh_iteration,_mesh_order);
 }
 
-void MEDFileFieldPerMesh::assignFieldProfile(int& start, const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::assignFieldProfile(int& start, const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   int nbOfTypes=code.size()/3;
   bool isProfile=false;
@@ -1165,7 +1165,7 @@ void MEDFileFieldPerMesh::assignFieldProfile(int& start, const DataArrayInt *mul
     assignFieldProfileGeneral(start,multiTypePfl,code,idsInPflPerType,idsPerType,field,mesh,glob);
 }
 
-void MEDFileFieldPerMesh::assignFieldNoProfileNoRenum(int& start, const std::vector<int>& code, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::assignFieldNoProfileNoRenum(int& start, const std::vector<int>& code, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   int nbOfTypes=code.size()/3;
   int offset=0;
@@ -1182,7 +1182,7 @@ void MEDFileFieldPerMesh::assignFieldNoProfileNoRenum(int& start, const std::vec
 /*!
  * This method is the most general one. No optimization is done here.
  */
-void MEDFileFieldPerMesh::assignFieldProfileGeneral(int& start, const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::assignFieldProfileGeneral(int& start, const DataArrayInt *multiTypePfl, const std::vector<int>& code, const std::vector<DataArrayInt *>& idsInPflPerType, const std::vector<DataArrayInt *>& idsPerType, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   int nbOfTypes=code.size()/3;
   for(int i=0;i<nbOfTypes;i++)
@@ -1196,13 +1196,13 @@ void MEDFileFieldPerMesh::assignFieldProfileGeneral(int& start, const DataArrayI
     }
 }
 
-void MEDFileFieldPerMesh::assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   int pos=addNewEntryIfNecessary(INTERP_KERNEL::NORM_ERROR);
   _field_pm_pt[pos]->assignNodeFieldNoProfile(start,field,glob);
 }
 
-void MEDFileFieldPerMesh::assignNodeFieldProfile(int& start, const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldPerMesh::assignNodeFieldProfile(int& start, const DataArrayInt *pfl, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   int pos=addNewEntryIfNecessary(INTERP_KERNEL::NORM_ERROR);
   _field_pm_pt[pos]->assignNodeFieldProfile(start,pfl,field,glob);
@@ -1310,7 +1310,7 @@ const std::vector<std::string>& MEDFileFieldPerMesh::getInfo() const
  * - 'notNullPfls' contains sz2 values that are extracted from 'pfls' in which null profiles have been removed.
  * 'code' and 'notNullPfls' are in MEDCouplingUMesh::checkTypeConsistencyAndContig format.
  */
-void MEDFileFieldPerMesh::SortArraysPerType(const MEDFieldFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<int,int> >& dads, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& locs, std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls)
+void MEDFileFieldPerMesh::SortArraysPerType(const MEDFileFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<int,int> >& dads, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& locs, std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls)
 {
   int notNullPflsSz=0;
   int nbOfArrs=geoTypes.size();
@@ -1358,7 +1358,7 @@ void MEDFileFieldPerMesh::SortArraysPerType(const MEDFieldFieldGlobsReal *glob, 
 /*!
  * 'dads' 'geoTypes' and 'locs' are input parameters that should have same size sz. sz should be >=1.
  */
-int MEDFileFieldPerMesh::ComputeNbOfElems(const MEDFieldFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs) throw(INTERP_KERNEL::Exception)
+int MEDFileFieldPerMesh::ComputeNbOfElems(const MEDFileFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs) throw(INTERP_KERNEL::Exception)
 {
   int sz=dads.size();
   int ret=0;
@@ -1451,7 +1451,7 @@ void MEDFileFieldPerMesh::changeLocsRefsNamesGen(const std::vector< std::pair<st
     (*it)->changeLocsRefsNamesGen(mapOfModif);
 }
 
-MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField type, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField type, const MEDFileFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_pm_pt.empty())
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getFieldOnMeshAtLevel : no types field set !");
@@ -1504,7 +1504,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevel(TypeOfField t
     }
 }
 
-DataArrayDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDFileFieldPerMesh::getFieldOnMeshAtLevelWithPfl(TypeOfField type, const MEDCouplingMesh *mesh, DataArrayInt *&pfl, const MEDFileFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
 {
   if(_field_pm_pt.empty())
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::getFieldOnMeshAtLevel : no types field set !");
@@ -1628,7 +1628,7 @@ int MEDFileFieldPerMesh::addNewEntryIfNecessary(INTERP_KERNEL::NormalizedCellTyp
 /*!
  * 'dads' and 'locs' input parameters have the same number of elements.
  */
-MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
+MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const MEDFileFieldGlobsReal *glob,
                                                          const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs,
                                                          const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception)
 {
@@ -1668,7 +1668,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField(TypeOfField type, const
  * No check of this is performed. 'da' array contains an array in old2New style to be applyied to mesh to obtain the right support.
  * The order of cells in the returned field is those imposed by the profile.
  */
-MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField2(TypeOfField type, const MEDFieldFieldGlobsReal *glob,
+MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField2(TypeOfField type, const MEDFileFieldGlobsReal *glob,
                                                           const std::vector<std::pair<int,int> >& dads, const std::vector<int>& locs,
                                                           const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes,
                                                           const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl) const throw(INTERP_KERNEL::Exception)
@@ -1691,7 +1691,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField2(TypeOfField type, cons
 /*!
  * This method is the complement of MEDFileFieldPerMesh::finishField2 method except that this method works for node profiles.
  */
-MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFieldFieldGlobsReal *glob,
+MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField3(const MEDFileFieldGlobsReal *glob,
                                                           const std::vector<std::pair<int,int> >& dads, const std::vector<int>& locs,
                                                           const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl) const throw(INTERP_KERNEL::Exception)
 {
@@ -1813,7 +1813,7 @@ MEDFileFieldPerMesh::MEDFileFieldPerMesh(MEDFileField1TSWithoutDAS *fath, const 
   copyTinyInfoFrom(mesh);
 }
 
-void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception)
 {
   if(id>=(int)_pfls.size())
     _pfls.resize(id+1);
@@ -1825,7 +1825,7 @@ void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int id, const char *pflN
   _pfls[id]->applyLin(1,-1,0);//Converting into C format
 }
 
-void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int i)
+void MEDFileFieldGlobs::loadProfileInFile(med_idt fid, int i)
 {
   INTERP_KERNEL::AutoPtr<char> pflName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
   int sz;
@@ -1840,7 +1840,7 @@ void MEDFieldFieldGlobs::loadProfileInFile(med_idt fid, int i)
   _pfls[i]->applyLin(1,-1,0);//Converting into C format
 }
 
-void MEDFieldFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception)
 {
   int nbOfPfls=_pfls.size();
   for(int i=0;i<nbOfPfls;i++)
@@ -1857,7 +1857,7 @@ void MEDFieldFieldGlobs::writeGlobals(med_idt fid, const MEDFileWritable& opt) c
     _locs[i]->writeLL(fid);
 }
 
-void MEDFieldFieldGlobs::appendGlobs(const MEDFieldFieldGlobs& other, double eps) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::appendGlobs(const MEDFileFieldGlobs& other, double eps) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> pfls=getPfls();
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=other._pfls.begin();it!=other._pfls.end();it++)
@@ -1872,7 +1872,7 @@ void MEDFieldFieldGlobs::appendGlobs(const MEDFieldFieldGlobs& other, double eps
           int id=std::distance(pfls.begin(),it2);
           if(!(*it)->isEqual(*_pfls[id]))
             {
-              std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendGlobs : Profile \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
+              std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Profile \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
@@ -1890,14 +1890,14 @@ void MEDFieldFieldGlobs::appendGlobs(const MEDFieldFieldGlobs& other, double eps
           int id=std::distance(locs.begin(),it2);
           if(!(*it)->isEqual(*_locs[id],eps))
             {
-              std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendGlobs : Localization \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
+              std::ostringstream oss; oss << "MEDFileFieldGlobs::appendGlobs : Localization \"" << (*it)->getName() << "\" already exists and is different from those expecting to be append !";
               throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
     }
 }
 
-void MEDFieldFieldGlobs::loadGlobals(med_idt fid, const MEDFieldFieldGlobsReal& real) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::loadGlobals(med_idt fid, const MEDFileFieldGlobsReal& real) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string> profiles=real.getPflsReallyUsed();
   int sz=profiles.size();
@@ -1912,7 +1912,7 @@ void MEDFieldFieldGlobs::loadGlobals(med_idt fid, const MEDFieldFieldGlobsReal& 
     _locs[i]=MEDFileFieldLoc::New(fid,locs[i].c_str());
 }
 
-void MEDFieldFieldGlobs::loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
   int nProfil=MEDnProfile(fid);
   for(int i=0;i<nProfil;i++)
@@ -1925,29 +1925,29 @@ void MEDFieldFieldGlobs::loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Except
     }
 }
 
-MEDFieldFieldGlobs *MEDFieldFieldGlobs::New(const char *fname)
+MEDFileFieldGlobs *MEDFileFieldGlobs::New(const char *fname)
 {
-  return new MEDFieldFieldGlobs(fname);
+  return new MEDFileFieldGlobs(fname);
 }
 
-MEDFieldFieldGlobs *MEDFieldFieldGlobs::New()
+MEDFileFieldGlobs *MEDFileFieldGlobs::New()
 {
-  return new MEDFieldFieldGlobs;
+  return new MEDFileFieldGlobs;
 }
 
-MEDFieldFieldGlobs::MEDFieldFieldGlobs(const char *fname):_file_name(fname)
-{
-}
-
-MEDFieldFieldGlobs::MEDFieldFieldGlobs()
+MEDFileFieldGlobs::MEDFileFieldGlobs(const char *fname):_file_name(fname)
 {
 }
 
-MEDFieldFieldGlobs::~MEDFieldFieldGlobs()
+MEDFileFieldGlobs::MEDFileFieldGlobs()
 {
 }
 
-void MEDFieldFieldGlobs::simpleRepr(std::ostream& oss) const
+MEDFileFieldGlobs::~MEDFileFieldGlobs()
+{
+}
+
+void MEDFileFieldGlobs::simpleRepr(std::ostream& oss) const
 {
   oss << "Profiles :\n";
   std::size_t n=_pfls.size();
@@ -1973,12 +1973,12 @@ void MEDFieldFieldGlobs::simpleRepr(std::ostream& oss) const
     }
 }
 
-void MEDFieldFieldGlobs::setFileName(const char *fileName)
+void MEDFileFieldGlobs::setFileName(const char *fileName)
 {
   _file_name=fileName;
 }
 
-void MEDFieldFieldGlobs::changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::iterator it=_pfls.begin();it!=_pfls.end();it++)
     {
@@ -1998,7 +1998,7 @@ void MEDFieldFieldGlobs::changePflsNamesInStruct(const std::vector< std::pair<st
     }
 }
 
-void MEDFieldFieldGlobs::changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::iterator it=_locs.begin();it!=_locs.end();it++)
     {
@@ -2018,22 +2018,22 @@ void MEDFieldFieldGlobs::changeLocsNamesInStruct(const std::vector< std::pair<st
     }
 }
 
-int MEDFieldFieldGlobs::getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception)
+int MEDFileFieldGlobs::getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception)
 {
   if(locId<0 || locId>=(int)_locs.size())
-    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::getNbOfGaussPtPerCell : Invalid localization id !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::getNbOfGaussPtPerCell : Invalid localization id !");
   return _locs[locId]->getNbOfGaussPtPerCell();
 }
 
-const MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
+const MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
 {
   return getLocalizationFromId(getLocalizationId(locName));
 }
 
-const MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
+const MEDFileFieldLoc& MEDFileFieldGlobs::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
 {
   if(locId<0 || locId>=(int)_locs.size())
-    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::getLocalizationFromId : Invalid localization id !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::getLocalizationFromId : Invalid localization id !");
   return *_locs[locId];
 }
 
@@ -2058,12 +2058,12 @@ namespace ParaMEDMEMImpl
   };
 }
 
-int MEDFieldFieldGlobs::getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception)
+int MEDFileFieldGlobs::getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception)
 {
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=std::find_if(_locs.begin(),_locs.end(),ParaMEDMEMImpl::LocFinder(loc));
   if(it==_locs.end())
     {
-      std::ostringstream oss; oss << "MEDFieldFieldGlobs::getLocalisationId : no such localisation name : \"" << loc << "\" Possible localizations are : ";
+      std::ostringstream oss; oss << "MEDFileFieldGlobs::getLocalisationId : no such localisation name : \"" << loc << "\" Possible localizations are : ";
       for(it=_locs.begin();it!=_locs.end();it++)
         oss << "\"" << (*it)->getName() << "\", ";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -2071,13 +2071,13 @@ int MEDFieldFieldGlobs::getLocalizationId(const char *loc) const throw(INTERP_KE
   return std::distance(_locs.begin(),it);
 }
 
-const DataArrayInt *MEDFieldFieldGlobs::getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
+const DataArrayInt *MEDFileFieldGlobs::getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
 {
   std::string pflNameCpp(pflName);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
   if(it==_pfls.end())
     {
-      std::ostringstream oss; oss << "MEDFieldFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
+      std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
       for(it=_pfls.begin();it!=_pfls.end();it++)
         oss << "\"" << (*it)->getName() << "\", ";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -2085,32 +2085,32 @@ const DataArrayInt *MEDFieldFieldGlobs::getProfile(const char *pflName) const th
   return *it;
 }
 
-const DataArrayInt *MEDFieldFieldGlobs::getProfileFromId(int pflId) const throw(INTERP_KERNEL::Exception)
+const DataArrayInt *MEDFileFieldGlobs::getProfileFromId(int pflId) const throw(INTERP_KERNEL::Exception)
 {
   if(pflId<0 || pflId>=(int)_pfls.size())
-    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::getProfileFromId : Invalid profile id !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::getProfileFromId : Invalid profile id !");
   return _pfls[pflId];
 }
 
-MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception)
+MEDFileFieldLoc& MEDFileFieldGlobs::getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception)
 {
   if(locId<0 || locId>=(int)_locs.size())
-    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::getLocalizationFromId : Invalid localization id !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::getLocalizationFromId : Invalid localization id !");
   return *_locs[locId];
 }
 
-MEDFileFieldLoc& MEDFieldFieldGlobs::getLocalization(const char *locName) throw(INTERP_KERNEL::Exception)
+MEDFileFieldLoc& MEDFileFieldGlobs::getLocalization(const char *locName) throw(INTERP_KERNEL::Exception)
 {
   return getLocalizationFromId(getLocalizationId(locName));
 }
 
-DataArrayInt *MEDFieldFieldGlobs::getProfile(const char *pflName) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileFieldGlobs::getProfile(const char *pflName) throw(INTERP_KERNEL::Exception)
 {
   std::string pflNameCpp(pflName);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::iterator it=std::find_if(_pfls.begin(),_pfls.end(),ParaMEDMEMImpl::PflFinder(pflNameCpp));
   if(it==_pfls.end())
     {
-      std::ostringstream oss; oss << "MEDFieldFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
+      std::ostringstream oss; oss << "MEDFileFieldGlobs::getProfile: no such profile name : \"" << pflNameCpp << "\" Possible profiles are : ";
       for(it=_pfls.begin();it!=_pfls.end();it++)
         oss << "\"" << (*it)->getName() << "\", ";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -2118,14 +2118,14 @@ DataArrayInt *MEDFieldFieldGlobs::getProfile(const char *pflName) throw(INTERP_K
   return *it;
 }
 
-DataArrayInt *MEDFieldFieldGlobs::getProfileFromId(int pflId) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileFieldGlobs::getProfileFromId(int pflId) throw(INTERP_KERNEL::Exception)
 {
   if(pflId<0 || pflId>=(int)_pfls.size())
-    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::getProfileFromId : Invalid profile id !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::getProfileFromId : Invalid profile id !");
   return _pfls[pflId];
 }
 
-void MEDFieldFieldGlobs::killProfileIds(const std::vector<int>& pflIds) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::killProfileIds(const std::vector<int>& pflIds) throw(INTERP_KERNEL::Exception)
 {
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > newPfls;
   int i=0;
@@ -2137,7 +2137,7 @@ void MEDFieldFieldGlobs::killProfileIds(const std::vector<int>& pflIds) throw(IN
   _pfls=newPfls;
 }
 
-void MEDFieldFieldGlobs::killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception)
 {
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> > newLocs;
   int i=0;
@@ -2149,7 +2149,7 @@ void MEDFieldFieldGlobs::killLocalizationIds(const std::vector<int>& locIds) thr
   _locs=newLocs;
 }
 
-std::vector<std::string> MEDFieldFieldGlobs::getPfls() const
+std::vector<std::string> MEDFileFieldGlobs::getPfls() const
 {
   int sz=_pfls.size();
   std::vector<std::string> ret(sz);
@@ -2158,7 +2158,7 @@ std::vector<std::string> MEDFieldFieldGlobs::getPfls() const
   return ret;
 }
 
-std::vector<std::string> MEDFieldFieldGlobs::getLocs() const
+std::vector<std::string> MEDFileFieldGlobs::getLocs() const
 {
   int sz=_locs.size();
   std::vector<std::string> ret(sz);
@@ -2167,21 +2167,21 @@ std::vector<std::string> MEDFieldFieldGlobs::getLocs() const
   return ret;
 }
 
-bool MEDFieldFieldGlobs::existsPfl(const char *pflName) const
+bool MEDFileFieldGlobs::existsPfl(const char *pflName) const
 {
   std::vector<std::string> v=getPfls();
   std::string s(pflName);
   return std::find(v.begin(),v.end(),s)!=v.end();
 }
 
-bool MEDFieldFieldGlobs::existsLoc(const char *locName) const
+bool MEDFileFieldGlobs::existsLoc(const char *locName) const
 {
   std::vector<std::string> v=getLocs();
   std::string s(locName);
   return std::find(v.begin(),v.end(),s)!=v.end();
 }
 
-std::vector< std::vector<int> > MEDFieldFieldGlobs::whichAreEqualProfiles() const
+std::vector< std::vector<int> > MEDFileFieldGlobs::whichAreEqualProfiles() const
 {
   std::map<int,std::vector<int> > m;
   int i=0;
@@ -2221,22 +2221,22 @@ std::vector< std::vector<int> > MEDFieldFieldGlobs::whichAreEqualProfiles() cons
   return ret;
 }
 
-std::vector< std::vector<int> > MEDFieldFieldGlobs::whichAreEqualLocs(double eps) const
+std::vector< std::vector<int> > MEDFileFieldGlobs::whichAreEqualLocs(double eps) const
 {
-  throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::whichAreEqualLocs : no implemented yet ! Sorry !");
+  throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::whichAreEqualLocs : no implemented yet ! Sorry !");
 }
 
-void MEDFieldFieldGlobs::appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception)
 {
   std::string name(pfl->getName());
   if(name.empty())
-    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::appendProfile : unsupported profiles with no name !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::appendProfile : unsupported profiles with no name !");
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> >::const_iterator it=_pfls.begin();it!=_pfls.end();it++)
     if(name==(*it)->getName())
       {
         if(!pfl->isEqual(*(*it)))
           {
-            std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendProfile : profile \"" << name << "\" already exists and is different from existing !";
+            std::ostringstream oss; oss << "MEDFileFieldGlobs::appendProfile : profile \"" << name << "\" already exists and is different from existing !";
             throw INTERP_KERNEL::Exception(oss.str().c_str());
           }
       }
@@ -2244,152 +2244,152 @@ void MEDFieldFieldGlobs::appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::E
   _pfls.push_back(pfl);
 }
 
-void MEDFieldFieldGlobs::appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobs::appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception)
 {
   std::string name(locName);
   if(name.empty())
-    throw INTERP_KERNEL::Exception("MEDFieldFieldGlobs::appendLoc : unsupported localizations with no name !");
+    throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::appendLoc : unsupported localizations with no name !");
   MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> obj=MEDFileFieldLoc::New(locName,geoType,refCoo,gsCoo,w);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldLoc> >::const_iterator it=_locs.begin();it!=_locs.end();it++)
     if((*it)->isName(locName))
       {
         if(!(*it)->isEqual(*obj,1e-12))
           {
-            std::ostringstream oss; oss << "MEDFieldFieldGlobs::appendLoc : localization \"" << name << "\" already exists and is different from existing !";
+            std::ostringstream oss; oss << "MEDFileFieldGlobs::appendLoc : localization \"" << name << "\" already exists and is different from existing !";
             throw INTERP_KERNEL::Exception(oss.str().c_str());
           }
       }
   _locs.push_back(obj);
 }
 
-MEDFieldFieldGlobsReal::MEDFieldFieldGlobsReal(const char *fname):_globals(MEDFieldFieldGlobs::New(fname))
+MEDFileFieldGlobsReal::MEDFileFieldGlobsReal(const char *fname):_globals(MEDFileFieldGlobs::New(fname))
 {
 }
 
-MEDFieldFieldGlobsReal::MEDFieldFieldGlobsReal():_globals(MEDFieldFieldGlobs::New())
+MEDFileFieldGlobsReal::MEDFileFieldGlobsReal():_globals(MEDFileFieldGlobs::New())
 {
 }
 
-void MEDFieldFieldGlobsReal::simpleRepr(std::ostream& oss) const
+void MEDFileFieldGlobsReal::simpleRepr(std::ostream& oss) const
 {
   oss << "Globals information on fields :" << "\n*******************************\n\n";
-  const MEDFieldFieldGlobs *glob=_globals;
+  const MEDFileFieldGlobs *glob=_globals;
   if(glob)
     glob->simpleRepr(oss);
   else
     oss << "NO GLOBAL INFORMATION !\n";
 }
 
-MEDFieldFieldGlobsReal::~MEDFieldFieldGlobsReal()
+MEDFileFieldGlobsReal::~MEDFileFieldGlobsReal()
 {
 }
 
-void MEDFieldFieldGlobsReal::shallowCpyGlobs(const MEDFieldFieldGlobsReal& other)
+void MEDFileFieldGlobsReal::shallowCpyGlobs(const MEDFileFieldGlobsReal& other)
 {
   _globals=other._globals;
 }
 
-void MEDFieldFieldGlobsReal::appendGlobs(const MEDFieldFieldGlobsReal& other, double eps) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::appendGlobs(const MEDFileFieldGlobsReal& other, double eps) throw(INTERP_KERNEL::Exception)
 {
   _globals->appendGlobs(*other._globals,eps);
 }
 
-void MEDFieldFieldGlobsReal::loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::loadProfileInFile(med_idt fid, int id, const char *pflName) throw(INTERP_KERNEL::Exception)
 {
   _globals->loadProfileInFile(fid,id,pflName);
 }
 
-void MEDFieldFieldGlobsReal::loadProfileInFile(med_idt fid, int id)
+void MEDFileFieldGlobsReal::loadProfileInFile(med_idt fid, int id)
 {
   _globals->loadProfileInFile(fid,id);
 }
 
-void MEDFieldFieldGlobsReal::loadGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::loadGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
   _globals->loadGlobals(fid,*this);
 }
 
-void MEDFieldFieldGlobsReal::loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::loadAllGlobals(med_idt fid) throw(INTERP_KERNEL::Exception)
 {
   _globals->loadAllGlobals(fid);
 }
 
-void MEDFieldFieldGlobsReal::writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::writeGlobals(med_idt fid, const MEDFileWritable& opt) const throw(INTERP_KERNEL::Exception)
 {
   _globals->writeGlobals(fid,opt);
 }
 
-std::vector<std::string> MEDFieldFieldGlobsReal::getPfls() const
+std::vector<std::string> MEDFileFieldGlobsReal::getPfls() const
 {
   return _globals->getPfls();
 }
 
-std::vector<std::string> MEDFieldFieldGlobsReal::getLocs() const
+std::vector<std::string> MEDFileFieldGlobsReal::getLocs() const
 {
   return _globals->getLocs();
 }
 
-bool MEDFieldFieldGlobsReal::existsPfl(const char *pflName) const
+bool MEDFileFieldGlobsReal::existsPfl(const char *pflName) const
 {
   return _globals->existsPfl(pflName);
 }
 
-bool MEDFieldFieldGlobsReal::existsLoc(const char *locName) const
+bool MEDFileFieldGlobsReal::existsLoc(const char *locName) const
 {
   return _globals->existsLoc(locName);
 }
 
-void MEDFieldFieldGlobsReal::setFileName(const char *fileName)
+void MEDFileFieldGlobsReal::setFileName(const char *fileName)
 {
   _globals->setFileName(fileName);
 }
 
-std::vector< std::vector<int> > MEDFieldFieldGlobsReal::whichAreEqualProfiles() const
+std::vector< std::vector<int> > MEDFileFieldGlobsReal::whichAreEqualProfiles() const
 {
   return _globals->whichAreEqualProfiles();
 }
 
-std::vector< std::vector<int> > MEDFieldFieldGlobsReal::whichAreEqualLocs(double eps) const
+std::vector< std::vector<int> > MEDFileFieldGlobsReal::whichAreEqualLocs(double eps) const
 {
   return _globals->whichAreEqualLocs(eps);
 }
 
-void MEDFieldFieldGlobsReal::changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   _globals->changePflsNamesInStruct(mapOfModif);
 }
 
-void MEDFieldFieldGlobsReal::changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   _globals->changeLocsNamesInStruct(mapOfModif);
 }
 
 /*!
- * This method is a generalization of MEDFieldFieldGlobsReal::changePflName.
- * This method contrary to abstract method MEDFieldFieldGlobsReal::changePflsRefsNamesGen updates in addition of MEDFieldFieldGlobsReal::changePflsRefsNamesGen,
+ * This method is a generalization of MEDFileFieldGlobsReal::changePflName.
+ * This method contrary to abstract method MEDFileFieldGlobsReal::changePflsRefsNamesGen updates in addition of MEDFileFieldGlobsReal::changePflsRefsNamesGen,
  * the profiles themselves and not only leaves of field.
  */
-void MEDFieldFieldGlobsReal::changePflsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::changePflsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   changePflsRefsNamesGen(mapOfModif);
   changePflsNamesInStruct(mapOfModif);
 }
 
 /*!
- * This method is a generalization of MEDFieldFieldGlobsReal::changePflName.
- * This method contrary to abstract method MEDFieldFieldGlobsReal::changeLocsRefsNamesGen updates in addition of MEDFieldFieldGlobsReal::changeLocsRefsNamesGen,
+ * This method is a generalization of MEDFileFieldGlobsReal::changePflName.
+ * This method contrary to abstract method MEDFileFieldGlobsReal::changeLocsRefsNamesGen updates in addition of MEDFileFieldGlobsReal::changeLocsRefsNamesGen,
  * the localizations themselves and not only leaves of field.
  */
-void MEDFieldFieldGlobsReal::changeLocsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::changeLocsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   changeLocsRefsNamesGen(mapOfModif);
   changeLocsNamesInStruct(mapOfModif);
 }
 
 /*!
- * This method is a more friendly API but less general method than MEDFieldFieldGlobsReal::changePflsNames.
+ * This method is a more friendly API but less general method than MEDFileFieldGlobsReal::changePflsNames.
  */
-void MEDFieldFieldGlobsReal::changePflName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::changePflName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
 {
   std::vector< std::pair<std::vector<std::string>, std::string > > mapOfModif(1);
   std::pair<std::vector<std::string>, std::string > p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
@@ -2398,9 +2398,9 @@ void MEDFieldFieldGlobsReal::changePflName(const char *oldName, const char *newN
 }
 
 /*!
- * This method is a more friendly API but less general method than MEDFieldFieldGlobsReal::changeLocsNames.
+ * This method is a more friendly API but less general method than MEDFileFieldGlobsReal::changeLocsNames.
  */
-void MEDFieldFieldGlobsReal::changeLocName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::changeLocName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception)
 {
   std::vector< std::pair<std::vector<std::string>, std::string > > mapOfModif(1);
   std::pair<std::vector<std::string>, std::string > p(std::vector<std::string>(1,std::string(oldName)),std::string(newName));
@@ -2408,7 +2408,7 @@ void MEDFieldFieldGlobsReal::changeLocName(const char *oldName, const char *newN
   changeLocsNames(mapOfModif);
 }
 
-std::vector< std::pair<std::vector<std::string>, std::string > > MEDFieldFieldGlobsReal::zipPflsNames() throw(INTERP_KERNEL::Exception)
+std::vector< std::pair<std::vector<std::string>, std::string > > MEDFileFieldGlobsReal::zipPflsNames() throw(INTERP_KERNEL::Exception)
 {
   std::vector< std::vector<int> > pseudoRet=whichAreEqualProfiles();
   std::vector< std::pair<std::vector<std::string>, std::string > > ret(pseudoRet.size());
@@ -2428,7 +2428,7 @@ std::vector< std::pair<std::vector<std::string>, std::string > > MEDFieldFieldGl
   return ret;
 }
 
-std::vector< std::pair<std::vector<std::string>, std::string > > MEDFieldFieldGlobsReal::zipLocsNames(double eps) throw(INTERP_KERNEL::Exception)
+std::vector< std::pair<std::vector<std::string>, std::string > > MEDFileFieldGlobsReal::zipLocsNames(double eps) throw(INTERP_KERNEL::Exception)
 {
   std::vector< std::vector<int> > pseudoRet=whichAreEqualLocs(eps);
   std::vector< std::pair<std::vector<std::string>, std::string > > ret(pseudoRet.size());
@@ -2448,82 +2448,82 @@ std::vector< std::pair<std::vector<std::string>, std::string > > MEDFieldFieldGl
   return ret;
 }
 
-int MEDFieldFieldGlobsReal::getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception)
+int MEDFileFieldGlobsReal::getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception)
 {
   return _globals->getNbOfGaussPtPerCell(locId);
 }
 
-int MEDFieldFieldGlobsReal::getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception)
+int MEDFileFieldGlobsReal::getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception)
 {
   return _globals->getLocalizationId(loc);
 }
 
-const char *MEDFieldFieldGlobsReal::getFileName() const
+const char *MEDFileFieldGlobsReal::getFileName() const
 {
   return _globals->getFileName();
 }
 
-std::string MEDFieldFieldGlobsReal::getFileName2() const
+std::string MEDFileFieldGlobsReal::getFileName2() const
 {
   return _globals->getFileName2();
 }
 
-const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
+const MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
 {
   return _globals->getLocalization(locName);
 }
 
-const MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
+const MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalizationFromId(int locId) const throw(INTERP_KERNEL::Exception)
 {
   return _globals->getLocalizationFromId(locId);
 }
 
-const DataArrayInt *MEDFieldFieldGlobsReal::getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
+const DataArrayInt *MEDFileFieldGlobsReal::getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
 {
   return _globals->getProfile(pflName);
 }
 
-const DataArrayInt *MEDFieldFieldGlobsReal::getProfileFromId(int pflId) const throw(INTERP_KERNEL::Exception)
+const DataArrayInt *MEDFileFieldGlobsReal::getProfileFromId(int pflId) const throw(INTERP_KERNEL::Exception)
 {
   return _globals->getProfileFromId(pflId);
 }
 
-MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception)
+MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalizationFromId(int locId) throw(INTERP_KERNEL::Exception)
 {
   return _globals->getLocalizationFromId(locId);
 }
 
-MEDFileFieldLoc& MEDFieldFieldGlobsReal::getLocalization(const char *locName) throw(INTERP_KERNEL::Exception)
+MEDFileFieldLoc& MEDFileFieldGlobsReal::getLocalization(const char *locName) throw(INTERP_KERNEL::Exception)
 {
   return _globals->getLocalization(locName);
 }
 
-DataArrayInt *MEDFieldFieldGlobsReal::getProfile(const char *pflName) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileFieldGlobsReal::getProfile(const char *pflName) throw(INTERP_KERNEL::Exception)
 {
   return _globals->getProfile(pflName);
 }
 
-DataArrayInt *MEDFieldFieldGlobsReal::getProfileFromId(int pflId) throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDFileFieldGlobsReal::getProfileFromId(int pflId) throw(INTERP_KERNEL::Exception)
 {
   return _globals->getProfileFromId(pflId);
 }
 
-void MEDFieldFieldGlobsReal::killProfileIds(const std::vector<int>& pflIds) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::killProfileIds(const std::vector<int>& pflIds) throw(INTERP_KERNEL::Exception)
 {
   _globals->killProfileIds(pflIds);
 }
 
-void MEDFieldFieldGlobsReal::killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception)
 {
   _globals->killLocalizationIds(locIds);
 }
 
-void MEDFieldFieldGlobsReal::appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception)
 {
   _globals->appendProfile(pfl);
 }
 
-void MEDFieldFieldGlobsReal::appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception)
+void MEDFileFieldGlobsReal::appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception)
 {
   _globals->appendLoc(locName,geoType,refCoo,gsCoo,w);
 }
@@ -2960,7 +2960,7 @@ void MEDFileField1TSWithoutDAS::writeLL(med_idt fid) const throw(INTERP_KERNEL::
  * SBT means Sort By Type.
  * This method is the most basic method to assign field in this. Basic in sense that no renumbering is done. Underlying mesh in 'field' is globaly ignored except for type contiguous check.
  */
-void MEDFileField1TSWithoutDAS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSWithoutDAS::setFieldNoProfileSBT(const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   const MEDCouplingMesh *mesh=field->getMesh();
   //
@@ -2984,7 +2984,7 @@ void MEDFileField1TSWithoutDAS::setFieldNoProfileSBT(const MEDCouplingFieldDoubl
 /*!
  * Generalization of MEDFileField1TSWithoutDAS::setFieldNoProfileSBT method.
  */
-void MEDFileField1TSWithoutDAS::setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFieldFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+void MEDFileField1TSWithoutDAS::setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
 {
   TypeOfField type=field->getTypeOfField();
   int start=copyTinyInfoFrom(field);
@@ -3013,7 +3013,7 @@ void MEDFileField1TSWithoutDAS::setFieldProfile(const MEDCouplingFieldDouble *fi
     }
 }
 
-MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const char *mName, int renumPol, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const char *mName, int renumPol, const MEDFileFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm;
   if(mName==0)
@@ -3023,7 +3023,7 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtLevel(TypeOfField t
   return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,glob,mm);
 }
 
-MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFieldFieldGlobsReal *glob, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax,false);
   const DataArrayInt *d=mesh->getNumberFieldAtLevel(meshDimRelToMax);
@@ -3033,7 +3033,7 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfF
   return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,renumPol,glob,m,d,e);
 }
 
-MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtTopLevel(TypeOfField type, const char *mName, int renumPol, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtTopLevel(TypeOfField type, const char *mName, int renumPol, const MEDFileFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
 {
    MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> mm;
   if(mName==0)
@@ -3045,7 +3045,7 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldAtTopLevel(TypeOfFiel
   return MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(type,meshDimRelToMax,renumPol,glob,mm);
 }
 
-MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFieldFieldGlobsReal *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception)
+MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfField type, int renumPol, const MEDFileFieldGlobsReal *glob, const MEDCouplingMesh *mesh, const DataArrayInt *cellRenum, const DataArrayInt *nodeRenum) const throw(INTERP_KERNEL::Exception)
 {
   static const char msg1[]="MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel : request for a renumbered field following mesh numbering whereas it is a profile field !";
   int meshId=getMeshIdFromMeshName(mesh->getName());
@@ -3105,7 +3105,7 @@ MEDCouplingFieldDouble *MEDFileField1TSWithoutDAS::getFieldOnMeshAtLevel(TypeOfF
     }
 }
 
-DataArrayDouble *MEDFileField1TSWithoutDAS::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl, const MEDFieldFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *MEDFileField1TSWithoutDAS::getFieldWithProfile(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, DataArrayInt *&pfl, const MEDFileFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=mesh->getGenMeshAtLevel(meshDimRelToMax);
   int meshId=getMeshIdFromMeshName(mesh->getName());
@@ -3254,7 +3254,7 @@ std::string MEDFileField1TS::simpleRepr() const
 {
   std::ostringstream oss;
   MEDFileField1TSWithoutDAS::simpleRepr(0,oss,-1);
-  MEDFieldFieldGlobsReal::simpleRepr(oss);
+  MEDFileFieldGlobsReal::simpleRepr(oss);
   return oss.str();
 }
 
@@ -3286,7 +3286,7 @@ void MEDFileField1TS::write(const char *fileName, int mode) const throw(INTERP_K
 }
 
 MEDFileField1TS::MEDFileField1TS(const char *fileName, const char *fieldName, int iteration, int order) throw(INTERP_KERNEL::Exception)
-try:MEDFileField1TSWithoutDAS(fieldName,-1,-1,iteration,order,std::vector<std::string>()),MEDFieldFieldGlobsReal(fileName)
+try:MEDFileField1TSWithoutDAS(fieldName,-1,-1,iteration,order,std::vector<std::string>()),MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -3500,7 +3500,7 @@ void MEDFileField1TS::setFieldProfile(const MEDCouplingFieldDouble *field, const
  * This method as MEDFileField1TSW::setLocNameOnLeaf, is dedicated for advanced user that a want a very fine control on their data structure
  * without overhead. This method can be called only regarding information returned by MEDFileField1TSWithoutDAS::getFieldSplitedByType or MEDFileField1TSWithoutDAS::getFieldSplitedByType2.
  * This method changes the attribute (here it's profile name) of the leaf datastructure (MEDFileFieldPerMeshPerTypePerDisc instance).
- * It is the responsability of the caller to invoke MEDFieldFieldGlobs::appendProfile or MEDFieldFieldGlobs::getProfile
+ * It is the responsability of the caller to invoke MEDFileFieldGlobs::appendProfile or MEDFileFieldGlobs::getProfile
  * to keep a valid instance.
  * If \b this do not have any leaf that correspond to the request of the input parameter (\b mName, \b typ, \b locId) an INTERP_KERNEL::Exception will be thrown.
  * If \b newPflName profile name does not already exist the profile with old name will be renamed with name \b newPflName.
@@ -3537,7 +3537,7 @@ void MEDFileField1TS::setProfileNameOnLeaf(const char *mName, INTERP_KERNEL::Nor
  * This method as MEDFileField1TSW::setProfileNameOnLeaf, is dedicated for advanced user that a want a very fine control on their data structure
  * without overhead. This method can be called only regarding information returned by MEDFileField1TSWithoutDAS::getFieldSplitedByType or MEDFileField1TSWithoutDAS::getFieldSplitedByType2.
  * This method changes the attribute (here it's localization name) of the leaf datastructure (MEDFileFieldPerMeshPerTypePerDisc instance).
- * It is the responsability of the caller to invoke MEDFieldFieldGlobs::appendProfile or MEDFieldFieldGlobs::getProfile
+ * It is the responsability of the caller to invoke MEDFileFieldGlobs::appendProfile or MEDFileFieldGlobs::getProfile
  * to keep a valid instance.
  * If \b this do not have any leaf that correspond to the request of the input parameter (\b mName, \b typ, \b locId) an INTERP_KERNEL::Exception will be thrown.
  * This method is an extension of MEDFileField1TSWithoutDAS::setProfileNameOnLeafExt method because it performs a modification of global info.
@@ -3947,7 +3947,7 @@ std::string MEDFileFieldMultiTS::simpleRepr() const
 {
   std::ostringstream oss;
   MEDFileFieldMultiTSWithoutDAS::simpleRepr(0,oss,-1);
-  MEDFieldFieldGlobsReal::simpleRepr(oss);
+  MEDFileFieldGlobsReal::simpleRepr(oss);
   return oss.str();
 }
 
@@ -4058,7 +4058,7 @@ MEDFileFieldMultiTS::MEDFileFieldMultiTS()
 }
 
 MEDFileFieldMultiTS::MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
-try:MEDFileFieldMultiTSWithoutDAS(fieldName),MEDFieldFieldGlobsReal(fileName)
+try:MEDFileFieldMultiTSWithoutDAS(fieldName),MEDFileFieldGlobsReal(fileName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
@@ -4215,7 +4215,7 @@ void MEDFileFields::simpleRepr(int bkOffset, std::ostream& oss) const
         }
       oss << startLine << chapter << std::endl;
     }
-  MEDFieldFieldGlobsReal::simpleRepr(oss);
+  MEDFileFieldGlobsReal::simpleRepr(oss);
 }
 
 MEDFileFields::MEDFileFields()
@@ -4223,7 +4223,7 @@ MEDFileFields::MEDFileFields()
 }
 
 MEDFileFields::MEDFileFields(const char *fileName) throw(INTERP_KERNEL::Exception)
-try:MEDFieldFieldGlobsReal(fileName)
+try:MEDFileFieldGlobsReal(fileName)
   {
     MEDFileUtilities::CheckFileForRead(fileName);
     MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
