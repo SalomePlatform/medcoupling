@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -45,6 +45,15 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testBuildDescendingConnec2Of3DMesh1 );
     CPPUNIT_TEST( testAre2DCellsNotCorrectlyOriented1 );
     CPPUNIT_TEST( testDataArrayAbs1 );
+    CPPUNIT_TEST( testGetValueOn3 );
+    CPPUNIT_TEST( testGetNodeIdsOfCell2 );
+    CPPUNIT_TEST( testRenumberNodesInConn1 );
+    CPPUNIT_TEST( testComputeNeighborsOfCells1 );
+    CPPUNIT_TEST( testCheckButterflyCellsBug1 );
+    CPPUNIT_TEST( testDataArrayIntRange1 );
+    CPPUNIT_TEST( testDataArrayDoubleGetMinMaxPerComponent1 );
+    CPPUNIT_TEST( testDataArrayIntGetHashCode1 );
+    CPPUNIT_TEST( testZipConnectivityPol1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -57,6 +66,15 @@ namespace ParaMEDMEM
     void testBuildDescendingConnec2Of3DMesh1();
     void testAre2DCellsNotCorrectlyOriented1();
     void testDataArrayAbs1();
+    void testGetValueOn3();
+    void testGetNodeIdsOfCell2();
+    void testRenumberNodesInConn1();
+    void testComputeNeighborsOfCells1();
+    void testCheckButterflyCellsBug1();
+    void testDataArrayIntRange1();
+    void testDataArrayDoubleGetMinMaxPerComponent1();
+    void testDataArrayIntGetHashCode1();
+    void testZipConnectivityPol1();
   };
 }
 

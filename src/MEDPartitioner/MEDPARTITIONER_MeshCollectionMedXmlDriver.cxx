@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -36,6 +36,11 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#ifdef WIN32
+#include <time.h>
+#include <windows.h>
+#endif
+
 
 #include <libxml/tree.h>
 #include <libxml/parser.h>
@@ -194,13 +199,22 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
   xmlNewProp(node, BAD_CAST "ver", BAD_CAST "1");
 
   //Description tag
-  time_t present;
+  time_t present; 
+  char date[6];
+#ifndef WIN32
   time( &present);
   struct tm *time_asc = localtime(&present);
-  char date[6];
   sprintf(date,"%02d%02d%02d",time_asc->tm_year
           ,time_asc->tm_mon+1
           ,time_asc->tm_mday);
+#else
+  SYSTEMTIME    st;
+  GetLocalTime ( &st );
+  sprintf(date,"%02d%02d%02d",
+          st.wYear
+          ,st.wMonth
+          ,st.wDay);
+#endif
 
   node = xmlNewChild(root_node,0, BAD_CAST "description",0);
 

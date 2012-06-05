@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -567,6 +567,52 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *d
   return buildDescendingConnectivityGen(desc,descIndx,revDesc,revDescIndx,MEDCouplingOrientationSensitiveNbrer);
 }
 
+/*!
+ * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
+ * For speed reasons no check of this will be done. This method calls MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
+ * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
+ * The a cell with id 'cellId' its neighbors are neighbors[neighborsIdx[cellId]:neighborsIdx[cellId+1]].
+ *
+ * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIdx 2nd output
+ *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIdx.
+ * \param [out] neighborsIdx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ */
+void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  meshDM1=0;
+  const int *descPtr=desc->getConstPointer();
+  const int *descIPtr=descIndx->getConstPointer();
+  const int *revDescPtr=revDesc->getConstPointer();
+  const int *revDescIPtr=revDescIndx->getConstPointer();
+  //
+  int nbCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out0=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out1=DataArrayInt::New(); out1->alloc(nbCells+1,1);
+  int *out1Ptr=out1->getPointer();
+  *out1Ptr++=0;
+  std::vector<int> out0v;
+  out0v.reserve(desc->getNumberOfTuples());
+  for(int i=0;i<nbCells;i++,descIPtr++,out1Ptr++)
+    {
+      for(const int *w1=descPtr+descIPtr[0];w1!=descPtr+descIPtr[1];w1++)
+        {
+          std::set<int> s(revDescPtr+revDescIPtr[*w1],revDescPtr+revDescIPtr[(*w1)+1]);
+          s.erase(i);
+          out0v.insert(out0v.end(),s.begin(),s.end());
+        }
+      *out1Ptr=out0v.size();
+    }
+  out0->alloc((int)out0v.size(),1);
+  std::copy(out0v.begin(),out0v.end(),out0->getPointer());
+  neighbors=out0; out0->incrRef();
+  neighborsIdx=out1; out1->incrRef();
+}
+
 /// @cond INTERNAL
 
 /*!
@@ -987,7 +1033,9 @@ bool MEDCouplingUMesh::areCellsEqual0(int cell1, int cell2) const
 {
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
-  return std::equal(conn+connI[cell1],conn+connI[cell1+1],conn+connI[cell2]);
+  if(connI[cell1+1]-connI[cell1]==connI[cell2+1]-connI[cell2])
+    return std::equal(conn+connI[cell1]+1,conn+connI[cell1+1],conn+connI[cell2]+1);
+  return false;
 }
 
 /*!
@@ -995,7 +1043,35 @@ bool MEDCouplingUMesh::areCellsEqual0(int cell1, int cell2) const
  */
 bool MEDCouplingUMesh::areCellsEqual1(int cell1, int cell2) const
 {
-  throw INTERP_KERNEL::Exception("Policy comparison, not implemented yet !");
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connI=getNodalConnectivityIndex()->getConstPointer();
+  int sz=connI[cell1+1]-connI[cell1];
+  if(sz==connI[cell2+1]-connI[cell2])
+    {
+      if(conn[connI[cell1]]==conn[connI[cell2]])
+        {
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[connI[cell1]]);
+          unsigned dim=cm.getDimension();
+          if(dim!=3)
+            {
+              if(dim!=1)
+                {
+                  int sz1=2*(sz-1);
+                  int *tmp=new int[sz1];
+                  int *work=std::copy(conn+connI[cell1]+1,conn+connI[cell1+1],tmp);
+                  std::copy(conn+connI[cell1]+1,conn+connI[cell1+1],work);
+                  work=std::search(tmp,tmp+sz1,conn+connI[cell2]+1,conn+connI[cell2+1]);
+                  delete [] tmp;
+                  return work!=tmp+sz1;
+                }
+              else
+                return std::equal(conn+connI[cell1]+1,conn+connI[cell1+1],conn+connI[cell2]+1);//case of SEG2 and SEG3
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::areCellsEqual1 : not implemented yet for meshdim == 3 !");
+        }
+    }
+  return false;
 }
 
 /*!
@@ -1005,9 +1081,16 @@ bool MEDCouplingUMesh::areCellsEqual2(int cell1, int cell2) const
 {
   const int *conn=getNodalConnectivity()->getConstPointer();
   const int *connI=getNodalConnectivityIndex()->getConstPointer();
-  std::set<int> s1(conn+connI[cell1],conn+connI[cell1+1]);
-  std::set<int> s2(conn+connI[cell2],conn+connI[cell2+1]);
-  return s1==s2;
+  if(connI[cell1+1]-connI[cell1]==connI[cell2+1]-connI[cell2])
+    {
+      if(conn[connI[cell1]]==conn[connI[cell2]])
+        {
+          std::set<int> s1(conn+connI[cell1]+1,conn+connI[cell1+1]);
+          std::set<int> s2(conn+connI[cell2]+1,conn+connI[cell2+1]);
+          return s1==s2;
+        }
+    }
+  return false;
 }
 
 /*!
@@ -1134,9 +1217,11 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
  * This method keeps the coordiantes of 'this'.
  *
  * @param compType input specifying the technique used to compare cells each other.
- *                 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without permutation and types same too. This is the strongest policy.
- *                 1 : permutation. cell1 and cell2 are equal if and the connectivity of cell2 can be deduced by those of cell1 by direct permutation and their type equal.
- *                 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy.
+ *   - 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without permutation and types same too. This is the strongest policy.
+ *   - 1 : permutation same orientation. cell1 and cell2 are considered equal if the connectivity of cell2 can be deduced by those of cell1 by direct permutation (with exactly the same orientation)
+ * and their type equal. For 1D mesh the policy 1 is equivalent to 0.
+ *   - 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy. This policy
+ * can be used for users not sensitive to orientation of cell
  * @return the correspondance array old to new.
  */
 DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception)
@@ -1538,12 +1623,14 @@ void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNode
 }
 
 /*!
- * This method renumbers nodes in connectivity only without any reference with coords.
- * Use it with care !
- * @param 'newNodeNumbers' in old2New convention
+ * This method renumbers nodes \b in \b connectivity \b only \b without \b any \b reference \b to \b coords.
+ * This method performs no check on the fact that new coordinate ids are valid. \b Use \b it \b with \b care !
+ * This method is an generalization of \ref ParaMEDMEM::MEDCouplingUMesh::shiftNodeNumbersInConn "shiftNodeNumbersInConn method".
+ * @param [in] newNodeNumbers in old2New convention
  */
-void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbers)
+void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbersO2N)
 {
+  checkConnectivityFullyDefined();
   int *conn=getNodalConnectivity()->getPointer();
   const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
   int nbOfCells=getNumberOfCells();
@@ -1553,7 +1640,33 @@ void MEDCouplingUMesh::renumberNodesInConn(const int *newNodeNumbers)
         int& node=conn[iconn];
         if(node>=0)//avoid polyhedron separator
           {
-            node=newNodeNumbers[node];
+            node=newNodeNumbersO2N[node];
+          }
+      }
+  _nodal_connec->declareAsNew();
+  updateTime();
+}
+
+/*!
+ * This method renumbers nodes \b in \b connectivity \b only \b without \b any \b reference \b to \b coords.
+ * This method performs no check on the fact that new coordinate ids are valid. \b Use \b it \b with \b care !
+ * This method is an specialization of \ref ParaMEDMEM::MEDCouplingUMesh::renumberNodesInConn "renumberNodesInConn method".
+ * 
+ * @param [in] delta specifies the shift size applied to nodeId in nodal connectivity in \b this.
+ */
+void MEDCouplingUMesh::shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  int *conn=getNodalConnectivity()->getPointer();
+  const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  for(int i=0;i<nbOfCells;i++)
+    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
+      {
+        int& node=conn[iconn];
+        if(node>=0)//avoid polyhedron separator
+          {
+            node+=delta;
           }
       }
   _nodal_connec->declareAsNew();
@@ -1753,16 +1866,6 @@ void MEDCouplingUMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) cons
   for(const int *w=pt+ptI[cellId]+1;w!=pt+ptI[cellId+1];w++)
     if(*w>=0)
       conn.push_back(*w);
-}
-
-/*!
- * Returns coordinates of node with id 'nodeId' and append it in 'coo'.
- */
-void MEDCouplingUMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
-{
-  const double *cooPtr=_coords->getConstPointer();
-  int spaceDim=getSpaceDimension();
-  coo.insert(coo.end(),cooPtr+spaceDim*nodeId,cooPtr+spaceDim*(nodeId+1));
 }
 
 std::string MEDCouplingUMesh::simpleRepr() const
@@ -2923,7 +3026,7 @@ void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, int nbOfPoint
  * A 2D cell is considered to be butterfly if it exists at least one pair of distinct edges of it that intersect each other
  * anywhere excepted their extremities. An INTERP_KERNEL::NORM_NORI3 could \b not be butterfly.
  */
-void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
+void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells, double eps) const
 {
   const char msg[]="Butterfly detection work only for 2D cells with spaceDim==2 or 3!";
   if(getMeshDimension()!=2)
@@ -2943,7 +3046,7 @@ void MEDCouplingUMesh::checkButterflyCells(std::vector<int>& cells) const
         continue;
       bool isQuad=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[offset]).isQuadratic();
       project2DCellOnXY(conn+offset+1,conn+connI[i+1],cell2DinS2);
-      if(isButterfly2DCell(cell2DinS2,isQuad))
+      if(isButterfly2DCell(cell2DinS2,isQuad,eps))
         cells.push_back(i);
       cell2DinS2.clear();
     }
@@ -4837,7 +4940,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(const MEDCouplingUMesh *mesh1, 
 
 /*!
  * This method returns in case of success a mesh constitued from union of all meshes in 'a'.
- * There should be \b no presence of null pointer into 'a'.
+ * There should be \b no presence of null pointer into 'a'. If any an INTERP_KERNEL::Exception will be thrown.
  * The returned mesh will contain aggregation of nodes in 'a' (in the same order) and aggregation of
  * cells in meshes in 'a' (in the same order too).
  */
@@ -4846,17 +4949,18 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshes(std::vector<const MEDCouplingUM
   std::size_t sz=a.size();
   if(sz==0)
     return MergeUMeshesLL(a);
+  for(std::size_t ii=0;ii<sz;ii++)
+    if(!a[ii])
+      {
+        std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshes : item #" << ii << " in input array of size "<< sz << " is empty !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > bb(sz);
   std::vector< const MEDCouplingUMesh * > aa(sz);
   int spaceDim=-3;
   for(std::size_t i=0;i<sz && spaceDim==-3;i++)
     {
       const MEDCouplingUMesh *cur=a[i];
-      if(!cur)
-        {
-          std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshes : item #" << i << " in input array is empty !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
       const DataArrayDouble *coo=cur->getCoords();
       if(coo)
         spaceDim=coo->getNumberOfComponents();
@@ -4953,6 +5057,12 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesOnSameCoords(const std::vector<c
 {
   if(meshes.empty())
     throw INTERP_KERNEL::Exception("meshes input parameter is expected to be non empty.");
+  for(std::size_t ii=0;ii<meshes.size();ii++)
+    if(!meshes[ii])
+      {
+        std::ostringstream oss; oss << "MEDCouplingUMesh::MergeUMeshesOnSameCoords : item #" << ii << " in input array of size "<< meshes.size() << " is empty !";;
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   const DataArrayDouble *coords=meshes.front()->getCoords();
   int meshDim=meshes.front()->getMeshDimension();
   std::vector<const MEDCouplingUMesh *>::const_iterator iter=meshes.begin();
@@ -5030,6 +5140,114 @@ MEDCouplingUMesh *MEDCouplingUMesh::FuseUMeshesOnSameCoords(const std::vector<co
     }
   o2n->decrRef();
   return ret;
+}
+
+/*!
+ * This method takes in input meshes \b meshes containing no null reference. If any an INTERP_KERNEL::Exception will be thrown.
+ * \b meshes should have a good coherency (connectivity and coordinates well defined).
+ * All mesh in \b meshes must have the same space dimension. If not an INTERP_KERNEL:Exception will be thrown.
+ * But mesh in \b meshes \b can \b have \b different \b mesh \b dimension \b each \b other.
+ *
+ * This method performs nothing if size of \b meshes is in [0,1].
+ * This method is particulary usefull in MEDLoader context to build a \ref ParaMEDMEM::MEDFileUMesh "MEDFileUMesh" instance that expects that underlying
+ * coordinates DataArrayDouble instance.
+ *
+ * \param [in,out] meshes : vector containing no null instance of MEDCouplingUMesh that in case of success of this method will be modified.
+ */
+void MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(const std::vector<MEDCouplingUMesh *>& meshes) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t sz=meshes.size();
+  if(sz==0 || sz==1)
+    return;
+  std::vector< const DataArrayDouble * > coords(meshes.size());
+  std::vector< const DataArrayDouble * >::iterator it2=coords.begin();
+  for(std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++,it2++)
+    {
+      if((*it))
+        {
+          (*it)->checkConnectivityFullyDefined();
+          const DataArrayDouble *coo=(*it)->getCoords();
+          if(coo)
+            *it2=coo;
+          else
+            {
+              std::ostringstream oss; oss << " MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords : Item #" << std::distance(meshes.begin(),it) << " inside the vector of length " << meshes.size();
+              oss << " has no coordinate array defined !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << " MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords : Item #" << std::distance(meshes.begin(),it) << " inside the vector of length " << meshes.size();
+          oss << " is null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> res=DataArrayDouble::Aggregate(coords);
+  std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();
+  int offset=(*it)->getNumberOfNodes();
+  (*it++)->setCoords(res);
+  for(;it!=meshes.end();it++)
+    {
+      int oldNumberOfNodes=(*it)->getNumberOfNodes();
+      (*it)->setCoords(res);
+      (*it)->shiftNodeNumbersInConn(offset);
+      offset+=oldNumberOfNodes;
+    }
+}
+
+/*!
+ * This method takes in input meshes \b meshes containing no null reference. If any an INTERP_KERNEL::Exception will be thrown.
+ * \b meshes should have a good coherency (connectivity and coordinates well defined).
+ * All mesh in \b meshes must have the same space dimension. If not an INTERP_KERNEL:Exception will be thrown.
+ * But mesh in \b meshes \b can \b have \b different \b mesh \b dimension \b each \b other.
+ * If \b meshes share the same instance of DataArrayDouble as coordinates and that this instance is null, this method do nothing and no exception will be thrown.
+ *
+ * This method performs nothing if size of \b meshes is empty.
+ * This method is particulary usefull in MEDLoader context to perform a treatment of a MEDFileUMesh instance on different levels.
+ * coordinates DataArrayDouble instance.
+ *
+ * \param [in,out] meshes :vector containing no null instance of MEDCouplingUMesh sharing the same DataArrayDouble instance of coordinates, that in case of success of this method will be modified.
+ * \param [in] eps is the distance in absolute (that should be positive !), so that 2 or more points within a distance of eps will be merged into a single point.
+ */
+void MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, double eps) throw(INTERP_KERNEL::Exception)
+{
+  if(meshes.empty())
+    return ;
+  std::set<const DataArrayDouble *> s;
+  for(std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++)
+    {
+      if(*it)
+        s.insert((*it)->getCoords());
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords : In input vector of unstructured meshes of size " << meshes.size() << " the element #" << std::distance(meshes.begin(),it) << " is null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(s.size()!=1)
+    {
+      std::ostringstream oss; oss << "MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords : In input vector of unstructured meshes of size " << meshes.size() << ", it appears that they do not share the same instance of DataArrayDouble for coordiantes ! tryToShareSameCoordsPermute method can help to reach that !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const DataArrayDouble *coo=*(s.begin());
+  if(!coo)
+    return;
+  //
+  DataArrayInt *comm,*commI;
+  coo->findCommonTuples(eps,-1,comm,commI);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp1(comm),tmp2(commI);
+  int oldNbOfNodes=coo->getNumberOfTuples();
+  int newNbOfNodes;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(oldNbOfNodes,comm,commI,newNbOfNodes);
+  if(oldNbOfNodes==newNbOfNodes)
+    return ;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=coo->renumberAndReduce(o2n->getConstPointer(),newNbOfNodes);
+  for(std::vector<MEDCouplingUMesh *>::const_iterator it=meshes.begin();it!=meshes.end();it++)
+    {
+      (*it)->renumberNodesInConn(o2n->getConstPointer());
+      (*it)->setCoords(newCoords);
+    } 
 }
 
 /*!
@@ -5238,6 +5456,8 @@ void MEDCouplingUMesh::FillInCompact3DMode(int spaceDim, int nbOfNodesInCell, co
 
 void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
 {
+  if(getNumberOfCells()<=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::writeVTK : the unstructured mesh has no cells !");
   static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,-1,23,-1,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,-1,-1,-1,25,42,-1,4};
   ofs << "  <" << getVTKDataSetType() << ">\n";
   ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << getNumberOfCells() << "\">\n";

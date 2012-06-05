@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -48,7 +48,7 @@ SET(medloader_SOURCES
 
 ADD_LIBRARY(medloader SHARED ${medloader_SOURCES})
 SET_TARGET_PROPERTIES(medloader PROPERTIES COMPILE_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS}")
-TARGET_LINK_LIBRARIES(medloader medcoupling ${MED3_LIBS_C_ONLY})
+TARGET_LINK_LIBRARIES(medloader medcoupling ${MED3_LIBS_C_ONLY} ${HDF5_LIBS})
 INSTALL(TARGETS medloader DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB medloader_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

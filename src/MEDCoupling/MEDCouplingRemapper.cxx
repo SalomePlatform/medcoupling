@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -68,32 +68,30 @@ int MEDCouplingRemapper::prepareEx(const MEDCouplingFieldTemplate *src, const ME
   return prepare(src->getMesh(),target->getMesh(),meth.c_str());
 }
 
+/*!
+ * This method performs the operation source to target using matrix computed in ParaMEDMEM::MEDCouplingRemapper::prepare method.
+ * If meshes of \b srcField and \b targetField do not match exactly those given into \ref ParaMEDMEM::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
+ * 
+ * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
+ * \param [out] targetField the destination field with the allocated array in which all tuples will be overwritten.
+ */
 void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
 {
-  if(_src_method!=srcField->getDiscretization()->getStringRepr())
-    throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
-  if(_target_method!=targetField->getDiscretization()->getStringRepr())
-    throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
-  if(srcField->getNature()!=targetField->getNature())
-    throw INTERP_KERNEL::Exception("Natures of fields mismatch !");
-  DataArrayDouble *array=targetField->getArray();
-  int srcNbOfCompo=srcField->getNumberOfComponents();
-  if(array)
-    {
-      if(srcNbOfCompo!=targetField->getNumberOfComponents())
-        throw INTERP_KERNEL::Exception("Number of components mismatch !");
-    }
-  else
-    {
-      array=DataArrayDouble::New();
-      array->alloc(targetField->getNumberOfTuples(),srcNbOfCompo);
-      targetField->setArray(array);
-      array->decrRef();
-    }
-  computeDeno(srcField->getNature(),srcField,targetField);
-  double *resPointer=array->getPointer();
-  const double *inputPointer=srcField->getArray()->getConstPointer();
-  computeProduct(inputPointer,srcNbOfCompo,dftValue,resPointer);
+  transferUnderground(srcField,targetField,true,dftValue);
+}
+
+/*!
+ * This method is equivalent to ParaMEDMEM::MEDCouplingRemapper::transfer except that here \b targetField is a in/out parameter.
+ * If an entity (cell for example) in targetField is not fetched by any entity (cell for example) of \b srcField, the value in targetField is
+ * let unchanged.
+ * This method requires that \b targetField was fully defined and allocated. If the array is not allocated an exception will be thrown.
+ * 
+ * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on ParaMEDMEM::MEDCouplingRemapper::prepare.
+ * \param [in,out] targetField the destination field with the allocated array in which only tuples whose entities are fetched by interpolation will be overwritten only.
+ */
+void MEDCouplingRemapper::partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField) throw(INTERP_KERNEL::Exception)
+{
+  transferUnderground(srcField,targetField,false,std::numeric_limits<double>::max());
 }
 
 void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue) throw(INTERP_KERNEL::Exception)
@@ -447,6 +445,36 @@ void MEDCouplingRemapper::releaseData(bool matrixSuppression)
     }
 }
 
+void MEDCouplingRemapper::transferUnderground(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue) throw(INTERP_KERNEL::Exception)
+{
+  if(_src_method!=srcField->getDiscretization()->getStringRepr())
+    throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
+  if(_target_method!=targetField->getDiscretization()->getStringRepr())
+    throw INTERP_KERNEL::Exception("Incoherency with prepare call for target field");
+  if(srcField->getNature()!=targetField->getNature())
+    throw INTERP_KERNEL::Exception("Natures of fields mismatch !");
+  DataArrayDouble *array=targetField->getArray();
+  int srcNbOfCompo=srcField->getNumberOfComponents();
+  if(array)
+    {
+      if(srcNbOfCompo!=targetField->getNumberOfComponents())
+        throw INTERP_KERNEL::Exception("Number of components mismatch !");
+    }
+  else
+    {
+      if(!isDftVal)
+        throw INTERP_KERNEL::Exception("MEDCouplingRemapper::partialTransfer : This method requires that the array of target field exists ! Allocate it or call MEDCouplingRemapper::transfer instead !");
+      array=DataArrayDouble::New();
+      array->alloc(targetField->getNumberOfTuples(),srcNbOfCompo);
+      targetField->setArray(array);
+      array->decrRef();
+    }
+  computeDeno(srcField->getNature(),srcField,targetField);
+  double *resPointer=array->getPointer();
+  const double *inputPointer=srcField->getArray()->getConstPointer();
+  computeProduct(inputPointer,srcNbOfCompo,isDftVal,dftValue,resPointer);
+}
+
 void MEDCouplingRemapper::computeDeno(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField)
 {
   if(nat==NoNature)
@@ -532,7 +560,7 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
     }
 }
 
-void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer)
+void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNbOfCompo, bool isDftVal, double dftValue, double *resPointer)
 {
   int idx=0;
   double *tmp=new double[inputNbOfCompo];
@@ -540,7 +568,8 @@ void MEDCouplingRemapper::computeProduct(const double *inputPointer, int inputNb
     {
       if((*iter1).empty())
         {
-          std::fill(resPointer+idx*inputNbOfCompo,resPointer+(idx+1)*inputNbOfCompo,dftValue);
+          if(isDftVal)
+            std::fill(resPointer+idx*inputNbOfCompo,resPointer+(idx+1)*inputNbOfCompo,dftValue);
           continue;
         }
       else

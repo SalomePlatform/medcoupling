@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -20,6 +20,17 @@
 #ifndef __MEDPARTITIONERTEST_HXX__
 #define __MEDPARTITIONERTEST_HXX__
 
+#ifdef WIN32
+# if defined MEDPARTITIONERTEST_EXPORTS || defined MEDPARTITIONERTest_EXPORTS
+#  define MEDPARTITIONERTEST_EXPORT __declspec( dllexport )
+# else
+#  define MEDPARTITIONERTEST_EXPORT __declspec( dllimport )
+# endif
+#else
+# define MEDPARTITIONERTEST_EXPORT
+#endif
+
+
 #include <cppunit/extensions/HelperMacros.h>
 
 #include <set>
@@ -30,7 +41,7 @@
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 
-class MEDPARTITIONERTest : public CppUnit::TestFixture
+class MEDPARTITIONERTEST_EXPORT MEDPARTITIONERTest : public CppUnit::TestFixture
 {
   CPPUNIT_TEST_SUITE( MEDPARTITIONERTest );
   CPPUNIT_TEST( testMeshCollectionSingle );
@@ -78,6 +89,7 @@ public:
   void setSmallSize();
   void setMedianSize();
   void setbigSize();
+  std::string getPartitionerExe() const;
   ParaMEDMEM::MEDCouplingUMesh * buildCUBE3DMesh();
   ParaMEDMEM::MEDCouplingUMesh * buildFACE3DMesh();
   ParaMEDMEM::MEDCouplingUMesh * buildCARRE3DMesh();

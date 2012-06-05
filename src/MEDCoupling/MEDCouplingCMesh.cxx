@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -393,10 +393,33 @@ int MEDCouplingCMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType
 
 void MEDCouplingCMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const
 {
-  //not implemented yet
+  int spaceDim=getSpaceDimension();
+  int tmpCell[3],tmpNode[3];
+  getSplitCellValues(tmpCell);
+  getSplitNodeValues(tmpNode);
+  int tmp2[3];
+  GetPosFromId(cellId,spaceDim,tmpCell,tmp2);
+  switch(spaceDim)
+    {
+    case 1:
+      conn.push_back(tmp2[0]); conn.push_back(tmp2[0]+1);
+      break;
+    case 2:
+      conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]); conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+1);
+      conn.push_back((tmp2[1]+1)*(tmpCell[1]+1)+tmp2[0]+1); conn.push_back((tmp2[1]+1)*(tmpCell[1]+1)+tmp2[0]);
+      break;
+    case 3:
+      conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+tmp2[2]*tmpNode[2]); conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+1+tmp2[2]*tmpNode[2]);
+      conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+1+tmp2[2]*tmpNode[2]); conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+tmp2[2]*tmpNode[2]);
+      conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+(tmp2[2]+1)*tmpNode[2]); conn.push_back(tmp2[1]*tmpCell[1]+tmp2[0]+1+(tmp2[2]+1)*tmpNode[2]);
+      conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+1+(tmp2[2]+1)*tmpNode[2]); conn.push_back((tmp2[1]+1)*tmpNode[1]+tmp2[0]+(tmp2[2]+1)*tmpNode[2]);
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingCMesh::getNodeIdsOfCell : big problem spacedim must be in 1,2 or 3 !");
+    };
 }
 
-void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const
+void MEDCouplingCMesh::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
 {
   int tmp[3];
   int spaceDim=getSpaceDimension();
@@ -695,10 +718,17 @@ int MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps) cons
       const double *d=getCoordsAt(i)->getConstPointer();
       int nbOfNodes=getCoordsAt(i)->getNbOfElems();
       double ref=pos[i];
-      const double *w=std::find_if(d,d+nbOfNodes,std::bind2nd(std::greater<double>(),ref));
+      const double *w=std::find_if(d,d+nbOfNodes,std::bind2nd(std::greater_equal<double>(),ref));
       int w2=(int)std::distance(d,w);
-      if(w2<nbOfNodes && w2!=0)
+      if(w2<nbOfNodes)
         {
+          if(w2==0)
+            {
+              if(ref>d[0]-eps)
+                w2=1;
+              else
+                return -1;
+            }
           ret+=coeff*(w2-1);
           coeff*=nbOfNodes-1;
         }

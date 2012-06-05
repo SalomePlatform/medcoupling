@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -80,6 +80,25 @@ void MEDPARTITIONERTest::setbigSize()
   setSize(200,300,500); //nb of hexa9
 }
 
+std::string MEDPARTITIONERTest::getPartitionerExe() const
+{
+  std::string execName;
+  if ( getenv("top_builddir")) // make distcheck
+    {
+      execName = getenv("top_builddir");
+      execName += "/src/MEDPartitioner/medpartitioner";
+    }
+  else if ( getenv("MED_ROOT_DIR") )
+    {
+      execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
+      execName+="/bin/salome/medpartitioner";
+    }
+  else
+    {
+      CPPUNIT_FAIL("Can't find medpartitioner, neither MED_ROOT_DIR nor top_builddir is set");
+    }
+  return execName;
+}
 
 // ============================================================================
 /*!
@@ -971,12 +990,11 @@ void MEDPARTITIONERTest::launchMetisOrScotchMedpartitionerOnTestMeshes(std::stri
   int res;
   string cmd,execName,sourceName,targetName;
   
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner";
+  execName=getPartitionerExe();
   
   cmd="which "+execName+" 2>/dev/null 1>/dev/null";  //no trace
   res=system(cmd.c_str());
-  CPPUNIT_ASSERT_EQUAL(0, res);
+  CPPUNIT_ASSERT_EQUAL_MESSAGE(execName + " - INVALID PATH TO medpartitioner", 0, res);
   
   cmd=execName+" --ndomains=2 --split-method="+MetisOrScotch;  //on same proc
   sourceName=_file_name;
@@ -1019,8 +1037,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForMesh(std
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner";
+  execName=getPartitionerExe();
   fileName=_file_name_with_faces;
   
   ParaMEDMEM::MEDFileUMesh* initialMesh=ParaMEDMEM::MEDFileUMesh::New(fileName.c_str(),_mesh_name.c_str());
@@ -1117,8 +1134,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnC
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner";
+  execName=getPartitionerExe();
   fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnCells.med");
   
@@ -1205,8 +1221,7 @@ void MEDPARTITIONERTest::verifyMetisOrScotchMedpartitionerOnSmallSizeForFieldOnG
 {
   int res;
   string fileName,cmd,execName,sourceName,targetName,input;
-  execName=getenv("MED_ROOT_DIR");  //.../INSTALL/MED
-  execName+="/bin/salome/medpartitioner";
+  execName=getPartitionerExe();
   fileName=_file_name;
   fileName.replace(fileName.find(".med"),4,"_WithVecFieldOnGaussNe.med");
   

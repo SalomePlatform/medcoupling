@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -99,6 +99,21 @@ TypeOfField MEDCouplingField::getTypeOfField() const
   return _type->getEnum();
 }
 
+/*!
+ * This method returns the nature of field. This information is very important during interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
+ * In other context than the two mentioned before this attribute of the field is not sensitive. This attribute is not store in MED file in MEDLoader.
+ * More information of the semantic, and the consequence of this attribute in the result of the interpolation, is available \ref NatureOfField "here".
+ */
+NatureOfField MEDCouplingField::getNature() const
+{
+  return _nature;
+}
+
+/*!
+ * This method set the nature of field in \b this.This  information is very important during interpolation process using ParaMEDMEM::MEDCouplingRemapper or ParaMEDMEM::InterpKernelDEC.
+ * In other context than the two mentioned before this attribute of the field is not sensitive. This attribute is not store in MED file in MEDLoader.
+ * More information of the semantic, and the consequence of this attribute in the result of the interpolation, is available \ref TableNatureOfField "here".
+ */
 void MEDCouplingField::setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception)
 {
   _nature=nat;

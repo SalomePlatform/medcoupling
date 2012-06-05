@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -129,6 +129,19 @@ void QuadraticPolygon::circularPermute()
       _sub_edges.pop_front();
       _sub_edges.push_back(first);
     }
+}
+
+bool QuadraticPolygon::isButterflyAbs()
+{
+  INTERP_KERNEL::Bounds b;
+  double xBary,yBary;
+  b.prepareForAggregation();
+  fillBounds(b); 
+  double dimChar=b.getCaracteristicDim();
+  b.getBarycenter(xBary,yBary);
+  applyGlobalSimilarity(xBary,yBary,dimChar);
+  //
+  return isButterfly();
 }
 
 bool QuadraticPolygon::isButterfly() const

@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -72,6 +72,48 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
         srcField.setArray(array);
         trgfield=remapper.transferField(srcField,4.220173);
+        values=trgfield.getArray().getValues();
+        valuesExpected=[7.75, 7.0625, 4.220173,8.0]
+        self.assertEqual(4,trgfield.getArray().getNumberOfTuples());
+        self.assertEqual(1,trgfield.getArray().getNumberOfComponents());
+        for i0 in xrange(4):
+            self.assertAlmostEqual(valuesExpected[i0],values[i0],12);
+            pass
+        pass
+
+    def testPartialTransfer1(self):
+        sourceMesh=self.build2DSourceMesh_1();
+        targetMesh=self.build2DTargetMesh_3();
+        #
+        remapper=MEDCouplingRemapper();
+        remapper.setPrecision(1e-12);
+        remapper.setIntersectionType(Triangulation);
+        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS);
+        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS);
+        srcFt.setMesh(sourceMesh);
+        trgFt.setMesh(targetMesh);
+        self.assertEqual(1,remapper.prepareEx(srcFt,trgFt));
+        srcField=MEDCouplingFieldDouble.New(ON_CELLS);
+        srcField.setNature(ConservativeVolumic);
+        srcField.setMesh(sourceMesh);
+        array=DataArrayDouble.New();
+        ptr=sourceMesh.getNumberOfCells()*[None]
+        for i in xrange(sourceMesh.getNumberOfCells()):
+            ptr[i]=float(i+7);
+            pass
+        array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
+        srcField.setArray(array);
+        trgfield=MEDCouplingFieldDouble.New(ON_CELLS);
+        trgfield.setNature(ConservativeVolumic);
+        trgfield.setMesh(targetMesh);
+        array=DataArrayDouble.New();
+        ptr=targetMesh.getNumberOfCells()*[None]
+        for i in xrange(targetMesh.getNumberOfCells()):
+            ptr[i]=4.220173;
+            pass
+        array.setValues(ptr,targetMesh.getNumberOfCells(),1);
+        trgfield.setArray(array);
+        remapper.partialTransfer(srcField,trgfield);
         values=trgfield.getArray().getValues();
         valuesExpected=[7.75, 7.0625, 4.220173,8.0]
         self.assertEqual(4,trgfield.getArray().getNumberOfTuples());

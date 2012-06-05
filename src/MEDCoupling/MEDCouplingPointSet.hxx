@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -66,13 +66,14 @@ namespace ParaMEDMEM
     bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
     virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
+    void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermArrayForMergeNode(double precision, int limitNodeId, bool& areNodesMerged, int& newNbOfNodes) const;
     std::vector<int> getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception);
     void getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception);
     void findCommonNodes(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
     DataArrayInt *buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
                                                          int& newNbOfNodes) const;
-    void getBoundingBox(double *bbox) const;
+    void getBoundingBox(double *bbox) const throw(INTERP_KERNEL::Exception);
     void zipCoords();
     double getCaracteristicDimension() const;
     void rotate(const double *center, const double *vector, double angle);
@@ -114,7 +115,7 @@ namespace ParaMEDMEM
     void rotate2D(const double *center, double angle);
     void rotate3D(const double *center, const double *vect, double angle);
     void project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const;
-    static bool isButterfly2DCell(const std::vector<double>& res, bool isQuad);
+    static bool isButterfly2DCell(const std::vector<double>& res, bool isQuad, double eps);
     template<int SPACEDIM>
     void findNodeIdsNearPointAlg(std::vector<double>& bbox, const double *pos, int nbNodes, double eps,
                                  std::vector<int>& c, std::vector<int>& cI) const;

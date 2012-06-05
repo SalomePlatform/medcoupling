@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -85,7 +85,7 @@ namespace ParaMEDMEM
     virtual std::set<INTERP_KERNEL::NormalizedCellType> getAllGeoTypes() const = 0;
     virtual void getNodeIdsOfCell(int cellId, std::vector<int>& conn) const = 0;
     virtual DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
-    virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const = 0;
+    virtual void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception) = 0;
     virtual std::string simpleRepr() const = 0;
     virtual std::string advancedRepr() const = 0;
     // tools
@@ -113,7 +113,8 @@ namespace ParaMEDMEM
     virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception) = 0;
     virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception) = 0;
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const;
-    static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2);
+    static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
+    static MEDCouplingMesh *MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) throw(INTERP_KERNEL::Exception);
     //serialisation-unserialization
     virtual void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const = 0;
     virtual void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const = 0;

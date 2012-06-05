@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -88,6 +88,13 @@ IF(MPI_IS_OK)
     SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_JointFinder.hxx MEDPARTITIONER_MetisGraph.hxx)
     SET(medpartitionercpp_FLAGS "${medpartitionercpp_FLAGS} ${MPI_FLAGS} ${PARMETIS_FLAGS}")
     SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${PARMETIS_LIBS} ${MPI_LIBS})
+  ELSE(MED_ENABLE_PARMETIS)
+    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES}
+      MEDPARTITIONER_UtilsPara.cxx
+      MEDPARTITIONER_JointFinder.cxx
+      )
+    SET(medpartitionercpp_FLAGS "${medpartitionercpp_FLAGS} ${MPI_FLAGS}")
+    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${MPI_LIBS})
   ENDIF(MED_ENABLE_PARMETIS)
 ELSE(MPI_IS_OK)
   IF(MED_ENABLE_METIS)

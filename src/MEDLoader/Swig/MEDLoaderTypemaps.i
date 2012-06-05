@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -185,4 +185,72 @@ static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(P
       throw INTERP_KERNEL::Exception(msg);
     }
   return ret;
+}
+
+PyObject *convertVecPairVecStToPy(const std::vector< std::pair<std::vector<std::string>, std::string > >& vec)
+{
+  int sz=(int)vec.size();
+  PyObject *ret=PyList_New(sz);
+  for(int i=0;i<sz;i++)
+    {
+      PyObject *t=PyTuple_New(2);
+      int sz2=(int)vec[i].first.size();
+      PyObject *ll=PyList_New(sz2);
+      for(int j=0;j<sz2;j++)
+        PyList_SetItem(ll,j,PyString_FromString(vec[i].first[j].c_str()));
+      PyTuple_SetItem(t,0,ll);
+      PyTuple_SetItem(t,1,PyString_FromString(vec[i].second.c_str()));
+      PyList_SetItem(ret,i,t);
+    }
+  return ret;
+}
+
+std::vector< std::pair<std::vector<std::string>, std::string > > convertVecPairVecStFromPy(PyObject *pyLi)
+{
+  std::vector< std::pair<std::vector<std::string>, std::string > > ret;
+  const char *msg="convertVecPairVecStFromPy : Expecting PyList of Tuples of size 2 ! The first elt in tupe is a list of strings and the 2nd one a string !";
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      ret.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyTuple_Check(o))
+            {
+              std::pair<std::vector<std::string>, std::string> p;
+              int size2=PyTuple_Size(o);
+              if(size2!=2)
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o0=PyTuple_GetItem(o,0);
+              if(PyList_Check(o0))
+                {
+                  int size2=PyList_Size(o0);
+                  p.first.resize(size2);
+                  for(int j=0;j<size2;j++)
+                    {
+                      PyObject *o0j=PyList_GetItem(o0,j);
+                      if(PyString_Check(o0j))
+                        {
+                          p.first[j]=std::string(PyString_AsString(o0j));
+                        }
+                      else
+                        throw INTERP_KERNEL::Exception(msg);
+                    }
+                }
+              else
+                throw INTERP_KERNEL::Exception(msg);
+              PyObject *o1=PyTuple_GetItem(o,1);
+              if(PyString_Check(o1))
+                p.second=std::string(PyString_AsString(o1));
+              else
+                throw INTERP_KERNEL::Exception(msg);
+              ret[i]=p;
+            }
+          else
+            throw INTERP_KERNEL::Exception(msg);
+        }
+      return ret;
+    }
+  throw INTERP_KERNEL::Exception(msg);
 }

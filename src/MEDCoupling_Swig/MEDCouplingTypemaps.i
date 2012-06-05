@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -297,11 +297,17 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
     }
 }
 
-static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal) throw(INTERP_KERNEL::Exception)
+static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
     {
       int size=PyList_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListInt : List expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
@@ -312,11 +318,7 @@ static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArr
                 arrToFill[i]=val;
             }
           else
-            {
-              const char msg[]="list must contain integers only";
-              PyErr_SetString(PyExc_TypeError,msg);
-              throw INTERP_KERNEL::Exception(msg);
-            }
+            throw INTERP_KERNEL::Exception("fillArrayWithPyListInt : List must contain integers only !");
         }
       for(int i=size;i<sizeOfArray;i++)
         arrToFill[i]=dftVal;
@@ -326,6 +328,12 @@ static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArr
   else if(PyTuple_Check(pyLi))
     {
       int size=PyTuple_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListInt : Tuple expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyTuple_GetItem(pyLi,i);
@@ -450,11 +458,17 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
     }
 }
 
-static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOfArray, double dftVal) throw(INTERP_KERNEL::Exception)
+static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOfArray, double dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
     {
       int size=PyList_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListDbl : List expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyList_GetItem(pyLi,i);
@@ -485,6 +499,12 @@ static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOf
   else if(PyTuple_Check(pyLi))
     {
       int size=PyTuple_Size(pyLi);
+      if(chckSize)
+        if(size!=sizeOfArray)
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListDbl : Tuple expected to be of size " << sizeOfArray << " but the size is " << size << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       for(int i=0;i<size;i++)
         {
           PyObject *o=PyTuple_GetItem(pyLi,i);
@@ -531,11 +551,69 @@ void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MED
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
           if(!SWIG_IsOK(status))
             {
-              const char msg[]="list must contain only MEDCouplingUMesh";
+              const char msg[]="list must contain only instance of MEDCouplingUMesh";
               PyErr_SetString(PyExc_TypeError,msg);
               throw INTERP_KERNEL::Exception(msg);
             }
           const ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingUMesh * >(argp);
+          v[i]=arg;
+        }
+    }
+  else
+    {
+      const char msg[]="convertPyObjToVecUMeshesCst : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingUMesh *>& v) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(ms))
+    {
+      int size=PyList_Size(ms);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *obj=PyList_GetItem(ms,i);
+          void *argp;
+          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
+          if(!SWIG_IsOK(status))
+            {
+              const char msg[]="list must contain only instance of MEDCouplingUMesh";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+          ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
+          v[i]=arg;
+        }
+    }
+  else
+    {
+      const char msg[]="convertPyObjToVecUMeshes : not a list";
+      PyErr_SetString(PyExc_TypeError,msg);
+      throw INTERP_KERNEL::Exception(msg);
+    }
+}
+
+void convertPyObjToVecMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingMesh *>& v) throw(INTERP_KERNEL::Exception)
+{
+  if(PyList_Check(ms))
+    {
+      int size=PyList_Size(ms);
+      v.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *obj=PyList_GetItem(ms,i);
+          void *argp;
+          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingMesh,0|0);
+          if(!SWIG_IsOK(status))
+            {
+              const char msg[]="list must contain only instance of MEDCouplingMesh";
+              PyErr_SetString(PyExc_TypeError,msg);
+              throw INTERP_KERNEL::Exception(msg);
+            }
+          const ParaMEDMEM::MEDCouplingMesh *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingMesh * >(argp);
           v[i]=arg;
         }
     }
@@ -589,7 +667,7 @@ void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::ME
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0);
           if(!SWIG_IsOK(status))
             {
-              const char msg[]="list must contain only MEDCouplingFieldDouble";
+              const char msg[]="list must contain only instance of MEDCouplingFieldDouble";
               PyErr_SetString(PyExc_TypeError,msg);
               throw INTERP_KERNEL::Exception(msg);
             }
@@ -618,7 +696,7 @@ void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
           if(!SWIG_IsOK(status))
             {
-              const char msg[]="list must contain only DataArrayInt";
+              const char msg[]="list must contain only instance of DataArrayInt";
               PyErr_SetString(PyExc_TypeError,msg);
               throw INTERP_KERNEL::Exception(msg);
             }
@@ -639,10 +717,11 @@ void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM
  * if python list[int] -> cpp vector<int> sw=2
  * if python tuple[int] -> cpp vector<int> sw=2
  * if python DataArrayInt -> cpp DataArrayInt sw=3
+ * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4
  *
  * switch between (int,vector<int>,DataArrayInt)
  */
-static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
+static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, ParaMEDMEM::DataArrayInt *& daIntTyypp, ParaMEDMEM::DataArrayIntTuple *&daIntTuple) throw(INTERP_KERNEL::Exception)
 {
   sw=-1;
   if(PyInt_Check(value))
@@ -689,10 +768,20 @@ static void convertObjToPossibleCpp1(PyObject *value, int& sw, int& iTyypp, std:
     }
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
-  if(!SWIG_IsOK(status))
-    throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, DataArrayInt");
-  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
-  sw=3;
+  if(SWIG_IsOK(status))
+    {
+      daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      sw=3;
+      return;
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      daIntTuple=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      sw=4;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("5 types accepted : integer, tuple of integer, list of integer, DataArrayInt, DataArrayIntTuple");
 }
 
 /*!
@@ -854,6 +943,7 @@ static void convertObjToPossibleCpp44(PyObject *value, int& sw, double& iTyypp, 
  */
 static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayInt *& daIntTyypp) throw(INTERP_KERNEL::Exception)
 {
+  const char *msg="5 types accepted : integer, tuple of integer, list of integer, slice, DataArrayInt, DataArrayIntTuple";
   sw=-1;
   if(PyInt_Check(value))
     {
@@ -914,10 +1004,32 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
     }
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
-  if(!SWIG_IsOK(status))
-    throw INTERP_KERNEL::Exception("4 types accepted : integer, tuple of integer, list of integer, slice, DataArrayInt");
-  daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
-  sw=4;
+  if(SWIG_IsOK(status))
+    {
+      daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      if(!daIntTyypp)
+        {
+          std::ostringstream oss; oss << msg << " Instance in null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      sw=4;
+      return ;
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);;
+  if(SWIG_IsOK(status))
+    {
+      ParaMEDMEM::DataArrayIntTuple *tmp=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      if(!tmp)
+        {
+          std::ostringstream oss; oss << msg << " Instance in null !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      stdvecTyypp.resize(tmp->getNumberOfCompo());
+      std::copy(tmp->getConstPointer(),tmp->getConstPointer()+tmp->getNumberOfCompo(),stdvecTyypp.begin());
+      sw=2;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception(msg);
 }
 
 static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int& iTyypp, std::vector<int>& stdvecTyypp, std::pair<int, std::pair<int,int> >& p, ParaMEDMEM::DataArrayIntTuple *& daIntTyypp) throw(INTERP_KERNEL::Exception)
@@ -1044,8 +1156,11 @@ static void convertObjToPossibleCpp3(PyObject *value, int nbTuple, int nbCompo, 
  * if value int -> cpp val sw=1
  * if value double -> cpp val sw=1
  * if value DataArrayDouble -> cpp DataArrayDouble sw=2
+ * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
+ * if value list[int,double] -> cpp std::vector<double> sw=4
+ * if value tuple[int,double] -> cpp std::vector<double> sw=4
  */
-static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d)
+static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e, std::vector<double>& f)
 {
   sw=-1;
   if(PyFloat_Check(value))
@@ -1060,10 +1175,60 @@ static void convertObjToPossibleCpp5(PyObject *value, int& sw, double& val, Para
       sw=1;
       return;
     }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
+      return;
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
+      return;
+    }
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
-  if(!SWIG_IsOK(status))
-    throw INTERP_KERNEL::Exception("3 types accepted : integer, double, DataArrayDouble");
-  d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
-  sw=2;
+  if(SWIG_IsOK(status))
+    {  
+      d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+      sw=2;
+      return ;
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      e=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+      sw=3;
+      return ;
+    }
+  throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
 }

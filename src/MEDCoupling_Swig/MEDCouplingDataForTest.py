@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -278,6 +278,18 @@ class MEDCouplingDataForTest:
         myCoords.setValues(targetCoords,9,2);
         targetMesh.setCoords(myCoords);
         return targetMesh;
+    
+    def build1DSourceMesh_2(cls):
+        ret=MEDCouplingUMesh.New("1DSourceMesh",1);
+        ret.allocateCells(4);
+        conn=[0,1,2,3,1,2,3,4]
+        for i in xrange(4):
+            ret.insertNextCell(NORM_SEG2,2,conn[2*i:2*i+2]);
+            pass
+        ret.finishInsertingCells();
+        myCoords=DataArrayDouble.New([0.3,0.7,0.9,1.0,1.12],5,1);
+        ret.setCoords(myCoords);
+        return ret
 
     def build1DTargetMesh_3(cls):
         ret=MEDCouplingUMesh.New("1DMesh_3",1);
@@ -575,6 +587,7 @@ class MEDCouplingDataForTest:
     build3DTargetMeshMergeNode_1=classmethod(build3DTargetMeshMergeNode_1)
     build2DTargetMeshMerged_1=classmethod(build2DTargetMeshMerged_1)
     build2DTargetMesh_2=classmethod(build2DTargetMesh_2)
+    build1DSourceMesh_2=classmethod(build1DSourceMesh_2)
     build1DTargetMesh_3=classmethod(build1DTargetMesh_3)
     build2DCurveTargetMesh_3=classmethod(build2DCurveTargetMesh_3)
     build2DTargetMesh_3=classmethod(build2DTargetMesh_3)

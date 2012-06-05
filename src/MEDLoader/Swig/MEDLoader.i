@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -642,11 +642,25 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocs() const;
     virtual std::vector<std::string> getPflsReallyUsed() const = 0;
     virtual std::vector<std::string> getLocsReallyUsed() const = 0;
+    virtual std::vector<std::string> getPflsReallyUsedMulti() const = 0;
+    virtual std::vector<std::string> getLocsReallyUsedMulti() const = 0;
+    void killProfileIds(const std::vector<int>& pflIds) throw(INTERP_KERNEL::Exception);
+    void killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception);
+    void changePflName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
+    void changeLocName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
   %extend
      {
-       PyObject *getProfile(const std::string& pflName) const throw(INTERP_KERNEL::Exception)
+       PyObject *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
        {
          const DataArrayInt *ret=self->getProfile(pflName);
+         if(ret)
+           ret->incrRef();
+         return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+       }
+
+       PyObject *getProfileFromId(int pflId) const throw(INTERP_KERNEL::Exception)
+       {
+         const DataArrayInt *ret=self->getProfileFromId(pflId);
          if(ret)
            ret->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
@@ -659,11 +673,59 @@ namespace ParaMEDMEM
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
        }
        
-       PyObject *getLocalization(const char *pflName) const throw(INTERP_KERNEL::Exception)
+       PyObject *getLocalization(const char *locName) const throw(INTERP_KERNEL::Exception)
        {
-         const MEDFileFieldLoc *loc=&self->getLocalization(pflName);
+         const MEDFileFieldLoc *loc=&self->getLocalization(locName);
          loc->incrRef();
          return SWIG_NewPointerObj(SWIG_as_voidptr(loc),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldLoc, SWIG_POINTER_OWN | 0 );
+       }
+       
+       PyObject *zipPflsNames() throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > ret=self->zipPflsNames();
+         return convertVecPairVecStToPy(ret);
+       }
+
+       PyObject *zipLocsNames(double eps) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > ret=self->zipLocsNames(eps);
+         return convertVecPairVecStToPy(ret);
+       }
+
+       void changePflsNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changePflsNames(v);
+       }
+
+       void changePflsRefsNamesGen(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changePflsRefsNamesGen(v);
+       }
+
+       void changePflsNamesInStruct(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changePflsNamesInStruct(v);
+       }
+
+       void changeLocsNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changeLocsNames(v);
+       }
+
+       void changeLocsRefsNamesGen(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changeLocsRefsNamesGen(v);
+       }
+       
+       void changeLocsNamesInStruct(PyObject *li) throw(INTERP_KERNEL::Exception)
+       {
+         std::vector< std::pair<std::vector<std::string>, std::string > > v=convertVecPairVecStFromPy(li);
+         self->changeLocsNamesInStruct(v);
        }
      }
   };
@@ -843,6 +905,8 @@ namespace ParaMEDMEM
     //
     void setFieldNoProfileSBT(const MEDCouplingFieldDouble *field) throw(INTERP_KERNEL::Exception);
     void setFieldProfile(const MEDCouplingFieldDouble *field, const MEDFileMesh *mesh, int meshDimRelToMax, const DataArrayInt *profile) throw(INTERP_KERNEL::Exception);
+    void setProfileNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newPflName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
+    void setLocNameOnLeaf(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const
@@ -858,6 +922,16 @@ namespace ParaMEDMEM
              PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
              PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
              return ret;
+           }
+
+         void setProfileNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newPflName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception)
+           {
+             self->setProfileNameOnLeaf(0,typ,locId,newPflName,forceRenameOnGlob);
+           }
+         
+         void setLocNameOnLeaf(INTERP_KERNEL::NormalizedCellType typ, int locId, const char *newLocName, bool forceRenameOnGlob=false) throw(INTERP_KERNEL::Exception)
+           {
+             self->setLocNameOnLeaf(0,typ,locId,newLocName,forceRenameOnGlob);
            }
        }
   };

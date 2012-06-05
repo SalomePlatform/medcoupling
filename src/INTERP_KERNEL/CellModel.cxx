@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -99,6 +99,7 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
     _map_of_unique_instance.insert(std::make_pair(NORM_QPOLYG,CellModel(NORM_QPOLYG)));
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYL,CellModel(NORM_POLYL)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_ERROR,CellModel(NORM_ERROR)));
   }
 
   CellModel::CellModel(NormalizedCellType type):_type(type)

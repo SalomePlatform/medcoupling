@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -154,6 +154,27 @@ bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingP
 }
 
 /*!
+ * Returns coordinates of node with id 'nodeId' and append it in 'coo'.
+ */
+void MEDCouplingPointSet::getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getCoordinatesOfNode : no coordinates array set !");
+  int nbNodes=getNumberOfNodes();
+  if(nodeId>=0 && nodeId<nbNodes)
+    {
+      const double *cooPtr=_coords->getConstPointer();
+      int spaceDim=getSpaceDimension();
+      coo.insert(coo.end(),cooPtr+spaceDim*nodeId,cooPtr+spaceDim*(nodeId+1));
+    }
+  else
+    {
+      std::ostringstream oss; oss << "MEDCouplingPointSet::getCoordinatesOfNode : request of nodeId \"" << nodeId << "\" but it should be in [0,"<< nbNodes << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+/*!
  * This method is typically the base method used for implementation of mergeNodes. This method computes this permutation array using as input,
  * This method is const ! So this method simply computes the array, no permutation of nodes is done.
  * a precision 'precision' and a 'limitNodeId' that is the node id so that every nodes which id is strictly lower than 'limitNodeId' will not be merged.
@@ -301,30 +322,11 @@ void MEDCouplingPointSet::renumberNodes2(const int *newNodeNumbers, int newNbOfN
  * The returned bounding box is arranged along trihedron.
  * @param bbox out array of size 2*this->getSpaceDimension().
  */
-void MEDCouplingPointSet::getBoundingBox(double *bbox) const
+void MEDCouplingPointSet::getBoundingBox(double *bbox) const throw(INTERP_KERNEL::Exception)
 {
-  int dim=getSpaceDimension();
-  for (int idim=0; idim<dim; idim++)
-    {
-      bbox[idim*2]=std::numeric_limits<double>::max();
-      bbox[idim*2+1]=-std::numeric_limits<double>::max();
-    } 
-  const double *coords=_coords->getConstPointer();
-  int nbnodes=getNumberOfNodes();
-  for (int i=0; i<nbnodes; i++)
-    {
-      for (int idim=0; idim<dim;idim++)
-        {
-          if ( bbox[idim*2] > coords[i*dim+idim] )
-            {
-              bbox[idim*2] = coords[i*dim+idim] ;
-            }
-          if ( bbox[idim*2+1] < coords[i*dim+idim] )
-            {
-              bbox[idim*2+1] = coords[i*dim+idim] ;
-            }
-        }
-    }
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getBoundingBox : Coordinates not set !");
+  _coords->getMinMaxPerComponent(bbox);
 }
 
 /*!
@@ -891,7 +893,7 @@ void MEDCouplingPointSet::project2DCellOnXY(const int *startConn, const int *end
 /*!
  * low level method that checks that the 2D cell is not a butterfly cell.
  */
-bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad)
+bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad, double eps)
 {
   std::size_t nbOfNodes=res.size()/2;
   std::vector<INTERP_KERNEL::Node *> nodes(nbOfNodes);
@@ -900,12 +902,14 @@ bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool
       INTERP_KERNEL::Node *tmp=new INTERP_KERNEL::Node(res[2*i],res[2*i+1]);
       nodes[i]=tmp;
     }
+  INTERP_KERNEL::QUADRATIC_PLANAR::_precision=eps;
+  INTERP_KERNEL::QUADRATIC_PLANAR::_arc_detection_precision=eps;
   INTERP_KERNEL::QuadraticPolygon *pol=0;
   if(isQuad)
     pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
   else
     pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
-  bool ret=pol->isButterfly();
+  bool ret=pol->isButterflyAbs();
   delete pol;
   return ret;
 }
