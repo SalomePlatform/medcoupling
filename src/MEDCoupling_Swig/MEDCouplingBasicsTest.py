@@ -10095,7 +10095,36 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(1,arr.getNumberOfComponents());
         self.assertEqual(cells2,arr.getValues())
         pass
+
+    def toSeeIfDaIIopsAreOK(self,d):
+        d+=5
+        d*=6
+        d/=3
+        d-=2
+        d%=7
+        pass
         
+    def testSwigDAIOp5(self):
+        d=DataArrayInt.New([4,5,6,10,3,-1],2,3)
+        self.toSeeIfDaIIopsAreOK(d)
+        dExp=DataArrayInt.New([2,4,6,0,0,6],2,3)
+        self.assertTrue(d.isEqual(dExp));
+        pass
+    
+    def toSeeIfDaDIopsAreOK(self,d):
+        d+=5
+        d*=6
+        d/=3
+        d-=2
+        pass
+
+    def testSwigDADOp7(self):
+        d=DataArrayDouble.New([4.,5.,6.,10.,3.,-1.],2,3)
+        self.toSeeIfDaDIopsAreOK(d)
+        dExp=DataArrayDouble.New([16.,18.,20.,28.,14.,6.],2,3)
+        self.assertTrue(d.isEqual(dExp,1e-14));
+        pass
+
     def setUp(self):
         pass
     pass

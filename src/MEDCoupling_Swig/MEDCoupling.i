@@ -2949,8 +2949,8 @@ namespace ParaMEDMEM
          throw INTERP_KERNEL::Exception(msg);
        }
    }
-
-   DataArrayDouble *operator+=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   
+   PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __iadd__ !";
      double val;
@@ -2964,24 +2964,28 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyLin(1.,val);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            self->addEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->addEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
            self->addEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -3058,7 +3062,7 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayDouble *operator-=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __isub__ !";
      double val;
@@ -3072,24 +3076,28 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyLin(1,-val);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            self->substractEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->substractEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
            self->substractEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -3166,7 +3174,7 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayDouble *operator*=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __imul__ !";
      double val;
@@ -3180,24 +3188,28 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyLin(val,0.);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            self->multiplyEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->multiplyEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
            self->multiplyEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -3276,9 +3288,9 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayDouble *operator/=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
-     const char msg[]="Unexpected situation in __imul__ !";
+     const char msg[]="Unexpected situation in __idiv__ !";
      double val;
      DataArrayDouble *a;
      DataArrayDoubleTuple *aa;
@@ -3292,24 +3304,28 @@ namespace ParaMEDMEM
            if(val==0.)
              throw INTERP_KERNEL::Exception("DataArrayDouble::__div__ : trying to divide by zero !");
            self->applyLin(1./val,0.);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            self->divideEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            self->divideEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
            self->divideEqual(aaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4679,7 +4695,7 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayInt *operator+=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __iadd__ !";
      int val;
@@ -4693,24 +4709,28 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyLin(1,val);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
            self->addEqual(bb);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            self->addEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->addEqual(aaaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4777,7 +4797,7 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayInt *operator-=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __isub__ !";
      int val;
@@ -4791,24 +4811,28 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyLin(1,-val);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
            self->substractEqual(bb);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            self->substractEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->substractEqual(aaaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4875,7 +4899,7 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayInt *operator*=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __imul__ !";
      int val;
@@ -4889,24 +4913,28 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyLin(val,0);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
            self->multiplyEqual(bb);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            self->multiplyEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->multiplyEqual(aaaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -4973,9 +5001,9 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayInt *operator/=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
-     const char msg[]="Unexpected situation in __imul__ !";
+     const char msg[]="Unexpected situation in __idiv__ !";
      int val;
      DataArrayInt *a;
      std::vector<int> aa;
@@ -4987,24 +5015,28 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyDivideBy(val);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 2:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> bb=DataArrayInt::New(); bb->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
            self->divideEqual(bb);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            self->divideEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->divideEqual(aaaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -5075,7 +5107,7 @@ namespace ParaMEDMEM
        }
    }
 
-   DataArrayInt *operator%=(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   PyObject *___imod___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in __imod__ !";
      int val;
@@ -5089,18 +5121,21 @@ namespace ParaMEDMEM
        case 1:
          {
            self->applyModulus(val);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 3:
          {
            self->modulusEqual(a);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        case 4:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaaa=aaa->buildDAInt(1,self->getNumberOfComponents());
            self->modulusEqual(aaaa);
-           return self;
+           Py_XINCREF(trueSelf);
+           return trueSelf;
          }
        default:
          throw INTERP_KERNEL::Exception(msg);
@@ -5297,13 +5332,9 @@ namespace ParaMEDMEM
     static MEDCouplingFieldDouble *DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
-    const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
-    const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
-    const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception);
-    const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
       {
@@ -5584,6 +5615,34 @@ namespace ParaMEDMEM
         self->setSelectedComponents(f,tmp);
       }
 
+      PyObject *___iadd___(PyObject *trueSelf, const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+      {
+        *self+=other;
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+      
+      PyObject *___isub___(PyObject *trueSelf, const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+      {
+        *self-=other;
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+
+      PyObject *___imul___(PyObject *trueSelf, const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+      {
+        *self*=other;
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+
+      PyObject *___idiv___(PyObject *trueSelf, const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)
+      {
+        *self/=other;
+        Py_XINCREF(trueSelf);
+        return trueSelf;
+      }
+
       static MEDCouplingFieldDouble *MergeFields(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const MEDCouplingFieldDouble *> tmp;
@@ -5831,3 +5890,75 @@ namespace ParaMEDMEM
       }
   };
 }
+
+%pythoncode %{
+def ParaMEDMEMDataArrayDoubleIadd(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDouble____iadd___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleIsub(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDouble____isub___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleImul(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDouble____imul___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDouble____idiv___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldDouble____iadd___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIsub(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldDouble____isub___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleImul(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldDouble____imul___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.MEDCouplingFieldDouble____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayIntIadd(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____iadd___(self, self, *args)
+def ParaMEDMEMDataArrayIntIsub(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____isub___(self, self, *args)
+def ParaMEDMEMDataArrayIntImul(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____imul___(self, self, *args)
+def ParaMEDMEMDataArrayIntIdiv(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayIntImod(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayInt____imod___(self, self, *args)
+
+DataArrayDouble.__iadd__=ParaMEDMEMDataArrayDoubleIadd
+DataArrayDouble.__isub__=ParaMEDMEMDataArrayDoubleIsub
+DataArrayDouble.__imul__=ParaMEDMEMDataArrayDoubleImul
+DataArrayDouble.__idiv__=ParaMEDMEMDataArrayDoubleIdiv
+
+DataArrayInt.__iadd__=ParaMEDMEMDataArrayIntIadd
+DataArrayInt.__isub__=ParaMEDMEMDataArrayIntIsub
+DataArrayInt.__imul__=ParaMEDMEMDataArrayIntImul
+DataArrayInt.__idiv__=ParaMEDMEMDataArrayIntIdiv
+DataArrayInt.__imod__=ParaMEDMEMDataArrayIntImod
+
+MEDCouplingFieldDouble.__iadd__=ParaMEDMEMMEDCouplingFieldDoubleIadd
+MEDCouplingFieldDouble.__isub__=ParaMEDMEMMEDCouplingFieldDoubleIsub
+MEDCouplingFieldDouble.__imul__=ParaMEDMEMMEDCouplingFieldDoubleImul
+MEDCouplingFieldDouble.__idiv__=ParaMEDMEMMEDCouplingFieldDoubleIdiv
+
+del ParaMEDMEMDataArrayDoubleIadd
+del ParaMEDMEMDataArrayDoubleIsub
+del ParaMEDMEMDataArrayDoubleImul
+del ParaMEDMEMDataArrayDoubleIdiv
+del ParaMEDMEMMEDCouplingFieldDoubleIadd
+del ParaMEDMEMMEDCouplingFieldDoubleIsub
+del ParaMEDMEMMEDCouplingFieldDoubleImul
+del ParaMEDMEMMEDCouplingFieldDoubleIdiv
+del ParaMEDMEMDataArrayIntIadd
+del ParaMEDMEMDataArrayIntIsub
+del ParaMEDMEMDataArrayIntImul
+del ParaMEDMEMDataArrayIntIdiv
+del ParaMEDMEMDataArrayIntImod
+%}
