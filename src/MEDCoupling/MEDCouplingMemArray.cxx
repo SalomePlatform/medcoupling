@@ -550,7 +550,8 @@ bool DataArrayDouble::isMonotonic(bool increasing, double eps) const throw(INTER
     {
       for(int i=1;i<nbOfElements;i++)
         {
-          if(ptr[i]<(ref+absEps)) return false;
+          if(ptr[i]<(ref+absEps))
+            return false;
           ref=ptr[i];
         }
       return true;
@@ -559,7 +560,8 @@ bool DataArrayDouble::isMonotonic(bool increasing, double eps) const throw(INTER
     {
       for(int i=1;i<nbOfElements;i++)
         {
-          if(ptr[i]>(ref-absEps)) return false;
+          if(ptr[i]>(ref-absEps))
+            return false;
           ref=ptr[i];
         }
       return true;
