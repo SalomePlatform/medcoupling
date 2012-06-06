@@ -4348,21 +4348,132 @@ DataArrayInt *DataArrayInt::getIdsNotEqualList(const std::vector<int>& vals) con
 }
 
 /*!
- * This method expects to be called when number of components of this is equal to one.
- * This method returns true if it exists a tuple so that the value is contained in 'vals'.
- * If not any tuple contains one of the values contained in 'vals' false is returned.
+ * This method is an extension of DataArrayInt::locateValue method because this method works for DataArrayInt with
+ * any number of components excepted 0 (an INTERP_KERNEL::Exception is thrown in this case).
+ * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
+ * If any the tuple id is returned. If not -1 is returned.
+ * 
+ * This method throws an INTERP_KERNEL::Exception if the number of components in \b this mismatches with the size of
+ * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
+ *
+ * \return tuple id where \b tupl is. -1 if no such tuple exists in \b this.
+ * \sa DataArrayInt::search, DataArrayInt::presenceOfTuple.
  */
-bool DataArrayInt::presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+int DataArrayInt::locateTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCompo=getNumberOfComponents();
+  if(nbOfCompo==0)
+    throw INTERP_KERNEL::Exception("DataArrayInt::locateTuple : 0 components in 'this' !");
+  if(nbOfCompo!=(int)tupl.size())
+    {
+      std::ostringstream oss; oss << "DataArrayInt::locateTuple : 'this' contains " << nbOfCompo << " components and searching for a tuple of length " << tupl.size() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const int *cptr=getConstPointer();
+  int nbOfVals=getNbOfElems();
+  for(const int *work=cptr;work!=cptr+nbOfVals;)
+    {
+      work=std::search(work,cptr+nbOfVals,tupl.begin(),tupl.end());
+      if(work!=cptr+nbOfVals)
+        {
+          if(std::distance(cptr,work)%nbOfCompo!=0)
+            work++;
+          else
+            return std::distance(cptr,work)/nbOfCompo;
+        }
+    }
+  return -1;
+}
+
+/*!
+ * This method searches the sequence specified in input parameter \b vals in \b this.
+ * This works only for DataArrayInt having number of components equal to one (if not an INTERP_KERNEL::Exception will be thrown).
+ * This method differs from DataArrayInt::locateTuple in that the position is internal raw data is not considered here contrary to DataArrayInt::locateTuple.
+ * \sa DataArrayInt::locateTuple
+ */
+int DataArrayInt::search(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCompo=getNumberOfComponents();
+  if(nbOfCompo!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::search : works only for DataArrayInt instance with one component !");
+  const int *cptr=getConstPointer();
+  int nbOfVals=getNbOfElems();
+  const int *loc=std::search(cptr,cptr+nbOfVals,vals.begin(),vals.end());
+  if(loc!=cptr+nbOfVals)
+    return std::distance(cptr,loc);
+  return -1;
+}
+
+/*!
+ * This method expects to be called when number of components of this is equal to one.
+ * This method returns the tuple id, if it exists, of the first tuple equal to \b value.
+ * If not any tuple contains \b value -1 is returned.
+ * \sa DataArrayInt::presenceOfValue
+ */
+int DataArrayInt::locateValue(int value) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::presenceOfValue : the array must have only one component, you can call 'rearrange' method before !");
+  const int *cptr=getConstPointer();
+  int nbOfTuples=getNumberOfTuples();
+  const int *ret=std::find(cptr,cptr+nbOfTuples,value);
+  if(ret!=cptr+nbOfTuples)
+    return std::distance(cptr,ret);
+  return -1;
+}
+
+/*!
+ * This method expects to be called when number of components of this is equal to one.
+ * This method returns the tuple id, if it exists, of the first tuple so that the value is contained in \b vals.
+ * If not any tuple contains one of the values contained in 'vals' false is returned.
+ * \sa DataArrayInt::presenceOfValue
+ */
+int DataArrayInt::locateValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::presenceOfValue : the array must have only one component, you can call 'rearrange' method before !");
   std::set<int> vals2(vals.begin(),vals.end());
   const int *cptr=getConstPointer();
   int nbOfTuples=getNumberOfTuples();
-  bool found=false;
-  for(const int *w=cptr;w!=cptr+nbOfTuples && !found;w++)
-    found=(vals2.find(*w)!=vals2.end());
-  return found;
+  for(const int *w=cptr;w!=cptr+nbOfTuples;w++)
+    if(vals2.find(*w)!=vals2.end())
+      return std::distance(cptr,w);
+  return -1;
+}
+
+/*!
+ * This method is an extension of DataArrayInt::presenceOfValue method because this method works for DataArrayInt with
+ * any number of components excepted 0 (an INTERP_KERNEL::Exception is thrown in this case).
+ * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
+ * This method throws an INTERP_KERNEL::Exception if the number of components in \b this mismatches with the size of
+ * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
+ * \sa DataArrayInt::locateTuple
+ */
+bool DataArrayInt::presenceOfTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception)
+{
+  return locateTuple(tupl)!=-1;
+}
+
+/*!
+ * This method expects to be called when number of components of this is equal to one.
+ * This method returns true if it exists a tuple equal to \b value.
+ * If not any tuple contains \b value false is returned.
+ * \sa DataArrayInt::locateValue
+ */
+bool DataArrayInt::presenceOfValue(int value) const throw(INTERP_KERNEL::Exception)
+{
+  return locateValue(value)!=-1;
+}
+
+/*!
+ * This method expects to be called when number of components of this is equal to one.
+ * This method returns true if it exists a tuple so that the value is contained in \b vals.
+ * If not any tuple contains one of the values contained in 'vals' false is returned.
+ * \sa DataArrayInt::locateValue
+ */
+bool DataArrayInt::presenceOfValue(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+{
+  return locateValue(vals)!=-1;
 }
 
 DataArrayInt *DataArrayInt::Aggregate(const DataArrayInt *a1, const DataArrayInt *a2, int offsetA2)
