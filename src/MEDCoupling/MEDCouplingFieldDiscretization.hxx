@@ -60,7 +60,7 @@ namespace ParaMEDMEM
     virtual void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
                                                     DataArrayInt *&cellRest) = 0;
     virtual void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    virtual void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
     virtual void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                        const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception) = 0;
     virtual double getIJK(const MEDCouplingMesh *mesh, const DataArrayDouble *da, int cellId, int nodeIdInCell, int compoId) const throw(INTERP_KERNEL::Exception);

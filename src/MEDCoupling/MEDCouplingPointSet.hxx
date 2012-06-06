@@ -91,7 +91,7 @@ namespace ParaMEDMEM
     static void Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords);
     MEDCouplingMesh *buildPart(const int *start, const int *end) const;
     MEDCouplingMesh *buildPartAndReduceNodes(const int *start, const int *end, DataArrayInt*& arr) const;
-    virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const = 0;
+    virtual MEDCouplingPointSet *buildPartOfMySelf(const int *start, const int *end, bool keepCoords=true) const = 0;
     virtual MEDCouplingPointSet *buildPartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
     virtual MEDCouplingPointSet *buildFacePartOfMySelfNode(const int *start, const int *end, bool fullyIn) const = 0;
     virtual void findBoundaryNodes(std::vector<int>& nodes) const = 0;

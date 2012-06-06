@@ -3084,7 +3084,7 @@ DataArrayInt *MEDCouplingUMesh::convexEnvelop2D() throw(INTERP_KERNEL::Exception
   std::vector<int> isChanged;
   for(int i=0;i<nbOfCells;i++,workIndexOut++)
     {
-      std::size_t pos=nodalConnecOut.size()+1;
+      std::size_t pos=nodalConnecOut.size();
       if(BuildConvecEnvelopOf2DCellJarvis(coords,nodalConnecIn+nodalConnecIndexIn[i],nodalConnecIn+nodalConnecIndexIn[i+1],nodalConnecOut))
         isChanged.push_back(i);
       types.insert((INTERP_KERNEL::NormalizedCellType)nodalConnecOut[pos]);

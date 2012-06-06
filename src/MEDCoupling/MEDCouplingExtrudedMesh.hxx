@@ -63,7 +63,7 @@ namespace ParaMEDMEM
     void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
     void getBoundingBox(double *bbox) const;
     void updateTime() const;
-    void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *getMesh2D() const { return _mesh2D; }
     MEDCouplingUMesh *getMesh1D() const { return _mesh1D; }
     DataArrayInt *getMesh3DIds() const { return _mesh3D_ids; }

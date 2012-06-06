@@ -85,7 +85,7 @@ namespace ParaMEDMEM
     MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const;
     DataArrayDouble *getCoordinatesAndOwner() const;
     DataArrayDouble *getBarycenterAndOwner() const;
-    void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
     void fill1DUnstructuredMesh(MEDCouplingUMesh *m) const;
     void fill2DUnstructuredMesh(MEDCouplingUMesh *m) const;
     void fill3DUnstructuredMesh(MEDCouplingUMesh *m) const;

@@ -47,8 +47,8 @@ namespace ParaMEDMEM
     bool areCompatibleForMul(const MEDCouplingField *other) const;
     bool areCompatibleForDiv(const MEDCouplingField *other) const;
     bool areCompatibleForMeld(const MEDCouplingFieldDouble *other) const;
-    void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
-    void renumberCellsWithoutMesh(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
+    void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
+    void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
     void renumberNodes(const int *old2NewBg) throw(INTERP_KERNEL::Exception);
     void renumberNodesWithoutMesh(const int *old2NewBg, double eps=1e-15) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
