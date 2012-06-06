@@ -465,7 +465,7 @@ namespace ParaMEDMEM
            return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
          }
          
-         void renumberCells(PyObject *li, bool check) throw(INTERP_KERNEL::Exception)
+         void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
          {
            void *da=0;
            int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
@@ -741,7 +741,7 @@ namespace ParaMEDMEM
              ret1->incrRef();
              return SWIG_NewPointerObj((void*)ret1,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,SWIG_POINTER_OWN | 0);
            }
-           PyObject *buildPartOfMySelf(PyObject *li, bool keepCoords) const throw(INTERP_KERNEL::Exception)
+           PyObject *buildPartOfMySelf(PyObject *li, bool keepCoords=true) const throw(INTERP_KERNEL::Exception)
            {
              void *da=0;
              int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
@@ -4105,6 +4105,56 @@ namespace ParaMEDMEM
      return ret;
    }
 
+   int index(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+   {
+     int nbOfCompo=self->getNumberOfComponents();
+     switch(nbOfCompo)
+       {
+         case 1:
+         {
+           if(PyInt_Check(obj))
+             {
+               int val=(int)PyInt_AS_LONG(obj);
+               return self->locateValue(val);
+             }
+           else
+             throw INTERP_KERNEL::Exception("DataArrayInt::index : 'this' contains one component and trying to find an element which is not an integer !");
+         }
+       default:
+         {
+           std::vector<int> arr;
+           convertPyToNewIntArr3(obj,arr);
+           return self->locateTuple(arr);
+         }
+       }
+   }
+
+   bool __contains__(PyObject *obj) const throw(INTERP_KERNEL::Exception)
+   {
+     int nbOfCompo=self->getNumberOfComponents();
+     switch(nbOfCompo)
+       {
+       case 0:
+         return false;
+       case 1:
+         {
+           if(PyInt_Check(obj))
+             {
+               int val=(int)PyInt_AS_LONG(obj);
+               return self->presenceOfValue(val);
+             }
+           else
+             throw INTERP_KERNEL::Exception("DataArrayInt::__contains__ : 'this' contains one component and trying to find an element which is not an integer !");
+         }
+       default:
+         {
+           std::vector<int> arr;
+           convertPyToNewIntArr3(obj,arr);
+           return self->presenceOfTuple(arr);
+         }
+       }
+   }
+
    PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in DataArrayInt::__getitem__ !";
@@ -5524,7 +5574,7 @@ namespace ParaMEDMEM
         PyObject *ret=convertDblArrToPyList(tmp,sz);
         return ret;
       }
-      void renumberCells(PyObject *li, bool check) throw(INTERP_KERNEL::Exception)
+      void renumberCells(PyObject *li, bool check=true) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
         int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );

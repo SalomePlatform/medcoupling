@@ -275,7 +275,7 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
   else
     {
 #ifndef WITH_NUMPY2
-      const char msg[]="convertPyToNewIntArr3 : not a list";
+      const char msg[]="convertPyToNewIntArr3 : not a list nor a tuple";
       PyErr_SetString(PyExc_TypeError,msg);
       throw INTERP_KERNEL::Exception(msg);
 #else
@@ -289,7 +289,7 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
         }
       else
         {
-          const char msg[]="convertPyToNewIntArr3 : not a list nor PyArray";
+          const char msg[]="convertPyToNewIntArr3 : not a list nor a tuple nor PyArray";
           PyErr_SetString(PyExc_TypeError,msg);
           throw INTERP_KERNEL::Exception(msg);
         }
