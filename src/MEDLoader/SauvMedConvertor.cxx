@@ -45,6 +45,7 @@
 
 #ifndef WNT
 #define HAS_XDR
+#include <unistd.h>
 #endif
 
 #ifdef HAS_XDR

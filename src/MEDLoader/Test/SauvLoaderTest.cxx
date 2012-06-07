@@ -26,7 +26,9 @@
 #include "MEDCouplingMemArray.hxx"
 
 #ifdef WNT
-#include <windows.h>
+# include <windows.h>
+#else
+# include <unistd.h>
 #endif
 
 #include <vector>
