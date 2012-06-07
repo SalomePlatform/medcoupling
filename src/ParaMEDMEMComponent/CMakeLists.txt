@@ -36,7 +36,7 @@ SET(paramedmemcompo_SOURCES
   )
 
 ADD_LIBRARY(paramedmemcompo SHARED ${paramedmemcompo_SOURCES})
-SET_TARGET_PROPERTIES(paramedmemcompo PROPERTIES COMPILE_FLAGS "${MPI_FLAGS} ${OMNIORB_FLAGS}")
+SET_TARGET_PROPERTIES(paramedmemcompo PROPERTIES COMPILE_FLAGS "${MPI_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(paramedmemcompo medcouplingcorba paramedmem)
 INSTALL(TARGETS paramedmemcompo DESTINATION ${MED_salomelib_LIBS})
 

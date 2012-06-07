@@ -47,7 +47,7 @@ SET(medcalculator_SOURCES
 )
 
 ADD_LIBRARY(medcalculator SHARED ${medcalculator_SOURCES})
-SET_TARGET_PROPERTIES(medcalculator PROPERTIES COMPILE_FLAGS "${HDF5_FLAGS} ${MED3_FLAGS}")
+SET_TARGET_PROPERTIES(medcalculator PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(medcalculator medloader medcouplingcorba ${KERNEL_LDFLAGS} ${SALOMELocalTrace} ${SalomeNS} ${OpUtil})
 INSTALL(TARGETS medcalculator DESTINATION ${MED_salomelib_LIBS})
 

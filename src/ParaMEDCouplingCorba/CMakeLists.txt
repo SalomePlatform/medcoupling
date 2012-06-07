@@ -34,7 +34,7 @@ SET(paramedcouplingcorba_SOURCES
   )
 
 ADD_LIBRARY(paramedcouplingcorba SHARED ${paramedcouplingcorba_SOURCES})
-SET_TARGET_PROPERTIES(paramedcouplingcorba PROPERTIES COMPILE_FLAGS "${MPI_FLAGS} ${OMNIORB_FLAGS}")
+SET_TARGET_PROPERTIES(paramedcouplingcorba PROPERTIES COMPILE_FLAGS "${MPI_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(paramedcouplingcorba medcouplingcorba ${MPI_LIBS})
 INSTALL(TARGETS paramedcouplingcorba DESTINATION ${MED_salomelib_LIBS})
 

@@ -40,7 +40,7 @@ SET(medcouplingclient_SOURCES
   )
 
 ADD_LIBRARY(medcouplingclient SHARED ${medcouplingclient_SOURCES})
-SET_TARGET_PROPERTIES(medcouplingclient PROPERTIES COMPILE_FLAGS "${OMNIORB_FLAGS}")
+SET_TARGET_PROPERTIES(medcouplingclient PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(medcouplingclient medcoupling SalomeIDLMED ${OMNIORB_LIBS})
 INSTALL(TARGETS medcouplingclient DESTINATION ${MED_salomelib_LIBS})
 

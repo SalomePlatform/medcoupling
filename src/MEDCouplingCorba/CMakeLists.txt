@@ -46,7 +46,7 @@ SET(medcouplingcorba_SOURCES
   )
 
 ADD_LIBRARY(medcouplingcorba SHARED ${medcouplingcorba_SOURCES})
-SET_TARGET_PROPERTIES(medcouplingcorba PROPERTIES COMPILE_FLAGS "${OMNIORB_FLAGS}")
+SET_TARGET_PROPERTIES(medcouplingcorba PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(medcouplingcorba medcoupling SalomeIDLMED)
 INSTALL(TARGETS medcouplingcorba DESTINATION ${MED_salomelib_LIBS})
 
