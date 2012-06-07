@@ -68,7 +68,7 @@ namespace ParaMEDMEM
     void fillWithValue(const T& val);
     T *fromNoInterlace(int nbOfComp) const;
     T *toNoInterlace(int nbOfComp) const;
-    void sort();
+    void sort(bool asc);
     void reverse();
     void alloc(int nbOfElements) throw(INTERP_KERNEL::Exception);
     void reAlloc(int newNbOfElements) throw(INTERP_KERNEL::Exception);
@@ -150,7 +150,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void fillWithValue(double val) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void iota(double init=0.) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isUniform(double val, double eps) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void sort() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reverse() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool isMonotonic(bool increasing, double eps) const throw(INTERP_KERNEL::Exception);
@@ -333,7 +333,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayInt& other) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *buildPermutationArr(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void sort() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void sort(bool asc=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reverse() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void fillWithZero() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void fillWithValue(int val) throw(INTERP_KERNEL::Exception);

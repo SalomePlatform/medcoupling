@@ -210,10 +210,17 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  void MemArray<T>::sort()
+  void MemArray<T>::sort(bool asc)
   {
     T *pt=_pointer.getPointer();
-    std::sort(pt,pt+_nb_of_elem);
+    if(asc)
+      std::sort(pt,pt+_nb_of_elem);
+    else
+      {
+        typename std::reverse_iterator<T *> it1(pt+_nb_of_elem);
+        typename std::reverse_iterator<T *> it2(pt);
+        std::sort(it1,it2);
+      }
   }
 
   template<class T>

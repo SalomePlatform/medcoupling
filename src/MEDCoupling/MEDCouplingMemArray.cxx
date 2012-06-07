@@ -495,12 +495,12 @@ bool DataArrayDouble::isUniform(double val, double eps) const throw(INTERP_KERNE
   return true;
 }
 
-void DataArrayDouble::sort() throw(INTERP_KERNEL::Exception)
+void DataArrayDouble::sort(bool asc) throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayDouble::sort : only supported with 'this' array with ONE component !");
-  _mem.sort();
+  _mem.sort(asc);
 }
 
 void DataArrayDouble::reverse() throw(INTERP_KERNEL::Exception)
@@ -3289,12 +3289,12 @@ bool DataArrayInt::isEqualWithoutConsideringStrAndOrder(const DataArrayInt& othe
   return a->isEqualWithoutConsideringStr(*b);
 }
 
-void DataArrayInt::sort() throw(INTERP_KERNEL::Exception)
+void DataArrayInt::sort(bool asc) throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::sort : only supported with 'this' array with ONE component !");
-  _mem.sort();
+  _mem.sort(asc);
 }
 
 void DataArrayInt::reverse() throw(INTERP_KERNEL::Exception)
