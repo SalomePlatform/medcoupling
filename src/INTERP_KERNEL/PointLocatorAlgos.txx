@@ -302,8 +302,8 @@ namespace INTERP_KERNEL
                                 if ( !sonNodesSet.count( conn_elem[cn] ))
                                   {
                                     simplexConn.back() = conn_elem[cn];
-                                    if ( isElementContainsPoint( x, simlexType, coords,
-                                                                 &simplexConn[0], simplexConn.size(), eps ))
+                                    if ( this->isElementContainsPoint( x, simlexType, coords,
+                                                                       &simplexConn[0], simplexConn.size(), eps ))
                                       {
                                         simplexNodes.insert( simplexNodes.end(),
                                                              simplexConn.begin(), simplexConn.end());

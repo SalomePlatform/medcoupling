@@ -57,7 +57,7 @@ namespace INTERP_KERNEL
                                              const std::vector<CConnType>& icellS)
   {
     std::vector<double> uCoords;
-    getUCoordinates( icellT, uCoords );
+    this->getUCoordinates( icellT, uCoords );
 
     NormalizedCellType tT = INTER_CU::_meshU.getTypeOfElement( _TMIU(icellT));
     bool is_tgt_quad = CellModel::GetCellModel(tT).isQuadratic();
