@@ -1121,3 +1121,58 @@ void MEDCouplingBasicsTest5::testConvexEnvelop2D1()
   //
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testDataArraySort1()
+{
+  DataArrayInt *arr=DataArrayInt::New();
+  CPPUNIT_ASSERT_THROW(arr->sort(true),INTERP_KERNEL::Exception);//no allocation
+  CPPUNIT_ASSERT_THROW(arr->sort(false),INTERP_KERNEL::Exception);//no allocation
+  const int values[6]={2,1,6,5,4,7};
+  arr->alloc(3,2);
+  CPPUNIT_ASSERT_THROW(arr->sort(true),INTERP_KERNEL::Exception);//no one component
+  CPPUNIT_ASSERT_THROW(arr->sort(false),INTERP_KERNEL::Exception);//no one component
+  arr->rearrange(1);
+  std::copy(values,values+6,arr->getPointer());
+  DataArrayInt *arr1=arr->deepCpy();
+  DataArrayInt *arr2=arr->deepCpy();
+  arr1->sort(true);
+  const int expected1[6]={1,2,4,5,6,7};
+  CPPUNIT_ASSERT_EQUAL(6,arr1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr1->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+6,arr1->begin()));
+  arr2->sort(false);
+  const int expected2[6]={7,6,5,4,2,1};
+  CPPUNIT_ASSERT_EQUAL(6,arr2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,arr2->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+6,arr2->begin()));
+  arr1->decrRef();
+  arr2->decrRef();
+  arr->decrRef();
+  //
+  DataArrayDouble *ard=DataArrayDouble::New();
+  CPPUNIT_ASSERT_THROW(ard->sort(true),INTERP_KERNEL::Exception);//no allocation
+  CPPUNIT_ASSERT_THROW(ard->sort(false),INTERP_KERNEL::Exception);//no allocation
+  const double valuesD[6]={2.,1.,6.,5.,4.,7.};
+  ard->alloc(3,2);
+  CPPUNIT_ASSERT_THROW(ard->sort(true),INTERP_KERNEL::Exception);//no one component
+  CPPUNIT_ASSERT_THROW(ard->sort(false),INTERP_KERNEL::Exception);//no one component
+  ard->rearrange(1);
+  std::copy(valuesD,valuesD+6,ard->getPointer());
+  DataArrayDouble *ard1=ard->deepCpy();
+  DataArrayDouble *ard2=ard->deepCpy();
+  ard1->sort(true);
+  const double expected3[6]={1.,2.,4.,5.,6.,7.};
+  CPPUNIT_ASSERT_EQUAL(6,ard1->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,ard1->getNumberOfComponents());
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected3[i],ard1->getIJ(i,0),1e-12);
+  ard2->sort(false);
+  const double expected4[6]={7.,6.,5.,4.,2.,1.};
+  CPPUNIT_ASSERT_EQUAL(6,ard2->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,ard2->getNumberOfComponents());
+  for(int i=0;i<6;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(expected4[i],ard2->getIJ(i,0),1e-12);
+  ard1->decrRef();
+  ard2->decrRef();
+  ard->decrRef();
+}

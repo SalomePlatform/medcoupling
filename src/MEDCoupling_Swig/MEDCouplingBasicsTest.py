@@ -9767,6 +9767,56 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,da.index([12,13]))
         pass
 
+    def testDataArraySort1(self):
+        arr=DataArrayInt.New();
+        self.assertRaises(InterpKernelException,arr.sort,True)
+        self.assertRaises(InterpKernelException,arr.sort,False)
+        values=[2,1,6,5,4,7]
+        arr.alloc(3,2);
+        self.assertRaises(InterpKernelException,arr.sort,True)
+        self.assertRaises(InterpKernelException,arr.sort,False)
+        arr.rearrange(1);
+        arr.setValues(values,6,1)
+        arr1=arr.deepCpy();
+        arr2=arr.deepCpy();
+        arr1.sort(True);
+        expected1=[1,2,4,5,6,7]
+        self.assertEqual(6,arr1.getNumberOfTuples());
+        self.assertEqual(1,arr1.getNumberOfComponents());
+        self.assertEqual(expected1,arr1.getValues());
+        arr2.sort(False);
+        expected2=[7,6,5,4,2,1]
+        self.assertEqual(6,arr2.getNumberOfTuples());
+        self.assertEqual(1,arr2.getNumberOfComponents());
+        self.assertTrue(expected2,arr2.getValues());
+        #
+        ard=DataArrayDouble.New();
+        self.assertRaises(InterpKernelException,ard.sort,True)
+        self.assertRaises(InterpKernelException,ard.sort,False)
+        valuesD=[2.,1.,6.,5.,4.,7.]
+        ard.alloc(3,2);
+        self.assertRaises(InterpKernelException,ard.sort,True)
+        self.assertRaises(InterpKernelException,ard.sort,False)
+        ard.rearrange(1);
+        ard.setValues(valuesD,6,1)
+        ard1=ard.deepCpy();
+        ard2=ard.deepCpy();
+        ard1.sort(True);
+        expected3=[1.,2.,4.,5.,6.,7.]
+        self.assertEqual(6,ard1.getNumberOfTuples());
+        self.assertEqual(1,ard1.getNumberOfComponents());
+        for i in xrange(6):
+            self.assertAlmostEqual(expected3[i],ard1.getIJ(i,0),12)
+            pass
+        ard2.sort(False);
+        expected4=[7.,6.,5.,4.,2.,1.]
+        self.assertEqual(6,ard2.getNumberOfTuples());
+        self.assertEqual(1,ard2.getNumberOfComponents());
+        for i in xrange(6):
+            self.assertAlmostEqual(expected4[i],ard2.getIJ(i,0),12)
+            pass
+        pass
+
     def setUp(self):
         pass
     pass
