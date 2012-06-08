@@ -119,12 +119,19 @@ namespace INTERP_KERNEL
         break;
       case NORM_SEG2:
         {
-          _nb_of_pts=2; _nb_of_sons=0; _dim=1; _extruded_type=NORM_QUAD4; _quadratic_type=NORM_SEG3; _is_simplex=true; _is_extruded=true;
+          _nb_of_pts=2; _nb_of_sons=2; _dim=1; _extruded_type=NORM_QUAD4; _quadratic_type=NORM_SEG3; _is_simplex=true; _is_extruded=true;
+          _sons_type[0]=NORM_POINT1; _sons_type[1]=NORM_POINT1;
+          _sons_con[0][0]=0; _nb_of_sons_con[0]=1;
+          _sons_con[1][0]=1; _nb_of_sons_con[1]=1;
         }
         break;
       case NORM_SEG3:
         {
-          _nb_of_pts=3; _nb_of_sons=0; _dim=1; _extruded_type=NORM_QUAD8; _linear_type=NORM_SEG2; _quadratic=true; _is_simplex=false;
+          _nb_of_pts=3; _nb_of_sons=3; _dim=1; _extruded_type=NORM_QUAD8; _linear_type=NORM_SEG2; _quadratic=true; _is_simplex=false;
+          _sons_type[0]=NORM_POINT1; _sons_type[1]=NORM_POINT1; _sons_type[2]=NORM_POINT1;
+          _sons_con[0][0]=0; _nb_of_sons_con[0]=1;
+          _sons_con[1][0]=1; _nb_of_sons_con[1]=1;
+          _sons_con[2][0]=2; _nb_of_sons_con[2]=1;
         }
         break;
       case NORM_TETRA4:
