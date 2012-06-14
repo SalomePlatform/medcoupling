@@ -122,6 +122,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *findBoundaryNodes() const;
     MEDCOUPLING_EXPORT MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const;
     MEDCOUPLING_EXPORT DataArrayInt *findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *computeSkin() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void findNodesToDuplicate(MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate, DataArrayInt *& cellIdsNeededToBeRenum) const throw(INTERP_KERNEL::Exception);

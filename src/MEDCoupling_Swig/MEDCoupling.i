@@ -272,6 +272,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::keepCellIdsByType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::Build0DMeshFromCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::findCellsIdsOnBoundary;
+%newobject ParaMEDMEM::MEDCouplingUMesh::computeSkin;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsCrossingPlane;
@@ -1079,6 +1080,7 @@ namespace ParaMEDMEM
     void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *computeSkin() const throw(INTERP_KERNEL::Exception);
     bool checkConsecutiveCellTypes() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *rearrange2ConsecutiveCellTypes() throw(INTERP_KERNEL::Exception);
     DataArrayInt *sortCellsInMEDFileFrmt() throw(INTERP_KERNEL::Exception);

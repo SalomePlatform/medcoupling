@@ -645,7 +645,7 @@ void MEDCouplingUMesh::computeNeighborsOfCellsAdv(const DataArrayInt *desc, cons
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivityGen(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx, DimM1DescNbrer nbrer) const throw(INTERP_KERNEL::Exception)
 {
-  checkFullyDefined();
+  checkConnectivityFullyDefined();
   int nbOfCells=getNumberOfCells();
   int nbOfNodes=getNumberOfNodes();
   const int *conn=_nodal_connec->getConstPointer();
@@ -1000,7 +1000,7 @@ void MEDCouplingUMesh::unPolyze()
  */
 DataArrayInt *MEDCouplingUMesh::computeFetchedNodeIds() const throw(INTERP_KERNEL::Exception)
 {
-  checkFullyDefined();
+  checkConnectivityFullyDefined();
   std::set<int> retS;
   int nbOfCells=getNumberOfCells();
   const int *connIndex=_nodal_connec_index->getConstPointer();
@@ -1804,39 +1804,33 @@ DataArrayInt *MEDCouplingUMesh::findCellsIdsOnBoundary() const throw(INTERP_KERN
 }
 
 /*!
+ * This method computes the skin of \b this. That is to say the consituting meshdim-1 mesh is built and only the boundary subpart is
+ * returned. This subpart of meshdim-1 mesh is built using meshdim-1 cells in it shared only one cell in \b this.
+ * 
+ * \return a newly allocated mesh lying on the same coordinates than \b this. The caller has to deal with returned mesh.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::computeSkin() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx=DataArrayInt::New();
+  //
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
+  revDesc=0; desc=0; descIndx=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx2=revDescIndx->deltaShiftIndex();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> part=revDescIndx2->getIdsEqual(1);
+  return static_cast<MEDCouplingUMesh *>(meshDM1->buildPartOfMySelf(part->begin(),part->end(),true));
+}
+
+/*!
  * This methods returns set of nodes in a newly allocated array that the caller has to deal with.
  * The returned nodes ids are those lying on the boundary of \b this.
  */
 DataArrayInt *MEDCouplingUMesh::findBoundaryNodes() const
 {
-  DataArrayInt *desc=DataArrayInt::New();
-  DataArrayInt *descIndx=DataArrayInt::New();
-  DataArrayInt *revDesc=DataArrayInt::New();
-  DataArrayInt *revDescIndx=DataArrayInt::New();
-  //
-  MEDCouplingUMesh *meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
-  revDesc->decrRef();
-  desc->decrRef();
-  descIndx->decrRef();
-  std::set<int> ret;
-  int nbOfCells=meshDM1->getNumberOfCells();
-  const int *revDescIndxC=revDescIndx->getConstPointer();
-  std::vector<int> boundaryCells;
-  for(int i=0;i<nbOfCells;i++)
-    if(revDescIndxC[i+1]-revDescIndxC[i]==1)
-      boundaryCells.push_back(i);
-  revDescIndx->decrRef();
-  const int *conn=meshDM1->getNodalConnectivity()->getConstPointer();
-  const int *connIndx=meshDM1->getNodalConnectivityIndex()->getConstPointer();
-  for(std::vector<int>::const_iterator iter=boundaryCells.begin();iter!=boundaryCells.end();iter++)
-    for(int k=connIndx[*iter]+1;k<connIndx[(*iter)+1];k++)
-      ret.insert(conn[k]);
-  meshDM1->decrRef();
-  //
-  DataArrayInt *retda=DataArrayInt::New();
-  retda->alloc((int)ret.size(),1);
-  std::copy(ret.begin(),ret.end(),retda->getPointer());
-  return retda;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> skin=computeSkin();
+  return skin->computeFetchedNodeIds();
 }
 
 MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
