@@ -4371,11 +4371,11 @@ int DataArrayInt::changeValue(int oldValue, int newValue) throw(INTERP_KERNEL::E
   return ret;
 }
 
-DataArrayInt *DataArrayInt::getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *DataArrayInt::getIdsEqualList(const int *valsBg, const int *valsEnd) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualList : the array must have only one component, you can call 'rearrange' method before !");
-  std::set<int> vals2(vals.begin(),vals.end());
+  std::set<int> vals2(valsBg,valsEnd);
   const int *cptr=getConstPointer();
   std::vector<int> res;
   int nbOfTuples=getNumberOfTuples();
@@ -4388,11 +4388,11 @@ DataArrayInt *DataArrayInt::getIdsEqualList(const std::vector<int>& vals) const 
   return ret;
 }
 
-DataArrayInt *DataArrayInt::getIdsNotEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *DataArrayInt::getIdsNotEqualList(const int *valsBg, const int *valsEnd) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqualList : the array must have only one component, you can call 'rearrange' method before !");
-  std::set<int> vals2(vals.begin(),vals.end());
+  std::set<int> vals2(valsBg,valsEnd);
   const int *cptr=getConstPointer();
   std::vector<int> res;
   int nbOfTuples=getNumberOfTuples();

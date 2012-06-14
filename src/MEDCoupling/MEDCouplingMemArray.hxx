@@ -401,8 +401,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const int *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT DataArrayInt *getIdsEqual(int val) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqual(int val) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqualList(const std::vector<int>& vals) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsEqualList(const int *valsBg, const int *valsEnd) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *getIdsNotEqualList(const int *valsBg, const int *valsEnd) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int changeValue(int oldValue, int newValue) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int locateTuple(const std::vector<int>& tupl) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int locateValue(int value) const throw(INTERP_KERNEL::Exception);
