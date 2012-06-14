@@ -597,18 +597,18 @@ int MEDFileUMeshSplitL1::getSize() const throw(INTERP_KERNEL::Exception)
   return _m_by_types->getNumberOfCells();
 }
 
-MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const std::vector<int>& ids, bool renum) const
+MEDCouplingUMesh *MEDFileUMeshSplitL1::getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsToKeep=_fam->getIdsEqualList(ids);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> eltsToKeep=_fam->getIdsEqualList(idsBg,idsEnd);
   MEDCouplingUMesh *m=(MEDCouplingUMesh *)_m_by_types->buildPartOfMySelf(eltsToKeep->getConstPointer(),eltsToKeep->getConstPointer()+eltsToKeep->getNumberOfTuples(),true);
   if(renum)
     return renumIfNeeded(m,eltsToKeep->getConstPointer());
   return m;
 }
 
-DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const std::vector<int>& ids, bool renum) const
+DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const
 {
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam->getIdsEqualList(ids);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam->getIdsEqualList(idsBg,idsEnd);
   if(renum)
     return renumIfNeededArr(da);
   da->incrRef();

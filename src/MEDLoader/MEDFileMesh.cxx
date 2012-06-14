@@ -1462,11 +1462,7 @@ int MEDFileUMesh::getSizeAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERN
 const DataArrayInt *MEDFileUMesh::getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt==1)
-    {
-      if(!((const DataArrayInt *)_fam_coords))
-        throw INTERP_KERNEL::Exception("MEDFileUMesh::getFamilyFieldAtLevel : no coordinates specified !");
-      return _fam_coords;
-    }
+    return _fam_coords;
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
   return l1->getFamilyField();
 }
@@ -1545,7 +1541,10 @@ MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMaxExt, const std::v
     }
   std::vector<int> famIds=getFamiliesIds(fams);
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
-  return l1->getFamilyPart(famIds,renum);
+  if(!famIds.empty())
+    return l1->getFamilyPart(&famIds[0],&famIds[0]+famIds.size(),renum);
+  else
+    return l1->getFamilyPart(0,0,renum);
 }
 
 DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const throw(INTERP_KERNEL::Exception)
@@ -1555,7 +1554,11 @@ DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
     {
       if((const DataArrayInt *)_fam_coords)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_coords->getIdsEqualList(famIds);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
+          if(!famIds.empty())
+            da=_fam_coords->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
+          else
+            da=_fam_coords->getIdsEqualList(0,0);
           if(renum)
             return MEDFileUMeshSplitL1::Renumber(_num_coords,da);
           else
@@ -1568,7 +1571,10 @@ DataArrayInt *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
         throw INTERP_KERNEL::Exception("MEDFileUMesh::getFamiliesArr : no family array specified on nodes !");
     }
   const MEDFileUMeshSplitL1 *l1=getMeshAtLevSafe(meshDimRelToMaxExt);
-  return l1->getFamilyPartArr(famIds,renum);
+  if(!famIds.empty())
+    return l1->getFamilyPartArr(&famIds[0],&famIds[0]+famIds.size(),renum);
+  else
+    return l1->getFamilyPartArr(0,0,renum);
 }
 
 MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renum) const throw(INTERP_KERNEL::Exception)
@@ -1661,6 +1667,8 @@ void MEDFileUMesh::checkMeshDimCoherency(int meshDim, int meshDimRelToMax) const
 
 void MEDFileUMesh::setCoords(DataArrayDouble *coords) throw(INTERP_KERNEL::Exception)
 {
+  if(!coords)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::setCoords : null pointer in input !");
   coords->checkAllocated();
   int nbOfTuples=coords->getNumberOfTuples();
   _coords=coords;
@@ -1719,6 +1727,84 @@ void MEDFileUMesh::optimizeFamilies() throw(INTERP_KERNEL::Exception)
     }
   for(std::vector<std::string>::const_iterator it=grpNamesToKill.begin();it!=grpNamesToKill.end();it++)
     _groups.erase(*it);
+}
+
+void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> levs=getNonEmptyLevels();
+  if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::duplicateNodesOnM1Group : This method works only for mesh definied on level 0 and -1 !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0=getMeshAtLevel(0);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1=getMeshAtLevel(-1);
+  int nbNodes=m0->getNumberOfNodes();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m11=getGroup(-1,grpNameM1);
+  DataArrayInt *tmp00=0,*tmp11=0;
+  m0->findNodesToDuplicate(*m11,tmp00,tmp11);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsToDuplicate(tmp00);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0(tmp11);
+  m11=getGroup(-1,grpNameM1);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp0=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),true));
+  tmp0->duplicateNodes(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end());
+  m0->setCoords(tmp0->getCoords());
+  m0->setPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),*tmp0);
+  m1->setCoords(m0->getCoords());
+  const DataArrayInt *fam=getFamilyFieldAtLevel(1);
+  fam->incrRef();
+  _coords=m0->getCoords(); _coords->incrRef();
+  DataArrayInt *famTmp=const_cast<DataArrayInt *>(getFamilyFieldAtLevel(1));
+  famTmp->setPartOfValues1(fam,0,fam->getNumberOfTuples(),1,0,1,1,true);
+  fam->decrRef();
+  //
+  m11->duplicateNodesInConn(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),nbNodes); m11->setCoords(m0->getCoords());
+  std::vector<const MEDCouplingUMesh *> v(2); v[0]=m1; v[1]=m11;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> newm1=MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(v,tmp00,tmp11);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> szOfCellGrpOfSameType(tmp00);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idInMsOfCellGrpOfSameType(tmp11);
+  //
+  newm1->setName(getName());
+  fam=getFamilyFieldAtLevel(-1);
+  if(!fam)
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::duplicateNodesOnM1Group : internal problem !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFam=DataArrayInt::New();
+  newFam->alloc(newm1->getNumberOfCells(),1);
+  int idd=getMaxFamilyId()+1;
+  int globStart=0,start=0,end,globEnd;
+  int nbOfChunks=szOfCellGrpOfSameType->getNumberOfTuples();
+  for(int i=0;i<nbOfChunks;i++)
+    {
+      globEnd=globStart+szOfCellGrpOfSameType->getIJ(i,0);
+      if(idInMsOfCellGrpOfSameType->getIJ(i,0)==0)
+        {
+          end=start+szOfCellGrpOfSameType->getIJ(i,0);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> part=fam->selectByTupleId2(start,end,1);
+          newFam->setPartOfValues1(part,globStart,globEnd,1,0,1,1,true);
+          start=end;
+        }
+      else
+        {
+          newFam->setPartOfValuesSimple1(idd,globStart,globEnd,1,0,1,1);
+        }
+      globStart=globEnd;
+    }
+  newm1->setCoords(getCoords());
+  setMeshAtLevel(-1,newm1);
+  setFamilyFieldArr(-1,newFam);
+  std::ostringstream famName; famName << "Family_" << idd;
+  std::string grpName2(grpNameM1); grpName2+="_dup";
+  addFamily(famName.str().c_str(),idd);
+  addFamilyOnGrp(grpName2.c_str(),famName.str().c_str());
+  //
+  fam=_fam_coords;
+  if(fam)
+    {
+      int newNbOfNodes=getCoords()->getNumberOfTuples();
+      newFam=DataArrayInt::New(); newFam->alloc(newNbOfNodes,1);
+      newFam->setPartOfValues1(fam,0,nbNodes,1,0,1,1,true);
+      newFam->setPartOfValuesSimple1(0,nbNodes,newNbOfNodes,1,0,1,1);
+      _fam_coords=newFam;
+    }
+  nodesDuplicated=nodeIdsToDuplicate; nodeIdsToDuplicate->incrRef();
+  cellsModified=cellsToModifyConn0; cellsToModifyConn0->incrRef();
 }
 
 void MEDFileUMesh::addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception)
@@ -2305,7 +2391,11 @@ DataArrayInt *MEDFileCMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
     {
       if((const DataArrayInt *)_fam_nodes)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_nodes->getIdsEqualList(famIds);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
+          if(!famIds.empty())
+            da=_fam_nodes->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
+          else
+            da=_fam_nodes->getIdsEqualList(0,0);
           if(renum)
             return MEDFileUMeshSplitL1::Renumber(_num_nodes,da);
           else
@@ -2321,7 +2411,11 @@ DataArrayInt *MEDFileCMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::ve
     {
       if((const DataArrayInt *)_fam_cells)
         {
-          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam_cells->getIdsEqualList(famIds);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da;
+          if(!famIds.empty())
+            da=_fam_cells->getIdsEqualList(&famIds[0],&famIds[0]+famIds.size());
+          else
+            da=_fam_cells->getIdsEqualList(0,0);
           if(renum)
             return MEDFileUMeshSplitL1::Renumber(_num_cells,da);
           else

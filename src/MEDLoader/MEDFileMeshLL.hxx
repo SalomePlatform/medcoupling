@@ -127,8 +127,8 @@ namespace ParaMEDMEM
     int getMeshDimension() const;
     void simpleRepr(std::ostream& oss) const;
     int getSize() const throw(INTERP_KERNEL::Exception);
-    MEDCouplingUMesh *getFamilyPart(const std::vector<int>& ids, bool renum) const;
-    DataArrayInt *getFamilyPartArr(const std::vector<int>& ids, bool renum) const;
+    MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
+    DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
     const DataArrayInt *getFamilyField() const;
     const DataArrayInt *getNumberField() const;

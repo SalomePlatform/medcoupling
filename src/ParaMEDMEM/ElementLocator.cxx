@@ -27,6 +27,7 @@
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "DirectedBoundingBox.hxx"
 
 #include <map>
@@ -693,11 +694,10 @@ namespace ParaMEDMEM
     CommInterface comm;
     DataArrayInt *globalIds=_local_para_field.returnGlobalNumbering();
     const int *globalIdsC=globalIds->getConstPointer();
-    std::vector<int> candidates;
-    _local_para_field.getSupport()->getCellMesh()->findBoundaryNodes(candidates);
-    for(std::vector<int>::iterator iter1=candidates.begin();iter1!=candidates.end();iter1++)
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates=_local_para_field.getSupport()->getCellMesh()->findBoundaryNodes();
+    for(int *iter1=candidates->getPointer();iter1!=candidates->getPointer()+candidates->getNumberOfTuples();iter1++)
       (*iter1)=globalIdsC[*iter1];
-    std::set<int> candidatesS(candidates.begin(),candidates.end());
+    std::set<int> candidatesS(candidates->begin(),candidates->end());
     for(vector<int>::const_iterator iter=_distant_proc_ids.begin();iter!=_distant_proc_ids.end();iter++,procId++)
       {
         const vector<int>& ids=_ids_per_working_proc[procId];

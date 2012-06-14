@@ -237,6 +237,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildUnstructured;
 %newobject ParaMEDMEM::MEDCouplingMesh::MergeMeshes;
 %newobject ParaMEDMEM::MEDCouplingPointSet::zipCoordsTraducer;
+%newobject ParaMEDMEM::MEDCouplingPointSet::findBoundaryNodes;
 %newobject ParaMEDMEM::MEDCouplingPointSet::buildBoundaryMesh;
 %newobject ParaMEDMEM::MEDCouplingPointSet::MergeNodesArray;
 %newobject ParaMEDMEM::MEDCouplingPointSet::BuildInstanceFromMeshType;
@@ -253,6 +254,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshesOnSameCoords;
+%newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGradually;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildNewNumberingFromCommNodesFrmt;
 %newobject ParaMEDMEM::MEDCouplingUMesh::rearrange2ConsecutiveCellTypes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::sortCellsInMEDFileFrmt;
@@ -709,6 +711,7 @@ namespace ParaMEDMEM
                            const std::vector<std::string>& littleStrings) throw(INTERP_KERNEL::Exception);
       virtual void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
       virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception) = 0;
+      virtual DataArrayInt *findBoundaryNodes() const = 0;
       %extend 
          {
            std::string __str__() const
@@ -808,15 +811,7 @@ namespace ParaMEDMEM
                  return convertMesh(ret, SWIG_POINTER_OWN | 0 );
                }
            }
-           PyObject *findBoundaryNodes() const throw(INTERP_KERNEL::Exception)
-           {
-             std::vector<int> nodes;
-             self->findBoundaryNodes(nodes);
-             DataArrayInt *ret=DataArrayInt::New();
-             ret->alloc((int)nodes.size(),1);
-             std::copy(nodes.begin(),nodes.end(),ret->getPointer());
-             return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
-           }
+
            void renumberNodes(PyObject *li, int newNbOfNodes) throw(INTERP_KERNEL::Exception)
            {
              void *da=0;
@@ -927,6 +922,27 @@ namespace ParaMEDMEM
              ret->alloc((int)elems.size(),1);
              std::copy(elems.begin(),elems.end(),ret->getPointer());
              return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+           }
+
+           void duplicateNodesInCoords(PyObject *li) throw(INTERP_KERNEL::Exception)
+           {
+             int sw;
+             int singleVal;
+             std::vector<int> multiVal;
+             std::pair<int, std::pair<int,int> > slic;
+             ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+             convertObjToPossibleCpp2(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
+             switch(sw)
+               {
+               case 1:
+                 return self->duplicateNodesInCoords(&singleVal,&singleVal+1);
+               case 2:
+                 return self->duplicateNodesInCoords(&multiVal[0],&multiVal[0]+multiVal.size());
+               case 4:
+                 return self->duplicateNodesInCoords(daIntTyypp->begin(),daIntTyypp->end());
+               default:
+                 throw INTERP_KERNEL::Exception("MEDCouplingPointSet::duplicateNodesInCoords : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+               }
            }
 
            static void Rotate2DAlg(PyObject *center, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
@@ -1088,6 +1104,7 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *ComputeSpreadZoneGradually(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception);
     %extend {
       std::string __str__() const
       {
@@ -1153,6 +1170,70 @@ namespace ParaMEDMEM
             }
           default:
             throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
+          }
+      }
+
+      void __setitem__(PyObject *li, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        int nbc=self->getNumberOfCells();
+        convertObjToPossibleCpp2(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            {
+              if(singleVal>=nbc)
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+              if(singleVal>=0)
+                {
+                  self->setPartOfMySelf(&singleVal,&singleVal+1,otherOnSameCoordsThanThis);
+                  break;
+                }
+              else
+                {
+                  if(nbc+singleVal>0)
+                    {
+                      int tmp=nbc+singleVal;
+                      self->setPartOfMySelf(&tmp,&tmp+1,otherOnSameCoordsThanThis);
+                      break;
+                    }
+                  else
+                    {
+                      std::ostringstream oss;
+                      oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                }
+            }
+          case 2:
+            {
+              self->setPartOfMySelf(&multiVal[0],&multiVal[0]+multiVal.size(),otherOnSameCoordsThanThis);
+              break;
+            }
+          case 3:
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::Range(slic.first,slic.second.first,slic.second.second);
+              self->setPartOfMySelf(d0->begin(),d0->end(),otherOnSameCoordsThanThis);
+              break;
+            }
+          case 4:
+            {
+              if(!daIntTyypp)
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__setitem__ : null instance has been given in input !");
+              daIntTyypp->checkAllocated();
+              self->setPartOfMySelf(daIntTyypp->begin(),daIntTyypp->end(),otherOnSameCoordsThanThis);
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__setitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
           }
       }
 
@@ -1264,6 +1345,58 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      PyObject *findNodesToDuplicate(MEDCouplingUMesh& otherDimM1OnSameCoords) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *tmp0=0,*tmp1=0;
+        self->findNodesToDuplicate(otherDimM1OnSameCoords,tmp0,tmp1);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      void duplicateNodes(PyObject *li) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        convertObjToPossibleCpp2(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            return self->duplicateNodes(&singleVal,&singleVal+1);
+          case 2:
+            return self->duplicateNodes(&multiVal[0],&multiVal[0]+multiVal.size());
+          case 4:
+            return self->duplicateNodes(daIntTyypp->begin(),daIntTyypp->end());
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::duplicateNodes : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+          }
+      }
+
+      void duplicateNodesInConn(PyObject *li, int offset) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        convertObjToPossibleCpp2(li,self->getNumberOfNodes(),sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            return self->duplicateNodesInConn(&singleVal,&singleVal+1,offset);
+          case 2:
+            return self->duplicateNodesInConn(&multiVal[0],&multiVal[0]+multiVal.size(),offset);
+          case 4:
+            return self->duplicateNodesInConn(daIntTyypp->begin(),daIntTyypp->end(),offset);
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::duplicateNodesInConn : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+          }
+      }
+
       void renumberNodesInConn(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         void *da=0;
@@ -1293,6 +1426,19 @@ namespace ParaMEDMEM
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      static PyObject *AggregateSortedByTypeMeshesOnSameCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<const ParaMEDMEM::MEDCouplingUMesh *> meshes;
+        convertPyObjToVecUMeshesCst(ms,meshes);
+        DataArrayInt *ret1=0,*ret2=0;
+        MEDCouplingUMesh *ret0=MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(meshes,ret1,ret2);
+        PyObject *ret=PyTuple_New(3);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(ret2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 
@@ -1333,6 +1479,138 @@ namespace ParaMEDMEM
         std::vector<MEDCouplingUMesh *> meshes;
         convertPyObjToVecUMeshes(ms,meshes);
         MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(meshes,eps);
+      }
+
+      static bool RemoveIdsFromIndexedArrays(PyObject *li, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval=0) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        if(!arrIndx)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : null pointer as arrIndex !");
+        convertObjToPossibleCpp2(li,arrIndx->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            return MEDCouplingUMesh::RemoveIdsFromIndexedArrays(&singleVal,&singleVal+1,arr,arrIndx,offsetForRemoval);
+          case 2:
+            return MEDCouplingUMesh::RemoveIdsFromIndexedArrays(&multiVal[0],&multiVal[0]+multiVal.size(),arr,arrIndx,offsetForRemoval);
+          case 4:
+            return MEDCouplingUMesh::RemoveIdsFromIndexedArrays(daIntTyypp->begin(),daIntTyypp->end(),arr,arrIndx,offsetForRemoval);
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+          }
+      }
+      
+      static PyObject *ExtractFromIndexedArrays(PyObject *li, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *arrOut=0,*arrIndexOut=0;
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        if(!arrIndxIn)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : null pointer as arrIndxIn !");
+        convertObjToPossibleCpp2(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            {
+              MEDCouplingUMesh::ExtractFromIndexedArrays(&singleVal,&singleVal+1,arrIn,arrIndxIn,arrOut,arrIndexOut);
+              break;
+            }
+          case 2:
+            {
+              MEDCouplingUMesh::ExtractFromIndexedArrays(&multiVal[0],&multiVal[0]+multiVal.size(),arrIn,arrIndxIn,arrOut,arrIndexOut);
+              break;
+            }
+          case 4:
+            {
+              MEDCouplingUMesh::ExtractFromIndexedArrays(daIntTyypp->begin(),daIntTyypp->end(),arrIn,arrIndxIn,arrOut,arrIndexOut);
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+          }
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      static PyObject *SetPartOfIndexedArrays(PyObject *li,
+                                              const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                              const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex) throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *arrOut=0,*arrIndexOut=0;
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        if(!arrIndxIn)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : null pointer as arrIndex !");
+        convertObjToPossibleCpp2(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            {
+              MEDCouplingUMesh::SetPartOfIndexedArrays(&singleVal,&singleVal+1,arrIn,arrIndxIn,srcArr,srcArrIndex,arrOut,arrIndexOut);
+              break;
+            }
+          case 2:
+            {
+              MEDCouplingUMesh::SetPartOfIndexedArrays(&multiVal[0],&multiVal[0]+multiVal.size(),arrIn,arrIndxIn,srcArr,srcArrIndex,arrOut,arrIndexOut);
+              break;
+            }
+          case 4:
+            {
+              MEDCouplingUMesh::SetPartOfIndexedArrays(daIntTyypp->begin(),daIntTyypp->end(),arrIn,arrIndxIn,srcArr,srcArrIndex,arrOut,arrIndexOut);
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+          }
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      static void SetPartOfIndexedArraysSameIdx(PyObject *li, DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        if(!arrIndxIn)
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : null pointer as arrIndex !");
+        convertObjToPossibleCpp2(li,arrIndxIn->getNumberOfTuples()-1,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            {
+              MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(&singleVal,&singleVal+1,arrIn,arrIndxIn,srcArr,srcArrIndex);
+              break;
+            }
+          case 2:
+            {
+              MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(&multiVal[0],&multiVal[0]+multiVal.size(),arrIn,arrIndxIn,srcArr,srcArrIndex);
+              break;
+            }
+          case 4:
+            {
+              MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(daIntTyypp->begin(),daIntTyypp->end(),arrIn,arrIndxIn,srcArr,srcArrIndex);
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+          }
       }
 
       PyObject *are2DCellsNotCorrectlyOriented(PyObject *vec, bool polyOnly) const throw(INTERP_KERNEL::Exception)
@@ -1465,6 +1743,16 @@ namespace ParaMEDMEM
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(neighborsIdx),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
+
+      PyObject *computeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *neighbors=0,*neighborsIdx=0;
+        self->computeNeighborsOfCellsAdv(desc,descI,revDesc,revDescI,neighbors,neighborsIdx);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(neighbors),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(neighborsIdx),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }	
 
       PyObject *emulateMEDMEMBDC(const MEDCouplingUMesh *nM1LevMesh)
       {
@@ -2550,7 +2838,7 @@ namespace ParaMEDMEM
    DataArrayDouble *__setitem__(PyObject *obj, PyObject *value) throw(INTERP_KERNEL::Exception)
    {
      self->checkAllocated();
-     const char msg[]="Unexpected situation in __setitem__ !";
+     const char msg[]="Unexpected situation in DataArrayDouble::__setitem__ !";
      int nbOfTuples=self->getNumberOfTuples();
      int nbOfComponents=self->getNumberOfComponents();
      int sw1,sw2;
@@ -3799,6 +4087,48 @@ namespace ParaMEDMEM
        {
          DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
          self->transformWithIndArr(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+       }
+   }
+
+   DataArrayInt *getIdsEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     int sw;
+     int singleVal;
+     std::vector<int> multiVal;
+     std::pair<int, std::pair<int,int> > slic;
+     ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+     convertObjToPossibleCpp2(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
+     switch(sw)
+       {
+       case 1:
+         return self->getIdsEqualList(&singleVal,&singleVal+1);
+       case 2:
+         return self->getIdsEqualList(&multiVal[0],&multiVal[0]+multiVal.size());
+       case 4:
+         return self->getIdsEqualList(daIntTyypp->begin(),daIntTyypp->end());
+       default:
+         throw INTERP_KERNEL::Exception("DataArrayInt::getIdsEqualList : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
+       }
+   }
+
+   DataArrayInt *getIdsNotEqualList(PyObject *obj) throw(INTERP_KERNEL::Exception)
+   {
+     int sw;
+     int singleVal;
+     std::vector<int> multiVal;
+     std::pair<int, std::pair<int,int> > slic;
+     ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+     convertObjToPossibleCpp2(obj,self->getNumberOfTuples(),sw,singleVal,multiVal,slic,daIntTyypp);
+     switch(sw)
+       {
+       case 1:
+         return self->getIdsNotEqualList(&singleVal,&singleVal+1);
+       case 2:
+         return self->getIdsNotEqualList(&multiVal[0],&multiVal[0]+multiVal.size());
+       case 4:
+         return self->getIdsNotEqualList(daIntTyypp->begin(),daIntTyypp->end());
+       default:
+         throw INTERP_KERNEL::Exception("DataArrayInt::getIdsNotEqualList : unrecognized type entered, expected list of int, tuple of int or DataArrayInt !");
        }
    }
 
