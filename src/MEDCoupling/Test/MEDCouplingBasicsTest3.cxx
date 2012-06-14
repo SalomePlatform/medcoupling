@@ -1046,7 +1046,7 @@ void MEDCouplingBasicsTest3::testDAIGetIdsEqualList1()
   std::copy(tab1,tab1+7,da->getPointer());
   const int tab2[3]={3,-2,0};
   std::vector<int> tab2V(tab2,tab2+3);
-  DataArrayInt *da2=da->getIdsEqualList(tab2V);
+  DataArrayInt *da2=da->getIdsEqualList(&tab2V[0],&tab2V[0]+tab2V.size());
   CPPUNIT_ASSERT_EQUAL(4,da2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,da2->getNumberOfComponents());
   const int expected1[4]={1,3,4,6};

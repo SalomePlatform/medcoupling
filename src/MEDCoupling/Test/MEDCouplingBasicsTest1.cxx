@@ -545,11 +545,12 @@ void MEDCouplingBasicsTest1::testDescConn3D()
 void MEDCouplingBasicsTest1::testFindBoundaryNodes()
 {
   MEDCouplingUMesh *mesh=build3DTargetMesh_1();
-  std::vector<int> boundaryNodes;
-  mesh->findBoundaryNodes(boundaryNodes);
-  CPPUNIT_ASSERT_EQUAL(26,(int)boundaryNodes.size());
+  DataArrayInt *boundaryNodes=mesh->findBoundaryNodes();
+  CPPUNIT_ASSERT_EQUAL(26,boundaryNodes->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,boundaryNodes->getNumberOfComponents());
   const int expected1[26]={0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
-  CPPUNIT_ASSERT(std::equal(expected1,expected1+26,boundaryNodes.begin()));
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+26,boundaryNodes->begin()));
+  boundaryNodes->decrRef();
   mesh->decrRef();
 }
 

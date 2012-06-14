@@ -779,7 +779,7 @@ void MEDCouplingBasicsTest4::testDAIGetIdsNotEqual1()
   const int vals2[3]={-4,5,6};
   std::vector<int> vals3(vals2,vals2+3);
   d->rearrange(1);
-  DataArrayInt *d3=d->getIdsNotEqualList(vals3);
+  DataArrayInt *d3=d->getIdsNotEqualList(&vals3[0],&vals3[0]+vals3.size());
   CPPUNIT_ASSERT_EQUAL(5,d3->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,d3->getNumberOfComponents());
   const int expected2[5]={0,1,4,8,9};
