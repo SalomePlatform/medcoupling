@@ -397,7 +397,7 @@ DataArrayInt *MEDCouplingUMeshDesc::simplexize(int policy) throw(INTERP_KERNEL::
   throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::simplexize : Not implemented yet !");
 }
 
-void MEDCouplingUMeshDesc::findBoundaryNodes(std::vector<int>& nodes) const
+DataArrayInt *MEDCouplingUMeshDesc::findBoundaryNodes() const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }

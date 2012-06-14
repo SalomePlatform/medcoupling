@@ -571,13 +571,13 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *d
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done. This method calls MEDCouplingUMesh::buildDescendingConnectivity to compute the result.
  * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
- * The a cell with id 'cellId' its neighbors are neighbors[neighborsIdx[cellId]:neighborsIdx[cellId+1]].
+ * The a cell with id 'cellId' its neighbors are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
  *
- * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIdx 2nd output
- *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIdx.
- * \param [out] neighborsIdx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
+ *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
+ * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
  */
-void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIndx) const throw(INTERP_KERNEL::Exception)
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descIndx=DataArrayInt::New();
@@ -585,6 +585,30 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
   meshDM1=0;
+  computeNeighborsOfCellsAdv(desc,descIndx,revDesc,revDescIndx,neighbors,neighborsIndx);
+}
+
+/*!
+ * This method is called by MEDCouplingUMesh::computeNeighborsOfCells. This methods performs the algorithm of MEDCouplingUMesh::computeNeighborsOfCells.
+ * This method is useful for users that want to reduce along a criterion the set of neighbours cell. This is typically the case to extract a set a neighbours,
+ * excluding a set of meshdim-1 cells in input descending connectivity.
+ * Typically \b desc, \b descIndx, \b revDesc and \b revDescIndx input params are the result of MEDCouplingUMesh::buildDescendingConnectivity.
+ * This method lists cell by cell in \b this which are its neighbors. To compute the result only connectivities are considered.
+ * The a cell with id 'cellId' its neighbors are neighbors[neighborsIndx[cellId]:neighborsIndx[cellId+1]].
+ *
+ * \param [in] desc descending connectivity array.
+ * \param [in] descIndx descending connectivity index array used to walk through \b desc.
+ * \param [in] revDesc reverse descending connectivity array.
+ * \param [in] revDescIndx reverse descending connectivity index array used to walk through \b revDesc.
+ * \param [out] neighbors is an array storing all the neighbors of all cells in \b this. This array is newly allocated and should be dealt by the caller. \b neighborsIndx 2nd output
+ *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
+ * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
+ */
+void MEDCouplingUMesh::computeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descIndx, const DataArrayInt *revDesc, const DataArrayInt *revDescIndx,
+                                                  DataArrayInt *&neighbors, DataArrayInt *&neighborsIndx) const throw(INTERP_KERNEL::Exception)
+{
+  if(!desc || !descIndx || !revDesc || !revDescIndx)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::computeNeighborsOfCellsAdv some input array is empty !");
   const int *descPtr=desc->getConstPointer();
   const int *descIPtr=descIndx->getConstPointer();
   const int *revDescPtr=revDesc->getConstPointer();
@@ -610,7 +634,7 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
   out0->alloc((int)out0v.size(),1);
   std::copy(out0v.begin(),out0v.end(),out0->getPointer());
   neighbors=out0; out0->incrRef();
-  neighborsIdx=out1; out1->incrRef();
+  neighborsIndx=out1; out1->incrRef();
 }
 
 /// @cond INTERNAL
@@ -1571,6 +1595,65 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const
     }
 }
 
+/*!
+ * This method operates only on nodal connectivity on \b this. Coordinates of \b this is completely ignored here.
+ *
+ * This method allows to partially modify some cells in \b this (whose list is specified by [\b cellIdsBg, \b cellIdsEnd) ) with cells coming in \b otherOnSameCoordsThanThis.
+ * Size of [\b cellIdsBg, \b cellIdsEnd) ) must be equal to the number of cells of otherOnSameCoordsThanThis.
+ * The number of cells of \b this will remain the same with this method.
+ *
+ * \param [in] begin begin of cell ids (included) of cells in this to assign
+ * \param [in] end end of cell ids (excluded) of cells in this to assign
+ * \param [in] otherOnSameCoordsThanThis an another mesh with same meshdimension than \b this with exactly the same number of cells than cell ids list in [\b cellIdsBg, \b cellIdsEnd).
+ *             Coordinate pointer of \b this and those of \b otherOnSameCoordsThanThis must be the same
+ */
+void MEDCouplingUMesh::setPartOfMySelf(const int *cellIdsBg, const int *cellIdsEnd, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  otherOnSameCoordsThanThis.checkConnectivityFullyDefined();
+  if(getCoords()!=otherOnSameCoordsThanThis.getCoords())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::setPartOfMySelf : coordinates pointer are not the same ! Invoke setCoords or call tryToShareSameCoords method !");
+  if(getMeshDimension()!=otherOnSameCoordsThanThis.getMeshDimension())
+    {
+      std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelf : Mismatch of meshdimensions ! this is equal to " << getMeshDimension();
+      oss << ", whereas other mesh dimension is set equal to " << otherOnSameCoordsThanThis.getMeshDimension() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int nbOfCellsToModify=(int)std::distance(cellIdsBg,cellIdsEnd);
+  if(nbOfCellsToModify!=otherOnSameCoordsThanThis.getNumberOfCells())
+    {
+      std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelf : cells ids length (" <<  nbOfCellsToModify << ") do not match the number of cells of other mesh (" << otherOnSameCoordsThanThis.getNumberOfCells() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int nbOfCells=getNumberOfCells();
+  bool easyAssign=true;
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *connI=_nodal_connec_index->getConstPointer();
+  const int *connOther=otherOnSameCoordsThanThis._nodal_connec->getConstPointer();
+  const int *connIOther=otherOnSameCoordsThanThis._nodal_connec_index->getConstPointer();
+  for(const int *it=cellIdsBg;it!=cellIdsEnd && easyAssign;it++,connIOther++)
+    {
+      if(*it>=0 && *it<nbOfCells)
+        {
+          easyAssign=(connIOther[1]-connIOther[0])==(connI[*it+1]-connI[*it]);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::setPartOfMySelf : On pos #" << std::distance(cellIdsBg,it) << " id is equal to " << *it << " which is not in [0," << nbOfCells << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(easyAssign)
+    MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(cellIdsBg,cellIdsEnd,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index);
+  else
+    {
+      DataArrayInt *arrOut=0,*arrIOut=0;
+      MEDCouplingUMesh::SetPartOfIndexedArrays(cellIdsBg,cellIdsEnd,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index,
+                                               arrOut,arrIOut);
+      setConnectivity(arrOut,arrIOut,true);
+    }
+}
+
 DataArrayInt *MEDCouplingUMesh::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const
 {
   std::vector<int> cellIdsKept;
@@ -1721,9 +1804,10 @@ DataArrayInt *MEDCouplingUMesh::findCellsIdsOnBoundary() const throw(INTERP_KERN
 }
 
 /*!
- * This methods returns set of nodes lying on the boundary of this.
+ * This methods returns set of nodes in a newly allocated array that the caller has to deal with.
+ * The returned nodes ids are those lying on the boundary of \b this.
  */
-void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
+DataArrayInt *MEDCouplingUMesh::findBoundaryNodes() const
 {
   DataArrayInt *desc=DataArrayInt::New();
   DataArrayInt *descIndx=DataArrayInt::New();
@@ -1747,10 +1831,12 @@ void MEDCouplingUMesh::findBoundaryNodes(std::vector<int>& nodes) const
   for(std::vector<int>::const_iterator iter=boundaryCells.begin();iter!=boundaryCells.end();iter++)
     for(int k=connIndx[*iter]+1;k<connIndx[(*iter)+1];k++)
       ret.insert(conn[k]);
-  nodes.resize(ret.size());
-  std::copy(ret.begin(),ret.end(),nodes.begin());
-  //
   meshDM1->decrRef();
+  //
+  DataArrayInt *retda=DataArrayInt::New();
+  retda->alloc((int)ret.size(),1);
+  std::copy(ret.begin(),ret.end(),retda->getPointer());
+  return retda;
 }
 
 MEDCouplingUMesh *MEDCouplingUMesh::buildUnstructured() const throw(INTERP_KERNEL::Exception)
@@ -1783,11 +1869,106 @@ void MEDCouplingUMesh::renumberNodes(const int *newNodeNumbers, int newNbOfNodes
  *
  * @param newNodeNumbers array specifying the new numbering.
  * @param newNbOfNodes the new number of nodes.
+ *
  */
 void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNodes)
 {
   MEDCouplingPointSet::renumberNodes2(newNodeNumbers,newNbOfNodes);
   renumberNodesInConn(newNodeNumbers);
+}
+
+/*!
+ * This method expects that \b this and \b otherDimM1OnSameCoords share the same coordinates array.
+ * otherDimM1OnSameCoords->getMeshDimension() is expected to be equal to this->getMeshDimension()-1.
+ * This method searches for nodes needed to be duplicated. These nodes are nodes fetched by \b otherDimM1OnSameCoords which are not part of the boundary of \b otherDimM1OnSameCoords.
+ * If a node is in the boundary of \b this \b and in the boundary of \b otherDimM1OnSameCoords this node is considerd as needed to be duplicated.
+ * When the set of node ids \b nodeIdsToDuplicate is computed, cell ids in \b this is searched so that their connectivity includes at least 1 node in \b nodeIdsToDuplicate.
+ *
+ * \param [in] otherDimM1OnSameCoords a mesh lying on the same coords than \b this and with a mesh dimension equal to those of \b this minus 1. WARNING this input
+ *             parameter is altered during the call.
+ * \param [out] nodeIdsToDuplicate node ids needed to be duplicated following the algorithm explain above.
+ * \param [out] cellIdsNeededToBeRenum cell ids in \b this in which the renumber of nodes should be performed.
+ *
+ * \warning This method modifies param \b otherDimM1OnSameCoords (for speed reasons).
+ */
+void MEDCouplingUMesh::findNodesToDuplicate(MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate, DataArrayInt *& cellIdsNeededToBeRenum) const throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  otherDimM1OnSameCoords.checkFullyDefined();
+  if(getCoords()!=otherDimM1OnSameCoords.getCoords())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : meshes do not share the same coords array !");
+  if(otherDimM1OnSameCoords.getMeshDimension()!=getMeshDimension()-1)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the mesh given in other parameter must have this->getMeshDimension()-1 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIds1=otherDimM1OnSameCoords.computeFetchedNodeIds();
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds0=getCellIdsLyingOnNodes(nodeIds1->begin(),nodeIds1->end(),false);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellIds0->begin(),cellIds0->end(),true));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> boundary0=m0Part->findBoundaryNodes();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> boundary1=otherDimM1OnSameCoords.findBoundaryNodes();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diff=boundary1->buildSubstraction(boundary0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsToDuplicateTmp=nodeIds1->buildSubstraction(diff);//ready to go to nodeIdsToDuplicate
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> m00t=m0Part->zipCoordsTraducer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsToDuplicate2=nodeIdsToDuplicateTmp->deepCpy();
+  nodeIdsToDuplicate2->transformWithIndArr(m00t->begin(),m00t->end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNod00=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodI00=DataArrayInt::New();
+  m0Part->getReverseNodalConnectivity(revNod00,revNodI00);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc00=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descI00=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc00=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescI00=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m01=m0Part->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
+  otherDimM1OnSameCoords.renumberNodesInConn(m00t->begin());
+  otherDimM1OnSameCoords.setCoords(m0Part->getCoords());
+  DataArrayInt *idsTmp=0;
+  bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,0,idsTmp);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids(idsTmp);
+  if(!b)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the given mdim-1 mesh in other is not a constituent of this !");
+  MEDCouplingUMesh::RemoveIdsFromIndexedArrays(ids->begin(),ids->end(),desc00,descI00);
+  DataArrayInt *tmp0=0,*tmp1=0;
+  m0Part->computeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00,tmp0,tmp1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh00(tmp0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI00(tmp1);
+  std::set<int> cellIdsImpacted0;
+  const int *revNod00Ptr=revNod00->getConstPointer();
+  const int *revNodI00Ptr=revNodI00->getConstPointer();
+  for(const int *elt=nodeIdsToDuplicate2->begin();elt!=nodeIdsToDuplicate2->end();elt++)
+    for(const int *elt2=revNod00Ptr+revNodI00Ptr[*elt];elt2!=revNod00Ptr+revNodI00Ptr[*elt+1];elt2++)
+      cellIdsImpacted0.insert(*elt2);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsImpacted0_arr=DataArrayInt::New(); cellIdsImpacted0_arr->alloc((int)cellIdsImpacted0.size(),1);
+  std::copy(cellIdsImpacted0.begin(),cellIdsImpacted0.end(),cellIdsImpacted0_arr->getPointer());
+  MEDCouplingUMesh::ExtractFromIndexedArrays(cellIdsImpacted0_arr->begin(),cellIdsImpacted0_arr->end(),neigh00,neighI00,tmp0,tmp1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsImpacted0_arr2=cellIdsImpacted0_arr->invertArrayN2O2O2N(cellIds0->getNumberOfTuples());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh000(tmp0);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI000(tmp1);
+  neigh000->transformWithIndArr(cellIdsImpacted0_arr2->begin(),cellIdsImpacted0_arr2->end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum=MEDCouplingUMesh::ComputeSpreadZoneGradually(neigh000,neighI000);
+  cellsToModifyConn0_torenum->transformWithIndArr(cellIdsImpacted0_arr->begin(),cellIdsImpacted0_arr->end());
+  cellsToModifyConn0_torenum->transformWithIndArr(cellIds0->begin(),cellIds0->end());
+  //
+  cellIdsNeededToBeRenum=cellsToModifyConn0_torenum; cellsToModifyConn0_torenum->incrRef();
+  nodeIdsToDuplicate=nodeIdsToDuplicateTmp; nodeIdsToDuplicateTmp->incrRef();
+}
+
+/*!
+ * This method operates a modification of the connectivity and coords in \b this.
+ * Every time that a node id in [\b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd) will append in nodal connectivity of \b this 
+ * its ids will be modified to id this->getNumberOfNodes()+std::distance(nodeIdsToDuplicateBg,std::find(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,id)).
+ * More explicitely the renumber array in nodes is not explicitely given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
+ * renumbered. The node id nodeIdsToDuplicateBg[0] will have id this->getNumberOfNodes()+0, node id nodeIdsToDuplicateBg[1] will have id this->getNumberOfNodes()+1,
+ * node id nodeIdsToDuplicateBg[2] will have id this->getNumberOfNodes()+2...
+ * 
+ * As a consequence nodal connectivity array length will remain unchanged by this method, and nodal connectivity index array will remain unchanged by this method.
+ * 
+ * \param [in] nodeIdsToDuplicateBg begin of node ids (included) to be duplicated in connectivity only
+ * \param [in] nodeIdsToDuplicateEnd end of node ids (excluded) to be duplicated in connectivity only
+ */
+void MEDCouplingUMesh::duplicateNodes(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd) throw(INTERP_KERNEL::Exception)
+{
+  int nbOfNodes=getNumberOfNodes();
+  duplicateNodesInCoords(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd);
+  duplicateNodesInConn(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,nbOfNodes);
 }
 
 /*!
@@ -1842,6 +2023,46 @@ void MEDCouplingUMesh::shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Ex
 }
 
 /*!
+ * This method operates a modification of the connectivity in \b this.
+ * Coordinates are \b NOT considered here and will remain unchanged by this method. this->_coords can ever been null for the needs of this method.
+ * Every time that a node id in [\b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd) will append in nodal connectivity of \b this 
+ * its ids will be modified to id offset+std::distance(nodeIdsToDuplicateBg,std::find(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd,id)).
+ * More explicitely the renumber array in nodes is not explicitely given in old2new to avoid to build a big array of renumbering whereas typically few node ids needs to be
+ * renumbered. The node id nodeIdsToDuplicateBg[0] will have id offset+0, node id nodeIdsToDuplicateBg[1] will have id offset+1,
+ * node id nodeIdsToDuplicateBg[2] will have id offset+2...
+ * 
+ * As a consequence nodal connectivity array length will remain unchanged by this method, and nodal connectivity index array will remain unchanged by this method.
+ * As an another consequense after the call of this method \b this can be transiently non cohrent.
+ * 
+ * \param [in] nodeIdsToDuplicateBg begin of node ids (included) to be duplicated in connectivity only
+ * \param [in] nodeIdsToDuplicateEnd end of node ids (excluded) to be duplicated in connectivity only
+ * \param [in] offset the offset applied to all node ids in connectivity that are in [nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd). 
+ */
+void MEDCouplingUMesh::duplicateNodesInConn(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd, int offset) throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  std::map<int,int> m;
+  int val=offset;
+  for(const int *work=nodeIdsToDuplicateBg;work!=nodeIdsToDuplicateEnd;work++,val++)
+    m[*work]=val;
+  int *conn=getNodalConnectivity()->getPointer();
+  const int *connIndex=getNodalConnectivityIndex()->getConstPointer();
+  int nbOfCells=getNumberOfCells();
+  for(int i=0;i<nbOfCells;i++)
+    for(int iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
+      {
+        int& node=conn[iconn];
+        if(node>=0)//avoid polyhedron separator
+          {
+            std::map<int,int>::iterator it=m.find(node);
+            if(it!=m.end())
+              node=(*it).second;
+          }
+      }
+  updateTime();
+}
+
+/*!
  * This method renumbers cells of 'this' using the array specified by [old2NewBg;old2NewBg+getNumberOfCells())
  *
  * Contrary to MEDCouplingPointSet::renumberNodes, this method makes a permutation without any fuse of cell.
@@ -1854,6 +2075,8 @@ void MEDCouplingUMesh::shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Ex
  * If 'check' equals false the method will not check the content of [old2NewBg;old2NewEnd).
  * To avoid any throw of SIGSEGV when 'check' equals false, the elements in [old2NewBg;old2NewEnd) should be unique and
  * should be contained in[0;this->getNumberOfCells()).
+ * 
+ * \param [in] old2NewBg is expected to be a dynamically allocated pointer of size at least equal to this->getNumberOfCells()
  */
 void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
 {
@@ -1865,10 +2088,10 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INT
   //
   const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
-  DataArrayInt *newConn=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConn=DataArrayInt::New();
   newConn->alloc(_nodal_connec->getNumberOfTuples(),_nodal_connec->getNumberOfComponents());
   newConn->copyStringInfoFrom(*_nodal_connec);
-  DataArrayInt *newConnI=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newConnI=DataArrayInt::New();
   newConnI->alloc(_nodal_connec_index->getNumberOfTuples(),_nodal_connec_index->getNumberOfComponents());
   newConnI->copyStringInfoFrom(*_nodal_connec_index);
   //
@@ -1886,9 +2109,6 @@ void MEDCouplingUMesh::renumberCells(const int *old2NewBg, bool check) throw(INT
     }
   //
   setConnectivity(newConn,newConnI);
-  //
-  newConn->decrRef();
-  newConnI->decrRef();
   if(check)
     delete [] const_cast<int *>(array);
 }
@@ -3253,7 +3473,7 @@ DataArrayInt *MEDCouplingUMesh::convexEnvelop2D() throw(INTERP_KERNEL::Exception
   for(int i=0;i<nbOfCells;i++,workIndexOut++)
     {
       std::size_t pos=nodalConnecOut.size();
-      if(BuildConvecEnvelopOf2DCellJarvis(coords,nodalConnecIn+nodalConnecIndexIn[i],nodalConnecIn+nodalConnecIndexIn[i+1],nodalConnecOut))
+      if(BuildConvexEnvelopOf2DCellJarvis(coords,nodalConnecIn+nodalConnecIndexIn[i],nodalConnecIn+nodalConnecIndexIn[i+1],nodalConnecOut))
         isChanged.push_back(i);
       types.insert((INTERP_KERNEL::NormalizedCellType)nodalConnecOut[pos]);
       workIndexOut[1]=(int)nodalConnecOut.size();
@@ -4953,6 +5173,76 @@ std::vector<MEDCouplingUMesh *> MEDCouplingUMesh::splitByType() const
 }
 
 /*!
+ * This method takes in input a vector of MEDCouplingUMesh instances lying on the same coordinates with same mesh dimensions.
+ * Each mesh in \b ms must be sorted by type with the same order (typically using MEDCouplingUMesh::sortCellsInMEDFileFrmt).
+ * This method is particulary useful for MED file interaction. It allows to aggregate several meshes and keeping the type sorting
+ * and the track of the permutation by chunk of same geotype cells to retrieve it. The traditional formats old2new and new2old
+ * are not used here to avoid the build of big permutation array.
+ *
+ * \param [in] ms meshes with same mesh dimension lying on the same coords and sorted by type following de the same geometric type order than
+ *                those specified in MEDCouplingUMesh::sortCellsInMEDFileFrmt method.
+ * \param [out] szOfCellGrpOfSameType is a newly allocated DataArrayInt instance whose number of tuples is equal to the number of chunks of same geotype
+ *              in all meshes in \b ms. The accumulation of all values of this array is equal to the number of cells of returned mesh.
+ * \param [out] idInMsOfCellGrpOfSameType is a newly allocated DataArrayInt instance having the same size than \b szOfCellGrpOfSameType. This
+ *              output array gives for each chunck of same type the corresponding mesh id in \b ms.
+ * \return A newly allocated unstructured mesh that is the result of the aggregation on same coords of all meshes in \b ms. This returned mesh
+ *         is sorted by type following the geo cell types order of MEDCouplingUMesh::sortCellsInMEDFileFrmt method.
+ */
+MEDCouplingUMesh *MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(const std::vector<const MEDCouplingUMesh *>& ms,
+                                                                            DataArrayInt *&szOfCellGrpOfSameType,
+                                                                            DataArrayInt *&idInMsOfCellGrpOfSameType) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<const MEDCouplingUMesh *> ms2;
+  for(std::vector<const MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
+    if(*it)
+      {
+        (*it)->checkConnectivityFullyDefined();
+        ms2.push_back(*it);
+      }
+  if(ms2.empty())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords : input vector is empty !");
+  const DataArrayDouble *refCoo=ms2[0]->getCoords();
+  int meshDim=ms2[0]->getMeshDimension();
+  std::vector<const MEDCouplingUMesh *> m1ssm;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > m1ssmAuto;
+  //
+  std::vector<const MEDCouplingUMesh *> m1ssmSingle;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > m1ssmSingleAuto;
+  int fake=0,rk=0;
+  std::vector<int> ret1Data;
+  std::vector<int> ret2Data;
+  for(std::vector<const MEDCouplingUMesh *>::const_iterator it=ms2.begin();it!=ms2.end();it++,rk++)
+    {
+      if(meshDim!=(*it)->getMeshDimension())
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords : meshdims mismatch !");
+      if(refCoo!=(*it)->getCoords())
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords : meshes are not shared by a single coordinates coords !");
+      std::vector<MEDCouplingUMesh *> sp=(*it)->splitByType();
+      std::copy(sp.begin(),sp.end(),std::back_insert_iterator< std::vector<const MEDCouplingUMesh *> >(m1ssm));
+      std::copy(sp.begin(),sp.end(),std::back_insert_iterator< std::vector<MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > >(m1ssmAuto));
+      for(std::vector<MEDCouplingUMesh *>::const_iterator it2=sp.begin();it2!=sp.end();it2++)
+        {
+          MEDCouplingUMesh *singleCell=static_cast<MEDCouplingUMesh *>((*it2)->buildPartOfMySelf(&fake,&fake+1,true));
+          m1ssmSingleAuto.push_back(singleCell);
+          m1ssmSingle.push_back(singleCell);
+          ret1Data.push_back((*it2)->getNumberOfCells()); ret2Data.push_back(rk);
+        }
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret1=DataArrayInt::New(); ret1->alloc((int)m1ssmSingle.size(),1); std::copy(ret1Data.begin(),ret1Data.end(),ret1->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=DataArrayInt::New(); ret2->alloc((int)m1ssmSingle.size(),1); std::copy(ret2Data.begin(),ret2Data.end(),ret2->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1ssmSingle2=MEDCouplingUMesh::MergeUMeshesOnSameCoords(m1ssmSingle);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum=m1ssmSingle2->sortCellsInMEDFileFrmt();
+  std::vector<const MEDCouplingUMesh *> m1ssmfinal(m1ssm.size());
+  for(std::size_t i=0;i<m1ssm.size();i++)
+    m1ssmfinal[renum->getIJ(i,0)]=m1ssm[i];
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret0=MEDCouplingUMesh::MergeUMeshesOnSameCoords(m1ssmfinal);
+  szOfCellGrpOfSameType=ret1->renumber(renum->getConstPointer());
+  idInMsOfCellGrpOfSameType=ret2->renumber(renum->getConstPointer());
+  ret0->incrRef();
+  return ret0;
+}
+
+/*!
  * This method returns a newly created DataArrayInt instance.
  * This method retrieves cell ids in [begin,end) that have the type 'type'.
  */
@@ -6105,7 +6395,7 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<i
  * 
  * @return false if the input connectivity represents already the convex hull, true if the input cell needs to be reordered.
  */
-bool MEDCouplingUMesh::BuildConvecEnvelopOf2DCellJarvis(const double *coords, const int *nodalConnBg, const int *nodalConnEnd, std::vector<int>& nodalConnecOut) throw(INTERP_KERNEL::Exception)
+bool MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis(const double *coords, const int *nodalConnBg, const int *nodalConnEnd, std::vector<int>& nodalConnecOut) throw(INTERP_KERNEL::Exception)
 {
   std::size_t sz=std::distance(nodalConnBg,nodalConnEnd);
   if(sz>=4)
@@ -6188,7 +6478,277 @@ bool MEDCouplingUMesh::BuildConvecEnvelopOf2DCellJarvis(const double *coords, co
         }
     }
   else
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::BuildConvecEnvelopOf2DCellJarvis : invalid 2D cell connectivity !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis : invalid 2D cell connectivity !");
+}
+
+/*!
+ * This method works on an input pair (\b arr, \b arrIndx) where \b arr indexes is in \b arrIndx.
+ * This method will not impact the size of inout parameter \b arrIndx but the size of \b arr will be modified in case of suppression.
+ * 
+ * \param [in] idsToRemoveBg begin of set of ids to remove in \b arr (included)
+ * \param [in] idsToRemoveEnd end of set of ids to remove in \b arr (excluded)
+ * \param [in,out] arr array in which the remove operation will be done.
+ * \param [in,out] arrIndx array in the remove operation will modify
+ * \param [in] offsetForRemoval (by default 0) offset so that for each i in [0,arrIndx->getNumberOfTuples()-1) removal process will be performed in the following range [arr+arrIndx[i]+offsetForRemoval,arr+arr[i+1])
+ * \return true if \b arr and \b arrIndx have been modified, false if not.
+ */
+bool MEDCouplingUMesh::RemoveIdsFromIndexedArrays(const int *idsToRemoveBg, const int *idsToRemoveEnd, DataArrayInt *arr, DataArrayInt *arrIndx, int offsetForRemoval) throw(INTERP_KERNEL::Exception)
+{
+  if(!arrIndx || !arr)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : some input arrays are empty !");
+  if(offsetForRemoval<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : offsetForRemoval should be >=0 !");
+  std::set<int> s(idsToRemoveBg,idsToRemoveEnd);
+  int nbOfGrps=arrIndx->getNumberOfTuples()-1;
+  int *arrIPtr=arrIndx->getPointer();
+  *arrIPtr++=0;
+  int previousArrI=0;
+  const int *arrPtr=arr->getConstPointer();
+  std::vector<int> arrOut;
+  for(int i=0;i<nbOfGrps;i++,arrIPtr++)
+    {
+      if(*arrIPtr-previousArrI>offsetForRemoval)
+        {
+          for(const int *work=arrPtr+previousArrI+offsetForRemoval;work!=arrPtr+*arrIPtr;work++)
+            {
+              if(s.find(*work)==s.end())
+                arrOut.push_back(*work);
+            }
+        }
+      previousArrI=*arrIPtr;
+      *arrIPtr=(int)arrOut.size();
+    }
+  if(arr->getNumberOfTuples()==(int)arrOut.size())
+    return false;
+  arr->alloc((int)arrOut.size(),1);
+  std::copy(arrOut.begin(),arrOut.end(),arr->getPointer());
+  return true;
+}
+
+/*!
+ * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method returns the result of the extraction ( specified by a set of ids in [\b idsOfSelectBg , \b idsOfSelectEnd ) ).
+ * The selection of extraction is done standardly in new2old format.
+ * This method returns indexed arrays using 2 arrays (arrOut,arrIndexOut).
+ *
+ * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [out] arrOut the resulting array
+ * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ */
+void MEDCouplingUMesh::ExtractFromIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                                DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
+{
+  if(!arrIn || !arrIndxIn)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : input pointer is NULL !");
+  std::size_t sz=std::distance(idsOfSelectBg,idsOfSelectEnd);
+  const int *arrInPtr=arrIn->getConstPointer();
+  const int *arrIndxPtr=arrIndxIn->getConstPointer();
+  int nbOfGrps=arrIndxIn->getNumberOfTuples()-1;
+  int maxSizeOfArr=arrIn->getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arro=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrIo=DataArrayInt::New();
+  arrIo->alloc((int)(sz+1),1);
+  const int *idsIt=idsOfSelectBg;
+  int *work=arrIo->getPointer();
+  *work++=0;
+  int lgth=0;
+  for(std::size_t i=0;i<sz;i++,work++,idsIt++)
+    {
+      if(*idsIt>=0 && *idsIt<nbOfGrps)
+        lgth+=arrIndxPtr[*idsIt+1]-arrIndxPtr[*idsIt];
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " ! Must be in [0," << nbOfGrps << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      if(lgth>=work[-1])
+        *work=lgth;
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " and at this pos arrIndxIn[" << *idsIt;
+          oss << "+1]-arrIndxIn[" << *idsIt << "] < 0 ! The input index array is bugged !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  arro->alloc(lgth,1);
+  work=arro->getPointer();
+  idsIt=idsOfSelectBg;
+  for(std::size_t i=0;i<sz;i++,idsIt++)
+    {
+      if(arrIndxPtr[*idsIt]>=0 && arrIndxPtr[*idsIt+1]<=maxSizeOfArr)
+        work=std::copy(arrInPtr+arrIndxPtr[*idsIt],arrInPtr+arrIndxPtr[*idsIt+1],work);
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::ExtractFromIndexedArrays : id located on pos #" << i << " value is " << *idsIt << " arrIndx[" << *idsIt << "] must be >= 0 and arrIndx[";
+          oss << *idsIt << "+1] <= " << maxSizeOfArr << " (the size of arrIn)!";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  arrOut=arro;
+  arrIndexOut=arrIo;
+  arro->incrRef();
+  arrIo->incrRef();
+}
+
+/*!
+ * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method builds an output pair (\b arrOut,\b arrIndexOut) that is a copy from \b arrIn for all cell ids \b not \b in [\b idsOfSelectBg, \b idsOfSelectEnd) and for
+ * cellIds \b in [\b idsOfSelectBg, \b idsOfSelectEnd) a copy coming from the corresponding values in input pair (\b srcArr, \b srcArrIndex).
+ * This method is an generalization of MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx that performs the same thing but by without building explicitely a result output arrays.
+ *
+ * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [in] srcArr input array that will be used as source of copy for ids in [\b idsOfSelectBg, \b idsOfSelectEnd)
+ * \param [in] srcArrIndex index array of \b srcArr
+ * \param [out] arrOut the resulting array
+ * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+ * 
+ * \sa MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx
+ */
+void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const int *idsOfSelectEnd, const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn,
+                                              const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex,
+                                              DataArrayInt* &arrOut, DataArrayInt* &arrIndexOut) throw(INTERP_KERNEL::Exception)
+{
+  if(arrIn==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArrays : presence of null pointer in input parameter !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arro=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrIo=DataArrayInt::New();
+  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  std::vector<bool> v(nbOfTuples,true);
+  int offset=0;
+  const int *arrIndxInPtr=arrIndxIn->getConstPointer();
+  const int *srcArrIndexPtr=srcArrIndex->getConstPointer();
+  for(const int *it=idsOfSelectBg;it!=idsOfSelectEnd;it++,srcArrIndexPtr++)
+    {
+      if(*it>=0 && *it<nbOfTuples)
+        {
+          v[*it]=false;
+          offset+=(srcArrIndexPtr[1]-srcArrIndexPtr[0])-(arrIndxInPtr[*it+1]-arrIndxInPtr[*it]);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArrays : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  arrIo->alloc(nbOfTuples+1,1);
+  arro->alloc(arrIn->getNumberOfTuples()+offset,1);
+  const int *arrInPtr=arrIn->getConstPointer();
+  const int *srcArrPtr=srcArr->getConstPointer();
+  int *arrIoPtr=arrIo->getPointer(); *arrIoPtr++=0;
+  int *arroPtr=arro->getPointer();
+  for(int ii=0;ii<nbOfTuples;ii++,arrIoPtr++)
+    {
+      if(v[ii])
+        {
+          arroPtr=std::copy(arrInPtr+arrIndxInPtr[ii],arrInPtr+arrIndxInPtr[ii+1],arroPtr);
+          *arrIoPtr=arrIoPtr[-1]+(arrIndxInPtr[ii+1]-arrIndxInPtr[ii]);
+        }
+      else
+        {
+          std::size_t pos=(int)std::distance(idsOfSelectBg,std::find(idsOfSelectBg,idsOfSelectEnd,ii));
+          arroPtr=std::copy(srcArrPtr+srcArrIndexPtr[pos],srcArrPtr+srcArrIndexPtr[pos+1],arroPtr);
+          *arrIoPtr=arrIoPtr[-1]+(srcArrIndexPtr[pos+1]-srcArrIndexPtr[pos]);
+        }
+    }
+  arrOut=arro; arro->incrRef();
+  arrIndexOut=arrIo; arrIo->incrRef();
+}
+
+/*!
+ * This method works on an input pair (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn.
+ * This method is an specialization of MEDCouplingUMesh::SetPartOfIndexedArrays in the case of assignement do not modify the index in \b arrIndxIn.
+ *
+ * \param [in] idsOfSelectBg begin of set of ids of the input extraction (included)
+ * \param [in] idsOfSelectEnd end of set of ids of the input extraction (excluded)
+ * \param [in,out] arrInOut arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \param [in] srcArr input array that will be used as source of copy for ids in [\b idsOfSelectBg, \b idsOfSelectEnd)
+ * \param [in] srcArrIndex index array of \b srcArr
+ * 
+ * \sa MEDCouplingUMesh::SetPartOfIndexedArrays
+ */
+void MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx(const int *idsOfSelectBg, const int *idsOfSelectEnd, DataArrayInt *arrInOut, const DataArrayInt *arrIndxIn,
+                                                     const DataArrayInt *srcArr, const DataArrayInt *srcArrIndex) throw(INTERP_KERNEL::Exception)
+{
+  if(arrInOut==0 || arrIndxIn==0 || srcArr==0 || srcArrIndex==0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::SetPartOfIndexedArraysSameIdx : presence of null pointer in input parameter !");
+  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  const int *arrIndxInPtr=arrIndxIn->getConstPointer();
+  const int *srcArrIndexPtr=srcArrIndex->getConstPointer();
+  int *arrInOutPtr=arrInOut->getPointer();
+  const int *srcArrPtr=srcArr->getConstPointer();
+  for(const int *it=idsOfSelectBg;it!=idsOfSelectEnd;it++,srcArrIndexPtr++)
+    {
+      if(*it>=0 && *it<nbOfTuples)
+        {
+          if(srcArrIndexPtr[1]-srcArrIndexPtr[0]==arrIndxInPtr[*it+1]-arrIndxInPtr[*it])
+            std::copy(srcArrPtr+srcArrIndexPtr[0],srcArrPtr+srcArrIndexPtr[1],arrInOutPtr+arrIndxInPtr[*it]);
+          else
+            {
+              std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArrays : On pos #" << std::distance(idsOfSelectBg,it) << " id (idsOfSelectBg[" << std::distance(idsOfSelectBg,it)<< "]) is " << *it << " arrIndxIn[id+1]-arrIndxIn[id]!=srcArrIndex[pos+1]-srcArrIndex[pos] !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingUMesh::SetPartOfIndexedArrays : On pos #" << std::distance(idsOfSelectBg,it) << " value is " << *it << " not in [0," << nbOfTuples << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+}
+
+/*!
+ * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arr indexes is in \b arrIndxIn.
+ * This method expects that these two input arrays come from the output of MEDCouplingUMesh::computeNeighborsOfCells method.
+ * This method start from id 0 that will be contained in output DataArrayInt. It searches then all neighbors of id0 regarding arrIn[arrIndxIn[0]:arrIndxIn[0+1]].
+ * Then it is repeated recursively until either all ids are fetched or no more ids are reachable step by step.
+ * A negative value in \b arrIn means that it is ignored.
+ * This method is usefull to see if a mesh is contiguous regarding its connectivity. If it is not the case the size of returned array is different from arrIndxIn->getNumberOfTuples()-1.
+ * 
+ * \param [in] arrIn arr origin array from which the extraction will be done.
+ * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+ * \return a newly allocated DataArray that stores all ids fetched by the gradually spread process.
+ */
+DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGradually(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception)
+{
+  if(!arrIn || !arrIndxIn)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ExtractFromIndexedArrays : input pointer is NULL !");
+  int nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  if(nbOfTuples<=0)
+    {
+      DataArrayInt *ret=DataArrayInt::New(); ret->alloc(0,1);
+      return ret;
+    }
+  const int *arrInPtr=arrIn->getConstPointer();
+  const int *arrIndxPtr=arrIndxIn->getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arro=DataArrayInt::New();
+  arro->alloc(nbOfTuples,1);
+  arro->fillWithValue(-1);
+  int *arroPtr=arro->getPointer();
+  std::set<int> s; s.insert(0);
+  while(!s.empty())
+    {
+      std::set<int> s2;
+      for(std::set<int>::const_iterator it=s.begin();it!=s.end();it++)
+        {
+          for(const int *work=arrInPtr+arrIndxPtr[*it];work!=arrInPtr+arrIndxPtr[*it+1];work++)
+            {
+              if(*work>=0 && arroPtr[*work]<0)
+                {
+                  arroPtr[*work]=1;
+                  s2.insert(*work);
+                }
+            }
+        }
+      s=s2;
+    }
+  return arro->getIdsEqual(1);
 }
 
 /*!
