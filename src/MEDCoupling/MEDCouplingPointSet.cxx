@@ -458,6 +458,22 @@ void MEDCouplingPointSet::tryToShareSameCoords(const MEDCouplingPointSet& other,
 }
 
 /*!
+ * This method duplicates the nodes whose ids are in [\b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd) and put the result of their duplication at the end
+ * of existing node ids.
+ * 
+ * \param [in] nodeIdsToDuplicateBg begin of node ids (included) to be duplicated in connectivity only
+ * \param [in] nodeIdsToDuplicateEnd end of node ids (excluded) to be duplicated in connectivity only
+ */
+void MEDCouplingPointSet::duplicateNodesInCoords(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd) throw(INTERP_KERNEL::Exception)
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::duplicateNodesInCoords : no coords set !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords=_coords->selectByTupleIdSafe(nodeIdsToDuplicateBg,nodeIdsToDuplicateEnd);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> newCoords2=DataArrayDouble::Aggregate(_coords,newCoords);
+  setCoords(newCoords2);
+}
+
+/*!
  * This method is expecting to be called for meshes so that getSpaceDimension() returns 3.
  * This method returns in 'nodes' output all the nodes that are at a distance lower than epsilon from plane
  * defined by the point 'pt' and the vector 'vec'.
