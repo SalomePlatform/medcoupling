@@ -5935,6 +5935,92 @@ void MEDCouplingUMesh::TryToCorrectPolyhedronOrientation(int *begin, int *end, c
 }
 
 /*!
+ * This method makes the assumption spacedimension == meshdimension == 2.
+ * This method works only for linear cells.
+ * 
+ * \return a newly allocated array containing the connectivity of a polygon type enum included (NORM_POLYGON in pos#0)
+ */
+DataArrayInt *MEDCouplingUMesh::buildUnionOf2DMesh() const throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=2 || getSpaceDimension()!=2)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : meshdimension, spacedimension must be equal to 2 !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=computeSkin();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2n=m->zipCoordsTraducer();
+  int nbOfNodesExpected=m->getNumberOfNodes();
+  if(m->getNumberOfCells()!=nbOfNodesExpected)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : the mesh 2D in input appears to be not in a single part or a quadratic 2D mesh !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> n2o=o2n->invertArrayO2N2N2O(m->getNumberOfNodes());
+  const int *n2oPtr=n2o->getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodal(DataArrayInt::New()),revNodalI(DataArrayInt::New());
+  m->getReverseNodalConnectivity(revNodal,revNodalI);
+  const int *revNodalPtr=revNodal->getConstPointer(),*revNodalIPtr=revNodalI->getConstPointer();
+  const int *nodalPtr=m->getNodalConnectivity()->getConstPointer();
+  const int *nodalIPtr=m->getNodalConnectivityIndex()->getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbOfNodesExpected+1,1);
+  int *work=ret->getPointer();  *work++=INTERP_KERNEL::NORM_POLYGON;
+  if(nbOfNodesExpected<1)
+    { ret->incrRef(); return ret; }
+  int prevCell=0;
+  int prevNode=nodalPtr[nodalIPtr[0]+1];
+  *work++=n2oPtr[prevNode];
+  for(int i=1;i<nbOfNodesExpected;i++)
+    {
+      if(nodalIPtr[prevCell+1]-nodalIPtr[prevCell]==3)
+        {
+          std::set<int> conn(nodalPtr+nodalIPtr[prevCell]+1,nodalPtr+nodalIPtr[prevCell]+3);
+          conn.erase(prevNode);
+          if(conn.size()==1)
+            {
+              int curNode=*(conn.begin());
+              *work++=n2oPtr[curNode];
+              std::set<int> shar(revNodalPtr+revNodalIPtr[curNode],revNodalPtr+revNodalIPtr[curNode+1]);
+              shar.erase(prevCell);
+              if(shar.size()==1)
+                {
+                  prevCell=*(shar.begin());
+                  prevNode=curNode;
+                }
+              else
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : presence of unexpected 2 !");
+            }
+          else
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : presence of unexpected 1 !");
+        }
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf2DMesh : presence of unexpected cell !");
+    }
+  ret->incrRef(); return ret;
+}
+
+/*!
+ * This method makes the assumption spacedimension == meshdimension == 3.
+ * This method works only for linear cells.
+ * 
+ * \return a newly allocated array containing the connectivity of a polygon type enum included (NORM_POLYHED in pos#0)
+ */
+DataArrayInt *MEDCouplingUMesh::buildUnionOf3DMesh() const throw(INTERP_KERNEL::Exception)
+{
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildUnionOf3DMesh : meshdimension, spacedimension must be equal to 2 !");
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=computeSkin();
+  const int *conn=m->getNodalConnectivity()->getConstPointer();
+  const int *connI=m->getNodalConnectivityIndex()->getConstPointer();
+  int nbOfCells=m->getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(m->getNodalConnectivity()->getNumberOfTuples(),1);
+  int *work=ret->getPointer();  *work++=INTERP_KERNEL::NORM_POLYHED;
+  if(nbOfCells<1)
+    { ret->incrRef(); return ret; }
+  work=std::copy(conn+connI[0]+1,conn+connI[1],work);
+  for(int i=1;i<nbOfCells;i++)
+    {
+      *work++=-1;
+      work=std::copy(conn+connI[i]+1,conn+connI[i+1],work);
+    }
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This method put in zip format into parameter 'zipFrmt' in full interlace mode.
  * This format is often asked by INTERP_KERNEL algorithms to avoid many indirections into coordinates array.
  */
@@ -6758,6 +6844,9 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const throw(INTER
 {
   checkFullyDefined();
   int mdim=getMeshDimension();
+  int spaceDim=getSpaceDimension();
+  if(mdim!=spaceDim)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSpreadZonesWithPoly : meshdimension and spacedimension do not match !");
   int nbCells=getNumberOfCells();
   std::vector<DataArrayInt *> partition=partitionBySpreadZone();
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > partitionAuto; partitionAuto.reserve(partition.size());
@@ -6766,7 +6855,24 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const throw(INTER
   ret->setCoords(getCoords());
   ret->allocateCells((int)partition.size());
   //
-  throw INTERP_KERNEL::Exception("Implementation not finished yet !");
+  for(std::vector<DataArrayInt *>::const_iterator it=partition.begin();it!=partition.end();it++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf((*it)->begin(),(*it)->end(),true));
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cell;
+      switch(mdim)
+        {
+        case 2:
+          cell=tmp->buildUnionOf2DMesh();
+          break;
+        case 3:
+          cell=tmp->buildUnionOf3DMesh();
+          break;
+        default:
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSpreadZonesWithPoly : meshdimension supported are [2,3] ! Not implemented yet for others !");
+        }
+      
+      ret->insertNextCell((INTERP_KERNEL::NormalizedCellType)cell->getIJSafe(0,0),cell->getNumberOfTuples()-1,cell->getConstPointer()+1);
+    }
   //
   ret->finishInsertingCells();
   ret->incrRef(); return ret;
