@@ -6746,10 +6746,66 @@ DataArrayInt *MEDCouplingUMesh::ComputeSpreadZoneGradually(const DataArrayInt *a
 }
 
 /*!
- * Given a 2D mesh conn by (conn2D,connI2D) it returns a single polygon
+ * \b this is expected to be a mesh fully defined whose spaceDim==meshDim.
+ * It returns a new allocated mesh having the same mesh dimension and lying on same coordinates.
+ * The returned mesh contains as poly cells as number of contiguous zone (regarding connectivity).
+ * A spread contiguous zone is built using poly cells (polyhedra in 3D, polygons in 2D and polyline in 1D).
+ * The sum of measure field of returned mesh is equal to the sum of measure field of this.
+ * 
+ * \return a newly allocated mesh lying on the same coords than \b this with same meshdimension than \b this.
  */
-void MEDCouplingUMesh::BuildUnionOf2DMesh(const std::vector<int>& conn2D, const std::vector<int>& connI2D, std::vector<int>& polyUnion)
+MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const throw(INTERP_KERNEL::Exception)
 {
+  checkFullyDefined();
+  int mdim=getMeshDimension();
+  int nbCells=getNumberOfCells();
+  std::vector<DataArrayInt *> partition=partitionBySpreadZone();
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > partitionAuto; partitionAuto.reserve(partition.size());
+  std::copy(partition.begin(),partition.end(),std::back_insert_iterator<std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > >(partitionAuto));
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=MEDCouplingUMesh::New(getName(),mdim);
+  ret->setCoords(getCoords());
+  ret->allocateCells((int)partition.size());
+  //
+  throw INTERP_KERNEL::Exception("Implementation not finished yet !");
+  //
+  ret->finishInsertingCells();
+  ret->incrRef(); return ret;
+}
+
+/*!
+ * This method partitions \b this into contiguous zone.
+ * This method only needs a well defined connectivity. Coordinates are not considered here.
+ * This method returns a vector of \b newly allocated arrays that the caller has to deal with.
+ */
+std::vector<DataArrayInt *> MEDCouplingUMesh::partitionBySpreadZone() const throw(INTERP_KERNEL::Exception)
+{
+  int nbOfCellsCur=getNumberOfCells();
+  DataArrayInt *neigh=0,*neighI=0;
+  computeNeighborsOfCells(neigh,neighI);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighAuto(neigh),neighIAuto(neighI);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=DataArrayInt::New(); ids->alloc(nbOfCellsCur,1); ids->iota();
+  std::vector<DataArrayInt *> ret;
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > ret2;
+  while(nbOfCellsCur>0)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=MEDCouplingUMesh::ComputeSpreadZoneGradually(neighAuto,neighIAuto);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp3=tmp->buildComplement(nbOfCellsCur);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp2=ids->selectByTupleId(tmp->begin(),tmp->end());
+      ret2.push_back(tmp2);  ret.push_back(tmp2);
+      nbOfCellsCur=tmp3->getNumberOfTuples();
+      if(nbOfCellsCur>0)
+        {
+          ids=ids->selectByTupleId(tmp3->begin(),tmp3->end());
+          MEDCouplingUMesh::ExtractFromIndexedArrays(tmp3->begin(),tmp3->end(),neighAuto,neighIAuto,neigh,neighI);
+          neighAuto=neigh;
+          neighIAuto=neighI;
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renum=tmp3->invertArrayN2O2O2N(nbOfCellsCur+tmp->getNumberOfTuples());
+          neighAuto->transformWithIndArr(renum->begin(),renum->end());
+        }
+    }
+  for(std::vector<DataArrayInt *>::const_iterator it=ret.begin();it!=ret.end();it++)
+    (*it)->incrRef();
+  return ret;
 }
 
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),

@@ -252,6 +252,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity2;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMesh;
+%newobject ParaMEDMEM::MEDCouplingUMesh::buildSpreadZonesWithPoly;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGradually;
@@ -1323,6 +1324,16 @@ namespace ParaMEDMEM
         return ret;
       }
 
+      PyObject *partitionBySpreadZone() const throw(INTERP_KERNEL::Exception)
+      {
+        std::vector<DataArrayInt *> retCpp=self->partitionBySpreadZone();
+        int sz=retCpp.size();
+        PyObject *ret=PyList_New(sz);
+        for(int i=0;i<sz;i++)
+          PyList_SetItem(ret,i,SWIG_NewPointerObj(SWIG_as_voidptr(retCpp[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       PyObject *keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, PyObject *ids) const throw(INTERP_KERNEL::Exception)
       {
         int size;
@@ -1957,6 +1968,7 @@ namespace ParaMEDMEM
     void convertAllToPoly();
     void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);
     void unPolyze() throw(INTERP_KERNEL::Exception);
+    MEDCouplingUMesh *buildSpreadZonesWithPoly() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy) throw(INTERP_KERNEL::Exception);
   };
 
