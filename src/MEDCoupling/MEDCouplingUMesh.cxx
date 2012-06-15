@@ -2222,6 +2222,37 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
 }
 
 /*!
+ * This method returns a newly allocated array containing cell ids (ascendingly sorted) whose geometric type are equal to type.
+ * This method throws an INTERP_KERNEL::Exception if meshdimension of \b this is not equal to those of \b type.
+ * The coordinates array is not considered here.
+ *
+ * \param [in] type the geometric type
+ * \return the 
+ */
+DataArrayInt *MEDCouplingUMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  
+  std::vector<int> v;
+  checkConnectivityFullyDefined();
+  int nbCells=getNumberOfCells();
+  int mdim=getMeshDimension();
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  if(mdim!=(int)cm.getDimension())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::giveCellsWithType : Mismatch between mesh dimension and dimension of the cell !");
+  const int *ptI=_nodal_connec_index->getConstPointer();
+  const int *pt=_nodal_connec->getConstPointer();
+  for(int i=0;i<nbCells;i++)
+    {
+      if((INTERP_KERNEL::NormalizedCellType)pt[ptI[i]]==type)
+        v.push_back(i);
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc((int)v.size(),1);
+  std::copy(v.begin(),v.end(),ret->getPointer());
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * Returns nb of cells having the geometric type 'type'.
  */
 int MEDCouplingUMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const

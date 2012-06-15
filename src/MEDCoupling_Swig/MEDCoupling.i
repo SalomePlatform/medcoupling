@@ -248,6 +248,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::cellsByType;
+%newobject ParaMEDMEM::MEDCouplingUMesh::giveCellsWithType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity2;
@@ -1075,6 +1076,7 @@ namespace ParaMEDMEM
     int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getMeshLength() const throw(INTERP_KERNEL::Exception);
     void computeTypes() throw(INTERP_KERNEL::Exception);
+    DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools

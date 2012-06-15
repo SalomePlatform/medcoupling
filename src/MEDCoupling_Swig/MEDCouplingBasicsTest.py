@@ -9816,6 +9816,47 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(expected4[i],ard2.getIJ(i,0),12)
             pass
         pass
+    
+    def testPartitionBySpreadZone1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m4=MEDCouplingUMesh.MergeUMeshes([m,m[2:],m[0:2]]);
+        m4.renumberCells([5,2,9,6,4,7,0,1,3,8]);
+        #
+        v2=m4.partitionBySpreadZone();
+        self.assertTrue(3,len(v2));
+        self.assertTrue(v2[0].isEqual(DataArrayInt.New([0,1,7])))
+        self.assertTrue(v2[1].isEqual(DataArrayInt.New([2,4,5,6,9])))
+        self.assertTrue(v2[2].isEqual(DataArrayInt.New([3,8])))
+        #
+        m5=m4.buildSpreadZonesWithPoly();
+        self.assertEqual(3,m5.getNumberOfCells());
+        self.assertTrue(m5.getCoords().getHiddenCppPointer()==m4.getCoords().getHiddenCppPointer());
+        self.assertEqual([5,15,16,17,14,11,13,12,5,2,1,0,3,6,7,8,5,5,18,21,22,20,19],m5.getNodalConnectivity().getValues())
+        self.assertEqual([0,8,17,23],m5.getNodalConnectivityIndex().getValues())
+        #
+        pass
+
+    def testGiveCellsWithType1(self):
+        expected0=[1,2]
+        expected1=[0,3,4]
+        m=MEDCouplingDataForTest.build2DTargetMesh_1();
+        da=m.giveCellsWithType(NORM_TRI3);
+        self.assertEqual(2,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(expected0,da.getValues())
+        #
+        da=m.giveCellsWithType(NORM_QUAD4);
+        self.assertEqual(3,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(expected1,da.getValues())
+        #
+        da=m.giveCellsWithType(NORM_TRI6);
+        self.assertEqual(0,da.getNumberOfTuples());
+        self.assertEqual(1,da.getNumberOfComponents());
+        #
+        self.assertRaises(InterpKernelException,m.giveCellsWithType,NORM_SEG2)
+        self.assertRaises(InterpKernelException,m.giveCellsWithType,NORM_HEXA8)
+        pass
 
     def setUp(self):
         pass

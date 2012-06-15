@@ -56,6 +56,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testZipConnectivityPol1 );
     CPPUNIT_TEST( testConvexEnvelop2D1 );
     CPPUNIT_TEST( testDataArraySort1 );
+    CPPUNIT_TEST( testPartitionBySpreadZone1 );
+    CPPUNIT_TEST( testGiveCellsWithType1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -79,6 +81,8 @@ namespace ParaMEDMEM
     void testZipConnectivityPol1();
     void testConvexEnvelop2D1();
     void testDataArraySort1();
+    void testPartitionBySpreadZone1();
+    void testGiveCellsWithType1();
   };
 }
 

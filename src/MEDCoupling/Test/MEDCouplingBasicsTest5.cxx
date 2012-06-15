@@ -1176,3 +1176,79 @@ void MEDCouplingBasicsTest5::testDataArraySort1()
   ard2->decrRef();
   ard->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testPartitionBySpreadZone1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  const int part0[3]={2,3,4};
+  const int part1[2]={0,1};
+  MEDCouplingUMesh *m1=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(part0,part0+3));
+  MEDCouplingUMesh *m2=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(part1,part1+2));
+  std::vector<const MEDCouplingUMesh *> v(3); v[0]=m; v[1]=m1; v[2]=m2;
+  MEDCouplingUMesh *m4=MEDCouplingUMesh::MergeUMeshes(v);
+  const int renum[10]={5,2,9,6,4,7,0,1,3,8};
+  m4->renumberCells(renum);
+  //
+  std::vector<DataArrayInt *> v2=m4->partitionBySpreadZone();
+  CPPUNIT_ASSERT_EQUAL(3,(int)v2.size());
+  const int expected0[3]={0,1,7};
+  const int expected1[5]={2,4,5,6,9};
+  const int expected2[2]={3,8};
+  CPPUNIT_ASSERT_EQUAL(3,v2[0]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,v2[0]->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(5,v2[1]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,v2[1]->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(2,v2[2]->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,v2[2]->getNumberOfComponents());
+  //
+  CPPUNIT_ASSERT(std::equal(expected0,expected0+3,v2[0]->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+5,v2[1]->getConstPointer()));
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+2,v2[2]->getConstPointer()));
+  v2[0]->decrRef();
+  v2[1]->decrRef();
+  v2[2]->decrRef();
+  //
+  MEDCouplingUMesh *m5=m4->buildSpreadZonesWithPoly();
+  CPPUNIT_ASSERT_EQUAL(3,m5->getNumberOfCells());
+  CPPUNIT_ASSERT(m5->getCoords()==m4->getCoords());
+  const int expected3[23]={5,15,16,17,14,11,13,12,5,2,1,0,3,6,7,8,5,5,18,21,22,20,19};
+  const int expected4[4]={0,8,17,23};
+  CPPUNIT_ASSERT_EQUAL(23,m5->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+23,m5->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(4,m5->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+4,m5->getNodalConnectivityIndex()->getConstPointer()));
+  //
+  m->decrRef();
+  m1->decrRef();
+  m2->decrRef();
+  m4->decrRef();
+  m5->decrRef();
+}
+
+void MEDCouplingBasicsTest5::testGiveCellsWithType1()
+{
+  const int expected0[2]={1,2};
+  const int expected1[3]={0,3,4};
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  DataArrayInt *da=m->giveCellsWithType(INTERP_KERNEL::NORM_TRI3);
+  CPPUNIT_ASSERT_EQUAL(2,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected0,expected0+2,da->getConstPointer()));
+  da->decrRef();
+  //
+  da=m->giveCellsWithType(INTERP_KERNEL::NORM_QUAD4);
+  CPPUNIT_ASSERT_EQUAL(3,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+3,da->getConstPointer()));
+  da->decrRef();
+  //
+  da=m->giveCellsWithType(INTERP_KERNEL::NORM_TRI6);
+  CPPUNIT_ASSERT_EQUAL(0,da->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,da->getNumberOfComponents());
+  da->decrRef();
+  //
+  CPPUNIT_ASSERT_THROW(m->giveCellsWithType(INTERP_KERNEL::NORM_SEG2),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(m->giveCellsWithType(INTERP_KERNEL::NORM_HEXA8),INTERP_KERNEL::Exception);
+  //
+  m->decrRef();
+}
