@@ -359,6 +359,22 @@ double MEDCouplingPointSet::getCaracteristicDimension() const
 }
 
 /*!
+ * This method recenter coordinates of nodes in \b this in order to be centered at the origin to benefit about the advantages of the precision to be around the box
+ * around origin of 'radius' 1.
+ *
+ * \param [in] eps absolute epsilon. under that value of delta between max and min no scale is performed.
+ *
+ * \warning this method is non const and alterates coordinates in \b this without modifying.
+ */
+void MEDCouplingPointSet::recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception)
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::recenterForMaxPrecision : Coordinates not set !");
+  _coords->recenterForMaxPrecision(eps);
+  updateTime();
+}
+
+/*!
  * Non const method that operates a rotation of 'this'.
  * If spaceDim==2 'vector' parameter is ignored (and could be 0) and the rotation is done around 'center' with angle specified by 'angle'.
  * If spaceDim==3 the rotation axe is defined by ('center','vector') and the angle is 'angle'.

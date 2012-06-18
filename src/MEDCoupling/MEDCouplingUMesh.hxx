@@ -99,6 +99,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void convertAllToPoly();
     MEDCOUPLING_EXPORT void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void unPolyze();
+    MEDCOUPLING_EXPORT void simplifyPolyhedra(double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSpreadZonesWithPoly() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::vector<DataArrayInt *> partitionBySpreadZone() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *computeFetchedNodeIds() const throw(INTERP_KERNEL::Exception);
@@ -206,6 +207,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT static void MergeNodesOnUMeshesSharingSameCoords(const std::vector<MEDCouplingUMesh *>& meshes, double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static bool IsPolygonWellOriented(bool isQuadratic, const double *vec, const int *begin, const int *end, const double *coords);
     MEDCOUPLING_EXPORT static bool IsPolyhedronWellOriented(const int *begin, const int *end, const double *coords);
+    MEDCOUPLING_EXPORT static void SimplifyPolyhedronCell(double eps, const DataArrayDouble *coords, const int *begin, const int *end, std::vector<int>& res) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT static void ComputeVecAndPtOfFace(double eps, const double *coords, const int *begin, const int *end, double *v, double *p) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static void TryToCorrectPolyhedronOrientation(int *begin, int *end, const double *coords) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *Intersect2DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps, DataArrayInt *&cellNb1, DataArrayInt *&cellNb2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static bool BuildConvexEnvelopOf2DCellJarvis(const double *coords, const int *nodalConnBg, const int *nodalConnEnd, std::vector<int>& nodalConnecOut) throw(INTERP_KERNEL::Exception);

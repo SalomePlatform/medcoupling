@@ -123,6 +123,10 @@ void MEDCouplingUMesh::checkCoherency() const throw(INTERP_KERNEL::Exception)
       if(_nodal_connec_index->getInfoOnComponent(0)!="")
         throw INTERP_KERNEL::Exception("Nodal connectivity index array is expected to have no info on its single component !");
     }
+  if(_iterator!=-1)
+    {
+      throw INTERP_KERNEL::Exception("It appears that finishInsertingCells method has not been invoked after a insertNextCell session !");
+    }
 }
 
 /*!
@@ -988,6 +992,51 @@ void MEDCouplingUMesh::unPolyze()
   if(newPos!=initMeshLgth)
     _nodal_connec->reAlloc(newPos);
   computeTypes();
+}
+
+/*!
+ * This method expects that spaceDimension is equal to 3 and meshDimension equal to 3.
+ * This method performs operation only on polyhedrons in \b this. If no polyhedrons exists in \b this, \b this remains unchanged.
+ * This method allows to merge if any coplanar 3DSurf cells that may appear in some polyhedrons cells. 
+ *
+ * \param [in] eps is a relative precision that allows to establish if some 3D plane are coplanar or not. This epsilon is used to recenter around origin to have maximal 
+ *             precision.
+ */
+void MEDCouplingUMesh::simplifyPolyhedra(double eps) throw(INTERP_KERNEL::Exception)
+{
+  checkFullyDefined();
+  if(getMeshDimension()!=3 || getSpaceDimension()!=3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplifyPolyhedra : works on meshdimension 3 and spaceDimension 3 !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getCoords()->deepCpy();
+  coords->recenterForMaxPrecision(eps);
+  const double *coordsPtr=coords->getConstPointer();
+  //
+  int nbOfCells=getNumberOfCells();
+  const int *conn=_nodal_connec->getConstPointer();
+  const int *index=_nodal_connec_index->getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connINew=DataArrayInt::New();
+  connINew->alloc(nbOfCells+1,1);
+  int *connINewPtr=connINew->getPointer(); *connINewPtr++=0;
+  std::vector<int> connNew;
+  bool changed=false;
+  for(int i=0;i<nbOfCells;i++,connINewPtr++)
+    {
+      if(conn[index[i]]==(int)INTERP_KERNEL::NORM_POLYHED)
+        {
+          SimplifyPolyhedronCell(eps,coords,conn+index[i],conn+index[i+1],connNew);
+          changed=true;
+        }
+      else
+        connNew.insert(connNew.end(),conn+index[i],conn+index[i+1]);
+      *connINewPtr=(int)connNew.size();
+    }
+  if(changed)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connNew2=DataArrayInt::New();
+      connNew2->alloc((int)connNew.size(),1);
+      std::copy(connNew.begin(),connNew.end(),connNew2->getPointer());
+      setConnectivity(connNew2,connINew,false);
+    }
 }
 
 /*!
@@ -5906,6 +5955,151 @@ bool MEDCouplingUMesh::IsPolyhedronWellOriented(const int *begin, const int *end
       bgFace=endFace+1;
     }
   return INTERP_KERNEL::calculateVolumeForPolyh2<int,INTERP_KERNEL::ALL_C_MODE>(begin,(int)std::distance(begin,end),coords)>-EPS_FOR_POLYH_ORIENTATION;
+}
+
+/*!
+ * This method performs a simplyfication of a single polyedron cell. To do that each face of cell whose connectivity is defined by [\b begin, \b end) 
+ * is compared with the others in order to find faces in the same plane (with approx of eps). If any, the cells are grouped together and projected to
+ * a 2D space.
+ *
+ * \param [in] eps is a relative precision that allows to establish if some 3D plane are coplanar or not.
+ * \param [in] coords the coordinates with nb of components exactly equal to 3
+ * \param [in] begin begin of the nodal connectivity (geometric type included) of a single polyhedron cell
+ * \param [in] end end of nodal connectivity of a single polyhedron cell (excluded)
+ * \param [out] the result is put at the end of the vector without any alteration of the data.
+ */
+void MEDCouplingUMesh::SimplifyPolyhedronCell(double eps, const DataArrayDouble *coords, const int *begin, const int *end, std::vector<int>& res) throw(INTERP_KERNEL::Exception)
+{
+  int nbFaces=std::count(begin+1,end,-1)+1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> v=DataArrayDouble::New(); v->alloc(nbFaces,3);
+  double *vPtr=v->getPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> p=DataArrayDouble::New(); p->alloc(nbFaces,1);
+  double *pPtr=p->getPointer();
+  const int *stFaceConn=begin+1;
+  for(int i=0;i<nbFaces;i++,vPtr+=3,pPtr++)
+    {
+      const int *endFaceConn=std::find(stFaceConn,end,-1);
+      ComputeVecAndPtOfFace(eps,coords->getConstPointer(),stFaceConn,endFaceConn,vPtr,pPtr);
+      stFaceConn=endFaceConn+1;
+    }
+  pPtr=p->getPointer(); vPtr=v->getPointer();
+  DataArrayInt *comm1=0,*commI1=0;
+  v->findCommonTuples(eps,-1,comm1,commI1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> comm1Auto(comm1),commI1Auto(commI1);
+  const int *comm1Ptr=comm1->getConstPointer();
+  const int *commI1Ptr=commI1->getConstPointer();
+  int nbOfGrps1=commI1Auto->getNumberOfTuples()-1;
+  res.push_back((int)INTERP_KERNEL::NORM_POLYHED);
+  //
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mm=MEDCouplingUMesh::New("",3);
+  mm->setCoords(const_cast<DataArrayDouble *>(coords)); mm->allocateCells(1); mm->insertNextCell(INTERP_KERNEL::NORM_POLYHED,(int)std::distance(begin+1,end),begin+1);
+  mm->finishInsertingCells();
+  //
+  for(int i=0;i<nbOfGrps1;i++)
+    {
+      int vecId=comm1Ptr[commI1Ptr[i]];
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmpgrp2=p->selectByTupleId(comm1Ptr+commI1Ptr[i],comm1Ptr+commI1Ptr[i+1]);
+      DataArrayInt *comm2=0,*commI2=0;
+      tmpgrp2->findCommonTuples(eps,-1,comm2,commI2);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> comm2Auto(comm2),commI2Auto(commI2);
+      const int *comm2Ptr=comm2->getConstPointer();
+      const int *commI2Ptr=commI2->getConstPointer();
+      int nbOfGrps2=commI2Auto->getNumberOfTuples()-1;
+      for(int j=0;j<nbOfGrps2;j++)
+        {
+          if(commI2Ptr[j+1]-commI2Ptr[j]<=1)
+            {
+              res.insert(res.end(),begin,end);
+              res.push_back(-1);
+            }
+          else
+            {
+              int pointId=comm1Ptr[commI1Ptr[i]+comm2Ptr[commI2Ptr[j]]];
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids2=comm2->selectByTupleId2(commI2Ptr[j],commI2Ptr[j+1],1);
+              ids2->transformWithIndArr(comm1Ptr+commI1Ptr[i],comm1Ptr+commI1Ptr[i+1]);
+              DataArrayInt *tmp0=DataArrayInt::New(),*tmp1=DataArrayInt::New(),*tmp2=DataArrayInt::New(),*tmp3=DataArrayInt::New();
+              MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mm2=mm->buildDescendingConnectivity(tmp0,tmp1,tmp2,tmp3); tmp0->decrRef(); tmp1->decrRef(); tmp2->decrRef(); tmp3->decrRef();
+              MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mm3=static_cast<MEDCouplingUMesh *>(mm2->buildPartOfMySelf(ids2->begin(),ids2->end(),true));
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsNodeTmp=mm3->zipCoordsTraducer();
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsNode=idsNodeTmp->invertArrayO2N2N2O(mm3->getNumberOfNodes());
+              const int *idsNodePtr=idsNode->getConstPointer();
+              double center[3]; center[0]=pPtr[pointId]*vPtr[3*vecId]; center[1]=pPtr[pointId]*vPtr[3*vecId+1]; center[2]=pPtr[pointId]*vPtr[3*vecId+2];
+              double vec[3]; vec[0]=vPtr[3*vecId+1]; vec[1]=-vPtr[3*vecId]; vec[2]=0.;
+              double norm=vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2];
+              if(std::abs(norm)>eps)
+                {
+                  double angle=INTERP_KERNEL::EdgeArcCircle::SafeAsin(norm);
+                  mm3->rotate(center,vec,angle);
+                }
+              mm3->changeSpaceDimension(2);
+              MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mm4=mm3->buildSpreadZonesWithPoly();
+              const int *conn4=mm4->getNodalConnectivity()->getConstPointer();
+              const int *connI4=mm4->getNodalConnectivityIndex()->getConstPointer();
+              int nbOfCells=mm4->getNumberOfCells();
+              for(int k=0;k<nbOfCells;k++)
+                {
+                  int l=0;
+                  for(const int *work=conn4+connI4[k]+1;work!=conn4+connI4[k+1];work++,l++)
+                    res.push_back(idsNodePtr[*work]);
+                  res.push_back(-1);
+                }
+            }
+        }
+    }
+  res.pop_back();
+}
+
+/*!
+ * This method computes the normalized vector of the plane and the pos of the point belonging to the plane and the line defined by the vector going
+ * through origin. The plane is defined by its nodal connectivity [\b begin, \b end).
+ * 
+ * \param [in] eps below that value the dot product of 2 vectors is considered as colinears
+ * \param [in] coords coordinates expected to have 3 components.
+ * \param [in] begin start of the nodal connectivity of the face.
+ * \param [in] end end of the nodal connectivity (excluded) of the face.
+ * \param [out] v the normalized vector of size 3
+ * \param [out] p the pos of plane
+ */
+void MEDCouplingUMesh::ComputeVecAndPtOfFace(double eps, const double *coords, const int *begin, const int *end, double *v, double *p) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t nbPoints=std::distance(begin,end);
+  if(nbPoints<3)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ComputeVecAndPtOfFace : < of 3 points in face ! not able to find a plane on that face !");
+  double vec[3];
+  std::size_t j=0;
+  bool refFound=false;
+  for(;j<nbPoints-1 && !refFound;j++)
+    {
+      vec[0]=coords[3*begin[j+1]]-coords[3*begin[j]];
+      vec[1]=coords[3*begin[j+1]+1]-coords[3*begin[j]+1];
+      vec[2]=coords[3*begin[j+1]+2]-coords[3*begin[j]+2];
+      double norm=sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
+      if(norm>eps)
+        {
+          refFound=true;
+          vec[0]/=norm; vec[1]/=norm; vec[2]/=norm;
+        }
+    }
+  for(std::size_t i=j;i<nbPoints-1;i++)
+    {
+      double curVec[3];
+      curVec[0]=coords[3*begin[i+1]]-coords[3*begin[i]];
+      curVec[1]=coords[3*begin[i+1]+1]-coords[3*begin[i]+1];
+      curVec[2]=coords[3*begin[i+1]+2]-coords[3*begin[i]+2];
+      double norm=sqrt(curVec[0]*curVec[0]+curVec[1]*curVec[1]+curVec[2]*curVec[2]);
+      if(norm<eps)
+        continue;
+      curVec[0]/=norm; curVec[1]/=norm; curVec[2]/=norm;
+      v[0]=vec[1]*curVec[2]-vec[2]*curVec[1]; v[1]=vec[2]*curVec[0]-vec[0]*curVec[2]; v[2]=vec[0]*curVec[1]-vec[1]*curVec[0];
+      norm=sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
+      if(norm>eps)
+        {
+          v[0]/=norm; v[1]/=norm; v[2]/=norm;
+          *p=v[0]*coords[3*begin[i]]+v[1]*coords[3*begin[i]+1]+v[2]*coords[3*begin[i]+2];
+          return ;
+        }
+    }
+  throw INTERP_KERNEL::Exception("Not able to find a normal vector of that 3D face !");
 }
 
 /*!

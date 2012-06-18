@@ -76,6 +76,7 @@ namespace ParaMEDMEM
     void getBoundingBox(double *bbox) const throw(INTERP_KERNEL::Exception);
     void zipCoords();
     double getCaracteristicDimension() const;
+    void recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception);
     void rotate(const double *center, const double *vector, double angle);
     void translate(const double *vector);
     void scale(const double *point, double factor);
