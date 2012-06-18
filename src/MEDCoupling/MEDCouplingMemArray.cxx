@@ -1538,6 +1538,29 @@ void DataArrayDouble::getMinMaxPerComponent(double *bounds) const throw(INTERP_K
     }
 }
 
+/*!
+ * This method recenter tuples in \b this in order to be centered at the origin to benefit about the advantages of maximal precision to be around the box
+ * around origin of 'radius' 1.
+ * 
+ * \param [in] eps absolute epsilon. under that value of delta between max and min no scale is performed.
+ */
+void DataArrayDouble::recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int dim=getNumberOfComponents();
+  std::vector<double> bounds(2*dim);
+  getMinMaxPerComponent(&bounds[0]);
+  for(int i=0;i<dim;i++)
+    {
+      double delta=bounds[2*i+1]-bounds[2*i];
+      double offset=(bounds[2*i]+bounds[2*i+1])/2.;
+      if(delta>eps)
+        applyLin(1./delta,-offset/delta,i);
+      else
+        applyLin(1.,-offset,i);
+    }
+}
+
 double DataArrayDouble::getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=1)

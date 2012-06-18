@@ -699,6 +699,7 @@ namespace ParaMEDMEM
       bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const throw(INTERP_KERNEL::Exception);
       void zipCoords() throw(INTERP_KERNEL::Exception);
       double getCaracteristicDimension() const throw(INTERP_KERNEL::Exception);
+      void recenterForMaxPrecision(double eps) const throw(INTERP_KERNEL::Exception);
       void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
@@ -1970,6 +1971,7 @@ namespace ParaMEDMEM
     void convertAllToPoly();
     void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);
     void unPolyze() throw(INTERP_KERNEL::Exception);
+    void simplifyPolyhedra(double eps) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSpreadZonesWithPoly() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy) throw(INTERP_KERNEL::Exception);
   };
