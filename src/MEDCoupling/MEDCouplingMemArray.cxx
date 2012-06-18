@@ -282,11 +282,35 @@ void DataArray::checkNbOfElems(int nbOfElems, const char *msg) const throw(INTER
     }
 }
 
+/*!
+ * Simply this method checks that \b value is in [0,\b ref).
+ */
 void DataArray::CheckValueInRange(int ref, int value, const char *msg) throw(INTERP_KERNEL::Exception)
 {
   if(value<0 || value>=ref)
     {
       std::ostringstream oss; oss << "DataArray::CheckValueInRange : " << msg  << " ! Expected in range [0," << ref << "[ having " << value << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+/*!
+ * This method checks that [\b start, \b end) is compliant with ref length \b value.
+ * typicaly start in [0,\b value) and end in [0,\b value). If value==start and start==end, it is supported.
+ */
+void DataArray::CheckValueInRangeEx(int value, int start, int end, const char *msg) throw(INTERP_KERNEL::Exception)
+{
+  if(start<0 || start>=value)
+    {
+      if(value!=start || end!=start)
+        {
+          std::ostringstream oss; oss << "DataArray::CheckValueInRange : " << msg  << " ! Expected start " << start << " of range in [0," << value << "[ !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  if(end<0 || end>value)
+    {
+      std::ostringstream oss; oss << "DataArray::CheckClosingParInRange : " << msg  << " ! Expected start " << end << " of range in [0," << value << "[ !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
@@ -1140,10 +1164,8 @@ void DataArrayDouble::setPartOfValues1(const DataArrayDouble *a, int bgTuples, i
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
-  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
   if(strictCompoCompare)
     a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
@@ -1165,10 +1187,8 @@ void DataArrayDouble::setPartOfValuesSimple1(double a, int bgTuples, int endTupl
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
-  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   double *pt=getPointer()+bgTuples*nbComp+bgComp;
   for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
     for(int j=0;j<newNbOfComp;j++)
@@ -1263,8 +1283,7 @@ void DataArrayDouble::setPartOfValues3(const DataArrayDouble *a, const int *bgTu
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   int newNbOfTuples=(int)std::distance(bgTuples,endTuples);
   bool assignTech=true;
   if(a->getNbOfElems()==newNbOfTuples*newNbOfComp)
@@ -1312,8 +1331,7 @@ void DataArrayDouble::setPartOfValuesSimple3(double a, const int *bgTuples, cons
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   double *pt=getPointer()+bgComp;
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(int j=0;j<newNbOfComp;j++)
@@ -3990,10 +4008,8 @@ void DataArrayInt::setPartOfValues1(const DataArrayInt *a, int bgTuples, int end
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
-  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   a->checkNbOfElems(newNbOfTuples*newNbOfComp,msg);
   if(strictCompoCompare)
     a->checkNbOfTuplesAndComp(newNbOfTuples,newNbOfComp,msg);
@@ -4015,10 +4031,8 @@ void DataArrayInt::setPartOfValuesSimple1(int a, int bgTuples, int endTuples, in
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbOfTuples,bgTuples,"invalid begin tuple value");
-  DataArray::CheckClosingParInRange(nbOfTuples,endTuples,"invalid end tuple value");
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbOfTuples,bgTuples,endTuples,"invalid tuple value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   int *pt=getPointer()+bgTuples*nbComp+bgComp;
   for(int i=0;i<newNbOfTuples;i++,pt+=stepTuples*nbComp)
     for(int j=0;j<newNbOfComp;j++)
@@ -4113,8 +4127,7 @@ void DataArrayInt::setPartOfValues3(const DataArrayInt *a, const int *bgTuples, 
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   int newNbOfTuples=(int)std::distance(bgTuples,endTuples);
   bool assignTech=true;
   if(a->getNbOfElems()==newNbOfTuples*newNbOfComp)
@@ -4162,8 +4175,7 @@ void DataArrayInt::setPartOfValuesSimple3(int a, const int *bgTuples, const int 
   int newNbOfComp=DataArray::GetNumberOfItemGivenBES(bgComp,endComp,stepComp,msg);
   int nbComp=getNumberOfComponents();
   int nbOfTuples=getNumberOfTuples();
-  DataArray::CheckValueInRange(nbComp,bgComp,"invalid begin component value");
-  DataArray::CheckClosingParInRange(nbComp,endComp,"invalid end component value");
+  DataArray::CheckValueInRangeEx(nbComp,bgComp,endComp,"invalid component value");
   int *pt=getPointer()+bgComp;
   for(const int *w=bgTuples;w!=endTuples;w++)
     for(int j=0;j<newNbOfComp;j++)

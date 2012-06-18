@@ -118,6 +118,7 @@ namespace ParaMEDMEM
     DataArray():_nb_of_tuples(-1) { }
   protected:
     static void CheckValueInRange(int ref, int value, const char *msg) throw(INTERP_KERNEL::Exception);
+    static void CheckValueInRangeEx(int value, int start, int end, const char *msg) throw(INTERP_KERNEL::Exception);
     static void CheckClosingParInRange(int ref, int value, const char *msg) throw(INTERP_KERNEL::Exception);
   protected:
     int _nb_of_tuples;
