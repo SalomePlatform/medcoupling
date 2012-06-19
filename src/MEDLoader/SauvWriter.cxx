@@ -355,6 +355,7 @@ void SauvWriter::fillFamilySubMeshes()
       int dimRelExt = dims[ iDim ];
       MEDCouplingAutoRefCountObjectPtr< MEDCouplingMesh > mesh = _fileMesh->getGenMeshAtLevel(dimRelExt);
       const DataArrayInt * famIds = _fileMesh->getFamilyFieldAtLevel(dimRelExt);
+      if ( !famIds ) continue;
 
       int curFamID = 0;
       SubMesh* curSubMesh = addSubMesh( "", dimRelExt ); // submesh of zero family
