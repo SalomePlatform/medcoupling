@@ -64,6 +64,7 @@ namespace ParaMEDMEM
     bool existsFamily(int famId) const;
     bool existsFamily(const char *familyName) const;
     void setFamilyId(const char *familyName, int id);
+    void setFamilyIdUnique(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
     virtual void addFamily(const char *familyName, int id) throw(INTERP_KERNEL::Exception);
     virtual void createGroupOnAll(int meshDimRelToMaxExt, const char *groupName) throw(INTERP_KERNEL::Exception);
     virtual bool keepFamIdsOnlyOnLevs(const std::vector<int>& famIds, const std::vector<int>& levs) throw(INTERP_KERNEL::Exception);
@@ -91,8 +92,13 @@ namespace ParaMEDMEM
     void changeFamilyId(int oldId, int newId) throw(INTERP_KERNEL::Exception);
     int getFamilyId(const char *name) const throw(INTERP_KERNEL::Exception);
     int getMaxFamilyId() const throw(INTERP_KERNEL::Exception);
+    int getMinFamilyId() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getAllFamiliesIdsReferenced() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getFamiliesIds(const std::vector<std::string>& famNames) const throw(INTERP_KERNEL::Exception);
     std::string getFamilyNameGivenId(int id) const throw(INTERP_KERNEL::Exception);
+    bool ensureDifferentFamIdsPerLevel() throw(INTERP_KERNEL::Exception);
+    void normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception);
+    void normalizeFamIdsMEDFile() throw(INTERP_KERNEL::Exception);
     virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception) = 0;
     virtual std::string simpleRepr() const;
     virtual std::string advancedRepr() const = 0;

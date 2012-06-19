@@ -553,6 +553,21 @@ void MEDFileMesh::setFamilyId(const char *familyName, int id)
   _families[fname]=id;
 }
 
+void MEDFileMesh::setFamilyIdUnique(const char *familyName, int id) throw(INTERP_KERNEL::Exception)
+{
+  std::string fname(familyName);
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    if((*it).second==id)
+      {
+        if((*it).first!=familyName)
+          {
+            std::ostringstream oss; oss << "MEDFileMesh::setFamilyIdUnique : Family id #" << id << " is already belonging to family with name \"" << (*it).first << "\" !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
+      }
+  _families[fname]=id;
+}
+
 /*!
  * This method appends a new entry in _families attribute. An exception is thrown if either the famId is already
  * kept by an another familyName. An exception is thrown if name 'familyName' is alreadyset with a different 'famId'.
@@ -802,6 +817,249 @@ int MEDFileMesh::getMaxFamilyId() const throw(INTERP_KERNEL::Exception)
       ret=std::max((*it).second,ret);
     }
   return ret;
+}
+
+int MEDFileMesh::getMinFamilyId() const throw(INTERP_KERNEL::Exception)
+{
+  if(_families.empty())
+    throw INTERP_KERNEL::Exception("MEDFileUMesh::getMinFamilyId : no families set !");
+  int ret=std::numeric_limits<int>::max();
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    {
+      ret=std::min((*it).second,ret);
+    }
+  return ret;
+}
+
+DataArrayInt *MEDFileMesh::getAllFamiliesIdsReferenced() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  std::set<int> v;
+  for(std::map<std::string,int>::const_iterator it=_families.begin();it!=_families.end();it++)
+    v.insert((*it).second);
+  ret->alloc((int)v.size(),1);
+  std::copy(v.begin(),v.end(),ret->getPointer());
+  ret->incrRef(); return ret;
+}
+
+/*!
+ * true is returned if no modification has been needed. false if family
+ * renumbering has been needed.       
+ */
+bool MEDFileMesh::ensureDifferentFamIdsPerLevel() throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> levs=getNonEmptyLevelsExt();
+  std::set<int> allFamIds;
+  int maxId=getMaxFamilyId()+1;
+  std::map<int,std::vector<int> > famIdsToRenum;
+  for(std::vector<int>::const_iterator it=levs.begin();it!=levs.end();it++)
+    {
+      const DataArrayInt *fam=getFamilyFieldAtLevel(*it);
+      if(fam)
+        {
+          std::set<int> tmp=fam->getDifferentValues();
+          std::set<int> r2;
+          std::set_intersection(tmp.begin(),tmp.end(),allFamIds.begin(),allFamIds.end(),std::inserter(r2,r2.end()));
+          if(!r2.empty())
+            famIdsToRenum[*it].insert(famIdsToRenum[*it].end(),r2.begin(),r2.end());
+          std::set<int> r3;
+          std::set_union(tmp.begin(),tmp.end(),allFamIds.begin(),allFamIds.end(),std::inserter(r3,r3.end()));
+        }
+    }
+  if(famIdsToRenum.empty())
+    return true;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> allIds=getAllFamiliesIdsReferenced();
+  for(std::map<int,std::vector<int> >::const_iterator it2=famIdsToRenum.begin();it2!=famIdsToRenum.end();it2++)
+    {
+      DataArrayInt *fam=const_cast<DataArrayInt *>(getFamilyFieldAtLevel((*it2).first));
+      int *famIdsToChange=fam->getPointer();
+      std::map<int,int> ren;
+      for(std::vector<int>::const_iterator it3=(*it2).second.begin();it3!=(*it2).second.end();it3++,maxId++)
+        {
+          if(allIds->presenceOfValue(*it3))
+            {
+              std::string famName=getFamilyNameGivenId(*it3);
+              std::vector<std::string> grps=getGroupsOnFamily(famName.c_str());
+              ren[*it3]=maxId;
+              bool dummy;
+              std::string newFam=findOrCreateAndGiveFamilyWithId(maxId,dummy);
+              for(std::vector<std::string>::const_iterator it4=grps.begin();it4!=grps.end();it4++)
+                addFamilyOnGrp((*it4).c_str(),newFam.c_str());
+            }
+        }
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=fam->getIdsEqualList(&(*it2).second[0],&(*it2).second[0]+(*it2).second.size());
+      for(const int *id=ids->begin();id!=ids->end();id++)
+        famIdsToChange[*id]=ren[famIdsToChange[*id]];
+    }
+  return false;
+}
+
+/*!
+ * This method normalizes fam id with the policy explained underneath. This policy is close to those implemented in SMESH.
+ * Level #0 famids > 0, Level #-1 famids < 0, Level #-2 famids=0, Level #1 famids=0
+ * This policy is those used by SMESH and Trio and that is the opposite of those in MED file.
+ * This method will throw an exception if a same family id is detected in different level.
+ * \warning This policy is the opposite of those in MED file documentation ...
+ */
+void MEDFileMesh::normalizeFamIdsTrio() throw(INTERP_KERNEL::Exception)
+{
+  ensureDifferentFamIdsPerLevel();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> allIds=getAllFamiliesIdsReferenced();
+  std::vector<int> levs=getNonEmptyLevelsExt();
+  std::set<int> levsS(levs.begin(),levs.end());
+  std::set<std::string> famsFetched;
+  std::map<std::string,int> families;
+  if(std::find(levs.begin(),levs.end(),0)!=levs.end())
+    {
+      levsS.erase(0);
+      const DataArrayInt *fam=getFamilyFieldAtLevel(0);
+      if(fam)
+        {
+          int refId=1;
+          std::set<int> tmp=fam->getDifferentValues();
+          std::map<int,int> ren;
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId++)
+            ren[*it]=refId;
+          int nbOfTuples=fam->getNumberOfTuples();
+          int *start=const_cast<DataArrayInt *>(fam)->getPointer();
+          for(int *w=start;w!=start+nbOfTuples;w++)
+            *w=ren[*w];
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+            {
+              if(allIds->presenceOfValue(*it))
+                {
+                  std::string famName=getFamilyNameGivenId(*it);
+                  families[famName]=ren[*it];
+                  famsFetched.insert(famName);
+                }
+            }
+        }
+    }
+  if(std::find(levs.begin(),levs.end(),-1)!=levs.end())
+    {
+      levsS.erase(-1);
+      const DataArrayInt *fam=getFamilyFieldAtLevel(-1);
+      if(fam)
+        {
+          int refId=-1;
+          std::set<int> tmp=fam->getDifferentValues();
+          std::map<int,int> ren;
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId--)
+            ren[*it]=refId;
+          int nbOfTuples=fam->getNumberOfTuples();
+          int *start=const_cast<DataArrayInt *>(fam)->getPointer();
+          for(int *w=start;w!=start+nbOfTuples;w++)
+            *w=ren[*w];
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+            {
+              if(allIds->presenceOfValue(*it))
+                {
+                  std::string famName=getFamilyNameGivenId(*it);
+                  families[famName]=ren[*it];
+                  famsFetched.insert(famName);
+                }
+            }
+        }
+    }
+  for(std::set<int>::const_iterator it2=levsS.begin();it2!=levsS.end();it2++)
+    {
+      DataArrayInt *fam=const_cast<DataArrayInt*>(getFamilyFieldAtLevel(*it2));
+      if(fam)
+        {
+          std::set<int> tmp=fam->getDifferentValues();
+          fam->fillWithZero();
+          for(std::set<int>::const_iterator it3=tmp.begin();it3!=tmp.end();it3++)
+            if(allIds->presenceOfValue(*it3))
+              {
+                std::string famName=getFamilyNameGivenId(*it3);
+                families[famName]=0;
+                famsFetched.insert(famName);
+              }
+        }
+    }
+  //
+  std::vector<std::string> allFams=getFamiliesNames();
+  std::set<std::string> allFamsS(allFams.begin(),allFams.end());
+  std::set<std::string> unFetchedIds;
+  std::set_difference(allFamsS.begin(),allFamsS.end(),famsFetched.begin(),famsFetched.end(),std::inserter(unFetchedIds,unFetchedIds.end()));
+  for(std::set<std::string>::const_iterator it4=unFetchedIds.begin();it4!=unFetchedIds.end();it4++)
+    families[*it4]=_families[*it4];
+  _families=families;
+}
+
+/*!
+ * This method normalizes fam id with the following policy.
+ * Level #0 famids < 0, Level #-1 famids < 0 and for Level #1 famids >= 0
+ * This policy is those used by SMESH and Trio and that is the opposite of those in MED file.
+ * This method will throw an exception if a same family id is detected in different level.
+ */
+void MEDFileMesh::normalizeFamIdsMEDFile() throw(INTERP_KERNEL::Exception)
+{
+  ensureDifferentFamIdsPerLevel();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> allIds=getAllFamiliesIdsReferenced();
+  std::vector<int> levs=getNonEmptyLevelsExt();
+  std::set<int> levsS(levs.begin(),levs.end());
+  std::set<std::string> famsFetched;
+  std::map<std::string,int> families;
+  int refId=1;
+  if(std::find(levs.begin(),levs.end(),1)!=levs.end())
+    {
+      levsS.erase(1);
+      const DataArrayInt *fam=getFamilyFieldAtLevel(1);
+      if(fam)
+        {
+          std::set<int> tmp=fam->getDifferentValues();
+          std::map<int,int> ren;
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId++)
+            ren[*it]=refId;
+          int nbOfTuples=fam->getNumberOfTuples();
+          int *start=const_cast<DataArrayInt *>(fam)->getPointer();
+          for(int *w=start;w!=start+nbOfTuples;w++)
+            *w=ren[*w];
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+            {
+              if(allIds->presenceOfValue(*it))
+                {
+                  std::string famName=getFamilyNameGivenId(*it);
+                  families[famName]=ren[*it];
+                  famsFetched.insert(famName);
+                }
+            }
+        }
+    }
+  refId=-1;
+  for(std::set<int>::const_reverse_iterator it2=levsS.rbegin();it2!=levsS.rend();it2++)
+    {
+      const DataArrayInt *fam=getFamilyFieldAtLevel(1);
+      if(fam)
+        {
+          std::set<int> tmp=fam->getDifferentValues();
+          std::map<int,int> ren;
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++,refId--)
+            ren[*it]=refId;
+          int nbOfTuples=fam->getNumberOfTuples();
+          int *start=const_cast<DataArrayInt *>(fam)->getPointer();
+          for(int *w=start;w!=start+nbOfTuples;w++)
+            *w=ren[*w];
+          for(std::set<int>::const_iterator it=tmp.begin();it!=tmp.end();it++)
+            {
+              if(allIds->presenceOfValue(*it))
+                {
+                  std::string famName=getFamilyNameGivenId(*it);
+                  families[famName]=ren[*it];
+                  famsFetched.insert(famName);
+                }
+            }
+        }
+    }
+  //
+  std::vector<std::string> allFams=getFamiliesNames();
+  std::set<std::string> allFamsS(allFams.begin(),allFams.end());
+  std::set<std::string> unFetchedIds;
+  std::set_difference(allFamsS.begin(),allFamsS.end(),famsFetched.begin(),famsFetched.end(),std::inserter(unFetchedIds,unFetchedIds.end()));
+  for(std::set<std::string>::const_iterator it4=unFetchedIds.begin();it4!=unFetchedIds.end();it4++)
+    families[*it4]=_families[*it4];
+  _families=families;
 }
 
 /*!
