@@ -149,14 +149,51 @@ class SauvLoaderTest(unittest.TestCase):
             self.assertAlmostEqual( fnd1.accumulate(0), fnd2.accumulate(0) )
             self.assertAlmostEqual( fnd1.accumulate(1), fnd2.accumulate(1) )
             self.assertAlmostEqual( fnd1.accumulate(2), fnd2.accumulate(2) )
-        # Field on 2 faces
-        fieldOnFaces = d2.getFields().getFieldWithName(f1.getName())
-        io1 = fieldOnFaces.getIterations()
-        fof = fieldOnFaces.getFieldOnMeshAtLevel(f1.getTypeOfField(),io1[i][0],io1[i][1],um1)
-        self.assertTrue( d.isEqual( fof.getArray(), 1e-12 ))
+            # Field on 2 faces
+            fieldOnFaces = d2.getFields().getFieldWithName(f1.getName())
+            io1 = fieldOnFaces.getIterations()
+            fof = fieldOnFaces.getFieldOnMeshAtLevel(f1.getTypeOfField(),io1[i][0],io1[i][1],um1)
+            self.assertTrue( d.isEqual( fof.getArray(), 1e-12 ))
 
-        os.remove( sauvFile )
+            os.remove( sauvFile )
+            pass
         pass
-    pass
+
+    def testSauv2MedWONodeFamilyNum(self):
+        """test for issue 0021673: [CEA 566] Bug in SauvWriter when writing meshes
+        having no family ids on nodes."""
+
+        myCoords=DataArrayDouble.New([-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ],9,2)
+        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        targetMesh=MEDCouplingUMesh.New("BugInSauvWriter",2);
+        targetMesh.allocateCells(5);
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
+        targetMesh.finishInsertingCells();
+        targetMesh.setCoords(myCoords);
+        #
+        m=MEDFileUMesh.New()
+        m.setMeshAtLevel(0,targetMesh)
+        # start of bug
+        fam=DataArrayInt.New(targetMesh.getNumberOfNodes())
+        fam[:]=0
+        #m.setFamilyFieldArr(1,fam)
+        #end of bug
+
+        ms=MEDFileMeshes.New()
+        ms.setMeshAtPos(0,m)
+        meddata=MEDFileData.New()
+        meddata.setMeshes(ms)
+
+        medFile = "BugInSauvWriter.sauv"
+        sw=SauvWriter.New();
+        sw.setMEDFileDS(meddata);
+        sw.write(medFile);
+
+        os.remove( medFile )
+        pass
 
 unittest.main()
