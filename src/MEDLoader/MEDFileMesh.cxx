@@ -2047,10 +2047,9 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   newm1->setCoords(getCoords());
   setMeshAtLevel(-1,newm1);
   setFamilyFieldArr(-1,newFam);
-  std::ostringstream famName; famName << "Family_" << idd;
   std::string grpName2(grpNameM1); grpName2+="_dup";
-  addFamily(famName.str().c_str(),idd);
-  addFamilyOnGrp(grpName2.c_str(),famName.str().c_str());
+  addFamily(grpName2.c_str(),idd);
+  addFamilyOnGrp(grpName2.c_str(),grpName2.c_str());
   //
   fam=_fam_coords;
   if(fam)

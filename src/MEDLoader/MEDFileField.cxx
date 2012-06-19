@@ -2626,6 +2626,12 @@ std::string MEDFileField1TSWithoutDAS::getName() const
   return arr->getName();
 }
 
+void MEDFileField1TSWithoutDAS::setName(const char *name)
+{
+  DataArrayDouble *arr=getOrCreateAndGetArray();
+  arr->setName(name);
+}
+
 void MEDFileField1TSWithoutDAS::simpleRepr(int bkOffset, std::ostream& oss, int f1tsId) const
 {
   std::string startOfLine(bkOffset,' ');
@@ -3634,6 +3640,11 @@ std::string MEDFileFieldMultiTSWithoutDAS::getDtUnit() const throw(INTERP_KERNEL
 std::string MEDFileFieldMultiTSWithoutDAS::getName() const
 {
   return _name;
+}
+
+void MEDFileFieldMultiTSWithoutDAS::setName(const char *name)
+{
+  _name=name;
 }
 
 void MEDFileFieldMultiTSWithoutDAS::simpleRepr(int bkOffset, std::ostream& oss, int fmtsId) const

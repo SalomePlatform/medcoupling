@@ -381,6 +381,7 @@ namespace ParaMEDMEM
     double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _dt; }
     void setTime(double val, int iteration, int order) { _dt=val; _iteration=iteration; _order=order; }
     std::string getName() const;
+    void setName(const char *name);
     void simpleRepr(int bkOffset, std::ostream& oss, int f1tsId) const;
     const std::string& getDtUnit() const { return _dt_unit; }
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
@@ -492,6 +493,7 @@ namespace ParaMEDMEM
     std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(int iteration, int order, const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
     virtual void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     std::string getName() const;
+    void setName(const char *name);
     void simpleRepr(int bkOffset, std::ostream& oss, int fmtsId) const;
     std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);

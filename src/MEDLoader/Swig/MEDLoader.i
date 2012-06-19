@@ -756,6 +756,7 @@ namespace ParaMEDMEM
     int getIteration() const;
     int getOrder() const;
     std::string getName();
+    void setName(const char *name);
     std::string getMeshName();
     int getNumberOfComponents() const;
     bool isDealingTS(int iteration, int order) const;
@@ -958,6 +959,7 @@ namespace ParaMEDMEM
   public:
     int getNumberOfTS() const;
     std::string getName() const;
+    void setName(const char *name);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const;
     %extend
