@@ -2024,12 +2024,7 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   m0->setCoords(tmp0->getCoords());
   m0->setPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),*tmp0);
   m1->setCoords(m0->getCoords());
-  const DataArrayInt *fam=getFamilyFieldAtLevel(1);
-  fam->incrRef();
   _coords=m0->getCoords(); _coords->incrRef();
-  DataArrayInt *famTmp=const_cast<DataArrayInt *>(getFamilyFieldAtLevel(1));
-  famTmp->setPartOfValues1(fam,0,fam->getNumberOfTuples(),1,0,1,1,true);
-  fam->decrRef();
   // duplication of cells in group 'grpNameM1' on level -1
   m11->duplicateNodesInConn(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),nbNodes); m11->setCoords(m0->getCoords());
   std::vector<const MEDCouplingUMesh *> v(2); v[0]=m1; v[1]=m11;
@@ -2038,7 +2033,7 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idInMsOfCellGrpOfSameType(tmp11);
   //
   newm1->setName(getName());
-  fam=getFamilyFieldAtLevel(-1);
+  const DataArrayInt *fam=getFamilyFieldAtLevel(-1);
   if(!fam)
     throw INTERP_KERNEL::Exception("MEDFileUMesh::duplicateNodesOnM1Group : internal problem !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFam=DataArrayInt::New();
