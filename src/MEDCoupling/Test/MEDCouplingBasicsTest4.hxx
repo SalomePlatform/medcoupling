@@ -41,7 +41,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDAICheckAndPreparePermutation1 );
     CPPUNIT_TEST( testDAIChangeSurjectiveFormat1 );
     CPPUNIT_TEST( testUMeshGetCellIdsLyingOnNodes1 );
-    CPPUNIT_TEST( testUMeshFindCellsIdsOnBoundary1 );
+    CPPUNIT_TEST( testUMeshFindCellIdsOnBoundary1 );
     CPPUNIT_TEST( testMeshSetTime1 );
     CPPUNIT_TEST( testApplyFuncTwo1 );
     CPPUNIT_TEST( testApplyFuncThree1 );
@@ -101,7 +101,7 @@ namespace ParaMEDMEM
     void testDAICheckAndPreparePermutation1();
     void testDAIChangeSurjectiveFormat1();
     void testUMeshGetCellIdsLyingOnNodes1();
-    void testUMeshFindCellsIdsOnBoundary1();
+    void testUMeshFindCellIdsOnBoundary1();
     void testMeshSetTime1();
     void testApplyFuncTwo1();
     void testApplyFuncThree1();

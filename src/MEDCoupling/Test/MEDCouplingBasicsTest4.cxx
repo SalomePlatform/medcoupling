@@ -233,10 +233,10 @@ void MEDCouplingBasicsTest4::testUMeshGetCellIdsLyingOnNodes1()
   m->decrRef();
 }
 
-void MEDCouplingBasicsTest4::testUMeshFindCellsIdsOnBoundary1()
+void MEDCouplingBasicsTest4::testUMeshFindCellIdsOnBoundary1()
 {
   MEDCouplingUMesh *m=build3DSurfTargetMesh_1();
-  DataArrayInt *da5=m->findCellsIdsOnBoundary();
+  DataArrayInt *da5=m->findCellIdsOnBoundary();
   CPPUNIT_ASSERT_EQUAL(5,da5->getNumberOfTuples());
   CPPUNIT_ASSERT(da5->isIdentity());
   //
