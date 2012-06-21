@@ -387,30 +387,22 @@ void MEDCouplingUMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int ce
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some nodes in other are not in this !");
   m->renumberNodes(da->getConstPointer(),newNbOfNodes);
   //
-  nodeCor=da->substr(oldNbOfNodes);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeCor2=da->substr(oldNbOfNodes);
   da=m->mergeNodes(prec,areNodesMerged,newNbOfNodes);
-  if(nodeCor->isIdentity())
-    {
-      nodeCor->decrRef();
-      nodeCor=0;
-    }
+  
   //
   da=m->zipConnectivityTraducer(cellCompPol);
   int maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
   pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind2nd(std::greater<int>(),maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
-    {
-      nodeCor->decrRef(); nodeCor=0;
-      throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
-    }
-  cellCor=DataArrayInt::New();
-  cellCor->alloc(otherC->getNumberOfCells(),1);
-  std::copy(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),cellCor->getPointer());
-  if(cellCor->isIdentity())
-    {
-      cellCor->decrRef();
-      cellCor=0;
-    }
+    throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=DataArrayInt::New();
+  cellCor2->alloc(otherC->getNumberOfCells(),1);
+  std::copy(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),cellCor2->getPointer());
+  bool nident=nodeCor2->isIdentity();
+  bool cident=cellCor2->isIdentity();
+  if(!nident) { nodeCor=nodeCor2; nodeCor2->incrRef(); } else nodeCor=0;
+  if(!cident) { cellCor=cellCor2; cellCor2->incrRef(); } else cellCor=0;
 }
 
 /*!
@@ -445,14 +437,10 @@ void MEDCouplingUMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *ot
     {
       throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : some cells in other are not in this !");
     }
-  cellCor=DataArrayInt::New();
-  cellCor->alloc(otherC->getNumberOfCells(),1);
-  std::copy(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),cellCor->getPointer());
-  if(cellCor->isIdentity())
-    {
-      cellCor->decrRef();
-      cellCor=0;
-    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2=DataArrayInt::New();
+  cellCor2->alloc(otherC->getNumberOfCells(),1);
+  std::copy(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),cellCor2->getPointer());
+  if(!cellCor2->isIdentity()) { cellCor=cellCor2; cellCor2->incrRef(); } else cellCor=0;
 }
 
 /*!
