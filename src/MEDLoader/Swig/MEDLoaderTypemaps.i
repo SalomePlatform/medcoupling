@@ -19,7 +19,7 @@
 
 #include <vector>
 
-static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner)
+static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(dynamic_cast<ParaMEDMEM::MEDFileUMesh *>(mesh))
@@ -27,14 +27,11 @@ static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner)
   if(dynamic_cast<ParaMEDMEM::MEDFileCMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileCMesh,owner);
   if(!ret)
-    {
-      PyErr_SetString(PyExc_TypeError,"Not recognized type of MEDFileMesh on downcast !");
-      PyErr_Print();
-    }
+    throw INTERP_KERNEL::Exception("Not recognized type of MEDFileMesh on downcast !");
   return ret;
 }
 
-static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
+static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi) throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::pair<int,int> > ret;
   if(PyList_Check(pyLi))
@@ -49,56 +46,25 @@ static std::vector<std::pair<int,int> > convertTimePairIdsFromPy(PyObject *pyLi)
               std::pair<int,int> p;
               int size2=PyTuple_Size(o);
               if(size2!=2)
-                {
-                  const char msg[]="tuples in list must be of size 2 (dt,it) !";
-                  ret.clear();
-                  PyErr_SetString(PyExc_TypeError,msg);
-                  PyErr_Print();
-                  throw INTERP_KERNEL::Exception(msg);
-                }
+                throw INTERP_KERNEL::Exception("tuples in list must be of size 2 (dt,it) !");
               PyObject *o0=PyTuple_GetItem(o,0);
               if(PyInt_Check(o0))
                 p.first=(int)PyInt_AS_LONG(o0);
               else
-                {
-                  const char msg[]="First elem of tuples in list must be integer : dt !";
-                  ret.clear();
-                  PyErr_SetString(PyExc_TypeError,msg);
-                  PyErr_Print();
-                  throw INTERP_KERNEL::Exception(msg);
-                }
+                throw INTERP_KERNEL::Exception("First elem of tuples in list must be integer : dt !");
               PyObject *o1=PyTuple_GetItem(o,1);
               if(PyInt_Check(o1))
                 p.second=(int)PyInt_AS_LONG(o1);
               else
-                {
-                  const char msg[]="Second elem of tuples in list must be integer : dt !";
-                  ret.clear();
-                  PyErr_SetString(PyExc_TypeError,msg);
-                  PyErr_Print();
-                  throw INTERP_KERNEL::Exception(msg);
-                }
+                throw INTERP_KERNEL::Exception("Second elem of tuples in list must be integer : dt !");
               ret[i]=p;
             }
           else
-            {
-              const char msg[]="list must contain tuples only";
-              ret.clear();
-              PyErr_SetString(PyExc_TypeError,msg);
-              PyErr_Print();
-              throw INTERP_KERNEL::Exception(msg);
-              return ret;
-            }
+            throw INTERP_KERNEL::Exception("list must contain tuples only");
         }
     }
   else
-    {
-      ret.clear();
-      const char msg[]="convertTimePairIdsFromPy : not a list";
-      PyErr_SetString(PyExc_TypeError,msg);
-      PyErr_Print();
-      throw INTERP_KERNEL::Exception(msg);
-    }
+    throw INTERP_KERNEL::Exception("convertTimePairIdsFromPy : not a list");
   return ret;
 }
 
@@ -153,7 +119,7 @@ static PyObject *convertFieldDoubleVecToPy(const std::vector<ParaMEDMEM::MEDCoup
   return ret;
 }
 
-static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(PyObject *pyLi)
+static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(PyObject *pyLi) throw(INTERP_KERNEL::Exception)
 {
   std::vector<const ParaMEDMEM::MEDCouplingUMesh *> ret;
   if(PyList_Check(pyLi))
@@ -166,24 +132,28 @@ static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(P
           void *argp;
           int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
           if(!SWIG_IsOK(status))
-            {
-              const char msg[]="list must contain only MEDCouplingUMesh";
-              PyErr_SetString(PyExc_TypeError,msg);
-              PyErr_Print();
-              throw INTERP_KERNEL::Exception(msg);
-            }
+            throw INTERP_KERNEL::Exception("list must contain only MEDCouplingUMesh");
+          ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
+          ret[i]=arg;
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      ret.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *obj=PyTuple_GetItem(pyLi,i);
+          void *argp;
+          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
+          if(!SWIG_IsOK(status))
+            throw INTERP_KERNEL::Exception("tuple must contain only MEDCouplingUMesh");
           ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
           ret[i]=arg;
         }
     }
   else
-    {
-      ret.clear();
-      const char msg[]="convertFieldDoubleVecFromPy : not a list";
-      PyErr_SetString(PyExc_TypeError,msg);
-      PyErr_Print();
-      throw INTERP_KERNEL::Exception(msg);
-    }
+    throw INTERP_KERNEL::Exception("convertFieldDoubleVecFromPy : not a list nor a tuple");
   return ret;
 }
 

@@ -81,10 +81,12 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMeshes::New;
 %newobject ParaMEDMEM::MEDFileMeshes::getMeshAtPos;
 %newobject ParaMEDMEM::MEDFileMeshes::getMeshWithName;
+%newobject ParaMEDMEM::MEDFileMeshes::__getitem__;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFields::getFieldWithName;
 %newobject ParaMEDMEM::MEDFileFields::getFieldAtPos;
+%newobject ParaMEDMEM::MEDFileFields::__getitem__;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtTopLevel;
@@ -615,6 +617,32 @@ namespace ParaMEDMEM
            {
              return self->simpleRepr();
            }
+
+         MEDFileMesh *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+         {
+           if(PyInt_Check(obj))
+             {
+               MEDFileMesh *ret=self->getMeshAtPos((int)PyInt_AS_LONG(obj));
+               if(ret)
+                 ret->incrRef();
+               return ret;
+             }
+           else if(PyString_Check(obj))
+             {
+               MEDFileMesh *ret=self->getMeshWithName(PyString_AsString(obj));
+               if(ret)
+                 ret->incrRef();
+               return ret;
+             }
+           else
+             throw INTERP_KERNEL::Exception("MEDFileMeshes::__getitem__ : only integer or string with meshname supported !");
+         }
+
+         MEDFileMeshes *__setitem__(int obj, MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception)
+         {
+           self->setMeshAtPos(obj,mesh);
+           return self;
+         }
          
          MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception)
            {
@@ -1178,6 +1206,26 @@ namespace ParaMEDMEM
          std::string __str__() const
          {
            return self->simpleRepr();
+         }
+         
+         MEDFileFieldMultiTS *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
+         {
+           if(PyInt_Check(obj))
+             {
+               return self->getFieldAtPos((int)PyInt_AS_LONG(obj));
+             }
+           else if(PyString_Check(obj))
+             {
+               return self->getFieldWithName(PyString_AsString(obj));
+             }
+           else
+             throw INTERP_KERNEL::Exception("MEDFileFields::__getitem__ : only integer or string with fieldname supported !");
+         }
+
+         MEDFileFields *__setitem__(int obj, MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception)
+         {
+           self->setFieldAtPos(obj,field);
+           return self;
          }
        }
   };

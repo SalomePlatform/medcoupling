@@ -590,11 +590,15 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(2,d2.getNumberOfMeshes())
         self.assertEqual(3,d2.getNumberOfFields())
         self.assertTrue(isinstance(d2.getMeshes().getMeshAtPos(0),MEDFileUMesh))
+        self.assertTrue(isinstance(d2.getMeshes()[0],MEDFileUMesh))
+        self.assertTrue(isinstance(d2.getMeshes()['2DCurveMesh_1'],MEDFileUMesh))
         m1bis=d2.getMeshes().getMeshAtPos(0).getMeshAtLevel(0)
         self.assertTrue(m1.isEqual(m1bis,1e-12))
         self.assertEqual(('f1', 'f21', 'f22'),d2.getFields().getFieldsNames())
         self.assertEqual([(-1, -1, 0.0)],d2.getFields().getFieldAtPos(2).getTimeSteps())
+        self.assertEqual([(-1, -1, 0.0)],d2.getFields()[2].getTimeSteps())
         self.assertEqual([(-1, -1, 0.0)],d2.getFields().getFieldWithName("f21").getTimeSteps())
+        self.assertEqual([(-1, -1, 0.0)],d2.getFields()["f21"].getTimeSteps())
         pass
     
     def testMEDField9(self):
