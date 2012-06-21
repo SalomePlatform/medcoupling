@@ -589,7 +589,7 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescIndx=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> meshDM1=buildDescendingConnectivity(desc,descIndx,revDesc,revDescIndx);
   meshDM1=0;
-  computeNeighborsOfCellsAdv(desc,descIndx,revDesc,revDescIndx,neighbors,neighborsIndx);
+  ComputeNeighborsOfCellsAdv(desc,descIndx,revDesc,revDescIndx,neighbors,neighborsIndx);
 }
 
 /*!
@@ -608,17 +608,17 @@ void MEDCouplingUMesh::computeNeighborsOfCells(DataArrayInt *&neighbors, DataArr
  *                        parameter allows to select the right part in this array. The number of tuples is equal to the last values in \b neighborsIndx.
  * \param [out] neighborsIndx is an array of size this->getNumberOfCells()+1 newly allocated and should be dealt by the caller. This arrays allow to use the first output parameter \b neighbors.
  */
-void MEDCouplingUMesh::computeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descIndx, const DataArrayInt *revDesc, const DataArrayInt *revDescIndx,
-                                                  DataArrayInt *&neighbors, DataArrayInt *&neighborsIndx) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descIndx, const DataArrayInt *revDesc, const DataArrayInt *revDescIndx,
+                                                  DataArrayInt *&neighbors, DataArrayInt *&neighborsIndx) throw(INTERP_KERNEL::Exception)
 {
   if(!desc || !descIndx || !revDesc || !revDescIndx)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::computeNeighborsOfCellsAdv some input array is empty !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ComputeNeighborsOfCellsAdv some input array is empty !");
   const int *descPtr=desc->getConstPointer();
   const int *descIPtr=descIndx->getConstPointer();
   const int *revDescPtr=revDesc->getConstPointer();
   const int *revDescIPtr=revDescIndx->getConstPointer();
   //
-  int nbCells=getNumberOfCells();
+  int nbCells=descIndx->getNumberOfTuples()-1;
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out0=DataArrayInt::New();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> out1=DataArrayInt::New(); out1->alloc(nbCells+1,1);
   int *out1Ptr=out1->getPointer();
@@ -1819,7 +1819,7 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildBoundaryMesh(bool keepCoords) const
  * A cell is detected to be on boundary if it contains one or more than one face having only one father.
  * This method makes the assumption that 'this' is fully defined (coords,connectivity). If not an exception will be thrown. 
  */
-DataArrayInt *MEDCouplingUMesh::findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingUMesh::findCellIdsOnBoundary() const throw(INTERP_KERNEL::Exception)
 {
   checkFullyDefined();
   DataArrayInt *desc=DataArrayInt::New();
@@ -1850,6 +1850,67 @@ DataArrayInt *MEDCouplingUMesh::findCellsIdsOnBoundary() const throw(INTERP_KERN
   std::copy(ret.begin(),ret.end(),ret2->getPointer());
   ret2->setName("BoundaryCells");
   return ret2;
+}
+
+/*!
+ * This method find in \b this cells ids that lie on mesh \b otherDimM1OnSameCoords.
+ * \b this and \b otherDimM1OnSameCoords have to lie on the same coordinate array pointer. The coherency of that coords array with connectivity
+ * of \b this and \b otherDimM1OnSameCoords is not important here because this method works only on connectivity.
+ * this->getMeshDimension() - 1 must be equal to otherDimM1OnSameCoords.getMeshDimension()
+ *
+ * s0 is the cells ids set in \b this lying on at least one node in fetched nodes in \b otherDimM1OnSameCoords.
+ * This method method returns cells ids set s = s1 + s2 where :
+ * 
+ *  - s1 are cells ids in \b this whose dim-1 constituent equals a cell in \b otherDimM1OnSameCoords.
+ *  - s2 are cells ids in \b s0 - \b s1 whose at least two neighbors are in s1.
+ *
+ * \throw if \b otherDimM1OnSameCoords is not part of constituent of \b this, or if coordinate pointer of \b this and \b otherDimM1OnSameCoords
+ *        are not same, or if this->getMeshDimension()-1!=otherDimM1OnSameCoords.getMeshDimension()
+ *
+ * \param [out] cellIdsRk0 a newly allocated array containing cells ids in \b this containg s0 in above algorithm.
+ * \param [out] cellIdsRk1 a newly allocated array containing cells ids of s1+s2 \b into \b cellIdsRk0 subset. To get absolute ids of s1+s2 simply invoke
+ *              cellIdsRk1->transformWithIndArr(cellIdsRk0->begin(),cellIdsRk0->end());
+ */
+void MEDCouplingUMesh::findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *&cellIdsRk0, DataArrayInt *&cellIdsRk1) const throw(INTERP_KERNEL::Exception)
+{
+  if(getCoords()!=otherDimM1OnSameCoords.getCoords())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellIdsLyingOn : coordinates pointer are not the same ! Use tryToShareSameCoords method !");
+  checkConnectivityFullyDefined();
+  otherDimM1OnSameCoords.checkConnectivityFullyDefined();
+  if(getMeshDimension()-1!=otherDimM1OnSameCoords.getMeshDimension())
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellIdsLyingOn : invalid mesh dimension of input mesh regarding meshdimesion of this !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fetchedNodeIds1=otherDimM1OnSameCoords.computeFetchedNodeIds();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s0arr=getCellIdsLyingOnNodes(fetchedNodeIds1->begin(),fetchedNodeIds1->end(),false);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> thisPart=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(s0arr->begin(),s0arr->end(),true));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descThisPart=DataArrayInt::New(),descIThisPart=DataArrayInt::New(),revDescThisPart=DataArrayInt::New(),revDescIThisPart=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> thisPartConsti=thisPart->buildDescendingConnectivity(descThisPart,descIThisPart,revDescThisPart,revDescIThisPart);
+  const int *revDescThisPartPtr=revDescThisPart->getConstPointer(),*revDescIThisPartPtr=revDescIThisPart->getConstPointer();
+  DataArrayInt *idsOtherInConsti=0;
+  bool b=thisPartConsti->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsOtherInConsti);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsOtherInConstiAuto(idsOtherInConsti);
+  if(!b)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellIdsLyingOn : the given mdim-1 mesh in other is not a constituent of this !");
+  std::set<int> s1;
+  for(const int *idOther=idsOtherInConsti->begin();idOther!=idsOtherInConsti->end();idOther++)
+    s1.insert(revDescThisPartPtr+revDescIThisPartPtr[*idOther],revDescThisPartPtr+revDescIThisPartPtr[*idOther+1]);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1arr_renum1=DataArrayInt::New(); s1arr_renum1->alloc((int)s1.size(),1); std::copy(s1.begin(),s1.end(),s1arr_renum1->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1Comparr_renum1=s1arr_renum1->buildComplement(s0arr->getNumberOfTuples());
+  DataArrayInt *neighThisPart=0,*neighIThisPart=0;
+  ComputeNeighborsOfCellsAdv(descThisPart,descIThisPart,revDescThisPart,revDescIThisPart,neighThisPart,neighIThisPart);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighThisPartAuto(neighThisPart),neighIThisPartAuto(neighIThisPart);
+  ExtractFromIndexedArrays(s1Comparr_renum1->begin(),s1Comparr_renum1->end(),neighThisPart,neighIThisPart,neighThisPart,neighIThisPart);// reuse of neighThisPart and neighIThisPart
+  neighThisPartAuto=neighThisPart; neighIThisPartAuto=neighIThisPart;
+  RemoveIdsFromIndexedArrays(s1Comparr_renum1->begin(),s1Comparr_renum1->end(),neighThisPart,neighIThisPart);
+  neighThisPartAuto=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2_tmp=neighIThisPart->deltaShiftIndex();
+  const int li[2]={0,1};
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2_renum2=s2_tmp->getIdsNotEqualList(li,li+2);
+  s2_renum2->transformWithIndArr(s1Comparr_renum1->begin(),s1Comparr_renum1->end());//s2_renum2==s2_renum1
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s_renum1=DataArrayInt::Aggregate(s2_renum2,s1arr_renum1,0);
+  s_renum1->sort();
+  //
+  s0arr->incrRef(); cellIdsRk0=s0arr;
+  s_renum1->incrRef(); cellIdsRk1=s_renum1;
 }
 
 /*!
@@ -1934,7 +1995,7 @@ void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNode
  *
  * \warning This method modifies param \b otherDimM1OnSameCoords (for speed reasons).
  */
-void MEDCouplingUMesh::findNodesToDuplicate(MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate, DataArrayInt *& cellIdsNeededToBeRenum) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate, DataArrayInt *& cellIdsNeededToBeRenum) const throw(INTERP_KERNEL::Exception)
 {
   checkFullyDefined();
   otherDimM1OnSameCoords.checkFullyDefined();
@@ -1942,56 +2003,35 @@ void MEDCouplingUMesh::findNodesToDuplicate(MEDCouplingUMesh& otherDimM1OnSameCo
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : meshes do not share the same coords array !");
   if(otherDimM1OnSameCoords.getMeshDimension()!=getMeshDimension()-1)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the mesh given in other parameter must have this->getMeshDimension()-1 !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIds1=otherDimM1OnSameCoords.computeFetchedNodeIds();
+  DataArrayInt *cellIdsRk0=0,*cellIdsRk1=0;
+  findCellIdsLyingOn(otherDimM1OnSameCoords,cellIdsRk0,cellIdsRk1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsRk0Auto(cellIdsRk0),cellIdsRk1Auto(cellIdsRk1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s0=cellIdsRk1->buildComplement(cellIdsRk0->getNumberOfTuples());
+  s0->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(s0->begin(),s0->end(),true));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s1=m0Part->computeFetchedNodeIds();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s2=otherDimM1OnSameCoords.computeFetchedNodeIds();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> s3=s2->buildSubstraction(s1);
+  cellIdsRk1->transformWithIndArr(cellIdsRk0Auto->begin(),cellIdsRk0Auto->end());
   //
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds0=getCellIdsLyingOnNodes(nodeIds1->begin(),nodeIds1->end(),false);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellIds0->begin(),cellIds0->end(),true));
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> boundary0=m0Part->findBoundaryNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> boundary1=otherDimM1OnSameCoords.findBoundaryNodes();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> diff=boundary1->buildSubstraction(boundary0);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsToDuplicateTmp=nodeIds1->buildSubstraction(diff);//ready to go to nodeIdsToDuplicate
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> m00t=m0Part->zipCoordsTraducer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsToDuplicate2=nodeIdsToDuplicateTmp->deepCpy();
-  nodeIdsToDuplicate2->transformWithIndArr(m00t->begin(),m00t->end());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNod00=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revNodI00=DataArrayInt::New();
-  m0Part->getReverseNodalConnectivity(revNod00,revNodI00);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc00=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descI00=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDesc00=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> revDescI00=DataArrayInt::New();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m01=m0Part->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
-  otherDimM1OnSameCoords.renumberNodesInConn(m00t->begin());
-  otherDimM1OnSameCoords.setCoords(m0Part->getCoords());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m0Part2=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(cellIdsRk1->begin(),cellIdsRk1->end(),true));
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> desc00=DataArrayInt::New(),descI00=DataArrayInt::New(),revDesc00=DataArrayInt::New(),revDescI00=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m01=m0Part2->buildDescendingConnectivity(desc00,descI00,revDesc00,revDescI00);
   DataArrayInt *idsTmp=0;
-  bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,0,idsTmp);
+  bool b=m01->areCellsIncludedIn(&otherDimM1OnSameCoords,2,idsTmp);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids(idsTmp);
   if(!b)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findNodesToDuplicate : the given mdim-1 mesh in other is not a constituent of this !");
   MEDCouplingUMesh::RemoveIdsFromIndexedArrays(ids->begin(),ids->end(),desc00,descI00);
   DataArrayInt *tmp0=0,*tmp1=0;
-  m0Part->computeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00,tmp0,tmp1);
+  ComputeNeighborsOfCellsAdv(desc00,descI00,revDesc00,revDescI00,tmp0,tmp1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh00(tmp0);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI00(tmp1);
-  std::set<int> cellIdsImpacted0;
-  const int *revNod00Ptr=revNod00->getConstPointer();
-  const int *revNodI00Ptr=revNodI00->getConstPointer();
-  for(const int *elt=nodeIdsToDuplicate2->begin();elt!=nodeIdsToDuplicate2->end();elt++)
-    for(const int *elt2=revNod00Ptr+revNodI00Ptr[*elt];elt2!=revNod00Ptr+revNodI00Ptr[*elt+1];elt2++)
-      cellIdsImpacted0.insert(*elt2);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsImpacted0_arr=DataArrayInt::New(); cellIdsImpacted0_arr->alloc((int)cellIdsImpacted0.size(),1);
-  std::copy(cellIdsImpacted0.begin(),cellIdsImpacted0.end(),cellIdsImpacted0_arr->getPointer());
-  MEDCouplingUMesh::ExtractFromIndexedArrays(cellIdsImpacted0_arr->begin(),cellIdsImpacted0_arr->end(),neigh00,neighI00,tmp0,tmp1);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIdsImpacted0_arr2=cellIdsImpacted0_arr->invertArrayN2O2O2N(cellIds0->getNumberOfTuples());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh000(tmp0);
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI000(tmp1);
-  neigh000->transformWithIndArr(cellIdsImpacted0_arr2->begin(),cellIdsImpacted0_arr2->end());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum=MEDCouplingUMesh::ComputeSpreadZoneGradually(neigh000,neighI000);
-  cellsToModifyConn0_torenum->transformWithIndArr(cellIdsImpacted0_arr->begin(),cellIdsImpacted0_arr->end());
-  cellsToModifyConn0_torenum->transformWithIndArr(cellIds0->begin(),cellIds0->end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum=MEDCouplingUMesh::ComputeSpreadZoneGradually(neigh00,neighI00);
+  cellsToModifyConn0_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
   //
   cellIdsNeededToBeRenum=cellsToModifyConn0_torenum; cellsToModifyConn0_torenum->incrRef();
-  nodeIdsToDuplicate=nodeIdsToDuplicateTmp; nodeIdsToDuplicateTmp->incrRef();
+  nodeIdsToDuplicate=s3; s3->incrRef();
 }
 
 /*!

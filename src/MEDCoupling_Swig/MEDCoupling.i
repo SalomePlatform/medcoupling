@@ -138,6 +138,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::getIdsEqualList;
 %newobject ParaMEDMEM::DataArrayInt::getIdsNotEqualList;
 %newobject ParaMEDMEM::DataArrayInt::negate;
+%newobject ParaMEDMEM::DataArrayInt::getIdsInRange;
 %newobject ParaMEDMEM::DataArrayInt::Aggregate;
 %newobject ParaMEDMEM::DataArrayInt::Meld;
 %newobject ParaMEDMEM::DataArrayInt::Add;
@@ -273,7 +274,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildPartOrthogonalField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::keepCellIdsByType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::Build0DMeshFromCoords;
-%newobject ParaMEDMEM::MEDCouplingUMesh::findCellsIdsOnBoundary;
+%newobject ParaMEDMEM::MEDCouplingUMesh::findCellIdsOnBoundary;
 %newobject ParaMEDMEM::MEDCouplingUMesh::computeSkin;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsLyingOnNodes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
@@ -1083,7 +1084,7 @@ namespace ParaMEDMEM
     //tools
     void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);
     std::vector<bool> getQuadraticStatus() const throw(INTERP_KERNEL::Exception);
-    DataArrayInt *findCellsIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *findCellIdsOnBoundary() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *computeSkin() const throw(INTERP_KERNEL::Exception);
     bool checkConsecutiveCellTypes() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *rearrange2ConsecutiveCellTypes() throw(INTERP_KERNEL::Exception);
@@ -1361,10 +1362,20 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *findNodesToDuplicate(MEDCouplingUMesh& otherDimM1OnSameCoords) const throw(INTERP_KERNEL::Exception)
+      PyObject *findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords) const throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *tmp0=0,*tmp1=0;
         self->findNodesToDuplicate(otherDimM1OnSameCoords,tmp0,tmp1);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      PyObject *findCellIdsLyingOn(const MEDCouplingUMesh& otherDimM1OnSameCoords) const throw(INTERP_KERNEL::Exception)
+      {
+        DataArrayInt *tmp0=0,*tmp1=0;
+        self->findCellIdsLyingOn(otherDimM1OnSameCoords,tmp0,tmp1);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -1760,10 +1771,10 @@ namespace ParaMEDMEM
         return ret;
       }
 
-      PyObject *computeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI) const throw(INTERP_KERNEL::Exception)
+      static PyObject *ComputeNeighborsOfCellsAdv(const DataArrayInt *desc, const DataArrayInt *descI, const DataArrayInt *revDesc, const DataArrayInt *revDescI) throw(INTERP_KERNEL::Exception)
       {
         DataArrayInt *neighbors=0,*neighborsIdx=0;
-        self->computeNeighborsOfCellsAdv(desc,descI,revDesc,revDescI,neighbors,neighborsIdx);
+        MEDCouplingUMesh::ComputeNeighborsOfCellsAdv(desc,descI,revDesc,revDescI,neighbors,neighborsIdx);
         PyObject *ret=PyTuple_New(2);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(neighbors),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(neighborsIdx),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));

@@ -6753,9 +6753,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,da.getIJ(1,0));
         pass
 
-    def testUMeshFindCellsIdsOnBoundary1(self):
+    def testUMeshFindCellIdsOnBoundary1(self):
         m=MEDCouplingDataForTest.build3DSurfTargetMesh_1();
-        da5=m.findCellsIdsOnBoundary();
+        da5=m.findCellIdsOnBoundary();
         self.assertEqual(5,da5.getNumberOfTuples());
         self.assertTrue(da5.isIdentity());
         pass
