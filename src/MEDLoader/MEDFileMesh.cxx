@@ -1735,6 +1735,14 @@ const DataArrayInt *MEDFileUMesh::getNumberFieldAtLevel(int meshDimRelToMaxExt) 
   return l1->getNumberField();
 }
 
+int MEDFileUMesh::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
+{
+  const DataArrayDouble *coo=_coords;
+  if(!coo)
+    throw INTERP_KERNEL::Exception(" MEDFileUMesh::getNumberOfNodes : no coords set !");
+  return coo->getNumberOfTuples();
+}
+
 const DataArrayInt *MEDFileUMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception)
 {
   if(meshDimRelToMaxExt==1)
@@ -2637,6 +2645,14 @@ void MEDFileCMesh::synchronizeTinyInfoOnLeaves() const
   (const_cast<MEDCouplingCMesh *>(cmesh))->setDescription(_desc_name.c_str());
   (const_cast<MEDCouplingCMesh *>(cmesh))->setTime(_time,_iteration,_order);
   (const_cast<MEDCouplingCMesh *>(cmesh))->setTimeUnit(_dt_unit.c_str());
+}
+
+int MEDFileCMesh::getNumberOfNodes() const throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingCMesh *cmesh(_cmesh);
+  if(!cmesh)
+    throw INTERP_KERNEL::Exception("MEDFileCMesh::getNumberOfNodes : no cartesian mesh set !");
+  return cmesh->getNumberOfNodes();
 }
 
 std::vector<int> MEDFileCMesh::getNonEmptyLevels() const

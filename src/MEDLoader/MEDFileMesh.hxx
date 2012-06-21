@@ -51,6 +51,7 @@ namespace ParaMEDMEM
     double getTimeValue() const { return _time; }
     void setTimeUnit(const char *unit) { _dt_unit=unit; }
     const char *getTimeUnit() const { return _dt_unit.c_str(); }
+    virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
     virtual std::vector<int> getNonEmptyLevels() const = 0;
     virtual std::vector<int> getNonEmptyLevelsExt() const = 0;
     virtual void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -162,6 +163,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
     std::vector<int> getGrpNonEmptyLevels(const char *grp) const throw(INTERP_KERNEL::Exception);
@@ -238,6 +240,7 @@ namespace ParaMEDMEM
     DataArrayInt *getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
     void setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famArr) throw(INTERP_KERNEL::Exception);
     void setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumArr) throw(INTERP_KERNEL::Exception);
+    int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
     std::vector<int> getNonEmptyLevels() const;
     std::vector<int> getNonEmptyLevelsExt() const;
     const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
