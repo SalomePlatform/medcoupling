@@ -5871,6 +5871,7 @@ namespace ParaMEDMEM
         self->getValueOn(spaceLoc,time,res);
         return convertDblArrToPyList(res,sz);
       }
+
       void setValues(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         if(self->getArray()!=0)
@@ -5882,8 +5883,9 @@ namespace ParaMEDMEM
             self->getArray()->useArray(tmp,true,CPP_DEALLOC,nbTuples,nbOfCompo);
           }
         else
-          PyErr_SetString(PyExc_TypeError,"setValuesCpy : field must contain an array behind");
+          throw INTERP_KERNEL::Exception("setValuesCpy : field must contain an array behind");
       }
+      
       PyObject *getTime() throw(INTERP_KERNEL::Exception)
       {
         int tmp1,tmp2;
