@@ -4753,6 +4753,31 @@ void DataArrayInt::applyModulus(int val) throw(INTERP_KERNEL::Exception)
 }
 
 /*!
+ * This method works only on data array with one component.
+ * This method returns a newly allocated array storing stored ascendantly tuple ids in \b this so that
+ * this[*id] in [\b vmin,\b vmax)
+ * 
+ * \param [in] vmin begin of range. This value is included in range.
+ * \param [out] vmax end of range. This value is \b not included in range.
+ * \return a newly allocated data array that the caller should deal with.
+ */
+DataArrayInt *DataArrayInt::getIdsInRange(int vmin, int vmax) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::getIdsInRange : this must have exactly one component !");
+  const int *cptr=getConstPointer();
+  std::vector<int> res;
+  int nbOfTuples=getNumberOfTuples();
+  for(int i=0;i<nbOfTuples;i++,cptr++)
+    if(*cptr>=vmin && *cptr<vmax)
+      res.push_back(i);
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc((int)res.size(),1);
+  std::copy(res.begin(),res.end(),ret->getPointer());
+  return ret;
+}
+
+/*!
  * This method applies the operation 'numerator%x' for each element 'x' in 'this'.
  * If there is a value in 'this' exactly equals or lower than 0. an exception is thrown.
  * Warning if presence of null this is modified for each values previous than place where exception was thrown !
