@@ -203,6 +203,8 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroups(const std::vector<std:
       if(it2==_groups.end())
         {
           std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
+          std::vector<std::string> grps=getGroupsNames(); oss << "\" !\nAvailable groups are :";
+          std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       fams.insert((*it2).second.begin(),(*it2).second.end());
@@ -2000,8 +2002,24 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   m0->findNodesToDuplicate(*m11,tmp00,tmp11);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsToDuplicate(tmp00);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0(tmp11);
-  m11=getGroup(-1,grpNameM1);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp0=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),true));
+  // node renumbering of cells in m1 impacted by duplication of node but not in group 'grpNameM1' on level -1
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descTmp0=DataArrayInt::New(),descITmp0=DataArrayInt::New(),revDescTmp0=DataArrayInt::New(),revDescITmp0=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp0Desc=tmp0->buildDescendingConnectivity(descTmp0,descITmp0,revDescTmp0,revDescITmp0);
+  descTmp0=0; descITmp0=0; revDescTmp0=0; revDescITmp0=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsInM1ToRenumW2=tmp0Desc->getCellIdsLyingOnNodes(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),false);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> cellsInM1ToRenumW3=static_cast<MEDCouplingUMesh *>(tmp0Desc->buildPartOfMySelf(cellsInM1ToRenumW2->begin(),cellsInM1ToRenumW2->end(),true));
+  DataArrayInt *cellsInM1ToRenumW4Tmp=0;
+  m1->areCellsIncludedIn(cellsInM1ToRenumW3,2,cellsInM1ToRenumW4Tmp);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsInM1ToRenumW4(cellsInM1ToRenumW4Tmp);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsInM1ToRenumW5=cellsInM1ToRenumW4->getIdsInRange(0,m1->getNumberOfCells());
+  cellsInM1ToRenumW5->transformWithIndArr(cellsInM1ToRenumW4->begin(),cellsInM1ToRenumW4->end());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> grpIds=getGroupArr(-1,grpNameM1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsInM1ToRenum=cellsInM1ToRenumW5->buildSubstraction(grpIds);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1Part=static_cast<MEDCouplingUMesh *>(m1->buildPartOfMySelf(cellsInM1ToRenum->begin(),cellsInM1ToRenum->end(),true));
+  m1Part->duplicateNodesInConn(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),nbNodes);
+  m1->setPartOfMySelf(cellsInM1ToRenum->begin(),cellsInM1ToRenum->end(),*m1Part);
+  // end of node renumbering of cells in m1 impacted by duplication of node but not in group of level -1 'grpNameM1'
   tmp0->duplicateNodes(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end());
   m0->setCoords(tmp0->getCoords());
   m0->setPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),*tmp0);
@@ -2012,7 +2030,7 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   DataArrayInt *famTmp=const_cast<DataArrayInt *>(getFamilyFieldAtLevel(1));
   famTmp->setPartOfValues1(fam,0,fam->getNumberOfTuples(),1,0,1,1,true);
   fam->decrRef();
-  //
+  // duplication of cells in group 'grpNameM1' on level -1
   m11->duplicateNodesInConn(nodeIdsToDuplicate->begin(),nodeIdsToDuplicate->end(),nbNodes); m11->setCoords(m0->getCoords());
   std::vector<const MEDCouplingUMesh *> v(2); v[0]=m1; v[1]=m11;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> newm1=MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(v,tmp00,tmp11);
