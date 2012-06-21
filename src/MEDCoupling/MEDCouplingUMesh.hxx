@@ -130,7 +130,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT MEDCouplingUMesh *computeSkin() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void renumberNodes(const int *newNodeNumbers, int newNbOfNodes);
     MEDCOUPLING_EXPORT void renumberNodes2(const int *newNodeNumbers, int newNbOfNodes);
-    MEDCOUPLING_EXPORT void findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate, DataArrayInt *& cellIdsNeededToBeRenum) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate,
+                                                 DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void duplicateNodes(const int *nodeIdsToDuplicateBg, const int *nodeIdsToDuplicateEnd) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void renumberNodesInConn(const int *newNodeNumbersO2N);
     MEDCOUPLING_EXPORT void shiftNodeNumbersInConn(int delta) throw(INTERP_KERNEL::Exception);

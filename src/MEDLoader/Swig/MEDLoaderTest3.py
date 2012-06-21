@@ -1150,6 +1150,106 @@ class MEDLoaderTest(unittest.TestCase):
             self.assertAlmostEqual(expected1[i],tes3.getArray().getIJ(0,i),13);
             pass
         pass
+
+    def testDuplicateNodesOnM1Group1(self):
+        fname="Pyfile44.med"
+        m=MEDCouplingCMesh.New()
+        m.setCoordsAt(0,DataArrayDouble.New([0.,1.1,2.3,3.6,5.,6.5]))
+        m.setCoordsAt(1,DataArrayDouble.New([0.,1.1,2.3,3.6,5.]))
+        m=m.buildUnstructured() ; m.setName("AnthonyDuplicate")
+        m.getCoords().setInfoOnComponents(["X [km]","Z [mm]"])
+        m2=m.buildDescendingConnectivity()[0][[8,11,14,20,21,22,23,24,25,26,31,32,33,34,35,36,37]]
+        m2.setName(m.getName())
+        grp=DataArrayInt.New([4,6,8]) ; grp.setName("Grp")
+        grp2=DataArrayInt.New([9,16]) ; grp2.setName("Grp2")
+        mm=MEDFileUMesh.New()
+        mm.setMeshAtLevel(0,m)
+        mm.setMeshAtLevel(-1,m2)
+        mm.setGroupsAtLevel(-1,[grp,grp2])
+        grpNode=DataArrayInt.New([4,21,23]) ; grpNode.setName("GrpNode")
+        mm.setGroupsAtLevel(1,[grpNode])
+        ref0=[4,15,14,20,21,4,16,15,21,22,4,17,16,22,23]
+        ref1=[4,9,8,14,15,4,10,9,15,16,4,11,10,16,17]
+        ref2=[4,9,8,14,30,4,10,9,30,31,4,11,10,31,32]
+        #
+        self.assertEqual(30,mm.getNumberOfNodes())
+        self.assertEqual(ref0,mm.getMeshAtLevel(0)[[12,13,14]].getNodalConnectivity().getValues())
+        self.assertEqual(ref1,mm.getMeshAtLevel(0)[[7,8,9]].getNodalConnectivity().getValues())
+        #
+        nodes,cells,cells2=mm.duplicateNodesOnM1Group("Grp")
+        self.assertEqual([15,16,17],nodes.getValues());
+        self.assertEqual([7,8,9],cells.getValues());
+        self.assertEqual([12,13,14],cells2.getValues());
+        self.assertEqual(33,mm.getNumberOfNodes())
+        self.assertEqual([4,6,8],mm.getGroupArr(-1,"Grp").getValues())
+        self.assertEqual([9,16],mm.getGroupArr(-1,"Grp2").getValues())
+        self.assertEqual([4,21,23],mm.getGroupArr(1,"GrpNode").getValues())
+        self.assertEqual([17,18,19],mm.getGroupArr(-1,"Grp_dup").getValues())
+        self.assertEqual(ref0,mm.getMeshAtLevel(0)[[12,13,14]].getNodalConnectivity().getValues())#cells 7,8,9 and 12,13,14 are lying on "Grp" but only 7,8 and 9 are renumbered
+        self.assertEqual(ref2,mm.getMeshAtLevel(0)[[7,8,9]].getNodalConnectivity().getValues())#
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),2,1e-12);# Grp_dup and Grp are not equal considering connectivity only
+        mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith(mm.getGroup(-1,"Grp"),12,1e-12)# Grp_dup and Grp are equal considering connectivity and coordinates
+        refValues=DataArrayDouble.New([1.21,1.32,1.43,1.54,1.65,1.32,1.44,1.56,1.68,1.8,1.43,1.56,1.69,1.82,1.95,1.54,1.68,1.82,1.96,2.1])
+        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues) ; delta.abs()
+        self.assertTrue(delta.getMaxValue()[0]<1e-12)
+        #
+        mm.getCoords()[-len(nodes):]+=[0.,-0.3]
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12);
+        refValues2=refValues[:] ; refValues2[7:10]=[1.365,1.26,1.35]
+        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues2) ; delta.abs()
+        self.assertTrue(delta.getMaxValue()[0]<1e-12)
+        mm.write(fname,2)
+        pass
+
+    def testDuplicateNodesOnM1Group2(self):
+        fname="Pyfile45.med"
+        m=MEDCouplingCMesh.New()
+        m.setCoordsAt(0,DataArrayDouble.New([0.,1.1,2.3,3.6,5.,6.5]))
+        m.setCoordsAt(1,DataArrayDouble.New([0.,1.1,2.3,3.6,5.]))
+        m=m.buildUnstructured() ; m.setName("AnthonyDuplicate")
+        m.getCoords().setInfoOnComponents(["X [km]","Z [mm]"])
+        m2=m.buildDescendingConnectivity()[0][[8,11,14,20,21,22,23,24,25,26,31,32,33,34,35,36,37]]
+        m2.setName(m.getName())
+        grp=DataArrayInt.New([4,6]) ; grp.setName("Grp")
+        grp2=DataArrayInt.New([9,16]) ; grp2.setName("Grp2")
+        mm=MEDFileUMesh.New()
+        mm.setMeshAtLevel(0,m)
+        mm.setMeshAtLevel(-1,m2)
+        mm.setGroupsAtLevel(-1,[grp,grp2])
+        grpNode=DataArrayInt.New([4,21,23]) ; grpNode.setName("GrpNode")
+        mm.setGroupsAtLevel(1,[grpNode])
+        ref0=[4,15,14,20,21,4,16,15,21,22,4,17,16,22,23]
+        ref1=[4,9,8,14,15,4,10,9,15,16]
+        ref2=[4,9,8,14,30,4,10,9,30,16]
+        #
+        self.assertEqual(30,mm.getNumberOfNodes())
+        self.assertEqual(ref0,mm.getMeshAtLevel(0)[[12,13,14]].getNodalConnectivity().getValues())
+        self.assertEqual(ref1,mm.getMeshAtLevel(0)[[7,8]].getNodalConnectivity().getValues())
+        #
+        nodes,cells,cells2=mm.duplicateNodesOnM1Group("Grp")
+        self.assertEqual([15],nodes.getValues());
+        self.assertEqual([7,8],cells.getValues());
+        self.assertEqual([12,13],cells2.getValues());
+        self.assertEqual(31,mm.getNumberOfNodes())
+        self.assertEqual([4,6],mm.getGroupArr(-1,"Grp").getValues())
+        self.assertEqual([9,16],mm.getGroupArr(-1,"Grp2").getValues())
+        self.assertEqual([4,21,23],mm.getGroupArr(1,"GrpNode").getValues())
+        self.assertEqual([17,18],mm.getGroupArr(-1,"Grp_dup").getValues())
+        self.assertEqual(ref0,mm.getMeshAtLevel(0)[[12,13,14]].getNodalConnectivity().getValues())#cells 7,8,9 and 12,13,14 are lying on "Grp" but only 7,8 and 9 are renumbered
+        self.assertEqual(ref2,mm.getMeshAtLevel(0)[[7,8]].getNodalConnectivity().getValues())#
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),2,1e-12);# Grp_dup and Grp are not equal considering connectivity only
+        mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith(mm.getGroup(-1,"Grp"),12,1e-12)# Grp_dup and Grp are equal considering connectivity and coordinates
+        refValues=DataArrayDouble.New([1.21,1.32,1.43,1.54,1.65,1.32,1.44,1.56,1.68,1.8,1.43,1.56,1.69,1.82,1.95,1.54,1.68,1.82,1.96,2.1])
+        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues) ; delta.abs()
+        self.assertTrue(delta.getMaxValue()[0]<1e-12)
+        #
+        mm.getCoords()[-len(nodes):]+=[0.,-0.3]
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12);
+        refValues2=refValues[:] ; refValues2[7:9]=[1.365,1.47]
+        valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues2) ; delta.abs()
+        self.assertTrue(delta.getMaxValue()[0]<1e-12)
+        mm.write(fname,2)       
+        pass
     pass
 
 unittest.main()

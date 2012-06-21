@@ -1997,7 +1997,7 @@ void MEDFileUMesh::optimizeFamilies() throw(INTERP_KERNEL::Exception)
     _groups.erase(*it);
 }
 
-void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified) throw(INTERP_KERNEL::Exception)
+void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified) throw(INTERP_KERNEL::Exception)
 {
   std::vector<int> levs=getNonEmptyLevels();
   if(std::find(levs.begin(),levs.end(),0)==levs.end() || std::find(levs.begin(),levs.end(),-1)==levs.end())
@@ -2006,10 +2006,11 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m1=getMeshAtLevel(-1);
   int nbNodes=m0->getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m11=getGroup(-1,grpNameM1);
-  DataArrayInt *tmp00=0,*tmp11=0;
-  m0->findNodesToDuplicate(*m11,tmp00,tmp11);
+  DataArrayInt *tmp00=0,*tmp11=0,*tmp22=0;
+  m0->findNodesToDuplicate(*m11,tmp00,tmp11,tmp22);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nodeIdsToDuplicate(tmp00);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0(tmp11);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn1(tmp22);
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp0=static_cast<MEDCouplingUMesh *>(m0->buildPartOfMySelf(cellsToModifyConn0->begin(),cellsToModifyConn0->end(),true));
   // node renumbering of cells in m1 impacted by duplication of node but not in group 'grpNameM1' on level -1
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> descTmp0=DataArrayInt::New(),descITmp0=DataArrayInt::New(),revDescTmp0=DataArrayInt::New(),revDescITmp0=DataArrayInt::New();
@@ -2083,6 +2084,7 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
     }
   nodesDuplicated=nodeIdsToDuplicate; nodeIdsToDuplicate->incrRef();
   cellsModified=cellsToModifyConn0; cellsToModifyConn0->incrRef();
+  cellsNotModified=cellsToModifyConn1; cellsToModifyConn1->incrRef();
 }
 
 void MEDFileUMesh::addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception)

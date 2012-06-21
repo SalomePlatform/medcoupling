@@ -1364,11 +1364,12 @@ namespace ParaMEDMEM
 
       PyObject *findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords) const throw(INTERP_KERNEL::Exception)
       {
-        DataArrayInt *tmp0=0,*tmp1=0;
-        self->findNodesToDuplicate(otherDimM1OnSameCoords,tmp0,tmp1);
-        PyObject *ret=PyTuple_New(2);
+        DataArrayInt *tmp0=0,*tmp1=0,*tmp2=0;
+        self->findNodesToDuplicate(otherDimM1OnSameCoords,tmp0,tmp1,tmp2);
+        PyObject *ret=PyTuple_New(3);
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tmp0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tmp1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(tmp2),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 

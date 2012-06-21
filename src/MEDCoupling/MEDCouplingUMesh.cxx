@@ -1980,10 +1980,12 @@ void MEDCouplingUMesh::renumberNodes2(const int *newNodeNumbers, int newNbOfNode
  *             parameter is altered during the call.
  * \param [out] nodeIdsToDuplicate node ids needed to be duplicated following the algorithm explain above.
  * \param [out] cellIdsNeededToBeRenum cell ids in \b this in which the renumber of nodes should be performed.
+ * \param [out] cellIdsNotModified cell ids int \b this that lies on \b otherDimM1OnSameCoords mesh whose connectivity do \b not need to be modified as it is the case for \b cellIdsNeededToBeRenum.
  *
  * \warning This method modifies param \b otherDimM1OnSameCoords (for speed reasons).
  */
-void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate, DataArrayInt *& cellIdsNeededToBeRenum) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1OnSameCoords, DataArrayInt *& nodeIdsToDuplicate,
+                                            DataArrayInt *& cellIdsNeededToBeRenum, DataArrayInt *& cellIdsNotModified) const throw(INTERP_KERNEL::Exception)
 {
   checkFullyDefined();
   otherDimM1OnSameCoords.checkFullyDefined();
@@ -2016,9 +2018,12 @@ void MEDCouplingUMesh::findNodesToDuplicate(const MEDCouplingUMesh& otherDimM1On
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neigh00(tmp0);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> neighI00(tmp1);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn0_torenum=MEDCouplingUMesh::ComputeSpreadZoneGradually(neigh00,neighI00);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellsToModifyConn1_torenum=cellsToModifyConn0_torenum->buildComplement(neighI00->getNumberOfTuples()-1);
   cellsToModifyConn0_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
+  cellsToModifyConn1_torenum->transformWithIndArr(cellIdsRk1->begin(),cellIdsRk1->end());
   //
   cellIdsNeededToBeRenum=cellsToModifyConn0_torenum; cellsToModifyConn0_torenum->incrRef();
+  cellIdsNotModified=cellsToModifyConn1_torenum; cellsToModifyConn1_torenum->incrRef();
   nodeIdsToDuplicate=s3; s3->incrRef();
 }
 
