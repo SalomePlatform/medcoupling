@@ -24,6 +24,10 @@
 #include <iostream>
 #include <mpi.h>
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 #include "MPIAccessTest.hxx"
 #include <cppunit/TestAssert.h>
 

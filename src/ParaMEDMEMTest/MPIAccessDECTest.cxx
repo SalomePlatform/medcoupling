@@ -23,6 +23,10 @@
 #include <sstream>
 #include <cmath>
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 using namespace std;
 
 

@@ -26,6 +26,10 @@
 #include <stdexcept>
 #include <stdlib.h>
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 //================================================================================
 /*!
  * \brief Get path to the resources file.

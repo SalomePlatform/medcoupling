@@ -22,6 +22,10 @@
 #include <iostream>
 #include <cstring>
 
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
 MPI2Connector::MPI2Connector()
 {
   MPI_Comm_size( MPI_COMM_WORLD, &_nb_proc );
