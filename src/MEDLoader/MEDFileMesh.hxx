@@ -46,7 +46,7 @@ namespace ParaMEDMEM
     void setIteration(int it) { _iteration=it; }
     int getIteration() const { return _iteration; }
     void setTimeValue(double time) { _time=time; }
-    void setTime(double time, int dt, int it) { _time=time; _iteration=dt; _order=it; }
+    void setTime(int dt, int it, double time) { _time=time; _iteration=dt; _order=it; }
     double getTime(int& dt, int& it) { dt=_iteration; it=_order; return _time; }
     double getTimeValue() const { return _time; }
     void setTimeUnit(const char *unit) { _dt_unit=unit; }

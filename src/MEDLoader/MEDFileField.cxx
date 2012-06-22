@@ -3251,6 +3251,11 @@ MEDFileField1TS *MEDFileField1TS::New(const char *fileName, const char *fieldNam
   return new MEDFileField1TS(fileName,fieldName,iteration,order);
 }
 
+MEDFileField1TS *MEDFileField1TS::New(const MEDFileField1TSWithoutDAS& other)
+{
+  return new MEDFileField1TS(other);
+}
+
 MEDFileField1TS *MEDFileField1TS::New()
 {
   return new MEDFileField1TS;
@@ -3362,6 +3367,10 @@ catch(INTERP_KERNEL::Exception& e)
   {
     throw e;
   }
+
+MEDFileField1TS::MEDFileField1TS(const MEDFileField1TSWithoutDAS& other):MEDFileField1TSWithoutDAS(other)
+{
+}
 
 MEDFileField1TS::MEDFileField1TS()
 {
@@ -3687,7 +3696,7 @@ std::vector< std::pair<int,int> > MEDFileFieldMultiTSWithoutDAS::getTimeSteps(st
         }
       else
         {
-          std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutDAS::getTimeSteps : At rank #" << i << " time step is not defined !";
+          std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutDAS::getTimeSteps : At rank #" << i << " time step is not defined. Invoke eraseEmptyTS method !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
@@ -3774,6 +3783,58 @@ void MEDFileFieldMultiTSWithoutDAS::writeLL(med_idt fid) const throw(INTERP_KERN
 int MEDFileFieldMultiTSWithoutDAS::getNumberOfTS() const
 {
   return _time_steps.size();
+}
+
+void MEDFileFieldMultiTSWithoutDAS::eraseEmptyTS() throw(INTERP_KERNEL::Exception)
+{
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  > newTS;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      const MEDFileField1TSWithoutDAS *tmp=(*it);
+      if(tmp)
+        newTS.push_back(*it);
+    }
+  _time_steps=newTS;
+}
+
+int MEDFileFieldMultiTSWithoutDAS::getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+{
+  int ret=0;
+  std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutDAS::getPosOfTimeStep : No such time step (" << iteration << "," << order << ") !\nPossibilities are : "; 
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,ret++)
+    {
+      const MEDFileField1TSWithoutDAS *tmp(*it);
+      if(tmp)
+        {
+          int it,ord;
+          tmp->getTime(it,ord);
+          if(it==iteration && order==ord)
+            return ret;
+          else
+            oss << "(" << it << ","  << ord << "), ";
+        }
+    }
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+int MEDFileFieldMultiTSWithoutDAS::getPosGivenTime(double time, double eps) const throw(INTERP_KERNEL::Exception)
+{
+  int ret=0;
+  std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutDAS::getPosGivenTime : No such time step " << time << "! \nPossibilities are : "; 
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,ret++)
+    {
+      const MEDFileField1TSWithoutDAS *tmp(*it);
+      if(tmp)
+        {
+          int it,ord;
+          double ti=tmp->getTime(it,ord);
+          if(fabs(time-ti)<eps)
+            return ret;
+          else
+            oss << ti << ", ";
+        }
+    }
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
 }
 
 std::vector< std::pair<int,int> > MEDFileFieldMultiTSWithoutDAS::getIterations() const
@@ -3952,6 +4013,38 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const char *fileName, const char *
 MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const MEDFileFieldMultiTSWithoutDAS& other)
 {
   return new MEDFileFieldMultiTS(other);
+}
+
+MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception)
+{
+  if(pos<0 || pos>=(int)_time_steps.size())
+    {
+      std::ostringstream oss; oss << "MEDFileFieldMultiTS::getTimeStepAtPos : request for pos #" << pos << " whereas should be in [0," << _time_steps.size() << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  const MEDFileField1TSWithoutDAS *item=_time_steps[pos];
+  if(item==0)
+    {
+      std::ostringstream oss; oss << "MEDFileFieldMultiTS::getTimeStepAtPos : request for pos #" << pos << ", this pos id exists but the underlying Field1TS is null !";
+      oss << "\nTry to use following method eraseEmptyTS !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDFileField1TS> ret=MEDFileField1TS::New(*item);
+  ret->shallowCpyGlobs(*this);
+  ret->incrRef();
+  return ret;
+}
+
+MEDFileField1TS *MEDFileFieldMultiTS::getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception)
+{
+  int pos=getPosOfTimeStep(iteration,order);
+  return getTimeStepAtPos(pos);
+}
+
+MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepGivenTime(double time, double eps) const throw(INTERP_KERNEL::Exception)
+{
+  int pos=getPosGivenTime(time,eps);
+  return getTimeStepAtPos(pos);
 }
 
 std::string MEDFileFieldMultiTS::simpleRepr() const
