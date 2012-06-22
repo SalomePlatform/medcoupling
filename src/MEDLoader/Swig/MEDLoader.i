@@ -88,6 +88,10 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileFields::getFieldAtPos;
 %newobject ParaMEDMEM::MEDFileFields::__getitem__;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getTimeStepAtPos;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getTimeStep;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::getTimeStepGivenTime;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::__getitem__;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtTopLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
@@ -329,7 +333,7 @@ namespace ParaMEDMEM
     void setIteration(int it);
     int getIteration();
     void setTimeValue(double time);
-    void setTime(double time, int dt, int it);
+    void setTime(int dt, int it, double time);
     double getTimeValue() const;
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
@@ -404,9 +408,9 @@ namespace ParaMEDMEM
            int tmp1,tmp2;
            double tmp0=self->getTime(tmp1,tmp2);
            PyObject *res = PyList_New(3);
-           PyList_SetItem(res,0,SWIG_From_double(tmp0));
-           PyList_SetItem(res,1,SWIG_From_int(tmp1));
-           PyList_SetItem(res,2,SWIG_From_int(tmp2));
+           PyList_SetItem(res,0,SWIG_From_int(tmp1));
+           PyList_SetItem(res,1,SWIG_From_int(tmp2));
+           PyList_SetItem(res,2,SWIG_From_double(tmp0));
            return res;
          }
 
@@ -791,7 +795,7 @@ namespace ParaMEDMEM
     int getNumberOfComponents() const;
     bool isDealingTS(int iteration, int order) const;
     const std::vector<std::string>& getInfo() const;
-    void setTime(double val, int iteration, int order);
+    void setTime(int iteration, int order, double val);
     %extend
        {
           PyObject *getTime()
@@ -799,9 +803,9 @@ namespace ParaMEDMEM
            int tmp1,tmp2;
            double tmp0=self->getTime(tmp1,tmp2);
            PyObject *res = PyList_New(3);
-           PyList_SetItem(res,0,SWIG_From_double(tmp0));
-           PyList_SetItem(res,1,SWIG_From_int(tmp1));
-           PyList_SetItem(res,2,SWIG_From_int(tmp2));
+           PyList_SetItem(res,0,SWIG_From_int(tmp1));
+           PyList_SetItem(res,1,SWIG_From_int(tmp2));
+           PyList_SetItem(res,2,SWIG_From_double(tmp0));
            return res;
          }
 
@@ -988,6 +992,9 @@ namespace ParaMEDMEM
   {
   public:
     int getNumberOfTS() const;
+    void eraseEmptyTS() throw(INTERP_KERNEL::Exception);
+    int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
+    int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
     std::string getName() const;
     void setName(const char *name);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
@@ -1158,6 +1165,11 @@ namespace ParaMEDMEM
   public:
     static MEDFileFieldMultiTS *New();
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
+    //
+    MEDFileField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
+    MEDFileField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
+    MEDFileField1TS *getTimeStepGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
+    //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int iteration, int order, int meshDimRelToMax, int renumPol=0) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtTopLevel(TypeOfField type, int iteration, int order, int renumPol=0) const throw(INTERP_KERNEL::Exception);
@@ -1173,6 +1185,40 @@ namespace ParaMEDMEM
            {
              return self->simpleRepr();
            }
+
+         MEDFileField1TS *__getitem__(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
+         {
+           if(elt0 && PyInt_Check(elt0))
+             {//fmts[3]
+               int pos=PyInt_AS_LONG(elt0);
+               return self->getTimeStepAtPos(pos);
+             }
+           else if(elt0 && PyTuple_Check(elt0))
+             {
+               if(PyTuple_Size(elt0)==2)
+                 {
+                   PyObject *o0=PyTuple_GetItem(elt0,0);
+                   PyObject *o1=PyTuple_GetItem(elt0,1);
+                   if(PyInt_Check(o0) && PyInt_Check(o1))
+                     {//fmts(1,-1)
+                       int iter=PyInt_AS_LONG(o0);
+                       int order=PyInt_AS_LONG(o1);
+                       return self->getTimeStep(iter,order);
+                     }
+                   else
+                     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::__getitem__ : invalid input param ! input is a tuple of size 2 but two integers are expected in this tuple to request a time steps !");
+                 }
+               else
+                 throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::__getitem__ : invalid input param ! input is a tuple of size != 2 ! two integers are expected in this tuple to request a time steps !");
+             }
+           else if(elt0 && PyFloat_Check(elt0))
+             {
+               double val=PyFloat_AS_DOUBLE(elt0);
+               return self->getTimeStepGivenTime(val);
+             }
+           else
+             throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::__getitem__ : invalid input params ! expected fmts[int], fmts[int,int] or fmts[double] to request time step !");
+         }
 
          PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
            {

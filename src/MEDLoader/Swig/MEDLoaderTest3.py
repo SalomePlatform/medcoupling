@@ -295,7 +295,7 @@ class MEDLoaderTest(unittest.TestCase):
     def testMEDMesh6(self):
         outFileName="MEDFileMesh5.med"
         m=MEDFileCMesh.New()
-        m.setTime(2.3,-1,-1)
+        m.setTime(-1,-1,2.3)
         m1=MEDCouplingCMesh.New();
         da=DataArrayDouble.New()
         da.setValues([0.,1.,2.],3,1)
@@ -327,7 +327,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual(expected1,mm.getFamilyArr(1,"family1").getValues())
         m2=mm.getMesh()
         tt=m.getTime()
-        m1.setTime(tt[0],tt[1],tt[2])
+        m1.setTime(tt[2],tt[0],tt[1])
         m1.setName(m.getName())
         m1.setTimeUnit(m.getTimeUnit())
         m1.setDescription(m.getDescription())
@@ -378,6 +378,9 @@ class MEDLoaderTest(unittest.TestCase):
         mm=MEDFileMesh.New("Pyfile17.med")
         mm.write("Pyfile17_bis.med",2)
         ff=MEDFileFieldMultiTS.New("Pyfile17.med","MeasureOfMesh_Extruded")
+        self.assertEqual([3,4],ff[1].getTime()[:-1])
+        self.assertEqual([3,4],ff[3,4].getTime()[:-1])
+        self.assertEqual([3,4],ff[0.01].getTime()[:-1])
         ff.write("Pyfile17_bis.med",0)
         pass
 
@@ -475,11 +478,11 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.setFieldNoProfileSBT(f1)
         ff1.write(fname,0)
         f2=MEDLoader.ReadFieldCell(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2]);
-        ti,itt,orr=ff1.getTime()
+        itt,orr,ti=ff1.getTime()
         self.assertEqual(0,itt); self.assertEqual(1,orr); self.assertAlmostEqual(2.,ti,14);
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
-        ff1.setTime(2.3,3,4)
-        ti,itt,orr=ff1.getTime()
+        ff1.setTime(3,4,2.3)
+        itt,orr,ti=ff1.getTime()
         self.assertEqual(3,itt); self.assertEqual(4,orr); self.assertAlmostEqual(2.3,ti,14);
         da,infos=ff1.getUndergroundDataArrayExt()
         f2.getArray().setName(da.getName())#da has the same name than f2
@@ -595,10 +598,10 @@ class MEDLoaderTest(unittest.TestCase):
         m1bis=d2.getMeshes().getMeshAtPos(0).getMeshAtLevel(0)
         self.assertTrue(m1.isEqual(m1bis,1e-12))
         self.assertEqual(('f1', 'f21', 'f22'),d2.getFields().getFieldsNames())
-        self.assertEqual([(-1, -1, 0.0)],d2.getFields().getFieldAtPos(2).getTimeSteps())
-        self.assertEqual([(-1, -1, 0.0)],d2.getFields()[2].getTimeSteps())
-        self.assertEqual([(-1, -1, 0.0)],d2.getFields().getFieldWithName("f21").getTimeSteps())
-        self.assertEqual([(-1, -1, 0.0)],d2.getFields()["f21"].getTimeSteps())
+        self.assertEqual([(-1,-1,0.0)],d2.getFields().getFieldAtPos(2).getTimeSteps())
+        self.assertEqual([(-1,-1,0.0)],d2.getFields()[2].getTimeSteps())
+        self.assertEqual([(-1,-1,0.0)],d2.getFields().getFieldWithName("f21").getTimeSteps())
+        self.assertEqual([(-1,-1,0.0)],d2.getFields()["f21"].getTimeSteps())
         pass
     
     def testMEDField9(self):
@@ -662,7 +665,7 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileFieldMultiTS.New(fname,f1.getName())
-        self.assertEqual([(-1, -1, 0.0), (1, 2, 1.2)],ff2.getTimeSteps())
+        self.assertEqual([(-1,-1,0.0), (1,2,1.2)],ff2.getTimeSteps())
         vals,pfl=ff2.getFieldWithProfile(ON_CELLS,1,2,0,mm1) ; vals.setName("")
         self.assertTrue(pfl.isEqualWithoutConsideringStr(da))
         self.assertTrue(vals.isEqual(e,1e-14))
