@@ -3820,7 +3820,8 @@ int MEDFileFieldMultiTSWithoutDAS::getPosOfTimeStep(int iteration, int order) co
 int MEDFileFieldMultiTSWithoutDAS::getPosGivenTime(double time, double eps) const throw(INTERP_KERNEL::Exception)
 {
   int ret=0;
-  std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutDAS::getPosGivenTime : No such time step " << time << "! \nPossibilities are : "; 
+  std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutDAS::getPosGivenTime : No such time step " << time << "! \nPossibilities are : ";
+  oss.precision(15);
   for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++,ret++)
     {
       const MEDFileField1TSWithoutDAS *tmp(*it);
