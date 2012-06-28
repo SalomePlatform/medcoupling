@@ -3251,6 +3251,11 @@ namespace ParaMEDMEM
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
            return DataArrayDouble::Add(self,aaa);
          }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
+           return DataArrayDouble::Add(self,aaa);
+         }
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
@@ -3277,6 +3282,11 @@ namespace ParaMEDMEM
        case 3:
          {
            MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=aa->buildDADouble(1,self->getNumberOfComponents());
+           return DataArrayDouble::Add(self,aaa);
+         }
+       case 4:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> aaa=DataArrayDouble::New(); aaa->useArray(&bb[0],false,CPP_DEALLOC,1,(int)bb.size());
            return DataArrayDouble::Add(self,aaa);
          }
        default:
@@ -5079,6 +5089,11 @@ namespace ParaMEDMEM
            ret->incrRef();
            return ret;
          }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Add(self,aaa);
+         }
        case 3:
          {
            return DataArrayInt::Add(self,a);
@@ -5110,6 +5125,11 @@ namespace ParaMEDMEM
            ret->applyLin(1,val);
            ret->incrRef();
            return ret;
+         }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Add(self,aaa);
          }
        case 4:
          {
@@ -5181,6 +5201,11 @@ namespace ParaMEDMEM
            ret->incrRef();
            return ret;
          }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Substract(self,aaa);
+         }
        case 3:
          {
            return DataArrayInt::Substract(self,a);
@@ -5212,6 +5237,11 @@ namespace ParaMEDMEM
            ret->applyLin(-1,val);
            ret->incrRef();
            return ret;
+         }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Substract(aaa,self);
          }
        case 4:
          {
@@ -5283,6 +5313,11 @@ namespace ParaMEDMEM
            ret->incrRef();
            return ret;
          }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Multiply(self,aaa);
+         }
        case 3:
          {
            return DataArrayInt::Multiply(self,a);
@@ -5314,6 +5349,11 @@ namespace ParaMEDMEM
            ret->applyLin(val,0);
            ret->incrRef();
            return ret;
+         }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Multiply(self,aaa);
          }
        case 4:
          {
@@ -5385,6 +5425,11 @@ namespace ParaMEDMEM
            ret->incrRef();
            return ret;
          }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Divide(self,aaa);
+         }
        case 3:
          {
            return DataArrayInt::Divide(self,a);
@@ -5416,6 +5461,11 @@ namespace ParaMEDMEM
            ret->applyInv(val);
            ret->incrRef();
            return ret;
+         }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Divide(aaa,self);
          }
        case 4:
          {
@@ -5487,6 +5537,11 @@ namespace ParaMEDMEM
            ret->incrRef();
            return ret;
          }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Modulus(self,aaa);
+         }
        case 3:
          {
            return DataArrayInt::Modulus(self,a);
@@ -5518,6 +5573,11 @@ namespace ParaMEDMEM
            ret->applyRModulus(val);
            ret->incrRef();
            return ret;
+         }
+       case 2:
+         {
+           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> aaa=DataArrayInt::New(); aaa->useArray(&aa[0],false,CPP_DEALLOC,1,(int)aa.size());
+           return DataArrayInt::Modulus(aaa,self);
          }
        case 3:
          {

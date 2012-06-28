@@ -9858,6 +9858,71 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,m.giveCellsWithType,NORM_HEXA8)
         pass
 
+    def testDAOp1(self):
+        d=DataArrayDouble.New(5,2)
+        d.rearrange(1) ; d.iota(2.) ; d.rearrange(2)
+        d.setInfoOnComponents(["X [m]","Y [m]"])
+        d.setName("AName")
+        #
+        d1=d+[8,9]
+        self.assertTrue(d1.isEqualWithoutConsideringStr(DataArrayDouble.New([10.0,12.0,12.0,14.0,14.0,16.0,16.0,18.0,18.0,20.0]),1e-12))
+        d1bis=DataArrayDouble.New([8,9],1,2)+d
+        self.assertTrue(d1bis.isEqual(d1,1e-12))
+        d1ter=[8,9]+d
+        self.assertTrue(d1ter.isEqual(d1,1e-12))
+        #
+        d2=d1-[8,9]
+        self.assertTrue(d2.isEqual(d,1e-12))
+        self.assertRaises(InterpKernelException,d1.__rsub__,[8,9])#[8,9]-d1
+        #
+        d3=d*[8,9]
+        self.assertTrue(d3.isEqualWithoutConsideringStr(DataArrayDouble.New([16.0,27.0,32.0,45.0,48.0,63.0,64.0,81.0,80.0,99.0]),1e-12))
+        d3bis=DataArrayDouble.New([8,9],1,2)*d
+        self.assertTrue(d3bis.isEqual(d3,1e-12))
+        d3ter=[8,9]*d
+        self.assertTrue(d3ter.isEqual(d3,1e-12))
+        #
+        d4=d3/[8,9]
+        self.assertTrue(d4.isEqual(d,1e-12))
+        #
+        d=DataArrayInt.New(5,2)
+        d.rearrange(1) ; d.iota(2) ; d.rearrange(2)
+        d.setInfoOnComponents(["X [m]","Y [m]"])
+        d.setName("AName")
+        #
+        d1=d+[8,9]
+        self.assertEqual(d1.getValues(),[10,12,12,14,14,16,16,18,18,20])
+        d1bis=DataArrayInt.New([8,9],1,2)+d
+        self.assertTrue(d1bis.isEqual(d1))
+        d1ter=[8,9]+d
+        self.assertTrue(d1ter.isEqual(d1))
+        #
+        d2=d1-[8,9]
+        self.assertTrue(d2.isEqual(d))
+        self.assertRaises(InterpKernelException,d1.__rsub__,[8,9])
+        #
+        d3=d*[8,9]
+        self.assertEqual(d3.getValues(),[16,27,32,45,48,63,64,81,80,99])
+        d3bis=DataArrayInt.New([8,9],1,2)*d
+        self.assertTrue(d3bis.isEqual(d3))
+        d3ter=[8,9]*d
+        self.assertTrue(d3ter.isEqual(d3))
+        #
+        d4=d3/[8,9]
+        self.assertTrue(d4.isEqual(d))
+        #
+        d5=d%[4,5]
+        self.assertEqual(d5.getValues(),[2,3,0,0,2,2,0,4,2,1])
+        pass
+
+    def testSelectTupleId2DAIBug1(self):
+        da=DataArrayInt.New([0,1,2,3,12,13,4,5,6,7,14,15,8,9,10,11,16,17])
+        self.assertEqual([2,6,10],da[2::6].getValues())
+        self.assertEqual([0,4,8],da[::6].getValues())
+        self.assertEqual([5,9],da[7::6].getValues())
+        self.assertEqual([5],da[7:-5:6].getValues())
+        pass
+
     def setUp(self):
         pass
     pass

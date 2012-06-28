@@ -245,6 +245,33 @@ void DataArray::setInfoOnComponent(int i, const char *info) throw(INTERP_KERNEL:
     }
 }
 
+void DataArray::checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfTuples()!=nbOfTuples)
+    {
+      std::ostringstream oss; oss << msg << " : mismatch number of tuples : expected " <<  nbOfTuples << " having " << getNumberOfTuples() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void DataArray::checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNumberOfComponents()!=nbOfCompo)
+    {
+      std::ostringstream oss; oss << msg << " : mismatch number of components : expected " << nbOfCompo << " having " << getNumberOfComponents() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+void DataArray::checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception)
+{
+  if(getNbOfElems()!=nbOfElems)
+    {
+      std::ostringstream oss; oss << msg << " : mismatch number of elems : Expected " << nbOfElems << " having " << getNbOfElems() << " !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
 void DataArray::checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception)
 {
    if(getNumberOfTuples()!=other.getNumberOfTuples())
@@ -261,25 +288,8 @@ void DataArray::checkNbOfTuplesAndComp(const DataArray& other, const char *msg) 
 
 void DataArray::checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception)
 {
-  if(getNumberOfTuples()!=nbOfTuples)
-    {
-      std::ostringstream oss; oss << msg << " : mismatch number of tuples : expected " <<  nbOfTuples << " having " << getNumberOfTuples() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  if(getNumberOfComponents()!=nbOfCompo)
-    {
-      std::ostringstream oss; oss << msg << " : mismatch number of components : expected " << nbOfCompo << " having " << getNumberOfComponents() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-}
-
-void DataArray::checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception)
-{
-  if(getNbOfElems()!=nbOfElems)
-    {
-      std::ostringstream oss; oss << msg << " : mismatch number of elems : Expected " << nbOfElems << " having " << getNbOfElems() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
+  checkNbOfTuples(nbOfTuples,msg);
+  checkNbOfComps(nbOfCompo,msg);
 }
 
 /*!
@@ -839,13 +849,9 @@ DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, cons
  */
 DataArrayDouble *DataArrayDouble::selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception)
 {
-  if(end2<bg)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::selectByTupleId2 : end before begin !");
-  if(step<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::selectByTupleId2 : invalid step should > 0 !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=(end2-1-bg)/step+1;
+  int newNbOfTuples=GetNumberOfItemGivenBES(bg,end2,step,"DataArrayDouble::selectByTupleId2 : ");
   ret->alloc(newNbOfTuples,nbComp);
   double *pt=ret->getPointer();
   const double *srcPt=getConstPointer()+bg*nbComp;
@@ -2486,44 +2492,66 @@ DataArrayDouble *DataArrayDouble::Add(const DataArrayDouble *a1, const DataArray
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Add !");
-  DataArrayDouble *ret=0;
-  if(nbOfComp==nbOfComp2)
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=0;
+  if(nbOfTuple==nbOfTuple2)
     {
-      ret=DataArrayDouble::New();
-      ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<double>());
-      ret->copyStringInfoFrom(*a1);
-    }
-  else
-    {
-      int nbOfCompMin,nbOfCompMax;
-      const DataArrayDouble *aMin, *aMax;
-      if(nbOfComp>nbOfComp2)
+      if(nbOfComp==nbOfComp2)
         {
-          nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
-          aMin=a2; aMax=a1;
+          ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple,nbOfComp);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<double>());
+          ret->copyStringInfoFrom(*a1);
         }
       else
         {
-          nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
-          aMin=a1; aMax=a2;
+          int nbOfCompMin,nbOfCompMax;
+          const DataArrayDouble *aMin, *aMax;
+          if(nbOfComp>nbOfComp2)
+            {
+              nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+              aMin=a2; aMax=a1;
+            }
+          else
+            {
+              nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+              aMin=a1; aMax=a2;
+            }
+          if(nbOfCompMin==1)
+            {
+              ret=DataArrayDouble::New();
+              ret->alloc(nbOfTuple,nbOfCompMax);
+              const double *aMinPtr=aMin->getConstPointer();
+              const double *aMaxPtr=aMax->getConstPointer();
+              double *res=ret->getPointer();
+              for(int i=0;i<nbOfTuple;i++)
+                res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::plus<double>(),aMinPtr[i]));
+              ret->copyStringInfoFrom(*aMax);
+            }
+          else
+            throw INTERP_KERNEL::Exception("Nb of components mismatch for array Add !");
         }
-      if(nbOfCompMin==1)
+    }
+  else if((nbOfTuple==1 && nbOfTuple2>1) || (nbOfTuple>1 && nbOfTuple2==1))
+    {
+      if(nbOfComp==nbOfComp2)
         {
+          int nbOfTupleMax=std::max(nbOfTuple,nbOfTuple2);
+          const DataArrayDouble *aMin=nbOfTuple>nbOfTuple2?a2:a1;
+          const DataArrayDouble *aMax=nbOfTuple>nbOfTuple2?a1:a2;
+          const double *aMinPtr=aMin->getConstPointer(),*aMaxPtr=aMax->getConstPointer();
           ret=DataArrayDouble::New();
-          ret->alloc(nbOfTuple,nbOfCompMax);
-          const double *aMinPtr=aMin->getConstPointer();
-          const double *aMaxPtr=aMax->getConstPointer();
+          ret->alloc(nbOfTupleMax,nbOfComp);
           double *res=ret->getPointer();
-          for(int i=0;i<nbOfTuple;i++)
-            res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::plus<double>(),aMinPtr[i]));
+          for(int i=0;i<nbOfTupleMax;i++)
+            res=std::transform(aMaxPtr+i*nbOfComp,aMaxPtr+(i+1)*nbOfComp,aMinPtr,res,std::plus<double>());
           ret->copyStringInfoFrom(*aMax);
         }
       else
         throw INTERP_KERNEL::Exception("Nb of components mismatch for array Add !");
     }
+  else
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Add !");
+  ret->incrRef();
   return ret;
 }
 
@@ -2573,14 +2601,58 @@ DataArrayDouble *DataArrayDouble::Substract(const DataArrayDouble *a1, const Dat
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayDouble::Substract : input DataArrayDouble instance is NULL !");
-  int nbOfTuple=a2->getNumberOfTuples();
-  int nbOfComp=a2->getNumberOfComponents();
-  a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Substract !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<double>());
-  ret->copyStringInfoFrom(*a1);
-  return ret;
+  int nbOfTuple1=a1->getNumberOfTuples();
+  int nbOfTuple2=a2->getNumberOfTuples();
+  int nbOfComp1=a1->getNumberOfComponents();
+  int nbOfComp2=a2->getNumberOfComponents();
+  if(nbOfTuple2==nbOfTuple1)
+    {
+      if(nbOfComp1==nbOfComp2)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple2,nbOfComp1);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<double>());
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else if(nbOfComp2==1)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple1,nbOfComp1);
+          const double *a2Ptr=a2->getConstPointer();
+          const double *a1Ptr=a1->getConstPointer();
+          double *res=ret->getPointer();
+          for(int i=0;i<nbOfTuple1;i++)
+            res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::minus<double>(),a2Ptr[i]));
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else
+        {
+          a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
+          return 0;
+        }
+    }
+  else if(nbOfTuple2==1)
+    {
+      a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+      ret->alloc(nbOfTuple1,nbOfComp1);
+      const double *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
+      double *pt=ret->getPointer();
+      for(int i=0;i<nbOfTuple1;i++)
+        pt=std::transform(a1ptr+i*nbOfComp1,a1ptr+(i+1)*nbOfComp1,a2ptr,pt,std::minus<double>());
+      ret->copyStringInfoFrom(*a1);
+      ret->incrRef();
+      return ret;
+    }
+  else
+    {
+      a1->checkNbOfTuples(nbOfTuple2,"Nb of tuples mismatch for array Substract !");//will always throw an exception
+      return 0;
+    }
 }
 
 void DataArrayDouble::substractEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
@@ -2633,44 +2705,66 @@ DataArrayDouble *DataArrayDouble::Multiply(const DataArrayDouble *a1, const Data
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Multiply !");
-  DataArrayDouble *ret=0;
-  if(nbOfComp==nbOfComp2)
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=0;
+  if(nbOfTuple==nbOfTuple2)
     {
-      ret=DataArrayDouble::New();
-      ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::multiplies<double>());
-      ret->copyStringInfoFrom(*a1);
-    }
-  else
-    {
-      int nbOfCompMin,nbOfCompMax;
-      const DataArrayDouble *aMin, *aMax;
-      if(nbOfComp>nbOfComp2)
+      if(nbOfComp==nbOfComp2)
         {
-          nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
-          aMin=a2; aMax=a1;
+          ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple,nbOfComp);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::multiplies<double>());
+          ret->copyStringInfoFrom(*a1);
         }
       else
         {
-          nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
-          aMin=a1; aMax=a2;
+          int nbOfCompMin,nbOfCompMax;
+          const DataArrayDouble *aMin, *aMax;
+          if(nbOfComp>nbOfComp2)
+            {
+              nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+              aMin=a2; aMax=a1;
+            }
+          else
+            {
+              nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+              aMin=a1; aMax=a2;
+            }
+          if(nbOfCompMin==1)
+            {
+              ret=DataArrayDouble::New();
+              ret->alloc(nbOfTuple,nbOfCompMax);
+              const double *aMinPtr=aMin->getConstPointer();
+              const double *aMaxPtr=aMax->getConstPointer();
+              double *res=ret->getPointer();
+              for(int i=0;i<nbOfTuple;i++)
+                res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::multiplies<double>(),aMinPtr[i]));
+              ret->copyStringInfoFrom(*aMax);
+            }
+          else
+            throw INTERP_KERNEL::Exception("Nb of components mismatch for array Multiply !");
         }
-      if(nbOfCompMin==1)
+    }
+  else if((nbOfTuple==1 && nbOfTuple2>1) || (nbOfTuple>1 && nbOfTuple2==1))
+    {
+      if(nbOfComp==nbOfComp2)
         {
+          int nbOfTupleMax=std::max(nbOfTuple,nbOfTuple2);
+          const DataArrayDouble *aMin=nbOfTuple>nbOfTuple2?a2:a1;
+          const DataArrayDouble *aMax=nbOfTuple>nbOfTuple2?a1:a2;
+          const double *aMinPtr=aMin->getConstPointer(),*aMaxPtr=aMax->getConstPointer();
           ret=DataArrayDouble::New();
-          ret->alloc(nbOfTuple,nbOfCompMax);
-          const double *aMinPtr=aMin->getConstPointer();
-          const double *aMaxPtr=aMax->getConstPointer();
+          ret->alloc(nbOfTupleMax,nbOfComp);
           double *res=ret->getPointer();
-          for(int i=0;i<nbOfTuple;i++)
-            res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::multiplies<double>(),aMinPtr[i]));
+          for(int i=0;i<nbOfTupleMax;i++)
+            res=std::transform(aMaxPtr+i*nbOfComp,aMaxPtr+(i+1)*nbOfComp,aMinPtr,res,std::multiplies<double>());
           ret->copyStringInfoFrom(*aMax);
         }
       else
         throw INTERP_KERNEL::Exception("Nb of components mismatch for array Multiply !");
     }
+  else
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Multiply !");
+  ret->incrRef();
   return ret;
 }
 
@@ -2720,37 +2814,58 @@ DataArrayDouble *DataArrayDouble::Divide(const DataArrayDouble *a1, const DataAr
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayDouble::Divide : input DataArrayDouble instance is NULL !");
-  int nbOfTuple=a1->getNumberOfTuples();
+  int nbOfTuple1=a1->getNumberOfTuples();
   int nbOfTuple2=a2->getNumberOfTuples();
-  int nbOfComp=a1->getNumberOfComponents();
+  int nbOfComp1=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Divide !");
-  DataArrayDouble *ret=0;
-  if(nbOfComp==nbOfComp2)
+  if(nbOfTuple2==nbOfTuple1)
     {
-      ret=DataArrayDouble::New();
-      ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<double>());
-      ret->copyStringInfoFrom(*a1);
-    }
-  else
-    {
-      if(nbOfComp2==1)
+      if(nbOfComp1==nbOfComp2)
         {
-          ret=DataArrayDouble::New();
-          ret->alloc(nbOfTuple,nbOfComp);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple2,nbOfComp1);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<double>());
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else if(nbOfComp2==1)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+          ret->alloc(nbOfTuple1,nbOfComp1);
           const double *a2Ptr=a2->getConstPointer();
           const double *a1Ptr=a1->getConstPointer();
           double *res=ret->getPointer();
-          for(int i=0;i<nbOfTuple;i++)
-            res=std::transform(a1Ptr+i*nbOfComp,a1Ptr+(i+1)*nbOfComp,res,std::bind2nd(std::divides<double>(),a2Ptr[i]));
+          for(int i=0;i<nbOfTuple1;i++)
+            res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::divides<double>(),a2Ptr[i]));
           ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
         }
       else
-        throw INTERP_KERNEL::Exception("Nb of components mismatch for array Divide !");
+        {
+          a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
+          return 0;
+        }
     }
-  return ret;
+  else if(nbOfTuple2==1)
+    {
+      a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
+      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+      ret->alloc(nbOfTuple1,nbOfComp1);
+      const double *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
+      double *pt=ret->getPointer();
+      for(int i=0;i<nbOfTuple1;i++)
+        pt=std::transform(a1ptr+i*nbOfComp1,a1ptr+(i+1)*nbOfComp1,a2ptr,pt,std::divides<double>());
+      ret->copyStringInfoFrom(*a1);
+      ret->incrRef();
+      return ret;
+    }
+  else
+    {
+      a1->checkNbOfTuples(nbOfTuple2,"Nb of tuples mismatch for array Divide !");//will always throw an exception
+      return 0;
+    }
 }
 
 void DataArrayDouble::divideEqual(const DataArrayDouble *other) throw(INTERP_KERNEL::Exception)
@@ -3545,13 +3660,9 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
  */
 DataArrayInt *DataArrayInt::selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception)
 {
-  if(end2<bg)
-    throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleId2 : end before begin !");
-  if(step<=0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::selectByTupleId2 : invalid step should > 0 !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   int nbComp=getNumberOfComponents();
-  int newNbOfTuples=(end2+1-bg)/step-1;
+  int newNbOfTuples=GetNumberOfItemGivenBES(bg,end2,step,"DataArrayInt::selectByTupleId2 : ");
   ret->alloc(newNbOfTuples,nbComp);
   int *pt=ret->getPointer();
   const int *srcPt=getConstPointer()+bg*nbComp;
@@ -5188,44 +5299,66 @@ DataArrayInt *DataArrayInt::Add(const DataArrayInt *a1, const DataArrayInt *a2) 
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Add !");
-  DataArrayInt *ret=0;
-  if(nbOfComp==nbOfComp2)
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=0;
+  if(nbOfTuple==nbOfTuple2)
     {
-      ret=DataArrayInt::New();
-      ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<int>());
-      ret->copyStringInfoFrom(*a1);
-    }
-  else
-    {
-      int nbOfCompMin,nbOfCompMax;
-      const DataArrayInt *aMin, *aMax;
-      if(nbOfComp>nbOfComp2)
+      if(nbOfComp==nbOfComp2)
         {
-          nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
-          aMin=a2; aMax=a1;
+          ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple,nbOfComp);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::plus<int>());
+          ret->copyStringInfoFrom(*a1);
         }
       else
         {
-          nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
-          aMin=a1; aMax=a2;
+          int nbOfCompMin,nbOfCompMax;
+          const DataArrayInt *aMin, *aMax;
+          if(nbOfComp>nbOfComp2)
+            {
+              nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+              aMin=a2; aMax=a1;
+            }
+          else
+            {
+              nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+              aMin=a1; aMax=a2;
+            }
+          if(nbOfCompMin==1)
+            {
+              ret=DataArrayInt::New();
+              ret->alloc(nbOfTuple,nbOfCompMax);
+              const int *aMinPtr=aMin->getConstPointer();
+              const int *aMaxPtr=aMax->getConstPointer();
+              int *res=ret->getPointer();
+              for(int i=0;i<nbOfTuple;i++)
+                res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::plus<int>(),aMinPtr[i]));
+              ret->copyStringInfoFrom(*aMax);
+            }
+          else
+            throw INTERP_KERNEL::Exception("Nb of components mismatch for array Add !");
         }
-      if(nbOfCompMin==1)
+    }
+  else if((nbOfTuple==1 && nbOfTuple2>1) || (nbOfTuple>1 && nbOfTuple2==1))
+    {
+      if(nbOfComp==nbOfComp2)
         {
+          int nbOfTupleMax=std::max(nbOfTuple,nbOfTuple2);
+          const DataArrayInt *aMin=nbOfTuple>nbOfTuple2?a2:a1;
+          const DataArrayInt *aMax=nbOfTuple>nbOfTuple2?a1:a2;
+          const int *aMinPtr=aMin->getConstPointer(),*aMaxPtr=aMax->getConstPointer();
           ret=DataArrayInt::New();
-          ret->alloc(nbOfTuple,nbOfCompMax);
-          const int *aMinPtr=aMin->getConstPointer();
-          const int *aMaxPtr=aMax->getConstPointer();
+          ret->alloc(nbOfTupleMax,nbOfComp);
           int *res=ret->getPointer();
-          for(int i=0;i<nbOfTuple;i++)
-            res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::plus<int>(),aMinPtr[i]));
+          for(int i=0;i<nbOfTupleMax;i++)
+            res=std::transform(aMaxPtr+i*nbOfComp,aMaxPtr+(i+1)*nbOfComp,aMinPtr,res,std::plus<int>());
           ret->copyStringInfoFrom(*aMax);
         }
       else
         throw INTERP_KERNEL::Exception("Nb of components mismatch for array Add !");
     }
+  else
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Add !");
+  ret->incrRef();
   return ret;
 }
 
@@ -5275,14 +5408,58 @@ DataArrayInt *DataArrayInt::Substract(const DataArrayInt *a1, const DataArrayInt
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Substract : input DataArrayInt instance is NULL !");
-  int nbOfTuple=a2->getNumberOfTuples();
-  int nbOfComp=a2->getNumberOfComponents();
-  a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Substract !");
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<int>());
-  ret->copyStringInfoFrom(*a1);
-  return ret;
+  int nbOfTuple1=a1->getNumberOfTuples();
+  int nbOfTuple2=a2->getNumberOfTuples();
+  int nbOfComp1=a1->getNumberOfComponents();
+  int nbOfComp2=a2->getNumberOfComponents();
+  if(nbOfTuple2==nbOfTuple1)
+    {
+      if(nbOfComp1==nbOfComp2)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple2,nbOfComp1);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::minus<int>());
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else if(nbOfComp2==1)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple1,nbOfComp1);
+          const int *a2Ptr=a2->getConstPointer();
+          const int *a1Ptr=a1->getConstPointer();
+          int *res=ret->getPointer();
+          for(int i=0;i<nbOfTuple1;i++)
+            res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::minus<int>(),a2Ptr[i]));
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else
+        {
+          a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
+          return 0;
+        }
+    }
+  else if(nbOfTuple2==1)
+    {
+      a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Substract !");
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+      ret->alloc(nbOfTuple1,nbOfComp1);
+      const int *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
+      int *pt=ret->getPointer();
+      for(int i=0;i<nbOfTuple1;i++)
+        pt=std::transform(a1ptr+i*nbOfComp1,a1ptr+(i+1)*nbOfComp1,a2ptr,pt,std::minus<int>());
+      ret->copyStringInfoFrom(*a1);
+      ret->incrRef();
+      return ret;
+    }
+  else
+    {
+      a1->checkNbOfTuples(nbOfTuple2,"Nb of tuples mismatch for array Substract !");//will always throw an exception
+      return 0;
+    }
 }
 
 void DataArrayInt::substractEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)
@@ -5330,44 +5507,66 @@ DataArrayInt *DataArrayInt::Multiply(const DataArrayInt *a1, const DataArrayInt 
   int nbOfTuple2=a2->getNumberOfTuples();
   int nbOfComp=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Multiply !");
-  DataArrayInt *ret=0;
-  if(nbOfComp==nbOfComp2)
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=0;
+  if(nbOfTuple==nbOfTuple2)
     {
-      ret=DataArrayInt::New();
-      ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::multiplies<int>());
-      ret->copyStringInfoFrom(*a1);
-    }
-  else
-    {
-      int nbOfCompMin,nbOfCompMax;
-      const DataArrayInt *aMin, *aMax;
-      if(nbOfComp>nbOfComp2)
+      if(nbOfComp==nbOfComp2)
         {
-          nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
-          aMin=a2; aMax=a1;
+          ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple,nbOfComp);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::multiplies<int>());
+          ret->copyStringInfoFrom(*a1);
         }
       else
         {
-          nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
-          aMin=a1; aMax=a2;
+          int nbOfCompMin,nbOfCompMax;
+          const DataArrayInt *aMin, *aMax;
+          if(nbOfComp>nbOfComp2)
+            {
+              nbOfCompMin=nbOfComp2; nbOfCompMax=nbOfComp;
+              aMin=a2; aMax=a1;
+            }
+          else
+            {
+              nbOfCompMin=nbOfComp; nbOfCompMax=nbOfComp2;
+              aMin=a1; aMax=a2;
+            }
+          if(nbOfCompMin==1)
+            {
+              ret=DataArrayInt::New();
+              ret->alloc(nbOfTuple,nbOfCompMax);
+              const int *aMinPtr=aMin->getConstPointer();
+              const int *aMaxPtr=aMax->getConstPointer();
+              int *res=ret->getPointer();
+              for(int i=0;i<nbOfTuple;i++)
+                res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::multiplies<int>(),aMinPtr[i]));
+              ret->copyStringInfoFrom(*aMax);
+            }
+          else
+            throw INTERP_KERNEL::Exception("Nb of components mismatch for array Multiply !");
         }
-      if(nbOfCompMin==1)
+    }
+  else if((nbOfTuple==1 && nbOfTuple2>1) || (nbOfTuple>1 && nbOfTuple2==1))
+    {
+      if(nbOfComp==nbOfComp2)
         {
+          int nbOfTupleMax=std::max(nbOfTuple,nbOfTuple2);
+          const DataArrayInt *aMin=nbOfTuple>nbOfTuple2?a2:a1;
+          const DataArrayInt *aMax=nbOfTuple>nbOfTuple2?a1:a2;
+          const int *aMinPtr=aMin->getConstPointer(),*aMaxPtr=aMax->getConstPointer();
           ret=DataArrayInt::New();
-          ret->alloc(nbOfTuple,nbOfCompMax);
-          const int *aMinPtr=aMin->getConstPointer();
-          const int *aMaxPtr=aMax->getConstPointer();
+          ret->alloc(nbOfTupleMax,nbOfComp);
           int *res=ret->getPointer();
-          for(int i=0;i<nbOfTuple;i++)
-            res=std::transform(aMaxPtr+i*nbOfCompMax,aMaxPtr+(i+1)*nbOfCompMax,res,std::bind2nd(std::multiplies<int>(),aMinPtr[i]));
+          for(int i=0;i<nbOfTupleMax;i++)
+            res=std::transform(aMaxPtr+i*nbOfComp,aMaxPtr+(i+1)*nbOfComp,aMinPtr,res,std::multiplies<int>());
           ret->copyStringInfoFrom(*aMax);
         }
       else
         throw INTERP_KERNEL::Exception("Nb of components mismatch for array Multiply !");
     }
+  else
+    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Multiply !");
+  ret->incrRef();
   return ret;
 }
 
@@ -5417,37 +5616,58 @@ DataArrayInt *DataArrayInt::Divide(const DataArrayInt *a1, const DataArrayInt *a
 {
   if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Divide : input DataArrayInt instance is NULL !");
-  int nbOfTuple=a1->getNumberOfTuples();
+  int nbOfTuple1=a1->getNumberOfTuples();
   int nbOfTuple2=a2->getNumberOfTuples();
-  int nbOfComp=a1->getNumberOfComponents();
+  int nbOfComp1=a1->getNumberOfComponents();
   int nbOfComp2=a2->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Divide !");
-  DataArrayInt *ret=0;
-  if(nbOfComp==nbOfComp2)
+  if(nbOfTuple2==nbOfTuple1)
     {
-      ret=DataArrayInt::New();
-      ret->alloc(nbOfTuple,nbOfComp);
-      std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<int>());
-      ret->copyStringInfoFrom(*a1);
-    }
-  else
-    {
-      if(nbOfComp2==1)
+      if(nbOfComp1==nbOfComp2)
         {
-          ret=DataArrayInt::New();
-          ret->alloc(nbOfTuple,nbOfComp);
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple2,nbOfComp1);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::divides<int>());
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else if(nbOfComp2==1)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple1,nbOfComp1);
           const int *a2Ptr=a2->getConstPointer();
           const int *a1Ptr=a1->getConstPointer();
           int *res=ret->getPointer();
-          for(int i=0;i<nbOfTuple;i++)
-            res=std::transform(a1Ptr+i*nbOfComp,a1Ptr+(i+1)*nbOfComp,res,std::bind2nd(std::divides<int>(),a2Ptr[i]));
+          for(int i=0;i<nbOfTuple1;i++)
+            res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::divides<int>(),a2Ptr[i]));
           ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
         }
       else
-        throw INTERP_KERNEL::Exception("Nb of components mismatch for array Divide !");
+        {
+          a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
+          return 0;
+        }
     }
-  return ret;
+  else if(nbOfTuple2==1)
+    {
+      a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Divide !");
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+      ret->alloc(nbOfTuple1,nbOfComp1);
+      const int *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
+      int *pt=ret->getPointer();
+      for(int i=0;i<nbOfTuple1;i++)
+        pt=std::transform(a1ptr+i*nbOfComp1,a1ptr+(i+1)*nbOfComp1,a2ptr,pt,std::divides<int>());
+      ret->copyStringInfoFrom(*a1);
+      ret->incrRef();
+      return ret;
+    }
+  else
+    {
+      a1->checkNbOfTuples(nbOfTuple2,"Nb of tuples mismatch for array Divide !");//will always throw an exception
+      return 0;
+    }
 }
 
 void DataArrayInt::divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)
@@ -5494,16 +5714,60 @@ void DataArrayInt::divideEqual(const DataArrayInt *other) throw(INTERP_KERNEL::E
 
 DataArrayInt *DataArrayInt::Modulus(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception)
 {
-  if(!a1 || !a2)
+    if(!a1 || !a2)
     throw INTERP_KERNEL::Exception("DataArrayInt::Modulus : input DataArrayInt instance is NULL !");
-  int nbOfTuple=a2->getNumberOfTuples();
-  int nbOfComp=a2->getNumberOfComponents();
-  a1->checkNbOfTuplesAndComp(nbOfTuple,nbOfComp,"Nb of components mismatch for array Modulus");
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(nbOfTuple,nbOfComp);
-  std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::modulus<int>());
-  ret->copyStringInfoFrom(*a1);
-  return ret;
+  int nbOfTuple1=a1->getNumberOfTuples();
+  int nbOfTuple2=a2->getNumberOfTuples();
+  int nbOfComp1=a1->getNumberOfComponents();
+  int nbOfComp2=a2->getNumberOfComponents();
+  if(nbOfTuple2==nbOfTuple1)
+    {
+      if(nbOfComp1==nbOfComp2)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple2,nbOfComp1);
+          std::transform(a1->begin(),a1->end(),a2->begin(),ret->getPointer(),std::modulus<int>());
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else if(nbOfComp2==1)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+          ret->alloc(nbOfTuple1,nbOfComp1);
+          const int *a2Ptr=a2->getConstPointer();
+          const int *a1Ptr=a1->getConstPointer();
+          int *res=ret->getPointer();
+          for(int i=0;i<nbOfTuple1;i++)
+            res=std::transform(a1Ptr+i*nbOfComp1,a1Ptr+(i+1)*nbOfComp1,res,std::bind2nd(std::modulus<int>(),a2Ptr[i]));
+          ret->copyStringInfoFrom(*a1);
+          ret->incrRef();
+          return ret;
+        }
+      else
+        {
+          a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Modulus !");
+          return 0;
+        }
+    }
+  else if(nbOfTuple2==1)
+    {
+      a1->checkNbOfComps(nbOfComp2,"Nb of components mismatch for array Modulus !");
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+      ret->alloc(nbOfTuple1,nbOfComp1);
+      const int *a1ptr=a1->getConstPointer(),*a2ptr=a2->getConstPointer();
+      int *pt=ret->getPointer();
+      for(int i=0;i<nbOfTuple1;i++)
+        pt=std::transform(a1ptr+i*nbOfComp1,a1ptr+(i+1)*nbOfComp1,a2ptr,pt,std::modulus<int>());
+      ret->copyStringInfoFrom(*a1);
+      ret->incrRef();
+      return ret;
+    }
+  else
+    {
+      a1->checkNbOfTuples(nbOfTuple2,"Nb of tuples mismatch for array Modulus !");//will always throw an exception
+      return 0;
+    }
 }
 
 void DataArrayInt::modulusEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception)

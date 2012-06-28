@@ -107,6 +107,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfComponents() const { return (int)_info_on_compo.size(); }
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _nb_of_tuples; }
     MEDCOUPLING_EXPORT int getNbOfElems() const { return ((int)_info_on_compo.size())*_nb_of_tuples; }
+    MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception);
