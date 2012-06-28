@@ -792,6 +792,8 @@ void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, dou
  */
 void MEDCouplingPointSet::Rotate3DAlg(const double *center, const double *vect, double angle, int nbNodes, double *coords)
 {
+  if(!center || !vect)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::Rotate3DAlg : null vector in input !");
   double sina=sin(angle);
   double cosa=cos(angle);
   double vectorNorm[3];
