@@ -1550,7 +1550,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #2D with no help of bounding box.
         center=[0.2,0.2]
         MEDCouplingPointSet.Rotate2DAlg(center,0.78539816339744830962,6,pos);
-        targetMesh.rotate(center,[],0.78539816339744830962);
+        targetMesh.rotate(center,0.78539816339744830962);
         t1=None
         t2=None
         t1,t2=targetMesh.getCellsContainingPoints(pos,6,1e-12);
@@ -5063,7 +5063,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f.changeSpaceDimension(2);
         #
         center=[0.,0.]
-        f.rotate(center,[],pi/3);
+        f.rotate(center,None,pi/3);
         g=c.buildExtrudedMesh(f,0);
         g.checkCoherency();
         expected1=[ 0.4330127018922193, 0.4330127018922193, 0.649519052838329, 1.2990381056766578, 1.299038105676658, 1.948557158514987, 2.1650635094610955, 2.1650635094610964, 3.2475952641916446, 3.031088913245533, 3.0310889132455352, 4.546633369868303 ]

@@ -435,15 +435,27 @@ namespace ParaMEDMEM
 
          int getCellContainingPoint(PyObject *p, double eps) const throw(INTERP_KERNEL::Exception)
          {
-           int sz;
-           INTERP_KERNEL::AutoPtr<double> pos=convertPyToNewDblArr2(p,&sz);
+           double val;
+           DataArrayDouble *a;
+           DataArrayDoubleTuple *aa;
+           std::vector<double> bb;
+           int sw;
+           int spaceDim=self->getSpaceDimension();
+           const char msg[]="Python wrap of MEDCouplingUMesh::getCellContainingPoint : ";
+           const double *pos=convertObjToPossibleCpp5_Safe(p,sw,val,a,aa,bb,msg,1,spaceDim,true);
            return self->getCellContainingPoint(pos,eps);
          }
 
          PyObject *getCellsContainingPoints(PyObject *p, int nbOfPoints, double eps) const throw(INTERP_KERNEL::Exception)
          {
-           int sz;
-           INTERP_KERNEL::AutoPtr<double> pos=convertPyToNewDblArr2(p,&sz);
+           double val;
+           DataArrayDouble *a;
+           DataArrayDoubleTuple *aa;
+           std::vector<double> bb;
+           int sw;
+           int spaceDim=self->getSpaceDimension();
+           const char msg[]="Python wrap of MEDCouplingUMesh::getCellContainingPoint : ";
+           const double *pos=convertObjToPossibleCpp5_Safe(p,sw,val,a,aa,bb,msg,nbOfPoints,spaceDim,true);
            std::vector<int> elts,eltsIndex;
            self->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
            MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
@@ -639,27 +651,42 @@ namespace ParaMEDMEM
 
          void translate(PyObject *vector) throw(INTERP_KERNEL::Exception)
          {
-           int sz;
-           INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vector,&sz);
-           if(sz!=self->getSpaceDimension())
-             {
-               std::ostringstream oss; oss << "Python wrap of MEDCouplingPointSet::translate : the space dimension is " << self->getSpaceDimension() << " and the input array size is " << sz;
-               oss << " ! The size of the input list or tuple must be equal to " << self->getSpaceDimension() << " !";
-               throw INTERP_KERNEL::Exception(oss.str().c_str());
-             }
-           self->translate(v);
+           double val;
+           DataArrayDouble *a;
+           DataArrayDoubleTuple *aa;
+           std::vector<double> bb;
+           int sw;
+           int spaceDim=self->getSpaceDimension();
+           const char msg[]="Python wrap of MEDCouplingPointSet::translate : ";
+           const double *vectorPtr=convertObjToPossibleCpp5_Safe(vector,sw,val,a,aa,bb,msg,1,spaceDim,true);
+           self->translate(vectorPtr);
+         }
+
+         void rotate(PyObject *center, double alpha) throw(INTERP_KERNEL::Exception)
+         {
+           const char msg[]="Python wrap of MEDCouplingPointSet::rotate : ";
+           double val;
+           DataArrayDouble *a;
+           DataArrayDoubleTuple *aa;
+           std::vector<double> bb;
+           int sw;
+           int spaceDim=self->getSpaceDimension();
+           const double *centerPtr=convertObjToPossibleCpp5_Safe(center,sw,val,a,aa,bb,msg,1,spaceDim,true);
+           self->rotate(centerPtr,0,alpha);
          }
 
          void rotate(PyObject *center, PyObject *vector, double alpha) throw(INTERP_KERNEL::Exception)
          {
-           int sz;
-           INTERP_KERNEL::AutoPtr<double> c=convertPyToNewDblArr2(center,&sz);
-           if(!c)
-             return ;
-           INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vector,&sz);
-           if(!v)
-             { return ; }
-           self->rotate(c,v,alpha);
+           const char msg[]="Python wrap of MEDCouplingPointSet::rotate : ";
+           double val;
+           DataArrayDouble *a;
+           DataArrayDoubleTuple *aa;
+           std::vector<double> bb;
+           int sw;
+           int spaceDim=self->getSpaceDimension();
+           const double *centerPtr=convertObjToPossibleCpp5_Safe(center,sw,val,a,aa,bb,msg,1,spaceDim,true);
+           const double *vectorPtr=convertObjToPossibleCpp5_Safe(vector,sw,val,a,aa,bb,msg,1,spaceDim,false);
+           self->rotate(centerPtr,vectorPtr,alpha);
          }
 
          PyObject *getAllGeoTypes() const throw(INTERP_KERNEL::Exception)
@@ -1924,10 +1951,10 @@ namespace ParaMEDMEM
         int sz;
         INTERP_KERNEL::AutoPtr<double> orig=convertPyToNewDblArr2(origin,&sz);
         if(!orig || sz!=3)
-          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : in parameter 1 expecting origin of type list of float of size 3 !");
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf : in parameter 1 expecting origin of type list of float of size 3 !");
         INTERP_KERNEL::AutoPtr<double> vect=convertPyToNewDblArr2(vec,&sz);
         if(!vec || sz!=3)
-          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : in parameter 2 expecting vector of type list of float of size 3 !");
+          throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf : in parameter 2 expecting vector of type list of float of size 3 !");
         DataArrayInt *cellIds=0;
         MEDCouplingUMesh *ret0=self->buildSlice3DSurf(orig,vect,eps,cellIds);
         PyObject *ret=PyTuple_New(2);
