@@ -1553,11 +1553,17 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         targetMesh.rotate(center,0.78539816339744830962);
         t1=None
         t2=None
-        t1,t2=targetMesh.getCellsContainingPoints(pos,6,1e-12);
+        t1,t2=targetMesh.getCellsContainingPoints(pos,1e-12);
         self.assertEqual(6,t1.getNumberOfTuples());
         self.assertEqual(7,t2.getNumberOfTuples());
         self.assertEqual(list(t1.getValues()),expectedValues1);
         self.assertEqual(list(t2.getValues()),expectedValues2);
+        t1,t2=targetMesh.getCellsContainingPoints(DataArrayDouble.New(pos,6,2),1e-12);
+        self.assertEqual(6,t1.getNumberOfTuples());
+        self.assertEqual(7,t2.getNumberOfTuples());
+        self.assertEqual(list(t1.getValues()),expectedValues1);
+        self.assertEqual(list(t2.getValues()),expectedValues2);
+        self.assertRaises(InterpKernelException,targetMesh.getCellsContainingPoints,DataArrayDouble.New(pos,4,3),1e-12);
         #2D outside
         pos1bis=[-0.3303300858899107,-0.11819805153394641]
         self.assertEqual(-1,targetMesh.getCellContainingPoint(pos1bis,1e-12));
@@ -4902,7 +4908,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         tmp2=DataArrayDouble.Aggregate(coords,tmp);
         mesh.setCoords(tmp2);
         pts=[0.2,0.2,0.1,0.3,-0.3,0.7]
-        c=mesh.getNodeIdsNearPoint(pts,1e-7);
+        c=mesh.getNodeIdsNearPoint(pts[:2],1e-7);
         self.assertEqual([4,9,11],c.getValues());
         c,cI=mesh.getNodeIdsNearPoints(pts,3,1e-7);
         self.assertEqual([0,3,3,4],cI.getValues());
@@ -9858,7 +9864,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,m.giveCellsWithType,NORM_HEXA8)
         pass
 
-    def testDAOp1(self):
+    def testSwigDAOp1(self):
         d=DataArrayDouble.New(5,2)
         d.rearrange(1) ; d.iota(2.) ; d.rearrange(2)
         d.setInfoOnComponents(["X [m]","Y [m]"])
@@ -9915,12 +9921,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(d5.getValues(),[2,3,0,0,2,2,0,4,2,1])
         pass
 
-    def testSelectTupleId2DAIBug1(self):
+    def testSwigSelectTupleId2DAIBug1(self):
         da=DataArrayInt.New([0,1,2,3,12,13,4,5,6,7,14,15,8,9,10,11,16,17])
         self.assertEqual([2,6,10],da[2::6].getValues())
         self.assertEqual([0,4,8],da[::6].getValues())
         self.assertEqual([5,9],da[7::6].getValues())
         self.assertEqual([5],da[7:-5:6].getValues())
+        pass
+
+    def testSwigCpp5Safe1(self):
+        m=MEDCouplingUMesh.New("toto",2)
+        coords=DataArrayDouble.New([0.,0.,1.,0.,1.,1.,0.,1.],4,2)
+        m.setCoords(coords)
+        vecs=DataArrayDouble.New([2.,3.,4.,5.,6.,7.],3,2)
+        expected1=[[2.,3.,3.,3.,3.,4.,2.,4.0],[4.,5.,5.,5.,5.,6.,4.,6.0],[6.,7.,7.,7.,7.,8.,6.,8.0]]
+        for pos,vec in enumerate(vecs):
+            m2=m.deepCpy()
+            m2.translate(vec)
+            self.assertTrue(m2.getCoords().isEqual(DataArrayDouble.New(expected1[pos],4,2),1e-12))
+            pass
+        for pos,vec in enumerate(vecs):
+            m2=m.deepCpy()
+            m2.translate(vec.buildDADouble())
+            self.assertTrue(m2.getCoords().isEqual(DataArrayDouble.New(expected1[pos],4,2),1e-12))
+            pass
         pass
 
     def setUp(self):
