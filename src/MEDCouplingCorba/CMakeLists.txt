@@ -43,6 +43,7 @@ SET(medcouplingcorba_SOURCES
   MEDCouplingFieldOverTimeServant.cxx
   DataArrayDoubleServant.cxx
   DataArrayIntServant.cxx
+  DataArrayServant.cxx
   )
 
 ADD_LIBRARY(medcouplingcorba SHARED ${medcouplingcorba_SOURCES})
