@@ -9953,6 +9953,32 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertTrue(m2.getCoords().isEqual(DataArrayDouble.New(expected1[pos],4,2),1e-12))
             pass
         pass
+    
+    def testSwigBugNonRegressionZipDA(self):
+        angles=map(lambda x:pi/3*x,xrange(6))
+        radius=3
+        #
+        dad=DataArrayDouble.New(6, 2)
+        dad[:,0]=radius
+        dad[:,1]=angles
+        #
+        dad2=dad.fromPolarToCart()
+        dads=[dad2.deepCpy() for elt in 7*[None]]
+        #
+        translationToPerform=[[0.01,0.02],[3./2.*radius,-radius*sqrt(3.)/2],[3./2.*radius,radius*sqrt(3.)/2],[0.,radius*sqrt(3.)],[-3./2.*radius,radius*sqrt(3.)/2],[-3./2.*radius,-radius*sqrt(3.)/2],[0.,-radius*sqrt(3.)]]
+        for d,t in zip(dads,translationToPerform):
+            d+=t
+            pass
+        for elt in dads:
+            self.assertTrue(not dad2.isEqual(elt,1e-12))
+            pass
+        for d,t in zip(dads,translationToPerform):
+            d-=t
+            pass
+        for elt in dads:
+            self.assertTrue(dad2.isEqual(elt,1e-12))
+            pass
+        pass
 
     def setUp(self):
         pass
