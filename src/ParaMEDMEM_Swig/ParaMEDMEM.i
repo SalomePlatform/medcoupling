@@ -20,8 +20,7 @@
 %module ParaMEDMEM
 
 %include "ParaMEDMEM.typemap"
-%include "MEDCoupling.i"
-%include "MEDLoader.i"
+%include "MEDLoaderCommon.i"
 
 %{
 #include "CommInterface.hxx"
@@ -259,3 +258,46 @@ int MPI_Finalize();
   }
   %}
 
+%pythoncode %{
+def ParaMEDMEMDataArrayDoubleIadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDouble____iadd___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleIsub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDouble____isub___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleImul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDouble____imul___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleIdiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayDouble____idiv___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingFieldDouble____iadd___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIsub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingFieldDouble____isub___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleImul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingFieldDouble____imul___(self, self, *args)
+def ParaMEDMEMMEDCouplingFieldDoubleIdiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.MEDCouplingFieldDouble____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayIntIadd(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt____iadd___(self, self, *args)
+def ParaMEDMEMDataArrayIntIsub(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt____isub___(self, self, *args)
+def ParaMEDMEMDataArrayIntImul(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt____imul___(self, self, *args)
+def ParaMEDMEMDataArrayIntIdiv(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayIntImod(self,*args):
+    import _ParaMEDMEM
+    return _ParaMEDMEM.DataArrayInt____imod___(self, self, *args)
+%}
+
+%include "MEDCouplingFinalize.i"
