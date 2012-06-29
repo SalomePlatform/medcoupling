@@ -4913,6 +4913,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         c,cI=mesh.getNodeIdsNearPoints(pts,3,1e-7);
         self.assertEqual([0,3,3,4],cI.getValues());
         self.assertEqual([4,9,11,6],c.getValues());
+        c,cI=mesh.getNodeIdsNearPoints(pts,1e-7);
+        self.assertEqual([0,3,3,4],cI.getValues());
+        self.assertEqual([4,9,11,6],c.getValues());
+        c,cI=mesh.getNodeIdsNearPoints(DataArrayDouble.New(pts,3,2),1e-7);
+        self.assertEqual([0,3,3,4],cI.getValues());
+        self.assertEqual([4,9,11,6],c.getValues());
+        self.assertRaises(InterpKernelException,mesh.getNodeIdsNearPoints,DataArrayDouble.New(pts,2,3),1e-7);
         pass
 
     def testFieldCopyTinyAttrFrom1(self):
