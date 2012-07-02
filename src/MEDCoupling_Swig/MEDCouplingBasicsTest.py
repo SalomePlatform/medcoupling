@@ -9980,6 +9980,46 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
+    def testBuildSlice3D2(self):
+        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        vec1=[-0.07,1.,0.07]
+        origin1=[1.524,1.4552,1.74768]
+        slice1,ids=mesh3D.buildSlice3D(origin1,vec1,1e-10);
+        f=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+        f.setTime(4.5,6,7) ; f.setMesh(mesh3D)
+        arr=DataArrayDouble(mesh3D.getNumberOfCells(),2)
+        arr.rearrange(1) ; arr.iota(2.) ; arr.rearrange(2)
+        f.setArray(arr)
+        f.checkCoherency()
+        expected1=DataArrayInt([1,3,4,7,9,10,13,15,16])
+        self.assertTrue(expected1.isEqual(ids))
+        arr2=arr[expected1]
+        #
+        f2=f.extractSlice3D(origin1,vec1,1e-10)
+        self.assertTrue(f2.getArray().isEqual(arr2,1e-12));
+        self.assertTrue(slice1.isEqual(f2.getMesh(),1e-12))
+        self.assertEqual(6,f2.getTime()[1]) ; self.assertEqual(7,f2.getTime()[2])
+        self.assertAlmostEqual(4.5,f2.getTime()[0],12);
+        pass
+
+    def testComputeTupleIdsToSelectFromCellIds1(self):
+        m=MEDCouplingDataForTest.build2DTargetMesh_3()
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,NO_TIME);
+        f.setMesh(m);
+        arr=DataArrayDouble(52,2) ; arr.rearrange(1) ; arr.iota(7.) ; arr.rearrange(2)
+        f.setArray(arr)
+        #
+        f2=f.buildSubPart([1,5,9])
+        f2.checkCoherency()
+        cI=m.computeNbOfNodesPerCell()
+        cI.computeOffsets2()
+        sel=DataArrayInt([1,5,9])
+        res=sel.buildExplicitArrByRanges(cI)
+        arr2=arr[res]
+        self.assertTrue(arr2.isEqual(DataArrayDouble([13,14,15,16,17,18,19,20,59,60,61,62,63,64,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110],15,2),1e-12))
+        self.assertTrue(arr2.isEqual(f2.getArray(),1e-12))
+        pass
+
     def setUp(self):
         pass
     pass

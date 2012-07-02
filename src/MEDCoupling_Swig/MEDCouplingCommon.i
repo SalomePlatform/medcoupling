@@ -75,6 +75,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getOffsetArr;
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingField::getLocalizationOfDiscr;
+%newobject ParaMEDMEM::MEDCouplingField::computeTupleIdsToSelectFromCellIds;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::New;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getArray;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::getEndArray;
@@ -90,6 +91,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::magnitude;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::maxPerTuple;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::keepSelectedComponents;
+%newobject ParaMEDMEM::MEDCouplingFieldDouble::extractSlice3D;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::DotFields;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::dot;
 %newobject ParaMEDMEM::MEDCouplingFieldDouble::CrossProductFields;
@@ -255,6 +257,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity2;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSpreadZonesWithPoly;
+%newobject ParaMEDMEM::MEDCouplingUMesh::computeNbOfNodesPerCell;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGradually;
@@ -1250,6 +1253,7 @@ namespace ParaMEDMEM
     DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *computeFetchedNodeIds() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception);
+    DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
@@ -6106,6 +6110,33 @@ namespace ParaMEDMEM
         return res;
       }
 
+      DataArrayInt *computeTupleIdsToSelectFromCellIds(PyObject *li) const
+      {
+        int sw;
+        int pos1;
+        std::vector<int> pos2;
+        DataArrayInt *pos3=0;
+        DataArrayIntTuple *pos4=0;
+        convertObjToPossibleCpp1(li,sw,pos1,pos2,pos3,pos4);
+        switch(sw)
+          {
+          case 1:
+            {
+              return self->computeTupleIdsToSelectFromCellIds(&pos1,&pos1+1);
+            }
+          case 2:
+            {
+              return self->computeTupleIdsToSelectFromCellIds(&pos2[0],&pos2[0]+pos2.size());
+            }
+          case 3:
+            {
+              return self->computeTupleIdsToSelectFromCellIds(pos3->begin(),pos3->end());
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingField::computeTupleIdsToSelectFromCellIds : unexpected input array type recognized !");
+          }
+      }
+
       void setGaussLocalizationOnCells(PyObject *li, const std::vector<double>& refCoo,
                                        const std::vector<double>& gsCoo, const std::vector<double>& wg) throw(INTERP_KERNEL::Exception)
       {
@@ -6551,6 +6582,22 @@ namespace ParaMEDMEM
         std::vector<int> tmp;
         convertPyToNewIntArr3(li,tmp);
         self->setSelectedComponents(f,tmp);
+      }
+
+      MEDCouplingFieldDouble *extractSlice3D(PyObject *origin, PyObject *vec, double eps) const throw(INTERP_KERNEL::Exception)
+      {
+        double val,val2;
+        DataArrayDouble *a,*a2;
+        DataArrayDoubleTuple *aa,*aa2;
+        std::vector<double> bb,bb2;
+        int sw;
+        int spaceDim=3;
+        const char msg[]="Python wrap of MEDCouplingFieldDouble::extractSlice3D : 1st paramater for origin.";
+        const char msg2[]="Python wrap of MEDCouplingFieldDouble::extractSlice3D : 2nd paramater for vector.";
+        const double *orig=convertObjToPossibleCpp5_Safe(origin,sw,val,a,aa,bb,msg,1,spaceDim,true);
+        const double *vect=convertObjToPossibleCpp5_Safe(vec,sw,val2,a2,aa2,bb2,msg2,1,spaceDim,true);
+        //
+        return self->extractSlice3D(orig,vect,eps);
       }
 
       PyObject *___iadd___(PyObject *trueSelf, const MEDCouplingFieldDouble& other) throw(INTERP_KERNEL::Exception)

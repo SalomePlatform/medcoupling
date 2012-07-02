@@ -423,8 +423,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, 
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   std::vector<DataArrayDouble *> arrs;
-  const int *arrSelBg=arrSelect->getConstPointer();
-  const int *arrSelEnd=arrSelBg+arrSelect->getNbOfElems();
+  const int *arrSelBg=arrSelect->begin();
+  const int *arrSelEnd=arrSelect->end();
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     {
       DataArrayDouble *arr=0;
@@ -1307,6 +1307,44 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals) thr
       return true;
     }
   return false;
+}
+
+/*!
+ * This method calls MEDCouplingUMesh::buildSlice3D method. So this method makes the assumption that underlying mesh exists.
+ * For the moment, this method is implemented for fields on cells.
+ * 
+ * \return a newly allocated field double containing the result that the user should deallocate.
+ */
+MEDCouplingFieldDouble *MEDCouplingFieldDouble::extractSlice3D(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception)
+{
+  const MEDCouplingMesh *mesh=getMesh();
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::extractSlice3D : underlying mesh is null !");
+  if(getTypeOfField()!=ON_CELLS)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::extractSlice3D : only implemented for fields on cells !");
+  const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh(mesh->buildUnstructured());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=clone(false);
+  ret->setMesh(umesh);
+  DataArrayInt *cellIds=0;
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> mesh2=umesh->buildSlice3D(origin,vec,eps,cellIds);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellIds2=cellIds;
+  ret->setMesh(mesh2);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tupleIds=computeTupleIdsToSelectFromCellIds(cellIds->begin(),cellIds->end());
+  std::vector<DataArrayDouble *> arrays;
+  _time_discr->getArrays(arrays);
+  int i=0;
+  std::vector<DataArrayDouble *> newArr(arrays.size());
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> > newArr2(arrays.size());
+  for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++,i++)
+    {
+      if(*iter)
+        {
+          newArr2[i]=(*iter)->selectByTupleIdSafe(cellIds->begin(),cellIds->end());
+          newArr[i]=newArr2[i];
+        }
+    }
+  ret->setArrays(newArr);
+  ret->incrRef(); return ret;
 }
 
 /*!

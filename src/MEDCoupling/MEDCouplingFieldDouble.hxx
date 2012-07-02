@@ -138,6 +138,7 @@ namespace ParaMEDMEM
     bool mergeNodes2(double eps, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
     bool zipCoords(double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
     bool zipConnectivity(int compType, double epsOnVals=1e-15) throw(INTERP_KERNEL::Exception);
+    MEDCouplingFieldDouble *extractSlice3D(const double *origin, const double *vec, double eps) const throw(INTERP_KERNEL::Exception);
     bool simplexize(int policy) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *doublyContractedProduct() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *determinant() const throw(INTERP_KERNEL::Exception);

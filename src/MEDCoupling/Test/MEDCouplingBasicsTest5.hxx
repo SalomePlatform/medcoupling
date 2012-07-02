@@ -58,6 +58,8 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testDataArraySort1 );
     CPPUNIT_TEST( testPartitionBySpreadZone1 );
     CPPUNIT_TEST( testGiveCellsWithType1 );
+    CPPUNIT_TEST( testBuildSlice3D2 );
+    CPPUNIT_TEST( testComputeTupleIdsToSelectFromCellIds1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -83,6 +85,8 @@ namespace ParaMEDMEM
     void testDataArraySort1();
     void testPartitionBySpreadZone1();
     void testGiveCellsWithType1();
+    void testBuildSlice3D2();
+    void testComputeTupleIdsToSelectFromCellIds1();
   };
 }
 

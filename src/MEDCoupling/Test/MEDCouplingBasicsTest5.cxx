@@ -1252,3 +1252,77 @@ void MEDCouplingBasicsTest5::testGiveCellsWithType1()
   //
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testBuildSlice3D2()
+{
+  MEDCouplingUMesh *mesh2D=0;
+  MEDCouplingUMesh *mesh3D=build3DExtrudedUMesh_1(mesh2D);
+  mesh2D->decrRef();
+  // First slice in the middle of 3D cells
+  const double vec1[3]={-0.07,1.,0.07};
+  const double origin1[3]={1.524,1.4552,1.74768};
+  DataArrayInt *ids=0;
+  MEDCouplingUMesh *slice1=mesh3D->buildSlice3D(origin1,vec1,1e-10,ids);
+  //
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
+  f->setTime(4.5,6,7) ; f->setMesh(mesh3D);
+  DataArrayDouble *arr=DataArrayDouble::New(); arr->alloc(mesh3D->getNumberOfCells(),2);
+  arr->rearrange(1); arr->iota(2.); arr->rearrange(2);
+  f->setArray(arr);
+  f->checkCoherency();
+  const int exp1[9]={1,3,4,7,9,10,13,15,16};
+  DataArrayInt *expected1=DataArrayInt::New(); expected1->alloc(9,1); std::copy(exp1,exp1+9,expected1->getPointer());
+  CPPUNIT_ASSERT(expected1->isEqual(*ids));
+  DataArrayDouble *arr2=arr->selectByTupleIdSafe(expected1->begin(),expected1->end());
+  //
+  MEDCouplingFieldDouble *f2=f->extractSlice3D(origin1,vec1,1e-10);
+  CPPUNIT_ASSERT(f2->getArray()->isEqual(*arr2,1e-12));
+  CPPUNIT_ASSERT(slice1->isEqual(f2->getMesh(),1e-12));
+  int a,b;
+  double c=f2->getTime(a,b);
+  CPPUNIT_ASSERT_EQUAL(6,a);
+  CPPUNIT_ASSERT_EQUAL(7,b);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(4.5,c,1e-12);
+  //
+  ids->decrRef();
+  slice1->decrRef();
+  arr2->decrRef();
+  arr->decrRef();
+  f2->decrRef();
+  f->decrRef();
+  mesh3D->decrRef();
+  expected1->decrRef();
+}
+
+void MEDCouplingBasicsTest5::testComputeTupleIdsToSelectFromCellIds1()
+{
+  MEDCouplingUMesh *m=build2DTargetMesh_3();
+  MEDCouplingFieldDouble *f=MEDCouplingFieldDouble::New(ON_GAUSS_NE,NO_TIME);
+  f->setMesh(m);
+  DataArrayDouble *arr=DataArrayDouble::New(); arr->alloc(52,2) ; arr->rearrange(1) ; arr->iota(7.); arr->rearrange(2);
+  f->setArray(arr);
+  //
+  const int subPart1[3]={1,5,9};
+  MEDCouplingFieldDouble *f2=f->buildSubPart(subPart1,subPart1+3);
+  f2->checkCoherency();
+  DataArrayInt *cI=m->computeNbOfNodesPerCell();
+  cI->computeOffsets2();
+  const int sel1[3]={1,5,9};
+  DataArrayInt *sel=DataArrayInt::New(); sel->useArray(sel1,false,CPP_DEALLOC,3,1);
+  DataArrayInt *res=sel->buildExplicitArrByRanges(cI);
+  DataArrayDouble *arr2=arr->selectByTupleIdSafe(res->begin(),res->end());
+  const double expected1[30]={13.,14.,15.,16.,17.,18.,19.,20.,59.,60.,61.,62.,63.,64.,95.,96.,97.,98.,99.,100.,101.,102.,103.,104.,105.,106.,107.,108.,109.,110.};
+  DataArrayDouble *arr3=DataArrayDouble::New(); arr3->useArray(expected1,false,CPP_DEALLOC,15,2);
+  CPPUNIT_ASSERT(arr2->isEqual(*arr3,1e-12));
+  CPPUNIT_ASSERT(arr2->isEqual(*f2->getArray(),1e-12));
+  //
+  cI->decrRef();
+  arr3->decrRef();
+  arr2->decrRef();
+  arr->decrRef();
+  m->decrRef();
+  f->decrRef();
+  f2->decrRef();
+  sel->decrRef();
+  res->decrRef();
+}

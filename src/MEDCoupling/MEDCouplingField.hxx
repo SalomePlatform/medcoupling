@@ -59,6 +59,7 @@ namespace ParaMEDMEM
     DataArrayDouble *getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
+    DataArrayInt *computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const;
     MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);

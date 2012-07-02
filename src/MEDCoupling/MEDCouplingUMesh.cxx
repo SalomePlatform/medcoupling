@@ -1082,6 +1082,33 @@ DataArrayInt *MEDCouplingUMesh::getNodeIdsInUse(int& nbrOfNodesInUse) const thro
 }
 
 /*!
+ * This method returns a newly allocated array containing this->getNumberOfCells() tuples and 1 component.
+ * For each cell in \b this the number of nodes constituting cell is computed.
+ * Excepted for poyhedrons, the result can be deduced by performing a deltaShiftIndex on the nodal connectivity index in \b this minus 1.
+ * For polyhedrons, the face separation (-1) are excluded from the couting.
+ * 
+ * \return a newly allocated array
+ */
+DataArrayInt *MEDCouplingUMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  checkConnectivityFullyDefined();
+  int nbOfCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbOfCells,1);
+  int *retPtr=ret->getPointer();
+  const int *conn=getNodalConnectivity()->getConstPointer();
+  const int *connI=getNodalConnectivityIndex()->getConstPointer();
+  for(int i=0;i<nbOfCells;i++,retPtr++)
+    {
+      if(conn[connI[i]]!=(int)INTERP_KERNEL::NORM_POLYHED)
+        *retPtr=connI[i+1]-connI[i]-1;
+      else
+        *retPtr=connI[i+1]-connI[i]-1-std::count(conn+connI[i]+1,conn+connI[i+1],-1);
+    }
+  ret->incrRef(); return ret;
+}
+
+/*!
  * Array returned is the correspondance in \b old \b to \b new format. The returned array is newly created and should be dealt by the caller.
  * The maximum value stored in returned array is the number of nodes of 'this' minus 1 after call of this method.
  * The size of returned array is the number of nodes of the old (previous to the call of this method) number of nodes.

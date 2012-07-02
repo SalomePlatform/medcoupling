@@ -313,6 +313,15 @@ MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const int *start, const int 
 }
 
 /*!
+ * This method returns tuples ids implied by the mesh selection of the  cell ids contained in array defined as an interval [start;end).
+ * \return a newly allocated DataArrayInt instance containing tuples ids.
+ */
+DataArrayInt *MEDCouplingField::computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const
+{
+  return _type->computeTupleIdsToSelectFromCellIds(_mesh,startCellIds,endCellIds);
+}
+
+/*!
  * This method returns number of tuples expected regarding its discretization and its _mesh attribute.
  * This method expected a not null _mesh instance. If null, an exception will be thrown.
  */

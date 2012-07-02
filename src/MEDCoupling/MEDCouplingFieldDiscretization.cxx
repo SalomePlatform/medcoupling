@@ -478,7 +478,23 @@ void MEDCouplingFieldDiscretizationP0::renumberValuesOnCellsR(const MEDCouplingM
 }
 
 /*!
- * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end].
+ * This method returns a tuple ids selection from cell ids selection [start;end).
+ * This method is called by MEDCouplingFieldDiscretizationP0::buildSubMeshData to return parameter \b di.
+ * Here for P0 it's very simple !
+ *
+ * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
+ * 
+ */
+DataArrayInt *MEDCouplingFieldDiscretizationP0::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc((int)std::distance(startCellIds,endCellIds),1);
+  std::copy(startCellIds,endCellIds,ret->getPointer());
+  ret->incrRef(); return ret;
+}
+
+/*!
+ * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
  * @param di is an array returned that specifies entity ids (here cells ids) in mesh 'mesh' of entity in returned submesh.
  * Example : The first cell id of returned mesh has the (*di)[0] id in 'mesh'
  */
@@ -681,6 +697,23 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const MEDCou
   di->decrRef();
   di=di2;
   return ret;
+}
+
+/*!
+ * This method returns a tuple ids selection from cell ids selection [start;end).
+ * This method is called by MEDCouplingFieldDiscretizationP0::buildSubMeshData to return parameter \b di.
+ * Here for P1 only nodes fetched by submesh of mesh[startCellIds:endCellIds) is returned !
+ *
+ * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
+ * 
+ */
+DataArrayInt *MEDCouplingFieldDiscretizationP1::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP1::computeTupleIdsToSelectFromCellIds : null mesh !");
+  const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh=mesh->buildUnstructured();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh2=static_cast<MEDCouplingUMesh *>(umesh->buildPartOfMySelf(startCellIds,endCellIds,true));
+  return umesh2->computeFetchedNodeIds();
 }
 
 MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell():_discr_per_cell(0)
@@ -1101,7 +1134,38 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getValueOnMulti(const Data
 
 MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  di=computeTupleIdsToSelectFromCellIds(mesh,start,end);
+  return mesh->buildPart(start,end);
+}
+
+/*!
+ * This method returns a tuple ids selection from cell ids selection [start;end).
+ * This method is called by MEDCouplingFieldDiscretizationGauss::buildSubMeshData to return parameter \b di.
+ *
+ * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
+ * 
+ */
+DataArrayInt *MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : null mesh !");
+  if(!_discr_per_cell)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : null discretization ids !");
+  int nbOfCells=mesh->getNumberOfCells();
+  if(_discr_per_cell->getNumberOfTuples()!=nbOfCells)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds : mismatch of nb of tuples of cell ids array and number of cells !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=DataArrayInt::New(); nbOfNodesPerCell->alloc(nbOfCells,1);
+  int *retPtr=nbOfNodesPerCell->getPointer();
+  const int *pt=_discr_per_cell->getConstPointer();
+  int nbMaxOfLocId=(int)_loc.size();
+  for(int i=0;i<nbOfCells;i++,retPtr++)
+    {
+      if(*pt>=0 && *pt<nbMaxOfLocId)
+        *retPtr=_loc[*pt].getNumberOfGaussPt();
+    }
+  nbOfNodesPerCell->computeOffsets2();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
+  return sel->buildExplicitArrByRanges(nbOfNodesPerCell);
 }
 
 /*!
@@ -1531,7 +1595,26 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGaussNE::getValueOnMulti(const Da
 
 MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
 {
-  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  di=computeTupleIdsToSelectFromCellIds(mesh,start,end);
+  return mesh->buildPart(start,end);
+}
+
+/*!
+ * This method returns a tuple ids selection from cell ids selection [start;end).
+ * This method is called by MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData to return parameter \b di.
+ *
+ * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
+ * 
+ */
+DataArrayInt *MEDCouplingFieldDiscretizationGaussNE::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::computeTupleIdsToSelectFromCellIds : null mesh !");
+  const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh=mesh->buildUnstructured();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> nbOfNodesPerCell=umesh->computeNbOfNodesPerCell();
+  nbOfNodesPerCell->computeOffsets2();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> sel=DataArrayInt::New(); sel->useArray(startCellIds,false,CPP_DEALLOC,(int)std::distance(startCellIds,endCellIds),1);
+  return sel->buildExplicitArrByRanges(nbOfNodesPerCell);
 }
 
 /*!
