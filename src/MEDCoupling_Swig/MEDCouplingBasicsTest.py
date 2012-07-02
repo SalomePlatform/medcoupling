@@ -3056,7 +3056,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f1.setArray(array);
         #
         part1=[2,1,4]
-        f2=f1.buildSubPart(part1);
+        f2=f1[part1];
         f2.zipCoords()
         self.failUnlessEqual(3,f2.getNumberOfTuples());
         self.failUnlessEqual(2,f2.getNumberOfComponents());
