@@ -32,7 +32,7 @@ BUILT_SOURCES = MEDCouplingWRAP.cxx MEDCouplingRemapperWRAP.cxx
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../MEDCoupling -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../INTERP_KERNEL
 
-dist__MEDCoupling_la_SOURCES   = MEDCoupling.i MEDCouplingTypemaps.i
+dist__MEDCoupling_la_SOURCES   = MEDCoupling.i MEDCouplingTypemaps.i MEDCouplingCommon.i MEDCouplingFinalize.i
 nodist__MEDCoupling_la_SOURCES = MEDCouplingWRAP.cxx
 MEDCoupling.py: MEDCouplingWRAP.cxx
 

@@ -29,7 +29,7 @@ lib_LTLIBRARIES = _MEDLoader.la
 salomeinclude_HEADERS =  \
 	MEDLoader.i MEDLoaderTypemaps.i
 
-SWIG_DEF = MEDLoader.i MEDLoaderTypemaps.i
+SWIG_DEF = MEDLoader.i MEDLoaderTypemaps.i MEDLoaderCommon.i
 
 SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/.. -I$(srcdir)/../../MEDCoupling -I$(srcdir)/../../MEDCoupling_Swig \
 	-I$(srcdir)/../../INTERP_KERNEL -I$(srcdir)/../../INTERP_KERNEL/Bases
