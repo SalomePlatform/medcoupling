@@ -377,7 +377,8 @@ class MEDLoaderTest(unittest.TestCase):
     def testMEDField1(self):
         mm=MEDFileMesh.New("Pyfile17.med")
         mm.write("Pyfile17_bis.med",2)
-        ff=MEDFileFieldMultiTS.New("Pyfile17.med","MeasureOfMesh_Extruded")
+        ff=MEDFileFieldMultiTS("Pyfile17.med")
+        self.assertEqual("MeasureOfMesh_Extruded",ff.getName())
         self.assertEqual([3,4],ff[1].getTime()[:-1])
         self.assertEqual([3,4],ff[3,4].getTime()[:-1])
         self.assertEqual([3,4],ff[0.01].getTime()[:-1])

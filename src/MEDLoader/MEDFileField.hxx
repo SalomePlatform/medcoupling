@@ -537,6 +537,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileFieldMultiTS *New();
+    static MEDFileFieldMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldMultiTS *New(const MEDFileFieldMultiTSWithoutDAS& other);
     //
@@ -566,6 +567,7 @@ namespace ParaMEDMEM
   private:
     MEDFileFieldMultiTS();
     MEDFileFieldMultiTS(const MEDFileFieldMultiTSWithoutDAS& other);
+    MEDFileFieldMultiTS(const char *fileName) throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
   };
 

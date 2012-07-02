@@ -4006,6 +4006,11 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::New()
   return new MEDFileFieldMultiTS;
 }
 
+MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const char *fileName) throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileFieldMultiTS(fileName);
+}
+
 MEDFileFieldMultiTS *MEDFileFieldMultiTS::New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 {
   return new MEDFileFieldMultiTS(fileName,fieldName);
@@ -4161,6 +4166,43 @@ void MEDFileFieldMultiTS::appendFieldProfile(const MEDCouplingFieldDouble *field
 MEDFileFieldMultiTS::MEDFileFieldMultiTS()
 {
 }
+
+MEDFileFieldMultiTS::MEDFileFieldMultiTS(const char *fileName) throw(INTERP_KERNEL::Exception)
+try:MEDFileFieldMultiTSWithoutDAS(""),MEDFileFieldGlobsReal(fileName)
+{
+  MEDFileUtilities::CheckFileForRead(fileName);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
+  int nbFields=MEDnField(fid);
+  if(nbFields<1)
+    {
+      std::ostringstream oss; oss << "MEDFileFieldMultiTS(const char *fileName) constructor : no fields in file \"" << fileName << "\" !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  med_field_type typcha;
+  int nbstep2=-1;
+  //
+  int ncomp=MEDfieldnComponent(fid,1);
+  INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> dtunit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> nomcha=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> nomMaa=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  med_bool localMesh;
+  int nbOfStep;
+  MEDfieldInfo(fid,1,nomcha,nomMaa,&localMesh,&typcha,comp,unit,dtunit,&nbOfStep);
+  _name=MEDLoaderBase::buildStringFromFortran(nomcha,MED_NAME_SIZE);
+  _field_type=MEDFileUtilities::TraduceFieldType(typcha);
+  _infos.resize(ncomp);
+  for(int j=0;j<ncomp;j++)
+    _infos[j]=MEDLoaderBase::buildUnionUnit((char *)comp+j*MED_SNAME_SIZE,MED_SNAME_SIZE,(char *)unit+j*MED_SNAME_SIZE,MED_SNAME_SIZE);
+  //
+  finishLoading(fid,nbOfStep);
+  loadGlobals(fid);
+}
+catch(INTERP_KERNEL::Exception& e)
+  {
+    throw e;
+  }
 
 MEDFileFieldMultiTS::MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
 try:MEDFileFieldMultiTSWithoutDAS(fieldName),MEDFileFieldGlobsReal(fileName)

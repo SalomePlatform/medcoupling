@@ -1239,6 +1239,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDFileFieldMultiTS *New();
+    static MEDFileFieldMultiTS *New(const char *fileName);
     static MEDFileFieldMultiTS *New(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
     //
     MEDFileField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
@@ -1259,6 +1260,11 @@ namespace ParaMEDMEM
          MEDFileFieldMultiTS()
          {
            return MEDFileFieldMultiTS::New();
+         }
+
+         MEDFileFieldMultiTS(const char *fileName) throw(INTERP_KERNEL::Exception)
+         {
+           return MEDFileFieldMultiTS::New(fileName);
          }
 
          MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception)
