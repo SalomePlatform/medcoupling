@@ -6604,6 +6604,7 @@ namespace ParaMEDMEM
     static MEDCouplingFieldTemplate *New(TypeOfField type);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
+    void updateTime() const;
     %extend
        {
          MEDCouplingFieldTemplate(const MEDCouplingFieldDouble *f) throw(INTERP_KERNEL::Exception)

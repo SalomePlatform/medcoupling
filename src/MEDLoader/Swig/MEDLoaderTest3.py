@@ -1257,6 +1257,42 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
         mm.write(fname,2)       
         pass
+
+    def testBasicConstructors(self):
+        fname="Pyfile18.med"
+        m=MEDFileMesh(fname)
+        m=MEDFileMesh(fname,"ExampleOfMultiDimW",-1,-1)
+        m=MEDFileMesh(fname)
+        m=MEDFileUMesh(fname,"ExampleOfMultiDimW",-1,-1)
+        m=MEDFileUMesh(fname)
+        m=MEDFileUMesh()
+        self.testMEDMesh6()
+        m=MEDFileCMesh("MEDFileMesh5.med")
+        m=MEDFileCMesh("MEDFileMesh5.med","myFirstCartMesh",-1,-1)
+        m=MEDFileCMesh()
+        m=MEDFileMeshMultiTS()
+        m=MEDFileMeshMultiTS(fname)
+        m=MEDFileMeshMultiTS(fname,"ExampleOfMultiDimW")
+        m=MEDFileMeshes()
+        m=MEDFileMeshes(fname)
+        m=MEDFileField1TS()
+        m=MEDFileField1TS(fname,"FieldOnFacesShuffle",2,7)
+        m=MEDFileFieldMultiTS()
+        m=MEDFileFieldMultiTS(fname,"FieldOnFacesShuffle")
+        m=MEDFileFields()
+        m=MEDFileFields(fname)
+        m=MEDFileData()
+        m=MEDFileData(fname)
+        #
+        m=DataArrayInt() ; m=DataArrayInt(5,2) ; m=DataArrayInt([6,5,4,3,2,1],3,2)
+        m=DataArrayDouble() ; m=DataArrayDouble(5,2) ; m=DataArrayDouble([6,5,4,3,2,1],3,2)
+        m=MEDCouplingUMesh("jjj",2) ; m=MEDCouplingUMesh()
+        m=MEDCouplingCMesh()
+        m=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+        m=MEDCouplingFieldTemplate(ON_NODES)
+        m=MEDCouplingMultiFields([])
+        m=MEDCouplingFieldOverTime([])
+        pass
     pass
 
 unittest.main()
