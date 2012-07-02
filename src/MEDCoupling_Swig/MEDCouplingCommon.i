@@ -382,36 +382,36 @@ namespace ParaMEDMEM
     void setTime(double val, int iteration, int order);
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
-    virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingMeshType getType() const throw(INTERP_KERNEL::Exception);
     bool isStructured() const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingMesh *deepCpy() const = 0;
+    virtual MEDCouplingMesh *deepCpy() const;
     virtual bool isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
-    virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception);
     virtual void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
     virtual void copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
-    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual DataArrayDouble *getBarycenterAndOwner() const throw(INTERP_KERNEL::Exception) = 0;
-    virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual std::string simpleRepr() const = 0;
-    virtual std::string advancedRepr() const = 0;
+    virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    virtual void checkCoherency1(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    virtual void checkCoherency2(double eps=1e-12) const throw(INTERP_KERNEL::Exception);
+    virtual int getNumberOfCells() const throw(INTERP_KERNEL::Exception);
+    virtual int getNumberOfNodes() const throw(INTERP_KERNEL::Exception);
+    virtual int getSpaceDimension() const throw(INTERP_KERNEL::Exception);
+    virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception);
+    virtual DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception);
+    virtual DataArrayDouble *getBarycenterAndOwner() const throw(INTERP_KERNEL::Exception);
+    virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    virtual std::string simpleRepr() const;
+    virtual std::string advancedRepr() const;
     void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);
     // tools
-    virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
-    virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingFieldDouble *getMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
+    virtual MEDCouplingFieldDouble *getMeasureFieldOnNode(bool isAbs) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingFieldDouble *fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingFieldDouble *buildOrthogonalField() const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingFieldDouble *buildOrthogonalField() const throw(INTERP_KERNEL::Exception);
     virtual MEDCouplingUMesh *buildUnstructured() const throw(INTERP_KERNEL::Exception);
-    virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception) = 0;
+    virtual MEDCouplingMesh *mergeMyselfWith(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
     static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
@@ -787,20 +787,20 @@ namespace ParaMEDMEM
       void recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception);
       void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
-      virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception) = 0;
+      virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       static DataArrayDouble *MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
       static MEDCouplingPointSet *BuildInstanceFromMeshType(MEDCouplingMeshType type) throw(INTERP_KERNEL::Exception);
-      virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const throw(INTERP_KERNEL::Exception) = 0;
-      virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception) = 0;
+      virtual MEDCouplingPointSet *buildBoundaryMesh(bool keepCoords) const throw(INTERP_KERNEL::Exception);
+      virtual bool isEmptyMesh(const std::vector<int>& tinyInfo) const throw(INTERP_KERNEL::Exception);
       //! size of returned tinyInfo must be always the same.
       void getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<int>& tinyInfo, std::vector<std::string>& littleStrings) const throw(INTERP_KERNEL::Exception);
       void resizeForUnserialization(const std::vector<int>& tinyInfo, DataArrayInt *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const throw(INTERP_KERNEL::Exception);
       void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const throw(INTERP_KERNEL::Exception);
       void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                            const std::vector<std::string>& littleStrings) throw(INTERP_KERNEL::Exception);
-      virtual void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception) = 0;
-      virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception) = 0;
-      virtual DataArrayInt *findBoundaryNodes() const = 0;
+      virtual void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) throw(INTERP_KERNEL::Exception);
+      virtual DataArrayInt *zipCoordsTraducer() throw(INTERP_KERNEL::Exception);
+      virtual DataArrayInt *findBoundaryNodes() const;
       %extend 
          {
            std::string __str__() const
@@ -2191,6 +2191,7 @@ namespace ParaMEDMEM
   public:
     static MEDCouplingExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *build3DUnstructuredMesh() const throw(INTERP_KERNEL::Exception);
+    void updateTime() const throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, int cell2DId) throw(INTERP_KERNEL::Exception)
       {
@@ -2231,6 +2232,7 @@ namespace ParaMEDMEM
                    const DataArrayDouble *coordsY=0,
                    const DataArrayDouble *coordsZ=0) throw(INTERP_KERNEL::Exception);
     void setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception);
+    void updateTime() const throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingCMesh()
       {
@@ -2518,6 +2520,11 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::DataArrayDouble
  {
+   DataArrayDouble() throw(INTERP_KERNEL::Exception)
+   {
+     return DataArrayDouble::New();
+   }
+
    DataArrayDouble(PyObject *elt0, PyObject *elt1=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
    {
      const char *msg="ParaMEDMEM::DataArrayDouble::DataArrayDouble : Available API are : \n-DataArrayDouble()\n--DataArrayDouble([1.,3.,4.])\n-DataArrayDouble([1.,3.,4.],3)\n-DataArrayDouble([1.,3.,4.,5.],2,2)\n-DataArrayDouble(5)\n-DataArrayDouble(5,2) !";
@@ -4232,6 +4239,11 @@ namespace ParaMEDMEM
 
 %extend ParaMEDMEM::DataArrayInt
  {
+   DataArrayInt() throw(INTERP_KERNEL::Exception)
+   {
+     return DataArrayInt::New();
+   }
+   
    DataArrayInt(PyObject *elt0, PyObject *elt1=0, PyObject *elt2=0) throw(INTERP_KERNEL::Exception)
    {
      const char *msg="ParaMEDMEM::DataArrayInt::DataArrayInt : Available API are : \n-DataArrayInt()\n--DataArrayInt([1,3,4])\n-DataArrayInt([1,3,4],3)\n-DataArrayInt([1,3,4,5],2,2)\n-DataArrayInt(5)\n-DataArrayInt(5,2) !";
@@ -6621,6 +6633,7 @@ namespace ParaMEDMEM
     virtual bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
     virtual void checkCoherency() const throw(INTERP_KERNEL::Exception);
+    void updateTime() const throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const
