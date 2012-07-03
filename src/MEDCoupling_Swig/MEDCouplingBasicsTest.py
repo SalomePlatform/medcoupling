@@ -9832,7 +9832,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
     
     def testPartitionBySpreadZone1(self):
         m=MEDCouplingDataForTest.build2DTargetMesh_1();
-        m4=MEDCouplingUMesh.MergeUMeshes([m,m[2:],m[0:2]]);
+        m4=MEDCouplingUMesh.MergeUMeshes([m,m[-3:],m[0:2]]);
         m4.renumberCells([5,2,9,6,4,7,0,1,3,8]);
         #
         v2=m4.partitionBySpreadZone();
@@ -10018,6 +10018,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         arr2=arr[res]
         self.assertTrue(arr2.isEqual(DataArrayDouble([13,14,15,16,17,18,19,20,59,60,61,62,63,64,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110],15,2),1e-12))
         self.assertTrue(arr2.isEqual(f2.getArray(),1e-12))
+        pass
+
+    def testComputeSkin1(self):
+        arrX=DataArrayDouble([2.,3.4,5.6,7.7,8.0]) ; arrY=DataArrayDouble([2.,3.4,5.6,7.7,9.0,14.2])
+        cmesh=MEDCouplingCMesh() ; cmesh.setCoordsAt(0,arrX) ; cmesh.setCoordsAt(1,arrY)
+        umesh=cmesh.buildUnstructured()
+        #
+        skin=umesh.computeSkin()
+        self.assertEqual(18,skin.getNumberOfCells())
+        self.assertEqual(1,skin.getMeshDimension())
+        self.assertTrue(skin.getCoords().getHiddenCppPointer()==umesh.getCoords().getHiddenCppPointer())
+        self.assertEqual([0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54],skin.getNodalConnectivityIndex().getValues())
+        self.assertEqual([1,1,0,1,0,5,1,2,1,1,3,2,1,4,3,1,9,4,1,5,10,1,14,9,1,10,15,1,19,14,1,15,20,1,24,19,1,20,25,1,25,26,1,26,27,1,27,28,1,28,29,1,29,24],skin.getNodalConnectivity().getValues())
+        ids=skin.computeFetchedNodeIds()
+        self.assertEqual([0,1,2,3,4,5,9,10,14,15,19,20,24,25,26,27,28,29],ids.getValues())
+        part=umesh.buildFacePartOfMySelfNode(ids,True)
+        part.setName(skin.getName());
+        self.assertTrue(part.isEqual(skin,1e-12))
+        part2=part[1::2]
+        part[::2]=part2
+        self.assertTrue(not part.isEqual(skin,1e-12))
+        trad=part.zipConnectivityTraducer(0)
+        self.assertEqual(9,part.getNumberOfCells())
+        self.assertEqual([0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8],trad.getValues())
         pass
 
     def setUp(self):

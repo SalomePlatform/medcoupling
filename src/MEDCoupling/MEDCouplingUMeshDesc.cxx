@@ -374,6 +374,12 @@ void MEDCouplingUMeshDesc::tryToShareSameCoordsPermute(const MEDCouplingPointSet
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
+MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Not implemented yet !");
+  return 0;
+}
+
 MEDCouplingPointSet *MEDCouplingUMeshDesc::buildPartOfMySelf(const int *start, const int *end, bool keepCoords) const
 {
   throw INTERP_KERNEL::Exception("Not implemented yet !");

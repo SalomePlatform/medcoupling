@@ -369,6 +369,39 @@ int DataArray::GetNumberOfItemGivenBESRelative(int begin, int end, int step, con
     return 0;
 }
 
+int DataArray::GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step) throw(INTERP_KERNEL::Exception)
+{
+  if(step!=0)
+    {
+      if(step>0)
+        {
+          if(begin<=value && end<value)
+            {
+              if((value-begin)%step==0)
+                return (value-begin)/step;
+              else
+                return -1;
+            }
+          else
+            return -1;
+        }
+      else
+        {
+          if(begin>=value && end>value)
+            {
+              if((begin-value)%(-step)==0)
+                return (begin-value)/(-step);
+              else
+                return -1;
+            }
+          else
+            return -1;
+        }
+    }
+  else
+    return -1;
+}
+
 DataArrayDouble *DataArrayDouble::New()
 {
   return new DataArrayDouble;

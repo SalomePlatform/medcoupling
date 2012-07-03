@@ -1326,3 +1326,49 @@ void MEDCouplingBasicsTest5::testComputeTupleIdsToSelectFromCellIds1()
   sel->decrRef();
   res->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testComputeSkin1()
+{
+  const double input1[5]={2.,3.4,5.6,7.7,8.0};
+  const double input2[6]={2.,3.4,5.6,7.7,9.0,14.2};
+  DataArrayDouble *arrX=DataArrayDouble::New(); arrX->alloc(5,1); std::copy(input1,input1+5,arrX->getPointer());
+  DataArrayDouble *arrY=DataArrayDouble::New(); arrY->alloc(6,1); std::copy(input2,input2+6,arrY->getPointer());
+  MEDCouplingCMesh *cmesh=MEDCouplingCMesh::New() ; cmesh->setCoordsAt(0,arrX) ; cmesh->setCoordsAt(1,arrY);
+  MEDCouplingUMesh *umesh=cmesh->buildUnstructured();
+  cmesh->decrRef(); arrX->decrRef(); arrY->decrRef();
+  //
+  MEDCouplingUMesh *skin=umesh->computeSkin();
+  CPPUNIT_ASSERT_EQUAL(18,skin->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(1,skin->getMeshDimension());
+  CPPUNIT_ASSERT(skin->getCoords()==umesh->getCoords());
+  const int expected1[19]={0,3,6,9,12,15,18,21,24,27,30,33,36,39,42,45,48,51,54};
+  const int expected2[54]={1,1,0,1,0,5,1,2,1,1,3,2,1,4,3,1,9,4,1,5,10,1,14,9,1,10,15,1,19,14,1,15,20,1,24,19,1,20,25,1,25,26,1,26,27,1,27,28,1,28,29,1,29,24};
+  CPPUNIT_ASSERT_EQUAL(19,skin->getNodalConnectivityIndex()->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+19,skin->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(54,skin->getNodalConnectivity()->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+54,skin->getNodalConnectivity()->getConstPointer()));
+  DataArrayInt *ids=skin->computeFetchedNodeIds();
+  const int expected3[18]={0,1,2,3,4,5,9,10,14,15,19,20,24,25,26,27,28,29};
+  CPPUNIT_ASSERT_EQUAL(18,ids->getNbOfElems());
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+18,ids->getConstPointer()));
+  MEDCouplingUMesh *part=dynamic_cast<MEDCouplingUMesh *>(umesh->buildFacePartOfMySelfNode(ids->begin(),ids->end(),true));
+  part->setName(skin->getName());
+  CPPUNIT_ASSERT(part->isEqual(skin,1e-12));
+  MEDCouplingUMesh *part2=dynamic_cast<MEDCouplingUMesh *>(part->buildPartOfMySelf2(1,18,2,true));
+  DataArrayInt *ids2=DataArrayInt::Range(0,18,2);
+  part->setPartOfMySelf(ids2->begin(),ids2->end(),*part2);
+  ids2->decrRef();
+  CPPUNIT_ASSERT(!part->isEqual(skin,1e-12));
+  DataArrayInt *trad=part->zipConnectivityTraducer(0);
+  CPPUNIT_ASSERT_EQUAL(9,part->getNumberOfCells());
+  const int expected4[18]={0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8};
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+18,trad->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(18,trad->getNbOfElems());
+  trad->decrRef();
+  part->decrRef();
+  part2->decrRef();
+  //
+  ids->decrRef();
+  umesh->decrRef();
+  skin->decrRef();
+}

@@ -244,6 +244,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingPointSet::findBoundaryNodes;
 %newobject ParaMEDMEM::MEDCouplingPointSet::buildBoundaryMesh;
 %newobject ParaMEDMEM::MEDCouplingPointSet::MergeNodesArray;
+%newobject ParaMEDMEM::MEDCouplingPointSet::buildPartOfMySelf2;
 %newobject ParaMEDMEM::MEDCouplingPointSet::BuildInstanceFromMeshType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::New;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivity;
@@ -791,6 +792,7 @@ namespace ParaMEDMEM
       void recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception);
       void changeSpaceDimension(int newSpaceDim, double dftVal=0.) throw(INTERP_KERNEL::Exception);
       void tryToShareSameCoords(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
+      virtual MEDCouplingPointSet *buildPartOfMySelf2(int start, int end, int step) const throw(INTERP_KERNEL::Exception);
       virtual void tryToShareSameCoordsPermute(const MEDCouplingPointSet& other, double epsilon) throw(INTERP_KERNEL::Exception);
       static DataArrayDouble *MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2) throw(INTERP_KERNEL::Exception);
       static MEDCouplingPointSet *BuildInstanceFromMeshType(MEDCouplingMeshType type) throw(INTERP_KERNEL::Exception);
@@ -1237,6 +1239,7 @@ namespace ParaMEDMEM
     MEDCouplingUMeshCellByTypeEntry *cellsByType() throw(INTERP_KERNEL::Exception);
     void setConnectivity(DataArrayInt *conn, DataArrayInt *connIndex, bool isComputingTypes=true) throw(INTERP_KERNEL::Exception);
     INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
+    void setPartOfMySelf2(int start, int end, int step, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception);
     int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getMeshLength() const throw(INTERP_KERNEL::Exception);
     void computeTypes() throw(INTERP_KERNEL::Exception);
@@ -1338,8 +1341,7 @@ namespace ParaMEDMEM
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::Range(slic.first,slic.second.first,slic.second.second);
-              return self->buildPartOfMySelf(d0->begin(),d0->end(),true);
+              return self->buildPartOfMySelf2(slic.first,slic.second.first,slic.second.second,true);
             }
           case 4:
             {
@@ -1350,6 +1352,64 @@ namespace ParaMEDMEM
             }
           default:
             throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__getitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
+          }
+      }
+      
+      void setPartOfMySelf(PyObject *li, const MEDCouplingUMesh& otherOnSameCoordsThanThis) throw(INTERP_KERNEL::Exception)
+      {
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        int nbc=self->getNumberOfCells();
+        convertObjToPossibleCpp2(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
+          {
+          case 1:
+            {
+              if(singleVal>=nbc)
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+              if(singleVal>=0)
+                {
+                  self->setPartOfMySelf(&singleVal,&singleVal+1,otherOnSameCoordsThanThis);
+                  break;
+                }
+              else
+                {
+                  if(nbc+singleVal>0)
+                    {
+                      int tmp=nbc+singleVal;
+                      self->setPartOfMySelf(&tmp,&tmp+1,otherOnSameCoordsThanThis);
+                      break;
+                    }
+                  else
+                    {
+                      std::ostringstream oss;
+                      oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                }
+            }
+          case 2:
+            {
+              self->setPartOfMySelf(&multiVal[0],&multiVal[0]+multiVal.size(),otherOnSameCoordsThanThis);
+              break;
+            }
+          case 4:
+            {
+              if(!daIntTyypp)
+                throw INTERP_KERNEL::Exception("MEDCouplingUMesh::setPartOfMySelf : null instance has been given in input !");
+              daIntTyypp->checkAllocated();
+              self->setPartOfMySelf(daIntTyypp->begin(),daIntTyypp->end(),otherOnSameCoordsThanThis);
+              break;
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::setPartOfMySelf : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
           }
       }
 
@@ -1400,8 +1460,7 @@ namespace ParaMEDMEM
             }
           case 3:
             {
-              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::Range(slic.first,slic.second.first,slic.second.second);
-              self->setPartOfMySelf(d0->begin(),d0->end(),otherOnSameCoordsThanThis);
+              self->setPartOfMySelf2(slic.first,slic.second.first,slic.second.second,otherOnSameCoordsThanThis);
               break;
             }
           case 4:
@@ -1413,7 +1472,7 @@ namespace ParaMEDMEM
               break;
             }
           default:
-            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__setitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
+            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::__setitem__ : unrecognized type in input ! Possibilities are : int, list or tuple of int, slice, DataArrayInt instance !");
           }
       }
 

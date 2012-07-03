@@ -60,6 +60,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testGiveCellsWithType1 );
     CPPUNIT_TEST( testBuildSlice3D2 );
     CPPUNIT_TEST( testComputeTupleIdsToSelectFromCellIds1 );
+    CPPUNIT_TEST( testComputeSkin1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -87,6 +88,7 @@ namespace ParaMEDMEM
     void testGiveCellsWithType1();
     void testBuildSlice3D2();
     void testComputeTupleIdsToSelectFromCellIds1();
+    void testComputeSkin1();
   };
 }
 
