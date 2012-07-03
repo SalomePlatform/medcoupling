@@ -3797,6 +3797,30 @@ void MEDFileFieldMultiTSWithoutDAS::eraseEmptyTS() throw(INTERP_KERNEL::Exceptio
   _time_steps=newTS;
 }
 
+void MEDFileFieldMultiTSWithoutDAS::eraseTimeStepIds(const int *startIds, const int *endIds) throw(INTERP_KERNEL::Exception)
+{
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  > newTS;
+  int maxId=(int)_time_steps.size();
+  int ii=0;
+  std::set<int> idsToDel;
+  for(const int *id=startIds;id!=endIds;id++,ii++)
+    {
+      if(*id>=0 && *id<maxId)
+        {
+          idsToDel.insert(*id);
+        }
+      else
+        {
+          std::ostringstream oss; oss << "MEDFileFieldMultiTSWithoutDAS::eraseTimeStepIds : At pos #" << ii << " request for id=" << *id << " not in [0," << maxId << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  for(int iii=0;iii<maxId;iii++)
+    if(idsToDel.find(iii)==idsToDel.end())
+      newTS.push_back(_time_steps[iii]);
+  _time_steps=newTS;
+}
+
 int MEDFileFieldMultiTSWithoutDAS::getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception)
 {
   int ret=0;

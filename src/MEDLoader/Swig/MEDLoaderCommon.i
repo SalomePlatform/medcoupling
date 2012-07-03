@@ -1232,6 +1232,100 @@ namespace ParaMEDMEM
            PyTuple_SetItem(ret,1,elt);
            return ret;
          }
+
+         int getTimeId(PyObject *elt0) const throw(INTERP_KERNEL::Exception)
+         {
+           if(elt0 && PyInt_Check(elt0))
+             {//fmts[3]
+               int pos=PyInt_AS_LONG(elt0);
+               return pos;
+             }
+           else if(elt0 && PyTuple_Check(elt0))
+             {
+               if(PyTuple_Size(elt0)==2)
+                 {
+                   PyObject *o0=PyTuple_GetItem(elt0,0);
+                   PyObject *o1=PyTuple_GetItem(elt0,1);
+                   if(PyInt_Check(o0) && PyInt_Check(o1))
+                     {//fmts(1,-1)
+                       int iter=PyInt_AS_LONG(o0);
+                       int order=PyInt_AS_LONG(o1);
+                       return self->getPosOfTimeStep(iter,order);
+                     }
+                   else
+                     throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::__getitem__ : invalid input param ! input is a tuple of size 2 but two integers are expected in this tuple to request a time steps !");
+                 }
+               else
+                 throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::__getitem__ : invalid input param ! input is a tuple of size != 2 ! two integers are expected in this tuple to request a time steps !");
+             }
+           else if(elt0 && PyFloat_Check(elt0))
+             {
+               double val=PyFloat_AS_DOUBLE(elt0);
+               return self->getPosGivenTime(val);
+             }
+           else
+             throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::__getitem__ : invalid input params ! expected fmts[int], fmts[int,int] or fmts[double] to request time step !");
+         }
+
+         std::vector<int> getTimeIds(PyObject *elts) const throw(INTERP_KERNEL::Exception)
+         {
+           if(PyList_Check(elts))
+             {
+               int sz=PyList_Size(elts);
+               std::vector<int> ret(sz);
+               for(int i=0;i<sz;i++)
+                 {
+                   PyObject *elt=PyList_GetItem(elts,i);
+                   ret[i]=ParaMEDMEM_MEDFileFieldMultiTSWithoutDAS_getTimeId(self,elt);
+                 }
+               return ret;
+             }
+           else
+             {
+               std::vector<int> ret(1);
+               ret[0]=ParaMEDMEM_MEDFileFieldMultiTSWithoutDAS_getTimeId(self,elts);
+               return ret;
+             }
+         }
+
+         void __delitem__(PyObject *elts) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector<int> idsToRemove=ParaMEDMEM_MEDFileFieldMultiTSWithoutDAS_getTimeIds(self,elts);
+           if(!idsToRemove.empty())
+             self->eraseTimeStepIds(&idsToRemove[0],&idsToRemove[0]+idsToRemove.size());
+         }
+
+         void eraseTimeStepIds(PyObject *li) throw(INTERP_KERNEL::Exception)
+         {
+           int sw;
+           int pos1;
+           std::vector<int> pos2;
+           DataArrayInt *pos3=0;
+           DataArrayIntTuple *pos4=0;
+           convertObjToPossibleCpp1(li,sw,pos1,pos2,pos3,pos4);
+           switch(sw)
+             {
+             case 1:
+               {
+                 self->eraseTimeStepIds(&pos1,&pos1+1);
+                 return;
+               }
+             case 2:
+               {
+                 if(pos2.empty())
+                   return;
+                 self->eraseTimeStepIds(&pos2[0],&pos2[0]+pos2.size());
+                 return ;
+               }
+             case 3:
+               {
+                 self->eraseTimeStepIds(pos3->begin(),pos3->end());
+                 return ;
+               }
+             default:
+               throw INTERP_KERNEL::Exception("MEDFileFieldMultiTSWithoutDAS::eraseTimeStepIds : unexpected input array type recognized !");
+             }
+         }
        }
   };
 

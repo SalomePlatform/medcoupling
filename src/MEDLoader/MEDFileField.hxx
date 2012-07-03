@@ -489,6 +489,7 @@ namespace ParaMEDMEM
     static MEDFileFieldMultiTSWithoutDAS *New(med_idt fid, const char *fieldName, int id, int ft, const std::vector<std::string>& infos, int nbOfStep) throw(INTERP_KERNEL::Exception);
     int getNumberOfTS() const;
     void eraseEmptyTS() throw(INTERP_KERNEL::Exception);
+    void eraseTimeStepIds(const int *startIds, const int *endIds) throw(INTERP_KERNEL::Exception);
     std::vector< std::pair<int,int> > getIterations() const;
     int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     int getPosGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);

@@ -373,6 +373,10 @@ class MEDLoaderTest(unittest.TestCase):
         m.write(fileName,2)
         pass
 
+    def funcToTestDelItem(self,ff):
+        del ff[[0.02,(3,4)]]
+        pass
+
     #emulation of pointe.med file.
     def testMEDField1(self):
         mm=MEDFileMesh.New("Pyfile17.med")
@@ -383,6 +387,12 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertEqual([3,4],ff[3,4].getTime()[:-1])
         self.assertEqual([3,4],ff[0.01].getTime()[:-1])
         ff.write("Pyfile17_bis.med",0)
+        #
+        ts=ff.getTimeSteps() ; ts=[elt[:-1] for elt in ts]
+        self.assertEqual([(1,2),(3,4),(5,6)],ts)
+        self.funcToTestDelItem(ff)
+        ts=ff.getTimeSteps() ; ts=[elt[:-1] for elt in ts]
+        self.assertEqual([(1,2)],ts)
         pass
 
     #profiles
