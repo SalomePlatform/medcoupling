@@ -10044,6 +10044,50 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8],trad.getValues())
         pass
 
+    def testUMeshSetPartOfMySelf2(self):
+        # resize with explicit ids list
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        self.assertEqual([3,4],m.getAllTypes())
+        part=m[[0,3,4]]
+        part.simplexize(0)
+        part2=part[[1,2,5]]
+        m[[0,3,4]]=part2
+        self.assertEqual([3,0,4,1,3,1,4,2,3,4,5,2,3,6,7,4,3,7,5,4],m.getNodalConnectivity().getValues())
+        self.assertEqual([0,4,8,12,16,20],m.getNodalConnectivityIndex().getValues())
+        self.assertEqual([3],m.getAllTypes())
+        # no resize with explicit ids list
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        part=m[[0,3]]
+        part.convertAllToPoly()
+        m[[3,4]]=part
+        self.assertEqual([4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3],m.getNodalConnectivity().getValues())
+        self.assertEqual([0,5,9,13,18,23],m.getNodalConnectivityIndex().getValues())
+        self.assertEqual([3,4,5],m.getAllTypes())
+        # resize with range ids
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        part=m[3:]
+        m[1:3]=part
+        self.assertEqual([4,0,3,4,1,4,6,7,4,3,4,7,8,5,4,4,6,7,4,3,4,7,8,5,4],m.getNodalConnectivity().getValues())
+        self.assertEqual([0,5,10,15,20,25],m.getNodalConnectivityIndex().getValues())
+        self.assertEqual([4],m.getAllTypes())
+        # no resize with range ids
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        part=m[0::3]
+        part.convertAllToPoly()
+        m[3:]=part
+        self.assertEqual([4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3],m.getNodalConnectivity().getValues())
+        self.assertEqual([0,5,9,13,18,23],m.getNodalConnectivityIndex().getValues())
+        self.assertEqual([3,4,5],m.getAllTypes())
+        # no resize with range ids negative direction
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        part=m[3::-3]
+        part.convertAllToPoly()
+        m[:-3:-1]=part
+        self.assertEqual([4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3],m.getNodalConnectivity().getValues())
+        self.assertEqual([0,5,9,13,18,23],m.getNodalConnectivityIndex().getValues())
+        self.assertEqual([3,4,5],m.getAllTypes())
+        pass
+
     def setUp(self):
         pass
     pass

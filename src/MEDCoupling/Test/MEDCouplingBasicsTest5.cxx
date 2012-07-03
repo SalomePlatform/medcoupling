@@ -1372,3 +1372,82 @@ void MEDCouplingBasicsTest5::testComputeSkin1()
   umesh->decrRef();
   skin->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testUMeshSetPartOfMySelf2()
+{
+  // resize with explicit ids list
+  MEDCouplingUMesh *m=build2DTargetMesh_1();
+  std::set<INTERP_KERNEL::NormalizedCellType> s; s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4);
+  CPPUNIT_ASSERT(s==m->getAllTypes());
+  const int ids1[3]={0,3,4};
+  MEDCouplingUMesh *part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(ids1,ids1+3,true));
+  part->simplexize(0)->decrRef();
+  const int ids2[3]={1,2,5};
+  MEDCouplingUMesh *part2=static_cast<MEDCouplingUMesh *>(part->buildPartOfMySelf(ids2,ids2+3,true));
+  m->setPartOfMySelf(ids1,ids1+3,*part2);
+  const int expected1[20]={3,0,4,1,3,1,4,2,3,4,5,2,3,6,7,4,3,7,5,4};
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+20,m->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(20,m->getNodalConnectivity()->getNbOfElems());
+  const int expected2[6]={0,4,8,12,16,20};
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+6,m->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(6,m->getNodalConnectivityIndex()->getNbOfElems());
+  s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3);
+  CPPUNIT_ASSERT(s==m->getAllTypes());
+  m->decrRef(); part->decrRef(); part2->decrRef();
+  // no resize with explicit ids list
+  m=build2DTargetMesh_1();
+  part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf(ids1,ids1+2,true));
+  part->convertAllToPoly();
+  m->setPartOfMySelf(ids1+1,ids1+3,*part);
+  const int expected3[23]={4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3};
+  CPPUNIT_ASSERT(std::equal(expected3,expected3+23,m->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(23,m->getNodalConnectivity()->getNbOfElems());
+  const int expected4[6]={0,5,9,13,18,23};
+  CPPUNIT_ASSERT(std::equal(expected4,expected4+6,m->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(6,m->getNodalConnectivityIndex()->getNbOfElems());
+  s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4); s.insert(INTERP_KERNEL::NORM_POLYGON);
+  CPPUNIT_ASSERT(s==m->getAllTypes());
+  m->decrRef(); part->decrRef();
+  // resize with range ids
+  m=build2DTargetMesh_1();
+  part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf2(3,5,1,true));
+  m->setPartOfMySelf2(1,3,1,*part);
+  const int expected5[25]={4,0,3,4,1,4,6,7,4,3,4,7,8,5,4,4,6,7,4,3,4,7,8,5,4};
+  CPPUNIT_ASSERT(std::equal(expected5,expected5+25,m->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(25,m->getNodalConnectivity()->getNbOfElems());
+  const int expected6[6]={0,5,10,15,20,25};
+  CPPUNIT_ASSERT(std::equal(expected6,expected6+6,m->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(6,m->getNodalConnectivityIndex()->getNbOfElems());
+  s.clear(); s.insert(INTERP_KERNEL::NORM_QUAD4);
+  CPPUNIT_ASSERT(s==m->getAllTypes());
+  m->decrRef(); part->decrRef();
+  // no resize with range ids
+  m=build2DTargetMesh_1();
+  part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf2(0,5,3,true));
+  part->convertAllToPoly();
+  m->setPartOfMySelf2(3,5,1,*part);
+  const int expected7[23]={4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3};
+  CPPUNIT_ASSERT(std::equal(expected7,expected7+23,m->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(23,m->getNodalConnectivity()->getNbOfElems());
+  const int expected8[6]={0,5,9,13,18,23};
+  CPPUNIT_ASSERT(std::equal(expected8,expected8+6,m->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(6,m->getNodalConnectivityIndex()->getNbOfElems());
+s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4); s.insert(INTERP_KERNEL::NORM_POLYGON);
+  CPPUNIT_ASSERT(s==m->getAllTypes());
+  m->decrRef(); part->decrRef();
+  // no resize with range ids negative direction
+  m=build2DTargetMesh_1();
+  part=static_cast<MEDCouplingUMesh *>(m->buildPartOfMySelf2(3,-1,-3,true));
+  part->convertAllToPoly();
+  m->setPartOfMySelf2(4,2,-1,*part);
+  const int expected9[23]={4,0,3,4,1,3,1,4,2,3,4,5,2,5,0,3,4,1,5,6,7,4,3};
+  CPPUNIT_ASSERT(std::equal(expected9,expected9+23,m->getNodalConnectivity()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(23,m->getNodalConnectivity()->getNbOfElems());
+  const int expected10[6]={0,5,9,13,18,23};
+  CPPUNIT_ASSERT(std::equal(expected10,expected10+6,m->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(6,m->getNodalConnectivityIndex()->getNbOfElems());
+  s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD4); s.insert(INTERP_KERNEL::NORM_POLYGON);
+  CPPUNIT_ASSERT(s==m->getAllTypes());
+  part->decrRef();
+  m->decrRef();
+}
