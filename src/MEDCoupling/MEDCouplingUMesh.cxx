@@ -1746,6 +1746,7 @@ void MEDCouplingUMesh::setPartOfMySelf(const int *cellIdsBg, const int *cellIdsE
       DataArrayInt *arrOut=0,*arrIOut=0;
       MEDCouplingUMesh::SetPartOfIndexedArrays(cellIdsBg,cellIdsEnd,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index,
                                                arrOut,arrIOut);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrOutAuto(arrOut),arrIOutAuto(arrIOut);
       setConnectivity(arrOut,arrIOut,true);
     }
 }
@@ -1796,7 +1797,8 @@ void MEDCouplingUMesh::setPartOfMySelf2(int start, int end, int step, const MEDC
     {
       DataArrayInt *arrOut=0,*arrIOut=0;
       MEDCouplingUMesh::SetPartOfIndexedArrays2(start,end,step,_nodal_connec,_nodal_connec_index,otherOnSameCoordsThanThis._nodal_connec,otherOnSameCoordsThanThis._nodal_connec_index,
-                                               arrOut,arrIOut);
+                                                arrOut,arrIOut);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrOutAuto(arrOut),arrIOutAuto(arrIOut);
       setConnectivity(arrOut,arrIOut,true);
     }
 }                      
@@ -7140,6 +7142,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArrays(const int *idsOfSelectBg, const in
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+  srcArrIndexPtr=srcArrIndex->getConstPointer();
   arrIo->alloc(nbOfTuples+1,1);
   arro->alloc(arrIn->getNumberOfTuples()+offset,1);
   const int *arrInPtr=arrIn->getConstPointer();
@@ -7297,6 +7300,7 @@ void MEDCouplingUMesh::SetPartOfIndexedArrays2(int start, int end, int step, con
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+  srcArrIndexPtr=srcArrIndex->getConstPointer();
   arrIo->alloc(nbOfTuples+1,1);
   arro->alloc(arrIn->getNumberOfTuples()+offset,1);
   const int *arrInPtr=arrIn->getConstPointer();

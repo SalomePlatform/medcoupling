@@ -375,7 +375,7 @@ int DataArray::GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end
     {
       if(step>0)
         {
-          if(begin<=value && end<value)
+          if(begin<=value && value<end)
             {
               if((value-begin)%step==0)
                 return (value-begin)/step;
@@ -387,7 +387,7 @@ int DataArray::GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end
         }
       else
         {
-          if(begin>=value && end>value)
+          if(begin>=value && value>end)
             {
               if((begin-value)%(-step)==0)
                 return (begin-value)/(-step);
