@@ -4077,6 +4077,11 @@ MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepGivenTime(double time, double e
   return getTimeStepAtPos(pos);
 }
 
+MEDFileFieldMultiTSIterator *MEDFileFieldMultiTS::iterator() throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileFieldMultiTSIterator(this);
+}
+
 std::string MEDFileFieldMultiTS::simpleRepr() const
 {
   std::ostringstream oss;
@@ -4307,6 +4312,29 @@ void MEDFileFieldMultiTS::changePflsRefsNamesGen(const std::vector< std::pair<st
 void MEDFileFieldMultiTS::changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   changeLocsRefsNamesGen2(mapOfModif);
+}
+
+MEDFileFieldMultiTSIterator::MEDFileFieldMultiTSIterator(MEDFileFieldMultiTS *fmts):_fmts(fmts),_iter_id(0),_nb_iter(0)
+{
+  if(fmts)
+    {
+      fmts->incrRef();
+      _nb_iter=fmts->getNumberOfTS();
+    }
+}
+
+MEDFileField1TS *MEDFileFieldMultiTSIterator::nextt()
+{
+  if(_iter_id<_nb_iter)
+    {
+      MEDFileFieldMultiTS *fmts(_fmts);
+      if(fmts)
+        return fmts->getTimeStepAtPos(_iter_id++);
+      else
+        return 0;
+    }
+  else
+    return 0;
 }
 
 MEDFileFields *MEDFileFields::New()
@@ -4571,6 +4599,11 @@ MEDFileFieldMultiTS *MEDFileFields::getFieldWithName(const char *fieldName) cons
   return getFieldAtPos(getPosFromFieldName(fieldName));
 }
 
+MEDFileFieldsIterator *MEDFileFields::iterator() throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileFieldsIterator(this);
+}
+
 int MEDFileFields::getPosFromFieldName(const char *fieldName) const throw(INTERP_KERNEL::Exception)
 {
   std::string tmp(fieldName);
@@ -4591,4 +4624,27 @@ int MEDFileFields::getPosFromFieldName(const char *fieldName) const throw(INTERP
   std::copy(poss.begin(),poss.end(),std::ostream_iterator<std::string>(oss,", "));
   oss << " !";
   throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+MEDFileFieldsIterator::MEDFileFieldsIterator(MEDFileFields *fs):_fs(fs),_iter_id(0),_nb_iter(0)
+{
+  if(fs)
+    {
+      fs->incrRef();
+      _nb_iter=fs->getNumberOfFields();
+    }
+}
+
+MEDFileFieldMultiTS *MEDFileFieldsIterator::nextt()
+{
+  if(_iter_id<_nb_iter)
+    {
+      MEDFileFields *fs(_fs);
+      if(fs)
+        return fs->getFieldAtPos(_iter_id++);
+      else
+        return 0;
+    }
+  else
+    return 0;
 }

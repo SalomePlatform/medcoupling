@@ -531,6 +531,8 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  > _time_steps;
   };
 
+  class MEDFileFieldMultiTSIterator;
+
   /*!
    * User class.
    */
@@ -545,6 +547,7 @@ namespace ParaMEDMEM
     MEDFileField1TS *getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TS *getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     MEDFileField1TS *getTimeStepGivenTime(double time, double eps=1e-8) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldMultiTSIterator *iterator() throw(INTERP_KERNEL::Exception);
     //
     std::string simpleRepr() const;
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -572,6 +575,19 @@ namespace ParaMEDMEM
     MEDFileFieldMultiTS(const char *fileName, const char *fieldName) throw(INTERP_KERNEL::Exception);
   };
 
+  class MEDCOUPLING_EXPORT MEDFileFieldMultiTSIterator
+  {
+  public:
+    MEDFileFieldMultiTSIterator(MEDFileFieldMultiTS *fmts);
+    MEDFileField1TS *nextt();
+  private:
+    MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> _fmts;
+     int _iter_id;
+     int _nb_iter;
+  };
+
+  class MEDFileFieldsIterator;
+
   /*!
    * Use class.
    */
@@ -592,6 +608,7 @@ namespace ParaMEDMEM
     void setFieldAtPos(int i, MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTS *getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception);
     MEDFileFieldMultiTS *getFieldWithName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
+    MEDFileFieldsIterator *iterator() throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
   private:
     int getPosFromFieldName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
@@ -606,6 +623,17 @@ namespace ParaMEDMEM
     MEDFileFields(const char *fileName) throw(INTERP_KERNEL::Exception);
   private:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> > _fields;
+  };
+
+  class MEDCOUPLING_EXPORT MEDFileFieldsIterator
+  {
+  public:
+    MEDFileFieldsIterator(MEDFileFields *fs);
+    MEDFileFieldMultiTS *nextt();
+  private:
+    MEDCouplingAutoRefCountObjectPtr<MEDFileFields> _fs;
+     int _iter_id;
+     int _nb_iter;
   };
 }
 

@@ -382,6 +382,11 @@ class MEDLoaderTest(unittest.TestCase):
         mm=MEDFileMesh.New("Pyfile17.med")
         mm.write("Pyfile17_bis.med",2)
         ff=MEDFileFieldMultiTS("Pyfile17.med")
+        tsExpected=[[1,2],[3,4],[5,6]]
+        for pos,f1ts in enumerate(ff):
+            self.assertEqual(tsExpected[pos],f1ts.getTime()[:2])
+            self.assertEqual(type(f1ts),MEDFileField1TS)
+            pass
         self.assertEqual("MeasureOfMesh_Extruded",ff.getName())
         self.assertEqual([3,4],ff[1].getTime()[:-1])
         self.assertEqual([3,4],ff[3,4].getTime()[:-1])
@@ -578,6 +583,10 @@ class MEDLoaderTest(unittest.TestCase):
         mmm2=MEDFileMeshMultiTS.New() ; mmm2.setOneTimeStep(mm2)
         ms=MEDFileMeshes.New(); ms.setMeshAtPos(0,mm1) ; ms.setMeshAtPos(1,mm2)
         d.setMeshes(ms)
+        for name,mmm in zip(["1DMesh_1","2DCurveMesh_1"],ms):
+            self.assertEqual(name,mmm.getName())
+            self.assertEqual(type(mmm),MEDFileUMesh)
+            pass
         self.assertEqual(('1DMesh_1', '2DCurveMesh_1'),d.getMeshes().getMeshesNames())
         #
         ff1=MEDFileFieldMultiTS.New()
@@ -595,6 +604,9 @@ class MEDLoaderTest(unittest.TestCase):
         ff22.appendFieldNoProfileSBT(f22)
         fs=MEDFileFields.New()
         fs.pushField(ff1) ; fs.pushField(ff21) ; fs.pushField(ff22)
+        for name,fmts in zip(["f1","f21","f22"],fs):
+            self.assertEqual(name,fmts.getName())
+            pass
         d.setFields(fs)
         #
         fname2="Pyfile29_2.med"

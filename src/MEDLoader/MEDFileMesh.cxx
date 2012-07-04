@@ -2926,6 +2926,11 @@ int MEDFileMeshes::getNumberOfMeshes() const throw(INTERP_KERNEL::Exception)
   return _meshes.size();
 }
 
+MEDFileMeshesIterator *MEDFileMeshes::iterator() throw(INTERP_KERNEL::Exception)
+{
+  return new MEDFileMeshesIterator(this);
+}
+
 MEDFileMesh *MEDFileMeshes::getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception)
 {
   if(i<0 || i>=(int)_meshes.size())
@@ -3064,4 +3069,27 @@ void MEDFileMeshes::checkCoherency() const throw(INTERP_KERNEL::Exception)
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
+}
+
+MEDFileMeshesIterator::MEDFileMeshesIterator(MEDFileMeshes *ms):_ms(ms),_iter_id(0),_nb_iter(0)
+{
+  if(ms)
+    {
+      ms->incrRef();
+      _nb_iter=ms->getNumberOfMeshes();
+    }
+}
+
+MEDFileMesh *MEDFileMeshesIterator::nextt()
+{
+  if(_iter_id<_nb_iter)
+    {
+      MEDFileMeshes *ms(_ms);
+      if(ms)
+        return ms->getMeshAtPos(_iter_id++);
+      else
+        return 0;
+    }
+  else
+    return 0;
 }

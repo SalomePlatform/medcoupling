@@ -283,6 +283,8 @@ namespace ParaMEDMEM
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> > _mesh_one_ts;
   };
 
+  class MEDFileMeshesIterator;
+
   class MEDLOADER_EXPORT MEDFileMeshes : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -293,6 +295,7 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    MEDFileMeshesIterator *iterator() throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
@@ -308,6 +311,17 @@ namespace ParaMEDMEM
     MEDFileMeshes(const char *fileName) throw(INTERP_KERNEL::Exception);
   private:
     std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> > _meshes;
+  };
+
+  class MEDCOUPLING_EXPORT MEDFileMeshesIterator
+  {
+  public:
+    MEDFileMeshesIterator(MEDFileMeshes *ms);
+    MEDFileMesh *nextt();
+  private:
+    MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _ms;
+     int _iter_id;
+     int _nb_iter;
   };
 }
 

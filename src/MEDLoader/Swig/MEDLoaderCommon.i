@@ -82,16 +82,19 @@ using namespace ParaMEDMEM;
 %newobject ParaMEDMEM::MEDFileMeshes::getMeshAtPos;
 %newobject ParaMEDMEM::MEDFileMeshes::getMeshWithName;
 %newobject ParaMEDMEM::MEDFileMeshes::__getitem__;
+%newobject ParaMEDMEM::MEDFileMeshes::__iter__;
 
 %newobject ParaMEDMEM::MEDFileFields::New;
 %newobject ParaMEDMEM::MEDFileFields::getFieldWithName;
 %newobject ParaMEDMEM::MEDFileFields::getFieldAtPos;
 %newobject ParaMEDMEM::MEDFileFields::__getitem__;
+%newobject ParaMEDMEM::MEDFileFields::__iter__;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::New;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getTimeStepAtPos;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getTimeStep;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getTimeStepGivenTime;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::__getitem__;
+%newobject ParaMEDMEM::MEDFileFieldMultiTS::__iter__;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldAtTopLevel;
 %newobject ParaMEDMEM::MEDFileFieldMultiTS::getFieldOnMeshAtLevel;
@@ -657,6 +660,28 @@ namespace ParaMEDMEM
        }
   };
 
+  class MEDFileMeshesIterator
+  {
+  public:
+    %extend
+    {
+      PyObject *next() throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileMesh *ret=self->nextt();
+        if(ret)
+          {
+            ret->incrRef();
+            return convertMEDFileMesh(ret,SWIG_POINTER_OWN | 0 );
+          }
+        else
+          {
+            PyErr_SetString(PyExc_StopIteration,"No more data.");
+            return 0;
+          }
+      }
+    }
+  };
+
   class MEDFileMeshes : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -711,6 +736,11 @@ namespace ParaMEDMEM
          {
            self->setMeshAtPos(obj,mesh);
            return self;
+         }
+
+         MEDFileMeshesIterator *__iter__() throw(INTERP_KERNEL::Exception)
+         {
+           return self->iterator();
          }
          
          MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception)
@@ -1329,6 +1359,25 @@ namespace ParaMEDMEM
        }
   };
 
+  class MEDFileFieldMultiTSIterator
+  {
+  public:
+    %extend
+    {
+      PyObject *next() throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileField1TS *ret=self->nextt();
+        if(ret)
+          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDFileField1TS,SWIG_POINTER_OWN | 0);
+        else
+          {
+            PyErr_SetString(PyExc_StopIteration,"No more data.");
+            return 0;
+          }
+      }
+    }
+  };
+
   class MEDFileFieldMultiTS : public MEDFileFieldMultiTSWithoutDAS, public MEDFileFieldGlobsReal, public MEDFileWritable
   {
   public:
@@ -1405,6 +1454,11 @@ namespace ParaMEDMEM
              throw INTERP_KERNEL::Exception("MEDFileFieldMultiTS::__getitem__ : invalid input params ! expected fmts[int], fmts[int,int] or fmts[double] to request time step !");
          }
 
+         MEDFileFieldMultiTSIterator *__iter__() throw(INTERP_KERNEL::Exception)
+         {
+           return self->iterator();
+         }
+
          PyObject *getFieldWithProfile(TypeOfField type, int iteration, int order, int meshDimRelToMax, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception)
            {
              DataArrayInt *ret1=0;
@@ -1415,6 +1469,25 @@ namespace ParaMEDMEM
              return ret;
            }
        }
+  };
+
+  class MEDFileFieldsIterator
+  {
+  public:
+    %extend
+    {
+      PyObject *next() throw(INTERP_KERNEL::Exception)
+      {
+        MEDFileFieldMultiTS *ret=self->nextt();
+        if(ret)
+          return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__MEDFileFieldMultiTS,SWIG_POINTER_OWN | 0);
+        else
+          {
+            PyErr_SetString(PyExc_StopIteration,"No more data.");
+            return 0;
+          }
+      }
+    }
   };
 
   class MEDFileFields : public RefCountObject, public MEDFileFieldGlobsReal, public MEDFileWritable
@@ -1467,6 +1540,11 @@ namespace ParaMEDMEM
          {
            self->setFieldAtPos(obj,field);
            return self;
+         }
+
+         MEDFileFieldsIterator *__iter__() throw(INTERP_KERNEL::Exception)
+         {
+           return self->iterator();
          }
        }
   };
