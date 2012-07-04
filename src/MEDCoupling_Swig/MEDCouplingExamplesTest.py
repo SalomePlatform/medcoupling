@@ -137,6 +137,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     def testExampleUMeshStdBuild1(self):
+# ! [PySnippetUMeshStdBuild1_1]
         coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
                  0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. ]
         nodalConnPerCell=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
@@ -163,6 +164,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     def testExampleUMeshAdvBuild1(self):
+# ! [PySnippetUMeshAdvBuild1_1]
         coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
                  0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. ]
         nodalConnPerCell=[4,0,3,4,1, 3,1,4,2, 3,4,5,2, 4,6,7,4,3, 4,7,8,5,4]

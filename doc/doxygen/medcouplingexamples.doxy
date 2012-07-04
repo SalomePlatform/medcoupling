@@ -69,7 +69,7 @@ At this level mesh is usable. When this mesh is no more needed simply call decrR
 /*!
 \page medcouplingcppexamplesUmeshAdvBuild1 <br><h1> Example of advanced build of an unstructured mesh from scratch in C++ </h1>
 
-Firstly retrieve basic data in full interlace mode for coordinates, and nodal connectivity cell per cell.
+Firstly retrieve basic data in full interlace mode for coordinates, and nodal connectivity cell per cell, cell type \b included (3 for INTERP_KERNEL::NORM_TRI3 and 4 for INTERP_KERNEL::QUAD4).
 \snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_1
 
 Then create ParaMEDMEM::MEDCouplingUMesh instance giving its meshdimension (2 here) and a name.
