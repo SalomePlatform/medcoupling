@@ -27,7 +27,7 @@ EXTRA_DIST += SauvLoaderTest.py
 lib_LTLIBRARIES = _MEDLoader.la
 
 salomeinclude_HEADERS =  \
-	MEDLoader.i MEDLoaderTypemaps.i
+	MEDLoader.i MEDLoaderTypemaps.i MEDLoaderCommon.i
 
 SWIG_DEF = MEDLoader.i MEDLoaderTypemaps.i MEDLoaderCommon.i
 

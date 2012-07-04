@@ -26,7 +26,7 @@ EXTRA_DIST += CMakeLists.txt
 lib_LTLIBRARIES = _MEDCoupling.la _MEDCouplingRemapper.la
 
 salomeinclude_HEADERS =  \
-	MEDCoupling.i MEDCouplingRemapper.i MEDCouplingTypemaps.i
+	MEDCoupling.i MEDCouplingRemapper.i MEDCouplingTypemaps.i MEDCouplingCommon.i MEDCouplingFinalize.i
 
 BUILT_SOURCES = MEDCouplingWRAP.cxx MEDCouplingRemapperWRAP.cxx
 
