@@ -3,79 +3,152 @@
 
 \section MEDCouplingIntro Introduction
 
-The MEDCoupling module is presented under the form of a library
-libmedcoupling and interfaces. This module MEDCoupling represents the
-DataStructure designed to be exchanged by processors as well in
-parallel case in SPMD paradigm ( \ref paramedmem "ParaMEDMEM" ), as in
-distributed paradigm using CORBA. This DataStructure is \b fully
-deconnected from \ref medmem "MEDMEM". This DataStructure is light in
-order to minimize as much as possible the number of prerequisites needed
-to use it. The idea is that as this DataStructure is intended to be
-linked with all of code candidate for coupling ; the number of
-prerequisites of medcoupling has to be threfore tiny. MEDCoupling has
-been developped to comply with ICOCO API, \ref interpkernel
-"conservative interpolators" and VTK visualization
-DataStructure. The MEDCoupling DataStructures have been
-developped to be compatible with HPC constraints (compact structures,
-limitation of copies and launching of CPU consuming algorithms only when
-absolutely needed ).
+\ref medcoupling "MEDCoupling" is a library (\b libmedcoupling.so or \b medcoupling.dll) fully written in C++ and wrapped to be called in Python too.
 
-\section MEDCouplingMainBasics Basics
+\ref medcoupling "MEDCoupling" C++ library implements a data structure which is the result of the following tradeoff :
 
-One of the most basic concept mainly used all over MEDCoupling is
-MEDCoupling array. This concept is used all over
-MEDCoupling/ParaMEDMEM/MEDLoader modules so it should be correctly
-handled to play well with \ref MEDCouplingMeshesP "Meshes" and \ref MEDCouplingFieldsP "Fields".
+- Compliant with coupling :
+  - Fields definition defined enough to perform well defined interpolation
+  - exchangeable through process as well in parallel case in SPMD paradigm ( \ref paramedmem "ParaMEDMEM" ), as in distributed paradigm using CORBA.
+- minimize as much as possible the number of prerequisites needed to use it ; So \ref medcoupling "MEDCoupling" only depends from
+\ref interpkernel "INTERP_KERNEL library"
+- light enough to be agile in order to :
+   - maximize the amount of algorithms being applied on it
+   - to ease implementation of clients of \ref medcoupling "MEDCoupling".
+- large enough to be used for MED file I/O.
+- compliant with VTK visualization DataStructure
+- integrate HPC constraints (compact structures, limitation of copies and launching of CPU consuming algorithms only when absolutely needed ).
+- compliant with ICOCO API
 
-There are two types of arrays :
- - double precision float array incarnated by ParaMEDMEM::DataArrayDouble class.
- - integer array incarnated by ParaMEDMEM::DataArrayInt class.
+The \ref medcoupling "MEDCoupling" data structure is \b fully \b independant from those implemented in MEDMEM.
 
-To learn more about arrays \ref MEDCouplingArrayPage "click here for arrays documentation".
+\ref medcoupling "MEDCoupling" implements a set of algorithms linked to the data structure.
 
 \section MEDCouplingMainConc Main Concepts
 
-- \ref MEDCouplingMeshesP "Meshes"
-- \ref MEDCouplingFieldsP "Fields"
+Here are listed basic concepts present into \ref medcoupling "MEDCoupling".
 
-\section MEDCouplingFirstSteps2 Building unstructured mesh from scratch
+For beginners in \ref medcoupling "MEDCoupling" world, it is advisable to read the following concepts in the same order than the underlying list.
 
-All of exemples given here make the assumption that the \c ParaMEDMEM
-namespace is visible ( by calling for example \c using \c
-namespace \c ParaMEDMEM; ).
+- \subpage MEDCouplingArrayPage "DataArrays"
+- \subpage MEDCouplingMeshesPage "Meshes"
+- \subpage MEDCouplingFieldsPage "Fields"
+- \subpage MEDCouplingFieldTemplatesPage "Field templates"
 
-Here we will create a mesh with spacedim==2 and meshdim==2 too with 5
-cells and 9 nodes.
+*/
 
-You can notice that it is possible to mix cell
-types as long as the dimension of cell is exactly equal to
-meshDim to respect \ref MEDCouplingMeshes "this rule".
+/*!
+  \page MEDCouplingMeshesPage Meshes in MEDCoupling
 
-\code
+\section MEDCouplingMeshes Common concept shared by all type of Meshes in MEDCoupling
 
-double coords[18]={-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 };
-int conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-MEDCouplingUMesh *mesh=MEDCouplingUMesh::New();
-mesh->setName("My2DMesh");
-mesh->setMeshDimension(2);
-mesh->allocateCells(5);//You can put more than 5 if you want but not less.
-mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
-mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+4);
-mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn+7);
-mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
-mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
-mesh->finishInsertingCells();
-DataArrayDouble *myCoords=DataArrayDouble::New();
-myCoords->alloc(9,2);//here myCoords are declared to have 2 components, mesh will deduce that spaceDim==2
-std::copy(coords,coords+18,myCoords->getPointer());
-mesh->setCoords(myCoords);
-myCoords->decrRef();
-//mesh is now usable
-...
-//mesh is no more usefully here : release it
-mesh->decrRef();  
+A mesh has a the following properties :
 
-\endcode
+- name
+- a dimension (called mesh dimension) and only one (it implies that \b all cells constituting
+mesh have the same dimension)
+- a space dimension (relative to coordinates)
+- a number of nodes
+- a number of cells
+
+In MEDCoupling library there is no presence of faces nor edges.
+
+As a mesh has one dimension and only once, that is to say every cells in
+mesh have the same dimension called MeshDimension.
+
+That is to say the
+MEDMEM vocabulary of faces and edges \b do \b not \b exist \b anymore here in
+MEDCoupling.
+
+For exemple a mesh with a meshDimension equal to 1, have \b cells of type
+NORM_SEG2. An another exemple, a mesh with a meshDimension equal
+to 2, have \b cells of type
+NORM_TRI3 and NORM_POLYGON for example.
+
+The class that incarnates the concept described above is :
+\ref ParaMEDMEM::MEDCouplingMesh.
+
+\section MEDCouplingMeshesAvailInstan Available instaciable mesh types in MEDCoupling
+
+- \subpage MEDCouplingUMeshPage "Unstructured meshes"
+- \subpage MEDCouplingCMeshPage "Cartesian meshes"
+- \subpage MEDCouplingExtrudedPage "3D Extruded meshes"
+
+/*!
+\page MEDCouplingFieldsPage Fields in MEDCoupling
+
+\section MEDCouplingFields Field concept
+
+A field in MEDCoupling point of view, is a structure that allows to
+store a discretization of a physical value on a defined discretized spatial and
+possibly temporal support.
+
+The spatial support is a \ref MEDCouplingMeshesPage "mesh".
+A field is lying on an entity that will be specified by the spatial
+discretization of the field. For exemple a field on node will lie on
+all nodes of its mesh.
+
+A field on cell will lie on all cells of its mesh.
+
+Fields in MEDCoupling follow the two following rules :
+
+- A field will lie on \b ALL entities of its spatial support (\ref MEDCouplingMeshesPage "mesh").
+- A field has \b only \b one spatial support (\ref MEDCouplingMeshesPage "mesh") on its temporal support.
+
+The main properties of a field are :
+
+- name
+- spatial support which is a \ref MEDCouplingMeshesPage "mesh"
+- a \ref MEDCouplingSpatialDisc "spatial discretization"
+- a description of intrinsic nature of the values of field (see \ref NatureOfField). This is important for conservative interpolation (see \ref TableNatureOfField).
+- a temporal discretization that specifies, if it exists, the time interval on which the field is covering, and how.
+- number of components
+
+This definition of field in MEDCoupling allows an instance of field to
+know at any point inside its spatial-temporal support the value.
+
+The class that incarnates the concept described above is : \ref ParaMEDMEM::MEDCouplingFieldDouble.
+
+Some of most important implemented methods are :
+
+- \ref ParaMEDMEM::MEDCouplingFieldDouble::getNumberOfComponents "getNumberOfComponents"
+- \ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOn "getValueOn"
+- \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc "applyFunc"
+- \ref ParaMEDMEM::MEDCouplingFieldDouble::addFields "cross instances operations"
+\section MEDCouplingSpatialDisc Spatial discretization concept
+
+This is the concept that makes the link, independantly from temporal
+discretization, between the field and its spatial support(\ref MEDCouplingMeshesPage "mesh"). This
+concept allows the field to make a check and interpretation of an
+array of values given a spatial support (\ref MEDCouplingMeshesPage "mesh").
+
+The abstract class that incarnates the concept is : \ref ParaMEDMEM::MEDCouplingFieldDiscretization.
+
+The most important pure virtual methods are :
+
+- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getNumberOfTuples "getnumberOfTuples"
+- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getValueOn "getValueOn"
+- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getMeasureField "getMeasureField"
+
+\section MEDCouplingTemporalDisc Temporal discretization concept
+
+This information allows, independantly from spatial discretization, to
+associate a time interval, if it exists, on which the field will be
+defined. This concept is able to give the value at any time of
+the definition interval (if any).
+
+The abstract class \ref ParaMEDMEM::MEDCouplingTimeDiscretization
+incarnates this described concept.
+
+This classes and its subclasses are responsible in storing the arrays
+of the aggregating field.
+
+The most important methods are :
+
+- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::setTime "setTime" and \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getTime "getTime"
+- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArray "getArray" and \ref ParaMEDMEM::MEDCouplingTimeDiscretization::setArray "setArray"
+- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArraysForTime "getArraysForTime"
+- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getValueForTime "getValueForTime"
 
 \section MEDCouplingFirstSteps3 Building a field from scratch
 
@@ -183,190 +256,6 @@ f3->decrRef();
 f4->decrRef();
 f5->decrRef();
 \endcode
-*/
-
-/*!
-  \page MEDCouplingMeshesP Meshes in MEDCoupling
-
-\section MEDCouplingMeshes Common concept shared by all type of Meshes
-
-A mesh has a the following properties :
-
-- name
-- a dimension (called mesh dimension) and only one (it implies that \b all cells constituting
-mesh have the same dimension)
-- a space dimension (relative to coordinates)
-- a number of nodes
-- a number of cells
-
-In MEDCoupling library there is no presence of faces nor edges.
-
-As a mesh has one dimension and only once, that is to say every cells in
-mesh have the same dimension called MeshDimension.
-
-That is to say the
-MEDMEM vocabulary of faces and edges \b do \b not \b exist \b anymore here in
-MEDCoupling.
-
-For exemple a mesh with a meshDimension equal to 1, have \b cells of type
-NORM_SEG2. An another exemple, a mesh with a meshDimension equal
-to 2, have \b cells of type
-NORM_TRI3 and NORM_POLYGON for example.
-
-The class that incarnates the concept described above is :
-\ref ParaMEDMEM::MEDCouplingMesh.
-
-\section MEDCouplingUMeshes Unstructured meshes
-
-An unstructured mesh is defined by :
-
-- a point clouds where the explicit
-coordinates of each point must be specified. 
-- nodal connectivity that specifies for each cell, the points in the
-previous point clouds that constitutes the cell.
-
-As unstructured mesh is dynamically defined enough, this struture is
-used by MEDCoupling to instanciate degenerated meshes as :
-
-- points cloud only meshes. This type of mesh will have mesh dimension
-  == 0
-- abstract meshes containing only one cell that covers a potentially
-  infinite space. This abstract mesh is used as support of fields
-  containing only one integrated value. This is typically used to
-  represent fields used by system code. This type of mesh will have
-  mesh dimension equal to -1.
-
-The norm used for cells connectivity of different types, is the same as specified in MED file except
-that connectivities are in represented in \b C \b format and \b not \b in
-\b FORTRAN \b format !
-
-The class in charge to dealt with the described concept is \ref
-ParaMEDMEM::MEDCouplingUMesh. This class inherits
-from \ref MEDCouplingPointSets "PointSet" abstract meshes.
-
-\section MEDCouplingPointSets PointSet
-
-This is a \b non \b instanciable class that deals with set of points without
-any connectivity aspect.
-
-The class that incarnates this concept in
-MEDCoupling is : \ref ParaMEDMEM::MEDCouplingPointSet.
-
-This class is in charge to perform whole or part of algorithms of
-its subclasses (\ref
-ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh" and \ref
-ParaMEDMEM::MEDCouplingUMeshDesc "MEDCouplingUMeshDesc") for
-factorization reasons.
-
-Some of most important implemented methods are :
-
-- \ref ParaMEDMEM::MEDCouplingPointSet::getSpaceDimension "getSpaceDimension"
-- \ref ParaMEDMEM::MEDCouplingPointSet::getNumberOfNodes "getNumberOfNodes"
-- \ref ParaMEDMEM::MEDCouplingPointSet::rotate "rotate"
-- \ref ParaMEDMEM::MEDCouplingPointSet::translate "translate"
-- \ref ParaMEDMEM::MEDCouplingPointSet::scale "scale"
-- \ref ParaMEDMEM::MEDCouplingPointSet::findCommonNodes "findCommonNodes"
-- \ref ParaMEDMEM::MEDCouplingPointSet::renumberNodes "renumberNodes"
-- \ref ParaMEDMEM::MEDCouplingPointSet::getBoundingBox "getBoundingBox"
-
-\section MEDCouplingCMeshs Cartesian Mesh
-
-A cartesian mesh is a mesh that represents structured mesh whose nodes
-are arranged along axes of trihedron. To instanciate an object of this
-type, only n arrays are needed. In this type of mesh space dimension
-\b and mesh dimension are equals and the value is n. The n arrays will have only one component and the values
-contained in these arrays will be ascendantly sorted.
-
-The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingCMesh.
-
-\section MEDCouplingExtrudedMeshes Extruded Mesh
-
-An extruded mesh is a mesh also called 2.5 D. It a convolution of 2D
-unstructured mesh with 1D unstructured mesh. The problem is that this
-type of mesh is not managed by any file format that's why to build an
-instance of this mesh you need 3D unstructured mesh and a 2D
-unstructured mesh lying on the same coordinates. The advantage of this
-structure is that the interpolation time is optimized.
-
-The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingExtrudedMesh.
-*/
-
-/*!
-\page MEDCouplingFieldsP Fields in MEDCoupling
-
-\section MEDCouplingFields Field concept
-
-A field in MEDCoupling point of view, is a structure that allows to
-store a discretization of a physical value on a defined discretized spatial and
-possibly temporal support.
-
-The spatial support is a \ref MEDCouplingMeshesP "mesh".
-A field is lying on an entity that will be specified by the spatial
-discretization of the field. For exemple a field on node will lie on
-all nodes of its mesh.
-
-A field on cell will lie on all cells of its mesh.
-
-Fields in MEDCoupling follow the two following rules :
-
-- A field will lie on \b ALL entities of its spatial support (\ref MEDCouplingMeshesP "mesh").
-- A field has \b only \b one spatial support (\ref MEDCouplingMeshesP "mesh") on its temporal support.
-
-The main properties of a field are :
-
-- name
-- spatial support which is a \ref MEDCouplingMeshesP "mesh"
-- a \ref MEDCouplingSpatialDisc "spatial discretization"
-- a description of intrinsic nature of the values of field (see \ref NatureOfField). This is important for conservative interpolation (see \ref TableNatureOfField).
-- a temporal discretization that specifies, if it exists, the time interval on which the field is covering, and how.
-- number of components
-
-This definition of field in MEDCoupling allows an instance of field to
-know at any point inside its spatial-temporal support the value.
-
-The class that incarnates the concept described above is : \ref ParaMEDMEM::MEDCouplingFieldDouble.
-
-Some of most important implemented methods are :
-
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::getNumberOfComponents "getNumberOfComponents"
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::getValueOn "getValueOn"
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::applyFunc "applyFunc"
-- \ref ParaMEDMEM::MEDCouplingFieldDouble::addFields "cross instances operations"
-
-\section MEDCouplingSpatialDisc Spatial discretization concept
-
-This is the concept that makes the link, independantly from temporal
-discretization, between the field and its spatial support(\ref MEDCouplingMeshesP "mesh"). This
-concept allows the field to make a check and interpretation of an
-array of values given a spatial support (\ref MEDCouplingMeshesP "mesh").
-
-The abstract class that incarnates the concept is : \ref ParaMEDMEM::MEDCouplingFieldDiscretization.
-
-The most important pure virtual methods are :
-
-- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getNumberOfTuples "getnumberOfTuples"
-- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getValueOn "getValueOn"
-- \ref ParaMEDMEM::MEDCouplingFieldDiscretization::getMeasureField "getMeasureField"
-
-\section MEDCouplingTemporalDisc Temporal discretization concept
-
-This information allows, independantly from spatial discretization, to
-associate a time interval, if it exists, on which the field will be
-defined. This concept is able to give the value at any time of
-the definition interval (if any).
-
-The abstract class \ref ParaMEDMEM::MEDCouplingTimeDiscretization
-incarnates this described concept.
-
-This classes and its subclasses are responsible in storing the arrays
-of the aggregating field.
-
-The most important methods are :
-
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::setTime "setTime" and \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getTime "getTime"
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArray "getArray" and \ref ParaMEDMEM::MEDCouplingTimeDiscretization::setArray "setArray"
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getArraysForTime "getArraysForTime"
-- \ref ParaMEDMEM::MEDCouplingTimeDiscretization::getValueForTime "getValueForTime"
 
 */
 
@@ -375,11 +264,16 @@ The most important methods are :
 
 \section MEDCouplingArrayIntro Introduction
 
-This page will try to describe data arrays in MEDCoupling. Presently,
-in MEDCoupling it exists two types of arrays :
+One of the most basic concept mainly used all over MEDCoupling is
+MEDCoupling array.
 
-- double precision array incarnated by ParaMEDMEM::DataArrayDouble class.
-- signed integer (32 bits) array incarnated by ParaMEDMEM::DataArrayInt class.
+This concept is used all over
+\ref medcoupling "MEDCoupling", \ref paramedmem "ParaMEDMEM", \ref medloader "MEDLoader" modules so it should be correctly
+handled to play well with \ref MEDCouplingMeshesPage "Meshes" and \ref MEDCouplingFieldsPage "Fields".
+
+There are for the moment two types of arrays :
+ - double precision float (64 bits) array incarnated by ParaMEDMEM::DataArrayDouble class.
+ - signed integer (32 bits) array incarnated by ParaMEDMEM::DataArrayInt class.
 
 \section MEDCouplingArrayBasics Basics concepts
 
@@ -604,5 +498,116 @@ MEDCouplingUMesh *med_target_mesh=MEDLoader::ReadUMeshFromFile(targetFileName,"T
 sourceField->setNature(ConservativeVolumic);
 ...
 \endcode
+
+*/
+
+/*!
+  \page MEDCouplingUMeshPage Unstructured meshes in MEDCoupling
+	
+An unstructured mesh in \ref medcoupling MEDCoupling is defined by :
+
+  - a point clouds where the explicit coordinates of each point must be specified (inherited from \ref MEDCouplingPointSetPage "MEDCouplingPointSet class").
+  - nodal connectivity that specifies for each cell, the points in the previous point clouds that constitutes the cell.
+
+As unstructured mesh is dynamically defined enough, this class is also used by MEDCoupling to instanciate degenerated meshes as :
+
+- points cloud only meshes. This type of mesh will have mesh dimension 0.
+- abstract meshes containing only one cell that covers a potentially
+  infinite space. This abstract mesh is used as support of fields
+  containing only one integrated value. This is typically used to
+  represent fields used by system code. This type of mesh will have
+  mesh dimension equal to -1.
+
+The norm used for cells connectivity of different types, is the same as specified in MED file except
+that connectivities are in represented in \b C \b format and \b not \b in \b FORTRAN \b format !
+
+The class that incarnates the described concept is : ParaMEDMEM::MEDCouplingUMesh.
+\n This class inherits from ParaMEDMEM::MEDCouplingPointSet abstract class.
+\n So \ref MEDCouplingUMeshPage "MEDCouplingUMesh" inherits from all \ref MEDCouplingPointSetPage "point set features".
+
+\section MEDCouplingUMeshStdBuild Standard building of an unstructured mesh  from scratch
+
+The described method here is called standard, because no special knowledge of underneath nodal connectivity is needed here.
+This method of building unstructured mesh is easiest but not the most CPU/memory efficient one.
+
+All of exemples given here make the assumption that the \c ParaMEDMEM namespace is visible ( by calling for example \c using \c namespace \c ParaMEDMEM; ).
+
+Here we will create a mesh with spacedim==3 and meshdim==2. \b mesh contains 5 cells (with geometric type INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4)
+and 9 nodes.
+
+You can notice that it is possible to mix cell types as long as the dimension of cell is exactly equal to meshDim to respect \ref MEDCouplingMeshes "this rule".
+
+\subpage medcouplingcppexamplesUmeshStdBuild1 "Here the C++ implementation."
+
+\subpage medcouplingpyexamplesUmeshStdBuild1 "Here the Python implementation."
+
+\section MEDCouplingUMeshAdvBuild Advanced building of an unstructured mesh  from scratch
+
+Here we are going to build the mesh in a more advanced manner. This method expects that the user knows the storage format underlying ParaMEDMEM::MEDCouplingUMesh.
+
+The same mesh than \ref MEDCouplingUMeshStdBuild "in the standard section above" is going to be implemented using advanced method.
+
+\subpage medcouplingcppexamplesUmeshAdvBuild1 "Here the C++ implementation."
+
+\subpage medcouplingpyexamplesUmeshAdvBuild1 "Here the Python implementation."
+
+*/
+
+/*!
+  \page MEDCouplingPointSetPage Point set meshes in MEDCoupling
+
+This is a \b non \b instanciable class that implements many algorithm working only on a set of points without any connectivity aspect.
+The presence of this class is only for factorization reasons.
+
+The class that incarnates this concept in \ref medcoupling "MEDCoupling" is : \ref ParaMEDMEM::MEDCouplingPointSet.
+Instanciable class ParaMEDMEM::MEDCouplingUMesh inherits from ParaMEDMEM::MEDCouplingPointSet.
+
+Some of most important implemented methods by \ref ParaMEDMEM::MEDCouplingPointSet "MEDCouplingPointSet" class are :
+
+- \ref ParaMEDMEM::MEDCouplingPointSet::getSpaceDimension "getSpaceDimension"
+- \ref ParaMEDMEM::MEDCouplingPointSet::getNumberOfNodes "getNumberOfNodes"
+- \ref ParaMEDMEM::MEDCouplingPointSet::rotate "rotate"
+- \ref ParaMEDMEM::MEDCouplingPointSet::translate "translate"
+- \ref ParaMEDMEM::MEDCouplingPointSet::scale "scale"
+- \ref ParaMEDMEM::MEDCouplingPointSet::findCommonNodes "findCommonNodes"
+- \ref ParaMEDMEM::MEDCouplingPointSet::renumberNodes "renumberNodes"
+- \ref ParaMEDMEM::MEDCouplingPointSet::getBoundingBox "getBoundingBox"
+*/
+
+/*!
+  \page MEDCouplingCMeshPage Cartesian meshes in MEDCoupling
+
+A cartesian mesh is a mesh that represents structured mesh whose nodes are arranged along axes of trihedron. To instanciate an object of this
+type, only n arrays are needed. In this type of mesh space dimension \b and mesh dimension are equals and the value is n.
+The n arrays will have only one component and the values contained in these arrays will be ascendantly sorted.
+
+The class that incarnates the described concept is : ParaMEDMEM::MEDCouplingCMesh.
+
+*/
+
+/*!
+  \page MEDCouplingExtrudedPage 3D Extruded meshes in MEDCoupling
+
+An extruded mesh is a mesh also called 2.5 D. It a convolution of 2D
+unstructured mesh with 1D unstructured mesh. The problem is that this
+type of mesh is not managed by any file format that's why to build an
+instance of this mesh you need 3D unstructured mesh and a 2D
+unstructured mesh lying on the same coordinates. The advantage of this
+structure is that the interpolation time is optimized.
+
+The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingExtrudedMesh.
+*/
+
+/*!
+  \page MEDCouplingFieldTemplatesPage Field templates in MEDCoupling
+
+This concept appears in ICOCO API.
+field template is the adequate datastructure to perform costly interpolation matrix computation as \ref RemapperClasses "Remapper class" does.
+So, a field template can be seen as field without double values. The double values are only used for light matrix vector multiplication.
+
+Concretely a field template is a pair containing :
+
+- a \ref MEDCouplingMeshesPage "mesh"
+- a spatial discretization (on cells, on nodes, on gauss points (including localizations, reference elements), )
 
 */

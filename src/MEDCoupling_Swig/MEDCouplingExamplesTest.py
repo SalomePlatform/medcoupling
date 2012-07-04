@@ -135,6 +135,55 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.failUnlessEqual(expected3[8:13],list(m2C.getNodalConnectivity().getValues())[8:13])
         self.failUnlessEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
         pass
+
+    def testExampleUMeshStdBuild1(self):
+        coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+                 0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. ]
+        nodalConnPerCell=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
+# ! [PySnippetUMeshStdBuild1_1]
+# ! [PySnippetUMeshStdBuild1_2]
+        mesh=MEDCouplingUMesh.New("My2DMesh",2)
+# ! [PySnippetUMeshStdBuild1_2]
+# ! [PySnippetUMeshStdBuild1_3]
+        mesh.allocateCells(5)#You can put more than 5 if you want but not less.
+        mesh.insertNextCell(NORM_QUAD4,nodalConnPerCell[:4])
+        mesh.insertNextCell(NORM_TRI3,nodalConnPerCell[4:7])
+        mesh.insertNextCell(NORM_TRI3,nodalConnPerCell[7:10])
+        mesh.insertNextCell(NORM_QUAD4,nodalConnPerCell[10:14])
+        mesh.insertNextCell(NORM_QUAD4,nodalConnPerCell[14:])
+        mesh.finishInsertingCells()
+# ! [PySnippetUMeshStdBuild1_3]
+# ! [PySnippetUMeshStdBuild1_4]
+        myCoords=DataArrayDouble.New(coords,9,3)#here myCoords are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+        mesh.setCoords(myCoords)#myCorrds contains 9 tuples, that is to say mesh contains 9 nodes.
+# ! [PySnippetUMeshStdBuild1_4]
+# ! [PySnippetUMeshStdBuild1_5]
+# ! [PySnippetUMeshStdBuild1_5]
+        mesh.checkCoherency()
+        pass
+
+    def testExampleUMeshAdvBuild1(self):
+        coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+                 0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. ]
+        nodalConnPerCell=[4,0,3,4,1, 3,1,4,2, 3,4,5,2, 4,6,7,4,3, 4,7,8,5,4]
+        nodalConnPerCellIndex=[0,5,9,13,18,23]
+# ! [PySnippetUMeshAdvBuild1_1]
+# ! [PySnippetUMeshAdvBuild1_2]
+        mesh=MEDCouplingUMesh.New("My2DMesh",2)
+# ! [PySnippetUMeshAdvBuild1_2]
+# ! [PySnippetUMeshAdvBuild1_3]
+        nodalConn=DataArrayInt.New(nodalConnPerCell,23,1)
+        nodalConnI=DataArrayInt.New(nodalConnPerCellIndex,6,1)
+        mesh.setConnectivity(nodalConn,nodalConnI,True)
+# ! [PySnippetUMeshAdvBuild1_3]
+# ! [PySnippetUMeshAdvBuild1_4]
+        myCoords=DataArrayDouble.New(coords,9,3)#here myCoords are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+        mesh.setCoords(myCoords)#myCorrds contains 9 tuples, that is to say mesh contains 9 nodes.
+# ! [PySnippetUMeshAdvBuild1_4]
+# ! [PySnippetUMeshAdvBuild1_5]
+# ! [PySnippetUMeshAdvBuild1_5]
+        mesh.checkCoherency()
+        pass
     pass
 
 unittest.main()

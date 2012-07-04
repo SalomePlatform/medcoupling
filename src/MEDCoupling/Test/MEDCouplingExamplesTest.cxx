@@ -92,8 +92,77 @@ void CppExampleFieldDoubleBuildSubPart1()
   return;
 }
 
+void CppSnippetUMeshStdBuild1()
+{
+  //! [CppSnippetUMeshStdBuild1_1]
+  double coords[27]={-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+                     0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. };
+  int nodalConnPerCell[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
+  //! [CppSnippetUMeshStdBuild1_1]
+  //! [CppSnippetUMeshStdBuild1_2]
+  ParaMEDMEM::MEDCouplingUMesh *mesh=ParaMEDMEM::MEDCouplingUMesh::New("My2DMesh",2);
+  //! [CppSnippetUMeshStdBuild1_2]
+  //! [CppSnippetUMeshStdBuild1_3]
+  mesh->allocateCells(5);//You can put more than 5 if you want but not less.
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,nodalConnPerCell);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,nodalConnPerCell+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,nodalConnPerCell+7);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,nodalConnPerCell+10);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,nodalConnPerCell+14);
+  mesh->finishInsertingCells();
+  //! [CppSnippetUMeshStdBuild1_3]
+  //! [CppSnippetUMeshStdBuild1_4]
+  ParaMEDMEM::DataArrayDouble *myCoords=ParaMEDMEM::DataArrayDouble::New();
+  myCoords->alloc(9,3);//here myCoords are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+  std::copy(coords,coords+27,myCoords->getPointer());
+  mesh->setCoords(myCoords);//myCorrds contains 9 tuples, that is to say mesh contains 9 nodes.
+  myCoords->decrRef();
+  //! [CppSnippetUMeshStdBuild1_4]
+  mesh->checkCoherency();
+  //! [CppSnippetUMeshStdBuild1_5]
+  mesh->decrRef();
+  //! [CppSnippetUMeshStdBuild1_5]
+}
+
+void CppSnippetUMeshAdvBuild1()
+{
+  //! [CppSnippetUMeshAdvBuild1_1]
+  double coords[27]={-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+                     0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. };
+  int nodalConnPerCell[23]={4,0,3,4,1, 3,1,4,2, 3,4,5,2, 4,6,7,4,3, 4,7,8,5,4};
+  int nodalConnPerCellIndex[6]={0,5,9,13,18,23};
+  //! [CppSnippetUMeshAdvBuild1_1]
+  //! [CppSnippetUMeshAdvBuild1_2]
+  ParaMEDMEM::MEDCouplingUMesh *mesh=ParaMEDMEM::MEDCouplingUMesh::New("My2DMesh",2);
+  //! [CppSnippetUMeshAdvBuild1_2]
+  //! [CppSnippetUMeshAdvBuild1_3]
+  ParaMEDMEM::DataArrayInt *nodalConn=ParaMEDMEM::DataArrayInt::New();
+  nodalConn->alloc(23,1);
+  std::copy(nodalConnPerCell,nodalConnPerCell+23,nodalConn->getPointer());
+  ParaMEDMEM::DataArrayInt *nodalConnI=ParaMEDMEM::DataArrayInt::New();
+  nodalConnI->alloc(6,1);
+  std::copy(nodalConnPerCellIndex,nodalConnPerCellIndex+6,nodalConnI->getPointer());
+  mesh->setConnectivity(nodalConn,nodalConnI,true);
+  nodalConn->decrRef();// nodalConn DataArrayInt instance is owned by mesh after call to setConnectivity method. No more need here -> decrRef()
+  nodalConnI->decrRef();// nodalConnI DataArrayInt instance is owned by mesh after call to setConnectivity method. No more need here -> decrRef()
+  //! [CppSnippetUMeshAdvBuild1_3]
+  //! [CppSnippetUMeshAdvBuild1_4]
+  ParaMEDMEM::DataArrayDouble *myCoords=ParaMEDMEM::DataArrayDouble::New();
+  myCoords->alloc(9,3);//here myCoords are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+  std::copy(coords,coords+27,myCoords->getPointer());
+  mesh->setCoords(myCoords);//myCorrds contains 9 tuples, that is to say mesh contains 9 nodes.
+  myCoords->decrRef();
+  //! [CppSnippetUMeshAdvBuild1_4]
+  mesh->checkCoherency();
+  //! [CppSnippetUMeshAdvBuild1_5]
+  mesh->decrRef();
+  //! [CppSnippetUMeshAdvBuild1_5]
+}
+
 int main(int argc, char *argv[])
 {
   CppExampleFieldDoubleBuildSubPart1();
+  CppSnippetUMeshStdBuild1();
+  CppSnippetUMeshAdvBuild1();
   return 0;
 }

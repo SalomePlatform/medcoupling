@@ -39,3 +39,53 @@ submesh of \b mesh1 containing cells whoses ids are in \b part2. So here the num
 method does not match the size of the input array (here \b part2).
 
 */
+
+/*!
+\page medcouplingcppexamplesUmeshStdBuild1 <br><h1> Example of standard build of an unstructured mesh from scratch in C++ </h1>
+
+Firstly retrieve basic data in full interlace mode for coordinates, and nodal connectivity cell per cell.
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_1
+
+Then create ParaMEDMEM::MEDCouplingUMesh instance giving its meshdimension (2 here) and a name.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_2
+
+Gives an upper bound of the number of cells to be inserted into the unstructured mesh.
+\n Then enter nodal connectivity of all cells, cell per cell using ParaMEDMEM::MEDCouplingUMesh::insertNextCell method.
+\n When the nodal connectivity cell per cell has been finished, call ParaMEDMEM::MEDCouplingUMesh::finishInsertingCells method in order to restore \b mesh instance.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_3
+
+At this level the connectivity part of the mesh \b mesh as been defined. Now let's set the coordinates using array \b coords defined above.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_4
+
+At this level mesh is usable. When this mesh is no more needed simply call decrRef to decrement its reference counter.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_5
+
+*/
+
+/*!
+\page medcouplingcppexamplesUmeshAdvBuild1 <br><h1> Example of advanced build of an unstructured mesh from scratch in C++ </h1>
+
+Firstly retrieve basic data in full interlace mode for coordinates, and nodal connectivity cell per cell.
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_1
+
+Then create ParaMEDMEM::MEDCouplingUMesh instance giving its meshdimension (2 here) and a name.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_2
+
+Then enter nodal connectivity at once.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_3
+
+At this level the connectivity part of the mesh \b mesh as been defined. Now let's set the coordinates using array \b coords defined above.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_4
+
+At this level mesh is usable. When this mesh is no more needed simply call decrRef to decrement its reference counter.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_5
+
+*/
