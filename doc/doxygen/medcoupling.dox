@@ -541,6 +541,19 @@ You can notice that it is possible to mix cell types as long as the dimension of
 
 \subpage medcouplingpyexamplesUmeshStdBuild1 "Here the Python implementation."
 
+\section MEDCouplingUMeshNodalConnectivity How MEDCouplingUMesh stores its nodal connectivity.
+
+\ref ParaMEDMEM::MEDCouplingUMesh "MEDCouplingUMesh class" stores its nodal connectivity into 2 arrays.
+
+- The first one, the biggest is ParaMEDMEM::MEDCouplingUMesh::_nodal_connectivity.
+- The second one, the less big is ParaMEDMEM::MEDCouplingUMesh::_nodal_connectivity_index.
+
+\image html MEDCouplingUMeshConn.png "Nodal connectivity storage into MEDCouplingUMesh class"
+\image latex MEDCouplingUMeshConn.eps "Nodal connectivity storage into MEDCouplingUMesh class"
+
+\note The last value of the nodal connectivity index points to an invalid memory place. It is not an error, simply as for standard C++, all ranges
+are given in format [\b begin,\b end) where \b begin is included and \b end excluded.
+
 \section MEDCouplingUMeshAdvBuild Advanced building of an unstructured mesh  from scratch
 
 Here we are going to build the mesh in a more advanced manner. This method expects that the user knows the storage format underlying ParaMEDMEM::MEDCouplingUMesh.
