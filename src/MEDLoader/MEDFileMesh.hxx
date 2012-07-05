@@ -317,6 +317,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileMeshesIterator(MEDFileMeshes *ms);
+    ~MEDFileMeshesIterator();
     MEDFileMesh *nextt();
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> _ms;

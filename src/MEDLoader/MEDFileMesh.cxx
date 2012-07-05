@@ -3080,6 +3080,10 @@ MEDFileMeshesIterator::MEDFileMeshesIterator(MEDFileMeshes *ms):_ms(ms),_iter_id
     }
 }
 
+MEDFileMeshesIterator::~MEDFileMeshesIterator()
+{
+}
+
 MEDFileMesh *MEDFileMeshesIterator::nextt()
 {
   if(_iter_id<_nb_iter)

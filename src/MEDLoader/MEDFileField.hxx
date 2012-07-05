@@ -579,6 +579,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileFieldMultiTSIterator(MEDFileFieldMultiTS *fmts);
+    ~MEDFileFieldMultiTSIterator();
     MEDFileField1TS *nextt();
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTS> _fmts;
@@ -629,6 +630,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileFieldsIterator(MEDFileFields *fs);
+    ~MEDFileFieldsIterator();
     MEDFileFieldMultiTS *nextt();
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDFileFields> _fs;

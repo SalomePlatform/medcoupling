@@ -4323,6 +4323,10 @@ MEDFileFieldMultiTSIterator::MEDFileFieldMultiTSIterator(MEDFileFieldMultiTS *fm
     }
 }
 
+MEDFileFieldMultiTSIterator::~MEDFileFieldMultiTSIterator() 
+{
+}
+
 MEDFileField1TS *MEDFileFieldMultiTSIterator::nextt()
 {
   if(_iter_id<_nb_iter)
@@ -4633,6 +4637,10 @@ MEDFileFieldsIterator::MEDFileFieldsIterator(MEDFileFields *fs):_fs(fs),_iter_id
       fs->incrRef();
       _nb_iter=fs->getNumberOfFields();
     }
+}
+
+MEDFileFieldsIterator::~MEDFileFieldsIterator() 
+{
 }
 
 MEDFileFieldMultiTS *MEDFileFieldsIterator::nextt()
