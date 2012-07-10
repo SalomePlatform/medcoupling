@@ -2291,6 +2291,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingCMesh *New();
+    static MEDCouplingCMesh *New(const char *meshName);
     MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void setCoords(const DataArrayDouble *coordsX,
                    const DataArrayDouble *coordsY=0,
@@ -2301,6 +2302,10 @@ namespace ParaMEDMEM
       MEDCouplingCMesh()
       {
         return MEDCouplingCMesh::New();
+      }
+      MEDCouplingCMesh(const char *meshName)
+      {
+        return MEDCouplingCMesh::New(meshName);
       }
       std::string __str__() const
       {

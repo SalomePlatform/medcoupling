@@ -19,6 +19,7 @@
 
 #include "MEDCouplingBasicsTest.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
@@ -124,6 +125,51 @@ void CppSnippetUMeshStdBuild1()
   //! [CppSnippetUMeshStdBuild1_5]
 }
 
+void CppSnippetCMeshStdBuild1()
+{
+  //! [CppSnippetCMeshStdBuild1_1]
+  double XCoords[9]={-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22};
+  double YCoords[7]={0.,0.1,0.37,0.45,0.47,0.49,1.007};
+  ParaMEDMEM::DataArrayDouble *arrX=ParaMEDMEM::DataArrayDouble::New();
+  arrX->alloc(9,1);
+  std::copy(XCoords,XCoords+9,arrX->getPointer());
+  arrX->setInfoOnComponent(0,"X [m]");
+  ParaMEDMEM::DataArrayDouble *arrY=ParaMEDMEM::DataArrayDouble::New();
+  arrY->alloc(7,1);
+  std::copy(YCoords,YCoords+7,arrY->getPointer());
+  arrY->setInfoOnComponent(0,"Y [m]");
+  //! [CppSnippetCMeshStdBuild1_1]
+  //! [CppSnippetCMeshStdBuild1_2]
+  ParaMEDMEM::MEDCouplingCMesh *mesh=ParaMEDMEM::MEDCouplingCMesh::New("My2D_CMesh");
+  mesh->setCoords(arrX,arrY);
+  arrX->decrRef();
+  arrY->decrRef();
+  //! [CppSnippetCMeshStdBuild1_2]
+  //! [CppSnippetCMeshStdBuild1_3]
+  CPPUNIT_ASSERT_EQUAL(8*6,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(9*7,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
+  //! [CppSnippetCMeshStdBuild1_3]
+  mesh->decrRef();
+  mesh=ParaMEDMEM::MEDCouplingCMesh::New("My2D_CMesh");
+  arrX=ParaMEDMEM::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
+  arrY=ParaMEDMEM::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]");
+  //! [CppSnippetCMeshStdBuild1_2bis]
+  mesh->setCoordsAt(0,arrX);
+  arrX->decrRef();
+  mesh->setCoordsAt(1,arrY);
+  arrY->decrRef();
+  //! [CppSnippetCMeshStdBuild1_2bis]
+  CPPUNIT_ASSERT_EQUAL(8*6,mesh->getNumberOfCells());
+  CPPUNIT_ASSERT_EQUAL(9*7,mesh->getNumberOfNodes());
+  CPPUNIT_ASSERT_EQUAL(2,mesh->getSpaceDimension());
+  CPPUNIT_ASSERT_EQUAL(2,mesh->getMeshDimension());
+  //! [CppSnippetCMeshStdBuild1_4]
+  mesh->decrRef();
+  //! [CppSnippetCMeshStdBuild1_4]
+}
+
 void CppSnippetUMeshAdvBuild1()
 {
   //! [CppSnippetUMeshAdvBuild1_1]
@@ -159,10 +205,243 @@ void CppSnippetUMeshAdvBuild1()
   //! [CppSnippetUMeshAdvBuild1_5]
 }
 
+void CppSnippetDataArrayBuild1()
+{
+  //! [CppSnippetDataArrayBuild1_0]
+  const int nbOfNodes=12;
+  double coords[3*nbOfNodes]={2.,3.,4.,3.,4.,5.,4.,5.,6.,5.,6.,7.,6.,7.,8.,7.,8.,9.,8.,9.,10.,9.,10.,11.,10.,11.,12.,11.,12.,13.,12.,13.,14.,13.,14.,15.};
+  //
+  ParaMEDMEM::DataArrayDouble *myCoords=0;
+  double *tmp=0;
+  //! [CppSnippetDataArrayBuild1_0]
+  //
+  //! [CppSnippetDataArrayBuild1_1]
+  myCoords=ParaMEDMEM::DataArrayDouble::New();
+  myCoords->useArray(coords,false,ParaMEDMEM::CPP_DEALLOC,nbOfNodes,3);
+  //now use myCoords as you need
+  //...
+  //myCoords is no more usefully here : release it
+  myCoords->decrRef();
+  //! [CppSnippetDataArrayBuild1_1]
+  //! [CppSnippetDataArrayBuild1_2]
+  myCoords=ParaMEDMEM::DataArrayDouble::New();
+  tmp=new double[3*nbOfNodes];
+  std::copy(coords,coords+3*nbOfNodes,tmp);
+  myCoords->useArray(tmp,true,ParaMEDMEM::CPP_DEALLOC,nbOfNodes,3);
+  //now use myCoords as you need
+  //...
+  //myCoords is no more usefully, release it
+  myCoords->decrRef();
+  //! [CppSnippetDataArrayBuild1_2]
+  //! [CppSnippetDataArrayBuild1_3]
+  myCoords=ParaMEDMEM::DataArrayDouble::New();
+  tmp=(double *)malloc(3*nbOfNodes*sizeof(double));
+  std::copy(coords,coords+3*nbOfNodes,tmp);
+  myCoords->useArray(tmp,true,ParaMEDMEM::C_DEALLOC,nbOfNodes,3);
+  //now use myCoords as you need
+  //...
+  //myCoords is no more usefully here : release it
+  myCoords->decrRef();
+  //! [CppSnippetDataArrayBuild1_3]
+  //! [CppSnippetDataArrayBuild1_4]
+  myCoords=ParaMEDMEM::DataArrayDouble::New();
+  myCoords->alloc(nbOfNodes,3);
+  tmp=myCoords->getPointer();
+  std::copy(coords,coords+3*nbOfNodes,tmp);
+  myCoords->declareAsNew();//you have modified data pointed by internal pointer notify object
+  //now use myCoords as you need
+  //...
+  //myCoords is no more usefully here : release it
+  myCoords->decrRef();
+  //! [CppSnippetDataArrayBuild1_4]
+  myCoords=ParaMEDMEM::DataArrayDouble::New();
+  myCoords->alloc(nbOfNodes,3);
+  tmp=myCoords->getPointer();
+  std::copy(coords,coords+3*nbOfNodes,tmp);
+  ParaMEDMEM::DataArrayDouble *myCoordsCpy=0;
+  //! [CppSnippetDataArrayBuild1_5]
+  myCoordsCpy=myCoords->deepCpy();
+  //! [CppSnippetDataArrayBuild1_5]
+  //! [CppSnippetDataArrayBuild1_6]
+  CPPUNIT_ASSERT(myCoordsCpy->isEqual(*myCoords,1e-12));
+  myCoordsCpy->setIJ(0,0,1000.);
+  CPPUNIT_ASSERT(!myCoordsCpy->isEqual(*myCoords,1e-12));//myCoordsCpy only has been modified
+  //! [CppSnippetDataArrayBuild1_6]
+  //! [CppSnippetDataArrayBuild1_7]
+  myCoordsCpy->decrRef();
+  //! [CppSnippetDataArrayBuild1_7]
+  //! [CppSnippetDataArrayBuild1_5bis]
+  myCoordsCpy=myCoords->performCpy(true);
+  //! [CppSnippetDataArrayBuild1_5bis]
+  CPPUNIT_ASSERT(myCoordsCpy->isEqual(*myCoords,1e-12));
+  myCoordsCpy->setIJ(0,0,1000.);
+  CPPUNIT_ASSERT(!myCoordsCpy->isEqual(*myCoords,1e-12));//myCoordsCpy only has been modified
+  myCoordsCpy->decrRef();
+  //! [CppSnippetDataArrayBuild1_8]
+  myCoordsCpy=myCoords->performCpy(false);
+  //! [CppSnippetDataArrayBuild1_8]
+  //! [CppSnippetDataArrayBuild1_9]
+  CPPUNIT_ASSERT(myCoordsCpy->isEqual(*myCoords,1e-12));
+  myCoordsCpy->setIJ(0,0,1000.);
+  CPPUNIT_ASSERT(myCoordsCpy->isEqual(*myCoords,1e-12));//myCoords and myCoordsCpy have been modified simultaneously
+  //! [CppSnippetDataArrayBuild1_9]
+  //! [CppSnippetDataArrayBuild1_10]
+  myCoordsCpy->decrRef();
+  //! [CppSnippetDataArrayBuild1_10]
+  //! [CppSnippetDataArrayBuild1_11]
+  myCoordsCpy=ParaMEDMEM::DataArrayDouble::New();
+  //! [CppSnippetDataArrayBuild1_11]
+  //! [CppSnippetDataArrayBuild1_12]
+  myCoordsCpy->cpyFrom(*myCoords);
+  //! [CppSnippetDataArrayBuild1_12]
+  //! [CppSnippetDataArrayBuild1_13]
+  CPPUNIT_ASSERT(myCoordsCpy->isEqual(*myCoords,1e-12));
+  myCoordsCpy->setIJ(0,0,2000.);
+  CPPUNIT_ASSERT(!myCoordsCpy->isEqual(*myCoords,1e-12));//myCoordsCpy only has been modified
+  //! [CppSnippetDataArrayBuild1_13]
+  //! [CppSnippetDataArrayBuild1_14]
+  myCoordsCpy->decrRef();
+  //! [CppSnippetDataArrayBuild1_14]
+  myCoords->decrRef();
+}
+
+void CppSnippetFieldDoubleBuild1()
+{
+  double XCoords[9]={-0.3,0.07,0.1,0.3,0.45,0.47,0.49,1.,1.22};
+  double YCoords[7]={0.07,0.1,0.37,0.45,0.47,0.49,1.007};
+  ParaMEDMEM::DataArrayDouble *arrX=ParaMEDMEM::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
+  ParaMEDMEM::DataArrayDouble *arrY=ParaMEDMEM::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  ParaMEDMEM::MEDCouplingCMesh *mesh=ParaMEDMEM::MEDCouplingCMesh::New("My2D_CMesh");
+  mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
+  //! [CppSnippetFieldDoubleBuild1_1]
+  ParaMEDMEM::MEDCouplingFieldDouble* fieldOnCells=ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_CELLS,ParaMEDMEM::NO_TIME);
+  fieldOnCells->setName("MyTensorFieldOnCellNoTime");
+  fieldOnCells->setMesh(mesh);
+  mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnCells
+  ParaMEDMEM::DataArrayDouble *array=ParaMEDMEM::DataArrayDouble::New();
+  array->alloc(fieldOnCells->getMesh()->getNumberOfCells(),9);//Implicitely fieldOnCells will be a 9 components field.
+  array->fillWithValue(7.);
+  fieldOnCells->setArray(array);
+  array->decrRef();
+  // fieldOnCells is now usable
+  // ...
+  // fieldOnCells is no more usefully here : release it
+  fieldOnCells->decrRef();
+  //! [CppSnippetFieldDoubleBuild1_1]
+  //! [CppSnippetFieldDoubleBuild1_2]
+  ParaMEDMEM::MEDCouplingFieldDouble *f1=mesh->fillFromAnalytic(ParaMEDMEM::ON_CELLS,1,"x*x+y*y*3+2.*x");//f1 is scalar
+  ParaMEDMEM::MEDCouplingFieldDouble *f2=mesh->fillFromAnalytic(ParaMEDMEM::ON_CELLS,1,"cos(x+y/x)");//f2 is scalar too
+  ParaMEDMEM::MEDCouplingFieldDouble *f2bis=mesh->fillFromAnalytic(ParaMEDMEM::ON_CELLS,2,"x*x*IVec+3*y*JVec");//f2bis is a vectors field
+  ParaMEDMEM::MEDCouplingFieldDouble *f3=(*f1)+(*f2);//f3 scalar
+  ParaMEDMEM::MEDCouplingFieldDouble *f4=(*f3)/(*f2);//f4 scalar
+  f2bis->applyFunc(1,"sqrt(x*x+y*y)");//f2bis becomes scalar
+  ParaMEDMEM::MEDCouplingFieldDouble *f5=(*f2bis)*(*f4);//f5 scalar
+  const double pos1[2]={0.48,0.38};
+  double res;
+  f4->getValueOn(pos1,&res);//f4 is scalar so the returned value is of size 1.
+  // ...
+  //! [CppSnippetFieldDoubleBuild1_2]
+  //! [CppSnippetFieldDoubleBuild1_3]
+  // f1, f2, f2bis, f3, f4, f5 are no more usefully here : release them
+  f1->decrRef();
+  f2->decrRef();
+  f2bis->decrRef();
+  f3->decrRef();
+  f4->decrRef();
+  f5->decrRef();
+  //! [CppSnippetFieldDoubleBuild1_3]
+}
+
+void CppSnippetFieldDoubleBuild2()
+{
+  double XCoords[9]={-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22};
+  double YCoords[7]={0.,0.1,0.37,0.45,0.47,0.49,1.007};
+  ParaMEDMEM::DataArrayDouble *arrX=ParaMEDMEM::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
+  ParaMEDMEM::DataArrayDouble *arrY=ParaMEDMEM::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  ParaMEDMEM::MEDCouplingCMesh *mesh=ParaMEDMEM::MEDCouplingCMesh::New("My2D_CMesh");
+  mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
+  //! [CppSnippetFieldDoubleBuild2_1]
+  ParaMEDMEM::MEDCouplingFieldDouble* fieldOnNodes=ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_NODES,ParaMEDMEM::NO_TIME);
+  fieldOnNodes->setName("MyScalarFieldOnNodeNoTime");
+  fieldOnNodes->setMesh(mesh);
+  mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnNodes
+  ParaMEDMEM::DataArrayDouble *array=ParaMEDMEM::DataArrayDouble::New();
+  array->alloc(fieldOnNodes->getMesh()->getNumberOfNodes(),1);//Implicitely fieldOnNodes will be a 1 component field.
+  array->fillWithValue(8.);
+  fieldOnNodes->setArray(array);
+  array->decrRef();
+  // fieldOnNodes is now usable
+  // ...
+  // fieldOnNodes is no more usefully here : release it
+  fieldOnNodes->decrRef();
+  //! [CppSnippetFieldDoubleBuild2_1]
+}
+
+void CppSnippetFieldDoubleBuild3()
+{
+  double XCoords[9]={-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22};
+  double YCoords[7]={0.,0.1,0.37,0.45,0.47,0.49,1.007};
+  ParaMEDMEM::DataArrayDouble *arrX=ParaMEDMEM::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
+  ParaMEDMEM::DataArrayDouble *arrY=ParaMEDMEM::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  ParaMEDMEM::MEDCouplingCMesh *mesh=ParaMEDMEM::MEDCouplingCMesh::New("My2D_CMesh");
+  mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
+  //! [CppSnippetFieldDoubleBuild3_1]
+  ParaMEDMEM::MEDCouplingFieldDouble* fieldOnCells=ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_CELLS,ParaMEDMEM::ONE_TIME);
+  fieldOnCells->setName("MyTensorFieldOnCellNoTime");
+  fieldOnCells->setTimeUnit("ms"); // Time unit is ms.
+  fieldOnCells->setTime(4.22,2,-1); // Time attached is 4.22 ms, iteration id is 2 and order id (or sub iteration id) is -1
+  fieldOnCells->setMesh(mesh);
+  mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnCells
+  ParaMEDMEM::DataArrayDouble *array=ParaMEDMEM::DataArrayDouble::New();
+  array->alloc(fieldOnCells->getMesh()->getNumberOfCells(),2);//Implicitely fieldOnCells will be a 2 components field.
+  array->fillWithValue(7.);
+  fieldOnCells->setArray(array);
+  array->decrRef();
+  // fieldOnCells is now usable
+  // ...
+  // fieldOnCells is no more usefully here : release it
+  fieldOnCells->decrRef();
+  //! [CppSnippetFieldDoubleBuild3_1]
+}
+
+void CppSnippetFieldDoubleBuild4()
+{
+  double XCoords[9]={-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22};
+  double YCoords[7]={0.,0.1,0.37,0.45,0.47,0.49,1.007};
+  ParaMEDMEM::DataArrayDouble *arrX=ParaMEDMEM::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
+  ParaMEDMEM::DataArrayDouble *arrY=ParaMEDMEM::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  ParaMEDMEM::MEDCouplingCMesh *mesh=ParaMEDMEM::MEDCouplingCMesh::New("My2D_CMesh");
+  mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
+  //! [CppSnippetFieldDoubleBuild4_1]
+  ParaMEDMEM::MEDCouplingFieldDouble* fieldOnNodes=ParaMEDMEM::MEDCouplingFieldDouble::New(ParaMEDMEM::ON_NODES,ParaMEDMEM::CONST_ON_TIME_INTERVAL);
+  fieldOnNodes->setName("MyVecFieldOnNodeWithConstTime");
+  fieldOnNodes->setTimeUnit("ms"); // Time unit is ms.
+  fieldOnNodes->setStartTime(4.22,2,-1);
+  fieldOnNodes->setEndTime(6.44,4,-1); // fieldOnNodes is defined in interval [4.22 ms,6.44 ms] 
+  fieldOnNodes->setMesh(mesh);
+  mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnNodes
+  ParaMEDMEM::DataArrayDouble *array=ParaMEDMEM::DataArrayDouble::New();
+  array->alloc(fieldOnNodes->getMesh()->getNumberOfNodes(),3);//Implicitely fieldOnNodes will be a 3 components field.
+  array->fillWithValue(8.);
+  fieldOnNodes->setArray(array);
+  array->decrRef();
+  // fieldOnNodes is now usable
+  // ...
+  // fieldOnNodes is no more usefully here : release it
+  fieldOnNodes->decrRef();
+  //! [CppSnippetFieldDoubleBuild4_1]
+}
+
 int main(int argc, char *argv[])
 {
   CppExampleFieldDoubleBuildSubPart1();
   CppSnippetUMeshStdBuild1();
   CppSnippetUMeshAdvBuild1();
+  CppSnippetDataArrayBuild1();
+  CppSnippetCMeshStdBuild1();
+  CppSnippetFieldDoubleBuild1();
+  CppSnippetFieldDoubleBuild2();
+  CppSnippetFieldDoubleBuild3();
+  CppSnippetFieldDoubleBuild4();
   return 0;
 }

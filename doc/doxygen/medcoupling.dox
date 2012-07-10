@@ -34,6 +34,7 @@ For beginners in \ref medcoupling "MEDCoupling" world, it is advisable to read t
 - \subpage MEDCouplingMeshesPage "Meshes"
 - \subpage MEDCouplingFieldsPage "Fields"
 - \subpage MEDCouplingFieldTemplatesPage "Field templates"
+- \subpage MEDCouplingTimeLabelPage "Time labels"
 
 */
 
@@ -76,6 +77,8 @@ The class that incarnates the concept described above is :
 
 /*!
 \page MEDCouplingFieldsPage Fields in MEDCoupling
+
+[TOC]
 
 \section MEDCouplingFields Field concept
 
@@ -152,115 +155,48 @@ The most important methods are :
 
 \section MEDCouplingFirstSteps3 Building a field from scratch
 
-All of exemples given here make the assumption that the \c ParaMEDMEM
-namespace is visible ( by calling for example \c using \c
-namespace \c ParaMEDMEM; ).
+Here we will make the assumption that an instance of \c MEDCouplingMesh called \c mesh has been created ( to know more about mesh creation \ref MEDCouplingUMeshStdBuild "click here" ).
 
-Here we will make the assumption that an instance of \c MEDCouplingMesh
-called \c mesh has been created.
+\subsection MEDCouplingFirstSteps3OnCellsNoTS  Create a tensor field with 9 components on cells with no time step
 
-- create a tensor field with 9 components on cells with no time step
-\code
-MEDCouplingFieldDouble* fieldOnCells=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
-fieldOnCells->setName("MyTensorFieldOnCellNoTime");
-fieldOnCells->setMesh(mesh);
-DataArrayDouble *array=DataArrayDouble::New();
-array->alloc(mesh->getNumberOfCells(),9);//Implicitely fieldOnCells will be a 9 components field.
-fieldOnCells->setArray(array);
-tmp=array->getPointer();
-std::fill(tmp,tmp+9*mesh->getNumberOfCells(),7.);
-array->declareAsNew();
-array->decrRef();
-//fieldOnCells is now usable
-...
-//fieldOnCells is no more usefully here : release it
-fieldOnCells->decrRef();
-\endcode
-- create a scalar field on nodes with no time step
-\code
-MEDCouplingFieldDouble* fieldOnNodes=MEDCouplingFieldDouble::New(ON_NODES,NO_TIME);
-fieldOnNodes->setName("MyScalarFieldOnNodeNoTime");
-fieldOnNodes->setMesh(mesh);
-DataArrayDouble *array=DataArrayDouble::New();
-array->alloc(mesh->getNumberOfNodes(),1);//Implicitely fieldOnNodes will be a scalar field.
-fieldOnNodes->setArray(array);
-tmp=array->getPointer();
-std::fill(tmp,tmp+mesh->getNumberOfNodes(),7.);
-array->declareAsNew();
-array->decrRef();
-//fieldOnNodes is now usable
-...
-//fieldOnNodes is no more usefully here : release it
-fieldOnNodes->decrRef();
-\endcode
-- create a 2 components-vector field on cells with one time step and no interval
-\code
-MEDCouplingFieldDouble* fieldOnCells=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
-fieldOnCells->setName("MyVecFieldOnCellWithTime");
-fieldOnCells->setMesh(mesh);
-fieldOnCells->setTime(4.22,2,-1);
-DataArrayDouble *array=DataArrayDouble::New();
-array->alloc(mesh->getNumberOfCells(),2);//Implicitely fieldOnCells will be a 2 components field.
-fieldOnCells->setArray(array);
-tmp=array->getPointer();
-std::fill(tmp,tmp+2*mesh->getNumberOfCells(),7.);
-array->declareAsNew();
-array->decrRef();
-//fieldOnCells is now usable
-...
-//fieldOnCells is no more usefully here : release it
-fieldOnCells->decrRef();
-\endcode
-- create a 3 components-vector field on nodes with a time interval where hied is constant
-\code
-MEDCouplingFieldDouble* fieldOnNodes=MEDCouplingFieldDouble::New(ON_NODES,CONST_ON_TIME_INTERVAL);
-fieldOnNodes->setName("MyVecFieldOnNodeWithConstTime");
-fieldOnNodes->setMesh(mesh);
-fieldOnNodes->setStartTime(4.22,2,-1);
-fieldOnNodes->setEndTime(6.44,4,-1);
-DataArrayDouble *array=DataArrayDouble::New();
-array->alloc(mesh->getNumberOfNodes(),3);//Implicitely fieldOnNodes will be a 3 components field.
-fieldOnNodes->setArray(array);
-tmp=array->getPointer();
-std::fill(tmp,tmp+3*mesh->getNumberOfNodes(),7.);
-array->declareAsNew();
-array->decrRef();
-//fieldOnNodes is now usable
-...
-//fieldOnNodes is no more usefully here : release it
-fieldOnNodes->decrRef();
-\endcode
+\subpage medcouplingcppexamplesFieldDoubleBuild1 "Here the C++ implementation."
+
+\subpage medcouplingpyexamplesFieldDoubleBuild1 "Here the Python implementation."
+
+\subsection MEDCouplingFirstSteps3OnNodesNoTS Create a scalar field on nodes with no time step
+
+\subpage medcouplingcppexamplesFieldDoubleBuild2 "Here the C++ implementation."
+
+\subpage medcouplingpyexamplesFieldDoubleBuild2 "Here the Python implementation."
+
+\subsection MEDCouplingFirstSteps3OnCellsWTS Create a 2 components-vector field on cells with one time step and no interval
+
+\subpage medcouplingcppexamplesFieldDoubleBuild3 "Here the C++ implementation."
+
+\subpage medcouplingpyexamplesFieldDoubleBuild3 "Here the Python implementation."
+
+\subsection MEDCouplingFirstSteps3OnCellsCTI Create a 3 components-vector field on nodes with a time interval where field remains constant on this time interval
+
+\subpage medcouplingcppexamplesFieldDoubleBuild4 "Here the C++ implementation."
+
+\subpage medcouplingpyexamplesFieldDoubleBuild4 "Here the Python implementation."
 
 \section MEDCouplingSecondStep0 Operations on Fields
+
 Here we will make the assumption that an instance of \ref ParaMEDMEM::MEDCouplingMesh "MEDCouplingMesh"
 called \c mesh has been created with spaceDim==2.
-Here some exemple of more advanced use of \ref ParaMEDMEM::MEDCouplingFieldDouble "MEDCouplingFieldDouble".
-\code
-MEDCouplingFieldDouble *f1=mesh->fillFromAnalytic(ON_NODES,1,"x*x+y*y*3+2.*x");//f1 is scalar
-MEDCouplingFieldDouble *f2=mesh->fillFromAnalytic(ON_NODES,1,"cos(x+y/x)");//f2 is scalar too
-MEDCouplingFieldDouble *f2bis=mesh->fillFromAnalytic(ON_NODES,2,"x*x*IVec+3*y*JVec");//f2bis is a vectors field
-MEDCouplingFieldDouble *f3=(*f1)+(*f2);//f3 scalar
-MEDCouplingFieldDouble *f4=(*f3)/(*f2);//f4 scalar
-f2bis->applyFunc(1,"sqrt(x*x+y*y)");//f2bis becomes scalar
-MEDCouplingFieldDouble *f5=(*f2bis)*(*f4);//f5 scalar
-const double pos1[2]={0.25,0.};
-double res;
-f4->getValueOn(pos1,&res);//f4 is scalar so the returned value is of size 1.
-//
-...
-//f1, f2, f2bis, f3, f4, f5 are no more usefully here : release them
-f1->decrRef();
-f2->decrRef();
-f2bis->decrRef();
-f3->decrRef();
-f4->decrRef();
-f5->decrRef();
-\endcode
+
+\subpage medcouplingcppexamplesFieldDoubleBuild5 "Here a C++ example of more advanced use of MEDCouplingFieldDouble instances".
+
+\subpage medcouplingpyexamplesFieldDoubleBuild5 "Here a Python example of more advanced use of MEDCouplingFieldDouble instances".
 
 */
 
 /*!
+
 \page MEDCouplingArrayPage MEDCoupling Arrays
+
+[TOC]
 
 \section MEDCouplingArrayIntro Introduction
 
@@ -271,57 +207,122 @@ This concept is used all over
 \ref medcoupling "MEDCoupling", \ref paramedmem "ParaMEDMEM", \ref medloader "MEDLoader" modules so it should be correctly
 handled to play well with \ref MEDCouplingMeshesPage "Meshes" and \ref MEDCouplingFieldsPage "Fields".
 
-There are for the moment two types of arrays :
- - double precision float (64 bits) array incarnated by ParaMEDMEM::DataArrayDouble class.
- - signed integer (32 bits) array incarnated by ParaMEDMEM::DataArrayInt class.
+\ref ParaMEDMEM::DataArray "DataArrays" are the atomic element of potentially heavy in memory objects in \ref medcoupling "MEDCoupling", \ref paramedmem "ParaMEDMEM" and \ref medloader "MEDLoader".
 
-\section MEDCouplingArrayBasics Basics concepts
+There are for the moment two types of arrays :
+ - double precision float (64 bits) array incarnated by \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble class".
+ - signed integer (32 bits) array incarnated by \ref ParaMEDMEM::DataArrayInt "DataArrayInt class".
+
+\ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" and \ref ParaMEDMEM::DataArrayInt "DataArrayInt" classes inherits from 
+\ref ParaMEDMEM::DataArray "DataArray" \b non \b instanciable \b class that factorizes some common methods of inherited instanciable classes.
+
+In the rest of the documentation \b DataArray will be used for both \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" and \ref ParaMEDMEM::DataArrayInt "DataArrayInt".
+
+\section MEDCouplingArrayBasics Basics concepts of the DataArrays.
 
 It will be presented in this section common concept shared by the two classes to \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" and \ref ParaMEDMEM::DataArrayInt "DataArrayInt".
 
-- The first thing is that an array has a name (stored as a C++ string). This name is often ignored in MEDCoupling algorithm when arrays are aggregated (field array, connectivity, coordinates).
-  The reason is that name is stored by the aggregating object.
-  But it can be very usefull for arrays not aggregated in bigger MEDCoupling object for groups ids and families ids for example.
+\subsection MEDCouplingArrayBasicsName Name
 
-- The second thing is the data storage. For obvious reason, MEDCoupling DataArray stores data in a contiguous way in memory like \c std::vector does.\n
+A \ref ParaMEDMEM::DataArray "DataArray" instance has an attribute **name**.
 
-- The third thing is linked to previous point. Data arrays are able to store vectorized data. It is usefull to store the data of a vectorial field. That's why MEDCoupling arrays uses the concepts
-  of components. To store an array for a vector field on cell with 3 components lying on a mesh having 5 cells. The array will contain 5*3=15 values grouped by 3.
-  The 5 groups containing each 3 elements are called \b tuples.\n \b Number \b of \b values \b stored \b in \b an \b array \b is \b equal \b to \b number \b of \b tuples
-  \b multiplied \b by \b number \b of \b components. \n
-  Generally speaking, except for vector field arrays, and array for nodes coordinates, the number of components is equal to one.
+**name** is particulary useful for \ref ParaMEDMEM::DataArray "DataArray" representing profiles, families, groups, fields in MEDLoader.
+But excepted these useful usecases, **name** attribute is often ignored when \ref ParaMEDMEM::DataArray "DataArrays" are aggregated (field array, connectivity, coordinates) is a bigger object.
+Whatever the useage of the **name** attribute of \ref ParaMEDMEM::DataArray "DataArrays", all methods in ParaMEDMEM::DataArrayDouble and ParaMEDMEM::DataArrayInt class deal with **name** as they do for components names.
 
-- The fourth thing is linked to point 2 and 3 as MEDCoupling is developped in C++ the values of arrays are stored tuples by tuples, that is to say in full interlace mode.\n
-  That is to say, the 15 values in the example in point 3 will be stored like this :\n
-  \f$ x_0,y_0,z_0,x_1,y_1,z_1,x_2,y_2,z_2,x_3,y_3,z_3,x_4,y_4,z_4 \f$ where x stands for component #0, y for component #1 and z for component #2
-  As consequence \b all \b algorithms \b in \b ParaMEDMEM \b are \b working \b in \b full \b interlace \b mode. 
+\subsection MEDCouplingArrayBasicsTuplesAndCompo Raw data, tuples and components of DataArrays.
 
-- The fifth thing is that each components of an array has info stored in a string. If a unit is desired to be added on components the following convention should be used "MY_COMPO_INFO [MYUNIT]".\n
-  Unit should be put between "[" and "]" after info and one space character.
+The main goal of \ref ParaMEDMEM::DataArray "DataArray" is to store contiguous vector of atomical elements with same basic datatype (signed integers, double precision...). This vector of atomical elements is called **raw data** of \ref ParaMEDMEM::DataArray "DataArray".
 
-- The sixth thing is that MEDCoupling arrays inherits from \ref ParaMEDMEM::TimeLabel "TimeLabel" class. It means that the time stamp attached to array indicates if yes or no the array has been modified.
-  In C++ if the access of data is direct using non const \c getPointer method it is the reponsability to the use to notify the possible modification.
-  Inversely if setIJ method is used to modify an array, take care of the fact that the time stamp of the array is modified on each call to setIJ. If huge amount of call to setIJ is required it
-  is better to use setIJSilent instead and call notifyNew right after instead.
-  
+The size of this vector of data is called, number of elements. So the number of bytes stored by a \ref ParaMEDMEM::DataArray "DataArray" instance, is equal to
+the  product of the __number of elements__ * __constant size of DataType__ .
+
+As \ref ParaMEDMEM::DataArray "DataArray" instances are designed to stored vector fields, tensor fields, coordinate of nodes, the notion of components has been
+added.
+
+So, \ref ParaMEDMEM::DataArray "DataArrays" have an additional attribute that is number of components that represent the size of a contiguous set of atomical elements.
+The vector of atomical elements stored into \ref ParaMEDMEM::DataArray "DataArrays" are grouped in contiguous in memory set of atomical elements having each same size.
+
+The  contiguous set of atomical elements is called **tuple**. And each **tuple** stored in raw data, have each a length exactly equal to the number of components of
+\ref ParaMEDMEM::DataArray "DataArray" storing it.
+
+Thus :
+
+\f[
+ N_{elements}=N_{tuples}*N_{components}.
+\f]
+
+\f[
+ N_{bytes}=N_{elements}*sizeof(DataType)=N_{tuples}*N_{components}*sizeof(DataType).
+\f]
+
+In another words, **raw data** of \ref ParaMEDMEM::DataArray "DataArrays" can be seen as a dense matrix, whose number of components would be the row size and number of tuples
+would be the column size. In this point of view of \ref ParaMEDMEM::DataArray "DataArrays" a **tuple**  is represented by the corresponding row in the dense matrix.
+
+Typically in the **raw data** of  \ref ParaMEDMEM::DataArray "DataArrays" **number of tuples** is highly bigger than **number of components** !
+
+To finish, raw data is stored tuples by tuples, in another words, in **full interlace mode**, which is the natural storage strategy in C/C++ world.
+
+For example, let's consider a DataArray having 3 components (called *x* for the first component, *y* for the second, and *z* for the third) and composed by 5 tuples.
+\n The *raw data* of the DataAarray instance will be organized in momory like that : \f$ x_0,y_0,z_0,x_1,y_1,z_1,x_2,y_2,z_2,x_3,y_3,z_3,x_4,y_4,z_4 \f$.
+
+
+\subsection MEDCouplingArrayBasicsCompoName Information on components name.
+
+As seen in the sub section above, a \ref ParaMEDMEM::DataArray "DataArray" instance has a defined number of components.
+
+Their is an information attached to each of these components constiting the \ref ParaMEDMEM::DataArray "DataArray".
+
+This information is concretely a string of caracters that allows, if needed, to give information about the conresponding component.
+
+The format chosen in **MEDCoupling** for information on is "MY_COMPO_INFO [MYUNIT]". If needed, the unit attached to the component
+should be put between "[" and "]" after the information of the components after one space caracter.
+
+\subsection MEDCouplingArrayBasicsTimeLabel DataArrays and TimeLabel.
+
+\ref ParaMEDMEM::DataArray "DataArrays instances" can consume big amount of data in memory so they inherit from \subpage MEDCouplingTimeLabelPage "TimeLabel".
+So in C++ it is a good practice to use :
+- \c getConstPointer method in readonly access.
+- \c getPointer method only if write is needed.
+
+If the user in C++ or Python wants to modify intensively its **big** \ref ParaMEDMEM::DataArray "DataArray" instance **not** using raw data pointer it is better to invoke
+\c setIJSilent just after invokation of \c declareAsNew instead of calling \c setIJ method that will increment time label of \ref ParaMEDMEM::DataArray "DataArray" instance
+on each call.
+
+\c setIJ method usage should be reduced to little modification sessions.  
 
 \section MEDCouplingArraySteps0 Building an array from scratch in Python
 
-\verbatim
-arrayDouble=DataArrayDouble.New();
-dataDouble=[0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.]
-arrayDouble.setValues(dataDouble,5,3);# 5 tuples containing each 3 components
-#####
-arrayInt=DataArrayInt.New();
-dataInt=[0, 10, 20, 1, 11, 21, 2, 12, 22, 3, 13, 23, 4, 14, 24]
-arrayInt.setValues(dataInt,5,3);# 5 tuples containing each 3 components
-\endverbatim
+\subsection MEDCouplingArraySteps0Double Building an double array from scratch in Python
+
+Let's consider a list of floats \c dataDouble.
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_0
+
+The easiest way to build the \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble instance" called \c arrayDouble simply call :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_1bis
+
+An another way is to do that :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_1
+
+\subsection MEDCouplingArraySteps0Int Building an int array from scratch in Python
+
+Let's consider a list of ints \c dataInt.
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_2
+
+The easiest way to build the \ref ParaMEDMEM::DataArrayInt "DataArrayInt instance" called \c arrayInt simply call :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_3bis
+
+An another way is to do that :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayBuild1_3
+
 
 \section MEDCouplingArraySteps1 Building an array from scratch in C++
-
-All of exemples given here make the assumption that the \c ParaMEDMEM
-namespace is visible ( by calling for example \c using \c
-namespace \c ParaMEDMEM; ).
 
 Here a description of typical usages to use \ref ParaMEDMEM::DataArrayDouble "MEDCoupling arrays".\n
 In this example we will create arrays with 12 tuples constituted each
@@ -330,62 +331,110 @@ of 3 components. These arrays will be created using different ways.\n
 The following code is only based using \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble"
 but the use of \ref ParaMEDMEM::DataArrayInt "DataArrayInt" is strictly equivalent.
 
-\code
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_0
 
-const int nbOfNodes=12;
-double coords[3*nbOfNodes]={ ... };
+\subsection MEDCouplingArraySteps1NCNO Building an array from scratch in C++, no copy no ownership
 
-DataArrayDouble *myCoords=0;
-double *tmp=0;
-\endcode
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_1
 
-- no copy no ownership
-\code
-myCoords=DataArrayDouble::New();
-myCoords->useArray(coords,false,CPP_DEALLOC,nbOfNodes,3);
-//now use myCoords as you need
-...
-//myCoords is no more usefully here : release it
-myCoords->decrRef();
-\endcode
+\subsection MEDCouplingArraySteps1NCWCPPO Building an array from scratch in C++, no copy with C++ ownership
 
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_2
 
-- no copy and ownership C++
-\code
-myCoords=DataArrayDouble::New();
-tmp=new double[3*nbOfNodes];
-std::copy(coords,coords+3*nbOfNodes,tmp);
-myCoords->useArray(tmp,true,CPP_DEALLOC,nbOfNodes,3);
-//now use myCoords as you need
-...
-//myCoords is no more usefully, release it
-myCoords->decrRef();
-\endcode
+\subsection MEDCouplingArraySteps1NCWCO Building an array from scratch in C++, no copy with C ownership
 
-- no copy and ownership C
-\code
-myCoords=DataArrayDouble::New();
-tmp=(double *)malloc(3*nbOfNodes*sizeof(double));
-std::copy(coords,coords+3*nbOfNodes,tmp);
-myCoords->useArray(tmp,true,C_DEALLOC,nbOfNodes,3);
-//now use myCoords as you need
-...
-//myCoords is no more usefully here : release it
-myCoords->decrRef();
-\endcode
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_3
 
-- copy
-\code
-myCoords=DataArrayDouble::New();
-myCoords->alloc(nbOfNodes,3);
-tmp=myCoords->getPointer();
-std::copy(coords,coords+3*nbOfNodes,tmp);
-myCoords->declareAsNew();//you have modified data pointed by internal pointer notify object
-//now use myCoords as you need
-...
-//myCoords is no more usefully here : release it
-myCoords->decrRef();
-\endcode
+\subsection MEDCouplingArraySteps1WC Building an array from scratch in C++, with copy
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_4
+
+\section MEDCouplingArrayBasicsCopy Copy DataArrays.
+
+As \ref ParaMEDMEM::DataArray "DataArrays" are the atomic entity of potentially big memory objects into \ref medcoupling "MEDCoupling"
+, \ref ParaMEDMEM::DataArray "DataArrays" introduces concepts of copy and comparison that will be used by aggregating classes.
+
+For more complex objects (that aggregate themselves big objects) 
+like ParaMEDMEM::MEDCouplingFieldDouble the concept of copy (shallow or deep) is less straight forward because which aggregated subobjects are copied or not.
+
+\subsection MEDCouplingArrayBasicsCopyDeep Deep copy of DataArray
+
+As for all potentially heavy memory consumer objects in \ref medcoupling "MEDCoupling", \ref ParaMEDMEM::DataArray "DataArrays" implement
+ method \c deepCpy. This method deeply copies an instance. The life cycle of the returned object is *fully* independant from the instance on which the method
+\c deepCpy has been invoked.
+
+To perform a deep copy of a DataArray instance simply invoke :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_5
+
+or :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_5bis
+
+\c myCoordsCpy is the deep copy of \c myCoords so they are independant and their *raw data* has been deeply copied.
+
+So it leads to the following behaviour :
+\anchor MEDCouplingArrayBasicsCopyDeepTestEqual
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_6
+
+As \c myCoordsCpy is a copy object it needs to be deallocated in C++ like \c myCoords.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_7
+
+\subsection MEDCouplingArrayBasicsCopyShallow Shallow copy of DataArray
+
+As \ref ParaMEDMEM::DataArray "DataArrays" are the atomic entity of potentially big memory objects into \ref medcoupling "MEDCoupling", the shallow copy
+simply returns the same object with the reference counter incremented.
+
+To perform a shallow copy of a DataArray instance simply invoke :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_8
+
+\c myCoordsCpy is the shallow copy of \c myCoords so they share the same *raw data*. In reality they are the same object.
+So it leads to the following behaviour to compare with the deep copy :
+
+\anchor MEDCouplingArrayBasicsCopyShallowTestEqual
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_9
+
+So here the content of \c myCoords and \c myCoordsCpy are linked, contrary to the deep copy case.
+
+As \c myCoordsCpy is a copy object, in C++, it needs to be deallocated.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_10
+
+\subsection MEDCouplingArrayBasicsCopyDeepAssign Assignation by deep copy of DataArray
+
+We start by building a instance of ParaMEDMEM::DataArrayDouble allocated or not. Here, instance is not allocated, only built empty.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_11
+
+Then, \c myCoordsCpy is assigned with the content of \c myCoords.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_12
+
+Then \c myCoordsCpy is a deep copy of \c myCoords except that the instance of ParaMEDMEM::DataArrayDouble is those specified.
+But the behaviour is the same than those seen for \ref MEDCouplingArrayBasicsCopyDeepTestEqual "deep copy".
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_13
+
+As always, in C++, \c myCoordsCpy is an object whose life cycle is fully independant from \c myCoords so decrement is needed.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetDataArrayBuild1_14
+
+\section MEDCouplingArrayBasicsCompare Compare DataArrays.
+
+Comparison is \ref medcoupling "MEDCoupling" is a concept highly sensitive because big amount of tests uses this to state about the sucess or the fail of these tests.
+There are two types of comparison :
+
+- strict, that compares strictly all the non mutable attributes (state sensitive). Methods to perform this strict comparison are :
+  - ParaMEDMEM::DataArrayInt::isEqual
+  - ParaMEDMEM::DataArrayDouble::isEqual.
+
+- less strict, that focus only on non string attributes. Methods to perform less strict comparison are :
+  - ParaMEDMEM::DataArrayInt::isEqualWithoutConsideringStr
+  - ParaMEDMEM::DataArrayDouble::isEqualWithoutConsideringStr
 
 \section MEDCouplingArrayRenumbering Array renumbering
 
@@ -421,7 +470,7 @@ Method in old to new mode that works on surjective applications :
 
 - \ref ParaMEDMEM::DataArrayDouble::renumberAndReduce "DataArrayDouble::renumberAndReduce"
 
-Sometimes the format old to new for sujections can be replaced by another format with 2 arrays. Less compact in memory. The \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that.
+Sometimes the format old to new for sujections can be replaced by another format with 2 arrays. Less compact in memory. The \ref ParaMEDMEM::DataArrayInt::changeSurjectiveFormat "DataArrayInt::changeSurjectiveFormat" method performs that. 
 
 \subsection MEDCouplingArrayRenumberingN2O New to old mode
 
@@ -459,10 +508,14 @@ Method in new to old mode that works on surjective applications :
 \c NatureOfField is an enum which helps determining some physical significance of the field and affects the choice of interpolation formula ( see \ref TableNatureOfField).
 It has five possible values:
 -      "NoNature", the default value, does not allow the use of interpolation tools
--      "ConservativeVolumic", for intensive field with conservativity favored over the maximum principle
--      "Integral", for extensive field with the maximum principle favored over conservativity
--      "IntegralGlobConstraint", for extensive fields with conservativity favored over the maximum principle
--      "RevIntegral", for intensive field with the maximum principle favored over conservativity
+
+-      \ref TableNatureOfFieldExampleConservVol "ConservativeVolumic", for intensive field with the maximum principle favored over conservativity. Relevant for temperature, pression fields.
+
+-      \ref TableNatureOfFieldExampleIntegral "Integral", for extensive field with the maximum principle favored over conservativity. Relevant for power fields.
+
+-      \ref TableNatureOfFieldExampleIntegralGlobConstraint "IntegralGlobConstraint", for extensive fields with conservativity favored over the maximum principle. Relevant for power fields.
+
+-      \ref TableNatureOfFieldExampleRevIntegral "RevIntegral", for intensive field with the conservativity favored over maximum principle. Relevant for power density fields.
 
 By an intensive field we mean a field that represent volumetric or intensive physical variable such as density (\f$kg.m^{-3}\f$), power density (\f$W.m^{-3}\f$), temperature (\f$K\f$) or pressure (\f$Pa\f$).
 By extensive (or integral) field we mean a field that represents an extensive physical quantity sych as mass (\f$kg\f$), volume (\f$m^3\f$), a momentum (\f$kg.m.s^{-1}\f$) or power \f$(W\f$).
@@ -504,9 +557,11 @@ sourceField->setNature(ConservativeVolumic);
 /*!
   \page MEDCouplingUMeshPage Unstructured meshes in MEDCoupling
 	
+[TOC]
+
 An unstructured mesh in \ref medcoupling MEDCoupling is defined by :
 
-  - a point clouds where the explicit coordinates of each point must be specified (inherited from \ref MEDCouplingPointSetPage "MEDCouplingPointSet class").
+  - a point clouds where the explicit coordinates of each point must be specified (inherited from \subpage MEDCouplingPointSetPage "MEDCouplingPointSet class").
   - nodal connectivity that specifies for each cell, the points in the previous point clouds that constitutes the cell.
 
 As unstructured mesh is dynamically defined enough, this class is also used by MEDCoupling to instanciate degenerated meshes as :
@@ -590,23 +645,39 @@ Some of most important implemented methods by \ref ParaMEDMEM::MEDCouplingPointS
 /*!
   \page MEDCouplingCMeshPage Cartesian meshes in MEDCoupling
 
-A cartesian mesh is a mesh that represents structured mesh whose nodes are arranged along axes of trihedron. To instanciate an object of this
-type, only n arrays are needed. In this type of mesh space dimension \b and mesh dimension are equals and the value is n.
+A cartesian mesh is a mesh that represents structured mesh whose nodes are arranged along axes of trihedron.
+
+To instanciate an object of this type, only n arrays are needed.
+
+In this type of mesh space dimension \b and mesh dimension are equals and the value is n ( with n in [1,2,3] ).
+
 The n arrays will have only one component and the values contained in these arrays will be ascendantly sorted.
 
 The class that incarnates the described concept is : ParaMEDMEM::MEDCouplingCMesh.
+
+\section MEDCouplingCMeshStdBuild Standard building of a cartesian mesh from scratch
+
+Let's present an exemple of a 2D cartesian mesh.
+
+\subpage medcouplingcppexamplesCmeshStdBuild1 "Here the C++ implementation."
+
+\subpage medcouplingpyexamplesCmeshStdBuild1 "Here the Python implementation."
 
 */
 
 /*!
   \page MEDCouplingExtrudedPage 3D Extruded meshes in MEDCoupling
 
-An extruded mesh is a mesh also called 2.5 D. It a convolution of 2D
-unstructured mesh with 1D unstructured mesh. The problem is that this
-type of mesh is not managed by any file format that's why to build an
-instance of this mesh you need 3D unstructured mesh and a 2D
-unstructured mesh lying on the same coordinates. The advantage of this
-structure is that the interpolation time is optimized.
+An extruded mesh is a mesh also called 2.5 D.
+
+It a convolution of 2D unstructured mesh with 1D unstructured mesh.
+
+The problem is that this type of mesh is not managed by any file format that's why to build an instance of this mesh you need 3D unstructured mesh and a 2D
+unstructured mesh lying on the same coordinates.
+
+The advantage of this structure is that the interpolation time is highly improved.
+
+This class is also useful for users that want to map the 3D unstructured mesh cell ids level by level along an axe.
 
 The class that incarnates this concept in MEDCoupling is : \ref ParaMEDMEM::MEDCouplingExtrudedMesh.
 */
@@ -622,5 +693,30 @@ Concretely a field template is a pair containing :
 
 - a \ref MEDCouplingMeshesPage "mesh"
 - a spatial discretization (on cells, on nodes, on gauss points (including localizations, reference elements), )
+
+*/
+
+/*!
+  \page MEDCouplingTimeLabelPage Time label in MEDCoupling
+
+Time label is a **non instanciable** class whose each objects consuming potentially big amount of memory inherit from.
+The class that incarnates this concept is ParaMEDMEM::TimeLabel.
+
+Here some of examples of classes that inherit from \ref ParaMEDMEM::TimeLabel "TimeLabel" class :
+
+- ParaMEDMEM::DataArrayInt, ParaMEDMEM::DataArrayDouble
+- ParaMEDMEM::MEDCouplingMesh
+- ParaMEDMEM::MEDCouplingFieldDouble
+- ...
+
+This class is in charge to store a 32 bits unsigned integer called time label, that allows the user to know easily, if an heavy object in memory has been modified or not.
+
+The usage is simple :
+
+- call ParaMEDMEM::TimeLabel::getTimeOfThis a first time to retrieve a reference. Store the returned unsigned integer.
+- when you need to know if the instance inheriting from ParaMEDMEM::TimeLabel has changed or not simply invoke ParaMEDMEM::TimeLabel::getTimeOfThis again and compare with the stored value.
+  If the value is different, the instance has changed, if not the instance has **not** changed.
+
+The virtual call to ParaMEDMEM::TimeLabel::updateTime change the behaviour of ParaMEDMEM::TimeLabel::getTimeOfThis it is a bug, so please notify the bug into the salome forum.
 
 */

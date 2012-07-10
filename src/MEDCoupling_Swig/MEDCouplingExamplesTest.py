@@ -163,6 +163,36 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.checkCoherency()
         pass
 
+    def testExampleCMeshStdBuild1(self):
+# ! [PySnippetCMeshStdBuild1_1]
+        XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] # 9 values along X
+        YCoords=[0.,0.1,0.37,0.45,0.47,0.49,1.007] # 7 values along Y
+        arrX=DataArrayDouble.New(XCoords)
+        arrX.setInfoOnComponent(0,"X [m]")
+        arrY=DataArrayDouble.New(YCoords)
+        arrY.setInfoOnComponent(0,"Y [m]")
+# ! [PySnippetCMeshStdBuild1_1]
+# ! [PySnippetCMeshStdBuild1_2]
+        mesh=MEDCouplingCMesh.New("My2D_CMesh")
+        mesh.setCoords(arrX,arrY)
+# ! [PySnippetCMeshStdBuild1_2]
+# ! [PySnippetCMeshStdBuild1_3]
+        self.failUnlessEqual(8*6,mesh.getNumberOfCells())
+        self.failUnlessEqual(9*7,mesh.getNumberOfNodes())
+        self.failUnlessEqual(2,mesh.getSpaceDimension())
+        self.failUnlessEqual(2,mesh.getMeshDimension())
+# ! [PySnippetCMeshStdBuild1_3]
+        mesh=MEDCouplingCMesh.New("My2D_CMesh")
+# ! [PySnippetCMeshStdBuild1_2bis]
+        mesh.setCoordsAt(0,arrX)
+        mesh.setCoordsAt(1,arrY)
+# ! [PySnippetCMeshStdBuild1_2bis]
+        self.failUnlessEqual(8*6,mesh.getNumberOfCells())
+        self.failUnlessEqual(9*7,mesh.getNumberOfNodes())
+        self.failUnlessEqual(2,mesh.getSpaceDimension())
+        self.failUnlessEqual(2,mesh.getMeshDimension())
+        pass
+
     def testExampleUMeshAdvBuild1(self):
 # ! [PySnippetUMeshAdvBuild1_1]
         coords=[-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
@@ -186,6 +216,121 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 # ! [PySnippetUMeshAdvBuild1_5]
         mesh.checkCoherency()
         pass
+
+    def testExampleDataArrayBuild1(self):
+# ! [PySnippetDataArrayBuild1_0]
+        dataDouble=[0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.]
+# ! [PySnippetDataArrayBuild1_0]
+# ! [PySnippetDataArrayBuild1_1]
+        arrayDouble=DataArrayDouble.New()
+        arrayDouble.setValues(dataDouble,5,3)# 5 tuples containing each 3 components
+# ! [PySnippetDataArrayBuild1_1]
+# ! [PySnippetDataArrayBuild1_1bis]
+        arrayDouble=DataArrayDouble.New(dataDouble,5,3)
+# ! [PySnippetDataArrayBuild1_1bis]
+# ! [PySnippetDataArrayBuild1_2]
+        dataInt=[0, 10, 20, 1, 11, 21, 2, 12, 22, 3, 13, 23, 4, 14, 24]
+# ! [PySnippetDataArrayBuild1_2]
+# ! [PySnippetDataArrayBuild1_3]
+        arrayInt=DataArrayInt.New()
+        arrayInt.setValues(dataInt,5,3)# 5 tuples containing each 3 components
+# ! [PySnippetDataArrayBuild1_3]
+# ! [PySnippetDataArrayBuild1_3bis]
+        arrayInt=DataArrayInt.New(dataInt,5,3)
+# ! [PySnippetDataArrayBuild1_3bis]
+        pass
+
+    def testExampleFieldDoubleBuild1(self):
+        XCoords=[-0.3,0.07,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
+        YCoords=[0.07,0.1,0.37,0.45,0.47,0.49,1.007] ; arrY=DataArrayDouble.New(YCoords)
+        mesh=MEDCouplingCMesh.New("My2D_CMesh")
+        mesh.setCoords(arrX,arrY)
+# ! [PySnippetFieldDoubleBuild1_1]
+        fieldOnCells=MEDCouplingFieldDouble.New(ON_CELLS,NO_TIME)
+        fieldOnCells.setName("MyTensorFieldOnCellNoTime")
+        fieldOnCells.setMesh(mesh)
+        array=DataArrayDouble.New()
+        array.alloc(fieldOnCells.getMesh().getNumberOfCells(),9) # Implicitely fieldOnCells will be a 9 components field.
+        array.fillWithValue(7.)
+        fieldOnCells.setArray(array)
+        # fieldOnCells is now usable
+        # ...
+# ! [PySnippetFieldDoubleBuild1_1]
+# ! [PySnippetFieldDoubleBuild1_2]
+        f1=mesh.fillFromAnalytic(ON_CELLS,1,"x*x+y*y*3+2.*x") # f1 is scalar
+        f2=mesh.fillFromAnalytic(ON_CELLS,1,"cos(x+y/x)") # f2 is scalar too
+        f2bis=mesh.fillFromAnalytic(ON_CELLS,2,"x*x*IVec+3*y*JVec") # f2bis is a vectors field
+        f3=f1+f2 # f3 scalar
+        f4=f3/f2 # f4 scalar
+        f2bis.applyFunc(1,"sqrt(x*x+y*y)") # f2bis becomes scalar
+        f5=f2bis*f4 # f5 scalar
+        pos1=[0.48,0.38]
+        res=f4.getValueOn(pos1) # f4 is scalar so the returned value is of size 1.
+        # ...
+# ! [PySnippetFieldDoubleBuild1_2]
+# ! [PySnippetFieldDoubleBuild1_3]
+# ! [PySnippetFieldDoubleBuild1_3]
+        pass
+
+    def testExampleFieldDoubleBuild2(self):
+        XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
+        YCoords=[0.,0.1,0.37,0.45,0.47,0.49,1.007] ; arrY=DataArrayDouble.New(YCoords)
+        mesh=MEDCouplingCMesh.New("My2D_CMesh")
+        mesh.setCoords(arrX,arrY)
+# ! [PySnippetFieldDoubleBuild2_1]
+        fieldOnNodes=MEDCouplingFieldDouble.New(ON_NODES,NO_TIME)
+        fieldOnNodes.setName("MyScalarFieldOnNodeNoTime")
+        fieldOnNodes.setMesh(mesh)
+        array=DataArrayDouble.New()
+        array.alloc(fieldOnNodes.getMesh().getNumberOfNodes(),1) # Implicitely fieldOnNodes will be a 1 component field.
+        array.fillWithValue(7.)
+        fieldOnNodes.setArray(array)
+        # fieldOnNodes is now usable
+        # ...
+# ! [PySnippetFieldDoubleBuild2_1]
+        pass
+
+    def testExampleFieldDoubleBuild3(self):
+        XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
+        YCoords=[0.,0.1,0.37,0.45,0.47,0.49,1.007] ; arrY=DataArrayDouble.New(YCoords)
+        mesh=MEDCouplingCMesh.New("My2D_CMesh")
+        mesh.setCoords(arrX,arrY)
+# ! [PySnippetFieldDoubleBuild3_1]
+        fieldOnCells=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
+        fieldOnCells.setName("MyTensorFieldOnCellNoTime")
+        fieldOnCells.setTimeUnit("ms") # Time unit is ms.
+        fieldOnCells.setTime(4.22,2,-1) # Time attached is 4.22 ms, iteration id is 2 and order id (or sub iteration id) is -1
+        fieldOnCells.setMesh(mesh)
+        array=DataArrayDouble.New()
+        array.alloc(fieldOnCells.getMesh().getNumberOfCells(),2) # Implicitely fieldOnCells will be a 2 components field.
+        array.fillWithValue(7.)
+        fieldOnCells.setArray(array)
+        # fieldOnCells is now usable
+        # ...
+# ! [PySnippetFieldDoubleBuild3_1]
+        pass
+
+    def testExampleFieldDoubleBuild4(self):
+        XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] ; arrX=DataArrayDouble.New(XCoords)
+        YCoords=[0.,0.1,0.37,0.45,0.47,0.49,1.007] ; arrY=DataArrayDouble.New(YCoords)
+        mesh=MEDCouplingCMesh.New("My2D_CMesh")
+        mesh.setCoords(arrX,arrY)
+# ! [PySnippetFieldDoubleBuild4_1]
+        fieldOnNodes=MEDCouplingFieldDouble.New(ON_NODES,CONST_ON_TIME_INTERVAL)
+        fieldOnNodes.setName("MyVecFieldOnNodeWithConstTime")
+        fieldOnNodes.setTimeUnit("ms") # Time unit is ms.
+        fieldOnNodes.setStartTime(4.22,2,-1)
+        fieldOnNodes.setEndTime(6.44,4,-1)# fieldOnNodes is defined in interval [4.22 ms,6.44 ms]
+        fieldOnNodes.setMesh(mesh)
+        array=DataArrayDouble.New()
+        array.alloc(fieldOnNodes.getMesh().getNumberOfNodes(),3) # Implicitely fieldOnNodes will be a 3 components field.
+        array.fillWithValue(7.)
+        fieldOnNodes.setArray(array)
+        # fieldOnNodes is now usable
+        # ...
+# ! [PySnippetFieldDoubleBuild4_1]
+        pass
+
     pass
 
 unittest.main()

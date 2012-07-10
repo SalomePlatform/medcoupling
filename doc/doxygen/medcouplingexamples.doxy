@@ -89,3 +89,73 @@ At this level mesh is usable. When this mesh is no more needed simply call decrR
 \snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_5
 
 */
+
+/*!
+\page medcouplingcppexamplesCmeshStdBuild1 <br><h1> Example of standard build of an cartesian mesh from scratch in C++ </h1>
+
+We are going to build a 2D cartesian mesh, constituted from 9 nodes along X axis, and 7 nodes along Y axis.
+
+Firstly retrieve for each direction the discretization and build a \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble instance" on the corresponding direction.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_1
+
+Then create ParaMEDMEM::MEDCouplingCMesh instance giving the 2 instances of \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" obtained above.
+
+There are 2 technics to get it.
+
+Either :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_2
+
+Or :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_2bis
+
+\c mesh is now available for use :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_3
+
+When this mesh is no more needed simply call decrRef to decrement its reference counter.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_4
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild1 <br><h1> Examples in C++ of standard build of a tensor field on cells with no time attached  </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild1_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild2 <br><h1> Examples in C++ of standard build of a scalar field on nodes with no time attached </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild2_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild3 <br><h1> Examples in C++ of standard build of a vector field on cells with with one time attached and no time interval </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild3_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild4 <br><h1> Examples in C++ of standard build of a vector field on nodes defined on a time interval with a constant value during this interval </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild4_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild5 <br><h1> Examples in C++ of operation that can be carried out on fields on cells </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild1_2
+
+The decrementation of ref counter should be carried out in CPlusPlus only ...
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild1_3
+
+*/

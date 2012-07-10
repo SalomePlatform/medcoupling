@@ -32,6 +32,7 @@ namespace ParaMEDMEM
   {
   public:
     static MEDCouplingCMesh *New();
+    static MEDCouplingCMesh *New(const char *meshName);
     MEDCouplingMesh *deepCpy() const;
     MEDCouplingCMesh *clone(bool recDeepCpy) const;
     void updateTime() const;
