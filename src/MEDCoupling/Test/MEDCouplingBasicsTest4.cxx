@@ -378,6 +378,8 @@ void MEDCouplingBasicsTest4::testApplyFuncThree1()
   for(int i=0;i<5;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],da2->getIJ(0,i),1e-12);
   da2->decrRef();
+  std::vector<std::string> vs2(4); vs2[0]="x"; vs2[1]="y"; vs2[2]="z"; vs2[3]="a";
+  CPPUNIT_ASSERT_THROW(da->applyFunc3(1,vs2,"x+a"),INTERP_KERNEL::Exception);
   f1->setArray(da);
   CPPUNIT_ASSERT_EQUAL(3,f1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());

@@ -2135,7 +2135,7 @@ DataArrayDouble *DataArrayDouble::applyFunc(int nbOfComp, const char *func) cons
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   std::vector<std::string> varsV(vars.begin(),vars.end());
-  expr.prepareExprEvaluation(varsV);
+  expr.prepareExprEvaluation(varsV,oldNbOfComp,nbOfComp);
   //
   DataArrayDouble *newArr=DataArrayDouble::New();
   int nbOfTuples=getNumberOfTuples();
@@ -2210,7 +2210,7 @@ DataArrayDouble *DataArrayDouble::applyFunc2(int nbOfComp, const char *func) con
       std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  expr.prepareExprEvaluation(getVarsOnComponent());
+  expr.prepareExprEvaluation(getVarsOnComponent(),oldNbOfComp,nbOfComp);
   //
   DataArrayDouble *newArr=DataArrayDouble::New();
   int nbOfTuples=getNumberOfTuples();
@@ -2254,7 +2254,7 @@ DataArrayDouble *DataArrayDouble::applyFunc3(int nbOfComp, const std::vector<std
       std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  expr.prepareExprEvaluation(varsOrder);
+  expr.prepareExprEvaluation(varsOrder,oldNbOfComp,nbOfComp);
   //
   DataArrayDouble *newArr=DataArrayDouble::New();
   int nbOfTuples=getNumberOfTuples();

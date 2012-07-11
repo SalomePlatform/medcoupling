@@ -92,7 +92,7 @@ void LeafExprVar::fillValue(Value *val) const throw(INTERP_KERNEL::Exception)
   val->setVarname(_fast_pos,_var_name);
 }
 
-void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars) const throw(INTERP_KERNEL::Exception)
+void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception)
 {
   std::vector<std::string>::const_iterator iter=std::find(vars.begin(),vars.end(),_var_name);
   if(iter==vars.end())
@@ -103,9 +103,25 @@ void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars) co
           std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss,", "));
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      return;
+      else
+        {
+          int relPos=-7-_fast_pos;
+          if(relPos>=targetNbOfCompo)
+            {
+              std::ostringstream oss; oss << "LeafExprVar::prepareExprEvaluation : Found recognized unitary vector \"" << _var_name << "\" which implies that component #" << relPos;
+              oss << " exists, but it is not the case component id should be in [0," << targetNbOfCompo << ") !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          else
+            return;
+        }
     }
   _fast_pos=(int)std::distance(vars.begin(),iter);
+  if(_fast_pos>=nbOfCompo)
+    {
+      std::ostringstream oss; oss << "LeafExprVar::prepareExprEvaluation : Found var \"" << _var_name << "\" on place " << _fast_pos << " whereas only must be in [0," << nbOfCompo << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
 void LeafExprVar::prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception)
@@ -275,17 +291,17 @@ void ExprParser::evaluateExpr(int szOfOutParam, const double *inParam, double *o
   delete res;
 }
 
-void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars) const throw(INTERP_KERNEL::Exception)
+void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception)
 {
   if(_leaf)
     {
       LeafExprVar *leafC=dynamic_cast<LeafExprVar *>(_leaf);
       if(leafC)
-        leafC->prepareExprEvaluation(vars);
+        leafC->prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
     }
   else
     for(std::list<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
-      (*iter).prepareExprEvaluation(vars);
+      (*iter).prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
 }
 
 void ExprParser::prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception)

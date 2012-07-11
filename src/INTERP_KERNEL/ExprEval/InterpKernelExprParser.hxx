@@ -67,7 +67,7 @@ namespace INTERP_KERNEL
     void compileX86_64(std::vector<std::string>& ass) const;
     void fillValue(Value *val) const throw(INTERP_KERNEL::Exception);
     std::string getVar() const { return _var_name; }
-    void prepareExprEvaluation(const std::vector<std::string>& vars) const throw(INTERP_KERNEL::Exception);
+    void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception);
     void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
     void replaceValues(const std::vector<double>& valuesInExpr) throw(INTERP_KERNEL::Exception);
     static bool isRecognizedKeyVar(const std::string& var, int& pos);
@@ -88,7 +88,7 @@ namespace INTERP_KERNEL
     bool isParsingSuccessfull() const { return _is_parsing_ok; }
     double evaluate() const throw(INTERP_KERNEL::Exception);
     DecompositionInUnitBase evaluateUnit() const throw(INTERP_KERNEL::Exception);
-    void prepareExprEvaluation(const std::vector<std::string>& vars) const throw(INTERP_KERNEL::Exception);
+    void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const throw(INTERP_KERNEL::Exception);
     void evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const throw(INTERP_KERNEL::Exception);
     void prepareExprEvaluationVec() const throw(INTERP_KERNEL::Exception);
     void getSetOfVars(std::set<std::string>& vars) const;

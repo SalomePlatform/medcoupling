@@ -5027,6 +5027,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         e.setCoordsAt(0,d);
         f=e.buildUnstructured();
         g=f.getCoords().applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
+        self.assertRaises(InterpKernelException,f.getCoords().applyFunc,2,"3.5*IVec+x/6*3.14159265359*KVec"); # KVec refers to component #2 and there is only 2 components !
         h=g.fromPolarToCart();
         f.setCoords(h);
         i=c.buildExtrudedMesh(f,1);
@@ -6892,6 +6893,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(5):
             self.assertAlmostEqual(expected1[i],da2.getIJ(0,i),12);
             pass
+        self.assertRaises(InterpKernelException, da.applyFunc3, 1, ["x","y","z","a"],"x+a")
         f1.setArray(da);
         self.assertEqual(3,f1.getNumberOfComponents());
         self.assertEqual(5,f1.getNumberOfTuples());
