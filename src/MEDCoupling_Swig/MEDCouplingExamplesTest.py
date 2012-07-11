@@ -39,26 +39,26 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         f2=f1.buildSubPart(part1)
 # ! [PySnippetFieldDoubleBuildSubPart1_2]
         f2.zipCoords()
-        self.failUnlessEqual(3,f2.getNumberOfTuples())
-        self.failUnlessEqual(2,f2.getNumberOfComponents())
+        self.assertEqual(3,f2.getNumberOfTuples())
+        self.assertEqual(2,f2.getNumberOfComponents())
         expected1=[5.,105.,4.,104.,7.,107.]
         for i in xrange(6):
             self.assertAlmostEqual(f2.getIJ(0,i),expected1[i],12)
             pass
-        self.failUnlessEqual(3,f2.getMesh().getNumberOfCells())
-        self.failUnlessEqual(6,f2.getMesh().getNumberOfNodes())
-        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension())
-        self.failUnlessEqual(2,f2.getMesh().getMeshDimension())
+        self.assertEqual(3,f2.getMesh().getNumberOfCells())
+        self.assertEqual(6,f2.getMesh().getNumberOfNodes())
+        self.assertEqual(2,f2.getMesh().getSpaceDimension())
+        self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.failUnlessEqual(13,m2C.getMeshLength())
+        self.assertEqual(13,m2C.getMeshLength())
         expected2=[0.2, -0.3, 0.7, -0.3, 0.2, 0.2, 0.7, 0.2, 0.2, 0.7, 0.7, 0.7]
         for i in xrange(12):
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
         expected3=[3,2,3,1,3,0,2,1,4,4,5,3,2]
-        self.failUnlessEqual(expected3,list(m2C.getNodalConnectivity().getValues()))
+        self.assertEqual(expected3,list(m2C.getNodalConnectivity().getValues()))
         expected4=[0,4,8,13]
-        self.failUnlessEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
+        self.assertEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
         # Test with field on nodes.
 # ! [PySnippetFieldDoubleBuildSubPart1_3]
         f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME)
@@ -73,67 +73,67 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         part2=[1,2]
         f2=f1.buildSubPart(part2)
 # ! [PySnippetFieldDoubleBuildSubPart1_4]
-        self.failUnlessEqual(4,f2.getNumberOfTuples())
-        self.failUnlessEqual(2,f2.getNumberOfComponents())
+        self.assertEqual(4,f2.getNumberOfTuples())
+        self.assertEqual(2,f2.getNumberOfComponents())
         expected5=[4.,104.,5.,105.,7.,107.,8.,108.]
         for i in xrange(8):
             self.assertAlmostEqual(f2.getIJ(0,i),expected5[i],12)
             pass
-        self.failUnlessEqual(2,f2.getMesh().getNumberOfCells())
-        self.failUnlessEqual(4,f2.getMesh().getNumberOfNodes())
-        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension())
-        self.failUnlessEqual(2,f2.getMesh().getMeshDimension())
+        self.assertEqual(2,f2.getMesh().getNumberOfCells())
+        self.assertEqual(4,f2.getMesh().getNumberOfNodes())
+        self.assertEqual(2,f2.getMesh().getSpaceDimension())
+        self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.failUnlessEqual(8,m2C.getMeshLength())
+        self.assertEqual(8,m2C.getMeshLength())
         for i in xrange(8):#8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
-        self.failUnlessEqual(expected3[:4],list(m2C.getNodalConnectivity().getValues())[4:])
-        self.failUnlessEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4])
-        self.failUnlessEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()))
+        self.assertEqual(expected3[:4],list(m2C.getNodalConnectivity().getValues())[4:])
+        self.assertEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4])
+        self.assertEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()))
         #idem previous because nodes of cell#4 are not fully present in part3
         part3=[1,2]
         arrr=DataArrayInt.New()
         arrr.setValues(part3,2,1)
         f2=f1.buildSubPart(arrr)
-        self.failUnlessEqual(4,f2.getNumberOfTuples())
-        self.failUnlessEqual(2,f2.getNumberOfComponents())
+        self.assertEqual(4,f2.getNumberOfTuples())
+        self.assertEqual(2,f2.getNumberOfComponents())
         for i in xrange(8):
             self.assertAlmostEqual(f2.getIJ(0,i),expected5[i],12)
             pass
-        self.failUnlessEqual(2,f2.getMesh().getNumberOfCells())
-        self.failUnlessEqual(4,f2.getMesh().getNumberOfNodes())
-        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension())
-        self.failUnlessEqual(2,f2.getMesh().getMeshDimension())
+        self.assertEqual(2,f2.getMesh().getNumberOfCells())
+        self.assertEqual(4,f2.getMesh().getNumberOfNodes())
+        self.assertEqual(2,f2.getMesh().getSpaceDimension())
+        self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.failUnlessEqual(8,m2C.getMeshLength())
+        self.assertEqual(8,m2C.getMeshLength())
         for i in xrange(8):#8 is not an error
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
-        self.failUnlessEqual(expected3[:4],list(m2C.getNodalConnectivity().getValues())[4:8])
-        self.failUnlessEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4])
-        self.failUnlessEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()))
+        self.assertEqual(expected3[:4],list(m2C.getNodalConnectivity().getValues())[4:8])
+        self.assertEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[:4])
+        self.assertEqual(expected4[:3],list(m2C.getNodalConnectivityIndex().getValues()))
         part4=[1,2,4]
         f2=f1.buildSubPart(part4)
-        self.failUnlessEqual(6,f2.getNumberOfTuples())
-        self.failUnlessEqual(2,f2.getNumberOfComponents())
+        self.assertEqual(6,f2.getNumberOfTuples())
+        self.assertEqual(2,f2.getNumberOfComponents())
         expected6=[4.,104.,5.,105.,7.,107.,8.,108.,10.,110.,11.,111.]
         for i in xrange(12):
             self.assertAlmostEqual(f2.getIJ(0,i),expected6[i],12)
             pass
-        self.failUnlessEqual(3,f2.getMesh().getNumberOfCells())
-        self.failUnlessEqual(6,f2.getMesh().getNumberOfNodes())
-        self.failUnlessEqual(2,f2.getMesh().getSpaceDimension())
-        self.failUnlessEqual(2,f2.getMesh().getMeshDimension())
+        self.assertEqual(3,f2.getMesh().getNumberOfCells())
+        self.assertEqual(6,f2.getMesh().getNumberOfNodes())
+        self.assertEqual(2,f2.getMesh().getSpaceDimension())
+        self.assertEqual(2,f2.getMesh().getMeshDimension())
         m2C=f2.getMesh()
-        self.failUnlessEqual(13,m2C.getMeshLength())
+        self.assertEqual(13,m2C.getMeshLength())
         for i in xrange(12):
             self.assertAlmostEqual(expected2[i],m2C.getCoords().getIJ(0,i),12)
             pass
-        self.failUnlessEqual(expected3[0:4],list(m2C.getNodalConnectivity().getValues())[4:8])
-        self.failUnlessEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[0:4])
-        self.failUnlessEqual(expected3[8:13],list(m2C.getNodalConnectivity().getValues())[8:13])
-        self.failUnlessEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
+        self.assertEqual(expected3[0:4],list(m2C.getNodalConnectivity().getValues())[4:8])
+        self.assertEqual(expected3[4:8],list(m2C.getNodalConnectivity().getValues())[0:4])
+        self.assertEqual(expected3[8:13],list(m2C.getNodalConnectivity().getValues())[8:13])
+        self.assertEqual(expected4,list(m2C.getNodalConnectivityIndex().getValues()))
         pass
 
     def testExampleUMeshStdBuild1(self):
@@ -177,20 +177,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh.setCoords(arrX,arrY)
 # ! [PySnippetCMeshStdBuild1_2]
 # ! [PySnippetCMeshStdBuild1_3]
-        self.failUnlessEqual(8*6,mesh.getNumberOfCells())
-        self.failUnlessEqual(9*7,mesh.getNumberOfNodes())
-        self.failUnlessEqual(2,mesh.getSpaceDimension())
-        self.failUnlessEqual(2,mesh.getMeshDimension())
+        self.assertEqual(8*6,mesh.getNumberOfCells())
+        self.assertEqual(9*7,mesh.getNumberOfNodes())
+        self.assertEqual(2,mesh.getSpaceDimension())
+        self.assertEqual(2,mesh.getMeshDimension())
 # ! [PySnippetCMeshStdBuild1_3]
         mesh=MEDCouplingCMesh.New("My2D_CMesh")
 # ! [PySnippetCMeshStdBuild1_2bis]
         mesh.setCoordsAt(0,arrX)
         mesh.setCoordsAt(1,arrY)
 # ! [PySnippetCMeshStdBuild1_2bis]
-        self.failUnlessEqual(8*6,mesh.getNumberOfCells())
-        self.failUnlessEqual(9*7,mesh.getNumberOfNodes())
-        self.failUnlessEqual(2,mesh.getSpaceDimension())
-        self.failUnlessEqual(2,mesh.getMeshDimension())
+        self.assertEqual(8*6,mesh.getNumberOfCells())
+        self.assertEqual(9*7,mesh.getNumberOfNodes())
+        self.assertEqual(2,mesh.getSpaceDimension())
+        self.assertEqual(2,mesh.getMeshDimension())
         pass
 
     def testExampleUMeshAdvBuild1(self):
@@ -329,6 +329,45 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         # fieldOnNodes is now usable
         # ...
 # ! [PySnippetFieldDoubleBuild4_1]
+        pass
+
+    def testExampleDataArrayApplyFunc1(self):
+# ! [PySnippetDataArrayApplyFunc1_1]
+        d=DataArrayDouble.New([1.,2.,11.,12.,21.,22.,31.,41.],4,2)
+        self.assertRaises(InterpKernelException,d.applyFunc,"x*y")
+# ! [PySnippetDataArrayApplyFunc1_1]
+# ! [PySnippetDataArrayApplyFunc1_2]
+        d=DataArrayDouble.New([1.,2.,11.,12.,21.,22.,31.,41.],4,2)
+        d1=d.applyFunc("smth*smth")
+        self.assertTrue(d1.isEqual(DataArrayDouble([1.,4.,121.,144.,441.,484.,961.,1681.],4,2),1e-12))
+# ! [PySnippetDataArrayApplyFunc1_2]
+# ! [PySnippetDataArrayApplyFunc1_3]
+        d2=d.applyFunc("smth*IVec+2*smth*JVec")
+        self.assertTrue(d2.isEqual(DataArrayDouble([1.,4.,11.,24.,21.,44.,31.,82.],4,2),1e-12))
+# ! [PySnippetDataArrayApplyFunc1_3]
+# ! [PySnippetDataArrayApplyFunc1_4]
+        dd=DataArrayDouble.New([1.,4.,3.,11.,144.,13.,21.,484.,23.,31.,1024.,33.],4,3)
+# ! [PySnippetDataArrayApplyFunc1_4]
+# ! [PySnippetDataArrayApplyFunc1_5]
+        dd1=dd.applyFunc(1,"f+sqrt(g)+h")
+        self.assertTrue(dd1.isEqual(DataArrayDouble([6.,36.,66.,96.],4,1),1e-12))
+# ! [PySnippetDataArrayApplyFunc1_5]
+# ! [PySnippetDataArrayApplyFunc1_6]
+        dd2=dd.applyFunc(1,"a+0.*b+c")
+        self.assertTrue(dd2.isEqual(DataArrayDouble([4.,24.,44.,64.],4,1),1e-12))
+# ! [PySnippetDataArrayApplyFunc1_6]
+# ! [PySnippetDataArrayApplyFunc1_7]
+        ddd=DataArrayDouble.New([1.,4.,3.,11.,144.,13.,21.,484.,23.,31.,1024.,33.],4,3)
+        ddd.setInfoOnComponents(["Y [m]","AA [m/s]","GG [MW]"])
+# ! [PySnippetDataArrayApplyFunc1_7]
+# ! [PySnippetDataArrayApplyFunc1_8]
+        ddd1=ddd.applyFunc2(1,"Y+GG")
+        self.assertTrue(ddd1.isEqual(DataArrayDouble([4.,24.,44.,64.],4,1),1e-12))
+# ! [PySnippetDataArrayApplyFunc1_8]
+# ! [PySnippetDataArrayApplyFunc1_9]
+        ddd1=ddd.applyFunc3(1,["X","Y","Z"],"X+Z")
+        self.assertTrue(ddd1.isEqual(DataArrayDouble([4.,24.,44.,64.],4,1),1e-12))
+# ! [PySnippetDataArrayApplyFunc1_9]
         pass
 
     pass

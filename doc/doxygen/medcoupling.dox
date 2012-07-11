@@ -498,6 +498,139 @@ Method in new to old mode that works on surjective applications :
 
 - \ref ParaMEDMEM::DataArrayDouble::selectByTupleId "DataArrayDouble::selectByTupleId"
 
+\section MEDCouplingArrayApplyFunc Application of a function on DataArrayDouble instances.
+
+This section is only dedicated for \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble instances".
+
+It is possible to apply to \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble instance" a function given by a string.
+
+There are different API for applyFunc* methods of \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble class".
+
+\subsection MEDCouplingArrayApplyFuncExpr Expressions supported
+
+In order to reduce as much as possible dependancies, a little dynamic formula interpretor has been developped into INTERP_KERNEL.
+This dynamic expression evaluator can deal the following exhaustive list :
+
+- +,-,*,^ (^ for exponent 3^2==9)
+- sin,cos,tan,sqrt,abs,exp,max,min,ln (neper logarithm), log (neper logarithm), log10 (decimal logarithm), 
+- >,<
+- if
+
+The expression evaluator is also sensitive to the following var pattern : IVec, JVec, KVec, LVec,... ,ZVec
+
+- IVec stands for unitary vector [1,0,0,0,...]
+- JVec stands for unitary vector [0,1,0,0,...]
+- KVec stands for unitary vector [0,0,1,0,...]
+- ...
+
+The dynamic expression evaluator works tuple by tuple through the *raw data* of DataArrayDouble instance.
+
+The principle of the dynamic expression evaluator is the following :
+
+- Given the input string a compilation tree is built whose leaves are either constants or variables.
+  At this phase only syntax errors are thrown.  
+\anchor MEDCouplingArrayApplyFuncExprA1
+- Then given the computed tree, a link phase is performed to accelerate evaluation. At this phase the incoherence between the number of
+  components and the number of variables are detected.
+
+- The given the preprocessed tree given an input tuple a preallocated tuple is fed with the result of the evaluation.
+  At this last phase only mathematical errors are thrown (division by 0, log(0), sqrt of a negative number ...)
+
+\subsection MEDCouplingArrayApplyFunc0 applyFunc method with only one parameter
+
+This method produces a newly allocated DataArrayDouble instance having exactly the same number of components **and** number of tuples than the instance on which the
+\ref ParaMEDMEM::DataArrayDouble::applyFunc(const char *) const applyFunc method is applied.
+
+**This method is useful when the evaluation expression do not need to consider the components of each tuple separately**.
+
+That's why this method of \ref ParaMEDMEM::DataArrayDouble::applyFunc(const char *) const applyFunc method with one parameter accepts at most only one variable.
+
+If it is not the case an exception is thrown as seen here :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_1
+
+Let's take a very simple example on a DataArrayDouble instance \c d having 4 tuples and 2 components.
+
+In the next example the expression contains only one variable : \c smth.
+So \c smth represent a tuple of size 2.
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_2
+
+As the example shows, the output \c d1 has 2 components as \c d.
+
+Whereas all the components of the input of \c d be not considered separetely, it is also, possible with \ref ParaMEDMEM::DataArrayDouble::applyFunc(const char *) const applyFunc method with one parameter
+to build an output having same number of components than input but where components in input are treated separetely.
+
+Let's build an example using DataArrayDouble instance \c d defined just above.
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_3
+
+In this example using IVec and JVec it is possible to differentiate output in component #0 and output in component #1 for DataArrayDouble instance \c d2.
+
+\subsection MEDCouplingArrayApplyFunc1 applyFunc method with only two parameters
+
+This method alse returns a newly allocated DataArrayDouble instance having the same number of tuples than the DataArrayDouble instance on which \ref ParaMEDMEM::DataArrayDouble::applyFunc(int,const char *) const applyFunc method is called, but the contrary to pervious \ref MEDCouplingArrayApplyFunc0 "applyFunc with one parameter version" here the number of components is set by the user.
+
+The big difference with \ref MEDCouplingArrayApplyFunc0 "applyFunc method with one parameter" seen above is that here components of tuples are treated separately.
+
+The method that implements it is \ref ParaMEDMEM::DataArrayDouble::applyFunc(int,const char *) const here.
+
+Here the number of variables appearing in the expression should be equal at most to the number of component of the DataArrayDouble instance on which \ref ParaMEDMEM::DataArrayDouble::applyFunc(int,const char *) const applyFunc method is called.
+
+Let's consider the following DataArrayDouble having 4 tuples with 3 components called dd.
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_4
+
+If you intend to create a new DataArrayDouble instance called \c dd1 having only one component that is the result of the sum of first component le square root of the second component and the thrid component
+the invokation should be something like this :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_5
+
+\warning In the expression \c "f+sqrt(g)+h", there are 3 variables \c {"g","h","f"}. As seen \ref MEDCouplingArrayApplyFuncExprA1 "in link phase in expression evaluator" it is needed to match a variable to
+the component id. The strategy of expression evaluator is the following. Sort ascendingly variables using their names and affect component id following this sorted list. It leads to :
+- \c f will be attached to component #0 of \c dd
+- \c g will be attached to component #1 of \c dd
+- \c h will be attached to component #2 of \c dd
+
+Considering the previous warning, let's try to perform an application of function to compute in a DataArrayDouble instance called \c dd2 starting by adding component #0 and component #2
+of \c dd.
+\nThe expression \c "a+c" will add component #0 to component #1 as seen in warning section !!!! It can appear silly, but this strategy has been chosen in order to support different set of variables.
+\n \ref ParaMEDMEM::DataArrayDouble::applyFunc2 "applyFunc2" and \ref ParaMEDMEM::DataArrayDouble::applyFunc3 "applyFunc3" methods have been developped to remedy to that feature that can be surprising.
+\n These two methods are explained respectively \ref MEDCouplingArrayApplyFunc2 "here for applyFunc2" and \ref MEDCouplingArrayApplyFunc3 "here for applyFunc3".
+
+Whatever it is possible to find a workaround using \ref ParaMEDMEM::DataArrayDouble::applyFunc(int,const char *) const applyFunc with 2 parameters.
+\n Here is a solution to compute \c dd2 :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_6
+
+\subsection MEDCouplingArrayApplyFunc2 applyFunc2 method
+
+The method that implements it is \ref ParaMEDMEM::DataArrayDouble::applyFunc2 here.
+
+This method is very close to \ref MEDCouplingArrayApplyFunc1 "applyFunc method with only two parameters".
+
+The only different is the mapping between variables found in expression and tuple id. Rather than using rank in string sorting as \ref MEDCouplingArrayApplyFunc1 "applyFunc method with only two parameters uses" here the component information are considered.
+
+Let's consider DataArrayDouble instance \c ddd constituted with 4 tuples containing each 3 components. The components are named respectively \c {"Y","AA","GG"} with following different units attached on them.
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_7
+
+To compute the sum of the first component (component #0) and the third component (component #2) simply do that :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_8
+
+\subsection MEDCouplingArrayApplyFunc3 applyFunc3 method
+
+The method that implements it is \ref ParaMEDMEM::DataArrayDouble::applyFunc3 here.
+
+This method is very close to \ref MEDCouplingArrayApplyFunc1 "applyFunc method with only two parameters" and \ref MEDCouplingArrayApplyFunc2 "applyFunc2".
+
+The only different is the mapping between variables found in expression and tuple id. Rather than using rank in string sorting as in \ref MEDCouplingArrayApplyFunc1 "applyFunc method with only two parameters uses" or the component information as in \ref MEDCouplingArrayApplyFunc2 "applyFunc2", here an explicit vector is given in input.
+
+Let's consider DataArrayDouble instance \c ddd constituted with 4 tuples containing each 3 components. To add first component (component #0) and the third component (component #2) simply do that :
+
+\snippet MEDCouplingExamplesTest.py PySnippetDataArrayApplyFunc1_9
+
 */
 
 /*!
