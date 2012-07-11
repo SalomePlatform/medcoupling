@@ -230,7 +230,7 @@ void ExprEvalInterpTest::testInterpreter2()
   double xyValue[2]={1.,3.};
   double res1;
   std::vector<std::string> vars; vars.push_back("x"); vars.push_back("y");
-  expr1.prepareExprEvaluation(vars);
+  expr1.prepareExprEvaluation(vars,2,1);
   expr1.evaluateExpr(1,xyValue,&res1);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(33.833333333333336,res1,1e-13);
   xyValue[0]=-2.;
@@ -247,7 +247,7 @@ void ExprEvalInterpTest::testInterpreter2()
   CPPUNIT_ASSERT_EQUAL(4,(int)res.size());
   expected.insert("x"); expected.insert("y"); expected.insert("IVec"); expected.insert("JVec");
   CPPUNIT_ASSERT(std::equal(res.begin(),res.end(),expected.begin()));
-  expr2.prepareExprEvaluation(vars);
+  expr2.prepareExprEvaluation(vars,2,2);
   expr2.evaluateExpr(2,xyValue,res2);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-3.9172477460694637,res2[0],1e-14);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.49026082134069943,res2[1],1e-14);
@@ -480,7 +480,7 @@ void ExprEvalInterpTest::testInterpreter4()
   varsV[1] = "y";
   varsV[2] = "z";
   expr.parse();
-  expr.prepareExprEvaluation(varsV);
+  expr.prepareExprEvaluation(varsV,3,1);
   double result;
   expr.evaluateExpr(1,vals, &result);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(1.2,result,1e-12);
