@@ -397,7 +397,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const int *con
           int tmp2[3];
           if(tryToArrangeOppositeFace(conn,lgth,3,tri_0,tri_1,5,tmp2))
             {
-              std::copy(conn,conn+4,retConn);
+              std::copy(tri_0,tri_0+3,retConn);
               std::copy(tmp2,tmp2+3,retConn+3);
               retLgth=6;
               return INTERP_KERNEL::NORM_PENTA6;

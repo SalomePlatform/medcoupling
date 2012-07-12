@@ -62,6 +62,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testComputeTupleIdsToSelectFromCellIds1 );
     CPPUNIT_TEST( testComputeSkin1 );
     CPPUNIT_TEST( testUMeshSetPartOfMySelf2 );
+    CPPUNIT_TEST( testUnPolyze3 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -91,6 +92,7 @@ namespace ParaMEDMEM
     void testComputeTupleIdsToSelectFromCellIds1();
     void testComputeSkin1();
     void testUMeshSetPartOfMySelf2();
+    void testUnPolyze3();
   };
 }
 

@@ -10090,6 +10090,32 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual([3,4,5],m.getAllTypes())
         pass
 
+    def testUnPolyze3(self):
+        coord=[0.0,0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5,-0.5,0.0,0.5,0.5,-0.5,-0.5,0.5,0.5,-0.5,0.5]
+        conn=[1,2,5,4,-1,4,3,0,1,-1,2,0,3,5,-1,0,2,1,-1,4,5,3]
+        m=MEDCouplingUMesh.New("a mesh",3);
+        m.allocateCells(1);
+        m.insertNextCell(NORM_POLYHED,22,conn[0:22])
+        m.finishInsertingCells();
+        coords=DataArrayDouble(coord,6,3);
+        m.setCoords(coords);
+        m.checkCoherency();
+        #
+        vol=m.getMeasureField(ON_CELLS);
+        self.assertEqual(1,vol.getArray().getNumberOfTuples());
+        self.assertAlmostEqual(0.5,vol.getArray().getIJ(0,0),12)
+        #
+        m.unPolyze();
+        #
+        self.assertEqual([NORM_PENTA6],m.getAllTypes())
+        self.assertTrue(DataArrayInt([0,7]).isEqual(m.getNodalConnectivityIndex()))
+        self.assertTrue(DataArrayInt([16,0,2,1,3,5,4]).isEqual(m.getNodalConnectivity()))
+        #
+        vol=m.getMeasureField(ON_CELLS);
+        self.assertEqual(1,vol.getArray().getNumberOfTuples());
+        self.assertAlmostEqual(0.5,vol.getArray().getIJ(0,0),12)
+        pass
+
     def setUp(self):
         pass
     pass

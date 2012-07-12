@@ -1451,3 +1451,43 @@ s.clear(); s.insert(INTERP_KERNEL::NORM_TRI3); s.insert(INTERP_KERNEL::NORM_QUAD
   part->decrRef();
   m->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testUnPolyze3()
+{
+  const double coord[18]={0.0,0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5,-0.5,0.0,0.5,0.5,-0.5,-0.5,0.5,0.5,-0.5,0.5};
+  const int conn[22]={1,2,5,4,-1,4,3,0,1,-1,2,0,3,5,-1,0,2,1,-1,4,5,3};
+  MEDCouplingUMesh *m=MEDCouplingUMesh::New("a mesh",3);
+  m->allocateCells(1);
+  m->insertNextCell(INTERP_KERNEL::NORM_POLYHED,22,conn);
+  m->finishInsertingCells();
+  DataArrayDouble *coords=DataArrayDouble::New();
+  coords->alloc(6,3);
+  std::copy(coord,coord+18,coords->getPointer());
+  m->setCoords(coords);
+  coords->decrRef();
+  m->checkCoherency();
+  //
+  MEDCouplingFieldDouble *vol=m->getMeasureField(ON_CELLS);
+  CPPUNIT_ASSERT_EQUAL(1,vol->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,vol->getArray()->getIJ(0,0),1e-12);
+  vol->decrRef();
+  //
+  m->unPolyze();
+  CPPUNIT_ASSERT_EQUAL(1,m->getNumberOfCells());
+  std::set<INTERP_KERNEL::NormalizedCellType> s; s.insert(INTERP_KERNEL::NORM_PENTA6);
+  CPPUNIT_ASSERT(s==m->getAllTypes());
+  //
+  const int expected1[2]={0,7};
+  const int expected2[7]={16,0,2,1,3,5,4};
+  CPPUNIT_ASSERT_EQUAL(2,m->getNodalConnectivityIndex()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected1,expected1+2,m->getNodalConnectivityIndex()->getConstPointer()));
+  CPPUNIT_ASSERT_EQUAL(7,m->getNodalConnectivity()->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(expected2,expected2+7,m->getNodalConnectivity()->getConstPointer()));
+  //
+  vol=m->getMeasureField(ON_CELLS);
+  CPPUNIT_ASSERT_EQUAL(1,vol->getArray()->getNumberOfTuples());
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5,vol->getArray()->getIJ(0,0),1e-12);
+  vol->decrRef();
+  //
+  m->decrRef();
+}
