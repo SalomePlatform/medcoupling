@@ -6792,3 +6792,11 @@ namespace ParaMEDMEM
       }
   };
 }
+
+%pythoncode %{
+import os
+__filename=os.environ.get('PYTHONSTARTUP')
+if __filename and os.path.isfile(__filename):
+  execfile(__filename)
+  pass
+%}
