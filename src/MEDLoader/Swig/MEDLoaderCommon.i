@@ -887,6 +887,7 @@ namespace ParaMEDMEM
     std::string getName();
     void setName(const char *name);
     std::string getMeshName();
+    void setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const;
     bool isDealingTS(int iteration, int order) const;
     const std::vector<std::string>& getInfo() const;
@@ -1035,6 +1036,12 @@ namespace ParaMEDMEM
            PyTuple_SetItem(ret,1,elt);
            return ret;
          }
+         
+         bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
+           return self->changeMeshNames(modifTab);
+         }
        }
   };
 
@@ -1103,6 +1110,7 @@ namespace ParaMEDMEM
     std::string getName() const;
     void setName(const char *name);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
+    void setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const;
     %extend
        {
@@ -1356,6 +1364,12 @@ namespace ParaMEDMEM
                throw INTERP_KERNEL::Exception("MEDFileFieldMultiTSWithoutDAS::eraseTimeStepIds : unexpected input array type recognized !");
              }
          }
+
+         bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
+           return self->changeMeshNames(modifTab);
+         }
        }
   };
 
@@ -1498,6 +1512,7 @@ namespace ParaMEDMEM
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
     //
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
     void pushField(MEDFileFieldMultiTS *field) throw(INTERP_KERNEL::Exception);
@@ -1546,6 +1561,12 @@ namespace ParaMEDMEM
          {
            return self->iterator();
          }
+         
+         bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
+           return self->changeMeshNames(modifTab);
+         }
        }
   };
 
@@ -1558,6 +1579,8 @@ namespace ParaMEDMEM
     void setMeshes(MEDFileMeshes *meshes) throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
+    //
+    bool changeMeshName(const char *oldMeshName, const char *newMeshName) throw(INTERP_KERNEL::Exception);
     //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     %extend
@@ -1591,6 +1614,12 @@ namespace ParaMEDMEM
            if(ret)
              ret->incrRef();
            return ret;
+         }
+
+         bool changeMeshNames(PyObject *li) throw(INTERP_KERNEL::Exception)
+         {
+           std::vector< std::pair<std::string,std::string> > modifTab=convertVecPairStStFromPy(li);
+           return self->changeMeshNames(modifTab);
          }
        }
   };

@@ -96,6 +96,26 @@ std::string MEDFileData::simpleRepr() const
   return oss.str();
 }
 
+bool MEDFileData::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  MEDFileFields *fields=_fields;
+  if(fields)
+    ret=fields->changeMeshNames(modifTab) || ret;
+  MEDFileMeshes *meshes=_meshes;
+  if(meshes)
+    ret=meshes->changeNames(modifTab) || ret;
+  return ret;
+}
+
+bool MEDFileData::changeMeshName(const char *oldMeshName, const char *newMeshName) throw(INTERP_KERNEL::Exception)
+{
+  std::string oldName(oldMeshName);
+  std::vector< std::pair<std::string,std::string> > v(1);
+  v[0].first=oldName; v[0].second=newMeshName;
+  return changeMeshNames(v);
+}
+
 MEDFileData::MEDFileData()
 {
 }

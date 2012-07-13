@@ -1439,6 +1439,19 @@ std::vector<std::string> MEDFileFieldPerMesh::getLocsReallyUsedMulti() const
   return ret;
 }
 
+bool MEDFileFieldPerMesh::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< std::pair<std::string,std::string> >::const_iterator it=modifTab.begin();it!=modifTab.end();it++)
+    {
+      if((*it).first==_mesh_name)
+        {
+          _mesh_name=(*it).second;
+          return true;
+        }
+    }
+  return false;
+}
+
 void MEDFileFieldPerMesh::changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
 {
   for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::iterator it=_field_pm_pt.begin();it!=_field_pm_pt.end();it++)
@@ -2689,6 +2702,26 @@ std::string MEDFileField1TSWithoutDAS::getMeshName() const throw(INTERP_KERNEL::
   return _field_per_mesh[0]->getMeshName();
 }
 
+void MEDFileField1TSWithoutDAS::setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception)
+{
+  std::string oldName(getMeshName());
+  std::vector< std::pair<std::string,std::string> > v(1);
+  v[0].first=oldName; v[0].second=newMeshName;
+  changeMeshNames(v);
+}
+
+bool MEDFileField1TSWithoutDAS::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      MEDFileFieldPerMesh *cur(*it);
+      if(cur)
+        ret=cur->changeMeshNames(modifTab) || ret;
+    }
+  return ret;
+}
+
 int MEDFileField1TSWithoutDAS::getMeshIteration() const throw(INTERP_KERNEL::Exception)
 {
   if(_field_per_mesh.empty())
@@ -3639,6 +3672,26 @@ std::string MEDFileFieldMultiTSWithoutDAS::getMeshName() const throw(INTERP_KERN
   return _time_steps[0]->getMeshName();
 }
 
+void MEDFileFieldMultiTSWithoutDAS::setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception)
+{
+  std::string oldName(getMeshName());
+  std::vector< std::pair<std::string,std::string> > v(1);
+  v[0].first=oldName; v[0].second=newMeshName;
+  changeMeshNames(v);
+}
+
+bool MEDFileFieldMultiTSWithoutDAS::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      MEDFileField1TSWithoutDAS *cur(*it);
+      if(cur)
+        ret=cur->changeMeshNames(modifTab) || ret;
+    }
+  return ret;
+}
+
 std::string MEDFileFieldMultiTSWithoutDAS::getDtUnit() const throw(INTERP_KERNEL::Exception)
 {
   if(_time_steps.empty())
@@ -4376,6 +4429,18 @@ std::vector<std::string> MEDFileFields::getFieldsNames() const throw(INTERP_KERN
   return ret;
 }
 
+std::vector<std::string> MEDFileFields::getMeshesNames() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> ret;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      const MEDFileFieldMultiTSWithoutDAS *cur(*it);
+      if(cur)
+        ret.push_back(cur->getMeshName());
+    }
+  return ret;
+}
+
 std::string MEDFileFields::simpleRepr() const
 {
   std::ostringstream oss;
@@ -4582,6 +4647,18 @@ void MEDFileFields::destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception)
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   _fields.erase(_fields.begin()+i);
+}
+
+bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      MEDFileFieldMultiTSWithoutDAS *cur(*it);
+      if(cur)
+        ret=cur->changeMeshNames(modifTab) || ret;
+    }
+  return ret;
 }
 
 MEDFileFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const throw(INTERP_KERNEL::Exception)

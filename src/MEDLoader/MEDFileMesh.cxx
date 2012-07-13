@@ -174,6 +174,19 @@ void MEDFileMesh::clearNonDiscrAttributes() const
   
 }
 
+bool MEDFileMesh::changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  for(std::vector< std::pair<std::string,std::string> >::const_iterator it=modifTab.begin();it!=modifTab.end();it++)
+    {
+      if((*it).first==_name)
+        {
+          _name=(*it).second;
+          return true;
+        }
+    }
+  return false;
+}
+
 void MEDFileMesh::copyFamGrpMapsFrom(const MEDFileMesh& other)
 {
   _groups=other._groups;
@@ -2814,6 +2827,26 @@ const char *MEDFileMeshMultiTS::getName() const throw(INTERP_KERNEL::Exception)
   return _mesh_one_ts[0]->getName();
 }
 
+void MEDFileMeshMultiTS::setName(const char *newMeshName) throw(INTERP_KERNEL::Exception)
+{
+  std::string oldName(getName());
+  std::vector< std::pair<std::string,std::string> > v(1);
+  v[0].first=oldName; v[0].second=newMeshName;
+  changeNames(v);
+}
+
+bool MEDFileMeshMultiTS::changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMesh> >::iterator it=_mesh_one_ts.begin();it!=_mesh_one_ts.end();it++)
+    {
+      MEDFileMesh *cur(*it);
+      if(cur)
+        ret=cur->changeNames(modifTab) || ret;
+    }
+  return ret;
+}
+
 MEDFileMesh *MEDFileMeshMultiTS::getOneTimeStep() const throw(INTERP_KERNEL::Exception)
 {
   if(_mesh_one_ts.empty())
@@ -2970,6 +3003,18 @@ std::vector<std::string> MEDFileMeshes::getMeshesNames() const throw(INTERP_KERN
           std::ostringstream oss; oss << "MEDFileMeshes::getMeshesNames : At rank #" << i << " mesh is not defined !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
+    }
+  return ret;
+}
+
+bool MEDFileMeshes::changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileMeshMultiTS> >::iterator it=_meshes.begin();it!=_meshes.end();it++)
+    {
+      MEDFileMeshMultiTS *cur(*it);
+      if(cur)
+        ret=cur->changeNames(modifTab) || ret;
     }
   return ret;
 }

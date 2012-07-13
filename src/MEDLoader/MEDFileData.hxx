@@ -42,6 +42,9 @@ namespace ParaMEDMEM
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     //
+    bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    bool changeMeshName(const char *oldMeshName, const char *newMeshName) throw(INTERP_KERNEL::Exception);
+    //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
   private:
     MEDFileData();

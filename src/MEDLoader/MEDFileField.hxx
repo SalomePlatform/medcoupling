@@ -225,6 +225,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocsReallyUsed() const;
     std::vector<std::string> getPflsReallyUsedMulti() const;
     std::vector<std::string> getLocsReallyUsedMulti() const;
+    bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDFileFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
@@ -385,6 +386,8 @@ namespace ParaMEDMEM
     void simpleRepr(int bkOffset, std::ostream& oss, int f1tsId) const;
     const std::string& getDtUnit() const { return _dt_unit; }
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
+    void setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
+    bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     int getMeshIteration() const throw(INTERP_KERNEL::Exception);
     int getMeshOrder() const throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const;
@@ -503,6 +506,8 @@ namespace ParaMEDMEM
     void simpleRepr(int bkOffset, std::ostream& oss, int fmtsId) const;
     std::vector< std::pair<int,int> > getTimeSteps(std::vector<double>& ret1) const throw(INTERP_KERNEL::Exception);
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
+    void setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
+    bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
@@ -528,7 +533,7 @@ namespace ParaMEDMEM
     std::vector<std::string> _infos;
     //! only useable on reading. 0 is for float, 1 for int32, 2 for int64
     mutable int _field_type;
-    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS>  > _time_steps;
+    std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS> > _time_steps;
   };
 
   class MEDFileFieldMultiTSIterator;
@@ -601,6 +606,7 @@ namespace ParaMEDMEM
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     int getNumberOfFields() const;
     std::vector<std::string> getFieldsNames() const throw(INTERP_KERNEL::Exception);
+    std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     void simpleRepr(int bkOffset, std::ostream& oss) const;
     //
@@ -611,6 +617,7 @@ namespace ParaMEDMEM
     MEDFileFieldMultiTS *getFieldWithName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
     MEDFileFieldsIterator *iterator() throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
+    bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
   private:
     int getPosFromFieldName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed() const;

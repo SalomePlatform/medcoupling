@@ -36,6 +36,7 @@ namespace ParaMEDMEM
     virtual bool isEqual(const MEDFileMesh *other, double eps, std::string& what) const;
     virtual void clearNonDiscrAttributes() const;
     void setName(const char *name) { _name=name; }
+    bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     const char *getName() const { return _name.c_str(); }
     void setUnivName(const char *name) { _univ_name=name; }
     const char *getUnivName() const { return _univ_name.c_str(); }
@@ -270,6 +271,8 @@ namespace ParaMEDMEM
     static MEDFileMeshMultiTS *New(const char *fileName) throw(INTERP_KERNEL::Exception);
     static MEDFileMeshMultiTS *New(const char *fileName, const char *mName) throw(INTERP_KERNEL::Exception);
     const char *getName() const throw(INTERP_KERNEL::Exception);
+    void setName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
+    bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getOneTimeStep() const throw(INTERP_KERNEL::Exception);
     void write(med_idt fid) const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -299,6 +302,7 @@ namespace ParaMEDMEM
     MEDFileMesh *getMeshAtPos(int i) const throw(INTERP_KERNEL::Exception);
     MEDFileMesh *getMeshWithName(const char *mname) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getMeshesNames() const throw(INTERP_KERNEL::Exception);
+    bool changeNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
     //
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
     void pushMesh(MEDFileMesh *mesh) throw(INTERP_KERNEL::Exception);
