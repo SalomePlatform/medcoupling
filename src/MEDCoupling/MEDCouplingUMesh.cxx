@@ -540,6 +540,9 @@ int MEDCouplingOrientationSensitiveNbrer(int id, unsigned nb, const INTERP_KERNE
  *
  * Reversely 'revDesc' and 'revDescIndx' are the reverse descending connectivity. These 2 arrays tell for each cell in returned mesh, to wich cell in 'this' it refers.
  * For a cell with a cellid d in returned p-1 mesh it is shared by the following cells in 'this' [revDesc+revDescIndx[d],revDesc+revDescIndx[d+1])
+ *
+ * \warning This method returns a mesh whose geometric type order in are \b not sorted.
+ * In view of the MED file writing, a renumbering of cells in returned mesh (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception)
 {
@@ -552,7 +555,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayInt *de
  * This method differs from MEDCouplingUMesh::buildDescendingConnectivity method in that 'desc' is in different format.
  * This method is more precise because it returns in descending connectivity giving the direction. If value is positive the n-1 dim element is taken in the same direction,
  * if it is in the opposite direction it is retrieved negative. So the problem is for elemt #0 in C convention. That's why this method is the only one that retrieves 
- * an array in relative "FORTRAN" mode. 
+ * an array in relative "FORTRAN" mode.
+ *
+ * \warning This method returns a mesh whose geometric type order in are \b not sorted.
+ * In view of the MED file writing, a renumbering of cells in returned mesh (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception)
 {
@@ -756,6 +762,9 @@ struct MEDCouplingAccVisit
  * In this case if meshDim==2 the mesh is still valid and only cells treated before throw will be converted into polygon.
  * If mesh==3, after throw the mesh is \b unconsistent !
  * This method is above all designed to test more extensively algorithms able to deal with polygons/polyhedra.
+ * 
+ * \warning This method modifies can modify significantly the geometric type order in \a this.
+ * In view of the MED file writing, a renumbering of cells in \a this (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
 void MEDCouplingUMesh::convertToPolyTypes(const int *cellIdsToConvertBg, const int *cellIdsToConvertEnd)
 {
@@ -928,6 +937,8 @@ void MEDCouplingUMesh::convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception
  * This method is the opposite of ParaMEDMEM::MEDCouplingUMesh::convertToPolyTypes method.
  * The aim is to take all polygons or polyhedrons cell and to try to traduce them into classical cells.
  * 
+ * \warning This method modifies can modify significantly the geometric type order in \a this.
+ * In view of the MED file writing, a renumbering of cells in \a this (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
 void MEDCouplingUMesh::unPolyze()
 {
@@ -1414,6 +1425,9 @@ void MEDCouplingUMesh::findCommonCellsBase(int compType, std::vector<int>& res, 
  *   - 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes constituting connectivity. This is the laziest policy. This policy
  * can be used for users not sensitive to orientation of cell
  * @return the correspondance array old to new.
+ * 
+ * \warning This method modifies can modify significantly the geometric type order in \a this.
+ * In view of the MED file writing, a renumbering of cells in \a this (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
 DataArrayInt *MEDCouplingUMesh::zipConnectivityTraducer(int compType) throw(INTERP_KERNEL::Exception)
 {
@@ -1640,6 +1654,9 @@ void MEDCouplingUMesh::tryToShareSameCoordsPermute(const MEDCouplingPointSet& ot
  * 
  * \param keepCoords that specifies if you want or not to keep coords as this or zip it (see ParaMEDMEM::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
  * \return a newly allocated
+ * 
+ * \warning This method modifies can generate an unstructured mesh whose cells are not sorted by geometric type order.
+ * In view of the MED file writing, a renumbering of cells of returned unstructured mesh (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, int step, bool keepCoords) const throw(INTERP_KERNEL::Exception)
 {
@@ -1667,6 +1684,9 @@ MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf2(int start, int end, in
  * @param begin begin of array containing the cell ids to keep.
  * @param end end of array of cell ids to keep. \b WARNING end param is \b not included ! Idem STL standard definitions.
  * @param keepCoords that specifies if you want or not to keep coords as this or zip it (see ParaMEDMEM::MEDCouplingUMesh::zipCoords). If true zipCoords is \b NOT called, if false, zipCoords is called.
+ * 
+ * \warning This method modifies can generate an unstructured mesh whose cells are not sorted by geometric type order.
+ * In view of the MED file writing, a renumbering of cells of returned unstructured mesh (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
 MEDCouplingPointSet *MEDCouplingUMesh::buildPartOfMySelf(const int *begin, const int *end, bool keepCoords) const
 {
