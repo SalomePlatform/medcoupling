@@ -46,7 +46,7 @@ For beginners in \ref medcoupling "MEDCoupling" world, it is advisable to read t
 A mesh has a the following properties :
 
 - name
-- a dimension (called mesh dimension) and only one (it implies that \b all cells constituting
+- **a dimension (called mesh dimension) and only one** (it implies that \b all cells constituting
 mesh have the same dimension)
 - a space dimension (relative to coordinates)
 - a number of nodes
