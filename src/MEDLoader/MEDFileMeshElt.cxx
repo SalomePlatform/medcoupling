@@ -98,7 +98,7 @@ void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int
   _fam=DataArrayInt::New();
   _fam->alloc(curNbOfElem,1);
   med_bool changement,transformation;
-  INTERP_KERNEL::AutoPtr<char> noms=new char[MED_SNAME_SIZE*curNbOfElem+1];
+  INTERP_KERNEL::AutoPtr<char> noms=new char[MED_SNAME_SIZE*(std::size_t)curNbOfElem+1];
   MEDmeshElementConnectivityRd(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,connTab);
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
