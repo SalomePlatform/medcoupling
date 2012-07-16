@@ -33,6 +33,7 @@
 #include "MEDPARTITIONER_UserGraph.hxx"
 #include "MEDPARTITIONER_Utils.hxx" 
 
+#include "MEDLoaderBase.hxx"
 #include "MEDLoader.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
@@ -1005,9 +1006,11 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
           xml.replace(xml.find("$meshName"),9,meshNames[0]);
-          std::string nameFileXml=myfile;
+          std::string nameFileXml(myfile);
           nameFileXml.replace(nameFileXml.find(".med"),4,".xml");
-          nameFileXml="medpartitioner_"+nameFileXml;
+          std::string nameFileXmlDN,nameFileXmlBN;
+          MEDLoaderBase::getDirAndBaseName(nameFileXml,nameFileXmlDN,nameFileXmlBN);
+          nameFileXml=MEDLoaderBase::joinPath(nameFileXmlDN,"medpartitioner_"+nameFileXmlBN);
           if (_domain_selector->rank()==0) //only on to write it
             {
               std::ofstream f(nameFileXml.c_str());
@@ -1026,7 +1029,7 @@ MEDPARTITIONER::MeshCollection::MeshCollection(const std::string& filename, Para
             }
           catch(...)
             {  // Handle all exceptions
-              if ( _driver ) delete _driver; _driver=0;
+              delete _driver; _driver=0;
               throw INTERP_KERNEL::Exception("file medpartitioner_xxx.xml does not comply with any recognized format");
             }
         }

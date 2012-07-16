@@ -52,6 +52,38 @@ char *MEDLoaderBase::buildEmptyString(int lgth)
   return ret;
 }
 
+void MEDLoaderBase::getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t pos=fullName.find_last_of(getPathSep());
+  if(pos!=std::string::npos)
+    {
+      dirName=fullName.substr(0,pos);
+      baseName=fullName.substr(pos+1);
+    }
+  else
+    {
+      dirName.clear();
+      baseName=fullName;
+    }
+}
+
+std::string MEDLoaderBase::joinPath(const std::string& dirName, const std::string& baseName) throw(INTERP_KERNEL::Exception)
+{
+  if(!dirName.empty())
+    return dirName+getPathSep()+baseName;
+  else
+    return baseName;
+}
+
+std::string MEDLoaderBase::getPathSep() throw(INTERP_KERNEL::Exception)
+{
+#ifndef WIN32
+  return std::string("/");
+#else
+  return std::string("\\");
+#endif
+}
+
 std::string MEDLoaderBase::buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth)
 {
   std::string ret(buildStringFromFortran(name,nameLgth));

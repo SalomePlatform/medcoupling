@@ -30,6 +30,9 @@ class MEDLOADER_EXPORT MEDLoaderBase
 public:
   static int getStatusOfFile(const char *fileName);
   static char *buildEmptyString(int lgth);
+  static void getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName) throw(INTERP_KERNEL::Exception);
+  static std::string getPathSep() throw(INTERP_KERNEL::Exception);
+  static std::string joinPath(const std::string& dirName, const std::string& baseName) throw(INTERP_KERNEL::Exception);
   static std::string buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth);
   static void splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit);
   static void strip(std::string& s);
