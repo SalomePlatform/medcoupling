@@ -6412,21 +6412,61 @@ namespace ParaMEDMEM
 
       MEDCouplingFieldDouble *buildSubPart(PyObject *li) const throw(INTERP_KERNEL::Exception)
       {
-        void *da=0;
-        int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
-        if (!SWIG_IsOK(res1))
+        int sw;
+        int singleVal;
+        std::vector<int> multiVal;
+        std::pair<int, std::pair<int,int> > slic;
+        ParaMEDMEM::DataArrayInt *daIntTyypp=0;
+        const MEDCouplingMesh *mesh=self->getMesh();
+        if(!mesh)
+          throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : field lies on a null mesh !");
+        int nbc=mesh->getNumberOfCells();
+        convertObjToPossibleCpp2(li,nbc,sw,singleVal,multiVal,slic,daIntTyypp);
+        switch(sw)
           {
-            int size;
-            INTERP_KERNEL::AutoPtr<int> tmp=convertPyToNewIntArr2(li,&size);
-            return self->buildSubPart(tmp,((const int *)tmp)+size);
-          }
-        else
-          {
-            DataArrayInt *da2=reinterpret_cast< DataArrayInt * >(da);
-            if(!da2)
-              throw INTERP_KERNEL::Exception("Not null DataArrayInt instance expected !");
-            da2->checkAllocated();
-            return self->buildSubPart(da2->getConstPointer(),da2->getConstPointer()+da2->getNbOfElems());
+          case 1:
+            {
+              if(singleVal>=nbc)
+                {
+                  std::ostringstream oss;
+                  oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+              if(singleVal>=0)
+                return self->buildSubPart(&singleVal,&singleVal+1);
+              else
+                {
+                  if(nbc+singleVal>0)
+                    {
+                      int tmp=nbc+singleVal;
+                      return self->buildSubPart(&tmp,&tmp+1);
+                    }
+                  else
+                    {
+                      std::ostringstream oss;
+                      oss << "Requesting for cell id " << singleVal << " having only " << nbc << " cells !";
+                      throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    }
+                }
+            }
+          case 2:
+            {
+              return self->buildSubPart(&multiVal[0],&multiVal[0]+multiVal.size());
+            }
+          case 3:
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rg=DataArrayInt::Range(slic.first,slic.second.first,slic.second.second);
+              return self->buildSubPart(rg->begin(),rg->end());
+            }
+          case 4:
+            {
+              if(!daIntTyypp)
+                throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : null instance has been given in input !");
+              daIntTyypp->checkAllocated();
+              return self->buildSubPart(daIntTyypp->begin(),daIntTyypp->end());
+            }
+          default:
+            throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::buildSubPart : unrecognized type in input ! Possibilities are : int, list or tuple of int DataArrayInt instance !");
           }
       }
 
