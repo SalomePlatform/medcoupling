@@ -172,7 +172,7 @@ std::string MEDCouplingFieldDouble::advancedRepr() const
   if(getArray())
     ret << "FieldDouble default array has " << getArray()->getNumberOfComponents() << " components and " << getArray()->getNumberOfTuples() << " tuples.\n";
   if(_mesh)
-    ret << "Mesh support information :\n__________________________\n" << _mesh->simpleRepr();
+    ret << "Mesh support information :\n__________________________\n" << _mesh->advancedRepr();
   else
     ret << "Mesh support information : No mesh set !\n";
   std::vector<DataArrayDouble *> arrays;
