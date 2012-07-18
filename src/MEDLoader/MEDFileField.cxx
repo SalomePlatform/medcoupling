@@ -1689,7 +1689,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishField2(TypeOfField type, cons
   if(da->isIdentity())
     {
       int nbOfTuples=da->getNumberOfTuples();
-      if(nbOfTuples==ComputeNbOfElems(glob,type,geoTypes,dads,locs))
+      if(nbOfTuples==mesh->getNumberOfCells())
         return finishField(type,glob,dads,locs,mesh,isPfl);
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=finishField(type,glob,dads,locs,mesh,isPfl);

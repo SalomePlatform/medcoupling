@@ -1316,6 +1316,37 @@ class MEDLoaderTest(unittest.TestCase):
         m=MEDCouplingMultiFields([])
         m=MEDCouplingFieldOverTime([])
         pass
+
+    # This is a non regression test. When a field lies partially on a mesh but fully on one of its geometric type.
+    def testBugSemiPartialField(self):
+        fname="Pyfile46.med"
+        m=MEDLoaderDataForTest.build2DMesh_3()
+        m=m[:10] ; m.setName("mesh")
+        f=m.getMeasureField(ON_CELLS)
+        f=f.buildNewTimeReprFromThis(ONE_TIME,False)
+        f.setTime(5.5,3,4)
+        f.setName("SemiPartialField")
+        #
+        f1=f[:6] ; f1.getMesh().setName(m.getName())
+        f2=f[6:] ; f2.getMesh().setName(m.getName())
+        #
+        mm=MEDFileUMesh.New()
+        mm.setMeshAtLevel(0,m)
+        ff=MEDFileField1TS.New()
+        ff.setFieldProfile(f1,mm,0,DataArrayInt.Range(0,6,1)) # no name on profile -> normally it is an error but in this special case
+        mm.write(fname,2)
+        ff.write(fname,0)
+        #
+        ff2=MEDFileField1TS.New(fname,f.getName(),f.getTime()[1],f.getTime()[2])
+        fread=ff2.getFieldOnMeshAtLevel(ON_CELLS,0,mm)
+        fread2=ff2.getFieldAtLevel(ON_CELLS,0)
+        #
+        fread.checkCoherency()
+        fread2.checkCoherency()
+        self.assertTrue(fread.isEqual(f1,1e-12,1e-12))
+        self.assertTrue(fread2.isEqual(f1,1e-12,1e-12))
+        pass
+
     pass
 
 unittest.main()
