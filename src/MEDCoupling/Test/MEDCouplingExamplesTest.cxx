@@ -328,6 +328,10 @@ void CppSnippetFieldDoubleBuild1()
   // fieldOnCells is no more usefully here : release it
   fieldOnCells->decrRef();
   //! [CppSnippetFieldDoubleBuild1_1]
+  arrX=ParaMEDMEM::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
+  arrY=ParaMEDMEM::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  mesh=ParaMEDMEM::MEDCouplingCMesh::New("My2D_CMesh");
+  mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
   //! [CppSnippetFieldDoubleBuild1_2]
   ParaMEDMEM::MEDCouplingFieldDouble *f1=mesh->fillFromAnalytic(ParaMEDMEM::ON_CELLS,1,"x*x+y*y*3+2.*x");//f1 is scalar
   ParaMEDMEM::MEDCouplingFieldDouble *f2=mesh->fillFromAnalytic(ParaMEDMEM::ON_CELLS,1,"cos(x+y/x)");//f2 is scalar too
@@ -341,6 +345,7 @@ void CppSnippetFieldDoubleBuild1()
   f4->getValueOn(pos1,&res);//f4 is scalar so the returned value is of size 1.
   // ...
   //! [CppSnippetFieldDoubleBuild1_2]
+  mesh->decrRef();
   //! [CppSnippetFieldDoubleBuild1_3]
   // f1, f2, f2bis, f3, f4, f5 are no more usefully here : release them
   f1->decrRef();
