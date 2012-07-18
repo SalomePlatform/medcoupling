@@ -118,13 +118,39 @@ void DataArray::copyPartOfStringInfoFrom2(const std::vector<int>& compoIds, cons
     setInfoOnComponent(compoIds[i],other.getInfoOnComponent((int)i).c_str());
 }
 
+bool DataArray::areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const
+{
+  std::ostringstream oss;
+  if(_nb_of_tuples!=other._nb_of_tuples)
+    {
+      oss << "Number of tuples of DataArray mismatch : this number of tuples=" << _nb_of_tuples << " other number of tuples=" << other._nb_of_tuples;
+      reason=oss.str();
+      return false;
+    }
+  if(_name!=other._name)
+    {
+      oss << "Names DataArray mismatch : this name=\"" << _name << " other name=\"" << other._name << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  if(_info_on_compo!=other._info_on_compo)
+    {
+      oss << "Components DataArray mismatch : \nThis components=";
+      for(std::vector<std::string>::const_iterator it=_info_on_compo.begin();it!=_info_on_compo.end();it++)
+        oss << "\"" << *it << "\",";
+      oss << "\nOther components=";
+      for(std::vector<std::string>::const_iterator it=other._info_on_compo.begin();it!=other._info_on_compo.end();it++)
+        oss << "\"" << *it << "\",";
+      reason=oss.str();
+      return false;
+    }
+  return true;
+}
+
 bool DataArray::areInfoEquals(const DataArray& other) const
 {
-  if(_nb_of_tuples!=other._nb_of_tuples)
-    return false;
-  if(_name!=other._name)
-    return false;
-  return _info_on_compo==other._info_on_compo;
+  std::string tmp;
+  return areInfoEqualsIfNotWhy(other,tmp);
 }
 
 void DataArray::reprWithoutNameStream(std::ostream& stream) const
@@ -685,16 +711,23 @@ void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
+bool DataArrayDouble::isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const
+{
+  if(!areInfoEqualsIfNotWhy(other,reason))
+    return false;
+  return _mem.isEqual(other._mem,prec,reason);
+}
+
 bool DataArrayDouble::isEqual(const DataArrayDouble& other, double prec) const
 {
-  if(!areInfoEquals(other))
-    return false;
-  return _mem.isEqual(other._mem,prec);
+  std::string tmp;
+  return isEqualIfNotWhy(other,prec,tmp);
 }
 
 bool DataArrayDouble::isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const
 {
-  return _mem.isEqual(other._mem,prec);
+  std::string tmp;
+  return _mem.isEqual(other._mem,prec,tmp);
 }
 
 void DataArrayDouble::reAlloc(int nbOfTuples) throw(INTERP_KERNEL::Exception)
@@ -3457,16 +3490,23 @@ DataArrayInt *DataArrayInt::invertArrayN2O2O2N(int oldNbOfElem) const
   return ret;
 }
 
+bool DataArrayInt::isEqualIfNotWhy(const DataArrayInt& other, std::string& reason) const
+{
+  if(!areInfoEqualsIfNotWhy(other,reason))
+    return false;
+  return _mem.isEqual(other._mem,0,reason);
+}
+
 bool DataArrayInt::isEqual(const DataArrayInt& other) const
 {
-  if(!areInfoEquals(other))
-    return false;
-  return _mem.isEqual(other._mem,0);
+  std::string tmp;
+  return isEqualIfNotWhy(other,tmp);
 }
 
 bool DataArrayInt::isEqualWithoutConsideringStr(const DataArrayInt& other) const
 {
-  return _mem.isEqual(other._mem,0);
+  std::string tmp;
+  return _mem.isEqual(other._mem,0,tmp);
 }
 
 bool DataArrayInt::isEqualWithoutConsideringStrAndOrder(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception)

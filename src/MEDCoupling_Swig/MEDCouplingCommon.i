@@ -624,7 +624,19 @@ namespace ParaMEDMEM
            return ret;
          }
 
-        PyObject *buildPart(PyObject *li) const throw(INTERP_KERNEL::Exception)
+         PyObject *isEqualIfNotWhy(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+         {
+           std::string ret1;
+           bool ret0=self->isEqualIfNotWhy(other,prec,ret1);
+           PyObject *ret=PyTuple_New(2);
+           PyObject *ret0Py=ret0?Py_True:Py_False;
+           Py_XINCREF(ret0Py);
+           PyTuple_SetItem(ret,0,ret0Py);
+           PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+           return ret;
+         }
+
+         PyObject *buildPart(PyObject *li) const throw(INTERP_KERNEL::Exception)
          {
            void *da=0;
            int res1=SWIG_ConvertPtr(li,&da,SWIGTYPE_p_ParaMEDMEM__DataArrayInt, 0 |  0 );
@@ -2744,6 +2756,18 @@ namespace ParaMEDMEM
      return convertDblArrToPyList(vals,self->getNbOfElems());
    }
 
+   PyObject *isEqualIfNotWhy(const DataArrayDouble& other, double prec) const throw(INTERP_KERNEL::Exception)
+   {
+     std::string ret1;
+     bool ret0=self->isEqualIfNotWhy(other,prec,ret1);
+     PyObject *ret=PyTuple_New(2);
+     PyObject *ret0Py=ret0?Py_True:Py_False;
+     Py_XINCREF(ret0Py);
+     PyTuple_SetItem(ret,0,ret0Py);
+     PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+     return ret;
+   }
+
    PyObject *getValuesAsTuple() throw(INTERP_KERNEL::Exception)
    {
      const double *vals=self->getPointer();
@@ -4387,6 +4411,18 @@ namespace ParaMEDMEM
      return convertIntArrToPyList(vals,self->getNbOfElems());
    }
 
+   PyObject *isEqualIfNotWhy(const DataArrayInt& other, double prec) const throw(INTERP_KERNEL::Exception)
+   {
+     std::string ret1;
+     bool ret0=self->isEqualIfNotWhy(other,ret1);
+     PyObject *ret=PyTuple_New(2);
+     PyObject *ret0Py=ret0?Py_True:Py_False;
+     Py_XINCREF(ret0Py);
+     PyTuple_SetItem(ret,0,ret0Py);
+     PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+     return ret;
+   }
+
    PyObject *getValuesAsTuple() throw(INTERP_KERNEL::Exception)
    {
      const int *vals=self->getPointer();
@@ -5963,6 +5999,18 @@ namespace ParaMEDMEM
         if(ret1)
           ret1->incrRef();
         return convertMesh(ret1, SWIG_POINTER_OWN | 0 );
+      }
+
+      PyObject *isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception)
+      {
+        std::string ret1;
+        bool ret0=self->isEqualIfNotWhy(other,meshPrec,valsPrec,ret1);
+        PyObject *ret=PyTuple_New(2);
+        PyObject *ret0Py=ret0?Py_True:Py_False;
+        Py_XINCREF(ret0Py);
+        PyTuple_SetItem(ret,0,ret0Py);
+        PyTuple_SetItem(ret,1,PyString_FromString(ret1.c_str()));
+        return ret;
       }
 
       PyObject *buildSubMeshData(PyObject *li) const throw(INTERP_KERNEL::Exception)

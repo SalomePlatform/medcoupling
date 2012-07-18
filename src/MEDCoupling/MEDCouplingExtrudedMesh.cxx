@@ -152,21 +152,40 @@ MEDCouplingExtrudedMesh *MEDCouplingExtrudedMesh::clone(bool recDeepCpy) const
   return new MEDCouplingExtrudedMesh(*this,recDeepCpy);
 }
 
-bool MEDCouplingExtrudedMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+bool MEDCouplingExtrudedMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingExtrudedMesh::isEqualIfNotWhy : input other pointer is null !");
   const MEDCouplingExtrudedMesh *otherC=dynamic_cast<const MEDCouplingExtrudedMesh *>(other);
+  std::ostringstream oss;
   if(!otherC)
+    {
+      reason="mesh given in input is not castable in MEDCouplingExtrudedMesh !";
+      return false;
+    }
+  if(!MEDCouplingMesh::isEqualIfNotWhy(other,prec,reason))
     return false;
-  if(!MEDCouplingMesh::isEqual(other,prec))
-    return false;
-  if(!_mesh2D->isEqual(otherC->_mesh2D,prec))
-    return false;
-  if(!_mesh1D->isEqual(otherC->_mesh1D,prec))
-    return false;
-  if(!_mesh3D_ids->isEqual(*otherC->_mesh3D_ids))
-    return false;
+  if(!_mesh2D->isEqualIfNotWhy(otherC->_mesh2D,prec,reason))
+    {
+      reason.insert(0,"Mesh2D unstructured meshes differ : ");
+      return false;
+    }
+  if(!_mesh1D->isEqualIfNotWhy(otherC->_mesh1D,prec,reason))
+    {
+      reason.insert(0,"Mesh1D unstructured meshes differ : ");
+      return false;
+    }
+  if(!_mesh3D_ids->isEqualIfNotWhy(*otherC->_mesh3D_ids,reason))
+    {
+      reason.insert(0,"Mesh3D ids DataArrayInt instances differ : ");
+      return false;
+    }
   if(_cell_2D_id!=otherC->_cell_2D_id)
-    return false;
+    {
+      oss << "Cell 2D id of the two extruded mesh differ : this = " << _cell_2D_id << " other = " <<  otherC->_cell_2D_id;
+      reason=oss.str();
+      return false;
+    }
   return true;
 }
 

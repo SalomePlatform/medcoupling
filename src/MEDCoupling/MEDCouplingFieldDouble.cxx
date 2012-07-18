@@ -190,15 +190,23 @@ std::string MEDCouplingFieldDouble::advancedRepr() const
   return ret.str();
 }
 
-bool MEDCouplingFieldDouble::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+bool MEDCouplingFieldDouble::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::isEqualIfNotWhy : other instance is NULL !");
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
+    {
+      reason="field given in input is not castable in MEDCouplingFieldDouble !";
+      return false;
+    }
+  if(!MEDCouplingField::isEqualIfNotWhy(other,meshPrec,valsPrec,reason))
     return false;
-  if(!MEDCouplingField::isEqual(other,meshPrec,valsPrec))
-    return false;
-  if(!_time_discr->isEqual(otherC->_time_discr,valsPrec))
-    return false;
+  if(!_time_discr->isEqualIfNotWhy(otherC->_time_discr,valsPrec,reason))
+    {
+      reason.insert(0,"In FieldDouble time discretizations differ :");
+      return false;
+    }
   return true;
 }
 
@@ -237,12 +245,13 @@ bool MEDCouplingFieldDouble::areCompatibleForMerge(const MEDCouplingField *other
  */
 bool MEDCouplingFieldDouble::areStrictlyCompatible(const MEDCouplingField *other) const
 {
+  std::string tmp;
   if(!MEDCouplingField::areStrictlyCompatible(other))
     return false;
   const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
   if(!otherC)
     return false;
-  if(!_time_discr->areStrictlyCompatible(otherC->_time_discr))
+  if(!_time_discr->areStrictlyCompatible(otherC->_time_discr,tmp))
     return false;
   return true;
 }

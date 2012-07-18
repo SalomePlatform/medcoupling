@@ -104,16 +104,28 @@ bool MEDCouplingTimeDiscretization::areCompatible(const MEDCouplingTimeDiscretiz
   return true;
 }
 
-bool MEDCouplingTimeDiscretization::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingTimeDiscretization::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
 {
+  std::ostringstream oss; oss.precision(15);
   if(_time_unit!=other->_time_unit)
-    return false;
+    {
+      oss << "Field discretizations differ : this time unit = \"" << _time_unit << "\" and other time unit = \"" << other->_time_unit << "\" !";
+      reason=oss.str();
+      return false;
+    }
   if(std::fabs(_time_tolerance-other->_time_tolerance)>1.e-16)
-    return false;
+    {
+      oss << "Field discretizations differ : this time tolerance = \"" << _time_tolerance << "\" and other time tolerance = \"" << other->_time_tolerance << "\" !";
+      reason=oss.str();
+      return false;
+    }
   if(_array==0 && other->_array==0)
     return true;
   if(_array==0 || other->_array==0)
-    return false;
+    {
+      reason="Field discretizations differ : Only one timediscretization between the two this and other has a DataArrayDouble for values defined";
+      return false;
+    }
   if(_array->getNumberOfComponents()!=other->_array->getNumberOfComponents())
     return false;
   if(_array->getNumberOfTuples()!=other->_array->getNumberOfTuples())
@@ -165,18 +177,25 @@ bool MEDCouplingTimeDiscretization::areStrictlyCompatibleForDiv(const MEDCouplin
   return true;
 }
 
-bool MEDCouplingTimeDiscretization::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+bool MEDCouplingTimeDiscretization::isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const
 {
-  if(!areStrictlyCompatible(other))
+  if(!areStrictlyCompatible(other,reason))
     return false;
   if(_array==other->_array)
     return true;
-  return _array->isEqual(*other->_array,prec);
+  return _array->isEqualIfNotWhy(*other->_array,prec,reason);
+}
+
+bool MEDCouplingTimeDiscretization::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+{
+  std::string reason;
+  return isEqualIfNotWhy(other,prec,reason);
 }
 
 bool MEDCouplingTimeDiscretization::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const
 {
-  if(!areStrictlyCompatible(other))
+  std::string tmp;
+  if(!areStrictlyCompatible(other,tmp))
     return false;
   if(_array==other->_array)
     return true;
@@ -801,12 +820,15 @@ bool MEDCouplingNoTimeLabel::areCompatible(const MEDCouplingTimeDiscretization *
   return otherC!=0;
 }
 
-bool MEDCouplingNoTimeLabel::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingNoTimeLabel::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
 {
-  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other))
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
   const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
-  return otherC!=0;
+  bool ret=otherC!=0;
+  if(!ret)
+    reason.insert(0,"time discretization of this is NO_TIME, other has a different time discretization.");
+  return ret;
 }
 
 bool MEDCouplingNoTimeLabel::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
@@ -833,12 +855,15 @@ bool MEDCouplingNoTimeLabel::areCompatibleForMeld(const MEDCouplingTimeDiscretiz
   return otherC!=0;
 }
 
-bool MEDCouplingNoTimeLabel::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+bool MEDCouplingNoTimeLabel::isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const
 {
   const MEDCouplingNoTimeLabel *otherC=dynamic_cast<const MEDCouplingNoTimeLabel *>(other);
   if(!otherC)
-    return false;
-  return MEDCouplingTimeDiscretization::isEqual(other,prec);
+    {
+      reason="This has time discretization NO_TIME, other not.";
+      return false;
+    }
+  return MEDCouplingTimeDiscretization::isEqualIfNotWhy(other,prec,reason);
 }
 
 bool MEDCouplingNoTimeLabel::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const
@@ -1211,12 +1236,15 @@ bool MEDCouplingWithTimeStep::areCompatible(const MEDCouplingTimeDiscretization 
   return otherC!=0;
 }
 
-bool MEDCouplingWithTimeStep::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingWithTimeStep::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
 {
-  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other))
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
   const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
-  return otherC!=0;
+  bool ret=otherC!=0;
+  if(!ret)
+    reason.insert(0,"time discretization of this is ONE_TIME, other has a different time discretization.");
+  return ret;
 }
 
 bool MEDCouplingWithTimeStep::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
@@ -1243,18 +1271,34 @@ bool MEDCouplingWithTimeStep::areCompatibleForMeld(const MEDCouplingTimeDiscreti
   return otherC!=0;
 }
 
-bool MEDCouplingWithTimeStep::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+bool MEDCouplingWithTimeStep::isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const
 {
   const MEDCouplingWithTimeStep *otherC=dynamic_cast<const MEDCouplingWithTimeStep *>(other);
+  std::ostringstream oss; oss.precision(15);
   if(!otherC)
-    return false;
+    {
+      reason="This has time discretization ONE_TIME, other not.";
+      return false;
+    }
   if(_iteration!=otherC->_iteration)
-    return false;
+    {
+      oss << "iterations differ. this iteration=" << _iteration << " other iteration=" << otherC->_iteration;
+      reason=oss.str();
+      return false;
+    }
   if(_order!=otherC->_order)
-    return false;
+    {
+      oss << "orders differ. this order=" << _order << " other order=" << otherC->_order;
+      reason=oss.str();
+      return false;
+    }
   if(std::fabs(_time-otherC->_time)>_time_tolerance)
-    return false;
-  return MEDCouplingTimeDiscretization::isEqual(other,prec);
+    {
+      oss << "times differ. this time=" << _time << " other time=" << otherC->_time;
+      reason=oss.str();
+      return false;
+    }
+  return MEDCouplingTimeDiscretization::isEqualIfNotWhy(other,prec,reason);
 }
 
 bool MEDCouplingWithTimeStep::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const
@@ -1647,12 +1691,15 @@ bool MEDCouplingConstOnTimeInterval::areCompatible(const MEDCouplingTimeDiscreti
   return otherC!=0;
 }
 
-bool MEDCouplingConstOnTimeInterval::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingConstOnTimeInterval::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
 {
-  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other))
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
   const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
-  return otherC!=0;
+  bool ret=otherC!=0;
+  if(!ret)
+    reason.insert(0,"time discretization of this is CONST_ON_TIME_INTERVAL, other has a different time discretization.");
+  return ret;
 }
 
 bool MEDCouplingConstOnTimeInterval::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const
@@ -1679,24 +1726,52 @@ bool MEDCouplingConstOnTimeInterval::areCompatibleForMeld(const MEDCouplingTimeD
   return otherC!=0;
 }
 
-bool MEDCouplingConstOnTimeInterval::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+bool MEDCouplingConstOnTimeInterval::isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const
 {
   const MEDCouplingConstOnTimeInterval *otherC=dynamic_cast<const MEDCouplingConstOnTimeInterval *>(other);
+  std::ostringstream oss; oss.precision(15);
   if(!otherC)
-    return false;
+    {
+      reason="This has time discretization CONST_ON_TIME_INTERVAL, other not.";
+      return false;
+    }
   if(_start_iteration!=otherC->_start_iteration)
-    return false;
+    {
+      oss << "start iterations differ. this start iteration=" << _start_iteration << " other start iteration=" << otherC->_start_iteration;
+      reason=oss.str();
+      return false;
+    }
   if(_start_order!=otherC->_start_order)
-    return false;
+    {
+      oss << "start orders differ. this start order=" << _start_order << " other start order=" << otherC->_start_order;
+      reason=oss.str();
+      return false;
+    }
   if(std::fabs(_start_time-otherC->_start_time)>_time_tolerance)
-    return false;
+    {
+      oss << "start times differ. this start time=" << _start_time << " other start time=" << otherC->_start_time;
+      reason=oss.str();
+      return false;
+    }
   if(_end_iteration!=otherC->_end_iteration)
-    return false;
+    {
+      oss << "end iterations differ. this end iteration=" << _end_iteration << " other end iteration=" << otherC->_end_iteration;
+      reason=oss.str();
+      return false;
+    }
   if(_end_order!=otherC->_end_order)
-    return false;
+    {
+      oss << "end orders differ. this end order=" << _end_order << " other end order=" << otherC->_end_order;
+      reason=oss.str();
+      return false;
+    }
   if(std::fabs(_end_time-otherC->_end_time)>_time_tolerance)
-    return false;
-  return MEDCouplingTimeDiscretization::isEqual(other,prec);
+    {
+      oss << "end times differ. this end time=" << _end_time << " other end time=" << otherC->_end_time;
+      reason=oss.str();
+      return false;
+    }
+  return MEDCouplingTimeDiscretization::isEqualIfNotWhy(other,prec,reason);
 }
 
 bool MEDCouplingConstOnTimeInterval::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const
@@ -2008,27 +2083,55 @@ void MEDCouplingTwoTimeSteps::checkCoherency() const throw(INTERP_KERNEL::Except
     throw INTERP_KERNEL::Exception("The number of tuples mismatch between the start and the end arrays !");
 }
 
-bool MEDCouplingTwoTimeSteps::isEqual(const MEDCouplingTimeDiscretization *other, double prec) const
+bool MEDCouplingTwoTimeSteps::isEqualIfNotWhy(const MEDCouplingTimeDiscretization *other, double prec, std::string& reason) const
 {
+  std::ostringstream oss;
   const MEDCouplingTwoTimeSteps *otherC=dynamic_cast<const MEDCouplingTwoTimeSteps *>(other);
   if(!otherC)
-    return false;
-  if(_start_iteration!=otherC->_start_iteration)
-    return false;
-  if(_end_iteration!=otherC->_end_iteration)
-    return false;
-  if(_start_order!=otherC->_start_order)
-    return false;
-  if(_end_order!=otherC->_end_order)
-    return false;
-  if(std::fabs(_start_time-otherC->_start_time)>_time_tolerance)
-    return false;
-  if(std::fabs(_end_time-otherC->_end_time)>_time_tolerance)
-    return false;
-  if(_end_array!=otherC->_end_array)
-    if(!_end_array->isEqual(*otherC->_end_array,prec))
+    {
+      reason="This has time discretization LINEAR_TIME, other not.";
       return false;
-  return MEDCouplingTimeDiscretization::isEqual(other,prec);
+    }
+  if(_start_iteration!=otherC->_start_iteration)
+    {
+      oss << "start iterations differ. this start iteration=" << _start_iteration << " other start iteration=" << otherC->_start_iteration;
+      reason=oss.str();
+      return false;
+    }
+  if(_start_order!=otherC->_start_order)
+    {
+      oss << "start orders differ. this start order=" << _start_order << " other start order=" << otherC->_start_order;
+      reason=oss.str();
+      return false;
+    }
+  if(std::fabs(_start_time-otherC->_start_time)>_time_tolerance)
+    {
+      oss << "start times differ. this start time=" << _start_time << " other start time=" << otherC->_start_time;
+      reason=oss.str();
+      return false;
+    }
+  if(_end_iteration!=otherC->_end_iteration)
+    {
+      oss << "end iterations differ. this end iteration=" << _end_iteration << " other end iteration=" << otherC->_end_iteration;
+      reason=oss.str();
+      return false;
+    }
+  if(_end_order!=otherC->_end_order)
+    {
+      oss << "end orders differ. this end order=" << _end_order << " other end order=" << otherC->_end_order;
+      reason=oss.str();
+      return false;
+    }
+  if(std::fabs(_end_time-otherC->_end_time)>_time_tolerance)
+    {
+      oss << "end times differ. this end time=" << _end_time << " other end time=" << otherC->_end_time;
+      reason=oss.str();
+      return false;
+    }
+  if(_end_array!=otherC->_end_array)
+    if(!_end_array->isEqualIfNotWhy(*otherC->_end_array,prec,reason))
+      return false;
+  return MEDCouplingTimeDiscretization::isEqualIfNotWhy(other,prec,reason);
 }
 
 bool MEDCouplingTwoTimeSteps::isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretization *other, double prec) const
@@ -2275,12 +2378,15 @@ bool MEDCouplingLinearTime::areCompatible(const MEDCouplingTimeDiscretization *o
   return true;
 }
 
-bool MEDCouplingLinearTime::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other) const
+bool MEDCouplingLinearTime::areStrictlyCompatible(const MEDCouplingTimeDiscretization *other, std::string& reason) const
 {
-  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other))
+  if(!MEDCouplingTimeDiscretization::areStrictlyCompatible(other,reason))
     return false;
   const MEDCouplingLinearTime *otherC=dynamic_cast<const MEDCouplingLinearTime *>(other);
-  return otherC!=0;
+  bool ret=otherC!=0;
+  if(!ret)
+    reason.insert(0,"time discretization of this is LINEAR_TIME, other has a different time discretization.");
+  return ret;
 }
 
 bool MEDCouplingLinearTime::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretization *other) const

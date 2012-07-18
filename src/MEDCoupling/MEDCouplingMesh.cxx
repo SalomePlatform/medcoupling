@@ -50,10 +50,54 @@ bool MEDCouplingMesh::isStructured() const
   return getType()==CARTESIAN;
 }
 
-bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
-  return _name==other->_name && _description==other->_description && _iteration==other->_iteration
-    && _order==other->_order && _time_unit==other->_time_unit && fabs(_time-other->_time)<1e-12;
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingMesh::isEqualIfNotWhy : other instance is NULL !");
+  std::ostringstream oss; oss.precision(15);
+  if(_name!=other->_name)
+    {
+      oss << "Mesh names differ : this name = \"" << _name << "\" and other name = \"" << other->_name << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  if(_description!=other->_description)
+    {
+      oss << "Mesh descriptions differ : this description = \"" << _description << "\" and other description = \"" << other->_description << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  if(_iteration!=other->_iteration)
+    {
+      oss << "Mesh iterations differ : this iteration = \"" << _iteration << "\" and other iteration = \"" << other->_iteration << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  if(_order!=other->_order)
+    {
+      oss << "Mesh orders differ : this order = \"" << _order << "\" and other order = \"" << other->_order << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  if(_time_unit!=other->_time_unit)
+    {
+      oss << "Mesh time units differ : this time unit = \"" << _time_unit << "\" and other time unit = \"" << other->_time_unit << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  if(fabs(_time-other->_time)>=1e-12)
+    {
+      oss << "Mesh times differ : this time = \"" << _time << "\" and other time = \"" << other->_time << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  return true;
+}
+
+bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const throw(INTERP_KERNEL::Exception)
+{
+  std::string tmp;
+  return isEqualIfNotWhy(other,prec,tmp);
 }
 
 /*!

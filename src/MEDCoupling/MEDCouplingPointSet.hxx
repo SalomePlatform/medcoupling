@@ -60,8 +60,9 @@ namespace ParaMEDMEM
     DataArrayDouble *getCoords() { return _coords; }
     DataArrayDouble *getCoordinatesAndOwner() const;
     void copyTinyStringsFrom(const MEDCouplingMesh *other) throw(INTERP_KERNEL::Exception);
-    bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
+    bool areCoordsEqualIfNotWhy(const MEDCouplingPointSet& other, double prec, std::string& reason) const;
     bool areCoordsEqual(const MEDCouplingPointSet& other, double prec) const;
     bool areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const;
     virtual DataArrayInt *mergeNodes(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;

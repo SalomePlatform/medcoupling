@@ -304,29 +304,60 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::getAllGeoTypes() c
  * This method is a method that compares 'this' and 'other'.
  * This method compares \b all attributes, even names and component names.
  */
-bool MEDCouplingUMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+bool MEDCouplingUMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::isEqualIfNotWhy : input other pointer is null !");
+  std::ostringstream oss; oss.precision(15);
   const MEDCouplingUMesh *otherC=dynamic_cast<const MEDCouplingUMesh *>(other);
   if(!otherC)
-    return false;
-  if(!MEDCouplingPointSet::isEqual(other,prec))
+    {
+      reason="mesh given in input is not castable in MEDCouplingUMesh !";
+      return false;
+    }
+  if(!MEDCouplingPointSet::isEqualIfNotWhy(other,prec,reason))
     return false;
   if(_mesh_dim!=otherC->_mesh_dim)
-    return false;
+    {
+      oss << "umesh dimension mismatch : this mesh dimension=" << _mesh_dim << " other mesh dimension=" <<  otherC->_mesh_dim;
+      reason=oss.str();
+      return false;
+    }
   if(_types!=otherC->_types)
-    return false;
+    {
+      oss << "umesh geometric type mismatch :\nThis geometric types are :";
+      for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=_types.begin();iter!=_types.end();iter++)
+        { const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(*iter); oss << cm.getRepr() << ", "; }
+      oss << "\nOther geometric types are :";
+      for(std::set<INTERP_KERNEL::NormalizedCellType>::const_iterator iter=otherC->_types.begin();iter!=otherC->_types.end();iter++)
+        { const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(*iter); oss << cm.getRepr() << ", "; }
+      reason=oss.str();
+      return false;
+    }
   if(_nodal_connec!=0 || otherC->_nodal_connec!=0)
     if(_nodal_connec==0 || otherC->_nodal_connec==0)
-      return false;
+      {
+        reason="Only one UMesh between the two this and other has its nodal connectivity DataArrayInt defined !";
+        return false;
+      }
   if(_nodal_connec!=otherC->_nodal_connec)
-    if(!_nodal_connec->isEqual(*otherC->_nodal_connec))
-      return false;
+    if(!_nodal_connec->isEqualIfNotWhy(*otherC->_nodal_connec,reason))
+      {
+        reason.insert(0,"Nodal connectivity DataArrayInt differ : ");
+        return false;
+      }
   if(_nodal_connec_index!=0 || otherC->_nodal_connec_index!=0)
     if(_nodal_connec_index==0 || otherC->_nodal_connec_index==0)
-      return false;
+      {
+        reason="Only one UMesh between the two this and other has its nodal connectivity index DataArrayInt defined !";
+        return false;
+      }
   if(_nodal_connec_index!=otherC->_nodal_connec_index)
-    if(!_nodal_connec_index->isEqual(*otherC->_nodal_connec_index))
-      return false;
+    if(!_nodal_connec_index->isEqualIfNotWhy(*otherC->_nodal_connec_index,reason))
+      {
+        reason.insert(0,"Nodal connectivity index DataArrayInt differ : ");
+        return false;
+      }
   return true;
 }
 

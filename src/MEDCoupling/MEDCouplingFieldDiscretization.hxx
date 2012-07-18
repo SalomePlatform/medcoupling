@@ -45,7 +45,8 @@ namespace ParaMEDMEM
     void updateTime() const;
     static TypeOfField getTypeOfFieldFromStringRepr(const char *repr) throw(INTERP_KERNEL::Exception);
     virtual TypeOfField getEnum() const = 0;
-    virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const = 0;
+    virtual bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const = 0;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
     virtual std::string getStringRepr() const = 0;
@@ -107,7 +108,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
     const char *getRepr() const;
-    bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -139,7 +140,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
     const char *getRepr() const;
-    bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -180,7 +181,7 @@ namespace ParaMEDMEM
     ~MEDCouplingFieldDiscretizationPerCell();
     void updateTime() const;
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
-    bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     void renumberCells(const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     void checkNoOrphanCells() const throw(INTERP_KERNEL::Exception);
@@ -196,7 +197,7 @@ namespace ParaMEDMEM
   public:
     MEDCouplingFieldDiscretizationGauss();
     TypeOfField getEnum() const;
-    bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
@@ -262,7 +263,7 @@ namespace ParaMEDMEM
     MEDCouplingFieldDiscretization *clone() const;
     std::string getStringRepr() const;
     const char *getRepr() const;
-    bool isEqual(const MEDCouplingFieldDiscretization *other, double eps) const;
+    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;

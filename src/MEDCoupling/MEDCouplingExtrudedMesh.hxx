@@ -45,7 +45,7 @@ namespace ParaMEDMEM
     int getMeshDimension() const;
     MEDCouplingMesh *deepCpy() const;
     MEDCouplingExtrudedMesh *clone(bool recDeepCpy) const;
-    bool isEqual(const MEDCouplingMesh *other, double prec) const;
+    bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     void checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                               DataArrayInt *&cellCor, DataArrayInt *&nodeCor) const throw(INTERP_KERNEL::Exception);

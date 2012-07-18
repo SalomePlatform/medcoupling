@@ -92,6 +92,12 @@ TypeOfField MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(const c
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
 
+bool MEDCouplingFieldDiscretization::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+{
+  std::string reason;
+  return isEqualIfNotWhy(other,eps,reason);
+}
+
 bool MEDCouplingFieldDiscretization::isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const
 {
   return isEqual(other,eps);
@@ -347,10 +353,13 @@ const char *MEDCouplingFieldDiscretizationP0::getRepr() const
   return REPR;
 }
 
-bool MEDCouplingFieldDiscretizationP0::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+bool MEDCouplingFieldDiscretizationP0::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
 {
   const MEDCouplingFieldDiscretizationP0 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP0 *>(other);
-  return otherC!=0;
+  bool ret=otherC!=0;
+  if(!ret)
+    reason="Spatial discrtization of this is ON_CELLS, which is not the case of other.";
+  return ret;
 }
 
 int MEDCouplingFieldDiscretizationP0::getNumberOfTuples(const MEDCouplingMesh *mesh) const
@@ -528,10 +537,13 @@ const char *MEDCouplingFieldDiscretizationP1::getRepr() const
   return REPR;
 }
 
-bool MEDCouplingFieldDiscretizationP1::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+bool MEDCouplingFieldDiscretizationP1::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
 {
   const MEDCouplingFieldDiscretizationP1 *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationP1 *>(other);
-  return otherC!=0;
+  bool ret=otherC!=0;
+  if(!ret)
+    reason="Spatial discrtization of this is ON_NODES, which is not the case of other.";
+  return ret;
 }
 
 /*!
@@ -748,16 +760,22 @@ void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCoupl
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationPerCell has a discretization per cell but it's not matching the underlying mesh !");
 }
 
-bool MEDCouplingFieldDiscretizationPerCell::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+bool MEDCouplingFieldDiscretizationPerCell::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
 {
   const MEDCouplingFieldDiscretizationPerCell *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationPerCell *>(other);
   if(!otherC)
-    return false;
+    {
+      reason="Spatial discrtization of this is ON_GAUSS, which is not the case of other.";
+      return false;
+    }
   if(_discr_per_cell==0)
     return otherC->_discr_per_cell==0;
   if(otherC->_discr_per_cell==0)
     return false;
-  return _discr_per_cell->isEqual(*otherC->_discr_per_cell);
+  bool ret=_discr_per_cell->isEqualIfNotWhy(*otherC->_discr_per_cell,reason);
+  if(!ret)
+    reason.insert(0,"Field discretization per cell DataArrayInt given the discid per cell :");
+  return ret;
 }
 
 bool MEDCouplingFieldDiscretizationPerCell::isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const
@@ -830,19 +848,29 @@ TypeOfField MEDCouplingFieldDiscretizationGauss::getEnum() const
   return TYPE;
 }
 
-bool MEDCouplingFieldDiscretizationGauss::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+bool MEDCouplingFieldDiscretizationGauss::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
 {
   const MEDCouplingFieldDiscretizationGauss *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationGauss *>(other);
   if(!otherC)
-    return false;
-  if(!MEDCouplingFieldDiscretizationPerCell::isEqual(other,eps))
+    {
+      reason="Spatial discrtization of this is ON_GAUSS, which is not the case of other.";
+      return false;
+    }
+  if(!MEDCouplingFieldDiscretizationPerCell::isEqualIfNotWhy(other,eps,reason))
     return false;
   if(_loc.size()!=otherC->_loc.size())
-    return false;
+    {
+      reason="Gauss spatial discretization : localization sizes differ";
+      return false;
+    }
   std::size_t sz=_loc.size();
   for(std::size_t i=0;i<sz;i++)
     if(!_loc[i].isEqual(otherC->_loc[i],eps))
-      return false;
+      {
+        std::ostringstream oss; oss << "Gauss spatial discretization : Localization #" << i << " differ from this to other.";
+        reason=oss.str();
+        return false;
+      }
   return true;
 }
 
@@ -1457,10 +1485,13 @@ const char *MEDCouplingFieldDiscretizationGaussNE::getRepr() const
   return REPR;
 }
 
-bool MEDCouplingFieldDiscretizationGaussNE::isEqual(const MEDCouplingFieldDiscretization *other, double eps) const
+bool MEDCouplingFieldDiscretizationGaussNE::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
 {
   const MEDCouplingFieldDiscretizationGaussNE *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationGaussNE *>(other);
-  return otherC!=0;
+  bool ret=otherC!=0;
+  if(!ret)
+    reason="Spatial discrtization of this is ON_GAUSS_NE, which is not the case of other.";
+  return ret;
 }
 
 int MEDCouplingFieldDiscretizationGaussNE::getNumberOfTuples(const MEDCouplingMesh *mesh) const

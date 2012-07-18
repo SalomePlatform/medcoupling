@@ -124,22 +124,36 @@ void MEDCouplingCMesh::copyTinyStringsFrom(const MEDCouplingMesh *other) throw(I
     _z_array->copyStringInfoFrom(*otherC->_z_array);
 }
 
-bool MEDCouplingCMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+bool MEDCouplingCMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingCMesh::isEqualIfNotWhy : input other pointer is null !");
   const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
   if(!otherC)
-    return false;
-  if(!MEDCouplingMesh::isEqual(other,prec))
+    {
+      reason="mesh given in input is not castable in MEDCouplingCMesh !";
+      return false;
+    }
+  if(!MEDCouplingMesh::isEqualIfNotWhy(other,prec,reason))
     return false;
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
   const DataArrayDouble *otherArr[3]={otherC->_x_array,otherC->_y_array,otherC->_z_array};
+  std::ostringstream oss; oss.precision(15);
   for(int i=0;i<3;i++)
     {
       if((thisArr[i]!=0 && otherArr[i]==0) || (thisArr[i]==0 && otherArr[i]!=0))
-        return false;
-      if(thisArr[i])
-        if(!thisArr[i]->isEqual(*otherArr[i],prec))
+        {
+          oss << "Only one CMesh between the two this and other has its coordinates of rank" << i << " defined !";
+          reason=oss.str();
           return false;
+        }
+      if(thisArr[i])
+        if(!thisArr[i]->isEqualIfNotWhy(*otherArr[i],prec,reason))
+          {
+            oss << "Coordinates DataArrayDouble of rank #" << i << " differ :";
+            reason.insert(0,oss.str());
+            return false;
+          }
     }
   return true;
 }

@@ -21,25 +21,57 @@
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 
+#include <sstream>
+
 using namespace ParaMEDMEM;
 
-bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+bool MEDCouplingField::isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingField::isEqualIfNotWhy : other instance is NULL !");
+  std::ostringstream oss; oss.precision(15);
   if(_name!=other->_name)
-    return false;
+    {
+      oss << "Field names differ : this name = \"" << _name << "\" and other name = \"" << other->_name << "\" !";
+      reason=oss.str();
+      return false;
+    }
   if(_desc!=other->_desc)
-    return false;
+    {
+      oss << "Field descriptions differ : this description = \"" << _desc << "\" and other description = \"" << other->_desc << "\" !";
+      reason=oss.str();
+      return false;
+    }
   if(_nature!=other->_nature)
-    return false;
-  if(!_type->isEqual(other->_type,valsPrec))
-    return false;
+    {
+      oss << "Field nature differ : this nature = \"" << MEDCouplingNatureOfField::getRepr(_nature) << "\" and other nature = \"" << MEDCouplingNatureOfField::getRepr(other->_nature) << "\" !";
+      reason=oss.str();
+      return false;
+    }
+  if(!_type->isEqualIfNotWhy(other->_type,valsPrec,reason))
+    {
+      reason.insert(0,"Spatial discretizations differ :");
+      return false;
+    }
   if(_mesh==0 && other->_mesh==0)
     return true;
   if(_mesh==0 || other->_mesh==0)
-    return false;
+    {
+      reason="Only one field between the two this and other has its underlying mesh defined !";
+      return false;
+    }
   if(_mesh==other->_mesh)
     return true;
-  return _mesh->isEqual(other->_mesh,meshPrec);
+  bool ret=_mesh->isEqualIfNotWhy(other->_mesh,meshPrec,reason);
+  if(!ret)
+    reason.insert(0,"Underlying meshes of fields differ for the following reason : ");
+  return ret;
+}
+
+bool MEDCouplingField::isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const
+{
+  std::string tmp;
+  return isEqualIfNotWhy(other,meshPrec,valsPrec,tmp);
 }
 
 bool MEDCouplingField::isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const

@@ -79,21 +79,34 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  bool MemArray<T>::isEqual(const MemArray<T>& other, T prec) const
+  bool MemArray<T>::isEqual(const MemArray<T>& other, T prec, std::string& reason) const
   {
+    std::ostringstream oss; oss.precision(15);
     if(_nb_of_elem!=other._nb_of_elem)
-      return false;
+      {
+        oss << "Number of elements in coarse data of DataArray mismatch : this=" << _nb_of_elem << " other=" << other._nb_of_elem;
+        reason=oss.str();
+        return false;
+      }
     const T *pt1=_pointer.getConstPointer();
     const T *pt2=other._pointer.getConstPointer();
     if(pt1==0 && pt2==0)
       return true;
     if(pt1==0 || pt2==0)
-      return false;
+      {
+        oss << "coarse data pointer is defined for only one DataArray instance !";
+        reason=oss.str();
+        return false;
+      }
     if(pt1==pt2)
       return true;
     for(int i=0;i<_nb_of_elem;i++)
       if(pt1[i]-pt2[i]<-prec || (pt1[i]-pt2[i])>prec)
-        return false;
+        {
+          oss << "The content of data differs at pos #" << i << " of coarse data ! this[i]=" << pt1[i] << " other[i]=" << pt2[i];
+          reason=oss.str();
+          return false;
+        }
     return true;
   }
   

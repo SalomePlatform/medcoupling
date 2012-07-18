@@ -109,14 +109,19 @@ void MEDCouplingPointSet::copyTinyStringsFrom(const MEDCouplingMesh *other) thro
     _coords->copyStringInfoFrom(*otherC->_coords);
 }
 
-bool MEDCouplingPointSet::isEqual(const MEDCouplingMesh *other, double prec) const
+bool MEDCouplingPointSet::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const throw(INTERP_KERNEL::Exception)
 {
+  if(!other)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::isEqualIfNotWhy : null mesh instance in input !");
   const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
+    {
+      reason="mesh given in input is not castable in MEDCouplingPointSet !";
+      return false;
+    }
+  if(!MEDCouplingMesh::isEqualIfNotWhy(other,prec,reason))
     return false;
-  if(!MEDCouplingMesh::isEqual(other,prec))
-    return false;
-  if(!areCoordsEqual(*otherC,prec))
+  if(!areCoordsEqualIfNotWhy(*otherC,prec,reason))
     return false;
   return true;
 }
@@ -131,15 +136,27 @@ bool MEDCouplingPointSet::isEqualWithoutConsideringStr(const MEDCouplingMesh *ot
   return true;
 }
 
-bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, double prec) const
+bool MEDCouplingPointSet::areCoordsEqualIfNotWhy(const MEDCouplingPointSet& other, double prec, std::string& reason) const
 {
   if(_coords==0 && other._coords==0)
     return true;
   if(_coords==0 || other._coords==0)
-    return false;
+    {
+      reason="Only one PointSet between the two this and other has coordinate defined !";
+      return false;
+    }
   if(_coords==other._coords)
     return true;
-  return _coords->isEqual(*other._coords,prec);
+  bool ret=_coords->isEqualIfNotWhy(*other._coords,prec,reason);
+  if(!ret)
+    reason.insert(0,"Coordinates DataArray do not match : ");
+  return ret;
+}
+
+bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, double prec) const
+{
+  std::string tmp;
+  return areCoordsEqualIfNotWhy(other,prec,tmp);
 }
 
 bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const
