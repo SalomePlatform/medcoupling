@@ -2130,7 +2130,10 @@ bool MEDCouplingTwoTimeSteps::isEqualIfNotWhy(const MEDCouplingTimeDiscretizatio
     }
   if(_end_array!=otherC->_end_array)
     if(!_end_array->isEqualIfNotWhy(*otherC->_end_array,prec,reason))
-      return false;
+      {
+        reason.insert(0,"end arrays differ for linear time.");
+        return false;
+      }
   return MEDCouplingTimeDiscretization::isEqualIfNotWhy(other,prec,reason);
 }
 
