@@ -53,18 +53,18 @@ const char *MEDCouplingFieldDouble::getTimeUnit() const
 }
 
 /*!
- * This method performs a copy of \b this \b without \b any \b copy \b of \b the \b underlying \b mesh ( see warning section of this method).
+ * This method performs a copy of \a this **without any copy of the underlying mesh** ( see warning section of this method).
  * The copy of arrays is deep if \b recDeepCpy equals to true, no copy of arrays is done if \b recDeepCpy equals to false.
  *
  * \c clone(false) is rather dedicated for advanced users that want to limit the amount of memory.
  * 
  * It allows the user to perform methods
- * MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields with \b this and the returned field.
+ * MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields with \a this and the returned field.
  * 
- * \warning The \b underlying \b mesh of the returned field is \b always the same (same pointer) than \b this \b whatever \b the \b value \b of \b recDeepCpy \b parameter.
+ * \warning The \b underlying \b mesh of the returned field is \b always the same (same pointer) than \a this \b whatever \b the \b value \b of \b recDeepCpy \b parameter.
  * If the user wants to duplicated deeply the underlying mesh he should call MEDCouplingFieldDouble::cloneWithMesh method or MEDCouplingFieldDouble::deepCpy instead.
  *
- * \param [in] recDeepCpy specifies if underlying arrays in \b this should be copied of only attached to the returned field.
+ * \param [in] recDeepCpy specifies if underlying arrays in \a this should be copied of only attached to the returned field.
  * \return a newly allocated MEDCouplingFieldDouble instance that the caller should deal with.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
@@ -77,7 +77,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::clone(bool recDeepCpy) const
  * (whatever the value of the input parameter 'recDeepCpy') \b deeply \b duplicated.\n \n
  * The result of \c cloneWithMesh(true) is exactly the same than calling \ref MEDCouplingFieldDouble::deepCpy "deepCpy".
  * 
- * So the resulting field of this call cannot be called with \b this with the following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
+ * So the resulting field of this call cannot be called with \a this with the following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
  * To avoid to deep copy the underlying mesh the user should call MEDCouplingFieldDouble::clone method instead.
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) const
@@ -93,8 +93,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::cloneWithMesh(bool recDeepCpy) c
 }
 
 /*!
- * This method performs a deepCpy of 'this' \b mesh \b included !
- * So the resulting field of this call cannot be called with 'this' with following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
+ * This method performs a deepCpy of \a this \b mesh \b included !
+ * So the resulting field of this call cannot be called with \a this with following methods MEDCouplingFieldDouble::AddFields, MEDCouplingFieldDouble::MultiplyFields ...
  * To avoid to deep copy the underlying mesh the user should call MEDCouplingFieldDouble::clone method instead.
  * This method is exactly equivalent to MEDCouplingFieldDouble::cloneWithMesh called with parameter true.
  */
@@ -223,7 +223,7 @@ bool MEDCouplingFieldDouble::isEqualWithoutConsideringStr(const MEDCouplingField
 }
 
 /*!
- * This method states if 'this' and 'other' are compatibles each other before performing any treatment.
+ * This method states if \a this and 'other' are compatibles each other before performing any treatment.
  * This method is good for methods like : mergeFields.
  * This method is not very demanding compared to areStrictlyCompatible that is better for operation on fields.
  */
@@ -258,7 +258,7 @@ bool MEDCouplingFieldDouble::areStrictlyCompatible(const MEDCouplingField *other
 
 /*!
  * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatible method except that
- * number of components between 'this' and 'other' can be different here (for operator*).
+ * number of components between \a this and 'other' can be different here (for operator*).
  */
 bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) const
 {
@@ -274,7 +274,7 @@ bool MEDCouplingFieldDouble::areCompatibleForMul(const MEDCouplingField *other) 
 
 /*!
  * Method with same principle than MEDCouplingFieldDouble::areStrictlyCompatible method except that
- * number of components between 'this' and 'other' can be different here (for operator/).
+ * number of components between \a this and 'other' can be different here (for operator/).
  */
 bool MEDCouplingFieldDouble::areCompatibleForDiv(const MEDCouplingField *other) const
 {
@@ -290,7 +290,7 @@ bool MEDCouplingFieldDouble::areCompatibleForDiv(const MEDCouplingField *other) 
 
 /*!
  * This method is invocated before any attempt of melding. This method is very close to areStrictlyCompatible,
- * except that 'this' and other can have different number of components.
+ * except that \a this and other can have different number of components.
  */
 bool MEDCouplingFieldDouble::areCompatibleForMeld(const MEDCouplingFieldDouble *other) const
 {
@@ -379,17 +379,17 @@ DataArrayInt *MEDCouplingFieldDouble::getIdsInRange(double vmin, double vmax) co
 /*!
  * Builds a newly created field, that the caller will have the responsability to deal with (decrRef).
  * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
- * This method returns a restriction of 'this' so that only tuples id specified in 'part' will be contained in returned field.
- * Parameter 'part' specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of 'this' (ON_CELLS, ON_NODES, ON_GAUSS_PT, ON_GAUSS_NE)
+ * This method returns a restriction of \a this so that only tuples id specified in 'part' will be contained in returned field.
+ * Parameter 'part' specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of \a this (ON_CELLS, ON_NODES, ON_GAUSS_PT, ON_GAUSS_NE)
  *
- * If 'this' is a field on cell lying on a mesh that have 10 cells. If part contains following cellIds [3,7,6].
+ * If \a this is a field on cell lying on a mesh that have 10 cells. If part contains following cellIds [3,7,6].
  * In this case the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.
  * Tuple#0 of return field will refer to the cell#0 of returned mesh. The cell #0 of returned mesh will be equal to the cell#3 of 'this->getMesh()'
  * Tuple#1 of return field will refer to the cell#1 of returned mesh. The cell #1 of returned mesh will be equal to the cell#7 of 'this->getMesh()'
  * Tuple#2 of return field will refer to the cell#2 of returned mesh. The cell #2 of returned mesh will be equal to the cell#6 of 'this->getMesh()'
  *
- * If 'this' is field on node lying on a mesh that have 10 cells and 11 nodes for example. If part contains following cellIds [3,7,6].
- * 'this' is currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, the returned field,
+ * If \a this is field on node lying on a mesh that have 10 cells and 11 nodes for example. If part contains following cellIds [3,7,6].
+ * \a this is currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, the returned field,
  * will contain 6 tuples and this field will lie on this restricted mesh. 
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception)
@@ -402,24 +402,33 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
 }
 
 /*!
- * Builds a newly created field, that the caller will have the responsability to deal with (decrRef).
- * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
- * This method returns a restriction of 'this' so that only tuples id specified in ['partBg';'partEnd') will be contained in returned field. 
- * Parameter ['partBg','partEnd') specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of 'this' (ON_CELLS, ON_NODES, ON_GAUSS_PT, ON_GAUSS_NE)
+ * Builds a newly created field, that the caller will have the responsability to deal with.
+ * \n This method makes the assumption that the field \a this is correctly defined when this method is called (\c this->checkCoherency() returns without any exception thrown), **no check of this will be done**.
+ * \n This method returns a restriction of \a this so that only tuples id specified in [ \a partBg , \a partEnd ) will be contained in returned field. 
+ * \n Parameter [\a partBg, \a partEnd ) specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of \a this (ON_CELLS, ON_NODES, ON_GAUSS_PT, ON_GAUSS_NE)
  *
- * If 'this' is a field on cell lying on a mesh that have 10 cells. If part contains following cellIds [3,7,6].
+ * If \a this is a field on cell lying on a mesh that have 10 cells. If part contains following cellIds [3,7,6].
  * In this case the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.
- * Tuple#0 of return field will refer to the cell#0 of returned mesh. The cell #0 of returned mesh will be equal to the cell#3 of 'this->getMesh()'
- * Tuple#1 of return field will refer to the cell#1 of returned mesh. The cell #1 of returned mesh will be equal to the cell#7 of 'this->getMesh()'
- * Tuple#2 of return field will refer to the cell#2 of returned mesh. The cell #2 of returned mesh will be equal to the cell#6 of 'this->getMesh()'
  *
- * If 'this' is field on node lying on a mesh that have 10 cells and 11 nodes for example. If part contains following cellIds [3,7,6].
- * 'this' is currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, the returned field,
- * will contain 6 tuples and this field will lie on this restricted mesh.
+ *- Tuple#0 of return field will refer to the cell#0 of returned mesh. The cell #0 of returned mesh will be equal to the cell#3 of \c this->getMesh()
+ *- Tuple#1 of return field will refer to the cell#1 of returned mesh. The cell #1 of returned mesh will be equal to the cell#7 of \c this->getMesh()
+ *- Tuple#2 of return field will refer to the cell#2 of returned mesh. The cell #2 of returned mesh will be equal to the cell#6 of \c this->getMesh()
+ *
+ * If \a this is field on node lying on a mesh that have 10 cells and 11 nodes for example. So \a this is currently contains 11 tuples.
+ * \n If part contains following cellIds [3,7,6].
+ * \n If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, the returned field,
+ * will contain 6 tuples (and same number of components \c this->getArray()->getNumberOfComponents() ) and this field will lie on this restricted mesh.
+ *
+ * \param [in] partBg start (included) of input range cell ids to select [ \a partBg, \a partEnd )
+ * \param [in] partEnd end (not included) of input range cell ids to select [ \a partBg, \a partEnd )
+ * \return a newly allocated field the caller should deal with.
  * 
+ * \throw if there is presence of an invalid cell id in [ \a partBg, \a partEnd ) regarding the number of cells of \c this->getMesh()
+ *
  * \ref cpp_mcfielddouble_subpart1 "Here a C++ example."
  *
  * \ref py_mcfielddouble_subpart1 "Here a Python example."
+ * \sa ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart(const DataArrayInt *) const
  */
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception)
 {
@@ -438,7 +447,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, 
     {
       DataArrayDouble *arr=0;
       if(*iter)
-        arr=(*iter)->selectByTupleId(arrSelBg,arrSelEnd);
+        arr=(*iter)->selectByTupleIdSafe(arrSelBg,arrSelEnd);
       arrs.push_back(arr);
     }
   ret->_time_discr->setArrays(arrs,0);
@@ -507,7 +516,7 @@ void MEDCouplingFieldDouble::accumulate(double *res) const
 }
 
 /*!
- * This method returns the max value in 'this'. 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * This method returns the max value in \a this. \a this is expected to be a field with exactly \b one component. If not an exception will be thrown.
  * To getMaxValue on vector field applyFunc is needed before. This method looks only on all arrays stored in 'this->_time_discr'.
  * If no arrays exists, an exception will be thrown.
  */
@@ -564,7 +573,7 @@ double MEDCouplingFieldDouble::getMaxValue2(DataArrayInt*& tupleIds) const throw
 }
 
 /*!
- * This method returns the min value in 'this'. 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * This method returns the min value in \a this. \a this is expected to be a field with exactly \b one component. If not an exception will be thrown.
  * To getMinValue on vector field applyFunc is needed before. This method looks only on all arrays stored in 'this->_time_discr'.
  * If no arrays exists, an exception will be thrown.
  */
@@ -621,7 +630,7 @@ double MEDCouplingFieldDouble::getMinValue2(DataArrayInt*& tupleIds) const throw
 }
 
 /*!
- * This method returns the average value in 'this'. 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * This method returns the average value in \a this. \a this is expected to be a field with exactly \b one component. If not an exception will be thrown.
  * To getAverageValue on vector field applyFunc is needed before. This method looks only \b default array \b and \b only \b default.
  * If default array does not exist, an exception will be thrown.
  */
@@ -633,7 +642,7 @@ double MEDCouplingFieldDouble::getAverageValue() const throw(INTERP_KERNEL::Exce
 }
 
 /*!
- * This method returns the euclidean norm of 'this'.
+ * This method returns the euclidean norm of \a this.
  * \f[
  * \sqrt{\sum_{0 \leq i < nbOfEntity}val[i]*val[i]}
  * \f]
@@ -647,7 +656,7 @@ double MEDCouplingFieldDouble::norm2() const throw(INTERP_KERNEL::Exception)
 }
 
 /*!
- * This method returns the max norm of 'this'.
+ * This method returns the max norm of \a this.
  * \f[
  * \max_{0 \leq i < nbOfEntity}{abs(val[i])}
  * \f]
@@ -661,8 +670,8 @@ double MEDCouplingFieldDouble::normMax() const throw(INTERP_KERNEL::Exception)
 }
 
 /*!
- * This method returns the average value in 'this' weighted by ParaMEDMEM::MEDCouplingField::buildMeasureField.
- * 'This' is expected to be a field with exactly \b one component. If not an exception will be thrown.
+ * This method returns the average value in \a this weighted by ParaMEDMEM::MEDCouplingField::buildMeasureField.
+ * \a this is expected to be a field with exactly \b one component. If not an exception will be thrown.
  * To getAverageValue on vector field applyFunc is needed before. This method looks only \b default array \b and \b only \b default.
  * If default array does not exist, an exception will be thrown.
  */
@@ -817,7 +826,7 @@ void MEDCouplingFieldDouble::getValueOnPos(int i, int j, int k, double *res) con
 }
 
 /*!
- * Returns value of 'this' on default time of point 'spaceLoc' using spatial discretization.
+ * Returns value of \a this on default time of point 'spaceLoc' using spatial discretization.
  * If 'point' is outside the spatial discretization of this an exception will be thrown.
  */
 void MEDCouplingFieldDouble::getValueOn(const double *spaceLoc, double *res) const throw(INTERP_KERNEL::Exception)
@@ -840,7 +849,7 @@ DataArrayDouble *MEDCouplingFieldDouble::getValueOnMulti(const double *spaceLoc,
 }
 
 /*!
- * Returns value of 'this' on time 'time' of point 'spaceLoc' using spatial discretization.
+ * Returns value of \a this on time 'time' of point 'spaceLoc' using spatial discretization.
  * If 'time' is not covered by this->_time_discr an exception will be thrown.
  * If 'point' is outside the spatial discretization of this an exception will be thrown.
  */
@@ -868,7 +877,7 @@ void MEDCouplingFieldDouble::applyLin(double a, double b, int compoId)
 }
 
 /*!
- * This method sets 'this' to a uniform scalar field with one component.
+ * This method sets \a this to a uniform scalar field with one component.
  * All tuples will have the same value 'value'.
  * An exception is thrown if no underlying mesh is defined.
  */
@@ -1130,8 +1139,8 @@ void MEDCouplingFieldDouble::getTinySerializationDbleInformation(std::vector<dou
 /*!
  * This method has to be called to the new instance filled by CORBA, MPI, File...
  * @param tinyInfoI is the value retrieves from distant result of getTinySerializationIntInformation on source instance to be copied.
- * @param dataInt out parameter. If not null the pointer is already owned by 'this' after the call of this method. In this case no decrRef must be applied.
- * @param arrays out parameter is a vector resized to the right size. The pointers in the vector is already owned by 'this' after the call of this method.
+ * @param dataInt out parameter. If not null the pointer is already owned by \a this after the call of this method. In this case no decrRef must be applied.
+ * @param arrays out parameter is a vector resized to the right size. The pointers in the vector is already owned by \a this after the call of this method.
  *               No decrRef must be applied to every instances in returned vector.
  */
 void MEDCouplingFieldDouble::resizeForUnserialization(const std::vector<int>& tinyInfoI, DataArrayInt *&dataInt, std::vector<DataArrayDouble *>& arrays)
@@ -1177,7 +1186,7 @@ void MEDCouplingFieldDouble::serialize(DataArrayInt *&dataInt, std::vector<DataA
 }
 
 /*!
- * This method tries to to change the mesh support of 'this' following the parameter 'levOfCheck' and 'prec'.
+ * This method tries to to change the mesh support of \a this following the parameter 'levOfCheck' and 'prec'.
  * Semantic of 'levOfCheck' is explained in MEDCouplingMesh::checkGeoEquivalWith method. This method is used to perform the job.
  * If this->_mesh is not defined or other an exeption will be throw.
  */
@@ -1201,9 +1210,9 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
 }
 
 /*!
- * This method is an extension of MEDCouplingFieldDouble::operator-=. It allows a user to operate a difference of 2 fields ('this' and 'f') even if they do not share same meshes.
+ * This method is an extension of MEDCouplingFieldDouble::operator-=. It allows a user to operate a difference of 2 fields (\a this and 'f') even if they do not share same meshes.
  * No interpolation will be done here only an analyze of two underlying mesh will be done to see if the meshes are geometrically equivalent. If yes, the eventual renumbering will be done and operator-= applyed after.
- * This method requires that 'f' and 'this' are coherent (check coherency) and that 'f' and 'this' would be coherent for a merge.
+ * This method requires that 'f' and \a this are coherent (check coherency) and that 'f' and \a this would be coherent for a merge.
  * Semantic of 'levOfCheck' is explained in MEDCouplingMesh::checkGeoEquivalWith method.
  */
 void MEDCouplingFieldDouble::substractInPlaceDM(const MEDCouplingFieldDouble *f, int levOfCheck, double prec) throw(INTERP_KERNEL::Exception)
