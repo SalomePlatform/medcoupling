@@ -105,7 +105,7 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertEqual(4,d2.getNumberOfFields())
         m = d2.getMeshes().getMeshAtPos(0)
         self.assertEqual("maa1",m.getName())
-        self.assertEqual(5,len(m.getGroupsNames()))
+        self.assertEqual(6,len(m.getGroupsNames()))
         self.assertEqual(3,m.getMeshDimension())
         groups = m.getGroupsNames()
         self.assertTrue( "groupe1" in groups )

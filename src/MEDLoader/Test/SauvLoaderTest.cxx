@@ -127,7 +127,7 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT_EQUAL(std::string("maa1"),std::string(m->getName() ));
   CPPUNIT_ASSERT_EQUAL(3,m->getMeshDimension());
   std::vector<std::string > groups = m->getGroupsNames();
-  CPPUNIT_ASSERT_EQUAL(5,(int)groups.size());
+  CPPUNIT_ASSERT_EQUAL(6,(int)groups.size());
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe1") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe2") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe3") != groups.end() );

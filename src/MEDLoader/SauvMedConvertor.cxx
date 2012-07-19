@@ -1965,7 +1965,7 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
               mesh->setName( grp._name.c_str() );
               isMeshNameSet = true;
             }
-          else if ( !grp._name.empty() )
+          if ( !grp._name.empty() )
             {
               medGroups.push_back( grp._medGroup );
             }
