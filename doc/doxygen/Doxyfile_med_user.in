@@ -226,7 +226,7 @@ SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = 
-EXPAND_AS_DEFINED      = MEDCOUPLING_EXPORT MEDCOUPLINGREMAPPER_EXPORT
+EXPAND_AS_DEFINED      = MEDCOUPLING_EXPORT MEDCOUPLINGREMAPPER_EXPORT MEDLOADER_EXPORT
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration::addtions related to external references   

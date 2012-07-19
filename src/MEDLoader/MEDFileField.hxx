@@ -42,7 +42,7 @@ namespace ParaMEDMEM
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
   class MEDFileMesh;
-/// @cond INTERNAL
+
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
@@ -78,6 +78,7 @@ namespace ParaMEDMEM
     std::vector<double> _w;
   };
 
+/// @cond INTERNAL
   class MEDFileFieldPerMeshPerType;
   class MEDFileField1TSWithoutDAS;
   class MEDFileFieldGlobsReal;
