@@ -139,7 +139,8 @@ EXCLUDE                = CVS
 EXCLUDE_PATTERNS       = *~
 EXAMPLE_PATH           = @srcdir@/../../src/ParaMEDMEM \
 		         @srcdir@/../../src/MEDCoupling/Test \
-			 @srcdir@/../../src//MEDCoupling_Swig \
+			 @srcdir@/../../src/MEDCoupling_Swig \
+			 @srcdir@/../../src/MEDLoader/Swig \
                          @srcdir@/../../doc/MEDMEM \
                          @srcdir@/../../src/MEDMEMBinTest \
                          @srcdir@/../../src/MEDMEM
