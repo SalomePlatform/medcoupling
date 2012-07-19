@@ -4411,7 +4411,7 @@ namespace ParaMEDMEM
      return convertIntArrToPyList(vals,self->getNbOfElems());
    }
 
-   PyObject *isEqualIfNotWhy(const DataArrayInt& other, double prec) const throw(INTERP_KERNEL::Exception)
+   PyObject *isEqualIfNotWhy(const DataArrayInt& other) const throw(INTERP_KERNEL::Exception)
    {
      std::string ret1;
      bool ret0=self->isEqualIfNotWhy(other,ret1);
