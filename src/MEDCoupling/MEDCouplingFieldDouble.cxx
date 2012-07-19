@@ -405,7 +405,8 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
  * Builds a newly created field, that the caller will have the responsability to deal with.
  * \n This method makes the assumption that the field \a this is correctly defined when this method is called (\c this->checkCoherency() returns without any exception thrown), **no check of this will be done**.
  * \n This method returns a restriction of \a this so that only tuples id specified in [ \a partBg , \a partEnd ) will be contained in returned field. 
- * \n Parameter [\a partBg, \a partEnd ) specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of \a this (ON_CELLS, ON_NODES, ON_GAUSS_PT, ON_GAUSS_NE)
+ * \n Parameter [\a partBg, \a partEnd ) specifies \b cell \b ids \b whatever \b the \b spatial \b discretization of \a this
+ * (\ref ParaMEDMEM::ON_CELLS "ON_CELLS", \ref ParaMEDMEM::ON_NODES "ON_CELLS", \ref ParaMEDMEM::ON_GAUSS_PT "ON_GAUSS_PT", \ref ParaMEDMEM::ON_GAUSS_NE "ON_GAUSS_NE")
  *
  * If \a this is a field on cell lying on a mesh that have 10 cells. If part contains following cellIds [3,7,6].
  * In this case the returned field will lie on mesh having 3 cells and the returned field will contain 3 tuples.
