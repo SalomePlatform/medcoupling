@@ -103,12 +103,10 @@ namespace
     if ( const int * conn = getGibi2MedQuadraticInterlace( type ))
       {
         Cell* ma = const_cast<Cell*>(&aCell);
-        //cout << "###### BEFORE ConvertQuadratic() " << *ma << endl;
         vector< Node* > new_nodes( ma->_nodes.size() );
         for ( size_t i = 0; i < new_nodes.size(); ++i )
           new_nodes[ i ] = ma->_nodes[ conn[ i ]];
         ma->_nodes.swap( new_nodes );
-        //cout << "###### AFTER ConvertQuadratic() " << *ma << endl;
       }
   }
 
@@ -1138,7 +1136,7 @@ ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
   setGroupLongNames();
 
   // fix element orientation
-  if ( _spaceDim == 2 )
+  if ( _spaceDim == 2 || _spaceDim == 1 )
     orientElements2D();
   else if ( _spaceDim == 3 )
     orientElements3D();
