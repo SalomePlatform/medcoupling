@@ -115,7 +115,7 @@ ELSE(MPI_IS_OK)
   ADD_EXECUTABLE(medpartitioner medpartitioner.cxx)
   SET_TARGET_PROPERTIES(medpartitioner PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
   TARGET_LINK_LIBRARIES(medpartitioner medpartitionercpp)
-  INSTALL(TARGETS medpartitionerr DESTINATION ${MED_salomebin_BINS})
+  INSTALL(TARGETS medpartitioner DESTINATION ${MED_salomebin_BINS})
 ENDIF(MPI_IS_OK)
 
 ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
