@@ -113,6 +113,7 @@ class SauvLoaderTest(unittest.TestCase):
         self.assertTrue( "groupe3" in groups )
         self.assertTrue( "groupe4" in groups )
         self.assertTrue( "groupe5" in groups )
+        self.assertTrue( "maa1" in groups )
         self.assertEqual(16,m.getSizeAtLevel(0))
         um0 = m.getGenMeshAtLevel(0)
         self.assertEqual(12, um0.getNumberOfCellsWithType( NORM_TETRA4 ))

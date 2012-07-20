@@ -133,6 +133,7 @@ void SauvLoaderTest::testMed2Sauv()
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe3") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe4") != groups.end() );
   CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"groupe5") != groups.end() );
+  CPPUNIT_ASSERT( std::find(groups.begin(),groups.end(),"maa1") != groups.end() );
   CPPUNIT_ASSERT_EQUAL(16,m->getSizeAtLevel(0));
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> um0 = m->getGenMeshAtLevel(0);
   CPPUNIT_ASSERT_EQUAL(12, um0->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TETRA4 ));
