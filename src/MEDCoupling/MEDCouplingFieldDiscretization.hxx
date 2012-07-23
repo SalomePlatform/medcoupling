@@ -133,14 +133,9 @@ namespace ParaMEDMEM
     static const TypeOfField TYPE;
   };
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationP1 : public MEDCouplingFieldDiscretization
+  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationOnNodes : public MEDCouplingFieldDiscretization
   {
   public:
-    TypeOfField getEnum() const;
-    MEDCouplingFieldDiscretization *clone() const;
-    std::string getStringRepr() const;
-    const char *getRepr() const;
-    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
     int getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const;
     DataArrayInt *getOffsetArr(const MEDCouplingMesh *mesh) const;
@@ -149,22 +144,33 @@ namespace ParaMEDMEM
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
     void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
                                             DataArrayInt *&cellRest);
-    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
-    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
-    void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
-    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
     MEDCouplingMesh *buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const;
     DataArrayInt *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const;
     void renumberValuesOnNodes(double epsOnVals, const int *old2New, DataArrayDouble *arr) const;
     void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const;
     void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
-  protected:
-    void getValueInCell(const MEDCouplingMesh *mesh, int cellId, const DataArrayDouble *arr, const double *loc, double *res) const;
+  public:
+    void getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const;
+  };
+
+  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationP1 : public MEDCouplingFieldDiscretizationOnNodes
+  {
+  public:
+    TypeOfField getEnum() const;
+    MEDCouplingFieldDiscretization *clone() const;
+    std::string getStringRepr() const;
+    const char *getRepr() const;
+    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
+    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
+    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
+  protected:
+    void getValueInCell(const MEDCouplingMesh *mesh, int cellId, const DataArrayDouble *arr, const double *loc, double *res) const;
   };
 
   /*!
@@ -286,6 +292,25 @@ namespace ParaMEDMEM
     void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
   protected:
     MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other);
+  public:
+    static const char REPR[];
+    static const TypeOfField TYPE;
+  };
+
+  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes
+  {
+  public:
+    TypeOfField getEnum() const;
+    const char *getRepr() const;
+    MEDCouplingFieldDiscretization *clone() const;
+    std::string getStringRepr() const;
+    void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
+    bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
+    MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
+    void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
+    DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
+  protected:
+    void operateOnDenseMatrix(const MEDCouplingMesh *mesh, int nbOfElems, double *matrixPtr) const;
   public:
     static const char REPR[];
     static const TypeOfField TYPE;

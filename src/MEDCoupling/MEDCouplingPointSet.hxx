@@ -120,9 +120,6 @@ namespace ParaMEDMEM
     void rotate3D(const double *center, const double *vect, double angle);
     void project2DCellOnXY(const int *startConn, const int *endConn, std::vector<double>& res) const;
     static bool isButterfly2DCell(const std::vector<double>& res, bool isQuad, double eps);
-    template<int SPACEDIM>
-    void findNodeIdsNearPointAlg(std::vector<double>& bbox, const double *pos, int nbNodes, double eps,
-                                 std::vector<int>& c, std::vector<int>& cI) const;
   protected:
     DataArrayDouble *_coords;
   };

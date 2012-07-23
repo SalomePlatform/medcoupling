@@ -35,7 +35,7 @@ MEDCouplingFieldDouble.hxx  MEDCouplingMesh.hxx MEDCouplingUMesh.hxx MEDCoupling
 MEDCouplingField.hxx MEDCouplingNormalizedUnstructuredMesh.hxx MEDCouplingMemArray.hxx            \
 MEDCouplingNormalizedUnstructuredMesh.txx  MEDCouplingMemArray.txx MEDCouplingRefCountObject.hxx  \
 MEDCouplingCMesh.hxx MEDCouplingTimeDiscretization.hxx                                            \
-MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx MEDCouplingPointSet.txx                \
+MEDCouplingFieldDiscretization.hxx MEDCouplingPointSet.hxx                                        \
 MEDCouplingUMeshDesc.hxx MEDCouplingNatureOfField.hxx MEDCouplingFieldTemplate.hxx                \
 MEDCouplingNormalizedCartesianMesh.hxx MEDCouplingNormalizedCartesianMesh.txx                     \
 MEDCouplingRemapper.hxx MEDCouplingExtrudedMesh.hxx MEDCouplingGaussLocalization.hxx              \
@@ -92,7 +92,6 @@ EXTRA_DIST += \
 	MEDCouplingMemArray.txx                   \
 	MEDCouplingRefCountObject.hxx             \
 	MEDCouplingPointSet.hxx                   \
-	MEDCouplingPointSet.txx                   \
 	MEDCouplingUMeshDesc.hxx                  \
 	MEDCouplingNatureOfField.hxx              \
 	MEDCouplingRemapper.hxx                   \

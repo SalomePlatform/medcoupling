@@ -35,7 +35,8 @@ namespace ParaMEDMEM
       ON_CELLS = 0,
       ON_NODES = 1,
       ON_GAUSS_PT = 2,
-      ON_GAUSS_NE = 3
+      ON_GAUSS_NE = 3,
+      ON_NODES_KR = 4
     } TypeOfField;
 
   typedef enum

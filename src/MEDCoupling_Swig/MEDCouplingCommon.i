@@ -207,6 +207,9 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::deviator;
 %newobject ParaMEDMEM::DataArrayDouble::magnitude;
 %newobject ParaMEDMEM::DataArrayDouble::maxPerTuple;
+%newobject ParaMEDMEM::DataArrayDouble::computeBBoxPerTuple;
+%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrix;
+%newobject ParaMEDMEM::DataArrayDouble::buildEuclidianDistanceDenseMatrixWith;
 %newobject ParaMEDMEM::DataArrayDouble::renumber;
 %newobject ParaMEDMEM::DataArrayDouble::renumberR;
 %newobject ParaMEDMEM::DataArrayDouble::renumberAndReduce;
@@ -3986,6 +3989,25 @@ namespace ParaMEDMEM
        default:
          throw INTERP_KERNEL::Exception(msg);
        }
+   }
+   
+   PyObject *computeTupleIdsNearTuples(const DataArrayDouble *other, double eps)
+   {
+     std::vector<int> c,cI;
+     //
+     self->computeTupleIdsNearTuples(other,eps,c,cI);
+     PyObject *ret=PyTuple_New(2);
+     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d0=DataArrayInt::New();
+     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> d1=DataArrayInt::New();
+     d0->alloc(c.size(),1);
+     d1->alloc(cI.size(),1);
+     std::copy(c.begin(),c.end(),d0->getPointer());
+     std::copy(cI.begin(),cI.end(),d1->getPointer());
+     PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(d0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     d0->incrRef();
+     d1->incrRef();
+     return ret;
    }
  };
 

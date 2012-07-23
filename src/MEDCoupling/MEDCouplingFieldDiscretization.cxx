@@ -57,6 +57,10 @@ const char MEDCouplingFieldDiscretizationGaussNE::REPR[]="GSSNE";
 
 const TypeOfField MEDCouplingFieldDiscretizationGaussNE::TYPE=ON_GAUSS_NE;
 
+const char MEDCouplingFieldDiscretizationKriging::REPR[]="KRIGING";
+
+const TypeOfField MEDCouplingFieldDiscretizationKriging::TYPE=ON_NODES_KR;
+
 MEDCouplingFieldDiscretization::MEDCouplingFieldDiscretization():_precision(DFLT_PRECISION)
 {
 }
@@ -73,6 +77,8 @@ MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::New(TypeOfField 
       return new MEDCouplingFieldDiscretizationGauss;
     case MEDCouplingFieldDiscretizationGaussNE::TYPE:
       return new MEDCouplingFieldDiscretizationGaussNE;
+    case MEDCouplingFieldDiscretizationKriging::TYPE:
+      return new MEDCouplingFieldDiscretizationKriging;
     default:
       throw INTERP_KERNEL::Exception("Choosen discretization is not implemented yet.");
     }
@@ -89,6 +95,8 @@ TypeOfField MEDCouplingFieldDiscretization::getTypeOfFieldFromStringRepr(const c
     return MEDCouplingFieldDiscretizationGauss::TYPE;
   if(reprCpp==MEDCouplingFieldDiscretizationGaussNE::REPR)
     return MEDCouplingFieldDiscretizationGaussNE::TYPE;
+  if(reprCpp==MEDCouplingFieldDiscretizationKriging::REPR)
+    return MEDCouplingFieldDiscretizationKriging::TYPE;
   throw INTERP_KERNEL::Exception("Representation does not match with any field discretization !");
 }
 
@@ -517,6 +525,114 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const MEDCou
   return ret;
 }
 
+int MEDCouplingFieldDiscretizationOnNodes::getNumberOfTuples(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getNumberOfNodes();
+}
+
+int MEDCouplingFieldDiscretizationOnNodes::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getNumberOfNodes();
+}
+
+/*!
+ * Nothing to do here.
+ */
+void MEDCouplingFieldDiscretizationOnNodes::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
+                                                                  const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
+{
+}
+
+DataArrayInt *MEDCouplingFieldDiscretizationOnNodes::getOffsetArr(const MEDCouplingMesh *mesh) const
+{
+  int nbOfTuples=mesh->getNumberOfNodes();
+  DataArrayInt *ret=DataArrayInt::New();
+  ret->alloc(nbOfTuples+1,1);
+  ret->iota(0);
+  return ret;
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationOnNodes::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
+{
+  return mesh->getCoordinatesAndOwner();
+}
+
+void MEDCouplingFieldDiscretizationOnNodes::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
+                                                                               DataArrayInt *&cellRest)
+{
+  cellRest=mesh->getCellIdsFullyIncludedInNodeIds(partBg,partEnd);
+}
+
+void MEDCouplingFieldDiscretizationOnNodes::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
+{
+  if(mesh->getNumberOfNodes()!=da->getNumberOfTuples())
+    {
+      std::ostringstream message;
+      message << "Field on nodes invalid because there are " << mesh->getNumberOfNodes();
+      message << " nodes in mesh and " << da->getNumberOfTuples() << " tuples in field !";
+      throw INTERP_KERNEL::Exception(message.str().c_str());
+    }
+}
+
+/*!
+ * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
+* @param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
+ * Example : The first node id of returned mesh has the (*di)[0] id in 'mesh'
+ */
+MEDCouplingMesh *MEDCouplingFieldDiscretizationOnNodes::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
+{
+  MEDCouplingMesh *ret=mesh->buildPartAndReduceNodes(start,end,di);
+  DataArrayInt *di2=di->invertArrayO2N2N2O(ret->getNumberOfNodes());
+  di->decrRef();
+  di=di2;
+  return ret;
+}
+
+/*!
+ * This method returns a tuple ids selection from cell ids selection [start;end).
+ * This method is called by MEDCouplingFieldDiscretizationP0::buildSubMeshData to return parameter \b di.
+ * Here for P1 only nodes fetched by submesh of mesh[startCellIds:endCellIds) is returned !
+ *
+ * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
+ * 
+ */
+DataArrayInt *MEDCouplingFieldDiscretizationOnNodes::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP1::computeTupleIdsToSelectFromCellIds : null mesh !");
+  const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh=mesh->buildUnstructured();
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh2=static_cast<MEDCouplingUMesh *>(umesh->buildPartOfMySelf(startCellIds,endCellIds,true));
+  return umesh2->computeFetchedNodeIds();
+}
+
+void MEDCouplingFieldDiscretizationOnNodes::renumberValuesOnNodes(double epsOnVals, const int *old2NewPtr, DataArrayDouble *arr) const
+{
+  renumberEntitiesFromO2NArr(epsOnVals,old2NewPtr,arr,"Node");
+}
+
+/*!
+ * Nothing to do it's not a bug.
+ */
+void MEDCouplingFieldDiscretizationOnNodes::renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
+{
+}
+
+/*!
+ * Nothing to do it's not a bug.
+ */
+void MEDCouplingFieldDiscretizationOnNodes::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
+{
+}
+
+void MEDCouplingFieldDiscretizationOnNodes::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
+{
+  const MEDCouplingCMesh *meshC=dynamic_cast<const MEDCouplingCMesh *>(mesh);
+  if(!meshC)
+    throw INTERP_KERNEL::Exception("OnNodes::getValueOnPos(i,j,k) is only accessible for structured meshes !");
+  int id=meshC->getNodeIdFromPos(i,j,k);
+  arr->getTuple(id,res);
+}
+
 TypeOfField MEDCouplingFieldDiscretizationP1::getEnum() const
 {
   return TYPE;
@@ -546,59 +662,10 @@ bool MEDCouplingFieldDiscretizationP1::isEqualIfNotWhy(const MEDCouplingFieldDis
   return ret;
 }
 
-/*!
- * Nothing to do here.
- */
-void MEDCouplingFieldDiscretizationP1::renumberArraysForCell(const MEDCouplingMesh *, const std::vector<DataArrayDouble *>& arrays,
-                                                             const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception)
-{
-}
-
-int MEDCouplingFieldDiscretizationP1::getNumberOfTuples(const MEDCouplingMesh *mesh) const
-{
-  return mesh->getNumberOfNodes();
-}
-
-int MEDCouplingFieldDiscretizationP1::getNumberOfMeshPlaces(const MEDCouplingMesh *mesh) const
-{
-  return mesh->getNumberOfNodes();
-}
-
-DataArrayInt *MEDCouplingFieldDiscretizationP1::getOffsetArr(const MEDCouplingMesh *mesh) const
-{
-  int nbOfTuples=mesh->getNumberOfNodes();
-  DataArrayInt *ret=DataArrayInt::New();
-  ret->alloc(nbOfTuples+1,1);
-  ret->iota(0);
-  return ret;
-}
-
-DataArrayDouble *MEDCouplingFieldDiscretizationP1::getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const
-{
-  return mesh->getCoordinatesAndOwner();
-}
-
-void MEDCouplingFieldDiscretizationP1::computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
-                                                                          DataArrayInt *&cellRest)
-{
-  cellRest=mesh->getCellIdsFullyIncludedInNodeIds(partBg,partEnd);
-}
-
 void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
 {
   if(nat!=ConservativeVolumic)
-    throw INTERP_KERNEL::Exception("Invalid nature for P1 field !");
-}
-
-void MEDCouplingFieldDiscretizationP1::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
-{
-  if(mesh->getNumberOfNodes()!=da->getNumberOfTuples())
-    {
-      std::ostringstream message;
-      message << "Field on nodes invalid because there are " << mesh->getNumberOfNodes();
-      message << " nodes in mesh and " << da->getNumberOfTuples() << " tuples in field !";
-      throw INTERP_KERNEL::Exception(message.str().c_str());
-    }
+    throw INTERP_KERNEL::Exception("Invalid nature for P1 field  : expected ConservativeVolumic !");
 }
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
@@ -646,15 +713,6 @@ void MEDCouplingFieldDiscretizationP1::getValueInCell(const MEDCouplingMesh *mes
     }
 }
 
-void MEDCouplingFieldDiscretizationP1::getValueOnPos(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, int i, int j, int k, double *res) const
-{
-  const MEDCouplingCMesh *meshC=dynamic_cast<const MEDCouplingCMesh *>(mesh);
-  if(!meshC)
-    throw INTERP_KERNEL::Exception("P1::getValueOnPos is only accessible for structured meshes !");
-  int id=meshC->getNodeIdFromPos(i,j,k);
-  arr->getTuple(id,res);
-}
-
 DataArrayDouble *MEDCouplingFieldDiscretizationP1::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
 {
   std::vector<int> elts,eltsIndex;
@@ -676,56 +734,6 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP1::getValueOnMulti(const DataArr
       }
   ret->incrRef();
   return ret;
-}
-
-void MEDCouplingFieldDiscretizationP1::renumberValuesOnNodes(double epsOnVals, const int *old2NewPtr, DataArrayDouble *arr) const
-{
-  renumberEntitiesFromO2NArr(epsOnVals,old2NewPtr,arr,"Node");
-}
-
-/*!
- * Nothing to do it's not a bug.
- */
-void MEDCouplingFieldDiscretizationP1::renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, DataArrayDouble *arr) const
-{
-}
-
-/*!
- * Nothing to do it's not a bug.
- */
-void MEDCouplingFieldDiscretizationP1::renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const
-{
-}
-
-/*!
- * This method returns a submesh of 'mesh' instance constituting cell ids contained in array defined as an interval [start;end).
-* @param di is an array returned that specifies entity ids (here nodes ids) in mesh 'mesh' of entity in returned submesh.
- * Example : The first node id of returned mesh has the (*di)[0] id in 'mesh'
- */
-MEDCouplingMesh *MEDCouplingFieldDiscretizationP1::buildSubMeshData(const MEDCouplingMesh *mesh, const int *start, const int *end, DataArrayInt *&di) const
-{
-  MEDCouplingMesh *ret=mesh->buildPartAndReduceNodes(start,end,di);
-  DataArrayInt *di2=di->invertArrayO2N2N2O(ret->getNumberOfNodes());
-  di->decrRef();
-  di=di2;
-  return ret;
-}
-
-/*!
- * This method returns a tuple ids selection from cell ids selection [start;end).
- * This method is called by MEDCouplingFieldDiscretizationP0::buildSubMeshData to return parameter \b di.
- * Here for P1 only nodes fetched by submesh of mesh[startCellIds:endCellIds) is returned !
- *
- * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
- * 
- */
-DataArrayInt *MEDCouplingFieldDiscretizationP1::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const int *startCellIds, const int *endCellIds) const
-{
-  if(!mesh)
-    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP1::computeTupleIdsToSelectFromCellIds : null mesh !");
-  const MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh=mesh->buildUnstructured();
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> umesh2=static_cast<MEDCouplingUMesh *>(umesh->buildPartOfMySelf(startCellIds,endCellIds,true));
-  return umesh2->computeFetchedNodeIds();
 }
 
 MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell():_discr_per_cell(0)
@@ -1667,5 +1675,128 @@ void MEDCouplingFieldDiscretizationGaussNE::renumberValuesOnCellsR(const MEDCoup
 
 MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other):MEDCouplingFieldDiscretization(other)
 {
+}
+
+TypeOfField MEDCouplingFieldDiscretizationKriging::getEnum() const
+{
+  return TYPE;
+}
+
+const char *MEDCouplingFieldDiscretizationKriging::getRepr() const
+{
+  return REPR;
+}
+
+MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationKriging::clone() const
+{
+  return new MEDCouplingFieldDiscretizationKriging;
+}
+
+std::string MEDCouplingFieldDiscretizationKriging::getStringRepr() const
+{
+  return std::string(REPR);
+}
+
+void MEDCouplingFieldDiscretizationKriging::checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception)
+{
+  if(nat!=ConservativeVolumic)
+    throw INTERP_KERNEL::Exception("Invalid nature for Kriging field : expected ConservativeVolumic !");
+}
+
+bool MEDCouplingFieldDiscretizationKriging::isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const
+{
+  const MEDCouplingFieldDiscretizationKriging *otherC=dynamic_cast<const MEDCouplingFieldDiscretizationKriging *>(other);
+  bool ret=otherC!=0;
+  if(!ret)
+    reason="Spatial discrtization of this is ON_NODES_KR, which is not the case of other.";
+  return ret;
+}
+
+MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationKriging::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
+{
+  throw INTERP_KERNEL::Exception("getMeasureField on FieldDiscretizationKriging : not implemented yet !");
+}
+
+int inverseMatrix(const double *A, int n, double *iA)
+{
+  INTERP_KERNEL::AutoPtr<int> ipvt=new int[n];
+  double determinant[2];
+  INTERP_KERNEL::AutoPtr<double> work=new double[n*n];
+  std::copy(A,A+n*n,iA);
+  //dgefa(iA,n,n,ipvt);
+  //dgedi(iA,n,n,ipvt,determinant,work);
+}
+
+int prodMatrix(const double *A, int n1, int p1, const double *B, int n2, int p2, double *C)
+{
+  for(int i=0;i<n1;i++)
+    {
+      for(int j=0;j<p2;j++)
+        {
+          C[i*p2+j] = 0.;
+          for(int k=0;k<p1;k++)
+            C[i*p2+j]+=A[i*p1+k]*B[k*p2+j];
+        }
+    }
+}
+
+void MEDCouplingFieldDiscretizationKriging::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
+  int nbOfPts=coords->getNumberOfTuples();
+  int dimension=coords->getNumberOfComponents();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix=coords->buildEuclidianDistanceDenseMatrix();
+  operateOnDenseMatrix(mesh,nbOfPts*nbOfPts,matrix->getPointer());
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> locArr=DataArrayDouble::New();
+  locArr->useArray(loc,false,CPP_DEALLOC,1,dimension);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);
+  operateOnDenseMatrix(mesh,1*dimension,matrix2->getPointer());
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv=DataArrayDouble::New();
+  matrixInv->alloc(nbOfPts*nbOfPts,1);
+  inverseMatrix(matrix->getConstPointer(),nbOfPts,matrixInv->getPointer());
+  //matrixInv->fillWithZero();//needed ?
+  //int info=inverseCholesky(matrix->getConstPointer(),nbOfPts,matrixInv->getPointer());
+  //if(info!=0)
+  //  throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::getValueOn : error during inversion of dense matrix using Cholesky upper matrix !");
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> KnewiK=DataArrayDouble::New();
+  KnewiK->alloc(1*nbOfPts,1);
+  prodMatrix(matrix2->getConstPointer(),1,nbOfPts,matrixInv->getConstPointer(),nbOfPts,nbOfPts,KnewiK->getPointer());
+  //
+  int nbOfCompo=arr->getNumberOfComponents();
+  prodMatrix(KnewiK->getConstPointer(),1,nbOfPts,arr->getConstPointer(),nbOfPts,nbOfCompo,res);
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
+{
+  throw INTERP_KERNEL::Exception("getValueOnMulti on FieldDiscretizationKriging : not implemented yet !");
+}
+
+/*!
+ * Apply \f f(x) on each element x in \a matrixPtr. \a matrixPtr is expected to be a dense matrix represented by a chunck of memory of size at least equal to \a nbOfElems.
+ *
+ * \param [in] mesh input mesh on which the Kriging has to be performed
+ * \param [in] nbOfElems is the result of the product of nb of rows and the nb of columns of matrix \a matrixPtr
+ * \param [in,out] matrixPtr is the dense matrix whose on each values the operation will be applied
+ */
+void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(const MEDCouplingMesh *mesh, int nbOfElems, double *matrixPtr) const
+{
+  int spaceDim=mesh->getSpaceDimension();
+  switch(spaceDim)
+    {
+    case 1:
+      {
+        for(int i=0;i<nbOfElems;i++)
+          {
+            double val=matrixPtr[i];
+            matrixPtr[i]=val*val*val;
+          }
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix : only dimension 1 implemented !");
+    }
 }
 

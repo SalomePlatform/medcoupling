@@ -22,7 +22,6 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingUMeshDesc.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingPointSet.txx"
 #include "PlanarIntersector.txx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DNode.hxx"
@@ -241,37 +240,10 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfNodes,
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : no coordiantes set !");
-  const double *coordsPtr=_coords->getConstPointer();
-  if(!coordsPtr)
-    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : coordiante array set but no data inside it !");
   int spaceDim=getSpaceDimension();
-  int nbNodes=getNumberOfNodes();
-  std::vector<double> bbox(2*nbNodes*spaceDim);
-  for(int i=0;i<nbNodes;i++)
-    {
-      for(int j=0;j<spaceDim;j++)
-        {
-          bbox[2*spaceDim*i+2*j]=coordsPtr[spaceDim*i+j];
-          bbox[2*spaceDim*i+2*j+1]=coordsPtr[spaceDim*i+j];
-        }
-    }
-  std::vector<int> ret;
-  c.clear();
-  cI.resize(1); cI[0]=0;
-  switch(spaceDim)
-    {
-    case 3:
-      findNodeIdsNearPointAlg<3>(bbox,pos,nbOfNodes,eps,c,cI);
-      break;
-    case 2:
-      findNodeIdsNearPointAlg<2>(bbox,pos,nbOfNodes,eps,c,cI);
-      break;
-    case 1:
-      findNodeIdsNearPointAlg<1>(bbox,pos,nbOfNodes,eps,c,cI);
-      break;
-    default:
-      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for getNodeIdsNearPoint. Must be 1, 2 or 3.");
-    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> points=DataArrayDouble::New();
+  points->useArray(pos,false,CPP_DEALLOC,nbOfNodes,spaceDim);
+  _coords->computeTupleIdsNearTuples(points,eps,c,cI);
 }
 
 /*!

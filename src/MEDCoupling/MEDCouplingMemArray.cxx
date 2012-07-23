@@ -75,6 +75,32 @@ void DataArrayDouble::findCommonTuplesAlg(std::vector<double>& bbox,
     }
 }
 
+template<int SPACEDIM>
+void DataArrayDouble::findTupleIdsNearTuplesAlg(const double *bbox, const double *pos, int nbOfTuples, double eps,
+                                                std::vector<int>& c, std::vector<int>& cI) const
+{
+  const double *coordsPtr=getConstPointer();
+  BBTree<SPACEDIM,int> myTree(bbox,0,0,getNumberOfTuples(),-eps);
+  double bb[2*SPACEDIM];
+  double eps2=eps*eps;
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      for(int j=0;j<SPACEDIM;j++)
+        {
+          bb[2*j]=pos[SPACEDIM*i+j];
+          bb[2*j+1]=pos[SPACEDIM*i+j];
+        }
+      std::vector<int> intersectingElems;
+      myTree.getIntersectingElems(bb,intersectingElems);
+      std::vector<int> commonNodes;
+      for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
+        if(INTERP_KERNEL::distance2<SPACEDIM>(pos+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<eps2)
+          commonNodes.push_back(*it);
+      cI.push_back(cI.back()+(int)commonNodes.size());
+      c.insert(c.end(),commonNodes.begin(),commonNodes.end());
+    }
+}
+
 void DataArray::setName(const char *name)
 {
   _name=name;
@@ -1629,6 +1655,83 @@ void DataArrayDouble::getMinMaxPerComponent(double *bounds) const throw(INTERP_K
 }
 
 /*!
+ * This method retrieves a newly allocated DataArrayDouble instance having same number of tuples than \a this and twice number of components than \a this
+ * to store both the min and max per component of each tuples. 
+ *
+ * \return a newly created DataArrayDouble instance having \c this->getNumberOfTuples() tuples and 2 * \c this->getNumberOfComponent() components
+ *
+ * \throw If \a this is not allocated yet.
+ */
+DataArrayDouble *DataArrayDouble::computeBBoxPerTuple() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  const double *dataPtr=getConstPointer();
+  int nbOfCompo=getNumberOfComponents();
+  int nbTuples=getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox=DataArrayDouble::New();
+  bbox->alloc(nbTuples,2*nbOfCompo);
+  double *bboxPtr=bbox->getPointer();
+  for(int i=0;i<nbTuples;i++)
+    {
+      for(int j=0;j<nbOfCompo;j++)
+        {
+          bboxPtr[2*nbOfCompo*i+2*j]=dataPtr[nbOfCompo*i+j];
+          bboxPtr[2*nbOfCompo*i+2*j+1]=dataPtr[nbOfCompo*i+j];
+        }
+    }
+  bbox->incrRef();
+  return bbox;
+}
+
+/*!
+ * For each tuples **t** in \a other, this method retrieves tuples in \a this that are equal to **t**.
+ * Two tuples are considered equal if the euclidian distance between the two tuples is lower than \a eps.
+ * 
+ * \param [in] other a DataArrayDouble having same number of components than \a this.
+ * \param [in] eps absolute precision representing euclidian distance between 2 tuples behind which 2 tuples are considered equal.
+ * \param [out] c will contain the set of tuple ids in \a this that are equal to to the tuple ids in \a other contiguously.
+ *             \a cI allows to extract information in \a c.
+ * \param [out] cI is an indirection array that allows to extract the data contained in \a c.
+ *
+ * \throw In case of:
+ *  - \a this is not allocated
+ *  - \a other is not allocated or null
+ *  - \a this and \a other do not have the same number of components
+ *  - if number of components of \a this is not in [1,2,3]
+ *
+ * \sa MEDCouplingPointSet::getNodeIdsNearPoints, DataArrayDouble::getDifferentValues
+ */
+void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception)
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::computeTupleIdsNearTuples : input pointer other is null !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox=computeBBoxPerTuple();
+  other->checkAllocated();
+  int nbOfCompo=getNumberOfComponents();
+  int otherNbOfCompo=other->getNumberOfComponents();
+  if(nbOfCompo!=otherNbOfCompo)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::computeTupleIdsNearTuples : number of components should be equal between this and other !");
+  int nbOfTuplesOther=other->getNumberOfTuples();
+  std::vector<int> ret;
+  c.clear();
+  cI.resize(1); cI[0]=0;
+  switch(nbOfCompo)
+    {
+    case 3:
+      findTupleIdsNearTuplesAlg<3>(bbox->getConstPointer(),other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+      break;
+    case 2:
+      findTupleIdsNearTuplesAlg<2>(bbox->getConstPointer(),other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+      break;
+    case 1:
+      findTupleIdsNearTuplesAlg<1>(bbox->getConstPointer(),other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+      break;
+    default:
+      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for computeTupleIdsNearTuples. Must be 1, 2 or 3.");
+    }
+}
+
+/*!
  * This method recenter tuples in \b this in order to be centered at the origin to benefit about the advantages of maximal precision to be around the box
  * around origin of 'radius' 1.
  * 
@@ -2035,6 +2138,97 @@ DataArrayDouble *DataArrayDouble::maxPerTuple() const throw(INTERP_KERNEL::Excep
   double *dest=ret->getPointer();
   for(int i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
     *dest=*std::max_element(src,src+nbOfComp);
+  return ret;
+}
+
+/*!
+ * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples() * \c this->getNumberOfTuples() tuples.
+ * \n This returned array contains the euclidian distance for each tuple in \a this. 
+ * \n So the returned array can be seen as a dense symmetrical matrix whose diagonal elements are equal to 0.
+ * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the useless memory consumption due to components info in returned DataArrayDouble)
+ *
+ * \warning use this method with care because it can leads to big amount of consumed memory !
+ * 
+ * \return A newly allocated (huge) ParaMEDMEM::DataArrayDouble instance that the caller should deal with.
+ *
+ * \throw If \a this is not allocated.
+ *
+ * \sa DataArrayDouble::buildEuclidianDistanceDenseMatrixWith
+ */
+DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrix() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  int nbOfTuples=getNumberOfTuples();
+  const double *inData=getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  ret->alloc(nbOfTuples*nbOfTuples,1);
+  double *outData=ret->getPointer();
+  for(int i=0;i<nbOfTuples;i++)
+    {
+      outData[i*nbOfTuples+i]=0.;
+      for(int j=i+1;j<nbOfTuples;j++)
+        {
+          double dist=0.;
+          for(int k=0;k<nbOfComp;k++)
+            { double delta=inData[i*nbOfComp+k]-inData[j*nbOfComp+k]; dist+=delta*delta; }
+          dist=sqrt(dist);
+          outData[i*nbOfTuples+j]=dist;
+          outData[j*nbOfTuples+i]=dist;
+        }
+    }
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples() * \c other->getNumberOfTuples() tuples.
+ * \n This returned array contains the euclidian distance for each tuple in \a other with each tuple in \a this. 
+ * \n So the returned array can be seen as a dense rectangular matrix with \c other->getNumberOfTuples() rows and \c this->getNumberOfTuples() columns.
+ * \n Output rectangular matrix is sorted along rows.
+ * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the useless memory consumption due to components info in returned DataArrayDouble)
+ *
+ * \warning use this method with care because it can leads to big amount of consumed memory !
+ * 
+ * \param [in] other DataArrayDouble instance having same number of components than \a this.
+ * \return A newly allocated (huge) ParaMEDMEM::DataArrayDouble instance that the caller should deal with.
+ *
+ * \throw If \a this is not allocated, or if \a other is null or if \a other is not allocated, or if number of components of \a other and \a this differs.
+ *
+ * \sa DataArrayDouble::buildEuclidianDistanceDenseMatrix
+ */
+DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception)
+{
+  if(!other)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::buildEuclidianDistanceDenseMatrixWith : input parameter is null !");
+  checkAllocated();
+  other->checkAllocated();
+  int nbOfComp=getNumberOfComponents();
+  int otherNbOfComp=other->getNumberOfComponents();
+  if(nbOfComp!=otherNbOfComp)
+    {
+      std::ostringstream oss; oss << "DataArrayDouble::buildEuclidianDistanceDenseMatrixWith : this nb of compo=" << nbOfComp << " and other nb of compo=" << otherNbOfComp << ". It should match !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  int nbOfTuples=getNumberOfTuples();
+  int otherNbOfTuples=other->getNumberOfTuples();
+  const double *inData=getConstPointer();
+  const double *inDataOther=other->getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  ret->alloc(otherNbOfTuples*nbOfTuples,1);
+  double *outData=ret->getPointer();
+  for(int i=0;i<otherNbOfTuples;i++,inDataOther+=nbOfComp)
+    {
+      for(int j=0;j<nbOfTuples;j++)
+        {
+          double dist=0.;
+          for(int k=0;k<nbOfComp;k++)
+            { double delta=inDataOther[k]-inData[j*nbOfComp+k]; dist+=delta*delta; }
+          dist=sqrt(dist);
+          outData[i*nbOfTuples+j]=dist;
+        }
+    }
+  ret->incrRef();
   return ret;
 }
 

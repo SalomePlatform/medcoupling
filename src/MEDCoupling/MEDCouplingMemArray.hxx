@@ -217,6 +217,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getMinMaxPerComponent(double *bounds) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *computeBBoxPerTuple() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void computeTupleIdsNearTuples(const DataArrayDouble *other, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMaxValueInArray() const throw(INTERP_KERNEL::Exception);
@@ -241,6 +243,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayDouble *deviator() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *magnitude() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayDouble *maxPerTuple() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrix() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void sortPerTuple(bool asc) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void abs() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void applyLin(double a, double b, int compoId) throw(INTERP_KERNEL::Exception);
@@ -282,6 +286,9 @@ namespace ParaMEDMEM
     template<int SPACEDIM>
     void findCommonTuplesAlg(std::vector<double>& bbox,
                              int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const;
+    template<int SPACEDIM>
+    void findTupleIdsNearTuplesAlg(const double *bbox, const double *pos, int nbOfTuples, double eps,
+                                   std::vector<int>& c, std::vector<int>& cI) const;
   private:
     DataArrayDouble() { }
   private:
