@@ -197,4 +197,48 @@ class SauvLoaderTest(unittest.TestCase):
         os.remove( medFile )
         pass
 
+    def testSauv2MedOnPipe1D(self):
+        """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""
+        sauvFile = "/tmp/myTest_sauve_1D.sauv"
+
+        # Make a sauve file with a qudratic 1D mesh
+        # MEDCouplingUMesh
+        m=MEDCouplingUMesh.New();
+        m.setMeshDimension(1);
+        m.allocateCells(2);
+        targetConn=[0,2,1, 2,4,3]
+        m.insertNextCell(NORM_SEG3,3,targetConn[0:3])
+        m.insertNextCell(NORM_SEG3,3,targetConn[3:6])
+        m.finishInsertingCells();
+        # coords
+        coords=[ 0.,1.,2.,4.,5. ];
+        c=DataArrayDouble.New()
+        c.setValues(coords,5,1)
+        m.setCoords(c)
+        # MEDFileUMesh
+        mm=MEDFileUMesh.New()
+        mm.setName("pipe1D")
+        mm.setDescription("1D mesh")
+        mm.setCoords(c)
+        mm.setMeshAtLevel(0,m);
+        # MEDFileData
+        mfd1 = MEDFileData.New()
+        ms=MEDFileMeshes.New(); ms.setMeshAtPos(0,mm)
+        mfd1.setMeshes(ms)
+        # write
+        sw=SauvWriter.New()
+        sw.setMEDFileDS( mfd1 )
+        sw.write(sauvFile)
+
+        # Check connectivity read from the sauv file
+        sr = SauvReader.New(sauvFile)
+        mfd2 = sr.loadInMEDFileDS()
+        mfMesh = mfd2.getMeshes()[0]
+        mesh = mfMesh.getMeshAtLevel(0)
+        self.assertEqual(mesh.getNodalConnectivity(), m.getNodalConnectivity() )
+
+        os.remove( sauvFile )
+
+        pass
+
 unittest.main()
