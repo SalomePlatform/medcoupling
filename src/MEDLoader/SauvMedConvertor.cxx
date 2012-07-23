@@ -1190,11 +1190,19 @@ void IntermediateMED::setGroupLongNames()
       // of grp and the rest ones are names of groups referring grp (issue 0021311)
       const bool isRefName = !treatedGroups.insert( itGIBItoMED->gibi_id ).second;
       if ( !isRefName )
-        grp._name = _mapStrings[ itGIBItoMED->med_id ];
+        {
+          grp._name = _mapStrings[ itGIBItoMED->med_id ];
+        }
+      else if ( !grp._refNames.empty() && grp._refNames.back().empty() )
+        {
+          for ( unsigned i = 0; i < grp._refNames.size(); ++i )
+            if ( grp._refNames[i].empty() )
+              grp._refNames[i] = _mapStrings[ (*itGIBItoMED).med_id ];
+        }
       else
-        for ( unsigned i = 0; i < grp._refNames.size(); ++i )
-          if ( grp._refNames[i].empty() )
-            grp._refNames[i] = _mapStrings[ (*itGIBItoMED).med_id ];
+        {
+          grp._refNames.push_back( _mapStrings[ (*itGIBItoMED).med_id ]);
+        }
     }
 }
 
