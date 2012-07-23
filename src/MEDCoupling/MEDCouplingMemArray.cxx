@@ -76,11 +76,10 @@ void DataArrayDouble::findCommonTuplesAlg(std::vector<double>& bbox,
 }
 
 template<int SPACEDIM>
-void DataArrayDouble::findTupleIdsNearTuplesAlg(const double *bbox, const double *pos, int nbOfTuples, double eps,
+void DataArrayDouble::findTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
                                                 std::vector<int>& c, std::vector<int>& cI) const
 {
   const double *coordsPtr=getConstPointer();
-  BBTree<SPACEDIM,int> myTree(bbox,0,0,getNumberOfTuples(),-eps);
   double bb[2*SPACEDIM];
   double eps2=eps*eps;
   for(int i=0;i<nbOfTuples;i++)
@@ -1718,14 +1717,23 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
   switch(nbOfCompo)
     {
     case 3:
-      findTupleIdsNearTuplesAlg<3>(bbox->getConstPointer(),other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
-      break;
+      {
+        BBTree<3,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),-eps);
+        findTupleIdsNearTuplesAlg<3>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        break;
+      }
     case 2:
-      findTupleIdsNearTuplesAlg<2>(bbox->getConstPointer(),other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
-      break;
+      {
+        BBTree<2,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),-eps);
+        findTupleIdsNearTuplesAlg<2>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        break;
+      }
     case 1:
-      findTupleIdsNearTuplesAlg<1>(bbox->getConstPointer(),other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
-      break;
+      {
+        BBTree<1,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),-eps);
+        findTupleIdsNearTuplesAlg<1>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        break;
+      }
     default:
       throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for computeTupleIdsNearTuples. Must be 1, 2 or 3.");
     }

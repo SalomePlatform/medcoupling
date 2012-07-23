@@ -23,7 +23,6 @@
 #include "NormalizedUnstructuredMesh.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpolationUtils.hxx"
-#include "BBTree.txx"
 
 #include <sstream>
 #include <algorithm>

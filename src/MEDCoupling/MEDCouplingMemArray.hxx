@@ -24,6 +24,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "InterpKernelException.hxx"
+#include "BBTree.txx"
 
 #include <set>
 #include <string>
@@ -109,7 +110,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _nb_of_tuples; }
     MEDCOUPLING_EXPORT int getNbOfElems() const { return ((int)_info_on_compo.size())*_nb_of_tuples; }
     MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT 
+void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -282,12 +284,12 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
     MEDCOUPLING_EXPORT bool resizeForUnserialization(const std::vector<int>& tinyInfoI);
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
-  protected:
+  public:
     template<int SPACEDIM>
     void findCommonTuplesAlg(std::vector<double>& bbox,
                              int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const;
     template<int SPACEDIM>
-    void findTupleIdsNearTuplesAlg(const double *bbox, const double *pos, int nbOfTuples, double eps,
+    void findTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
                                    std::vector<int>& c, std::vector<int>& cI) const;
   private:
     DataArrayDouble() { }
