@@ -204,6 +204,7 @@ SET(MED_RESOURCES_FILES
   blow5_ascii_pd_thickness
   test_2D.sauve
   allPillesTest.sauv
+  BDC-714.sauv
   )
 
 IF(MED_ENABLE_GUI)

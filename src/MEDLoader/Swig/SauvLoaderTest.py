@@ -198,13 +198,10 @@ class SauvLoaderTest(unittest.TestCase):
         pass
 
     def testSauv2MedOnPipe1D(self):
-        """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""
-        sauvFile = "/tmp/myTest_sauve_1D.sauv"
-
+        """test for issue 0021745: [CEA 600] Some missing groups in mesh after reading a SAUV file with SauvReader."""
+        sauvFile="Test_sauve_1D.sauv"
         # Make a sauve file with a qudratic 1D mesh
-        # MEDCouplingUMesh
-        m=MEDCouplingUMesh.New();
-        m.setMeshDimension(1);
+        m=MEDCouplingUMesh.New("pipe1D",1)
         m.allocateCells(2);
         targetConn=[0,2,1, 2,4,3]
         m.insertNextCell(NORM_SEG3,3,targetConn[0:3])
@@ -217,7 +214,7 @@ class SauvLoaderTest(unittest.TestCase):
         m.setCoords(c)
         # MEDFileUMesh
         mm=MEDFileUMesh.New()
-        mm.setName("pipe1D")
+        mm.setName(m.getName())
         mm.setDescription("1D mesh")
         mm.setCoords(c)
         mm.setMeshAtLevel(0,m);
@@ -227,18 +224,41 @@ class SauvLoaderTest(unittest.TestCase):
         mfd1.setMeshes(ms)
         # write
         sw=SauvWriter.New()
-        sw.setMEDFileDS( mfd1 )
+        sw.setMEDFileDS(mfd1)
         sw.write(sauvFile)
-
         # Check connectivity read from the sauv file
         sr = SauvReader.New(sauvFile)
         mfd2 = sr.loadInMEDFileDS()
         mfMesh = mfd2.getMeshes()[0]
         mesh = mfMesh.getMeshAtLevel(0)
-        self.assertEqual(mesh.getNodalConnectivity(), m.getNodalConnectivity() )
-
-        os.remove( sauvFile )
-
+        self.assertTrue(mesh.getNodalConnectivity().isEqual(m.getNodalConnectivity()))
+        #
+        os.remove(sauvFile)
         pass
+
+    def testMissingGroups(self):
+        """test for issue 0021749: [CEA 601] Some missing groups in mesh after reading a SAUV file with SauvReader."""
+        self.assertTrue( os.getenv("MED_ROOT_DIR") )
+        sauvFile = os.path.join( os.getenv("MED_ROOT_DIR"), "share","salome",
+                                 "resources","med","BDC-714.sauv")
+        self.assertTrue( os.access( sauvFile, os.F_OK))
+        name_of_group_on_cells='Slice10:ABSORBER'
+        name_of_group_on_cells2='Slice10:00LR'
+        sr=SauvReader.New(sauvFile)
+        mfd2=sr.loadInMEDFileDS()
+        mfMesh=mfd2.getMeshes()[0]
+        #
+        self.assertTrue(name_of_group_on_cells in mfMesh.getGroupsNames())
+        self.assertTrue(name_of_group_on_cells2 in mfMesh.getGroupsNames())
+        self.assertEqual(270,len(mfMesh.getGroupsNames()))
+        #
+        ids1=mfMesh.getGroupArr(0,name_of_group_on_cells)
+        ids2=mfMesh.getGroupArr(0,name_of_group_on_cells2)
+        ids1.setName("")
+        ids2.setName("")
+        self.assertTrue(ids1.isEqual(ids2))
+        pass
+
+    pass
 
 unittest.main()
