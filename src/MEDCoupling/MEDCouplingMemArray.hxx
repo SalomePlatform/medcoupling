@@ -219,7 +219,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getMinMaxPerComponent(double *bounds) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT DataArrayDouble *computeBBoxPerTuple() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayDouble *computeBBoxPerTuple(double epsilon=0.0) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void computeTupleIdsNearTuples(const DataArrayDouble *other, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void recenterForMaxPrecision(double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double getMaxValue(int& tupleId) const throw(INTERP_KERNEL::Exception);

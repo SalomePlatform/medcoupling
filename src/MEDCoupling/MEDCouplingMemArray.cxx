@@ -1661,7 +1661,7 @@ void DataArrayDouble::getMinMaxPerComponent(double *bounds) const throw(INTERP_K
  *
  * \throw If \a this is not allocated yet.
  */
-DataArrayDouble *DataArrayDouble::computeBBoxPerTuple() const throw(INTERP_KERNEL::Exception)
+DataArrayDouble *DataArrayDouble::computeBBoxPerTuple(double epsilon)const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   const double *dataPtr=getConstPointer();
@@ -1674,8 +1674,8 @@ DataArrayDouble *DataArrayDouble::computeBBoxPerTuple() const throw(INTERP_KERNE
     {
       for(int j=0;j<nbOfCompo;j++)
         {
-          bboxPtr[2*nbOfCompo*i+2*j]=dataPtr[nbOfCompo*i+j];
-          bboxPtr[2*nbOfCompo*i+2*j+1]=dataPtr[nbOfCompo*i+j];
+          bboxPtr[2*nbOfCompo*i+2*j]=dataPtr[nbOfCompo*i+j]-epsilon;
+          bboxPtr[2*nbOfCompo*i+2*j+1]=dataPtr[nbOfCompo*i+j]+epsilon;
         }
     }
   bbox->incrRef();
