@@ -29,6 +29,8 @@
 #include <vector>
 #include <string>
 
+#include "BBTree.txx"
+
 namespace ParaMEDMEM
 {
   class MEDCouplingUMesh;
@@ -152,18 +154,15 @@ namespace MEDPARTITIONER
 
     void findCommonDistantNodes(std::vector<std::vector<std::multimap<int,int> > >& commonDistantNodes);
 
-    void remapIntField(const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
-                       const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
-                       const int* fromArray,
-                       int* toArray);
     
-    void remapIntField2(int inew, int iold, 
+    void remapIntField(int inew, int iold, 
                         const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
                         const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
                         const int* fromArray,
-                        std::string nameArrayTo);
+                        std::string nameArrayTo,
+                       const BBTree<3,int>& tree);
 
-    void remapDoubleField3(int inew, int iold,
+    void remapDoubleField(int inew, int iold,
                            ParaMEDMEM::DataArrayDouble* fromArray,
                            std::string nameArrayTo,
                            std::string descriptionField);

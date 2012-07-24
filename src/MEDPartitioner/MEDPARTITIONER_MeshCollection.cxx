@@ -40,6 +40,8 @@
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "PointLocator3DIntersectorP0P0.hxx"
+
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "BBTree.txx"
 
 #ifdef HAVE_MPI2
@@ -312,14 +314,14 @@ void MEDPARTITIONER::MeshCollection::createNodeMapping( MeshCollection& initialC
         {
           //      std::map<pair<double,pair<double, double> >, int > nodeClassifier;
           int nvertices=initialCollection.getMesh(iold)->getNumberOfNodes();
-          bbox=new double[nvertices*6];
+          bbox=new double[nvertices*2*3];
           ParaMEDMEM::DataArrayDouble* coords = initialCollection.getMesh(iold)->getCoords();
           double* coordsPtr=coords->getPointer();
 
           for (int i=0; i<nvertices*3;i++)
             {
-              bbox[i*2]=coordsPtr[i]-1e-6;
-              bbox[i*2+1]=coordsPtr[i]+1e-6;
+              bbox[i*2]=coordsPtr[i]-1e-8;
+              bbox[i*2+1]=coordsPtr[i]+1e-8;
             }
           tree=new BBTree<3>(bbox,0,0,nvertices,1e-9);
         }
@@ -382,8 +384,8 @@ void getNodeIds(ParaMEDMEM::MEDCouplingUMesh& meshOne, ParaMEDMEM::MEDCouplingUM
   double* coordsPtr=coords->getPointer();
   for (int i=0; i<nv1*3; i++)
     {
-      bbox[i*2]=coordsPtr[i]-1e-6;
-      bbox[i*2+1]=coordsPtr[i]+1e-6;
+      bbox[i*2]=coordsPtr[i]-1e-8;
+      bbox[i*2+1]=coordsPtr[i]+1e-8;
     }
   tree=new BBTree<3>(bbox,0,0,nv1,1e-9);
   
@@ -591,35 +593,7 @@ void MEDPARTITIONER::MeshCollection::castFaceMeshes(MeshCollection& initialColle
     std::cout << "proc " << MyGlobals::_Rank << " : castFaceMeshes end fusing" << std::endl;
 }
 
-void MEDPARTITIONER::MeshCollection::remapIntField(const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
-                                   const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
-                                   const int* fromArray,
-                                   int* toArray)
-{
-  using std::vector;
-  if (sourceMesh.getNumberOfCells()<=0) return; //empty mesh could exist
-  //cvw std::cout<<"remapIntField "<<sourceMesh.getNumberOfCells()<<" "<<targetMesh.getNumberOfCells()<<std::endl;
-  ParaMEDMEM::DataArrayDouble* sourceCoords=sourceMesh.getBarycenterAndOwner();
-  ParaMEDMEM::DataArrayDouble* targetCoords=targetMesh.getBarycenterAndOwner();
-   
-  ParaMEDMEM::MEDCouplingUMesh* tmpMesh=ParaMEDMEM::MEDCouplingUMesh::New();
-  tmpMesh->setCoords(sourceCoords);
-  vector<int> c;
-  vector<int> cI;
-  tmpMesh->getNodeIdsNearPoints(targetCoords->getConstPointer(),targetMesh.getNumberOfCells(),1e-10,c,cI);
-  if ((int)cI.size()!= targetMesh.getNumberOfCells()+1) 
-    throw INTERP_KERNEL::Exception("Error in source/target projection");
-  for (int itargetnode=0; itargetnode<targetMesh.getNumberOfCells();itargetnode++)    
-    {
-      if (cI[itargetnode]==cI[itargetnode+1])
-        continue;
-      int isourcenode=c[cI[itargetnode]];
-      toArray[itargetnode]=fromArray[isourcenode];
-    } 
-  sourceCoords->decrRef();
-  targetCoords->decrRef();
-  tmpMesh->decrRef();
-}
+
 
 void MEDPARTITIONER::MeshCollection::castIntField2(std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom,
                                    std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastTo,
@@ -630,6 +604,23 @@ void MEDPARTITIONER::MeshCollection::castIntField2(std::vector<ParaMEDMEM::MEDCo
   
   int ioldMax=meshesCastFrom.size();
   int inewMax=meshesCastTo.size();
+
+
+  //preparing bounding box trees for accelerating source-target node identifications
+  if (MyGlobals::_Verbose>99)
+    std::cout<<"making accelerating structures"<<std::endl;
+  std::vector<BBTree<3,int>* > acceleratingStructures(inewMax);
+  std::vector<ParaMEDMEM::DataArrayDouble*>bbox(inewMax);
+  for (int inew =0; inew< inewMax; inew++)
+    if (isParallelMode() && _domain_selector->isMyDomain(inew))
+      {
+        if (MyGlobals::_Verbose>199)
+          std::cout<<"domain"<<inew<<" making accelerating structures for"<<meshesCastTo[inew]->getNumberOfCells()<<" cells"<<std::endl;
+        ParaMEDMEM::DataArrayDouble* sourceCoords=meshesCastTo[inew]->getBarycenterAndOwner();
+        bbox[inew]=sourceCoords->computeBBoxPerTuple(1.e-6);
+        acceleratingStructures[inew]=new BBTree<3,int> (bbox[inew]->getConstPointer(),0,0,bbox[inew]->getNumberOfTuples());
+      }
+
   // send-recv operations
 #ifdef HAVE_MPI2
   for (int inew=0; inew<inewMax; inew++)
@@ -667,7 +658,7 @@ void MEDPARTITIONER::MeshCollection::castIntField2(std::vector<ParaMEDMEM::MEDCo
               //receive vector
               if (MyGlobals::_Verbose>400) std::cout<<"proc "<<_domain_selector->rank()<<" : castIntField recIntVec "<<std::endl;
               RecvIntVec(recvIds, _domain_selector->getProcessorID(iold));
-              remapIntField2(inew,iold,*recvMesh,*meshesCastTo[inew],&recvIds[0],nameArrayTo);
+              remapIntField(inew,iold,*recvMesh,*meshesCastTo[inew],&recvIds[0],nameArrayTo,*acceleratingStructures[inew]);
               recvMesh->decrRef(); //cww is it correct?
             }
         }
@@ -680,32 +671,38 @@ void MEDPARTITIONER::MeshCollection::castIntField2(std::vector<ParaMEDMEM::MEDCo
       for (int iold=0; iold<ioldMax; iold++)
         if (!isParallelMode() || ( _domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew)))
           {
-            remapIntField2(inew,iold,*meshesCastFrom[iold],*meshesCastTo[inew],arrayFrom[iold]->getConstPointer(),nameArrayTo);
+            remapIntField(inew,iold,*meshesCastFrom[iold],*meshesCastTo[inew],arrayFrom[iold]->getConstPointer(),nameArrayTo,*acceleratingStructures[inew]);
           }
     }
+  for (int inew=0; inew<inewMax;inew++)
+    if (isParallelMode() && _domain_selector->isMyDomain(inew)) 
+      {
+        bbox[inew]->decrRef();
+        delete acceleratingStructures[inew];
+      }
 }
 
-void MEDPARTITIONER::MeshCollection::remapIntField2(int inew, int iold,
+void MEDPARTITIONER::MeshCollection::remapIntField(int inew, int iold,
                                                     const ParaMEDMEM::MEDCouplingUMesh& sourceMesh,
                                                     const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
                                                     const int* fromArray,
-                                                    std::string nameArrayTo)
-//here we store ccI for next use in future call of castAllFields and remapDoubleField2
+                                                    std::string nameArrayTo,
+                                                    const BBTree<3,int>& myTree)
 {
+
   if (sourceMesh.getNumberOfCells()<=0) return; //empty mesh could exist
   ParaMEDMEM::DataArrayDouble* sourceCoords=sourceMesh.getBarycenterAndOwner();
-  ParaMEDMEM::DataArrayDouble* targetCoords=targetMesh.getBarycenterAndOwner();
-   
-  ParaMEDMEM::MEDCouplingUMesh* tmpMesh=ParaMEDMEM::MEDCouplingUMesh::New();
-  tmpMesh->setCoords(sourceCoords);
-  std::vector<int> c;
-  std::vector<int> cI;
-  std::vector<int> ccI; //memorize intersection target<-source(inew,iold)
+  const double*  sc=sourceCoords->getConstPointer();
+  int targetSize=targetMesh.getNumberOfCells();
+  int sourceSize=sourceMesh.getNumberOfCells();
+if (MyGlobals::_Verbose>200)
+std::cout<<"remap vers target de taille "<<targetSize<<std::endl;
+  std::vector<int> ccI;
   std::string str,cle;
   str=nameArrayTo+"_toArray";
   cle=Cle1ToStr(str,inew);
   int* toArray;
-  int targetSize=targetMesh.getNumberOfCells();
+  
   //first time iold : create and initiate 
   if (_map_dataarray_int.find(cle)==_map_dataarray_int.end())
     {
@@ -721,29 +718,31 @@ void MEDPARTITIONER::MeshCollection::remapIntField2(int inew, int iold,
     {
       toArray=_map_dataarray_int.find(cle)->second->getPointer();
     }
-  tmpMesh->getNodeIdsNearPoints(targetCoords->getConstPointer(),targetSize,1e-10,c,cI);
-  if ((int)cI.size()!=targetSize+1) 
-    throw INTERP_KERNEL::Exception("Error in source/target projection");
-  for (int itargetnode=0; itargetnode<targetSize; itargetnode++)    
-    {
-      if (cI[itargetnode]==cI[itargetnode+1]) continue;
-      int isourcenode=c[cI[itargetnode]];
-      toArray[itargetnode]=fromArray[isourcenode];
-      //memorize intersection 
-      ccI.push_back(itargetnode); //next we'll do toArray[ccI[i]]=fromArray[ccI[i+1]]
-      ccI.push_back(isourcenode);
-    }
-  //ccI.push_back(sourceMesh.getNumberOfCells()); //additionnal information at end??
   
+
+  for (int isourcenode=0; isourcenode<sourceSize; isourcenode++)    
+    {
+      std::vector<int> intersectingElems;
+      myTree.getElementsAroundPoint(sc+isourcenode*3,intersectingElems); // to be changed in 2D
+      if (intersectingElems.size()!=0)
+        {
+          int itargetnode=intersectingElems[0];
+          toArray[itargetnode]=fromArray[isourcenode];
+          ccI.push_back(itargetnode);
+          ccI.push_back(isourcenode);
+        }
+    }
+  if (MyGlobals::_Verbose>200)
+    std::cout<<"nb points trouves"<<ccI.size()/2<<std::endl;
   //memories intersection for future same job on fields (if no existing cle=no intersection)
   str=Cle2ToStr(nameArrayTo+"_ccI",inew,iold);
   if (MyGlobals::_Verbose>700)
     std::cout << "proc " << MyGlobals::_Rank << " : map memorize '" << str << "'\n";
+
   _map_dataarray_int[str]=CreateDataArrayIntFromVector(ccI, 2);
+  
   sourceCoords->decrRef();
-  targetCoords->decrRef();
-  tmpMesh->decrRef();
-}
+ }
 
 void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollection, std::string nameArrayTo)
 {
@@ -785,7 +784,7 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
                   if (MyGlobals::_Verbose>10) 
                     std::cout << "proc " << _domain_selector->rank() << " : castAllFields recvDouble" << std::endl;
                   ParaMEDMEM::DataArrayDouble* field=RecvDataArrayDouble(source);
-                  remapDoubleField3(inew,iold,field,nameArrayTo,descriptionField);
+                  remapDoubleField(inew,iold,field,nameArrayTo,descriptionField);
                 }
             }
         }
@@ -797,34 +796,34 @@ void MEDPARTITIONER::MeshCollection::castAllFields(MeshCollection& initialCollec
             if (!isParallelMode() || ( _domain_selector->isMyDomain(iold) && _domain_selector->isMyDomain(inew)))
               {
                 ParaMEDMEM::DataArrayDouble* field=initialCollection.getField(descriptionField,iold);
-                remapDoubleField3(inew,iold,field,nameArrayTo,descriptionField);
+                remapDoubleField(inew,iold,field,nameArrayTo,descriptionField);
               }
         }
     }
 }
 
-void MEDPARTITIONER::MeshCollection::remapDoubleField3(int inew, int iold, 
+void MEDPARTITIONER::MeshCollection::remapDoubleField(int inew, int iold, 
                                                        ParaMEDMEM::DataArrayDouble* fromArray,
                                                        std::string nameArrayTo,
                                                        std::string descriptionField)
-//here we use 'cellFamily_ccI inew iold' set in remapIntField2
+//here we use 'cellFamily_ccI inew iold' set in remapIntField
 {
   if (nameArrayTo!="cellFieldDouble") 
-    throw INTERP_KERNEL::Exception("Error remapDoubleField3 only on cellFieldDouble");
+    throw INTERP_KERNEL::Exception("Error remapDoubleField only on cellFieldDouble");
   std::string key=Cle2ToStr("cellFamily_ccI",inew,iold);
   
   std::map<std::string,ParaMEDMEM::DataArrayInt*>::iterator it1;
   it1=_map_dataarray_int.find(key);
   if (it1==_map_dataarray_int.end())
     {
-      std::cerr << "proc " << MyGlobals::_Rank << " : remapDoubleField3 key '" << key << "' not found" << std::endl;
+      std::cerr << "proc " << MyGlobals::_Rank << " : remapDoubleField key '" << key << "' not found" << std::endl;
       std::cerr << " trying remap of field double on cells : " << descriptionField << std::endl;
       return;
     }
-  //create ccI in remapIntField2
+  //create ccI in remapIntField
   ParaMEDMEM::DataArrayInt *ccI=it1->second;
   if (MyGlobals::_Verbose>300)
-    std::cout << "proc " << MyGlobals::_Rank << " : remapDoubleField3 " << key << " size " << ccI->getNbOfElems() << std::endl;
+    std::cout << "proc " << MyGlobals::_Rank << " : remapDoubleField " << key << " size " << ccI->getNbOfElems() << std::endl;
   
   int nbcell=this->getMesh()[inew]->getNumberOfCells();
   int nbcomp=fromArray->getNumberOfComponents();
@@ -851,7 +850,7 @@ void MEDPARTITIONER::MeshCollection::remapDoubleField3(int inew, int iold,
   if (it2==_map_dataarray_double.end())
     {
       if (MyGlobals::_Verbose>300)
-        std::cout << "proc "<< MyGlobals::_Rank << " : remapDoubleField3 key '" << key << "' not found and create it" << std::endl;
+        std::cout << "proc "<< MyGlobals::_Rank << " : remapDoubleField key '" << key << "' not found and create it" << std::endl;
       field=ParaMEDMEM::DataArrayDouble::New();
       _map_dataarray_double[key]=field;
       field->alloc(nbcell*nbPtGauss,nbcomp);
@@ -1303,7 +1302,8 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
   using std::pair;
   
   std::multimap< int, int > node2cell;
-  std::multimap< int, int > cell2cell;
+  std::map< pair<int,int>, int > cell2cellcounter;
+  std::multimap<int,int> cell2cell;
   std::multimap< int, int > cell2node;
 
   std::vector<std::vector<std::multimap<int,int> > > commonDistantNodes;
@@ -1319,6 +1319,9 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
   if (MyGlobals::_Verbose>500)
     _joint_finder->print();
 #endif
+
+  if (MyGlobals::_Verbose>50)
+    std::cout<<"getting nodal connectivity"<<std::endl;
   //looking for reverse nodal connectivity i global numbering
   for (int idomain=0; idomain<nbdomain; idomain++)
     {
@@ -1374,40 +1377,54 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
   //warning here one node have less than or equal effective number of cell with it
   //but cell could have more than effective nodes
   //because other equals nodes in other domain (with other global inode)
-  if (MyGlobals::_Verbose>100)
+  if (MyGlobals::_Verbose>50)
     std::cout<< "proc " << MyGlobals::_Rank << " : creating graph arcs on nbNodes " << _topology->nbNodes() << std::endl;
-  for (int inode=0; inode<_topology->nbNodes(); inode++)  //on all nodes
+ 
+  for (int inode=0;inode<_topology->nbNodes();inode++)
     {
       typedef multimap<int,int>::const_iterator MI;
-      pair <MI,MI> myRange=node2cell.equal_range(inode);
-      for (MI cell1=myRange.first; cell1!=myRange.second; cell1++)  //on cells with inode
-        {
-          pair <MI,MI> myNodes1=cell2node.equal_range(cell1->second);  //nodes of one cell
-          for (MI cell2=myRange.first; cell2!=myRange.second; cell2++)  //on one of these cell
-            {
-              if (cell1->second!=cell2->second)  //in cells of my domain
-                {
-                  pair <MI,MI> myNodes2=cell2node.equal_range(cell2->second); //on nodes of this cell
-                  int nbcn=0; //number of common nodes between cells: at least 3 for cells
-                  for (MI it1=myNodes1.first; it1!=myNodes1.second; ++it1)
-                    {
-                      for (MI it2=myNodes2.first; it2!=myNodes2.second; ++it2)
-                        {
-                          if ((*it1).second==(*it2).second)
-                            {
-                              nbcn=nbcn+1 ; break;
-                            }
-                        }
-                    }
-                  if (nbcn>=3)  //cvw TODO if 2d cells set at 2
-                    cell2cell.insert(make_pair(cell1->second,cell2->second));
-                  //note here there is some global numerotation of cell which come from other domain (not mydomain)
-                }
-            }
-        }
-    }
+      std::pair <MI,MI> nodeRange=node2cell.equal_range(inode);
+      for (MI cell1=nodeRange.first;cell1!=nodeRange.second;cell1++)
+        for (MI cell2=nodeRange.first;cell2!=cell1;cell2++)
+          {
+            int icell1=cell1->second;
+            int icell2=cell2->second;
+            if (icell1>icell2) {int tmp=icell1; icell1=icell2; icell2=tmp;}
+            std::map<pair<int,int>,int>::iterator it=cell2cellcounter.find(make_pair(icell1,icell2));
+            if (it==cell2cellcounter.end()) cell2cellcounter.insert(make_pair(make_pair(icell1,icell2),1));
+            else (it->second)++;
+          }
+    }      
+  // for (int icell1=0; icell1<_topology->nbCells(); icell1++)  //on all nodes
+  //   {
+  //     typedef multimap<int,int>::const_iterator MI;
+  //     std::pair <MI,MI> nodeRange=cell2node.equal_range(icell1);
+  //     for (MI node1=nodeRange.first; node1!=nodeRange.second; node1++)  //on nodes with icell
+  //       {
+  //         std::pair<MI,MI> cellRange=node2cell.equal_range(node1->second);
+  //         for (MI cell2=cellRange.first; cell2!=cellRange.second; cell2++)  //on one of these cell
+  //           {
+  //             int icell2=cell2->second;
+  //             std::map<pair<int,int>,int>::iterator it=cell2cellcounter.find(make_pair(icell1,icell2));
+  //             if (it==cell2cellcounter.end()) cell2cellcounter.insert(make_pair(make_pair(icell1,icell2),1));
+  //             else (it->second)++;
+  //           }
+  //       }
+  //   }
+
+
+  //converting the counter to a multimap structure
+  for (std::map<pair<int,int>,int>::const_iterator it=cell2cellcounter.begin();
+       it!=cell2cellcounter.end();
+       it++)
+    if (it->second>=3) 
+      {
+        cell2cell.insert(std::make_pair(it->first.first,it->first.second)); //should be adapted for 2D!
+        cell2cell.insert(std::make_pair(it->first.second, it->first.first));
+      }
+
   
-  if (MyGlobals::_Verbose>100)
+  if (MyGlobals::_Verbose>50)
     std::cout << "proc " << MyGlobals::_Rank << " : create skylinearray" << std::endl;
   //filling up index and value to create skylinearray structure
   std::vector <int> index,value;
@@ -1452,12 +1469,13 @@ void MEDPARTITIONER::MeshCollection::buildCellGraph(MEDPARTITIONER::SkyLineArray
     {
       std::cout << "\nproc " << _domain_selector->rank() << " : end MeshCollection::buildCellGraph " <<
         index.size()-1 << " " << value.size() << std::endl;
+      int max=index.size()>15?15:index.size();
       if (index.size()>1)
         {
-          for (int i=0; i<10; ++i)
+          for (int i=0; i<max; ++i)
             std::cout<<index[i]<<" ";
           std::cout << "... " << index[index.size()-1] << std::endl;
-          for (int i=0; i<15; ++i)
+          for (int i=0; i<max; ++i)
             std::cout<< value[i] << " ";
           int ll=index[index.size()-1]-1;
           std::cout << "... (" << ll << ") " << value[ll-1] << " " << value[ll] << std::endl;
