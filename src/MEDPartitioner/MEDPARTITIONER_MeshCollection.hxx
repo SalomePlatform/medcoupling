@@ -144,7 +144,7 @@ namespace MEDPARTITIONER
                         std::vector<std::vector<std::vector<int> > >& new2oldIds);
 
   private:
-    void castIntField2(std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom,
+    void castIntField(std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastFrom,
                        std::vector<ParaMEDMEM::MEDCouplingUMesh*>& meshesCastTo,
                        std::vector<ParaMEDMEM::DataArrayInt*>& arrayFrom,
                        std::string nameArrayTo);
@@ -160,7 +160,7 @@ namespace MEDPARTITIONER
                         const ParaMEDMEM::MEDCouplingUMesh& targetMesh,
                         const int* fromArray,
                         std::string nameArrayTo,
-                       const BBTree<3,int>& tree);
+                       const BBTree<3,int>* tree);
 
     void remapDoubleField(int inew, int iold,
                            ParaMEDMEM::DataArrayDouble* fromArray,
