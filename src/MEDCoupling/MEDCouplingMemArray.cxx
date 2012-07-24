@@ -1656,6 +1656,7 @@ void DataArrayDouble::getMinMaxPerComponent(double *bounds) const throw(INTERP_K
 /*!
  * This method retrieves a newly allocated DataArrayDouble instance having same number of tuples than \a this and twice number of components than \a this
  * to store both the min and max per component of each tuples. 
+ * \param [in] epsilon the width of the bbox (identical in each direction) - 0.0 by default
  *
  * \return a newly created DataArrayDouble instance having \c this->getNumberOfTuples() tuples and 2 * \c this->getNumberOfComponent() components
  *
