@@ -34,36 +34,27 @@ typedef double (*MYFUNCPTR)(double);
 using namespace ParaMEDMEM;
 
 template<int SPACEDIM>
-void DataArrayDouble::findCommonTuplesAlg(std::vector<double>& bbox,
-                                          int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const
+void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const
 {
   const double *coordsPtr=getConstPointer();
-  BBTree<SPACEDIM,int> myTree(&bbox[0],0,0,nbNodes,-prec);
-  double bb[2*SPACEDIM];
-  double prec2=prec*prec;
+  BBTree<SPACEDIM,int> myTree(bbox,0,0,nbNodes,prec/10);
   std::vector<bool> isDone(nbNodes);
   for(int i=0;i<nbNodes;i++)
     {
       if(!isDone[i])
         {
-          for(int j=0;j<SPACEDIM;j++)
-            {
-              bb[2*j]=coordsPtr[SPACEDIM*i+j];
-              bb[2*j+1]=coordsPtr[SPACEDIM*i+j];
-            }
           std::vector<int> intersectingElems;
-          myTree.getIntersectingElems(bb,intersectingElems);
+          myTree.getElementsAroundPoint(coordsPtr+i*SPACEDIM,intersectingElems);
           if(intersectingElems.size()>1)
             {
               std::vector<int> commonNodes;
               for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
                 if(*it!=i)
                   if(*it>=limitNodeId)
-                    if(INTERP_KERNEL::distance2<SPACEDIM>(coordsPtr+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<prec2)
-                      {
-                        commonNodes.push_back(*it);
-                        isDone[*it]=true;
-                      }
+                    {
+                      commonNodes.push_back(*it);
+                      isDone[*it]=true;
+                    }
               if(!commonNodes.empty())
                 {
                   cI.push_back(cI.back()+(int)commonNodes.size()+1);
@@ -80,21 +71,13 @@ void DataArrayDouble::findTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTr
                                                 std::vector<int>& c, std::vector<int>& cI) const
 {
   const double *coordsPtr=getConstPointer();
-  double bb[2*SPACEDIM];
-  double eps2=eps*eps;
   for(int i=0;i<nbOfTuples;i++)
     {
-      for(int j=0;j<SPACEDIM;j++)
-        {
-          bb[2*j]=pos[SPACEDIM*i+j];
-          bb[2*j+1]=pos[SPACEDIM*i+j];
-        }
       std::vector<int> intersectingElems;
-      myTree.getIntersectingElems(bb,intersectingElems);
+      myTree.getElementsAroundPoint(pos+i*SPACEDIM,intersectingElems);
       std::vector<int> commonNodes;
       for(std::vector<int>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
-        if(INTERP_KERNEL::distance2<SPACEDIM>(pos+SPACEDIM*i,coordsPtr+SPACEDIM*(*it))<eps2)
-          commonNodes.push_back(*it);
+        commonNodes.push_back(*it);
       cI.push_back(cI.back()+(int)commonNodes.size());
       c.insert(c.end(),commonNodes.begin(),commonNodes.end());
     }
@@ -1181,30 +1164,22 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
   comm=DataArrayInt::New();
   commIndex=DataArrayInt::New();
   //
-  std::vector<double> bbox(2*nbOfTuples*nbOfCompo);
-  const double *coordsPtr=getConstPointer();
-  for(int i=0;i<nbOfTuples;i++)
-    {
-      for(int j=0;j<nbOfCompo;j++)
-        {
-          bbox[2*nbOfCompo*i+2*j]=coordsPtr[nbOfCompo*i+j];
-          bbox[2*nbOfCompo*i+2*j+1]=coordsPtr[nbOfCompo*i+j];
-        }
-    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox=computeBBoxPerTuple(prec);
   //
   std::vector<int> c,cI(1);
   switch(nbOfCompo)
     {
     case 3:
-      findCommonTuplesAlg<3>(bbox,nbOfTuples,limitTupleId,prec,c,cI);
+      findCommonTuplesAlg<3>(bbox->getConstPointer(),nbOfTuples,limitTupleId,prec,c,cI);
       break;
     case 2:
-      findCommonTuplesAlg<2>(bbox,nbOfTuples,limitTupleId,prec,c,cI);
+      findCommonTuplesAlg<2>(bbox->getConstPointer(),nbOfTuples,limitTupleId,prec,c,cI);
       break;
     case 1:
-      findCommonTuplesAlg<1>(bbox,nbOfTuples,limitTupleId,prec,c,cI);
+      findCommonTuplesAlg<1>(bbox->getConstPointer(),nbOfTuples,limitTupleId,prec,c,cI);
       break;
-    //default: test yet
+    default:
+      throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : nb of components managed are 1,2 and 3 ! not implemented for other number of components !");
     }
   commIndex->alloc((int)cI.size(),1);
   std::copy(cI.begin(),cI.end(),commIndex->getPointer());
@@ -1705,7 +1680,7 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
 {
   if(!other)
     throw INTERP_KERNEL::Exception("DataArrayDouble::computeTupleIdsNearTuples : input pointer other is null !");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox=computeBBoxPerTuple();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> bbox=computeBBoxPerTuple(eps);
   other->checkAllocated();
   int nbOfCompo=getNumberOfComponents();
   int otherNbOfCompo=other->getNumberOfComponents();
@@ -1719,19 +1694,19 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
     {
     case 3:
       {
-        BBTree<3,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),-eps);
+        BBTree<3,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
         findTupleIdsNearTuplesAlg<3>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     case 2:
       {
-        BBTree<2,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),-eps);
+        BBTree<2,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
         findTupleIdsNearTuplesAlg<2>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     case 1:
       {
-        BBTree<1,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),-eps);
+        BBTree<1,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
         findTupleIdsNearTuplesAlg<1>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }

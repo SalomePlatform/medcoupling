@@ -286,8 +286,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<int>& tinyInfoI, const std::vector<std::string>& tinyInfoS);
   public:
     template<int SPACEDIM>
-    void findCommonTuplesAlg(std::vector<double>& bbox,
-                             int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const;
+    void findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const;
     template<int SPACEDIM>
     void findTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
                                    std::vector<int>& c, std::vector<int>& cI) const;
