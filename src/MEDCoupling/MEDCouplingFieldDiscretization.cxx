@@ -27,7 +27,7 @@
 #include "InterpolationUtils.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGaussCoords.hxx"
-#include "InterpKernelMatrix.hxx"
+#include "InterpKernelMatrixTools.hxx"
 
 #include <set>
 #include <list>

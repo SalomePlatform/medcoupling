@@ -310,7 +310,8 @@ namespace ParaMEDMEM
     void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
   protected:
-    void operateOnDenseMatrix(const MEDCouplingMesh *mesh, int nbOfElems, double *matrixPtr) const;
+    void operateOnDenseMatrix(int spaceDimension, int nbOfElems, double *matrixPtr) const;
+    DataArrayDouble *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta) const;
   public:
     static const char REPR[];
     static const TypeOfField TYPE;

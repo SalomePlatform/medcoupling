@@ -40,6 +40,7 @@ PointLocator2DIntersector.hxx           \
 PointLocator2DIntersector.txx           \
 INTERPKERNELDefines.hxx			\
 InterpKernelMatrix.hxx			\
+InterpKernelMatrixTools.hxx		\
 InterpKernelMeshQuality.hxx             \
 InterpKernelCellSimplify.hxx            \
 Interpolation.hxx			\
@@ -229,6 +230,7 @@ dist_libinterpkernel_la_SOURCES = \
 	MeshElement.cxx \
 	InterpKernelMeshQuality.cxx \
 	InterpKernelCellSimplify.cxx \
+	InterpKernelMatrixTools.cxx \
 	Bases/InterpKernelException.cxx \
 	Geometric2D/InterpKernelGeo2DAbstractEdge.cxx         \
 	Geometric2D/InterpKernelGeo2DBounds.cxx               \
