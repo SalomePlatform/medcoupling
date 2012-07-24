@@ -27,6 +27,7 @@
 #include "InterpolationUtils.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGaussCoords.hxx"
+#include "InterpKernelMatrix.hxx"
 
 #include <set>
 #include <list>
@@ -1717,56 +1718,42 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationKriging::getMeasureField(c
   throw INTERP_KERNEL::Exception("getMeasureField on FieldDiscretizationKriging : not implemented yet !");
 }
 
-int inverseMatrix(const double *A, int n, double *iA)
-{
-  INTERP_KERNEL::AutoPtr<int> ipvt=new int[n];
-  double determinant[2];
-  INTERP_KERNEL::AutoPtr<double> work=new double[n*n];
-  std::copy(A,A+n*n,iA);
-  //dgefa(iA,n,n,ipvt);
-  //dgedi(iA,n,n,ipvt,determinant,work);
-}
-
-int prodMatrix(const double *A, int n1, int p1, const double *B, int n2, int p2, double *C)
-{
-  for(int i=0;i<n1;i++)
-    {
-      for(int j=0;j<p2;j++)
-        {
-          C[i*p2+j] = 0.;
-          for(int k=0;k<p1;k++)
-            C[i*p2+j]+=A[i*p1+k]*B[k*p2+j];
-        }
-    }
-}
-
 void MEDCouplingFieldDiscretizationKriging::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
   int nbOfPts=coords->getNumberOfTuples();
   int dimension=coords->getNumberOfComponents();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix=coords->buildEuclidianDistanceDenseMatrix();
-  operateOnDenseMatrix(mesh,nbOfPts*nbOfPts,matrix->getPointer());
+  operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfPts,matrix->getPointer());
+  // Drift
+  int delta=0;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift=performDrift(matrix,coords,delta);
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> locArr=DataArrayDouble::New();
   locArr->useArray(loc,false,CPP_DEALLOC,1,dimension);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);
-  operateOnDenseMatrix(mesh,1*dimension,matrix2->getPointer());
+  operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*1,matrix2->getPointer());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix3=DataArrayDouble::New();
+  matrix3->alloc(matrix2->getNbOfElems()+delta,1);
+  double *work=matrix3->getPointer();
+  work=std::copy(matrix2->begin(),matrix2->end(),work);
+  *work++=1.;
+  std::copy(loc,loc+delta-1,work);
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv=DataArrayDouble::New();
-  matrixInv->alloc(nbOfPts*nbOfPts,1);
-  inverseMatrix(matrix->getConstPointer(),nbOfPts,matrixInv->getPointer());
-  //matrixInv->fillWithZero();//needed ?
-  //int info=inverseCholesky(matrix->getConstPointer(),nbOfPts,matrixInv->getPointer());
-  //if(info!=0)
-  //  throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::getValueOn : error during inversion of dense matrix using Cholesky upper matrix !");
+  matrixInv->alloc((nbOfPts+delta)*(nbOfPts+delta),1);
+  INTERP_KERNEL::inverseMatrix(matrixWithDrift->getConstPointer(),nbOfPts+delta,matrixInv->getPointer());
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> KnewiK=DataArrayDouble::New();
-  KnewiK->alloc(1*nbOfPts,1);
-  prodMatrix(matrix2->getConstPointer(),1,nbOfPts,matrixInv->getConstPointer(),nbOfPts,nbOfPts,KnewiK->getPointer());
+  KnewiK->alloc((nbOfPts+delta)*1,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2=DataArrayDouble::New();
+  arr2->alloc((nbOfPts+delta)*1,1);
+  work=std::copy(arr->begin(),arr->end(),arr2->getPointer());
+  std::fill(work,work+delta,0.);
+  INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbOfPts+delta,nbOfPts+delta,arr2->getConstPointer(),nbOfPts+delta,1,KnewiK->getPointer());
   //
   int nbOfCompo=arr->getNumberOfComponents();
-  prodMatrix(KnewiK->getConstPointer(),1,nbOfPts,arr->getConstPointer(),nbOfPts,nbOfCompo,res);
+  INTERP_KERNEL::matrixProduct(KnewiK->getConstPointer(),1,nbOfPts+delta,matrix3->getConstPointer(),nbOfPts+delta,nbOfCompo,res);
 }
 
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
@@ -1777,14 +1764,13 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const Da
 /*!
  * Apply \f f(x) on each element x in \a matrixPtr. \a matrixPtr is expected to be a dense matrix represented by a chunck of memory of size at least equal to \a nbOfElems.
  *
- * \param [in] mesh input mesh on which the Kriging has to be performed
+ * \param [in] spaceDimension space dimension of the input mesh on which the Kriging has to be performed
  * \param [in] nbOfElems is the result of the product of nb of rows and the nb of columns of matrix \a matrixPtr
  * \param [in,out] matrixPtr is the dense matrix whose on each values the operation will be applied
  */
-void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(const MEDCouplingMesh *mesh, int nbOfElems, double *matrixPtr) const
+void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(int spaceDimension, int nbOfElems, double *matrixPtr) const
 {
-  int spaceDim=mesh->getSpaceDimension();
-  switch(spaceDim)
+  switch(spaceDimension)
     {
     case 1:
       {
@@ -1798,5 +1784,51 @@ void MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix(const MEDCoupli
     default:
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::operateOnDenseMatrix : only dimension 1 implemented !");
     }
+}
+
+/*!
+ * Starting from a square matrix \a matr, this method returns a newly allocated dense square matrix whose \a matr is included in returned matrix
+ * in the top left corner, and in the remaining returned matrix the parameters to take into account about the kriging drift.
+ * For the moment only linear srift is implemented.
+ *
+ * \param [in] arr the position of points were input mesh geometry is considered for Kriging
+ * \param [in] matr input matrix whose drift part will be added
+ * \param [out] delta the difference between the size of the output matrix and the input matrix \a matr.
+ * \return a newly allocated matrix bigger than input matrix \a matr.
+ */
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta) const
+{
+  int spaceDimension=arr->getNumberOfComponents();
+  delta=spaceDimension+1;
+  int szOfMatrix=arr->getNumberOfTuples();
+  if(szOfMatrix*szOfMatrix!=matr->getNumberOfTuples())
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::performDrift : invalid size");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  ret->alloc((szOfMatrix+delta)*(szOfMatrix+delta),1);
+  const double *srcWork=matr->getConstPointer();
+  const double *srcWork2=arr->getConstPointer();
+  double *destWork=ret->getPointer();
+  for(int i=0;i<szOfMatrix;i++)
+    {
+      destWork=std::copy(srcWork,srcWork+szOfMatrix,destWork);
+      srcWork+=szOfMatrix;
+      *destWork++=1.;
+      destWork=std::copy(srcWork2,srcWork2+spaceDimension,destWork);
+      srcWork2+=spaceDimension;
+    }
+  std::fill(destWork,destWork+szOfMatrix,1.); destWork+=szOfMatrix;
+  std::fill(destWork,destWork+spaceDimension+1,0.); destWork+=spaceDimension+1;
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrNoI=arr->toNoInterlace();
+  srcWork2=arrNoI->getConstPointer();
+  for(int i=0;i<spaceDimension;i++)
+    {
+      destWork=std::copy(srcWork2,srcWork2+szOfMatrix,destWork);
+      srcWork2+=szOfMatrix;
+      std::fill(destWork,destWork+spaceDimension+1,0.);
+      destWork+=spaceDimension;
+    }
+  //
+  ret->incrRef();
+  return ret;
 }
 
