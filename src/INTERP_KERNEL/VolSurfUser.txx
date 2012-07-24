@@ -187,6 +187,7 @@ namespace INTERP_KERNEL
     throw INTERP_KERNEL::Exception("Invalid spaceDim specified : must be 1, 2 or 3");
   }
 
+
   template<class ConnType, NumberingPolicy numPol,int SPACEDIM>
   void computeBarycenter(NormalizedCellType type, const ConnType *connec, int lgth, const double *coords, double *res)
   {
@@ -246,7 +247,7 @@ namespace INTERP_KERNEL
           res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])]; 
           res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])+1];
           res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])+2];
-          res[0]/=4.; res[1]/=4.; res[2]/=4.;
+          res[0]*=0.25; res[1]*=0.25; res[2]*=0.25;
           break;
         }
       case NORM_PYRA5:
