@@ -1720,6 +1720,12 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationKriging::getMeasureField(c
 
 void MEDCouplingFieldDiscretizationKriging::getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const
 {
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> res2=MEDCouplingFieldDiscretizationKriging::getValueOnMulti(arr,mesh,loc,1);
+  std::copy(res2->begin(),res2->end(),res);
+}
+
+DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfTargetPoints) const
+{
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
   int nbOfPts=coords->getNumberOfTuples();
   int dimension=coords->getNumberOfComponents();
@@ -1730,15 +1736,22 @@ void MEDCouplingFieldDiscretizationKriging::getValueOn(const DataArrayDouble *ar
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixWithDrift=performDrift(matrix,coords,delta);
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> locArr=DataArrayDouble::New();
-  locArr->useArray(loc,false,CPP_DEALLOC,1,dimension);
+  locArr->useArray(loc,false,CPP_DEALLOC,nbOfTargetPoints,dimension);
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix2=coords->buildEuclidianDistanceDenseMatrixWith(locArr);
-  operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*1,matrix2->getPointer());
+  operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfTargetPoints,matrix2->getPointer());
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix3=DataArrayDouble::New();
-  matrix3->alloc(matrix2->getNbOfElems()+delta,1);
+  matrix3->alloc((nbOfPts+delta)*nbOfTargetPoints,1);
   double *work=matrix3->getPointer();
-  work=std::copy(matrix2->begin(),matrix2->end(),work);
-  *work++=1.;
-  std::copy(loc,loc+delta-1,work);
+  const double *workCst=matrix2->getConstPointer();
+  const double *workCst2=loc;
+  for(int i=0;i<nbOfTargetPoints;i++,workCst+=nbOfPts,workCst2+=delta-1)
+    {
+      for(int j=0;j<nbOfPts;j++)
+        work[j*nbOfTargetPoints+i]=workCst[j];
+      work[nbOfPts*nbOfTargetPoints+i]=1.0;
+      for(int j=0;j<delta-1;j++)
+        work[(nbOfPts+1+j)*nbOfTargetPoints+i]=workCst2[j];
+    }
   //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrixInv=DataArrayDouble::New();
   matrixInv->alloc((nbOfPts+delta)*(nbOfPts+delta),1);
@@ -1753,12 +1766,11 @@ void MEDCouplingFieldDiscretizationKriging::getValueOn(const DataArrayDouble *ar
   INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbOfPts+delta,nbOfPts+delta,arr2->getConstPointer(),nbOfPts+delta,1,KnewiK->getPointer());
   //
   int nbOfCompo=arr->getNumberOfComponents();
-  INTERP_KERNEL::matrixProduct(KnewiK->getConstPointer(),1,nbOfPts+delta,matrix3->getConstPointer(),nbOfPts+delta,nbOfCompo,res);
-}
-
-DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const
-{
-  throw INTERP_KERNEL::Exception("getValueOnMulti on FieldDiscretizationKriging : not implemented yet !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
+  ret->alloc(nbOfTargetPoints,nbOfCompo);
+  INTERP_KERNEL::matrixProduct(KnewiK->getConstPointer(),1,nbOfPts+delta,matrix3->getConstPointer(),nbOfPts+delta,nbOfTargetPoints*nbOfCompo,ret->getPointer());
+  ret->incrRef();
+  return ret;
 }
 
 /*!

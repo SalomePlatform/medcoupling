@@ -10116,6 +10116,35 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(0.5,vol.getArray().getIJ(0,0),12)
         pass
 
+    def testKrSpatialDiscretization1(self):
+        srcPointCoordsX=[0.8401877171547095, 0.7830992237586059, 0.9116473579367843, 0.335222755714889, 0.2777747108031878, 0.4773970518621602, 0.3647844727918433, 0.9522297251747128, 0.6357117279599009, 0.1416025553558034]
+        srcFieldValsOnPoints=[2.129892434968836, 2.295320474540621, 1.931948594981134, 2.728013590937196, 2.715603240418478, 2.661778472822935, 2.695696990104364, 1.893710234970982, 2.529628016549284, 2.728432341300668]
+        targetPointCoordsX=[-0.5,-0.45,-0.4,-0.35,-0.3,-0.25,-0.2,-0.15,-0.1,-0.05,-6.93889390391e-17,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1.0,1.05,1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45]
+        targetFieldValsExpected=[2.975379475824351, 2.95613491917003, 2.936890362515361, 2.917645805861018, 2.898401249206574, 2.879156692552137, 2.859912135897732, 2.840667579243201, 2.821423022588731, 2.802178465934342, 2.78293390927989, 2.763689352625457, 2.744444795971001, 2.725209522098197, 2.709077577124666, 2.706677252549218, 2.727467797847971, 2.713338094723676, 2.671342424824244, 2.664877370146978, 2.653840141412181, 2.619607861392791, 2.569777214476479, 2.513263929794591, 2.450732752808528, 2.368313560985155, 2.250909795670307, 2.098194272085416, 1.954257891732065, 1.895040660973802, 1.865256788315972, 1.835475248687992, 1.80569370905998, 1.775912169431971, 1.746130629803976, 1.716349090175918, 1.686567550547855, 1.656786010919941, 1.627004471291988, 1.597222931663817]
+        #
+        nbOfInputPoints=10;
+        f=MEDCouplingFieldDouble.New(ON_NODES_KR,ONE_TIME);
+        srcArrX=DataArrayDouble.New(srcPointCoordsX,nbOfInputPoints,1);
+        cmesh=MEDCouplingCMesh.New("aMesh");
+        cmesh.setCoordsAt(0,srcArrX);
+        umesh=cmesh.buildUnstructured();
+        f.setMesh(umesh);
+        srcVals=DataArrayDouble.New(srcFieldValsOnPoints,nbOfInputPoints,1);
+        f.setArray(srcVals);
+        f.checkCoherency();
+        #
+        res0=f.getValueOn(targetPointCoordsX[:1]);
+        self.assertAlmostEqual(targetFieldValsExpected[0],res0[0],10)
+        #
+        valuesToTest=f.getValueOnMulti(targetPointCoordsX);
+        self.assertEqual(40,valuesToTest.getNumberOfTuples());
+        self.assertEqual(1,valuesToTest.getNumberOfComponents());
+        for i in xrange(40):
+            self.assertAlmostEqual(targetFieldValsExpected[i],valuesToTest.getIJ(i,0),10)
+            pass
+        #
+        pass
+
     def setUp(self):
         pass
     pass

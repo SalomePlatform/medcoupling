@@ -1519,6 +1519,13 @@ void MEDCouplingBasicsTest5::testKrSpatialDiscretization1()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(targetFieldValsExpected[0],res0[0],1e-10);
   delete [] res0;
   //
+  DataArrayDouble *valuesToTest=f->getValueOnMulti(targetPointCoordsX,40);
+  CPPUNIT_ASSERT_EQUAL(40,valuesToTest->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,valuesToTest->getNumberOfComponents());
+  for(int i=0;i<40;i++)
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(targetFieldValsExpected[i],valuesToTest->getIJ(i,0),1e-10);
+  valuesToTest->decrRef();
+  //
   cmesh->decrRef();
   umesh->decrRef();
   srcArrX->decrRef();
