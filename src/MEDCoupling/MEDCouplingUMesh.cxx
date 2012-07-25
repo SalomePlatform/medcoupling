@@ -967,24 +967,31 @@ void MEDCouplingUMesh::convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception
 /*!
  * This method is the opposite of ParaMEDMEM::MEDCouplingUMesh::convertToPolyTypes method.
  * The aim is to take all polygons or polyhedrons cell and to try to traduce them into classical cells.
- * 
+ *
+ *  \return If true at least one cell has been unpolyzed.
+            \n If false has been returned the nodal connectivity of \a this has **not** been altered and \a this has remains unchanged.
+ *
  * \warning This method modifies can modify significantly the geometric type order in \a this.
  * In view of the MED file writing, a renumbering of cells in \a this (using MEDCouplingUMesh::sortCellsInMEDFileFrmt) should be necessary.
  */
-void MEDCouplingUMesh::unPolyze()
+bool MEDCouplingUMesh::unPolyze()
 {
   checkFullyDefined();
-  if(getMeshDimension()<=1)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::unPolyze works on umeshes with meshdim equals to 2 or 3 !");
+  int mdim=getMeshDimension();
+  if(mdim<0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::unPolyze works on umeshes with meshdim equals to 0, 1 2 or 3 !");
+  if(mdim<=1)
+    return false;
   int nbOfCells=getNumberOfCells();
   if(nbOfCells<1)
-    return ;
+    return false;
   int initMeshLgth=getMeshLength();
   int *conn=_nodal_connec->getPointer();
   int *index=_nodal_connec_index->getPointer();
   int posOfCurCell=0;
   int newPos=0;
   int lgthOfCurCell;
+  bool ret=false;
   for(int i=0;i<nbOfCells;i++)
     {
       lgthOfCurCell=index[i+1]-posOfCurCell;
@@ -994,18 +1001,29 @@ void MEDCouplingUMesh::unPolyze()
       int newLgth;
       if(cm.isDynamic())
         {
-          if(cm.getDimension()==2)
+          switch(cm.getDimension())
             {
-              INTERP_KERNEL::AutoPtr<int> tmp=new int[lgthOfCurCell-1];
-              std::copy(conn+posOfCurCell+1,conn+posOfCurCell+lgthOfCurCell,(int *)tmp);
-              newType=INTERP_KERNEL::CellSimplify::tryToUnPoly2D(cm.isQuadratic(),tmp,lgthOfCurCell-1,conn+newPos+1,newLgth);
+            case 2:
+              {
+                INTERP_KERNEL::AutoPtr<int> tmp=new int[lgthOfCurCell-1];
+                std::copy(conn+posOfCurCell+1,conn+posOfCurCell+lgthOfCurCell,(int *)tmp);
+                newType=INTERP_KERNEL::CellSimplify::tryToUnPoly2D(cm.isQuadratic(),tmp,lgthOfCurCell-1,conn+newPos+1,newLgth);
+                break;
+              }
+            case 3:
+              {
+                int nbOfFaces,lgthOfPolyhConn;
+                INTERP_KERNEL::AutoPtr<int> zipFullReprOfPolyh=INTERP_KERNEL::CellSimplify::getFullPolyh3DCell(type,conn+posOfCurCell+1,lgthOfCurCell-1,nbOfFaces,lgthOfPolyhConn);
+                newType=INTERP_KERNEL::CellSimplify::tryToUnPoly3D(zipFullReprOfPolyh,nbOfFaces,lgthOfPolyhConn,conn+newPos+1,newLgth);
+                break;
+              }
+            case 1:
+              {
+                newType=(lgthOfCurCell==3)?INTERP_KERNEL::NORM_SEG2:INTERP_KERNEL::NORM_POLYL;
+                break;
+              }
             }
-          if(cm.getDimension()==3)
-            {
-              int nbOfFaces,lgthOfPolyhConn;
-              INTERP_KERNEL::AutoPtr<int> zipFullReprOfPolyh=INTERP_KERNEL::CellSimplify::getFullPolyh3DCell(type,conn+posOfCurCell+1,lgthOfCurCell-1,nbOfFaces,lgthOfPolyhConn);
-              newType=INTERP_KERNEL::CellSimplify::tryToUnPoly3D(zipFullReprOfPolyh,nbOfFaces,lgthOfPolyhConn,conn+newPos+1,newLgth);
-            }
+          ret=ret || (newType!=type);
           conn[newPos]=newType;
           newPos+=newLgth+1;
           posOfCurCell=index[i+1];
@@ -1021,7 +1039,9 @@ void MEDCouplingUMesh::unPolyze()
     }
   if(newPos!=initMeshLgth)
     _nodal_connec->reAlloc(newPos);
-  computeTypes();
+  if(ret)
+    computeTypes();
+  return ret;
 }
 
 /*!

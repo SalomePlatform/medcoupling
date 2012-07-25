@@ -433,6 +433,7 @@ namespace ParaMEDMEM
     virtual bool areCompatibleForMerge(const MEDCouplingMesh *other) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
     static MEDCouplingMesh *MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2) throw(INTERP_KERNEL::Exception);
+    static int GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception);
     %extend
        {
          std::string __str__() const
@@ -2269,7 +2270,7 @@ namespace ParaMEDMEM
     }
     void convertAllToPoly();
     void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);
-    void unPolyze() throw(INTERP_KERNEL::Exception);
+    bool unPolyze() throw(INTERP_KERNEL::Exception);
     void simplifyPolyhedra(double eps) throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSpreadZonesWithPoly() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildExtrudedMesh(const MEDCouplingUMesh *mesh1D, int policy) throw(INTERP_KERNEL::Exception);

@@ -98,7 +98,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void convertToPolyTypes(const int *cellIdsToConvertBg, const int *cellIdsToConvertEnd);
     MEDCOUPLING_EXPORT void convertAllToPoly();
     MEDCOUPLING_EXPORT void convertExtrudedPolyhedra() throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT void unPolyze();
+    MEDCOUPLING_EXPORT bool unPolyze();
     MEDCOUPLING_EXPORT void simplifyPolyhedra(double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSpreadZonesWithPoly() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::vector<DataArrayInt *> partitionBySpreadZone() const throw(INTERP_KERNEL::Exception);
