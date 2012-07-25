@@ -379,6 +379,18 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh 
   return MEDCouplingUMesh::MergeUMeshes(ms2);
 }
 
+/*!
+ * \param [in] type the geometric type for which the dimension is asked.
+ * \return the dimension associated to the input geometric type \a type.
+ * 
+ * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
+ */
+int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  return (int) cm.getDimension();
+}
+
 void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
   int ret=getCellContainingPoint(pos,eps);
