@@ -2346,6 +2346,18 @@ namespace ParaMEDMEM
     }
   };
 }
+%extend ParaMEDMEM::MEDCouplingFieldDiscretizationKriging
+{
+  PyObject *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr) const
+  {
+    int ret1;
+    DataArrayDouble *ret0=self->computeVectorOfCoefficients(mesh,arr,ret1);
+    PyObject *ret=PyTuple_New(2);
+    PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
+    PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
+    return ret;
+  }
+}
 
 %extend ParaMEDMEM::DataArray
 {

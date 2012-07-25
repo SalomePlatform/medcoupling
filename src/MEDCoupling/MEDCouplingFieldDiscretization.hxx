@@ -310,6 +310,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const;
     void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const;
     DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, int nbOfPoints) const;
+  public://specific part
+    DataArrayDouble *computeVectorOfCoefficients(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, int& isDrift) const;
   protected:
     void operateOnDenseMatrix(int spaceDimension, int nbOfElems, double *matrixPtr) const;
     DataArrayDouble *performDrift(const DataArrayDouble *matr, const DataArrayDouble *arr, int& delta) const;
