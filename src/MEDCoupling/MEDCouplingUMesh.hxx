@@ -280,6 +280,9 @@ namespace ParaMEDMEM
                                               const int *desc, const int *descIndx, std::vector< std::pair<int,int> >& cut3DSurf) throw(INTERP_KERNEL::Exception);
     void assemblyForSplitFrom3DSurf(const std::vector< std::pair<int,int> >& cut3DSurf,
                                     const int *desc, const int *descIndx, std::vector<int>& nodalRes, std::vector<int>& nodalResIndx, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
+  public:
+    MEDCOUPLING_EXPORT static const int N_MEDMEM_ORDER=20;
+    MEDCOUPLING_EXPORT static const INTERP_KERNEL::NormalizedCellType MEDMEM_ORDER[N_MEDMEM_ORDER];
     /// @endcond
   private:
     //! this iterator stores current position in _nodal_connec array.
