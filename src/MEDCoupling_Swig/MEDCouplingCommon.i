@@ -37,8 +37,8 @@
 #include "MEDCouplingMultiFields.hxx"
 #include "MEDCouplingFieldOverTime.hxx"
 #include "MEDCouplingDefinitionTime.hxx"
-#include "MEDCouplingTypemaps.i"
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "MEDCouplingTypemaps.i"
 
 #include "InterpKernelAutoPtr.hxx"
 
@@ -58,6 +58,11 @@ using namespace INTERP_KERNEL;
 %typemap(out) ParaMEDMEM::MEDCouplingPointSet*
 {
   $result=convertMesh($1,$owner);
+}
+
+%typemap(out) ParaMEDMEM::MEDCouplingFieldDiscretization*
+{
+  $result=convertFieldDiscretization($1,$owner);
 }
 
 %typemap(out) ParaMEDMEM::MEDCouplingMultiFields*
@@ -307,6 +312,11 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingCMesh "$this->decrRef();"
 %feature("unref") DataArrayInt "$this->decrRef();"
 %feature("unref") MEDCouplingField "$this->decrRef();"
+%feature("unref") MEDCouplingFieldDiscretizationP0 "$this->decrRef();"
+%feature("unref") MEDCouplingFieldDiscretizationP1 "$this->decrRef();"
+%feature("unref") MEDCouplingFieldDiscretizationGauss "$this->decrRef();"
+%feature("unref") MEDCouplingFieldDiscretizationGaussNE "$this->decrRef();"
+%feature("unref") MEDCouplingFieldDiscretizationKriging "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDouble "$this->decrRef();"
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 %feature("unref") MEDCouplingFieldTemplate "$this->decrRef();"
@@ -6004,7 +6014,6 @@ namespace ParaMEDMEM
     virtual void setNature(NatureOfField nat) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscr() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
-    MEDCouplingFieldDiscretization *getDiscretization() const throw(INTERP_KERNEL::Exception);
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
     void setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
@@ -6020,7 +6029,15 @@ namespace ParaMEDMEM
         MEDCouplingMesh *ret1=(MEDCouplingMesh *)self->getMesh();
         if(ret1)
           ret1->incrRef();
-        return convertMesh(ret1, SWIG_POINTER_OWN | 0 );
+        return convertMesh(ret1,SWIG_POINTER_OWN | 0 );
+      }
+
+      PyObject *getDiscretization() throw(INTERP_KERNEL::Exception)
+      {
+        MEDCouplingFieldDiscretization *ret=self->getDiscretization();
+        if(ret)
+          ret->incrRef();
+        return convertFieldDiscretization(ret,SWIG_POINTER_OWN | 0 );
       }
 
       PyObject *isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception)

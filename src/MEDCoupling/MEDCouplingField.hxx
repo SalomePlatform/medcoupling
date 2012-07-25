@@ -25,6 +25,7 @@
 #include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 #include "InterpKernelException.hxx"
 
 #include <string>
@@ -61,7 +62,8 @@ namespace ParaMEDMEM
     MEDCouplingFieldDouble *buildMeasureField(bool isAbs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingMesh *buildSubMeshData(const int *start, const int *end, DataArrayInt *&di) const;
     DataArrayInt *computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const;
-    MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
+    const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
+    MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
     // Gauss point specific methods
@@ -87,7 +89,7 @@ namespace ParaMEDMEM
     std::string _desc;
     NatureOfField _nature;
     const MEDCouplingMesh *_mesh;
-    MEDCouplingFieldDiscretization *_type;
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDiscretization> _type;
   };
 }
 

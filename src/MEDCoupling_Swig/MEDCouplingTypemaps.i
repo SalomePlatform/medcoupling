@@ -21,7 +21,7 @@
 #include <numpy/arrayobject.h>
 #endif
 
-static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner) throw(INTERP_KERNEL::Exception)
+static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw(INTERP_KERNEL::Exception)
 {
   PyObject *ret=0;
   if(dynamic_cast<ParaMEDMEM::MEDCouplingUMesh *>(mesh))
@@ -32,6 +32,24 @@ static PyObject* convertMesh(ParaMEDMEM::MEDCouplingMesh* mesh, int owner) throw
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingCMesh,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of mesh on downcast !");
+  return ret;
+}
+
+static PyObject *convertFieldDiscretization(ParaMEDMEM::MEDCouplingFieldDiscretization *fd, int owner) throw(INTERP_KERNEL::Exception)
+{
+  PyObject *ret=0;
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldDiscretizationP0 *>(fd))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDiscretizationP0,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldDiscretizationP1 *>(fd))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDiscretizationP1,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldDiscretizationGauss *>(fd))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDiscretizationGauss,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldDiscretizationGaussNE *>(fd))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDiscretizationGaussNE,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingFieldDiscretizationKriging *>(fd))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(fd),SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDiscretizationKriging,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of field discretization on downcast !");
   return ret;
 }
 

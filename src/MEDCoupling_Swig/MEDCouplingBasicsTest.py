@@ -10142,6 +10142,9 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         for i in xrange(40):
             self.assertAlmostEqual(targetFieldValsExpected[i],valuesToTest.getIJ(i,0),10)
             pass
+        fd=f.getDiscretization()
+        del f
+        self.assertTrue(isinstance(fd,MEDCouplingFieldDiscretizationKriging))
         #
         pass
 

@@ -26,6 +26,7 @@
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingGaussLocalization.hxx"
+#include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include <vector>
 
@@ -36,7 +37,7 @@ namespace ParaMEDMEM
   class DataArrayDouble;
   class MEDCouplingFieldDouble;
 
-  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization : public TimeLabel
+  class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization : public RefCountObject, public TimeLabel
   {
   public:
     static MEDCouplingFieldDiscretization *New(TypeOfField type);

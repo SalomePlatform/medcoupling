@@ -314,7 +314,6 @@ MEDCouplingField::~MEDCouplingField()
 {
   if(_mesh)
     _mesh->decrRef();
-  delete _type;
 }
 
 MEDCouplingField::MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature):_nature(nature),_mesh(0),_type(type)
