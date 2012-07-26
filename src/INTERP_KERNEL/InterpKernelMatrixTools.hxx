@@ -24,9 +24,9 @@
 
 namespace INTERP_KERNEL
 {
-  void matrixProduct(const double *A, int n1, int p1, const double *B, int n2, int p2, double *C);
-  void inverseMatrix(const double *A, int n, double *iA);
-  void daxpy(int n, double da, const double *dx, int incx, double *dy, int incy);
+  void INTERPKERNEL_EXPORT matrixProduct(const double *A, int n1, int p1, const double *B, int n2, int p2, double *C);
+  void INTERPKERNEL_EXPORT inverseMatrix(const double *A, int n, double *iA);
+  void INTERPKERNEL_EXPORT daxpy(int n, double da, const double *dx, int incx, double *dy, int incy);
 }
 
 #endif

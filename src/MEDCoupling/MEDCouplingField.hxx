@@ -26,6 +26,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MEDCouplingFieldDiscretization.hxx"
 #include "InterpKernelException.hxx"
 
 #include <string>
@@ -37,7 +38,7 @@ namespace ParaMEDMEM
   class DataArrayDouble;
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
-  class MEDCouplingFieldDiscretization;
+//  class MEDCouplingFieldDiscretization;
   class MEDCouplingGaussLocalization;
 
   class MEDCOUPLING_EXPORT MEDCouplingField : public RefCountObject, public TimeLabel
