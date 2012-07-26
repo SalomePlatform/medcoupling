@@ -9347,7 +9347,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected7,mesh2D_4.getNodalConnectivity().getValues());
         self.assertEqual(expected8,mesh2D_5.getNodalConnectivity().getValues());
         for i in xrange(57):
-            self.assertAlmostEqual(expected9[i],mesh3D_4.getCoords().getIJ(0,i),1e-12);
+            self.assertAlmostEqual(expected9[i],mesh3D_4.getCoords().getIJ(0,i),12);
             pass
         #
         pass
@@ -10148,7 +10148,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(isinstance(fd,MEDCouplingFieldDiscretizationKriging))
         coeffs,isDrift=fd.computeVectorOfCoefficients(umesh,srcVals)
         self.assertEqual(2,isDrift)
-        self.assertTrue(coeffsExpected.isEqual(coeffs,1e-10))
+        self.assertTrue(coeffsExpected.isEqual(coeffs,1e-8))
         #
         pass
 
