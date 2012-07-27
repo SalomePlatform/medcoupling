@@ -695,12 +695,24 @@ void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId) throw(INTERP_K
 
 void MEDFileUMeshSplitL1::setFamilyArr(DataArrayInt *famArr)
 {
+  if(!famArr)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setFamilyArr : null input pointer !");
+  MEDCouplingUMesh *mbt(_m_by_types);
+  if(!mbt)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setFamilyArr : no mesh defined on this level !");
+  famArr->checkNbOfTuplesAndComp(mbt->getNumberOfCells(),1,"MEDFileUMeshSplitL1::setFamilyArr : Problem in size of Family arr ! ");
   famArr->incrRef();
   _fam=famArr;
 }
 
 void MEDFileUMeshSplitL1::setRenumArr(DataArrayInt *renumArr)
 {
+  if(!renumArr)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setRenumArr : null input pointer !");
+  MEDCouplingUMesh *mbt(_m_by_types);
+  if(!mbt)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setRenumArr : no mesh defined on this level !");
+  renumArr->checkNbOfTuplesAndComp(mbt->getNumberOfCells(),1,"MEDFileUMeshSplitL1::setRenumArr : Problem in size of numbering arr ! ");
   renumArr->incrRef();
   _num=renumArr;
   computeRevNum();

@@ -2319,6 +2319,12 @@ void MEDFileUMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famAr
 {
   if(meshDimRelToMaxExt==1)
     {
+      if(!famArr)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyFieldArr : input node renum arr is null !");
+      DataArrayDouble *coo(_coords);
+      if(!coo)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyFieldArr : the coordinates have not been set !");
+      famArr->checkNbOfTuplesAndComp(coo->getNumberOfTuples(),1,"MEDFileUMesh::setFamilyFieldArr : Problem in size of node family arr ! ");
       famArr->incrRef();
       _fam_coords=famArr;
       return ;
@@ -2337,8 +2343,13 @@ void MEDFileUMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumA
 {
   if(meshDimRelToMaxExt==1)
     {
-      if(renumArr)
-        renumArr->incrRef();
+      if(!renumArr)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumFieldArr : input node renum arr is null !");
+      DataArrayDouble *coo(_coords);
+      if(!coo)
+        throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumFieldArr : the coordinates have not been set !");
+      renumArr->checkNbOfTuplesAndComp(coo->getNumberOfTuples(),1,"MEDFileUMesh::setRenumArr : Problem in size of node numbering arr ! ");
+      renumArr->incrRef();
       _num_coords=renumArr;
       computeRevNum();
       return ;
