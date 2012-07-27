@@ -5234,13 +5234,13 @@ DataArrayInt *DataArrayInt::Meld(const std::vector<const DataArrayInt *>& arr) t
  * @param newNb specifies size of whole set. Must be at least equal to max eltid in 'groups'.
  * @return an array of size newNb specifying fid of each item.
  */
-DataArrayInt *DataArrayInt::MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups)
+DataArrayInt *DataArrayInt::MakePartition(const std::vector<const DataArrayInt *>& groups, int newNb, std::vector< std::vector<int> >& fidsOfGroups) throw(INTERP_KERNEL::Exception)
 {
   std::vector<const DataArrayInt *> groups2;
   for(std::vector<const DataArrayInt *>::const_iterator it4=groups.begin();it4!=groups.end();it4++)
     if(*it4)
       groups2.push_back(*it4);
-  DataArrayInt *ret=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(newNb,1);
   int *retPtr=ret->getPointer();
   std::fill(retPtr,retPtr+newNb,0);
@@ -5255,10 +5255,19 @@ DataArrayInt *DataArrayInt::MakePartition(const std::vector<const DataArrayInt *
           bool found=false;
           for(int i=0;i<nbOfElem;i++)
             {
-              if(retPtr[ptr[i]]==j)
+              if(ptr[i]>=0 && ptr[i]<newNb)
                 {
-                  retPtr[ptr[i]]=fid;
-                  found=true;
+                  if(retPtr[ptr[i]]==j)
+                    {
+                      retPtr[ptr[i]]=fid;
+                      found=true;
+                    }
+                }
+              else
+                {
+                  std::ostringstream oss; oss << "DataArrayInt::MakePartition : In group \"" << (*iter)->getName() << "\" in tuple #" << i << " value = " << ptr[i] << " ! Should be in [0," << newNb;
+                  oss << ") !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
             }
           if(found)
@@ -5277,6 +5286,7 @@ DataArrayInt *DataArrayInt::MakePartition(const std::vector<const DataArrayInt *
         tmp.insert(retPtr[*p]);
       fidsOfGroups[grId].insert(fidsOfGroups[grId].end(),tmp.begin(),tmp.end());
     }
+  ret->incrRef();
   return ret;
 }
 
