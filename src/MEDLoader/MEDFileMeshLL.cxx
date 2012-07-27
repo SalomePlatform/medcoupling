@@ -419,14 +419,15 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
   if(v.empty())
     return;
   int sz=v.size();
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msMSafe(sz);
   std::vector<const MEDCouplingUMesh *> ms(sz);
   for(int i=0;i<sz;i++)
     {
-      MEDCouplingUMesh *tmp=MEDCouplingUMesh::New("",v[i]->getDim());
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> tmp=MEDCouplingUMesh::New("",v[i]->getDim());
       MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> tmp2=l2.getCoords();
       tmp->setCoords(tmp2);
       tmp->setConnectivity(const_cast<DataArrayInt *>(v[i]->getNodal()),const_cast<DataArrayInt *>(v[i]->getNodalIndex()));
-      ms[i]=tmp;
+      ms[i]=tmp; msMSafe[i]=tmp;
     }
   _m_by_types=MEDCouplingUMesh::MergeUMeshesOnSameCoords(ms);
   _m_by_types->setName(mName);
@@ -449,8 +450,6 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *m
         w=std::copy(v[i]->getNum()->getConstPointer(),v[i]->getNum()->getConstPointer()+v[i]->getNum()->getNumberOfTuples(),w);
       computeRevNum();
     }
-  for(int i=0;i<sz;i++)
-    (const_cast<MEDCouplingUMesh *>(ms[i]))->decrRef();//const cast under control to avoid a copy of array
 }
 
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m):_m(this)
@@ -655,6 +654,7 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
   int sz=ms.size();
   std::vector< DataArrayInt * > corr;
   _m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,0,corr);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > corrMSafe(corr.begin(),corr.end());
   std::vector< std::vector<int> > fidsOfGroups;
   std::vector< const DataArrayInt * > corr2(corr.begin(),corr.end());
   _fam=DataArrayInt::MakePartition(corr2,((MEDCouplingUMesh *)_m)->getNumberOfCells(),fidsOfGroups);
@@ -662,8 +662,6 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
   std::map<int,std::string> newfams;
   std::map<int,int> famIdTrad;
   TraduceFamilyNumber(fidsOfGroups,familyIds,famIdTrad,newfams);
-  for(int i=0;i<sz;i++)
-    corr[i]->decrRef();
   int *w=_fam->getPointer();
   for(int i=0;i<nbOfCells;i++,w++)
     *w=famIdTrad[*w];
@@ -672,22 +670,18 @@ void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCoupli
 void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
 {
   std::vector<MEDCouplingUMesh *> ms=_m_by_types->splitByType();
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> > msMSafe(ms.begin(),ms.end());
   int start=0;
   for(std::vector<MEDCouplingUMesh *>::const_iterator it=ms.begin();it!=ms.end();it++)
     {
       int nbCells=(*it)->getNumberOfCells();
       int end=start+nbCells;
-      DataArrayInt *fam=0,*num=0;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> fam,num;
       if((const DataArrayInt *)_fam)
         fam=_fam->substr(start,end);
       if((const DataArrayInt *)_num)
         num=_num->substr(start,end);
       MEDFileUMeshPerType::write(fid,mName,mdim,(*it),fam,num);
-      if(fam)
-        fam->decrRef();
-      if(num)
-        num->decrRef();
-      (*it)->decrRef();
       start=end;
     }
 }
