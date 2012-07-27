@@ -516,9 +516,9 @@ namespace ParaMEDMEM
                PyTuple_SetItem(retLev2,0,SWIG_From_int(ret2[3*j]));
                PyTuple_SetItem(retLev2,1,SWIG_From_int(ret2[3*j+1]));
                PyTuple_SetItem(retLev2,2,SWIG_From_int(ret2[3*j+2]));
-               PyList_SetItem(retLev1_0,j,retLev2);
+               PyList_SetItem(retLev1_1,j,retLev2);
              }
-           PyTuple_SetItem(ret,1,retLev1_0);
+           PyTuple_SetItem(ret,2,retLev1_1);
            //
            PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(ret3),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
            return ret;
