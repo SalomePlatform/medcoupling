@@ -2147,21 +2147,22 @@ bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode
         {
           MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2nCellsPart2=o2nCellsPart->buildPermArrPerLevel();
           m->renumberCells(o2nCellsPart2->getConstPointer(),false);
-          setMeshAtLevel(*it,m);
           ret=true;
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> famField2,numField2;
+          const DataArrayInt *famField=getFamilyFieldAtLevel(*it); if(famField) { famField->incrRef(); famField2=const_cast<DataArrayInt *>(famField); }
+          const DataArrayInt *numField=getNumberFieldAtLevel(*it); if(numField) { numField->incrRef(); numField2=const_cast<DataArrayInt *>(numField); }
+          setMeshAtLevel(*it,m);
           std::vector<int> code2=m->getDistributionOfTypes();
           end=PutInThirdComponentOfCodeOffset(code2,start);
           newCode.insert(newCode.end(),code2.begin(),code2.end());
           //
           if(o2nCellsPart2->isIdentity())
             continue;
-          const DataArrayInt *famField=getFamilyFieldAtLevel(*it);
           if(famField)
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFamField=famField->renumber(o2nCellsPart2->getConstPointer());
               setFamilyFieldArr(*it,newFamField);
             }
-          const DataArrayInt *numField=getNumberFieldAtLevel(*it);
           if(numField)
             {
               MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newNumField=numField->renumber(o2nCellsPart2->getConstPointer());
