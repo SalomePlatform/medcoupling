@@ -33,6 +33,7 @@
 
 #include <vector>
 #include <string>
+#include <list>
 
 #include "med.h"
 
@@ -89,6 +90,7 @@ namespace ParaMEDMEM
   public:
     static MEDFileFieldPerMeshPerTypePerDisc *NewOnRead(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
     static MEDFileFieldPerMeshPerTypePerDisc *New(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId);
+    static MEDFileFieldPerMeshPerTypePerDisc *New(const MEDFileFieldPerMeshPerTypePerDisc& other);
     void assignFieldNoProfile(int& start, int offset, int nbOfCells, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignFieldProfile(int& start, const char *pflName, const DataArrayInt *multiTypePfl, const DataArrayInt *idsInPfl, const MEDCouplingFieldDouble *field, const MEDCouplingMesh *mesh, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void assignNodeFieldNoProfile(int& start, const MEDCouplingFieldDouble *field, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
@@ -97,6 +99,7 @@ namespace ParaMEDMEM
     const MEDFileFieldPerMeshPerType *getFather() const;
     void prepareLoading(med_idt fid, int profileIt, int& start) throw(INTERP_KERNEL::Exception);
     void finishLoading(med_idt fid, int profileIt, int ft) throw(INTERP_KERNEL::Exception);
+    void setNewStart(int newValueOfStart) throw(INTERP_KERNEL::Exception);
     int getIteration() const;
     int getOrder() const;
     double getTime() const;
@@ -109,6 +112,7 @@ namespace ParaMEDMEM
     INTERP_KERNEL::NormalizedCellType getGeoType() const;
     int getNumberOfComponents() const;
     int getNumberOfTuples() const;
+    int getStart() const { return _start; }
     DataArrayDouble *getArray();
     const DataArrayDouble *getArray() const;
     const std::vector<std::string>& getInfo() const;
@@ -117,15 +121,28 @@ namespace ParaMEDMEM
     std::string getLocalization() const;
     void setLocalization(const char *newLocName);
     int getLocId() const { return _loc_id; }
+    void setLocId(int newId) { _loc_id=newId; }
+    void setFather(MEDFileFieldPerMeshPerType *newFather) { _father=newFather; }
     void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     void getFieldAtLevel(TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs,
                          std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     void fillValues(int discId, int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
+    int fillEltIdsFromCode(int offset, const std::vector<int>& codeOfMesh, const MEDFileFieldGlobsReal& glob, int *ptToFill) const throw(INTERP_KERNEL::Exception);
+    int fillTupleIds(int *ptToFill) const throw(INTERP_KERNEL::Exception);
     static int ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception);
+    static std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > SplitPerDiscretization(const std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>& entries);
+    static bool RenumberChunks(int offset, const std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
+                               const DataArrayInt *explicitIdsInMesh, const std::vector<int>& newCode,
+                               MEDFileFieldGlobsReal& glob, DataArrayDouble *arr, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >& result);
+    static MEDFileFieldPerMeshPerTypePerDisc *NewObjectOnSameDiscThanPool(TypeOfField typeF, INTERP_KERNEL::NormalizedCellType geoType, DataArrayInt *idsOfMeshElt,
+                                                                          bool isPfl, int offset, std::list< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
+                                                                          MEDFileFieldGlobsReal& glob, bool &notInExisting) throw(INTERP_KERNEL::Exception);
   private:
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt, const std::string& dummy);
+    MEDFileFieldPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc& other);
+    MEDFileFieldPerMeshPerTypePerDisc();
   private:
     TypeOfField _type;
     MEDFileFieldPerMeshPerType *_father;
@@ -133,7 +150,6 @@ namespace ParaMEDMEM
     int _end;
     //! _nval is different than end-start in case of ON_GAUSS_PT and ON_GAUSS_NE ! (_nval=(_end-_start)/nbi)
     int _nval;
-    int _profile_it;
     std::string _profile;
     std::string _localization;
     //! only on assignement -3 : ON_NODES, -2 : ON_CELLS, -1 : ON_GAUSS_NE, 0..* : ON_GAUSS_PT
@@ -178,6 +194,7 @@ namespace ParaMEDMEM
     const MEDFileFieldPerMeshPerTypePerDisc *getLeafGivenLocId(int locId) const throw(INTERP_KERNEL::Exception);
     void getFieldAtLevel(int meshDim, TypeOfField type, const MEDFileFieldGlobsReal *glob, std::vector< std::pair<int,int> >& dads, std::vector<const DataArrayInt *>& pfls, std::vector<int>& locs, std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes) const;
     void fillValues(int& startEntryId, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const;
+    void setLeaves(const std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >& leaves) throw(INTERP_KERNEL::Exception);
     static med_entity_type ConvertIntoMEDFileType(TypeOfField ikType, INTERP_KERNEL::NormalizedCellType ikGeoType, med_geometry_type& medfGeoType);
   private:
     std::vector<int> addNewEntryIfNecessary(const MEDCouplingFieldDouble *field, int offset, int nbOfCells) throw(INTERP_KERNEL::Exception);
@@ -227,6 +244,7 @@ namespace ParaMEDMEM
     std::vector<std::string> getPflsReallyUsedMulti() const;
     std::vector<std::string> getLocsReallyUsedMulti() const;
     bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    bool renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, const MEDFileFieldGlobsReal *glob, const MEDCouplingMesh *mesh, bool& isPfl) const throw(INTERP_KERNEL::Exception);
@@ -246,6 +264,7 @@ namespace ParaMEDMEM
                                          const std::vector< std::pair<int,int> >& dads, const std::vector<int>& locs,
                                          const MEDCouplingMesh *mesh, const DataArrayInt *da, bool& isPfl) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *finishField4(const std::vector< std::pair<int,int> >& dads, const DataArrayInt *pflIn, int nbOfElems, DataArrayInt *&pflOut) const throw(INTERP_KERNEL::Exception);
+    void assignNewLeaves(const std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >& leaves) throw(INTERP_KERNEL::Exception);
     static void SortArraysPerType(const MEDFileFieldGlobsReal *glob, TypeOfField type, 
                                   const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<int,int> >& dads, const std::vector<const DataArrayInt *>& pfls, const std::vector<int>& locs,
                                   std::vector<int>& code, std::vector<DataArrayInt *>& notNullPfls);
@@ -279,6 +298,8 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocs() const;
     bool existsPfl(const char *pflName) const;
     bool existsLoc(const char *locName) const;
+    std::string createNewNameOfPfl() const throw(INTERP_KERNEL::Exception);
+    std::string createNewNameOfLoc() const throw(INTERP_KERNEL::Exception);
     std::vector< std::vector<int> > whichAreEqualProfiles() const;
     std::vector< std::vector<int> > whichAreEqualLocs(double eps) const;
     void setFileName(const char *fileName);
@@ -301,6 +322,8 @@ namespace ParaMEDMEM
     //
     void appendProfile(DataArrayInt *pfl) throw(INTERP_KERNEL::Exception);
     void appendLoc(const char *locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w) throw(INTERP_KERNEL::Exception);
+    //
+    static std::string CreateNewNameNotIn(const char *prefix, const std::vector<std::string>& namesToAvoid) throw(INTERP_KERNEL::Exception);
   protected:
     MEDFileFieldGlobs(const char *fname);
     MEDFileFieldGlobs();
@@ -338,6 +361,8 @@ namespace ParaMEDMEM
     std::vector<std::string> getLocs() const;
     bool existsPfl(const char *pflName) const;
     bool existsLoc(const char *locName) const;
+    std::string createNewNameOfPfl() const throw(INTERP_KERNEL::Exception);
+    std::string createNewNameOfLoc() const throw(INTERP_KERNEL::Exception);
     std::vector< std::vector<int> > whichAreEqualProfiles() const;
     std::vector< std::vector<int> > whichAreEqualLocs(double eps) const;
     void setFileName(const char *fileName);
@@ -389,6 +414,7 @@ namespace ParaMEDMEM
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     void setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
     bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    bool renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     int getMeshIteration() const throw(INTERP_KERNEL::Exception);
     int getMeshOrder() const throw(INTERP_KERNEL::Exception);
     int getNumberOfComponents() const;
@@ -417,7 +443,7 @@ namespace ParaMEDMEM
   public:
     int getNonEmptyLevels(const char *mname, std::vector<int>& levs) const throw(INTERP_KERNEL::Exception);
     std::vector<TypeOfField> getTypesOfFieldAvailable() const throw(INTERP_KERNEL::Exception);
-    std::vector< std::vector<std::pair<int,int> > > getFieldSplitedByType(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
+     std::vector< std::vector<std::pair<int,int> > > getFieldSplitedByType(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
     std::vector< std::vector<DataArrayDouble *> > getFieldSplitedByType2(const char *mname, std::vector<INTERP_KERNEL::NormalizedCellType>& types, std::vector< std::vector<TypeOfField> >& typesF, std::vector< std::vector<std::string> >& pfls, std::vector< std::vector<std::string> >& locs) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldAtLevel(TypeOfField type, int meshDimRelToMax, const char *mName, int renumPol, const MEDFileFieldGlobsReal *glob) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, int renumPol, const MEDFileFieldGlobsReal *glob, const MEDFileMesh *mesh) const throw(INTERP_KERNEL::Exception);
@@ -509,6 +535,7 @@ namespace ParaMEDMEM
     std::string getMeshName() const throw(INTERP_KERNEL::Exception);
     void setMeshName(const char *newMeshName) throw(INTERP_KERNEL::Exception);
     bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    bool renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N, MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception);
     const std::vector<std::string>& getInfo() const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArray(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getUndergroundDataArrayExt(int iteration, int order, std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception);
@@ -619,6 +646,7 @@ namespace ParaMEDMEM
     MEDFileFieldsIterator *iterator() throw(INTERP_KERNEL::Exception);
     void destroyFieldAtPos(int i) throw(INTERP_KERNEL::Exception);
     bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab) throw(INTERP_KERNEL::Exception);
+    bool renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N) throw(INTERP_KERNEL::Exception);
   private:
     int getPosFromFieldName(const char *fieldName) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getPflsReallyUsed() const;

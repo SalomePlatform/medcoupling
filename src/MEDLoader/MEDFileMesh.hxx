@@ -119,6 +119,8 @@ namespace ParaMEDMEM
     virtual DataArrayInt *getNodeGroupsArr(const std::vector<std::string>& grps, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getNodeFamilyArr(const char *fam, bool renum=false) const throw(INTERP_KERNEL::Exception);
     virtual DataArrayInt *getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception);
+    // tools
+    virtual bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception) = 0;
   protected:
     MEDFileMesh();
     void addFamilyOnAllGroupsHaving(const char *famName, const char *otherFamName) throw(INTERP_KERNEL::Exception);
@@ -130,6 +132,7 @@ namespace ParaMEDMEM
     virtual void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception) = 0;
     static void TranslateFamilyIds(int offset, DataArrayInt *famArr, std::vector< std::vector<int> >& famIdsPerGrp);
     static std::string CreateNameNotIn(const std::string& nameTry, const std::vector<std::string>& namesToAvoid) throw(INTERP_KERNEL::Exception);
+    static int PutInThirdComponentOfCodeOffset(std::vector<int>& code, int strt) throw(INTERP_KERNEL::Exception);
   protected:
     int _order;
     int _iteration;
@@ -202,6 +205,8 @@ namespace ParaMEDMEM
     void setGroupsOnSetMesh(int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *>& ms, bool renum) throw(INTERP_KERNEL::Exception);
     void optimizeFamilies() throw(INTERP_KERNEL::Exception);
     void duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *&nodesDuplicated, DataArrayInt *&cellsModified, DataArrayInt *&cellsNotModified) throw(INTERP_KERNEL::Exception);
+    // tools
+    bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception);
   private:
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDFileUMesh();
@@ -247,6 +252,8 @@ namespace ParaMEDMEM
     const DataArrayInt *getFamilyFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getRevNumberFieldAtLevel(int meshDimRelToMaxExt) const throw(INTERP_KERNEL::Exception);
+    // tools
+    bool unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception);
   private:
     void writeLL(med_idt fid) const throw(INTERP_KERNEL::Exception);
     MEDFileCMesh();

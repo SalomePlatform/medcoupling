@@ -116,6 +116,49 @@ bool MEDFileData::changeMeshName(const char *oldMeshName, const char *newMeshNam
   return changeMeshNames(v);
 }
 
+/*!
+ * This method performs unpolyzation in meshes in \a this and if it leads to a modification to one or more than one meshes in \a this 
+ * the fields are automatically renumbered (for those impacted, that is to say here fields on cells and fields on gauss points on impacted fields)
+ *
+ * \return If true is returned it means that some meshes in \a this has been modified and eventually fields have been renumbered.
+ *         \n If false \a this remains unchanged.
+ */
+bool MEDFileData::unPolyzeMeshes() throw(INTERP_KERNEL::Exception)
+{
+  MEDFileMeshes *ms=_meshes;
+  if(!ms)
+    return false;
+  bool ret=false;
+  std::vector< MEDFileMesh * > meshesImpacted;
+  std::vector< DataArrayInt * > renumParamsOfMeshImpacted;//same size as meshesImpacted
+  std::vector< std::vector<int> > oldCodeOfMeshImpacted,newCodeOfMeshImpacted;//same size as meshesImpacted
+  std::vector<MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > memSaverIfThrow;//same size as meshesImpacted
+  for(int i=0;i<ms->getNumberOfMeshes();i++)
+    {
+      MEDFileMesh *m=ms->getMeshAtPos(i);
+      if(m)
+        {
+          std::vector<int> oldCode,newCode;
+          DataArrayInt *o2nRenumCell=0;
+          bool modif=m->unPolyze(oldCode,newCode,o2nRenumCell);
+          if(!modif)
+            continue;
+          renumParamsOfMeshImpacted.push_back(o2nRenumCell); memSaverIfThrow.push_back(o2nRenumCell);
+          oldCodeOfMeshImpacted.push_back(oldCode);
+          newCodeOfMeshImpacted.push_back(newCode);
+          meshesImpacted.push_back(m);
+        }
+    }
+  if(!meshesImpacted.empty())
+    {
+      MEDFileFields *fs=_fields;
+      if(fs)
+        for(std::size_t i=0;i<meshesImpacted.size();i++)
+          fs->renumberEntitiesLyingOnMesh(meshesImpacted[i]->getName(),oldCodeOfMeshImpacted[i],newCodeOfMeshImpacted[i],renumParamsOfMeshImpacted[i]);
+    }
+  return !meshesImpacted.empty();
+}
+
 MEDFileData::MEDFileData()
 {
 }

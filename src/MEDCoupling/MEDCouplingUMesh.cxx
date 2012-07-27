@@ -7525,6 +7525,31 @@ std::vector<DataArrayInt *> MEDCouplingUMesh::partitionBySpreadZone() const thro
   return ret;
 }
 
+/*!
+ * This method returns given a distribution of cell type (returned for example by MEDCouplingUMesh::getDistributionOfTypes method and customized after) a
+ * newly allocated DataArrayInt instance with 2 components ready to be interpreted as input of DataArrayInt::findRangeIdForEachTuple method.
+ *
+ * \param [in] code a code with the same format than those returned by MEDCouplingUMesh::getDistributionOfTypes except for the code[3*k+2] that should contain start id of chunck.
+ * \return a newly allocated DataArrayInt to be managed by the caller.
+ * \throw In case of \a code has not the right format (typically of size 3*n)
+ */
+DataArrayInt *MEDCouplingUMesh::ComputeRangesFromTypeDistribution(const std::vector<int>& code) throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  std::size_t nb=code.size()/3;
+  if(code.size()%3!=0)
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ComputeRangesFromTypeDistribution : invalid input code !");
+  ret->alloc((int)nb,2);
+  int *retPtr=ret->getPointer();
+  for(std::size_t i=0;i<nb;i++,retPtr+=2)
+    {
+      retPtr[0]=code[3*i+2];
+      retPtr[1]=code[3*i+2]+code[3*i+1];
+    }
+  ret->incrRef();
+  return ret;
+}
+
 MEDCouplingUMeshCellIterator::MEDCouplingUMeshCellIterator(MEDCouplingUMesh *mesh):_mesh(mesh),_cell(new MEDCouplingUMeshCell(mesh)),
                                                                                    _own_cell(true),_cell_id(-1),_nb_cell(0)
 {

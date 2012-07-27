@@ -489,6 +489,40 @@ namespace ParaMEDMEM
            PyTuple_SetItem(ret,1,SWIG_From_bool(ret1));
            return ret;
          }
+         
+         PyObject *unPolyze() throw(INTERP_KERNEL::Exception)
+         {
+           DataArrayInt *ret3=0;
+           std::vector<int> ret1,ret2;
+           bool ret0=self->unPolyze(ret1,ret2,ret3);
+           PyObject *ret=PyTuple_New(4);
+           PyTuple_SetItem(ret,0,SWIG_From_bool(ret0));
+           //
+           PyObject *retLev1_0=PyList_New((int)ret1.size()/3);
+           for(int j=0;j<(int)ret1.size()/3;j++)
+             {
+               PyObject *retLev2=PyTuple_New(3);
+               PyTuple_SetItem(retLev2,0,SWIG_From_int(ret1[3*j]));
+               PyTuple_SetItem(retLev2,1,SWIG_From_int(ret1[3*j+1]));
+               PyTuple_SetItem(retLev2,2,SWIG_From_int(ret1[3*j+2]));
+               PyList_SetItem(retLev1_0,j,retLev2);
+             }
+           PyTuple_SetItem(ret,1,retLev1_0);
+           //
+           PyObject *retLev1_1=PyList_New((int)ret2.size()/3);
+           for(int j=0;j<(int)ret2.size()/3;j++)
+             {
+               PyObject *retLev2=PyTuple_New(3);
+               PyTuple_SetItem(retLev2,0,SWIG_From_int(ret2[3*j]));
+               PyTuple_SetItem(retLev2,1,SWIG_From_int(ret2[3*j+1]));
+               PyTuple_SetItem(retLev2,2,SWIG_From_int(ret2[3*j+2]));
+               PyList_SetItem(retLev1_0,j,retLev2);
+             }
+           PyTuple_SetItem(ret,1,retLev1_0);
+           //
+           PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(ret3),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+           return ret;
+         }
        }
   };
 
@@ -787,6 +821,12 @@ namespace ParaMEDMEM
     void shallowCpyGlobs(const MEDFileFieldGlobsReal& other);
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
+    bool existsPfl(const char *pflName) const;
+    bool existsLoc(const char *locName) const;
+    std::string createNewNameOfPfl() const throw(INTERP_KERNEL::Exception);
+    std::string createNewNameOfLoc() const throw(INTERP_KERNEL::Exception);
+    std::vector< std::vector<int> > whichAreEqualProfiles() const;
+    std::vector< std::vector<int> > whichAreEqualLocs(double eps) const;
     virtual std::vector<std::string> getPflsReallyUsed() const;
     virtual std::vector<std::string> getLocsReallyUsed() const;
     virtual std::vector<std::string> getPflsReallyUsedMulti() const;
@@ -795,6 +835,8 @@ namespace ParaMEDMEM
     void killLocalizationIds(const std::vector<int>& locIds) throw(INTERP_KERNEL::Exception);
     void changePflName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
     void changeLocName(const char *oldName, const char *newName) throw(INTERP_KERNEL::Exception);
+    int getNbOfGaussPtPerCell(int locId) const throw(INTERP_KERNEL::Exception);
+    int getLocalizationId(const char *loc) const throw(INTERP_KERNEL::Exception);
   %extend
      {
        PyObject *getProfile(const char *pflName) const throw(INTERP_KERNEL::Exception)
@@ -1582,6 +1624,7 @@ namespace ParaMEDMEM
     int getNumberOfMeshes() const throw(INTERP_KERNEL::Exception);
     //
     bool changeMeshName(const char *oldMeshName, const char *newMeshName) throw(INTERP_KERNEL::Exception);
+    bool unPolyzeMeshes() throw(INTERP_KERNEL::Exception);
     //
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     %extend

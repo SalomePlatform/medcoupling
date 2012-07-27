@@ -1264,6 +1264,20 @@ std::string MEDFileMesh::CreateNameNotIn(const std::string& nameTry, const std::
   throw INTERP_KERNEL::Exception("MEDFileMesh::CreateNameNotIn : impossible to find a not already used name !");
 }
 
+int MEDFileMesh::PutInThirdComponentOfCodeOffset(std::vector<int>& code, int strt) throw(INTERP_KERNEL::Exception)
+{
+  std::size_t nbOfChunks=code.size()/3;
+  if(code.size()%3!=0)
+    throw INTERP_KERNEL::Exception("MEDFileMesh::PutInThirdComponentOfCodeOffset : code has invalid size : should be of size 3*x !");
+  int ret=strt;
+  for(std::size_t i=0;i<nbOfChunks;i++)
+    {
+      code[3*i+2]=ret;
+      ret+=code[3*i+1];
+    }
+  return ret;
+}
+
 /*!
  * This method should be called by any set* method of subclasses to deal automatically with _name attribute.
  * If _name attribute is empty the name of 'm' if taken as _name attribute.
@@ -2100,6 +2114,75 @@ void MEDFileUMesh::duplicateNodesOnM1Group(const char *grpNameM1, DataArrayInt *
   cellsNotModified=cellsToModifyConn1; cellsToModifyConn1->incrRef();
 }
 
+/*!
+ * \param [out] oldCode retrieves the distribution of types before the call if true is returned
+ * \param [out] newCode etrieves the distribution of types after the call if true is returned
+ * \param [out] o2nRenumCell tells for **all levels** the old 2 new renumbering of cells.
+ * 
+ * \return false if no modification has been performed linked to the unpolyzation. Neither cell type, not cell numbers. When false is returned no need of field on cells or on gauss renumbering.
+ * Inversely, if true is returned, it means that distribution of cell by geometric type has changed and field on cell and field on gauss point must be renumbered.
+ */
+bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception)
+{
+  o2nRenumCell=0; oldCode.clear(); newCode.clear();
+  std::vector<int> levs=getNonEmptyLevels();
+  bool ret=false;
+  std::vector< const DataArrayInt* > renumCellsSplited;//same than memorySaverIfThrow
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > memorySaverIfThrow;//same than renumCellsSplited only in case of throw
+  int start=0;
+  int end=0;
+  for(std::vector<int>::const_reverse_iterator it=levs.rbegin();it!=levs.rend();it++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=getMeshAtLevel(*it);
+      std::vector<int> code1=m->getDistributionOfTypes();
+      end=PutInThirdComponentOfCodeOffset(code1,start);
+      oldCode.insert(oldCode.end(),code1.begin(),code1.end());
+      bool hasChanged=m->unPolyze();
+      DataArrayInt *fake=0;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2nCellsPart=m->getLevArrPerCellTypes(MEDCouplingUMesh::MEDMEM_ORDER,
+                                                                                           MEDCouplingUMesh::MEDMEM_ORDER+MEDCouplingUMesh::N_MEDMEM_ORDER,fake);
+      fake->decrRef();
+      renumCellsSplited.push_back(o2nCellsPart); memorySaverIfThrow.push_back(o2nCellsPart);
+      if(hasChanged)
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2nCellsPart2=o2nCellsPart->buildPermArrPerLevel();
+          m->renumberCells(o2nCellsPart2->getConstPointer(),false);
+          setMeshAtLevel(*it,m);
+          ret=true;
+          std::vector<int> code2=m->getDistributionOfTypes();
+          end=PutInThirdComponentOfCodeOffset(code2,start);
+          newCode.insert(newCode.end(),code2.begin(),code2.end());
+          //
+          if(o2nCellsPart2->isIdentity())
+            continue;
+          const DataArrayInt *famField=getFamilyFieldAtLevel(*it);
+          if(famField)
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newFamField=famField->renumber(o2nCellsPart2->getConstPointer());
+              setFamilyFieldArr(*it,newFamField);
+            }
+          const DataArrayInt *numField=getNumberFieldAtLevel(*it);
+          if(numField)
+            {
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newNumField=numField->renumber(o2nCellsPart2->getConstPointer());
+              setRenumFieldArr(*it,newNumField);
+            }
+        }
+      else
+        {
+          newCode.insert(newCode.end(),code1.begin(),code1.end());
+        }
+      start=end;
+    }
+  if(ret)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumCells=DataArrayInt::Aggregate(renumCellsSplited);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> o2nRenumCellRet=renumCells->buildPermArrPerLevel();
+      o2nRenumCell=o2nRenumCellRet; o2nRenumCellRet->incrRef();
+    }
+  return ret;
+}
+
 void MEDFileUMesh::addNodeGroup(const std::string& name, const std::vector<int>& ids) throw(INTERP_KERNEL::Exception)
 {
   const DataArrayDouble *coords=_coords;
@@ -2804,6 +2887,14 @@ const DataArrayInt *MEDFileCMesh::getRevNumberFieldAtLevel(int meshDimRelToMaxEx
     }
 }
 
+/*!
+ * no implementation here, it is not a bug, but intresically no polyhedra in \a this.
+ */
+bool MEDFileCMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode, DataArrayInt *& o2nRenumCell) throw(INTERP_KERNEL::Exception)
+{
+  oldCode.clear(); newCode.clear(); o2nRenumCell=0;
+  return false;
+}
 
 MEDFileMeshMultiTS *MEDFileMeshMultiTS::New()
 {

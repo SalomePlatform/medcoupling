@@ -164,6 +164,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
+%newobject ParaMEDMEM::DataArrayInt::findRangeIdForEachTuple;
+%newobject ParaMEDMEM::DataArrayInt::duplicateEachTupleNTimes;
 %newobject ParaMEDMEM::DataArrayInt::buildPermutationArr;
 %newobject ParaMEDMEM::DataArrayInt::buildPermArrPerLevel;
 %newobject ParaMEDMEM::DataArrayInt::__neg__;
@@ -293,6 +295,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSetInstanceFromThis;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getCellIdsCrossingPlane;
 %newobject ParaMEDMEM::MEDCouplingUMesh::convexEnvelop2D;
+%newobject ParaMEDMEM::MEDCouplingUMesh::ComputeRangesFromTypeDistribution;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellByTypeEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMeshCellEntry::__iter__;
 %newobject ParaMEDMEM::MEDCouplingExtrudedMesh::New;
@@ -1304,6 +1307,7 @@ namespace ParaMEDMEM
     static MEDCouplingUMesh *MergeUMeshes(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static MEDCouplingUMesh *MergeUMeshesOnSameCoords(const MEDCouplingUMesh *mesh1, const MEDCouplingUMesh *mesh2) throw(INTERP_KERNEL::Exception);
     static DataArrayInt *ComputeSpreadZoneGradually(const DataArrayInt *arrIn, const DataArrayInt *arrIndxIn) throw(INTERP_KERNEL::Exception);
+    static DataArrayInt *ComputeRangesFromTypeDistribution(const std::vector<int>& code) throw(INTERP_KERNEL::Exception);
     %extend {
       MEDCouplingUMesh() throw(INTERP_KERNEL::Exception)
       {

@@ -920,6 +920,9 @@ DataArrayDouble *DataArrayDouble::selectByTupleIdSafe(const int *new2OldBg, cons
  * Idem than DataArrayInt::selectByTupleIdSafe except that the input array is not constructed explicitely.
  * The convention is as python one. ['bg','end2') with steps of 'step'.
  * Returns a newly created array.
+ * This method is a generalization of DataArrayDouble::substr.
+ *
+ * \sa DataArrayDouble::substr
  */
 DataArrayDouble *DataArrayDouble::selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception)
 {
@@ -998,19 +1001,22 @@ DataArrayDouble *DataArrayDouble::selectByTupleRanges(const std::vector<std::pai
  * This methods has a similar behaviour than std::string::substr. This method returns a newly created DataArrayInt that is part of this with same number of components.
  * The intervall is specified by [tupleIdBg,tupleIdEnd) except if tupleIdEnd ==-1 in this case the [tupleIdBg,this->end()) will be kept.
  * This method check that interval is valid regarding this, if not an exception will be thrown.
+ * This method is a specialization of method DataArrayDouble::selectByTupleId2.
+ *
+ * \sa DataArrayDouble::selectByTupleId2
  */
 DataArrayDouble *DataArrayDouble::substr(int tupleIdBg, int tupleIdEnd) const throw(INTERP_KERNEL::Exception)
 {
   int nbt=getNumberOfTuples();
   if(tupleIdBg<0)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter must be greater than 0 !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter must be greater than 0 !");
   if(tupleIdBg>nbt)
-    throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater than number of tuples !");
+    throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter is greater than number of tuples !");
   int trueEnd=tupleIdEnd;
   if(tupleIdEnd!=-1)
     {
       if(tupleIdEnd>nbt)
-        throw INTERP_KERNEL::Exception("DataArrayInt::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
+        throw INTERP_KERNEL::Exception("DataArrayDouble::substr : The tupleIdBg parameter is greater or equal than number of tuples !");
     }
   else
     trueEnd=nbt;
@@ -3908,6 +3914,9 @@ DataArrayInt *DataArrayInt::selectByTupleIdSafe(const int *new2OldBg, const int 
  * Idem than DataArrayInt::selectByTupleIdSafe except that the input array is not constructed explicitely.
  * The convention is as python one. ['bg','end2') with steps of 'step'.
  * Returns a newly created array.
+ * This method is an extension of DataArrayInt::substr method.
+ * 
+ * \sa DataArrayInt::substr
  */
 DataArrayInt *DataArrayInt::selectByTupleId2(int bg, int end2, int step) const throw(INTERP_KERNEL::Exception)
 {
@@ -4196,6 +4205,9 @@ DataArrayDouble *DataArrayInt::convertToDblArr() const
  * This methods has a similar behaviour than std::string::substr. This method returns a newly created DataArrayInt that is part of this with same number of components.
  * The intervall is specified by [tupleIdBg,tupleIdEnd) except if tupleIdEnd ==-1 in this case the [tupleIdBg,this->end()) will be kept.
  * This method check that interval is valid regarding this, if not an exception will be thrown.
+ * This method is a specialization of method DataArrayInt::selectByTupleId2.
+ *
+ * \sa DataArrayInt::selectByTupleId2
  */
 DataArrayInt *DataArrayInt::substr(int tupleIdBg, int tupleIdEnd) const throw(INTERP_KERNEL::Exception)
 {
@@ -5527,6 +5539,83 @@ DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets
       for(int j=0;j<off;j++,retPtr++)
         *retPtr=start+j;
     }
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * Given in input ranges \a ranges, it returns a newly allocated DataArrayInt instance having one component and the same number of tuples than \a this.
+ * For each tuple at place **i** in \a this it tells which is the first range in \a ranges that contains value \c this->getIJ(i,0) and put the result
+ * in tuple **i** of returned DataArrayInt.
+ * If ranges overlapped (in theory it should not) this method do not detect it and always returns the first range.
+ *
+ * For example if \a this contains : [1,24,7,8,10,17] and \a ranges contains [(0,3),(3,8),(8,15),(15,22),(22,30)]
+ * The return DataArrayInt will contain : **[0,4,1,2,2,3]**
+ * 
+ * \param [in] ranges typically come from output of MEDCouplingUMesh::ComputeRangesFromTypeDistribution. Each range is specified like this : 1st component is
+ *             for lower value included and 2nd component is the upper value of corresponding range **excluded**.
+ * \throw If offsets is a null pointer or does not have 2 components or if \a this is not allocated or \a this do not have exactly one component. To finish an exception
+ *        is thrown if no ranges in \a ranges contains value in \a this.
+ */
+DataArrayInt *DataArrayInt::findRangeIdForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception)
+{
+  if(!ranges)
+    throw INTERP_KERNEL::Exception("DataArrayInt::findRangeIdForEachTuple : null input pointer !");
+  if(ranges->getNumberOfComponents()!=2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::findRangeIdForEachTuple : input DataArrayInt instance should have 2 components !");
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::findRangeIdForEachTuple : this should have only one component !");
+  int nbTuples=getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTuples,1);
+  int nbOfRanges=ranges->getNumberOfTuples();
+  const int *rangesPtr=ranges->getConstPointer();
+  int *retPtr=ret->getPointer();
+  const int *inPtr=getConstPointer();
+  for(int i=0;i<nbTuples;i++,retPtr++)
+    {
+      int val=inPtr[i];
+      bool found=false;
+      for(int j=0;j<nbOfRanges && !found;j++)
+        if(val>=rangesPtr[2*j] && val<rangesPtr[2*j+1])
+          { *retPtr=j; found=true; }
+      if(found)
+        continue;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::findRangeIdForEachTuple : tuple #" << i << " not found by any ranges !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * 
+ * \param [in] nbTimes specifies the nb of times each tuples in \a this will be duplicated contiguouly in returned DataArrayInt instance.
+ *             \a nbTimes  should be at least equal to 1.
+ * \return a newly allocated DataArrayInt having one component and number of tuples equal to \a nbTimes * \c this->getNumberOfTuples.
+ * \throw if \a this is not allocated or if \a this has not number of components set to one or if \a nbTimes is lower than 1.
+ */
+DataArrayInt *DataArrayInt::duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::duplicateEachTupleNTimes : this should have only one component !");
+  if(nbTimes<1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::duplicateEachTupleNTimes : nb times should be >= 1 !");
+  int nbTuples=getNumberOfTuples();
+  const int *inPtr=getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTimes*nbTuples,1);
+  int *retPtr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++,inPtr++)
+    {
+      int val=*inPtr;
+      for(int j=0;j<nbTimes;j++,retPtr++)
+        *retPtr=val;
+    }
+  ret->copyStringInfoFrom(*this);
   ret->incrRef();
   return ret;
 }

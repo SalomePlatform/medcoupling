@@ -38,7 +38,6 @@ namespace ParaMEDMEM
   class DataArrayDouble;
   class MEDCouplingMesh;
   class MEDCouplingFieldDouble;
-//  class MEDCouplingFieldDiscretization;
   class MEDCouplingGaussLocalization;
 
   class MEDCOUPLING_EXPORT MEDCouplingField : public RefCountObject, public TimeLabel

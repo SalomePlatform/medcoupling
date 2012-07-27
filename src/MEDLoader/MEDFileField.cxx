@@ -325,8 +325,13 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(MEDFil
   return new MEDFileFieldPerMeshPerTypePerDisc(fath,type,locId,std::string());
 }
 
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::New(const MEDFileFieldPerMeshPerTypePerDisc& other)
+{
+  return new MEDFileFieldPerMeshPerTypePerDisc(other);
+}
+
 MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField atype, int profileIt) throw(INTERP_KERNEL::Exception)
-try:_type(atype),_father(fath),_profile_it(profileIt)
+try:_type(atype),_father(fath)
   {
   }
 catch(INTERP_KERNEL::Exception& e)
@@ -335,6 +340,15 @@ catch(INTERP_KERNEL::Exception& e)
 }
 
 MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int locId, const std::string& dummy):_type(type),_father(fath),_loc_id(locId)
+{
+}
+
+MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc& other):_type(other._type),_father(0),_start(other._start),_end(other._end),_nval(other._nval),_profile(other._profile),_localization(other._localization),_loc_id(other._loc_id)
+{
+}
+
+MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc():_type(ON_CELLS),_father(0),_start(-std::numeric_limits<int>::max()),_end(-std::numeric_limits<int>::max()),
+                                                                       _nval(-std::numeric_limits<int>::max()),_loc_id(-std::numeric_limits<int>::max())
 {
 }
 
@@ -406,6 +420,16 @@ void MEDFileFieldPerMeshPerTypePerDisc::finishLoading(med_idt fid, int profileIt
     default:
       throw INTERP_KERNEL::Exception("Error on array reading ! Unrecognized type of field ! Should be in FLOAT64 or INT32 !");
     }
+}
+
+/*!
+ * Set a \c this->_start **and** \c this->_end keeping the same delta between the two.
+ */
+void MEDFileFieldPerMeshPerTypePerDisc::setNewStart(int newValueOfStart) throw(INTERP_KERNEL::Exception)
+{
+  int delta=_end-_start;
+  _start=newValueOfStart;
+  _end=_start+delta;
 }
 
 int MEDFileFieldPerMeshPerTypePerDisc::getIteration() const
@@ -584,6 +608,69 @@ void MEDFileFieldPerMeshPerTypePerDisc::getCoarseData(TypeOfField& type, std::pa
   dad.first=_start; dad.second=_end;
 }
 
+/*!
+ * \param [in] codeOfMesh is of format returned by MEDCouplingUMesh::getDistributionOfTypes. And for each *i* oldCode[3*i+2] gives the position (MEDFileUMesh::PutInThirdComponentOfCodeOffset).
+ *             This code corresponds to the distribution of types in the corresponding mesh.
+ * \param [out] ptToFill memory zone where the output will be stored.
+ * \return the size of data pushed into output param \a ptToFill
+ */
+int MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode(int offset, const std::vector<int>& codeOfMesh, const MEDFileFieldGlobsReal& glob, int *ptToFill) const throw(INTERP_KERNEL::Exception)
+{
+  _loc_id=offset;
+  std::ostringstream oss;
+  std::size_t nbOfType=codeOfMesh.size()/3;
+  std::size_t found=-1;
+  for(std::size_t i=0;i<nbOfType && found==-1;i++)
+    if(getGeoType()==(INTERP_KERNEL::NormalizedCellType)codeOfMesh[3*i])
+      found=i;
+  if(found==-1)
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getGeoType());
+      oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : not found geometric type " << cm.getRepr() << " in the referenced mesh of field !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+  if(_nval!=codeOfMesh[3*found+1])
+    {
+      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getGeoType());
+      oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : for geometric type " << cm.getRepr() << " number of elt ids in mesh is equal to " << _nval;
+      oss << " whereas mesh has " << codeOfMesh[3*found+1] << " for this geometric type !";
+      throw INTERP_KERNEL::Exception("");
+    }
+  int *work=ptToFill;
+  if(_profile.empty())
+    {
+      
+      for(int ii=codeOfMesh[3*found+2];ii<codeOfMesh[3*found+2]+_nval;ii++)
+        *work++=ii;
+    }
+  else
+    {
+      const DataArrayInt *pfl=glob.getProfile(_profile.c_str());
+      if(pfl->getNumberOfTuples()!=_nval)
+        {
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getGeoType());
+          oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : for geometric type " << cm.getRepr() << ", field is defined on profile \"" << _profile << "\" and size of profile is ";
+          oss << _nval;
+          oss << pfl->getNumberOfTuples() << " whereas the number of ids is set to " << _nval << " for this geometric type !";
+          throw INTERP_KERNEL::Exception("");
+        }
+      int offset=codeOfMesh[3*found+2];
+      for(const int *pflId=pfl->begin();pflId!=pfl->end();pflId++)
+        {
+          if(*pflId<codeOfMesh[3*found+1])
+            *work++=offset+*pflId;
+        }
+    }
+  return _nval;
+}
+
+int MEDFileFieldPerMeshPerTypePerDisc::fillTupleIds(int *ptToFill) const throw(INTERP_KERNEL::Exception)
+{
+  for(int i=_start;i<_end;i++)
+    *ptToFill++=i;
+  return _end-_start;
+}
+
 int MEDFileFieldPerMeshPerTypePerDisc::ConvertType(TypeOfField type, int locId) throw(INTERP_KERNEL::Exception)
 {
   switch(type)
@@ -597,6 +684,154 @@ int MEDFileFieldPerMeshPerTypePerDisc::ConvertType(TypeOfField type, int locId) 
     default:
       throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::ConvertType : not managed type of field !");
     }
+}
+
+std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > MEDFileFieldPerMeshPerTypePerDisc::SplitPerDiscretization(const std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>& entries)
+{
+  int id=0;
+  std::map<std::pair<std::string,TypeOfField>,int> m;
+  std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > ret;
+  for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entries.begin();it!=entries.end();it++)
+    if(m.find(std::pair<std::string,TypeOfField>((*it)->getLocalization(),(*it)->getType()))==m.end())
+      m[std::pair<std::string,TypeOfField>((*it)->getLocalization(),(*it)->getType())]=id++;
+  ret.resize(id);
+  for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entries.begin();it!=entries.end();it++)
+    ret[m[std::pair<std::string,TypeOfField>((*it)->getLocalization(),(*it)->getType())]].push_back(*it);
+  return ret;
+}
+
+/*!
+ * - \c this->_loc_id mutable attribute is used for elt id in mesh offsets.
+ * 
+ * \param [in] offset the offset id used to take into account that \a result is not compulsary empty in input
+ * \param [in] entriesOnSameDisc some entries **on same localization** if not the result can be invalid. The _start and _end on them are relative to \a arr parameter.
+ * \param [in] explicitIdsInMesh ids in mesh of the considered chunk.
+ * \param [in] newCode one of the input parameter to explicit the new geo type dispatch (in classical format same than those asked by MEDFileFields::renumberEntitiesLyingOnMesh)
+ * \param [in,out] glob if necessary by the method, new profiles can be added to it
+ * \param [in,out] arr after the call of this method \a arr is renumbered to be compliant with added entries to \a result.
+ * \param [out] result All new entries will be appended on it.
+ * \return false if the configuration of renumbering leads to an unnecessary resplit of input \a entriesOnSameDisc. If not true is returned (the most general case !)
+ */
+bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
+                                                       const DataArrayInt *explicitIdsInMesh,
+                                                       const std::vector<int>& newCode,
+                                                       MEDFileFieldGlobsReal& glob, DataArrayDouble *arr,
+                                                       std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >& result)
+{
+  if(entriesOnSameDisc.empty())
+    return false;
+  TypeOfField type=entriesOnSameDisc[0]->getType();
+  int szEntities=0,szTuples=0;
+  for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entriesOnSameDisc.begin();it!=entriesOnSameDisc.end();it++)
+    { szEntities+=(*it)->_nval; szTuples+=(*it)->_end-(*it)->_start; }
+  int nbi=szTuples/szEntities;
+  if(szTuples%szEntities!=0)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks : internal error the splitting into same dicretization failed !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumTuples=DataArrayInt::New(); renumTuples->alloc(szTuples,1);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > newGeoTypesPerChunk(entriesOnSameDisc.size());
+  std::vector< const DataArrayInt * > newGeoTypesPerChunk2(entriesOnSameDisc.size());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ranges=MEDCouplingUMesh::ComputeRangesFromTypeDistribution(newCode);
+  int id=0;
+  for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entriesOnSameDisc.begin();it!=entriesOnSameDisc.end();it++,id++)
+    {
+      int startOfEltIdOfChunk=(*it)->_loc_id;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newEltIds=explicitIdsInMesh->substr(startOfEltIdOfChunk,startOfEltIdOfChunk+(*it)->_nval);
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rangeIdsForChunk=newEltIds->findRangeIdForEachTuple(ranges);
+      newGeoTypesPerChunk[id]=rangeIdsForChunk;
+      newGeoTypesPerChunk2[id]=rangeIdsForChunk;
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesEltIdsAllGather=DataArrayInt::Aggregate(newGeoTypesPerChunk2); newGeoTypesPerChunk.clear(); newGeoTypesPerChunk2.clear();
+  std::set<int> diffVals=newGeoTypesEltIdsAllGather->getDifferentValues();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesTupleIdsAllGather=newGeoTypesEltIdsAllGather->duplicateEachTupleNTimes(nbi);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumEltIds=newGeoTypesEltIdsAllGather->buildPermArrPerLevel();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumTupleIds=newGeoTypesTupleIdsAllGather->buildPermArrPerLevel();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrPart=arr->substr(offset,offset+szTuples);
+  arrPart->renumberInPlace(renumTupleIds->begin());
+  arr->setPartOfValues1(arrPart,offset,offset+szTuples,1,0,arrPart->getNumberOfComponents(),1);
+  bool ret=false;
+  std::set<int>::const_iterator idIt=diffVals.begin();
+  std::list<const MEDFileFieldPerMeshPerTypePerDisc *> li(entriesOnSameDisc.begin(),entriesOnSameDisc.end());
+  int offset2=0;
+  for(std::size_t i=0;i<diffVals.size();i++,idIt++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=newGeoTypesEltIdsAllGather->getIdsEqual(*idIt);
+      int nbEntityElts=ids->getNumberOfTuples();
+      bool ret2;
+      MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> eltToAdd=MEDFileFieldPerMeshPerTypePerDisc::
+        NewObjectOnSameDiscThanPool(type,(INTERP_KERNEL::NormalizedCellType)newCode[3*(*idIt)],ids,ids->isIdentity() && nbEntityElts==newCode[3*(*idIt)+1],
+                                    offset+offset2,
+                                    li,glob,ret2);
+      ret=ret || ret2;
+      result.push_back(eltToAdd);
+      offset2+=nbEntityElts*nbi;
+    }
+  ret=ret || li.empty();
+  return ret;
+}
+
+/*!
+ * \param [in] typeF type of field of new chunk
+ * \param [in] geoType the geometric type of the chunk
+ * \param [in] idsOfMeshElt the entity ids of mesh (cells or nodes) of the new chunk.
+ * \param [in] isPfl specifies if a profile is requested regarding size of \a idsOfMeshElt and the number of such entities regarding underlying mesh.
+ * \param [in] offset The offset in the **global array of data**.
+ * \param [in,out] entriesOnSameDisc the pool **on the same discretization** inside which it will be attempted to find an existing entry corresponding exactly
+ *                 to the new chunk to create.
+ * \param [in,out] glob the global shared info that will be requested for existing profiles or to append a new profile if needed.
+ * \param [out] notInExisting If false the return newly allocated entry is not coming from \a entriesOnSameDisc. If true the output comes from copy of \a entriesOnSameDisc
+ *              and corresponding entry erased from \a entriesOnSameDisc.
+ * \return a newly allocated chunk
+ */
+MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::NewObjectOnSameDiscThanPool(TypeOfField typeF, INTERP_KERNEL::NormalizedCellType geoType, DataArrayInt *idsOfMeshElt,
+                                                                                                  bool isPfl, int offset,
+                                                                                                  std::list< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
+                                                                                                  MEDFileFieldGlobsReal& glob,
+                                                                                                  bool &notInExisting) throw(INTERP_KERNEL::Exception)
+{
+  int nbMeshEntities=idsOfMeshElt->getNumberOfTuples();
+  std::list< const MEDFileFieldPerMeshPerTypePerDisc *>::iterator it=entriesOnSameDisc.begin();
+  for(;it!=entriesOnSameDisc.end();it++)
+    {
+      if((*it)->getGeoType()==geoType && (*it)->_nval==nbMeshEntities)
+        {
+          if(!isPfl)
+            if((*it)->_profile.empty())
+              break;
+            else
+              if(!(*it)->_profile.empty())
+                {
+                  const DataArrayInt *pfl=glob.getProfile((*it)->_profile.c_str());
+                  if(pfl->isEqualWithoutConsideringStr(*idsOfMeshElt))
+                    break;
+                }
+        }
+    }
+  if(it==entriesOnSameDisc.end())
+    {
+      notInExisting=true;
+      MEDFileFieldPerMeshPerTypePerDisc *ret=new MEDFileFieldPerMeshPerTypePerDisc;
+      ret->_type=typeF;
+      ret->_loc_id=(int)geoType;
+      ret->_nval=nbMeshEntities;
+      ret->setNewStart(offset);
+      if(isPfl)
+        {
+          idsOfMeshElt->setName(glob.createNewNameOfPfl().c_str());
+          glob.appendProfile(idsOfMeshElt);
+        }
+      //tony treatment of localization
+      return ret;
+    }
+  else
+    {
+      notInExisting=false;
+      MEDFileFieldPerMeshPerTypePerDisc *ret=MEDFileFieldPerMeshPerTypePerDisc::New(*(*it));
+      ret->_loc_id=(int)geoType;
+      ret->setNewStart(offset);
+      entriesOnSameDisc.erase(it);
+      return ret;
+    }
+  
 }
 
 MEDFileFieldPerMeshPerType *MEDFileFieldPerMeshPerType::NewOnRead(med_idt fid, MEDFileFieldPerMesh *fath, TypeOfField type, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception)
@@ -1046,6 +1281,13 @@ void MEDFileFieldPerMeshPerType::fillValues(int& startEntryId, std::vector< std:
     }
 }
 
+void MEDFileFieldPerMeshPerType::setLeaves(const std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >& leaves) throw(INTERP_KERNEL::Exception)
+{
+  _field_pm_pt_pd=leaves;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >::iterator it=_field_pm_pt_pd.begin();it!=_field_pm_pt_pd.end();it++)
+    (*it)->setFather(this);
+}
+
 MEDFileFieldPerMeshPerType::MEDFileFieldPerMeshPerType(MEDFileFieldPerMesh *fath, INTERP_KERNEL::NormalizedCellType geoType) throw(INTERP_KERNEL::Exception):_father(fath),_geo_type(geoType)
 {
 }
@@ -1450,6 +1692,111 @@ bool MEDFileFieldPerMesh::changeMeshNames(const std::vector< std::pair<std::stri
         }
     }
   return false;
+}
+
+bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
+                                                      MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+{
+  if(_mesh_name!=meshName)
+    return false;
+  std::set<INTERP_KERNEL::NormalizedCellType> typesToKeep;
+  for(std::size_t i=0;i<oldCode.size()/3;i++) typesToKeep.insert((INTERP_KERNEL::NormalizedCellType)oldCode[3*i]);
+  std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > entries;
+  std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> entriesKept;
+  std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> otherEntries;
+  int sz=0;
+  for(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >::const_iterator it=entries.begin();it!=entries.end();it++)
+    {
+      if(typesToKeep.find((*it).first.first)!=typesToKeep.end())
+        {
+          entriesKept.push_back(getLeafGivenTypeAndLocId((*it).first.first,(*it).first.second));
+          sz+=(*it).second.second-(*it).second.first;
+        }
+      else
+        otherEntries.push_back(getLeafGivenTypeAndLocId((*it).first.first,(*it).first.second));
+    }
+  DataArrayDouble *arr=getUndergroundDataArrayExt(entries);
+  if(!arr)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArrayDouble storing values of field is null !");
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumDefrag=DataArrayInt::New(); renumDefrag->alloc(arr->getNumberOfTuples(),1); renumDefrag->fillWithZero();
+  ////////////////////
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> explicitIdsOldInMesh=DataArrayInt::New(); explicitIdsOldInMesh->alloc(sz,1);//sz is a majorant of the real size. A realloc will be done after
+  int *workI2=explicitIdsOldInMesh->getPointer();
+  int sz1=0,sz2=0,sid=1;
+  std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > entriesKeptML=MEDFileFieldPerMeshPerTypePerDisc::SplitPerDiscretization(entriesKept);
+  std::vector<int> tupleIdOfStartOfNewChuncksV(entriesKeptML.size());
+  for(std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> >::const_iterator itL1=entriesKeptML.begin();itL1!=entriesKeptML.end();itL1++,sid++)
+    {
+      tupleIdOfStartOfNewChuncksV[sid-1]=sz2;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> explicitIdsOldInArr=DataArrayInt::New(); explicitIdsOldInArr->alloc(sz,1);
+      int *workI=explicitIdsOldInArr->getPointer();
+      for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator itL2=(*itL1).begin();itL2!=(*itL1).end();itL2++)
+        {
+          int delta1=(*itL2)->fillTupleIds(workI); workI+=delta1; sz1+=delta1;
+          int delta2=(*itL2)->fillEltIdsFromCode(sz2,oldCode,glob,workI2); workI2+=delta2; sz2+=delta2;
+        }
+      renumDefrag->setPartOfValuesSimple3(sid,explicitIdsOldInArr->begin(),explicitIdsOldInArr->end(),0,1,1);
+    }
+  explicitIdsOldInMesh->reAlloc(sz2);
+  int tupleIdOfStartOfNewChuncks=arr->getNumberOfTuples()-sz2;
+  ////////////////////
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> permArrDefrag=renumDefrag->buildPermArrPerLevel(); renumDefrag=0;
+  // perform redispatching of non concerned MEDFileFieldPerMeshPerTypePerDisc
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> > otherEntriesNew;
+  for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=otherEntries.begin();it!=otherEntries.end();it++)
+    {
+      otherEntriesNew.push_back(MEDFileFieldPerMeshPerTypePerDisc::New(*(*it)));
+      otherEntriesNew.back()->setNewStart(permArrDefrag->getIJ((*it)->getStart(),0));
+    }
+  std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> > entriesKeptNew;
+  std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> entriesKeptNew2;
+  for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entriesKept.begin();it!=entriesKept.end();it++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> elt=MEDFileFieldPerMeshPerTypePerDisc::New(*(*it));
+      elt->setLocId((*it)->getGeoType());
+      entriesKeptNew.push_back(elt);
+      entriesKeptNew2.push_back(elt);
+    }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arr2=arr->renumber(permArrDefrag->getConstPointer());
+  // perform redispatching of concerned MEDFileFieldPerMeshPerTypePerDisc -> values are in arr2
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> explicitIdsNewInMesh=renumO2N->selectByTupleId(explicitIdsOldInMesh->begin(),explicitIdsOldInMesh->end());
+  std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > entriesKeptPerDisc=MEDFileFieldPerMeshPerTypePerDisc::SplitPerDiscretization(entriesKeptNew2);
+  bool ret=false;
+  for(std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> >::const_iterator it4=entriesKeptPerDisc.begin();it4!=entriesKeptPerDisc.end();it4++)
+    {
+      sid=0;
+      for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator itL2=(*it4).begin();itL2!=(*it4).end();it4++)
+        {
+          MEDFileFieldPerMeshPerTypePerDisc *curNC=const_cast<MEDFileFieldPerMeshPerTypePerDisc *>(*itL2);
+          curNC->setNewStart(permArrDefrag->getIJ((*itL2)->getStart(),0)-tupleIdOfStartOfNewChuncks+tupleIdOfStartOfNewChuncksV[sid]);
+        }
+      ret=MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(tupleIdOfStartOfNewChuncks+tupleIdOfStartOfNewChuncksV[sid],*it4,explicitIdsNewInMesh,newCode,
+                                                            glob,arr2,otherEntriesNew) || ret;
+    }
+  if(!ret)
+    return false;
+  // Assign new dispatching
+  assignNewLeaves(otherEntriesNew);
+  arr->cpyFrom(*arr2);
+  return true;
+}
+
+void MEDFileFieldPerMesh::assignNewLeaves(const std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >& leaves) throw(INTERP_KERNEL::Exception)
+{
+  std::map<INTERP_KERNEL::NormalizedCellType,std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc> > > types;
+  for( std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc > >::const_iterator it=leaves.begin();it!=leaves.end();it++)
+    types[(INTERP_KERNEL::NormalizedCellType)(*it)->getLocId()].push_back(*it);
+  //
+  std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > > fieldPmPt(types.size());
+  std::map<INTERP_KERNEL::NormalizedCellType,std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerTypePerDisc> > >::const_iterator it1=types.begin();
+  std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMeshPerType > >::iterator it2=fieldPmPt.begin();
+  for(;it1!=types.end();it1++,it2++)
+    {
+      MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerType> elt=MEDFileFieldPerMeshPerType::New(this,(INTERP_KERNEL::NormalizedCellType)((*it1).second[0]->getLocId()));
+      elt->setLeaves((*it1).second);
+      *it2=elt;
+    }
+  _field_pm_pt=fieldPmPt;
 }
 
 void MEDFileFieldPerMesh::changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception)
@@ -2275,6 +2622,30 @@ void MEDFileFieldGlobs::appendLoc(const char *locName, INTERP_KERNEL::Normalized
   _locs.push_back(obj);
 }
 
+std::string MEDFileFieldGlobs::createNewNameOfPfl() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> names=getPfls();
+  return CreateNewNameNotIn("NewPfl_",names);
+}
+
+std::string MEDFileFieldGlobs::createNewNameOfLoc() const throw(INTERP_KERNEL::Exception)
+{
+  std::vector<std::string> names=getLocs();
+  return CreateNewNameNotIn("NewLoc_",names);
+}
+
+std::string MEDFileFieldGlobs::CreateNewNameNotIn(const char *prefix, const std::vector<std::string>& namesToAvoid) throw(INTERP_KERNEL::Exception)
+{
+  for(std::size_t sz=0;sz<100000;sz++)
+    {
+      std::ostringstream tryName;
+      tryName << prefix << sz;
+      if(std::find(namesToAvoid.begin(),namesToAvoid.end(),tryName.str())==namesToAvoid.end())
+        return tryName.str();
+    }
+  throw INTERP_KERNEL::Exception("MEDFileFieldGlobs::CreateNewNameNotIn : impossible to create an additional profile limit of 100000 profiles reached !");
+}
+
 MEDFileFieldGlobsReal::MEDFileFieldGlobsReal(const char *fname):_globals(MEDFileFieldGlobs::New(fname))
 {
 }
@@ -2350,6 +2721,16 @@ bool MEDFileFieldGlobsReal::existsPfl(const char *pflName) const
 bool MEDFileFieldGlobsReal::existsLoc(const char *locName) const
 {
   return _globals->existsLoc(locName);
+}
+
+std::string MEDFileFieldGlobsReal::createNewNameOfPfl() const throw(INTERP_KERNEL::Exception)
+{
+  return _globals->createNewNameOfPfl();
+}
+
+std::string MEDFileFieldGlobsReal::createNewNameOfLoc() const throw(INTERP_KERNEL::Exception)
+{
+  return _globals->createNewNameOfLoc();
 }
 
 void MEDFileFieldGlobsReal::setFileName(const char *fileName)
@@ -2718,6 +3099,19 @@ bool MEDFileField1TSWithoutDAS::changeMeshNames(const std::vector< std::pair<std
       MEDFileFieldPerMesh *cur(*it);
       if(cur)
         ret=cur->changeMeshNames(modifTab) || ret;
+    }
+  return ret;
+}
+
+bool MEDFileField1TSWithoutDAS::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
+                                                            MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr< MEDFileFieldPerMesh > >::iterator it=_field_per_mesh.begin();it!=_field_per_mesh.end();it++)
+    {
+      MEDFileFieldPerMesh *fpm(*it);
+      if(fpm)
+        ret=fpm->renumberEntitiesLyingOnMesh(meshName,oldCode,newCode,renumO2N,glob) || ret;
     }
   return ret;
 }
@@ -3692,6 +4086,19 @@ bool MEDFileFieldMultiTSWithoutDAS::changeMeshNames(const std::vector< std::pair
   return ret;
 }
 
+bool MEDFileFieldMultiTSWithoutDAS::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N,
+                                                                MEDFileFieldGlobsReal& glob) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileField1TSWithoutDAS> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    {
+      MEDFileField1TSWithoutDAS *f1ts(*it);
+      if(f1ts)
+        ret=f1ts->renumberEntitiesLyingOnMesh(meshName,oldCode,newCode,renumO2N,glob) || ret;
+    }
+  return ret;
+}
+
 std::string MEDFileFieldMultiTSWithoutDAS::getDtUnit() const throw(INTERP_KERNEL::Exception)
 {
   if(_time_steps.empty())
@@ -4657,6 +5064,29 @@ bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std
       MEDFileFieldMultiTSWithoutDAS *cur(*it);
       if(cur)
         ret=cur->changeMeshNames(modifTab) || ret;
+    }
+  return ret;
+}
+
+/*!
+ * \param [in] meshName the name of the mesh that will be renumbered.
+ * \param [in] oldCode is of format returned by MEDCouplingUMesh::getDistributionOfTypes. And for each *i* oldCode[3*i+2] gives the position (MEDFileUMesh::PutInThirdComponentOfCodeOffset).
+ *             This code corresponds to the distribution of types in the corresponding mesh.
+ * \param [in] newCode idem to param \a oldCode except that here the new distribution is given.
+ * \param [in] renumO2N the old to new renumber array.
+ * \return If true a renumbering has been performed. The structure in \a this has been modified. If false, nothing has been done: it is typically the case if \a meshName is not refered by any 
+ *         field in \a this.
+ */
+bool MEDFileFields::renumberEntitiesLyingOnMesh(const char *meshName, const std::vector<int>& oldCode, const std::vector<int>& newCode, const DataArrayInt *renumO2N) throw(INTERP_KERNEL::Exception)
+{
+  bool ret=false;
+  for(std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldMultiTSWithoutDAS> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    {
+      MEDFileFieldMultiTSWithoutDAS *fmts(*it);
+      if(fmts)
+        {
+          ret=fmts->renumberEntitiesLyingOnMesh(meshName,oldCode,newCode,renumO2N,*this) || ret;
+        }
     }
   return ret;
 }
