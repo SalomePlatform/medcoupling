@@ -121,7 +121,7 @@ namespace ParaMEDMEM
     std::string getLocalization() const;
     void setLocalization(const char *newLocName);
     int getLocId() const { return _loc_id; }
-    void setLocId(int newId) { _loc_id=newId; }
+    void setLocId(int newId) const { _loc_id=newId; }
     void setFather(MEDFileFieldPerMeshPerType *newFather) { _father=newFather; }
     void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
     void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) throw(INTERP_KERNEL::Exception);
@@ -136,7 +136,7 @@ namespace ParaMEDMEM
                                const DataArrayInt *explicitIdsInMesh, const std::vector<int>& newCode,
                                MEDFileFieldGlobsReal& glob, DataArrayDouble *arr, std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> >& result);
     static MEDFileFieldPerMeshPerTypePerDisc *NewObjectOnSameDiscThanPool(TypeOfField typeF, INTERP_KERNEL::NormalizedCellType geoType, DataArrayInt *idsOfMeshElt,
-                                                                          bool isPfl, int offset, std::list< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
+                                                                          bool isPfl, int nbi, int offset, std::list< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
                                                                           MEDFileFieldGlobsReal& glob, bool &notInExisting) throw(INTERP_KERNEL::Exception);
   private:
     MEDFileFieldPerMeshPerTypePerDisc(MEDFileFieldPerMeshPerType *fath, TypeOfField type, int profileIt) throw(INTERP_KERNEL::Exception);
@@ -154,6 +154,8 @@ namespace ParaMEDMEM
     std::string _localization;
     //! only on assignement -3 : ON_NODES, -2 : ON_CELLS, -1 : ON_GAUSS_NE, 0..* : ON_GAUSS_PT
     mutable int _loc_id;
+  public:
+    mutable int _tmp_work1;
   };
 
   class MEDFileFieldPerMeshPerType : public RefCountObject, public MEDFileWritable

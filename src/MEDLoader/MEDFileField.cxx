@@ -343,7 +343,7 @@ MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(MEDFileFiel
 {
 }
 
-MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc& other):_type(other._type),_father(0),_start(other._start),_end(other._end),_nval(other._nval),_profile(other._profile),_localization(other._localization),_loc_id(other._loc_id)
+MEDFileFieldPerMeshPerTypePerDisc::MEDFileFieldPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc& other):_type(other._type),_father(0),_start(other._start),_end(other._end),_nval(other._nval),_profile(other._profile),_localization(other._localization),_loc_id(other._loc_id),_tmp_work1(other._tmp_work1)
 {
 }
 
@@ -629,17 +629,16 @@ int MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode(int offset, const std:
       oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : not found geometric type " << cm.getRepr() << " in the referenced mesh of field !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  if(_nval!=codeOfMesh[3*found+1])
-    {
-      const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getGeoType());
-      oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : for geometric type " << cm.getRepr() << " number of elt ids in mesh is equal to " << _nval;
-      oss << " whereas mesh has " << codeOfMesh[3*found+1] << " for this geometric type !";
-      throw INTERP_KERNEL::Exception("");
-    }
   int *work=ptToFill;
   if(_profile.empty())
     {
-      
+      if(_nval!=codeOfMesh[3*found+1])
+        {
+          const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getGeoType());
+          oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : for geometric type " << cm.getRepr() << " number of elt ids in mesh is equal to " << _nval;
+          oss << " whereas mesh has " << codeOfMesh[3*found+1] << " for this geometric type !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
       for(int ii=codeOfMesh[3*found+2];ii<codeOfMesh[3*found+2]+_nval;ii++)
         *work++=ii;
     }
@@ -652,7 +651,7 @@ int MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode(int offset, const std:
           oss << "MEDFileFieldPerMeshPerTypePerDisc::fillEltIdsFromCode : for geometric type " << cm.getRepr() << ", field is defined on profile \"" << _profile << "\" and size of profile is ";
           oss << _nval;
           oss << pfl->getNumberOfTuples() << " whereas the number of ids is set to " << _nval << " for this geometric type !";
-          throw INTERP_KERNEL::Exception("");
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       int offset=codeOfMesh[3*found+2];
       for(const int *pflId=pfl->begin();pflId!=pfl->end();pflId++)
@@ -728,23 +727,33 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
   if(szTuples%szEntities!=0)
     throw INTERP_KERNEL::Exception("MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks : internal error the splitting into same dicretization failed !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumTuples=DataArrayInt::New(); renumTuples->alloc(szTuples,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ranges=MEDCouplingUMesh::ComputeRangesFromTypeDistribution(newCode);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > newGeoTypesPerChunk(entriesOnSameDisc.size());
   std::vector< const DataArrayInt * > newGeoTypesPerChunk2(entriesOnSameDisc.size());
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ranges=MEDCouplingUMesh::ComputeRangesFromTypeDistribution(newCode);
+  std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > newGeoTypesPerChunk_bis(entriesOnSameDisc.size());
+  std::vector< const DataArrayInt * > newGeoTypesPerChunk3(entriesOnSameDisc.size());
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesPerChunk4=DataArrayInt::New(); newGeoTypesPerChunk4->alloc(szEntities,nbi);
   int id=0;
   for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entriesOnSameDisc.begin();it!=entriesOnSameDisc.end();it++,id++)
     {
-      int startOfEltIdOfChunk=(*it)->_loc_id;
+      int startOfEltIdOfChunk=(*it)->_start;
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newEltIds=explicitIdsInMesh->substr(startOfEltIdOfChunk,startOfEltIdOfChunk+(*it)->_nval);
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> rangeIdsForChunk=newEltIds->findRangeIdForEachTuple(ranges);
-      newGeoTypesPerChunk[id]=rangeIdsForChunk;
-      newGeoTypesPerChunk2[id]=rangeIdsForChunk;
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsInRrangeForChunk=newEltIds->findIdInRangeForEachTuple(ranges);
+      //
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=rangeIdsForChunk->duplicateEachTupleNTimes(nbi); rangeIdsForChunk->rearrange(nbi);
+      newGeoTypesPerChunk4->setPartOfValues1(tmp,(*it)->_tmp_work1-offset,(*it)->_tmp_work1+(*it)->_nval*nbi-offset,1,0,nbi,1);
+      //
+      newGeoTypesPerChunk[id]=rangeIdsForChunk; newGeoTypesPerChunk2[id]=rangeIdsForChunk;
+      newGeoTypesPerChunk_bis[id]=idsInRrangeForChunk; newGeoTypesPerChunk3[id]=idsInRrangeForChunk;
     }
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesEltIdsAllGather=DataArrayInt::Aggregate(newGeoTypesPerChunk2); newGeoTypesPerChunk.clear(); newGeoTypesPerChunk2.clear();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesEltIdsAllGather2=DataArrayInt::Aggregate(newGeoTypesPerChunk3); newGeoTypesPerChunk_bis.clear(); newGeoTypesPerChunk3.clear();
   std::set<int> diffVals=newGeoTypesEltIdsAllGather->getDifferentValues();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> newGeoTypesTupleIdsAllGather=newGeoTypesEltIdsAllGather->duplicateEachTupleNTimes(nbi);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumEltIds=newGeoTypesEltIdsAllGather->buildPermArrPerLevel();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumTupleIds=newGeoTypesTupleIdsAllGather->buildPermArrPerLevel();
+  //
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumTupleIds=newGeoTypesPerChunk4->buildPermArrPerLevel();
+  //
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> arrPart=arr->substr(offset,offset+szTuples);
   arrPart->renumberInPlace(renumTupleIds->begin());
   arr->setPartOfValues1(arrPart,offset,offset+szTuples,1,0,arrPart->getNumberOfComponents(),1);
@@ -755,10 +764,11 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
   for(std::size_t i=0;i<diffVals.size();i++,idIt++)
     {
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ids=newGeoTypesEltIdsAllGather->getIdsEqual(*idIt);
-      int nbEntityElts=ids->getNumberOfTuples();
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> subIds=newGeoTypesEltIdsAllGather2->selectByTupleId(ids->begin(),ids->end());
+      int nbEntityElts=subIds->getNumberOfTuples();
       bool ret2;
       MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> eltToAdd=MEDFileFieldPerMeshPerTypePerDisc::
-        NewObjectOnSameDiscThanPool(type,(INTERP_KERNEL::NormalizedCellType)newCode[3*(*idIt)],ids,ids->isIdentity() && nbEntityElts==newCode[3*(*idIt)+1],
+        NewObjectOnSameDiscThanPool(type,(INTERP_KERNEL::NormalizedCellType)newCode[3*(*idIt)],subIds,!subIds->isIdentity() || nbEntityElts!=newCode[3*(*idIt)+1],nbi,
                                     offset+offset2,
                                     li,glob,ret2);
       ret=ret || ret2;
@@ -774,6 +784,7 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
  * \param [in] geoType the geometric type of the chunk
  * \param [in] idsOfMeshElt the entity ids of mesh (cells or nodes) of the new chunk.
  * \param [in] isPfl specifies if a profile is requested regarding size of \a idsOfMeshElt and the number of such entities regarding underlying mesh.
+ * \param [in] nbi number of integration points
  * \param [in] offset The offset in the **global array of data**.
  * \param [in,out] entriesOnSameDisc the pool **on the same discretization** inside which it will be attempted to find an existing entry corresponding exactly
  *                 to the new chunk to create.
@@ -783,7 +794,7 @@ bool MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(int offset, const std::ve
  * \return a newly allocated chunk
  */
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::NewObjectOnSameDiscThanPool(TypeOfField typeF, INTERP_KERNEL::NormalizedCellType geoType, DataArrayInt *idsOfMeshElt,
-                                                                                                  bool isPfl, int offset,
+                                                                                                  bool isPfl, int nbi, int offset,
                                                                                                   std::list< const MEDFileFieldPerMeshPerTypePerDisc *>& entriesOnSameDisc,
                                                                                                   MEDFileFieldGlobsReal& glob,
                                                                                                   bool &notInExisting) throw(INTERP_KERNEL::Exception)
@@ -792,7 +803,7 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::NewObjectO
   std::list< const MEDFileFieldPerMeshPerTypePerDisc *>::iterator it=entriesOnSameDisc.begin();
   for(;it!=entriesOnSameDisc.end();it++)
     {
-      if((*it)->getGeoType()==geoType && (*it)->_nval==nbMeshEntities)
+      if(((INTERP_KERNEL::NormalizedCellType)(*it)->_loc_id)==geoType && (*it)->_nval==nbMeshEntities)
         {
           if(!isPfl)
             if((*it)->_profile.empty())
@@ -813,11 +824,13 @@ MEDFileFieldPerMeshPerTypePerDisc *MEDFileFieldPerMeshPerTypePerDisc::NewObjectO
       ret->_type=typeF;
       ret->_loc_id=(int)geoType;
       ret->_nval=nbMeshEntities;
-      ret->setNewStart(offset);
+      ret->_start=offset;
+      ret->_end=ret->_start+ret->_nval*nbi;
       if(isPfl)
         {
           idsOfMeshElt->setName(glob.createNewNameOfPfl().c_str());
           glob.appendProfile(idsOfMeshElt);
+          ret->_profile=idsOfMeshElt->getName();
         }
       //tony treatment of localization
       return ret;
@@ -1704,7 +1717,10 @@ bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const char *meshName, cons
   std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > > entries;
   std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> entriesKept;
   std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> otherEntries;
+  DataArrayDouble *arr=getUndergroundDataArrayExt(entries);
   int sz=0;
+  if(!arr)
+    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArrayDouble storing values of field is null !");
   for(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >::const_iterator it=entries.begin();it!=entries.end();it++)
     {
       if(typesToKeep.find((*it).first.first)!=typesToKeep.end())
@@ -1715,24 +1731,23 @@ bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const char *meshName, cons
       else
         otherEntries.push_back(getLeafGivenTypeAndLocId((*it).first.first,(*it).first.second));
     }
-  DataArrayDouble *arr=getUndergroundDataArrayExt(entries);
-  if(!arr)
-    throw INTERP_KERNEL::Exception("MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh : DataArrayDouble storing values of field is null !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> renumDefrag=DataArrayInt::New(); renumDefrag->alloc(arr->getNumberOfTuples(),1); renumDefrag->fillWithZero();
   ////////////////////
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> explicitIdsOldInMesh=DataArrayInt::New(); explicitIdsOldInMesh->alloc(sz,1);//sz is a majorant of the real size. A realloc will be done after
   int *workI2=explicitIdsOldInMesh->getPointer();
   int sz1=0,sz2=0,sid=1;
   std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> > entriesKeptML=MEDFileFieldPerMeshPerTypePerDisc::SplitPerDiscretization(entriesKept);
-  std::vector<int> tupleIdOfStartOfNewChuncksV(entriesKeptML.size());
+  // std::vector<int> tupleIdOfStartOfNewChuncksV(entriesKeptML.size());
   for(std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> >::const_iterator itL1=entriesKeptML.begin();itL1!=entriesKeptML.end();itL1++,sid++)
     {
-      tupleIdOfStartOfNewChuncksV[sid-1]=sz2;
+      //  tupleIdOfStartOfNewChuncksV[sid-1]=sz2;
       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> explicitIdsOldInArr=DataArrayInt::New(); explicitIdsOldInArr->alloc(sz,1);
       int *workI=explicitIdsOldInArr->getPointer();
       for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator itL2=(*itL1).begin();itL2!=(*itL1).end();itL2++)
         {
           int delta1=(*itL2)->fillTupleIds(workI); workI+=delta1; sz1+=delta1;
+          (*itL2)->setLocId(sz2);
+          (*itL2)->_tmp_work1=(*itL2)->getStart();
           int delta2=(*itL2)->fillEltIdsFromCode(sz2,oldCode,glob,workI2); workI2+=delta2; sz2+=delta2;
         }
       renumDefrag->setPartOfValuesSimple3(sid,explicitIdsOldInArr->begin(),explicitIdsOldInArr->end(),0,1,1);
@@ -1747,13 +1762,17 @@ bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const char *meshName, cons
     {
       otherEntriesNew.push_back(MEDFileFieldPerMeshPerTypePerDisc::New(*(*it)));
       otherEntriesNew.back()->setNewStart(permArrDefrag->getIJ((*it)->getStart(),0));
+      otherEntriesNew.back()->setLocId((*it)->getGeoType());
     }
   std::vector< MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> > entriesKeptNew;
   std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> entriesKeptNew2;
   for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator it=entriesKept.begin();it!=entriesKept.end();it++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDFileFieldPerMeshPerTypePerDisc> elt=MEDFileFieldPerMeshPerTypePerDisc::New(*(*it));
+      int newStart=elt->getLocId();
       elt->setLocId((*it)->getGeoType());
+      elt->setNewStart(newStart);
+      elt->_tmp_work1=permArrDefrag->getIJ(elt->_tmp_work1,0);
       entriesKeptNew.push_back(elt);
       entriesKeptNew2.push_back(elt);
     }
@@ -1765,12 +1784,12 @@ bool MEDFileFieldPerMesh::renumberEntitiesLyingOnMesh(const char *meshName, cons
   for(std::vector< std::vector< const MEDFileFieldPerMeshPerTypePerDisc *> >::const_iterator it4=entriesKeptPerDisc.begin();it4!=entriesKeptPerDisc.end();it4++)
     {
       sid=0;
-      for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator itL2=(*it4).begin();itL2!=(*it4).end();it4++)
+      /*for(std::vector< const MEDFileFieldPerMeshPerTypePerDisc *>::const_iterator itL2=(*it4).begin();itL2!=(*it4).end();itL2++)
         {
           MEDFileFieldPerMeshPerTypePerDisc *curNC=const_cast<MEDFileFieldPerMeshPerTypePerDisc *>(*itL2);
           curNC->setNewStart(permArrDefrag->getIJ((*itL2)->getStart(),0)-tupleIdOfStartOfNewChuncks+tupleIdOfStartOfNewChuncksV[sid]);
-        }
-      ret=MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(tupleIdOfStartOfNewChuncks+tupleIdOfStartOfNewChuncksV[sid],*it4,explicitIdsNewInMesh,newCode,
+          }*/
+      ret=MEDFileFieldPerMeshPerTypePerDisc::RenumberChunks(tupleIdOfStartOfNewChuncks,*it4,explicitIdsNewInMesh,newCode,
                                                             glob,arr2,otherEntriesNew) || ret;
     }
   if(!ret)
@@ -4144,7 +4163,7 @@ DataArrayDouble *MEDFileField1TS::getUndergroundDataArray() const throw(INTERP_K
 
 DataArrayDouble *MEDFileField1TS::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
 {
- return _content->getUndergroundDataArrayExt(entries);
+  return _content->getUndergroundDataArrayExt(entries);
 }
 
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileField1TS::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) throw(INTERP_KERNEL::Exception)

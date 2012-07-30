@@ -5566,6 +5566,8 @@ DataArrayInt *DataArrayInt::buildExplicitArrByRanges(const DataArrayInt *offsets
  *             for lower value included and 2nd component is the upper value of corresponding range **excluded**.
  * \throw If offsets is a null pointer or does not have 2 components or if \a this is not allocated or \a this do not have exactly one component. To finish an exception
  *        is thrown if no ranges in \a ranges contains value in \a this.
+ * 
+ * \sa DataArrayInt::findIdInRangeForEachTuple
  */
 DataArrayInt *DataArrayInt::findRangeIdForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception)
 {
@@ -5594,6 +5596,56 @@ DataArrayInt *DataArrayInt::findRangeIdForEachTuple(const DataArrayInt *ranges) 
       else
         {
           std::ostringstream oss; oss << "DataArrayInt::findRangeIdForEachTuple : tuple #" << i << " not found by any ranges !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->incrRef();
+  return ret;
+}
+
+/*!
+ * Given in input ranges \a ranges, it returns a newly allocated DataArrayInt instance having one component and the same number of tuples than \a this.
+ * For each tuple at place **i** in \a this it tells which is the sub position of the first range in \a ranges that contains value \c this->getIJ(i,0) and put the result
+ * in tuple **i** of returned DataArrayInt.
+ * If ranges overlapped (in theory it should not) this method do not detect it and always returns the sub position of the first range.
+ *
+ * For example if \a this contains : [1,24,7,8,10,17] and \a ranges contains [(0,3),(3,8),(8,15),(15,22),(22,30)]
+ * The return DataArrayInt will contain : **[1,2,4,0,2,2]**
+ * This method is often called in pair with DataArrayInt::findRangeIdForEachTuple method.
+ * 
+ * \param [in] ranges typically come from output of MEDCouplingUMesh::ComputeRangesFromTypeDistribution. Each range is specified like this : 1st component is
+ *             for lower value included and 2nd component is the upper value of corresponding range **excluded**.
+ * \throw If offsets is a null pointer or does not have 2 components or if \a this is not allocated or \a this do not have exactly one component. To finish an exception
+ *        is thrown if no ranges in \a ranges contains value in \a this.
+ * \sa DataArrayInt::findRangeIdForEachTuple
+ */
+DataArrayInt *DataArrayInt::findIdInRangeForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception)
+{
+  if(!ranges)
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdInRangeForEachTuple : null input pointer !");
+  if(ranges->getNumberOfComponents()!=2)
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdInRangeForEachTuple : input DataArrayInt instance should have 2 components !");
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::findIdInRangeForEachTuple : this should have only one component !");
+  int nbTuples=getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New(); ret->alloc(nbTuples,1);
+  int nbOfRanges=ranges->getNumberOfTuples();
+  const int *rangesPtr=ranges->getConstPointer();
+  int *retPtr=ret->getPointer();
+  const int *inPtr=getConstPointer();
+  for(int i=0;i<nbTuples;i++,retPtr++)
+    {
+      int val=inPtr[i];
+      bool found=false;
+      for(int j=0;j<nbOfRanges && !found;j++)
+        if(val>=rangesPtr[2*j] && val<rangesPtr[2*j+1])
+          { *retPtr=val-rangesPtr[2*j]; found=true; }
+      if(found)
+        continue;
+      else
+        {
+          std::ostringstream oss; oss << "DataArrayInt::findIdInRangeForEachTuple : tuple #" << i << " not found by any ranges !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
