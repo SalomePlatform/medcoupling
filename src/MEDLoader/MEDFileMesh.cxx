@@ -2321,7 +2321,10 @@ void MEDFileUMesh::setFamilyFieldArr(int meshDimRelToMaxExt, DataArrayInt *famAr
   if(meshDimRelToMaxExt==1)
     {
       if(!famArr)
-        throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyFieldArr : input node renum arr is null !");
+        {
+          _fam_coords=0;
+          return ;
+        }
       DataArrayDouble *coo(_coords);
       if(!coo)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::setFamilyFieldArr : the coordinates have not been set !");
@@ -2345,7 +2348,11 @@ void MEDFileUMesh::setRenumFieldArr(int meshDimRelToMaxExt, DataArrayInt *renumA
   if(meshDimRelToMaxExt==1)
     {
       if(!renumArr)
-        throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumFieldArr : input node renum arr is null !");
+        {
+          _num_coords=0;
+          _rev_num_coords=0;
+          return ;
+        }
       DataArrayDouble *coo(_coords);
       if(!coo)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::setRenumFieldArr : the coordinates have not been set !");

@@ -696,7 +696,10 @@ void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId) throw(INTERP_K
 void MEDFileUMeshSplitL1::setFamilyArr(DataArrayInt *famArr)
 {
   if(!famArr)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setFamilyArr : null input pointer !");
+    {
+      _fam=0;
+      return ;
+    }
   MEDCouplingUMesh *mbt(_m_by_types);
   if(!mbt)
     throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setFamilyArr : no mesh defined on this level !");
@@ -708,7 +711,11 @@ void MEDFileUMeshSplitL1::setFamilyArr(DataArrayInt *famArr)
 void MEDFileUMeshSplitL1::setRenumArr(DataArrayInt *renumArr)
 {
   if(!renumArr)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setRenumArr : null input pointer !");
+    {
+      _num=0;
+      _rev_num=0;
+      return ;
+    }
   MEDCouplingUMesh *mbt(_m_by_types);
   if(!mbt)
     throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::setRenumArr : no mesh defined on this level !");
