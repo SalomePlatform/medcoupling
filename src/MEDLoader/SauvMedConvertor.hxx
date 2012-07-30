@@ -149,6 +149,7 @@ namespace SauvUtilities
 
     DoubleField( int nb_sub, int total_nb_comp )
       : _sub(nb_sub), _group(NULL), _curMedField(NULL) { _comp_values.reserve( total_nb_comp ); }
+    ~DoubleField();
     std::vector< double >& addComponent( int nb_values ); // return a vector ready to fill in
     bool hasCommonSupport() const { return _group; } // true if there is one support for all subs
     bool hasSameComponentsBySupport() const;

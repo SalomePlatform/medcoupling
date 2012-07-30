@@ -2157,7 +2157,6 @@ void IntermediateMED::setTS( SauvUtilities::DoubleField*  fld,
   if ( isNewMedField ) // timeStamp must be added before this
     {
       medFields->pushField( fld->_curMedField );
-      fld->_curMedField->decrRef();
     }
 }
 
@@ -2205,6 +2204,13 @@ std::vector< double >& DoubleField::addComponent( int nb_values )
   res.resize( nb_values );
   return res;
 }
+
+DoubleField::~DoubleField()
+{
+  if(_curMedField)
+    _curMedField->decrRef();
+}
+
 //================================================================================
 /*!
  * \brief Returns a supporting group

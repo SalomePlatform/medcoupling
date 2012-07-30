@@ -489,11 +489,11 @@ int SauvWriter::evaluateNbProfileSubMeshes() const
 {
   int nb = 0;
   for ( size_t i = 0; i < _nodeFields.size(); ++i )
-    nb += 1 + _nodeFields[i]->getPflsReallyUsed2().size();
+    nb += 1 + _nodeFields[i]->getPflsReallyUsed().size();
 
   for ( size_t i = 0; i < _cellFields.size(); ++i )
     {
-      nb += _cellFields[i]->getPflsReallyUsed2().size();
+      nb += _cellFields[i]->getPflsReallyUsed().size();
 
       vector< pair<int,int> > iters = _cellFields[i]->getIterations();
 
