@@ -4144,7 +4144,7 @@ DataArrayDouble *MEDFileField1TS::getUndergroundDataArray() const throw(INTERP_K
 
 DataArrayDouble *MEDFileField1TS::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<int,int> > >& entries) const throw(INTERP_KERNEL::Exception)
 {
-  _content->getUndergroundDataArrayExt(entries);
+ return _content->getUndergroundDataArrayExt(entries);
 }
 
 MEDFileFieldPerMeshPerTypePerDisc *MEDFileField1TS::getLeafGivenMeshAndTypeAndLocId(const char *mName, INTERP_KERNEL::NormalizedCellType typ, int locId) throw(INTERP_KERNEL::Exception)
