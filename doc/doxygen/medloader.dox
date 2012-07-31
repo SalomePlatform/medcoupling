@@ -737,20 +737,20 @@ In advanced API fields have been developed using divide and conquer pattern to r
 Here the list of classes in %MEDLoader advanced API top down sorted :
 
 - Level 0 : ParaMEDMEM::MEDFileFields
-- Level -1 : ParaMEDMEM::MEDFileFieldMultiTSWithoutDAS
-- Level -2 : ParaMEDMEM::MEDFileField1TSWithoutDAS
+- Level -1 : ParaMEDMEM::MEDFileFieldMultiTSWithoutSDA
+- Level -2 : ParaMEDMEM::MEDFileField1TSWithoutSDA
 - Level -3 : ParaMEDMEM::MEDFileFieldPerMesh (present only for backward compatibility MED file 2.2)
 - Level -4 : ParaMEDMEM::MEDFileFieldPerMeshPerType
 - Level -5 : ParaMEDMEM::MEDFileFieldPerMeshPerTypePerDisc
 
 
 In each level in tree of the the cyan box of field is represented by a class. The only difference is that values are grouped in a single big array located 
-in level -2 (ParaMEDMEM::MEDFileField1TSWithoutDAS)  in which each leaves (level -5) of MED file field
+in level -2 (ParaMEDMEM::MEDFileField1TSWithoutSDA)  in which each leaves (level -5) of MED file field
 point to using a range [\a start, \a end).
 
 As different time steps of a same field and different field inside a MED file can shared or not profiles (yellow box) and Locatization (red box) a manipulable field classes instance
 (ParaMEDMEM::MEDFileField1TS and ParaMEDMEM::MEDFileFieldMultiTS) in advanced API are the result of a subclass of a data class
-(respectively ParaMEDMEM::MEDFileField1TSWithoutDAS, ParaMEDMEM::MEDFileFieldMultiTSWithoutDAS) and a instance of ParaMEDMEM::MEDFileFieldGlobsReal representing the shared data arrays (DAS)
+(respectively ParaMEDMEM::MEDFileField1TSWithoutSDA, ParaMEDMEM::MEDFileFieldMultiTSWithoutSDA) and a instance of ParaMEDMEM::MEDFileFieldGlobsReal representing the shared data arrays (SDA)
 at a specified scope inside the MED file.
 
 \subsection AdvMEDLoaderAPIFieldR Reading a field
