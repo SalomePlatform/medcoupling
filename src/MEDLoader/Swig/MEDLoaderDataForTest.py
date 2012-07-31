@@ -313,6 +313,61 @@ class MEDLoaderDataForTest:
         famIdsPerGrp=[[5],[-11],[1],[-8],[4],[-10],[-12],[2],[-9],[-4],[-5],[-6],[-7],[-4,-5,-6,-7],[6],[-14],[7],[-19],[8],[-17],[9],[-20],[10],[-15],[11],[-18],[12],[-21],[13],[-16],[3],[-13],[-3,-2,-1],[-3],[-2],[-1],[-4,-5,-6,-7,-3,-2,-1],[3]]
         return m2,m1,m0,f2,f1,f0,p,n2,n1,n0,fns,fids,grpns,famIdsPerGrp
 
+    def buildMLMeshUnPolyze(cls,tester):
+        """Level 0 (meshDim=3) - 2 TETRA4 + 3 PENTA6 + 2 POLYH
+        # POLYH #0 becomes 1 TETRA4
+        # POLYH #1 becomes HEXA8
+        # Level -1 (meshDim=2) - 2 TRI3 + 3 QUAD4 + 4 POLYG
+        # POLYG #2 becomes TRI3"""
+        meshName="NightmareMesh"
+        #
+        coords=DataArrayDouble.New(38,3) ; coords.rearrange(1) ; coords.iota(1000.) ; coords.rearrange(3) ; coords.setInfoOnComponents(["X [m]","Y [m]","Z [m]"])
+        mesh0=MEDCouplingUMesh(meshName,3)
+        type0=[NORM_TETRA4,NORM_TETRA4, NORM_PENTA6,NORM_PENTA6,NORM_PENTA6, NORM_POLYHED,NORM_POLYHED]
+        conn0=[[0,1,2,3],[4,5,6,7], [8,9,10,11,12,13],[14,15,16,17,18,19],[20,21,22,23,24,25], [26,27,28,-1,26,29,27,-1,27,29,28,-1,28,29,26],[30,31,32,33,-1,34,37,36,35,-1,30,34,35,31,-1,31,35,36,32,-1,32,36,37,33,-1,33,37,34,30]]
+        mesh0.allocateCells(len(type0))
+        for typ,nodalConn in zip(type0,conn0):
+            mesh0.insertNextCell(typ,nodalConn);
+            pass
+        mesh0.finishInsertingCells()
+        mesh0.setCoords(coords)
+        
+        meshM1=MEDCouplingUMesh(meshName,2)
+        typeM1=[NORM_TRI3,NORM_TRI3, NORM_QUAD4,NORM_QUAD4,NORM_QUAD4, NORM_POLYGON,NORM_POLYGON,NORM_POLYGON,NORM_POLYGON]
+        connM1=[[0,1,2],[3,4,5], [6,7,8,9],[10,11,12,13],[14,15,16,17], [18,19,20,21,22],[23,24,25,26,27],[28,29,30],[31,32,33,34,35,36,37]]
+        meshM1.allocateCells(len(typeM1))
+        for typ,nodalConn in zip(typeM1,connM1):
+            meshM1.insertNextCell(typ,nodalConn);
+            pass
+        meshM1.finishInsertingCells()
+        meshM1.setCoords(coords)
+        #
+        mm=MEDFileUMesh.New()
+        mm.setMeshAtLevel(0,mesh0)
+        mm.setMeshAtLevel(-1,meshM1)
+        grp0_L0=DataArrayInt.New([0,1,5,7]) ; grp0_L0.setName("grp0_L0")
+        grp1_L0=DataArrayInt.New([1,2,3,4,6]) ; grp1_L0.setName("grp1_L0")
+        tester.assertRaises(InterpKernelException,mm.setGroupsAtLevel,0,[grp0_L0,grp1_L0])# presence of 7 in grp0_L0 (only 7 cells at level 0) -> throw
+        grp0_L0=DataArrayInt.New([0,1,5,6]) ; grp0_L0.setName("grp0_L0")
+        mm.setGroupsAtLevel(0,[grp0_L0,grp1_L0])
+        grp0_LM1=DataArrayInt.New([1,2,3,4,7]) ; grp0_LM1.setName("grp0_LM1")
+        grp1_LM1=DataArrayInt.New([2,3,4,5]) ; grp1_LM1.setName("grp1_LM1")
+        grp2_LM1=DataArrayInt.New([5,6,7,8]) ; grp2_LM1.setName("grp2_LM1")
+        mm.setGroupsAtLevel(-1,[grp0_LM1,grp1_LM1,grp2_LM1])
+        grp0_Node=DataArrayInt.New([0,11,15,16]) ; grp0_Node.setName("grp0_Node")
+        grp1_Node=DataArrayInt.New([1,2,13,14,16]) ; grp1_Node.setName("grp1_Node")
+        mm.setGroupsAtLevel(1,[grp0_Node,grp1_Node])
+        #
+        tester.assertRaises(InterpKernelException,mm.setRenumFieldArr,0,DataArrayInt.New([0,8,9,4,5,6,7,10]))# to big array
+        mm.setRenumFieldArr(0,DataArrayInt.New([0,8,9,4,5,6,7]))
+        da=DataArrayInt.New([0,8,9,4,5,6,7,11,12])
+        mm.setRenumFieldArr(-1,da)
+        mm.setRenumFieldArr(-1,None)
+        mm.setRenumFieldArr(-1,da)
+        da=DataArrayInt.New(mm.getNumberOfNodes()+1) ; da.iota(8) ; tester.assertRaises(InterpKernelException,mm.setRenumFieldArr,1,da) # to big array more than number of nodes
+        da=DataArrayInt.New(mm.getNumberOfNodes()) ; da.iota(8) ; mm.setRenumFieldArr(1,da)
+        return mm
+
     def buildVecFieldOnCells_1(cls):
         mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
         nbOfCells=mesh.getNumberOfCells();
@@ -514,6 +569,7 @@ class MEDLoaderDataForTest:
     build3DMesh_1=classmethod(build3DMesh_1)
     build3DSurfMesh_1=classmethod(build3DSurfMesh_1)
     build3DMesh_2=classmethod(build3DMesh_2)
+    buildMLMeshUnPolyze=classmethod(buildMLMeshUnPolyze)
     buildMultiLevelMesh_1=classmethod(buildMultiLevelMesh_1)
     buildVecFieldOnCells_1=classmethod(buildVecFieldOnCells_1)
     buildVecFieldOnNodes_1=classmethod(buildVecFieldOnNodes_1)

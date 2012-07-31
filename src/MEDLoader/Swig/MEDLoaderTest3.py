@@ -1347,6 +1347,90 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(fread2.isEqual(f1,1e-12,1e-12))
         pass
 
+    def testUnPolyze1(self):
+        fname="Pyfile47.med"
+        mm=MEDLoaderDataForTest.buildMLMeshUnPolyze(self)
+        ref=[13,14,14,12,12,12,12,12,12,12,12,13,12,14,14,13,15,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12]
+        self.assertEqual(ref,mm.getFamilyFieldAtLevel(1).getValues())
+        self.assertEqual(mm.unPolyze()[:3],(True,[(3,2,0),(4,3,2),(5,4,5),(14,2,9),(16,3,11),(31,2,14)],[(3,3,0),(4,3,3),(5,3,6),(14,3,9),(16,3,12),(18,1,15)]))
+        mm.write(fname,2)
+        self.assertEqual(mm.getGroupArr(0,"grp0_L0").getValues(),[0,1,2,6])
+        self.assertEqual(mm.getGroupArr(0,"grp1_L0").getValues(),[1,3,4,5,6])
+        self.assertEqual(mm.getGroupArr(-1,"grp0_LM1").getValues(),[1,2,3,4,5])
+        self.assertEqual(mm.getGroupArr(-1,"grp1_LM1").getValues(),[3,4,5,6])
+        self.assertEqual(mm.getGroupArr(-1,"grp2_LM1").getValues(),[2,6,7,8])
+        self.assertEqual(mm.getGroupArr(1,"grp0_Node").getValues(),[0,11,15,16])
+        self.assertEqual(mm.getGroupArr(1,"grp1_Node").getValues(),[1,2,13,14,16])
+        self.assertEqual(mm.getFamilyFieldAtLevel(1).getValues(),ref)
+        # to test
+        mm.setRenumFieldArr(0,None)
+        mm.setFamilyFieldArr(-1,None)
+        pass
+
+    def testUnPolyze2(self):
+        fname="Pyfile48.med"
+        mfd=MEDFileData.New()
+        mm=MEDLoaderDataForTest.buildMLMeshUnPolyze(self)
+        meshes=MEDFileMeshes.New()
+        meshes.pushMesh(mm)
+        mfd.setMeshes(meshes)
+        fields=MEDFileFields.New()
+        mfd.setFields(fields)
+        ff=MEDFileFieldMultiTS.New()
+        fields.pushField(ff)
+        #
+        f0_0=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME) ; f0_0.setName("f0")
+        f0_0.setTime(9.5,3,4)
+        da=DataArrayDouble.New(38*2) ; da.iota(6.) ; da.rearrange(2) ; da.setInfoOnComponents(["Power [MW]","Density [kg/m^3]"])
+        f0_0.setArray(da)
+        f0_0.setMesh(mm.getMeshAtLevel(0))
+        ff.appendFieldNoProfileSBT(f0_0)
+        ff0=ff.getTimeStepAtPos(0)
+        f0_1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f0_1.setName("f0")
+        f0_1.setTime(9.5,3,4)
+        pfl=DataArrayInt.New([1,4,5,6]) ; pfl.setName("pfltest")
+        f0_1.setMesh(mm.getMeshAtLevel(0)[pfl])
+        da=DataArrayDouble.New([1401.,101401.,1602.,101602.,3100.,103100.,3101.,103101.],4,2) ; da.setInfoOnComponents(["Power [MW]","Density [kg/m^3]"])
+        f0_1.setArray(da)
+        ff0.setFieldProfile(f0_1,mm,0,pfl)
+        f0_2=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f0_2.setName("f0")#provoquer error
+        f0_2.setTime(9.5,3,4)
+        pfl2=DataArrayInt.New([0,1,2,3,4,5,6,8]) ; pfl2.setName("pfltestM1")
+        da=DataArrayDouble.New([300.,100300.,301.,100301.,400.,100400.,401.,100401.,402.,100402.,3200.,103200.,3201.,103201.,3203.,103203.],8,2) ; da.setInfoOnComponents(["Power [MW]","Density [kg/m^3]"])#provoquer error
+        f0_2.setMesh(mm.getMeshAtLevel(-1)[pfl2])
+        f0_2.setArray(da)
+        ff0.setFieldProfile(f0_2,mm,-1,pfl2)
+        mfd.getFields().shallowCpyGlobs(ff0)
+        #
+        mfd.unPolyzeMeshes()
+        #
+        fmts=mfd.getFields()[0]
+        self.assertEqual(fmts.getNumberOfTS(),1)
+        self.assertEqual(fmts.getTimeSteps(),[(3,4,9.5)])
+        arr,entry=fmts.getUndergroundDataArrayExt(3,4)
+        self.assertEqual(entry,[((3,0),(38,40)),((4,0),(40,43)),((5,0),(43,46)),((14,0),(46,48)),((16,0),(48,49)),((18,0),(49,50)),((40,0),(0,38))])
+        self.assertTrue(arr[38:40].isEqualWithoutConsideringStr(DataArrayDouble([300.0,100300.0,301.0,100301.0],2,2),1e-8))
+        self.assertTrue(arr[40:43].isEqualWithoutConsideringStr(DataArrayDouble([400.0,100400.0,401.0,100401.0,402.0,100402.0],3,2),1e-8))
+        self.assertTrue(arr[43:46].isEqualWithoutConsideringStr(DataArrayDouble([3200.0,103200.0,3201.0,103201.0,3203.0,103203.0],3,2),1e-8))
+        self.assertTrue(arr[46:48].isEqualWithoutConsideringStr(DataArrayDouble([1401.0,101401.0,3100.0,103100.0],2,2),1e-8))
+        self.assertTrue(arr[48:49].isEqualWithoutConsideringStr(DataArrayDouble([1602.0,101602.0],1,2),1e-8))
+        self.assertTrue(arr[49:50].isEqualWithoutConsideringStr(DataArrayDouble([3101.0,103101.0],1,2),1e-8))
+        self.assertEqual(('NewPfl_0','NewPfl_1','NewPfl_2'),fmts.getPflsReallyUsed())
+        self.assertEqual([(3,[(0,(38,40),'NewPfl_0','')]),(4,[(0,(40,43),'','')]),(5,[(0,(43,46),'','')]),(14,[(0,(46,48),'NewPfl_1','')]),(16,[(0,(48,49),'NewPfl_2','')]),(18,[(0,(49,50),'','')]),(40,[(1,(0,38),'','')])],fmts.getFieldSplitedByType(3,4))
+        self.assertEqual(fmts.getProfile("NewPfl_0").getValues(),[0,1])
+        self.assertEqual(fmts.getProfile("NewPfl_1").getValues(),[1,2])
+        self.assertEqual(fmts.getProfile("NewPfl_2").getValues(),[2])
+        ftest0=fmts.getFieldOnMeshAtLevel(ON_CELLS,3,4,0,mfd.getMeshes()[0])
+        self.assertTrue(ftest0.getArray().isEqualWithoutConsideringStr(DataArrayDouble([1401.,101401.,3100.,103100.,1602.,101602.,3101.,103101.],4,2),1e-8))
+        self.assertEqual(ftest0.getMesh().getNodalConnectivity().getValues(),[14,4,5,6,7,14,26,27,28,29,16,20,21,22,23,24,25,18,30,31,32,33,34,35,36,37])
+        self.assertEqual(ftest0.getMesh().getNodalConnectivityIndex().getValues(),[0,5,10,17,26])
+        ftest1=fmts.getFieldOnMeshAtLevel(ON_CELLS,3,4,-1,mfd.getMeshes()[0])
+        self.assertTrue(ftest1.getArray().isEqualWithoutConsideringStr(DataArrayDouble([300.,100300.,301.,100301.,400.,100400.,401.,100401.,402.,100402.,3200.,103200.,3201.,103201.,3203.,103203.]),1e-8))
+        self.assertEqual(ftest1.getMesh().getNodalConnectivity().getValues(),[3,0,1,2,3,3,4,5,4,6,7,8,9,4,10,11,12,13,4,14,15,16,17,5,18,19,20,21,22,5,23,24,25,26,27,5,31,32,33,34,35,36,37])
+        self.assertEqual(ftest1.getMesh().getNodalConnectivityIndex().getValues(),[0,4,8,13,18,23,29,35,43])
+        #
+        mfd.write(fname,2)
+        pass
     pass
 
 unittest.main()
