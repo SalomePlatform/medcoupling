@@ -98,7 +98,7 @@ namespace
   //================================================================================
 
   inline void ConvertQuadratic( const INTERP_KERNEL::NormalizedCellType type,
-                                const Cell &                     aCell )
+                                const Cell &                            aCell )
   {
     if ( const int * conn = getGibi2MedQuadraticInterlace( type ))
       {
@@ -1950,13 +1950,13 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
                 }
               else
                 {
-                  cout << msg << endl;
+                  cout << msg.str() << endl;
                 }
             }
           // create a med group
           grp._medGroup = DataArrayInt::New();
           grp._medGroup->setName( grp._name.c_str() );
-          grp._medGroup->alloc( orderInGroup, /*nbOfCompo=*/1 );
+          grp._medGroup->alloc( cell2order.size(), /*nbOfCompo=*/1 );
           int * idsPrt = grp._medGroup->getPointer();
           TCellToOrderMap::iterator cell2orderIt, cell2orderEnd = cell2order.end();
           for ( cell2orderIt = cell2order.begin(); cell2orderIt != cell2orderEnd; ++cell2orderIt )
