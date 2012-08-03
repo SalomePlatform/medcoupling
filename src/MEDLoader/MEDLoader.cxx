@@ -68,13 +68,13 @@ med_geometry_type typmainoeud[1] = { MED_NONE };
 INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO] = { INTERP_KERNEL::NORM_POINT1,
                                                                     INTERP_KERNEL::NORM_SEG2,
                                                                     INTERP_KERNEL::NORM_SEG3,
-                                                                    INTERP_KERNEL::NORM_ERROR,//SEG4
+                                                                    INTERP_KERNEL::NORM_SEG4,
                                                                     INTERP_KERNEL::NORM_TRI3,
                                                                     INTERP_KERNEL::NORM_QUAD4,
                                                                     INTERP_KERNEL::NORM_TRI6,
-                                                                    INTERP_KERNEL::NORM_ERROR,//TRI7
+                                                                    INTERP_KERNEL::NORM_TRI7,
                                                                     INTERP_KERNEL::NORM_QUAD8,
-                                                                    INTERP_KERNEL::NORM_ERROR,//QUAD9
+                                                                    INTERP_KERNEL::NORM_QUAD9,
                                                                     INTERP_KERNEL::NORM_TETRA4,
                                                                     INTERP_KERNEL::NORM_PYRA5,
                                                                     INTERP_KERNEL::NORM_PENTA6,
@@ -84,7 +84,7 @@ INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO] = { INTERP_KERNE
                                                                     INTERP_KERNEL::NORM_PYRA13,
                                                                     INTERP_KERNEL::NORM_PENTA15,
                                                                     INTERP_KERNEL::NORM_HEXA20,
-                                                                    INTERP_KERNEL::NORM_ERROR,//HEXA27
+                                                                    INTERP_KERNEL::NORM_HEXA27,
                                                                     INTERP_KERNEL::NORM_POLYGON,
                                                                     INTERP_KERNEL::NORM_POLYHED };
 
@@ -95,10 +95,10 @@ med_geometry_type typmai3[34] = { MED_POINT1,//0
                                   MED_QUAD4,//4
                                   MED_POLYGON,//5
                                   MED_TRIA6,//6
-                                  MED_NONE,//7
+                                  MED_TRIA7,//7
                                   MED_QUAD8,//8
-                                  MED_NONE,//9
-                                  MED_NONE,//10
+                                  MED_QUAD9,//9
+                                  MED_SEG4,//10
                                   MED_NONE,//11
                                   MED_NONE,//12
                                   MED_NONE,//13
@@ -115,7 +115,7 @@ med_geometry_type typmai3[34] = { MED_POINT1,//0
                                   MED_NONE,//24
                                   MED_PENTA15,//25
                                   MED_NONE,//26
-                                  MED_NONE,//27
+                                  MED_HEXA27,//27
                                   MED_NONE,//28
                                   MED_NONE,//29
                                   MED_HEXA20,//30

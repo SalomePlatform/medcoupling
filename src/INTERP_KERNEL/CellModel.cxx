@@ -29,11 +29,11 @@
 namespace INTERP_KERNEL
 {
   const char *CellModel::CELL_TYPES_REPR[]={"NORM_POINT1", "NORM_SEG2", "NORM_SEG3", "NORM_TRI3", "NORM_QUAD4",// 0->4
-                                            "NORM_POLYGON", "NORM_TRI6", "" , "NORM_QUAD8", "",//5->9
-                                            "", "", "", "", "NORM_TETRA4",//10->14
+                                            "NORM_POLYGON", "NORM_TRI6", "NORM_TRI7" , "NORM_QUAD8", "NORM_QUAD9",//5->9
+                                            "NORM_SEG4", "", "", "", "NORM_TETRA4",//10->14
                                             "NORM_PYRA5", "NORM_PENTA6", "", "NORM_HEXA8", "",//15->19
                                             "NORM_TETRA10", "", "NORM_HEXGP12", "NORM_PYRA13", "",//20->24
-                                            "NORM_PENTA15", "", "", "", "",//25->29
+                                            "NORM_PENTA15", "", "NORM_HEXA27", "", "",//25->29
                                             "NORM_HEXA20", "NORM_POLYHED", "NORM_QPOLYG", "NORM_POLYL", "",//30->34
                                             "", "", "", "", "",//35->39
                                             "NORM_ERROR"};
@@ -82,10 +82,13 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(std::make_pair(NORM_POINT1,CellModel(NORM_POINT1)));
     _map_of_unique_instance.insert(std::make_pair(NORM_SEG2,CellModel(NORM_SEG2)));
     _map_of_unique_instance.insert(std::make_pair(NORM_SEG3,CellModel(NORM_SEG3)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_SEG4,CellModel(NORM_SEG4)));
     _map_of_unique_instance.insert(std::make_pair(NORM_TRI3,CellModel(NORM_TRI3)));
     _map_of_unique_instance.insert(std::make_pair(NORM_QUAD4,CellModel(NORM_QUAD4)));
     _map_of_unique_instance.insert(std::make_pair(NORM_TRI6,CellModel(NORM_TRI6)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_TRI7,CellModel(NORM_TRI7)));
     _map_of_unique_instance.insert(std::make_pair(NORM_QUAD8,CellModel(NORM_QUAD8)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_QUAD9,CellModel(NORM_QUAD9)));
     _map_of_unique_instance.insert(std::make_pair(NORM_TETRA4,CellModel(NORM_TETRA4)));
     _map_of_unique_instance.insert(std::make_pair(NORM_HEXA8,CellModel(NORM_HEXA8)));
     _map_of_unique_instance.insert(std::make_pair(NORM_PYRA5,CellModel(NORM_PYRA5)));
@@ -95,6 +98,7 @@ namespace INTERP_KERNEL
     _map_of_unique_instance.insert(std::make_pair(NORM_PYRA13,CellModel(NORM_PYRA13)));
     _map_of_unique_instance.insert(std::make_pair(NORM_PENTA15,CellModel(NORM_PENTA15)));
     _map_of_unique_instance.insert(std::make_pair(NORM_HEXA20,CellModel(NORM_HEXA20)));
+    _map_of_unique_instance.insert(std::make_pair(NORM_HEXA27,CellModel(NORM_HEXA27)));
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYGON,CellModel(NORM_POLYGON)));
     _map_of_unique_instance.insert(std::make_pair(NORM_POLYHED,CellModel(NORM_POLYHED)));
     _map_of_unique_instance.insert(std::make_pair(NORM_QPOLYG,CellModel(NORM_QPOLYG)));
@@ -132,6 +136,16 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _nb_of_sons_con[0]=1;
           _sons_con[1][0]=1; _nb_of_sons_con[1]=1;
           _sons_con[2][0]=2; _nb_of_sons_con[2]=1;
+        }
+        break;
+      case NORM_SEG4:
+        {
+          _nb_of_pts=4; _nb_of_sons=4; _dim=1; _linear_type=NORM_SEG2; _quadratic=true; _is_simplex=false; // no _extruded_type because no cubic 2D cell
+          _sons_type[0]=NORM_POINT1; _sons_type[1]=NORM_POINT1; _sons_type[2]=NORM_POINT1; _sons_type[3]=NORM_POINT1;
+          _sons_con[0][0]=0; _nb_of_sons_con[0]=1;
+          _sons_con[1][0]=1; _nb_of_sons_con[1]=1;
+          _sons_con[2][0]=2; _nb_of_sons_con[2]=1;
+          _sons_con[3][0]=3; _nb_of_sons_con[3]=1;
         }
         break;
       case NORM_TETRA4:
@@ -184,6 +198,15 @@ namespace INTERP_KERNEL
           _sons_con[2][0]=2; _sons_con[2][1]=0; _sons_con[2][2]=5; _nb_of_sons_con[2]=3; _quadratic=true; _extruded_type=NORM_PENTA15;
         }
         break;
+      case NORM_TRI7:
+        {
+          _nb_of_pts=7; _nb_of_sons=3; _dim=2; _linear_type=NORM_TRI3; _is_simplex=false;
+          _sons_type[0]=NORM_SEG3; _sons_type[1]=NORM_SEG3; _sons_type[2]=NORM_SEG3;
+          _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=3; _nb_of_sons_con[0]=3;
+          _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=4; _nb_of_sons_con[1]=3;
+          _sons_con[2][0]=2; _sons_con[2][1]=0; _sons_con[2][2]=5; _nb_of_sons_con[2]=3; _quadratic=true; //no extruded type because no penta20
+        }
+        break;
       case NORM_QUAD8:
         {
           _nb_of_pts=8; _nb_of_sons=4; _dim=2; _linear_type=NORM_QUAD4; _is_simplex=false;
@@ -192,6 +215,16 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=5; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=2; _sons_con[2][1]=3; _sons_con[2][2]=6; _nb_of_sons_con[2]=3;
           _sons_con[3][0]=3; _sons_con[3][1]=0; _sons_con[3][2]=7; _nb_of_sons_con[3]=3; _quadratic=true; _extruded_type=NORM_HEXA20;
+        }
+        break;
+      case NORM_QUAD9:
+        {
+          _nb_of_pts=9; _nb_of_sons=4; _dim=2; _linear_type=NORM_QUAD4; _is_simplex=false;
+          _sons_type[0]=NORM_SEG3; _sons_type[1]=NORM_SEG3; _sons_type[2]=NORM_SEG3; _sons_type[3]=NORM_SEG3;
+          _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=4; _nb_of_sons_con[0]=3;
+          _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=5; _nb_of_sons_con[1]=3;
+          _sons_con[2][0]=2; _sons_con[2][1]=3; _sons_con[2][2]=6; _nb_of_sons_con[2]=3;
+          _sons_con[3][0]=3; _sons_con[3][1]=0; _sons_con[3][2]=7; _nb_of_sons_con[3]=3; _quadratic=true; _extruded_type=NORM_HEXA27;
         }
         break;
       case NORM_PYRA5:
@@ -273,6 +306,19 @@ namespace INTERP_KERNEL
           _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][3]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9;_nb_of_sons_con[3]=8;
           _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][3]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _nb_of_sons_con[4]=8;
           _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][3]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _nb_of_sons_con[5]=8; _quadratic=true;
+        }
+        break;
+      case NORM_HEXA27:
+        {
+          _nb_of_pts=27; _nb_of_sons=6; _dim=3; _linear_type=NORM_HEXA8; _is_simplex=false;
+          _sons_type[0]=NORM_QUAD9; _sons_type[1]=NORM_QUAD9; _sons_type[2]=NORM_QUAD9; _sons_type[3]=NORM_QUAD9; _sons_type[4]=NORM_QUAD9; _sons_type[5]=NORM_QUAD9;
+          _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=2; _sons_con[0][3]=3; _sons_con[0][4]=8; _sons_con[0][5]=9; _sons_con[0][6]=10; _sons_con[0][7]=11; _sons_con[0][8]=20; _nb_of_sons_con[0]=9;
+          _sons_con[1][0]=4; _sons_con[1][1]=7; _sons_con[1][2]=6; _sons_con[1][3]=5; _sons_con[1][4]=15; _sons_con[1][5]=14; _sons_con[1][6]=13; _sons_con[1][7]=12; _sons_con[1][8]=25; _nb_of_sons_con[1]=9;
+          _sons_con[2][0]=0; _sons_con[2][1]=4; _sons_con[2][2]=5; _sons_con[2][3]=1; _sons_con[2][4]=16; _sons_con[2][5]=12; _sons_con[2][6]=17; _sons_con[2][7]=8; _sons_con[2][8]=21; _nb_of_sons_con[2]=9;   
+          _sons_con[3][0]=1; _sons_con[3][1]=5; _sons_con[3][3]=6; _sons_con[3][3]=2; _sons_con[3][4]=17; _sons_con[3][5]=13; _sons_con[3][6]=18; _sons_con[3][7]=9; _sons_con[3][8]=22; _nb_of_sons_con[3]=9;
+          _sons_con[4][0]=2; _sons_con[4][1]=6; _sons_con[4][3]=7; _sons_con[4][3]=3; _sons_con[4][4]=18; _sons_con[4][5]=14; _sons_con[4][6]=19; _sons_con[4][7]=10; _sons_con[4][8]=23; _nb_of_sons_con[4]=9;
+          _sons_con[5][0]=3; _sons_con[5][1]=7; _sons_con[5][3]=4; _sons_con[5][3]=0; _sons_con[5][4]=19; _sons_con[5][5]=15; _sons_con[5][6]=16; _sons_con[5][7]=11; _sons_con[5][8]=24; _nb_of_sons_con[5]=9;
+          _quadratic=true;
         }
         break;
       case NORM_POLYGON:

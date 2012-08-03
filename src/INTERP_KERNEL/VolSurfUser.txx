@@ -34,6 +34,7 @@ namespace INTERP_KERNEL
       {
       case INTERP_KERNEL::NORM_SEG2 :
       case INTERP_KERNEL::NORM_SEG3 :
+      case INTERP_KERNEL::NORM_SEG4 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
@@ -41,6 +42,7 @@ namespace INTERP_KERNEL
         }
       case INTERP_KERNEL::NORM_TRI3 :
       case INTERP_KERNEL::NORM_TRI6 :
+      case INTERP_KERNEL::NORM_TRI7 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
@@ -55,6 +57,7 @@ namespace INTERP_KERNEL
             
       case INTERP_KERNEL::NORM_QUAD4 :
       case INTERP_KERNEL::NORM_QUAD8 :
+      case INTERP_KERNEL::NORM_QUAD9 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
@@ -132,6 +135,7 @@ namespace INTERP_KERNEL
             
       case INTERP_KERNEL::NORM_HEXA8 :
       case INTERP_KERNEL::NORM_HEXA20 :
+      case INTERP_KERNEL::NORM_HEXA27 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
@@ -193,8 +197,9 @@ namespace INTERP_KERNEL
   {
     switch(type)
       {
-      case NORM_SEG3:
       case NORM_SEG2:
+      case NORM_SEG3:
+      case NORM_SEG4:
         {
           std::copy(coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]),
                     coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]+1),res);
@@ -204,6 +209,7 @@ namespace INTERP_KERNEL
         }
       case NORM_TRI3:
       case NORM_TRI6:
+      case NORM_TRI7:
         {
           std::copy(coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]),
                     coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]+1),res);
