@@ -64,6 +64,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testUMeshSetPartOfMySelf2 );
     CPPUNIT_TEST( testUnPolyze3 );
     CPPUNIT_TEST( testKrSpatialDiscretization1 );
+    CPPUNIT_TEST( testDuplicateEachTupleNTimes1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -95,6 +96,7 @@ namespace ParaMEDMEM
     void testUMeshSetPartOfMySelf2();
     void testUnPolyze3();
     void testKrSpatialDiscretization1();
+    void testDuplicateEachTupleNTimes1();
   };
 }
 

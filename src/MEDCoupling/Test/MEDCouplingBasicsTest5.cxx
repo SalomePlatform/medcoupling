@@ -1532,3 +1532,24 @@ void MEDCouplingBasicsTest5::testKrSpatialDiscretization1()
   srcVals->decrRef();
   f->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testDuplicateEachTupleNTimes1()
+{
+  const double vals0[4]={9.,8.,7.,6.};
+  DataArrayDouble *d=DataArrayDouble::New(); d->useArray(vals0,false,CPP_DEALLOC,4,1); d->setInfoOnComponent(0,"mass [kg]"); d->setName("aname");
+  DataArrayDouble *d2=d->duplicateEachTupleNTimes(3);
+  const double vals1[12]={9.,9.,9.,8.,8.,8.,7.,7.,7.,6.,6.,6.};
+  DataArrayDouble *d3=DataArrayDouble::New(); d3->useArray(vals1,false,CPP_DEALLOC,4*3,1); d3->setName("aname"); d3->setInfoOnComponent(0,"mass [kg]");
+  CPPUNIT_ASSERT(d2->isEqual(*d2,1e-14)); d3->decrRef();
+  d->decrRef();
+  d2->decrRef();
+  //
+  const int vals2[4]={9,8,7,6};
+  DataArrayInt *d4=DataArrayInt::New(); d4->useArray(vals2,false,CPP_DEALLOC,4,1); d4->setInfoOnComponent(0,"mass [kg]") ; d4->setName("aname");
+  DataArrayInt *d5=d4->duplicateEachTupleNTimes(3);
+  const int vals3[12]={9,9,9,8,8,8,7,7,7,6,6,6};
+  DataArrayInt *d6=DataArrayInt::New(); d6->useArray(vals3,false,CPP_DEALLOC,4*3,1); d6->setName("aname"); d6->setInfoOnComponent(0,"mass [kg]");
+  CPPUNIT_ASSERT(d5->isEqual(*d6)); d6->decrRef();
+  d4->decrRef();
+  d5->decrRef();
+}
