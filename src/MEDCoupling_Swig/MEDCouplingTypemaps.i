@@ -560,130 +560,51 @@ static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOf
     throw INTERP_KERNEL::Exception("convertPyToNewIntArr : not a list");
 }
 
-void convertPyObjToVecUMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingUMesh *>& v) throw(INTERP_KERNEL::Exception)
+//convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(pyLi,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh")
+template<class T>
+static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, const char *typeStr, typename std::vector<T>& ret)
 {
-  if(PyList_Check(ms))
+  void *argp=0;
+  if(PyList_Check(pyLi))
     {
-      int size=PyList_Size(ms);
-      v.resize(size);
+      int size=PyList_Size(pyLi);
+      ret.resize(size);
       for(int i=0;i<size;i++)
         {
-          PyObject *obj=PyList_GetItem(ms,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
+          PyObject *obj=PyList_GetItem(pyLi,i);
+          int status=SWIG_ConvertPtr(obj,&argp,ty,0|0);
           if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only instance of MEDCouplingUMesh");
-          const ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingUMesh * >(argp);
-          v[i]=arg;
+            throw INTERP_KERNEL::Exception("list must contain only MEDCouplingUMesh");
+          T arg=reinterpret_cast< T >(argp);
+          ret[i]=arg;
         }
     }
-  else
-    throw INTERP_KERNEL::Exception("convertPyObjToVecUMeshesCst : not a list");
-}
-
-void convertPyObjToVecUMeshes(PyObject *ms, std::vector<ParaMEDMEM::MEDCouplingUMesh *>& v) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(ms))
+  else if(PyTuple_Check(pyLi))
     {
-      int size=PyList_Size(ms);
-      v.resize(size);
+      int size=PyTuple_Size(pyLi);
+      ret.resize(size);
       for(int i=0;i<size;i++)
         {
-          PyObject *obj=PyList_GetItem(ms,i);
+          PyObject *obj=PyTuple_GetItem(pyLi,i);
           void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
+          int status=SWIG_ConvertPtr(obj,&argp,ty,0|0);
           if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only instance of MEDCouplingUMesh");
-          ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
-          v[i]=arg;
+            {
+              std::ostringstream oss; oss << "tuple must contain only " << typeStr;
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          T arg=reinterpret_cast< T >(argp);
+          ret[i]=arg;
         }
     }
-  else
-    throw INTERP_KERNEL::Exception("convertPyObjToVecUMeshes : not a list");
-}
-
-void convertPyObjToVecMeshesCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingMesh *>& v) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(ms))
+  else if(SWIG_IsOK(SWIG_ConvertPtr(pyLi,&argp,ty,0|0)))
     {
-      int size=PyList_Size(ms);
-      v.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *obj=PyList_GetItem(ms,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingMesh,0|0);
-          if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only instance of MEDCouplingMesh");
-          const ParaMEDMEM::MEDCouplingMesh *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingMesh * >(argp);
-          v[i]=arg;
-        }
+      ret.resize(1);
+      T arg=reinterpret_cast< T >(argp);
+      ret[0]=arg;
     }
   else
-    throw INTERP_KERNEL::Exception("convertPyObjToVecUMeshesCst : not a list");
-}
-
-void convertPyObjToVecDataArrayDblCst(PyObject *ms, std::vector<const ParaMEDMEM::DataArrayDouble *>& v) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(ms))
-    {
-      int size=PyList_Size(ms);
-      v.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *obj=PyList_GetItem(ms,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
-          if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only DataArrayDouble");
-          const ParaMEDMEM::DataArrayDouble *arg=reinterpret_cast< const ParaMEDMEM::DataArrayDouble * >(argp);
-          v[i]=arg;
-        }
-    }
-  else
-    throw INTERP_KERNEL::Exception("convertPyObjToVecDataArrayDblCst : not a list");
-}
-
-void convertPyObjToVecFieldDblCst(PyObject *ms, std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *>& v) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(ms))
-    {
-      int size=PyList_Size(ms);
-      v.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *obj=PyList_GetItem(ms,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,0|0);
-          if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only instance of MEDCouplingFieldDouble");
-          const ParaMEDMEM::MEDCouplingFieldDouble *arg=reinterpret_cast< const ParaMEDMEM::MEDCouplingFieldDouble * >(argp);
-          v[i]=arg;
-        }
-    }
-  else
-    throw INTERP_KERNEL::Exception("convertPyObjToVecFieldDblCst : not a list");
-}
-
-void convertPyObjToVecDataArrayIntCst(PyObject *ms, std::vector<const ParaMEDMEM::DataArrayInt *>& v) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(ms))
-    {
-      int size=PyList_Size(ms);
-      v.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *obj=PyList_GetItem(ms,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
-          if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only instance of DataArrayInt");
-          ParaMEDMEM::DataArrayInt *arg=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
-          v[i]=arg;
-        }
-    }
-  else
-    throw INTERP_KERNEL::Exception("convertPyObjToVecDataArrayInt : not a list");
+    throw INTERP_KERNEL::Exception("convertFromPyObjVectorOfObj : not a list nor a tuple");
 }
 
 /*!

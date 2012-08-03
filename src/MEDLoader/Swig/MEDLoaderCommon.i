@@ -600,7 +600,7 @@ namespace ParaMEDMEM
          void setGroupsAtLevel(int meshDimRelToMaxExt, PyObject *li, bool renum=false) throw(INTERP_KERNEL::Exception)
          {
            std::vector<const DataArrayInt *> grps;
-           convertPyObjToVecDataArrayIntCst(li,grps);
+           convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",grps);
            self->setGroupsAtLevel(meshDimRelToMaxExt,grps,renum);
          }
 

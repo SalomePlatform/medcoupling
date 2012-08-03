@@ -726,7 +726,7 @@ namespace ParaMEDMEM
         {
           std::vector<int> code;
           std::vector<const DataArrayInt *> idsPerType;
-          convertPyObjToVecDataArrayIntCst(li2,idsPerType);
+          convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li2,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",idsPerType);
           convertPyToNewIntArr4(li,1,3,code);
           return self->checkTypeConsistencyAndContig(code,idsPerType);
         }
@@ -804,7 +804,7 @@ namespace ParaMEDMEM
          static MEDCouplingMesh *MergeMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
          {
             std::vector<const ParaMEDMEM::MEDCouplingMesh *> tmp;
-            convertPyObjToVecMeshesCst(li,tmp);
+            convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingMesh *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingMesh,"MEDCouplingMesh",tmp);
             return MEDCouplingMesh::MergeMeshes(tmp);
          }
        }
@@ -1771,7 +1771,7 @@ namespace ParaMEDMEM
       static PyObject *AggregateSortedByTypeMeshesOnSameCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> meshes;
-        convertPyObjToVecUMeshesCst(ms,meshes);
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(ms,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",meshes);
         DataArrayInt *ret1=0,*ret2=0;
         MEDCouplingUMesh *ret0=MEDCouplingUMesh::AggregateSortedByTypeMeshesOnSameCoords(meshes,ret1,ret2);
         PyObject *ret=PyTuple_New(3);
@@ -1784,7 +1784,7 @@ namespace ParaMEDMEM
       static PyObject *MergeUMeshesOnSameCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> meshes;
-        convertPyObjToVecUMeshesCst(ms,meshes);
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(ms,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",meshes);
         MEDCouplingUMesh *ret=MEDCouplingUMesh::MergeUMeshesOnSameCoords(meshes);
         return convertMesh(ret, SWIG_POINTER_OWN | 0 );
       }
@@ -1793,7 +1793,7 @@ namespace ParaMEDMEM
       {
         int sz;
         std::vector<const MEDCouplingUMesh *> meshes;
-        convertPyObjToVecUMeshesCst(ms,meshes);
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(ms,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",meshes);
         std::vector<DataArrayInt *> corr;
         MEDCouplingUMesh *um=MEDCouplingUMesh::FuseUMeshesOnSameCoords(meshes,compType,corr);
         sz=corr.size();
@@ -1809,14 +1809,14 @@ namespace ParaMEDMEM
       static void PutUMeshesOnSameAggregatedCoords(PyObject *ms) throw(INTERP_KERNEL::Exception)
       {
         std::vector<MEDCouplingUMesh *> meshes;
-        convertPyObjToVecUMeshes(ms,meshes);
+        convertFromPyObjVectorOfObj<ParaMEDMEM::MEDCouplingUMesh *>(ms,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",meshes);
         MEDCouplingUMesh::PutUMeshesOnSameAggregatedCoords(meshes);
       }
 
       static void MergeNodesOnUMeshesSharingSameCoords(PyObject *ms, double eps) throw(INTERP_KERNEL::Exception)
       {
         std::vector<MEDCouplingUMesh *> meshes;
-        convertPyObjToVecUMeshes(ms,meshes);
+        convertFromPyObjVectorOfObj<ParaMEDMEM::MEDCouplingUMesh *>(ms,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",meshes);
         MEDCouplingUMesh::MergeNodesOnUMeshesSharingSameCoords(meshes,eps);
       }
 
@@ -2018,7 +2018,7 @@ namespace ParaMEDMEM
       static MEDCouplingUMesh *MergeUMeshes(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const ParaMEDMEM::MEDCouplingUMesh *> tmp;
-        convertPyObjToVecUMeshesCst(li,tmp);
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh",tmp);
         return MEDCouplingUMesh::MergeUMeshes(tmp);
       }
 
@@ -3115,14 +3115,14 @@ namespace ParaMEDMEM
    static DataArrayDouble *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayDouble *> tmp;
-     convertPyObjToVecDataArrayDblCst(li,tmp);
+     convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",tmp);
      return DataArrayDouble::Aggregate(tmp);
    }
 
    static DataArrayDouble *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayDouble *> tmp;
-     convertPyObjToVecDataArrayDblCst(li,tmp);
+     convertFromPyObjVectorOfObj<const DataArrayDouble *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",tmp);
      return DataArrayDouble::Meld(tmp);
    }
 
@@ -4532,7 +4532,7 @@ namespace ParaMEDMEM
    {
      std::vector<const DataArrayInt *> groups;
      std::vector< std::vector<int> > fidsOfGroups;
-     convertPyObjToVecDataArrayIntCst(gps,groups);
+     convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(gps,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",groups);
      ParaMEDMEM::DataArrayInt *ret0=ParaMEDMEM::DataArrayInt::MakePartition(groups,newNb,fidsOfGroups);
      PyObject *ret = PyList_New(2);
      PyList_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
@@ -4875,28 +4875,28 @@ namespace ParaMEDMEM
    static DataArrayInt *Meld(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayInt *> tmp;
-     convertPyObjToVecDataArrayIntCst(li,tmp);
+     convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
      return DataArrayInt::Meld(tmp);
    }
 
    static DataArrayInt *Aggregate(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayInt *> tmp;
-     convertPyObjToVecDataArrayIntCst(li,tmp);
+     convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
      return DataArrayInt::Aggregate(tmp);
    }
 
    static DataArrayInt *BuildUnion(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayInt *> tmp;
-     convertPyObjToVecDataArrayIntCst(li,tmp);
+     convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
      return DataArrayInt::BuildUnion(tmp);
    }
 
    static DataArrayInt *BuildIntersection(PyObject *li) throw(INTERP_KERNEL::Exception)
    {
      std::vector<const DataArrayInt *> tmp;
-     convertPyObjToVecDataArrayIntCst(li,tmp);
+     convertFromPyObjVectorOfObj<const ParaMEDMEM::DataArrayInt *>(li,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,"DataArrayInt",tmp);
      return DataArrayInt::BuildIntersection(tmp);
    }
 
@@ -6342,7 +6342,7 @@ namespace ParaMEDMEM
       void setArrays(PyObject *ls) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const DataArrayDouble *> tmp;
-        convertPyObjToVecDataArrayDblCst(ls,tmp);
+        convertFromPyObjVectorOfObj<const DataArrayDouble *>(ls,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,"DataArrayDouble",tmp);
         int sz=tmp.size();
         std::vector<DataArrayDouble *> arrs(sz);
         for(int i=0;i<sz;i++)
@@ -6708,14 +6708,14 @@ namespace ParaMEDMEM
       static MEDCouplingFieldDouble *MergeFields(PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const MEDCouplingFieldDouble *> tmp;
-        convertPyObjToVecFieldDblCst(li,tmp);
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
         return MEDCouplingFieldDouble::MergeFields(tmp);
       }
 
       static void WriteVTK(const char *fileName, PyObject *li) throw(INTERP_KERNEL::Exception)
       {
         std::vector<const MEDCouplingFieldDouble *> tmp;
-        convertPyObjToVecFieldDblCst(li,tmp);
+        convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
         MEDCouplingFieldDouble::WriteVTK(fileName,tmp);
       }
     }
@@ -6768,7 +6768,7 @@ namespace ParaMEDMEM
          static MEDCouplingMultiFields *New(PyObject *li) throw(INTERP_KERNEL::Exception)
          {
            std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *> tmp;
-           convertPyObjToVecFieldDblCst(li,tmp);
+           convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
            int sz=tmp.size();
            std::vector<MEDCouplingFieldDouble *> fs(sz);
            for(int i=0;i<sz;i++)
@@ -6778,7 +6778,7 @@ namespace ParaMEDMEM
          MEDCouplingMultiFields(PyObject *li) throw(INTERP_KERNEL::Exception)
          {
            std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *> tmp;
-           convertPyObjToVecFieldDblCst(li,tmp);
+           convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
            int sz=tmp.size();
            std::vector<MEDCouplingFieldDouble *> fs(sz);
            for(int i=0;i<sz;i++)
@@ -6960,7 +6960,7 @@ namespace ParaMEDMEM
         MEDCouplingFieldOverTime(PyObject *li) throw(INTERP_KERNEL::Exception)
           {
             std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *> tmp;
-            convertPyObjToVecFieldDblCst(li,tmp);
+            convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
             int sz=tmp.size();
             std::vector<MEDCouplingFieldDouble *> fs(sz);
             for(int i=0;i<sz;i++)
@@ -6974,7 +6974,7 @@ namespace ParaMEDMEM
         static MEDCouplingFieldOverTime *New(PyObject *li) throw(INTERP_KERNEL::Exception)
         {
           std::vector<const ParaMEDMEM::MEDCouplingFieldDouble *> tmp;
-          convertPyObjToVecFieldDblCst(li,tmp);
+          convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingFieldDouble *>(li,SWIGTYPE_p_ParaMEDMEM__MEDCouplingFieldDouble,"MEDCouplingFieldDouble",tmp);
            int sz=tmp.size();
            std::vector<MEDCouplingFieldDouble *> fs(sz);
            for(int i=0;i<sz;i++)
