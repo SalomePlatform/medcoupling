@@ -1194,6 +1194,35 @@ void DataArrayDouble::findCommonTuples(double prec, int limitTupleId, DataArrayI
 }
 
 /*!
+ * 
+ * \param [in] nbTimes specifies the nb of times each tuples in \a this will be duplicated contiguouly in returned DataArrayDouble instance.
+ *             \a nbTimes  should be at least equal to 1.
+ * \return a newly allocated DataArrayDouble having one component and number of tuples equal to \a nbTimes * \c this->getNumberOfTuples.
+ * \throw if \a this is not allocated or if \a this has not number of components set to one or if \a nbTimes is lower than 1.
+ */
+DataArrayDouble *DataArrayDouble::duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::duplicateEachTupleNTimes : this should have only one component !");
+  if(nbTimes<1)
+    throw INTERP_KERNEL::Exception("DataArrayDouble::duplicateEachTupleNTimes : nb times should be >= 1 !");
+  int nbTuples=getNumberOfTuples();
+  const double *inPtr=getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(nbTimes*nbTuples,1);
+  double *retPtr=ret->getPointer();
+  for(int i=0;i<nbTuples;i++,inPtr++)
+    {
+      double val=*inPtr;
+      for(int j=0;j<nbTimes;j++,retPtr++)
+        *retPtr=val;
+    }
+  ret->copyStringInfoFrom(*this);
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This method returns a newly allocated object the user should deal with.
  * This method works for arrays which have number of components into [1,2,3]. If not an exception will be thrown.
  * This method returns the different values in 'this' using 'prec'. The different values are kept in the same
