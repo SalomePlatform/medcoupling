@@ -227,6 +227,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDouble::fromCylToCart;
 %newobject ParaMEDMEM::DataArrayDouble::fromSpherToCart;
 %newobject ParaMEDMEM::DataArrayDouble::getDifferentValues;
+%newobject ParaMEDMEM::DataArrayDouble::duplicateEachTupleNTimes;
 %newobject ParaMEDMEM::DataArrayDouble::__neg__;
 %newobject ParaMEDMEM::DataArrayDouble::__add__;
 %newobject ParaMEDMEM::DataArrayDouble::__radd__;
@@ -800,6 +801,44 @@ namespace ParaMEDMEM
        }
   };
 }
+
+%extend ParaMEDMEM::DataArray
+{
+  PyObject *getInfoOnComponents() const throw(INTERP_KERNEL::Exception)
+  {
+    const std::vector<std::string>& comps=self->getInfoOnComponents();
+    PyObject *ret=PyList_New((int)comps.size());
+    for(int i=0;i<(int)comps.size();i++)
+      PyList_SetItem(ret,i,PyString_FromString(comps[i].c_str()));
+    return ret;
+  }
+
+  void copyPartOfStringInfoFrom(const DataArray& other, PyObject *li) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<int> tmp;
+    convertPyToNewIntArr3(li,tmp);
+    self->copyPartOfStringInfoFrom(other,tmp);
+  }
+
+  void copyPartOfStringInfoFrom2(PyObject *li, const DataArray& other) throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<int> tmp;
+    convertPyToNewIntArr3(li,tmp);
+    self->copyPartOfStringInfoFrom2(tmp,other);
+  }
+}
+
+%extend ParaMEDMEM::DataArrayInt
+{
+  PyObject *getDifferentValues() const throw(INTERP_KERNEL::Exception)
+   {
+     std::set<int> ret=self->getDifferentValues();
+     return convertIntArrToPyList3(ret);
+   }
+}
+
+%ignore ParaMEDMEM::DataArray::getInfoOnComponents;
+%ignore ParaMEDMEM::DataArrayInt::getDifferentValues;
 
 %include "MEDCouplingMemArray.hxx"
 %include "NormalizedUnstructuredMesh.hxx"
@@ -2362,23 +2401,6 @@ namespace ParaMEDMEM
     PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayDouble, SWIG_POINTER_OWN | 0 ));
     PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
     return ret;
-  }
-}
-
-%extend ParaMEDMEM::DataArray
-{
-  void copyPartOfStringInfoFrom(const DataArray& other, PyObject *li) throw(INTERP_KERNEL::Exception)
-  {
-    std::vector<int> tmp;
-    convertPyToNewIntArr3(li,tmp);
-    self->copyPartOfStringInfoFrom(other,tmp);
-  }
-
-  void copyPartOfStringInfoFrom2(PyObject *li, const DataArray& other) throw(INTERP_KERNEL::Exception)
-  {
-    std::vector<int> tmp;
-    convertPyToNewIntArr3(li,tmp);
-    self->copyPartOfStringInfoFrom2(tmp,other);
   }
 }
 
@@ -4422,12 +4444,6 @@ namespace ParaMEDMEM
    DataArrayIntIterator *__iter__()
    {
      return self->iterator();
-   }
-
-   PyObject *getDifferentValues(bool val) const throw(INTERP_KERNEL::Exception)
-   {
-     std::set<int> ret=self->getDifferentValues();
-     return convertIntArrToPyList3(ret);
    }
 
    static PyObject *BuildOld2NewArrayFromSurjectiveFormat2(int nbOfOldTuples, const DataArrayInt *arr, const DataArrayInt *arrI) throw(INTERP_KERNEL::Exception)

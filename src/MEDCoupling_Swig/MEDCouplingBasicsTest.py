@@ -5714,7 +5714,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         da1=DataArrayInt.New();
         arr=[1,2,3,2,2,3,5,1,5,5,2,2]
         da1.setValues(arr,4,3);
-        s=da1.getDifferentValues(True);# API different from C++ because SWIG complains...
+        s=da1.getDifferentValues();
         expected1=[1,2,3,5]
         self.assertEqual(expected1,s);
         pass
@@ -10150,6 +10150,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,isDrift)
         self.assertTrue(coeffsExpected.isEqual(coeffs,1e-8))
         #
+        pass
+
+    def testDuplicateEachTupleNTimes1(self):
+        d=DataArrayDouble.New([9.,8.,7.,6.],4,1) ; d.setInfoOnComponents(["mass [kg]"]) ; d.setName("aname")
+        d2=d.duplicateEachTupleNTimes(3)
+        self.assertTrue(d2.isEqualWithoutConsideringStr(DataArrayDouble.New([9.,9.,9.,8.,8.,8.,7.,7.,7.,6.,6.,6.],4*3,1),1e-14))
+        self.assertEqual("aname",d2.getName())
+        self.assertEqual(["mass [kg]"],d2.getInfoOnComponents())
+        #
+        d=DataArrayInt.New([9,8,7,6],4,1) ; d.setInfoOnComponents(["mass [kg]"]) ; d.setName("aname")
+        d2=d.duplicateEachTupleNTimes(3)
+        self.assertTrue(d2.isEqualWithoutConsideringStr(DataArrayInt.New([9,9,9,8,8,8,7,7,7,6,6,6],4*3,1)))
+        self.assertEqual("aname",d2.getName())
+        self.assertEqual(["mass [kg]"],d2.getInfoOnComponents())
         pass
 
     def setUp(self):
