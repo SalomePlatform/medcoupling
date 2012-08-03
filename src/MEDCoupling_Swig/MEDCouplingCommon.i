@@ -3133,6 +3133,28 @@ namespace ParaMEDMEM
      return self->selectByTupleRanges(ranges);
    }
 
+   PyObject *computeTupleIdsNearTuples(PyObject *pt, double eps) const throw(INTERP_KERNEL::Exception)
+   {
+     double val;
+     DataArrayDouble *a;
+     DataArrayDoubleTuple *aa;
+     std::vector<double> bb;
+     int sw;
+     int nbComp=self->getNumberOfComponents(),nbTuples=-1;
+     const char msg[]="Python wrap of DataArrayDouble::computeTupleIdsNearTuples : ";
+     const double *pos=convertObjToPossibleCpp5_Safe2(pt,sw,val,a,aa,bb,msg,nbComp,true,nbTuples);
+     MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> inpu=DataArrayDouble::New(); inpu->useArray(pos,false,CPP_DEALLOC,nbTuples,nbComp);
+     std::vector<int> c,cI;
+     self->computeTupleIdsNearTuples(inpu,eps,c,cI);
+     DataArrayInt *ret0=DataArrayInt::New(),*ret1=DataArrayInt::New();
+     ret0->alloc((int)c.size(),1); std::copy(c.begin(),c.end(),ret0->getPointer());
+     ret1->alloc((int)cI.size(),1); std::copy(cI.begin(),cI.end(),ret1->getPointer());
+     PyObject *ret=PyTuple_New(2);
+     PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+     return ret;
+   }
+
    PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
    {
      const char msg[]="Unexpected situation in DataArrayDouble::__getitem__ !";

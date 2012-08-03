@@ -10165,6 +10165,23 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(["mass [kg]"],d2.getInfoOnComponents())
         pass
 
+    def testSwigComputeTupleIdsNearTuples1(self):
+        da=DataArrayDouble([5.,6.,-5.,-6.,5.,-6.,-5.,6.,5.,6.],5,2)
+        arr,arrI=da.computeTupleIdsNearTuples(DataArrayDouble([5.,-6.,5.,6.,-5.,-6.],3,2),1e-10)
+        self.assertEqual([2,0,4,1],arr.getValues())
+        self.assertEqual([0,1,3,4],arrI.getValues())
+        arr,arrI=da.computeTupleIdsNearTuples([5.,-6.,5.,6.,-5.,-6.],1e-10)
+        self.assertEqual([2,0,4,1],arr.getValues())
+        self.assertEqual([0,1,3,4],arrI.getValues())
+        expected0=[[2],[0,4],[1]]
+        expected1=[[0,1],[0,2],[0,1]]
+        for pos,it in enumerate(DataArrayDouble([5.,-6.,5.,6.,-5.,-6.],3,2)):
+            arr,arrI=da.computeTupleIdsNearTuples(it,1e-10)
+            self.assertEqual(expected0[pos],arr.getValues())
+            self.assertEqual(expected1[pos],arrI.getValues())
+            pass
+        pass
+
     def setUp(self):
         pass
     pass

@@ -1351,3 +1351,140 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
     }
   throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
 }
+
+/*!
+ * if value int -> cpp val sw=1
+ * if value double -> cpp val sw=1
+ * if value DataArrayDouble -> cpp DataArrayDouble sw=2
+ * if value DataArrayDoubleTuple -> cpp DataArrayDoubleTuple sw=3
+ * if value list[int,double] -> cpp std::vector<double> sw=4
+ * if value tuple[int,double] -> cpp std::vector<double> sw=4
+ */
+static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, double& val, ParaMEDMEM::DataArrayDouble *&d, ParaMEDMEM::DataArrayDoubleTuple *&e, std::vector<double>& f,
+                                                    const char *msg, int nbCompExpected, bool throwIfNullPt, int& nbTuples) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyFloat_Check(value))
+    {
+      val=PyFloat_AS_DOUBLE(value);
+      sw=1;
+      if(nbCompExpected!=1)
+        {
+          std::ostringstream oss; oss << msg << "dimension expected to be " << nbCompExpected << " , and your data in input has dimension one (single PyFloat) !"; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      nbTuples=1;
+      return &val;
+    }
+  if(PyInt_Check(value))
+    {
+      val=(double)PyInt_AS_LONG(value);
+      sw=1;
+      if(nbCompExpected!=1)
+        {
+          std::ostringstream oss; oss << msg << "dimension expected to be " << nbCompExpected << " , and your data in input has dimension one (single PyInt) !"; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      nbTuples=1;
+      return &val;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
+      if(size%nbCompExpected!=0)
+        {
+          std::ostringstream oss; oss << msg << "dimension expected to be a multiple of " << nbCompExpected << " , and your data in input has dimension " << f.size() << " !"; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      nbTuples=size/nbCompExpected;
+      return &f[0];
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      f.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyFloat_Check(o))
+            f[i]=PyFloat_AS_DOUBLE(o);
+          else if(PyInt_Check(o))
+            f[i]=(double)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=4;
+      if(size%nbCompExpected!=0)
+        {
+          std::ostringstream oss; oss << msg << "dimension expected to be a multiple of " << nbCompExpected << " , and your data in input has dimension " << f.size() << " !"; 
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+      nbTuples=size/nbCompExpected;
+      return &f[0];
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      d=reinterpret_cast< ParaMEDMEM::DataArrayDouble * >(argp);
+      sw=2;
+      if(d)
+        {
+          if(d->getNumberOfComponents()==nbCompExpected)
+            {
+              nbTuples=d->getNumberOfTuples();
+              return d->getConstPointer();
+            }
+          else
+            {
+              std::ostringstream oss; oss << msg << "nb of components expected to be a multiple of " << nbCompExpected << " , and input has " << d->getNumberOfComponents() << " components !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      else
+        {
+          if(throwIfNullPt)
+            {
+              std::ostringstream oss; oss << msg << " null pointer not accepted!";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+          else
+            return 0;
+        }
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDoubleTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      e=reinterpret_cast< ParaMEDMEM::DataArrayDoubleTuple * >(argp);
+      sw=3;
+      if(e->getNumberOfCompo()==nbCompExpected)
+        {
+          nbTuples=1;
+          return e->getConstPointer();
+        }
+      else
+        {
+          std::ostringstream oss; oss << msg << "nb of components expected to be " <<  nbCompExpected << " , and input DataArrayDoubleTuple has " << e->getNumberOfCompo() << " components !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
+}
