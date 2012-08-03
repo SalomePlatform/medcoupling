@@ -501,10 +501,10 @@ namespace ParaMEDMEM
            PyObject *retLev1_0=PyList_New((int)ret1.size()/3);
            for(int j=0;j<(int)ret1.size()/3;j++)
              {
-               PyObject *retLev2=PyTuple_New(3);
-               PyTuple_SetItem(retLev2,0,SWIG_From_int(ret1[3*j]));
-               PyTuple_SetItem(retLev2,1,SWIG_From_int(ret1[3*j+1]));
-               PyTuple_SetItem(retLev2,2,SWIG_From_int(ret1[3*j+2]));
+               PyObject *retLev2=PyList_New(3);
+               PyList_SetItem(retLev2,0,SWIG_From_int(ret1[3*j]));
+               PyList_SetItem(retLev2,1,SWIG_From_int(ret1[3*j+1]));
+               PyList_SetItem(retLev2,2,SWIG_From_int(ret1[3*j+2]));
                PyList_SetItem(retLev1_0,j,retLev2);
              }
            PyTuple_SetItem(ret,1,retLev1_0);
@@ -512,10 +512,10 @@ namespace ParaMEDMEM
            PyObject *retLev1_1=PyList_New((int)ret2.size()/3);
            for(int j=0;j<(int)ret2.size()/3;j++)
              {
-               PyObject *retLev2=PyTuple_New(3);
-               PyTuple_SetItem(retLev2,0,SWIG_From_int(ret2[3*j]));
-               PyTuple_SetItem(retLev2,1,SWIG_From_int(ret2[3*j+1]));
-               PyTuple_SetItem(retLev2,2,SWIG_From_int(ret2[3*j+2]));
+               PyObject *retLev2=PyList_New(3);
+               PyList_SetItem(retLev2,0,SWIG_From_int(ret2[3*j]));
+               PyList_SetItem(retLev2,1,SWIG_From_int(ret2[3*j+1]));
+               PyList_SetItem(retLev2,2,SWIG_From_int(ret2[3*j+2]));
                PyList_SetItem(retLev1_1,j,retLev2);
              }
            PyTuple_SetItem(ret,2,retLev1_1);

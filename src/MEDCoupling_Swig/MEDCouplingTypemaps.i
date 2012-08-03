@@ -289,6 +289,64 @@ static void convertPyToNewIntArr3(PyObject *pyLi, std::vector<int>& arr) throw(I
     }
 }
 
+static void convertPyToNewIntArr4(PyObject *pyLi, int recurseLev, int nbOfSubPart, std::vector<int>& arr) throw(INTERP_KERNEL::Exception)
+{
+  if(recurseLev<0)
+    throw INTERP_KERNEL::Exception("convertPyToNewIntArr4 : invalid list of integers level of recursion !");
+  arr.clear();
+  if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            {
+              int val=(int)PyInt_AS_LONG(o);
+              arr.push_back(val);
+            }
+          else
+            {
+              std::vector<int> arr2;
+              convertPyToNewIntArr4(o,recurseLev-1,nbOfSubPart,arr2);
+              if(nbOfSubPart>=1 && nbOfSubPart!=(int)arr2.size())
+                  {
+                    std::ostringstream oss; oss << "convertPyToNewIntArr4 : input list at lev " <<  recurseLev << " invalid nb of subpart elts expected " << nbOfSubPart << " having " << arr2.size() << " !";
+                    throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  }
+              arr.insert(arr.end(),arr2.begin(),arr2.end());
+            }
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          if(PyInt_Check(o))
+            {
+              int val=(int)PyInt_AS_LONG(o);
+              arr.push_back(val);
+            }
+          else
+            {
+              std::vector<int> arr2;
+              convertPyToNewIntArr4(o,recurseLev-1,nbOfSubPart,arr2);
+              if(nbOfSubPart>=1 && nbOfSubPart!=(int)arr2.size())
+                  {
+                    std::ostringstream oss; oss << "convertPyToNewIntArr4 : input list at lev " <<  recurseLev << " invalid nb of subpart elts expected " << nbOfSubPart << " having " << arr2.size() << " !";
+                    throw INTERP_KERNEL::Exception(oss.str().c_str());
+                  }
+              arr.insert(arr.end(),arr2.begin(),arr2.end());
+            }
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("convertPyToNewIntArr4 : not a list nor a tuple recursively !");
+}
+
+
 static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))

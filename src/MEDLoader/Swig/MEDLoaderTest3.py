@@ -1352,7 +1352,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm=MEDLoaderDataForTest.buildMLMeshUnPolyze(self)
         ref=[13,14,14,12,12,12,12,12,12,12,12,13,12,14,14,13,15,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12]
         self.assertEqual(ref,mm.getFamilyFieldAtLevel(1).getValues())
-        self.assertEqual(mm.unPolyze()[:3],(True,[(3,2,0),(4,3,2),(5,4,5),(14,2,9),(16,3,11),(31,2,14)],[(3,3,0),(4,3,3),(5,3,6),(14,3,9),(16,3,12),(18,1,15)]))
+        self.assertEqual(mm.unPolyze()[:3],(True,[[3,2,0],[4,3,2],[5,4,5],[14,2,9],[16,3,11],[31,2,14]],[[3,3,0],[4,3,3],[5,3,6],[14,3,9],[16,3,12],[18,1,15]]))
         mm.write(fname,2)
         self.assertEqual(mm.getGroupArr(0,"grp0_L0").getValues(),[0,1,2,6])
         self.assertEqual(mm.getGroupArr(0,"grp1_L0").getValues(),[1,3,4,5,6])

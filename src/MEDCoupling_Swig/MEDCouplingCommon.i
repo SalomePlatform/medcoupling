@@ -709,8 +709,17 @@ namespace ParaMEDMEM
 
         PyObject *getDistributionOfTypes() const throw(INTERP_KERNEL::Exception)
         {
-          std::vector<int> ret=self->getDistributionOfTypes();
-          return convertIntArrToPyList2(ret);
+          std::vector<int> vals=self->getDistributionOfTypes();
+          PyObject *ret=PyList_New((int)vals.size()/3);
+          for(int j=0;j<(int)vals.size()/3;j++)
+             {
+               PyObject *ret1=PyList_New(3);
+               PyList_SetItem(ret1,0,SWIG_From_int(vals[3*j]));
+               PyList_SetItem(ret1,1,SWIG_From_int(vals[3*j+1]));
+               PyList_SetItem(ret1,2,SWIG_From_int(vals[3*j+2]));
+               PyList_SetItem(ret,j,ret1);
+             }
+          return ret;
         }
 
         DataArrayInt *checkTypeConsistencyAndContig(PyObject *li, PyObject *li2) const throw(INTERP_KERNEL::Exception)
@@ -718,7 +727,7 @@ namespace ParaMEDMEM
           std::vector<int> code;
           std::vector<const DataArrayInt *> idsPerType;
           convertPyObjToVecDataArrayIntCst(li2,idsPerType);
-          convertPyToNewIntArr3(li,code);
+          convertPyToNewIntArr4(li,1,3,code);
           return self->checkTypeConsistencyAndContig(code,idsPerType);
         }
 

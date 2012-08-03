@@ -1804,21 +1804,20 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         mesh1.setCoords(coordsX1, coordsY1, coordsZ1);
         
         dis=mesh1.getDistributionOfTypes();
-        self.assertEqual(3, len(dis));
-        self.assertEqual(NORM_HEXA8, dis[0]);
-        self.assertEqual(27, dis[1]);
-        self.assertEqual(0, dis[2]);
+        self.assertEqual(1, len(dis));
+        self.assertEqual(NORM_HEXA8, dis[0][0]);
+        self.assertEqual(27, dis[0][1]);
+        self.assertEqual(0, dis[0][2]);
         
         idsPerType=[]
         self.assertRaises(InterpKernelException, mesh1.checkTypeConsistencyAndContig, dis, idsPerType);
-        dis[2]=-1;
+        dis[0][2]=-1;
         idsPerType=[]
         self.assertTrue(not mesh1.checkTypeConsistencyAndContig(dis, idsPerType));
-        dis[0]=NORM_QUAD4;
+        dis[0][0]=NORM_QUAD4;
         self.assertRaises(InterpKernelException, mesh1.checkTypeConsistencyAndContig, dis, idsPerType);
-        
-        dis[0]=NORM_HEXA8;
-        dis[2]=0;
+        dis[0][0]=NORM_HEXA8;
+        dis[0][2]=0;
         ids=DataArrayInt.New();
         ids.alloc(10, 1);
         ids.fillWithValue(111);
@@ -7841,13 +7840,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,m.getDistributionOfTypes);
         m.renumberCells(tab1,False);
         code=m.getDistributionOfTypes();
-        self.assertEqual(6,len(code));
-        self.assertEqual(3,code[0]);
-        self.assertEqual(2,code[1]);
-        self.assertEqual(0,code[2]);
-        self.assertEqual(4,code[3]);
-        self.assertEqual(3,code[4]);
-        self.assertEqual(0,code[5]);
+        self.assertEqual(2,len(code));
+        self.assertEqual(3,code[0][0]);
+        self.assertEqual(2,code[0][1]);
+        self.assertEqual(0,code[0][2]);
+        self.assertEqual(4,code[1][0]);
+        self.assertEqual(3,code[1][1]);
+        self.assertEqual(0,code[1][2]);
         pass
 
     def testNorm2_1(self):
