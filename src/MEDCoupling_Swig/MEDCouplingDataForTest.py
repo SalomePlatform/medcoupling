@@ -180,6 +180,7 @@ class MEDCouplingDataForTest:
         mesh2D.insertNextCell(NORM_QUAD4,4,conn2[14:18]);
         mesh2D.insertNextCell(NORM_POLYGON,6,conn2[18:24]);
         mesh2D.insertNextCell(NORM_QUAD4,4,conn2[24:28]);
+	mesh2D.finishInsertingCells();
         mesh2D.setCoords(myCoords);
         return ret,mesh2D
     
