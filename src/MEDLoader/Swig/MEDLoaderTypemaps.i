@@ -119,44 +119,6 @@ static PyObject *convertFieldDoubleVecToPy(const std::vector<ParaMEDMEM::MEDCoup
   return ret;
 }
 
-static std::vector<const ParaMEDMEM::MEDCouplingUMesh *> convertUMeshVecFromPy(PyObject *pyLi) throw(INTERP_KERNEL::Exception)
-{
-  std::vector<const ParaMEDMEM::MEDCouplingUMesh *> ret;
-  if(PyList_Check(pyLi))
-    {
-      int size=PyList_Size(pyLi);
-      ret.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *obj=PyList_GetItem(pyLi,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
-          if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("list must contain only MEDCouplingUMesh");
-          ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
-          ret[i]=arg;
-        }
-    }
-  else if(PyTuple_Check(pyLi))
-    {
-      int size=PyTuple_Size(pyLi);
-      ret.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *obj=PyTuple_GetItem(pyLi,i);
-          void *argp;
-          int status=SWIG_ConvertPtr(obj,&argp,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,0|0);
-          if(!SWIG_IsOK(status))
-            throw INTERP_KERNEL::Exception("tuple must contain only MEDCouplingUMesh");
-          ParaMEDMEM::MEDCouplingUMesh *arg=reinterpret_cast< ParaMEDMEM::MEDCouplingUMesh * >(argp);
-          ret[i]=arg;
-        }
-    }
-  else
-    throw INTERP_KERNEL::Exception("convertFieldDoubleVecFromPy : not a list nor a tuple");
-  return ret;
-}
-
 PyObject *convertVecPairVecStToPy(const std::vector< std::pair<std::vector<std::string>, std::string > >& vec)
 {
   int sz=(int)vec.size();
