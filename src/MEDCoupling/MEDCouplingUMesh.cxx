@@ -6541,11 +6541,12 @@ void MEDCouplingUMesh::FillInCompact3DMode(int spaceDim, int nbOfNodesInCell, co
 
 void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData) const throw(INTERP_KERNEL::Exception)
 {
-  if(getNumberOfCells()<=0)
+  int nbOfCells=getNumberOfCells();
+  if(nbOfCells<=0)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::writeVTK : the unstructured mesh has no cells !");
   static const int PARAMEDMEM2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21,5,9,7,22,-1,23,-1,-1,-1,-1,-1,10,14,13,-1,12,-1,24,-1,16,27,-1,26,-1,-1,-1,-1,25,42,-1,4};
   ofs << "  <" << getVTKDataSetType() << ">\n";
-  ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << getNumberOfCells() << "\">\n";
+  ofs << "    <Piece NumberOfPoints=\"" << getNumberOfNodes() << "\" NumberOfCells=\"" << nbOfCells << "\">\n";
   ofs << "      <PointData>\n" << pointData << std::endl;
   ofs << "      </PointData>\n";
   ofs << "      <CellData>\n" << cellData << std::endl;
@@ -6560,17 +6561,58 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
     }
   ofs << "      </Points>\n";
   ofs << "      <Cells>\n";
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c0=_nodal_connec_index->buildComplement(_nodal_connec->getNumberOfTuples()+1);
-  c0=_nodal_connec->selectByTupleId(c0->begin(),c0->end());
-  c0->writeVTK(ofs,8,"Int64","connectivity");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c1=_nodal_connec_index->deltaShiftIndex();
-  c1->applyLin(1,-1);
-  c1->computeOffsets2();
-  c1=c1->selectByTupleId2(1,c1->getNumberOfTuples(),1);
-  c1->writeVTK(ofs,8,"Int64","offsets");
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> c2=_nodal_connec->selectByTupleId(_nodal_connec_index->getConstPointer(),_nodal_connec_index->getConstPointer()+getNumberOfCells());
-  c2->transformWithIndArr(PARAMEDMEM2VTKTYPETRADUCER,PARAMEDMEM2VTKTYPETRADUCER+INTERP_KERNEL::NORM_MAXTYPE);
-  c2->writeVTK(ofs,8,"UInt8","types");
+  const int *cPtr=_nodal_connec->getConstPointer();
+  const int *cIPtr=_nodal_connec_index->getConstPointer();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> faceoffsets=DataArrayInt::New(); faceoffsets->alloc(nbOfCells,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> types=DataArrayInt::New(); types->alloc(nbOfCells,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> offsets=DataArrayInt::New(); offsets->alloc(nbOfCells,1);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connectivity=DataArrayInt::New(); connectivity->alloc(_nodal_connec->getNumberOfTuples()-nbOfCells,1);
+  int *w1=faceoffsets->getPointer(),*w2=types->getPointer(),*w3=offsets->getPointer(),*w4=connectivity->getPointer();
+  int szFaceOffsets=0,szConn=0;
+  for(int i=0;i<nbOfCells;i++,w1++,w2++,*w3++)
+    {
+      *w2=cPtr[cIPtr[i]];
+      if((INTERP_KERNEL::NormalizedCellType)cPtr[cIPtr[i]]!=INTERP_KERNEL::NORM_POLYHED)
+        {
+          *w1=-1;
+          *w3=szConn+cIPtr[i+1]-cIPtr[i]-1; szConn+=cIPtr[i+1]-cIPtr[i]-1;
+          w4=std::copy(cPtr+cIPtr[i]+1,cPtr+cIPtr[i+1],w4);
+        }
+      else
+        {
+          int deltaFaceOffset=cIPtr[i+1]-cIPtr[i]+1;
+          *w1=szFaceOffsets+deltaFaceOffset; szFaceOffsets+=deltaFaceOffset;
+          std::set<int> c(cPtr+cIPtr[i]+1,cPtr+cIPtr[i+1]); c.erase(-1);
+          *w3=szConn+(int)c.size(); szConn+=(int)c.size();
+          w4=std::copy(c.begin(),c.end(),w4);
+        }
+    }
+  types->transformWithIndArr(PARAMEDMEM2VTKTYPETRADUCER,PARAMEDMEM2VTKTYPETRADUCER+INTERP_KERNEL::NORM_MAXTYPE);
+  types->writeVTK(ofs,8,"UInt8","types");
+  offsets->writeVTK(ofs,8,"Int32","offsets");
+  if(szFaceOffsets!=0)
+    {//presence of Polyhedra
+      connectivity->reAlloc(szConn);
+      faceoffsets->writeVTK(ofs,8,"Int32","faceoffsets");
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> faces=DataArrayInt::New(); faces->alloc(szFaceOffsets,1);
+      w1=faces->getPointer();
+      for(int i=0;i<nbOfCells;i++)
+        if((INTERP_KERNEL::NormalizedCellType)cPtr[cIPtr[i]]==INTERP_KERNEL::NORM_POLYHED)
+          {
+            int nbFaces=std::count(cPtr+cIPtr[i]+1,cPtr+cIPtr[i+1],-1)+1;
+            *w1++=nbFaces;
+            const int *w4=cPtr+cIPtr[i]+1,*w5=0;
+            for(int j=0;j<nbFaces;j++)
+              {
+                w5=std::find(w4,cPtr+cIPtr[i+1],-1);
+                *w1++=(int)std::distance(w4,w5);
+                w1=std::copy(w4,w5,w1);
+                w4=w5+1;
+              }
+          }
+      faces->writeVTK(ofs,8,"Int32","faces");
+    }
+  connectivity->writeVTK(ofs,8,"Int32","connectivity");
   ofs << "      </Cells>\n";
   ofs << "    </Piece>\n";
   ofs << "  </" << getVTKDataSetType() << ">\n";
