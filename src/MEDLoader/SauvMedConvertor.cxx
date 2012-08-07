@@ -1144,7 +1144,7 @@ ParaMEDMEM::MEDFileUMesh* IntermediateMED::makeMEDFileMesh()
   // process groups
   decreaseHierarchicalDepthOfSubgroups();
   eraseUselessGroups();
-  detectMixDimGroups();
+  //detectMixDimGroups();
 
   // assign IDs
   _points.numberNodes();
@@ -1917,7 +1917,8 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
       for ( size_t i = 0; i < _groups.size(); ++i )
         {
           Group& grp = _groups[i];
-          if ( (int)getDim( &grp ) != dim )
+          if ( (int)getDim( &grp ) != dim &&
+               grp._groups.empty() ) // to allow groups on diff dims
             continue;
           // convert only named groups or field supports
           if ( grp.empty() || (grp._name.empty() && !grp._isProfile ))
@@ -1933,9 +1934,13 @@ void IntermediateMED::setGroups( ParaMEDMEM::MEDFileUMesh* mesh )
           for ( size_t iG = 0; iG < groupVec.size(); ++iG )
             {
               Group* aG = groupVec[ iG ];
+              if ( (int)getDim( aG ) != dim )
+                continue;
               for ( size_t iC = 0; iC < aG->_cells.size(); ++iC )
                 cell2order.insert( cell2order.end(), make_pair( aG->_cells[iC], orderInGroup++ ));
             }
+          if ( cell2order.empty() )
+            continue;
           bool isSelfIntersect = ( orderInGroup != cell2order.size() );
           if ( isSelfIntersect ) // self intersecting group
             {
