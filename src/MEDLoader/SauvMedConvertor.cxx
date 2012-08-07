@@ -1361,7 +1361,7 @@ void IntermediateMED::detectMixDimGroups()
     unsigned dim1 = getDim( &grp );
     for ( size_t j = 1; j  < grp._groups.size(); ++j )
     {
-      unsigned dim2 = getDim( &grp );
+      unsigned dim2 = getDim( grp._groups[j] );
       if ( dim1 != dim2 )
       {
         grp._cells.clear();
@@ -1609,9 +1609,9 @@ void IntermediateMED::orientFaces3D()
                   if ( manifold )
                     {
                       list<const Cell*>::iterator ii = ml.begin();
-                      cout << nbFaceByLink << " faces by 1 link:";
+                      cout << nbFaceByLink << " faces by 1 link:" << endl;
                       for( ; ii!= ml.end(); ii++ )
-                        cout << "in sub-mesh " << fgm[ *ii ]->_name << endl << **ii;
+                        cout << "in sub-mesh <" << fgm[ *ii ]->_name << "> " << **ii << endl;
                     }
                   manifold = false;
                 }
