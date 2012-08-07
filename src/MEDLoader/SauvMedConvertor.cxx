@@ -259,7 +259,8 @@ unsigned SauvUtilities::getDimension( INTERP_KERNEL::NormalizedCellType type )
 
 //================================================================================
 /*!
- * \brief Returns interlace array to transform a quadratic GIBI element to a MED one
+ * \brief Returns interlace array to transform a quadratic GIBI element to a MED one.
+ *        i-th array item gives node index in GIBI connectivity for i-th MED node
  */
 //================================================================================
 
