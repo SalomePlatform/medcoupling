@@ -737,7 +737,7 @@ void SauvWriter::writeSubMeshes()
                       if ( toMedConn )
                         {
                           for ( unsigned j = 0; j < nbElemNodes; ++j )
-                            transformedConn[ j ] = cellConn[ toMedConn[ j ]];
+                            transformedConn[ toMedConn[ j ]] = cellConn[ j ];
                           cellConn.swap( transformedConn );
                         }
                       for ( unsigned j = 0; j < nbElemNodes; ++j, fcount++ )
