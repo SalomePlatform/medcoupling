@@ -1,52 +1,72 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-#
+
 #  MED MEDMEM : MED files in memory
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
 
-userdocdir = $(prefix)/doc/user
+guidocdir = $(docdir)/gui/MED
+guidoc_DATA = images/head.png
 
 install-data-local : html-local
-	$(INSTALL) -d $(DESTDIR)$(userdocdir)
-	cp -rp doc_ref_user/html $(DESTDIR)$(userdocdir)
+	@if test -d doc_ref_user; then 					\
+	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED;	     		\
+	fi
+	@if test -d doc_ref_user/html ; then				\
+	  for filen in `find doc_ref_user/html -maxdepth 1 -type f` ; do\
+	    echo "Installing $${filen}" ; 				\
+	    cp -rp $${filen} $(DESTDIR)$(docdir)/gui/MED ;		\
+	  done ;							\
+	fi ;
 
 uninstall-local:
-	rm -rf $(DESTDIR)$(userdocdir)
+	rm -rf $(DESTDIR)$(docdir)/gui/MED
 
 clean-local:
 	rm -rf doc_ref_user log_user
 
 EXTRA_DIST += figures \
 	      main.dox \
-	      MED_class.dox \
+	      Geometric2D.dox \
 	      biblio.dox \
+	      barycoords.dox \
+	      dualmesh.dox \
+	      extractor.dox \
 	      field.dox \
 	      grid.dox \
+	      interpkernel.dox \
+	      interptheory.dox \
+	      interptools.dox \
+	      intersectors.dox \
+	      medcoupling.dox \
+	      medfilebrowser.dox \
+	      medloader.dox \
+	      medmem.dox \
 	      medsplitter.dox \
 	      mesh.dox \
 	      meshing.dox \
 	      polygon.dox \
-	      remapping.dox \
+	      remapper.dox \
 	      support.dox \
-	      tools.dox
+	      tools.dox \
+	      static/footer.html \
+	      static/doxygen.css \
+	      images

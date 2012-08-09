@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "MPIAccess.hxx"
 #include "InterpolationUtils.hxx"
 
@@ -88,19 +89,13 @@ namespace ParaMEDMEM
     if ( MaxTag == 0 )
       MaxTag = (mpitagub/MODULO_TAG-1)*MODULO_TAG ;
     MPI_Comm_rank( *_intra_communicator, &_my_rank ) ;
-    cout << "MPIAccess::MPIAccess" << _my_rank << " this " << this << " BaseTag " << BaseTag
-         << " MaxTag " << MaxTag << " mpitagub " << mpitagub << " (minimum 32767) "
-         << " flag " << flag << endl ;
     if ( !flag | (BaseTag < 0) | (BaseTag >= MaxTag) | (MaxTag > mpitagub) )
       throw INTERP_KERNEL::Exception("wrong call to MPIAccess constructor");
 
     _processor_group = ProcessorGroup ;
     _processor_group_size = _processor_group->size() ;
     _trace = false ;
-    
-    cout << "MPIAccess::MPIAccess" << _my_rank << " _processor_group_size "
-         << _processor_group_size << endl ;
-    
+
     _base_request = -1 ;
     _max_request = std::numeric_limits<int>::max() ;
     _request = _base_request ;
@@ -145,13 +140,11 @@ namespace ParaMEDMEM
 
   MPIAccess::~MPIAccess()
   {
-    cout << "MPIAccess::~MPIAccess" << _my_rank << " this " << this << endl ;
     delete [] _send_request ;
     delete [] _recv_request ;
     delete [] _send_MPI_tag ;
     delete [] _recv_MPI_Tag ;
     MPI_Type_free(&_MPI_TIME) ;
-    cout << "End of MPIAccess::~MPIAccess" << _my_rank << " this " << this << endl ;
   }
 
   /*
@@ -341,7 +334,7 @@ namespace ParaMEDMEM
   // SendRequestIds to a destination rank
   int MPIAccess::sendRequestIds(int destrank, int size, int *ArrayOfSendRequests)
   {
-    if (size < _send_requests[destrank].size() )
+    if (size < (int)_send_requests[destrank].size() )
       throw INTERP_KERNEL::Exception("wrong call to MPIAccess::SendRequestIds");
     int i = 0 ;
     list< int >::const_iterator iter ;
@@ -354,7 +347,7 @@ namespace ParaMEDMEM
   // RecvRequestIds from a sourcerank
   int MPIAccess::recvRequestIds(int sourcerank, int size, int *ArrayOfRecvRequests)
   {
-    if (size < _recv_requests[sourcerank].size() )
+    if (size < (int)_recv_requests[sourcerank].size() )
       throw INTERP_KERNEL::Exception("wrong call to MPIAccess::RecvRequestIds");
     int i = 0 ;
     list< int >::const_iterator iter ;

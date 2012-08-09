@@ -1,23 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "RemapperTest.hxx"
 #include "Remapper.hxx"
+#include "TestInterpKernelUtils.hxx"
 
 #include <iostream>
 #include <vector>
@@ -44,12 +46,10 @@ namespace INTERP_TEST
    * a bbox overlapping the bboxes of the tree
    */
   void RemapperTest::test_Remapper() {
-    string sourcename=getenv("MED_ROOT_DIR");
-    sourcename +="/share/salome/resources/med/square1.med";
+    string sourcename=INTERP_TEST::getResourceFile("square1.med");
     MEDMEM::MESH source_mesh (MED_DRIVER,sourcename,"Mesh_2");
 
-    string targetname=getenv("MED_ROOT_DIR");
-    targetname +="/share/salome/resources/med/square2.med";
+    string targetname=INTERP_TEST::getResourceFile("square2.med");
     MEDMEM::MESH target_mesh (MED_DRIVER,targetname,"Mesh_3");
 
     MEDMEM::SUPPORT source_support(&source_mesh,"on All support");

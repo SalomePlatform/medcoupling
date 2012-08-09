@@ -1,0 +1,161 @@
+/*!
+\page medcouplingcppexamples <br><h1> MEDCoupling C++ examples </h1>
+
+\anchor cpp_mcfielddouble_subpart1
+<br><h2>Creation of a sub part of a field</h2>
+<br><h3>Creation of a sub part of a field on cells</h3>
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_1
+The field on cells \b f1 lies on a mesh containg 5 cells and 9 nodes.		
+So this field \b f1 contains 5 tuples of 2 components each (10 values).
+Now let's create a subfield on cells \b f2 from \b f1.
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_2
+
+\b f1 is a field on cells, \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on cells too.
+
+So the array \b part1 lists ids on cells.
+
+- cell #0 of \b f2 is the same cell of cell #2 of \b f1
+- cell #1 of \b f2 is the same cell of cell #1 of \b f1
+- cell #2 of \b f2 is the same cell of cell #4 of \b f1
+
+So \b f2 contains 3 tuples with 2 components.
+
+The underlying mesh of \b f2 contains a newly created mesh with 3 cells (not as \b mesh1 in \b f1) and 9 nodes (as \b mesh1 in \b f1).
+\n For fields on cells the number of tuples of the returned field is always equal to the number of ids given in input (here \b part1).
+\nOnly fields on cells have this particular behaviour.
+
+<br><h3>Creation of a sub part of a field on nodes</h3>
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_3
+The field on nodes \b f1 lies on a mesh containg 5 cells and 9 nodes.
+So this field \b f1 contains 9 tuples of 2 components each (18 values).
+Now let's create a subfield on nodes \b f2 from \b f1.
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuildSubPart1_4
+
+\b f1 is a field on nodes, but \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" method performs an extraction on \b cells.
+
+After the call of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" on node field \b f1, \b f1 will be reduced on a
+submesh of \b mesh1 containing cells whoses ids are in \b part2. So here the number of cells of \b f2 is 2 and the number of nodes is 4.
+\nSo contrary to fields on cells, it is normal for fields on nodes that number of tuples of the returned field of \ref ParaMEDMEM::MEDCouplingFieldDouble::buildSubPart "buildSubPart" 
+method does not match the size of the input array (here \b part2).
+
+*/
+
+/*!
+\page medcouplingcppexamplesUmeshStdBuild1 <br><h1> Example of standard build of an unstructured mesh from scratch in C++ </h1>
+
+Firstly retrieve basic data in full interlace mode for coordinates, and nodal connectivity cell per cell.
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_1
+
+Then create ParaMEDMEM::MEDCouplingUMesh instance giving its meshdimension (2 here) and a name.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_2
+
+Gives an upper bound of the number of cells to be inserted into the unstructured mesh.
+\n Then enter nodal connectivity of all cells, cell per cell using ParaMEDMEM::MEDCouplingUMesh::insertNextCell method.
+\n When the nodal connectivity cell per cell has been finished, call ParaMEDMEM::MEDCouplingUMesh::finishInsertingCells method in order to restore \b mesh instance.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_3
+
+At this level the connectivity part of the mesh \b mesh as been defined. Now let's set the coordinates using array \b coords defined above.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_4
+
+At this level mesh is usable. When this mesh is no more needed simply call decrRef to decrement its reference counter.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshStdBuild1_5
+
+*/
+
+/*!
+\page medcouplingcppexamplesUmeshAdvBuild1 <br><h1> Example of advanced build of an unstructured mesh from scratch in C++ </h1>
+
+Firstly retrieve basic data in full interlace mode for coordinates, and nodal connectivity cell per cell, cell type \b included (3 for INTERP_KERNEL::NORM_TRI3 and 4 for INTERP_KERNEL::QUAD4).
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_1
+
+Then create ParaMEDMEM::MEDCouplingUMesh instance giving its meshdimension (2 here) and a name.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_2
+
+Then enter nodal connectivity at once.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_3
+
+At this level the connectivity part of the mesh \b mesh as been defined. Now let's set the coordinates using array \b coords defined above.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_4
+
+At this level mesh is usable. When this mesh is no more needed simply call decrRef to decrement its reference counter.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetUMeshAdvBuild1_5
+
+*/
+
+/*!
+\page medcouplingcppexamplesCmeshStdBuild1 <br><h1> Example of standard build of an cartesian mesh from scratch in C++ </h1>
+
+We are going to build a 2D cartesian mesh, constituted from 9 nodes along X axis, and 7 nodes along Y axis.
+
+Firstly retrieve for each direction the discretization and build a \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble instance" on the corresponding direction.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_1
+
+Then create ParaMEDMEM::MEDCouplingCMesh instance giving the 2 instances of \ref ParaMEDMEM::DataArrayDouble "DataArrayDouble" obtained above.
+
+There are 2 technics to get it.
+
+Either :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_2
+
+Or :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_2bis
+
+\c mesh is now available for use :
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_3
+
+When this mesh is no more needed simply call decrRef to decrement its reference counter.
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetCMeshStdBuild1_4
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild1 <br><h1> Examples in C++ of standard build of a tensor field on cells with no time attached  </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild1_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild2 <br><h1> Examples in C++ of standard build of a scalar field on nodes with no time attached </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild2_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild3 <br><h1> Examples in C++ of standard build of a vector field on cells with with one time attached and no time interval </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild3_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild4 <br><h1> Examples in C++ of standard build of a vector field on nodes defined on a time interval with a constant value during this interval </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild4_1
+
+*/
+
+/*!
+\page medcouplingcppexamplesFieldDoubleBuild5 <br><h1> Examples in C++ of operation that can be carried out on fields on cells </h1>
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild1_2
+
+The decrementation of ref counter should be carried out in CPlusPlus only ...
+
+\snippet MEDCouplingExamplesTest.cxx CppSnippetFieldDoubleBuild1_3
+
+*/

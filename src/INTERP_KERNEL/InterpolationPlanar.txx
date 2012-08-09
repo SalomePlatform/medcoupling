@@ -1,25 +1,26 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __INTERPOLATIONPLANAR_TXX__
 #define __INTERPOLATIONPLANAR_TXX__
 
 #include "InterpolationPlanar.hxx"
+#include "Interpolation.txx"
 #include "InterpolationOptions.hxx"
 #include "PlanarIntersector.hxx"
 #include "PlanarIntersector.txx"
@@ -29,17 +30,22 @@
 #include "ConvexIntersector.txx"
 #include "Geometric2DIntersector.hxx"
 #include "Geometric2DIntersector.txx"
+#include "PointLocator2DIntersector.hxx"
+#include "PointLocator2DIntersector.txx"
+#include "PlanarIntersectorP0P1PL.hxx"
+#include "PlanarIntersectorP0P1PL.txx"
+#include "PlanarIntersectorP1P0PL.hxx"
+#include "PlanarIntersectorP1P0PL.txx"
+#include "PlanarIntersectorP1P1PL.hxx"
+#include "PlanarIntersectorP1P1PL.txx"
 #include "VectorUtils.hxx"
 #include "BBTree.txx"
 
+#include <limits>
 #include <time.h>
 
 namespace INTERP_KERNEL
 {
-
-  template<class RealPlanar>
-  const double InterpolationPlanar<RealPlanar>::DEFAULT_PRECISION=1.e-12;
-
   /**
    * \defgroup interpolationPlanar InterpolationPlanar
    *
@@ -58,7 +64,6 @@ namespace INTERP_KERNEL
                                                          
   {
   }
-
 
   /**
    *  \brief  Function used to set the options for the intersection calculation
@@ -126,21 +131,29 @@ namespace INTERP_KERNEL
     
     double BoxS[2*SPACEDIM]; myMeshS.getBoundingBox(BoxS);
     double BoxT[2*SPACEDIM]; myMeshT.getBoundingBox(BoxT);
-    double diagonalS=getDistanceBtw2Pts<SPACEDIM>(BoxS+SPACEDIM,BoxS);
-    double DimCaracteristicS=diagonalS/nbMailleS;
-    double diagonalT=getDistanceBtw2Pts<SPACEDIM>(BoxT+SPACEDIM,BoxT);
-    double DimCaracteristicT=diagonalT/nbMailleT;
+    double diagonalS,dimCaracteristicS=std::numeric_limits<double>::max();
+    if(nbMailleS!=0)
+      {
+        diagonalS=getDistanceBtw2Pts<SPACEDIM>(BoxS+SPACEDIM,BoxS);
+        dimCaracteristicS=diagonalS/nbMailleS;
+      }
+    double diagonalT,dimCaracteristicT=std::numeric_limits<double>::max();
+    if(nbMailleT!=0)
+      {
+        diagonalT=getDistanceBtw2Pts<SPACEDIM>(BoxT+SPACEDIM,BoxT);
+        dimCaracteristicT=diagonalT/nbMailleT;
+      }
     
-    _dim_caracteristic=std::min(DimCaracteristicS, DimCaracteristicT);
+    _dim_caracteristic=std::min(dimCaracteristicS, dimCaracteristicT);
     if (InterpolationOptions::getPrintLevel()>=1)
       {
-        std::cout << "  - Characteristic size of the source mesh : " << DimCaracteristicS << std::endl;
-        std::cout << "  - Characteristic size of the target mesh: " << DimCaracteristicT << std::endl;
+        std::cout << "  - Characteristic size of the source mesh : " << dimCaracteristicS << std::endl;
+        std::cout << "  - Characteristic size of the target mesh: " << dimCaracteristicT << std::endl;
         std::cout << "InterpolationPlanar::computation of the intersections" << std::endl;
       }
     
     PlanarIntersector<MyMeshType,MatrixType>* intersector=0;
-    std::string meth(method);
+    std::string meth = InterpolationOptions::filterInterpolationMethod(method);
     if(meth=="P0P0")
       {
         switch (InterpolationOptions::getIntersectionType())
@@ -148,6 +161,7 @@ namespace INTERP_KERNEL
           case Triangulation:
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                   InterpolationOptions::getPrecision(),
+                                                                                                  InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                                   InterpolationOptions::getMedianPlane(),
                                                                                                   InterpolationOptions::getOrientation(),
                                                                                                   InterpolationOptions::getPrintLevel());
@@ -155,16 +169,25 @@ namespace INTERP_KERNEL
           case Convex:
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
-                                                                                           InterpolationOptions::getDoRotate(),
+                                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
+            break;
+          case PointLocator:
+            intersector=new PointLocator2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P0>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                   InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                   InterpolationOptions::getMedianPlane(),
+                                                                                                   InterpolationOptions::getPrecision(),
+                                                                                                   InterpolationOptions::getOrientation());
             break;
           }
       }
@@ -175,6 +198,7 @@ namespace INTERP_KERNEL
           case Triangulation:
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                   InterpolationOptions::getPrecision(),
+                                                                                                  InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                                   InterpolationOptions::getMedianPlane(),
                                                                                                   InterpolationOptions::getOrientation(),
                                                                                                   InterpolationOptions::getPrintLevel());
@@ -182,16 +206,25 @@ namespace INTERP_KERNEL
           case Convex:
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
-                                                                                           InterpolationOptions::getDoRotate(),
+                                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP0P1>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
+            break;
+          case PointLocator:
+            intersector=new PlanarIntersectorP0P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                           InterpolationOptions::getMedianPlane(),
+                                                                           InterpolationOptions::getPrecision(),
+                                                                           InterpolationOptions::getOrientation());
             break;
           }
       }
@@ -202,6 +235,7 @@ namespace INTERP_KERNEL
           case Triangulation:
             intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                                   InterpolationOptions::getPrecision(),
+                                                                                                  InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                                   InterpolationOptions::getMedianPlane(),
                                                                                                   InterpolationOptions::getOrientation(),
                                                                                                   InterpolationOptions::getPrintLevel());
@@ -209,21 +243,100 @@ namespace INTERP_KERNEL
           case Convex:
             intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT,myMeshS,_dim_caracteristic,
                                                                                            InterpolationOptions::getPrecision(),
-                                                                                           InterpolationOptions::getDoRotate(),
+                                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                            InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
                                                                                            InterpolationOptions::getOrientation(),
                                                                                            InterpolationOptions::getPrintLevel());
             break;
           case Geometric2D:
             intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                InterpolationOptions::getMaxDistance3DSurfIntersect(),
                                                                                                 InterpolationOptions::getMedianPlane(),
                                                                                                 InterpolationOptions::getPrecision(),
                                                                                                 InterpolationOptions::getOrientation());
             break;
+          case PointLocator:
+            intersector=new PlanarIntersectorP1P0PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                       InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                       InterpolationOptions::getMedianPlane(),
+                                                                       InterpolationOptions::getPrecision(),
+                                                                       InterpolationOptions::getOrientation());
+            break;
+          }
+      }
+    else if(meth=="P1P0Bary")
+    {
+      switch (InterpolationOptions::getIntersectionType())
+      {
+      case Triangulation:
+        intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0Bary>(myMeshT,myMeshS,_dim_caracteristic,
+                                                                                                  InterpolationOptions::getPrecision(),
+                                                                                                  InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                  InterpolationOptions::getMedianPlane(),
+                                                                                                  InterpolationOptions::getOrientation(),
+                                                                                                  InterpolationOptions::getPrintLevel());
+        break;
+      case Convex:
+        intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0Bary>(myMeshT,myMeshS,_dim_caracteristic,
+                                                                                           InterpolationOptions::getPrecision(),
+                                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                           InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
+                                                                                           InterpolationOptions::getOrientation(),
+                                                                                           InterpolationOptions::getPrintLevel());
+        break;
+      case Geometric2D:
+        intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P0Bary>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                InterpolationOptions::getMedianPlane(),
+                                                                                                InterpolationOptions::getPrecision(),
+                                                                                                InterpolationOptions::getOrientation());
+        break;
+      case PointLocator:
+        throw INTERP_KERNEL::Exception("Invalid intersector (PointLocator) for P1P0Bary !");
+        break;
+      }
+    }
+    else if(meth=="P1P1")
+      {
+        switch (InterpolationOptions::getIntersectionType())
+          {
+          case Triangulation:
+            intersector=new TriangulationIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
+                                                                                                  InterpolationOptions::getPrecision(),
+                                                                                                  InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                  InterpolationOptions::getMedianPlane(),
+                                                                                                  InterpolationOptions::getOrientation(),
+                                                                                                  InterpolationOptions::getPrintLevel());
+            break;
+          case Convex:
+            intersector=new ConvexIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT,myMeshS,_dim_caracteristic,
+                                                                                           InterpolationOptions::getPrecision(),
+                                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                           InterpolationOptions::getMedianPlane(),
+                                                                                           InterpolationOptions::getDoRotate(),
+                                                                                           InterpolationOptions::getOrientation(),
+                                                                                           InterpolationOptions::getPrintLevel());
+            break;
+          case Geometric2D:
+            intersector=new Geometric2DIntersector<MyMeshType,MatrixType,PlanarIntersectorP1P1>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                                                InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                                                InterpolationOptions::getMedianPlane(),
+                                                                                                InterpolationOptions::getPrecision(),
+                                                                                                InterpolationOptions::getOrientation());
+            break;
+          case PointLocator:
+            intersector=new PlanarIntersectorP1P1PL<MyMeshType,MatrixType>(myMeshT, myMeshS, _dim_caracteristic,
+                                                                           InterpolationOptions::getMaxDistance3DSurfIntersect(),
+                                                                           InterpolationOptions::getMedianPlane(),
+                                                                           InterpolationOptions::getPrecision(),
+                                                                           InterpolationOptions::getOrientation());
+            break;
           }
       }
     else
-      throw INTERP_KERNEL::Exception("Invalid method specified ! Must be in : \"P0P0\" \"P0P1\" or \"P1P0\"");
+      throw INTERP_KERNEL::Exception("Invalid method specified or intersection type ! Must be in : \"P0P0\" \"P0P1\" \"P1P0\" or \"P1P1\"");
     /****************************************************************/
     /* Create a search tree based on the bounding boxes             */
     /* Instanciate the intersector and initialise the result vector */
@@ -234,7 +347,10 @@ namespace INTERP_KERNEL
     std::vector<double> bbox;
     intersector->createBoundingBoxes(myMeshS,bbox); // create the bounding boxes
     performAdjustmentOfBB(intersector,bbox);
-    BBTree<SPACEDIM,ConnType> my_tree(&bbox[0], 0, 0,nbMailleS);//creating the search structure 
+    const double *bboxPtr=0;
+    if(nbMailleS>0)
+      bboxPtr=&bbox[0];
+    BBTree<SPACEDIM,ConnType> my_tree(bboxPtr, 0, 0,nbMailleS);//creating the search structure 
 
     long end_filtering=clock();
 

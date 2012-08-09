@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __TRANSFORMED_TRIANGLE_HXX__
 #define __TRANSFORMED_TRIANGLE_HXX__
 
@@ -32,6 +33,10 @@
 
 #include "Log.hxx"
 
+#ifdef WNT
+#pragma warning(disable:4251)
+#endif
+
 namespace INTERP_TEST
 {
   class TransformedTriangleTest;
@@ -41,6 +46,7 @@ namespace INTERP_TEST
 
 namespace INTERP_KERNEL
 {
+  class TetraAffineTransform;
 
   /** \class TransformedTriangle
    * \brief Class representing one of the faces of the triangulated source polyhedron after having been transformed
@@ -132,6 +138,7 @@ namespace INTERP_KERNEL
     ~TransformedTriangle();
 
     double calculateIntersectionVolume(); 
+    double calculateIntersectionSurface(TetraAffineTransform* tat);
 
     void dumpCoords() const;
 
@@ -150,13 +157,20 @@ namespace INTERP_KERNEL
     // ----------------------------------------------------------------------------------
     //  High-level methods called directly by calculateIntersectionVolume()     
     // ----------------------------------------------------------------------------------
-    void calculateIntersectionPolygons(); 
+    void calculateIntersectionAndProjectionPolygons();
 
     void calculatePolygonBarycenter(const IntersectionPolygon poly, double* barycenter); 
 
     void sortIntersectionPolygon(const IntersectionPolygon poly, const double* barycenter); 
 
     double calculateVolumeUnderPolygon(IntersectionPolygon poly, const double* barycenter); 
+
+    // ----------------------------------------------------------------------------------
+    //  High-level methods called directly by calculateIntersectionSurface()
+    // ----------------------------------------------------------------------------------
+    void calculateIntersectionPolygon();
+
+    double calculateSurfacePolygon();
 
     // ----------------------------------------------------------------------------------
     //  Detection of degenerate triangles  
@@ -224,7 +238,7 @@ namespace INTERP_KERNEL
     //  Double and triple product calculations                           
     // ----------------------------------------------------------------------------------
     
-
+    void resetNearZeroCoordinates();
 
     bool areDoubleProductsConsistent(const TriSegment seg) const;
 

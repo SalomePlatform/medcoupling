@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include <mpi.h>
 #include "CommInterface.hxx"
 #include "Topology.hxx"
@@ -31,7 +32,8 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-
+  /*! \defgroup explicitcoincidentdec ExplicitCoincidentDEC
+   */
   ExplicitCoincidentDEC::ExplicitCoincidentDEC():_toposource(0),_topotarget(0)
   {  
   }
@@ -39,6 +41,12 @@ namespace ParaMEDMEM
   ExplicitCoincidentDEC::~ExplicitCoincidentDEC()
   {
   }
+
+
+  /*!
+    \addtogroup explicitcoincidentdec
+    @{
+  */
 
   /*! Synchronization process for exchanging topologies
    */
@@ -280,7 +288,7 @@ namespace ParaMEDMEM
           }
         int* recvcounts=new int[world_size];
         int* recvdispls=new int[world_size];
-        int *dummyrecv;
+        int *dummyrecv=0;
         for (int i=0; i <world_size; i++)
           {
             recvcounts[i]=0;
@@ -320,7 +328,7 @@ namespace ParaMEDMEM
               recvdispls[i]=recvdispls[i-1]+recvcounts[i-1];
           }
 
-        int *dummysend;
+        int *dummysend=0;
         for (int i=0; i <world_size; i++)
           {
             sendcounts[i]=0;
@@ -380,5 +388,8 @@ namespace ParaMEDMEM
     _comm_interface->allToAllV(_sendbuffer, _sendcounts, _senddispls, MPI_DOUBLE, 
                                _recvbuffer, _recvcounts, _recvdispls, MPI_DOUBLE,MPI_COMM_WORLD);
   }
+  /*!
+    @}
+  */
 }
 

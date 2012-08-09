@@ -1,0 +1,45 @@
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+#ifndef __Intersector3DP1P1_TXX__
+#define __Intersector3DP1P1_TXX__
+
+#include "Intersector3DP1P1.hxx"
+#include "Intersector3D.txx"
+
+namespace INTERP_KERNEL
+{
+  template<class MyMeshType, class MyMatrix>
+  Intersector3DP1P1<MyMeshType,MyMatrix>::Intersector3DP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh):Intersector3D<MyMeshType,MyMatrix>(targetMesh,srcMesh)
+  {
+  }
+
+  template<class MyMeshType, class MyMatrix>
+  int Intersector3DP1P1<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
+  {
+    return Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfNodes();
+  }
+
+  template<class MyMeshType, class MyMatrix>
+  int Intersector3DP1P1<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
+  {
+    return Intersector3D<MyMeshType,MyMatrix>::_src_mesh.getNumberOfNodes();
+  }
+}
+
+#endif

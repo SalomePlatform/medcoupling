@@ -4,12 +4,12 @@
 
 The methods described in section \ref mesh do not take into account information about
   \c polygonal and \c polyhedral cells contained in a MESH object. 
-Indeed, in the MEDMEM library, the connectivity data
-for these elements are stored separately . Therefore, 
-the methods that give access to this data are slightly different from 
-those of section \ref mesh.
+Indeed, in the MEDMEM library, the connectivity data for these 
+elements are stored the same way as connectivity of standard 
+elements. Therefore, the methods that give access to this data are 
+same as those of section \ref mesh.
 
-Also, the polygon and the polyhedra case differ in nature, 
+The polygon and the polyhedra case differ in nature, 
 because in 3D, the list of nodes is not sufficient 
 to described the shape of an element. A descending 
 cell>face>nodes connectivity has to be established 
@@ -24,18 +24,16 @@ Let us consider the case illustrated in figure \ref fig_polygon_connectivity .
 \image latex polygon_connectivity_small.eps "Example for polygon connectivity"
 
 
-- The standard element connectivity table writes : {2, 6, 7, 3, 3, 7, 8, 4 }
-- The standard element connectivity index table writes : {1, 5, 9 }
-- The polygon element connectivity table writes : {1, 2, 3, 4, 5 }
-- The polygon element connectivity index table writes : {1, 6 }
+- The connectivity table writes : {2, 6, 7, 3, 3, 7, 8, 4, 1, 2, 3, 4, 5 }
+- The connectivity index table writes : {1, 5, 9, 14 }
 
 \section polyhedron_conn Polyhedron connectivity
 
 For polyhedra, in the nodal connectivity case, 
-one more array is required, because a 
-list of nodes does not suffice to describe a general polyhedron. 
-A general polyhedron is therefore described by a list of faces,
-each of those being described by a list of nodes.
+list of nodes does not suffice to describe a general polyhedron;
+information of connectivity of each face is needed.
+A general polyhedron is therefore described by a list of nodes of 
+all faces with -1 as separator between faces.
 
 Let us consider an example with the two tetrahedra represented on
 figure \ref fig_polyhedron_connectivity , the left one
@@ -46,24 +44,12 @@ as a \c MED_POLYHEDRA element.
 \image html polyhedron_connectivity_small.png "Example for polyhedron connectivity. Node numbers are written with a normal font, while face numbers are written in italic font."
 \image latex polyhedron_connectivity_small.eps "Example for polyhedron connectivity. Node numbers are written with a normal font, while face numbers are written in italic font."
 
-- The standard element index connectivity table writes : {1, 5 }
-- The standard element connectivity table writes : {1, 2, 3, 4 }
-- The polyhedra face connectivity index table writes :{1, 5}
-- The polyhedra connectivity index table writes : {1, 4, 7, 10, 13}
-- The polyhedra connectivity (face/node connectivity) table writes : {2, 3, 5, 2, 4, 5, 4, 5, 3, 2, 3, 4}
-
-Note that as they are not needed as such, the face numberings are not stored
-in any array. Only the number of nodes per face is implicitly stored
-in the polyhedra face connectivity index table.
+- The connectivity table writes : {1, 2, 3, 4, 2, 5, 3, -1, 2, 4, 5, -1, 4, 3, 5, -1, 2, 3, 4}
+- The index connectivity table writes : {1, 5, 20 }
 
 If there are two \c MED_POLYHEDRA elements that share a common face, 
 the list of nodes is repeated twice in the polyhedron connectivity
-array.
-
-\section poly_outline Outline
-The methods associated to polygons/polyhedra are located in the following classes :
-- access methods are stored in MESH : \ref MESH_poly
-- creation methods are in MESHING : \ref MESHING_poly
+array but with reversed order.
 
 \section poly_example Example
 The following example illustrates the creation method for a mesh that

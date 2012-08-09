@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "Interpolation3DTest.hxx"
 #include "MEDMEM_Mesh.hxx"
 
@@ -42,7 +43,6 @@
 //#define VOL_PREC 1.0e-6
 
 using namespace MEDMEM;
-using namespace std;
 using namespace INTERP_KERNEL;
 using namespace MED_EN;
 
@@ -53,7 +53,7 @@ double Interpolation3DTest::sumRow(const IntersectionMatrix& m, int i) const
     {
       if(iter->count(i) != 0.0)
         {
-          map<int, double>::const_iterator iter2 = iter->find(i);
+          std::map<int, double>::const_iterator iter2 = iter->find(i);
           vol += iter2->second;
         }
     }
@@ -64,7 +64,7 @@ double Interpolation3DTest::sumCol(const IntersectionMatrix& m, int i) const
 {
   double vol = 0.0;
   const std::map<int, double>& col = m[i];
-  for(map<int, double>::const_iterator iter = col.begin() ; iter != col.end() ; ++iter)
+  for(std::map<int, double>::const_iterator iter = col.begin() ; iter != col.end() ; ++iter)
     {
       vol += std::fabs(iter->second);
     }
@@ -84,10 +84,10 @@ void Interpolation3DTest::getVolumes(MESH& mesh, double* tab) const
 double Interpolation3DTest::sumVolume(const IntersectionMatrix& m) const
 {
   
-  vector<double> volumes;
+  std::vector<double> volumes;
   for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           volumes.push_back(iter2->second);
           //    vol += std::abs(iter2->second);
@@ -146,7 +146,7 @@ bool Interpolation3DTest::areCompatitable(const IntersectionMatrix& m1, const In
   int i = 0;
   for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           int j = iter2->first;
           if(m2.at(j-1).count(i+1) == 0)
@@ -181,13 +181,13 @@ bool Interpolation3DTest::testSymmetric(const IntersectionMatrix& m1, const Inte
 
   for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           int j = iter2->first;
           const double v1 = iter2->second;
           //if(m2[j - 1].count(i+1) > 0)
           //  {
-          map<int, double> theMap =  m2.at(j-1);
+          std::map<int, double> theMap =  m2.at(j-1);
           const double v2 = theMap[i + 1];
           if(v1 != v2)
             {
@@ -215,7 +215,7 @@ bool Interpolation3DTest::testDiagonal(const IntersectionMatrix& m) const
   bool isDiagonal = true;
   for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
           int j = iter2->first;
           const double vol = iter2->second;
@@ -241,13 +241,13 @@ bool Interpolation3DTest::testDiagonal(const IntersectionMatrix& m) const
 void Interpolation3DTest::dumpIntersectionMatrix(const IntersectionMatrix& m) const
 {
   int i = 0;
-  std::cout << "Intersection matrix is " << endl;
+  std::cout << "Intersection matrix is " << std::endl;
   for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
     {
-      for(map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+      for(std::map<int, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
         {
     
-          std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << endl;
+          std::cout << "V(" << i << ", " << iter2->first << ") = " << iter2->second << std::endl;
     
         }
       ++i;

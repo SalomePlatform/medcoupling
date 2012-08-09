@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "BlockTopology.hxx"
-#include "MemArray.hxx"
-#include "MEDCouplingSMesh.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "CommInterface.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
@@ -86,15 +87,15 @@ namespace ParaMEDMEM
       {
         int axis_size=_local_array_indices[idim].size()-1;
         int axis_nb_elem=_local_array_indices[idim][axis_size];
-        increment=increment/axis_nb_elem;
+        increment=axis_nb_elem==0?0:increment/axis_nb_elem;
         proc_increment = proc_increment/(axis_size);
         int proc_axis=subdomain_id/proc_increment;
         subdomain_id=subdomain_id%proc_increment;
         int local_axis_nb_elem=_local_array_indices[idim][proc_axis+1]-_local_array_indices[idim][proc_axis];
-        local_increment = local_increment/local_axis_nb_elem;  
-        int iaxis=loc/local_increment+_local_array_indices[idim][proc_axis];
+        local_increment = (local_axis_nb_elem==0)?0:(local_increment/local_axis_nb_elem);
+        int iaxis=((local_increment==0)?0:(loc/local_increment))+_local_array_indices[idim][proc_axis];
         global+=increment*iaxis;
-        loc = loc%local_increment;
+        loc = (local_increment==0)?0:(loc%local_increment);
       }
     return global;
   }
@@ -123,8 +124,8 @@ namespace ParaMEDMEM
    * instead of making the best choice with respect to the 
    * values of the different axes. 
    */
-  BlockTopology::BlockTopology(const ProcessorGroup& group, MEDCouplingSMesh *grid):
-    _proc_group(&group), _dimension(grid->getSpaceDimension()), _owns_processor_group(false)
+  BlockTopology::BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid):
+    _dimension(grid->getSpaceDimension()), _proc_group(&group), _owns_processor_group(false)
   {
     vector <int> axis_length(_dimension);
     _nb_elems=1;
@@ -209,14 +210,14 @@ namespace ParaMEDMEM
    * to \a group will cause an MPI error, while calling from a subset
    * of \a group will result in a deadlock. 
    */
-  BlockTopology::BlockTopology(const ProcessorGroup& group, int nb_elem):_proc_group(&group),_dimension(1),_owns_processor_group(false)
+  BlockTopology::BlockTopology(const ProcessorGroup& group, int nb_elem):_dimension(1),_proc_group(&group),_owns_processor_group(false)
   {
     int* nbelems_per_proc = new int[group.size()];
     const MPIProcessorGroup* mpi_group=dynamic_cast<const MPIProcessorGroup*>(_proc_group);
     const MPI_Comm* comm=mpi_group->getComm();
     int nbtemp=nb_elem;
-    mpi_group->getCommInterface().allGather(&nbtemp, 1, MPI_INTEGER, 
-                                            nbelems_per_proc, 1, MPI_INTEGER, 
+    mpi_group->getCommInterface().allGather(&nbtemp, 1, MPI_INT, 
+                                            nbelems_per_proc, 1, MPI_INT, 
                                             *comm);
     _nb_elems=0;  
   
@@ -279,7 +280,7 @@ namespace ParaMEDMEM
         buffer.push_back(_nb_procs_per_dim[i]);
         buffer.push_back(_cycle_type[i]);
         buffer.push_back(_local_array_indices[i].size());
-        for (int j=0; j<_local_array_indices[i].size(); j++)
+        for (int j=0; j<(int)_local_array_indices[i].size(); j++)
           buffer.push_back(_local_array_indices[i][j]);
       }
   
@@ -320,7 +321,7 @@ namespace ParaMEDMEM
         _nb_procs_per_dim[i]=*(ptr_serializer++);
         _cycle_type[i]=(CYCLE_TYPE)*(ptr_serializer++);
         _local_array_indices[i].resize(*(ptr_serializer++));
-        for (int j=0; j<_local_array_indices[i].size(); j++)
+        for (int j=0; j<(int)_local_array_indices[i].size(); j++)
           _local_array_indices[i][j]=*(ptr_serializer++);
       }
     set<int> procs;

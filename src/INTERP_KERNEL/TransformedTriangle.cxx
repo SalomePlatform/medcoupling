@@ -1,24 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "TransformedTriangle.hxx"
 #include "VectorUtils.hxx"
-
+#include "TetraAffineTransform.hxx"
 #include <iostream>
 #include <fstream>
 #include <cassert>
@@ -126,6 +127,8 @@ namespace INTERP_KERNEL
     _coords[5*Q + 4] = 1 - q[0] - q[1];
     _coords[5*R + 4] = 1 - r[0] - r[1];
 
+    resetNearZeroCoordinates();
+
     // initialise rest of data
     preCalculateDoubleProducts();
 
@@ -139,7 +142,7 @@ namespace INTERP_KERNEL
    * Destructor
    *
    * Deallocates the memory used to store the points of the polygons.
-   * This memory is allocated in calculateIntersectionPolygons().
+   * This memory is allocated in calculateIntersectionAndProjectionPolygons().
    */
   TransformedTriangle::~TransformedTriangle()
   {
@@ -194,7 +197,7 @@ namespace INTERP_KERNEL
     //sign = sign > 0.0 ? 1.0 : -1.0;
 
     LOG(2, "-- Calculating intersection polygons ... ");
-    calculateIntersectionPolygons();
+    calculateIntersectionAndProjectionPolygons();
     
     double barycenter[3];
 
@@ -227,6 +230,40 @@ namespace INTERP_KERNEL
 
   } 
 
+  /**
+   * Calculates the volume of intersection between the triangle and the
+   * unit tetrahedron.
+   *
+   * @return   volume of intersection of this triangle with unit tetrahedron,
+   *            as described in Grandy
+   *
+   */
+  double TransformedTriangle::calculateIntersectionSurface(TetraAffineTransform* tat)
+  {
+    // check first that we are not below z - plane
+    if(isTriangleBelowTetraeder())
+      {
+        LOG(2, " --- Triangle is below tetraeder - V = 0.0");
+        return 0.0;
+      }
+
+    LOG(2, "-- Calculating intersection polygon ... ");
+    calculateIntersectionPolygon();
+
+    _volume = 0.;
+    if(_polygonA.size() > 2) {
+      double barycenter[3];
+      calculatePolygonBarycenter(A, barycenter);
+      sortIntersectionPolygon(A, barycenter);
+      const std::size_t nbPoints = _polygonA.size();
+      for(std::size_t i = 0 ; i < nbPoints ; ++i)
+        tat->reverseApply(_polygonA[i], _polygonA[i]);
+      _volume = calculateSurfacePolygon();
+    }
+
+    return _volume;
+  }
+
   // ----------------------------------------------------------------------------------
   // TransformedTriangle PRIVATE
   // ----------------------------------------------------------------------------------
@@ -239,7 +276,7 @@ namespace INTERP_KERNEL
    *       intersection polygon B.
    *
    */
-  void TransformedTriangle::calculateIntersectionPolygons()
+  void TransformedTriangle::calculateIntersectionAndProjectionPolygons()
   {
     assert(_polygonA.size() == 0);
     assert(_polygonB.size() == 0);
@@ -434,10 +471,142 @@ namespace INTERP_KERNEL
 
       }
 
+  /**
+   * Calculates the intersection polygon A, performing the intersection tests
+   * and storing the corresponding point in the vector _polygonA.
+   *
+   * @post _polygonA contains the intersection polygon A.
+   *
+   */
+  void TransformedTriangle::calculateIntersectionPolygon()
+  {
+    assert(_polygonA.size() == 0);
+    // avoid reallocations in push_back() by pre-allocating enough memory
+    // we should never have more than 20 points
+    _polygonA.reserve(20);
+    // -- surface intersections
+    // surface - edge
+    for(TetraEdge edge = OX ; edge <= ZX ; edge = TetraEdge(edge + 1))
+      {
+        if(testSurfaceEdgeIntersection(edge))
+          {
+            double* ptA = new double[3];
+            calcIntersectionPtSurfaceEdge(edge, ptA);
+            _polygonA.push_back(ptA);
+            LOG(3,"Surface-edge : " << vToStr(ptA) << " added to A ");
+          }
+      }
+
+    // -- segment intersections
+    for(TriSegment seg = PQ ; seg < NO_TRI_SEGMENT ; seg = TriSegment(seg + 1))
+      {
+
+        bool isZero[NO_DP];
+
+        // check beforehand which double-products are zero
+        for(DoubleProduct dp = C_YZ; dp < NO_DP; dp = DoubleProduct(dp + 1))
+          {
+            isZero[dp] = (calcStableC(seg, dp) == 0.0);
+          }
+
+        // segment - facet
+        for(TetraFacet facet = OYZ ; facet < NO_TET_FACET ; facet = TetraFacet(facet + 1))
+          {
+            // is this test worth it?
+            const bool doTest =
+              !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet]] &&
+              !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 1]] &&
+              !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 2]];
+
+            if(doTest && testSegmentFacetIntersection(seg, facet))
+              {
+                double* ptA = new double[3];
+                calcIntersectionPtSegmentFacet(seg, facet, ptA);
+                _polygonA.push_back(ptA);
+                LOG(3,"Segment-facet : " << vToStr(ptA) << " added to A");
+              }
+          }
+
+        // segment - edge
+        for(TetraEdge edge = OX ; edge <= ZX ; edge = TetraEdge(edge + 1))
+          {
+            const DoubleProduct edge_dp = DoubleProduct(edge);
+
+            if(isZero[edge_dp] && testSegmentEdgeIntersection(seg, edge))
+              {
+                double* ptA = new double[3];
+                calcIntersectionPtSegmentEdge(seg, edge, ptA);
+                _polygonA.push_back(ptA);
+                LOG(3,"Segment-edge : " << vToStr(ptA) << " added to A");
+              }
+          }
+
+        // segment - corner
+        for(TetraCorner corner = O ; corner < NO_TET_CORNER ; corner = TetraCorner(corner + 1))
+          {
+            const bool doTest =
+              isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner] )] &&
+              isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+1] )] &&
+              isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+2] )];
+
+            if(doTest && testSegmentCornerIntersection(seg, corner))
+              {
+                double* ptA = new double[3];
+                copyVector3(&COORDS_TET_CORNER[3 * corner], ptA);
+                _polygonA.push_back(ptA);
+                LOG(3,"Segment-corner : " << vToStr(ptA) << " added to A");
+              }
+          }
+
+      }
+
+        // inclusion tests
+        for(TriCorner corner = P ; corner < NO_TRI_CORNER ; corner = TriCorner(corner + 1))
+          {
+            // { XYZ - inclusion only possible if in Tetrahedron?
+            // tetrahedron
+            if(testCornerInTetrahedron(corner))
+              {
+                double* ptA = new double[3];
+                copyVector3(&_coords[5*corner], ptA);
+                _polygonA.push_back(ptA);
+                LOG(3,"Inclusion tetrahedron : " << vToStr(ptA) << " added to A");
+              }
+
+          }
+
+      }
+
+
+    /**
+     * Returns the surface of polygon A.
+     *
+     * @return the surface of polygon A.
+     */
+    double TransformedTriangle::calculateSurfacePolygon()
+    {
+      const std::size_t nbPoints = _polygonA.size();
+      double pdt[3];
+      double sum[3] = {0., 0., 0.};
+
+      for(std::size_t i = 0 ; i < nbPoints ; ++i)
+        {
+          const double *const ptCurr = _polygonA[i];  // pt "i"
+          const double *const ptNext = _polygonA[(i + 1) % nbPoints]; // pt "i+1" (pt nbPoints == pt 0)
+
+          cross(ptCurr, ptNext, pdt);
+          add(pdt, sum);
+        }
+
+      const double surface = norm(sum) * 0.5;
+      LOG(2,"Surface is " << surface);
+      return surface;
+    }
+
     /**
      * Calculates the barycenters of the given intersection polygon.
      *
-     * @pre  the intersection polygons have been calculated with calculateIntersectionPolygons()
+     * @pre  the intersection polygons have been calculated with calculateIntersectionAndProjectionPolygons()
      * 
      * @param poly        one of the two intersection polygons
      * @param barycenter  array of three doubles where barycenter is stored
@@ -451,7 +620,7 @@ namespace INTERP_KERNEL
       std::vector<double*>& polygon = (poly == A) ? _polygonA : _polygonB;
 
       // calculate barycenter
-      const int m = polygon.size();
+      const std::size_t m = polygon.size();
 
       for(int j = 0 ; j < 3 ; ++j)
         {
@@ -460,7 +629,7 @@ namespace INTERP_KERNEL
 
       if(m != 0)
         {
-          for(int i = 0 ; i < m ; ++i)
+          for(std::size_t i = 0 ; i < m ; ++i)
             {
               const double* pt = polygon[i];
               for(int j = 0 ; j < 3 ; ++j)
@@ -474,7 +643,7 @@ namespace INTERP_KERNEL
 
     /**
      * Sorts the given intersection polygon in circular order around its barycenter.
-     * @pre  the intersection polygons have been calculated with calculateIntersectionPolygons()
+     * @pre  the intersection polygons have been calculated with calculateIntersectionAndProjectionPolygons()
      * @post the vertices in _polygonA and _polygonB are sorted in circular order around their
      *       respective barycenters
      *
@@ -534,7 +703,7 @@ namespace INTERP_KERNEL
     /**
      * Calculates the volume between the given polygon and the z = 0 plane.
      *
-     * @pre  the intersection polygones have been calculated with calculateIntersectionPolygons(),
+     * @pre  the intersection polygones have been calculated with calculateIntersectionAndProjectionPolygons(),
      *       and they have been sorted in circular order with sortIntersectionPolygons(void)
      * 
      * @param poly        one of the two intersection polygons
@@ -550,9 +719,9 @@ namespace INTERP_KERNEL
       std::vector<double*>& polygon = (poly == A) ? _polygonA : _polygonB;
 
       double vol = 0.0;
-      const int m = polygon.size();
+      const std::size_t m = polygon.size();
 
-      for(int i = 0 ; i < m ; ++i)
+      for(std::size_t i = 0 ; i < m ; ++i)
         {
           const double* ptCurr = polygon[i];  // pt "i"
           const double* ptNext = polygon[(i + 1) % m]; // pt "i+1" (pt m == pt 0)
@@ -631,6 +800,10 @@ namespace INTERP_KERNEL
         };
 
       double sign = uv_xy[0] * uv_xy[3] - uv_xy[1] * uv_xy[2];
+      if(epsilonEqual(sign, 0.))
+        {
+          sign = 0.;
+        }
       return (sign < 0.) ? -1 : (sign > 0.) ? 1 : 0;
     }
 

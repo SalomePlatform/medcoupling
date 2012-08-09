@@ -1,23 +1,25 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "MPIAccessDEC.hxx"
+
+#include <cstring>
 
 using namespace std;
 
@@ -73,7 +75,6 @@ namespace ParaMEDMEM
     _data_messages->resize( _group_size ) ;
     _time_interpolator = NULL ;
     _map_of_send_buffers = new map< int , SendBuffStruct * > ;
-    cout << "MPIAccessDEC" << _my_rank << " Asynchronous " << _asynchronous << endl ;
   }
 
   MPIAccessDEC::~MPIAccessDEC()
@@ -102,10 +103,6 @@ namespace ParaMEDMEM
                                           double InterpPrecision, int nStepBefore,
                                           int nStepAfter )
   {
-    cout << "MPIAccessDEC::SetTimeInterpolator" << _my_rank << " Asynchronous "
-         << _asynchronous << " TimeInterpolationMethod " << aTimeInterp
-         << " InterpPrecision " << InterpPrecision << " nStepBefore " << nStepBefore
-         << " nStepAfter " << nStepAfter << endl ;
     if ( _time_interpolator )
       delete _time_interpolator ;
     switch ( aTimeInterp )
@@ -300,10 +297,6 @@ namespace ParaMEDMEM
               }
             else
               {
-                cout << "SendRecv" << _my_rank << " target " << target << " sendbuf "
-                     << &((double *) sendbuf)[sendoffset] << " sendcount " << sendcount
-                     << " recvbuf " << &((double *) recvbuf)[recvoffset] << " recvcount "
-                     << recvcount << endl ;
                 sts = _MPI_access->sendRecv( &((double *) sendbuf)[sendoffset] , sendcount ,
                                              sendtype , target , SendRequestId ,
                                              &((double *) recvbuf)[recvoffset] ,

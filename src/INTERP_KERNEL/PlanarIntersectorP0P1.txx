@@ -1,20 +1,21 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email :webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 #ifndef __PLANARINTERSECTORP0P1_TXX__
 #define __PLANARINTERSECTORP0P1_TXX__
 
@@ -26,9 +27,9 @@ namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix, class ConcreteP0P1Intersector>
   PlanarIntersectorP0P1<MyMeshType,MyMatrix,ConcreteP0P1Intersector>::PlanarIntersectorP0P1(const MyMeshType& meshT, const MyMeshType& meshS,
-                                                                                              double dimCaracteristic, double precision, double medianPlane,
-                                                                                              bool doRotate, int orientation, int printLevel):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,medianPlane,doRotate,orientation,printLevel)
+                                                                                            double dimCaracteristic, double precision, double md3DSurf, double medianPlane,
+                                                                                            bool doRotate, int orientation, int printLevel):
+    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,medianPlane,doRotate,orientation,printLevel)
   {
   }
 
@@ -78,14 +79,10 @@ namespace INTERP_KERNEL
                 std::vector<double> sourceCellCoordsTmp(sourceCellCoords);
                 if(SPACEDIM==3)
                   orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&sourceCellCoordsTmp[0],quadrangle,sourceCellCoords.size()/SPACEDIM,4);
-                NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(iS);
-                double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,sourceCellCoordsTmp,CellModel::getCellModel(tS).isQuadratic());
-                //filtering out zero surfaces and badly oriented surfaces
-                // _orientation = -1,0,1
-                // -1 : the intersection is taken into account if target and cells have different orientation
-                // 0 : the intersection is always taken into account
-                // 1 : the intersection is taken into account if target and cells have the same orientation
-                if (( surf > 0.0 && PlanarIntersector<MyMeshType,MyMatrix>::_orientation >=0 ) || ( surf < 0.0 && PlanarIntersector<MyMeshType,MyMatrix>::_orientation <=0 ))
+                NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(OTT<ConnType,numPol>::indFC(iS));
+                double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,sourceCellCoordsTmp,CellModel::GetCellModel(tS).isQuadratic());
+                surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
+                if(surf!=0.)
                   {
                     typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(iS));
                     if(iterRes==resRow.end())

@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __CELLMODEL_INTERP_KERNEL_HXX__
 #define __CELLMODEL_INTERP_KERNEL_HXX__
 
@@ -30,36 +31,55 @@ namespace INTERP_KERNEL
   /*!
    * This class descibes all static elements (different from polygons and polyhedron) 3D, 2D and 1D.
    */
-  class INTERPKERNEL_EXPORT CellModel
+  class CellModel
   {
   public:
-    static const unsigned MAX_NB_OF_SONS=6;
+    static const unsigned MAX_NB_OF_SONS=8;
     static const unsigned MAX_NB_OF_NODES_PER_ELEM=30;
   private:
     CellModel(NormalizedCellType type);
     static void buildUniqueInstance();
   public:
-    static const CellModel& getCellModel(NormalizedCellType type);
-    bool isDynamic() const { return _dyn; }
-    bool isQuadratic() const { return _quadratic; }
-    unsigned getDimension() const { return _dim; }
+    INTERPKERNEL_EXPORT static const CellModel& GetCellModel(NormalizedCellType type);
+    INTERPKERNEL_EXPORT const char *getRepr() const;
+    INTERPKERNEL_EXPORT bool isExtruded() const { return _is_extruded; }
+    INTERPKERNEL_EXPORT bool isDynamic() const { return _dyn; }
+    INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }
+    INTERPKERNEL_EXPORT unsigned getDimension() const { return _dim; }
+    INTERPKERNEL_EXPORT bool isCompatibleWith(NormalizedCellType type) const;
+    INTERPKERNEL_EXPORT bool isSimplex() const { return _is_simplex; }
     //! sonId is in C format.
-    const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
-    unsigned getNumberOfNodes() const { return _nb_of_pts; }
-    unsigned getNumberOfSons() const { return _nb_of_sons; }
-    unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
-    NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
-    void fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
+    INTERPKERNEL_EXPORT const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
+    INTERPKERNEL_EXPORT bool getOrientationStatus(unsigned lgth, const int *conn1, const int *conn2) const;
+    INTERPKERNEL_EXPORT unsigned getNumberOfNodes() const { return _nb_of_pts; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfSons() const { return _nb_of_sons; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfSons2(const int *conn, int lgth) const;
+    INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const;
+    INTERPKERNEL_EXPORT NormalizedCellType getExtrudedType() const { return _extruded_type; }
+    INTERPKERNEL_EXPORT NormalizedCellType getLinearType() const { return _linear_type; }
+    INTERPKERNEL_EXPORT NormalizedCellType getQuadraticType() const { return _quadratic_type; }
+    INTERPKERNEL_EXPORT NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
+    INTERPKERNEL_EXPORT NormalizedCellType getSonType2(unsigned sonId) const;
+    INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
+    INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
   private:
     bool _dyn;
     bool _quadratic;
+    bool _is_simplex;
+    bool _is_extruded;
     unsigned _dim;
     unsigned _nb_of_pts;
     unsigned _nb_of_sons;
+    NormalizedCellType _type;
+    NormalizedCellType _extruded_type;
+    NormalizedCellType _linear_type;
+    NormalizedCellType _quadratic_type;
     unsigned _sons_con[MAX_NB_OF_SONS][MAX_NB_OF_NODES_PER_ELEM];
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];
     NormalizedCellType _sons_type[MAX_NB_OF_SONS];
     static std::map<NormalizedCellType,CellModel> _map_of_unique_instance;
+    static const char *CELL_TYPES_REPR[];
   };
 }
 

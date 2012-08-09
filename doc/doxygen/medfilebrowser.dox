@@ -1,0 +1,22 @@
+
+/*!
+\page MEDFILEBROWSER_class MEDFILEBROWSER
+
+\section MED_general General Information
+
+This object is used to get information about the different
+meshes/fields that are contained in a file. 
+This enables the user to know about the file content without 
+loading med objects in memory.
+
+\section MEDFILEBROWSER_object_outline Outline
+The methods are described in the following sections :
+- \ref MEDFILEBROWSER_constructors
+- \ref MEDFILEBROWSER_query
+
+For an example using these methods, one may see the Python scripts in the
+directory \c $MED_ROOT_DIR/bin/salome/,\c med_test1.py, or C++
+example program in the directory \c $MED_SRC_DIR/src/MEDMEMBinTest,
+\c duplicateMED.cxx.
+
+*/

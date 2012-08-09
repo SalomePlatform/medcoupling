@@ -12,7 +12,7 @@ dimensions are wrong, results are impredictable.
 All the arrays passed as arguments in the set methods are duplicated in MESHING object.
 
 The creation of a mesh should respect the following sequence :
-- setting general information (name, description, dimensions, coordinate system, ...),
+- setting general information (name, description, coordinate system, ...),
 - setting the nodes (number and coordinates),
 - setting the connectivity (types, connectivity arrays,...),
 - group creations.

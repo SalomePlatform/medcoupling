@@ -90,14 +90,14 @@ C MED_SRC/src/ParaMEDMEM/Test/Makefile.in :
   instrumentation du code
 . Prise en compte de $(MED_WITH_KERNEL) avec :
   ifeq ($(MED_WITH_KERNEL),yes)
-    LDFLAGSFORBIN += $(LDFLAGS) -lm $(MED2_LIBS) $(HDF5_LIBS) $(MPI_LIBS) \
+    LDFLAGSFORBIN += $(LDFLAGS) -lm $(MED3_LIBS) $(HDF5_LIBS) $(MPI_LIBS) \
                    -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome -lmed_V2_1 -lparamed -lmedmem \
                    ${KERNEL_LDFLAGS} -lSALOMELocalTrace -lSALOMEBasics \
                    $(CPPUNIT_LIBS) \
                    -lParaMEDMEMTest 
   endif
   ifeq ($(MED_WITH_KERNEL),no)
-  LDFLAGSFORBIN += $(LDFLAGS) -lm $(MED2_LIBS) $(HDF5_LIBS) $(MPI_LIBS) \
+  LDFLAGSFORBIN += $(LDFLAGS) -lm $(MED3_LIBS) $(HDF5_LIBS) $(MPI_LIBS) \
                    -L$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/salome -lmed_V2_1 -lparamed -linterpkernel -lmedmem \
                    ${KERNEL_LDFLAGS} ${FVM_LIBS} ${CPPUNIT_LIBS} -L/data/tmpawa/vb144235/bft_install/lib -lbft\
                   -lParaMEDMEMTest
@@ -333,13 +333,13 @@ mpirun -np 5 -ssi rpi tcp C -v -x PATH=${PATH},LD_LIBRARY_PATH=${LD_LIBRARY_PATH
 gcov TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
 	                      ParaMEDMEMTest_MPIProcessorGroup.cxx \
 	                      ParaMEDMEMTest_BlockTopology.cxx \
-	                      ParaMEDMEMTest_IntersectionDEC.cxx \
+	                      ParaMEDMEMTest_InterpKernelDEC.cxx \
                         ../BlockTopology.cxx \
                         ../ComponentTopology.cxx \
                         ../DEC.cxx \
                         ../ElementLocator.cxx \
                         ../InterpolationMatrix.cxx \
-                        ../IntersectionDEC.cxx \
+                        ../InterpKernelDEC.cxx \
                         ../MPIProcessorGroup.cxx \
                         ../MxN_Mapping.cxx \
                         ../ParaFIELD.cxx \
@@ -354,13 +354,13 @@ gcov TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
 gcov -o ../ TestParaMEDMEM.cxx ParaMEDMEMTest.cxx \
 	                             ParaMEDMEMTest_MPIProcessorGroup.cxx \
 	                             ParaMEDMEMTest_BlockTopology.cxx \
-	                             ParaMEDMEMTest_IntersectionDEC.cxx \
+	                             ParaMEDMEMTest_InterpKernelDEC.cxx \
                                ../BlockTopology.cxx \
                                ../ComponentTopology.cxx \
                                ../DEC.cxx \
                                ../ElementLocator.cxx \
                                ../InterpolationMatrix.cxx \
-                               ../IntersectionDEC.cxx \
+                               ../InterpKernelDEC.cxx \
                                ../MPIProcessorGroup.cxx \
                                ../MxN_Mapping.cxx \
                                ../ParaFIELD.cxx \

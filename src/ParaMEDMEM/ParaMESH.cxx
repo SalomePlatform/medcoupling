@@ -1,27 +1,28 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "ParaMESH.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <fstream>
 #include <vector>
@@ -31,7 +32,7 @@ using namespace std;
 
 namespace ParaMEDMEM
 {
-  ParaMESH::ParaMESH( MEDCouplingUMesh *subdomain_mesh, MEDCouplingUMesh *subdomain_face,
+  ParaMESH::ParaMESH( MEDCouplingPointSet *subdomain_mesh, MEDCouplingPointSet *subdomain_face,
             DataArrayInt *CorrespElt_local2global, DataArrayInt *CorrespFace_local2global,
             DataArrayInt *CorrespNod_local2global, const ProcessorGroup& proc_group ):
     _cell_mesh(subdomain_mesh),
@@ -55,7 +56,7 @@ namespace ParaMEDMEM
       CorrespNod_local2global->incrRef();
   }
 
-  ParaMESH::ParaMESH( MEDCouplingUMesh *mesh, const ProcessorGroup& proc_group, const std::string& name):
+  ParaMESH::ParaMESH( MEDCouplingPointSet *mesh, const ProcessorGroup& proc_group, const std::string& name):
     _cell_mesh(mesh),
     _face_mesh(0),
     _my_domain_id(proc_group.myRank()),
@@ -78,6 +79,30 @@ namespace ParaMEDMEM
       }
   }
 
+  void ParaMESH::setNodeGlobal(DataArrayInt *nodeGlobal)
+  {
+    if(nodeGlobal!=_node_global)
+      {
+        if(_node_global)
+          _node_global->decrRef();
+        _node_global=nodeGlobal;
+        if(_node_global)
+          _node_global->incrRef();
+      }
+  }
+
+  void ParaMESH::setCellGlobal(DataArrayInt *cellGlobal)
+  {
+    if(cellGlobal!=_cell_global)
+      {
+        if(_cell_global)
+          _cell_global->decrRef();
+        _cell_global=cellGlobal;
+        if(_cell_global)
+          _cell_global->incrRef();
+      }
+  }
+
   ParaMESH::~ParaMESH()
   {
     if(_cell_mesh)
@@ -91,8 +116,6 @@ namespace ParaMEDMEM
       _cell_global->decrRef();
     if(_face_global)
       _face_global->decrRef();
-    if(_node_global)
-      _node_global->decrRef();
     delete _explicit_topology;
   }
 

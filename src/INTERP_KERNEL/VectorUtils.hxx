@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __VECTORUTILS_HXX__
 #define __VECTORUTILS_HXX__
 
@@ -25,17 +26,17 @@
 #include <cmath>
 #include <map>
 
-/// Precision used for tests of 3D part of INTERP_KERNEL
-#define VOL_PREC 1.0e-6
-
-/// Default relative tolerance in epsilonEqualRelative
-#define DEFAULT_REL_TOL 1.0e-6
-
-/// Default absolute tolerance in epsilonEqual and epsilonEqualRelative
-#define DEFAULT_ABS_TOL 5.0e-12
-
 namespace INTERP_KERNEL
 {
+  /// Precision used for tests of 3D part of INTERP_KERNEL
+  const double VOL_PREC = 1.0e-6;
+  
+  /// Default relative tolerance in epsilonEqualRelative
+  const double DEFAULT_REL_TOL = 1.0e-6;
+  
+  /// Default absolute tolerance in epsilonEqual and epsilonEqualRelative
+  const double DEFAULT_ABS_TOL = 5.0e-12;
+
   /**
    * @param a first point. Should point on a array of size at least equal to SPACEDIM.
    * @param b second point. Should point on a array of size at least equal to SPACEDIM.
@@ -77,6 +78,19 @@ namespace INTERP_KERNEL
     std::stringstream ss(std::ios::out);
     ss << "[" << pt[0] << ", " << pt[1] << ", " << pt[2] << "]";
     return ss.str();
+  }
+
+  /**
+   * Adds a double[3] - vector to another one.
+   *
+   * @param v     vector v
+   * @param res   vector in which to store the result res + v.
+   */
+  inline void add(const double* v, double* res)
+  {
+    res[0] += v[0];
+    res[1] += v[1];
+    res[2] += v[2];
   }
 
   /**

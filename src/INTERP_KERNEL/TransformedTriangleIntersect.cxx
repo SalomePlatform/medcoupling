@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "TransformedTriangle.hxx"
 #include <iostream>
 #include <fstream>
@@ -412,12 +413,7 @@ namespace INTERP_KERNEL
     // products 1 and 2 for each edge -> first condition in Grandy [30]
     // products 3 and 4 for each edge -> third condition
     // NB : some uncertainty whether these last are correct
-    static const DoubleProduct DP_FOR_HALFSTRIP_INTERSECTION[12] =
-      {
-        C_10, C_01, C_ZH, C_10, // XY
-        C_01, C_XY, C_XH, C_01, // YZ
-        C_XY, C_10, C_YH, C_XY  // ZX
-      };
+    // DP_FOR_HALFSTRIP_INTERSECTION
     
     // facets to use in second condition (S_m)
     static const TetraFacet FACET_FOR_HALFSTRIP_INTERSECTION[3] = 

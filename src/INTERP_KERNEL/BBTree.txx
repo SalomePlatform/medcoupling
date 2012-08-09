@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __BBTREE_TXX__
 #define __BBTREE_TXX__
@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <limits>
+#include <cmath>
 
 template <int dim, class ConnType = int>
 class BBTree
@@ -35,7 +36,7 @@ private:
   int _level;
   double _max_left;
   double _min_right;
-  double* _bb;
+  const double *_bb;
   typename std::vector<ConnType> _elems;
   bool _terminal;
   ConnType _nbelems;
@@ -63,7 +64,7 @@ public:
     \endcode
   */
 
-  BBTree(double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1E-12):
+  BBTree(const double* bbs, ConnType* elems, int level, ConnType nbelems, double epsilon=1E-12):
     _left(0), _right(0), _level(level), _bb(bbs), _terminal(false),_nbelems(nbelems),_epsilon(epsilon)
   {
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)
@@ -122,10 +123,17 @@ public:
 
 
       }
-    _max_left=max_left+_epsilon;
-    _min_right=min_right-_epsilon;
-    _left=new BBTree(bbs, &(new_elems_left[0]), level+1, new_elems_left.size(),_epsilon);
-    _right=new BBTree(bbs, &(new_elems_right[0]), level+1, new_elems_right.size(),_epsilon);
+    _max_left=max_left+std::abs(_epsilon);
+    _min_right=min_right-std::abs(_epsilon);
+    ConnType *tmp;
+    tmp=0;
+    if(!new_elems_left.empty())
+      tmp=&(new_elems_left[0]);
+    _left=new BBTree(bbs, tmp, level+1, (int)new_elems_left.size(),_epsilon);
+    tmp=0;
+    if(!new_elems_right.empty())
+      tmp=&(new_elems_right[0]);
+    _right=new BBTree(bbs, tmp, level+1, (int)new_elems_right.size(),_epsilon);
   
   }
 

@@ -1,34 +1,36 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "QuadraticPlanarInterpTest.hxx"
-#include "QuadraticPolygon.hxx"
-#include "ElementaryEdge.hxx"
-#include "EdgeArcCircle.hxx"
-#include "EdgeLin.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "InterpKernelGeo2DElementaryEdge.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
 
 #include <cmath>
 #include <sstream>
 #include <iostream>
 
-using namespace std;
 using namespace INTERP_KERNEL;
 
+namespace INTERP_TEST
+{
 
 void QuadraticPlanarInterpTest::checkInOutDetection()
 {
@@ -188,7 +190,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   QuadraticPolygon pol1; pol1.pushBack(e1_2); pol1.pushBack(e2_3); pol1.pushBack(e3_1);
   QuadraticPolygon pol2; pol2.pushBack(e4_5); pol2.pushBack(e5_6); pol2.pushBack(e6_4);
   QuadraticPolygon cpyPol1(pol1); int nbOfSplits=0;
-  cpyPol1.splitPolygonsEachOther(pol1,pol2,nbOfSplits);
+  cpyPol1.SplitPolygonsEachOther(pol1,pol2,nbOfSplits);
   CPPUNIT_ASSERT_EQUAL(5,pol1.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(5,pol2.recursiveSize());CPPUNIT_ASSERT_EQUAL(15,nbOfSplits);
   checkBasicsOfPolygons(pol1,pol2,true);
@@ -224,7 +226,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   QuadraticPolygon pol3; pol3.pushBack(e1_2); pol3.pushBack(e2_3); pol3.pushBack(e3_1);
   QuadraticPolygon pol4; pol4.pushBack(e5_4); pol4.pushBack(e4_7); pol4.pushBack(e7_6); pol4.pushBack(e6_5);
   QuadraticPolygon cpyPol3(pol3); nbOfSplits=0;
-  cpyPol3.splitPolygonsEachOther(pol3,pol4,nbOfSplits);
+  cpyPol3.SplitPolygonsEachOther(pol3,pol4,nbOfSplits);
   CPPUNIT_ASSERT_EQUAL(5,pol3.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(4,pol4.recursiveSize());CPPUNIT_ASSERT_EQUAL(16,nbOfSplits);
   checkBasicsOfPolygons(pol3,pol4,true);
@@ -257,7 +259,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   QuadraticPolygon pol5; pol5.pushBack(e1_2); pol5.pushBack(e2_3); pol5.pushBack(e3_1);
   QuadraticPolygon pol6; pol6.pushBack(e4_5); pol6.pushBack(e5_6); pol6.pushBack(e6_4);
   QuadraticPolygon cpyPol5(pol5); nbOfSplits=0;
-  cpyPol5.splitPolygonsEachOther(pol5,pol6,nbOfSplits);
+  cpyPol5.SplitPolygonsEachOther(pol5,pol6,nbOfSplits);
   CPPUNIT_ASSERT_EQUAL(4,pol5.recursiveSize());
   CPPUNIT_ASSERT_EQUAL(4,pol6.recursiveSize()); CPPUNIT_ASSERT_EQUAL(13,nbOfSplits);
   checkBasicsOfPolygons(pol5,pol6,false);
@@ -289,7 +291,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
   QuadraticPolygon pol7; pol7.pushBack(e1_2); pol7.pushBack(e2_3); pol7.pushBack(e3_1);
   QuadraticPolygon pol8; pol8.pushBack(e4_5); pol8.pushBack(e5_6); pol8.pushBack(e6_4);
   QuadraticPolygon cpyPol7(pol7); nbOfSplits=0;
-  cpyPol7.splitPolygonsEachOther(pol7,pol8,nbOfSplits);
+  cpyPol7.SplitPolygonsEachOther(pol7,pol8,nbOfSplits);
   tmp=dynamic_cast<ElementaryEdge *>(pol8[0]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e1_2);
   CPPUNIT_ASSERT(tmp->getLoc()==FULL_ON_1);
   tmp=dynamic_cast<ElementaryEdge *>(pol8[1]); CPPUNIT_ASSERT(tmp); CPPUNIT_ASSERT(tmp->getPtr()==e2_3);
@@ -319,4 +321,6 @@ void QuadraticPlanarInterpTest::checkBasicsOfPolygons(QuadraticPolygon& pol1, Qu
         CPPUNIT_ASSERT(it1.current()->getDirection());
       nIter1=it1.current()->getEndNode();
     }
+}
+
 }

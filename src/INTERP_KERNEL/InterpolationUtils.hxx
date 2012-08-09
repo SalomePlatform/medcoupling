@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __INTERPOLATIONUTILS_HXX__
 #define __INTERPOLATIONUTILS_HXX__
 
@@ -72,11 +73,11 @@ namespace INTERP_KERNEL
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
-  /*     fonction qui calcul le déterminant            */
+  /*     fonction qui calcul le determinant            */
   /*      de deux vecteur(cf doc CGAL).                */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
 
-  //fonction qui calcul le déterminant des vecteurs: P3P1 et P3P2
+  //fonction qui calcul le determinant des vecteurs: P3P1 et P3P2
   //(cf doc CGAL).
 
   inline double mon_determinant(const double* P_1,
@@ -153,9 +154,35 @@ namespace INTERP_KERNEL
     std::transform(tmp,tmp+SPACEDIM,quadOut+3*SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
   }
 
+  /*!
+   * This method builds a potentially non-convex polygon cell built with the first point of 'triIn' the barycenter of two edges starting or ending with
+   * the first point of 'triIn' and the barycenter of 'triIn'.
+   *
+   * @param triIn is a 6 doubles array in full interlace mode, that represents a triangle.
+   * @param quadOut is a 8 doubles array filled after the following call.
+   */
+  template<int SPACEDIM>
+  inline void fillDualCellOfPolyg(const double *polygIn, int nPtsPolygonIn, double *polygOut)
+  {
+    //1st point
+    std::copy(polygIn,polygIn+SPACEDIM,polygOut);
+    std::transform(polygIn,polygIn+SPACEDIM,polygIn+SPACEDIM,polygOut+SPACEDIM,std::plus<double>());
+    //2nd point
+    std::transform(polygOut+SPACEDIM,polygOut+2*SPACEDIM,polygOut+SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
+    double tmp[SPACEDIM];
+    //
+    for(int i=0;i<nPtsPolygonIn-2;i++)
+      {
+        std::transform(polygIn,polygIn+SPACEDIM,polygIn+(i+2)*SPACEDIM,tmp,std::plus<double>());
+        std::transform(tmp,tmp+SPACEDIM,polygOut+(2*i+3)*SPACEDIM,std::bind2nd(std::multiplies<double>(),0.5));
+        std::transform(polygIn+(i+1)*SPACEDIM,polygIn+(i+2)*SPACEDIM,tmp,tmp,std::plus<double>());
+        std::transform(tmp,tmp+SPACEDIM,polygOut+(2*i+2)*SPACEDIM,std::bind2nd(std::multiplies<double>(),1./3.));
+      }
+  }
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
-  /*     calcul les coordonnées du barycentre d'un polygone   */ 
-  /*     le vecteur en entrée est constitué des coordonnées   */
+  /*     calcul les coordonnees du barycentre d'un polygone   */ 
+  /*     le vecteur en entree est constitue des coordonnees   */
   /*     des sommets du polygone                              */                             
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
@@ -171,15 +198,188 @@ namespace INTERP_KERNEL
         x=x+V[2*i];
         y=y+V[2*i+1];
       }
-    double A=2*x/taille;
-    double B=2*y/taille;
+    double A=2*x/((double)taille);
+    double B=2*y/((double)taille);
     Bary.push_back(A);//taille vecteur=2*nb de points.
     Bary.push_back(B);
 
 
     return Bary;
   }
+  
+  /*!
+   * Given 6 coeffs of a Tria6 returns the corresponding value of a given pos
+   */
+  inline double computeTria6RefBase(const double *coeffs, const double *pos)
+  {
+    return coeffs[0]+coeffs[1]*pos[0]+coeffs[2]*pos[1]+coeffs[3]*pos[0]*pos[0]+coeffs[4]*pos[0]*pos[1]+coeffs[5]*pos[1]*pos[1];
+  }
+  
+  /*!
+   * Given xsi,eta in refCoo (length==2) return 6 coeffs in weightedPos.
+   */
+  inline void computeWeightedCoeffsInTria6FromRefBase(const double *refCoo, double *weightedPos)
+  {
+    weightedPos[0]=(1.-refCoo[0]-refCoo[1])*(1.-2*refCoo[0]-2.*refCoo[1]);
+    weightedPos[1]=refCoo[0]*(2.*refCoo[0]-1.);
+    weightedPos[2]=refCoo[1]*(2.*refCoo[1]-1.);
+    weightedPos[3]=4.*refCoo[0]*(1.-refCoo[0]-refCoo[1]);
+    weightedPos[4]=4.*refCoo[0]*refCoo[1];
+    weightedPos[5]=4.*refCoo[1]*(1.-refCoo[0]-refCoo[1]);
+  }
 
+  /*!
+   * Given 10 coeffs of a Tetra10 returns the corresponding value of a given pos
+   */
+  inline double computeTetra10RefBase(const double *coeffs, const double *pos)
+  {
+    return coeffs[0]+coeffs[1]*pos[0]+coeffs[2]*pos[1]+coeffs[3]*pos[2]+
+      coeffs[4]*pos[0]*pos[0]+coeffs[5]*pos[0]*pos[1]+coeffs[6]*pos[0]*pos[2]+
+      coeffs[7]*pos[1]*pos[1]+coeffs[8]*pos[1]*pos[2]+coeffs[9]*pos[2]*pos[2];
+  }
+
+  /*!
+   * Given xsi,eta,z in refCoo (length==3) return 10 coeffs in weightedPos.
+   */
+  inline void computeWeightedCoeffsInTetra10FromRefBase(const double *refCoo, double *weightedPos)
+  {
+    //http://www.cadfamily.com/download/CAE/ABAQUS/The%20Finite%20Element%20Method%20-%20A%20practical%20course%20abaqus.pdf page 217
+    //L1=1-refCoo[0]-refCoo[1]-refCoo[2]
+    //L2=refCoo[0] L3=refCoo[1] L4=refCoo[2]
+    weightedPos[0]=(-2.*(refCoo[0]+refCoo[1]+refCoo[2])+1)*(1-refCoo[0]-refCoo[1]-refCoo[2]);//(2*L1-1)*L1
+    weightedPos[1]=(2.*refCoo[0]-1.)*refCoo[0];//(2*L2-1)*L2
+    weightedPos[2]=(2.*refCoo[1]-1.)*refCoo[1];//(2*L3-1)*L3
+    weightedPos[3]=(2.*refCoo[2]-1.)*refCoo[2];//(2*L4-1)*L4
+    weightedPos[4]=4.*(1-refCoo[0]-refCoo[1]-refCoo[2])*refCoo[0];//4*L1*L2
+    weightedPos[5]=4.*refCoo[0]*refCoo[1];//4*L2*L3
+    weightedPos[6]=4.*(1-refCoo[0]-refCoo[1]-refCoo[2])*refCoo[1];//4*L1*L3
+    weightedPos[7]=4.*(1-refCoo[0]-refCoo[1]-refCoo[2])*refCoo[2];//4*L1*L4
+    weightedPos[8]=4.*refCoo[0]*refCoo[2];//4*L2*L4
+    weightedPos[9]=4.*refCoo[1]*refCoo[2];//4*L3*L4
+  }
+
+  /*!
+   * \brief Solve system equation in matrix form using Gaussian elimination algorithm
+   *  \param M - N x N+1 matrix
+   *  \param sol - vector of N solutions
+   *  \retval bool - true if succeeded
+   */
+  template<unsigned nbRow>
+  bool solveSystemOfEquations(double M[nbRow][nbRow+1], double* sol)
+  {
+    const int nbCol=nbRow+1;
+
+    // make upper triangular matrix (forward elimination)
+
+    int iR[nbRow];// = { 0, 1, 2 };
+    for ( int i = 0; i < (int) nbRow; ++i )
+      iR[i] = i;
+    for ( int i = 0; i < (int)(nbRow-1); ++i ) // nullify nbRow-1 rows
+      {
+        // swap rows to have max value of i-th column in i-th row
+        double max = std::fabs( M[ iR[i] ][i] );
+        for ( int r = i+1; r < (int)nbRow; ++r )
+          {
+            double m = std::fabs( M[ iR[r] ][i] );
+            if ( m > max )
+              {
+                max = m;
+                std::swap( iR[r], iR[i] );
+              }
+          }
+        if ( max < std::numeric_limits<double>::min() )
+          {
+            //sol[0]=1; sol[1]=sol[2]=sol[3]=0;
+            return false; // no solution
+          }
+        // make 0 below M[i][i] (actually we do not modify i-th column)
+        double* tUpRow = M[ iR[i] ];
+        for ( int r = i+1; r < (int)nbRow; ++r )
+          {
+            double* mRow = M[ iR[r] ];
+            double coef = mRow[ i ] / tUpRow[ i ];
+            for ( int c = i+1; c < nbCol; ++c )
+              mRow[ c ] -= tUpRow[ c ] * coef;
+          }
+      }
+    double* mRow = M[ iR[nbRow-1] ];
+    if ( std::fabs( mRow[ nbRow-1 ] ) < std::numeric_limits<double>::min() )
+      {
+        //sol[0]=1; sol[1]=sol[2]=sol[3]=0;
+        return false; // no solution
+      }
+    mRow[ nbRow ] /= mRow[ nbRow-1 ];
+
+    // calculate solution (back substitution)
+
+    sol[ nbRow-1 ] = mRow[ nbRow ];
+
+    for ( int i = nbRow-2; i+1; --i )
+      {
+        mRow = M[ iR[i] ];
+        sol[ i ] = mRow[ nbRow ];
+        for ( int j = nbRow-1; j > i; --j )
+          sol[ i ] -= sol[j]*mRow[ j ];
+        sol[ i ] /= mRow[ i ];
+      }
+
+    return true;
+  }
+
+  
+  /*!
+   * \brief Solve system equation in matrix form using Gaussian elimination algorithm
+   *  \param M - N x N+NB_OF_VARS matrix
+   *  \param sol - vector of N solutions
+   *  \retval bool - true if succeeded
+   */
+  template<unsigned SZ, unsigned NB_OF_RES>
+  bool solveSystemOfEquations2(const double *matrix, double *solutions, double eps)
+  {
+    unsigned k,j;
+    int nr,n,m,np;
+    double s,g;
+    int mb;
+    //
+    double B[SZ*(SZ+NB_OF_RES)];
+    std::copy(matrix,matrix+SZ*(SZ+NB_OF_RES),B);
+    //
+    nr=SZ+NB_OF_RES;
+    for(k=0;k<SZ;k++)
+      {
+        np=nr*k+k;
+        if(fabs(B[np])<eps)
+          {
+            n=k;
+            do
+              {
+                n++;
+                if(fabs(B[nr*k+n])>eps)
+                  {/* Rows permutation */
+                    for(m=0;m<nr;m++)
+                      std::swap(B[nr*k+m],B[nr*n+m]);
+                  }
+              }
+            while (n<(int)SZ);
+          }
+        s=B[np];//s is the Pivot
+        std::transform(B+k*nr,B+(k+1)*nr,B+k*nr,std::bind2nd(std::divides<double>(),s));
+        for(j=0;j<SZ;j++)
+          {
+            if(j!=k)
+              {
+                g=B[j*nr+k];
+                for(mb=k;mb<nr;mb++)
+                  B[j*nr+mb]-=B[k*nr+mb]*g;
+              }
+          }
+      }
+    for(j=0;j<NB_OF_RES;j++)
+      for(k=0;k<SZ;k++)
+        solutions[j*SZ+k]=B[nr*k+SZ+j];
+    //
+    return true;
+  }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /*     Calculate barycentric coordinates of a 2D point p */ 
@@ -187,12 +387,13 @@ namespace INTERP_KERNEL
   /*     triaCoords are in full interlace                  */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
 
+  template<int SPACEDIM>
   inline void barycentric_coords(const double* triaCoords, const double* p, double* bc)
   {
     // matrix 2x2
     double
-      T11 = triaCoords[0]-triaCoords[4], T12 = triaCoords[2]-triaCoords[4],
-      T21 = triaCoords[1]-triaCoords[5], T22 = triaCoords[3]-triaCoords[5];
+      T11 = triaCoords[0]-triaCoords[2*SPACEDIM], T12 = triaCoords[SPACEDIM]-triaCoords[2*SPACEDIM],
+      T21 = triaCoords[1]-triaCoords[2*SPACEDIM+1], T22 = triaCoords[SPACEDIM+1]-triaCoords[2*SPACEDIM+1];
     // matrix determinant
     double Tdet = T11*T22 - T12*T21;
     if ( fabs( Tdet ) < std::numeric_limits<double>::min() ) {
@@ -202,103 +403,133 @@ namespace INTERP_KERNEL
     // matrix inverse
     double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
     // vector
-    double r11 = p[0]-triaCoords[4], r12 = p[1]-triaCoords[5];
+    double r11 = p[0]-triaCoords[2*SPACEDIM], r12 = p[1]-triaCoords[2*SPACEDIM+1];
     // barycentric coordinates: mutiply matrix by vector
     bc[0] = (t11 * r11 + t12 * r12)/Tdet;
     bc[1] = (t21 * r11 + t22 * r12)/Tdet;
     bc[2] = 1. - bc[0] - bc[1];
   }
 
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
-  /*     Calculate barycentric coordinates of a point p    */ 
-  /*     with respect to triangle or tetra verices.        */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
-
-  inline void barycentric_coords(const std::vector<const double*>& n, const double* p, double* bc)
+  /*!
+   * Calculate barycentric coordinates of a point p with respect to triangle or tetra verices.
+   * This method makes 2 assumptions :
+   *    - this is a simplex
+   *    - spacedim == meshdim. For TRI3 and TRI6 spaceDim is expected to be equal to 2 and for TETRA4 spaceDim is expected to be equal to 3.
+   *      If not the case (3D surf for example) a previous projection should be done before.
+   */
+  inline void barycentric_coords(const std::vector<const double*>& n, const double *p, double *bc)
   {
     enum { _X, _Y, _Z };
-    if ( n.size() == 3 ) // TRIA3
+    switch(n.size())
       {
-        // matrix 2x2
-        double
-          T11 = n[0][_X]-n[2][_X], T12 = n[1][_X]-n[2][_X],
-          T21 = n[0][_Y]-n[2][_Y], T22 = n[1][_Y]-n[2][_Y];
-        // matrix determinant
-        double Tdet = T11*T22 - T12*T21;
-        if ( std::fabs( Tdet ) < std::numeric_limits<double>::min() ) {
-          bc[0]=1; bc[1]=bc[2]=0; // no solution
-          return;
+      case 2:
+        {// SEG 2
+          double delta=n[0][0]-n[1][0];
+          bc[0]=fabs((*p-n[1][0])/delta);
+          bc[1]=fabs((*p-n[0][0])/delta);
+          break;
         }
-        // matrix inverse
-        double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
-        // vector
-        double r11 = p[_X]-n[2][_X], r12 = p[_Y]-n[2][_Y];
-        // barycentric coordinates: mutiply matrix by vector
-        bc[0] = (t11 * r11 + t12 * r12)/Tdet;
-        bc[1] = (t21 * r11 + t22 * r12)/Tdet;
-        bc[2] = 1. - bc[0] - bc[1];
-      }
-    else // TETRA4
-      {
-        bc[3]=0; // for no solution
-
-        // Find bc by solving system of 3 equations using Gaussian elimination algorithm
-        // bc1*( x1 - x4 ) + bc2*( x2 - x4 ) + bc3*( x3 - x4 ) = px - x4
-        // bc1*( y1 - y4 ) + bc2*( y2 - y4 ) + bc3*( y3 - y4 ) = px - y4
-        // bc1*( z1 - z4 ) + bc2*( z2 - z4 ) + bc3*( z3 - z4 ) = px - z4
-        const int nbCol=4, nbRow=3;
-
-        double T[nbRow][nbCol]=
-          {{ n[0][_X]-n[3][_X], n[1][_X]-n[3][_X], n[2][_X]-n[3][_X], p[_X]-n[3][_X] },
-           { n[0][_Y]-n[3][_Y], n[1][_Y]-n[3][_Y], n[2][_Y]-n[3][_Y], p[_Y]-n[3][_Y] },
-           { n[0][_Z]-n[3][_Z], n[1][_Z]-n[3][_Z], n[2][_Z]-n[3][_Z], p[_Z]-n[3][_Z] }};
-
-        // make upper triangular matrix (forward elimination)
-
-        int iR[nbRow] = { 0, 1, 2 };
-
-        for ( int i = 0; i < 2; ++i ) // nullify 2 rows
-          {
-            // swap rows to have max value of i-th column in i-th row
-            double max = std::fabs( T[ iR[i] ][i] );
-            for ( int r = i+1; r < nbRow; ++r ) {
-              double t = std::fabs( T[ iR[r] ][i] );
-              if ( t > max ) {
-                max = t;
-                std::swap( iR[r], iR[i] );
-              }
+      case 3:
+        { // TRIA3
+          // matrix 2x2
+          double
+            T11 = n[0][_X]-n[2][_X], T12 = n[1][_X]-n[2][_X],
+            T21 = n[0][_Y]-n[2][_Y], T22 = n[1][_Y]-n[2][_Y];
+          // matrix determinant
+          double Tdet = T11*T22 - T12*T21;
+          if ( std::fabs( Tdet ) < std::numeric_limits<double>::min() )
+            {
+              bc[0]=1; bc[1]=bc[2]=0; // no solution
+              return;
             }
-            if ( max < std::numeric_limits<double>::min() ) {
-              bc[0]=1; bc[1]=bc[2]=bc[3]=0;
-              return; // no solution
-            }
-            // make 0 below T[i][i] (actually we do not modify i-th column)
-            double* tUpRow = T[ iR[i] ];
-            for ( int r = i+1; r < nbRow; ++r ) {
-              double* tRow = T[ iR[r] ];
-              double coef = tRow[ i ] / tUpRow[ i ];
-              for ( int c = i+1; c < nbCol; ++c )
-                tRow[ c ] -= tUpRow[ c ] * coef;
-            }
-          }
-        double* tRow = T[ iR[2] ];
-        if ( std::fabs( tRow[ 2 ] ) < std::numeric_limits<double>::min() ) {
-          bc[0]=1; bc[1]=bc[2]=bc[3]=0;
-          return; // no solution
+          // matrix inverse
+          double t11 = T22, t12 = -T12, t21 = -T21, t22 = T11;
+          // vector
+          double r11 = p[_X]-n[2][_X], r12 = p[_Y]-n[2][_Y];
+          // barycentric coordinates: mutiply matrix by vector
+          bc[0] = (t11 * r11 + t12 * r12)/Tdet;
+          bc[1] = (t21 * r11 + t22 * r12)/Tdet;
+          bc[2] = 1. - bc[0] - bc[1];
+          break;
         }
-        tRow[ 3 ] /= tRow[ 2 ];
-
-        // calculate solution (back substitution)
-
-        bc[ 2 ] = tRow[ 3 ];
-
-        tRow = T[ iR[1] ];
-        bc[ 1 ] = (tRow[ 3 ] - bc[2]*tRow[ 2 ]) / tRow[ 1 ];
-
-        tRow = T[ iR[0] ];
-        bc[ 0 ] = (tRow[ 3 ] - bc[2]*tRow[ 2 ] - bc[1]*tRow[ 1 ]) / tRow[ 0 ];
-
-        bc[ 3 ] = 1. - bc[0] - bc[1] - bc[2];
+      case 4:
+        { // TETRA4
+          // Find bc by solving system of 3 equations using Gaussian elimination algorithm
+          // bc1*( x1 - x4 ) + bc2*( x2 - x4 ) + bc3*( x3 - x4 ) = px - x4
+          // bc1*( y1 - y4 ) + bc2*( y2 - y4 ) + bc3*( y3 - y4 ) = px - y4
+          // bc1*( z1 - z4 ) + bc2*( z2 - z4 ) + bc3*( z3 - z4 ) = px - z4
+          
+          double T[3][4]=
+            {{ n[0][_X]-n[3][_X], n[1][_X]-n[3][_X], n[2][_X]-n[3][_X], p[_X]-n[3][_X] },
+             { n[0][_Y]-n[3][_Y], n[1][_Y]-n[3][_Y], n[2][_Y]-n[3][_Y], p[_Y]-n[3][_Y] },
+             { n[0][_Z]-n[3][_Z], n[1][_Z]-n[3][_Z], n[2][_Z]-n[3][_Z], p[_Z]-n[3][_Z] }};
+          
+          if ( !solveSystemOfEquations<3>( T, bc ) )
+            bc[0]=1., bc[1] = bc[2] = bc[3] = 0;
+          else
+            bc[ 3 ] = 1. - bc[0] - bc[1] - bc[2];
+          break;
+        }
+      case 6:
+        {
+          // TRIA6
+          double matrix2[48]={1., 0., 0., 0., 0., 0., 0., 0.,
+                              1., 0., 0., 0., 0., 0., 1., 0., 
+                              1., 0., 0., 0., 0., 0., 0., 1.,
+                              1., 0., 0., 0., 0., 0., 0.5, 0.,
+                              1., 0., 0., 0., 0., 0., 0.5, 0.5,
+                              1., 0., 0., 0., 0., 0., 0.,0.5};
+          for(int i=0;i<6;i++)
+            {
+              matrix2[8*i+1]=n[i][0];
+              matrix2[8*i+2]=n[i][1];
+              matrix2[8*i+3]=n[i][0]*n[i][0];
+              matrix2[8*i+4]=n[i][0]*n[i][1];
+              matrix2[8*i+5]=n[i][1]*n[i][1];
+            }
+          double res[12];
+          solveSystemOfEquations2<6,2>(matrix2,res,std::numeric_limits<double>::min());
+          double refCoo[2];
+          refCoo[0]=computeTria6RefBase(res,p);
+          refCoo[1]=computeTria6RefBase(res+6,p);
+          computeWeightedCoeffsInTria6FromRefBase(refCoo,bc);
+          break;
+        }
+      case 10:
+        {//TETRA10
+          double matrix2[130]={1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0.,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0.5, 0.,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,0.5, 0.,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0., 0.5,
+                               1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.5, 0.5};
+          for(int i=0;i<10;i++)
+            {
+              matrix2[13*i+1]=n[i][0];
+              matrix2[13*i+2]=n[i][1];
+              matrix2[13*i+3]=n[i][2];
+              matrix2[13*i+4]=n[i][0]*n[i][0];
+              matrix2[13*i+5]=n[i][0]*n[i][1];
+              matrix2[13*i+6]=n[i][0]*n[i][2];
+              matrix2[13*i+7]=n[i][1]*n[i][1];
+              matrix2[13*i+8]=n[i][1]*n[i][2];
+              matrix2[13*i+9]=n[i][2]*n[i][2];
+            }
+          double res[30];
+          solveSystemOfEquations2<10,3>(matrix2,res,std::numeric_limits<double>::min());
+          double refCoo[3];
+          refCoo[0]=computeTetra10RefBase(res,p);
+          refCoo[1]=computeTetra10RefBase(res+10,p);
+          refCoo[2]=computeTetra10RefBase(res+20,p);
+          computeWeightedCoeffsInTetra10FromRefBase(refCoo,bc);
+          break;
+        }
+      default:
+        throw INTERP_KERNEL::Exception("INTERP_KERNEL::barycentric_coords : unrecognized simplex !");
       }
   }
 
@@ -342,7 +573,7 @@ namespace INTERP_KERNEL
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
-  /*fonction pour vérifier qu'un point n'a pas déja été considérer dans   */ 
+  /*fonction pour verifier qu'un point n'a pas deja ete considerer dans   */ 
   /*      le vecteur et le rajouter au vecteur sinon.                     */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
@@ -366,7 +597,7 @@ namespace INTERP_KERNEL
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
   /* fonction qui rajoute les sommet du triangle P dans le vecteur V        */ 
-  /* si ceux-ci sont compris dans le triangle S et ne sont pas déjà dans    */
+  /* si ceux-ci sont compris dans le triangle S et ne sont pas deja dans    */
   /* V.                                                                     */
   /*sommets de P: P_1, P_2, P_3                                             */
   /*sommets de S: P_4, P_5, P_6                                             */  
@@ -393,7 +624,7 @@ namespace INTERP_KERNEL
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _*/
   /*  calcul de l'intersection de deux segments: segments P1P2 avec P3P4      */
   /*  . Si l'intersection est non nulle et si celle-ci n'est                  */
-  /*  n'est pas déjà contenue dans Vect on la rajoute à Vect                  */
+  /*  n'est pas deja contenue dans Vect on la rajoute a Vect                  */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _*/ 
 
   inline void inters_de_segment(const double * P_1,const double * P_2,
@@ -401,7 +632,7 @@ namespace INTERP_KERNEL
                                 std::vector<double>& Vect, 
                                 double dim_caracteristic, double precision)
   {
-    // calcul du déterminant de P_1P_2 et P_3P_4.
+    // calcul du determinant de P_1P_2 et P_3P_4.
     double det=(P_2[0]-P_1[0])*(P_4[1]-P_3[1])-(P_4[0]-P_3[0])*(P_2[1]-P_1[1]);
 
     double absolute_precision = dim_caracteristic*precision;
@@ -431,7 +662,7 @@ namespace INTERP_KERNEL
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
   /*      calcul l'intersection de deux triangles            */
   /* P_1, P_2, P_3: sommets du premier triangle              */
-  /* P_4, P_5, P_6: sommets du deuxième triangle             */
+  /* P_4, P_5, P_6: sommets du deuxiï¿½me triangle             */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/ 
 
   inline void intersec_de_triangle(const double* P_1,const double* P_2, const double* P_3,
@@ -452,7 +683,7 @@ namespace INTERP_KERNEL
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
-  /* fonction pour vérifier qu'un n°de maille n'a pas déja été considérer  */
+  /* fonction pour verifier qu'un node maille n'a pas deja ete considerer  */
   /*  dans le vecteur et le rajouter au vecteur sinon.                     */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
 
@@ -494,14 +725,14 @@ namespace INTERP_KERNEL
 
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */  
-  /* fonction pour reconstituer un polygone convexe à partir  */
+  /* fonction pour reconstituer un polygone convexe a partir  */
   /*              d'un nuage de point.                        */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */  
 
   inline std::vector<double> reconstruct_polygon(const std::vector<double>& V)
   {
 
-    int taille=V.size();
+    std::size_t taille=V.size();
 
     //VB : why 6 ?
 
@@ -516,7 +747,7 @@ namespace INTERP_KERNEL
         COS[0]=1.0;
         SIN[0]=0.0;
         //angle[0]=0.0;
-        for(int i=0; i<taille/2-1;i++)
+        for(std::size_t i=0; i<taille/2-1;i++)
           {
             std::vector<double> Trigo=calcul_cos_et_sin(&Bary[0],&V[0],&V[2*(i+1)]);
             COS[i+1]=Trigo[0];
@@ -532,7 +763,7 @@ namespace INTERP_KERNEL
         Pt_ordonne.reserve(taille);
         //        std::multimap<double,int> Ordre;
         std::multimap<std::pair<double,double>,int, AngleLess> CosSin;
-        for(int i=0;i<taille/2;i++)       
+        for(std::size_t i=0;i<taille/2;i++)       
           {
             //  Ordre.insert(std::make_pair(angle[i],i));
             CosSin.insert(std::make_pair(std::make_pair(SIN[i],COS[i]),i));
@@ -586,7 +817,7 @@ namespace INTERP_KERNEL
   /* Computes the dot product of a and b */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   template<int dim> 
-  inline double dotprod( double * a, double * b)
+  inline double dotprod( const double * a, const double * b)
   {
     double result=0;
     for(int idim = 0; idim < dim ; idim++) result += a[idim]*b[idim];
@@ -596,7 +827,7 @@ namespace INTERP_KERNEL
   /* Computes the norm of vector v */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
   template<int dim> 
-  inline double norm( double * v)
+  inline double norm(const double * v)
   {   
     double result =0;
     for(int idim =0; idim<dim; idim++) result+=v[idim]*v[idim];
@@ -659,6 +890,11 @@ namespace INTERP_KERNEL
     V[0]=AB[1]*AC[2]-AB[2]*AC[1];
     V[1]=-AB[0]*AC[2]+AB[2]*AC[0];
     V[2]=AB[0]*AC[1]-AB[1]*AC[0];    
+  }
+  template<> inline
+  void crossprod<1>( const double * /*A*/, const double * /*B*/, const double * /*C*/, double * /*V*/)
+  {
+    // just to be able to compile
   }
   
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
@@ -726,8 +962,8 @@ namespace INTERP_KERNEL
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
   /*      calcul l'intersection de deux polygones COPLANAIRES */
-  /* en dimension DIM (2 ou 3). Si DIM=3 l'algorithme ne considère*/
-  /* que les deux premières coordonnées de chaque point */
+  /* en dimension DIM (2 ou 3). Si DIM=3 l'algorithme ne considere*/
+  /* que les deux premieres coordonnees de chaque point */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/ 
   template<int DIM> inline void intersec_de_polygone(const double * Coords_A, const double * Coords_B, 
                                                      int nb_NodesA, int nb_NodesB,

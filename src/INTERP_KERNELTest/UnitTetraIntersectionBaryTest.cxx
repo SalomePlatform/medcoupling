@@ -1,44 +1,50 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // File      : UnitTetraIntersectionBaryTest.cxx
 // Created   : Thu Dec 11 15:54:41 2008
 // Author    : Edward AGAPOV (eap)
+//
 #include "UnitTetraIntersectionBaryTest.hxx"
 
 #include "UnitTetraIntersectionBary.hxx"
 #include "TetraAffineTransform.hxx"
 #include "InterpolationUtils.hxx"
+#include "SplitterTetra.txx"
 
 #include <iostream>
 
 using namespace INTERP_KERNEL;
-using namespace std;
 
 namespace INTERP_TEST
 {
   void fill_UnitTetraIntersectionBary(UnitTetraIntersectionBary& bary, double nodes[][3])
   {
-    int faceConn[4][3] = { { 0, 2, 1 },
-                           { 0, 1, 3 },
-                           { 1, 2, 3 },
-                           { 3, 2, 0 } };
-    bary.init();
+    int faceConn[4][3] = { { 0, 1, 2 },// inverse order
+                           { 0, 3, 1 },
+                           { 1, 3, 2 },
+                           { 3, 0, 2 } };
+//     int faceConn[4][3] = { { 0, 2, 1 },
+//                            { 0, 1, 3 },
+//                            { 1, 2, 3 },
+//                            { 3, 2, 0 } };
+    bary.init(true);
     for ( int i = 0; i < 4; ++i ) {
       int* faceNodes = faceConn[ i ];
       TransformedTriangle tri(nodes[faceNodes[0]], nodes[faceNodes[1]], nodes[faceNodes[2]]);
@@ -244,6 +250,54 @@ namespace INTERP_TEST
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.230952, baryCenter[1], 1e-5);
     CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.260714, baryCenter[2], 1e-5);
   }
+  void UnitTetraIntersectionBaryTest::test_UnitTetraIntersectionBary_12()
+  {
+    // cutting tetra has one corner inside the UT and one its side passes through an UT edge
+    double nodes[4][3] = { { 0.25, 0.25, 0.25 }, // 0
+                           { 1.75,-0.25,-0.25 }, // OX
+                           { 0.5 , 0.25, 0.25 }, // OY
+                           { 0.5 , 0   , 0.5  } };//OZ
+    UnitTetraIntersectionBary bary;
+    fill_UnitTetraIntersectionBary(bary,nodes);
+    double baryCenter[3];
+    bool ok    = bary.getBary( baryCenter );
+    double vol = bary.getVolume();
+    CPPUNIT_ASSERT( ok );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.005208 , vol, 1e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.562500, baryCenter[0], 1e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.125000, baryCenter[1], 1e-5);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.250000, baryCenter[2], 1e-5);
+  }
+
+  struct __MESH_DUMMY
+  {
+    typedef int MyConnType;
+  };
+
+  void UnitTetraIntersectionBaryTest::test_UnitTetraIntersectionBary_13()
+  {
+    double T[] = {
+      66.6666666666666714,133.333333333333343,66.6666666666666714,
+      100,200,100,
+      100,100,100,
+      200,200,0 };
+    
+    double S[] = {
+      100,166.666666666666657,66.6666666666666714,
+      100,150,50,
+      75,150,75,
+      100,100,100};
+
+    int conn[4] = { 0,1,2,3 };
+    
+    const double* tnodes[4]={ T, T+3, T+6, T+9 };
+    const double* snodes[4]={ S, S+3, S+6, S+9 };
+    
+    __MESH_DUMMY dummyMesh;
+    SplitterTetra<__MESH_DUMMY> src( dummyMesh, snodes, conn );
+    double volume = src.intersectTetra( tnodes );
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(6944.4444444444443,volume,1e-9);
+  }
 
   void UnitTetraIntersectionBaryTest::test_TetraAffineTransform_reverseApply()
   {
@@ -270,7 +324,7 @@ namespace INTERP_TEST
                            {-4.0, 9.0, 3.0 },
                            { 0.0, 0.0, 0.0 }, 
                            { 6.0, 1.0,10.0 }};
-    vector<const double*> n (4);
+    std::vector<const double*> n (4);
     n[0] = &nodes[0][0];
     n[1] = &nodes[1][0];
     n[2] = &nodes[2][0];

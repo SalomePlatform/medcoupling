@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "BoundingBox.hxx"
 
 #include <iostream>
@@ -37,7 +38,6 @@ namespace INTERP_KERNEL
   BoundingBox::BoundingBox(const double** pts, const unsigned numPts)
     :_coords(new double[6])
   {
-    using namespace std;
     assert(numPts > 1);     
 
     // initialize with first two points
@@ -46,8 +46,8 @@ namespace INTERP_KERNEL
 
     for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
       {
-        _coords[c] = min(pt1[c], pt2[c]);
-        _coords[c + 3] = max(pt1[c], pt2[c]);
+        _coords[c] = std::min(pt1[c], pt2[c]);
+        _coords[c + 3] = std::max(pt1[c], pt2[c]);
       }
 
     for(unsigned i = 2 ; i < numPts ; ++i)
@@ -67,13 +67,12 @@ namespace INTERP_KERNEL
   BoundingBox::BoundingBox(const BoundingBox& box1, const BoundingBox& box2) 
     : _coords(new double[6])
   {
-    using namespace std;
     assert(_coords != 0);
 
     for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
       {
-        _coords[c] = min(box1._coords[c], box2._coords[c]);
-        _coords[c + 3] = max(box1._coords[c + 3], box2._coords[c + 3]);
+        _coords[c] = std::min(box1._coords[c], box2._coords[c]);
+        _coords[c + 3] = std::max(box1._coords[c + 3], box2._coords[c + 3]);
       }
     
     assert(isValid());
@@ -131,15 +130,13 @@ namespace INTERP_KERNEL
    */
   void BoundingBox::updateWithPoint(const double* pt)
   {
-    using namespace std;
-
     for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
       {
         const double ptVal = pt[c];
 
         // update min and max coordinates
-        _coords[c] = min(_coords[c], ptVal);
-        _coords[c + 3] = max(_coords[c + 3], ptVal);
+        _coords[c] = std::min(_coords[c], ptVal);
+        _coords[c + 3] = std::max(_coords[c + 3], ptVal);
 
       }
   }

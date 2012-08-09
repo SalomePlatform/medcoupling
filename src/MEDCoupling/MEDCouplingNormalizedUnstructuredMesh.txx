@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_TXX__
 #define __MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_TXX__
@@ -22,10 +22,12 @@
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 
 #include "MEDCouplingUMesh.hxx"
-#include "MemArray.hxx"
+#include "MEDCouplingMemArray.hxx"
+
+#include <limits>
 
 template<int SPACEDIM,int MESHDIM>
-MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(ParaMEDMEM::MEDCouplingUMesh *mesh):_mesh(mesh)
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(const ParaMEDMEM::MEDCouplingUMesh *mesh):_mesh(mesh)
 {
   if(_mesh)
     _mesh->incrRef();
@@ -40,8 +42,8 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getBoundingBox(dou
       boundingBox[i]=std::numeric_limits<double>::max();
       boundingBox[SPACEDIM+i]=-std::numeric_limits<double>::max();
     }
-  ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
-  const double *ptr=array->getPointer();
+  const ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
+  const double *ptr=array->getConstPointer();
   int nbOfPts=array->getNbOfElems()/SPACEDIM;
   for(int j=0;j<SPACEDIM;j++)
     {
@@ -89,8 +91,8 @@ const int *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getConnectiv
 template<int SPACEDIM,int MESHDIM>
 const double *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getCoordinatesPtr() const
 {
-  ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
-  return array->getPointer();
+  const ParaMEDMEM::DataArrayDouble *array=_mesh->getCoords();
+  return array->getConstPointer();
 }
 
 template<int SPACEDIM,int MESHDIM>
@@ -100,7 +102,7 @@ const int *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getConnectiv
 }
 
 template<int SPACEDIM,int MESHDIM>
-void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::ReleaseTempArrays()
+void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::releaseTempArrays()
 {
   delete [] _conn_for_interp;
   delete [] _conn_index_for_interp;
@@ -113,7 +115,7 @@ MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::~MEDCouplingNormalizedU
 {
   if(_mesh)
     _mesh->decrRef();
-  ReleaseTempArrays();
+  releaseTempArrays();
 }
 
 template<int SPACEDIM,int MESHDIM>
@@ -124,8 +126,8 @@ void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
   _conn_for_interp=new int[initialConnSize-nbOfCell];
   _conn_index_for_interp=new int[nbOfCell+1];
   _conn_index_for_interp[0]=0;
-  const int *work_conn=_mesh->getNodalConnectivity()->getPointer()+1;
-  const int *work_conn_index=_mesh->getNodalConnectivityIndex()->getPointer();
+  const int *work_conn=_mesh->getNodalConnectivity()->getConstPointer()+1;
+  const int *work_conn_index=_mesh->getNodalConnectivityIndex()->getConstPointer();
   int *work_conn_for_interp=_conn_for_interp;
   int *work_conn_index_for_interp=_conn_index_for_interp;
   for(int i=0;i<nbOfCell;i++)

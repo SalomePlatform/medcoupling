@@ -1,20 +1,21 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email :webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
 #ifndef __PLANARINTERSECTORP0P0_TXX__
 #define __PLANARINTERSECTORP0P0_TXX__
 
@@ -24,9 +25,9 @@ namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
   PlanarIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::PlanarIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS,
-                                                                                            double dimCaracteristic, double precision, double medianPlane,
+                                                                                            double dimCaracteristic, double precision, double md3DSurf, double medianPlane,
                                                                                             bool doRotate, int orientation, int printLevel):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,medianPlane,doRotate,orientation,printLevel)
+    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,medianPlane,doRotate,orientation,printLevel)
   {
   }
 
@@ -52,12 +53,8 @@ namespace INTERP_KERNEL
         int iS=*iter;
         int nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
         double surf=intersectGeometry(OTT<ConnType,numPol>::indFC(icellT),OTT<ConnType,numPol>::indFC(iS),nbNodesT,nbNodesS);
-        //filtering out zero surfaces and badly oriented surfaces
-        // _orientation = -1,0,1
-        // -1 : the intersection is taken into account if target and cells have different orientation
-        // 0 : the intersection is always taken into account
-        // 1 : the intersection is taken into account if target and cells have the same orientation
-        if (( surf > 0.0 && PlanarIntersector<MyMeshType,MyMatrix>::_orientation >=0 ) || ( surf < 0.0 && PlanarIntersector<MyMeshType,MyMatrix>::_orientation <=0 ))
+        surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
+        if(surf!=0.)
           resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(iS),surf));
       }
   }

@@ -13,10 +13,9 @@ The Med libraries are oganized in multiple layers:
 - CORBA API to simplify distributed computation inside SALOME (Server Side).
 - MED Client classes to simplify and optimize interaction of distant objects within the local solver.
 
-Thanks to Med Memory, any component can access a distant 
-mesh or field object. Two codes running on 
-different machines can thus exchange meshes and fields.
-These meshes and fields can easily be read/written in a Med file
+Thanks to Med Memory, any component can access a distant mesh or field
+object. Two codes running on different machines can thus exchange
+meshes and fields. These meshes and fields can easily be read/written in a Med file
 format, enabling access to the whole Salome suite of tools
 (CAD, meshing, Visualization, other components).
 
@@ -26,13 +25,14 @@ In this document, we describe the API of the Med Memory library (available in C+
 
 As will be seen in section \ref medmem_api, the API consists of very few classes:
 
-- a general MED container : \ref MED_class,
+- a MED-file browser : \ref MEDFILEBROWSER_class,
 - meshes : \ref mesh ,
 - structured meshes : \ref grid ,
 - supports and derived classes : \ref support ,
 - mesh generation tool : \ref meshing ,
 - fields : \ref field ,
-- drivers for reading and writing in MED, GIBI and VTK files.
+- \ref medmem_drivers "drivers for reading and writing" in MED, GIBI,
+VTK, EnSight and Porflow files.
 
 All these are detailed in the following sections. The C++ 
 formalism will be used for the description in these sections.
@@ -80,6 +80,17 @@ number and its order number.
 In %MED File a field is only flagged by its name. For instance,
 a temperature at times \a t=0.0 s, \a t=1.0 s, \a t=2.0 s will be considered as  a single field in Med File terminology, while it will be considered as three distinct fields in the Med Memory sense.
 
+\subsection medmem_drivers Drivers for reading and writing
+
+MEDMEM supports data exchange in following formats:
+- \b GIBI - reading and writing the mesh and the fields in ASCII format.
+- \b VTK - writing the mesh and the fields in ASCII and binary formats.
+- \b EnSight - reading and writing the mesh and the fields in EnSigth6 and EnSigth GOLD formats (ASCII and binary).
+- \b PORFLOW - reading the mesh in ASCII format.
+
+Limitation of length of names in GIBI format is overcome by storing names in the specific string pile of GIBI file.
+This pile is used to map actual long names of the data objects to their shortened representation.
+
 \section medmem_api Med Memory API
 
 \subsection medmem_conventions Conventions
@@ -111,9 +122,9 @@ programer.
 \subsection classes Classes
 At a basic usage level, the API consists in few classes which are located in
 the \c MEDMEM C++ namespace (consult figure \ref fig_UML_light which gives
-an UML diagram view of the main Med Memory classes)~:
+an UML diagram view of the main Med Memory classes):
 
-- \b MED the global container;
+- \b MEDFILEBROWSER the class provinding information on meshes and fields conatained in a MED file;
 - \b MESH the class containing 2D or 3D mesh objects;
 - \b SUPPORT the class containing mainly a list of mesh elements;
 - \b FIELD the class template containing list of values lying on a particular support.
@@ -126,7 +137,7 @@ an UML diagram view of the main Med Memory classes)~:
 The API of those classes is quite sufficient for most of the component
 integrations in the Salome platform. The use of the Med Memory libraries may
 make easier the code coupling in the Salome framework. With these classes, it
-is possible to~:
+is possible to:
 
 - read/write meshes and fields from MED-files;
 - create fields containing scalar or vectorial values on list of elements
@@ -135,15 +146,14 @@ of the mesh;
 - read/write such fields.
 
 Note that on the figure \ref fig_UML_light as well as on figure
-\ref fig_UML that the
-MED container controls the life cycle of all the objects it contains~: its destructor will destroy all the objects it aggregates. On the other hand, the life cycle of mesh, support and field objects are independent. Destroying a support (resp. a field) will have no effect on the mesh (resp. support) which refers to it. But the user has to maintain the link~: a mesh aggregates a support which aggregates a field. If the user has to delete Med Memory objects, the field has to be deleted first, then the support and finally the mesh.
+\ref fig_UML the life cycle of mesh and field objects are independent. Destroying a field will have no effect on the mesh. But the user has to maintain the link: a mesh aggregates a support which aggregates a field. If the user has to delete Med Memory objects, the field has to be deleted first, then the support and finally the mesh.
 
 A more advanced usage of the Med Memory is possible through other classes.
 Figure \ref fig_UML gives a complete view of the Med Memory API. It includes :
 
 - \b GROUP a class inherited from the SUPPORT class used to create supports linked to mesh groups. It stores restricted list of elements used to set boundary conditions, initial values.
-- \b FAMILY which is used to manipulate a certain kind of support which does not intersect each other;
-\ b MESHING which builds meshes from scratch, it can be used to transform meshes from a specific format to the MED format or to integrate a mesher within Salome platform (note that class does not add element or node to a mesh);
+- \b FAMILY which is used to manipulate a certain kind of support which does not intersect each other.
+- \b MESHING which builds meshes from scratch, it can be used to transform meshes from a specific format to the MED format or to integrate a mesher within Salome platform (note that class does not add element or node to a mesh).
 - \b GRID which enables the user to manipulate specific functions for structured grid.
 
 \anchor fig_UML
@@ -179,7 +189,7 @@ entities \c MED_CELL and  \c MED_FACE (resp. \c MED_EDGE) are
 considered. In 1D, of course only mesh entities \c MED_CELL+ are considered. Using our naming convention (consult \ref medmem_naming), in $1$ D mesh
 only \b node and \b cell are considered. In 2D mesh, only \b node,
 \b cell and \b edge are considered. Finally in 3D mesh only
-\b node}, \b cell and \b face are considered.
+\b node, \b cell and \b face are considered.
 
 - The \c medGeometryElement enum which defines geometric types. The
 available types are linear and quadratic elements (consult
@@ -216,18 +226,33 @@ http://hammi.extra.cea.fr/static/MED/web_med/logiciels/med-2.3.1/doc/ .
 
 
 The ParaMEDMEM library is based on several classes that 
-describe the coupling between two parallel codes.
+describe the coupling between two MPI-based parallel codes.
 
 The classes that make up the API of the library are :
 - communication interface : \ref comm_interface,
 - definition of processor groups : \ref processor_group,
-- Data Exchange Channel(aka DEC, abstract class) : \ref dec, and its implementations :
- -  \ref intersectiondec for a \ref InterpKerRemapGlobal based on intersecting elems volume computation,
- - NonCoincident DEC for a non-conservative interpolation based on element localization : \ref noncoincidentdec,
- - Explicit Coincident DEC for remapping coincident meshes on a one-to-one basis. This class applies to unstructured topologies: \ref explicit_coincident_dec,
- - Structured Coincident DEC for remapping coincident meshes on a one-to-one basis. This class applies to structured topologies : \ref structuredcoincidentdec.
+- Data Exchange Channel \ref dec, and its implementations :
+ - \ref interpkerneldec for a \ref InterpKerRemapGlobal based on intersecting elements volume computation,
+ - \ref overlapdec based on intersecting elems volume
+ computation when source and target meshes are on same process id
+
+Given two groups of processors groupA (source) and groupB (target), the following code excerpt gives a typical use of the InterpKernelDEC class.
+
+    \code
+    ...
+    InterpKernelDEC dec(groupA, groupB);//creates the data exchange channel
+    dec.attachLocalField(field);//associate the local field
+    dec.synchronize();//builds the interpolation matrix
+    if (groupA.containsMyRank())
+    dec.recvData();//receive the target field
+    else if (groupB.containsMyRank())
+    dec.sendData();//send the source field
+    ...
+    \endcode
+The generation of the \ref interpolationmatrix "interpolation matrix" and the corresponding matrix-vector products are performed either on the source, either on the target side. 
 
 */
+
 
 /*!
 \page medmem_install Configuring and Installing MEDMEM from sources
@@ -260,9 +285,8 @@ The following options can be useful to configure MEDMEM :
 - \a --enable-splitter=yes will trigger the compilation of the MEDSPLITTER tool,
 - \a --with-metis=${METISDIR} will specify a location for the METIS library,
 - \a --with-scotch=${SCOTCHDIR} will specify a location for the SCOTCH library,
-- \a --with-med2=${MED2DIR} specifies a location for MED-file library,
+- \a --with-med3=${MED3DIR} specifies a location for MED-file library,
 - \a --with-hdf5=${HDF5DIR} specifies a location for the HDF5 library (must be the same as that used for the MED-file library)
 - \a --with-lam=${LAMDIR} specifies an install path for a LAM MPI library,
 - \a --with-mpich=${MPICHDIR} specifies an install path for a MPICH-1 library.
 */
->>>>>>> 1.1.4.1.2.1

@@ -1,33 +1,37 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "QuadraticPlanarInterpTest.hxx"
-#include "QuadraticPolygon.hxx"
-#include "EdgeArcCircle.hxx"
-#include "ElementaryEdge.hxx"
-#include "ComposedEdge.hxx"
-#include "EdgeLin.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DElementaryEdge.hxx"
+#include "InterpKernelGeo2DComposedEdge.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
+#include "TestInterpKernelUtils.hxx"
 
 #include <sstream>
 #include <iostream>
 
-using namespace std;
 using namespace INTERP_KERNEL;
+
+namespace INTERP_TEST
+{
 
 static const double ADMISSIBLE_ERROR = 1.e-14;
 
@@ -46,7 +50,7 @@ void QuadraticPlanarInterpTest::cleanUp()
 void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
 {
   //Testing bounds calculation. For Seg2
-  istringstream stream("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4700");
+  std::istringstream stream("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4700");
   EdgeLin *e1=new EdgeLin(stream);
   Bounds bound=e1->getBounds();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,bound[0],ADMISSIBLE_ERROR);
@@ -54,7 +58,7 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.34,bound[2],ADMISSIBLE_ERROR);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.47,bound[3],ADMISSIBLE_ERROR);
   e1->decrRef();
-  istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4500 4700 3200 3400");
+  std::istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4500 4700 3200 3400");
   e1=new EdgeLin(stream2);
   bound=e1->getBounds();
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,bound[0],ADMISSIBLE_ERROR);
@@ -68,20 +72,13 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
 
 void QuadraticPlanarInterpTest::ReadWriteInXfigGlobal()
 {
-  string dataBaseDir(getenv("MED_ROOT_DIR"));
-  dataBaseDir+="/share/salome/resources/med/";
-  string tmp;
-  tmp=dataBaseDir; tmp+="Pol1.fig";
-  QuadraticPolygon pol1(tmp.c_str());
+  QuadraticPolygon pol1(INTERP_TEST::getResourceFile("Pol1.fig").c_str());
   pol1.dumpInXfigFile("Pol1_gen.fig");
-  tmp=dataBaseDir; tmp+="Pol2.fig";
-  QuadraticPolygon pol2(tmp.c_str());
+  QuadraticPolygon pol2(INTERP_TEST::getResourceFile("Pol2.fig").c_str());
   pol2.dumpInXfigFile("Pol2_gen.fig");
-  tmp=dataBaseDir; tmp+="Pol3.fig";
-  QuadraticPolygon pol3(tmp.c_str());
+  QuadraticPolygon pol3(INTERP_TEST::getResourceFile("Pol3.fig").c_str());
   pol3.dumpInXfigFile("Pol3_gen.fig");
-  tmp=dataBaseDir; tmp+="Pol4.fig";
-  QuadraticPolygon pol4(tmp.c_str());
+  QuadraticPolygon pol4(INTERP_TEST::getResourceFile("Pol4.fig").c_str());
   CPPUNIT_ASSERT_EQUAL(1,pol4.size());
   ElementaryEdge *edge1=dynamic_cast<ElementaryEdge *>(pol4[0]);
   CPPUNIT_ASSERT(edge1);
@@ -157,9 +154,9 @@ void QuadraticPlanarInterpTest::BasicGeometricTools()
 void QuadraticPlanarInterpTest::IntersectionBasics()
 {
   //Testing intersection of Bounds.
-  istringstream stream1("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
+  std::istringstream stream1("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
   EdgeLin *e1=new EdgeLin(stream1);
-  istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
+  std::istringstream stream2("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3200 3400 4500 4800");
   EdgeLin *e2=new EdgeLin(stream2);
   Bounds *bound=e1->getBounds().amIIntersectingWith(e2->getBounds()); CPPUNIT_ASSERT(bound);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.32,(*bound)[0],ADMISSIBLE_ERROR);
@@ -169,9 +166,9 @@ void QuadraticPlanarInterpTest::IntersectionBasics()
   delete bound;
   e2->decrRef(); e1->decrRef();
   //
-  istringstream stream3("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3000 7200 6000 3700");
+  std::istringstream stream3("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n3000 7200 6000 3700");
   EdgeLin *e3=new EdgeLin(stream3);
-  istringstream stream4("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4800 6600 7200 4200");
+  std::istringstream stream4("2 1 0 1 0 7 50 -1 -1 0.000 0 0 -1 0 0 2\n4800 6600 7200 4200");
   EdgeLin *e4=new EdgeLin(stream4);
   bound=e3->getBounds().amIIntersectingWith(e4->getBounds()); CPPUNIT_ASSERT(bound);
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.48,(*bound)[0],ADMISSIBLE_ERROR);
@@ -1020,4 +1017,6 @@ void QuadraticPlanarInterpTest::IntersectionPointOnlyUnitarySegSeg()
   v1.clear(); v2.clear(); v3.clear();
   ComposedEdge::Delete(&v2);
   ComposedEdge::Delete(&v1);
+}
+
 }

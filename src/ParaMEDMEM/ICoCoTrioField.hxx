@@ -1,46 +1,60 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __ICOCOTRIOFIELD_HXX__
-#define __ICOCOTRIOFIELD_HXX__
 
-#include "ICoCoField.hxx"
+// ICoCo file common to several codes
+// ICoCoTrioField.h
+// version 1.2 10/05/2010
 
-#include <string>
+#ifndef _ICoCoTrioField_included_
+#define _ICoCoTrioField_included_
 
-namespace ICoCo
-{
-  /*!
-    \brief structure for coupling Trio codes via the ICoCo interface
+#include <ICoCoField.hxx>
+namespace ICoCo {
 
-    This structure contains all the necessary information 
-    for constructing a ParaMEDMEM::ParaFIELD (with the addition of the MPI
-    communicator). The ICoCo API specifies two kinds of calls for
-    the ICoCo::Field : either with the mesh only or with the entire information (mesh and field).
-    This structure can therefore be left without _time, _nb_field_components, _field
-    information, which are related to the field values.
-  */
-  class TrioField : public Field
-  {
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // .DESCRIPTION 
+  //     class TrioField, used for coupling Trio codes via the ICoCo interface
+  //     This structure contains all the necessary information 
+  //     for constructing a ParaMEDMEM::ParaFIELD (with the addition of the MPI
+  //     communicator).
+  //     This structure can either own or not _field values (_has_field_ownership)
+  //     For _coords, _connectivity and _field, a null pointer means no data allocated.
+  //     _coords and _connectivity tables, when allocated, are always owned by the TrioField.
+  //
+  //////////////////////////////////////////////////////////////////////////////
+  class TrioField:public Field {
   public:
-    TrioField() { _connectivity=0; _coords=0; _field=0; _has_field_ownership=false; }
-    ~TrioField() { delete[] _connectivity; delete[] _coords; if (_has_field_ownership) delete[] _field; }
+    
+    TrioField();
+    TrioField(const TrioField& OtherField);
+    ~TrioField();
+    void clear();
+    void set_standalone();
+    void dummy_geom();
+    TrioField& operator=(const TrioField& NewField);
+    void save(std::ostream& os) const;
+    void restore(std::istream& in);
+    int nb_values() const ;
+
   public:
+    int _type ; // 0 elem 1 nodes
     int _mesh_dim;
     int _space_dim;
     int _nbnodes;
@@ -49,11 +63,12 @@ namespace ICoCo
     int _itnumber;
     int* _connectivity;
     double* _coords;
+    
     double _time1,_time2;
     int _nb_field_components;
     double* _field;
     bool _has_field_ownership;
-  };
+  }; 
 }
 
 #endif

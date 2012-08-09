@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "CommInterface.hxx"
@@ -88,6 +89,12 @@ namespace ParaMEDMEM
   MPIProcessorGroup::MPIProcessorGroup(const CommInterface& interface, set<int> proc_ids, const MPI_Comm& world_comm):
     ProcessorGroup(interface, proc_ids),_world_comm(world_comm)
   {
+    updateMPISpecificAttributes();
+  }
+
+
+  void MPIProcessorGroup::updateMPISpecificAttributes()
+  {
     //Creation of a communicator 
     MPI_Group group_world;
   
@@ -97,19 +104,20 @@ namespace ParaMEDMEM
     _comm_interface.commRank(_world_comm,&rank_world);
     _comm_interface.commGroup(_world_comm, &group_world);
 
-    int* ranks=new int[proc_ids.size()];
+    int* ranks=new int[_proc_ids.size()];
    
     // copying proc_ids in ranks
-    copy<set<int>::const_iterator,int*> (proc_ids.begin(), proc_ids.end(), ranks);
-    for (int i=0; i< proc_ids.size();i++)
+    copy<set<int>::const_iterator,int*> (_proc_ids.begin(), _proc_ids.end(), ranks);
+    for (int i=0; i< (int)_proc_ids.size();i++)
       if (ranks[i]>size_world-1)
         throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
       
-    _comm_interface.groupIncl(group_world, proc_ids.size(), ranks, &_group);
+    _comm_interface.groupIncl(group_world, _proc_ids.size(), ranks, &_group);
   
     _comm_interface.commCreate(_world_comm, _group, &_comm);
     delete[] ranks;
   }
+
   /*! Creates a processor group that is based on the processors between \a pstart and \a pend.
     This routine must be called by all processors in MPI_COMM_WORLD.
 
@@ -118,7 +126,7 @@ namespace ParaMEDMEM
     \param pstart id in MPI_COMM_WORLD of the first processor in the group
     \param pend id in MPI_COMM_WORLD of the last processor in the group
   */
-  MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int pstart, int pend): ProcessorGroup(comm_interface,pstart,pend),_world_comm(MPI_COMM_WORLD)
+  MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int pstart, int pend, const MPI_Comm& world_comm): ProcessorGroup(comm_interface,pstart,pend),_world_comm(world_comm)
   {
     //Creation of a communicator 
     MPI_Group group_world;
@@ -153,6 +161,11 @@ namespace ParaMEDMEM
     cout << "MPIProcessorGroup (const ProcessorGroup& proc_group, set<int> proc_ids)" <<endl;
     cout << "Not implemented yet !"<<endl;
     exit(1);
+  }
+
+  MPIProcessorGroup::MPIProcessorGroup(const MPIProcessorGroup& other):ProcessorGroup(other),_world_comm(other._world_comm)
+  {
+    updateMPISpecificAttributes();
   }
 
   MPIProcessorGroup::~MPIProcessorGroup()
@@ -198,6 +211,11 @@ namespace ParaMEDMEM
     
   }
 
+  ProcessorGroup *MPIProcessorGroup::deepCpy() const
+  {
+    return new MPIProcessorGroup(*this);
+  }
+
   /*!Adding processors of group \a group to local group.
     \param group group that is to be fused with current group
     \return new group formed by the fusion of local group and \a group.
@@ -210,8 +228,16 @@ namespace ParaMEDMEM
       {
         procs.insert(*iter);
       }
-    return new MPIProcessorGroup(_comm_interface,procs);
+    return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
   }
+
+  int MPIProcessorGroup::myRank() const
+  { 
+    int rank;
+    MPI_Comm_rank(_comm,&rank);
+    return rank;
+  }
+  
   /*!
     @}
   */
@@ -221,7 +247,7 @@ namespace ParaMEDMEM
     for (set<int>::const_iterator iter=_proc_ids.begin(); iter!= _proc_ids.end(); iter++)
       procs.insert(*iter);
   
-    return new MPIProcessorGroup(_comm_interface, procs);
+    return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
 
   }
 }

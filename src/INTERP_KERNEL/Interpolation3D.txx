@@ -1,33 +1,40 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __INTERPOLATION3D_TXX__
 #define __INTERPOLATION3D_TXX__
 
 #include "Interpolation3D.hxx"
+#include "Interpolation.txx"
 #include "MeshElement.txx"
 #include "TransformedTriangle.hxx"
-#include "PolyhedronIntersector.txx"
+#include "PolyhedronIntersectorP0P0.txx"
+#include "PointLocator3DIntersectorP0P0.txx"
 #include "PolyhedronIntersectorP0P1.txx"
+#include "PointLocator3DIntersectorP0P1.txx"
 #include "PolyhedronIntersectorP1P0.txx"
+#include "PolyhedronIntersectorP1P0Bary.txx"
+#include "PointLocator3DIntersectorP1P0.txx"
+#include "PolyhedronIntersectorP1P1.txx"
+#include "PointLocator3DIntersectorP1P1.txx"
 #include "Log.hxx"
 /// If defined, use recursion to traverse the binary search tree, else use the BBTree class
-#define USE_RECURSIVE_BBOX_FILTER
+//#define USE_RECURSIVE_BBOX_FILTER
 
 #ifdef USE_RECURSIVE_BBOX_FILTER
 #include "MeshRegion.txx"
@@ -43,23 +50,6 @@
 namespace INTERP_KERNEL
 {
   /**
-   * \defgroup interpolation3D Interpolation3D
-   * \class Interpolation3D
-   * \brief Class used to calculate the volumes of intersection between the elements of two 3D meshes.
-   * 
-   */
-  /**
-   * Default constructor
-   * 
-   */
-  Interpolation3D::Interpolation3D()
-  {
-  }
-  Interpolation3D::Interpolation3D(const InterpolationOptions& io):Interpolation<Interpolation3D>(io)
-  {
-  }
-    
-  /**
    * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
    * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
    * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the 
@@ -74,7 +64,7 @@ namespace INTERP_KERNEL
    * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
    * 
-   
+
    * @param srcMesh     3-dimensional source mesh
    * @param targetMesh  3-dimesional target mesh, containing only tetraedra
    * @param result      matrix in which the result is stored 
@@ -92,30 +82,87 @@ namespace INTERP_KERNEL
 
     std::vector<MeshElement<ConnType>*> srcElems(numSrcElems);
     std::vector<MeshElement<ConnType>*> targetElems(numTargetElems);
-    
+
     std::map<MeshElement<ConnType>*, int> indices;
-    
+
     for(unsigned long i = 0 ; i < numSrcElems ; ++i)
       srcElems[i] = new MeshElement<ConnType>(i, srcMesh);       
-    
+
     for(unsigned long i = 0 ; i < numTargetElems ; ++i)
       targetElems[i] = new MeshElement<ConnType>(i, targetMesh);
 
     Intersector3D<MyMeshType,MatrixType>* intersector=0;
-    std::string methC(method);
-    if(method=="P0P0")
-      intersector=new PolyhedronIntersector<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
-    else if(method=="P0P1")
-      intersector=new PolyhedronIntersectorP0P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
-    else if(method=="P1P0")
-      intersector=new PolyhedronIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+    std::string methC = InterpolationOptions::filterInterpolationMethod(method);
+    if(methC=="P0P0")
+      {
+        switch(InterpolationOptions::getIntersectionType())
+          {
+          case Triangulation:
+            intersector=new PolyhedronIntersectorP0P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+            break;
+          case PointLocator:
+            intersector=new PointLocator3DIntersectorP0P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P0P0 interp specified : must be Triangle or PointLocator.");
+          }
+      }
+    else if(methC=="P0P1")
+      {
+        switch(InterpolationOptions::getIntersectionType())
+          {
+          case Triangulation:
+            intersector=new PolyhedronIntersectorP0P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+            break;
+          case PointLocator:
+            intersector=new PointLocator3DIntersectorP0P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P0P1 interp specified : must be Triangle or PointLocator.");
+          }
+      }
+    else if(methC=="P1P0")
+      {
+        switch(InterpolationOptions::getIntersectionType())
+          {
+          case Triangulation:
+            intersector=new PolyhedronIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+            break;
+          case PointLocator:
+            intersector=new PointLocator3DIntersectorP1P0<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P1P0 interp specified : must be Triangle or PointLocator.");
+          }
+      }
+    else if(methC=="P1P0Bary")
+      {
+        if(InterpolationOptions::getIntersectionType()==Triangulation)
+          intersector=new PolyhedronIntersectorP1P0Bary<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+        else
+          throw INTERP_KERNEL::Exception("Invalid 3D intersection type specified : must be Triangle.");
+      }
+    else if(methC=="P1P1")
+      {
+        switch(InterpolationOptions::getIntersectionType())
+          {
+          case Triangulation:
+            intersector=new PolyhedronIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getSplittingPolicy());
+            break;
+          case PointLocator:
+            intersector=new PointLocator3DIntersectorP1P1<MyMeshType,MatrixType>(targetMesh, srcMesh, getPrecision());
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P1P1 interp specified : must be Triangle or PointLocator.");
+          }
+      }
     else
-      throw Exception("Invalid method choosed must be in \"P0P0\", \"P0P1\".");
+      throw Exception("Invalid method choosed must be in \"P0P0\", \"P0P1\", \"P1P0\" or \"P1P1\".");
     // create empty maps for all source elements
     result.resize(intersector->getNumberOfRowsOfResMatrix());
 
 #ifdef USE_RECURSIVE_BBOX_FILTER
-    
+
     /*
      * Performs a depth-first search over srcMesh, using bounding boxes to recursively eliminate the elements of targetMesh
      * which cannot intersect smaller and smaller regions of srcMesh. At each level, each region is divided in two, forming
@@ -130,7 +177,7 @@ namespace INTERP_KERNEL
     // intersects that of the source region
 
     RegionNode<ConnType>* firstNode = new RegionNode<ConnType>();
-      
+
     MeshRegion<ConnType>& srcRegion = firstNode->getSrcRegion();
 
     for(unsigned long i = 0 ; i < numSrcElems ; ++i)
@@ -181,11 +228,11 @@ namespace INTERP_KERNEL
 
             RegionNode<ConnType>* leftNode = new RegionNode<ConnType>();
             RegionNode<ConnType>* rightNode = new RegionNode<ConnType>();
-             
+
             // split current source region
             //} decide on axis
             static BoundingBox::BoxCoord axis = BoundingBox::XMAX;
-             
+
             currNode->getTargetRegion().split(leftNode->getTargetRegion(), rightNode->getTargetRegion(), axis, targetMesh);
 
             LOG(5, "After split, left target region has " << leftNode->getTargetRegion().getNumberOfElements()
@@ -205,19 +252,19 @@ namespace INTERP_KERNEL
                 iter != currNode->getSrcRegion().getEndElements() ; ++iter)
               {
                 LOG(6, " --- New target node");
-                
+
                 if(!leftNode->getTargetRegion().isDisjointWithElementBoundingBox(**iter))
                   {
                     leftNode->getSrcRegion().addElement(*iter, srcMesh);
                     ++numLeftElements;
                   }
-                
+
                 if(!rightNode->getTargetRegion().isDisjointWithElementBoundingBox(**iter))
                   {
                     rightNode->getSrcRegion().addElement(*iter, srcMesh);
                     ++numRightElements;
                   }
-                
+
               }
 
             LOG(5, "Left src region has " << numLeftElements << " elements and right src region has " 
@@ -242,7 +289,7 @@ namespace INTERP_KERNEL
                 delete rightNode;
               }
           }
-             
+
         // all nodes are deleted here
         delete currNode;
 
@@ -250,11 +297,11 @@ namespace INTERP_KERNEL
       }
 
 #else // Use BBTree
-      
+
       // create BBTree structure
       // - get bounding boxes
-    double bboxes[6 * numSrcElems];
-    int srcElemIdx[numSrcElems];
+    double* bboxes = new double[6 * numSrcElems];
+    int* srcElemIdx = new int[numSrcElems];
     for(unsigned long i = 0; i < numSrcElems ; ++i)
       {
         // get source bboxes in right order
@@ -269,9 +316,9 @@ namespace INTERP_KERNEL
         // source indices have to begin with zero for BBox, I think
         srcElemIdx[i] = srcElems[i]->getIndex();
       }
-    
+
     BBTree<3,ConnType> tree(bboxes, srcElemIdx, 0, numSrcElems);
-    
+
     // for each target element, get source elements with which to calculate intersection
     // - calculate intersection by calling intersectCells
     for(unsigned long i = 0; i < numTargetElems; ++i)
@@ -292,9 +339,13 @@ namespace INTERP_KERNEL
 
         tree.getIntersectingElems(targetBox, intersectElems);
 
-        intersector->intersectCells(targetIdx,intersectElems,result);
+        if ( !intersectElems.empty() )
+          intersector->intersectCells(targetIdx,intersectElems,result);
       }
-    
+
+    delete [] bboxes;
+    delete [] srcElemIdx;
+
 #endif
     // free allocated memory
     int ret=intersector->getNumberOfColsOfResMatrix();
@@ -312,7 +363,6 @@ namespace INTERP_KERNEL
     return ret;
 
   }
-
 }
 
 #endif

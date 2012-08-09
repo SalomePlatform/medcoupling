@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #ifndef __INTERPKERNELMATRIX_HXX_
 #define __INTERPKERNELMATRIX_HXX__
 
@@ -50,10 +51,10 @@ namespace INTERP_KERNEL
       int _val;
     };
 
-    class Row : public std::vector< typename std::pair<int,T> >
+    class Row : public std::vector< std::pair<int,T> >
     {
     public:
-      Row():std::vector< typename std::pair<int,T> >(){};
+      Row():std::vector< std::pair<int,T> >(){};
       Row (const Row& row)
       {
         this->resize(row.size());
@@ -69,12 +70,12 @@ namespace INTERP_KERNEL
       }
       typename std::vector< std::pair<int,T> >::const_iterator find(int elem) const
       {
-        return std::find_if(std::vector< typename std::pair<int,T> >::begin(),std::vector< typename std::pair<int,T> >::end(),KeyComparator(elem));
+        return std::find_if(std::vector< std::pair<int,T> >::begin(),std::vector< std::pair<int,T> >::end(),KeyComparator(elem));
       }
 
-      void erase(int elem) { std::vector< typename std::pair<int,T> >::erase(std::find_if(std::vector< typename std::pair<int,T> >::begin(),std::vector< typename std::pair<int,T> >::end(),KeyComparator(elem))); }
+      void erase(int elem) { std::vector< std::pair<int,T> >::erase(std::find_if(std::vector< std::pair<int,T> >::begin(),std::vector< std::pair<int,T> >::end(),KeyComparator(elem))); }
 
-      void insert(const std::pair<int,T>& myPair) { push_back(myPair); }
+      void insert(const std::pair<int,T>& myPair) { vector<std::pair<int,T> >::push_back(myPair); }
     };
     
   private:
@@ -97,14 +98,13 @@ namespace INTERP_KERNEL
       _coeffs(0), _cols(0), _is_configured(false)
     {
       _nb_rows=matrix.size();
+      _auxiliary_matrix.resize(_nb_rows);
       for (int i=0; i<_nb_rows; i++)
         {
-          _auxiliary_matrix[i].resize(matrix[i].size());
           typename std::map<int,T>::iterator it;
           for (it=matrix[i].begin(); it != matrix[i].end(); it++)
-            _auxiliary_matrix[i].push_back(*it);
-        }
-      
+            _auxiliary_matrix[i].push_back(*it);//MN: pq push_back plutot que simple affectation?
+        }      
     }
     /*!Copy constructor
      */
@@ -118,7 +118,7 @@ namespace INTERP_KERNEL
         {
           int size=_ncols_offset[_nb_rows];
           _coeffs = new double[size];
-          _cols = new uint[size];
+          _cols = new unsigned int[size];
           memcpy(_coeffs, m._coeffs, size*sizeof(double));
           memcpy(_cols, m._cols, size*sizeof(int));
         }
@@ -140,7 +140,7 @@ namespace INTERP_KERNEL
         {
           int size=_ncols_offset[_nb_rows];
           _coeffs = new double[size];
-          _cols = new uint[size];
+          _cols = new unsigned int[size];
           memcpy(_coeffs, m._coeffs, size*sizeof(double));
           memcpy(_cols, m._cols, size*sizeof(int));
         }
@@ -162,7 +162,7 @@ namespace INTERP_KERNEL
       if (_auxiliary_matrix.empty())
         _auxiliary_matrix.resize(_nb_rows);
       
-      for (uint i=0; i< _auxiliary_matrix[OTT<int,type>::ind2C(irow)].size(); i++)
+      for (unsigned int i=0; i< _auxiliary_matrix[OTT<int,type>::ind2C(irow)].size(); i++)
         if (_auxiliary_matrix[OTT<int,type>::ind2C(irow)][i].first == icol)
           {
             _auxiliary_matrix[OTT<int,type>::ind2C(irow)][i].second = value;
@@ -171,8 +171,7 @@ namespace INTERP_KERNEL
       _auxiliary_matrix[OTT<int,type>::ind2C(irow)].push_back(std::make_pair(icol, value));
     }
     
-    /*!
-      
+    /*!      
       Matrix multiplies vector \a input and stores the result in 
       vector \a output.
       The vector pointed by \a input must be dimensioned
@@ -186,14 +185,133 @@ namespace INTERP_KERNEL
       
       for (int i=0; i< _nb_rows; i++)
         {
-          output[i]=0;
-          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) {
-            int icol = _cols[j];
-            output[i]+=input[icol]*_coeffs[j];
-          }
+          output[i]=0.;
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              output[i]+=input[icol]*_coeffs[j];
+            }
         }
     }
-    
+
+    /*!      
+      Matrix multiplies vector \a input and stores the result in 
+      vector \a output.
+      input and output are supposed to represent the same field 
+      discretised on two different on meshes.
+      nb_comp is the number of components of the fields input and output
+      The vector pointed by \a input must be dimensioned
+      to the number of columns times nb_comp while the vector pointed by output must be
+      dimensioned to the number of rows times nb_comp.
+    */
+    void multiply(const T* const input, T* const output, int nb_comp)
+    {
+      if (!_is_configured)
+        configure();
+      
+      for (int i=0; i< _nb_rows; i++)
+        {
+          for(int comp = 0; comp < nb_comp; comp++)
+            output[i*nb_comp+comp]=0.;
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              for(int comp = 0; comp < nb_comp; comp++)
+                output[i*nb_comp+comp]+=input[icol*nb_comp+comp]*_coeffs[j];
+            }
+        }
+    }   
+    /*!      
+      Transpose-multiplies vector \a input and stores the result in 
+      vector \a output.
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      The vector pointed by \a input must be dimensioned
+      to the number of lines _nb_rows while the vector pointed by output must be
+      dimensioned to the number of columns nb_cols.
+    */
+    void transposeMultiply(const T* const input, T* const output, int nb_cols)
+    {
+      if (!_is_configured)
+        configure();
+      
+      for (int icol=0; icol< nb_cols; icol++)
+        output[icol]=0.;
+      for (int i=0; i< _nb_rows; i++)
+        {
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              output[icol]+=input[i]*_coeffs[j];
+            }
+        }
+    }
+    /*!      
+      Transpose-multiplies vector \a input and stores the result in 
+      vector \a output.
+      input and output are supposed to represent the same field 
+      discretised on two different on meshes.
+      nb_comp is the number of components of the fields input and output
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      The vector pointed by \a input must be dimensioned
+      to _nb_rows*nb_comp while the vector pointed by output must be
+      dimensioned to nb_cols*nb_comp.
+    */
+    void transposeMultiply(const T* const input, T* const output, int nb_cols, int nb_comp)
+    {
+      if (!_is_configured)
+        configure();
+      
+      for (int icol=0; icol< nb_cols; icol++)
+        for(int comp = 0; comp < nb_comp; comp++)
+          output[icol*nb_comp+comp]=0.;
+
+      for (int i=0; i< _nb_rows; i++)
+        {
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              for(int comp = 0; comp < nb_comp; comp++)
+                output[icol*nb_comp+comp]+=input[i*nb_comp+comp]*_coeffs[j];
+            }
+        }
+    }
+    /*
+      Sums the coefficients of each column of the matrix
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      The vector output must be dimensioned to nb_cols
+    */
+    void colSum(std::vector< T >& output, int nb_cols)
+    {
+      if (!_is_configured)
+        configure();
+      for (int icol=0; icol< nb_cols; icol++)
+        output[icol]=0.;
+      for (int i=0; i< _nb_rows; i++)
+        {
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
+            {
+              int icol = _cols[j];
+              output[icol]+=_coeffs[j];
+            }
+        }
+    }
+
+    /*
+      Sums the coefficients of each row of the matrix
+      The vector output must be dimensioned to _nb_rows
+    */
+    void rowSum(std::vector< T >& output)
+    {
+      if (!_is_configured)
+        configure();
+      for (int i=0; i< _nb_rows; i++)
+        {
+          output[i]=0;
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) 
+            output[i]+=_coeffs[j];
+        }
+    }
+
     /*! This operation freezes the profile of the matrix
       and puts it under a CSR form so that it becomes
       efficient both in terms of memory occupation and
@@ -229,6 +347,11 @@ namespace INTERP_KERNEL
     {
       return _auxiliary_matrix[irow];
     }
+
+    int getNbRows()
+    {
+      return _nb_rows;
+    }
     
   };
   
@@ -257,24 +380,24 @@ namespace INTERP_KERNEL
   {
     if (m._is_configured)
       {
-        out << OTT<uint,type>::indFC(0) <<std::endl;
+        out << OTT<unsigned int,type>::indFC(0) <<std::endl;
         out << m._nb_rows<<std::endl;
-        for (uint i=0; i<m._nb_rows; i++)
+        for (unsigned int i=0; i<m._nb_rows; i++)
           {
             out << m._ncols_offset[i+1]-m._ncols_offset[i];
-            for (uint j=m._ncols_offset[i]; j<m._ncols_offset[i+1]; j++)
-              out <<"\t"<< OTT<uint,type>::indFC(m._cols[j]) <<"\t"<<m._coeffs[j];
+            for (unsigned int j=m._ncols_offset[i]; j<m._ncols_offset[i+1]; j++)
+              out <<"\t"<< OTT<unsigned int,type>::indFC(m._cols[j]) <<"\t"<<m._coeffs[j];
             out<<std::endl;
           }
       }
     else
       {
-        out << OTT<uint,type>::indFC(0) <<"\n";
+        out << OTT<unsigned int,type>::indFC(0) <<"\n";
         out << m._nb_rows <<"\n";
-        for (uint i=0; i<m._nb_rows; i++)
+        for (unsigned int i=0; i<m._nb_rows; i++)
           {
             out<< m._auxiliary_matrix[i].size();
-            for (uint j=0; j<m._auxiliary_matrix[i].size(); j++)
+            for (unsigned int j=0; j<m._auxiliary_matrix[i].size(); j++)
               out << "\t" <<m._auxiliary_matrix[i][j].first <<"\t"
                   <<m._auxiliary_matrix[i][j].second;
             out <<"\n";
@@ -288,21 +411,21 @@ namespace INTERP_KERNEL
   {
     int index_base_test;
     in >> index_base_test;
-    if (index_base_test!=OTT<uint,type>::indFC(0))
+    if (index_base_test!=OTT<unsigned int,type>::indFC(0))
       {
         std::cerr << "file index is "<<index_base_test<<std::endl;
         throw Exception("incompatible indexing reading matrix");
       }
     in >> m._nb_rows;
     m._auxiliary_matrix.resize(m._nb_rows);
-    for (uint i=0; i<m._nb_rows; i++)
+    for (unsigned int i=0; i<m._nb_rows; i++)
       {
-        uint ncols;
+        unsigned int ncols;
         in >> ncols;
         m._auxiliary_matrix[i].resize(ncols);
         double value;
-        uint col;
-        for (uint j=0; j<ncols; j++)
+        unsigned int col;
+        for (unsigned int j=0; j<ncols; j++)
           {
             in>>col;
             in>>value;

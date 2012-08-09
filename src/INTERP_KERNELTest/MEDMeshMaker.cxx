@@ -1,28 +1,30 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
+#include "MEDMeshMaker.hxx"
+
 #include "MEDMEM_Mesh.hxx"
 #include "MEDMEM_Meshing.hxx"
 
 MEDMEM::MESH* MEDMeshMaker(int dim, int nbedge, MED_EN::medGeometryElement type)
 {
   MEDMEM::MESHING* mesh=new MEDMEM::MESHING();
-  mesh->setSpaceDimension(dim);
   int nbnodes;
   int nbelems;
   switch (dim)
@@ -93,8 +95,7 @@ MEDMEM::MESH* MEDMeshMaker(int dim, int nbedge, MED_EN::medGeometryElement type)
               conn [ielem*8+7]=ix*(nbedge+1)*(nbedge+1)+(iy+1)*(nbedge+1)+iz+1+1;
             }
     }
-  mesh->setConnectivity(conn, MED_EN::MED_CELL,type);
+  mesh->setConnectivity(MED_EN::MED_CELL,type,conn);
   delete [] conn;
-  mesh->setMeshDimension(dim);
   return mesh;
 }

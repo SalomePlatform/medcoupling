@@ -1,30 +1,25 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-if CPPUNIT_IS_OK
- SUBDIRS=. MEDLoader Test
-else
- SUBDIRS=. MEDLoader
-endif
-
-DIST_SUBDIRS= Test
+EXTRA_DIST += CMakeLists.txt
 
 lib_LTLIBRARIES= libparamedmem.la
 
@@ -40,12 +35,18 @@ ComponentTopology.hxx\
 ExplicitTopology.hxx\
 ParaFIELD.hxx\
 DEC.hxx\
+DisjointDEC.hxx\
+OverlapDEC.hxx\
+DECOptions.hxx\
 MxN_Mapping.hxx\
+OverlapMapping.hxx\
 StructuredCoincidentDEC.hxx\
 InterpolationMatrix.hxx\
-IntersectionDEC.hxx\
+OverlapInterpolationMatrix.hxx\
+InterpKernelDEC.hxx\
 ExplicitCoincidentDEC.hxx\
 ElementLocator.hxx\
+OverlapElementLocator.hxx\
 ExplicitMapping.hxx\
 ICoCoField.hxx \
 ICoCoMEDField.hxx \
@@ -62,17 +63,24 @@ ParaMESH.cxx\
 ComponentTopology.cxx\
 MPIAccess.cxx \
 InterpolationMatrix.cxx\
+OverlapInterpolationMatrix.cxx\
 StructuredCoincidentDEC.cxx\
 ExplicitCoincidentDEC.cxx\
-IntersectionDEC.cxx\
+InterpKernelDEC.cxx\
 ElementLocator.cxx\
+OverlapElementLocator.cxx\
 MPIAccessDEC.cxx \
 TimeInterpolator.cxx \
 LinearTimeInterpolator.cxx\
 DEC.cxx\
+DisjointDEC.cxx\
+OverlapDEC.cxx\
 ExplicitTopology.cxx\
 MxN_Mapping.cxx\
+OverlapMapping.cxx\
 ICoCoMEDField.cxx\
+ICoCoField.cxx\
+ICoCoTrioField.cxx\
 ParaFIELD.cxx\
 ParaGRID.cxx\
 BlockTopology.cxx

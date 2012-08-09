@@ -1,63 +1,65 @@
-#  MED MEDMEM_SWIG : binding of C++ implementation and Python
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
-#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-# 
-#  This library is free software; you can redistribute it and/or 
-#  modify it under the terms of the GNU Lesser General Public 
-#  License as published by the Free Software Foundation; either 
-#  version 2.1 of the License. 
-# 
-#  This library is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#  Lesser General Public License for more details. 
-# 
-#  You should have received a copy of the GNU Lesser General Public 
-#  License along with this library; if not, write to the Free Software 
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-# 
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+#  MED MEDMEM_SWIG : binding of C++ implementation and Python
+#
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-lib_LTLIBRARIES = _libParaMEDMEM_Swig.la
+EXTRA_DIST += CMakeLists.txt
+
+salomepython_PYTHON = ParaMEDMEM.py
+salomepyexec_LTLIBRARIES = _ParaMEDMEM.la
 
 salomeinclude_HEADERS =  \
-	libParaMEDMEM_Swig.i
+	ParaMEDMEM.i
 
-SWIG_DEF = libParaMEDMEM_Swig.i
+SWIG_DEF = ParaMEDMEM.i ParaMEDMEM.typemap
 
-SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) $(MPI_INCLUDES) -I$(srcdir)/../MEDMEM_SWIG
+SWIG_FLAGS = @SWIG_FLAGS@ -I$(srcdir) $(MPI_INCLUDES)  -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling -I$(srcdir)/../MEDCoupling_Swig \
+	-I$(srcdir)/../MEDLoader/Swig -I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Bases -I$(srcdir)/../ParaMEDLoader        \
+	-I$(srcdir)/../MEDLoader
 
-dist__libParaMEDMEM_Swig_la_SOURCES   = libParaMEDMEM_Swig.i
-nodist__libParaMEDMEM_Swig_la_SOURCES = libParaMEDMEM_Swig_wrap.cxx
-libParaMEDMEM_Swig.py: libParaMEDMEM_Swig_wrap.cxx
+dist__ParaMEDMEM_la_SOURCES   = $(SWIG_DEF)
+nodist__ParaMEDMEM_la_SOURCES = ParaMEDMEM_wrap.cxx
+ParaMEDMEM.py : ParaMEDMEM_wrap.cxx
 
-libParaMEDMEM_Swig_wrap.cxx: $(SWIG_DEF)
+ParaMEDMEM_wrap.cxx: $(SWIG_DEF)
 	$(SWIG) $(SWIG_FLAGS) -o $@  $<
 
-_libParaMEDMEM_Swig_la_CPPFLAGS = $(CORBA_CXXFLAGS) $(CORBA_INCLUDES) $(PYTHON_INCLUDES) \
-	$(MED2_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
-	-I$(srcdir)/../MEDMEM -I$(srcdir)/../MEDWrapper/V2_1/Core -I$(srcdir)/../INTERP_KERNEL \
-	$(MPI_INCLUDES) -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDMEM_SWIG -I$(srcdir)/../INTERP_KERNEL/Bases \
-	-I$(srcdir)/../MEDCoupling
+_ParaMEDMEM_la_CPPFLAGS = $(PYTHON_INCLUDES) \
+	$(MED3_INCLUDES) $(HDF5_INCLUDES) @CXXTMPDPTHFLAGS@ \
+	-I$(srcdir)/../INTERP_KERNEL \
+	$(MPI_INCLUDES) -I$(srcdir)/../ParaMEDMEM -I$(srcdir)/../MEDCoupling_Swig -I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(srcdir)/../MEDCoupling -I$(srcdir)/../ParaMEDLoader -I$(srcdir)/../MEDLoader -I$(srcdir)/../MEDLoader/Swig
 
-_libParaMEDMEM_Swig_la_LDFLAGS  = -module $(MED2_LIBS) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
-	../MEDMEM/libmedmem.la ../INTERP_KERNEL/libinterpkernel.la \
-	../ParaMEDMEM/libparamedmem.la 
+_ParaMEDMEM_la_LDFLAGS  = -module $(MED3_LIBS_C_ONLY) $(HDF5_LIBS) $(PYTHON_LIBS) $(MPI_LIBS) \
+	../MEDCoupling/libmedcoupling.la ../INTERP_KERNEL/libinterpkernel.la \
+	../ParaMEDMEM/libparamedmem.la ../ParaMEDLoader/libparamedloader.la
 
 if MED_ENABLE_KERNEL
-  _libParaMEDMEM_Swig_la_CPPFLAGS += ${KERNEL_CXXFLAGS}
-  _libParaMEDMEM_Swig_la_LDFLAGS  += ${KERNEL_LDFLAGS} -lSALOMELocalTrace
+  _ParaMEDMEM_la_CPPFLAGS += ${KERNEL_CXXFLAGS}
+  _ParaMEDMEM_la_LDFLAGS  += ${KERNEL_LDFLAGS} -lSALOMELocalTrace
 endif
 
-CLEANFILES = libParaMEDMEM_Swig_wrap.cxx libParaMEDMEM_Swig.py
+CLEANFILES = ParaMEDMEM_wrap.cxx ParaMEDMEM.py
 
-nodist_salomescript_DATA= libParaMEDMEM_Swig.py
-
-dist_salomescript_DATA= test_IntersectionDEC.py \
+dist_salomescript_DATA= test_InterpKernelDEC.py \
 			test_NonCoincidentDEC.py \
-			test_StructuredCoincodentDEC.py \
+			test_StructuredCoincidentDEC.py \
 			ParaMEDMEM.py

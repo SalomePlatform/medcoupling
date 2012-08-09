@@ -1,26 +1,28 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 #include "Interpolation3D.hxx"
 #include "Interpolation3D.txx"
 #include "MeshTestToolkit.txx"
 #include "Log.hxx"
 #include "VectorUtils.hxx"
+#include "TestInterpKernelUtils.hxx"
 
 #include "MEDMEM_Mesh.hxx"
 #include "MEDNormalizedUnstructuredMesh.hxx"
@@ -66,17 +68,14 @@ namespace INTERP_TEST
      */
     void calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) 
     {
-      const string dataBaseDir = getenv("MED_ROOT_DIR");
-      const string dataDir = dataBaseDir + "/share/salome/resources/med/";
-
       LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
       
       LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-      const MESH sMesh(MED_DRIVER, dataDir+mesh1path, mesh1);
+      const MESH sMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh1path), mesh1);
     
     
       LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-      const MESH tMesh(MED_DRIVER, dataDir+mesh2path, mesh2);
+      const MESH tMesh(MED_DRIVER, INTERP_TEST::getResourceFile(mesh2path), mesh2);
       
       MEDNormalizedUnstructuredMesh<3,3> sMesh_wrapper(&sMesh);
       MEDNormalizedUnstructuredMesh<3,3> tMesh_wrapper(&tMesh);
