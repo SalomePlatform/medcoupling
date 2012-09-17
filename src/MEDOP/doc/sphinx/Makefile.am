@@ -44,13 +44,15 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 ALLSPHINXOPTS   = -d doctrees $(PAPEROPT_a4) $(SPHINXOPTS) $(SOURCEDIR)
 SPHINX_PYTHONPATH = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(KERNEL_ROOT_DIR)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(KERNEL_ROOT_DIR)/bin/salome:$(OMNIORB_ROOT)/lib/python$(PYTHON_VERSION)/site-packages
 
+CONF_PATH = $(top_builddir)/src/MEDOP/doc/sphinx
+
 SPHINX_LD_LIBRARY_PATH = $(OMNIORB_ROOT)/lib
 
 htm:
 	mkdir -p html doctrees
 	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH}; \
 	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH}; \
-	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) html
+	$(SPHINXBUILD) -c $(CONF_PATH) -b html $(ALLSPHINXOPTS) html
 	@echo
 	@echo "Build finished. The HTML pages are in html."
 
@@ -58,7 +60,7 @@ latex:
 	mkdir -p latex doctrees
 	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH}; \
 	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH}; \
-	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) latex
+	$(SPHINXBUILD) -c $(CONF_PATH) -b latex $(ALLSPHINXOPTS) latex
 	@echo
 	@echo "Build finished; the LaTeX files are in latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
