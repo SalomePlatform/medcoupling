@@ -31,6 +31,10 @@ SET(SalomeIDLMED_IDLSOURCES
   Compo1Py.idl
   MEDCouplingCorbaServant.idl
   ParaMEDCouplingCorbaServant.idl
+  MEDDataManager.idl
+  MEDCalculator.idl
+  MEDEventListener.idl
+  MEDOPFactory.idl
   )
 
 IF(MPI_IS_OK)
