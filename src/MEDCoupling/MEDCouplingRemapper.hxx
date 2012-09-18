@@ -54,6 +54,10 @@ namespace ParaMEDMEM
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionInt(const std::string& key, int value);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionDouble(const std::string& key, double value);
     MEDCOUPLINGREMAPPER_EXPORT bool setOptionString(const std::string& key, const std::string& value);
+    //
+    MEDCOUPLINGREMAPPER_EXPORT int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLINGREMAPPER_EXPORT int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLINGREMAPPER_EXPORT double getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception);
   public:
     MEDCOUPLINGREMAPPER_EXPORT const std::vector<std::map<int,double> >& getCrudeMatrix() const;
     MEDCOUPLINGREMAPPER_EXPORT static void PrintMatrix(const std::vector<std::map<int,double> >& m);

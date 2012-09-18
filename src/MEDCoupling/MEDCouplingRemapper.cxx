@@ -705,3 +705,74 @@ const std::vector<std::map<int,double> >& MEDCouplingRemapper::getCrudeMatrix() 
 {
   return _matrix;
 }
+
+/*!
+ * This method is supposed to be called , if needed, right after MEDCouplingRemapper::prepare or MEDCouplingRemapper::prepareEx.
+ * If not the behaviour is unpredictable.
+ * This method works on precomputed \a this->_matrix. All coefficients in the matrix is lower than \a maxValAbs this coefficient is
+ * set to 0. That is to say that its entry disappear from the map storing the corresponding row in the data storage of sparse crude matrix.
+ * This method is useful to correct at a high level some problems linked to precision. Indeed, with some \ref NatureOfField "natures of field" some threshold effect
+ * can occur.
+ *
+ * \param [in] maxValAbs is a limit behind which a coefficient is set to 0. \a maxValAbs is expected to be positive, if not this method do nothing.
+ * \return a positive value that tells the number of coefficients put to 0. The 0 returned value means that the matrix has remained unchanged.
+ * \sa MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrix
+ */
+int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) throw(INTERP_KERNEL::Exception)
+{
+  int ret=0;
+  std::vector<std::map<int,double> > matrixNew(_matrix.size());
+  int i=0;
+  for(std::vector<std::map<int,double> >::const_iterator it1=_matrix.begin();it1!=_matrix.end();it1++,i++)
+    {
+      std::map<int,double>& rowNew=matrixNew[i];
+      for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+        {
+          if(fabs((*it2).second)>maxValAbs)
+            rowNew[(*it2).first]=(*it2).second;
+          else
+            ret++;
+        }
+    }
+  if(ret>0)
+    _matrix=matrixNew;
+  return ret;
+}
+
+/*!
+ * This method is supposed to be called , if needed, right after MEDCouplingRemapper::prepare or MEDCouplingRemapper::prepareEx.
+ * If not the behaviour is unpredictable.
+ * This method works on precomputed \a this->_matrix. All coefficients in the matrix is lower than delta multiplied by \a scaleFactor this coefficient is
+ * set to 0. That is to say that its entry disappear from the map storing the corresponding row in the data storage of sparse crude matrix.
+ * delta is the value returned by MEDCouplingRemapper::getMaxValueInCrudeMatrix method.
+ * This method is useful to correct at a high level some problems linked to precision. Indeed, with some \ref NatureOfField "natures of field" some threshold effect
+ * can occur.
+ *
+ * \param [in] scaleFactor is the scale factor from which coefficients lower than \a scaleFactor times range width of coefficients are set to zero.
+ * \return a positive value that tells the number of coefficients put to 0. The 0 returned value means that the matrix has remained unchanged. If -1 is returned it means
+ *         that all coefficients are null.
+ * \sa MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrixAbs
+ */
+int MEDCouplingRemapper::nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception)
+{
+  double maxVal=getMaxValueInCrudeMatrix();
+  if(maxVal==0.)
+    return -1;
+  return nullifiedTinyCoeffInCrudeMatrixAbs(scaleFactor*maxVal);
+}
+
+/*!
+ * This method is supposed to be called , if needed, right after MEDCouplingRemapper::prepare or MEDCouplingRemapper::prepareEx.
+ * If not the behaviour is unpredictable.
+ * This method returns the maximum of the absolute values of coefficients into the sparse crude matrix.
+ * The returned value is positive.
+ */
+double MEDCouplingRemapper::getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception)
+{
+  double ret=0.;
+  for(std::vector<std::map<int,double> >::const_iterator it1=_matrix.begin();it1!=_matrix.end();it1++)
+    for(std::map<int,double>::const_iterator it2=(*it1).begin();it2!=(*it1).end();it2++)
+      if(fabs((*it2).second)>ret)
+        ret=fabs((*it2).second);
+  return ret;
+}

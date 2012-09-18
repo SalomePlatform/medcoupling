@@ -59,6 +59,10 @@ namespace ParaMEDMEM
       bool setOptionInt(const std::string& key, int value);
       bool setOptionDouble(const std::string& key, double value);
       bool setOptionString(const std::string& key, const std::string& value);
+      //
+      int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs) throw(INTERP_KERNEL::Exception);
+      int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor) throw(INTERP_KERNEL::Exception);
+      double getMaxValueInCrudeMatrix() const throw(INTERP_KERNEL::Exception);
       %extend
          {
            PyObject *getCrudeMatrix() const
