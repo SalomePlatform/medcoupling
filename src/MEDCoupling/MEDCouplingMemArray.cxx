@@ -686,7 +686,7 @@ std::string DataArrayDouble::reprZip() const
 void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameInFile) const throw(INTERP_KERNEL::Exception)
 {
   std::string idt(indent,' ');
-  ofs.precision(15);
+  ofs.precision(17);
   ofs << idt << "<DataArray type=\"Float32\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
   ofs << " format=\"ascii\" RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\">\n" << idt;
   std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
@@ -708,14 +708,14 @@ void DataArrayDouble::reprZipStream(std::ostream& stream) const
 void DataArrayDouble::reprWithoutNameStream(std::ostream& stream) const
 {
   DataArray::reprWithoutNameStream(stream);
-  stream.precision(15);
+  stream.precision(17);
   _mem.repr(getNumberOfComponents(),stream);
 }
 
 void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
 {
   DataArray::reprWithoutNameStream(stream);
-  stream.precision(15);
+  stream.precision(17);
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
@@ -3299,7 +3299,7 @@ DataArrayDoubleTuple::DataArrayDoubleTuple(double *pt, int nbOfComp):_pt(pt),_nb
 
 std::string DataArrayDoubleTuple::repr() const
 {
-  std::ostringstream oss; oss.precision(15); oss << "(";
+  std::ostringstream oss; oss.precision(17); oss << "(";
   for(int i=0;i<_nb_of_compo-1;i++)
     oss << _pt[i] << ", ";
   oss << _pt[_nb_of_compo-1] << ")";
