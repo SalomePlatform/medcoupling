@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 #  MED MEDMEM_SWIG : binding of C++ implementation and Python
 #
