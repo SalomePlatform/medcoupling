@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #ifndef __INTERPOLATION2DCURVE_HXX__
 #define __INTERPOLATION2DCURVE_HXX__

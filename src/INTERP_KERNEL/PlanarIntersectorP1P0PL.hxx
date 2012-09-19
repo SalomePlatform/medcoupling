@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #ifndef __PLANARINTERSECTORP1P0PL_HXX__
 #define __PLANARINTERSECTORP1P0PL_HXX__
