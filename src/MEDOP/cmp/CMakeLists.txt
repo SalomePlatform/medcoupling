@@ -44,7 +44,7 @@ SET(COMMON_LIBS
   ${SalomeContainer}
   ${SalomeCommunication}
   ${SalomeKernelHelpers}
-  ${SalomeLifeCycleCORBA})
+  ${SalomeLifeCycleCORBA}
   ${SALOMELocalTrace}
   ${SALOMEBasics} 
   ${SalomeGenericObj}
