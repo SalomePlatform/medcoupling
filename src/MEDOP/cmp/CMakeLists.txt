@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,24 +21,48 @@ INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIRS}
   ${MED3_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
+  ${PTHREAD_INCLUDE_DIRS}
   ${KERNEL_ROOT_DIR}/include/salome
-  ${CMAKE_CURRENT_BINARY_DIR}/../../../idl
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDLoader
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDCoupling
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL/Bases
-  )
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/MEDCoupling
+  ${CMAKE_SOURCE_DIR}/src/INTERP_KERNEL/Bases
+  ${CMAKE_SOURCE_DIR}/src/INTERP_KERNEL
+  ${CMAKE_SOURCE_DIR}/src/MEDLoader
+)
 
 SET(MEDOPFactoryEngine_SOURCES
   MEDDataManager_i.cxx
   MEDCalculator_i.cxx
   MEDOPFactory_i.cxx
-  )
+)
+SET(COMMON_LIBS
+  medloader
+  SalomeIDLMED
+  ${TOOLSDS}
+  ${SalomeHDFPersist}
+  ${SalomeContainer}
+  ${SalomeCommunication}
+  ${SalomeKernelHelpers}
+  ${SalomeLifeCycleCORBA})
+  ${SALOMELocalTrace}
+  ${SALOMEBasics} 
+  ${SalomeGenericObj}
+  medcoupling
+  interpkernel
+  ${MED3_LIBS}
+  ${HDF5_LIBS}
+  ${OMNIORB_LIBS}
+  ${PLATFORM_LIBS}
+)
 
 ADD_LIBRARY(MEDOPFactoryEngine SHARED ${MEDOPFactoryEngine_SOURCES})
-SET_TARGET_PROPERTIES(MEDOPFactoryEngine PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(MEDOPFactoryEngine medloader SalomeIDLMED ${TOOLSDS} ${SalomeHDFPersist} ${SalomeContainer} ${SalomeCommunication} ${SalomeKernelHelpers} ${SalomeLifeCycleCORBA})
+SET_TARGET_PROPERTIES(MEDOPFactoryEngine PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${PLATFORM_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(MEDOPFactoryEngine SalomeIDLMED ${COMMON_LIBS})
+
 INSTALL(TARGETS MEDOPFactoryEngine DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB MEDOPFactoryEngine_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${MEDOPFactoryEngine_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+
+INSTALL(FILES test_medop_components.py PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${MED_salomebin_BINS}/xmed)

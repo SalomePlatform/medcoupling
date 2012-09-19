@@ -17,6 +17,8 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE(${SALOME_MACROS_DIR}/InstallAndCompilePythonFile.cmake)
+
 SET(PYFILES_TO_INSTALL
   __init__.py
   fieldproxy.py
@@ -32,10 +34,12 @@ SET(PYFILES_TO_INSTALL
   properties.py
   )
 
-INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomescript_PYTHON}/xmed)
+INSTALL_AND_COMPILE_PYTHON_FILE("${PYFILES_TO_INSTALL}" ${MED_salomepythondir}/xmed)
 
 SET(TEST_SCRIPTS_XMED
   tests/test_xmed_fieldOperations.py
   tests/test_xmed_uiEventListener.py
   tests/test_xmed_visualisation.py
   )
+
+INSTALL(FILES ${TEST_SCRIPTS_XMED} PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${MED_salomebin_BINS}/xmed)
