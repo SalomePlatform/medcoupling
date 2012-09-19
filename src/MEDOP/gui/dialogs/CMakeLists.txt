@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -31,8 +31,36 @@ MACRO (QT4_WRAP_UI_XX outfiles )
       MAIN_DEPENDENCY ${infile})
     SET(${outfiles} ${${outfiles}} ${outfile})
   ENDFOREACH (it)
-
 ENDMACRO (QT4_WRAP_UI_XX)
+
+SET(MEDOPGUI_dialogs_FORMS
+  GenericDialog.ui
+  DlgAlias.ui
+  DlgUseInWorkspace.ui
+  DlgChangeUnderlyingMesh.ui
+  DlgImageToMed.ui
+)
+QT4_WRAP_UI_XX(MEDOPGUI_dialogs_FORMS_HEADERS ${MEDOPGUI_dialogs_FORMS})
+
+SET(MEDOPGUI_dialogs_FILES
+  GenericDialog.hxx
+  DlgAlias.hxx
+  DlgUseInWorkspace.hxx
+  DlgChangeUnderlyingMesh.hxx
+  DlgImageToMed.hxx
+)
+QT4_WRAP_CPP(MEDOPGUI_dialogs_HEADERS_MOC ${MEDOPGUI_dialogs_FILES})
+
+INCLUDE_DIRECTORIES(
+  ${OMNIORB_INCLUDE_DIRS}
+  ${CAS_INCLUDE_DIRS}
+  ${BOOST_INCLUDE_DIRS}
+  ${PTHREAD_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${KERNEL_ROOT_DIR}/include/salome
+  ${GUI_ROOT_DIR}/include/salome
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+)
 
 SET(MEDOPGUI_dialogs_SOURCES
   GenericDialog.cxx
@@ -42,30 +70,22 @@ SET(MEDOPGUI_dialogs_SOURCES
   DlgImageToMed.cxx
 )
 
-SET(MEDOPGUI_dialogs_HEADERS GenericDialog.hxx DlgAlias.hxx DlgUseInWorkspace.hxx DlgChangeUnderlyingMesh.hxx DlgImageToMed.hxx)
-SET(MEDOPGUI_dialogs_FORMS DlgAlias.ui DlgChangeUnderlyingMesh.ui DlgImageToMed.ui DlgUseInWorkspace.ui GenericDialog.ui)
-#SET(MEDGUI_RESOURCES images.qrc)
-
-QT4_WRAP_CPP(MEDOPGUI_dialogs_HEADERS_MOC ${MEDOPGUI_dialogs_HEADERS})
-QT4_WRAP_UI_XX(MEDOPGUI_dialogs_FORMS_HEADERS ${MEDOPGUI_dialogs_FORMS})
-#QT4_ADD_RESOURCES(MEDGUI_RESOURCES_RCC ${MEDGUI_RESOURCES})
-
-INCLUDE_DIRECTORIES(
-  ${OMNIORB_INCLUDE_DIRS}
-  ${CAS_INCLUDE_DIRS}
-  ${BOOST_INCLUDE_DIRS}
-  ${KERNEL_ROOT_DIR}/include/salome
-  ${GUI_ROOT_DIR}/include/salome
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/..
-  )
-
 ADD_LIBRARY(MEDOPGUI_dialogs SHARED ${MEDOPGUI_dialogs_SOURCES} ${MEDOPGUI_dialogs_HEADERS_MOC} ${MEDOPGUI_dialogs_FORMS_HEADERS})
-SET_TARGET_PROPERTIES(MEDOPGUI_dialogs PROPERTIES COMPILE_FLAGS "${CAS_DEFINITIONS} ${BOOST_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(MEDOPGUI_dialogs ${QT_MT_LIBS} ${CAS_KERNEL} ${BOOST_LIBS} ${GUI_LDFLAGS} ${SalomeApp} ${CAM} ${LightApp} ${qtx} ${suit} ${SalomeObject} ${SalomeGuiHelpers})
+SET_TARGET_PROPERTIES(MEDOPGUI_dialogs PROPERTIES COMPILE_FLAGS "${CAS_DEFINITIONS} ${BOOST_DEFINITIONS} ${PLATFORM_DEFINITIONS} ${OMNIORB_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(MEDOPGUI_dialogs ${CAS_KERNEL} ${QT_LIBS} ${SalomeIDLKernel} ${SalomeGuiHelpers} ${OMNIORB_LIBS} ${qtx} ${suit} ${PLATFORM_LIBS} ${SalomeLifeCycleCORBA} ${SalomeKernelHelpers} ${SalomeGuiHelpers})
 INSTALL(TARGETS MEDOPGUI_dialogs DESTINATION ${MED_salomelib_LIBS})
 
+#
+# ---------------------------------------------------------
+# Unit test programs
+# ---------------------------------------------------------
+#
 ADD_EXECUTABLE(dlgTester dlgTester.cxx)
-SET_TARGET_PROPERTIES(dlgTester PROPERTIES COMPILE_FLAGS "${CAS_DEFINITIONS} ${BOOST_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(dlgTester MEDOPGUI_dialogs)
+SET_TARGET_PROPERTIES(dlgTester PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(dlgTester MEDOPGUI_dialogs ${QT_LIBS} ${PLATFORM_LIBS})
+INSTALL(TARGETS dlgTester DESTINATION ${MED_salomebin_BINS})
 #ADD_TEST(dlgTester dlgTester)
+
+FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+
