@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #ifndef _EXPREVALINTERPTEST_HXX_
 #define _EXPREVALINTERPTEST_HXX_
