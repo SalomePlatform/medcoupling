@@ -17,18 +17,20 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(Test)
+IF(CPPUNIT_IS_OK)
+  ADD_SUBDIRECTORY(Test)
+ENDIF(CPPUNIT_IS_OK)
 
 INCLUDE_DIRECTORIES(
   ${PARMETIS_INCLUDE_DIRS}
   ${METIS_INCLUDE_DIRS}
   ${SCOTCH_INCLUDE_DIRS}
-  ${BOOST_INCLUDE_DIRS}
   ${METIS_INCLUDE_DIRS}
   ${LIBXML_INCLUDE_DIRS}
   ${MED3_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${MPI_INCLUDE_DIRS}
+  ${PTHREADS_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDLoader
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
@@ -69,58 +71,59 @@ SET(medpartitionercpp_SOURCES
   MEDPARTITIONER_SkyLineArray.cxx
   )
 
-SET(medpartitionercpp_DEFINITIONS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${BOOST_DEFINITIONS} ${LIBXML_DEFINITIONS}")
-SET(medpartitionercpp_LDFLAGS medloader ${LIBXML_LIBS})
-
-IF(MED_ENABLE_SCOTCH)
-  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ScotchGraph.cxx)
-  SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_ScotchGraph.hxx)
-  SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${SCOTCH_DEFINITIONS}")
-  SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${SCOTCH_LIBS})
-ENDIF(MED_ENABLE_SCOTCH)
-
-IF(MPI_IS_OK)
-  IF(MED_ENABLE_PARMETIS)
-    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ParMetisGraph.cxx
-      MEDPARTITIONER_UtilsPara.cxx
-      MEDPARTITIONER_JointFinder.cxx
-      )
-    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_JointFinder.hxx MEDPARTITIONER_MetisGraph.hxx)
-    SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${MPI_DEFINITIONS} ${PARMETIS_DEFINITIONS}")
-    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${PARMETIS_LIBS} ${MPI_LIBS})
-  ELSE(MED_ENABLE_PARMETIS)
-    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES}
-      MEDPARTITIONER_UtilsPara.cxx
-      MEDPARTITIONER_JointFinder.cxx
-      )
-    SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${MPI_DEFINITIONS}")
-    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${MPI_LIBS})
-  ENDIF(MED_ENABLE_PARMETIS)
-ELSE(MPI_IS_OK)
+SET(medpartitionercpp_DEFINITIONS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${LIBXML_DEFINITIONS} ${MPI_DEFINITIONS}")
+SET(medpartitionercpp_LDFLAGS
+  ${MED3_LIBS_C_ONLY}
+  ${HDF5_LIBS}
+  ${STDLIB}
+  ${LIBXML_LIBS}
+  ${MPI_LIBS}
+  interpkernel
+  medcoupling
+  medloader
+)
+IF(MED_ENABLE_PARMETIS)
+  SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_MetisGraph.hxx)
+  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ParMetisGraph.cxx)
+  SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${PARMETIS_DEFINITIONS}")
+  SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${PARMETIS_LIBS})
+ELSE(MED_ENABLE_PARMETIS)  
   IF(MED_ENABLE_METIS)
+    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_MetisGraph.hxx)  
     SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_MetisGraph.cxx)
-    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_MetisGraph.hxx)
     SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${METIS_DEFINITIONS}")
     SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${METIS_LIBS})
   ENDIF(MED_ENABLE_METIS)
-ENDIF(MPI_IS_OK)
-
-
+  IF(MED_ENABLE_SCOTCH)
+    SET(medpartitionercpp_HEADERS_HXX ${medpartitionercpp_HEADERS_HXX} MEDPARTITIONER_ScotchGraph.hxx)
+    SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES} MEDPARTITIONER_ScotchGraph.cxx)
+    SET(medpartitionercpp_DEFINITIONS "${medpartitionercpp_DEFINITIONS} ${SCOTCH_DEFINITIONS}")
+    SET(medpartitionercpp_LDFLAGS ${medpartitionercpp_LDFLAGS} ${SCOTCH_LIBS})
+  ENDIF(MED_ENABLE_SCOTCH)    
+ENDIF(MED_ENABLE_PARMETIS)  
+  
 IF(MPI_IS_OK)
+  SET(medpartitionercpp_SOURCES ${medpartitionercpp_SOURCES}
+    MEDPARTITIONER_UtilsPara.cxx
+    MEDPARTITIONER_JointFinder.cxx
+  )
+ENDIF(MPI_IS_OK)			  
+  
+ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
+SET_TARGET_PROPERTIES(medpartitionercpp PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(medpartitionercpp ${medpartitionercpp_LDFLAGS} ${PLATFORM_LIBS} ${PTHREAD_LIBS})
+INSTALL(TARGETS medpartitionercpp DESTINATION ${MED_salomelib_LIBS})
+  
+IF(MED_ENABLE_PARMETIS)
   ADD_EXECUTABLE(medpartitioner_para medpartitioner_para.cxx)
   SET_TARGET_PROPERTIES(medpartitioner_para PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
-  TARGET_LINK_LIBRARIES(medpartitioner_para medpartitionercpp)
+  TARGET_LINK_LIBRARIES(medpartitioner_para medpartitionercpp ${medpartitionercpp_LDFLAGS})
   INSTALL(TARGETS medpartitioner_para DESTINATION ${MED_salomebin_BINS})
-ELSE(MPI_IS_OK)
+ELSE(MED_ENABLE_PARMETIS)
   ADD_EXECUTABLE(medpartitioner medpartitioner.cxx)
-  SET_TARGET_PROPERTIES(medpartitioner PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
-  TARGET_LINK_LIBRARIES(medpartitioner medpartitionercpp)
+  SET_TARGET_PROPERTIES(medpartitioner PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS} ${medpartitionercpp_DEFINITIONS}")
+  TARGET_LINK_LIBRARIES(medpartitioner medpartitionercpp ${medpartitionercpp_LDFLAGS})
   INSTALL(TARGETS medpartitioner DESTINATION ${MED_salomebin_BINS})
-ENDIF(MPI_IS_OK)
-
-ADD_LIBRARY(medpartitionercpp SHARED ${medpartitionercpp_SOURCES})
-SET_TARGET_PROPERTIES(medpartitionercpp PROPERTIES COMPILE_FLAGS "${medpartitionercpp_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(medpartitionercpp ${medpartitionercpp_LDFLAGS})
-INSTALL(TARGETS medpartitionercpp DESTINATION ${MED_salomelib_LIBS})
+ENDIF(MED_ENABLE_PARMETIS)
 
 INSTALL(FILES ${medpartitionercpp_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})

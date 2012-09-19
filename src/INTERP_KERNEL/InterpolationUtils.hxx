@@ -35,6 +35,12 @@
 #include <iostream>
 #include <limits>
 
+#ifdef WIN32
+  #ifdef min
+    #undef min
+  #endif
+#endif
+
 namespace INTERP_KERNEL
 {
   template<class ConnType, NumberingPolicy numPol>
@@ -438,7 +444,7 @@ namespace INTERP_KERNEL
             T21 = n[0][_Y]-n[2][_Y], T22 = n[1][_Y]-n[2][_Y];
           // matrix determinant
           double Tdet = T11*T22 - T12*T21;
-          if ( std::fabs( Tdet ) < std::numeric_limits<double>::min() )
+          if ( (std::fabs( Tdet) ) < (std::numeric_limits<double>::min()) )
             {
               bc[0]=1; bc[1]=bc[2]=0; // no solution
               return;

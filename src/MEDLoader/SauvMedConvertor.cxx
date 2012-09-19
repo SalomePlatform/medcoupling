@@ -773,9 +773,9 @@ double ASCIIReader::getDouble() const
   //  7.70000000000000-100  7.70000000000000+100  7.70000000000000+100
   //0123456789012345678901234567890123456789012345678901234567890123456789
   const size_t posE = 18;
-  if ( _curPos[posE] != 'E' && _curPos[posE] != 'e' )
+  std::string aStr (_curPos);
+  if ( aStr.find('E') < 0 && aStr.find('e') < 0 )
     {
-      std::string aStr (_curPos);
       if ( aStr.size() < posE+1 )
         THROW_IK_EXCEPTION("No more doubles (line #" << lineNb() << ")");
       aStr.insert( posE, "E", 1 );

@@ -111,3 +111,13 @@ FOREACH(bintestparamem ${TESTSParaMEDMEM})
 ENDFOREACH(bintestparamem ${TESTSParaMEDMEM})
 
 INSTALL(TARGETS ${TESTSParaMEDMEM} DESTINATION ${MED_salomebin_BINS})
+SET(COMMON_HEADERS_HXX
+  MPIMainTest.hxx
+  MPIAccessDECTest.hxx
+  MPIAccessTest.hxx
+  ParaMEDMEMTest.hxx
+  MPI2Connector.hxx
+)
+INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})
+
+					

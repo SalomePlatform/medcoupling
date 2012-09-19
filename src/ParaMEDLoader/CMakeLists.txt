@@ -36,7 +36,7 @@ SET(paramedloader_SOURCES
 
 ADD_LIBRARY(paramedloader SHARED ${paramedloader_SOURCES})
 SET_TARGET_PROPERTIES(paramedloader PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(paramedloader paramedmem medloader)
+TARGET_LINK_LIBRARIES(paramedloader paramedmem medloader ${PLATFORM_LIBS})
 INSTALL(TARGETS paramedloader DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB paramedloader_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

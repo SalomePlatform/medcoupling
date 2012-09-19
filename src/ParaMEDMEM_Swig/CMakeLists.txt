@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
+INCLUDE(${SALOME_MACROS_DIR}/InstallAndCompilePythonFile.cmake)
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -40,11 +40,12 @@ INCLUDE_DIRECTORIES(
   )
 
 SWIG_ADD_MODULE(ParaMEDMEM python ParaMEDMEM.i)
-SWIG_LINK_LIBRARIES(ParaMEDMEM ${PYTHON_LIBRARIES} paramedmem medloader)
+SWIG_LINK_LIBRARIES(ParaMEDMEM ${PYTHON_LIBS} paramedmem medloader)
 
 SET_SOURCE_FILES_PROPERTIES(ParaMEDMEM.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(ParaMEDMEM.i PROPERTIES SWIG_DEFINITIONS "-shadow")
 
 INSTALL(TARGETS _ParaMEDMEM DESTINATION ${MED_salomepythondir})
 INSTALL(FILES ParaMEDMEM.i DESTINATION ${MED_salomeinclude_HEADERS})
-INSTALL_AND_COMPILE_PYTHON_FILE(${CMAKE_CURRENT_BINARY_DIR}/ParaMEDMEM.py ${MED_salomescript_PYTHON})
+INSTALL_AND_COMPILE_PYTHON_FILE(${CMAKE_CURRENT_BINARY_DIR}/ParaMEDMEM.py ${MED_salomepythondir})
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/ParaMEDMEM.py test_InterpKernelDEC.py test_NonCoincidentDEC.py test_StructuredCoincidentDEC.py DESTINATION ${MED_salomescript_PYTHON})
