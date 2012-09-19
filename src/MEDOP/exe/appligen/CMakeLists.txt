@@ -17,6 +17,9 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+SET(MODULE_NAME med)
+SET(prefix ${CMAKE_INSTALL_PREFIX})
+
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config_appli_model.xml.in ${CMAKE_CURRENT_BINARY_DIR}/config_appli_model.xml @ONLY)
 
 SET(MED_RESOURCES_FILES
