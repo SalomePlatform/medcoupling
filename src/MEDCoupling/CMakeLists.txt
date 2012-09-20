@@ -56,11 +56,11 @@ SET(medcouplingremapper_SOURCES
 
 ADD_LIBRARY(medcoupling SHARED ${medcoupling_SOURCES})
 SET_TARGET_PROPERTIES(medcoupling PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(medcoupling interpkernel ${PLATFORM_LIBS})
+TARGET_LINK_LIBRARIES(medcoupling interpkernel)
 INSTALL(TARGETS medcoupling DESTINATION ${MED_salomelib_LIBS})
 
 ADD_LIBRARY(medcouplingremapper SHARED ${medcouplingremapper_SOURCES})
-TARGET_LINK_LIBRARIES(medcouplingremapper medcoupling ${PLATFORM_LIBS})
+TARGET_LINK_LIBRARIES(medcouplingremapper medcoupling)
 SET_TARGET_PROPERTIES(medcouplingremapper PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS}")
 INSTALL(TARGETS medcouplingremapper DESTINATION ${MED_salomelib_LIBS})
 
