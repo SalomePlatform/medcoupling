@@ -35,12 +35,6 @@
 #include <iostream>
 #include <limits>
 
-#ifdef WIN32
-  #ifdef min
-    #undef min
-  #endif
-#endif
-
 namespace INTERP_KERNEL
 {
   template<class ConnType, NumberingPolicy numPol>
