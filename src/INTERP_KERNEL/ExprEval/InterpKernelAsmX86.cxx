@@ -27,7 +27,7 @@
 #ifdef _POSIX_MAPPED_FILES
 #include <sys/mman.h>
 #else
-#ifdef WNT
+#ifdef WIN32
 #include <windows.h>
 #endif
 #endif
@@ -49,7 +49,7 @@ char *INTERP_KERNEL::AsmX86::copyToExecMemZone(const std::vector<char>& ml, unsi
 #ifdef _POSIX_MAPPED_FILES
   ret=(char *)mmap(0,lgth,PROT_EXEC | PROT_WRITE,MAP_ANONYMOUS | MAP_PRIVATE,-1,0);
 #else
-#ifdef WNT
+#ifdef WIN32
   HANDLE h=CreateFileMapping(INVALID_HANDLE_VALUE,NULL,PAGE_EXECUTE_READWRITE,0,lgth,NULL);
   ret=(char *)MapViewOfFile(h,FILE_MAP_EXECUTE | FILE_MAP_READ | FILE_MAP_WRITE,0,0,lgth);
 #endif

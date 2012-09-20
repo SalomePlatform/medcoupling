@@ -572,7 +572,7 @@ void SauvWriter::write(const char* fileName)
   std::fstream fileStream;
   fileStream.open( fileName, ios::out);
   if
-#ifdef WNT
+#ifdef WIN32
     ( !fileStream || !fileStream.is_open() )
 #else
     ( !fileStream || !fileStream.rdbuf()->is_open() )

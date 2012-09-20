@@ -39,11 +39,11 @@
 #include <cstring>
 #include <fcntl.h>
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #endif
 
-#ifndef WNT
+#ifndef WIN32
 #define HAS_XDR
 #include <unistd.h>
 #endif
@@ -475,7 +475,7 @@ bool ASCIIReader::isASCII() const
 
 bool ASCIIReader::open()
 {
-#ifdef WNT
+#ifdef WIN32
   _file = ::_open (_fileName.c_str(), _O_RDONLY|_O_BINARY);
 #else
   _file = ::open (_fileName.c_str(), O_RDONLY);

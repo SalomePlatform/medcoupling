@@ -1525,7 +1525,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCC()
       {
         sum += s_v->second;
         double vvv;
-#ifdef WNT
+#ifdef WIN32
         double vv = s_v->second / precis;
         if(vv>=0.0)
           {

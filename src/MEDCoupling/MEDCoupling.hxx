@@ -21,7 +21,7 @@
 #ifndef _MEDCOUPLING_HXX_
 #define _MEDCOUPLING_HXX_
 
-#ifdef WNT
+#ifdef WIN32
 #  if defined medcoupling_EXPORTS
 #    define MEDCOUPLING_EXPORT __declspec( dllexport )
 #  else
@@ -31,7 +31,7 @@
 #  define MEDCOUPLING_EXPORT
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #  if defined medcouplingremapper_EXPORTS
 #    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllexport )
 #  else
@@ -41,7 +41,7 @@
 #  define MEDCOUPLINGREMAPPER_EXPORT
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning( disable : 4290 )
 #endif
 

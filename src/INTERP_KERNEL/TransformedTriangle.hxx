@@ -33,7 +33,7 @@
 
 #include "Log.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4251)
 #endif
 
