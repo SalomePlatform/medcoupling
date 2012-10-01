@@ -1612,11 +1612,19 @@ void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &ar
     }
 }
 
-void DataArrayDouble::useArray(const double *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
+void DataArrayDouble::useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
   _mem.useArray(array,ownership,type,nbOfTuple*nbOfCompo);
+  declareAsNew();
+}
+
+void DataArrayDouble::useExternalArrayWithRWAccess(const double *array, int nbOfTuple, int nbOfCompo)
+{
+  _nb_of_tuples=nbOfTuple;
+  _info_on_compo.resize(nbOfCompo);
+  _mem.useExternalArrayWithRWAccess(array,nbOfTuple*nbOfCompo);
   declareAsNew();
 }
 
@@ -3325,7 +3333,7 @@ DataArrayDouble *DataArrayDoubleTuple::buildDADouble(int nbOfTuples, int nbOfCom
   if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
     {
       DataArrayDouble *ret=DataArrayDouble::New();
-      ret->useArray(_pt,false,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+      ret->useExternalArrayWithRWAccess(_pt,nbOfTuples,nbOfCompo);
       return ret;
     }
   else
@@ -3790,6 +3798,14 @@ void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type,
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
   _mem.useArray(array,ownership,type,nbOfTuple*nbOfCompo);
+  declareAsNew();
+}
+
+void DataArrayInt::useExternalArrayWithRWAccess(const int *array, int nbOfTuple, int nbOfCompo)
+{
+  _nb_of_tuples=nbOfTuple;
+  _info_on_compo.resize(nbOfCompo);
+  _mem.useExternalArrayWithRWAccess(array,nbOfTuple*nbOfCompo);
   declareAsNew();
 }
 
@@ -6419,7 +6435,7 @@ DataArrayInt *DataArrayIntTuple::buildDAInt(int nbOfTuples, int nbOfCompo) const
   if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
     {
       DataArrayInt *ret=DataArrayInt::New();
-      ret->useArray(_pt,false,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+      ret->useExternalArrayWithRWAccess(_pt,nbOfTuples,nbOfCompo);
       return ret;
     }
   else

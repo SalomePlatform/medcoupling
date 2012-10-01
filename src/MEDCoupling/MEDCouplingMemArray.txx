@@ -69,6 +69,16 @@ namespace ParaMEDMEM
   }
 
   template<class T>
+  void MemArray<T>::useExternalArrayWithRWAccess(const T *array, int nbOfElem)
+  {
+    _nb_of_elem=nbOfElem;
+    destroy();
+    _pointer.setInternal(const_cast<T *>(array));
+    _ownership=false;
+    _dealloc=CPP_DEALLOC;
+  }
+  
+  template<class T>
   void MemArray<T>::writeOnPlace(int id, T element0, const T *others, int sizeOfOthers)
   {
     if(id+sizeOfOthers>=_nb_of_elem)

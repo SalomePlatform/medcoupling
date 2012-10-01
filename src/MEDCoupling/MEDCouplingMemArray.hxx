@@ -75,6 +75,7 @@ namespace ParaMEDMEM
     void alloc(int nbOfElements) throw(INTERP_KERNEL::Exception);
     void reAlloc(int newNbOfElements) throw(INTERP_KERNEL::Exception);
     void useArray(const T *array, bool ownership, DeallocType type, int nbOfElem);
+    void useExternalArrayWithRWAccess(const T *array, int nbOfElem);
     void writeOnPlace(int id, T element0, const T *others, int sizeOfOthers);
     ~MemArray() { destroy(); }
   private:
@@ -218,6 +219,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT const double *begin() const { return getConstPointer(); }
     MEDCOUPLING_EXPORT const double *end() const { return getConstPointer()+getNbOfElems(); }
     MEDCOUPLING_EXPORT void useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const double *array, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, double element0, const double *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT void checkNoNullValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getMinMaxPerComponent(double *bounds) const throw(INTERP_KERNEL::Exception);
@@ -462,6 +464,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::set<int> getDifferentValues() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
+    MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const int *array, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }
     MEDCOUPLING_EXPORT static DataArrayInt *Add(const DataArrayInt *a1, const DataArrayInt *a2) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void addEqual(const DataArrayInt *other) throw(INTERP_KERNEL::Exception);
