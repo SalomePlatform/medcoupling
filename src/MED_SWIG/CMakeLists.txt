@@ -17,4 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INSTALL(FILES MED_shared_modules.py DESTINATION ${MED_salomescript_PYTHON})
+INSTALL(FILES MED_shared_modules.py DESTINATION ${MED_sharedpkgpython_PYTHON})

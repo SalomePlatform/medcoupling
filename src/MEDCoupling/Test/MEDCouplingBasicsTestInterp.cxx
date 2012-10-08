@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingBasicsTestInterp.hxx"
 #include "MEDCouplingUMesh.hxx"
@@ -1524,7 +1525,7 @@ void MEDCouplingBasicsTestInterp::testInterpolationCC()
       {
         sum += s_v->second;
         double vvv;
-#ifdef WNT
+#ifdef WIN32
         double vv = s_v->second / precis;
         if(vv>=0.0)
           {

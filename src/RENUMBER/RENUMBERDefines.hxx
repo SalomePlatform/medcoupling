@@ -22,7 +22,7 @@
 
 //export symbols
 #ifdef WIN32
-# if defined RENUMBER_EXPORTS || defined renumber_EXPORTS
+# if defined RENUMBERCPP_EXPORTS || defined renumbercpp_EXPORTS
 #  define RENUMBER_EXPORT __declspec(dllexport)
 # else
 #  define RENUMBER_EXPORT __declspec(dllimport)

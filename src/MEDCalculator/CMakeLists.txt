@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 ADD_SUBDIRECTORY(Swig)
 ADD_SUBDIRECTORY(Test)
@@ -24,6 +25,7 @@ INCLUDE_DIRECTORIES(
   ${MED3_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIRS}
+  ${PTHREAD_INCLUDE_DIRS}
   ${KERNEL_ROOT_DIR}/include/salome
   ${CMAKE_CURRENT_BINARY_DIR}/../../idl
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCouplingCorba
@@ -47,8 +49,8 @@ SET(medcalculator_SOURCES
 )
 
 ADD_LIBRARY(medcalculator SHARED ${medcalculator_SOURCES})
-SET_TARGET_PROPERTIES(medcalculator PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(medcalculator medloader medcouplingcorba ${KERNEL_LDFLAGS} ${SALOMELocalTrace} ${SalomeNS} ${OpUtil})
+SET_TARGET_PROPERTIES(medcalculator PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(medcalculator medloader medcouplingcorba ${KERNEL_LDFLAGS} ${SALOMELocalTrace} ${SalomeNS} ${OpUtil} ${OMNIORB_LIBS} ${PLATFORM_LIBS})
 INSTALL(TARGETS medcalculator DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB medcalculator_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

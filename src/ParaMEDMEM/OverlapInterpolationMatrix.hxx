@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #ifndef __OVERLAPINTERPOLATIONMATRIX_HXX__
 #define __OVERLAPINTERPOLATIONMATRIX_HXX__

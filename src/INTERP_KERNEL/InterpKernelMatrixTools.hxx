@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #ifndef __INTERPKERNELMATRIXTOOLS_HXX__
 #define __INTERPKERNELMATRIXTOOLS_HXX__

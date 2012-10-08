@@ -131,6 +131,15 @@ SET(testAnalFile_SOURCES testAnalFile.cxx)
 SET(test_MEDMEM_MeshingFlica_SOURCES test_MEDMEM_MeshingFlica.cxx)
 
 SET(testConvertPolygon_SOURCES testConvertPolygon.cxx)
+SET(create_mesh_SOURCES create_mesh.c)
+SET(create_mesh_c2q4s2_SOURCES create_mesh_c2q4s2.c)
+SET(create_mesh_c3h8q4_SOURCES create_mesh_c3h8q4.c)
+SET(create_mesh_c3h8q4_wrong_SOURCES create_mesh_c3h8q4_wrong.c)
+SET(create_mesh_c2q4s2_wrong_SOURCES create_mesh_c2q4s2_wrong.c)
+SET(create_grid_SOURCES create_grid.c)
+SET(create_mesh_c2q4_SOURCES create_mesh_c2q4.c)
+SET(create_mesh_c3h8_SOURCES create_mesh_c3h8.c)
+SET(create_poly3D_SOURCES create_poly3D.c)
 
 SET(ALLMEDMEMBIN_TESTS
   dumpInterpolation
@@ -185,17 +194,27 @@ SET(ALLMEDMEMBIN_TESTS
   testAnalFile
   test_MEDMEM_MeshingFlica
   testConvertPolygon
+  create_mesh 
+  create_mesh_c2q4s2 
+  create_mesh_c3h8q4 
+  create_mesh_c3h8q4_wrong
+  create_mesh_c2q4s2_wrong 
+  create_grid 
+  create_mesh_c2q4 
+  create_mesh_c3h8 
+  create_poly3D		  
   )
 
 FOREACH(ALLMEDMEMBIN_TEST ${ALLMEDMEMBIN_TESTS})
   ADD_EXECUTABLE(${ALLMEDMEMBIN_TEST} ${${ALLMEDMEMBIN_TEST}_SOURCES})
-  SET_TARGET_PROPERTIES(${ALLMEDMEMBIN_TEST} PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${XDR_DEFINITIONS}")
-  TARGET_LINK_LIBRARIES(${ALLMEDMEMBIN_TEST} medmem)
+  SET_TARGET_PROPERTIES(${ALLMEDMEMBIN_TEST} PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${XDR_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+  TARGET_LINK_LIBRARIES(${ALLMEDMEMBIN_TEST} medmem ${PLATFORM_LIBS})
 ENDFOREACH(ALLMEDMEMBIN_TEST ${ALLMEDMEMBIN_TESTS})
 
 INSTALL(TARGETS ${ALLMEDMEMBIN_TESTS} DESTINATION ${MED_salomebin_BINS})
 
 SET(MEDMEMBINTEST_PYOPT_TEST -c"import sys;import os;import subprocess;os.putenv(\"srcdir\",sys.argv[1]);sys.exit(subprocess.call([\"sh\",sys.argv[2]]))")
+
 ADD_TEST(check_convertToPoly ${PYTHON_EXECUTABLE} ${MEDMEMBINTEST_PYOPT_TEST} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_convertToPoly)
 ADD_TEST(check_duplicateMED ${PYTHON_EXECUTABLE} ${MEDMEMBINTEST_PYOPT_TEST} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_duplicateMED)
 ADD_TEST(check_ensight2med ${PYTHON_EXECUTABLE} ${MEDMEMBINTEST_PYOPT_TEST} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/check_ensight2med)

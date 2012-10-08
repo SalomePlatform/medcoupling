@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 SET(interpkernel_SOURCES
   TransformedTriangle.cxx
@@ -65,7 +66,8 @@ INCLUDE_DIRECTORIES(
   )
 
 ADD_LIBRARY(interpkernel SHARED ${interpkernel_SOURCES})
-
+SET_TARGET_PROPERTIES(interpkernel PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(interpkernel ${PLATFORM_LIBS})
 INSTALL(TARGETS interpkernel DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB_RECURSE interpkernel_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

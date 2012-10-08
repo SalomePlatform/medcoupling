@@ -59,6 +59,33 @@ def ParaMEDMEMDataArrayIntIdiv(self,*args):
 def ParaMEDMEMDataArrayIntImod(self,*args):
     import _MEDCoupling
     return _MEDCoupling.DataArrayInt____imod___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleTupleIadd(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDoubleTuple____iadd___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleTupleIsub(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDoubleTuple____isub___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleTupleImul(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDoubleTuple____imul___(self, self, *args)
+def ParaMEDMEMDataArrayDoubleTupleIdiv(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayDoubleTuple____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayIntTupleIadd(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayIntTuple____iadd___(self, self, *args)
+def ParaMEDMEMDataArrayIntTupleIsub(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayIntTuple____isub___(self, self, *args)
+def ParaMEDMEMDataArrayIntTupleImul(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayIntTuple____imul___(self, self, *args)
+def ParaMEDMEMDataArrayIntTupleIdiv(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayIntTuple____idiv___(self, self, *args)
+def ParaMEDMEMDataArrayIntTupleImod(self,*args):
+    import _MEDCoupling
+    return _MEDCoupling.DataArrayIntTuple____imod___(self, self, *args)
 %}
 
 %include "MEDCouplingFinalize.i"

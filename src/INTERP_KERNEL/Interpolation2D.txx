@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 #ifndef __INTERPOLATION2D_TXX__
 #define __INTERPOLATION2D_TXX__
 

@@ -25,7 +25,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 # include <windows.h>
 #else
 # include <unistd.h>
@@ -205,7 +205,7 @@ void SauvLoaderTest::tearDown()
   const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv" };
   for ( int i = 0; i < nbFilesToRemove; ++i )
     {
-#ifdef WNT
+#ifdef WIN32
       if (GetFileAttributes(fileToRemove[i]) != INVALID_FILE_ATTRIBUTES)
 #else
         if (access(fileToRemove[i], F_OK) == 0)
@@ -229,7 +229,7 @@ std::string SauvLoaderTest::getResourceFile( const std::string& filename )
     resourceFile += "/share/salome/resources/med/";
   }
   resourceFile += filename;
-#ifdef WNT
+#ifdef WIN32
   std::string fixedpath = resourceFile;
   for ( int i=0; i < fixedpath.length(); ++i )
     if (fixedpath[i] == '/')

@@ -2444,7 +2444,39 @@ namespace ParaMEDMEM
   {
     return self->buildDADouble(1,self->getNumberOfCompo());
   }
+
+  PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayDouble____iadd___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
   
+  PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayDouble____isub___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
+  
+  PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayDouble____imul___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
+
+  PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=self->buildDADouble(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayDouble____idiv___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
+
   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)
   {
     int sw;
@@ -4107,6 +4139,46 @@ namespace ParaMEDMEM
   DataArrayInt *buildDAInt()
   {
     return self->buildDAInt(1,self->getNumberOfCompo());
+  }
+
+  PyObject *___iadd___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayInt____iadd___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
+  
+  PyObject *___isub___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayInt____isub___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
+  
+  PyObject *___imul___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayInt____imul___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
+
+  PyObject *___idiv___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayInt____idiv___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
+  }
+
+  PyObject *___imod___(PyObject *trueSelf, PyObject *obj) throw(INTERP_KERNEL::Exception)
+  {
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=self->buildDAInt(1,self->getNumberOfCompo());
+    ParaMEDMEM_DataArrayInt____imod___(ret,0,obj);
+    Py_XINCREF(trueSelf);
+    return trueSelf;
   }
   
   PyObject *__getitem__(PyObject *obj) throw(INTERP_KERNEL::Exception)

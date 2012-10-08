@@ -39,11 +39,11 @@
 #include <cstring>
 #include <fcntl.h>
 
-#ifdef WNT
+#ifdef WIN32
 #include <io.h>
 #endif
 
-#ifndef WNT
+#ifndef WIN32
 #define HAS_XDR
 #include <unistd.h>
 #endif
@@ -259,7 +259,8 @@ unsigned SauvUtilities::getDimension( INTERP_KERNEL::NormalizedCellType type )
 
 //================================================================================
 /*!
- * \brief Returns interlace array to transform a quadratic GIBI element to a MED one
+ * \brief Returns interlace array to transform a quadratic GIBI element to a MED one.
+ *        i-th array item gives node index in GIBI connectivity for i-th MED node
  */
 //================================================================================
 
@@ -474,7 +475,7 @@ bool ASCIIReader::isASCII() const
 
 bool ASCIIReader::open()
 {
-#ifdef WNT
+#ifdef WIN32
   _file = ::_open (_fileName.c_str(), _O_RDONLY|_O_BINARY);
 #else
   _file = ::open (_fileName.c_str(), O_RDONLY);
@@ -772,9 +773,9 @@ double ASCIIReader::getDouble() const
   //  7.70000000000000-100  7.70000000000000+100  7.70000000000000+100
   //0123456789012345678901234567890123456789012345678901234567890123456789
   const size_t posE = 18;
-  if ( _curPos[posE] != 'E' && _curPos[posE] != 'e' )
+  std::string aStr (_curPos);
+  if ( aStr.find('E') < 0 && aStr.find('e') < 0 )
     {
-      std::string aStr (_curPos);
       if ( aStr.size() < posE+1 )
         THROW_IK_EXCEPTION("No more doubles (line #" << lineNb() << ")");
       aStr.insert( posE, "E", 1 );

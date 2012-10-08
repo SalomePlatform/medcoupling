@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingBasicsTest3.hxx"
 #include "MEDCouplingUMesh.hxx"

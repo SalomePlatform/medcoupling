@@ -1,25 +1,65 @@
 /*!\mainpage MEDMEM user's guide
 
-\image html MED_small.png
-\image latex MED_small.eps
-\anchor fig_MED_small
-
 \section intro Introduction
-This document constitutes the user guide of the %MEDMEM library and of its related tools.
+This document is the user guide of the %MED SALOME module. The MED
+module consists in:
 
-\section install Installation 
-The install procedure of the %MEDMEM library can handle a variety of configurations 
-to suit the needs of its user. Instructions for configuring and installing the library can be found in \ref medmem_install.
+- \ref S1 to manipulate meshes and fields that conform
+  to the MED data model. This library can be used in C++ programs as
+  in python script for data processing on meshes and fields.
+- \ref S2 that exhibits some useful functions of the
+  library for a graphical manipulation of data in standard use cases.
+- \ref S3 that can be used to process MED data files
 
-\section outline Outline
-This user guide contains five different chapters that cover the core %MEDMEM and MEDCoupling libraries, the interpolation library and the associated tools: 
-- Chapter \ref medcoupling describes DataStructures used for cross
-process exchange of meshes and fields.
-- Chapter \ref medloader describes API for I/O from or to a MED file
-coming from a \ref medcoupling data structure.
-- Chapter \ref interptools describes the interpolation and localization library.
-- Chapter \ref medmem covers the %MEDMEM core library, i.e. the implementation of meshes, supports and fields and the associated drivers (for MED-file, VTK, GIBI).
+\section S1 A library of functions for data processing
+
+The figure below represents the layer structure of the packages of the
+library:
+
+\image html medlayers_70pc.png
+
+The fondamentals consists in three atomic libraries: 
+
+- \ref medcoupling that describes DataStructures used for cross process exchange of meshes and fields. 
+- \ref medloader that provides I/O functions to the MED file format
+- \ref interptools (INTERP_KERNEL + REMAPPER) that provides
+  mathematical structures and algorithms for interpolation and
+  localization.
+
+You should be warned that the MEDMEM library still exists in the MED
+module but is considered as deprecated:
+
+- \ref medmem covers the %MEDMEM core library, i.e. the implementation
+  of meshes, supports and fields and the associated drivers (for
+  MED-file, VTK, GIBI).
+
+\section S2 A graphical interface for standard use cases
+
+The MED module in SALOME comes with a graphical interface that helps
+you to deal with most standard use case of fields manipulation. The
+user guide can be found here:
+
+- <a class="el" target="_new"
+  href="../../dev/MED/xmed-userguide.html">User guide of the MED Graphical Interface</a>
+
+You could also be interested to read the software specifications and
+requirements for this graphical module, and even the technical
+considerations for development:
+
+- <a class="el" target="_new"
+  href="../../dev/MED/xmed-specifications.html">Software
+  specifications and requirements of the MED Graphical Interface</a>
+- <a class="el" target="_new"
+  href="../../dev/MED/xmed-develguide.html">Developer guide of the MED Graphical Interface</a>
+
+\section S3 A set of tools for file manipulation
+
 - Chapter \ref tools describes various tools based on MEDMEM  that can
 be helpful for handling MED files (conversion tools and splitting tools). 
+
+\section install Installation 
+The install procedure of the %MED SALOME module can handle a variety of configurations 
+to suit the needs of its user. Instructions for configuring and
+installing the module an be found in \ref medmem_install.
 
 */

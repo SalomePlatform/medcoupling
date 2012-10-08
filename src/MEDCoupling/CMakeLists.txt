@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 ADD_SUBDIRECTORY(Test)
 
@@ -54,11 +55,13 @@ SET(medcouplingremapper_SOURCES
   )
 
 ADD_LIBRARY(medcoupling SHARED ${medcoupling_SOURCES})
+SET_TARGET_PROPERTIES(medcoupling PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(medcoupling interpkernel)
 INSTALL(TARGETS medcoupling DESTINATION ${MED_salomelib_LIBS})
 
 ADD_LIBRARY(medcouplingremapper SHARED ${medcouplingremapper_SOURCES})
 TARGET_LINK_LIBRARIES(medcouplingremapper medcoupling)
+SET_TARGET_PROPERTIES(medcouplingremapper PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS}")
 INSTALL(TARGETS medcouplingremapper DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB medcoupling_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

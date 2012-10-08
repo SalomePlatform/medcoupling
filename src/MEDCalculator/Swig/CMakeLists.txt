@@ -16,8 +16,9 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
-INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
+INCLUDE(${SALOME_MACROS_DIR}/InstallAndCompilePythonFile.cmake)
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -46,9 +47,13 @@ INSTALL(TARGETS medcalculatorspython DESTINATION ${MED_salomelib_LIBS})
 
 SET_SOURCE_FILES_PROPERTIES(MEDCalculator.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(MEDCalculator.i PROPERTIES SWIG_DEFINITIONS "-shadow")
-
 SWIG_ADD_MODULE(MEDCalculator python MEDCalculator.i)
-SWIG_LINK_LIBRARIES(MEDCalculator ${PYTHON_LIBRARIES} medcalculator)
+SWIG_LINK_LIBRARIES(MEDCalculator ${PYTHON_LIBS} medcalculator)
+SET_TARGET_PROPERTIES(_MEDCalculator PROPERTIES COMPILE_FLAGS "${PLATFORM_DEFINITIONS}")
+
+IF(${MACHINE} STREQUAL WINDOWS)
+  SET_TARGET_PROPERTIES(_MEDCalculator PROPERTIES DEBUG_OUTPUT_NAME _MEDCalculator_d)
+ENDIF(${MACHINE} STREQUAL WINDOWS)
 
 FILE(GLOB medcalculatorspython_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 INSTALL(FILES ${medcalculatorspython_HEADERS_HXX} DESTINATION ${MED_salomeinclude_HEADERS})

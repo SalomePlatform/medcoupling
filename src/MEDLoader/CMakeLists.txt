@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 ADD_SUBDIRECTORY(Swig)
 ADD_SUBDIRECTORY(Test)
@@ -47,7 +48,7 @@ SET(medloader_SOURCES
   )
 
 ADD_LIBRARY(medloader SHARED ${medloader_SOURCES})
-SET_TARGET_PROPERTIES(medloader PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS}")
+SET_TARGET_PROPERTIES(medloader PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
 TARGET_LINK_LIBRARIES(medloader medcoupling ${MED3_LIBS_C_ONLY} ${HDF5_LIBS})
 INSTALL(TARGETS medloader DESTINATION ${MED_salomelib_LIBS})
 

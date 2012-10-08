@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIRS}
@@ -40,8 +41,8 @@ SET(medcouplingclient_SOURCES
   )
 
 ADD_LIBRARY(medcouplingclient SHARED ${medcouplingclient_SOURCES})
-SET_TARGET_PROPERTIES(medcouplingclient PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(medcouplingclient medcoupling SalomeIDLMED ${OMNIORB_LIBS})
+SET_TARGET_PROPERTIES(medcouplingclient PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(medcouplingclient medcoupling SalomeIDLMED ${OMNIORB_LIBS} ${PLATFORM_LIBS})
 INSTALL(TARGETS medcouplingclient DESTINATION ${MED_salomelib_LIBS})
 
 FILE(GLOB medcouplingclient_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")

@@ -21,7 +21,7 @@
 #define __MEDPARTITIONER_HXX__
 
 #ifdef WIN32
-# if defined MEDPARTITIONER_EXPORTS || defined medpartitioner_EXPORTS
+# if defined MEDPARTITIONERCPP_EXPORTS || defined medpartitionercpp_EXPORTS
 #  define MEDPARTITIONER_EXPORT __declspec( dllexport )
 # else
 #  define MEDPARTITIONER_EXPORT __declspec( dllimport )

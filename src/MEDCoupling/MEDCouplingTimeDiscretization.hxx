@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #ifndef __PARAMEDMEM_MEDCOUPLINGTIMEDISCRETIZATION_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGTIMEDISCRETIZATION_HXX__

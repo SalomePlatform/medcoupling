@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 #ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 #define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 
@@ -67,6 +68,16 @@ namespace ParaMEDMEM
     _dealloc=type;
   }
 
+  template<class T>
+  void MemArray<T>::useExternalArrayWithRWAccess(const T *array, int nbOfElem)
+  {
+    _nb_of_elem=nbOfElem;
+    destroy();
+    _pointer.setInternal(const_cast<T *>(array));
+    _ownership=false;
+    _dealloc=CPP_DEALLOC;
+  }
+  
   template<class T>
   void MemArray<T>::writeOnPlace(int id, T element0, const T *others, int sizeOfOthers)
   {

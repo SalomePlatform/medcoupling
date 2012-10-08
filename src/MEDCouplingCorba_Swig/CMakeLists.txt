@@ -16,10 +16,11 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 ADD_SUBDIRECTORY(Client)
 
-INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/InstallAndCompilePythonFile.cmake)
+INCLUDE(${SALOME_MACROS_DIR}/InstallAndCompilePythonFile.cmake)
 FIND_PACKAGE(SWIG REQUIRED)
 INCLUDE(${SWIG_USE_FILE})
 
@@ -40,8 +41,11 @@ INCLUDE_DIRECTORIES(
   )
 
 SWIG_ADD_MODULE(MEDCouplingCorba python MEDCouplingCorba.i)
-SWIG_LINK_LIBRARIES(MEDCouplingCorba ${PYTHON_LIBRARIES} medcouplingcorba)
-SET_TARGET_PROPERTIES(_MEDCouplingCorba PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS}")
+SWIG_LINK_LIBRARIES(MEDCouplingCorba ${PYTHON_LIBS} medcouplingcorba ${PLATFORM_LIBS})
+SET_TARGET_PROPERTIES(_MEDCouplingCorba PROPERTIES COMPILE_FLAGS "${OMNIORB_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+IF(${MACHINE} STREQUAL WINDOWS)
+  SET_TARGET_PROPERTIES(_MEDCouplingCorba PROPERTIES DEBUG_OUTPUT_NAME _MEDCouplingCorba_d)
+ENDIF(${MACHINE} STREQUAL WINDOWS)
 
 INSTALL(TARGETS _MEDCouplingCorba DESTINATION ${MED_salomepythondir})
 INSTALL(FILES MEDCouplingCorba.i MEDCouplingCorbaTypemaps.i DESTINATION ${MED_salomeinclude_HEADERS})

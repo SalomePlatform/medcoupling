@@ -19,7 +19,10 @@
 
 ADD_SUBDIRECTORY(csh)
 
-SET(MedClientTestsConfig runTestMedCorba runContainer)
+SET(MedClientTestsConfig 
+#  runTestMedCorba 
+  runContainer
+)
 
 FOREACH(MedClientTestConfig ${MedClientTestsConfig})
   SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${MedClientTestConfig}.in)

@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingMemArray.txx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
@@ -686,7 +687,7 @@ std::string DataArrayDouble::reprZip() const
 void DataArrayDouble::writeVTK(std::ostream& ofs, int indent, const char *nameInFile) const throw(INTERP_KERNEL::Exception)
 {
   std::string idt(indent,' ');
-  ofs.precision(15);
+  ofs.precision(17);
   ofs << idt << "<DataArray type=\"Float32\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
   ofs << " format=\"ascii\" RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\">\n" << idt;
   std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
@@ -708,14 +709,14 @@ void DataArrayDouble::reprZipStream(std::ostream& stream) const
 void DataArrayDouble::reprWithoutNameStream(std::ostream& stream) const
 {
   DataArray::reprWithoutNameStream(stream);
-  stream.precision(15);
+  stream.precision(17);
   _mem.repr(getNumberOfComponents(),stream);
 }
 
 void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
 {
   DataArray::reprWithoutNameStream(stream);
-  stream.precision(15);
+  stream.precision(17);
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
@@ -1611,11 +1612,19 @@ void DataArrayDouble::SetArrayIn(DataArrayDouble *newArray, DataArrayDouble* &ar
     }
 }
 
-void DataArrayDouble::useArray(const double *array, bool ownership,  DeallocType type, int nbOfTuple, int nbOfCompo)
+void DataArrayDouble::useArray(const double *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo)
 {
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
   _mem.useArray(array,ownership,type,nbOfTuple*nbOfCompo);
+  declareAsNew();
+}
+
+void DataArrayDouble::useExternalArrayWithRWAccess(const double *array, int nbOfTuple, int nbOfCompo)
+{
+  _nb_of_tuples=nbOfTuple;
+  _info_on_compo.resize(nbOfCompo);
+  _mem.useExternalArrayWithRWAccess(array,nbOfTuple*nbOfCompo);
   declareAsNew();
 }
 
@@ -3299,7 +3308,7 @@ DataArrayDoubleTuple::DataArrayDoubleTuple(double *pt, int nbOfComp):_pt(pt),_nb
 
 std::string DataArrayDoubleTuple::repr() const
 {
-  std::ostringstream oss; oss.precision(15); oss << "(";
+  std::ostringstream oss; oss.precision(17); oss << "(";
   for(int i=0;i<_nb_of_compo-1;i++)
     oss << _pt[i] << ", ";
   oss << _pt[_nb_of_compo-1] << ")";
@@ -3324,7 +3333,7 @@ DataArrayDouble *DataArrayDoubleTuple::buildDADouble(int nbOfTuples, int nbOfCom
   if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
     {
       DataArrayDouble *ret=DataArrayDouble::New();
-      ret->useArray(_pt,false,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+      ret->useExternalArrayWithRWAccess(_pt,nbOfTuples,nbOfCompo);
       return ret;
     }
   else
@@ -3789,6 +3798,14 @@ void DataArrayInt::useArray(const int *array, bool ownership,  DeallocType type,
   _nb_of_tuples=nbOfTuple;
   _info_on_compo.resize(nbOfCompo);
   _mem.useArray(array,ownership,type,nbOfTuple*nbOfCompo);
+  declareAsNew();
+}
+
+void DataArrayInt::useExternalArrayWithRWAccess(const int *array, int nbOfTuple, int nbOfCompo)
+{
+  _nb_of_tuples=nbOfTuple;
+  _info_on_compo.resize(nbOfCompo);
+  _mem.useExternalArrayWithRWAccess(array,nbOfTuple*nbOfCompo);
   declareAsNew();
 }
 
@@ -6418,7 +6435,7 @@ DataArrayInt *DataArrayIntTuple::buildDAInt(int nbOfTuples, int nbOfCompo) const
   if((_nb_of_compo==nbOfCompo && nbOfTuples==1) || (_nb_of_compo==nbOfTuples && nbOfCompo==1))
     {
       DataArrayInt *ret=DataArrayInt::New();
-      ret->useArray(_pt,false,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+      ret->useExternalArrayWithRWAccess(_pt,nbOfTuples,nbOfCompo);
       return ret;
     }
   else

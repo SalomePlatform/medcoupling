@@ -10182,6 +10182,54 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
+    def testSwigDataTupleIOp1(self):
+        d=DataArrayDouble(10,1)
+        d.iota(7.)
+        for elt in d:
+            elt+=2.
+            pass
+        toTest=DataArrayDouble([9.0,10.0,11.0,12.0,13.0,14.0,15.0,16.0,17.0,18.0])
+        self.assertTrue(toTest.isEqual(d,1e-12))
+        for elt in d:
+            elt-=2.
+            pass
+        toTest=DataArrayDouble([7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0,16.0])
+        self.assertTrue(toTest.isEqual(d,1e-12))
+        for elt in d:
+            elt*=2.
+            pass
+        toTest=DataArrayDouble([14.0,16.0,18.0,20.0,22.0,24.0,26.0,28.0,30.0,32.0])
+        self.assertTrue(toTest.isEqual(d,1e-12))
+        for elt in d:
+            elt/=2.
+            pass
+        toTest=DataArrayDouble([7.0,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0,16.0])
+        self.assertTrue(toTest.isEqual(d,1e-12))
+        #
+        d=DataArrayInt(10,1)
+        d.iota(7)
+        for elt in d:
+            elt+=2
+            pass
+        self.assertEqual(d.getValues(),[9,10,11,12,13,14,15,16,17,18])
+        for elt in d:
+            elt-=2
+            pass
+        self.assertEqual(d.getValues(),[7,8,9,10,11,12,13,14,15,16])
+        for elt in d:
+            elt*=2
+            pass
+        self.assertEqual(d.getValues(),[14,16,18,20,22,24,26,28,30,32])
+        for elt in d:
+            elt/=2
+            pass
+        self.assertEqual(d.getValues(),[7,8,9,10,11,12,13,14,15,16])
+        for elt in d:
+            elt%=3
+            pass
+        self.assertEqual(d.getValues(),[1,2,0,1,2,0,1,2,0,1])
+        pass
+
     def setUp(self):
         pass
     pass

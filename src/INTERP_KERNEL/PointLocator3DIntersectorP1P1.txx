@@ -16,6 +16,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+// Author : Anthony Geay (CEA/DEN)
 #ifndef __POINTLOCATOR3DINTERSECTORP1P1_TXX__
 #define __POINTLOCATOR3DINTERSECTORP1P1_TXX__
 

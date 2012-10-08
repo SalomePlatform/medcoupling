@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+# Author : Anthony Geay (CEA/DEN)
 
 INCLUDE_DIRECTORIES(
   ${PYTHON_INCLUDE_DIRS}
@@ -37,8 +38,8 @@ SET(TestMEDCalculator_SOURCES
   )
 
 ADD_EXECUTABLE(TestMEDCalculator ${TestMEDCalculator_SOURCES})
-SET_TARGET_PROPERTIES(TestMEDCalculator PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${CPPUNIT_DEFINITIONS}")
-TARGET_LINK_LIBRARIES(TestMEDCalculator medcalculatorspython medcalculator ${CPPUNIT_LIBS})
+SET_TARGET_PROPERTIES(TestMEDCalculator PROPERTIES COMPILE_FLAGS "${HDF5_DEFINITIONS} ${MED3_DEFINITIONS} ${CPPUNIT_DEFINITIONS} ${PLATFORM_DEFINITIONS}")
+TARGET_LINK_LIBRARIES(TestMEDCalculator medcalculatorspython medcalculator ${CPPUNIT_LIBS} ${PLATFORM_LIBS})
 ADD_TEST(TestMEDCalculator TestMEDCalculator)
 
 INSTALL(TARGETS TestMEDCalculator DESTINATION ${MED_salomebin_BINS})

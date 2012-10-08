@@ -20,7 +20,7 @@
 #ifndef _INTERPKERNELTESTEXPORT_HXX_
 #define _INTERPKERNELTESTEXPORT_HXX_
 
-#ifdef WNT
+#ifdef WIN32
 #  if defined InterpKernelTest_EXPORTS
 #    define INTERPKERNELTEST_EXPORT __declspec( dllexport )
 #  else
