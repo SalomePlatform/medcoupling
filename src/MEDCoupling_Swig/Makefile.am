@@ -21,8 +21,6 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-EXTRA_DIST += CMakeLists.txt
-
 lib_LTLIBRARIES = _MEDCoupling.la _MEDCouplingRemapper.la
 
 salomeinclude_HEADERS =  \
@@ -65,3 +63,5 @@ dist_salomescript_DATA= MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py MEDC
 UNIT_TEST_PROG = MEDCouplingBasicsTest.py MEDCouplingRemapperTest.py
 
 #check : tests
+
+EXTRA_DIST += MEDCouplingExamplesTest.py

@@ -22,8 +22,7 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-EXTRA_DIST += CMakeLists.txt
-EXTRA_DIST += SauvLoaderTest.py
+EXTRA_DIST += SauvLoaderTest.py MEDLoaderExamplesTest.py
 
 lib_LTLIBRARIES = _MEDLoader.la
 

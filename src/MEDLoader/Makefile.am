@@ -20,8 +20,6 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-EXTRA_DIST += CMakeLists.txt
-
 MEDLOADER_SUBDIRS =
 
 if !MED_ENABLE_MICROMED

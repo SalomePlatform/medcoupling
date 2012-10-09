@@ -21,8 +21,6 @@
 #
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-EXTRA_DIST += CMakeLists.txt
-
 salomepython_PYTHON = ParaMEDMEM.py
 salomepyexec_LTLIBRARIES = _ParaMEDMEM.la
 
