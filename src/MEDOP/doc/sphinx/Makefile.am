@@ -96,7 +96,9 @@ RSTFILES+=\
 EXTRA_DIST+= $(RSTFILES)
 
 EXTRA_DIST+= \
-	conf.py 
+	conf.py \
+	_static \
+	images
 
 install-data-local:
 	$(INSTALL) -d $(DESTDIR)$(medopdocdir)

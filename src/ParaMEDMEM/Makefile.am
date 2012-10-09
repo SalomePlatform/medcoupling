@@ -19,8 +19,6 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-EXTRA_DIST += CMakeLists.txt
-
 lib_LTLIBRARIES= libparamedmem.la
 
 salomeinclude_HEADERS= \

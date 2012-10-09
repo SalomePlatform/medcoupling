@@ -17,18 +17,16 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# -* Makefile *- 
-# Author : Patrick GOLDBRONN (CEA)
-# Date : 30/11/2001
-# $Header$
-#
+# This folder contains the packages for the MED fields operations:
+# - cmp: package containing the SALOME components
+# - tui: package containing the python user interface
+# - gui: package containing the graphical user interface (the GUI part of the MED module)
+# - res: folder containing data files (resources)
+# - exe: folder containing small executable programs for MED data processing
+# - doc: folder containing the documentation of the MEDOP package 
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-SUBDIRS    = tui
-SUBDIRSTUI = tui
+SUBDIRS= sphinx
 
-dev_docs:
-	@@SETX@; for d in $(SUBDIRSTUI); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done;
+EXTRA_DIST += models

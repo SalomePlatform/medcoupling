@@ -69,4 +69,6 @@ EXTRA_DIST += figures \
 	      tools.dox \
 	      static/footer.html \
 	      static/doxygen.css \
-	      images
+	      images \
+	      BuildPyExamplesFromCPP.py \
+	      medcouplingexamples.doxy
