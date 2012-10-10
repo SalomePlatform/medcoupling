@@ -111,7 +111,8 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(medopdocdir)/*
 
 clean-local:
-	-rm -rf html latex doctrees
+	-chmod -R +w html latex doctrees
+	rm -rf html latex doctrees
 	if test -d "html"; then rm -rf html ; fi
 
 pdf: latex
