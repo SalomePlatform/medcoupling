@@ -19,8 +19,19 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingRefCountObject.hxx"
+#include "MED_version.h"
 
 using namespace ParaMEDMEM;
+
+const char *ParaMEDMEM::MEDCouplingVersionStr()
+{
+  return SALOMEMED_VERSION_STR;
+}
+
+int ParaMEDMEM::MEDCouplingVersion()
+{
+  return SALOMEMED_VERSION;
+}
 
 RefCountObject::RefCountObject():_cnt(1)
 {

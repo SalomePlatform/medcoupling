@@ -56,7 +56,7 @@ dist_libmedcoupling_la_SOURCES = \
 libmedcoupling_la_LDFLAGS= 
 
 libmedcoupling_la_CPPFLAGS=  @CXXTMPDPTHFLAGS@ \
-	-I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases \
+	-I$(top_builddir) -I$(srcdir) -I$(srcdir)/../INTERP_KERNEL/Bases \
 	-I$(srcdir)/../INTERP_KERNEL -I$(srcdir)/../INTERP_KERNEL/Geometric2D \
 	-I$(srcdir)/../INTERP_KERNEL/ExprEval -I$(srcdir)/../INTERP_KERNEL/GaussPoints
 
