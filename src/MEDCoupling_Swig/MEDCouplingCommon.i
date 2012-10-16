@@ -328,6 +328,7 @@ using namespace INTERP_KERNEL;
 %feature("unref") MEDCouplingMultiFields "$this->decrRef();"
 
 %rename(assign) *::operator=;
+%ignore ParaMEDMEM::MEDCouplingVersionMajMinRel;
 %ignore ParaMEDMEM::RefCountObject::decrRef;
 %ignore ParaMEDMEM::MemArray::operator=;
 %ignore ParaMEDMEM::MemArray::operator[];
@@ -7056,6 +7057,19 @@ namespace ParaMEDMEM
       }
   };
 }
+
+%inline %{
+  PyObject *MEDCouplingVersionMajMinRel()
+  {
+    int tmp0=0,tmp1=0,tmp2=0;
+    MEDCouplingVersionMajMinRel(tmp0,tmp1,tmp2);
+    PyObject *res = PyList_New(3);
+    PyList_SetItem(res,0,SWIG_From_int(tmp0));
+    PyList_SetItem(res,1,SWIG_From_int(tmp1));
+    PyList_SetItem(res,2,SWIG_From_int(tmp2));
+    return res;
+  }
+%}
 
 %pythoncode %{
 import os

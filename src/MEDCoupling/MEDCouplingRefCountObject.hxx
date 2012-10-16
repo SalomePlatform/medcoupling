@@ -52,6 +52,7 @@ namespace ParaMEDMEM
 
   const char *MEDCouplingVersionStr();
   int MEDCouplingVersion();
+  void MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas);
 
   class MEDCOUPLING_EXPORT RefCountObject
   {
