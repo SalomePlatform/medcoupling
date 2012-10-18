@@ -419,8 +419,8 @@ namespace INTERP_KERNEL
             else
               {
                 sonNodalConn[0]=nodalConn[sonId];
-                sonNodalConn[1]=nodalConn[(sonId+1)%lgth];
-                sonNodalConn[2]=nodalConn[sonId+lgth];
+                sonNodalConn[1]=nodalConn[(sonId+1)%lgth/2];
+                sonNodalConn[2]=nodalConn[sonId+lgth/2];
                 return 3;
               }
           }
