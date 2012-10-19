@@ -6707,8 +6707,6 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */mapp,mappRev);
       pol1.buildFromCrudeDataArray(mappRev,cm.isQuadratic(),conn1+connI1[i]+1,coo1,
                                    desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
-      std::vector<int> crTmp,crITmp;
-      crITmp.push_back(crI.back());
       for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++)
         {
           INTERP_KERNEL::QuadraticPolygon pol2;
@@ -6720,11 +6718,6 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
                                         pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2);
           //MEDCouplingUMeshAssignOnLoc(pol1,pol2,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,colinear2);
           pol1.buildPartitionsAbs(pol2,mapp,i,*it2,offset3,addCoordsQuadratic,cr,crI,cNb1,cNb2);
-        }
-      if(!crTmp.empty())
-        {
-          cr.insert(cr.end(),crTmp.begin(),crTmp.end());
-          crI.insert(crI.end(),crITmp.begin()+1,crITmp.end());
         }
       for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
         (*it).second->decrRef();
