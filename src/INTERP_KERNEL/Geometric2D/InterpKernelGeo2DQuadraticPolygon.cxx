@@ -434,7 +434,7 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
               bool direct1;//store if needed the direction in 1
               int offset2;
               std::size_t nbOfSubEdges1;
-              for(std::vector<std::pair<int,std::pair<bool,int> > >::const_iterator it=idIns1.begin();it!=idIns1.end();it++)
+              for(std::vector<std::pair<int,std::pair<bool,int> > >::const_iterator it=idIns1.begin();it!=idIns1.end() && !found;it++)
                 {
                   int idIn1=(*it).first;//store if needed the cell id in 1
                   direct1=(*it).second.first;
@@ -464,10 +464,61 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
                 {//the current subedge of edge 'edgeId' of pol2 is part of the colinear edge 'idIn1' of pol1 -> reuse Edge instance of pol1
                   ElementaryEdge *e=pol1[offset1+(direct1?offset2:nbOfSubEdges1-offset2-1)];
                   Edge *ee=e->getPtr();
-                  ee->incrRef(); ee->declareOn();
+                  ee->incrRef();
                   pushBack(new ElementaryEdge(ee,!(direct1^direction11)));
                 }
             }
+        }
+    }
+}
+
+/*!
+ * Method expected to be called on pol2. Every params not suffixed by numbered are supposed to refer to pol2 (this).
+ */
+void QuadraticPolygon::updateLocOfEdgeFromCrudeDataArray2(const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges, const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const
+{
+  std::size_t nbOfSeg=std::distance(descBg,descEnd);
+  for(std::size_t i=0;i<nbOfSeg;i++)//loop over all edges of pol2
+    {
+      bool direct=descBg[i]>0;
+      int edgeId=abs(descBg[i])-1;//current edge id of pol2
+      const std::vector<int>& c=colinear1[edgeId];
+      if(c.empty())
+        continue;
+      const std::vector<int>& subEdge=intersectEdges[edgeId];
+      std::size_t nbOfSubEdges=subEdge.size()/2;
+      //
+      std::size_t nbOfEdgesIn1=std::distance(descBg1,descEnd1);
+      int offset1=0;
+      for(std::size_t j=0;j<nbOfEdgesIn1;j++)
+        {
+          int edgeId1=abs(descBg1[j])-1;
+          if(std::find(c.begin(),c.end(),edgeId1)!=c.end())
+            {
+              for(std::size_t k=0;k<nbOfSubEdges;k++)
+                {
+                  int idBg=direct?subEdge[2*k]:subEdge[2*nbOfSubEdges-2*k-1];
+                  int idEnd=direct?subEdge[2*k+1]:subEdge[2*nbOfSubEdges-2*k-2];
+                  int idIn1=edgeId1;
+                  bool direct1=descBg1[j]>0;
+                  const std::vector<int>& subEdge1PossiblyAlreadyIn1=intersectEdges1[idIn1];
+                  std::size_t nbOfSubEdges1=subEdge1PossiblyAlreadyIn1.size()/2;
+                  int offset2=0;
+                  bool found=false;
+                  for(std::size_t k=0;k<nbOfSubEdges1 && !found;k++)
+                    {
+                      found=(subEdge1PossiblyAlreadyIn1[2*k]==idBg && subEdge1PossiblyAlreadyIn1[2*k+1]==idEnd) || (subEdge1PossiblyAlreadyIn1[2*k]==idEnd && subEdge1PossiblyAlreadyIn1[2*k+1]==idBg);
+                      if(!found)
+                        offset2++;
+                    }
+                  if(found)
+                    {
+                      ElementaryEdge *e=pol1[offset1+(direct1?offset2:nbOfSubEdges1-offset2-1)];
+                      e->getPtr()->declareOn();
+                    }
+                }
+            }
+          offset1+=intersectEdges1[edgeId1].size()/2;//offset1 is used to find the INTERP_KERNEL::Edge * instance into pol1 that will be part of edge into pol2
         }
     }
 }

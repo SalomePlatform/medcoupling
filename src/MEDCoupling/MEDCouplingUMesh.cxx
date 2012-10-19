@@ -6707,17 +6707,23 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */mapp,mappRev);
       pol1.buildFromCrudeDataArray(mappRev,cm.isQuadratic(),conn1+connI1[i]+1,coo1,
                                    desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
-      for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++)
+      std::vector<INTERP_KERNEL::QuadraticPolygon> pol2s(candidates2.size());
+      int ii=0;
+      for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
         {
-          INTERP_KERNEL::QuadraticPolygon pol2;
-          pol1.initLocations();
-          MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */mapp,mappRev);
           INTERP_KERNEL::NormalizedCellType typ2=(INTERP_KERNEL::NormalizedCellType)conn2[connI2[*it2]];
           const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel(typ2);
-          pol2.buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
-                                        pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2);
+          MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */mapp,mappRev);
+          pol2s[ii].buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
+                                             pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2);
+        }
+      ii=0;
+      for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
+        {
+          pol1.initLocations();
+          pol2s[ii].updateLocOfEdgeFromCrudeDataArray2(desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2);
           //MEDCouplingUMeshAssignOnLoc(pol1,pol2,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,colinear2);
-          pol1.buildPartitionsAbs(pol2,mapp,i,*it2,offset3,addCoordsQuadratic,cr,crI,cNb1,cNb2);
+          pol1.buildPartitionsAbs(pol2s[ii],mapp,i,*it2,offset3,addCoordsQuadratic,cr,crI,cNb1,cNb2);
         }
       for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
         (*it).second->decrRef();
