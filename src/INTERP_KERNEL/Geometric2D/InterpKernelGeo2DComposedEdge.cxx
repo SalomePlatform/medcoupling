@@ -256,6 +256,8 @@ void ComposedEdge::unApplyGlobalSimilarityExt(ComposedEdge& other, double xBary,
     (*iter)->unApplySimilarity(xBary,yBary,fact);
   for(std::list<ElementaryEdge *>::iterator iter=_sub_edges.begin();iter!=_sub_edges.end();iter++)
     (*iter)->unApplySimilarity(xBary,yBary,fact);
+  for(std::list<ElementaryEdge *>::iterator iter=other._sub_edges.begin();iter!=other._sub_edges.end();iter++)
+    (*iter)->unApplySimilarity(xBary,yBary,fact);
 }
 
 double ComposedEdge::normalizeExt(ComposedEdge *other, double& xBary, double& yBary)

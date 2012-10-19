@@ -68,7 +68,7 @@ namespace INTERP_KERNEL
                                       const int *descBg,  const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
     void appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size_t j, bool direct, int edgeId, const std::vector<int>& subEdge, const std::map<int,INTERP_KERNEL::Node *>& mapp);
     void appendCrudeData(const std::map<INTERP_KERNEL::Node *,int>& mapp, double xBary, double yBary, double fact, int offset, std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI) const;
-    void buildPartitionsAbs(QuadraticPolygon& other, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, int offset,
+    void buildPartitionsAbs(QuadraticPolygon& other, std::set<INTERP_KERNEL::Edge *>& edgesThis, std::set<INTERP_KERNEL::Edge *>& edgesBoundaryOther, const std::map<INTERP_KERNEL::Node *,int>& mapp, int idThis, int idOther, int offset,
                             std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
     //
     double intersectWith(const QuadraticPolygon& other) const;
@@ -82,6 +82,8 @@ namespace INTERP_KERNEL
     static void SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits);
     std::vector<QuadraticPolygon *> buildIntersectionPolygons(const QuadraticPolygon& pol1, const QuadraticPolygon& pol2) const;
     bool amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted, const QuadraticPolygon& pol2NotSplitted, bool& direction);
+    static void ComputeResidual(const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary, int idThis,
+                                std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1);
   protected:
     std::list<QuadraticPolygon *> zipConsecutiveInSegments() const;
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
