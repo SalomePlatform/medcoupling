@@ -4220,7 +4220,7 @@ try:_name("")
   med_field_type typcha;
   int nbstep2=-1;
   //
-  int ncomp=MEDfieldnComponent(fid,1);
+  int ncomp=MEDfieldnComponent(fid,fieldId+1);
   INTERP_KERNEL::AutoPtr<char> comp=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> unit=MEDLoaderBase::buildEmptyString(ncomp*MED_SNAME_SIZE);
   INTERP_KERNEL::AutoPtr<char> dtunit=MEDLoaderBase::buildEmptyString(MED_LNAME_SIZE);
