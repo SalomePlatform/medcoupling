@@ -1058,8 +1058,8 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::CheckInList(Node *n, s
   return iEnd;
 }
 
-void QuadraticPolygon::ComputeResidual(const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary, int idThis,
-                                       std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1)
+void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary, const std::map<INTERP_KERNEL::Node *,int>& mapp, int offset, int idThis,
+                                       std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2)
 {
   for(std::set<Edge *>::const_iterator it=edgesInPol2OnBoundary.begin();it!=edgesInPol2OnBoundary.end();it++)
     { (*it)->initLocs(); (*it)->declareIn(); }
@@ -1078,6 +1078,8 @@ void QuadraticPolygon::ComputeResidual(const std::set<Edge *>& notUsedInPol1, co
            if((*it)->getEndNode()->getLoc()==ON_1)
             { curN=(*it)->getStartNode(); edgesInPol2OnBoundaryL.erase(it); tmp1->pushBack(new ElementaryEdge(*it,false)); break; }
         }
+      if(!curN)
+        throw INTERP_KERNEL::Exception("Presence of a target polygon fully included in source polygon ! The partition of this leads to a non simply connex cell (with hole) ! Impossible ! Such resulting cell cannot be stored in MED cell format !");
       //
       while(curN->getLoc()!=ON_1 && !edgesInPol2OnBoundaryL.empty())
         {
@@ -1091,8 +1093,23 @@ void QuadraticPolygon::ComputeResidual(const std::set<Edge *>& notUsedInPol1, co
         }
       pol2Zip.push_back(tmp1);
     }
-  //pol2.zipConsecutiveInSegments();
-  //std::vector<QuadraticPolygon *> ret;
-  //if(!pol2Zip.empty())
-  //  closePolygons(pol2Zip,pol1,ret);
+  for(std::list<ElementaryEdge *>::const_iterator it=pol1._sub_edges.begin();it!=pol1._sub_edges.end();it++)
+    { (*it)->getPtr()->initLocs(); (*it)->declareOut(); }
+  for(std::set<Edge *>::const_iterator it=notUsedInPol1.begin();it!=notUsedInPol1.end();it++)
+    { (*it)->initLocs(); (*it)->declareIn(); }
+  for(std::set<Edge *>::const_iterator it=edgesInPol2OnBoundary.begin();it!=edgesInPol2OnBoundary.end();it++)
+    { (*it)->initLocs(); (*it)->declareOn(); }
+  std::vector<QuadraticPolygon *> ret;
+  if(pol2Zip.empty())
+    return;
+  QuadraticPolygon *firstPol2=*(pol2Zip.begin());
+  firstPol2->closePolygons(pol2Zip,pol1,ret);
+  //
+  for(std::vector<QuadraticPolygon *>::iterator it=ret.begin();it!=ret.end();it++)
+    {
+      (*it)->appendCrudeData(mapp,0.,0.,1.,offset,addCoordsQuadratic,conn,connI);
+      nb1.push_back(idThis);
+      nb2.push_back(-1);
+      delete *it;
+    }
 }
