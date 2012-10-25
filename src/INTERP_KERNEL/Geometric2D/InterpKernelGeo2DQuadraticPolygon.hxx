@@ -79,6 +79,7 @@ namespace INTERP_KERNEL
     void intersectForPoint(const QuadraticPolygon& other, std::vector< int >& numberOfCreatedPointsPerEdge) const;
   public://Only public for tests reasons
     void performLocatingOperation(QuadraticPolygon& pol2) const;
+    void performLocatingOperationSlow(QuadraticPolygon& pol2) const;
     static void SplitPolygonsEachOther(QuadraticPolygon& pol1, QuadraticPolygon& pol2, int& nbOfSplits);
     std::vector<QuadraticPolygon *> buildIntersectionPolygons(const QuadraticPolygon& pol1, const QuadraticPolygon& pol2) const;
     bool amIAChanceToBeCompletedBy(const QuadraticPolygon& pol1Splitted, const QuadraticPolygon& pol2NotSplitted, bool& direction);

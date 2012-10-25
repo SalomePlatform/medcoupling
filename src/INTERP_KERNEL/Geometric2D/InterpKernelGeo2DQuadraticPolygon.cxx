@@ -564,7 +564,7 @@ void QuadraticPolygon::buildPartitionsAbs(QuadraticPolygon& other, std::set<INTE
   double xBaryBB, yBaryBB;
   double fact=normalizeExt(&other, xBaryBB, yBaryBB);
   //Locate 'this' relative to 'other'
-  other.performLocatingOperation(*this);
+  other.performLocatingOperationSlow(*this);
   std::vector<QuadraticPolygon *> res=buildIntersectionPolygons(other,*this);
   for(std::vector<QuadraticPolygon *>::iterator it=res.begin();it!=res.end();it++)
     {
@@ -860,6 +860,16 @@ void QuadraticPolygon::performLocatingOperation(QuadraticPolygon& pol2) const
     {
       ElementaryEdge *cur=it.current();
       loc=cur->locateFullyMySelf(*this,loc);
+    }
+}
+
+void QuadraticPolygon::performLocatingOperationSlow(QuadraticPolygon& pol2) const
+{
+  IteratorOnComposedEdge it(&pol2);
+  for(it.first();!it.finished();it.next())
+    {
+      ElementaryEdge *cur=it.current();
+      cur->locateFullyMySelfAbsolute(*this);
     }
 }
 
