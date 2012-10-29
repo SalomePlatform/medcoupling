@@ -50,7 +50,7 @@ SET(COMMON_LIBS
   ${SalomeGenericObj}
   medcoupling
   interpkernel
-  ${MED3_LIBS}
+  ${MED3_LIBS_C_ONLY}
   ${HDF5_LIBS}
   ${OMNIORB_LIBS}
   ${PLATFORM_LIBS}
