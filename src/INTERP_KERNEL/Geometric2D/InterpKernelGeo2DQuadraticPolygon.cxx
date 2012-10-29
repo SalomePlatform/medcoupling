@@ -392,13 +392,37 @@ void QuadraticPolygon::appendSubEdgeFromCrudeDataArray(Edge *baseEdge, std::size
  */
 void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
                                                 const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
-                                                const std::vector< std::vector<int> >& colinear1)
+                                                const std::vector< std::vector<int> >& colinear1,
+                                                std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> >& alreadyExistingIn2)
 {
   std::size_t nbOfSeg=std::distance(descBg,descEnd);
   for(std::size_t i=0;i<nbOfSeg;i++)//loop over all edges of pol2
     {
       bool direct=descBg[i]>0;
       int edgeId=abs(descBg[i])-1;//current edge id of pol2
+      std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> >::const_iterator it1=alreadyExistingIn2.find(descBg[i]),it2=alreadyExistingIn2.find(-descBg[i]);
+      if(it1!=alreadyExistingIn2.end() || it2!=alreadyExistingIn2.end())
+        {
+          bool sameDir=(it1!=alreadyExistingIn2.end());
+          const std::vector<INTERP_KERNEL::ElementaryEdge *>& edgesAlreadyBuilt=sameDir?(*it1).second:(*it2).second;
+          if(sameDir)
+            {
+              for(std::vector<INTERP_KERNEL::ElementaryEdge *>::const_iterator it3=edgesAlreadyBuilt.begin();it3!=edgesAlreadyBuilt.end();it3++)
+                {
+                  Edge *ee=(*it3)->getPtr(); ee->incrRef();
+                  pushBack(new ElementaryEdge(ee,(*it3)->getDirection()));
+                }
+            }
+          else
+            {
+              for(std::vector<INTERP_KERNEL::ElementaryEdge *>::const_reverse_iterator it4=edgesAlreadyBuilt.rbegin();it4!=edgesAlreadyBuilt.rend();it4++)
+                {
+                  Edge *ee=(*it4)->getPtr(); ee->incrRef();
+                  pushBack(new ElementaryEdge(ee,!(*it4)->getDirection()));
+                }
+            }
+          continue;
+        }
       bool directos=colinear1[edgeId].empty();
       std::vector<std::pair<int,std::pair<bool,int> > > idIns1;
       int offset1=0;
@@ -420,7 +444,14 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
         }
       if(directos)
         {//no subpart of edge 'edgeId' of pol2 is in pol1 so let's operate the same thing that QuadraticPolygon::buildFromCrudeDataArray method
+          std::size_t oldSz=_sub_edges.size();
           appendEdgeFromCrudeDataArray(i,mapp,isQuad,nodalBg,coords,descBg,descEnd,intersectEdges);
+          std::size_t newSz=_sub_edges.size();
+          std::size_t zeSz=newSz-oldSz;
+          alreadyExistingIn2[descBg[i]].resize(zeSz);
+          std::list<ElementaryEdge *>::const_reverse_iterator it5=_sub_edges.rbegin();
+          for(std::size_t p=0;p<zeSz;p++,it5++)
+            alreadyExistingIn2[descBg[i]][zeSz-p-1]=*it5;
         }
       else
         {//there is subpart of edge 'edgeId' of pol2 inside pol1
@@ -459,13 +490,16 @@ void QuadraticPolygon::buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL
                   Node *end=(*mapp.find(idEnd)).second;
                   ElementaryEdge *e=ElementaryEdge::BuildEdgeFromCrudeDataArray(true,start,end);
                   pushBack(e);
+                  alreadyExistingIn2[descBg[i]].push_back(e);
                 }
               else
                 {//the current subedge of edge 'edgeId' of pol2 is part of the colinear edge 'idIn1' of pol1 -> reuse Edge instance of pol1
                   ElementaryEdge *e=pol1[offset1+(direct1?offset2:nbOfSubEdges1-offset2-1)];
                   Edge *ee=e->getPtr();
                   ee->incrRef();
-                  pushBack(new ElementaryEdge(ee,!(direct1^direction11)));
+                  ElementaryEdge *e2=new ElementaryEdge(ee,!(direct1^direction11));
+                  pushBack(e2);
+                  alreadyExistingIn2[descBg[i]].push_back(e2);
                 }
             }
         }
@@ -1068,13 +1102,77 @@ std::list<QuadraticPolygon *>::iterator QuadraticPolygon::CheckInList(Node *n, s
   return iEnd;
 }
 
+/*
+ * \a pol1Part border nodes are expected to be equal to border nodes of \a pol2ComplementaryPart when calling this method.
+ * 
+ */
+QuadraticPolygon *QuadraticPolygon::BuildClosedPolygonFrom(const QuadraticPolygon *pol1Part, const QuadraticPolygon *pol2ComplementaryPart, bool sameDir)
+{
+  QuadraticPolygon *ret=new QuadraticPolygon;
+  for(std::list<ElementaryEdge *>::const_iterator it=pol1Part->_sub_edges.begin();it!=pol1Part->_sub_edges.end();it++)
+    ret->pushBack(*it);
+  if(sameDir)
+    {
+      for(std::list<ElementaryEdge *>::const_iterator it=pol2ComplementaryPart->_sub_edges.begin();it!=pol2ComplementaryPart->_sub_edges.end();it++)
+	{ Edge *ee=(*it)->getPtr(); ee->incrRef(); bool dir=(*it)->getDirection(); ret->pushBack(new ElementaryEdge(ee,dir)); }
+    }
+  else
+    {
+      for(std::list<ElementaryEdge *>::const_reverse_iterator it2=pol2ComplementaryPart->_sub_edges.rbegin();it2!=pol2ComplementaryPart->_sub_edges.rend();it2++)
+	{ Edge *ee=(*it2)->getPtr(); ee->incrRef(); bool dir=(*it2)->getDirection(); ret->pushBack(new ElementaryEdge(ee,!dir)); }
+    }
+  return ret;
+}
+
 void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::set<Edge *>& notUsedInPol1, const std::set<Edge *>& edgesInPol2OnBoundary, const std::map<INTERP_KERNEL::Node *,int>& mapp, int offset, int idThis,
                                        std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2)
 {
+  pol1.initLocations();
   for(std::set<Edge *>::const_iterator it=edgesInPol2OnBoundary.begin();it!=edgesInPol2OnBoundary.end();it++)
     { (*it)->initLocs(); (*it)->declareIn(); }
   for(std::set<Edge *>::const_iterator it=notUsedInPol1.begin();it!=notUsedInPol1.end();it++)
     { (*it)->initLocs(); (*it)->declareOn(); }
+  ////
+  bool found=false;
+  std::set<Edge *> notUsedInPol1L(notUsedInPol1);
+  IteratorOnComposedEdge it(const_cast<QuadraticPolygon *>(&pol1));
+  if(it.current()->getLoc()==FULL_ON_1)
+    {
+      while(!found)
+	{
+	  it.previousLoop();
+	  found=it.current()->getLoc()!=FULL_ON_1;
+	}
+      it.nextLoop();
+    }
+  else
+    {
+      while(!found)
+	{
+	  it.nextLoop();
+	  found=it.current()->getLoc()==FULL_ON_1;
+	}
+    }
+  std::list<QuadraticPolygon *> pol1Zip;
+  while(!notUsedInPol1L.empty())
+    {
+      QuadraticPolygon *tmp1=new QuadraticPolygon;
+      while(it.current()->getLoc()==FULL_ON_1)
+	{
+	  Edge *ee=it.current()->getPtr();
+	  ee->incrRef();
+	  tmp1->pushBack(new ElementaryEdge(ee,it.current()->getDirection()));
+	  notUsedInPol1L.erase(ee);
+	  it.nextLoop();
+	}
+      pol1Zip.push_back(tmp1);
+      if(!notUsedInPol1L.empty())
+	{
+	  while(it.current()->getLoc()!=FULL_ON_1)
+	    it.nextLoop();
+	}
+    }
+  ////
   std::list<QuadraticPolygon *> pol2Zip;
   std::list<Edge *> edgesInPol2OnBoundaryL(edgesInPol2OnBoundary.begin(),edgesInPol2OnBoundary.end());
   while(!edgesInPol2OnBoundaryL.empty())
@@ -1084,9 +1182,9 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
       for(std::list<Edge *>::iterator it=edgesInPol2OnBoundaryL.begin();it!=edgesInPol2OnBoundaryL.end();it++)
         {
           if((*it)->getStartNode()->getLoc()==ON_1)
-            { curN=(*it)->getEndNode(); edgesInPol2OnBoundaryL.erase(it); tmp1->pushBack(new ElementaryEdge(*it,true)); break; }
+            { curN=(*it)->getEndNode(); (*it)->incrRef(); tmp1->pushBack(new ElementaryEdge(*it,true)); edgesInPol2OnBoundaryL.erase(it); break; }
            if((*it)->getEndNode()->getLoc()==ON_1)
-            { curN=(*it)->getStartNode(); edgesInPol2OnBoundaryL.erase(it); tmp1->pushBack(new ElementaryEdge(*it,false)); break; }
+            { curN=(*it)->getStartNode(); (*it)->incrRef(); tmp1->pushBack(new ElementaryEdge(*it,false)); edgesInPol2OnBoundaryL.erase(it); break; }
         }
       if(!curN)
         throw INTERP_KERNEL::Exception("Presence of a target polygon fully included in source polygon ! The partition of this leads to a non simply connex cell (with hole) ! Impossible ! Such resulting cell cannot be stored in MED cell format !");
@@ -1096,30 +1194,36 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
           for(std::list<Edge *>::iterator it=edgesInPol2OnBoundaryL.begin();it!=edgesInPol2OnBoundaryL.end();it++)
             {
               if((*it)->getStartNode()==curN)
-                { curN=(*it)->getEndNode(); edgesInPol2OnBoundaryL.erase(it); tmp1->pushBack(new ElementaryEdge(*it,true)); break; }
+                { curN=(*it)->getEndNode(); (*it)->incrRef(); tmp1->pushBack(new ElementaryEdge(*it,true)); edgesInPol2OnBoundaryL.erase(it); break; }
               if((*it)->getEndNode()==curN)
-                { curN=(*it)->getStartNode(); edgesInPol2OnBoundaryL.erase(it); tmp1->pushBack(new ElementaryEdge(*it,false)); break; }
+                { curN=(*it)->getStartNode(); (*it)->incrRef(); tmp1->pushBack(new ElementaryEdge(*it,false)); edgesInPol2OnBoundaryL.erase(it); break; }
             }
         }
       pol2Zip.push_back(tmp1);
     }
-  for(std::list<ElementaryEdge *>::const_iterator it=pol1._sub_edges.begin();it!=pol1._sub_edges.end();it++)
-    { (*it)->getPtr()->initLocs(); (*it)->declareOut(); }
-  for(std::set<Edge *>::const_iterator it=notUsedInPol1.begin();it!=notUsedInPol1.end();it++)
-    { (*it)->initLocs(); (*it)->declareIn(); }
-  for(std::set<Edge *>::const_iterator it=edgesInPol2OnBoundary.begin();it!=edgesInPol2OnBoundary.end();it++)
-    { (*it)->initLocs(); (*it)->declareOn(); }
-  std::vector<QuadraticPolygon *> ret;
-  if(pol2Zip.empty())
-    return;
-  QuadraticPolygon *firstPol2=*(pol2Zip.begin());
-  firstPol2->closePolygons(pol2Zip,pol1,ret);
   //
-  for(std::vector<QuadraticPolygon *>::iterator it=ret.begin();it!=ret.end();it++)
+  for(std::list<QuadraticPolygon *>::iterator it1=pol1Zip.begin();it1!=pol1Zip.end();it1++)
     {
-      (*it)->appendCrudeData(mapp,0.,0.,1.,offset,addCoordsQuadratic,conn,connI);
-      nb1.push_back(idThis);
-      nb2.push_back(-1);
-      delete *it;
+      std::list<QuadraticPolygon *>::iterator it2=pol2Zip.begin();
+      found=false;
+      bool found1=false,found2=false;
+      while(it2!=pol2Zip.end())
+	{
+	  found1=(*it2)->getStartNode()==(*it1)->getEndNode()   && (*it2)->getEndNode()==(*it1)->getStartNode();
+	  found2=(*it2)->getStartNode()==(*it1)->getStartNode() && (*it2)->getEndNode()==(*it1)->getEndNode();
+	  found=found1 || found2;
+	  if(!found)
+	    it2++;
+	  else
+	    break;
+	}
+      if(!found)
+	throw INTERP_KERNEL::Exception("Deep mismatch of edges ! Internal Error !");
+      QuadraticPolygon *ret=BuildClosedPolygonFrom(*it1,*it2,found1);
+      ret->appendCrudeData(mapp,0.,0.,1.,offset,addCoordsQuadratic,conn,connI); nb1.push_back(idThis); nb2.push_back(-1);
+      delete ret;
+      SoftDelete(*it1);
+      delete *it2;
+      pol2Zip.erase(it2);
     }
 }

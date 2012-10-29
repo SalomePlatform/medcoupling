@@ -136,6 +136,21 @@ void ComposedEdge::initLocations() const
     (*iter)->initLocations();
 }
 
+void ComposedEdge::initLocationsWithOther(const ComposedEdge& other) const
+{
+  std::set<Edge *> s1,s2;
+  for(std::list<ElementaryEdge *>::const_iterator it1=_sub_edges.begin();it1!=_sub_edges.end();it1++)
+    s1.insert((*it1)->getPtr());
+  for(std::list<ElementaryEdge *>::const_iterator it2=other._sub_edges.begin();it2!=other._sub_edges.end();it2++)
+    s2.insert((*it2)->getPtr());
+  initLocations();
+  other.initLocations();
+  std::vector<Edge *> s3;
+  std::set_intersection(s1.begin(),s1.end(),s2.begin(),s2.end(),std::back_insert_iterator< std::vector<Edge *> >(s3));
+  for(std::vector<Edge *>::const_iterator it3=s3.begin();it3!=s3.end();it3++)
+    (*it3)->declareOn();
+}
+
 ComposedEdge *ComposedEdge::clone() const
 {
   return new ComposedEdge(*this);

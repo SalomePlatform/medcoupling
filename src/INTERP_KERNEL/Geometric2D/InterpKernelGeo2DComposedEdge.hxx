@@ -50,6 +50,7 @@ namespace INTERP_KERNEL
     bool presenceOfOn() const;
     bool presenceOfQuadraticEdge() const;
     void initLocations() const;
+    void initLocationsWithOther(const ComposedEdge& other) const;
     ComposedEdge *clone() const;
     bool isNodeIn(Node *n) const;
     double getArea() const;

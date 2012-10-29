@@ -62,7 +62,8 @@ namespace INTERP_KERNEL
                                  const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
     void buildFromCrudeDataArray2(const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords, const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges,
                                   const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1,
-                                  const std::vector< std::vector<int> >& colinear1);
+                                  const std::vector< std::vector<int> >& colinear1,
+                                  std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> >& alreadyExistingIn2);
     void updateLocOfEdgeFromCrudeDataArray2(const int *descBg, const int *descEnd, const std::vector<std::vector<int> >& intersectEdges, const INTERP_KERNEL::QuadraticPolygon& pol1, const int *descBg1, const int *descEnd1, const std::vector<std::vector<int> >& intersectEdges1, const std::vector< std::vector<int> >& colinear1) const;
     void appendEdgeFromCrudeDataArray(std::size_t edgeId, const std::map<int,INTERP_KERNEL::Node *>& mapp, bool isQuad, const int *nodalBg, const double *coords,
                                       const int *descBg,  const int *descEnd, const std::vector<std::vector<int> >& intersectEdges);
@@ -87,6 +88,7 @@ namespace INTERP_KERNEL
                                 std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
   protected:
     std::list<QuadraticPolygon *> zipConsecutiveInSegments() const;
+    static QuadraticPolygon *BuildClosedPolygonFrom(const QuadraticPolygon *pol1Part, const QuadraticPolygon *pol2ComplementaryPart, bool sameDir);
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
     void closePolygons(std::list<QuadraticPolygon *>& pol2Zip, const QuadraticPolygon& pol1, std::vector<QuadraticPolygon *>& results) const;
     template<class EDGES>
