@@ -1196,8 +1196,6 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
               delete *it;
               it=retPolsUnderContruction.erase(it);
             }
-          else
-            it++;
         }
       if(!pol1Zip.empty())
         {
