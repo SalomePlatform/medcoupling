@@ -42,8 +42,6 @@ namespace INTERP_KERNEL
           return INTERP_KERNEL::calculateLgthForSeg2(coords+(SPACEDIM*N1),coords+(SPACEDIM*N2),SPACEDIM);
         }
       case INTERP_KERNEL::NORM_TRI3 :
-      case INTERP_KERNEL::NORM_TRI6 :
-      case INTERP_KERNEL::NORM_TRI7 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
@@ -56,9 +54,20 @@ namespace INTERP_KERNEL
         }
         break;
             
+      case INTERP_KERNEL::NORM_TRI6 :
+      case INTERP_KERNEL::NORM_TRI7 :
+        {
+          const double *pts[6];
+          pts[0] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]);
+          pts[1] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[1]);
+          pts[2] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[2]);
+          pts[3] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[3]);
+          pts[4] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[4]);
+          pts[5] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[5]);
+          return INTERP_KERNEL::calculateAreaForQPolyg(pts,6,SPACEDIM);
+        }
+        break;
       case INTERP_KERNEL::NORM_QUAD4 :
-      case INTERP_KERNEL::NORM_QUAD8 :
-      case INTERP_KERNEL::NORM_QUAD9 :
         {
           int N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           int N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
@@ -72,7 +81,21 @@ namespace INTERP_KERNEL
                                                      SPACEDIM);
         }
         break;
-            
+      case INTERP_KERNEL::NORM_QUAD8 :
+      case INTERP_KERNEL::NORM_QUAD9 :  
+        {
+          const double *pts[8];
+          pts[0] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]);
+          pts[1] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[1]);
+          pts[2] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[2]);
+          pts[3] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[3]);
+          pts[4] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[4]);
+          pts[5] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[5]);
+          pts[6] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[6]);
+          pts[7] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[7]);
+          return INTERP_KERNEL::calculateAreaForQPolyg(pts,8,SPACEDIM);
+        }
+        break;
       case INTERP_KERNEL::NORM_POLYGON :
         {          
           const double **pts=new const double *[lgth];
@@ -83,6 +106,15 @@ namespace INTERP_KERNEL
           return val;
         }
         break;
+      case INTERP_KERNEL::NORM_QPOLYG :
+        {
+          const double **pts=new const double *[lgth];
+          for(int inod=0;inod<lgth;inod++)
+            pts[inod] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[inod]);
+          double val=INTERP_KERNEL::calculateAreaForQPolyg(pts,lgth,SPACEDIM);
+          delete [] pts;
+          return val;
+        }
       case INTERP_KERNEL::NORM_TETRA4 :
       case INTERP_KERNEL::NORM_TETRA10 :
         {
