@@ -1136,9 +1136,10 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   bool found=false;
   std::set<Edge *> notUsedInPol1L(notUsedInPol1);
   IteratorOnComposedEdge it(const_cast<QuadraticPolygon *>(&pol1));
+  int sz=pol1.size();
   if(it.current()->getLoc()==FULL_ON_1)
     {
-      while(!found)
+      for(int iii=0;iii<sz-1 && !found;iii++)
 	{
 	  it.previousLoop();
 	  found=it.current()->getLoc()!=FULL_ON_1;
@@ -1157,7 +1158,7 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   while(!notUsedInPol1L.empty())
     {
       QuadraticPolygon *tmp1=new QuadraticPolygon;
-      while(it.current()->getLoc()==FULL_ON_1)
+      for(int iii=0;iii<sz && it.current()->getLoc()==FULL_ON_1;iii++)
 	{
 	  Edge *ee=it.current()->getPtr();
 	  ee->incrRef();
@@ -1218,7 +1219,16 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
 	    break;
 	}
       if(!found)
-	throw INTERP_KERNEL::Exception("Deep mismatch of edges ! Internal Error !");
+        {
+          if((*it1)->getStartNode()==(*it1)->getEndNode() && pol2Zip.empty())
+            {
+              (*it1)->appendCrudeData(mapp,0.,0.,1.,offset,addCoordsQuadratic,conn,connI); nb1.push_back(idThis); nb2.push_back(-1);
+              SoftDelete(*it1);
+              continue;
+            }
+          else
+            throw INTERP_KERNEL::Exception("Deep mismatch of edges ! Internal Error !");
+        }
       QuadraticPolygon *ret=BuildClosedPolygonFrom(*it1,*it2,found1);
       ret->appendCrudeData(mapp,0.,0.,1.,offset,addCoordsQuadratic,conn,connI); nb1.push_back(idThis); nb2.push_back(-1);
       delete ret;
