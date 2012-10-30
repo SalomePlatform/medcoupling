@@ -1116,6 +1116,11 @@ void QuadraticPolygon::ComputeResidual(const QuadraticPolygon& pol1, const std::
   IteratorOnComposedEdge it(const_cast<QuadraticPolygon *>(&pol1));
   int sz=pol1.size();
   std::list<QuadraticPolygon *> pol1Zip;
+  if(pol1.size()==(int)notUsedInPol1.size() && edgesInPol2OnBoundary.empty())
+    {
+      pol1.appendCrudeData(mapp,0.,0.,1.,offset,addCoordsQuadratic,conn,connI); nb1.push_back(idThis); nb2.push_back(-1);
+      return ;
+    }
   while(!notUsedInPol1L.empty())
     {
       for(int i=0;i<sz && (it.current()->getStartNode()->getLoc()!=IN_1 || it.current()->getLoc()!=FULL_ON_1);i++)
