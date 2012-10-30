@@ -88,7 +88,6 @@ namespace INTERP_KERNEL
                                 std::vector<double>& addCoordsQuadratic, std::vector<int>& conn, std::vector<int>& connI, std::vector<int>& nb1, std::vector<int>& nb2);
   protected:
     std::list<QuadraticPolygon *> zipConsecutiveInSegments() const;
-    static QuadraticPolygon *BuildClosedPolygonFrom(const QuadraticPolygon *pol1Part, const QuadraticPolygon *pol2ComplementaryPart, bool sameDir);
     void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
     void closePolygons(std::list<QuadraticPolygon *>& pol2Zip, const QuadraticPolygon& pol1, std::vector<QuadraticPolygon *>& results) const;
     template<class EDGES>
