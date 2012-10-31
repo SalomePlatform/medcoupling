@@ -2604,6 +2604,27 @@ std::string MEDCouplingUMesh::advancedRepr() const
   return ret.str();
 }
 
+/*!
+ * This method returns a C++ code that is a dump of \a this.
+ * This method will throw if this is not fully defined.
+ */
+std::string MEDCouplingUMesh::cppRepr() const throw(INTERP_KERNEL::Exception)
+{
+  static const char coordsName[]="coords";
+  static const char connName[]="conn";
+  static const char connIName[]="connI";
+  checkFullyDefined();
+  std::ostringstream ret; ret << "// coordinates" << std::endl;
+  _coords->reprCppStream(coordsName,ret); ret << std::endl << "// connectivity" << std::endl;
+  _nodal_connec->reprCppStream(connName,ret); ret << std::endl;
+  _nodal_connec_index->reprCppStream(connIName,ret); ret << std::endl;
+  ret << "MEDCouplingUMesh *mesh=MEDCouplingUMesh::New(\"" << getName() << "\"," << getMeshDimension() << ");" << std::endl;
+  ret << "mesh->setCoords(" << coordsName << ");" << std::endl;
+  ret << "mesh->setConnectivity(" << connName << "," << connIName << ",true);" << std::endl;
+  ret << coordsName << "->decrRef(); " << connName << "->decrRef(); " << connIName << "->decrRef();" << std::endl;
+  return ret.str();
+}
+
 std::string MEDCouplingUMesh::reprConnectivityOfThis() const
 {
   std::ostringstream ret;

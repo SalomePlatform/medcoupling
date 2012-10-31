@@ -171,6 +171,13 @@ void DataArray::reprWithoutNameStream(std::ostream& stream) const
   stream << "\n";
 }
 
+std::string DataArray::cppRepr(const char *varName) const throw(INTERP_KERNEL::Exception)
+{
+  std::ostringstream ret;
+  reprCppStream(varName,ret);
+  return ret.str();
+}
+
 void DataArray::setInfoOnComponents(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception)
 {
   if(getNumberOfComponents()!=(int)info.size())
@@ -718,6 +725,24 @@ void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
   DataArray::reprWithoutNameStream(stream);
   stream.precision(17);
   _mem.reprZip(getNumberOfComponents(),stream);
+}
+
+void DataArrayDouble::reprCppStream(const char *varName, std::ostream& stream) const
+{
+  int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
+  const double *data=getConstPointer();
+  stream.precision(17);
+  stream << "DataArrayDouble *" << varName << "=DataArrayDouble::New();" << std::endl;
+  if(nbTuples*nbComp>=1)
+    {
+      stream << "const double " << varName << "Data[" << nbTuples*nbComp << "]={";
+      std::copy(data,data+nbTuples*nbComp-1,std::ostream_iterator<double>(stream,","));
+      stream << data[nbTuples*nbComp-1] << "};" << std::endl;
+      stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");" << std::endl;
+    }
+  else
+    stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
+  stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
 }
 
 bool DataArrayDouble::isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const
@@ -3553,6 +3578,23 @@ void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
+void DataArrayInt::reprCppStream(const char *varName, std::ostream& stream) const
+{
+  int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
+  const int *data=getConstPointer();
+  stream << "DataArrayInt *" << varName << "=DataArrayInt::New();" << std::endl;
+  if(nbTuples*nbComp>=1)
+    {
+      stream << "const int " << varName << "Data[" << nbTuples*nbComp << "]={";
+      std::copy(data,data+nbTuples*nbComp-1,std::ostream_iterator<int>(stream,","));
+      stream << data[nbTuples*nbComp-1] << "};" << std::endl;
+      stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");" << std::endl;
+    }
+  else
+    stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
+  stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
+}
+
 /*!
  * This method expects a number of components equal to 1.
  * This method sweeps all the values (tuples) in 'this' (it should be allocated) and for each value v is replaced by
@@ -3891,7 +3933,7 @@ DataArrayInt *DataArrayInt::renumberR(const int *new2Old) const
 }
 
 /*!
- * Idem DataArrayDouble::renumber method except that the number of tuples is reduced.
+ * Idem DataArrayInt::renumber method except that the number of tuples is reduced.
  * That is to say that it is expected that newNbOfTuple<this->getNumberOfTuples().
  * ['old2New','old2New'+getNumberOfTuples()) defines a range containing old to new array. For every negative value in ['old2NewBg','old2New'getNumberOfTuples()) the corresponding tuple is
  * omitted.
