@@ -10265,6 +10265,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(expected2,d2.getValues())
         pass
 
+    def testDAIBuildUnique1(self):
+        d=DataArrayInt([1,2,2,3,3,3,3,4,5,5,7,7,7,19])
+        e=d.buildUnique()
+        self.assertTrue(e.isEqual(DataArrayInt([1,2,3,4,5,7,19])))
+        pass
+
     def setUp(self):
         pass
     pass

@@ -1620,3 +1620,21 @@ void MEDCouplingBasicsTest5::testIntersect2DMeshesTmp5()
   m2->decrRef();
   m1->decrRef();
 }
+
+void MEDCouplingBasicsTest5::testDAIBuildUnique1()
+{
+  DataArrayInt *d=DataArrayInt::New();
+  const int dData[14]={1,2,2,3,3,3,3,4,5,5,7,7,7,19};
+  d->useArray(dData,false,CPP_DEALLOC,14,1);
+  const int expectedData[7]={1,2,3,4,5,7,19};
+  //
+  DataArrayInt *e=d->buildUnique();
+  CPPUNIT_ASSERT_EQUAL(7,e->getNumberOfTuples());
+  CPPUNIT_ASSERT_EQUAL(1,e->getNumberOfComponents());
+  for(int i=0;i<7;i++)
+    CPPUNIT_ASSERT_EQUAL(expectedData[i],e->getIJ(i,0));
+  //
+  e->decrRef();
+  d->decrRef();
+}
+

@@ -162,6 +162,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayInt::buildUnion;
 %newobject ParaMEDMEM::DataArrayInt::buildSubstraction;
 %newobject ParaMEDMEM::DataArrayInt::buildIntersection;
+%newobject ParaMEDMEM::DataArrayInt::buildUnique;
 %newobject ParaMEDMEM::DataArrayInt::deltaShiftIndex;
 %newobject ParaMEDMEM::DataArrayInt::buildExplicitArrByRanges;
 %newobject ParaMEDMEM::DataArrayInt::findRangeIdForEachTuple;

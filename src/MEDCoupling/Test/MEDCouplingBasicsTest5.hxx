@@ -67,6 +67,7 @@ namespace ParaMEDMEM
     CPPUNIT_TEST( testKrSpatialDiscretization1 );
     CPPUNIT_TEST( testDuplicateEachTupleNTimes1 );
     CPPUNIT_TEST( testIntersect2DMeshesTmp5 );
+    CPPUNIT_TEST( testDAIBuildUnique1 );
     CPPUNIT_TEST_SUITE_END();
   public:
     void testUMeshTessellate2D1();
@@ -100,6 +101,7 @@ namespace ParaMEDMEM
     void testKrSpatialDiscretization1();
     void testDuplicateEachTupleNTimes1();
     void testIntersect2DMeshesTmp5();
+    void testDAIBuildUnique1();
   };
 }
 

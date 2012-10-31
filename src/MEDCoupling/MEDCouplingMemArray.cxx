@@ -28,6 +28,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <algorithm>
 #include <functional>
 
 typedef double (*MYFUNCPTR)(double);
@@ -5508,6 +5509,30 @@ DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const t
   std::vector<const DataArrayInt *>arrs(2);
   arrs[0]=this; arrs[1]=other;
   return BuildIntersection(arrs);
+}
+
+/*!
+ * This method can be applied on allocated with one component DataArrayInt instance.
+ * This method is typically relevant for sorted arrays. All consecutive duplicated items in \a this will appear only once in returned DataArrayInt instance.
+ * Example : if \a this contains [1,2,2,3,3,3,3,4,5,5,7,7,7,19] the returned array will contain [1,2,3,4,5,7,19]
+ * 
+ * \return a newly allocated array that contain the result of the unique operation applied on \a this.
+ * \throw if \a this is not allocated or if \a this has not exactly one component.
+ */
+DataArrayInt *DataArrayInt::buildUnique() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnique : only single component allowed !");
+  int nbOfTuples=getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=deepCpy();
+  int *data=tmp->getPointer();
+  int *last=std::unique(data,data+nbOfTuples);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(std::distance(data,last),1);
+  std::copy(data,last,ret->getPointer());
+  ret->incrRef();
+  return ret;
 }
 
 /*!
