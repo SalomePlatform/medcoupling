@@ -441,6 +441,7 @@ int MEDCouplingRemapper::prepareUC(const char *method) throw(INTERP_KERNEL::Exce
   std::string methodCpp(method);
   if(methodCpp!="P0P0")
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareUC : only P0P0 interpolation supported for the moment !");
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
   MEDCouplingUMesh *src_mesh=static_cast<MEDCouplingUMesh *>(_src_mesh);
   MEDCouplingCMesh *target_mesh=static_cast<MEDCouplingCMesh *>(_target_mesh);
   const int srcMeshDim=src_mesh->getMeshDimension();
@@ -494,6 +495,7 @@ int MEDCouplingRemapper::prepareCU(const char *method) throw(INTERP_KERNEL::Exce
   std::string methodCpp(method);
   if(methodCpp!="P0P0")
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCU : only P0P0 interpolation supported for the moment !");
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
   MEDCouplingCMesh *src_mesh=static_cast<MEDCouplingCMesh *>(_src_mesh);
   MEDCouplingUMesh *target_mesh=static_cast<MEDCouplingUMesh *>(_target_mesh);
   const int srcMeshDim=src_mesh->getMeshDimension();
@@ -545,6 +547,7 @@ int MEDCouplingRemapper::prepareCC(const char *method) throw(INTERP_KERNEL::Exce
   std::string methodCpp(method);
   if(methodCpp!="P0P0")
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCC : only P0P0 interpolation supported for the moment !");
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
   MEDCouplingCMesh *src_mesh=static_cast<MEDCouplingCMesh *>(_src_mesh);
   MEDCouplingCMesh *target_mesh=static_cast<MEDCouplingCMesh *>(_target_mesh);
   const int srcMeshDim=src_mesh->getMeshDimension();
