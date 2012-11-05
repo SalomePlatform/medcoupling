@@ -574,8 +574,8 @@ int MEDCouplingRemapper::prepareCC(const char *method) throw(INTERP_KERNEL::Exce
       }
     case 3:
       {
-        MEDCouplingNormalizedCartesianMesh<2> sourceWrapper(src_mesh);
-        MEDCouplingNormalizedCartesianMesh<2> targetWrapper(target_mesh);
+        MEDCouplingNormalizedCartesianMesh<3> sourceWrapper(src_mesh);
+        MEDCouplingNormalizedCartesianMesh<3> targetWrapper(target_mesh);
         INTERP_KERNEL::InterpolationCC myInterpolator(*this);
         myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,_matrix,"P0P0");
         break;
