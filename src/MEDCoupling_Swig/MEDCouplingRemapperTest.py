@@ -122,6 +122,67 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(valuesExpected[i0],values[i0],12);
             pass
         pass
+
+    def testPrepareUC(self):
+        # 1D
+        coords=DataArrayDouble([0.,0.5,0.7])
+        src=MEDCouplingUMesh("",1) ; src.setCoords(coords)
+        src.allocateCells(2) ; src.insertNextCell(NORM_SEG2,[0,1]) ; src.insertNextCell(NORM_SEG2,[1,2]) ; src.finishInsertingCells()
+        trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
+        trg.setCoordsAt(0,arr)
+        fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.])
+        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        rem=MEDCouplingRemapper()
+        rem.prepare(src,trg,"P0P0")
+        trgField=rem.transferField(fieldSrc,-7.)
+        expected1=[-7.,4.,36.,-7.,-7.]
+        self.assertEqual(5,trgField.getArray().getNumberOfTuples())
+        self.assertEqual(5,len(expected1))
+        for i,val in enumerate(expected1):
+            self.assertAlmostEqual(expected1[i],trgField.getArray().getIJ(i,0),12);
+            pass
+        # 2D
+        coords=DataArrayDouble([0.,0.,0.,1.,1.,1.,1.,0.,0.5,-0.2],5,2)
+        src=MEDCouplingUMesh("",2) ; src.setCoords(coords)
+        src.allocateCells(2) ; src.insertNextCell(NORM_TRI3,[0,1,2]) ; src.insertNextCell(NORM_TRI3,[3,4,0]) ; src.finishInsertingCells()
+        trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
+        trg.setCoordsAt(0,arr) ; trg.setCoordsAt(1,arr)
+        fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.])
+        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        rem=MEDCouplingRemapper()
+        rem.prepare(src,trg,"P0P0")
+        trgField=rem.transferField(fieldSrc,-7.)
+        expected2=[-7.,-7.,7.35,0.15,-7.,-7.,2.8,14.85,5.25,-7.,-7.,2.,2.5,-7.,-7.,-7.,1.2,3.,0.9,-7.,-7.,-7.,-7.,-7.,-7.]
+        self.assertEqual(25,trgField.getArray().getNumberOfTuples())
+        self.assertEqual(25,len(expected2))
+        for i,val in enumerate(expected2):
+            self.assertAlmostEqual(expected2[i],trgField.getArray().getIJ(i,0),12);
+            pass
+        # 3D
+        coords=DataArrayDouble([0.,0.,0.,0.,1.,0.,1.,1.,0.,1.,0.,0.,0.5,-0.2,0.,0.1,0.8,1.,0.5,0.,1.],7,3)
+        src=MEDCouplingUMesh("",3) ; src.setCoords(coords)
+        src.allocateCells(2) ; src.insertNextCell(NORM_TETRA4,[0,1,2,5]) ; src.insertNextCell(NORM_TETRA4,[3,4,0,6]) ; src.finishInsertingCells()
+        trg=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3]) ; arr2=DataArrayDouble([-0.7,0.2,0.6,1.2,2.])
+        trg.setCoordsAt(0,arr) ; trg.setCoordsAt(1,arr) ; trg.setCoordsAt(2,arr2)
+        src.checkCoherency2(1e-10)
+        trg.checkCoherency()
+        fieldSrc=MEDCouplingFieldDouble(ON_CELLS,NO_TIME) ; fieldSrc.setMesh(src) ; arrSrc=DataArrayDouble([10.,30.])
+        fieldSrc.setNature(Integral) ;  fieldSrc.setArray(arrSrc)
+        rem=MEDCouplingRemapper()
+        #rem.prepare(src,trg,"P0P0")
+        #print rem.getCrudeMatrix()
+        #src.writeVTK("src.vtu")
+        #trg2=trg.buildUnstructured()
+        #trg2.writeVTK("trg.vtu")
+        #trgField=rem.transferField(fieldSrc,-7.)
+        #print trgField.getArray().getValues()
+        #expected3=[-7.,-7.,7.35,0.15,-7.,-7.,2.8,14.85,5.25,-7.,-7.,2.,2.5,-7.,-7.,-7.,1.2,3.,0.9,-7.,-7.,-7.,-7.,-7.,-7.]
+        #self.assertEqual(100,trgField.getArray().getNumberOfTuples())
+        #self.assertEqual(100,len(expected3))
+        #for i,val in enumerate(expected3):
+        #    self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12);
+        #    pass
+        pass
     
     def build2DSourceMesh_1(self):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
