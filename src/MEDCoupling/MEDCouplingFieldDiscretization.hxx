@@ -246,7 +246,7 @@ namespace ParaMEDMEM
     int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
-    std::vector<DataArrayInt *> splitIntoSingleGaussDicrPerCellType(std::vector< std::vector<int> >& locIds) const throw(INTERP_KERNEL::Exception);
+    std::vector<DataArrayInt *> splitIntoSingleGaussDicrPerCellType(std::vector< int >& locIds) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildNbOfGaussPointPerCellField() const throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other);

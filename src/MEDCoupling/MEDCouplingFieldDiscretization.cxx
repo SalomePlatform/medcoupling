@@ -999,7 +999,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValue
   DataArrayDouble *ret=DataArrayDouble::New();
   int spaceDim=mesh->getSpaceDimension();
   ret->alloc(nbOfTuples,spaceDim);
-  std::vector< std::vector<int> > locIds;
+  std::vector< int > locIds;
   std::vector<DataArrayInt *> parts=splitIntoSingleGaussDicrPerCellType(locIds);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > parts2(parts.size());
   std::copy(parts.begin(),parts.end(),parts2.begin());
@@ -1013,21 +1013,17 @@ DataArrayDouble *MEDCouplingFieldDiscretizationGauss::getLocalizationOfDiscValue
   for(std::size_t i=0;i<parts2.size();i++)
     {
       INTERP_KERNEL::GaussCoords calculator;
-      for(std::vector<int>::const_iterator it=locIds[i].begin();it!=locIds[i].end();it++)
-        {
-          const MEDCouplingGaussLocalization& cli=_loc[*it];//curLocInfo
-          INTERP_KERNEL::NormalizedCellType typ=cli.getType();
-          const std::vector<double>& wg=cli.getWeights();
-          calculator.addGaussInfo(typ,INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension(),
+      //
+      const MEDCouplingGaussLocalization& cli=_loc[locIds[i]];//curLocInfo
+      INTERP_KERNEL::NormalizedCellType typ=cli.getType();
+      const std::vector<double>& wg=cli.getWeights();
+      calculator.addGaussInfo(typ,INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension(),
                                   &cli.getGaussCoords()[0],(int)wg.size(),&cli.getRefCoords()[0],
                                   INTERP_KERNEL::CellModel::GetCellModel(typ).getNumberOfNodes());
-        }
+      //
       int nbt=parts2[i]->getNumberOfTuples();
       for(const int *w=parts2[i]->getConstPointer();w!=parts2[i]->getConstPointer()+nbt;w++)
-        {
-          const MEDCouplingGaussLocalization& cli=_loc[*w];
-          calculator.calculateCoords(cli.getType(),coords,spaceDim,conn+connI[*w]+1,valsToFill+spaceDim*(ptrOffsets[*w]));
-        }
+        calculator.calculateCoords(cli.getType(),coords,spaceDim,conn+connI[*w]+1,valsToFill+spaceDim*(ptrOffsets[*w]));
     }
   ret->copyStringInfoFrom(*umesh->getCoords());
   return ret;
@@ -1419,54 +1415,32 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
  * 
  * If no descretization is set in 'this' and exception will be thrown.
  */
-std::vector<DataArrayInt *> MEDCouplingFieldDiscretizationGauss::splitIntoSingleGaussDicrPerCellType(std::vector< std::vector<int> >& locIds) const throw(INTERP_KERNEL::Exception)
+std::vector<DataArrayInt *> MEDCouplingFieldDiscretizationGauss::splitIntoSingleGaussDicrPerCellType(std::vector<int>& locIds) const throw(INTERP_KERNEL::Exception)
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::splitIntoSingleGaussDicrPerCellType : no descretization set !");
   locIds.clear();
-  std::vector<DataArrayInt *> ret;
-  const int *discrPerCell=_discr_per_cell->getConstPointer();
-  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret2=_discr_per_cell->getIdsNotEqual(-1);
-  int nbOfTuplesSet=ret2->getNumberOfTuples();
-  std::list<int> idsRemaining(ret2->getConstPointer(),ret2->getConstPointer()+nbOfTuplesSet);
-  std::list<int>::iterator it=idsRemaining.begin();
-  while(it!=idsRemaining.end())
+  std::set<int> df=_discr_per_cell->getDifferentValues();
+  df.erase(-1);
+  std::map<int,int> m;
+  int nid=0;
+  std::vector<std::vector<int> > ret2(df.size()); locIds.resize(df.size());
+  for(std::set<int>::iterator it=df.begin();it!=df.end();it++,nid++)
+    { m[*it]=nid; locIds[nid]=*it; }
+  nid=0;
+  for(const int *discrPerCell=_discr_per_cell->begin();discrPerCell!=_discr_per_cell->end();discrPerCell++,nid++)
     {
-      std::vector<int> ids;
-      std::set<int> curLocIds;
-      std::set<INTERP_KERNEL::NormalizedCellType> curCellTypes;
-      while(it!=idsRemaining.end())
-        {
-          int curDiscrId=discrPerCell[*it];
-          INTERP_KERNEL::NormalizedCellType typ=_loc[curDiscrId].getType();
-          if(curCellTypes.find(typ)!=curCellTypes.end())
-            {
-              if(curLocIds.find(curDiscrId)!=curLocIds.end())
-                {
-                  curLocIds.insert(curDiscrId);
-                  curCellTypes.insert(typ);
-                  ids.push_back(*it);
-                  it=idsRemaining.erase(it);
-                }
-              else
-                it++;
-            }
-          else
-            {
-              curLocIds.insert(curDiscrId);
-              curCellTypes.insert(typ);
-              ids.push_back(*it);
-              it=idsRemaining.erase(it);
-            }
-        }
-      it=idsRemaining.begin();
-      ret.resize(ret.size()+1);
+      if(*discrPerCell!=-1)
+        ret2[m[*discrPerCell]].push_back(nid);
+    }
+  nid=0;
+  std::vector<DataArrayInt *> ret(df.size());
+  for(std::set<int>::iterator it=df.begin();it!=df.end();it++,nid++)
+    {
       DataArrayInt *part=DataArrayInt::New();
-      part->alloc((int)ids.size(),1);
-      std::copy(ids.begin(),ids.end(),part->getPointer());
-      ret.back()=part;
-      locIds.resize(locIds.size()+1);
-      locIds.back().insert(locIds.back().end(),curLocIds.begin(),curLocIds.end());
+      part->alloc(ret2[nid].size(),1);
+      std::copy(ret2[nid].begin(),ret2[nid].end(),part->getPointer());
+      ret[nid]=part;
     }
   return ret;
 }
