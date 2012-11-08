@@ -345,8 +345,9 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg) throw(INTERP_KE
     throw INTERP_KERNEL::Exception("Invalid mesh to apply renumberNodes on it !");
   int nbOfNodes=meshC->getNumberOfNodes();
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingPointSet> meshC2((MEDCouplingPointSet *)meshC->deepCpy());
-  renumberNodesWithoutMesh(old2NewBg);
-  meshC2->renumberNodes(old2NewBg,*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1);
+  int newNbOfNodes=*std::max_element(old2NewBg,old2NewBg+nbOfNodes)+1;
+  renumberNodesWithoutMesh(old2NewBg,newNbOfNodes);
+  meshC2->renumberNodes(old2NewBg,newNbOfNodes);
   setMesh(meshC2);
 }
 
@@ -355,13 +356,13 @@ void MEDCouplingFieldDouble::renumberNodes(const int *old2NewBg) throw(INTERP_KE
  * This method performs half job of MEDCouplingFieldDouble::renumberNodes. That is to say no permutation of cells is done on underlying mesh.
  * That is to say, the field content is changed by this method.
  */
-void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, double eps) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps) throw(INTERP_KERNEL::Exception)
 {
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(eps,old2NewBg,*iter);
+      _type->renumberValuesOnNodes(eps,old2NewBg,newNbOfNodes,*iter);
 }
 
 /*!
@@ -1198,18 +1199,13 @@ void MEDCouplingFieldDouble::changeUnderlyingMesh(const MEDCouplingMesh *other, 
 {
   if(_mesh==0 || other==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDouble::changeUnderlyingMesh : is expected to operate on not null meshes !");
-  DataArrayInt *cellCor,*nodeCor;
+  DataArrayInt *cellCor=0,*nodeCor=0;
   other->checkGeoEquivalWith(_mesh,levOfCheck,prec,cellCor,nodeCor);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cellCor2(cellCor),nodeCor2(nodeCor);
   if(cellCor)
-    {
-      renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
-      cellCor->decrRef();
-    }
+    renumberCellsWithoutMesh(cellCor->getConstPointer(),false);
   if(nodeCor)
-    {
-      renumberNodesWithoutMesh(nodeCor->getConstPointer());
-      nodeCor->decrRef();
-    }
+    renumberNodesWithoutMesh(nodeCor->getConstPointer(),_mesh->getNumberOfNodes());
   setMesh(const_cast<MEDCouplingMesh *>(other));
 }
 
@@ -1249,7 +1245,7 @@ bool MEDCouplingFieldDouble::mergeNodes(double eps, double epsOnVals) throw(INTE
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),*iter);
   setMesh(meshC2);
   return true;
 }
@@ -1274,7 +1270,7 @@ bool MEDCouplingFieldDouble::mergeNodes2(double eps, double epsOnVals) throw(INT
   _time_discr->getArrays(arrays);
   for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
     if(*iter)
-      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
+      _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),*iter);
   setMesh(meshC2);
   return true;
 }
@@ -1298,7 +1294,7 @@ bool MEDCouplingFieldDouble::zipCoords(double epsOnVals) throw(INTERP_KERNEL::Ex
       _time_discr->getArrays(arrays);
       for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
         if(*iter)
-          _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),*iter);
+          _type->renumberValuesOnNodes(epsOnVals,arr->getConstPointer(),meshC2->getNumberOfNodes(),*iter);
       setMesh(meshC2);
       return true;
     }
@@ -1324,7 +1320,7 @@ bool MEDCouplingFieldDouble::zipConnectivity(int compType, double epsOnVals) thr
       _time_discr->getArrays(arrays);
       for(std::vector<DataArrayDouble *>::const_iterator iter=arrays.begin();iter!=arrays.end();iter++)
         if(*iter)
-          _type->renumberValuesOnCells(epsOnVals,meshC,arr->getConstPointer(),*iter);
+          _type->renumberValuesOnCells(epsOnVals,meshC,arr->getConstPointer(),meshC2->getNumberOfCells(),*iter);
       setMesh(meshC2);
       return true;
     }
