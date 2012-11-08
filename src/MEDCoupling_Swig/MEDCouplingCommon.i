@@ -867,9 +867,21 @@ namespace ParaMEDMEM
   }
 }
 
+%extend ParaMEDMEM::MEDCouplingFieldDiscretizationPerCell
+{
+  PyObject *getArrayOfDiscIds() const
+  {
+    DataArrayInt *ret=const_cast<DataArrayInt *>(self->getArrayOfDiscIds());
+    if(ret)
+      ret->incrRef();
+    return SWIG_NewPointerObj(SWIG_as_voidptr(ret),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 );
+  }
+}
+
 %ignore ParaMEDMEM::DataArray::getInfoOnComponents;
 %ignore ParaMEDMEM::DataArrayInt::getDifferentValues;
 %ignore ParaMEDMEM::DataArrayInt::partitionByDifferentValues;
+%ignore ParaMEDMEM::MEDCouplingFieldDiscretizationPerCell::getArrayOfDiscIds;
 
 %include "MEDCouplingMemArray.hxx"
 %include "NormalizedUnstructuredMesh.hxx"
@@ -6183,6 +6195,7 @@ namespace ParaMEDMEM
     int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
     int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
+    int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     %extend {
       PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
       {
@@ -6198,6 +6211,12 @@ namespace ParaMEDMEM
         if(ret)
           ret->incrRef();
         return convertFieldDiscretization(ret,SWIG_POINTER_OWN | 0 );
+      }
+
+      PyObject *getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+      {
+        std::set<int> ret=self->getGaussLocalizationIdsOfOneType(type);
+        return convertIntArrToPyList3(ret);
       }
 
       PyObject *isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception)

@@ -281,6 +281,11 @@ int MEDCouplingFieldDiscretization::getGaussLocalizationIdOfOneType(INTERP_KERNE
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
 }
 
+std::set<int> MEDCouplingFieldDiscretization::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
+}
+
 void MEDCouplingFieldDiscretization::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)
 {
   throw INTERP_KERNEL::Exception("Invalid method for the corresponding field discretization : available only for GaussPoint discretization !");
@@ -1300,6 +1305,16 @@ int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneCell(int cel
 
 int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
 {
+  std::set<int> ret=getGaussLocalizationIdsOfOneType(type);
+  if(ret.empty())
+    throw INTERP_KERNEL::Exception("No gauss discretization found for the specified type !");
+  if(ret.size()>1)
+    throw INTERP_KERNEL::Exception("Several gauss discretizations have been found for the specified type !");
+  return *ret.begin();
+}
+
+std::set<int> MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("No Gauss localization still set !");
   std::set<int> ret;
@@ -1307,11 +1322,7 @@ int MEDCouplingFieldDiscretizationGauss::getGaussLocalizationIdOfOneType(INTERP_
   for(std::vector<MEDCouplingGaussLocalization>::const_iterator iter=_loc.begin();iter!=_loc.end();iter++,id++)
     if((*iter).getType()==type)
       ret.insert(id);
-  if(ret.empty())
-    throw INTERP_KERNEL::Exception("No gauss discretization found for the specified type !");
-  if(ret.size()>1)
-    throw INTERP_KERNEL::Exception("Several gauss discretizations have been found for the specified type !");
-  return *ret.begin();
+  return ret;
 }
 
 void MEDCouplingFieldDiscretizationGauss::getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception)

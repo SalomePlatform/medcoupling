@@ -29,6 +29,7 @@
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
+#include <set>
 #include <vector>
 
 namespace ParaMEDMEM
@@ -91,6 +92,7 @@ namespace ParaMEDMEM
     virtual int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
     virtual int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
     virtual int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    virtual std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     virtual void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
     virtual const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
     virtual ~MEDCouplingFieldDiscretization();
@@ -244,6 +246,7 @@ namespace ParaMEDMEM
     int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
     int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
     std::vector<DataArrayInt *> splitIntoSingleGaussDicrPerCellType(std::vector< int >& locIds) const throw(INTERP_KERNEL::Exception);
