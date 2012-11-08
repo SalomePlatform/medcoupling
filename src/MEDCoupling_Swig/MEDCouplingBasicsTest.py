@@ -10271,6 +10271,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(e.isEqual(DataArrayInt([1,2,3,4,5,7,19])))
         pass
 
+    def testDAIPartitionByDifferentValues1(self):
+        d=DataArrayInt([1,0,1,2,0,2,2,-3,2])
+        expected=[[-3,[7]],[0,[1,4]],[1,[0,2]],[2,[3,5,6,8]]]
+        for i,elt in enumerate(zip(*d.partitionByDifferentValues())):
+            self.assertEqual(expected[i][0],elt[1])
+            self.assertEqual(expected[i][1],elt[0].getValues())
+            pass
+        pass
+
     def setUp(self):
         pass
     pass

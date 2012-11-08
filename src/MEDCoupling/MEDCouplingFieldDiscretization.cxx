@@ -1419,30 +1419,7 @@ std::vector<DataArrayInt *> MEDCouplingFieldDiscretizationGauss::splitIntoSingle
 {
   if(!_discr_per_cell)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::splitIntoSingleGaussDicrPerCellType : no descretization set !");
-  locIds.clear();
-  std::set<int> df=_discr_per_cell->getDifferentValues();
-  df.erase(-1);
-  std::map<int,int> m;
-  int nid=0;
-  std::vector<std::vector<int> > ret2(df.size()); locIds.resize(df.size());
-  for(std::set<int>::iterator it=df.begin();it!=df.end();it++,nid++)
-    { m[*it]=nid; locIds[nid]=*it; }
-  nid=0;
-  for(const int *discrPerCell=_discr_per_cell->begin();discrPerCell!=_discr_per_cell->end();discrPerCell++,nid++)
-    {
-      if(*discrPerCell!=-1)
-        ret2[m[*discrPerCell]].push_back(nid);
-    }
-  nid=0;
-  std::vector<DataArrayInt *> ret(df.size());
-  for(std::set<int>::iterator it=df.begin();it!=df.end();it++,nid++)
-    {
-      DataArrayInt *part=DataArrayInt::New();
-      part->alloc(ret2[nid].size(),1);
-      std::copy(ret2[nid].begin(),ret2[nid].end(),part->getPointer());
-      ret[nid]=part;
-    }
-  return ret;
+  return _discr_per_cell->partitionByDifferentValues(locIds);
 }
 
 MEDCouplingFieldDiscretizationGaussNE::MEDCouplingFieldDiscretizationGaussNE()

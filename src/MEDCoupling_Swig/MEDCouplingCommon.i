@@ -847,10 +847,29 @@ namespace ParaMEDMEM
      std::set<int> ret=self->getDifferentValues();
      return convertIntArrToPyList3(ret);
    }
+
+  PyObject *partitionByDifferentValues() const throw(INTERP_KERNEL::Exception)
+  {
+    std::vector<int> ret1;
+    std::vector<DataArrayInt *> ret0=self->partitionByDifferentValues(ret1);
+    std::size_t sz=ret0.size();
+    PyObject *pyRet=PyTuple_New(2);
+    PyObject *pyRet0=PyList_New((int)sz);
+    PyObject *pyRet1=PyList_New((int)sz);
+    for(std::size_t i=0;i<sz;i++)
+      {
+        PyList_SetItem(pyRet0,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret0[i]),SWIGTYPE_p_ParaMEDMEM__DataArrayInt, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(pyRet1,i,PyInt_FromLong(ret1[i]));
+      }
+    PyTuple_SetItem(pyRet,0,pyRet0);
+    PyTuple_SetItem(pyRet,1,pyRet1);
+    return pyRet;
+  }
 }
 
 %ignore ParaMEDMEM::DataArray::getInfoOnComponents;
 %ignore ParaMEDMEM::DataArrayInt::getDifferentValues;
+%ignore ParaMEDMEM::DataArrayInt::partitionByDifferentValues;
 
 %include "MEDCouplingMemArray.hxx"
 %include "NormalizedUnstructuredMesh.hxx"

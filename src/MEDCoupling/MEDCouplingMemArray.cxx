@@ -5796,13 +5796,50 @@ DataArrayInt *DataArrayInt::duplicateEachTupleNTimes(int nbTimes) const throw(IN
 }
 
 /*!
- * This method returns all different values found in 'this'.
+ * This method returns all different values found in \a this. This method throws if \a this has not been allocated.
+ * But the number of components can be different from one.
  */
 std::set<int> DataArrayInt::getDifferentValues() const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   std::set<int> ret;
-  ret.insert(getConstPointer(),getConstPointer()+getNbOfElems());
+  ret.insert(begin(),end());
+  return ret;
+}
+
+/*!
+ * This method is a refinement of DataArrayInt::getDifferentValues because it returns not only different values in \a this but also, for each of
+ * them it tells which tuple id have this id.
+ * This method works only on arrays with one component (if it is not the case call DataArrayInt::rearrange(1) ).
+ * This method returns two arrays having same size.
+ * The instances of DataArrayInt in the returned vector have be specially allocated and computed by this method. Each of them should be dealt by the caller of this method.
+ * Example : if this is equal to [1,0,1,2,0,2,2,-3,2] -> differentIds=[-3,0,1,2] and returned array will be equal to [[7],[1,4],[0,2],[3,5,6,8]]
+ */
+std::vector<DataArrayInt *> DataArrayInt::partitionByDifferentValues(std::vector<int>& differentIds) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::partitionByDifferentValues : this should have only one component !");
+  int id=0;
+  std::map<int,int> m,m2,m3;
+  for(const int *w=begin();w!=end();w++)
+    m[*w]++;
+  differentIds.resize(m.size());
+  std::vector<DataArrayInt *> ret(m.size());
+  std::vector<int *> retPtr(m.size());
+  for(std::map<int,int>::const_iterator it=m.begin();it!=m.end();it++,id++)
+    {
+      m2[(*it).first]=id;
+      ret[id]=DataArrayInt::New();
+      ret[id]->alloc((*it).second,1);
+      retPtr[id]=ret[id]->getPointer();
+      differentIds[id]=(*it).first;
+    }
+  id=0;
+  for(const int *w=begin();w!=end();w++,id++)
+    {
+      retPtr[m2[*w]][m3[*w]++]=id;
+    }
   return ret;
 }
 
