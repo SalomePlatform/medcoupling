@@ -1215,7 +1215,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCe
   int *retPtr=nbOfNodesPerCell->getPointer();
   const int *pt=_discr_per_cell->getConstPointer();
   int nbMaxOfLocId=(int)_loc.size();
-  for(int i=0;i<nbOfCells;i++,retPtr++)
+  for(int i=0;i<nbOfCells;i++,retPtr++,pt++)
     {
       if(*pt>=0 && *pt<nbMaxOfLocId)
         *retPtr=_loc[*pt].getNumberOfGaussPt();
