@@ -1638,3 +1638,37 @@ void MEDCouplingBasicsTest5::testDAIBuildUnique1()
   d->decrRef();
 }
 
+void MEDCouplingBasicsTest5::testDAIPartitionByDifferentValues1()
+{
+  const int data[9]={1,0,1,2,0,2,2,-3,2};
+  const int expected1[4]={-3,0,1,2};
+  const int expected2_0[1]={7};
+  const int expected2_1[2]={1,4};
+  const int expected2_2[2]={0,2};
+  const int expected2_3[4]={3,5,6,8};
+  DataArrayInt *d=DataArrayInt::New();
+  d->useArray(data,false,CPP_DEALLOC,9,1);
+  std::vector<int> f;
+  static const int nbOfOutputsExpected=4;
+  std::vector<DataArrayInt *> e=d->partitionByDifferentValues(f);
+  d->decrRef();
+  CPPUNIT_ASSERT_EQUAL(nbOfOutputsExpected,(int)e.size());
+  CPPUNIT_ASSERT_EQUAL(nbOfOutputsExpected,(int)f.size());
+  for(int i=0;i<nbOfOutputsExpected;i++)
+    {
+      CPPUNIT_ASSERT_EQUAL(expected1[i],f[i]);
+    }
+  CPPUNIT_ASSERT_EQUAL(1,e[0]->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(2,e[1]->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(2,e[2]->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(4,e[3]->getNbOfElems());
+  CPPUNIT_ASSERT_EQUAL(1,e[0]->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(1,e[1]->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(1,e[2]->getNumberOfComponents());
+  CPPUNIT_ASSERT_EQUAL(1,e[3]->getNumberOfComponents());
+  CPPUNIT_ASSERT(std::equal(expected2_0,expected2_0+1,e[0]->begin()));
+  CPPUNIT_ASSERT(std::equal(expected2_1,expected2_1+2,e[1]->begin()));
+  CPPUNIT_ASSERT(std::equal(expected2_2,expected2_2+2,e[2]->begin()));
+  CPPUNIT_ASSERT(std::equal(expected2_3,expected2_3+4,e[3]->begin()));
+  e[0]->decrRef(); e[1]->decrRef(); e[2]->decrRef(); e[3]->decrRef();
+}
