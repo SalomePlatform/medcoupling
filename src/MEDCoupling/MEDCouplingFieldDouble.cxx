@@ -435,11 +435,13 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const DataArrayInt 
 MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception)
 {
   DataArrayInt *arrSelect;
-  MEDCouplingMesh *m=_type->buildSubMeshData(_mesh,partBg,partEnd,arrSelect);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingMesh> m=_type->buildSubMeshData(_mesh,partBg,partEnd,arrSelect);
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arrSelect2(arrSelect);
   MEDCouplingFieldDouble *ret=clone(false);//quick shallow copy.
+  const MEDCouplingFieldDiscretization *disc=getDiscretization();
+  if(disc)
+    ret->setDiscretization(disc->clonePart(partBg,partEnd));
   ret->setMesh(m);
-  m->decrRef();
   std::vector<DataArrayDouble *> arrays;
   _time_discr->getArrays(arrays);
   std::vector<DataArrayDouble *> arrs;

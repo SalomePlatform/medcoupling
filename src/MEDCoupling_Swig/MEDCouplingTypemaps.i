@@ -1409,3 +1409,83 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
     }
   throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
 }
+
+/*!
+ * if python int -> cpp int sw=1
+ * if python list[int] -> cpp vector<int> sw=2
+ * if python tuple[int] -> cpp vector<int> sw=2
+ * if python DataArrayInt -> cpp DataArrayInt sw=3
+ * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4
+ *
+ * switch between (int,vector<int>,DataArrayInt)
+ */
+static const int *convertObjToPossibleCpp1_Safe(PyObject *value, int& sw, int& sz, int& iTyypp, std::vector<int>& stdvecTyypp) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyInt_Check(value))
+    {
+      iTyypp=(int)PyInt_AS_LONG(value);
+      sw=1; sz=1;
+      return &iTyypp;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not integer ! only tuples of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2; sz=size;
+      return &stdvecTyypp[0];
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not integer ! only lists of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2; sz=size;
+      return &stdvecTyypp[0];
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+  if(SWIG_IsOK(status))
+    {
+      ParaMEDMEM::DataArrayInt *daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      if(daIntTyypp)
+        {
+          sw=3; sz=daIntTyypp->getNbOfElems();
+          return daIntTyypp->begin();
+        }
+      else
+        {
+          sz=0;
+          return 0;
+        }
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      ParaMEDMEM::DataArrayIntTuple *daIntTuple=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      sw=4; sz=daIntTuple->getNumberOfCompo();
+      return daIntTuple->getConstPointer();
+    }
+  throw INTERP_KERNEL::Exception("5 types accepted : integer, tuple of integer, list of integer, DataArrayInt, DataArrayIntTuple");
+}

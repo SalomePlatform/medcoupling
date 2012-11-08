@@ -52,6 +52,7 @@ namespace ParaMEDMEM
     virtual bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const = 0;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     virtual MEDCouplingFieldDiscretization *clone() const = 0;
+    virtual MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
     virtual std::string getStringRepr() const = 0;
     virtual const char *getRepr() const = 0;
     virtual int getNumberOfTuples(const MEDCouplingMesh *mesh) const = 0;
@@ -187,7 +188,7 @@ namespace ParaMEDMEM
     const DataArrayInt *getArrayOfDiscIds() const;
   protected:
     MEDCouplingFieldDiscretizationPerCell();
-    MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other);
+    MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other, const int *startCellIds, const int *endCellIds);
     ~MEDCouplingFieldDiscretizationPerCell();
     void updateTime() const;
     void checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception);
@@ -210,6 +211,7 @@ namespace ParaMEDMEM
     bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const;
     bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCouplingFieldDiscretization *clone() const;
+    MEDCouplingFieldDiscretization *clonePart(const int *startCellIds, const int *endCellIds) const;
     std::string getStringRepr() const;
     const char *getRepr() const;
     int getNumberOfTuples(const MEDCouplingMesh *mesh) const;
@@ -252,7 +254,7 @@ namespace ParaMEDMEM
     std::vector<DataArrayInt *> splitIntoSingleGaussDicrPerCellType(std::vector< int >& locIds) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildNbOfGaussPointPerCellField() const throw(INTERP_KERNEL::Exception);
   protected:
-    MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other);
+    MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other, const int *startCellIds=0, const int *endCellIds=0);
     void zipGaussLocalizations();
     int getOffsetOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
     void checkLocalizationId(int locId) const throw(INTERP_KERNEL::Exception);

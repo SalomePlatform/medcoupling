@@ -78,6 +78,8 @@ using namespace INTERP_KERNEL;
 %feature("docstring");
 
 %newobject ParaMEDMEM::MEDCouplingFieldDiscretization::getOffsetArr;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::clone;
+%newobject ParaMEDMEM::MEDCouplingFieldDiscretization::clonePart;
 %newobject ParaMEDMEM::MEDCouplingField::buildMeasureField;
 %newobject ParaMEDMEM::MEDCouplingField::getLocalizationOfDiscr;
 %newobject ParaMEDMEM::MEDCouplingField::computeTupleIdsToSelectFromCellIds;
@@ -867,6 +869,17 @@ namespace ParaMEDMEM
   }
 }
 
+%extend ParaMEDMEM::MEDCouplingFieldDiscretization
+{
+  MEDCouplingFieldDiscretization *clonePart(PyObject *li)
+  {
+    int sz=0,sw=-1,val1=-1;
+    std::vector<int> val2;
+    const int *inp=convertObjToPossibleCpp1_Safe(li,sw,sz,val1,val2);
+    return self->clonePart(inp,inp+sz);
+  }
+}
+
 %extend ParaMEDMEM::MEDCouplingFieldDiscretizationPerCell
 {
   PyObject *getArrayOfDiscIds() const
@@ -882,6 +895,7 @@ namespace ParaMEDMEM
 %ignore ParaMEDMEM::DataArrayInt::getDifferentValues;
 %ignore ParaMEDMEM::DataArrayInt::partitionByDifferentValues;
 %ignore ParaMEDMEM::MEDCouplingFieldDiscretizationPerCell::getArrayOfDiscIds;
+%ignore ParaMEDMEM::MEDCouplingFieldDiscretization::clonePart;
 
 %include "MEDCouplingMemArray.hxx"
 %include "NormalizedUnstructuredMesh.hxx"
@@ -6196,6 +6210,7 @@ namespace ParaMEDMEM
     int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
     const MEDCouplingGaussLocalization& getGaussLocalization(int locId) const throw(INTERP_KERNEL::Exception);
     int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    void setDiscretization(MEDCouplingFieldDiscretization *newDisc);
     %extend {
       PyObject *getMesh() const throw(INTERP_KERNEL::Exception)
       {

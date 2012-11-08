@@ -65,6 +65,7 @@ namespace ParaMEDMEM
     DataArrayInt *computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const;
     const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
     MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
+    void setDiscretization(MEDCouplingFieldDiscretization *newDisc) { _type=newDisc; }
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
     // Gauss point specific methods

@@ -114,6 +114,14 @@ bool MEDCouplingFieldDiscretization::isEqualWithoutConsideringStr(const MEDCoupl
 }
 
 /*!
+ * For all field discretization excepted GaussPts the [ \a startCellIds, \a endCellIds ) has no impact on the cloned instance.
+ */
+MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretization::clonePart(const int *startCellIds, const int *endCellIds) const
+{
+  return clone();
+}
+
+/*!
  * Excepted for MEDCouplingFieldDiscretizationPerCell no underlying TimeLabel object : nothing to do in generally.
  */
 void MEDCouplingFieldDiscretization::updateTime() const
@@ -753,11 +761,16 @@ MEDCouplingFieldDiscretizationPerCell::~MEDCouplingFieldDiscretizationPerCell()
     _discr_per_cell->decrRef();
 }
 
-MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other):_discr_per_cell(0)
+MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell(const MEDCouplingFieldDiscretizationPerCell& other, const int *startCellIds, const int *endCellIds):_discr_per_cell(0)
 {
   DataArrayInt *arr=other._discr_per_cell;
   if(arr)
-    _discr_per_cell=arr->deepCpy();
+    {
+      if(startCellIds==0 && endCellIds==0)
+        _discr_per_cell=arr->deepCpy();
+      else
+        _discr_per_cell=arr->selectByTupleIdSafe(startCellIds,endCellIds);
+    }
 }
 
 void MEDCouplingFieldDiscretizationPerCell::updateTime() const
@@ -854,7 +867,7 @@ MEDCouplingFieldDiscretizationGauss::MEDCouplingFieldDiscretizationGauss()
 {
 }
 
-MEDCouplingFieldDiscretizationGauss::MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other):MEDCouplingFieldDiscretizationPerCell(other),_loc(other._loc)
+MEDCouplingFieldDiscretizationGauss::MEDCouplingFieldDiscretizationGauss(const MEDCouplingFieldDiscretizationGauss& other, const int *startCellIds, const int *endCellIds):MEDCouplingFieldDiscretizationPerCell(other,startCellIds,endCellIds),_loc(other._loc)
 {
 }
 
@@ -908,6 +921,11 @@ bool MEDCouplingFieldDiscretizationGauss::isEqualWithoutConsideringStr(const MED
 MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGauss::clone() const
 {
   return new MEDCouplingFieldDiscretizationGauss(*this);
+}
+
+MEDCouplingFieldDiscretization *MEDCouplingFieldDiscretizationGauss::clonePart(const int *startCellIds, const int *endCellIds) const
+{
+  return new MEDCouplingFieldDiscretizationGauss(*this,startCellIds,endCellIds);
 }
 
 std::string MEDCouplingFieldDiscretizationGauss::getStringRepr() const
