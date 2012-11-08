@@ -3362,10 +3362,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3DSurf(const double *origin, const
 {
   checkFullyDefined();
   if(getMeshDimension()!=2 || getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D works on umeshes with meshdim equal to 2 and spaceDim equal to 3 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf works on umeshes with meshdim equal to 2 and spaceDim equal to 3 !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates=getCellIdsCrossingPlane(origin,vec,eps);
   if(candidates->empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : No 3D cells in this intercepts the specified plane considering bounding boxes !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf : No 3D surf cells in this intercepts the specified plane considering bounding boxes !");
   std::vector<int> nodes;
   std::vector<int> cellIds1D;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=static_cast<MEDCouplingUMesh*>(buildPartOfMySelf(candidates->begin(),candidates->end(),false));
