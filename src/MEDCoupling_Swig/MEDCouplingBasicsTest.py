@@ -10280,6 +10280,50 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
+    def testFieldGaussMultiDiscPerType1(self):
+        coords=DataArrayDouble([0.,0.,0.,1.,1.,1.,1.,0.,0.,0.5,0.5,1.,1.,0.5,0.5,0.],8,2)
+        mQ8=MEDCouplingUMesh("",2) ; mQ8.setCoords(coords)
+        mQ8.allocateCells(1)
+        mQ8.insertNextCell(NORM_QUAD8,range(8))
+        mQ8.finishInsertingCells()
+        mQ4=MEDCouplingUMesh("",2) ; mQ4.setCoords(coords)
+        mQ4.allocateCells(1)
+        mQ4.insertNextCell(NORM_QUAD4,range(4))
+        mQ4.finishInsertingCells()
+        mT3=MEDCouplingUMesh("",2) ; mT3.setCoords(coords)
+        mT3.allocateCells(1)
+        mT3.insertNextCell(NORM_TRI3,range(3))
+        mT3.finishInsertingCells()
+        
+        tr=[[0.,0.],[2.,0.], [0.,2.],[2.,2.],[4.,2.],[6.,2.],[8.,2.],[10.,2.],[12.,2.],[0.,4.],[2.,4.],[4.,4.],[6.,4.],[8.,4.],[10.,4.],[12.,4.],[14.,4.],[16.,4.],[18.,4.],[20.,4.],[22.,4.]]
+        ms=2*[mQ4]+7*[mQ8]+11*[mT3]
+        ms[:]=(elt.deepCpy() for elt in ms)
+        for m,t in zip(ms,tr):
+            d=m.getCoords() ; d+= t
+            pass
+        m=MEDCouplingUMesh.MergeUMeshes(ms)
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,NO_TIME)
+        f.setMesh(m)
+        # throw because cell 0,1 are QUAD4 and cell 3 is QUAD8
+        self.assertRaises(InterpKernelException,f.setGaussLocalizationOnCells,[0,1,3],[0.,0.,1.,0.,1.,1.,0.,1.],[0.3,0.3,0.7,0.7],[0.8,0.2])
+        f.setGaussLocalizationOnCells([0,1],[0.,0.,1.,0.,1.,1.,0.,1.],[0.3,0.3,0.7,0.7],[0.8,0.2])
+        f.setGaussLocalizationOnCells([3,2,5],[0.,0.,1.,0.,1.,1.,0.,1.,0.5,0.,1.,0.5,0.5,1.,0.,0.5],[0.3,0.3,0.7,0.7,0.9,0.9],[0.8,0.05,0.15])
+        f.setGaussLocalizationOnCells([4,6,8,7],[0.,0.,1.,0.,1.,1.,0.,1.,0.5,0.,1.,0.5,0.5,1.,0.,0.5],[0.3,0.3,0.7,0.7,0.9,0.9,-0.1,0.3],[0.7,0.05,0.15,0.1])
+        f.setGaussLocalizationOnCells([9,10,11,12,13],[0.,0.,1.,0.,1.,1.],[0.4,0.4],[1.])
+        f.setGaussLocalizationOnCells([14,15,16,17,18,19],[0.,0.,1.,0.,1.,1.],[0.4,0.4,0.14,0.16],[0.22,0.78])
+        self.assertEqual(46,f.getNumberOfTuplesExpected())
+        vals=DataArrayDouble.New(46*3,1) ; vals.iota(7.7) ; vals.rearrange(3)
+        f.setArray(vals)
+        f.checkCoherency()
+        #f.getLocalizationOfDiscr()
+        self.assertRaises(InterpKernelException,f.getGaussLocalizationIdOfOneType,NORM_QUAD8) #throw because several loc
+        self.assertEqual([1,2],f.getGaussLocalizationIdsOfOneType(NORM_QUAD8))
+        self.assertEqual([0,0,1,1,2,1,2,2,2,3,3,3,3,3,4,4,4,4,4,4],f.getDiscretization().getArrayOfDiscIds().getValues())
+        fc=f[[1,2,3,8]]
+        fc.checkCoherency()
+        self.assertTrue(DataArrayDouble([13.7,14.7,15.7,16.7,17.7,18.7,19.7,20.7,21.7,22.7,23.7,24.7,25.7,26.7,27.7,28.7,29.7,30.7,31.7,32.7,33.7,34.7,35.7,36.7,82.7,83.7,84.7,85.7,86.7,87.7,88.7,89.7,90.7,91.7,92.7,93.7],12,3).isEqual(fc.getArray(),1e-10))
+        pass
+
     def setUp(self):
         pass
     pass
