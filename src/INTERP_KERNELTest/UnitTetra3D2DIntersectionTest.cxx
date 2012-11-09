@@ -74,7 +74,7 @@ namespace INTERP_TEST
                                                       precision,
                                                       listOfTetraFacesTreated,
                                                       listOfTetraFacesColinear);
-
+    delete targetTetra;
     CPPUNIT_ASSERT_DOUBLES_EQUAL(40.,surface,precision);
 
     CPPUNIT_ASSERT_EQUAL(4,(int)listOfTetraFacesTreated.size());
@@ -120,7 +120,7 @@ namespace INTERP_TEST
                                                       precision,
                                                       listOfTetraFacesTreated,
                                                       listOfTetraFacesColinear);
-
+    delete targetTetra;
     CPPUNIT_ASSERT_DOUBLES_EQUAL(40.,surface,precision);
 
     CPPUNIT_ASSERT_EQUAL(4,(int)listOfTetraFacesTreated.size());
@@ -165,7 +165,7 @@ namespace INTERP_TEST
                                                       precision,
                                                       listOfTetraFacesTreated,
                                                       listOfTetraFacesColinear);
-
+    delete targetTetra;
     CPPUNIT_ASSERT_DOUBLES_EQUAL(2.5,surface,precision);
 
     CPPUNIT_ASSERT_EQUAL(0,(int)listOfTetraFacesTreated.size());
