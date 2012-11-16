@@ -71,27 +71,23 @@ html:
 
 RSTFILES= \
 	index.rst               \
-	xmed-specifications.rst \
-	xmed-develguide.rst     \
-	xmed-userguide.rst
+	medop-specifications.rst \
+	medop-develguide.rst     \
+	medop-userguide.rst
 
 # Files on the development of the prototype (version 2010)
 RSTFILES+=\
-	xmed-prototype-overview.rst     \
-	xmed-prototype-develguide.rst   \
-	xmed-prototype-medmem.rst
+	medop-prototype-overview.rst     \
+	medop-prototype-develguide.rst   \
+	medop-prototype-medmem.rst
 
 # Files containing definitions and references
 RSTFILES+=\
-	xmed-definitions.rst \
-	xmed-references.rst  \
-	xmed-workingnotes-2010.rst \
-	xmed-workingnotes-2011.rst \
-	xmed-workingnotes-2012.rst
-
-# Files on annexe topics
-RSTFILES+=\
-	salomedoc.rst
+	medop-definitions.rst \
+	medop-references.rst  \
+	medop-workingnotes-2010.rst \
+	medop-workingnotes-2011.rst \
+	medop-workingnotes-2012.rst
 
 EXTRA_DIST+= $(RSTFILES)
 

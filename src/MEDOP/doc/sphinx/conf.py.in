@@ -127,7 +127,7 @@ html_theme_options = {
 # The stylecheet file will be searched within the static path, while
 # the layout.html file will be searched within the template path
 # (Note that this parameter can't be used together with html_theme. Exclusive)
-html_style = 'xmed.css'
+html_style = 'medop.css'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -170,7 +170,7 @@ html_copy_source = True
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'xmeddoc'
+htmlhelp_basename = 'medopdoc'
 
 
 # Options for LaTeX output
@@ -185,10 +185,10 @@ latex_font_size = '10pt'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'xmed-alldoc.tex', 'Documentation du module XMED', 'G. Boulant', 'manual'),
-  ('xmed-specifications', 'xmed-specifications.tex', 'Module XMED - Specifications', 'G. Boulant', 'manual'),
-  ('xmed-develguide', 'xmed-develguide.tex', 'Module XMED - Guide de developpement', 'G. Boulant', 'manual'),
-  ('xmed-userguide', 'xmed-userguide.tex', 'Module XMED - Guide d\'utilisation', 'G. Boulant', 'manual')
+  ('index', 'medop-alldoc.tex', 'Documentation du module MED', 'G. Boulant', 'manual'),
+  ('medop-specifications', 'medop-specifications.tex', 'Module MED - Specifications', 'G. Boulant', 'manual'),
+  ('medop-develguide', 'medop-develguide.tex', 'Module MED - Guide de developpement', 'G. Boulant', 'manual'),
+  ('medop-userguide', 'medop-userguide.tex', 'Module MED - Guide d\'utilisation', 'G. Boulant', 'manual')
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
