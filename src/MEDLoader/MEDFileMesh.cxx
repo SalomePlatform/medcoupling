@@ -2132,7 +2132,7 @@ bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > memorySaverIfThrow;//same than renumCellsSplited only in case of throw
   int start=0;
   int end=0;
-  for(std::vector<int>::const_reverse_iterator it=levs.rbegin();it!=levs.rend();it++)
+  for(std::vector<int>::reverse_iterator it=levs.rbegin();it!=levs.rend();it++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=getMeshAtLevel(*it);
       std::vector<int> code1=m->getDistributionOfTypes();
