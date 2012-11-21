@@ -28,6 +28,11 @@ DOXY_INPUT_FILE = medcouplingexamples.doxy
 guidocdir = $(docdir)/gui/MED
 guidoc_DATA = images/head.png
 
+# documentation
+html-local: $(DOXY_INPUT_FILE) $(DOX_INPUT_FILE)
+	@python $(srcdir)/BuildPyExamplesFromCPP.py $(srcdir)/$(DOXY_INPUT_FILE) $(top_builddir)/doc/doxygen;
+	@doxygen $(DOX_INPUT_FILE)
+
 install-data-local : html-local
 	@if test -d doc_ref_user; then 					\
 	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/MED;	     		\
