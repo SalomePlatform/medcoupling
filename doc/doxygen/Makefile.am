@@ -23,6 +23,8 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
 
+DOXY_INPUT_FILE = medcouplingexamples.doxy
+
 guidocdir = $(docdir)/gui/MED
 guidoc_DATA = images/head.png
 
