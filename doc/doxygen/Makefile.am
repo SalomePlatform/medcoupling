@@ -23,15 +23,17 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 DOX_INPUT_FILE = Doxyfile_med_user
 
-DOXY_INPUT_FILE = medcouplingexamples.doxy
+DOX_EXTRA_FILES = medcouplingexamples.dox
 
 guidocdir = $(docdir)/gui/MED
 guidoc_DATA = images/head.png
 
 # documentation
-html-local: $(DOXY_INPUT_FILE) $(DOX_INPUT_FILE)
-	@python $(srcdir)/BuildPyExamplesFromCPP.py $(srcdir)/$(DOXY_INPUT_FILE) $(top_builddir)/doc/doxygen;
+html-local: $(DOXY_INPUT_FILE) $(DOX_EXTRA_FILES)
 	@doxygen $(DOX_INPUT_FILE)
+
+%.dox: %.doxy
+	@python $(srcdir)/BuildPyExamplesFromCPP.py $< $(top_builddir)/doc/doxygen
 
 install-data-local : html-local
 	@if test -d doc_ref_user; then 					\
@@ -48,7 +50,7 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(docdir)/gui/MED
 
 clean-local:
-	rm -rf doc_ref_user log_user
+	rm -rf doc_ref_user log_user $(DOX_EXTRA_FILES)
 
 EXTRA_DIST += figures \
 	      main.dox \
@@ -77,5 +79,6 @@ EXTRA_DIST += figures \
 	      static/footer.html \
 	      static/doxygen.css \
 	      images \
-	      BuildPyExamplesFromCPP.py \
-	      medcouplingexamples.doxy
+	      BuildPyExamplesFromCPP.py
+
+EXTRA_DIST += $(DOX_EXTRA_FILES:%.dox=%.doxy)
