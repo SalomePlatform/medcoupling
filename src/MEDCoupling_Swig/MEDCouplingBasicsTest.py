@@ -1993,6 +1993,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(5,f.getNumberOfMeshPlacesExpected());
         self.assertEqual(0,f.getNbOfGaussLocalization());
         f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
+        f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1); # not a bug only to check that it works well
         self.assertRaises(InterpKernelException,f.setGaussLocalizationOnType,NORM_QUAD4,_refCoo1,_gsCoo1,_wg1)
         self.assertEqual(1,f.getNbOfGaussLocalization());
         refCoo2=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
@@ -10325,6 +10326,21 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fc.renumberCells([3,2,0,1])
         self.assertTrue(DataArrayDouble([28.7, 29.7, 30.7, 31.7, 32.7, 33.7, 34.7, 35.7, 36.7, 82.7, 83.7, 84.7, 85.7, 86.7, 87.7, 88.7, 89.7, 90.7, 91.7, 92.7, 93.7, 19.7, 20.7, 21.7, 22.7, 23.7, 24.7, 25.7, 26.7, 27.7, 13.7, 14.7, 15.7, 16.7, 17.7, 18.7],12,3).isEqual(fc.getArray(),1e-10))
         fc.getArray()
+        pass
+
+    def testSwigRotate(self):
+        d=DataArrayDouble([1.,2.,3.,4.,6.,5.],2,3)
+        MEDCouplingPointSet.Rotate3DAlg([0.,0.,0.],[0.,1.,0.],1.5707963267948966,d)
+        self.assertTrue(d.isEqual(DataArrayDouble([3.,2.,-1.,5.,6.,-4.],2,3),1e-12))
+        d=DataArrayDouble([1.,2.,3.,4.,6.,5.],3,2)
+        MEDCouplingPointSet.Rotate2DAlg([0.,0.],1.5707963267948966,d)
+        self.assertTrue(d.isEqual(DataArrayDouble([-2.,1.,-4.,3.,-5.,6.],3,2),1e-12))
+        pass
+
+    def testSwigCMeshProtection(self):
+        cm=MEDCouplingCMesh()
+        self.assertRaises(InterpKernelException,cm.setCoordsAt,0,DataArrayDouble([4.,4.5,6.,7.],2,2))
+        self.assertRaises(InterpKernelException,cm.setCoords,DataArrayDouble([4.,4.5,6.,7.],2,2))
         pass
 
     def setUp(self):

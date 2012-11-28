@@ -586,7 +586,6 @@ static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, cons
       for(int i=0;i<size;i++)
         {
           PyObject *obj=PyTuple_GetItem(pyLi,i);
-          void *argp;
           int status=SWIG_ConvertPtr(obj,&argp,ty,0|0);
           if(!SWIG_IsOK(status))
             {

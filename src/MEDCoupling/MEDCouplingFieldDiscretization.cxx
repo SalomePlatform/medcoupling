@@ -974,13 +974,25 @@ int MEDCouplingFieldDiscretizationGauss::getNumberOfMeshPlaces(const MEDCoupling
 DataArrayInt *MEDCouplingFieldDiscretizationGauss::getOffsetArr(const MEDCouplingMesh *mesh) const
 {
   int nbOfTuples=mesh->getNumberOfCells();
-  DataArrayInt *ret=DataArrayInt::New();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc(nbOfTuples+1,1);
   int *retPtr=ret->getPointer();
   const int *start=_discr_per_cell->getConstPointer();
+  if(_discr_per_cell->getNumberOfTuples()!=nbOfTuples)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getOffsetArr : mismatch between the mesh and the discretization ids array length !");
+  int maxPossible=(int)_loc.size();
   retPtr[0]=0;
   for(int i=0;i<nbOfTuples;i++,start++)
-    retPtr[i+1]=retPtr[i]+_loc[*start].getNumberOfGaussPt();
+    {
+      if(*start>=0 && *start<maxPossible)
+        retPtr[i+1]=retPtr[i]+_loc[*start].getNumberOfGaussPt();
+      else
+        {
+          std::ostringstream oss; oss << "MEDCouplingFieldDiscretizationGauss::getOffsetArr : At position #" << i << " the locid = " << *start << " whereas it should be in [0," << maxPossible << ") !";
+          throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+  ret->incrRef();
   return ret;
 }
 
@@ -1408,8 +1420,8 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
 {
   const int *start=_discr_per_cell->getConstPointer();
   int nbOfTuples=_discr_per_cell->getNumberOfTuples();
-  int *tmp=new int[_loc.size()];
-  std::fill(tmp,tmp+_loc.size(),-2);
+  INTERP_KERNEL::AutoPtr<int> tmp=new int[_loc.size()];
+  std::fill((int *)tmp,(int *)tmp+_loc.size(),-2);
   for(const int *w=start;w!=start+nbOfTuples;w++)
     if(*w>=0)
       tmp[*w]=1;
@@ -1418,19 +1430,16 @@ void MEDCouplingFieldDiscretizationGauss::zipGaussLocalizations()
     if(tmp[i]!=-2)
       tmp[i]=fid++;
   if(fid==(int)_loc.size())
-    {//no zip needed
-      delete [] tmp;
-      return;
-    }
+    return;
   // zip needed
   int *start2=_discr_per_cell->getPointer();
   for(int *w2=start2;w2!=start2+nbOfTuples;w2++)
-    *w2=tmp[*w2];
+    if(*w2>=0)
+      *w2=tmp[*w2];
   std::vector<MEDCouplingGaussLocalization> tmpLoc;
   for(int i=0;i<(int)_loc.size();i++)
     if(tmp[i]!=-2)
       tmpLoc.push_back(_loc[tmp[i]]);
-  delete [] tmp;
   _loc=tmpLoc;
 }
 
@@ -1754,7 +1763,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficie
 {
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getLocalizationOfDiscValues(mesh);
   int nbOfPts=coords->getNumberOfTuples();
-  int dimension=coords->getNumberOfComponents();
+  //int dimension=coords->getNumberOfComponents();
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> matrix=coords->buildEuclidianDistanceDenseMatrix();
   operateOnDenseMatrix(mesh->getSpaceDimension(),nbOfPts*nbOfPts,matrix->getPointer());
   // Drift

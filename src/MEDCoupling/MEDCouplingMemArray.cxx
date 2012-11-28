@@ -69,10 +69,9 @@ void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int l
 }
 
 template<int SPACEDIM>
-void DataArrayDouble::findTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
-                                                std::vector<int>& c, std::vector<int>& cI) const
+void DataArrayDouble::FindTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
+                                                std::vector<int>& c, std::vector<int>& cI)
 {
-  const double *coordsPtr=getConstPointer();
   for(int i=0;i<nbOfTuples;i++)
     {
       std::vector<int> intersectingElems;
@@ -1765,19 +1764,19 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
     case 3:
       {
         BBTree<3,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
-        findTupleIdsNearTuplesAlg<3>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        FindTupleIdsNearTuplesAlg<3>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     case 2:
       {
         BBTree<2,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
-        findTupleIdsNearTuplesAlg<2>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        FindTupleIdsNearTuplesAlg<2>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     case 1:
       {
         BBTree<1,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
-        findTupleIdsNearTuplesAlg<1>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        FindTupleIdsNearTuplesAlg<1>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     default:

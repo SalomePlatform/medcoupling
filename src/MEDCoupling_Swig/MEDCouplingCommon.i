@@ -1249,15 +1249,45 @@ namespace ParaMEDMEM
              for(int i=0;i<sz;i++)
                PyList_SetItem(coords,i,PyFloat_FromDouble(coo[i]));
            }
+           
+           static void Rotate2DAlg(PyObject *center, double angle, PyObject *coords) throw(INTERP_KERNEL::Exception)
+           {
+             int sz,sz2;
+             INTERP_KERNEL::AutoPtr<double> c=convertPyToNewDblArr2(center,&sz);
+             int sw,nbNodes=0;
+             double val0;  ParaMEDMEM::DataArrayDouble *val1=0; ParaMEDMEM::DataArrayDoubleTuple *val2=0;
+             std::vector<double> val3;
+             const double *coo=convertObjToPossibleCpp5_Safe2(coords,sw,val0,val1,val2,val3,
+                                                            "Rotate2DAlg",2,true,nbNodes);
+             if(sw!=2 && sw!=3)
+               throw INTERP_KERNEL::Exception("Invalid call to MEDCouplingPointSet::Rotate2DAlg : try another overload method !");
+             ParaMEDMEM::MEDCouplingPointSet::Rotate2DAlg(c,angle,nbNodes,const_cast<double *>(coo));
+           }
+           
            static void Rotate3DAlg(PyObject *center, PyObject *vect, double angle, int nbNodes, PyObject *coords) throw(INTERP_KERNEL::Exception)
            {
              int sz,sz2;
              INTERP_KERNEL::AutoPtr<double> c=convertPyToNewDblArr2(center,&sz);
              INTERP_KERNEL::AutoPtr<double> coo=convertPyToNewDblArr2(coords,&sz);
-             double *v=convertPyToNewDblArr2(vect,&sz2);
+             INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vect,&sz2);
              ParaMEDMEM::MEDCouplingPointSet::Rotate3DAlg(c,v,angle,nbNodes,coo);
              for(int i=0;i<sz;i++)
                PyList_SetItem(coords,i,PyFloat_FromDouble(coo[i]));
+           }
+           
+           static void Rotate3DAlg(PyObject *center, PyObject *vect, double angle, PyObject *coords) throw(INTERP_KERNEL::Exception)
+           {
+             int sz,sz2;
+             INTERP_KERNEL::AutoPtr<double> c=convertPyToNewDblArr2(center,&sz);
+             int sw,nbNodes=0;
+             double val0;  ParaMEDMEM::DataArrayDouble *val1=0; ParaMEDMEM::DataArrayDoubleTuple *val2=0;
+             std::vector<double> val3;
+             const double *coo=convertObjToPossibleCpp5_Safe2(coords,sw,val0,val1,val2,val3,
+                                                            "Rotate3DAlg",3,true,nbNodes);
+             if(sw!=2 && sw!=3)
+               throw INTERP_KERNEL::Exception("Invalid call to MEDCouplingPointSet::Rotate3DAlg : try another overload method !");
+             INTERP_KERNEL::AutoPtr<double> v=convertPyToNewDblArr2(vect,&sz2);
+             ParaMEDMEM::MEDCouplingPointSet::Rotate3DAlg(c,v,angle,nbNodes,const_cast<double *>(coo));
            }
          }
     };

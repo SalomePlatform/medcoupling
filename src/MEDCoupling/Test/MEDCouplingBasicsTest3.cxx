@@ -1388,9 +1388,9 @@ void MEDCouplingBasicsTest3::testExtrudedMesh5()
   DataArrayDouble *d=DataArrayDouble::New();
   d->alloc(13,1);
   d->iota();
-  MEDCouplingCMesh *e=MEDCouplingCMesh::New();
-  e->setCoordsAt(0,d);
-  MEDCouplingUMesh *f=e->buildUnstructured();
+  MEDCouplingCMesh *ee=MEDCouplingCMesh::New();
+  ee->setCoordsAt(0,d);
+  MEDCouplingUMesh *f=ee->buildUnstructured();
   DataArrayDouble *g=f->getCoords()->applyFunc(2,"3.5*IVec+x/6*3.14159265359*JVec");
   CPPUNIT_ASSERT_THROW(f->getCoords()->applyFunc(2,"3.5*IVec+x/6*3.14159265359*KVec"),INTERP_KERNEL::Exception); // KVec refers to component #2 and there is only 2 components !
   DataArrayDouble *h=g->fromPolarToCart();
@@ -1425,7 +1425,7 @@ void MEDCouplingBasicsTest3::testExtrudedMesh5()
   h->decrRef();
   g->decrRef();
   f->decrRef();
-  e->decrRef();
+  ee->decrRef();
   d->decrRef();
   c->decrRef();
   b->decrRef();
