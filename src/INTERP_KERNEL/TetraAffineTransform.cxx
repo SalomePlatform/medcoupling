@@ -253,9 +253,9 @@ namespace INTERP_KERNEL
         // form standard base vector i
         const double b[3] = 
           {
-            int(i == 0),
-            int(i == 1),
-            int(i == 2)
+            double ( int(i == 0) ),
+            double ( int(i == 1) ),
+            double ( int(i == 2) ),
           };
 
         LOG(6,  "b = [" << b[0] << ", " << b[1] << ", " << b[2] << "]");

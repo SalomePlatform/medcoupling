@@ -1009,7 +1009,7 @@ void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
 void LeafExprVal::compileX86(std::vector<std::string>& ass) const
 {
   ass.push_back("sub esp,8");
-  int *b=(int *)&_value,*c=(int *)&_value;
+  const int *b=reinterpret_cast<const int *>(&_value),*c=reinterpret_cast<const int *>(&_value);
   c++;
   std::ostringstream oss;
   oss << std::hex;
@@ -1025,7 +1025,7 @@ void LeafExprVal::compileX86(std::vector<std::string>& ass) const
 void LeafExprVal::compileX86_64(std::vector<std::string>& ass) const
 {
   ass.push_back("sub rsp,8");
-  int *b=(int *)&_value,*c=(int *)&_value;
+  const int *b=reinterpret_cast<const int *>(&_value),*c=reinterpret_cast<const int *>(&_value);
   c++;
   std::ostringstream oss;
   oss << std::hex;
