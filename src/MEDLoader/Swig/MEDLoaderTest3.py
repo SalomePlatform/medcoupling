@@ -1432,6 +1432,141 @@ class MEDLoaderTest(unittest.TestCase):
         #
         mfd.write(fname,2)
         pass
+
+    def testGaussWriteOnPfl1(self):
+        fname="Pyfile49.med"
+        coords=DataArrayDouble([0.,0.,0.,1.,1.,1.,1.,0.,0.,0.5,0.5,1.,1.,0.5,0.5,0.],8,2)
+        mQ8=MEDCouplingUMesh("",2) ; mQ8.setCoords(coords)
+        mQ8.allocateCells(1)
+        mQ8.insertNextCell(NORM_QUAD8,range(8))
+        mQ8.finishInsertingCells()
+        mQ4=MEDCouplingUMesh("",2) ; mQ4.setCoords(coords)
+        mQ4.allocateCells(1)
+        mQ4.insertNextCell(NORM_QUAD4,range(4))
+        mQ4.finishInsertingCells()
+        mT3=MEDCouplingUMesh("",2) ; mT3.setCoords(coords)
+        mT3.allocateCells(1)
+        mT3.insertNextCell(NORM_TRI3,range(3))
+        mT3.finishInsertingCells()
+        
+        tr=[[0.,4.],[2.,4.],[4.,4.],[6.,4.],[8.,4.],[10.,4.],[12.,4.],[14.,4.],[16.,4.],[18.,4.],[20.,4.],[0.,0.],[2.,0.], [0.,2.],[2.,2.],[4.,2.],[6.,2.],[8.,2.],[10.,2.],[12.,2.]]
+        ms=11*[mT3]+2*[mQ4]+7*[mQ8]
+        ms[:]=(elt.deepCpy() for elt in ms)
+        for m,t in zip(ms,tr):
+            d=m.getCoords() ; d+= t
+            pass
+        m=MEDCouplingUMesh.MergeUMeshes(ms)
+        m.setName("mesh")
+        m2=m[:13] ; m2.setName(m.getName())
+        ### Use case 1 : Pfl on all tri3 and on all quad4. If we were on CELLS or GAUSS_NE no pfl were needed. But here 2 discs in tri3.
+        ### So here 2 pfls will be created (pfl_TRI3_loc_0 and pfl_TRI3_loc_1)
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
+        f.setMesh(m2)
+        f.setTime(4.5,1,2)
+        da=DataArrayDouble(34) ; da.iota(3.)
+        f.setArray(da)
+        f.setName("fieldCellOnPflWithoutPfl")
+        f.setGaussLocalizationOnCells([0,1,2,3,4,5,6,7,8],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7],[0.8,0.2])
+        f.setGaussLocalizationOnCells([9,10],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7,0.8,0.8],[0.8,0.07,0.13])
+        f.setGaussLocalizationOnCells([11,12],[0.,0.,1.,0.,1.,1.,0.,1.],[0.3,0.3,0.7,0.7,0.8,0.8,0.8,0.8,0.8,0.8],[0.8,0.07,0.1,0.01,0.02])
+        f.checkCoherency()
+        #
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        mm.write(fname,2)
+        #
+        f1ts=MEDFileField1TS.New()
+        pfl=DataArrayInt(range(13)) ; pfl.setName("pfl")
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        f1ts.write(fname,0)
+        #
+        self.assertEqual(f1ts.getPfls(),('pfl_NORM_TRI3_loc_0', 'pfl_NORM_TRI3_loc_1'))
+        self.assertEqual(f1ts.getPflsReallyUsed(),('pfl_NORM_TRI3_loc_0', 'pfl_NORM_TRI3_loc_1'))
+        da1=DataArrayInt([0,1,2,3,4,5,6,7,8]) ; da1.setName("pfl_NORM_TRI3_loc_0")
+        self.assertTrue(f1ts.getProfile("pfl_NORM_TRI3_loc_0").isEqual(da1))
+        da1=DataArrayInt([9,10]) ; da1.setName("pfl_NORM_TRI3_loc_1")
+        self.assertTrue(f1ts.getProfile("pfl_NORM_TRI3_loc_1").isEqual(da1))
+        self.assertEqual(f1ts.getLocs(),('Loc_fieldCellOnPflWithoutPfl_NORM_TRI3_0', 'Loc_fieldCellOnPflWithoutPfl_NORM_TRI3_1', 'Loc_fieldCellOnPflWithoutPfl_NORM_QUAD4_2'))
+        self.assertEqual(f1ts.getLocsReallyUsed(),('Loc_fieldCellOnPflWithoutPfl_NORM_TRI3_0', 'Loc_fieldCellOnPflWithoutPfl_NORM_TRI3_1', 'Loc_fieldCellOnPflWithoutPfl_NORM_QUAD4_2'))
+        #
+        dataRead=MEDFileData.New(fname)
+        mRead=dataRead.getMeshes()[0]
+        f1tsRead=dataRead.getFields()[0][0]
+        f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
+        f2=f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
+        self.assertTrue(f.isEqual(f2,1e-12,1e-12))
+        f2_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f2_bis.checkCoherency()
+        self.assertTrue(f.isEqual(f2_bis,1e-12,1e-12))
+        ## Use case 2 : Pfl on part tri3 with 2 disc and on part quad8 with 1 disc
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
+        pfl=DataArrayInt([1,2,5,6,8,9,15,16,17,18]) ; pfl.setName("pfl2")
+        m2=m[pfl] ; m2.setName(m.getName())
+        f.setMesh(m2)
+        f.setTime(4.5,1,2)
+        da=DataArrayDouble(35) ; da.iota(3.)
+        f.setArray(da)
+        f.setName("fieldCellOnPflWithoutPfl2")
+        f.setGaussLocalizationOnCells([0,1,3],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7],[0.8,0.2])
+        f.setGaussLocalizationOnCells([2,4,5],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7,0.8,0.8],[0.8,0.07,0.13])
+        f.setGaussLocalizationOnCells([6,7,8,9],[0.,0.,1.,0.,1.,1.,0.,1.,0.5,0.,1.,0.5,0.5,1.,0.,0.5],[0.3,0.3,0.7,0.7,0.8,0.8,0.8,0.8,0.8,0.8],[0.8,0.07,0.1,0.01,0.02])
+        f.checkCoherency()
+        #
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        mm.write(fname,2)
+        f1ts=MEDFileField1TS.New()
+        f1ts.setFieldProfile(f,mm,0,pfl)
+        self.assertEqual(f1ts.getPfls(),('pfl2_NORM_TRI3_loc_0','pfl2_NORM_TRI3_loc_1','pfl2_NORM_QUAD8_loc_2'))
+        self.assertEqual(f1ts.getProfile("pfl2_NORM_TRI3_loc_0").getValues(),[1,2,6])
+        self.assertEqual(f1ts.getProfile("pfl2_NORM_TRI3_loc_1").getValues(),[5,8,9])
+        self.assertEqual(f1ts.getProfile("pfl2_NORM_QUAD8_loc_2").getValues(),[2,3,4,5])
+        f1ts.write(fname,0)
+        dataRead=MEDFileData.New(fname)
+        mRead=dataRead.getMeshes()[0]
+        f1tsRead=dataRead.getFields()[0][0]
+        f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
+        f3=f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
+        f3.renumberCells([0,1,3,2,4,5,6,7,8,9])
+        self.assertTrue(f.isEqual(f3,1e-12,1e-12))
+        f3_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f3_bis.renumberCells([0,1,3,2,4,5,6,7,8,9])
+        self.assertTrue(f.isEqual(f3_bis,1e-12,1e-12))
+        ## Use case 3 : no pfl but creation of pfls due to gauss pts
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
+        f.setMesh(m)
+        f.setTime(4.5,1,2)
+        da=DataArrayDouble(60) ; da.iota(3.)
+        f.setArray(da)
+        f.setName("fieldCellWithoutPfl")
+        f.setGaussLocalizationOnCells([0,1,2,3,4,5,6,7,8],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7],[0.8,0.2])
+        f.setGaussLocalizationOnCells([9,10],[0.,0.,1.,0.,1.,1.],[0.3,0.3,0.7,0.7,0.8,0.8],[0.8,0.07,0.13])
+        f.setGaussLocalizationOnCells([11,12],[0.,0.,1.,0.,1.,1.,0.,1.],[0.3,0.3,0.7,0.7,0.8,0.8,0.8,0.8,0.8,0.8],[0.8,0.07,0.1,0.01,0.02])
+        f.setGaussLocalizationOnCells([13,14,15,17,18],[0.,0.,1.,0.,1.,1.,0.,1.,0.5,0.,1.,0.5,0.5,1.,0.,0.5],[0.3,0.3,0.7,0.7,0.8,0.8,0.8,0.8],[0.8,0.1,0.03,0.07])
+        f.setGaussLocalizationOnCells([16,19],[0.,0.,1.,0.,1.,1.,0.,1.,0.5,0.,1.,0.5,0.5,1.,0.,0.5],[0.3,0.3,0.7,0.7,0.8,0.8],[0.8,0.1,0.1])
+        f.checkCoherency()
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m) 
+        f1ts=MEDFileField1TS.New()
+        f1ts.setFieldNoProfileSBT(f)
+        self.assertEqual(f1ts.getPfls(),('Pfl_fieldCellWithoutPfl_NORM_TRI3_0','Pfl_fieldCellWithoutPfl_NORM_TRI3_1','Pfl_fieldCellWithoutPfl_NORM_QUAD8_3','Pfl_fieldCellWithoutPfl_NORM_QUAD8_4'))
+        self.assertEqual(f1ts.getProfile("Pfl_fieldCellWithoutPfl_NORM_TRI3_0").getValues(),[0,1,2,3,4,5,6,7,8])
+        self.assertEqual(f1ts.getProfile("Pfl_fieldCellWithoutPfl_NORM_TRI3_1").getValues(),[9,10])
+        self.assertEqual(f1ts.getProfile("Pfl_fieldCellWithoutPfl_NORM_QUAD8_3").getValues(),[0,1,2,4,5])
+        self.assertEqual(f1ts.getProfile("Pfl_fieldCellWithoutPfl_NORM_QUAD8_4").getValues(),[3,6])
+        mm.write(fname,2)
+        f1ts.write(fname,0)
+        #
+        dataRead=MEDFileData.New(fname)
+        mRead=dataRead.getMeshes()[0]
+        f1tsRead=dataRead.getFields()[0][0]
+        f3=f1tsRead.getFieldOnMeshAtLevel(ON_GAUSS_PT,0,mRead)
+        f3.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
+        self.assertTrue(f.isEqual(f3,1e-12,1e-12))
+        f3_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f3_bis.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
+        self.assertTrue(f.isEqual(f3_bis,1e-12,1e-12))
+        pass
     pass
 
 unittest.main()

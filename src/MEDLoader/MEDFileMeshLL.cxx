@@ -652,7 +652,6 @@ void MEDFileUMeshSplitL1::eraseFamilyField()
 void MEDFileUMeshSplitL1::setGroupsFromScratch(const std::vector<const MEDCouplingUMesh *>& ms, std::map<std::string,int>& familyIds,
                                                std::map<std::string, std::vector<std::string> >& groups) throw(INTERP_KERNEL::Exception)
 {
-  int sz=ms.size();
   std::vector< DataArrayInt * > corr;
   _m=MEDCouplingUMesh::FuseUMeshesOnSameCoords(ms,0,corr);
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > corrMSafe(corr.begin(),corr.end());

@@ -129,7 +129,6 @@ bool MEDFileData::unPolyzeMeshes() throw(INTERP_KERNEL::Exception)
   MEDFileMeshes *ms=_meshes;
   if(!ms)
     return false;
-  bool ret=false;
   std::vector< MEDFileMesh * > meshesImpacted;
   std::vector< DataArrayInt * > renumParamsOfMeshImpacted;//same size as meshesImpacted
   std::vector< std::vector<int> > oldCodeOfMeshImpacted,newCodeOfMeshImpacted;//same size as meshesImpacted

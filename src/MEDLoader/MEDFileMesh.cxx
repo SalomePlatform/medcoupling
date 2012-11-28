@@ -217,8 +217,8 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroups(const std::vector<std:
       if(it2==_groups.end())
         {
           std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
-          std::vector<std::string> grps=getGroupsNames(); oss << "\" !\nAvailable groups are :";
-          std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+          std::vector<std::string> grps2=getGroupsNames(); oss << "\" !\nAvailable groups are :";
+          std::copy(grps2.begin(),grps2.end(),std::ostream_iterator<std::string>(oss," "));
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       fams.insert((*it2).second.begin(),(*it2).second.end());

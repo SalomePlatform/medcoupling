@@ -261,11 +261,11 @@ void MEDLoader::MEDConnOfOneElemType::releaseArray()
   delete [] _global;
 }
 
-MEDLoader::MEDFieldDoublePerCellType::MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int ntuple,
-                                                                const int *cellIdPerType, const char *locName):_ntuple(ntuple),_ncomp(ncomp),_values(values),_type(type)
+MEDLoader::MEDFieldDoublePerCellType::MEDFieldDoublePerCellType(INTERP_KERNEL::NormalizedCellType type, double *values, int ncomp, int nGeoElt, int nbi,
+                                                                const int *cellIdPerType, const char *locName):_ngeo_elt(nGeoElt),_nbi(nbi),_ncomp(ncomp),_values(values),_type(type)
 {
   if(cellIdPerType)
-    _cell_id_per_type.insert(_cell_id_per_type.end(),cellIdPerType,cellIdPerType+ntuple);
+    _cell_id_per_type.insert(_cell_id_per_type.end(),cellIdPerType,cellIdPerType+nGeoElt);
   if(locName)
     _loc_name=locName;
 }
@@ -308,6 +308,7 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
   char locName[MED_NAME_SIZE+1];
   int nloc=MEDnLocalization(fid);
   med_geometry_type typeGeo;
+  int offset=0;
   for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=data.begin();iter!=data.end();iter++)
     {
       const std::string& loc=(*iter).getLocName();
@@ -329,7 +330,16 @@ void MEDLoaderNS::fillGaussDataOnField(const char *fileName, const std::list<MED
       int nbPtPerCell=(int)INTERP_KERNEL::CellModel::GetCellModel((*iter).getType()).getNumberOfNodes();
       std::vector<double> refcoo(nbPtPerCell*dim),gscoo(nbOfGaussPt*dim),w(nbOfGaussPt);
       MEDlocalizationRd(fid,(*iter).getLocName().c_str(),MED_FULL_INTERLACE,&refcoo[0],&gscoo[0],&w[0]);
-      f->setGaussLocalizationOnType((*iter).getType(),refcoo,gscoo,w);
+      if((*iter).getCellIdPerType().empty())
+        f->setGaussLocalizationOnType((*iter).getType(),refcoo,gscoo,w);
+      else
+        {
+          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> pfl=DataArrayInt::New();
+          pfl->alloc((*iter).getCellIdPerType().size(),1);
+          pfl->iota(offset);
+          f->setGaussLocalizationOnCells(pfl->begin(),pfl->end(),refcoo,gscoo,w);
+        }
+      offset+=(*iter).getNbOfGeoElt();
     }
   MEDfileClose(fid);
 }
@@ -1106,27 +1116,33 @@ void MEDLoaderNS::readFieldDoubleDataInMedFile(const char *fileName, const char 
             {
               if(nbPdt>0)
                 {
-                  int profilesize,nbi;
-                  int nval=MEDfieldnValueWithProfile(fid,fieldName,numdt,numo,tabEnt[typeOfOutField],tabType[typeOfOutField][j],1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi);
-                  if(nval>0)
+                  INTERP_KERNEL::AutoPtr<char> pflDummy=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+                  INTERP_KERNEL::AutoPtr<char> locDummy=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+                  int nbProfiles=MEDfieldnProfile(fid,fieldName,numdt,numo,tabEnt[typeOfOutField],tabType[typeOfOutField][j],pflDummy,locDummy);
+                  for(int kk=0;kk<nbProfiles;kk++)
                     {
-                      double *valr=new double[ncomp*nval*nbi];
-                      MEDfieldValueWithProfileRd(fid,fieldName,iteration,order,tabEnt[typeOfOutField],tabType[typeOfOutField][j],MED_COMPACT_PFLMODE,
-                                                 pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,(unsigned char*)valr);
-                      std::string tmp(locname);
-                      if((locname[0]!='\0' && (typeOfOutField!=ON_GAUSS_PT))
-                         || (locname[0]=='\0' && typeOfOutField==ON_GAUSS_PT))
+                      int profilesize,nbi;
+                      int nval=MEDfieldnValueWithProfile(fid,fieldName,numdt,numo,tabEnt[typeOfOutField],tabType[typeOfOutField][j],kk+1,MED_COMPACT_PFLMODE,pflname,&profilesize,locname,&nbi);
+                      if(nval>0)
                         {
-                          delete [] valr;
-                          continue;
+                          double *valr=new double[ncomp*nval*nbi];
+                          MEDfieldValueWithProfileRd(fid,fieldName,iteration,order,tabEnt[typeOfOutField],tabType[typeOfOutField][j],MED_COMPACT_PFLMODE,
+                                                     pflname,MED_FULL_INTERLACE,MED_ALL_CONSTITUENT,(unsigned char*)valr);
+                          std::string tmp(locname);
+                          if((locname[0]!='\0' && (typeOfOutField!=ON_GAUSS_PT))
+                             || (locname[0]=='\0' && typeOfOutField==ON_GAUSS_PT))
+                            {
+                              delete [] valr;
+                              continue;
+                            }
+                          INTERP_KERNEL::AutoPtr<int> pfl=0;
+                          if(pflname[0]!='\0')
+                            {
+                              pfl=new int[nval];
+                              MEDprofileRd(fid,pflname,pfl);
+                            }
+                          field.push_back(MEDLoader::MEDFieldDoublePerCellType(typmai2[j],valr,ncomp,nval,nbi,pfl,locname));
                         }
-                      INTERP_KERNEL::AutoPtr<int> pfl=0;
-                      if(pflname[0]!='\0')
-                        {
-                          pfl=new int[nval];
-                          MEDprofileRd(fid,pflname,pfl);
-                        }
-                      field.push_back(MEDLoader::MEDFieldDoublePerCellType(typmai2[j],valr,ncomp,nval*nbi,pfl,locname));
                     }
                 }
             }
@@ -1884,32 +1900,26 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   //for profiles
-  ParaMEDMEM::MEDCouplingUMesh *newMesh=0;
+  MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::MEDCouplingUMesh> newMesh;
   std::string mName(mesh->getName());
-  for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=fieldPerCellType.begin();iter!=fieldPerCellType.end();iter++)
+  if(typeOfOutField==ON_NODES)
     {
-      const std::vector<int>& cellIds=(*iter).getCellIdPerType();
-      if(!cellIds.empty())
+      for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=fieldPerCellType.begin();iter!=fieldPerCellType.end();iter++)
         {
-          std::vector<int> ci(cellIds.size());
-          std::transform(cellIds.begin(),cellIds.end(),ci.begin(),std::bind2nd(std::plus<int>(),-1));
-          ParaMEDMEM::MEDCouplingUMesh *mesh2=0;
-          if(typeOfOutField==ON_CELLS)
+          const std::vector<int>& cellIds=(*iter).getCellIdPerType();
+          if(!cellIds.empty())
             {
-              if(newMesh)
-                mesh2=newMesh->keepSpecifiedCells((*iter).getType(),&ci[0],&ci[0]+ci.size());
-              else
-                mesh2=mesh->keepSpecifiedCells((*iter).getType(),&ci[0],&ci[0]+ci.size());
-            }
-          else if(typeOfOutField==ON_NODES)
-            {
-              DataArrayInt *da=0,*da2=0;
-              if(newMesh)
+              std::vector<int> ci(cellIds.size());
+              std::transform(cellIds.begin(),cellIds.end(),ci.begin(),std::bind2nd(std::plus<int>(),-1));
+              MEDCouplingAutoRefCountObjectPtr<ParaMEDMEM::MEDCouplingUMesh> mesh2;
+              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da,da2;
+              if((const ParaMEDMEM::MEDCouplingUMesh *)newMesh)
                 {
                   if((int)ci.size()!=newMesh->getNumberOfNodes())
                     {
                       da=newMesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
-                      mesh2=dynamic_cast<MEDCouplingUMesh *>(newMesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                      DataArrayInt *tmpp=0;
+                      mesh2=dynamic_cast<MEDCouplingUMesh *>(newMesh->buildPartAndReduceNodes(da->begin(),da->end(),tmpp)); da2=tmpp;
                     }
                 }
               else
@@ -1917,7 +1927,8 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
                   if((int)ci.size()!=mesh->getNumberOfNodes())
                     {
                       da=mesh->getCellIdsFullyIncludedInNodeIds(&ci[0],&ci[ci.size()]);
-                      mesh2=dynamic_cast<MEDCouplingUMesh *>(mesh->buildPartAndReduceNodes(da->getConstPointer(),da->getConstPointer()+da->getNbOfElems(),da2));
+                      DataArrayInt *tmpp=0;
+                      mesh2=dynamic_cast<MEDCouplingUMesh *>(mesh->buildPartAndReduceNodes(da->begin(),da->end(),tmpp)); da2=tmpp;
                       //
                       int nnodes=mesh2->getNumberOfNodes();
                       MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da3=DataArrayInt::New();
@@ -1942,32 +1953,47 @@ ParaMEDMEM::MEDCouplingFieldDouble *MEDLoaderNS::readFieldDoubleLev2(const char 
                       mesh2->renumberNodes(da2->getConstPointer(),(int)ci.size());
                     }
                 }
-              if(da)
-                da->decrRef();
-              if(da2)
-                da2->decrRef();
+              newMesh=mesh2;
             }
-          if(newMesh)
-            newMesh->decrRef();
-          newMesh=mesh2;
+        }
+    }
+  else
+    {
+      newMesh=const_cast<ParaMEDMEM::MEDCouplingUMesh *>(static_cast<const ParaMEDMEM::MEDCouplingUMesh *>(mesh)); mesh->incrRef();
+      std::vector<INTERP_KERNEL::NormalizedCellType> types;
+      for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=fieldPerCellType.begin();iter!=fieldPerCellType.end();iter++)
+        if(std::find(types.begin(),types.end(),(*iter).getType())==types.end())
+          types.push_back((*iter).getType());
+      for(std::vector<INTERP_KERNEL::NormalizedCellType>::const_iterator it=types.begin();it!=types.end();it++)
+        {
+          std::vector<int> cids;
+          for(std::list<MEDLoader::MEDFieldDoublePerCellType>::const_iterator iter=fieldPerCellType.begin();iter!=fieldPerCellType.end();iter++)
+            {
+              if((*iter).getType()==*it)
+                {
+                  const std::vector<int>& cellIds=(*iter).getCellIdPerType();
+                  if(!cellIds.empty())
+                    std::transform(cellIds.begin(),cellIds.end(),std::back_insert_iterator< std::vector<int> >(cids),std::bind2nd(std::plus<int>(),-1));
+                }
+            }
+          if(!cids.empty())
+            newMesh=newMesh->keepSpecifiedCells(*it,&cids[0],&cids[0]+cids.size());
         }
     }
   //
   ParaMEDMEM::MEDCouplingFieldDouble *ret=ParaMEDMEM::MEDCouplingFieldDouble::New(typeOfOutField,ONE_TIME);
   ret->setName(fieldName);
   ret->setTime(time,iteration,order);
-  if(newMesh)
-    {
-      newMesh->setName(mName.c_str());//retrieving mesh name to avoid renaming due to mesh restriction in case of profile.
-      ret->setMesh(newMesh);
-      newMesh->decrRef();
-    }
-  else
-    ret->setMesh(mesh);
   ParaMEDMEM::DataArrayDouble *arr=buildArrayFromRawData(fieldPerCellType,infos);
   ret->setArray(arr);
   arr->decrRef();
-  //
+  if((const ParaMEDMEM::MEDCouplingUMesh *)newMesh)
+    {
+      newMesh->setName(mName.c_str());//retrieving mesh name to avoid renaming due to mesh restriction in case of profile.
+      ret->setMesh(newMesh);
+    }
+  else
+    ret->setMesh(mesh);
   if(typeOfOutField==ON_GAUSS_PT)
     fillGaussDataOnField(fileName,fieldPerCellType,ret);
   if(cellRenum)
@@ -2578,10 +2604,10 @@ void MEDLoaderNS::prepareCellFieldDoubleForWriting(const ParaMEDMEM::MEDCoupling
       curType=(INTERP_KERNEL::NormalizedCellType)conn[*pt];
       const int *pt2=std::find_if(pt+1,connI+nbOfCells,ConnReaderML(conn,(int)curType));
       if(!cellIdsPerType)
-        split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt,0,0));
+        split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt,1,0,0));
       else
         {
-          split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt,wCellIdsPT,0));
+          split.push_back(MEDLoader::MEDFieldDoublePerCellType(curType,0,nbComp,pt2-pt,1,wCellIdsPT,0));
           wCellIdsPT+=std::distance(pt,pt2);
         }
       pt=pt2;
@@ -2637,7 +2663,7 @@ void MEDLoaderNS::writeFieldTryingToFitExistingMesh(const char *fileName, const 
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=MEDLoader::ReadUMeshFromFile(fileName,f->getMesh()->getName(),f2);
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m2=MEDCouplingUMesh::MergeUMeshes(m,(MEDCouplingUMesh *)f->getMesh());
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m2=MEDCouplingUMesh::MergeUMeshes(m,static_cast<const MEDCouplingUMesh *>(f->getMesh()));
   bool areNodesMerged;
   int newNbOfNodes;
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=m2->mergeNodes(MEDLoader::_EPS_FOR_NODE_COMP,areNodesMerged,newNbOfNodes);
