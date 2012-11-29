@@ -9244,6 +9244,32 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2);
         pass
 
+    def testSwigDADOp9(self):
+        l1=[(1.,2.,3),(4.,5.,6.),(7.,8.,9.),[10.,11.,12.]]
+        da1=DataArrayDouble(l1,4,3)
+        self.assertEqual(4,da1.getNumberOfTuples());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        da2=DataArrayDouble(12) ; da2.iota(1.) ; da2.rearrange(3)
+        self.assertTrue(da2.isEqual(da1,1e-12))
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3,4);
+        da3=DataArrayDouble(l1,4)
+        self.assertTrue(da3.isEqual(da1,1e-12))
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,5);
+        #
+        l1=[(1,2,3),(4,5,6),(7,8,9),[10,11,12]]
+        da1=DataArrayInt(l1,4,3)
+        self.assertEqual(4,da1.getNumberOfTuples());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        da2=DataArrayInt(12) ; da2.iota(1) ; da2.rearrange(3)
+        self.assertTrue(da2.isEqual(da1))
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3,4);
+        da3=DataArrayInt(l1,4)
+        self.assertTrue(da3.isEqual(da1))
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3);
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,5);
+        pass
+
     def testRenumberNodesInConn1(self):
         mesh2DCoords=[-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. ]
         mesh2DConn=[1,4,2, 4,5,2, 0,3,4,1, 6,7,4,3, 7,8,5,4]
@@ -10341,6 +10367,12 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         cm=MEDCouplingCMesh()
         self.assertRaises(InterpKernelException,cm.setCoordsAt,0,DataArrayDouble([4.,4.5,6.,7.],2,2))
         self.assertRaises(InterpKernelException,cm.setCoords,DataArrayDouble([4.,4.5,6.,7.],2,2))
+        pass
+
+    def testSwigCellsInBoundingBox1(self):
+        m3D=MEDCouplingDataForTest.build3DExtrudedUMesh_1()[0]
+        self.assertTrue(m3D.getCellsInBoundingBox([(0,3),(0,3),(0,1)],-1e-12).isEqual(DataArrayInt([0,1,2,3,4,5])))
+        self.assertRaises(InterpKernelException,m3D.getCellsInBoundingBox,[(0,3,0),(3,0,1)],-1e-12)
         pass
 
     def setUp(self):
