@@ -2799,10 +2799,8 @@ namespace ParaMEDMEM
                          if(nbOfCompo<0)
                            throw INTERP_KERNEL::Exception("DataArrayDouble::New : should be a positive number of components !");
                          MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
-                         double *tmp=new double[nbOfTuples*nbOfCompo];
-                         try { fillArrayWithPyListDbl(elt0,tmp,nbOfTuples*nbOfCompo,0.,true); }
-                         catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
-                         ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+                         std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,nbOfTuples,nbOfCompo);
+                         ret->alloc(nbOfTuples,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                          ret->incrRef();
                          return ret;
                        }
@@ -2812,10 +2810,9 @@ namespace ParaMEDMEM
                  else
                    {//DataArrayDouble.New([1.,3.,4.],3)
                      MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
-                     double *tmp=new double[nbOfTuples];
-                     try { fillArrayWithPyListDbl(elt0,tmp,nbOfTuples,0.,true); }
-                     catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
-                     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,1);
+                     int tmpp1=-1;
+                     std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,nbOfTuples,tmpp1);
+                     ret->alloc(nbOfTuples,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                      ret->incrRef();
                      return ret;
                    }
@@ -2825,16 +2822,10 @@ namespace ParaMEDMEM
            }
          else
            {// DataArrayDouble.New([1.,3.,4.])
-             int szz=-1;
-             if(PyList_Check(elt0))
-               szz=PyList_Size(elt0);
-             else
-               szz=PyTuple_Size(elt0);
              MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
-             double *tmp=new double[szz];
-             try { fillArrayWithPyListDbl(elt0,tmp,szz,0.,true); }
-             catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
-             ret->useArray(tmp,true,CPP_DEALLOC,szz,1);
+             int tmpp1=-1,tmpp2=-1;
+             std::vector<double> tmp=fillArrayWithPyListDbl2(elt0,tmpp1,tmpp2);
+             ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
              ret->incrRef();
              return ret;
            }
@@ -4519,10 +4510,8 @@ namespace ParaMEDMEM
                          if(nbOfCompo<0)
                            throw INTERP_KERNEL::Exception("DataArrayInt::New : should be a positive number of components !");
                          MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
-                         int *tmp=new int[nbOfTuples*nbOfCompo];
-                         try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples*nbOfCompo,0,true); }
-                         catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
-                         ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,nbOfCompo);
+                         std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples,nbOfCompo);
+                         ret->alloc(nbOfTuples,nbOfCompo); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                          ret->incrRef();
                          return ret;
                        }
@@ -4532,10 +4521,9 @@ namespace ParaMEDMEM
                  else
                    {//DataArrayInt.New([1,3,4],3)
                      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
-                     int *tmp=new int[nbOfTuples];
-                     try { fillArrayWithPyListInt(elt0,tmp,nbOfTuples,0,true); }
-                     catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
-                     ret->useArray(tmp,true,CPP_DEALLOC,nbOfTuples,1);
+                     int tmpp1=-1;
+                     std::vector<int> tmp=fillArrayWithPyListInt2(elt0,nbOfTuples,tmpp1);
+                     ret->alloc(nbOfTuples,tmpp1); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
                      ret->incrRef();
                      return ret;
                    }
@@ -4545,16 +4533,10 @@ namespace ParaMEDMEM
            }
          else
            {// DataArrayInt.New([1,3,4])
-             int szz=-1;
-             if(PyList_Check(elt0))
-               szz=PyList_Size(elt0);
-             else
-               szz=PyTuple_Size(elt0);
              MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
-             int *tmp=new int[szz];
-             try { fillArrayWithPyListInt(elt0,tmp,szz,0,true); }
-             catch(INTERP_KERNEL::Exception& e) { delete [] tmp; throw e; }
-             ret->useArray(tmp,true,CPP_DEALLOC,szz,1);
+             int tmpp1=-1,tmpp2=-1;
+             std::vector<int> tmp=fillArrayWithPyListInt2(elt0,tmpp1,tmpp2);
+             ret->alloc(tmpp1,tmpp2); std::copy(tmp.begin(),tmp.end(),ret->getPointer());
              ret->incrRef();
              return ret;
            }

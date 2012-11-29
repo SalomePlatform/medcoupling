@@ -9256,8 +9256,30 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(da3.isEqual(da1,1e-12))
         self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3);
         self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,5);
+        l1=[(1.,2.,3),(4.,(5.),((6.))),(7.,8.,9.),[10.,11.,12.]]
+        da1=DataArrayDouble(l1,4,3)
+        self.assertEqual(4,da1.getNumberOfTuples());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        da2=DataArrayDouble(12) ; da2.iota(1.) ; da2.rearrange(3)
+        self.assertTrue(da2.isEqual(da1,1e-12))
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3,4);
+        da3=DataArrayDouble(l1,4)
+        self.assertTrue(da3.isEqual(da1,1e-12))
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,5);
         #
         l1=[(1,2,3),(4,5,6),(7,8,9),[10,11,12]]
+        da1=DataArrayInt(l1,4,3)
+        self.assertEqual(4,da1.getNumberOfTuples());
+        self.assertEqual(3,da1.getNumberOfComponents());
+        da2=DataArrayInt(12) ; da2.iota(1) ; da2.rearrange(3)
+        self.assertTrue(da2.isEqual(da1))
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3,4);
+        da3=DataArrayInt(l1,4)
+        self.assertTrue(da3.isEqual(da1))
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3);
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,5);
+        l1=[(1,[2],3),(4,[(5)],6),((([7])),8,9),[10,11,12]]
         da1=DataArrayInt(l1,4,3)
         self.assertEqual(4,da1.getNumberOfTuples());
         self.assertEqual(3,da1.getNumberOfComponents());
