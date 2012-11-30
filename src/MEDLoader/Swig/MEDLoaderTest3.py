@@ -1435,6 +1435,7 @@ class MEDLoaderTest(unittest.TestCase):
 
     def testGaussWriteOnPfl1(self):
         fname="Pyfile49.med"
+        fname2="Pyfile50.med"
         coords=DataArrayDouble([0.,0.,0.,1.,1.,1.,1.,0.,0.,0.5,0.5,1.,1.,0.5,0.5,0.],8,2)
         mQ8=MEDCouplingUMesh("",2) ; mQ8.setCoords(coords)
         mQ8.allocateCells(1)
@@ -1498,6 +1499,10 @@ class MEDLoaderTest(unittest.TestCase):
         f2_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f2_bis.checkCoherency()
         self.assertTrue(f.isEqual(f2_bis,1e-12,1e-12))
+        #
+        MEDLoader.WriteField(fname2,f,True)
+        f2_ter=MEDLoader.ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        self.assertTrue(f.isEqual(f2_ter,1e-12,1e-12))
         ## Use case 2 : Pfl on part tri3 with 2 disc and on part quad8 with 1 disc
         f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
         pfl=DataArrayInt([1,2,5,6,8,9,15,16,17,18]) ; pfl.setName("pfl2")
@@ -1532,6 +1537,11 @@ class MEDLoaderTest(unittest.TestCase):
         f3_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f3_bis.renumberCells([0,1,3,2,4,5,6,7,8,9])
         self.assertTrue(f.isEqual(f3_bis,1e-12,1e-12))
+        #
+        MEDLoader.WriteField(fname2,f,True)
+        f3_ter=MEDLoader.ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f3_ter.renumberCells([0,1,3,2,4,5,6,7,8,9])
+        self.assertTrue(f.isEqual(f3_ter,1e-12,1e-12))
         ## Use case 3 : no pfl but creation of pfls due to gauss pts
         f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
         f.setMesh(m)
@@ -1566,6 +1576,11 @@ class MEDLoaderTest(unittest.TestCase):
         f3_bis=MEDLoader.ReadFieldGauss(fname,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
         f3_bis.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
         self.assertTrue(f.isEqual(f3_bis,1e-12,1e-12))
+        #
+        MEDLoader.WriteField(fname2,f,True)
+        f3_ter=MEDLoader.ReadFieldGauss(fname2,m.getName(),0,f.getName(),f.getTime()[1],f.getTime()[2])
+        f3_ter.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
+        self.assertTrue(f.isEqual(f3_ter,1e-12,1e-12))
         pass
     pass
 
