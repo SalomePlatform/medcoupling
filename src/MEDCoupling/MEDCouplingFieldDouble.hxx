@@ -51,7 +51,7 @@ namespace ParaMEDMEM
     void renumberCells(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
     void renumberCellsWithoutMesh(const int *old2NewBg, bool check=true) throw(INTERP_KERNEL::Exception);
     void renumberNodes(const int *old2NewBg) throw(INTERP_KERNEL::Exception);
-    void renumberNodesWithoutMesh(const int *old2NewBg, double eps=1e-15) throw(INTERP_KERNEL::Exception);
+    void renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps=1e-15) throw(INTERP_KERNEL::Exception);
     DataArrayInt *getIdsInRange(double vmin, double vmax) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildSubPart(const DataArrayInt *part) const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *buildSubPart(const int *partBg, const int *partEnd) const throw(INTERP_KERNEL::Exception);

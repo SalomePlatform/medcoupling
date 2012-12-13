@@ -65,6 +65,9 @@ namespace ParaMEDMEM
   private:
     int prepareUU(const char *method) throw(INTERP_KERNEL::Exception);
     int prepareEE(const char *method) throw(INTERP_KERNEL::Exception);
+    int prepareUC(const char *method) throw(INTERP_KERNEL::Exception);
+    int prepareCU(const char *method) throw(INTERP_KERNEL::Exception);
+    int prepareCC(const char *method) throw(INTERP_KERNEL::Exception);
     void updateTime() const;
     void releaseData(bool matrixSuppression);
     void transferUnderground(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue) throw(INTERP_KERNEL::Exception);
@@ -76,11 +79,11 @@ namespace ParaMEDMEM
                                                     const std::vector< std::map<int,double> >& m2D,
                                                     const int *corrCellIdSrc, int nbOf2DCellsSrc, int nbOf1DCellsSrc,
                                                     const int *corrCellIdTrg);
-    static void reverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn,
+    static void ReverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn,
                               std::vector<std::map<int,double> >& matOut);
-    static void computeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,
+    static void ComputeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,
                                        std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse);
-    static void computeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
+    static void ComputeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
                                        std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse);
   private:
     MEDCouplingMesh *_src_mesh;

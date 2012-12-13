@@ -37,6 +37,18 @@ const char SinFunction::REPR[]="sin";
 
 const char TanFunction::REPR[]="tan";
 
+const char ACosFunction::REPR[]="acos";
+
+const char ASinFunction::REPR[]="asin";
+
+const char ATanFunction::REPR[]="atan";
+
+const char CoshFunction::REPR[]="cosh";
+
+const char SinhFunction::REPR[]="sinh";
+
+const char TanhFunction::REPR[]="tanh";
+
 const char SqrtFunction::REPR[]="sqrt";
 
 const char AbsFunction::REPR[]="abs";
@@ -95,6 +107,18 @@ Function *FunctionsFactory::buildUnaryFuncFromString(const char *type) throw(INT
     return new SinFunction;
   if(tmp==TanFunction::REPR)
     return new TanFunction;
+  if(tmp==ACosFunction::REPR)
+    return new ACosFunction;
+  if(tmp==ASinFunction::REPR)
+    return new ASinFunction;
+  if(tmp==ATanFunction::REPR)
+    return new ATanFunction;
+  if(tmp==CoshFunction::REPR)
+    return new CoshFunction;
+  if(tmp==SinhFunction::REPR)
+    return new SinhFunction;
+  if(tmp==TanhFunction::REPR)
+    return new TanhFunction;
   if(tmp==SqrtFunction::REPR)
     return new SqrtFunction;
   if(tmp==AbsFunction::REPR)
@@ -308,6 +332,156 @@ const char *TanFunction::getRepr() const
 }
 
 bool TanFunction::isACall() const
+{
+  return true;
+}
+
+ACosFunction::~ACosFunction()
+{
+}
+
+void ACosFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->acos();
+}
+
+void ACosFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *ACosFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool ACosFunction::isACall() const
+{
+  return true;
+}
+
+ASinFunction::~ASinFunction()
+{
+}
+
+void ASinFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->asin();
+}
+
+void ASinFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *ASinFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool ASinFunction::isACall() const
+{
+  return true;
+}
+
+ATanFunction::~ATanFunction()
+{
+}
+
+void ATanFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->atan();
+}
+
+void ATanFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *ATanFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool ATanFunction::isACall() const
+{
+  return true;
+}
+
+CoshFunction::~CoshFunction()
+{
+}
+
+void CoshFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->cosh();
+}
+
+void CoshFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *CoshFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool CoshFunction::isACall() const
+{
+  return true;
+}
+
+SinhFunction::~SinhFunction()
+{
+}
+
+void SinhFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->sinh();
+}
+
+void SinhFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *SinhFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool SinhFunction::isACall() const
+{
+  return true;
+}
+
+TanhFunction::~TanhFunction()
+{
+}
+
+void TanhFunction::operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception)
+{
+  Value *val=stack.back();
+  val->tanh();
+}
+
+void TanhFunction::operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("Assembly Not implemented yet !");
+}
+
+const char *TanhFunction::getRepr() const
+{
+  return REPR;
+}
+
+bool TanhFunction::isACall() const
 {
   return true;
 }

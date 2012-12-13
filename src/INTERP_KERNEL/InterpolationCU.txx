@@ -148,7 +148,7 @@ namespace INTERP_KERNEL
         bool doItersect = true;
         for ( int j = 0; j < dim && doItersect; ++j )
           doItersect =
-            bb[j*2]   < src_coords[j][ src_nb_coords[0]-1 ] - eps &&
+            bb[j*2]   < src_coords[j][ src_nb_coords[j]-1 ] - eps &&
             bb[j*2+1] > src_coords[j][0] + eps;
         if ( !doItersect )
           continue; // no intersection

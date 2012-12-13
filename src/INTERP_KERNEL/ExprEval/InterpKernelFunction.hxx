@@ -131,6 +131,78 @@ namespace INTERP_KERNEL
     static const char REPR[];
   };
 
+  class INTERPKERNEL_EXPORT ACosFunction : public UnaryFunction
+  {
+  public:
+    ~ACosFunction();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
+  class INTERPKERNEL_EXPORT ASinFunction : public UnaryFunction
+  {
+  public:
+    ~ASinFunction();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
+  class INTERPKERNEL_EXPORT ATanFunction : public UnaryFunction
+  {
+  public:
+    ~ATanFunction();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
+  class INTERPKERNEL_EXPORT CoshFunction : public UnaryFunction
+  {
+  public:
+    ~CoshFunction();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
+  class INTERPKERNEL_EXPORT SinhFunction : public UnaryFunction
+  {
+  public:
+    ~SinhFunction();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
+  class INTERPKERNEL_EXPORT TanhFunction : public UnaryFunction
+  {
+  public:
+    ~TanhFunction();
+    void operate(std::vector<Value *>& stack) const throw(INTERP_KERNEL::Exception);
+    void operateX86(std::vector<std::string>& asmb) const throw(INTERP_KERNEL::Exception);
+    const char *getRepr() const;
+    bool isACall() const;
+  public:
+    static const char REPR[];
+  };
+
   class INTERPKERNEL_EXPORT SqrtFunction : public UnaryFunction
   {
   public:

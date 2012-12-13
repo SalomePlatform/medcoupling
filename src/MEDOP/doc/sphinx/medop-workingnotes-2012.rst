@@ -2,7 +2,7 @@
    :keywords: maillage, champ, manipulation
    :author: Guillaume Boulant
 
-.. include:: xmed-definitions.rst
+.. include:: medop-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ANNEXE: Note de travail concernant le chantier XMED 2012

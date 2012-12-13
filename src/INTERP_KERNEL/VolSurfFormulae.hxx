@@ -22,7 +22,10 @@
 #define __VOLSURFFORMULAE_HXX__
 
 #include "InterpolationUtils.hxx"
+#include "InterpKernelException.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
 
+#include <sstream>
 #include <cmath>
 
 namespace INTERP_KERNEL
@@ -33,6 +36,9 @@ namespace INTERP_KERNEL
   inline double calculateAreaForPolyg(const double **coords, int nbOfPtsInPolygs,
                                       int spaceDim);
 
+
+  inline double calculateAreaForQPolyg(const double **coords, int nbOfPtsInPolygs,
+                                       int spaceDim);
 
   inline double calculateLgthForSeg2(const double *p1, const double *p2, int spaceDim)
   {
@@ -197,6 +203,31 @@ namespace INTERP_KERNEL
         ret+=tmp;
       }
     return ret;
+  }
+
+  double calculateAreaForQPolyg(const double **coords, int nbOfPtsInPolygs, int spaceDim)
+  {
+    
+    if(nbOfPtsInPolygs%2==0)
+      {
+        if(spaceDim==2)
+          {
+            std::vector<Node *> nodes(nbOfPtsInPolygs);
+            for(int i=0;i<nbOfPtsInPolygs;i++)
+              nodes[i]=new Node(coords[i][0],coords[i][1]);
+            QuadraticPolygon *pol=QuadraticPolygon::BuildArcCirclePolygon(nodes);
+            double ret=pol->getArea();
+            delete pol;
+            return -ret;
+          }
+        else
+          return calculateAreaForPolyg(coords,nbOfPtsInPolygs/2,spaceDim);
+      }
+    else
+      {
+        std::ostringstream oss; oss << "INTERP_KERNEL::calculateAreaForQPolyg : nb of points in quadratic polygon is " << nbOfPtsInPolygs << " should be even !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
   }
 
   // ==========================

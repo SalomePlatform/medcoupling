@@ -80,6 +80,36 @@ void ValueDouble::tan() throw(INTERP_KERNEL::Exception)
   _data=std::tan(_data);
 }
 
+void ValueDouble::acos() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::acos(_data);
+}
+
+void ValueDouble::asin() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::asin(_data);
+}
+
+void ValueDouble::atan() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::atan(_data);
+}
+
+void ValueDouble::cosh() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::cosh(_data);
+}
+
+void ValueDouble::sinh() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::sinh(_data);
+}
+
+void ValueDouble::tanh() throw(INTERP_KERNEL::Exception)
+{
+  _data=std::tanh(_data);
+}
+
 void ValueDouble::abs() throw(INTERP_KERNEL::Exception)
 {
   if(_data<0.)
@@ -227,6 +257,36 @@ void ValueUnit::sin() throw(INTERP_KERNEL::Exception)
 void ValueUnit::tan() throw(INTERP_KERNEL::Exception)
 {
   unsupportedOp(TanFunction::REPR);
+}
+
+void ValueUnit::acos() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(ACosFunction::REPR);
+}
+
+void ValueUnit::asin() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(ASinFunction::REPR);
+}
+
+void ValueUnit::atan() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(ATanFunction::REPR);
+}
+
+void ValueUnit::cosh() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(CoshFunction::REPR);
+}
+
+void ValueUnit::sinh() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(SinhFunction::REPR);
+}
+
+void ValueUnit::tanh() throw(INTERP_KERNEL::Exception)
+{
+  unsupportedOp(TanhFunction::REPR);
 }
 
 void ValueUnit::abs() throw(INTERP_KERNEL::Exception)
@@ -393,6 +453,48 @@ void ValueDoubleExpr::sin() throw(INTERP_KERNEL::Exception)
 void ValueDoubleExpr::tan() throw(INTERP_KERNEL::Exception)
 {
   std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::tan));
+}
+
+void ValueDoubleExpr::acos() throw(INTERP_KERNEL::Exception)
+{
+  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),-1.));
+  if(it!=_dest_data+_sz_dest_data)
+    throw INTERP_KERNEL::Exception("Trying to apply acos on < 1. value !");
+  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::greater<double>(),1.));
+  if(it!=_dest_data+_sz_dest_data)
+    throw INTERP_KERNEL::Exception("Trying to apply acos on > 1. value !");
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::acos));
+}
+
+void ValueDoubleExpr::asin() throw(INTERP_KERNEL::Exception)
+{
+   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::less<double>(),-1.));
+   if(it!=_dest_data+_sz_dest_data)
+    throw INTERP_KERNEL::Exception("Trying to apply asin on < 1. value !");
+  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind2nd(std::greater<double>(),1.));
+  if(it!=_dest_data+_sz_dest_data)
+    throw INTERP_KERNEL::Exception("Trying to apply asin on > 1. value !");
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::asin));
+}
+
+void ValueDoubleExpr::atan() throw(INTERP_KERNEL::Exception)
+{
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::atan));
+}
+
+void ValueDoubleExpr::cosh() throw(INTERP_KERNEL::Exception)
+{
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::cosh));
+}
+
+void ValueDoubleExpr::sinh() throw(INTERP_KERNEL::Exception)
+{
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::sinh));
+}
+
+void ValueDoubleExpr::tanh() throw(INTERP_KERNEL::Exception)
+{
+  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::ptr_fun<double,double>(std::tanh));
 }
 
 void ValueDoubleExpr::abs() throw(INTERP_KERNEL::Exception)

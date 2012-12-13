@@ -106,7 +106,7 @@ void MEDCouplingBasicsTest1::testArray3()
   DataArrayDouble *arr4=DataArrayDouble::New();
   arr4->alloc(7,2);
   double *tmp2=arr4->getPointer();
-  const int arr4Ref[14]={0.8,10.8,1.9,11.9,2.1,12.1,3.2,13.2,4.3,14.3,5.4,15.4,6.5,16.5};
+  const double arr4Ref[14]={0.8,10.8,1.9,11.9,2.1,12.1,3.2,13.2,4.3,14.3,5.4,15.4,6.5,16.5};
   std::copy(arr4Ref,arr4Ref+14,tmp2);
   CPPUNIT_ASSERT_EQUAL(7,arr4->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,arr4->getNumberOfComponents());

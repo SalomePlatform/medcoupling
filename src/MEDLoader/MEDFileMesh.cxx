@@ -217,8 +217,8 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroups(const std::vector<std:
       if(it2==_groups.end())
         {
           std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
-          std::vector<std::string> grps=getGroupsNames(); oss << "\" !\nAvailable groups are :";
-          std::copy(grps.begin(),grps.end(),std::ostream_iterator<std::string>(oss," "));
+          std::vector<std::string> grps2=getGroupsNames(); oss << "\" !\nAvailable groups are :";
+          std::copy(grps2.begin(),grps2.end(),std::ostream_iterator<std::string>(oss," "));
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       fams.insert((*it2).second.begin(),(*it2).second.end());
@@ -2132,7 +2132,7 @@ bool MEDFileUMesh::unPolyze(std::vector<int>& oldCode, std::vector<int>& newCode
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > memorySaverIfThrow;//same than renumCellsSplited only in case of throw
   int start=0;
   int end=0;
-  for(std::vector<int>::const_reverse_iterator it=levs.rbegin();it!=levs.rend();it++)
+  for(std::vector<int>::reverse_iterator it=levs.rbegin();it!=levs.rend();it++)
     {
       MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> m=getMeshAtLevel(*it);
       std::vector<int> code1=m->getDistributionOfTypes();

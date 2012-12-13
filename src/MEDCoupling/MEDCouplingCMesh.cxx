@@ -519,6 +519,8 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i) throw(INTERP_KERNEL::Excep
 
 void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr) throw(INTERP_KERNEL::Exception)
 {
+  if(arr)
+    arr->checkNbOfComps(1,"MEDCouplingCMesh::setCoordsAt");
   DataArrayDouble **thisArr[3]={&_x_array,&_y_array,&_z_array};
   if(i<0 || i>2)
     throw INTERP_KERNEL::Exception("Invalid rank specified must be 0 or 1 or 2.");
@@ -535,6 +537,12 @@ void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr) throw(INTE
 
 void MEDCouplingCMesh::setCoords(const DataArrayDouble *coordsX, const DataArrayDouble *coordsY, const DataArrayDouble *coordsZ)
 {
+  if(coordsX)
+    coordsX->checkNbOfComps(1,"MEDCouplingCMesh::setCoords : coordsX");
+  if(coordsY)
+    coordsY->checkNbOfComps(1,"MEDCouplingCMesh::setCoords : coordsY");
+  if(coordsZ)
+    coordsZ->checkNbOfComps(1,"MEDCouplingCMesh::setCoords : coordsZ");
   if(_x_array)
     _x_array->decrRef();
   _x_array=const_cast<DataArrayDouble *>(coordsX);

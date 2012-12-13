@@ -2,7 +2,7 @@
    :keywords: maillage, champ, MED, MEDMEM
    :author: Guillaume Boulant
 
-.. include:: xmed-definitions.rst
+.. include:: medop-definitions.rst
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Note de travail concernant l'utilisation de MEDMEM

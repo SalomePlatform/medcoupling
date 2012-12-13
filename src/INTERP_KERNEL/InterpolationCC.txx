@@ -40,6 +40,10 @@ namespace INTERP_KERNEL
   {
   }
 
+  InterpolationCC::InterpolationCC(const InterpolationOptions& io):Interpolation<InterpolationCC>(io)
+  {
+  }
+
   //================================================================================
   /*!
    * \brief An 1D intersection result

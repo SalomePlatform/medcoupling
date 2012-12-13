@@ -359,7 +359,7 @@ void GaussInfo::initLocalInfo() throw (INTERP_KERNEL::Exception)
 
       if(!aSatify)
         {
-          hexa8aInit();
+          hexa8bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }
@@ -373,7 +373,7 @@ void GaussInfo::initLocalInfo() throw (INTERP_KERNEL::Exception)
 
       if(!aSatify)
         {
-          hexa20aInit();
+          hexa20bInit();
           aSatify = isSatisfy();
           CHECK_MACRO;
         }

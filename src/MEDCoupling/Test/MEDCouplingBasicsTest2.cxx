@@ -53,6 +53,7 @@ void MEDCouplingBasicsTest2::testGaussPointField1()
   CPPUNIT_ASSERT_EQUAL(5,f->getNumberOfMeshPlacesExpected());
   CPPUNIT_ASSERT_EQUAL(0,f->getNbOfGaussLocalization());
   f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
+  f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_TRI3,_refCoo1,_gsCoo1,_wg1); // not a bug only to check that it works well
   CPPUNIT_ASSERT_THROW(f->setGaussLocalizationOnType(INTERP_KERNEL::NORM_QUAD4,_refCoo1,_gsCoo1,_wg1),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_EQUAL(1,f->getNbOfGaussLocalization());
   const double refCoo2[8]={ 0.,0., 1.,0., 1.,1., 0.,1. };

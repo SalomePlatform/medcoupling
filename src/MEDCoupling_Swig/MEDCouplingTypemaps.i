@@ -346,7 +346,133 @@ static void convertPyToNewIntArr4(PyObject *pyLi, int recurseLev, int nbOfSubPar
     throw INTERP_KERNEL::Exception("convertPyToNewIntArr4 : not a list nor a tuple recursively !");
 }
 
+static void checkFillArrayWithPyList(int size1, int size2, int& nbOfTuples, int& nbOfComp) throw(INTERP_KERNEL::Exception)
+{
+  if(nbOfTuples==-1)
+    {
+      if(nbOfComp==-1) { nbOfTuples=size1; nbOfComp=size2; }
+      else { if(nbOfComp==size2) { nbOfTuples=size1; } else
+          {
+            std::ostringstream oss; oss << "fillArrayWithPyListDbl2 : mismatch between nb of elemts : Input has " << size1 << " tuples and " << size2 << " components";
+            oss << " whereas nb of components expected is " << nbOfComp << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          } }
+    }
+  else
+    {
+      if(nbOfComp!=-1)
+        {
+          if((nbOfTuples!=size1 || nbOfComp!=size2))
+            {
+              if(size2!=1 || size1!=nbOfComp*nbOfTuples)
+                {
+                  std::ostringstream oss; oss << "fillArrayWithPyListDbl2 : mismatch between nb of elemts : Input has " << size1 << " tuples and " << size2 << " components";
+                  oss << " whereas nb of tuples expected is " << nbOfTuples << " and number of components expected is " << nbOfComp << " !";
+                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+            }
+        }
+      else
+        {
+          if(nbOfTuples==size1)
+            nbOfComp=size2;
+          else
+            {
+              std::ostringstream oss; oss << "fillArrayWithPyListDbl2 : mismatch between nb of elemts : Input has " << size1 << " tuples and " << size2 << " components";
+              oss << " whereas nb of tuples expected is " << nbOfTuples << " !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+    }
+}
 
+static void fillArrayWithPyListInt3(PyObject *pyLi, int& nbOfElt, std::vector<int>& ret)
+{
+  static const char MSG[]="fillArrayWithPyListInt3 : It appears that the input list or tuple is composed by elts having different sizes !";
+  if(PyInt_Check(pyLi))
+    {
+      long val=PyInt_AS_LONG(pyLi);
+      if(nbOfElt==-1)
+        nbOfElt=1;
+      else
+        if(nbOfElt!=1)
+          throw INTERP_KERNEL::Exception(MSG);
+      ret.push_back(val);
+    }
+  else if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      int tmp=0;
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          int tmp1=-1;
+          fillArrayWithPyListInt3(o,tmp1,ret);
+          tmp+=tmp1;
+        }
+      if(nbOfElt==-1)
+        nbOfElt=tmp;
+      else
+        {
+          if(nbOfElt!=tmp)
+            throw INTERP_KERNEL::Exception(MSG);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      int tmp=0;
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          int tmp1=-1;
+          fillArrayWithPyListInt3(o,tmp1,ret);
+          tmp+=tmp1;
+        }
+      if(nbOfElt==-1)
+        nbOfElt=tmp;
+      else
+        {
+          if(nbOfElt!=tmp)
+            throw INTERP_KERNEL::Exception(MSG);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("fillArrayWithPyListInt3 : Unrecognized type ! Should be a composition of tuple,list,int !");
+}
+
+static std::vector<int> fillArrayWithPyListInt2(PyObject *pyLi, int& nbOfTuples, int& nbOfComp) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<int> ret;
+  int size1=-1,size2=-1;
+  if(PyList_Check(pyLi))
+    {
+      size1=PyList_Size(pyLi);
+      for(int i=0;i<size1;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          fillArrayWithPyListInt3(o,size2,ret);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      size1=PyTuple_Size(pyLi);
+      for(int i=0;i<size1;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          fillArrayWithPyListInt3(o,size2,ret);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("fillArrayWithPyListInt2 : Unrecognized type ! Should be a tuple or a list !");
+  //
+  checkFillArrayWithPyList(size1,size2,nbOfTuples,nbOfComp);
+  return ret;
+}
+
+/*
+ * will become obsolete -> fillArrayWithPyListInt2
+ */
 static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
@@ -492,6 +618,104 @@ static double *convertPyToNewDblArr2(PyObject *pyLi, int *size) throw(INTERP_KER
     throw INTERP_KERNEL::Exception("convertPyToNewDblArr2 : not a list");
 }
 
+static void fillArrayWithPyListDbl3(PyObject *pyLi, int& nbOfElt, std::vector<double>& ret)
+{
+  static const char MSG[]="fillArrayWithPyListDbl3 : It appears that the input list or tuple is composed by elts having different sizes !";
+  if(PyFloat_Check(pyLi))
+    {
+      if(nbOfElt==-1)
+        nbOfElt=1;
+      else
+        if(nbOfElt!=1)
+          throw INTERP_KERNEL::Exception(MSG);
+      double val=PyFloat_AS_DOUBLE(pyLi);
+      ret.push_back(val);
+    }
+  else if(PyInt_Check(pyLi))
+    {
+      long val0=PyInt_AS_LONG(pyLi);
+      double val=val0;
+      if(nbOfElt==-1)
+        nbOfElt=1;
+      else
+        if(nbOfElt!=1)
+          throw INTERP_KERNEL::Exception(MSG);
+      ret.push_back(val);
+    }
+  else if(PyList_Check(pyLi))
+    {
+      int size=PyList_Size(pyLi);
+      int tmp=0;
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          int tmp1=-1;
+          fillArrayWithPyListDbl3(o,tmp1,ret);
+          tmp+=tmp1;
+        }
+      if(nbOfElt==-1)
+        nbOfElt=tmp;
+      else
+        {
+          if(nbOfElt!=tmp)
+            throw INTERP_KERNEL::Exception(MSG);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      int size=PyTuple_Size(pyLi);
+      int tmp=0;
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          int tmp1=-1;
+          fillArrayWithPyListDbl3(o,tmp1,ret);
+          tmp+=tmp1;
+        }
+      if(nbOfElt==-1)
+        nbOfElt=tmp;
+      else
+        {
+          if(nbOfElt!=tmp)
+            throw INTERP_KERNEL::Exception(MSG);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("fillArrayWithPyListDbl3 : Unrecognized type ! Should be a composition of tuple,list,int and float !");
+}
+
+static std::vector<double> fillArrayWithPyListDbl2(PyObject *pyLi, int& nbOfTuples, int& nbOfComp) throw(INTERP_KERNEL::Exception)
+{
+  std::vector<double> ret;
+  int size1=-1,size2=-1;
+  if(PyList_Check(pyLi))
+    {
+      size1=PyList_Size(pyLi);
+      for(int i=0;i<size1;i++)
+        {
+          PyObject *o=PyList_GetItem(pyLi,i);
+          fillArrayWithPyListDbl3(o,size2,ret);
+        }
+    }
+  else if(PyTuple_Check(pyLi))
+    {
+      size1=PyTuple_Size(pyLi);
+      for(int i=0;i<size1;i++)
+        {
+          PyObject *o=PyTuple_GetItem(pyLi,i);
+          fillArrayWithPyListDbl3(o,size2,ret);
+        }
+    }
+  else
+    throw INTERP_KERNEL::Exception("fillArrayWithPyListDbl2 : Unrecognized type ! Should be a tuple or a list !");
+  //
+  checkFillArrayWithPyList(size1,size2,nbOfTuples,nbOfComp);
+  return ret;
+}
+
+/*
+ * will become obsolete -> fillArrayWithPyListDbl2
+ */
 static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOfArray, double dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
 {
   if(PyList_Check(pyLi))
@@ -557,7 +781,7 @@ static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOf
       return ;
     }
   else
-    throw INTERP_KERNEL::Exception("convertPyToNewIntArr : not a list");
+    throw INTERP_KERNEL::Exception("fillArrayWithPyListDbl : not a list nor a tuple");
 }
 
 //convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(pyLi,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh")
@@ -586,7 +810,6 @@ static void convertFromPyObjVectorOfObj(PyObject *pyLi, swig_type_info *ty, cons
       for(int i=0;i<size;i++)
         {
           PyObject *obj=PyTuple_GetItem(pyLi,i);
-          void *argp;
           int status=SWIG_ConvertPtr(obj,&argp,ty,0|0);
           if(!SWIG_IsOK(status))
             {
@@ -1162,55 +1385,17 @@ static const double *convertObjToPossibleCpp5_Safe(PyObject *value, int& sw, dou
         }
       return &val;
     }
-  if(PyTuple_Check(value))
+  if(PyTuple_Check(value) || PyList_Check(value))
     {
-      int size=PyTuple_Size(value);
-      f.resize(size);
-      for(int i=0;i<size;i++)
+      try
         {
-          PyObject *o=PyTuple_GetItem(value,i);
-          if(PyFloat_Check(o))
-            f[i]=PyFloat_AS_DOUBLE(o);
-          else if(PyInt_Check(o))
-            f[i]=(double)PyInt_AS_LONG(o);
-          else
-            {
-              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not double ! only tuples of doubles accepted or integer !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
+          int tmp1=nbTuplesExpected,tmp2=nbCompExpected;
+          std::vector<double> ret=fillArrayWithPyListDbl2(value,tmp1,tmp2);
+          sw=4;
+          f=ret;
+          return &f[0];
         }
-      sw=4;
-      if(nbTuplesExpected*nbCompExpected!=(int)f.size())
-        {
-          std::ostringstream oss; oss << msg << "dimension expected to be " << nbTuplesExpected*nbCompExpected << " , and your data in input has dimension " << f.size() << " !"; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      return &f[0];
-    }
-  if(PyList_Check(value))
-    {
-      int size=PyList_Size(value);
-      f.resize(size);
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyList_GetItem(value,i);
-          if(PyFloat_Check(o))
-            f[i]=PyFloat_AS_DOUBLE(o);
-          else if(PyInt_Check(o))
-            f[i]=(double)PyInt_AS_LONG(o);
-          else
-            {
-              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not double ! only lists of doubles accepted or integer !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
-            }
-        }
-      sw=4;
-      if(nbTuplesExpected*nbCompExpected!=(int)f.size())
-        {
-          std::ostringstream oss; oss << msg << "dimension expected to be " << nbTuplesExpected*nbCompExpected << " , and your data in input has dimension " << f.size() << " !"; 
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
-      return &f[0];
+      catch(INTERP_KERNEL::Exception& e) { throw e; }
     }
   void *argp;
   int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayDouble,0|0);
@@ -1408,4 +1593,84 @@ static const double *convertObjToPossibleCpp5_Safe2(PyObject *value, int& sw, do
         }
     }
   throw INTERP_KERNEL::Exception("4 types accepted : integer, double, DataArrayDouble, DataArrayDoubleTuple");
+}
+
+/*!
+ * if python int -> cpp int sw=1
+ * if python list[int] -> cpp vector<int> sw=2
+ * if python tuple[int] -> cpp vector<int> sw=2
+ * if python DataArrayInt -> cpp DataArrayInt sw=3
+ * if python DataArrayIntTuple -> cpp DataArrayIntTuple sw=4
+ *
+ * switch between (int,vector<int>,DataArrayInt)
+ */
+static const int *convertObjToPossibleCpp1_Safe(PyObject *value, int& sw, int& sz, int& iTyypp, std::vector<int>& stdvecTyypp) throw(INTERP_KERNEL::Exception)
+{
+  sw=-1;
+  if(PyInt_Check(value))
+    {
+      iTyypp=(int)PyInt_AS_LONG(value);
+      sw=1; sz=1;
+      return &iTyypp;
+    }
+  if(PyTuple_Check(value))
+    {
+      int size=PyTuple_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyTuple_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "Tuple as been detected but element #" << i << " is not integer ! only tuples of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2; sz=size;
+      return &stdvecTyypp[0];
+    }
+  if(PyList_Check(value))
+    {
+      int size=PyList_Size(value);
+      stdvecTyypp.resize(size);
+      for(int i=0;i<size;i++)
+        {
+          PyObject *o=PyList_GetItem(value,i);
+          if(PyInt_Check(o))
+            stdvecTyypp[i]=(int)PyInt_AS_LONG(o);
+          else
+            {
+              std::ostringstream oss; oss << "List as been detected but element #" << i << " is not integer ! only lists of integers accepted !";
+              throw INTERP_KERNEL::Exception(oss.str().c_str());
+            }
+        }
+      sw=2; sz=size;
+      return &stdvecTyypp[0];
+    }
+  void *argp;
+  int status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayInt,0|0);
+  if(SWIG_IsOK(status))
+    {
+      ParaMEDMEM::DataArrayInt *daIntTyypp=reinterpret_cast< ParaMEDMEM::DataArrayInt * >(argp);
+      if(daIntTyypp)
+        {
+          sw=3; sz=daIntTyypp->getNbOfElems();
+          return daIntTyypp->begin();
+        }
+      else
+        {
+          sz=0;
+          return 0;
+        }
+    }
+  status=SWIG_ConvertPtr(value,&argp,SWIGTYPE_p_ParaMEDMEM__DataArrayIntTuple,0|0);
+  if(SWIG_IsOK(status))
+    {  
+      ParaMEDMEM::DataArrayIntTuple *daIntTuple=reinterpret_cast< ParaMEDMEM::DataArrayIntTuple * >(argp);
+      sw=4; sz=daIntTuple->getNumberOfCompo();
+      return daIntTuple->getConstPointer();
+    }
+  throw INTERP_KERNEL::Exception("5 types accepted : integer, tuple of integer, list of integer, DataArrayInt, DataArrayIntTuple");
 }

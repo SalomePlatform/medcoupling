@@ -39,7 +39,7 @@ namespace INTERP_KERNEL
 //     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     InterpolationCC();
-    //InterpolationCC(const InterpolationOptions& io);
+    InterpolationCC(const InterpolationOptions& io);
     template<class MyMeshType, class MatrixType>
     int interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const char *method);
 

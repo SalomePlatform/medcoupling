@@ -2,7 +2,7 @@
 ANNEXE: Références documentaires
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-.. include:: xmed-definitions.rst
+.. include:: medop-definitions.rst
 
 Documents de référence:
 

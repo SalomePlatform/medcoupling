@@ -28,6 +28,7 @@
 #include <cmath>
 #include <limits>
 #include <numeric>
+#include <algorithm>
 #include <functional>
 
 typedef double (*MYFUNCPTR)(double);
@@ -68,10 +69,9 @@ void DataArrayDouble::findCommonTuplesAlg(const double *bbox, int nbNodes, int l
 }
 
 template<int SPACEDIM>
-void DataArrayDouble::findTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
-                                                std::vector<int>& c, std::vector<int>& cI) const
+void DataArrayDouble::FindTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
+                                                std::vector<int>& c, std::vector<int>& cI)
 {
-  const double *coordsPtr=getConstPointer();
   for(int i=0;i<nbOfTuples;i++)
     {
       std::vector<int> intersectingElems;
@@ -169,6 +169,13 @@ void DataArray::reprWithoutNameStream(std::ostream& stream) const
   for(std::vector<std::string>::const_iterator iter=_info_on_compo.begin();iter!=_info_on_compo.end();iter++)
     stream << "\"" << *iter << "\"   ";
   stream << "\n";
+}
+
+std::string DataArray::cppRepr(const char *varName) const throw(INTERP_KERNEL::Exception)
+{
+  std::ostringstream ret;
+  reprCppStream(varName,ret);
+  return ret.str();
 }
 
 void DataArray::setInfoOnComponents(const std::vector<std::string>& info) throw(INTERP_KERNEL::Exception)
@@ -718,6 +725,24 @@ void DataArrayDouble::reprZipWithoutNameStream(std::ostream& stream) const
   DataArray::reprWithoutNameStream(stream);
   stream.precision(17);
   _mem.reprZip(getNumberOfComponents(),stream);
+}
+
+void DataArrayDouble::reprCppStream(const char *varName, std::ostream& stream) const
+{
+  int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
+  const double *data=getConstPointer();
+  stream.precision(17);
+  stream << "DataArrayDouble *" << varName << "=DataArrayDouble::New();" << std::endl;
+  if(nbTuples*nbComp>=1)
+    {
+      stream << "const double " << varName << "Data[" << nbTuples*nbComp << "]={";
+      std::copy(data,data+nbTuples*nbComp-1,std::ostream_iterator<double>(stream,","));
+      stream << data[nbTuples*nbComp-1] << "};" << std::endl;
+      stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");" << std::endl;
+    }
+  else
+    stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
+  stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
 }
 
 bool DataArrayDouble::isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const
@@ -1739,19 +1764,19 @@ void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, do
     case 3:
       {
         BBTree<3,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
-        findTupleIdsNearTuplesAlg<3>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        FindTupleIdsNearTuplesAlg<3>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     case 2:
       {
         BBTree<2,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
-        findTupleIdsNearTuplesAlg<2>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        FindTupleIdsNearTuplesAlg<2>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     case 1:
       {
         BBTree<1,int> myTree(bbox->getConstPointer(),0,0,getNumberOfTuples(),eps/10);
-        findTupleIdsNearTuplesAlg<1>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
+        FindTupleIdsNearTuplesAlg<1>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,c,cI);
         break;
       }
     default:
@@ -3553,6 +3578,23 @@ void DataArrayInt::reprZipWithoutNameStream(std::ostream& stream) const
   _mem.reprZip(getNumberOfComponents(),stream);
 }
 
+void DataArrayInt::reprCppStream(const char *varName, std::ostream& stream) const
+{
+  int nbTuples=getNumberOfTuples(),nbComp=getNumberOfComponents();
+  const int *data=getConstPointer();
+  stream << "DataArrayInt *" << varName << "=DataArrayInt::New();" << std::endl;
+  if(nbTuples*nbComp>=1)
+    {
+      stream << "const int " << varName << "Data[" << nbTuples*nbComp << "]={";
+      std::copy(data,data+nbTuples*nbComp-1,std::ostream_iterator<int>(stream,","));
+      stream << data[nbTuples*nbComp-1] << "};" << std::endl;
+      stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");" << std::endl;
+    }
+  else
+    stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
+  stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
+}
+
 /*!
  * This method expects a number of components equal to 1.
  * This method sweeps all the values (tuples) in 'this' (it should be allocated) and for each value v is replaced by
@@ -3891,7 +3933,7 @@ DataArrayInt *DataArrayInt::renumberR(const int *new2Old) const
 }
 
 /*!
- * Idem DataArrayDouble::renumber method except that the number of tuples is reduced.
+ * Idem DataArrayInt::renumber method except that the number of tuples is reduced.
  * That is to say that it is expected that newNbOfTuple<this->getNumberOfTuples().
  * ['old2New','old2New'+getNumberOfTuples()) defines a range containing old to new array. For every negative value in ['old2NewBg','old2New'getNumberOfTuples()) the corresponding tuple is
  * omitted.
@@ -5469,6 +5511,30 @@ DataArrayInt *DataArrayInt::buildIntersection(const DataArrayInt *other) const t
 }
 
 /*!
+ * This method can be applied on allocated with one component DataArrayInt instance.
+ * This method is typically relevant for sorted arrays. All consecutive duplicated items in \a this will appear only once in returned DataArrayInt instance.
+ * Example : if \a this contains [1,2,2,3,3,3,3,4,5,5,7,7,7,19] the returned array will contain [1,2,3,4,5,7,19]
+ * 
+ * \return a newly allocated array that contain the result of the unique operation applied on \a this.
+ * \throw if \a this is not allocated or if \a this has not exactly one component.
+ */
+DataArrayInt *DataArrayInt::buildUnique() const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+     throw INTERP_KERNEL::Exception("DataArrayInt::buildUnique : only single component allowed !");
+  int nbOfTuples=getNumberOfTuples();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> tmp=deepCpy();
+  int *data=tmp->getPointer();
+  int *last=std::unique(data,data+nbOfTuples);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(std::distance(data,last),1);
+  std::copy(data,last,ret->getPointer());
+  ret->incrRef();
+  return ret;
+}
+
+/*!
  * This method could be usefull for returned DataArrayInt marked as index. Some methods that generate such DataArrayInt instances:
  * - ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity
  * - ParaMEDMEM::MEDCouplingUMesh::getNodalConnectivityIndex
@@ -5729,13 +5795,50 @@ DataArrayInt *DataArrayInt::duplicateEachTupleNTimes(int nbTimes) const throw(IN
 }
 
 /*!
- * This method returns all different values found in 'this'.
+ * This method returns all different values found in \a this. This method throws if \a this has not been allocated.
+ * But the number of components can be different from one.
  */
 std::set<int> DataArrayInt::getDifferentValues() const throw(INTERP_KERNEL::Exception)
 {
   checkAllocated();
   std::set<int> ret;
-  ret.insert(getConstPointer(),getConstPointer()+getNbOfElems());
+  ret.insert(begin(),end());
+  return ret;
+}
+
+/*!
+ * This method is a refinement of DataArrayInt::getDifferentValues because it returns not only different values in \a this but also, for each of
+ * them it tells which tuple id have this id.
+ * This method works only on arrays with one component (if it is not the case call DataArrayInt::rearrange(1) ).
+ * This method returns two arrays having same size.
+ * The instances of DataArrayInt in the returned vector have be specially allocated and computed by this method. Each of them should be dealt by the caller of this method.
+ * Example : if this is equal to [1,0,1,2,0,2,2,-3,2] -> differentIds=[-3,0,1,2] and returned array will be equal to [[7],[1,4],[0,2],[3,5,6,8]]
+ */
+std::vector<DataArrayInt *> DataArrayInt::partitionByDifferentValues(std::vector<int>& differentIds) const throw(INTERP_KERNEL::Exception)
+{
+  checkAllocated();
+  if(getNumberOfComponents()!=1)
+    throw INTERP_KERNEL::Exception("DataArrayInt::partitionByDifferentValues : this should have only one component !");
+  int id=0;
+  std::map<int,int> m,m2,m3;
+  for(const int *w=begin();w!=end();w++)
+    m[*w]++;
+  differentIds.resize(m.size());
+  std::vector<DataArrayInt *> ret(m.size());
+  std::vector<int *> retPtr(m.size());
+  for(std::map<int,int>::const_iterator it=m.begin();it!=m.end();it++,id++)
+    {
+      m2[(*it).first]=id;
+      ret[id]=DataArrayInt::New();
+      ret[id]->alloc((*it).second,1);
+      retPtr[id]=ret[id]->getPointer();
+      differentIds[id]=(*it).first;
+    }
+  id=0;
+  for(const int *w=begin();w!=end();w++,id++)
+    {
+      retPtr[m2[*w]][m3[*w]++]=id;
+    }
   return ret;
 }
 

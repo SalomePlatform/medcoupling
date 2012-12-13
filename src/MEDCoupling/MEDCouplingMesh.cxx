@@ -392,6 +392,18 @@ int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellTy
   return (int) cm.getDimension();
 }
 
+/*!
+ * \param [in] type the geometric type for which the representation is asked.
+ * \return the string representation corresponding to the input geometric type \a type.
+ * 
+ * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
+ */
+const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type) throw(INTERP_KERNEL::Exception)
+{
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
+  return cm.getRepr();
+}
+
 void MEDCouplingMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<int>& elts) const
 {
   int ret=getCellContainingPoint(pos,eps);

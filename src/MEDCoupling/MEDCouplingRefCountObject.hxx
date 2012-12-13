@@ -50,6 +50,10 @@ namespace ParaMEDMEM
 
   typedef bool (*FunctionToEvaluate)(const double *pos, double *res);
 
+  MEDCOUPLING_EXPORT const char *MEDCouplingVersionStr();
+  MEDCOUPLING_EXPORT int MEDCouplingVersion();
+  MEDCOUPLING_EXPORT void MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas);
+
   class MEDCOUPLING_EXPORT RefCountObject
   {
   protected:

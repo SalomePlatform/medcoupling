@@ -74,6 +74,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT std::string advancedRepr() const;
+    MEDCOUPLING_EXPORT std::string cppRepr() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string reprConnectivityOfThis() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNumberOfNodesInCell(int cellId) const;

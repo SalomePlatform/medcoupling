@@ -98,6 +98,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const;
     MEDCOUPLING_EXPORT bool areInfoEquals(const DataArray& other) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT std::string cppRepr(const char *varName) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
     MEDCOUPLING_EXPORT const std::vector<std::string> &getInfoOnComponents() const { return _info_on_compo; }
     MEDCOUPLING_EXPORT std::vector<std::string> &getInfoOnComponents() { return _info_on_compo; }
@@ -112,8 +113,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT int getNumberOfTuples() const { return _nb_of_tuples; }
     MEDCOUPLING_EXPORT int getNbOfElems() const { return ((int)_info_on_compo.size())*_nb_of_tuples; }
     MEDCOUPLING_EXPORT void checkNbOfTuples(int nbOfTuples, const char *msg) const throw(INTERP_KERNEL::Exception);
-    MEDCOUPLING_EXPORT 
-void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(const DataArray& other, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfTuplesAndComp(int nbOfTuples, int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void checkNbOfElems(int nbOfElems, const char *msg) const throw(INTERP_KERNEL::Exception);
@@ -122,6 +122,7 @@ void checkNbOfComps(int nbOfCompo, const char *msg) const throw(INTERP_KERNEL::E
     MEDCOUPLING_EXPORT static int GetPosOfItemGivenBESRelativeNoThrow(int value, int begin, int end, int step) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static std::string GetVarNameFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT static std::string GetUnitFromInfo(const std::string& info) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT virtual void reprCppStream(const char *varName, std::ostream& stream) const = 0;
   protected:
     DataArray():_nb_of_tuples(-1) { }
   protected:
@@ -170,6 +171,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprCppStream(const char *varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT bool isEqual(const DataArrayDouble& other, double prec) const;
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const;
@@ -292,8 +294,8 @@ namespace ParaMEDMEM
     template<int SPACEDIM>
     void findCommonTuplesAlg(const double *bbox, int nbNodes, int limitNodeId, double prec, std::vector<int>& c, std::vector<int>& cI) const;
     template<int SPACEDIM>
-    void findTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
-                                   std::vector<int>& c, std::vector<int>& cI) const;
+    static void FindTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double *pos, int nbOfTuples, double eps,
+                                          std::vector<int>& c, std::vector<int>& cI);
   private:
     DataArrayDouble() { }
   private:
@@ -365,6 +367,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void reprZipStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprWithoutNameStream(std::ostream& stream) const;
     MEDCOUPLING_EXPORT void reprZipWithoutNameStream(std::ostream& stream) const;
+    MEDCOUPLING_EXPORT void reprCppStream(const char *varName, std::ostream& stream) const;
     MEDCOUPLING_EXPORT void transformWithIndArr(const int *indArrBg, const int *indArrEnd) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *transformWithIndArrR(const int *indArrBg, const int *indArrEnd) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void splitByValueRange(const int *arrBg, const int *arrEnd,
@@ -455,6 +458,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *buildSubstraction(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *buildUnion(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *buildIntersection(const DataArrayInt *other) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *buildUnique() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *deltaShiftIndex() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void computeOffsets() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void computeOffsets2() throw(INTERP_KERNEL::Exception);
@@ -463,6 +467,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT DataArrayInt *findIdInRangeForEachTuple(const DataArrayInt *ranges) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *duplicateEachTupleNTimes(int nbTimes) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT std::set<int> getDifferentValues() const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT std::vector<DataArrayInt *> partitionByDifferentValues(std::vector<int>& differentIds) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void useArray(const int *array, bool ownership, DeallocType type, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void useExternalArrayWithRWAccess(const int *array, int nbOfTuple, int nbOfCompo);
     MEDCOUPLING_EXPORT void writeOnPlace(int id, int element0, const int *others, int sizeOfOthers) { _mem.writeOnPlace(id,element0,others,sizeOfOthers); }

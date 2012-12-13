@@ -24,7 +24,9 @@
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingExtrudedMesh.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "MEDCouplingNormalizedCartesianMesh.txx"
 
 #include "Interpolation1D.txx"
 #include "Interpolation2DCurve.hxx"
@@ -33,6 +35,8 @@
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation2D1D.txx"
 #include "Interpolation3D2D.txx"
+#include "InterpolationCU.txx"
+#include "InterpolationCC.txx"
 
 using namespace ParaMEDMEM;
 
@@ -55,6 +59,12 @@ int MEDCouplingRemapper::prepare(const MEDCouplingMesh *srcMesh, const MEDCoupli
     {
     case 85://Unstructured-Unstructured
       return prepareUU(method);
+    case 87://Unstructured-Cartesian
+      return prepareUC(method);
+    case 117://Cartesian-Unstructured
+      return prepareCU(method);
+    case 119://Cartesian-Cartesian
+      return prepareCC(method);
     case 136://Extruded-Extruded
       return prepareEE(method);
     default:
@@ -232,7 +242,7 @@ int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exce
       INTERP_KERNEL::Interpolation3D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
       nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
-      reverseMatrix(matrixTmp,nbCols,_matrix);
+      ReverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
     }
   else if(srcMeshDim==2 && trgMeshDim==1 && srcSpaceDim==2)
@@ -251,7 +261,7 @@ int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exce
           INTERP_KERNEL::Interpolation2D1D interpolation(*this);
           std::vector<std::map<int,double> > matrixTmp;
           nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
-          reverseMatrix(matrixTmp,nbCols,_matrix);
+          ReverseMatrix(matrixTmp,nbCols,_matrix);
           nbCols=matrixTmp.size();
           INTERP_KERNEL::Interpolation2D1D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
           if(!duplicateFaces.empty())
@@ -275,7 +285,7 @@ int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exce
           INTERP_KERNEL::Interpolation2D interpolation(*this);
           std::vector<std::map<int,double> > matrixTmp;
           nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
-          reverseMatrix(matrixTmp,nbCols,_matrix);
+          ReverseMatrix(matrixTmp,nbCols,_matrix);
           nbCols=matrixTmp.size();
         }
       else
@@ -322,7 +332,7 @@ int MEDCouplingRemapper::prepareUU(const char *method) throw(INTERP_KERNEL::Exce
       INTERP_KERNEL::Interpolation3D2D interpolation(*this);
       std::vector<std::map<int,double> > matrixTmp;
       nbCols=interpolation.interpolateMeshes(target_mesh_wrapper,source_mesh_wrapper,matrixTmp,method);
-      reverseMatrix(matrixTmp,nbCols,_matrix);
+      ReverseMatrix(matrixTmp,nbCols,_matrix);
       nbCols=matrixTmp.size();
       INTERP_KERNEL::Interpolation3D2D::DuplicateFacesType duplicateFaces=interpolation.retrieveDuplicateFaces();
       if(!duplicateFaces.empty())
@@ -426,6 +436,163 @@ int MEDCouplingRemapper::prepareEE(const char *method) throw(INTERP_KERNEL::Exce
   return 1;
 }
 
+int MEDCouplingRemapper::prepareUC(const char *method) throw(INTERP_KERNEL::Exception)
+{
+  std::string methodCpp(method);
+  if(methodCpp!="P0P0")
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareUC : only P0P0 interpolation supported for the moment !");
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
+  MEDCouplingUMesh *src_mesh=static_cast<MEDCouplingUMesh *>(_src_mesh);
+  MEDCouplingCMesh *target_mesh=static_cast<MEDCouplingCMesh *>(_target_mesh);
+  const int srcMeshDim=src_mesh->getMeshDimension();
+  const int srcSpceDim=src_mesh->getSpaceDimension();
+  const int trgMeshDim=target_mesh->getMeshDimension();
+  if(srcMeshDim!=srcSpceDim || srcMeshDim!=trgMeshDim)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareUC : space dim of src unstructured should be equal to mesh dim of src unstructured and should be equal also equal to trg cartesian dimension !");
+  std::vector<std::map<int,double> > res;
+  switch(srcMeshDim)
+    {
+    case 1:
+      {
+        MEDCouplingNormalizedCartesianMesh<1> targetWrapper(target_mesh);
+        MEDCouplingNormalizedUnstructuredMesh<1,1> sourceWrapper(src_mesh);
+        INTERP_KERNEL::InterpolationCU myInterpolator(*this);
+        myInterpolator.interpolateMeshes(targetWrapper,sourceWrapper,res,"P0P0");
+        break;
+      }
+    case 2:
+      {
+        MEDCouplingNormalizedCartesianMesh<2> targetWrapper(target_mesh);
+        MEDCouplingNormalizedUnstructuredMesh<2,2> sourceWrapper(src_mesh);
+        INTERP_KERNEL::InterpolationCU myInterpolator(*this);
+        myInterpolator.interpolateMeshes(targetWrapper,sourceWrapper,res,"P0P0");
+        break;
+      }
+    case 3:
+      {
+        MEDCouplingNormalizedCartesianMesh<3> targetWrapper(target_mesh);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> sourceWrapper(src_mesh);
+        INTERP_KERNEL::InterpolationCU myInterpolator(*this);
+        myInterpolator.interpolateMeshes(targetWrapper,sourceWrapper,res,"P0P0");
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareUC : only dimension 1 2 or 3 supported !");
+    }
+  ReverseMatrix(res,target_mesh->getNumberOfCells(),_matrix);
+  nullifiedTinyCoeffInCrudeMatrixAbs(0.);
+  //
+  _deno_multiply.clear();
+  _deno_multiply.resize(_matrix.size());
+  _deno_reverse_multiply.clear();
+  _deno_reverse_multiply.resize(src_mesh->getNumberOfCells());
+  declareAsNew();
+  return 1;
+}
+
+int MEDCouplingRemapper::prepareCU(const char *method) throw(INTERP_KERNEL::Exception)
+{
+  std::string methodCpp(method);
+  if(methodCpp!="P0P0")
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCU : only P0P0 interpolation supported for the moment !");
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
+  MEDCouplingCMesh *src_mesh=static_cast<MEDCouplingCMesh *>(_src_mesh);
+  MEDCouplingUMesh *target_mesh=static_cast<MEDCouplingUMesh *>(_target_mesh);
+  const int srcMeshDim=src_mesh->getMeshDimension();
+  const int trgMeshDim=target_mesh->getMeshDimension();
+  const int trgSpceDim=target_mesh->getSpaceDimension();
+  if(trgMeshDim!=trgSpceDim || trgMeshDim!=srcMeshDim)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCU : space dim of target unstructured should be equal to mesh dim of target unstructured and should be equal also equal to source cartesian dimension !");
+  switch(srcMeshDim)
+    {
+    case 1:
+      {
+        MEDCouplingNormalizedCartesianMesh<1> sourceWrapper(src_mesh);
+        MEDCouplingNormalizedUnstructuredMesh<1,1> targetWrapper(target_mesh);
+        INTERP_KERNEL::InterpolationCU myInterpolator(*this);
+        myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,_matrix,"P0P0");
+        break;
+      }
+    case 2:
+      {
+        MEDCouplingNormalizedCartesianMesh<2> sourceWrapper(src_mesh);
+        MEDCouplingNormalizedUnstructuredMesh<2,2> targetWrapper(target_mesh);
+        INTERP_KERNEL::InterpolationCU myInterpolator(*this);
+        myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,_matrix,"P0P0");
+        break;
+      }
+    case 3:
+      {
+        MEDCouplingNormalizedCartesianMesh<3> sourceWrapper(src_mesh);
+        MEDCouplingNormalizedUnstructuredMesh<3,3> targetWrapper(target_mesh);
+        INTERP_KERNEL::InterpolationCU myInterpolator(*this);
+        myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,_matrix,"P0P0");
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCU : only dimension 1 2 or 3 supported !");
+    }
+  nullifiedTinyCoeffInCrudeMatrixAbs(0.);
+  //
+  _deno_multiply.clear();
+  _deno_multiply.resize(_matrix.size());
+  _deno_reverse_multiply.clear();
+  _deno_reverse_multiply.resize(src_mesh->getNumberOfCells());
+  declareAsNew();
+  return 1;
+}
+
+int MEDCouplingRemapper::prepareCC(const char *method) throw(INTERP_KERNEL::Exception)
+{
+  std::string methodCpp(method);
+  if(methodCpp!="P0P0")
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCC : only P0P0 interpolation supported for the moment !");
+  INTERP_KERNEL::Interpolation<INTERP_KERNEL::Interpolation3D>::checkAndSplitInterpolationMethod(method,_src_method,_target_method);
+  MEDCouplingCMesh *src_mesh=static_cast<MEDCouplingCMesh *>(_src_mesh);
+  MEDCouplingCMesh *target_mesh=static_cast<MEDCouplingCMesh *>(_target_mesh);
+  const int srcMeshDim=src_mesh->getMeshDimension();
+  const int trgMeshDim=target_mesh->getMeshDimension();
+  if(trgMeshDim!=srcMeshDim)
+    throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCC : dim of target cartesian should be equal to dim of source cartesian dimension !");
+  switch(srcMeshDim)
+    {
+    case 1:
+      {
+        MEDCouplingNormalizedCartesianMesh<1> sourceWrapper(src_mesh);
+        MEDCouplingNormalizedCartesianMesh<1> targetWrapper(target_mesh);
+        INTERP_KERNEL::InterpolationCC myInterpolator(*this);
+        myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,_matrix,"P0P0");
+        break;
+      }
+    case 2:
+      {
+        MEDCouplingNormalizedCartesianMesh<2> sourceWrapper(src_mesh);
+        MEDCouplingNormalizedCartesianMesh<2> targetWrapper(target_mesh);
+        INTERP_KERNEL::InterpolationCC myInterpolator(*this);
+        myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,_matrix,"P0P0");
+        break;
+      }
+    case 3:
+      {
+        MEDCouplingNormalizedCartesianMesh<3> sourceWrapper(src_mesh);
+        MEDCouplingNormalizedCartesianMesh<3> targetWrapper(target_mesh);
+        INTERP_KERNEL::InterpolationCC myInterpolator(*this);
+        myInterpolator.interpolateMeshes(sourceWrapper,targetWrapper,_matrix,"P0P0");
+        break;
+      }
+    default:
+      throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareCC : only dimension 1 2 or 3 supported !");
+    }
+  nullifiedTinyCoeffInCrudeMatrixAbs(0.);
+  //
+  _deno_multiply.clear();
+  _deno_multiply.resize(_matrix.size());
+  _deno_reverse_multiply.clear();
+  _deno_reverse_multiply.resize(src_mesh->getNumberOfCells());
+  declareAsNew();
+  return 1;
+}
+
 void MEDCouplingRemapper::updateTime() const
 {
 }
@@ -494,7 +661,7 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
     {
     case ConservativeVolumic:
       {
-        computeRowSumAndColSum(_matrix,_deno_multiply,_deno_reverse_multiply);
+        ComputeRowSumAndColSum(_matrix,_deno_multiply,_deno_reverse_multiply);
         break;
       }
     case Integral:
@@ -526,7 +693,7 @@ void MEDCouplingRemapper::computeDenoFromScratch(NatureOfField nat, const MEDCou
       }
     case IntegralGlobConstraint:
       {
-        computeColSumAndRowSum(_matrix,_deno_multiply,_deno_reverse_multiply);
+        ComputeColSumAndRowSum(_matrix,_deno_multiply,_deno_reverse_multiply);
         break;
       }
     case RevIntegral:
@@ -607,7 +774,7 @@ void MEDCouplingRemapper::computeReverseProduct(const double *inputPointer, int 
       std::fill(resPointer+idx*inputNbOfCompo,resPointer+(idx+1)*inputNbOfCompo,dftValue);
 }
 
-void MEDCouplingRemapper::reverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn, std::vector<std::map<int,double> >& matOut)
+void MEDCouplingRemapper::ReverseMatrix(const std::vector<std::map<int,double> >& matIn, int nbColsMatIn, std::vector<std::map<int,double> >& matOut)
 {
   matOut.resize(nbColsMatIn);
   int id=0;
@@ -616,7 +783,7 @@ void MEDCouplingRemapper::reverseMatrix(const std::vector<std::map<int,double> >
       matOut[(*iter2).first][id]=(*iter2).second;
 }
 
-void MEDCouplingRemapper::computeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,
+void MEDCouplingRemapper::ComputeRowSumAndColSum(const std::vector<std::map<int,double> >& matrixDeno,
                                                  std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse)
 {
   std::map<int,double> values;
@@ -640,7 +807,7 @@ void MEDCouplingRemapper::computeRowSumAndColSum(const std::vector<std::map<int,
     }
 }
 
-void MEDCouplingRemapper::computeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
+void MEDCouplingRemapper::ComputeColSumAndRowSum(const std::vector<std::map<int,double> >& matrixDeno,
                                                  std::vector<std::map<int,double> >& deno, std::vector<std::map<int,double> >& denoReverse)
 {
   std::map<int,double> values;

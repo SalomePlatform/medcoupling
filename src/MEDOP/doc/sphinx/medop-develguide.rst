@@ -2,100 +2,60 @@
    :keywords: maillage, champ, manipulation, med, développement
    :author: Guillaume Boulant
 
-.. include:: xmed-definitions.rst
+.. include:: medop-definitions.rst
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Module XMED: Guide de développement
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Module MED: Guide de développement du composant MEDOP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-(|XMED_DEVELGUIDE_PDF|_)
+Le composant logiciel MEDOP est un élément du module MED. Il fournit
+une interface utilisateur pour la manipulation de maillages et de
+champs, composée d'une interface texte (TUI) et d'une interface
+graphique (GUI). L'interface graphique constitue l'interface graphique
+du module MED.
 
-Ce document est la documentation technique du module XMED. Il fournit
-les instructions à suivre pour installer le module en vue d'un travail
-de développement, puis décrit les éléments de conception qui
-structurent le module.
+Ce document est la documentation technique du composant MEDOP. Il
+fournit les instructions à suivre pour installer le composant en vue
+d'un travail de développement, puis décrit les éléments de conception.
 
 .. contents:: Sommaire
    :local:
    :backlinks: none
 
-.. warning:: Ce document est en travaux. Tant que cet avis n'aura pas
-   disparu, veuillez en considérer le plan et le contenu encore
-   incomplets, temporaires et sujets à caution.
-
-Mise en place d'un espace de développement
+Mise en place de l'espace de développement
 ==========================================
 
-Gestion de configuration du module XMED
----------------------------------------
+Gestion de configuration du composant MEDOP
+-------------------------------------------
 
-Les sources du module (répertoire ``xmed``) sont archivés en dépôt de
-configuration dans une base git du projet NEPAL. Ils peuvent être
-récupérés au moyen de la commande::
+Le composant logiciel MEDOP est un package du module SALOME MED,
+hébergé dans l'espace source au niveau du sous-répertoire
+`src/MEDOP`. La gestion des fichiers sources est donc intégrée dans le
+module SALOME MED.
 
- $ git clone git@cli70rw.der.edf.fr:xom/xmed.git
+Organisation des sources du composant MEDOP
+-------------------------------------------
 
-Cette commande installe un répertoire ``xmed`` contenant l'ensemble
-des sources du module XMED.
+Le répertoire source `src/MEDOP` distingue les sous-répertoires
+suivants:
 
-Le module XMED a pour pré-requis logiciel la plateforme SALOME:
+* cmp: package containing the SALOME components
+* tui: package containing the python user interface
+* gui: package containing the graphical user interface (the GUI part
+  of the MED module)
+* res: resources files associated to the MEDOP package (icons, config
+  files, data files, ...)
+* exe: additional executable programs that can be launched from the
+  MEDOP framework
 
-* SALOME version 6.1.3 (au moins) à télécharger à l'URL
-  http://pal.der.edf.fr/pal/projets/pal/releases/V6_1_3
-* On peut également utiliser une version dérivée comme SALOME-MECA 2010.1
-* Installer la plate-forme choisie selon les instructions fournies.
+Construction du composant MEDOP
+-------------------------------
 
-Le module XMED utilise également une bibliothèque interne au projet
-NEPAL, appelée XSALOME, et qui fournit une extension aux fonctions de
-SALOME pour un usage de développement (XSALOME signifie eXtension
-SALOME). Les sources de cette bibliothèque doivent être récupérés au
-moyen de la commande::
+Intégré à la construction du module MED. Le composant MEDOP dépend de
+MEDCoupling et MEDLoader uniquement.
 
- $ git clone git@cli70rw.der.edf.fr:xom/xsalome.git
-
-Cette commande installe un répertoire ``xsalome`` contenant l'ensemble
-des sources de la bibliothèque XSALOME.
- 
-.. note:: La bibliothèque XSALOME n'est pas un module SALOME mais une
-   simple bibliothèque de fonctions qui complète ou rend plus facile
-   d'utilisation les fonctions de SALOME. Elle NE DOIT EN AUCUN CAS
-   être intégrée à d'autres projets que les projets internes NEPAL ou
-   MAILLAGE. Il s'agit en effet d'une bibliothèque de transition qui
-   héberge des développements destinés à être reversés dans la
-   plate-forme SALOME. Le contenu et les interfaces de XSALOME ne peut
-   donc être garanti sur le long terme.
-
-Installation et lancement de l'application
-------------------------------------------
-
-L'installation suppose qu'une version 6.1.3 de SALOME (ou plus) est
-disponible et que le shell de travail est étendu avec l'environnement
-de SALOME. En général, par des commandes de la forme::
-
- $ . /where/is/salome/prerequis.sh
- $ . /where/is/salome/envSalome.sh
-
-La compilation des modules xsalome et xmed suit le standard SALOME. La
-bibliothèque xsalome est un prérequis à la compilation de xmed. Pour
-cela, la variable d'environnement XSALOME_DIR doit être spécifiée pour
-la configuration de la procédure de reconstruction de xmed::
-
- $ export XSALOME_DIR=<xsalome_installdir>
-
-Aprés l'installation de xmed, il est possible de générer
-automatiquement une application SALOME prête à l'emploi pour la
-manipulation de champs::
-
- $ <xmed_installdir>/bin/salome/xmed/appligen/appligen.sh
-
-Cette commande génére un répertoire ``appli`` à l'emplacement où elle
-est exécutée. Il reste à lancer l'application SALOME au moyen de la
-commande::
- 
- $ ./appli/runAppli -k
-
-Exécution des tests unitaires
------------------------------
+Exécution des tests unitaires du composant MEDOP
+------------------------------------------------
 
 Les tests unitaires peuvent être exécutés au moyen de scripts python
 lancés depuis une session shell SALOME. Dans un nouveau shell, taper::
@@ -227,8 +187,8 @@ Ecrire un service CORBA qui retourne une structure CORBA:
 
 
 
-ANNEXE: Bug en cours
-====================
+ANNEXE A: Bug en cours
+======================
 
 TO FIX:
 
@@ -237,3 +197,79 @@ TO FIX:
   reference correcte vers le maillage).
 * le script de test test_medoperation.py plante si le module xmed n'a
   pas été chargé avec des données chargées.
+
+ANNEXE B: Traçabilité avec le module XMED
+=========================================
+
+Le module SALOME de nom XMED est l'espace de développement initial du
+composant logiciel MEDOP, intégré aujourd'hui au module MED. Cette
+annexe est la notice technique de ce module, qui reste disponible mais
+qui n'est plus maintenu.
+
+Gestion de configuration du module XMED
+---------------------------------------
+
+Les sources du module (répertoire ``xmed``) sont archivés en dépôt de
+configuration dans une base git du projet NEPAL. Ils peuvent être
+récupérés au moyen de la commande::
+
+ $ git clone git@cli70rw.der.edf.fr:xom/xmed.git
+
+Cette commande installe un répertoire ``xmed`` contenant l'ensemble
+des sources du module XMED.
+
+Le module XMED a pour pré-requis logiciel la plateforme SALOME:
+
+* SALOME version 6.1.3 (au moins) à télécharger à l'URL
+  http://pal.der.edf.fr/pal/projets/pal/releases/V6_1_3
+* On peut également utiliser une version dérivée comme SALOME-MECA 2010.1
+* Installer la plate-forme choisie selon les instructions fournies.
+
+Le module XMED utilise également une bibliothèque interne au projet
+NEPAL, appelée XSALOME, et qui fournit une extension aux fonctions de
+SALOME pour un usage de développement (XSALOME signifie eXtension
+SALOME). Les sources de cette bibliothèque doivent être récupérés au
+moyen de la commande::
+
+ $ git clone git@cli70rw.der.edf.fr:xom/xsalome.git
+
+Cette commande installe un répertoire ``xsalome`` contenant l'ensemble
+des sources de la bibliothèque XSALOME.
+ 
+.. note:: La bibliothèque XSALOME n'est pas un module SALOME mais une
+   simple bibliothèque de fonctions qui complète ou rend plus facile
+   d'utilisation les fonctions de SALOME. Elle NE DOIT EN AUCUN CAS
+   être intégrée à d'autres projets que les projets internes NEPAL ou
+   MAILLAGE. Il s'agit en effet d'une bibliothèque de transition qui
+   héberge des développements destinés à être reversés dans la
+   plate-forme SALOME. Le contenu et les interfaces de XSALOME ne peut
+   donc être garanti sur le long terme.
+
+Installation et lancement de l'application
+------------------------------------------
+
+L'installation suppose qu'une version 6.1.3 de SALOME (ou plus) est
+disponible et que le shell de travail est étendu avec l'environnement
+de SALOME. En général, par des commandes de la forme::
+
+ $ . /where/is/salome/prerequis.sh
+ $ . /where/is/salome/envSalome.sh
+
+La compilation des modules xsalome et xmed suit le standard SALOME. La
+bibliothèque xsalome est un prérequis à la compilation de xmed. Pour
+cela, la variable d'environnement XSALOME_DIR doit être spécifiée pour
+la configuration de la procédure de reconstruction de xmed::
+
+ $ export XSALOME_DIR=<xsalome_installdir>
+
+Aprés l'installation de xmed, il est possible de générer
+automatiquement une application SALOME prête à l'emploi pour la
+manipulation de champs::
+
+ $ <xmed_installdir>/bin/salome/xmed/appligen/appligen.sh
+
+Cette commande génére un répertoire ``appli`` à l'emplacement où elle
+est exécutée. Il reste à lancer l'application SALOME au moyen de la
+commande::
+ 
+ $ ./appli/runAppli -k

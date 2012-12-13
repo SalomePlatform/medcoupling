@@ -2,13 +2,11 @@
    :keywords: maillage, champ, manipulation, med
    :author: Guillaume Boulant
 
-.. include:: xmed-definitions.rst
+.. include:: medop-definitions.rst
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Module XMED: Spécifications fonctionnelles et techniques
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-(|XMED_SPECIFICATIONS_PDF|_)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Module MED: Spécifications fonctionnelles et techniques
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Ce texte présente les spécifications informatiques pour le
 développement d'un module de manipulation de champs qui répond à

@@ -65,6 +65,7 @@ namespace ParaMEDMEM
     DataArrayInt *computeTupleIdsToSelectFromCellIds(const int *startCellIds, const int *endCellIds) const;
     const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
     MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
+    void setDiscretization(MEDCouplingFieldDiscretization *newDisc) { _type=newDisc; }
     int getNumberOfTuplesExpected() const throw(INTERP_KERNEL::Exception);
     int getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL::Exception);
     // Gauss point specific methods
@@ -75,6 +76,7 @@ namespace ParaMEDMEM
     void clearGaussLocalizations();
     MEDCouplingGaussLocalization& getGaussLocalization(int locId) throw(INTERP_KERNEL::Exception);
     int getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    std::set<int> getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     int getNbOfGaussLocalization() const throw(INTERP_KERNEL::Exception);
     int getGaussLocalizationIdOfOneCell(int cellId) const throw(INTERP_KERNEL::Exception);
     void getCellIdsHavingGaussLocalization(int locId, std::vector<int>& cellIds) const throw(INTERP_KERNEL::Exception);

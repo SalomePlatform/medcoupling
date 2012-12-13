@@ -92,15 +92,18 @@ namespace INTERP_KERNEL
         switch(InterpolationOptions::getIntersectionType())
           {
           case Triangulation:
-             intersector=new Polyhedron3D2DIntersectorP0P0<MyMeshType,MyMatrixType>(targetMesh,
-                                                                                    srcMesh,
-                                                                                    dimCaracteristic,
-                                                                                    getPrecision(),
-                                                                                    intersectFaces,
-                                                                                    getSplittingPolicy());
+            intersector=new Polyhedron3D2DIntersectorP0P0<MyMeshType,MyMatrixType>(targetMesh,
+                                                                                   srcMesh,
+                                                                                   dimCaracteristic,
+                                                                                   getPrecision(),
+                                                                                   intersectFaces,
+                                                                                   getSplittingPolicy());
+            break;
+          case PointLocator:
+            intersector=new PointLocator3DIntersectorP0P0<MyMeshType,MyMatrixType>(targetMesh,srcMesh,getPrecision());
             break;
           default:
-            throw INTERP_KERNEL::Exception("Invalid 3D intersection type for P0P0 interp specified : must be Triangulation.");
+            throw INTERP_KERNEL::Exception("Invalid 3D to 2D intersection type for P0P0 interp specified : must be Triangulation or PointLocator.");
           }
       }
     else

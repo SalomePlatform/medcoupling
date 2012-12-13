@@ -1062,7 +1062,6 @@ void MEDCouplingUMesh::simplifyPolyhedra(double eps) throw(INTERP_KERNEL::Except
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplifyPolyhedra : works on meshdimension 3 and spaceDimension 3 !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> coords=getCoords()->deepCpy();
   coords->recenterForMaxPrecision(eps);
-  const double *coordsPtr=coords->getConstPointer();
   //
   int nbOfCells=getNumberOfCells();
   const int *conn=_nodal_connec->getConstPointer();
@@ -1612,7 +1611,6 @@ bool MEDCouplingUMesh::areCellsIncludedIn2(const MEDCouplingUMesh *other, DataAr
     }
   int thisNbCells=getNumberOfCells();
   int otherNbCells=other->getNumberOfCells();
-  int nbOfCells=mesh->getNumberOfCells();
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> arr2=DataArrayInt::New();
   arr2->alloc(otherNbCells,1);
   arr2->fillWithZero();
@@ -1794,9 +1792,7 @@ void MEDCouplingUMesh::setPartOfMySelf(const int *cellIdsBg, const int *cellIdsE
     }
   int nbOfCells=getNumberOfCells();
   bool easyAssign=true;
-  const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
-  const int *connOther=otherOnSameCoordsThanThis._nodal_connec->getConstPointer();
   const int *connIOther=otherOnSameCoordsThanThis._nodal_connec_index->getConstPointer();
   for(const int *it=cellIdsBg;it!=cellIdsEnd && easyAssign;it++,connIOther++)
     {
@@ -1845,9 +1841,7 @@ void MEDCouplingUMesh::setPartOfMySelf2(int start, int end, int step, const MEDC
     }
   int nbOfCells=getNumberOfCells();
   bool easyAssign=true;
-  const int *conn=_nodal_connec->getConstPointer();
   const int *connI=_nodal_connec_index->getConstPointer();
-  const int *connOther=otherOnSameCoordsThanThis._nodal_connec->getConstPointer();
   const int *connIOther=otherOnSameCoordsThanThis._nodal_connec_index->getConstPointer();
   int it=start;
   for(int i=0;i<nbOfCellsToModify && easyAssign;i++,it+=step,connIOther++)
@@ -2486,7 +2480,13 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingUMesh::getTypeOfCell(int cellId) co
 {
   const int *ptI=_nodal_connec_index->getConstPointer();
   const int *pt=_nodal_connec->getConstPointer();
-  return (INTERP_KERNEL::NormalizedCellType) pt[ptI[cellId]];
+  if(cellId>=0 && cellId<_nodal_connec_index->getNbOfElems()-1)
+    return (INTERP_KERNEL::NormalizedCellType) pt[ptI[cellId]];
+  else
+    {
+      std::ostringstream oss; oss << "MEDCouplingUMesh::getTypeOfCell : Requesting type of cell #" << cellId << " but it should be in [0," << _nodal_connec_index->getNbOfElems()-1 << ") !";
+      throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
 /*!
@@ -2601,6 +2601,27 @@ std::string MEDCouplingUMesh::advancedRepr() const
     ret << "No array set !\n";
   ret << "\n\nConnectivity arrays : \n_____________________\n\n";
   reprConnectivityOfThisLL(ret);
+  return ret.str();
+}
+
+/*!
+ * This method returns a C++ code that is a dump of \a this.
+ * This method will throw if this is not fully defined.
+ */
+std::string MEDCouplingUMesh::cppRepr() const throw(INTERP_KERNEL::Exception)
+{
+  static const char coordsName[]="coords";
+  static const char connName[]="conn";
+  static const char connIName[]="connI";
+  checkFullyDefined();
+  std::ostringstream ret; ret << "// coordinates" << std::endl;
+  _coords->reprCppStream(coordsName,ret); ret << std::endl << "// connectivity" << std::endl;
+  _nodal_connec->reprCppStream(connName,ret); ret << std::endl;
+  _nodal_connec_index->reprCppStream(connIName,ret); ret << std::endl;
+  ret << "MEDCouplingUMesh *mesh=MEDCouplingUMesh::New(\"" << getName() << "\"," << getMeshDimension() << ");" << std::endl;
+  ret << "mesh->setCoords(" << coordsName << ");" << std::endl;
+  ret << "mesh->setConnectivity(" << connName << "," << connIName << ",true);" << std::endl;
+  ret << coordsName << "->decrRef(); " << connName << "->decrRef(); " << connIName << "->decrRef();" << std::endl;
   return ret.str();
 }
 
@@ -3341,10 +3362,10 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSlice3DSurf(const double *origin, const
 {
   checkFullyDefined();
   if(getMeshDimension()!=2 || getSpaceDimension()!=3)
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D works on umeshes with meshdim equal to 2 and spaceDim equal to 3 !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf works on umeshes with meshdim equal to 2 and spaceDim equal to 3 !");
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> candidates=getCellIdsCrossingPlane(origin,vec,eps);
   if(candidates->empty())
-    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3D : No 3D cells in this intercepts the specified plane considering bounding boxes !");
+    throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSlice3DSurf : No 3D surf cells in this intercepts the specified plane considering bounding boxes !");
   std::vector<int> nodes;
   std::vector<int> cellIds1D;
   MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> subMesh=static_cast<MEDCouplingUMesh*>(buildPartOfMySelf(candidates->begin(),candidates->end(),false));
@@ -5220,10 +5241,17 @@ DataArrayInt *MEDCouplingUMesh::checkTypeConsistencyAndContig(const std::vector<
 }
 
 /*!
- * This method makes the hypothesis that 'this' is sorted by type. If not an exception will be thrown.
- * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in 'profile' it returns a list of profiles sorted by geo type.
- * This method has 1 input 'profile' and 2 outputs 'code' and 'idsPerType'.
- * @throw if 'profile' has not exactly one component. It throws too, if 'profile' contains some values not in [0,getNumberOfCells()) or if 'this' is not fully defined
+ * This method makes the hypothesis that \at this is sorted by type. If not an exception will be thrown.
+ * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in \a profile it returns a list of sub-profiles sorted by geo type.
+ * The result is put in the array \a idsPerType. In the returned parameter \a code, foreach i \a code[3*i+2] refers (if different from -1) to a location into the \a idsPerType.
+ * This method has 1 input \a profile and 3 outputs \a code' \a idsInPflPerType and \a idsPerType.
+ * 
+ * @param [out] code is a vector of size 3*n where n is the number of different geometric type in \a this \b reduced to the profile \a profile. \a code has exactly the same semantic than in MEDCouplingUMesh::checkTypeConsistencyAndContig method.
+ * @param [out] idsInPflPerType is a vector of size of different geometric type in the subpart defined by \a profile of \a this ( equal to \a code.size()/3). For each i,
+ *              \a idsInPflPerType[i] stores the tuple ids in \a profile that correspond to the geometric type code[3*i+0]
+ * @param [out] idsPerType is a vector of size of different sub profiles needed to be defined to represent the profile \a profile for a given geometric type.
+ *              This vector can be empty in case of all geometric type cells are fully covered in ascending in the given input \a profile.
+ * @throw if \a profile has not exactly one component. It throws too, if \a profile contains some values not in [0,getNumberOfCells()) or if 'this' is not fully defined
  */
 void MEDCouplingUMesh::splitProfilePerType(const DataArrayInt *profile, std::vector<int>& code, std::vector<DataArrayInt *>& idsInPflPerType, std::vector<DataArrayInt *>& idsPerType) const throw(INTERP_KERNEL::Exception)
 {
@@ -5641,32 +5669,45 @@ DataArrayInt *MEDCouplingUMesh::convertCellArrayPerGeoType(const DataArrayInt *d
 
 /*!
  * This method reduced number of cells of this by keeping cells whose type is different from 'type' and if type=='type'
+ * This method \b works \b for mesh sorted by type.
  * cells whose ids is in 'idsPerGeoType' array.
  * This method conserves coords and name of mesh.
  */
 MEDCouplingUMesh *MEDCouplingUMesh::keepSpecifiedCells(INTERP_KERNEL::NormalizedCellType type, const int *idsPerGeoTypeBg, const int *idsPerGeoTypeEnd) const
 {
-  std::vector<int> idsTokeep;
-  int nbOfCells=getNumberOfCells();
-  int j=0;
-  for(int i=0;i<nbOfCells;i++)
-    if(getTypeOfCell(i)!=type)
-      idsTokeep.push_back(i);
-    else
-      {
-        if(std::find(idsPerGeoTypeBg,idsPerGeoTypeEnd,j)!=idsPerGeoTypeEnd)
-          idsTokeep.push_back(i);
-        j++;
-      }
-  MEDCouplingPointSet *ret=buildPartOfMySelf(&idsTokeep[0],&idsTokeep[0]+idsTokeep.size(),true);
-  MEDCouplingUMesh *ret2=dynamic_cast<MEDCouplingUMesh *>(ret);
-  if(!ret2)
+  std::vector<int> code=getDistributionOfTypes();
+  std::size_t nOfTypesInThis=code.size()/3;
+  int sz=0,szOfType=0;
+  for(std::size_t i=0;i<nOfTypesInThis;i++)
     {
-      ret->decrRef();
-      return 0;
+      if(code[3*i]!=type)
+        sz+=code[3*i+1];
+      else
+        szOfType=code[3*i+1];
     }
-  ret2->copyTinyInfoFrom(this);
-  return ret2;
+  for(const int *work=idsPerGeoTypeBg;work!=idsPerGeoTypeEnd;work++)
+    if(*work<0 || *work>=szOfType)
+      {
+        std::ostringstream oss; oss << "MEDCouplingUMesh::keepSpecifiedCells : Request on type " << type << " at place #" << std::distance(idsPerGeoTypeBg,work) << " value " << *work;
+        oss << ". It should be in [0," << szOfType << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+      }
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> idsTokeep=DataArrayInt::New(); idsTokeep->alloc(sz+(int)std::distance(idsPerGeoTypeBg,idsPerGeoTypeEnd),1);
+  int *idsPtr=idsTokeep->getPointer();
+  int offset=0;
+  for(std::size_t i=0;i<nOfTypesInThis;i++)
+    {
+      if(code[3*i]!=type)
+        for(int j=0;j<code[3*i+1];j++)
+          *idsPtr++=offset+j;
+      else
+        idsPtr=std::transform(idsPerGeoTypeBg,idsPerGeoTypeEnd,idsPtr,std::bind2nd(std::plus<int>(),offset));
+      offset+=code[3*i+1];
+    }
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingUMesh> ret=static_cast<MEDCouplingUMesh *>(buildPartOfMySelf(idsTokeep->begin(),idsTokeep->end(),true));
+  ret->copyTinyInfoFrom(this);
+  ret->incrRef();
+  return ret;
 }
 
 /*!
@@ -6570,7 +6611,7 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> connectivity=DataArrayInt::New(); connectivity->alloc(_nodal_connec->getNumberOfTuples()-nbOfCells,1);
   int *w1=faceoffsets->getPointer(),*w2=types->getPointer(),*w3=offsets->getPointer(),*w4=connectivity->getPointer();
   int szFaceOffsets=0,szConn=0;
-  for(int i=0;i<nbOfCells;i++,w1++,w2++,*w3++)
+  for(int i=0;i<nbOfCells;i++,w1++,w2++,w3++)
     {
       *w2=cPtr[cIPtr[i]];
       if((INTERP_KERNEL::NormalizedCellType)cPtr[cIPtr[i]]!=INTERP_KERNEL::NORM_POLYHED)
@@ -6602,13 +6643,13 @@ void MEDCouplingUMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
           {
             int nbFaces=std::count(cPtr+cIPtr[i]+1,cPtr+cIPtr[i+1],-1)+1;
             *w1++=nbFaces;
-            const int *w4=cPtr+cIPtr[i]+1,*w5=0;
+            const int *w6=cPtr+cIPtr[i]+1,*w5=0;
             for(int j=0;j<nbFaces;j++)
               {
-                w5=std::find(w4,cPtr+cIPtr[i+1],-1);
-                *w1++=(int)std::distance(w4,w5);
-                w1=std::copy(w4,w5,w1);
-                w4=w5+1;
+                w5=std::find(w6,cPtr+cIPtr[i+1],-1);
+                *w1++=(int)std::distance(w6,w5);
+                w1=std::copy(w6,w5,w1);
+                w6=w5+1;
               }
           }
       faces->writeVTK(ofs,8,"Int32","faces");
@@ -6707,24 +6748,35 @@ void MEDCouplingUMesh::BuildIntersecting2DCellsFromEdges(double eps, const MEDCo
       MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,/* output */mapp,mappRev);
       pol1.buildFromCrudeDataArray(mappRev,cm.isQuadratic(),conn1+connI1[i]+1,coo1,
                                    desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1);
-      std::vector<int> crTmp,crITmp;
-      crITmp.push_back(crI.back());
-      for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++)
+      //
+      std::set<INTERP_KERNEL::Edge *> edges1;// store all edges of pol1 that are NOT consumed by intersect cells. If any after iteration over candidates2 -> a part of pol1 should appear in result
+      std::set<INTERP_KERNEL::Edge *> edgesBoundary2;// store all edges that are on boundary of (pol2 intersect pol1) minus edges on pol1.
+      INTERP_KERNEL::IteratorOnComposedEdge it1(&pol1);
+      for(it1.first();!it1.finished();it1.next())
+        edges1.insert(it1.current()->getPtr());
+      //
+      std::map<int,std::vector<INTERP_KERNEL::ElementaryEdge *> > edgesIn2ForShare;
+      std::vector<INTERP_KERNEL::QuadraticPolygon> pol2s(candidates2.size());
+      int ii=0;
+      for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
         {
-          INTERP_KERNEL::QuadraticPolygon pol2;
-          pol1.initLocations();
-          MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */mapp,mappRev);
           INTERP_KERNEL::NormalizedCellType typ2=(INTERP_KERNEL::NormalizedCellType)conn2[connI2[*it2]];
           const INTERP_KERNEL::CellModel& cm2=INTERP_KERNEL::CellModel::GetCellModel(typ2);
-          pol2.buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
-                                        pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2);
-          //MEDCouplingUMeshAssignOnLoc(pol1,pol2,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,colinear2);
-          pol1.buildPartitionsAbs(pol2,mapp,i,*it2,offset3,addCoordsQuadratic,cr,crI,cNb1,cNb2);
+          MEDCouplingUMeshBuildQPFromMesh3(coo1,offset1,coo2,offset2,addCoords,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,/* output */mapp,mappRev);
+          pol2s[ii].buildFromCrudeDataArray2(mappRev,cm2.isQuadratic(),conn2+connI2[*it2]+1,coo2,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,
+                                             pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2,edgesIn2ForShare);
         }
-      if(!crTmp.empty())
+      ii=0;
+      for(std::vector<int>::const_iterator it2=candidates2.begin();it2!=candidates2.end();it2++,ii++)
         {
-          cr.insert(cr.end(),crTmp.begin(),crTmp.end());
-          crI.insert(crI.end(),crITmp.begin()+1,crITmp.end());
+          pol1.initLocationsWithOther(pol2s[ii]);
+          pol2s[ii].updateLocOfEdgeFromCrudeDataArray2(desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,pol1,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,colinear2);
+          //MEDCouplingUMeshAssignOnLoc(pol1,pol2,desc1+descIndx1[i],desc1+descIndx1[i+1],intesctEdges1,desc2+descIndx2[*it2],desc2+descIndx2[*it2+1],intesctEdges2,colinear2);
+          pol1.buildPartitionsAbs(pol2s[ii],edges1,edgesBoundary2,mapp,i,*it2,offset3,addCoordsQuadratic,cr,crI,cNb1,cNb2);
+        }
+      if(!edges1.empty())
+        {
+          INTERP_KERNEL::QuadraticPolygon::ComputeResidual(pol1,edges1,edgesBoundary2,mapp,offset3,i,addCoordsQuadratic,cr,crI,cNb1,cNb2);
         }
       for(std::map<int,INTERP_KERNEL::Node *>::const_iterator it=mappRev.begin();it!=mappRev.end();it++)
         (*it).second->decrRef();
@@ -7096,6 +7148,8 @@ bool MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis(const double *coords, co
               return true;
             }
         }
+      else
+        throw INTERP_KERNEL::Exception("MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis : invalid 2D cell connectivity !");
     }
   else
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::BuildConvexEnvelopOf2DCellJarvis : invalid 2D cell connectivity !");
@@ -7501,7 +7555,6 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildSpreadZonesWithPoly() const throw(INTER
   int spaceDim=getSpaceDimension();
   if(mdim!=spaceDim)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::buildSpreadZonesWithPoly : meshdimension and spacedimension do not match !");
-  int nbCells=getNumberOfCells();
   std::vector<DataArrayInt *> partition=partitionBySpreadZone();
   std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > partitionAuto; partitionAuto.reserve(partition.size());
   std::copy(partition.begin(),partition.end(),std::back_insert_iterator<std::vector< MEDCouplingAutoRefCountObjectPtr<DataArrayInt> > >(partitionAuto));

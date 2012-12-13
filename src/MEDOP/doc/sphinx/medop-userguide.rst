@@ -2,30 +2,29 @@
    :keywords: maillage, champ, manipulation, guide utilisateur
    :author: Guillaume Boulant
 
-.. include:: xmed-definitions.rst
+.. include:: medop-definitions.rst
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Module XMED: Guide d'utilisation
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Module MED: Guide d'utilisation de l'interface graphique
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-(|XMED_USERGUIDE_PDF|_)
-
-Ce document est un guide rapide pour l'utilisation du module MED. Il
-montre comment utiliser le module sur la base de quelques exemples de
-référence, inspirés des cas d'utilisation identifiés lors de l'analyse
-des besoins en matière de manipulation de champs.
+Ce document est un guide rapide pour l'utilisation de l'interface
+graphique du module MED. Il montre comment utiliser le module sur la
+base de quelques exemples de référence, inspirés des cas d'utilisation
+identifiés lors de l'analyse des besoins en matière de manipulation de
+champs.
 
 .. warning:: Le document est autonome, mais il est vivement conseillé
    de parcourir au préalable (ou en parallèle) :doc:`le document de
-   spécifications<xmed-specifications>`, au moins pour fixer les
+   spécifications<medop-specifications>`, au moins pour fixer les
    concepts et la terminologie.
 
 .. contents:: Sommaire
    :local:
    :backlinks: none
 
-Présentation générale du module XMED
-====================================
+Présentation générale du module MED
+===================================
 
 L'ergonomie générale d'utilisation du module de manipulation de champs
 est inspirée des logiciels comme octave ou scilab. Elle associe une
@@ -71,8 +70,8 @@ processus de la forme suivante:
 5. Enregistrement d'une partie des champs produits dans un fichier med
 
 
-Tour rapide des fonctions du module XMED
-========================================
+Tour rapide des fonctions du module MED
+=======================================
 
 Cette section présente des exemples d'utilisation du module XMED sous
 la forme de "storyboard", et illustre au passage les fonctions mises à
@@ -656,8 +655,8 @@ carte de champ:
 
 .. _xmed.userguide.tui:
 
-Utilisation de l'interface textuelle du moduel XMED (TUI)
-=========================================================
+Utilisation de l'interface textuelle du moduel MED (TUI)
+========================================================
 
 Toutes les opérations menées au moyen de l'interface graphique peuvent
 être réalisées (avec plus ou moins de facilité) avec l'interface

@@ -260,6 +260,13 @@ int MEDCouplingField::getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedC
   return _type->getGaussLocalizationIdOfOneType(type);
 }
 
+std::set<int> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  if(!_mesh)
+    throw INTERP_KERNEL::Exception("Mesh has to be set before calling getGaussLocalizationIdsOfOneType method !");
+  return _type->getGaussLocalizationIdsOfOneType(type);
+}
+
 /*!
  * This method returns number of Gauss localization available. Implicitely all ids in [0,getNbOfGaussLocalization()) is a valid Gauss localisation id.
  * This method throws an exception if there is no mesh, invalid FieldDescription (different from Gauss)
