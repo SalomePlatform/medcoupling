@@ -100,6 +100,7 @@ bool MEDPARTITIONER::ParaDomainSelector::isOnDifferentHosts() const
   MPI_Allreduce( &same, &sum_same, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD );
   return (sum_same != nbProcs());
 #endif
+  return false;
 }
 
 /*!

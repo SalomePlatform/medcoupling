@@ -19,8 +19,9 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingTimeDiscretization.hxx"
-#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
+#include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingMesh.hxx"
 
 #include <cmath>
 #include <sstream>
@@ -90,6 +91,14 @@ void MEDCouplingTimeDiscretization::updateTime() const
 {
   if(_array)
     updateTimeWith(*_array);
+}
+
+std::size_t MEDCouplingTimeDiscretization::getHeapMemorySize() const
+{
+  std::size_t ret=_time_unit.capacity();
+  if(_array)
+    ret+=_array->getHeapMemorySize();
+  return ret;
 }
 
 bool MEDCouplingTimeDiscretization::areCompatible(const MEDCouplingTimeDiscretization *other) const
@@ -813,6 +822,11 @@ std::string MEDCouplingNoTimeLabel::getStringRepr() const
   return stream.str();
 }
 
+void MEDCouplingNoTimeLabel::synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingNoTimeLabel::synchronizeTimeWith : impossible to synchronize time with a MEDCouplingMesh because the time discretization is incompatible with it !");
+}
+
 bool MEDCouplingNoTimeLabel::areCompatible(const MEDCouplingTimeDiscretization *other) const
 {
   if(!MEDCouplingTimeDiscretization::areCompatible(other))
@@ -1175,6 +1189,17 @@ std::string MEDCouplingWithTimeStep::getStringRepr() const
   stream << REPR << " Time is defined by iteration=" << _iteration << " order=" << _order << " and time=" << _time << ".";
   stream << "\nTime unit is : \"" << _time_unit << "\"";
   return stream.str();
+}
+
+void MEDCouplingWithTimeStep::synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingWithTimeStep::synchronizeTimeWith : mesh instance is NULL ! Impossible to synchronize time !");
+  int it=-1,order=-1;
+  double val=mesh->getTime(it,order);
+  _time=val; _iteration=it; _order=order;
+  std::string tUnit=mesh->getTimeUnit();
+  _time_unit=tUnit;
 }
 
 void MEDCouplingWithTimeStep::getTinySerializationIntInformation(std::vector<int>& tinyInfo) const
@@ -1662,6 +1687,18 @@ std::string MEDCouplingConstOnTimeInterval::getStringRepr() const
   return stream.str();
 }
 
+void MEDCouplingConstOnTimeInterval::synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingWithTimeStep::synchronizeTimeWith : mesh instance is NULL ! Impossible to synchronize time !");
+  int it=-1,order=-1;
+  double val=mesh->getTime(it,order);
+  _start_time=val; _start_iteration=it; _start_order=order;
+  _end_time=val; _end_iteration=it; _end_order=order;
+  std::string tUnit=mesh->getTimeUnit();
+  _time_unit=tUnit;
+}
+
 MEDCouplingTimeDiscretization *MEDCouplingConstOnTimeInterval::performCpy(bool deepCpy) const
 {
   return new MEDCouplingConstOnTimeInterval(*this,deepCpy);
@@ -2037,6 +2074,26 @@ void MEDCouplingTwoTimeSteps::updateTime() const
   MEDCouplingTimeDiscretization::updateTime();
   if(_end_array)
     updateTimeWith(*_end_array);
+}
+
+void MEDCouplingTwoTimeSteps::synchronizeTimeWith(const MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception)
+{
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingTwoTimeSteps::synchronizeTimeWith : mesh instance is NULL ! Impossible to synchronize time !");
+  int it=-1,order=-1;
+  double val=mesh->getTime(it,order);
+  _start_time=val; _start_iteration=it; _start_order=order;
+  _end_time=val; _end_iteration=it; _end_order=order;
+  std::string tUnit=mesh->getTimeUnit();
+  _time_unit=tUnit;
+}
+
+std::size_t MEDCouplingTwoTimeSteps::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if(_end_array)
+    ret+=_end_array->getHeapMemorySize();
+  return MEDCouplingTimeDiscretization::getHeapMemorySize()+ret;
 }
 
 void MEDCouplingTwoTimeSteps::copyTinyAttrFrom(const MEDCouplingTimeDiscretization& other) throw(INTERP_KERNEL::Exception)

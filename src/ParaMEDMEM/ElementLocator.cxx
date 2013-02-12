@@ -88,19 +88,19 @@ namespace ParaMEDMEM
     if (find(_distant_proc_ids.begin(), _distant_proc_ids.end(),rank)==_distant_proc_ids.end())
       return;
    
-    vector<int> elems;
+    MEDCouplingAutoRefCountObjectPtr<DataArrayInt> elems;
 #ifdef USE_DIRECTED_BB
     INTERP_KERNEL::DirectedBoundingBox dbb;
     double* distant_bb = _domain_bounding_boxes+rank*dbb.dataSize(_local_cell_mesh_space_dim);
     dbb.setData(distant_bb);
-    _local_cell_mesh->getCellsInBoundingBox(dbb,getBoundingBoxAdjustment(),elems);
+    elems=_local_cell_mesh->getCellsInBoundingBox(dbb,getBoundingBoxAdjustment());
 #else
     double* distant_bb = _domain_bounding_boxes+rank*2*_local_cell_mesh_space_dim;
-    _local_cell_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment(),elems);
+    elems=_local_cell_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment());
 #endif
     
     DataArrayInt *distant_ids_send;
-    MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(&elems[0],&elems[elems.size()],distant_ids_send);
+    MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(elems->begin(),elems->end(),distant_ids_send);
     _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
     distant_ids_send->decrRef();
     

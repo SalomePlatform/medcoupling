@@ -218,6 +218,7 @@ dist_libinterpkernel_la_SOURCES = \
 	TranslationRotationMatrix.cxx \
 	TetraAffineTransform.cxx \
 	CellModel.cxx \
+	VolSurfUser.cxx \
 	UnitTetraIntersectionBary.cxx \
 	InterpolationOptions.cxx \
 	DirectedBoundingBox.cxx \

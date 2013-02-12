@@ -38,6 +38,8 @@ SET(medcouplingcorba_SOURCES
   MEDCouplingMeshServant.cxx
   MEDCouplingPointSetServant.cxx
   MEDCouplingExtrudedMeshServant.cxx
+  MEDCouplingStructuredMeshServant.cxx
+  MEDCouplingCurveLinearMeshServant.cxx
   MEDCouplingCMeshServant.cxx
   MEDCouplingUMeshServant.cxx
   MEDCouplingFieldServant.cxx

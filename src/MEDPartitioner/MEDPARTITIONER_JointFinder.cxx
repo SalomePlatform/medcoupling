@@ -48,13 +48,13 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
       _node_node[i].resize(nbdomain);
     }
   int nbproc=_domain_selector->nbProcs();
-  std::vector<BBTree<3>* > bbtree(nbdomain,(BBTree<3>*) 0);
+  std::vector<BBTreeOfDim* > bbtree(nbdomain,(BBTreeOfDim*) 0);
   std::vector<double* > bbxi(nbdomain,(double*) 0);
   std::vector<ParaMEDMEM::DataArrayInt*> rev(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
   std::vector<ParaMEDMEM::DataArrayInt*> revIndx(nbdomain,(ParaMEDMEM::DataArrayInt*) 0);
   int meshDim=-1;
   int spaceDim=-1;
-  
+
   //init rev and revIndx and bbtree for my domain (of me:proc n)
   for (int mydomain=0; mydomain<nbdomain; mydomain++)
     {
@@ -73,12 +73,12 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
           bbx[2*i]=(coords[i])-1e-12;
           bbx[2*i+1]=bbx[2*i]+2e-12;
         }
-      bbtree[mydomain]=new BBTree<3> (bbx,0,0,myMesh->getNumberOfNodes(),-1e-12);
+      bbtree[mydomain]=new BBTreeOfDim( spaceDim, bbx,0,0,myMesh->getNumberOfNodes(),-1e-12);
       //keep bbx because need it in getIntersectingElems
       //no delete [] bbx yet
       bbxi[mydomain]=bbx;
     }
-  
+
   //send my domains to other proc an receive other domains from other proc
   for (int isource=0; isource<nbdomain; isource++)
     {
@@ -91,11 +91,11 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
             {
               //preparing data for treatment on target proc
               int targetProc = _domain_selector->getProcessorID(itarget);
-    
+
               std::vector<double> vec(spaceDim*sourceMesh->getNumberOfNodes());
               std::copy(sourceMesh->getCoords()->getConstPointer(),sourceMesh->getCoords()->getConstPointer()+sourceMesh->getNumberOfNodes()*spaceDim,&vec[0]);
               SendDoubleVec(vec,targetProc);
-    
+
               //retrieving target data for storage in commonDistantNodes array
               std::vector<int> localCorrespondency;
               RecvIntVec(localCorrespondency, targetProc);

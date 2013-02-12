@@ -23,6 +23,7 @@
 #include "MEDPARTITIONER.hxx"
 
 #include "MEDCouplingUMesh.hxx"
+#include "BBTree.txx"
 
 #include <string>
 #include <vector>
@@ -132,6 +133,45 @@ namespace MEDPARTITIONER
     static std::vector<std::string> _Field_Descriptions;
     /*! used for descriptions of components of fields for example...*/
     static std::vector<std::string> _General_Informations;
+  };
+
+
+
+  /*!
+   * \brief Class encapsulating BBTree of dimension given at construction and
+   *        providing all features of BBTree
+   */
+  class BBTreeOfDim
+  {
+    void * _tree;
+    void (BBTreeOfDim::*_PgetElementsAroundPoint)( const double* coordsPtr,
+                                                   std::vector<int>& elems ) const;
+    void (BBTreeOfDim::*_PgetIntersectingElems)( const double* bb,
+                                                 std::vector<int>& elems ) const;
+
+    template< int dim>
+    void _getElementsAroundPoint( const double* coordsPtr,
+                                  std::vector<int>& elems ) const
+    {
+      ((BBTree<dim,int>*)_tree)->getElementsAroundPoint( coordsPtr, elems );
+    }
+    template< int dim>
+    void _getIntersectingElems(const double* bb,
+                               std::vector<int>& elems) const
+    {
+      ((BBTree<dim,int>*)_tree)->getIntersectingElems( bb, elems );
+    }
+  public:
+
+    BBTreeOfDim( int           dim,
+                 const double* bbs,
+                 int*          elems,
+                 int           level,
+                 int           nbelems,
+                 double        epsilon=1e-12);
+    ~BBTreeOfDim();
+    void getElementsAroundPoint(const double* coordsPtr, std::vector<int>& elems ) const;
+    void getIntersectingElems  (const double* bb,        std::vector<int>& elems)  const;
   };
 }
 #endif

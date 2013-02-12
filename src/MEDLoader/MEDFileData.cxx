@@ -32,6 +32,29 @@ MEDFileData *MEDFileData::New()
   return new MEDFileData;
 }
 
+MEDFileData *MEDFileData::deepCpy() const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileFields> fields;
+  if((const MEDFileFields *)_fields)
+    fields=_fields->deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileMeshes> meshes;
+  if((const MEDFileMeshes *)_meshes)
+    meshes=_meshes->deepCpy();
+  MEDCouplingAutoRefCountObjectPtr<MEDFileData> ret=MEDFileData::New();
+  ret->_fields=fields; ret->_meshes=meshes;
+  return ret.retn();
+}
+
+std::size_t MEDFileData::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if((const MEDFileFields *)_fields)
+    ret+=_fields->getHeapMemorySize();
+  if((const MEDFileMeshes *)_meshes)
+    ret+=_meshes->getHeapMemorySize();
+  return ret;
+}
+
 MEDFileFields *MEDFileData::getFields() const
 {
   return const_cast<MEDFileFields *>(static_cast<const MEDFileFields *>(_fields));

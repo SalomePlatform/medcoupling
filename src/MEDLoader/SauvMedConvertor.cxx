@@ -1118,8 +1118,7 @@ ParaMEDMEM::MEDFileData* IntermediateMED::convertInMEDFileDS()
   medData->setMeshes( meshes );
   if ( fields ) medData->setFields( fields );
 
-  medData->incrRef();
-  return medData;
+  return medData.retn();
 }
 
 //================================================================================

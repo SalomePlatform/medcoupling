@@ -66,6 +66,22 @@ const char INTERP_KERNEL::InterpolationOptions::GENERAL_SPLIT_24_STR[]="GENERAL_
 
 const char INTERP_KERNEL::InterpolationOptions::GENERAL_SPLIT_48_STR[]="GENERAL_48";
 
+void INTERP_KERNEL::InterpolationOptions::init()
+{
+  _print_level=0;
+  _intersection_type=Triangulation;
+  _precision=1e-12;
+  _median_plane=DFT_MEDIAN_PLANE;
+  _do_rotate=true;
+  _bounding_box_adjustment=DFT_SURF3D_ADJ_EPS;
+  _bounding_box_adjustment_abs=0.;
+  _max_distance_for_3Dsurf_intersect=DFT_MAX_DIST_3DSURF_INTERSECT;
+  _orientation=0;
+  _measure_abs=true;
+  _splitting_policy=PLANAR_FACE_5;
+  _P1P0_bary_method=false;
+}
+
 std::string INTERP_KERNEL::InterpolationOptions::getIntersectionTypeRepr() const
 {
   if(_intersection_type==INTERP_KERNEL::Triangulation)

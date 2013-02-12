@@ -75,6 +75,14 @@ void MEDCouplingPointSet::updateTime() const
     }
 }
 
+std::size_t MEDCouplingPointSet::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if(_coords)
+    ret+=_coords->getHeapMemorySize();
+  return MEDCouplingMesh::getHeapMemorySize()+ret;
+}
+
 void MEDCouplingPointSet::setCoords(const DataArrayDouble *coords)
 {
   if( coords != _coords )
@@ -225,10 +233,11 @@ void MEDCouplingPointSet::findCommonNodes(double prec, int limitNodeId, DataArra
   _coords->findCommonTuples(prec,limitNodeId,comm,commIndex);
 }
 
-std::vector<int> MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception)
+DataArrayInt *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception)
 {
-  std::vector<int> c,cI;
+  DataArrayInt *c=0,*cI=0;
   getNodeIdsNearPoints(pos,1,eps,c,cI);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> cITmp(cI);
   return c;
 }
 
@@ -237,7 +246,7 @@ std::vector<int> MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, dou
  * Position 'pos' is expected to be of size getSpaceDimension()*nbOfNodes. If not the behabiour is not warranted.
  * This method throws an exception if no coordiantes are set.
  */
-void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception)
+void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, DataArrayInt *& c, DataArrayInt *& cI) const throw(INTERP_KERNEL::Exception)
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : no coordiantes set !");
@@ -257,7 +266,7 @@ DataArrayInt *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(const 
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat : no coords specified !");
-  return DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(getNumberOfNodes(),comm,commIndex,newNbOfNodes);
+  return DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(getNumberOfNodes(),comm->begin(),commIndex->begin(),commIndex->end(),newNbOfNodes);
 }
 
 /*
@@ -411,14 +420,12 @@ void MEDCouplingPointSet::scale(const double *point, double factor)
   double *coords=_coords->getPointer();
   int nbNodes=getNumberOfNodes();
   int dim=getSpaceDimension();
-  double *tmp=new double[dim];
   for(int i=0;i<nbNodes;i++)
     {
       std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::minus<double>());
       std::transform(coords+i*dim,coords+(i+1)*dim,coords+i*dim,std::bind2nd(std::multiplies<double>(),factor));
       std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::plus<double>());
     }
-  delete [] tmp;
   _coords->declareAsNew();
   updateTime();
 }
@@ -701,6 +708,12 @@ void MEDCouplingPointSet::unserialization(const std::vector<double>& tinyInfoD, 
       setTimeUnit(littleStrings[2].c_str());
       setTime(tinyInfoD[0],tinyInfo[3],tinyInfo[4]);
     }
+}
+
+void MEDCouplingPointSet::checkCoherency() const throw(INTERP_KERNEL::Exception)
+{
+  if(!_coords)
+    throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkCoherency : no coordinates set !");
 }
 
 /*!

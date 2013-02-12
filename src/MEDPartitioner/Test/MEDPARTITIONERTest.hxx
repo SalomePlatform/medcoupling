@@ -66,6 +66,8 @@ class MEDPARTITIONERTEST_EXPORT MEDPARTITIONERTest : public CppUnit::TestFixture
 #endif
 #endif
 
+  CPPUNIT_TEST( testCreateBoundaryFaces2D ); // imp 0021756
+
   //CPPUNIT_TEST( deleteTestMeshes );
   CPPUNIT_TEST_SUITE_END();
 
@@ -133,6 +135,8 @@ public:
   void testMpirunMedianSize();
   void testMpirunHugeSize();
 #endif
+
+  void testCreateBoundaryFaces2D();
 };
 
 #endif

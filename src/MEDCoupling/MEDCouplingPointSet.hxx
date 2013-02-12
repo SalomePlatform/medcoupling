@@ -52,6 +52,7 @@ namespace ParaMEDMEM
     ~MEDCouplingPointSet();
   public:
     void updateTime() const;
+    std::size_t getHeapMemorySize() const;
     int getNumberOfNodes() const;
     int getSpaceDimension() const;
     void setCoords(const DataArrayDouble *coords);
@@ -70,8 +71,8 @@ namespace ParaMEDMEM
     virtual DataArrayInt *mergeNodes2(double precision, bool& areNodesMerged, int& newNbOfNodes) = 0;
     void getCoordinatesOfNode(int nodeId, std::vector<double>& coo) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildPermArrayForMergeNode(double precision, int limitNodeId, bool& areNodesMerged, int& newNbOfNodes) const;
-    std::vector<int> getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception);
-    void getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, std::vector<int>& c, std::vector<int>& cI) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *getNodeIdsNearPoint(const double *pos, double eps) const throw(INTERP_KERNEL::Exception);
+    void getNodeIdsNearPoints(const double *pos, int nbOfNodes, double eps, DataArrayInt *& c, DataArrayInt *& cI) const throw(INTERP_KERNEL::Exception);
     void findCommonNodes(double prec, int limitNodeId, DataArrayInt *&comm, DataArrayInt *&commIndex) const;
     DataArrayInt *buildNewNumberingFromCommonNodesFormat(const DataArrayInt *comm, const DataArrayInt *commIndex,
                                                          int& newNbOfNodes) const;
@@ -110,10 +111,11 @@ namespace ParaMEDMEM
     void serialize(DataArrayInt *&a1, DataArrayDouble *&a2) const;
     void unserialization(const std::vector<double>& tinyInfoD, const std::vector<int>& tinyInfo, const DataArrayInt *a1, DataArrayDouble *a2,
                          const std::vector<std::string>& littleStrings);
-    virtual void getCellsInBoundingBox(const double *bbox, double eps, std::vector<int>& elems) const = 0;
-    virtual void getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps, std::vector<int>& elems) = 0;
+    virtual DataArrayInt *getCellsInBoundingBox(const double *bbox, double eps) const = 0;
+    virtual DataArrayInt *getCellsInBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bbox, double eps) = 0;
     virtual DataArrayInt *zipCoordsTraducer() = 0;
   protected:
+    void checkCoherency() const throw(INTERP_KERNEL::Exception);
     virtual void checkFullyDefined() const throw(INTERP_KERNEL::Exception) = 0;
     static bool intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps);
     static bool intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps);

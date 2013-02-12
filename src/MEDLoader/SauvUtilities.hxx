@@ -109,7 +109,8 @@ namespace SauvUtilities
     virtual float  getFloat() const = 0;
     virtual double getDouble() const = 0;
     virtual std::string getName() const = 0;
-
+  protected:
+    std::size_t getHeapMemorySize() const { return 0; }
   protected:
     std::string _fileName, _curLocale;
     int _iRead, _nbToRead;

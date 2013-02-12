@@ -55,8 +55,7 @@ SauvReader* SauvReader::New(const char *fileName) throw(INTERP_KERNEL::Exception
   if ( parser->open() )
     {
       SauvReader* reader = new SauvReader;
-      reader->_fileReader = parser;
-      parser->incrRef();
+      reader->_fileReader = parser.retn();
       return reader;
     }
 
@@ -65,8 +64,7 @@ SauvReader* SauvReader::New(const char *fileName) throw(INTERP_KERNEL::Exception
   if ( parser->open() )
     {
       SauvReader* reader = new SauvReader;
-      reader->_fileReader = parser;
-      parser->incrRef();
+      reader->_fileReader = parser.retn();
       return reader;
     }
 

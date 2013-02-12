@@ -23,6 +23,8 @@
 
 #include "MEDCoupling.hxx"
 
+#include <cstddef>
+
 namespace ParaMEDMEM
 {
   typedef enum
@@ -62,6 +64,7 @@ namespace ParaMEDMEM
   public:
     bool decrRef() const;
     void incrRef() const;
+    virtual std::size_t getHeapMemorySize() const = 0;
   protected:
     virtual ~RefCountObject();
   private:

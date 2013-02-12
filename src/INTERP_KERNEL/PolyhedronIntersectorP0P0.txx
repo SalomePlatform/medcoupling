@@ -84,7 +84,10 @@ namespace INTERP_KERNEL
       {
         double volume = 0.;
         for(typename std::vector<SplitterTetra<MyMeshType>*>::iterator iter = _tetra.begin(); iter != _tetra.end(); ++iter)
+          {
             volume += (*iter)->intersectSourceCell(*iterCellS);
+            (*iter)->clearVolumesCache();
+          }
         if(volume!=0.)
           res[targetCell].insert(std::make_pair(OTT<ConnType,numPol>::indFC(*iterCellS), volume));
       }

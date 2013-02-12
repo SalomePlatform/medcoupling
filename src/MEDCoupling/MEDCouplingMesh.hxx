@@ -37,7 +37,8 @@ namespace ParaMEDMEM
       UNSTRUCTURED = 5,
       UNSTRUCTURED_DESC = 6,
       CARTESIAN = 7,
-      EXTRUDED = 8
+      EXTRUDED = 8,
+      CURVE_LINEAR = 9
     } MEDCouplingMeshType;
 
   class DataArrayInt;
@@ -48,6 +49,7 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
   public:
+    std::size_t getHeapMemorySize() const;
     void setName(const char *name) { _name=name; }
     const char *getName() const { return _name.c_str(); }
     void setDescription(const char *descr) { _description=descr; }

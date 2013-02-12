@@ -127,6 +127,18 @@ void MEDCouplingField::updateTime() const
     updateTimeWith(*_type);
 }
 
+std::size_t MEDCouplingField::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  ret+=_name.capacity();
+  ret+=_desc.capacity();
+  if(_mesh)
+    ret+=_mesh->getHeapMemorySize();
+  if((const MEDCouplingFieldDiscretization *)_type)
+    ret+=_type->getHeapMemorySize();
+  return ret;
+}
+
 TypeOfField MEDCouplingField::getTypeOfField() const
 {
   return _type->getEnum();

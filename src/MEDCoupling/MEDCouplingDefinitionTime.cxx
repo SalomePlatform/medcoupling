@@ -109,6 +109,11 @@ MEDCouplingDefinitionTimeSlice::MEDCouplingDefinitionTimeSlice(const MEDCoupling
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTimeSlice : End time strictly before Start time ...");
 }
 
+std::size_t MEDCouplingDefinitionTimeSlice::getHeapMemorySize() const
+{
+  return 0;
+}
+
 bool MEDCouplingDefinitionTimeSlice::isFullyIncludedInMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
 {
   double t1=getStartTime();
@@ -457,6 +462,11 @@ MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MED
       //     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime constructor : 2 slices refers to the same time and underlying arrays differs !");
       ref=_slices[i];
     }
+}
+
+std::size_t MEDCouplingDefinitionTime::getHeapMemorySize() const
+{
+  return _slices.capacity()*(sizeof(MEDCouplingDefinitionTimeSlice)+sizeof(int));
 }
 
 void MEDCouplingDefinitionTime::assign(const MEDCouplingDefinitionTime& other)

@@ -1989,7 +1989,12 @@ void MEDCouplingBasicsTest2::testGetNodeIdsOfCell1()
 void MEDCouplingBasicsTest2::testGetEdgeRatioField1()
 {
   MEDCouplingUMesh *m1=build2DTargetMesh_1();
+  m1->setTime(3.4,5,6); m1->setTimeUnit("us");
+  int a,b;
   MEDCouplingFieldDouble *f1=m1->getEdgeRatioField();
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.4,f1->getTime(a,b),1.e-14);
+  CPPUNIT_ASSERT_EQUAL(5,a); CPPUNIT_ASSERT_EQUAL(6,b);
+  CPPUNIT_ASSERT_EQUAL(std::string(f1->getTimeUnit()),std::string("us"));
   CPPUNIT_ASSERT_EQUAL(m1->getNumberOfCells(),f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(5,f1->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());

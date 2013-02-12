@@ -398,11 +398,16 @@ void MEDCouplingBasicsTest4::testApplyFuncThree1()
 void MEDCouplingBasicsTest4::testFillFromAnalyticTwo1()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  m1->setTime(3.4,5,6); m1->setTimeUnit("us");
+  int a,b;
   CPPUNIT_ASSERT_THROW(m1->fillFromAnalytic2(ON_NODES,1,"y+z"),INTERP_KERNEL::Exception);
   m1->getCoords()->setInfoOnComponent(0,"x [m]");
   m1->getCoords()->setInfoOnComponent(1,"y");
   m1->getCoords()->setInfoOnComponent(2,"z");
   MEDCouplingFieldDouble *f1=m1->fillFromAnalytic2(ON_NODES,1,"y+z");
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.4,f1->getTime(a,b),1.e-14);
+  CPPUNIT_ASSERT_EQUAL(5,a); CPPUNIT_ASSERT_EQUAL(6,b);
+  CPPUNIT_ASSERT_EQUAL(std::string(f1->getTimeUnit()),std::string("us"));
   CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
   const double expected1[9]={0.2, 0.7, 1.2, 0.7, 1.2, 1.7, 1.2, 1.7, 2.2};
@@ -415,11 +420,16 @@ void MEDCouplingBasicsTest4::testFillFromAnalyticTwo1()
 void MEDCouplingBasicsTest4::testFillFromAnalyticThree1()
 {
   MEDCouplingUMesh *m1=build3DSurfTargetMesh_1();
+  m1->setTime(3.4,5,6); m1->setTimeUnit("us");
+  int a,b;
   std::vector<std::string> vs(3);
   vs[0]="x"; vs[1]="Y"; vs[2]="z";
   CPPUNIT_ASSERT_THROW(m1->fillFromAnalytic3(ON_NODES,1,vs,"y+z"),INTERP_KERNEL::Exception);
   vs[1]="y";
   MEDCouplingFieldDouble *f1=m1->fillFromAnalytic3(ON_NODES,1,vs,"y+z");
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(3.4,f1->getTime(a,b),1.e-14);
+  CPPUNIT_ASSERT_EQUAL(5,a); CPPUNIT_ASSERT_EQUAL(6,b);
+  CPPUNIT_ASSERT_EQUAL(std::string(f1->getTimeUnit()),std::string("us"));
   CPPUNIT_ASSERT_EQUAL(1,f1->getNumberOfComponents());
   CPPUNIT_ASSERT_EQUAL(9,f1->getNumberOfTuples());
   const double expected1[9]={0.2, 0.7, 1.2, 0.7, 1.2, 1.7, 1.2, 1.7, 2.2};
@@ -1589,11 +1599,11 @@ void MEDCouplingBasicsTest4::testFindAndCorrectBadOriented3DExtrudedCells1()
   m->insertNextCell(INTERP_KERNEL::NORM_HEXA8,8,conn+48);
   m->finishInsertingCells();
   //
-  std::vector<int> v;
-  m->findAndCorrectBadOriented3DExtrudedCells(v);
-  CPPUNIT_ASSERT_EQUAL(4,(int)v.size());
-  CPPUNIT_ASSERT(std::equal(v.begin(),v.end(),invalidCells));
+  DataArrayInt *v=m->findAndCorrectBadOriented3DExtrudedCells();
+  CPPUNIT_ASSERT_EQUAL(4,v->getNumberOfTuples());
+  CPPUNIT_ASSERT(std::equal(v->begin(),v->end(),invalidCells));
   CPPUNIT_ASSERT(std::equal(connExp,connExp+64,m->getNodalConnectivity()->getConstPointer()));
+  v->decrRef();
   //
   m->decrRef();
 }
@@ -1650,9 +1660,9 @@ void MEDCouplingBasicsTest4::testNonRegressionCopyTinyStrings()
   MEDCouplingFieldDouble *f1=m->getMeasureField(true);
   f1->getArray()->setInfoOnComponent(0,"P [N/m^2]");
   DataArrayDouble *bary=m->getBarycenterAndOwner();
-  MEDCouplingFieldDouble *f2=f1->buildNewTimeReprFromThis(ONE_TIME,false);
+  MEDCouplingFieldDouble *f2=f1->buildNewTimeReprFromThis(NO_TIME,false);
   f2->setArray(bary);
-  CPPUNIT_ASSERT_THROW(f2->copyTinyAttrFrom(f1),INTERP_KERNEL::Exception);
+  CPPUNIT_ASSERT_THROW(f1->copyTinyAttrFrom(f2),INTERP_KERNEL::Exception);
   m->decrRef();
   f1->decrRef();
   bary->decrRef();
@@ -1892,12 +1902,13 @@ void MEDCouplingBasicsTest4::testDAIBuildOld2NewArrayFromSurjectiveFormat2()
   b->alloc(3,1);
   std::copy(arrI,arrI+3,b->getPointer());
   int newNbTuple=-1;
-  DataArrayInt *ret=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(10,a,b,newNbTuple);
+  DataArrayInt *ret=DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(10,a->begin(),b->begin(),b->end(),newNbTuple);
   const int expected[10]={0,1,2,0,3,4,5,4,6,4};
   CPPUNIT_ASSERT_EQUAL(10,ret->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(7,newNbTuple);
   CPPUNIT_ASSERT_EQUAL(1,ret->getNumberOfComponents());
   CPPUNIT_ASSERT(std::equal(expected,expected+10,ret->getConstPointer()));
+  CPPUNIT_ASSERT_THROW(DataArrayInt::BuildOld2NewArrayFromSurjectiveFormat2(9,a->begin(),b->begin(),b->end(),newNbTuple),INTERP_KERNEL::Exception);
   ret->decrRef();
   b->decrRef();
   a->decrRef();

@@ -128,6 +128,11 @@ void MEDCouplingFieldDiscretization::updateTime() const
 {
 }
 
+std::size_t MEDCouplingFieldDiscretization::getHeapMemorySize() const
+{
+  return 0;
+}
+
 /*!
  * Computes normL1 of DataArrayDouble instance arr.
  * @param res output parameter expected to be of size arr->getNumberOfComponents();
@@ -449,6 +454,8 @@ void MEDCouplingFieldDiscretizationP0::checkCoherencyBetween(const MEDCouplingMe
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP0::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP0::getMeasureField : mesh instance specified is NULL !");
   return mesh->getMeasureField(isAbs);
 }
 
@@ -488,8 +495,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP0::getValueOnMulti(const DataArr
         oss << ") detected outside mesh : unable to apply P0::getValueOnMulti ! ";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-  ret->incrRef();
-  return ret;
+  return ret.retn();
 }
 
 /*!
@@ -522,7 +528,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationP0::computeTupleIdsToSelectFromCellI
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
   ret->alloc((int)std::distance(startCellIds,endCellIds),1);
   std::copy(startCellIds,endCellIds,ret->getPointer());
-  ret->incrRef(); return ret;
+  return ret.retn();
 }
 
 /*!
@@ -685,6 +691,8 @@ void MEDCouplingFieldDiscretizationP1::checkCompatibilityWithNature(NatureOfFiel
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationP1::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationP1::getMeasureField : mesh instance specified is NULL !");
   return mesh->getMeasureFieldOnNode(isAbs);
 }
 
@@ -747,8 +755,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationP1::getValueOnMulti(const DataArr
         oss << ") detected outside mesh : unable to apply P1::getValueOnMulti ! ";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-  ret->incrRef();
-  return ret;
+  return ret.retn();
 }
 
 MEDCouplingFieldDiscretizationPerCell::MEDCouplingFieldDiscretizationPerCell():_discr_per_cell(0)
@@ -777,6 +784,14 @@ void MEDCouplingFieldDiscretizationPerCell::updateTime() const
 {
   if(_discr_per_cell)
     updateTimeWith(*_discr_per_cell);
+}
+
+std::size_t MEDCouplingFieldDiscretizationPerCell::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if(_discr_per_cell)
+    ret+=_discr_per_cell->getHeapMemorySize();
+  return ret;
 }
 
 void MEDCouplingFieldDiscretizationPerCell::checkCoherencyBetween(const MEDCouplingMesh *mesh, const DataArrayDouble *da) const throw(INTERP_KERNEL::Exception)
@@ -951,6 +966,14 @@ std::string MEDCouplingFieldDiscretizationGauss::getStringRepr() const
   return oss.str();
 }
 
+std::size_t MEDCouplingFieldDiscretizationGauss::getHeapMemorySize() const
+{
+  std::size_t ret=_loc.capacity()*sizeof(MEDCouplingGaussLocalization);
+  for(std::vector<MEDCouplingGaussLocalization>::const_iterator it=_loc.begin();it!=_loc.end();it++)
+    ret+=(*it).getHeapMemorySize();
+  return MEDCouplingFieldDiscretizationPerCell::getHeapMemorySize()+ret;
+}
+
 const char *MEDCouplingFieldDiscretizationGauss::getRepr() const
 {
   return REPR;
@@ -992,8 +1015,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::getOffsetArr(const MEDCouplin
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  ret->incrRef();
-  return ret;
+  return ret.retn();
 }
 
 void MEDCouplingFieldDiscretizationGauss::renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
@@ -1183,6 +1205,8 @@ void MEDCouplingFieldDiscretizationGauss::checkCoherencyBetween(const MEDCouplin
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGauss::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::getMeasureField : mesh instance specified is NULL !");
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
@@ -1407,8 +1431,7 @@ DataArrayInt *MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellFie
       valsToFill[i]=_loc[*w].getNumberOfGaussPt();
     else
       throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGauss::buildNbOfGaussPointPerCellField : orphan cell detected !");
-  ret->incrRef();
-  return ret;
+  return ret.retn();
 }
 
 /*!
@@ -1605,6 +1628,8 @@ void MEDCouplingFieldDiscretizationGaussNE::checkCoherencyBetween(const MEDCoupl
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationGaussNE::getMeasureField : mesh instance specified is NULL !");
   throw INTERP_KERNEL::Exception("Not implemented yet !");
 }
 
@@ -1705,6 +1730,8 @@ bool MEDCouplingFieldDiscretizationKriging::isEqualIfNotWhy(const MEDCouplingFie
 
 MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationKriging::getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const
 {
+  if(!mesh)
+    throw INTERP_KERNEL::Exception("MEDCouplingFieldDiscretizationKriging::getMeasureField : mesh instance specified is NULL !");
   throw INTERP_KERNEL::Exception("getMeasureField on FieldDiscretizationKriging : not implemented yet !");
 }
 
@@ -1745,8 +1772,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::getValueOnMulti(const Da
   MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> ret=DataArrayDouble::New();
   ret->alloc(nbOfTargetPoints,nbOfCompo);
   INTERP_KERNEL::matrixProduct(KnewiK->getConstPointer(),1,nbOfPts+delta,matrix3->getConstPointer(),nbOfPts+delta,nbOfTargetPoints*nbOfCompo,ret->getPointer());
-  ret->incrRef();
-  return ret;
+  return ret.retn();
 }
 
 /*!
@@ -1779,8 +1805,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeVectorOfCoefficie
   double *work=std::copy(arr->begin(),arr->end(),arr2->getPointer());
   std::fill(work,work+isDrift,0.);
   INTERP_KERNEL::matrixProduct(matrixInv->getConstPointer(),nbOfPts+isDrift,nbOfPts+isDrift,arr2->getConstPointer(),nbOfPts+isDrift,1,KnewiK->getPointer());
-  KnewiK->incrRef();
-  return KnewiK;
+  return KnewiK.retn();
 }
 
 /*!
@@ -1850,7 +1875,6 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::performDrift(const DataA
       destWork+=spaceDimension;
     }
   //
-  ret->incrRef();
-  return ret;
+  return ret.retn();
 }
 

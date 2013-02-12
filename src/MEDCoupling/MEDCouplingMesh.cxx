@@ -43,6 +43,11 @@ MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):_name(other._name
 {
 }
 
+std::size_t MEDCouplingMesh::getHeapMemorySize() const
+{
+  return _name.capacity()+_description.capacity()+_time_unit.capacity();
+}
+
 /*!
  * This method is only for ParaMEDMEM in ParaFIELD constructor.
  */
@@ -232,11 +237,11 @@ bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic(nbOfComp,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
@@ -292,11 +297,11 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other) throw(INTER
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const char *func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic(nbOfComp,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
@@ -312,11 +317,11 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nbOfComp, const char *func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic2(nbOfComp,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!
@@ -332,11 +337,11 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic2(TypeOfField t, int nb
  */
 MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic3(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const char *func) const
 {
-  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,NO_TIME);
+  MEDCouplingAutoRefCountObjectPtr<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
   ret->setMesh(this);
   ret->fillFromAnalytic3(nbOfComp,varsOrder,func);
-  ret->incrRef();
-  return ret;
+  ret->synchronizeTimeWithSupport();
+  return ret.retn();
 }
 
 /*!

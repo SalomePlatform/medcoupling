@@ -26,6 +26,7 @@
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
+#include "MEDCouplingCurveLinearMesh.hxx"
 #include "MEDCouplingAutoRefCountObjectPtr.hxx"
 
 #include "med.h"
@@ -38,6 +39,7 @@ namespace ParaMEDMEM
   {
   public:
     MEDFileMeshL2();
+    std::size_t getHeapMemorySize() const { return 0; }
     const char *getName() const { return _name.getReprForWrite(); }
     const char *getDescription() const { return _description.getReprForWrite(); }
     const char *getTimeUnit() const { return _dt_unit.getReprForWrite(); }
@@ -83,7 +85,11 @@ namespace ParaMEDMEM
     MEDCouplingAutoRefCountObjectPtr<DataArrayInt> _num_coords;
   };
 
-  class MEDFileCMeshL2 : public MEDFileMeshL2
+  class MEDFileStrMeshL2 : public MEDFileMeshL2
+  {
+  };
+
+  class MEDFileCMeshL2 : public MEDFileStrMeshL2
   {
   public:
     MEDFileCMeshL2();
@@ -93,6 +99,16 @@ namespace ParaMEDMEM
     static med_data_type GetDataTypeCorrespondingToSpaceId(int id) throw(INTERP_KERNEL::Exception);
   private:
     MEDCouplingAutoRefCountObjectPtr<MEDCouplingCMesh> _cmesh;
+  };
+  
+  class MEDFileCLMeshL2 : public MEDFileStrMeshL2
+  {
+  public:
+    MEDFileCLMeshL2();
+    void loadAll(med_idt fid, int mId, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception);
+    MEDCouplingCurveLinearMesh *getMesh() { return _clmesh; }
+  private:
+    MEDCouplingAutoRefCountObjectPtr<MEDCouplingCurveLinearMesh> _clmesh;
   };
 
   class MEDFileMesh;
@@ -116,9 +132,12 @@ namespace ParaMEDMEM
   {
     friend class MEDFileUMeshPermCompute;
   public:
+    MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other);
     MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m);
     MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld);
+    std::size_t getHeapMemorySize() const;
+    MEDFileUMeshSplitL1 *deepCpy() const;
     bool isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const;
     void clearNonDiscrAttributes() const;
     void synchronizeTinyInfo(const MEDFileMesh& master) const;
@@ -131,6 +150,7 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *getFamilyPart(const int *idsBg, const int *idsEnd, bool renum) const;
     DataArrayInt *getFamilyPartArr(const int *idsBg, const int *idsEnd, bool renum) const;
     MEDCouplingUMesh *getWholeMesh(bool renum) const;
+    DataArrayInt *getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception);
     const DataArrayInt *getFamilyField() const;
     const DataArrayInt *getNumberField() const;
     const DataArrayInt *getRevNumberField() const;
@@ -142,6 +162,8 @@ namespace ParaMEDMEM
     void setFamilyArr(DataArrayInt *famArr);
     void setRenumArr(DataArrayInt *renumArr);
     void changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception);
+    //
+    void renumberNodesInConn(const int *newNodeNumbersO2N) throw(INTERP_KERNEL::Exception);
     //
     static void ClearNonDiscrAttributes(const MEDCouplingMesh *tmp);
     static std::vector<int> GetNewFamiliesNumber(int nb, const std::map<std::string,int>& families);

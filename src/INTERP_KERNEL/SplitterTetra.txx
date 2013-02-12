@@ -1029,30 +1029,7 @@ namespace INTERP_KERNEL
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
-  {
-    // Schema according to which the splitting is performed.
-    // Each line represents one tetrahedron. The numbering is as follows :
-    //
-    //          7 ------ 6
-    //         /|       /|
-    //        / |      / |
-    //       3 ------ 2  |
-    //       |  |     |  |
-    //       |  |     |  |
-    //       |  4-----|- 5
-    //       | /      | /
-    //       0 ------ 1
-
-
-    static const int SPLIT_NODES_5[20] = 
-      {
-        0, 1, 5, 2,
-        0, 4, 5, 7,
-        0, 3, 7, 2,
-        5, 6, 7, 2,
-        0, 2, 5, 7
-      };
-    
+  { 
     // create tetrahedra
     for(int i = 0; i < 5; ++i)
       {
@@ -1078,29 +1055,6 @@ namespace INTERP_KERNEL
   template<class MyMeshTypeT, class MyMeshTypeS>
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::sixSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
-    // Schema according to which the splitting is performed.
-    // Each line represents one tetrahedron. The numbering is as follows :
-    //
-    //          7 ------ 6
-    //         /|       /|
-    //        / |      / |
-    //       3 ------ 2  |
-    //       |  |     |  |
-    //       |  |     |  |
-    //       |  4-----|- 5
-    //       | /      | /
-    //       0 ------ 1
-
-    static const int SPLIT_NODES_6[24] = 
-      {
-        0, 1, 5, 6,
-        0, 2, 1, 6,
-        0, 5, 4, 6,
-        0, 4, 7, 6,
-        0, 3, 2, 6,
-        0, 7, 3, 6
-      };
-
     for(int i = 0; i < 6; ++i)
       {
         const double* nodes[4];
@@ -1128,39 +1082,6 @@ namespace INTERP_KERNEL
     // The two nodes of the original mesh cell used in each tetrahedron.
     // The tetrahedra all have nodes (cellCenter, faceCenter, edgeNode1, edgeNode2)
     // For the correspondance of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
-    static const int TETRA_EDGES[48] = 
-      {
-        // face with center 9
-        0,1,
-        1,5,
-        5,4,
-        4,0,
-        // face with center 10
-        0,1,
-        1,2,
-        2,3,
-        3,0,
-        // face with center 11
-        0,4,
-        4,7,
-        7,3,
-        3,0,
-        // face with center 12
-        1,5,
-        5,6,
-        6,2,
-        2,1,
-        // face with center 13
-        5,6,
-        6,7,
-        7,4,
-        4,5,
-        // face with center 14
-        2,6,
-        6,7,
-        7,3,
-        3,2
-      };
     
     // nodes to use for tetrahedron
     const double* nodes[4];
@@ -1177,8 +1098,8 @@ namespace INTERP_KERNEL
         for(int j = 0; j < 4; ++j)
           {
             const int row = 4*(faceCenterNode - 8) + j;
-            conn[2] = TETRA_EDGES[2*row];
-            conn[3] = TETRA_EDGES[2*row + 1];
+            conn[2] = TETRA_EDGES_GENERAL_24[2*row];
+            conn[3] = TETRA_EDGES_GENERAL_24[2*row + 1];
             nodes[2] = getCoordsOfSubNode(conn[2]);
             nodes[3] = getCoordsOfSubNode(conn[3]);
 
@@ -1341,20 +1262,6 @@ namespace INTERP_KERNEL
           {
           case GENERAL_24:
             {
-              // Each sub-node is the barycenter of 4 other nodes.
-              // For the faces, these are on the orignal mesh.
-              // For the barycenter, the four face sub-nodes are used.
-              static const int GENERAL_24_SUB_NODES[28] = 
-                {
-                  0,1,4,5,// sub-node 9 (face)
-                  0,1,2,3,// sub-node 10 (face)
-                  0,3,4,7,// sub-node 11 (face)
-                  1,2,5,6,// sub-node 12 (face)
-                  4,5,6,7,// sub-node 13 (face)
-                  2,3,6,7,// sub-node 14 (face)
-                  8,9,10,11// sub-node 15 (cell)
-                };
-
               for(int i = 0; i < 7; ++i)
                 {
                   double* barycenter = new double[3];

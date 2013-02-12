@@ -51,6 +51,7 @@ namespace ParaMEDMEM
     virtual double getEndTime() const = 0;
     virtual void getTinySerializationInformation(std::vector<int>& tiI, std::vector<double>& tiD) const = 0;
     virtual TypeOfTimeDiscretization getTimeType() const = 0;
+    std::size_t getHeapMemorySize() const;
     bool isFullyIncludedInMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
     bool isOverllapingWithMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
     bool isAfterMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
@@ -142,6 +143,7 @@ namespace ParaMEDMEM
   public:
     MEDCouplingDefinitionTime();
     MEDCouplingDefinitionTime(const std::vector<const MEDCouplingFieldDouble *>& fs, const std::vector<int>& meshRefs, const std::vector<std::vector<int> >& arrRefs) throw(INTERP_KERNEL::Exception);
+    std::size_t getHeapMemorySize() const;
     void assign(const MEDCouplingDefinitionTime& other);
     bool isEqual(const MEDCouplingDefinitionTime& other) const;
     double getTimeResolution() const { return _eps; }

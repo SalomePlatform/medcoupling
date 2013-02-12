@@ -30,6 +30,8 @@ static PyObject *convertMesh(ParaMEDMEM::MEDCouplingMesh *mesh, int owner) throw
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingExtrudedMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDCouplingCMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingCMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDCouplingCurveLinearMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDCouplingCurveLinearMesh,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of mesh on downcast !");
   return ret;
@@ -453,6 +455,8 @@ static std::vector<int> fillArrayWithPyListInt2(PyObject *pyLi, int& nbOfTuples,
           PyObject *o=PyList_GetItem(pyLi,i);
           fillArrayWithPyListInt3(o,size2,ret);
         }
+      if(size1==0)
+        size2=1;
     }
   else if(PyTuple_Check(pyLi))
     {
@@ -462,72 +466,14 @@ static std::vector<int> fillArrayWithPyListInt2(PyObject *pyLi, int& nbOfTuples,
           PyObject *o=PyTuple_GetItem(pyLi,i);
           fillArrayWithPyListInt3(o,size2,ret);
         }
+      if(size1==0)
+        size2=1;
     }
   else
     throw INTERP_KERNEL::Exception("fillArrayWithPyListInt2 : Unrecognized type ! Should be a tuple or a list !");
   //
   checkFillArrayWithPyList(size1,size2,nbOfTuples,nbOfComp);
   return ret;
-}
-
-/*
- * will become obsolete -> fillArrayWithPyListInt2
- */
-static void fillArrayWithPyListInt(PyObject *pyLi, int *arrToFill, int sizeOfArray, int dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(pyLi))
-    {
-      int size=PyList_Size(pyLi);
-      if(chckSize)
-        if(size!=sizeOfArray)
-          {
-            std::ostringstream oss; oss << "fillArrayWithPyListInt : List expected to be of size " << sizeOfArray << " but the size is " << size << " !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
-          }
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyList_GetItem(pyLi,i);
-          if(PyInt_Check(o))
-            {
-              int val=(int)PyInt_AS_LONG(o);
-              if(i<sizeOfArray)
-                arrToFill[i]=val;
-            }
-          else
-            throw INTERP_KERNEL::Exception("fillArrayWithPyListInt : List must contain integers only !");
-        }
-      for(int i=size;i<sizeOfArray;i++)
-        arrToFill[i]=dftVal;
-      return;
-      
-    }
-  else if(PyTuple_Check(pyLi))
-    {
-      int size=PyTuple_Size(pyLi);
-      if(chckSize)
-        if(size!=sizeOfArray)
-          {
-            std::ostringstream oss; oss << "fillArrayWithPyListInt : Tuple expected to be of size " << sizeOfArray << " but the size is " << size << " !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
-          }
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyTuple_GetItem(pyLi,i);
-          if(PyInt_Check(o))
-            {
-              int val=(int)PyInt_AS_LONG(o);
-              if(i<sizeOfArray)
-                arrToFill[i]=val;
-            }
-          else
-            throw INTERP_KERNEL::Exception("tuple must contain integers only");
-        }
-      for(int i=size;i<sizeOfArray;i++)
-        arrToFill[i]=dftVal;
-      return;
-    }
-  else
-    throw INTERP_KERNEL::Exception("fillArrayWithPyListInt : not a list");
 }
 
 static PyObject *convertDblArrToPyList(const double *ptr, int size) throw(INTERP_KERNEL::Exception)
@@ -696,6 +642,8 @@ static std::vector<double> fillArrayWithPyListDbl2(PyObject *pyLi, int& nbOfTupl
           PyObject *o=PyList_GetItem(pyLi,i);
           fillArrayWithPyListDbl3(o,size2,ret);
         }
+      if(size1==0)
+        size2=1;
     }
   else if(PyTuple_Check(pyLi))
     {
@@ -705,83 +653,14 @@ static std::vector<double> fillArrayWithPyListDbl2(PyObject *pyLi, int& nbOfTupl
           PyObject *o=PyTuple_GetItem(pyLi,i);
           fillArrayWithPyListDbl3(o,size2,ret);
         }
+      if(size1==0)
+        size2=1;
     }
   else
     throw INTERP_KERNEL::Exception("fillArrayWithPyListDbl2 : Unrecognized type ! Should be a tuple or a list !");
   //
   checkFillArrayWithPyList(size1,size2,nbOfTuples,nbOfComp);
   return ret;
-}
-
-/*
- * will become obsolete -> fillArrayWithPyListDbl2
- */
-static void fillArrayWithPyListDbl(PyObject *pyLi, double *arrToFill, int sizeOfArray, double dftVal, bool chckSize) throw(INTERP_KERNEL::Exception)
-{
-  if(PyList_Check(pyLi))
-    {
-      int size=PyList_Size(pyLi);
-      if(chckSize)
-        if(size!=sizeOfArray)
-          {
-            std::ostringstream oss; oss << "fillArrayWithPyListDbl : List expected to be of size " << sizeOfArray << " but the size is " << size << " !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
-          }
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyList_GetItem(pyLi,i);
-          if(PyFloat_Check(o))
-            {
-              double val=PyFloat_AS_DOUBLE(o);
-              if(i<sizeOfArray)
-                arrToFill[i]=val;
-            }
-          else if(PyInt_Check(o))
-            {
-              long val0=PyInt_AS_LONG(o);
-              double val=val0;
-              if(i<sizeOfArray)
-                arrToFill[i]=val;
-            }
-          else
-            throw INTERP_KERNEL::Exception("fillArrayWithPyListDbl : list must contain floats/integers only");
-        }
-      for(int i=size;i<sizeOfArray;i++)
-        arrToFill[i]=dftVal;
-      return;
-    }
-  else if(PyTuple_Check(pyLi))
-    {
-      int size=PyTuple_Size(pyLi);
-      if(chckSize)
-        if(size!=sizeOfArray)
-          {
-            std::ostringstream oss; oss << "fillArrayWithPyListDbl : Tuple expected to be of size " << sizeOfArray << " but the size is " << size << " !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
-          }
-      for(int i=0;i<size;i++)
-        {
-          PyObject *o=PyTuple_GetItem(pyLi,i);
-          if(PyFloat_Check(o))
-            {
-              double val=PyFloat_AS_DOUBLE(o);
-              arrToFill[i]=val;
-            }
-          else if(PyInt_Check(o))
-            {
-              long val0=PyInt_AS_LONG(o);
-              double val=val0;
-              arrToFill[i]=val;
-            }
-          else
-            throw INTERP_KERNEL::Exception("fillArrayWithPyListDbl : tuple must contain floats/integers only");
-        }
-      for(int i=size;i<sizeOfArray;i++)
-        arrToFill[i]=dftVal;
-      return ;
-    }
-  else
-    throw INTERP_KERNEL::Exception("fillArrayWithPyListDbl : not a list nor a tuple");
 }
 
 //convertFromPyObjVectorOfObj<const ParaMEDMEM::MEDCouplingUMesh *>(pyLi,SWIGTYPE_p_ParaMEDMEM__MEDCouplingUMesh,"MEDCouplingUMesh")
@@ -1107,13 +986,14 @@ static void convertObjToPossibleCpp2(PyObject *value, int nbelem, int& sw, int& 
     }
   if(PySlice_Check(value))
     {
-      Py_ssize_t strt,stp,step;
+      Py_ssize_t strt=2,stp=2,step=2;
       PySliceObject *oC=reinterpret_cast<PySliceObject *>(value);
       if(PySlice_GetIndices(oC,nbelem,&strt,&stp,&step)!=0)
-        {
-          std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elemnts is : " << nbelem;
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+        if(nbelem!=0 || strt!=0 || stp!=0)
+          {
+            std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elements is : " << nbelem;
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       p.first=strt;
       p.second.first=stp;
       p.second.second=step;
@@ -1197,13 +1077,14 @@ static void convertObjToPossibleCpp22(PyObject *value, int nbelem, int& sw, int&
     }
   if(PySlice_Check(value))
     {
-      Py_ssize_t strt,stp,step;
+      Py_ssize_t strt=2,stp=2,step=2;
       PySliceObject *oC=reinterpret_cast<PySliceObject *>(value);
       if(PySlice_GetIndices(oC,nbelem,&strt,&stp,&step)!=0)
-        {
-          std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elemnts is : " << nbelem;
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
-        }
+        if(nbelem!=0 || strt!=0 || stp!=0)
+          {
+            std::ostringstream oss; oss << "Slice in subscriptable object DataArray invalid : number of elements is : " << nbelem;
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+          }
       p.first=strt;
       p.second.first=stp;
       p.second.second=step;

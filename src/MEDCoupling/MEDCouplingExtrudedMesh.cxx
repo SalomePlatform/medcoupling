@@ -64,6 +64,18 @@ MEDCouplingMeshType MEDCouplingExtrudedMesh::getType() const
   return EXTRUDED;
 }
 
+std::size_t MEDCouplingExtrudedMesh::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if(_mesh2D)
+    ret+=_mesh2D->getHeapMemorySize();
+  if(_mesh1D)
+    ret+=_mesh1D->getHeapMemorySize();
+  if(_mesh3D_ids)
+    ret+=_mesh3D_ids->getHeapMemorySize();
+  return MEDCouplingMesh::getHeapMemorySize()+ret;
+}
+
 /*!
  * This method copyies all tiny strings from other (name and components name).
  * @throw if other and this have not same mesh type.
@@ -398,8 +410,9 @@ MEDCouplingFieldDouble *MEDCouplingExtrudedMesh::getMeasureField(bool) const
   int nbOf1DCells=_mesh1D->getNumberOfCells();
   int nbOf3DCells=nbOf2DCells*nbOf1DCells;
   const int *renum=_mesh3D_ids->getConstPointer();
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,NO_TIME);
+  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   ret->setMesh(this);
+  ret->synchronizeTimeWithMesh();
   DataArrayDouble *da=DataArrayDouble::New();
   da->alloc(nbOf3DCells,1);
   double *retPtr=da->getPointer();

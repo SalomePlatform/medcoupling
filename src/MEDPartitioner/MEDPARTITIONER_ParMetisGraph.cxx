@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDPARTITIONER_MetisGraph.hxx"
+#include "MEDPARTITIONER_ParMetisGraph.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
@@ -26,26 +26,28 @@
 #include <iostream>
 
 #ifdef MED_ENABLE_PARMETIS
-#include <mpi.h>
-#include "parmetis.h"
+#include <parmetis.h>
+// #if PARMETIS_MAJOR_VERSION == 4
+//    #define ParMETIS_PartKway ParMETIS_V3_PartKway
+// #endif
 #endif
 
 using namespace MEDPARTITIONER;
 
-METISGraph::METISGraph():Graph()
+ParMETISGraph::ParMETISGraph():Graph()
 {
 }
 
-METISGraph::METISGraph(MEDPARTITIONER::SkyLineArray* graph, int* edgeweight)
+ParMETISGraph::ParMETISGraph(MEDPARTITIONER::SkyLineArray* graph, int* edgeweight)
   :Graph(graph,edgeweight)
 {
 }
 
-METISGraph::~METISGraph()
+ParMETISGraph::~ParMETISGraph()
 {
 }
 
-void METISGraph::partGraph(int ndomain,
+void ParMETISGraph::partGraph(int ndomain,
                            const std::string& options_string,
                            ParaDomainSelector *parallelizer)
 {
@@ -53,7 +55,7 @@ void METISGraph::partGraph(int ndomain,
   vector<int> ran,vx,va; //for randomize
   
   if (MyGlobals::_Verbose>10)
-    std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph" << std::endl;
+    std::cout << "proc " << MyGlobals::_Rank << " : ParMETISGraph::partGraph" << std::endl;
   
   // number of graph vertices
   int n=_graph->getNumberOf();
@@ -81,12 +83,12 @@ void METISGraph::partGraph(int ndomain,
   // output parameters
   int edgecut;
 #if !defined(MED_ENABLE_PARMETIS)
-  throw INTERP_KERNEL::Exception("METISGraph::partGraph : PARMETIS is not available. Check your products, please.");
+  throw INTERP_KERNEL::Exception("ParMETISGraph::partGraph : PARMETIS is not available. Check your products, please.");
 #else
   int* partition=new int[n];
   
   if (MyGlobals::_Verbose>10) 
-    std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph ParMETIS_PartKway new" << std::endl;
+    std::cout << "proc " << MyGlobals::_Rank << " : ParMETISGraph::partGraph ParMETIS_PartKway new" << std::endl;
   int * vtxdist=parallelizer->getProcVtxdist();
   MPI_Comm comm=MPI_COMM_WORLD;
   ParMETIS_PartKway(vtxdist, xadj, adjncy, vwgt, 

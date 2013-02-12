@@ -25,12 +25,10 @@
 
 #include <iostream>
 
-#ifdef MED_ENABLE_METIS
 extern "C"
 {
-#include "metis.h"
+#include "MEDPARTITIONER_metis.h"
 }
-#endif
 
 using namespace MEDPARTITIONER;
 
@@ -90,11 +88,11 @@ void METISGraph::partGraph(int ndomain,
       if (MyGlobals::_Verbose>10) 
         std::cout << "METISGraph::partGraph METIS_PartGraph METIS_PartGraph(RecursiveOrKway)" << std::endl;
       if (options_string != "k")
-        METIS_PartGraphRecursive(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
-                                  &base, &nparts, options, &edgecut, partition);
+        MEDPARTITIONER_METIS_PartGraphRecursive(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
+                                                &base, &nparts, options, &edgecut, partition);
       else
-        METIS_PartGraphKway(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
-                            &base, &nparts, options, &edgecut, partition);
+        MEDPARTITIONER_METIS_PartGraphKway(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
+                                           &base, &nparts, options, &edgecut, partition);
     }
   else  //force this case because METIS send all 1 in value
     {

@@ -41,6 +41,7 @@ namespace ParaMEDMEM
     const T& operator*() const { return *_ptr; }
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
+    T *retn() { if(_ptr) _ptr->incrRef(); return _ptr; }
   private:
     void referPtr(T *ptr) { _ptr=ptr; if(_ptr) _ptr->incrRef(); }
     void destroyPtr() { if(_ptr) _ptr->decrRef(); }

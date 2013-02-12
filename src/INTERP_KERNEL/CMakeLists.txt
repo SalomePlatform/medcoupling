@@ -37,6 +37,7 @@ SET(interpkernel_SOURCES
   InterpKernelMeshQuality.cxx
   InterpKernelCellSimplify.cxx
   InterpKernelMatrixTools.cxx
+  VolSurfUser.cxx
   Bases/InterpKernelException.cxx
   Geometric2D/InterpKernelGeo2DAbstractEdge.cxx
   Geometric2D/InterpKernelGeo2DBounds.cxx

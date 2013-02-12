@@ -33,14 +33,16 @@ namespace ParaMEDMEM
   class MEDCOUPLING_EXPORT MEDCouplingFieldDouble : public MEDCouplingField
   {
   public:
-    static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=NO_TIME);
-    static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td=NO_TIME);
+    static MEDCouplingFieldDouble *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
+    static MEDCouplingFieldDouble *New(const MEDCouplingFieldTemplate *ft, TypeOfTimeDiscretization td=ONE_TIME);
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
+    void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
     void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
+    void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);
     bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     bool areCompatibleForMerge(const MEDCouplingField *other) const;
@@ -71,6 +73,7 @@ namespace ParaMEDMEM
     void setTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setTimeValue(val); }
     void setEndTimeValue(double val) throw(INTERP_KERNEL::Exception) { _time_discr->setEndTimeValue(val); }
     void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
+    void synchronizeTimeWithMesh() throw(INTERP_KERNEL::Exception);
     void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
     void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
     double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
@@ -125,6 +128,7 @@ namespace ParaMEDMEM
     int getNumberOfTuples() const throw(INTERP_KERNEL::Exception);
     int getNumberOfValues() const throw(INTERP_KERNEL::Exception);
     void updateTime() const;
+    std::size_t getHeapMemorySize() const;
     //
     void getTinySerializationIntInformation(std::vector<int>& tinyInfo) const;
     void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;

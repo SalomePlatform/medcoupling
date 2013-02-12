@@ -22,17 +22,13 @@
 #define __INTERPOLATIONOPTIONS_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 
 #include <string>
 
 namespace INTERP_KERNEL
 {
   typedef enum { Triangulation, Convex, Geometric2D, PointLocator } IntersectionType;
-  /// Type describing the different ways in which the hexahedron can be split into tetrahedra.
-  /// The PLANAR_* policies persume that each face is to be considered planar, while the general
-  /// policies make no such hypothesis. The integer at the end gives the number of tetrahedra
-  /// that result from the split.
-  typedef enum  { PLANAR_FACE_5 = 5, PLANAR_FACE_6 = 6, GENERAL_24 = 24, GENERAL_48 = 48 } SplittingPolicy;
   
   /*!
    * \class InterpolationOptions
@@ -101,21 +97,8 @@ namespace INTERP_KERNEL
 
     std::string filterInterpolationMethod(const std::string& meth) const;
 
-    void init()
-    {  
-      _print_level=0;
-      _intersection_type=Triangulation;
-      _precision=1e-12;
-      _median_plane=DFT_MEDIAN_PLANE;
-      _do_rotate=true;
-      _bounding_box_adjustment=DFT_SURF3D_ADJ_EPS;
-      _bounding_box_adjustment_abs=0.;
-      _max_distance_for_3Dsurf_intersect=DFT_MAX_DIST_3DSURF_INTERSECT;
-      _orientation=0;
-      _measure_abs=true;
-      _splitting_policy=GENERAL_48;
-      _P1P0_bary_method=false;
-    }
+    void init();
+    
     bool setInterpolationOptions(long print_level,
                                  std::string intersection_type,
                                  double precision,

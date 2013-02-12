@@ -826,3 +826,54 @@ ParaMEDMEM::MEDCouplingUMesh* MEDPARTITIONER::CreateEmptyMEDCouplingUMesh()
   umesh->checkCoherency();
   return umesh;
 }
+
+namespace MEDPARTITIONER
+{
+  BBTreeOfDim::BBTreeOfDim( int           dim,
+                            const double* bbs,
+                            int*          elems,
+                            int           level,
+                            int           nbelems,
+                            double        epsilon)
+  {
+    switch ( dim )
+      {
+      case 3:
+        _tree=new BBTree<3> (bbs,elems,level,nbelems,epsilon);
+        _PgetElementsAroundPoint = & BBTreeOfDim::_getElementsAroundPoint< 3 >;
+        _PgetIntersectingElems   = & BBTreeOfDim::_getIntersectingElems< 3 >;
+        break;
+      case 2:
+        _tree=new BBTree<2> (bbs,elems,level,nbelems,epsilon);
+        _PgetElementsAroundPoint = & BBTreeOfDim::_getElementsAroundPoint< 2 >;
+        _PgetIntersectingElems   = & BBTreeOfDim::_getIntersectingElems< 2 >;
+        break;
+      case 1:
+        _tree=new BBTree<1> (bbs,elems,level,nbelems,epsilon);
+        _PgetElementsAroundPoint = & BBTreeOfDim::_getElementsAroundPoint< 1 >;
+        _PgetIntersectingElems   = & BBTreeOfDim::_getIntersectingElems< 1 >;
+        break;
+      default:
+        _tree=0;
+        throw INTERP_KERNEL::Exception("BBTreeOfDim(): wrong space dimension");
+      }
+  }
+
+  BBTreeOfDim::~BBTreeOfDim()
+  {
+    delete (BBTree<3>*)_tree;
+  }
+
+  void BBTreeOfDim::getElementsAroundPoint( const double* coordsPtr,
+                                            std::vector<int>& elems ) const
+  {
+    BBTreeOfDim* me = (BBTreeOfDim*) this;
+    (me->*_PgetElementsAroundPoint) ( coordsPtr, elems );
+  }
+  void BBTreeOfDim::getIntersectingElems(const double* bb,
+                                         std::vector<int>& elems) const
+  {
+    BBTreeOfDim* me = (BBTreeOfDim*) this;
+    (me->*_PgetIntersectingElems) ( bb, elems );
+  }
+}

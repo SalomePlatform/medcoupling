@@ -27,6 +27,8 @@ static PyObject* convertMEDFileMesh(ParaMEDMEM::MEDFileMesh* mesh, int owner) th
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileUMesh,owner);
   if(dynamic_cast<ParaMEDMEM::MEDFileCMesh *>(mesh))
     ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileCMesh,owner);
+  if(dynamic_cast<ParaMEDMEM::MEDFileCurveLinearMesh *>(mesh))
+    ret=SWIG_NewPointerObj((void*)mesh,SWIGTYPE_p_ParaMEDMEM__MEDFileCurveLinearMesh,owner);
   if(!ret)
     throw INTERP_KERNEL::Exception("Not recognized type of MEDFileMesh on downcast !");
   return ret;

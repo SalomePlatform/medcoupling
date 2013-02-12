@@ -164,7 +164,9 @@ class MEDLoaderTest(unittest.TestCase):
         t=mm.getGroupArr(0,"GrpOnAllCell")
         self.assertTrue(t.getValues()==range(5))
         #
-        mm.write(outFileName,2);
+        mmCpy=mm.deepCpy()
+        self.assertTrue(mm.isEqual(mmCpy,1e-12)[0]) ; del mm
+        mmCpy.write(outFileName,2);
         #
         mm=MEDFileMesh.New(outFileName)
         mbis=mm.getMeshAtLevel(0)
@@ -384,6 +386,7 @@ class MEDLoaderTest(unittest.TestCase):
         mm.write("Pyfile17_bis.med",2)
         ff=MEDFileFieldMultiTS("Pyfile17.med")
         tsExpected=[[1,2],[3,4],[5,6]]
+        self.assertEqual(3,len(ff))
         for pos,f1ts in enumerate(ff):
             self.assertEqual(tsExpected[pos],f1ts.getTime()[:2])
             self.assertEqual(type(f1ts),MEDFileField1TS)
@@ -642,6 +645,7 @@ class MEDLoaderTest(unittest.TestCase):
         #
         ff1.setFieldProfile(f1,mm1,0,da)
         ff1.changePflsNames([(["sup1_NORM_QUAD4"],"ForV650")])
+        ff1=ff1.deepCpy()
         ff1.write(fname,0)
         #
         vals,pfl=ff1.getFieldWithProfile(ON_CELLS,0,mm1) ; vals.setName("")
@@ -649,6 +653,8 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(vals.isEqual(d,1e-14))
         #
         ff2=MEDFileField1TS.New(fname,f1.getName(),-1,-1)
+        ff3=MEDFileField1TS.New(fname,f1.getName(),-1,-1)
+        ff2.deepCpyGlobs(ff3)
         sbt=ff2.getFieldSplitedByType2()
         self.assertEqual(3,sbt[0][0])#TRI3
         self.assertEqual(0,sbt[0][1][0][0])#CELL For TRI3
@@ -679,6 +685,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.appendFieldProfile(f1,mm1,0,da)
         f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
         ff1.appendFieldProfile(f1,mm1,0,da)
+        ff1=ff1.deepCpy()
         ff1.write(fname,0)
         #
         vals,pfl=ff1.getFieldWithProfile(ON_CELLS,1,2,0,mm1) ; vals.setName("")
@@ -912,6 +919,7 @@ class MEDLoaderTest(unittest.TestCase):
         ff1.appendFieldProfile(f1,mm1,0,da)
         ffs.resize(1)
         ffs.setFieldAtPos(0,ff1)
+        ffs=ffs.deepCpy()
         ffs.write(fname,0)
         #
         ffsr=MEDFileFields.New(fname)
@@ -1582,6 +1590,420 @@ class MEDLoaderTest(unittest.TestCase):
         f3_ter.renumberCells([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,17,18,16,19])
         self.assertTrue(f.isEqual(f3_ter,1e-12,1e-12))
         pass
+
+    # Testing profile on nodes when the profile is identity but not on all nodes.
+    def testMEDFieldPflOnNode1(self):
+        fname="Pyfile51.med"
+        coo=DataArrayDouble([0.,0.,0.5,0.,1.,0.,0.,0.5,0.5,0.5,1.,0.5,0.,1.,0.5,1.,1.,1.],9,2)
+        m0=MEDCouplingUMesh("Mesh",2)
+        m0.allocateCells(5)
+        m0.insertNextCell(NORM_TRI3,[1,4,2])
+        m0.insertNextCell(NORM_TRI3,[4,5,2])
+        m0.insertNextCell(NORM_QUAD4,[0,3,4,1])
+        m0.insertNextCell(NORM_QUAD4,[3,6,7,4])
+        m0.insertNextCell(NORM_QUAD4,[4,7,8,5])
+        m0.finishInsertingCells()
+        m0.setCoords(coo)
+        m1=MEDCouplingUMesh(m0.getName(),1)
+        m1.allocateCells(9)
+        conn1=[0,1,0,3,3,4,4,1,5,4,2,4,1,2,3,6,5,8]
+        for i in xrange(9):
+            m1.insertNextCell(NORM_SEG2,conn1[2*i:2*i+2])
+            pass
+        m1.finishInsertingCells()
+        m1.setCoords(coo)
+        #
+        m=MEDFileUMesh()
+        m.setMeshAtLevel(0,m0)
+        m.setMeshAtLevel(-1,m1)
+        #
+        dt=3 ; it=2 ; tim=4.5
+        fieldNode0=MEDCouplingFieldDouble(ON_NODES,ONE_TIME)
+        fieldNode0.setName("fieldNode0")
+        fieldNode0.setTime(tim,dt,it)
+        pfl0=DataArrayInt([0,1,2,3,4]) ; pfl0.setName("PflIdentity0") # important to keep like that
+        arr=DataArrayDouble([10,11,12,13,14])
+        fieldNode0.setArray(arr)
+        f0=MEDFileField1TS()
+        f0.setFieldProfile(fieldNode0,m,0,pfl0)
+        m.write(fname,2) ; f0.write(fname,0)
+        fieldNode1=MEDCouplingFieldDouble(ON_NODES,ONE_TIME)
+        fieldNode1.setName("fieldNode1")
+        fieldNode1.setTime(tim,dt,it)
+        pfl1=DataArrayInt([0,1,2,3,4,5,6]) ; pfl1.setName("PflIdentity1")
+        arr1=DataArrayDouble([20,21,22,23,24,25,26])
+        fieldNode1.setArray(arr1)
+        f1=MEDFileField1TS()
+        f1.setFieldProfile(fieldNode1,m,-1,pfl1)
+        f1.write(fname,0)
+        del m,f0,m0,m1,f1
+        ## Reading from file
+        m=MEDFileMesh.New(fname)
+        m0=m.getMeshAtLevel(0)
+        m00=m0.deepCpy() ; m00=m00[[0,2]] ; m00.setName(m.getName()) ; m00.zipCoords()
+        fieldNode0.setMesh(m00)
+        f0=MEDFileField1TS.New(fname,fieldNode0.getName(),dt,it)
+        ff0_1=f0.getFieldOnMeshAtLevel(ON_NODES,m0)
+        ff0_1.checkCoherency()
+        self.assertTrue(ff0_1.isEqual(fieldNode0,1e-12,1e-12))
+        ff0_2=f0.getFieldAtLevel(ON_NODES,0)
+        ff0_2.checkCoherency()
+        self.assertTrue(ff0_2.isEqual(fieldNode0,1e-12,1e-12))
+        ff0_3=f0.getFieldOnMeshAtLevel(ON_NODES,0,m)
+        ff0_3.checkCoherency()
+        self.assertTrue(ff0_3.isEqual(fieldNode0,1e-12,1e-12))
+        ff0_4=MEDLoader.ReadFieldNode(fname,m.getName(),0,fieldNode0.getName(),dt,it)
+        ff0_4.checkCoherency()
+        self.assertTrue(ff0_4.isEqual(fieldNode0,1e-12,1e-12))
+        f1=MEDFileField1TS.New(fname,fieldNode1.getName(),dt,it)
+        m1=m.getMeshAtLevel(-1)
+        m10=m1.deepCpy() ; m10=m10[[0,1,2,3,4,5,6,7]] ; m10.setName(m.getName()) ; m10.zipCoords()
+        fieldNode1.setMesh(m10)
+        ff1_1=f1.getFieldOnMeshAtLevel(ON_NODES,m1)
+        ff1_1.checkCoherency()
+        self.assertTrue(ff1_1.isEqual(fieldNode1,1e-12,1e-12))
+        ff1_2=f1.getFieldAtLevel(ON_NODES,-1)
+        ff1_2.checkCoherency()
+        self.assertTrue(ff1_2.isEqual(fieldNode1,1e-12,1e-12))
+        ff1_3=f1.getFieldOnMeshAtLevel(ON_NODES,-1,m)
+        ff1_3.checkCoherency()
+        self.assertTrue(ff1_3.isEqual(fieldNode1,1e-12,1e-12))
+        ff1_4=MEDLoader.ReadFieldNode(fname,m.getName(),-1,fieldNode1.getName(),dt,it)
+        ff1_4.checkCoherency()
+        self.assertTrue(ff1_4.getMesh().isEqual(m10,1e-12))
+        self.assertRaises(InterpKernelException,f1.getFieldOnMeshAtLevel,ON_NODES,m0) # error because impossible to build a sub mesh at level 0 lying on nodes [0,1,2,3,4,5,6]
+        self.assertRaises(InterpKernelException,f1.getFieldAtLevel,ON_NODES,0) # error because impossible to build a sub mesh at level 0 lying on nodes [0,1,2,3,4,5,6]
+        self.assertRaises(InterpKernelException,f1.getFieldOnMeshAtLevel,ON_NODES,0,m) # error because impossible to build a sub mesh at level 0 lying on nodes [0,1,2,3,4,5,6]
+        arr_r,pfl1_r=f1.getFieldWithProfile(ON_NODES,-1,m)
+        arr_r.setName(fieldNode1.getArray().getName())
+        self.assertTrue(arr_r.isEqual(fieldNode1.getArray(),1e-12))
+        pfl1_r.setName(pfl1.getName())
+        self.assertTrue(pfl1_r.isEqual(pfl1))
+        pass
+    
+        # Testing profile on nodes when the profile is identity but not on all nodes.
+    def testMEDFieldPflOnCell1(self):
+        fname="Pyfile52.med"
+        coo=DataArrayDouble([0.,0.,0.5,0.,1.,0.,0.,0.5,0.5,0.5,1.,0.5,0.,1.,0.5,1.,1.,1.],9,2)
+        m0=MEDCouplingUMesh("Mesh",2)
+        m0.allocateCells(5)
+        m0.insertNextCell(NORM_TRI3,[1,4,2])
+        m0.insertNextCell(NORM_TRI3,[4,5,2])
+        m0.insertNextCell(NORM_QUAD4,[0,3,4,1])
+        m0.insertNextCell(NORM_QUAD4,[3,6,7,4])
+        m0.insertNextCell(NORM_QUAD4,[4,7,8,5])
+        m0.finishInsertingCells()
+        m0.setCoords(coo)
+        m1=MEDCouplingUMesh(m0.getName(),1)
+        m1.allocateCells(9)
+        conn1=[0,1,0,3,3,4,4,1,5,4,2,4,1,2,3,6,5,8]
+        for i in xrange(9):
+            m1.insertNextCell(NORM_SEG2,conn1[2*i:2*i+2])
+            pass
+        m1.finishInsertingCells()
+        m1.setCoords(coo)
+        #
+        m=MEDFileUMesh()
+        m.setMeshAtLevel(0,m0)
+        m.setMeshAtLevel(-1,m1)
+        #
+        dt=3 ; it=2 ; tim=4.5
+        fieldCell0=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+        fieldCell0.setName("fieldCell0")
+        fieldCell0.setTime(tim,dt,it)
+        pfl0=DataArrayInt([0,1,2]) ; pfl0.setName("PflIdentity0") # important to keep like that
+        arr=DataArrayDouble([10,11,12])
+        fieldCell0.setArray(arr)
+        f0=MEDFileField1TS()
+        f0.setFieldProfile(fieldCell0,m,0,pfl0)
+        m.write(fname,2) ; f0.write(fname,0)
+        fieldCell1=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
+        fieldCell1.setName("fieldCell1")
+        fieldCell1.setTime(tim,dt,it)
+        pfl1=DataArrayInt([0,1,2,3,4,5,6]) ; pfl1.setName("PflIdentity1")
+        arr1=DataArrayDouble([20,21,22,23,24,25,26])
+        fieldCell1.setArray(arr1)
+        f1=MEDFileField1TS()
+        f1.setFieldProfile(fieldCell1,m,-1,pfl1)
+        f1.write(fname,0)
+        del m,f0,m0,m1,f1
+        ## Reading from file
+        m=MEDFileMesh.New(fname)
+        m0=m.getMeshAtLevel(0)
+        m00=m0.deepCpy() ; m00=m00[pfl0] ; m00.setName(m.getName())
+        fieldCell0.setMesh(m00)
+        f0=MEDFileField1TS.New(fname,fieldCell0.getName(),dt,it)
+        ff0_1=f0.getFieldOnMeshAtLevel(ON_CELLS,m0)
+        ff0_1.checkCoherency()
+        self.assertTrue(ff0_1.isEqual(fieldCell0,1e-12,1e-12))
+        ff0_2=f0.getFieldAtLevel(ON_CELLS,0)
+        ff0_2.checkCoherency()
+        self.assertTrue(ff0_2.isEqual(fieldCell0,1e-12,1e-12))
+        ff0_3=f0.getFieldOnMeshAtLevel(ON_CELLS,0,m)
+        ff0_3.checkCoherency()
+        self.assertTrue(ff0_3.isEqual(fieldCell0,1e-12,1e-12))
+        ff0_4=MEDLoader.ReadFieldCell(fname,m.getName(),0,fieldCell0.getName(),dt,it)
+        ff0_4.checkCoherency()
+        self.assertTrue(ff0_4.isEqual(fieldCell0,1e-12,1e-12))
+        f1=MEDFileField1TS.New(fname,fieldCell1.getName(),dt,it)
+        m1=m.getMeshAtLevel(-1)
+        m10=m1.deepCpy() ; m10=m10[pfl1] ; m10.setName(m.getName())
+        fieldCell1.setMesh(m10)
+        ff1_1=f1.getFieldOnMeshAtLevel(ON_CELLS,m1)
+        ff1_1.checkCoherency()
+        self.assertTrue(ff1_1.isEqual(fieldCell1,1e-12,1e-12))
+        ff1_2=f1.getFieldAtLevel(ON_CELLS,-1)
+        ff1_2.checkCoherency()
+        self.assertTrue(ff1_2.isEqual(fieldCell1,1e-12,1e-12))
+        ff1_3=f1.getFieldOnMeshAtLevel(ON_CELLS,-1,m)
+        ff1_3.checkCoherency()
+        self.assertTrue(ff1_3.isEqual(fieldCell1,1e-12,1e-12))
+        ff1_4=MEDLoader.ReadFieldCell(fname,m.getName(),-1,fieldCell1.getName(),dt,it)
+        ff1_4.checkCoherency()
+        self.assertTrue(ff1_4.getMesh().isEqual(m10,1e-12))
+        self.assertRaises(InterpKernelException,f1.getFieldOnMeshAtLevel,ON_CELLS,m0) # error because impossible to build a sub mesh at level 0 lying on cells [0,1,2,3,4,5,6]
+        self.assertRaises(InterpKernelException,f1.getFieldAtLevel,ON_CELLS,0) # error because impossible to build a sub mesh at level 0 lying on cells [0,1,2,3,4,5,6]
+        self.assertRaises(InterpKernelException,f1.getFieldOnMeshAtLevel,ON_CELLS,0,m) # error because impossible to build a sub mesh at level 0 lying on cells [0,1,2,3,4,5,6]
+        arr_r,pfl1_r=f1.getFieldWithProfile(ON_CELLS,-1,m)
+        arr_r.setName(fieldCell1.getArray().getName())
+        self.assertTrue(arr_r.isEqual(fieldCell1.getArray(),1e-12))
+        pfl1_r.setName(pfl1.getName())
+        self.assertTrue(pfl1_r.isEqual(pfl1))
+        pass
+
+    def testMEDFileUMeshZipCoords1(self):
+        m=MEDFileUMesh()
+        coo=DataArrayDouble(30) ; coo.iota(1.) ; coo.rearrange(3) ; coo.setInfoOnComponents(["aaa [b]","cc [dd]", "e [fff]"])
+        m0=MEDCouplingUMesh("toto",2) ; m0.allocateCells(0) ; m0.insertNextCell(NORM_TRI3,[1,2,3]) ; m0.insertNextCell(NORM_QUAD4,[2,4,3,4]) ; m0.insertNextCell(NORM_POLYGON,[1,6,6,6,2])
+        m1=MEDCouplingUMesh("toto",1) ; m1.allocateCells(0) ; m1.insertNextCell(NORM_SEG2,[1,6]) ; m1.insertNextCell(NORM_SEG2,[7,3])
+        m2=MEDCouplingUMesh("toto",0) ; m2.allocateCells(0) ; m2.insertNextCell(NORM_POINT1,[2]) ; m2.insertNextCell(NORM_POINT1,[6]) ; m2.insertNextCell(NORM_POINT1,[8])
+        m0.setCoords(coo) ; m.setMeshAtLevel(0,m0)
+        m1.setCoords(coo) ; m.setMeshAtLevel(-1,m1)
+        m2.setCoords(coo) ; m.setMeshAtLevel(-2,m2)
+        numCoo=DataArrayInt(10) ; numCoo.iota(3) ; m.setRenumFieldArr(1,numCoo)
+        famCoo=DataArrayInt(10) ; famCoo.iota(4) ; m.setFamilyFieldArr(1,famCoo)
+        da=DataArrayInt([20,30,40]) ; m.setRenumFieldArr(0,da) ; da=DataArrayInt([200,300,400]) ; m.setFamilyFieldArr(0,da)
+        da=DataArrayInt([50,60]) ; m.setRenumFieldArr(-1,da) ; da=DataArrayInt([500,600]) ; m.setFamilyFieldArr(-1,da)
+        da=DataArrayInt([70,80,90]) ; m.setRenumFieldArr(-2,da) ; da=DataArrayInt([700,800,900]) ; m.setFamilyFieldArr(-2,da)
+        o2n=m.zipCoords()
+        self.assertTrue(o2n.isEqual(DataArrayInt([-1,0,1,2,3,-1,4,5,6,-1])))
+        self.assertTrue(m.getNumberFieldAtLevel(1).isEqual(DataArrayInt([4,5,6,7,9,10,11])))
+        self.assertTrue(m.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([5,6,7,8,10,11,12])))
+        self.assertTrue(m.getMeshAtLevel(0).getNodalConnectivity().isEqual(DataArrayInt([3,0,1,2,4,1,3,2,3,5,0,4,4,4,1])))
+        self.assertTrue(m.getMeshAtLevel(0).getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,9,15])))
+        self.assertTrue(m.getMeshAtLevel(-1).getNodalConnectivity().isEqual(DataArrayInt([1,0,4,1,5,2])))
+        self.assertTrue(m.getMeshAtLevel(-1).getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6])))
+        self.assertTrue(m.getMeshAtLevel(-2).getNodalConnectivity().isEqual(DataArrayInt([0,1,0,4,0,6])))
+        self.assertTrue(m.getMeshAtLevel(-2).getNodalConnectivityIndex().isEqual(DataArrayInt([0,2,4,6])))
+        pass
+
+    def testMEDUMeshAddNodeGroup1(self):
+        fname="Pyfile53.med"
+        m=MEDFileUMesh()
+        coo=DataArrayDouble(39) ; coo.iota(1.) ; coo.rearrange(3) ; coo.setInfoOnComponents(["aaa [b]","cc [dd]", "e [fff]"])
+        m0=MEDCouplingUMesh("toto",2) ; m0.allocateCells(0) ; m0.insertNextCell(NORM_TRI3,[1,2,3]) ; m0.insertNextCell(NORM_QUAD4,[2,4,3,4]) ; m0.insertNextCell(NORM_POLYGON,[1,6,6,6,2])
+        m1=MEDCouplingUMesh("toto",1) ; m1.allocateCells(0) ; m1.insertNextCell(NORM_SEG2,[1,6]) ; m1.insertNextCell(NORM_SEG2,[7,3])
+        m2=MEDCouplingUMesh("toto",0) ; m2.allocateCells(0) ; m2.insertNextCell(NORM_POINT1,[2]) ; m2.insertNextCell(NORM_POINT1,[6]) ; m2.insertNextCell(NORM_POINT1,[8])
+        m0.setCoords(coo) ; m.setMeshAtLevel(0,m0)
+        m1.setCoords(coo) ; m.setMeshAtLevel(-1,m1)
+        m2.setCoords(coo) ; m.setMeshAtLevel(-2,m2)
+        #
+        mm=m.deepCpy()
+        famCoo=DataArrayInt([0,2,0,3,2,0,-1,0,0,0,0,-1,3]) ; mm.setFamilyFieldArr(1,famCoo)
+        da0=DataArrayInt([0,0,0]) ; mm.setFamilyFieldArr(0,da0)
+        da1=DataArrayInt([0,3]) ; mm.setFamilyFieldArr(-1,da1)
+        da2=DataArrayInt([0,0,0]) ; mm.setFamilyFieldArr(-2,da2)
+        mm.setFamilyId("MyFam",2)
+        mm.setFamilyId("MyOtherFam",3)
+        mm.setFamilyId("MyOther-1",-1)
+        mm.setFamiliesOnGroup("grp0",["MyOtherFam"])
+        mm.setFamiliesOnGroup("grpA",["MyOther-1"])
+        #
+        daTest=DataArrayInt([1,3,4,6,9,10,12]) ; daTest.setName("grp1")
+        mm.addNodeGroup(daTest)
+        self.assertTrue(mm.getGroupArr(1,daTest.getName()).isEqual(daTest))
+        self.assertTrue(mm.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([6,2,6,8,2,6,5,6,6,7,7,4,8])))
+        for lev,arr in [(0,da0),(-1,da1),(-2,da2)]:
+            self.assertTrue(mm.getFamilyFieldAtLevel(lev).isEqual(arr))
+            pass
+        self.assertEqual(mm.getFamiliesNames(),('Family_4','Family_5','Family_7','Family_8','MyFam','MyOther-1','MyOtherFam'))
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp1','grpA'))
+        self.assertEqual(mm.getFamilyNameGivenId(3),'MyOtherFam')
+        self.assertEqual(mm.getFamilyNameGivenId(2),'MyFam')
+        for famName,famId in [('Family_4',4),('Family_5',5),('Family_7',7),('Family_8',8)]:
+            self.assertEqual(mm.getFamilyNameGivenId(famId),famName)
+            pass
+        self.assertEqual(mm.getFamiliesOnGroup("grp0"),('MyOtherFam','Family_8'))
+        da=DataArrayInt([3,12]) ; da.setName("grp0")
+        self.assertTrue(mm.getGroupArr(1,"grp0").isEqual(da))
+        da.setValues([1])
+        self.assertTrue(mm.getGroupArr(-1,"grp0").isEqual(da))
+        mm.write(fname,2)
+        mm=MEDFileMesh.New(fname)
+        self.assertTrue(mm.getGroupArr(1,daTest.getName()).isEqual(daTest))
+        self.assertTrue(mm.getFamilyFieldAtLevel(1).isEqual(DataArrayInt([6,2,6,8,2,6,5,6,6,7,7,4,8])))
+        for lev,arr in [(0,da0),(-1,da1),(-2,da2)]:
+            self.assertTrue(mm.getFamilyFieldAtLevel(lev).isEqual(arr))
+            pass
+        self.assertEqual(mm.getFamiliesNames(),('FAMILLE_ZERO','Family_4','Family_5','Family_7','Family_8','MyFam','MyOther-1','MyOtherFam'))
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp1','grpA'))
+        self.assertEqual(mm.getFamilyNameGivenId(3),'MyOtherFam')
+        self.assertEqual(mm.getFamilyNameGivenId(2),'MyFam')
+        for famName,famId in [('Family_4',4),('Family_5',5),('Family_7',7),('Family_8',8)]:
+            self.assertEqual(mm.getFamilyNameGivenId(famId),famName)
+            pass
+        self.assertEqual(mm.getFamiliesOnGroup("grp0"),('Family_8','MyOtherFam'))
+        da=DataArrayInt([3,12]) ; da.setName("grp0")
+        self.assertTrue(mm.getGroupArr(1,"grp0").isEqual(da))
+        da.setValues([1])
+        self.assertTrue(mm.getGroupArr(-1,"grp0").isEqual(da))
+        pass
+
+    def testMEDUMeshAddGroup1(self):
+        fname="Pyfile54.med"
+        m=MEDFileUMesh()
+        coo=DataArrayDouble(9) ; coo.iota(1.) ; coo.rearrange(3) ; coo.setInfoOnComponents(["aaa [b]","cc [dd]", "e [fff]"])
+        m0=MEDCouplingUMesh("toto",2) ; m0.allocateCells(0)
+        for i in xrange(7):
+            m0.insertNextCell(NORM_TRI3,[1,2,1])
+            pass
+        for i in xrange(4):
+            m0.insertNextCell(NORM_QUAD4,[1,1,2,0])
+            pass
+        for i in xrange(2):
+            m0.insertNextCell(NORM_POLYGON,[0,0,1,1,2,2])
+            pass
+        m1=MEDCouplingUMesh("toto",1) ; m1.allocateCells(0) ; m1.insertNextCell(NORM_SEG2,[1,6]) ; m1.insertNextCell(NORM_SEG2,[7,3])
+        m2=MEDCouplingUMesh("toto",0) ; m2.allocateCells(0) ; m2.insertNextCell(NORM_POINT1,[2]) ; m2.insertNextCell(NORM_POINT1,[6]) ; m2.insertNextCell(NORM_POINT1,[8])
+        m0.setCoords(coo) ; m.setMeshAtLevel(0,m0)
+        m1.setCoords(coo) ; m.setMeshAtLevel(-1,m1)
+        m2.setCoords(coo) ; m.setMeshAtLevel(-2,m2)
+        #
+        mm=m.deepCpy()
+        famCoo=DataArrayInt([0,2,0,3,2,0,-1,0,0,0,0,-1,3]) ; mm.setFamilyFieldArr(0,famCoo)
+        da0=DataArrayInt([0,0,0]) ; mm.setFamilyFieldArr(1,da0)
+        da1=DataArrayInt([0,3]) ; mm.setFamilyFieldArr(-1,da1)
+        da2=DataArrayInt([0,0,0]) ; mm.setFamilyFieldArr(-2,da2)
+        mm.setFamilyId("MyFam",2)
+        mm.setFamilyId("MyOtherFam",3)
+        mm.setFamilyId("MyOther-1",-1)
+        mm.setFamiliesOnGroup("grp0",["MyOtherFam"])
+        mm.setFamiliesOnGroup("grpA",["MyOther-1"])
+        #
+        daTest=DataArrayInt([1,3,4,6,9,10,12]) ; daTest.setName("grp1")
+        mm.addGroup(0,daTest)
+        self.assertTrue(mm.getGroupArr(0,daTest.getName()).isEqual(daTest))
+        self.assertTrue(mm.getFamilyFieldAtLevel(0).isEqual(DataArrayInt([6,2,6,8,2,6,5,6,6,7,7,4,8])))
+        for lev,arr in [(1,da0),(-1,da1),(-2,da2)]:
+            self.assertTrue(mm.getFamilyFieldAtLevel(lev).isEqual(arr))
+            pass
+        self.assertEqual(mm.getFamiliesNames(),('Family_4','Family_5','Family_7','Family_8','MyFam','MyOther-1','MyOtherFam'))
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp1','grpA'))
+        self.assertEqual(mm.getFamilyNameGivenId(3),'MyOtherFam')
+        self.assertEqual(mm.getFamilyNameGivenId(2),'MyFam')
+        for famName,famId in [('Family_4',4),('Family_5',5),('Family_7',7),('Family_8',8)]:
+            self.assertEqual(mm.getFamilyNameGivenId(famId),famName)
+            pass
+        self.assertEqual(mm.getFamiliesOnGroup("grp0"),('MyOtherFam','Family_8'))
+        da=DataArrayInt([3,12]) ; da.setName("grp0")
+        self.assertTrue(mm.getGroupArr(0,"grp0").isEqual(da))
+        da.setValues([1])
+        self.assertTrue(mm.getGroupArr(-1,"grp0").isEqual(da))
+        mm.write(fname,2)
+        mm=MEDFileMesh.New(fname)
+        self.assertTrue(mm.getGroupArr(0,daTest.getName()).isEqual(daTest))
+        self.assertTrue(mm.getFamilyFieldAtLevel(0).isEqual(DataArrayInt([6,2,6,8,2,6,5,6,6,7,7,4,8])))
+        for lev,arr in [(1,da0),(-1,da1),(-2,da2)]:
+            self.assertTrue(mm.getFamilyFieldAtLevel(lev).isEqual(arr))
+            pass
+        self.assertEqual(mm.getFamiliesNames(),('FAMILLE_ZERO','Family_4','Family_5','Family_7','Family_8','MyFam','MyOther-1','MyOtherFam'))
+        self.assertEqual(mm.getGroupsNames(),('grp0','grp1','grpA'))
+        self.assertEqual(mm.getFamilyNameGivenId(3),'MyOtherFam')
+        self.assertEqual(mm.getFamilyNameGivenId(2),'MyFam')
+        for famName,famId in [('Family_4',4),('Family_5',5),('Family_7',7),('Family_8',8)]:
+            self.assertEqual(mm.getFamilyNameGivenId(famId),famName)
+            pass
+        self.assertEqual(mm.getFamiliesOnGroup("grp0"),('Family_8','MyOtherFam'))
+        da=DataArrayInt([3,12]) ; da.setName("grp0")
+        self.assertTrue(mm.getGroupArr(0,"grp0").isEqual(da))
+        da.setValues([1])
+        self.assertTrue(mm.getGroupArr(-1,"grp0").isEqual(da))
+        pass
+
+    def testHeapMem1(self):
+        import platform
+        ver=platform.python_version_tuple()
+        if int(ver[0])!=2 or int(ver[1])<7:
+            return
+        m=MEDCouplingCMesh()
+        arr=DataArrayDouble(10,1) ; arr.iota(0)
+        m.setCoords(arr,arr)
+        m=m.buildUnstructured()
+        m.setName("mm")
+        f=m.getMeasureField(ON_CELLS)
+        self.assertIn(m.getHeapMemorySize(),xrange(3552-100,3552+100))
+        self.assertIn(f.getHeapMemorySize(),xrange(4215-100,4215+100))
+        #
+        mm=MEDFileUMesh()
+        mm.setMeshAtLevel(0,m)
+        self.assertIn(mm.getHeapMemorySize(),xrange(3889-100,3889+100))
+        ff=MEDFileField1TS()
+        ff.setFieldNoProfileSBT(f)
+        self.assertIn(ff.getHeapMemorySize(),xrange(711-10,711+10))
+        #
+        fff=MEDFileFieldMultiTS()
+        fff.appendFieldNoProfileSBT(f)
+        self.assertIn(fff.getHeapMemorySize(),xrange(743-10,743+10))
+        self.assertIn(fff[-1,-1].getHeapMemorySize(),xrange(711-10,711+10))
+        f.setTime(1.,0,-1)
+        fff.appendFieldNoProfileSBT(f)
+        self.assertIn(fff.getHeapMemorySize(),xrange(1462-10,1462+10))
+        self.assertIn(fff[0,-1].getHeapMemorySize(),xrange(711-10,711+10))
+        f2=f[:50]
+        f2.setTime(2.,1,-1)
+        pfl=DataArrayInt.Range(0,50,1) ; pfl.setName("pfl")
+        fff.appendFieldProfile(f2,mm,0,pfl)
+        self.assertIn(fff.getHeapMemorySize(),xrange(2178-100,2178+100))
+        self.assertIn(fff.getProfile("pfl_NORM_QUAD4").getHeapMemorySize(),xrange(215-10,215+10))
+        self.assertIn(fff[1,-1].getHeapMemorySize(),xrange(700-10,700+10))
+        pass
+
+    def testCurveLinearMesh1(self):
+        fname="Pyfile55.med"
+        mesh=MEDCouplingCurveLinearMesh();
+        mesh.setTime(2.3,4,5);
+        mesh.setTimeUnit("us");
+        mesh.setName("Example of Cuve linear mesh");
+        mesh.setDescription("buildCLMesh");
+        a1=DataArrayDouble(3*20,1);
+        a1.iota(7.) ; a1.rearrange(3);
+        mesh.setCoords(a1);
+        mesh.setNodeGridStructure([4,5]);
+        mesh.checkCoherency();
+        #
+        m=MEDFileCurveLinearMesh()
+        m.setMesh(mesh)
+        d=DataArrayInt(20) ; d.iota(4)
+        m.setFamilyFieldArr(1,d)
+        d3=DataArrayInt(20) ; d3.iota(400)
+        m.setRenumFieldArr(1,d3)
+        d2=DataArrayInt(12) ; d2.iota(40)
+        m.setFamilyFieldArr(0,d2)
+        d4=DataArrayInt(21) ; d4.iota(4000)
+        self.assertRaises(InterpKernelException,m.setRenumFieldArr,1,d4)
+        d4.popBackSilent()
+        m.setRenumFieldArr(1,d4)
+        m.write(fname,2)
+        #
+        m1=MEDFileCurveLinearMesh(fname)
+        mm=m1.getMesh()
+        self.assertTrue(mm.isEqual(mesh,1e-12))
+        #
+        m1=MEDFileMesh.New(fname)
+        self.assertTrue(isinstance(m1,MEDFileCurveLinearMesh))
+        self.assertTrue(m1.getMesh().isEqual(mesh,1e-12))
+        pass
+
     pass
 
 unittest.main()

@@ -17,6 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 // Author : Anthony Geay (CEA/DEN)
+
 #ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 #define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
 
@@ -45,11 +46,12 @@ namespace ParaMEDMEM
   }
 
   template<class T>
-  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(-1),_ownership(false),_dealloc(CPP_DEALLOC)
+  MemArray<T>::MemArray(const MemArray<T>& other):_nb_of_elem(0),_nb_of_elem_alloc(0),_ownership(false),_dealloc(CPP_DEALLOC)
   {
     if(!other._pointer.isNull())
       {
-        T *pointer=new T[other._nb_of_elem];
+        _nb_of_elem_alloc=other._nb_of_elem;
+        T *pointer=new T[_nb_of_elem_alloc];
         std::copy(other._pointer.getConstPointer(),other._pointer.getConstPointer()+other._nb_of_elem,pointer);
         useArray(pointer,true,CPP_DEALLOC,other._nb_of_elem);
       }
@@ -59,6 +61,7 @@ namespace ParaMEDMEM
   void MemArray<T>::useArray(const T *array, bool ownership, DeallocType type, int nbOfElem)
   {
     _nb_of_elem=nbOfElem;
+    _nb_of_elem_alloc=nbOfElem;
     destroy();
     if(ownership)
       _pointer.setInternal(const_cast<T *>(array));
@@ -72,6 +75,7 @@ namespace ParaMEDMEM
   void MemArray<T>::useExternalArrayWithRWAccess(const T *array, int nbOfElem)
   {
     _nb_of_elem=nbOfElem;
+    _nb_of_elem_alloc=nbOfElem;
     destroy();
     _pointer.setInternal(const_cast<T *>(array));
     _ownership=false;
@@ -81,11 +85,55 @@ namespace ParaMEDMEM
   template<class T>
   void MemArray<T>::writeOnPlace(int id, T element0, const T *others, int sizeOfOthers)
   {
-    if(id+sizeOfOthers>=_nb_of_elem)
-      reAlloc(2*_nb_of_elem+sizeOfOthers+1);
+    if(id+sizeOfOthers>=_nb_of_elem_alloc)
+      reserve(2*_nb_of_elem+sizeOfOthers+1);
     T *pointer=_pointer.getPointer();
     pointer[id]=element0;
     std::copy(others,others+sizeOfOthers,pointer+id+1);
+    _nb_of_elem=std::max<int>(_nb_of_elem,id+sizeOfOthers+1);
+  }
+  
+  template<class T>
+  template<class InputIterator>
+  void MemArray<T>::insertAtTheEnd(InputIterator first, InputIterator last)
+  {
+    T *pointer=_pointer.getPointer();
+    while(first!=last)
+      {
+        if(_nb_of_elem>=_nb_of_elem_alloc || _nb_of_elem==0)
+          {
+            reserve(_nb_of_elem_alloc>0?2*_nb_of_elem_alloc:1);
+            pointer=_pointer.getPointer();
+          }
+        pointer[_nb_of_elem++]=*first++;
+      }
+  }
+  
+  template<class T>
+  void MemArray<T>::pushBack(T elem) throw(INTERP_KERNEL::Exception)
+  {
+    if(_nb_of_elem>=_nb_of_elem_alloc)
+      reserve(_nb_of_elem_alloc>0?2*_nb_of_elem_alloc:1);
+    T *pt=getPointer();
+    pt[_nb_of_elem++]=elem;
+  }
+  
+  template<class T>
+  T MemArray<T>::popBack() throw(INTERP_KERNEL::Exception)
+  {
+    if(_nb_of_elem>0)
+      {
+        const T *pt=getConstPointer();
+        return pt[--_nb_of_elem];
+      }
+    throw INTERP_KERNEL::Exception("MemArray::popBack : nothing to pop in array !");
+  }
+  
+  template<class T>
+  void MemArray<T>::pack() const
+  {
+    if(_nb_of_elem>=0)
+      (const_cast<MemArray<T> * >(this))->reserve(_nb_of_elem);
   }
 
   template<class T>
@@ -121,7 +169,7 @@ namespace ParaMEDMEM
   }
   
   /*!
-   * @param sl is typically the number of components [in parameter]
+   * \param [in] sl is typically the number of components
    */
   template<class T>
   void MemArray<T>::repr(int sl, std::ostream& stream) const
@@ -130,8 +178,8 @@ namespace ParaMEDMEM
     if(!_pointer.isNull())
       {
         if(sl!=0)
-          stream << _nb_of_elem/sl;
-        else
+          stream << _nb_of_elem/sl << std::endl << "Internal memory facts : " << _nb_of_elem << "/" << _nb_of_elem_alloc;
+       else
           stream << "Empty Data";
       }
     else
@@ -160,7 +208,7 @@ namespace ParaMEDMEM
   }
   
   /*!
-   * @param sl is typically the number of components [in parameter]
+   * \param [in] sl is typically the number of components
    */
   template<class T>
   void MemArray<T>::reprZip(int sl, std::ostream& stream) const
@@ -260,22 +308,60 @@ namespace ParaMEDMEM
     if(nbOfElements<0)
       throw INTERP_KERNEL::Exception("MemArray::alloc : request for negative length of data !");
     _nb_of_elem=nbOfElements;
-    _pointer.setInternal(new T[_nb_of_elem]);
+    _nb_of_elem_alloc=nbOfElements;
+    _pointer.setInternal(new T[_nb_of_elem_alloc]);
     _ownership=true;
     _dealloc=CPP_DEALLOC;
   }
-  
+
+  /*!
+   * This method performs systematically an allocation of \a newNbOfElements elements in \a this.
+   * \a _nb_of_elem and \a _nb_of_elem_alloc will \b NOT be systematically equal (contrary to MemArray<T>::reAlloc method.
+   * So after the call of this method \a _nb_of_elem will be equal tostd::min<int>(_nb_of_elem,newNbOfElements) and \a _nb_of_elem_alloc equal to 
+   * \a newNbOfElements. This method is typically used to perform a pushBack to avoid systematic allocations-copy-deallocation.
+   * So after the call of this method the accessible content is perfectly set.
+   * 
+   * So this method should not be confused with MemArray<T>::reserve that is close to MemArray<T>::reAlloc but not same.
+   */
+  template<class T>
+  void MemArray<T>::reserve(int newNbOfElements) throw(INTERP_KERNEL::Exception)
+  {
+    if(newNbOfElements<0)
+      throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
+    if(_nb_of_elem_alloc==newNbOfElements)
+      return ;
+    T *pointer=new T[newNbOfElements];
+    std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<int>(_nb_of_elem,newNbOfElements),pointer);
+    if(_ownership)
+      destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc);//Do not use getPointer because in case of _external
+    _pointer.setInternal(pointer);
+    _nb_of_elem=std::min<int>(_nb_of_elem,newNbOfElements);
+    _nb_of_elem_alloc=newNbOfElements;
+    _ownership=true;
+    _dealloc=CPP_DEALLOC;
+  }
+
+  /*!
+   * This method performs systematically an allocation of \a newNbOfElements elements in \a this.
+   * \a _nb_of_elem and \a _nb_of_elem_alloc will be equal even if only std::min<int>(_nb_of_elem,newNbOfElements) come from the .
+   * The remaing part of the new allocated chunk are available but not set previouly !
+   * 
+   * So this method should not be confused with MemArray<T>::reserve that is close to MemArray<T>::reAlloc but not same.
+   */
   template<class T>
   void MemArray<T>::reAlloc(int newNbOfElements) throw(INTERP_KERNEL::Exception)
   {
     if(newNbOfElements<0)
       throw INTERP_KERNEL::Exception("MemArray::reAlloc : request for negative length of data !");
+    if(_nb_of_elem==newNbOfElements)
+      return ;
     T *pointer=new T[newNbOfElements];
     std::copy(_pointer.getConstPointer(),_pointer.getConstPointer()+std::min<int>(_nb_of_elem,newNbOfElements),pointer);
     if(_ownership)
       destroyPointer(const_cast<T *>(_pointer.getConstPointer()),_dealloc);//Do not use getPointer because in case of _external
     _pointer.setInternal(pointer);
     _nb_of_elem=newNbOfElements;
+    _nb_of_elem_alloc=newNbOfElements;
     _ownership=true;
     _dealloc=CPP_DEALLOC;
   }

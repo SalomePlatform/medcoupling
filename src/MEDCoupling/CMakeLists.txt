@@ -36,6 +36,8 @@ SET(medcoupling_SOURCES
   MEDCouplingMemArray.cxx
   MEDCouplingTimeLabel.cxx
   MEDCouplingCMesh.cxx
+  MEDCouplingCurveLinearMesh.cxx
+  MEDCouplingStructuredMesh.cxx
   MEDCouplingTimeDiscretization.cxx
   MEDCouplingFieldDiscretization.cxx
   MEDCouplingRefCountObject.cxx

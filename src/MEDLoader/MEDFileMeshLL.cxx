@@ -81,8 +81,22 @@ int MEDFileMeshL2::GetMeshIdFromName(med_idt fid, const char *mname, ParaMEDMEM:
       meshType=UNSTRUCTURED;
       break;
     case MED_STRUCTURED_MESH:
-      meshType=CARTESIAN;
-      break;
+      {
+        med_grid_type gt;
+        MEDmeshGridTypeRd(fid,mname,&gt);
+        switch(gt)
+          {
+          case MED_CARTESIAN_GRID:
+            meshType=CARTESIAN;
+            break;
+          case MED_CURVILINEAR_GRID:
+            meshType=CURVE_LINEAR;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
+          }
+        break;
+      }
     default:
       throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
     }
@@ -135,8 +149,22 @@ std::vector<std::string> MEDFileMeshL2::getAxisInfoOnMesh(med_idt fid, int mId, 
       meshType=UNSTRUCTURED;
       break;
     case MED_STRUCTURED_MESH:
-      meshType=CARTESIAN;
-      break;
+      {
+        med_grid_type gt;
+        MEDmeshGridTypeRd(fid,mName,&gt);
+        switch(gt)
+          {
+          case MED_CARTESIAN_GRID:
+            meshType=CARTESIAN;
+            break;
+          case MED_CURVILINEAR_GRID:
+            meshType=CURVE_LINEAR;
+            break;
+          default:
+            throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getAxisInfoOnMesh : unrecognized structured mesh type ! Supported are :\n - cartesian\n - curve linear\n");
+          }
+        break;
+      }
     default:
       throw INTERP_KERNEL::Exception("MEDFileUMeshL2::getMeshIdFromName : unrecognized mesh type !");
     }
@@ -334,7 +362,7 @@ void MEDFileCMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, in
   med_grid_type gridtype;
   MEDmeshGridTypeRd(fid,mName,&gridtype);
   if(gridtype!=MED_CARTESIAN_GRID)
-    throw INTERP_KERNEL::Exception("Invalid cartesion mesh type ! Only Cartesian Grid supported ! Curvilinear grid will come soon !");
+    throw INTERP_KERNEL::Exception("Invalid structured mesh ! Expected cartesian mesh type !");
   _cmesh=MEDCouplingCMesh::New();
   for(int i=0;i<Mdim;i++)
     {
@@ -364,6 +392,36 @@ med_data_type MEDFileCMeshL2::GetDataTypeCorrespondingToSpaceId(int id) throw(IN
     }
 }
 
+MEDFileCLMeshL2::MEDFileCLMeshL2()
+{
+}
+
+void MEDFileCLMeshL2::loadAll(med_idt fid, int mId, const char *mName, int dt, int it) throw(INTERP_KERNEL::Exception)
+{
+  _name.set(mName);
+  int nstep;
+  int Mdim;
+  ParaMEDMEM::MEDCouplingMeshType meshType;
+  std::vector<std::string> infosOnComp=getAxisInfoOnMesh(fid,mId,mName,meshType,nstep,Mdim);
+  if(meshType!=CURVE_LINEAR)
+    throw INTERP_KERNEL::Exception("Invalid mesh type ! You are expected a structured one whereas in file it is not a structured !");
+  _time=CheckMeshTimeStep(fid,mName,nstep,dt,it);
+  _iteration=dt;
+  _order=it;
+  //
+  _clmesh=MEDCouplingCurveLinearMesh::New();
+  INTERP_KERNEL::AutoPtr<int> stGrid=new int[Mdim];
+  MEDmeshGridStructRd(fid,mName,dt,it,stGrid);
+  _clmesh->setNodeGridStructure(stGrid,((int *)stGrid)+Mdim);
+  med_bool chgt=MED_FALSE,trsf=MED_FALSE;
+  int nbNodes=MEDmeshnEntity(fid,mName,dt,it,MED_NODE,MED_NONE,MED_COORDINATE,MED_NO_CMODE,&chgt,&trsf);
+  MEDCouplingAutoRefCountObjectPtr<DataArrayDouble> da=DataArrayDouble::New();
+  da->alloc(nbNodes,infosOnComp.size());
+  da->setInfoOnComponents(infosOnComp);
+  MEDmeshNodeCoordinateRd(fid,mName,dt,it,MED_FULL_INTERLACE,da->getPointer());
+  _clmesh->setCoords(da);
+}
+
 MEDFileUMeshPermCompute::MEDFileUMeshPermCompute(const MEDFileUMeshSplitL1* st):_st(st),_mpt_time(0),_num_time(0)
 {
 }
@@ -378,27 +436,20 @@ MEDFileUMeshPermCompute::operator MEDCouplingUMesh *() const
   if((MEDCouplingUMesh *)_m==0)
     {
       updateTime();
-      MEDCouplingUMesh *ret=(MEDCouplingUMesh *)_st->_m_by_types->deepCpy();
-      _m=ret;
+      _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types->deepCpy());
       _m->renumberCells(_st->_num->getConstPointer(),true);
-      ret->incrRef();
-      return ret;
+      return _m.retn();
     }
   else
     {
       if(_mpt_time==_st->_m_by_types->getTimeOfThis() && _num_time==_st->_num->getTimeOfThis())
-        {
-          _m->incrRef();
-          return _m;
-        }
+        return _m.retn();
       else
         {
           updateTime();
-          MEDCouplingUMesh *ret=(MEDCouplingUMesh *)_st->_m_by_types->deepCpy();
-          _m=ret;
+          _m=static_cast<MEDCouplingUMesh *>(_st->_m_by_types->deepCpy());
           _m->renumberCells(_st->_num->getConstPointer(),true);
-          ret->incrRef();
-          return ret;
+          return _m.retn();
         }
     }
 }
@@ -412,6 +463,10 @@ void MEDFileUMeshPermCompute::updateTime() const
 {
   _mpt_time=_st->_m_by_types->getTimeOfThis();
   _num_time=_st->_num->getTimeOfThis();
+}
+
+MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshSplitL1& other):_m_by_types(other._m_by_types),_fam(other._fam),_num(other._num),_rev_num(other._rev_num),_m(this)
+{
 }
 
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(const MEDFileUMeshL2& l2, const char *mName, int id):_m(this)
@@ -461,6 +516,38 @@ MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m):_m(this)
 MEDFileUMeshSplitL1::MEDFileUMeshSplitL1(MEDCouplingUMesh *m, bool newOrOld):_m(this)
 {
   assignMesh(m,newOrOld);
+}
+
+std::size_t MEDFileUMeshSplitL1::getHeapMemorySize() const
+{
+  std::size_t ret=0;
+  if((const MEDCouplingUMesh *)_m_by_types)
+    {
+      ret+=_m_by_types->getHeapMemorySize();
+      if((const DataArrayDouble *)_m_by_types->getCoords())
+        ret-=_m_by_types->getCoords()->getHeapMemorySize();
+    }
+  if((const  DataArrayInt*)_fam)
+    ret+=_fam->getHeapMemorySize();
+  if((const  DataArrayInt*)_num)
+    ret+=_num->getHeapMemorySize();
+  if((const  DataArrayInt*)_rev_num)
+    ret+=_rev_num->getHeapMemorySize();
+  return ret;
+}
+
+MEDFileUMeshSplitL1 *MEDFileUMeshSplitL1::deepCpy() const
+{
+  MEDCouplingAutoRefCountObjectPtr<MEDFileUMeshSplitL1> ret=new MEDFileUMeshSplitL1(*this);
+  if((const MEDCouplingUMesh*)_m_by_types)
+    ret->_m_by_types=static_cast<MEDCouplingUMesh*>(_m_by_types->deepCpy());
+  if((const DataArrayInt *)_fam)
+    ret->_fam=_fam->deepCpy();
+  if((const DataArrayInt *)_num)
+    ret->_num=_num->deepCpy();
+  if((const DataArrayInt *)_rev_num)
+    ret->_rev_num=_rev_num->deepCpy();
+  return ret.retn();
 }
 
 bool MEDFileUMeshSplitL1::isEqual(const MEDFileUMeshSplitL1 *other, double eps, std::string& what) const
@@ -611,8 +698,7 @@ DataArrayInt *MEDFileUMeshSplitL1::getFamilyPartArr(const int *idsBg, const int 
   MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da=_fam->getIdsEqualList(idsBg,idsEnd);
   if(renum)
     return renumIfNeededArr(da);
-  da->incrRef();
-  return da;
+  return da.retn();
 }
 
 MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
@@ -622,8 +708,19 @@ MEDCouplingUMesh *MEDFileUMeshSplitL1::getWholeMesh(bool renum) const
     tmp=_m;
   else
     tmp=_m_by_types;
-  tmp->incrRef();
-  return tmp;
+  return tmp.retn();
+}
+
+DataArrayInt *MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField() throw(INTERP_KERNEL::Exception)
+{
+  if((DataArrayInt *)_fam)
+    return _fam;
+  MEDCouplingUMesh *m(_m_by_types);
+  if(!m)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshSplitL1::getOrCreateAndGetFamilyField : impossible to create a family field array because no mesh specified on this level !");
+  int nbOfTuples=m->getNumberOfCells();
+  _fam=DataArrayInt::New(); _fam->alloc(nbOfTuples,1); _fam->fillWithZero();
+  return _fam;
 }
 
 const DataArrayInt *MEDFileUMeshSplitL1::getFamilyField() const
@@ -684,6 +781,14 @@ void MEDFileUMeshSplitL1::write(med_idt fid, const char *mName, int mdim) const
       MEDFileUMeshPerType::write(fid,mName,mdim,(*it),fam,num);
       start=end;
     }
+}
+
+void MEDFileUMeshSplitL1::renumberNodesInConn(const int *newNodeNumbersO2N) throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingUMesh *m(_m_by_types);
+  if(!m)
+    return;
+  m->renumberNodesInConn(newNodeNumbersO2N);
 }
 
 void MEDFileUMeshSplitL1::changeFamilyIdArr(int oldId, int newId) throw(INTERP_KERNEL::Exception)

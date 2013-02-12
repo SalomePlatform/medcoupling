@@ -37,6 +37,7 @@ namespace ParaMEDMEM
   public:
     static MEDFileUMeshPerType *New(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType geoElt2);
     static bool isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity);
+    std::size_t getHeapMemorySize() const { return 0; }
     int getDim() const;
     const DataArrayInt *getNodal() const { return _conn; }
     const DataArrayInt *getNodalIndex() const { return _conn_index; }
