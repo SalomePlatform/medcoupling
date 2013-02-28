@@ -172,6 +172,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool isFullyQuadratic() const;
     MEDCOUPLING_EXPORT bool isPresenceOfQuadratic() const;
     MEDCOUPLING_EXPORT void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void tessellate2D(double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void tessellate2DCurve(double eps) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT DataArrayInt *simplexize(int policy) throw(INTERP_KERNEL::Exception);
@@ -270,6 +271,8 @@ namespace ParaMEDMEM
     static bool AreCellsEqualInPool(const std::vector<int>& candidates, int compType, const int *conn, const int *connI, DataArrayInt *result) ;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
+    DataArrayInt *convertLinearCellsToQuadratic1D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertLinearCellsToQuadratic2D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;

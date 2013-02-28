@@ -17,8 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __INTERPKERNELGAUSS_HXX__
-#define __INTERPKERNELGAUSS_HXX__
+#ifndef __INTERPKERNELGAUSSCOORDS_HXX__
+#define __INTERPKERNELGAUSSCOORDS_HXX__
 
 #include "INTERPKERNELDefines.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
@@ -157,4 +157,4 @@ namespace INTERP_KERNEL
     GaussInfoVector _my_gauss_info;
   };
 }
-#endif //INTERPKERNELGAUSS
+#endif //INTERPKERNELGAUSSCOORDS

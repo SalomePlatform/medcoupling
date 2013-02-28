@@ -286,6 +286,7 @@ namespace ParaMEDMEM
     void renumberArraysForCell(const MEDCouplingMesh *mesh, const std::vector<DataArrayDouble *>& arrays,
                                const int *old2NewBg, bool check) throw(INTERP_KERNEL::Exception);
     DataArrayDouble *getLocalizationOfDiscValues(const MEDCouplingMesh *mesh) const;
+    void integral(const MEDCouplingMesh *mesh, const DataArrayDouble *arr, bool isWAbs, double *res) const throw(INTERP_KERNEL::Exception);
     void computeMeshRestrictionFromTupleIds(const MEDCouplingMesh *mesh, const int *partBg, const int *partEnd,
                                             DataArrayInt *&cellRest);
     void checkCompatibilityWithNature(NatureOfField nat) const throw(INTERP_KERNEL::Exception);
@@ -300,11 +301,29 @@ namespace ParaMEDMEM
     void renumberValuesOnNodes(double epsOnVals, const int *old2New, int newNbOfNodes, DataArrayDouble *arr) const;
     void renumberValuesOnCells(double epsOnVals, const MEDCouplingMesh *mesh, const int *old2New, int newSz, DataArrayDouble *arr) const;
     void renumberValuesOnCellsR(const MEDCouplingMesh *mesh, const int *new2old, int newSz, DataArrayDouble *arr) const;
+    static const double *GetWeightArrayFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType, std::size_t& lgth) throw(INTERP_KERNEL::Exception);
   protected:
     MEDCouplingFieldDiscretizationGaussNE(const MEDCouplingFieldDiscretizationGaussNE& other);
   public:
     static const char REPR[];
     static const TypeOfField TYPE;
+    static const double FGP_SEG2[2];
+    static const double FGP_SEG3[3];
+    static const double FGP_SEG4[4];
+    static const double FGP_TRI3[3];
+    static const double FGP_TRI6[6];
+    static const double FGP_TRI7[7];
+    static const double FGP_QUAD4[4];
+    //static const double FGP_QUAD8[8];
+    static const double FGP_QUAD9[9];
+    static const double FGP_TETRA4[4];
+    //static const double FGP_TETRA10[10];
+    static const double FGP_PENTA6[6];
+    //static const double FGP_PENTA15[15];
+    static const double FGP_HEXA8[8];
+    static const double FGP_HEXA27[27];
+    static const double FGP_PYRA5[5];
+    //static const double FGP_PYRA13[13];
   };
 
   class MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationKriging : public MEDCouplingFieldDiscretizationOnNodes

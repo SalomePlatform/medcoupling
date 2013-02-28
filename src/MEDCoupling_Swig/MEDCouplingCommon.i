@@ -251,6 +251,8 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::DataArrayDoubleTuple::buildDADouble;
 %newobject ParaMEDMEM::MEDCouplingMesh::deepCpy;
 %newobject ParaMEDMEM::MEDCouplingMesh::checkTypeConsistencyAndContig;
+%newobject ParaMEDMEM::MEDCouplingMesh::computeNbOfNodesPerCell;
+%newobject ParaMEDMEM::MEDCouplingMesh::giveCellsWithType;
 %newobject ParaMEDMEM::MEDCouplingMesh::getCoordinatesAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::getBarycenterAndOwner;
 %newobject ParaMEDMEM::MEDCouplingMesh::buildOrthogonalField;
@@ -277,13 +279,11 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__iter__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::__getitem__;
 %newobject ParaMEDMEM::MEDCouplingUMesh::cellsByType;
-%newobject ParaMEDMEM::MEDCouplingUMesh::giveCellsWithType;
 %newobject ParaMEDMEM::MEDCouplingUMesh::zipConnectivityTraducer;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDescendingConnectivity2;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildExtrudedMesh;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildSpreadZonesWithPoly;
-%newobject ParaMEDMEM::MEDCouplingUMesh::computeNbOfNodesPerCell;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshes;
 %newobject ParaMEDMEM::MEDCouplingUMesh::MergeUMeshesOnSameCoords;
 %newobject ParaMEDMEM::MEDCouplingUMesh::ComputeSpreadZoneGradually;
@@ -295,6 +295,7 @@ using namespace INTERP_KERNEL;
 %newobject ParaMEDMEM::MEDCouplingUMesh::computeFetchedNodeIds;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getRenumArrForConsecutiveCellTypesSpec;
 %newobject ParaMEDMEM::MEDCouplingUMesh::buildDirectionVectorField;
+%newobject ParaMEDMEM::MEDCouplingUMesh::convertLinearCellsToQuadratic;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getEdgeRatioField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getAspectRatioField;
 %newobject ParaMEDMEM::MEDCouplingUMesh::getWarpField;
@@ -491,6 +492,8 @@ namespace ParaMEDMEM
     virtual int getMeshDimension() const throw(INTERP_KERNEL::Exception);
     virtual DataArrayDouble *getCoordinatesAndOwner() const throw(INTERP_KERNEL::Exception);
     virtual DataArrayDouble *getBarycenterAndOwner() const throw(INTERP_KERNEL::Exception);
+    virtual DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
+    virtual DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     virtual int getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     virtual INTERP_KERNEL::NormalizedCellType getTypeOfCell(int cellId) const throw(INTERP_KERNEL::Exception);
     virtual std::string simpleRepr() const;
@@ -1375,7 +1378,6 @@ namespace ParaMEDMEM
     int getNumberOfNodesInCell(int cellId) const throw(INTERP_KERNEL::Exception);
     int getMeshLength() const throw(INTERP_KERNEL::Exception);
     void computeTypes() throw(INTERP_KERNEL::Exception);
-    DataArrayInt *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception);
     std::string reprConnectivityOfThis() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildSetInstanceFromThis(int spaceDim) const throw(INTERP_KERNEL::Exception);
     //tools
@@ -1390,7 +1392,6 @@ namespace ParaMEDMEM
     DataArrayInt *convertCellArrayPerGeoType(const DataArrayInt *da) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *computeFetchedNodeIds() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *zipConnectivityTraducer(int compType, int startCellId=0) throw(INTERP_KERNEL::Exception);
-    DataArrayInt *computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     void orientCorrectlyPolyhedrons() throw(INTERP_KERNEL::Exception);
@@ -1400,6 +1401,7 @@ namespace ParaMEDMEM
     void tessellate2D(double eps) throw(INTERP_KERNEL::Exception);
     void tessellate2DCurve(double eps) throw(INTERP_KERNEL::Exception);
     void convertQuadraticCellsToLinear() throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertLinearCellsToQuadratic(int conversionType=0) throw(INTERP_KERNEL::Exception);
     void convertDegeneratedCells() throw(INTERP_KERNEL::Exception);
     bool areOnlySimplexCells() const throw(INTERP_KERNEL::Exception);
     MEDCouplingFieldDouble *getEdgeRatioField() const throw(INTERP_KERNEL::Exception);
@@ -3507,7 +3509,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -3547,7 +3549,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -3587,7 +3589,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -3627,7 +3629,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -3700,27 +3702,18 @@ namespace ParaMEDMEM
          }
        case 11:
          {
-           int bb=pt1.first;
-           int ee=pt1.second.first;
-           int ss=pt1.second.second;
-           if(ee<bb || ss<=0)
-             throw INTERP_KERNEL::Exception("Invalid slice in tuple selection");
-           int nbOfE=(ee-bb)/ss;
-           std::vector<int> nv(nbOfE);
-           for(int jj=0;jj<nbOfE;jj++)
-             nv[jj]=bb+jj*ss;
            switch(sw1)
              {
              case 1:
-               self->setPartOfValuesSimple2(i1,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
+               self->setPartOfValuesSimple4(i1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
                return self;
              case 2:
                tmp=DataArrayDouble::New();
                tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-               self->setPartOfValues2(tmp,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size(),false);
+               self->setPartOfValues4(tmp,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
-               self->setPartOfValues2(d1,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
+               self->setPartOfValues4(d1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -3756,7 +3749,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayDouble::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second,false);
                return self;
              case 3:
@@ -3796,7 +3789,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                  tmp=DataArrayDouble::New();
-                 tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+                 tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                  self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second,false);
                  return self;
              case 3:
@@ -5391,7 +5384,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,it1,it1+1,1,0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -5439,7 +5432,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,0,nbOfComponents,1,false);
                return self;
              case 3:
@@ -5487,7 +5480,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,it1,it1+1,1,ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -5535,7 +5528,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,ic1,ic1+1,1,false);
                return self;
              case 3:
@@ -5624,31 +5617,22 @@ namespace ParaMEDMEM
          }
        case 11:
          {
-           int bb=pt1.first;
-           int ee=pt1.second.first;
-           int ss=pt1.second.second;
-           if(ee<bb || ss<=0)
-             throw INTERP_KERNEL::Exception("Invalid slice in tuple selection");
-           int nbOfE=(ee-bb)/ss;
-           std::vector<int> nv(nbOfE);
-           for(int jj=0;jj<nbOfE;jj++)
-             nv[jj]=bb+jj*ss;
            switch(sw1)
              {
              case 1:
-               self->setPartOfValuesSimple2(i1,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
+               self->setPartOfValuesSimple4(i1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
                return self;
              case 2:
                tmp=DataArrayInt::New();
                tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
-               self->setPartOfValues2(tmp,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size(),false);
+               self->setPartOfValues4(tmp,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size(),false);
                return self;
              case 3:
-               self->setPartOfValues2(d1,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
+               self->setPartOfValues4(d1,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
                return self;
              case 4:
                tmp=dd1->buildDAInt(1,self->getNumberOfComponents());
-               self->setPartOfValues2(tmp,&nv[0],&nv[0]+nv.size(),&vc1[0],&vc1[0]+vc1.size());
+               self->setPartOfValues4(tmp,pt1.first,pt1.second.first,pt1.second.second,&vc1[0],&vc1[0]+vc1.size());
                return self;
              default:
                throw INTERP_KERNEL::Exception(msg);
@@ -5688,7 +5672,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                tmp=DataArrayInt::New();
-               tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+               tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                self->setPartOfValues1(tmp,it1,it1+1,1,pc1.first,pc1.second.first,pc1.second.second,false);
                return self;
              case 3:
@@ -5736,7 +5720,7 @@ namespace ParaMEDMEM
                return self;
              case 2:
                  tmp=DataArrayInt::New();
-                 tmp->useArray(&v1[0],false,CPP_DEALLOC,v1.size(),1);
+                 tmp->useArray(&v1[0],false,CPP_DEALLOC,1,v1.size());
                  self->setPartOfValues1(tmp,pt1.first,pt1.second.first,pt1.second.second,pc1.first,pc1.second.first,pc1.second.second,false);
                  return self;
              case 3:
@@ -6353,6 +6337,7 @@ namespace ParaMEDMEM
     virtual bool areCompatibleForMerge(const MEDCouplingField *other) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const throw(INTERP_KERNEL::Exception);
+    virtual void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
     void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh) throw(INTERP_KERNEL::Exception);
     void setName(const char *name) throw(INTERP_KERNEL::Exception);
     const char *getDescription() const throw(INTERP_KERNEL::Exception);
@@ -6503,8 +6488,8 @@ namespace ParaMEDMEM
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
     void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
-    void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);

@@ -2219,7 +2219,7 @@ MEDCouplingFieldDouble *MEDFileFieldPerMesh::finishFieldNode2(const MEDFileField
   int nnodes=mesh2->getNumberOfNodes();
   if(nnodes==da->getNbOfElems())
     {
-      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da3=da->transformWithIndArrR(arr2->getConstPointer(),arr2->getConstPointer()+arr2->getNbOfElems());
+      MEDCouplingAutoRefCountObjectPtr<DataArrayInt> da3=da->transformWithIndArrR(arr2->begin(),arr2->end());
       ret->getArray()->renumberInPlace(da3->getConstPointer());
       mesh2->setName(mesh->getName());
       ret->setMesh(mesh2);
@@ -5011,6 +5011,9 @@ MEDFileFieldMultiTS *MEDFileFieldMultiTS::deepCpy() const throw(INTERP_KERNEL::E
   return ret.retn();
 }
 
+/*!
+ * \return a new allocated object that the caller should deal with.
+ */
 MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepAtPos(int pos) const throw(INTERP_KERNEL::Exception)
 {
   const MEDFileField1TSWithoutSDA *item=_content->getTimeStepAtPos2(pos);
@@ -5019,12 +5022,18 @@ MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepAtPos(int pos) const throw(INTE
   return ret.retn();
 }
 
+/*!
+ * \return a new allocated object that the caller should deal with.
+ */
 MEDFileField1TS *MEDFileFieldMultiTS::getTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception)
 {
   int pos=getPosOfTimeStep(iteration,order);
   return getTimeStepAtPos(pos);
 }
 
+/*!
+ * \return a new allocated object that the caller should deal with.
+ */
 MEDFileField1TS *MEDFileFieldMultiTS::getTimeStepGivenTime(double time, double eps) const throw(INTERP_KERNEL::Exception)
 {
   int pos=getPosGivenTime(time,eps);

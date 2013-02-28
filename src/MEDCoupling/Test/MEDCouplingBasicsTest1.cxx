@@ -274,6 +274,7 @@ void MEDCouplingBasicsTest1::testMeshPointsCloud()
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+6);
   targetMesh->insertNextCell(INTERP_KERNEL::NORM_POINT1,1,targetConn+7);
   targetMesh->finishInsertingCells();
+  CPPUNIT_ASSERT_THROW(targetMesh->checkCoherency(),INTERP_KERNEL::Exception);
   DataArrayDouble *myCoords=DataArrayDouble::New();
   myCoords->alloc(9,3);
   std::copy(targetCoords,targetCoords+27,myCoords->getPointer());

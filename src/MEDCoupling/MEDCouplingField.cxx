@@ -395,3 +395,15 @@ int MEDCouplingField::getNumberOfMeshPlacesExpected() const throw(INTERP_KERNEL:
   else
     throw INTERP_KERNEL::Exception("MEDCouplingField::getNumberOfMeshPlacesExpected : Empty mesh !");
 }
+
+/*!
+ * Copy tiny info (component names, name, description) but warning the underlying mesh is not renamed (for safety reason).
+ */
+void MEDCouplingField::copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception)
+{
+  if(other)
+    {
+      setName(other->_name.c_str());
+      setDescription(other->_desc.c_str());    
+    }
+}

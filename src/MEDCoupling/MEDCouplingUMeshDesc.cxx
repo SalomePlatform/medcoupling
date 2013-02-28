@@ -158,6 +158,16 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMeshDesc::getAllGeoTypes
   return _types;
 }
 
+DataArrayInt *MEDCouplingUMeshDesc::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::giveCellsWithType : not implemented yet !");
+}
+
+DataArrayInt *MEDCouplingUMeshDesc::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  throw INTERP_KERNEL::Exception("MEDCouplingUMeshDesc::computeNbOfNodesPerCell : not implemented yet !");
+}
+
 int MEDCouplingUMeshDesc::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   const int *desc_connec=_desc_connec->getConstPointer();

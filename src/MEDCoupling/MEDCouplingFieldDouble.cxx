@@ -176,13 +176,13 @@ MEDCouplingFieldDouble *MEDCouplingFieldDouble::buildNewTimeReprFromThis(TypeOfT
 /*!
  * Copy tiny info (component names, name, description) but warning the underlying mesh is not renamed (for safety reason).
  */
-void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
+void MEDCouplingFieldDouble::copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception)
 {
-  if(other)
+  MEDCouplingField::copyTinyStringsFrom(other);
+  const MEDCouplingFieldDouble *otherC=dynamic_cast<const MEDCouplingFieldDouble *>(other);
+  if(otherC)
     {
-      setName(other->_name.c_str());
-      setDescription(other->_desc.c_str());
-      _time_discr->copyTinyStringsFrom(*other->_time_discr);
+      _time_discr->copyTinyStringsFrom(*otherC->_time_discr);
     }
 }
 
@@ -196,6 +196,13 @@ void MEDCouplingFieldDouble::copyTinyAttrFrom(const MEDCouplingFieldDouble *othe
     {
       _time_discr->copyTinyAttrFrom(*other->_time_discr);
     }
+  
+}
+
+void MEDCouplingFieldDouble::copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception)
+{
+  copyTinyStringsFrom(other);
+  copyTinyAttrFrom(other);
 }
 
 std::string MEDCouplingFieldDouble::simpleRepr() const

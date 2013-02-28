@@ -29,6 +29,7 @@ class MEDLoaderTest(unittest.TestCase):
         fileName="Pyfile18.med"
         mname="ExampleOfMultiDimW"
         medmesh=MEDFileMesh.New(fileName,mname)
+        self.assertRaises(InterpKernelException,MEDFileMesh.New,fileName,"")
         self.assertEqual((0,-1),medmesh.getNonEmptyLevels())
         m1_0=medmesh.getLevel0Mesh(True)
         m1_1=MEDLoader.ReadUMeshFromFile(fileName,mname,0)
@@ -2004,6 +2005,59 @@ class MEDLoaderTest(unittest.TestCase):
         self.assertTrue(m1.getMesh().isEqual(mesh,1e-12))
         pass
 
+    def testParameters1(self):
+        fname="Pyfile56.med"
+        m=MEDCouplingCMesh() ; arr=DataArrayDouble([0.,1.2,3.5]) ; m.setCoords(arr,arr) ; m.setName("mesh")
+        mm=MEDFileCMesh() ; mm.setMesh(m)
+        ms=MEDFileMeshes() ; ms.pushMesh(mm)
+        data=MEDFileData()
+        p=MEDFileParameters()
+        data.setParams(p) ; data.setMeshes(ms)
+        pts=MEDFileParameterMultiTS()
+        pts.setName("A") ; pts.setDescription("An example of parameter") ; pts.setTimeUnit("ms")
+        pts.appendValue(1,2,3.4,567.89)
+        pts.appendValue(2,3,5.6,999.123)
+        pts2=pts.deepCpy() ; pts2.setName("B") ; pts2.setDescription("A second example")
+        p.pushParam(pts) ; p.pushParam(pts2)
+        data.write(fname,2)
+        p2=MEDFileParameters(fname)
+        self.assertTrue(p.isEqual(p2,1e-14)[0])
+        self.assertAlmostEqual(p[1][1,2].getValue(),567.89,13)
+        p3=p.deepCpy()
+        pts4=pts2.deepCpy()
+        pts3=pts2.deepCpy()
+        self.assertTrue(pts3.isEqual(pts2,1e-14)[0])
+        pts2.eraseTimeStepIds([0])
+        self.assertTrue(not pts3.isEqual(pts2,1e-14)[0])
+        del pts3[[3.4]]
+        self.assertTrue(pts3.isEqual(pts2,1e-14)[0])
+        self.assertRaises(InterpKernelException,p[1].__getitem__,(1,2))
+        self.assertRaises(InterpKernelException,p["B"].__getitem__,(1,2))
+        self.assertAlmostEqual(p[0][1,2].getValue(),567.89,13)
+        self.assertAlmostEqual(p["A"][1,2].getValue(),567.89,13)
+        p=p3
+        self.assertTrue(p.isEqual(p2,1e-14)[0])
+        self.assertTrue(p2["B"].isEqual(pts,1e-14)[0])
+        self.assertTrue(not p2["B"].isEqual(pts2,1e-14)[0])
+        self.assertAlmostEqual(p2[0][1,2].getValue(),567.89,13)
+        self.assertEqual(p.getParamsNames(),('A','B'))
+        ptsr=MEDFileParameterMultiTS(fname,"B")
+        self.assertTrue(ptsr.isEqual(pts4,1e-14)[0])
+        ptsr=MEDFileParameterMultiTS(fname)
+        self.assertTrue(ptsr.isEqual(pts,1e-14)[0])
+        p1tsr=MEDFileParameterDouble1TS(fname)
+        self.assertEqual(p1tsr.getName(),"A")
+        self.assertAlmostEqual(p1tsr.getValue(),567.89,13)
+        p1tsr=MEDFileParameterDouble1TS(fname,"B")
+        self.assertEqual(p1tsr.getName(),"B")
+        self.assertAlmostEqual(p1tsr.getValue(),567.89,13)
+        p1tsr=MEDFileParameterDouble1TS(fname,"B",2,3)
+        self.assertEqual(p1tsr.getName(),"B")
+        self.assertAlmostEqual(p1tsr.getValue(),999.123,13)
+        data2=MEDFileData(fname)
+        self.assertEqual(2,data2.getNumberOfParams())
+        self.assertAlmostEqual(data2.getParams()["B"][1,2].getValue(),567.89,13)
+        pass
     pass
 
 unittest.main()

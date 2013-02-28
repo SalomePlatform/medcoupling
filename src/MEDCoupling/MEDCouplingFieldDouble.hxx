@@ -38,8 +38,9 @@ namespace ParaMEDMEM
     void setTimeUnit(const char *unit);
     const char *getTimeUnit() const;
     void synchronizeTimeWithSupport() throw(INTERP_KERNEL::Exception);
-    void copyTinyStringsFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
     void copyTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
+    void copyAllTinyAttrFrom(const MEDCouplingFieldDouble *other) throw(INTERP_KERNEL::Exception);
     std::string simpleRepr() const;
     std::string advancedRepr() const;
     void writeVTK(const char *fileName) const throw(INTERP_KERNEL::Exception);

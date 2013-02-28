@@ -40,7 +40,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
         srcField.setArray(array);
+        srcField.setName("abc") ; srcField.setDescription("def")
+        srcField.setTime(7.7,9,10)
         trgfield=remapper.transferField(srcField,4.57);
+        self.assertEqual("abc",trgfield.getName())
+        self.assertEqual("def",trgfield.getDescription())
+        a,b,c=trgfield.getTime()
+        self.assertAlmostEqual(7.7,a,14)
+        self.assertEqual(b,9)
+        self.assertEqual(c,10)
         values=trgfield.getArray().getValues();
         valuesExpected=[7.5 ,7. ,7.,8.,7.5];
         for i in xrange(targetMesh.getNumberOfCells()):
@@ -317,6 +325,34 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         expected2=DataArrayDouble([41.12])
         self.assertTrue(f11.getArray().isEqual(expected2,1e-13))
         self.assertTrue(f22.getArray().isEqual(expected2,1e-13))
+        pass
+
+    def testCellToNodeReverse3D(self):
+        c=DataArrayDouble([0.,1.,2.5])
+        cc=MEDCouplingCMesh()
+        cc.setCoords(c,c,c)
+        um=cc.buildUnstructured()
+        f=um.getMeasureField(ON_CELLS)
+        #
+        n2o=um.simplexize(PLANAR_FACE_5)
+        f.setArray(f.getArray()[n2o])
+        f.checkCoherency()
+        f.setNature(ConservativeVolumic)
+        f.setTime(5.6,7,8)
+        f.setName("toto") ; f.setDescription("aDescription")
+        p=MEDCouplingRemapper()
+        p.setP1P0BaryMethod(True)
+        p.prepare(um,um,"P1P0")
+        fNode=p.reverseTransferField(f,1e300)
+        self.assertEqual("toto",fNode.getName())
+        self.assertEqual("aDescription",fNode.getDescription())
+        a,b,c=fNode.getTime()
+        self.assertAlmostEqual(5.6,a,14)
+        self.assertEqual(7,b) ; self.assertEqual(8,c)
+        #
+        integExpected=34.328125
+        self.assertAlmostEqual(fNode.integral(False)[0],integExpected,14)
+        self.assertAlmostEqual(f.integral(False)[0],integExpected,14)
         pass
     
     def build2DSourceMesh_1(self):

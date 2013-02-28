@@ -58,6 +58,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
     INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const;
     INTERPKERNEL_EXPORT NormalizedCellType getExtrudedType() const { return _extruded_type; }
+    INTERPKERNEL_EXPORT NormalizedCellType getReverseExtrudedType() const { return _reverse_extruded_type; }
     INTERPKERNEL_EXPORT NormalizedCellType getLinearType() const { return _linear_type; }
     INTERPKERNEL_EXPORT NormalizedCellType getQuadraticType() const { return _quadratic_type; }
     INTERPKERNEL_EXPORT NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
@@ -74,6 +75,7 @@ namespace INTERP_KERNEL
     unsigned _nb_of_sons;
     NormalizedCellType _type;
     NormalizedCellType _extruded_type;
+    NormalizedCellType _reverse_extruded_type;
     NormalizedCellType _linear_type;
     NormalizedCellType _quadratic_type;
     unsigned _sons_con[MAX_NB_OF_SONS][MAX_NB_OF_NODES_PER_ELEM];

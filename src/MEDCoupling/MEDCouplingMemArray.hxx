@@ -168,6 +168,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void cpyFrom(const DataArrayDouble& other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reserve(int nbOfElems) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void pushBackSilent(double val) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void pushBackValsSilent(const double *valsBg, const double *valsEnd) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT double popBackSilent() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void pack() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
@@ -222,6 +223,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setPartOfValuesSimple2(double a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValues3(const DataArrayDouble *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesSimple3(double a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setPartOfValues4(const DataArrayDouble *a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setPartOfValuesSimple4(double a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesAdv(const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArrayDouble *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayDouble *a, int bg, int end2, int step) throw(INTERP_KERNEL::Exception);
@@ -373,6 +376,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void cpyFrom(const DataArrayInt& other) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void reserve(int nbOfElems) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void pushBackSilent(int val) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void pushBackValsSilent(const int *valsBg, const int *valsEnd) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int popBackSilent() throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void pack() const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT int getNbOfElemAllocated() const { return _mem.getNbOfElemAllocated(); }
@@ -440,6 +444,8 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT void setPartOfValuesSimple2(int a, const int *bgTuples, const int *endTuples, const int *bgComp, const int *endComp) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValues3(const DataArrayInt *a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesSimple3(int a, const int *bgTuples, const int *endTuples, int bgComp, int endComp, int stepComp) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setPartOfValues4(const DataArrayInt *a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp, bool strictCompoCompare=true) throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT void setPartOfValuesSimple4(int a, int bgTuples, int endTuples, int stepTuples, const int *bgComp, const int *endComp) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setPartOfValuesAdv(const DataArrayInt *a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues(int tupleIdStart, const DataArrayInt*a, const DataArrayInt *tuplesSelec) throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayInt *a, int bg, int end2, int step) throw(INTERP_KERNEL::Exception);

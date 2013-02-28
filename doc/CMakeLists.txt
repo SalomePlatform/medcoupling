@@ -17,7 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(MEDMEM)
 ADD_SUBDIRECTORY(salome)
 ADD_SUBDIRECTORY(doxygen)
 

@@ -71,45 +71,42 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingStructuredMesh::getTypeOfCell(int c
 
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingStructuredMesh::getAllGeoTypes() const
 {
-  INTERP_KERNEL::NormalizedCellType ret;
-  switch(getMeshDimension())
-    {
-    case 3:
-      ret=INTERP_KERNEL::NORM_HEXA8;
-      break;
-    case 2:
-      ret=INTERP_KERNEL::NORM_QUAD4;
-      break;
-    case 1:
-      ret=INTERP_KERNEL::NORM_SEG2;
-      break;
-    default:
-      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingStructuredMesh::getAllGeoTypes !");
-    }
   std::set<INTERP_KERNEL::NormalizedCellType> ret2;
-  ret2.insert(ret);
+  ret2.insert(getTypeOfCell(0));
   return ret2;
 }
 
 int MEDCouplingStructuredMesh::getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const
 {
   int ret=getNumberOfCells();
-  int dim=getMeshDimension();
-  switch(type)
+  if(type==getTypeOfCell(0))
+    return ret;
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
+  std::ostringstream oss; oss << "MEDCouplingStructuredMesh::getNumberOfCellsWithType : no specified type ! Type available is " << cm.getRepr() << " !";
+  throw INTERP_KERNEL::Exception(oss.str().c_str());
+}
+
+DataArrayInt *MEDCouplingStructuredMesh::giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const throw(INTERP_KERNEL::Exception)
+{
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  if(getTypeOfCell(0)==type)
     {
-    case INTERP_KERNEL::NORM_HEXA8:
-      if(dim==3)
-        return ret;
-    case INTERP_KERNEL::NORM_QUAD4:
-      if(dim==2)
-        return ret;
-    case INTERP_KERNEL::NORM_SEG2:
-      if(dim==1)
-        return ret;
-    default:
-      throw INTERP_KERNEL::Exception("Unexpected dimension for MEDCouplingStructuredMesh::getTypeOfCell !");
+      ret->alloc(getNumberOfCells(),1);
+      ret->iota(0);
     }
-  return 0;
+  else
+    ret->alloc(0,1);
+  return ret.retn();
+}
+
+DataArrayInt *MEDCouplingStructuredMesh::computeNbOfNodesPerCell() const throw(INTERP_KERNEL::Exception)
+{
+  int nbCells=getNumberOfCells();
+  MEDCouplingAutoRefCountObjectPtr<DataArrayInt> ret=DataArrayInt::New();
+  ret->alloc(nbCells,1);
+  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(getTypeOfCell(0));
+  ret->fillWithValue((int)cm.getNumberOfNodes());
+  return ret.retn();
 }
 
 void MEDCouplingStructuredMesh::getNodeIdsOfCell(int cellId, std::vector<int>& conn) const

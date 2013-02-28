@@ -50,6 +50,7 @@ namespace ParaMEDMEM
     virtual bool isEqualIfNotWhy(const MEDCouplingField *other, double meshPrec, double valsPrec, std::string& reason) const throw(INTERP_KERNEL::Exception);
     virtual bool isEqual(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
     virtual bool isEqualWithoutConsideringStr(const MEDCouplingField *other, double meshPrec, double valsPrec) const;
+    virtual void copyTinyStringsFrom(const MEDCouplingField *other) throw(INTERP_KERNEL::Exception);
     void setMesh(const ParaMEDMEM::MEDCouplingMesh *mesh);
     const ParaMEDMEM::MEDCouplingMesh *getMesh() const { return _mesh; }
     void setName(const char *name) { _name=name; }

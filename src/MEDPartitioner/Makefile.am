@@ -121,7 +121,7 @@ medpartitioner_LDADD= $(libmedpartitioner_la_LDFLAGS) -lm libmedpartitioner.la
 medpartitioner_CXXFLAGS = @CXXTMPDPTHFLAGS@
 
 if MED_ENABLE_PARMETIS
-  bin_PROGRAMS=medpartitioner_para
+  bin_PROGRAMS+=medpartitioner_para
   dist_medpartitioner_para_SOURCES= medpartitioner_para.cxx
   medpartitioner_para_CPPFLAGS= $(libmedpartitioner_la_CPPFLAGS)
   medpartitioner_para_LDADD= $(libmedpartitioner_la_LDFLAGS) -lm libmedpartitioner.la

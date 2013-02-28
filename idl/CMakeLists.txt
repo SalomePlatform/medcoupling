@@ -18,7 +18,7 @@
 #
 # Author : Anthony Geay (CEA/DEN)
 
-INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/UseOMNIORB.cmake)
+INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/UseOMNIORB.cmake)
 
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIRS}
