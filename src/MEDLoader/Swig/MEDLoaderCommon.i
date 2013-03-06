@@ -829,7 +829,7 @@ namespace ParaMEDMEM
            return MEDFileMeshes::New(fileName);
          }
 
-         std::string __str__() const
+         std::string __str__() const throw(INTERP_KERNEL::Exception)
            {
              return self->simpleRepr();
            }
@@ -1716,7 +1716,7 @@ namespace ParaMEDMEM
   public:
     void setValue(double val) throw(INTERP_KERNEL::Exception);
     double getValue() const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
+    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     %extend
     {
       std::string __str__() const throw(INTERP_KERNEL::Exception)
@@ -1743,7 +1743,7 @@ namespace ParaMEDMEM
     static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName) throw(INTERP_KERNEL::Exception);
     static MEDFileParameterDouble1TS *New(const char *fileName, const char *paramName, int dt, int it) throw(INTERP_KERNEL::Exception);
     virtual MEDFileParameter1TS *deepCpy() const throw(INTERP_KERNEL::Exception);
-    virtual std::string simpleRepr() const;
+    virtual std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     void setName(const char *name) throw(INTERP_KERNEL::Exception);
     const char *getName() const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
@@ -1798,7 +1798,7 @@ namespace ParaMEDMEM
     void setName(const char *name);
     MEDFileParameterMultiTS *deepCpy() const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
+    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     void appendValue(int dt, int it, double time, double val) throw(INTERP_KERNEL::Exception);
     double getDoubleValue(int iteration, int order) const throw(INTERP_KERNEL::Exception);
     int getPosOfTimeStep(int iteration, int order) const throw(INTERP_KERNEL::Exception);
@@ -1989,7 +1989,7 @@ namespace ParaMEDMEM
     MEDFileParameters *deepCpy() const throw(INTERP_KERNEL::Exception);
     void write(const char *fileName, int mode) const throw(INTERP_KERNEL::Exception);
     std::vector<std::string> getParamsNames() const throw(INTERP_KERNEL::Exception);
-    std::string simpleRepr() const;
+    std::string simpleRepr() const throw(INTERP_KERNEL::Exception);
     void resize(int newSize) throw(INTERP_KERNEL::Exception);
     void pushParam(MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);
     void setParamAtPos(int i, MEDFileParameterMultiTS *param) throw(INTERP_KERNEL::Exception);

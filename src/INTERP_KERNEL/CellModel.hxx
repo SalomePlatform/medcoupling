@@ -37,6 +37,7 @@ namespace INTERP_KERNEL
   public:
     static const unsigned MAX_NB_OF_SONS=8;
     static const unsigned MAX_NB_OF_NODES_PER_ELEM=30;
+    static const unsigned MAX_NB_OF_LITTLE_SONS=12;
   private:
     CellModel(NormalizedCellType type);
     static void buildUniqueInstance();
@@ -55,6 +56,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT unsigned getNumberOfNodes() const { return _nb_of_pts; }
     INTERPKERNEL_EXPORT unsigned getNumberOfSons() const { return _nb_of_sons; }
     INTERPKERNEL_EXPORT unsigned getNumberOfSons2(const int *conn, int lgth) const;
+    INTERPKERNEL_EXPORT unsigned getNumberOfEdgesIn3D(const int *conn, int lgth) const;
     INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
     INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const int *nodalConn, int lgth) const;
     INTERPKERNEL_EXPORT NormalizedCellType getExtrudedType() const { return _extruded_type; }
@@ -65,6 +67,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT NormalizedCellType getSonType2(unsigned sonId) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity(int sonId, const int *nodalConn, int *sonNodalConn) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity2(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
+    INTERPKERNEL_EXPORT unsigned fillSonEdgesNodalConnectivity3D(int sonId, const int *nodalConn, int lgth, int *sonNodalConn, NormalizedCellType& typeOfSon) const;
   private:
     bool _dyn;
     bool _quadratic;
@@ -73,12 +76,14 @@ namespace INTERP_KERNEL
     unsigned _dim;
     unsigned _nb_of_pts;
     unsigned _nb_of_sons;
+    unsigned _nb_of_little_sons;
     NormalizedCellType _type;
     NormalizedCellType _extruded_type;
     NormalizedCellType _reverse_extruded_type;
     NormalizedCellType _linear_type;
     NormalizedCellType _quadratic_type;
     unsigned _sons_con[MAX_NB_OF_SONS][MAX_NB_OF_NODES_PER_ELEM];
+    unsigned _little_sons_con[MAX_NB_OF_LITTLE_SONS][3];
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];
     NormalizedCellType _sons_type[MAX_NB_OF_SONS];
     static std::map<NormalizedCellType,CellModel> _map_of_unique_instance;

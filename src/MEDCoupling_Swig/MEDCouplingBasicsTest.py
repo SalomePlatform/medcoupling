@@ -11257,6 +11257,59 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(d.isEqual(DataArrayInt([0,0,3,9,0,0,3,9,0,0,3,9],6,2)))
         pass
 
+    def testSwig2ConvertLinearCellsToQuadratic1(self):
+        coordsExp=DataArrayDouble([-0.3,-0.3,0.2,-0.3,0.7,-0.3,-0.3,0.2,0.2,0.2,0.7,0.2,-0.3,0.7,0.2,0.7,0.7,0.7,-0.3,-0.05,-0.05,0.2,0.2,-0.05,-0.05,-0.3,0.45,-0.05,0.45,-0.3,0.45,0.2,0.7,-0.05,-0.05,0.7,0.2,0.45,-0.3,0.45,0.45,0.7,0.7,0.45],22,2)
+        # 2D
+        m2D=MEDCouplingDataForTest.build2DTargetMesh_1()
+        m2D.convertLinearCellsToQuadratic(0)
+        m2D.checkCoherency1()
+        self.assertEqual(m2D.getNodalConnectivity().getValues(),[8,0,3,4,1,9,10,11,12,6,1,4,2,11,13,14,6,4,5,2,15,16,13,8,6,7,4,3,17,18,10,19,8,7,8,5,4,20,21,15,18])
+        self.assertEqual(m2D.getNodalConnectivityIndex().getValues(),[0,9,16,23,32,41])
+        self.assertTrue(m2D.getCoords().isEqual(coordsExp,1e-14))
+        # 1D
+        m1D=MEDCouplingDataForTest.build2DTargetMesh_1().buildDescendingConnectivity()[0]
+        m1D.convertLinearCellsToQuadratic(0)
+        m1D.checkCoherency1()
+        self.assertEqual(m1D.getNodalConnectivity().getValues(),[2,0,3,9,2,3,4,10,2,4,1,11,2,1,0,12,2,4,2,13,2,2,1,14,2,4,5,15,2,5,2,16,2,6,7,17,2,7,4,18,2,3,6,19,2,7,8,20,2,8,5,21])
+        self.assertEqual(m1D.getNodalConnectivityIndex().getValues(),[0,4,8,12,16,20,24,28,32,36,40,44,48,52])
+        self.assertTrue(m1D.getCoords().isEqual(coordsExp,1e-14))
+        # 3D
+        m2D=MEDCouplingDataForTest.build2DTargetMesh_1()
+        m2D.changeSpaceDimension(3)
+        arr=DataArrayDouble(4);  arr.iota(0) ; z=MEDCouplingCMesh() ; z.setCoords(arr)
+        m1D=z.buildUnstructured() ; m1D.setCoords(arr.changeNbOfComponents(3,0.))
+        m1D.getCoords()[:]=m1D.getCoords()[:,[1,2,0]]
+        cooTmp=m2D.getCoords()[:]
+        m3D=m2D.buildExtrudedMesh(m1D,0)
+        m3D.convertLinearCellsToQuadratic(0)
+        m3D.checkCoherency1()
+        # check of new m3D content
+        coordsExp2=[coordsExp.changeNbOfComponents(3,i) for i in xrange(4)]
+        coordsExp3=[DataArrayDouble.Meld(cooTmp[:,[0,1]],cooTmp[:,2]+(0.5+float(i))) for i in xrange(3)]
+        coordsExp4=DataArrayDouble.Aggregate([coordsExp2[0],coordsExp3[0],coordsExp2[1],coordsExp3[1],coordsExp2[2],coordsExp3[2],coordsExp2[3]])
+        c=DataArrayDouble.Aggregate(m3D.getCoords(),coordsExp4)
+        self.assertEqual(len(coordsExp4),115)
+        self.assertEqual(len(m3D.getCoords()),115)
+        a,b=c.findCommonTuples(1e-14)
+        self.assertEqual(len(b),len(coordsExp4)+1)
+        e,f=DataArrayInt.BuildOld2NewArrayFromSurjectiveFormat2(2*115,a,b)
+        self.assertEqual(f,115)
+        self.assertTrue(e.isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,0,1,2,3,4,5,6,7,8,36,37,38,39,48,49,53,54,58,59,60,66,67,44,47,52,45,46,57,64,65,70,9,10,11,12,13,14,15,16,17,40,41,42,43,50,51,55,56,61,62,63,68,69,75,78,81,76,77,84,88,89,92,18,19,20,21,22,23,24,25,26,71,72,73,74,79,80,82,83,85,86,87,90,91,97,100,103,98,99,106,110,111,114,27,28,29,30,31,32,33,34,35,93,94,95,96,101,102,104,105,107,108,109,112,113])))
+        self.assertTrue(DataArrayInt([30,0,3,4,1,9,12,13,10,36,37,38,39,40,41,42,43,44,45,46,47,25,1,4,2,10,13,11,38,48,49,42,50,51,47,46,52,25,4,5,2,13,14,11,53,54,48,55,56,50,46,57,52,30,6,7,4,3,15,16,13,12,58,59,37,60,61,62,41,63,64,65,46,45,30,7,8,5,4,16,17,14,13,66,67,53,59,68,69,55,62,65,70,57,46,30,9,12,13,10,18,21,22,19,40,41,42,43,71,72,73,74,75,76,77,78,25,10,13,11,19,22,20,42,50,51,73,79,80,78,77,81,25,13,14,11,22,23,20,55,56,50,82,83,79,77,84,81,30,15,16,13,12,24,25,22,21,61,62,41,63,85,86,72,87,88,89,77,76,30,16,17,14,13,25,26,23,22,68,69,55,62,90,91,82,86,89,92,84,77,30,18,21,22,19,27,30,31,28,71,72,73,74,93,94,95,96,97,98,99,100,25,19,22,20,28,31,29,73,79,80,95,101,102,100,99,103,25,22,23,20,31,32,29,82,83,79,104,105,101,99,106,103,30,24,25,22,21,33,34,31,30,85,86,72,87,107,108,94,109,110,111,99,98,30,25,26,23,22,34,35,32,31,90,91,82,86,112,113,104,108,111,114,106,99]).isEqual(m3D.getNodalConnectivity()))
+        self.assertTrue(DataArrayInt([0,21,37,53,74,95,116,132,148,169,190,211,227,243,264,285]).isEqual(m3D.getNodalConnectivityIndex()))
+        # testing explode3DMeshTo1D
+        m3DSlice0=m3D[:5]
+        m3DSlice0.zipCoords()
+        a,b,c,d,e=m3DSlice0.explode3DMeshTo1D()
+        self.assertTrue(b.isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,2,12,13,6,14,15,11,10,16,17,18,12,19,20,14,10,21,16,22,23,1,24,25,26,5,27,28,29,10,9,30,31,17,23,32,33,19,26,29,34,21,10])))
+        self.assertTrue(c.isEqual(DataArrayInt([0,12,21,30,42,54])))
+        self.assertTrue(d.isEqual(DataArrayInt([0,0,3,0,1,0,0,0,3,0,1,0,0,0,3,0,1,2,3,4,0,1,1,2,1,1,2,1,1,2,2,4,2,2,4,2,2,4,3,3,4,3,3,3,4,3,3,3,4,4,4,4,4,4])))
+        self.assertTrue(e.isEqual(DataArrayInt([0,1,3,5,6,7,9,11,12,13,15,20,22,24,25,27,28,30,32,33,35,36,38,39,41,42,43,45,46,47,49,50,51,52,53,54])))
+        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([2,0,3,18,2,3,4,19,2,4,1,20,2,1,0,21,2,9,12,22,2,12,13,23,2,13,10,24,2,10,9,25,2,0,9,26,2,3,12,27,2,4,13,28,2,1,10,29,2,4,2,30,2,2,1,31,2,13,11,32,2,11,10,33,2,2,11,34,2,4,5,35,2,5,2,36,2,13,14,37,2,14,11,38,2,5,14,39,2,6,7,40,2,7,4,41,2,3,6,42,2,15,16,43,2,16,13,44,2,12,15,45,2,6,15,46,2,7,16,47,2,7,8,48,2,8,5,49,2,16,17,50,2,17,14,51,2,8,17,52])))
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128,132,136,140])))
+        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([-0.3,-0.3,0.0,0.2,-0.3,0.0,0.7,-0.3,0.0,-0.3,0.2,0.0,0.2,0.2,0.0,0.7,0.2,0.0,-0.3,0.7,0.0,0.2,0.7,0.0,0.7,0.7,0.0,-0.3,-0.3,1.0,0.2,-0.3,1.0,0.7,-0.3,1.0,-0.3,0.2,1.0,0.2,0.2,1.0,0.7,0.2,1.0,-0.3,0.7,1.0,0.2,0.7,1.0,0.7,0.7,1.0,-0.3,-0.05,0.0,-0.05,0.2,0.0,0.2,-0.05,0.0,-0.05,-0.3,0.0,-0.3,-0.05,1.0,-0.05,0.2,1.0,0.2,-0.05,1.0,-0.05,-0.3,1.0,-0.3,-0.3,0.5,-0.3,0.2,0.5,0.2,0.2,0.5,0.2,-0.3,0.5,0.45,-0.05,0.0,0.45,-0.3,0.0,0.45,-0.05,1.0,0.45,-0.3,1.0,0.7,-0.3,0.5,0.45,0.2,0.0,0.7,-0.05,0.0,0.45,0.2,1.0,0.7,-0.05,1.0,0.7,0.2,0.5,-0.05,0.7,0.0,0.2,0.45,0.0,-0.3,0.45,0.0,-0.05,0.7,1.0,0.2,0.45,1.0,-0.3,0.45,1.0,-0.3,0.7,0.5,0.2,0.7,0.5,0.45,0.7,0.0,0.7,0.45,0.0,0.45,0.7,1.0,0.7,0.45,1.0,0.7,0.7,0.5],53,3),1e-14))
+        pass
+
     def setUp(self):
         pass
     pass

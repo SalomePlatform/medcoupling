@@ -17,5 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(unix)
-ADD_SUBDIRECTORY(cmake_files)
+ADD_SUBDIRECTORY(config_files)

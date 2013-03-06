@@ -116,6 +116,7 @@ namespace ParaMEDMEM
     MEDCOUPLING_EXPORT bool areCellsIncludedIn(const MEDCouplingUMesh *other, int compType, DataArrayInt *& arr) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT bool areCellsIncludedIn2(const MEDCouplingUMesh *other, DataArrayInt *& arr) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void getReverseNodalConnectivity(DataArrayInt *revNodal, DataArrayInt *revNodalIndx) const throw(INTERP_KERNEL::Exception);
+    MEDCOUPLING_EXPORT MEDCouplingUMesh *explode3DMeshTo1D(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildDescendingConnectivity2(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx) const throw(INTERP_KERNEL::Exception);
     MEDCOUPLING_EXPORT void computeNeighborsOfCells(DataArrayInt *&neighbors, DataArrayInt *&neighborsIdx) const throw(INTERP_KERNEL::Exception);
@@ -272,13 +273,16 @@ namespace ParaMEDMEM
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const int *begin, const int *end) const;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords2(int start, int end, int step) const;
     DataArrayInt *convertLinearCellsToQuadratic1D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertLinearCellsToQuadratic2DAnd3D0(const MEDCouplingUMesh *m1D, const DataArrayInt *desc, const DataArrayInt *descI, DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *convertLinearCellsToQuadratic2D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
+    DataArrayInt *convertLinearCellsToQuadratic3D0(DataArrayInt *&conn, DataArrayInt *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const throw(INTERP_KERNEL::Exception);
     template<int SPACEDIM>
     void getCellsContainingPointsAlg(const double *coords, const double *pos, int nbOfPoints,
                                      double eps, std::vector<int>& elts, std::vector<int>& eltsIndex) const;
 /// @cond INTERNAL
     static MEDCouplingUMesh *MergeUMeshesLL(std::vector<const MEDCouplingUMesh *>& a) throw(INTERP_KERNEL::Exception);
     typedef int (*DimM1DescNbrer)(int id, unsigned nb, const INTERP_KERNEL::CellModel& cm, bool compute, const int *conn1, const int *conn2);
+    template<class SonsGenerator>
     MEDCouplingUMesh *buildDescendingConnectivityGen(DataArrayInt *desc, DataArrayInt *descIndx, DataArrayInt *revDesc, DataArrayInt *revDescIndx, DimM1DescNbrer nbrer) const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf2DMesh() const throw(INTERP_KERNEL::Exception);
     DataArrayInt *buildUnionOf3DMesh() const throw(INTERP_KERNEL::Exception);
