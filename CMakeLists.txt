@@ -36,9 +36,11 @@ IF(KERNEL_ROOT_DIR)
   FILE(TO_CMAKE_PATH $ENV{KERNEL_ROOT_DIR} KERNEL_ROOT_DIR)
   SET(MED_ENABLE_KERNEL ON)
   
+  # directories for packages detection
   SET(SALOME_MACROS_DIR ${KERNEL_ROOT_DIR}/salome_adm/cmake_files)
-  
-  INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindPLATFORM.cmake)
+  SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${SALOME_MACROS_DIR})
+
+  find_package(PLATFORM)
   INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindPYTHON.cmake)
   if(SALOME_USE_MPI)
     INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/FindMPI.cmake)
